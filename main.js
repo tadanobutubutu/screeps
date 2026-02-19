@@ -1,53 +1,93 @@
-module.exports.loop = function () {
+// main.js - Screeps メインループ
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
 
-  // 死んだCreepのメモリを掃除
-  for (let name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-    }
-  }
-
-  // Spawner（スポーン装置）を取得
-  const spawn = Game.spawns['Spawn1'];
-
-  // Creepが5体未満なら新しいCreepをスポーン
-  const creepCount = Object.keys(Game.creeps).length;
-  if (creepCount < 5) {
-    spawn.spawnCreep(
-      [WORK, CARRY, MOVE],
-      'Worker' + Game.time,
-      { memory: { role: 'harvester' } }
-    );
-  }
-
-  // すべてのCreepにロールに応じた行動をさせる
-  for (let name in Game.creeps) {
-    const creep = Game.creeps[name];
-
-    if (creep.memory.role === 'harvester') {
-      // エネルギーが満タンなら拠点に運ぶ
-      if (creep.store.getFreeCapacity() === 0) {
-        const targets = creep.room.find(FIND_STRUCTURES, {
-          filter: (s) =>
-            (s.structureType === STRUCTURE_SPAWN ||
-              s.structureType === STRUCTURE_EXTENSION ||
-              s.structureType === STRUCTURE_TOWER) &&
-            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        });
-        if (targets.length > 0) {
-          if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
-          }
+module.exports.loop = function() {
+    // 死んだcreepのメモリを削除
+    for (let name in Memory.creeps) {
+        if (!Game.creeps[name]) {
+            delete Memory.creeps[name];
+            console.log('Clearing non-existing creep memory:', name);
         }
-      } else {
-        // エネルギーを採掘する
-        const sources = creep.room.find(FIND_SOURCES_ACTIVE);
-        if (sources.length > 0) {
-          if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-          }
-        }
-      }
     }
-  }
+
+    // 各スポーンでcreepを生成
+    for (let spawnName in Game.spawns) {
+        const spawn = Game.spawns[spawnName];
+        const creeps = Object.values(Game.creeps);
+
+        const harvesters = creeps.filter(c => c.memory.role === 'harvester');
+        const upgraders  = creeps.filter(c => c.memory.role === 'upgrader');
+        const builders   = creeps.filter(c => c.memory.role === 'builder');
+        const repairers  = creeps.filter(c => c.memory.role === 'repairer');
+
+        const energyCapacity = spawn.room.energyCapacityAvailable;
+        const energyAvailable = spawn.room.energyAvailable;
+
+        // creepのボディを取得
+        function getBody(capacity) {
+            if (capacity >= 800) return [WORK, WORK, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE];
+            if (capacity >= 550) return [WORK, WORK, CARRY, CARRY, MOVE, MOVE];
+            if (capacity >= 400) return [WORK, WORK, CARRY, MOVE];
+            return [WORK, CARRY, MOVE];
+        }
+
+        // harvesterを最低4体維持
+        if (harvesters.length < 4) {
+            const body = getBody(energyCapacity);
+            const cost = _.sum(body, p => BODYPART_COST[p]);
+            if (energyAvailable >= cost && !spawn.spawning) {
+                spawn.spawnCreep(body, 'Harvester' + Game.time,
+                    { memory: { role: 'harvester' } });
+            }
+        }
+        // upgraderを2体維持
+        else if (upgraders.length < 2) {
+            const body = getBody(energyCapacity);
+            const cost = _.sum(body, p => BODYPART_COST[p]);
+            if (energyAvailable >= cost && !spawn.spawning) {
+                spawn.spawnCreep(body, 'Upgrader' + Game.time,
+                    { memory: { role: 'upgrader' } });
+            }
+        }
+        // builderを2体維持
+        else if (builders.length < 2) {
+            const body = getBody(energyCapacity);
+            const cost = _.sum(body, p => BODYPART_COST[p]);
+            if (energyAvailable >= cost && !spawn.spawning) {
+                spawn.spawnCreep(body, 'Builder' + Game.time,
+                    { memory: { role: 'builder' } });
+            }
+        }
+        // repairerを1体維持
+        else if (repairers.length < 1) {
+            const body = getBody(energyCapacity);
+            const cost = _.sum(body, p => BODYPART_COST[p]);
+            if (energyAvailable >= cost && !spawn.spawning) {
+                spawn.spawnCreep(body, 'Repairer' + Game.time,
+                    { memory: { role: 'repairer' } });
+            }
+        }
+
+        // スポーン中の表示
+        if (spawn.spawning) {
+            const spawningCreep = Game.creeps[spawn.spawning.name];
+            spawn.room.visual.text(
+                'Spawning: ' + spawningCreep.memory.role,
+                spawn.pos.x + 1, spawn.pos.y,
+                { align: 'left', opacity: 0.8 }
+            );
+        }
+    }
+
+    // 全creepにロールを実行
+    for (let name in Game.creeps) {
+        const creep = Game.creeps[name];
+        if      (creep.memory.role === 'harvester') roleHarvester.run(creep);
+        else if (creep.memory.role === 'upgrader')  roleUpgrader.run(creep);
+        else if (creep.memory.role === 'builder')   roleBuilder.run(creep);
+        else if (creep.memory.role === 'repairer')  roleRepairer.run(creep);
+    }
 };

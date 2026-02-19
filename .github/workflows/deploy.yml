@@ -8,15 +8,21 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Deploy to Screeps
+    name: Deploy to Screeps PTR
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install screeps-api
+        run: npm install screeps-api
+
       - name: Deploy to Screeps PTR
-        uses: aphistic/screeps-deployer@master
+        run: node deploy.js
         env:
           SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
-          SCREEPS_HOST: screeps.com/ptr
-          SCREEPS_BRANCH: default

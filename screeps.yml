@@ -1,0 +1,13 @@
+# Screeps Deployer マニフェスト
+# GitHubにmainブランチにプッシュすると自動でScreeps PTRにデプロイされる
+modules:
+  - name: main
+    file: main.js
+  - name: role.harvester
+    file: role.harvester.js
+  - name: role.upgrader
+    file: role.upgrader.js
+  - name: role.builder
+    file: role.builder.js
+  - name: role.repairer
+    file: role.repairer.js

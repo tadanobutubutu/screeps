@@ -19,10 +19,36 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install screeps-api
-        run: npm install screeps-api
-
       - name: Deploy to Screeps PTR
-        run: node deploy.js
         env:
           SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
+        run: |
+          node - <<'EOF'
+          const https = require('https');
+          const fs = require('fs');
+          const token = process.env.SCREEPS_TOKEN;
+          const modules = {
+            'main': fs.readFileSync('main.js','utf8'),
+            'role.harvester': fs.readFileSync('role.harvester.js','utf8'),
+            'role.upgrader': fs.readFileSync('role.upgrader.js','utf8'),
+            'role.builder': fs.readFileSync('role.builder.js','utf8'),
+            'role.repairer': fs.readFileSync('role.repairer.js','utf8')
+          };
+          const body = JSON.stringify({branch:'default', modules});
+          const req = https.request({
+            hostname:'screeps.com', port:443,
+            path:'/ptr/api/user/code', method:'POST',
+            headers:{'Content-Type':'application/json; charset=utf-8','Content-Length':Buffer.byteLength(body),'X-Token':token}
+          }, res => {
+            let d='';
+            res.on('data',c=>d+=c);
+            res.on('end',()=>{
+              console.log('Status:',res.statusCode,'Response:',d);
+              if(res.statusCode!==200){console.error('Failed!');process.exit(1);}
+              else console.log('Deployed successfully!');
+            });
+          });
+          req.on('error',e=>{console.error(e);process.exit(1);});
+          req.write(body);
+          req.end();
+          EOF

@@ -1,0 +1,119 @@
+name: Auto Improve Screeps Code
+
+on:
+  schedule:
+    # 毎日18:30 JST (= 09:30 UTC)
+    - cron: '30 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  auto-improve:
+    runs-on: ubuntu-latest
+    name: Generate improved code with Gemini and deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Generate improved code with Gemini API
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node -e "
+          const https = require('https');
+          const fs = require('fs');
+
+          const currentMain = fs.readFileSync('main.js', 'utf8');
+          const currentHarvester = fs.readFileSync('role.harvester.js', 'utf8');
+          const currentUpgrader = fs.readFileSync('role.upgrader.js', 'utf8');
+          const currentBuilder = fs.readFileSync('role.builder.js', 'utf8');
+          const currentRepairer = fs.readFileSync('role.repairer.js', 'utf8');
+
+          const prompt = \`You are an expert Screeps JavaScript AI developer. Improve the following Screeps bot code to make it more efficient and smarter. Apply one meaningful improvement (e.g. better energy management, smarter creep logic, better role balance, defense logic, or road building). Keep all existing functionality. Return ONLY valid JSON with this exact structure, no markdown, no explanation:
+          {
+            \"main\": \"<full main.js content>\",
+            \"harvester\": \"<full role.harvester.js content>\",
+            \"upgrader\": \"<full role.upgrader.js content>\",
+            \"builder\": \"<full role.builder.js content>\",
+            \"repairer\": \"<full role.repairer.js content>\"
+          }
+
+          Current main.js:
+          \${currentMain}
+
+          Current role.harvester.js:
+          \${currentHarvester}
+
+          Current role.upgrader.js:
+          \${currentUpgrader}
+
+          Current role.builder.js:
+          \${currentBuilder}
+
+          Current role.repairer.js:
+          \${currentRepairer}
+          \`;
+
+          const body = JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.3, maxOutputTokens: 8192 }
+          });
+
+          const options = {
+            hostname: 'generativelanguage.googleapis.com',
+            path: '/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(body)
+            }
+          };
+
+          const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+              try {
+                const response = JSON.parse(data);
+                const text = response.candidates[0].content.parts[0].text;
+                const cleaned = text.replace(/\`\`\`json\n?/g, '').replace(/\`\`\`\n?/g, '').trim();
+                const improved = JSON.parse(cleaned);
+                fs.writeFileSync('main.js', improved.main);
+                fs.writeFileSync('role.harvester.js', improved.harvester);
+                fs.writeFileSync('role.upgrader.js', improved.upgrader);
+                fs.writeFileSync('role.builder.js', improved.builder);
+                fs.writeFileSync('role.repairer.js', improved.repairer);
+                console.log('Code improved successfully!');
+              } catch(e) {
+                console.error('Failed to parse response:', e.message);
+                console.error('Raw response:', data.substring(0, 500));
+                process.exit(1);
+              }
+            });
+          });
+          req.on('error', e => { console.error(e); process.exit(1); });
+          req.write(body);
+          req.end();
+          "
+
+      - name: Commit improved code
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add main.js role.harvester.js role.upgrader.js role.builder.js role.repairer.js
+          git diff --staged --quiet || git commit -m "Auto-improve: daily Gemini code optimization $(date +'%Y-%m-%d')"
+          git push
+
+      - name: Deploy to Screeps
+        env:
+          SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
+          SCREEPS_PROD_TOKEN: ${{ secrets.SCREEPS_PROD_TOKEN }}
+        run: node deploy.js

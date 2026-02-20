@@ -1,4 +1,4 @@
-// テストデプロイ: CodeSandbox -> GitHub -> Screeps PTR
+// [v2] creepサマリーログ追加: CodeSandbox -> GitHub -> Screeps PTR
 // main.js - Screeps メインループ
 const roleHarvester = require("role.harvester");
 const roleUpgrader = require("role.upgrader");
@@ -96,5 +96,19 @@ module.exports.loop = function () {
     else if (creep.memory.role === "upgrader") roleUpgrader.run(creep);
     else if (creep.memory.role === "builder") roleBuilder.run(creep);
     else if (creep.memory.role === "repairer") roleRepairer.run(creep);
+  }
+
+  // [v2] 10tickごとにcreepサマリーをコンソール出力
+  if (Game.time % 10 === 0) {
+    const allCreeps = Object.values(Game.creeps);
+    const summary = {
+      harvester: allCreeps.filter((c) => c.memory.role === "harvester").length,
+      upgrader: allCreeps.filter((c) => c.memory.role === "upgrader").length,
+      builder: allCreeps.filter((c) => c.memory.role === "builder").length,
+      repairer: allCreeps.filter((c) => c.memory.role === "repairer").length,
+    };
+    console.log(
+      `[Tick ${Game.time}] creeps: ${allCreeps.length} total | H:${summary.harvester} U:${summary.upgrader} B:${summary.builder} R:${summary.repairer}`
+    );
   }
 };

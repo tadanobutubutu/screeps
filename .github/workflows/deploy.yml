@@ -1,4 +1,6 @@
 name: Deploy to Screeps PTR
+permissions:
+  contents: read
 
 on:
   push:

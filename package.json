@@ -1,0 +1,13 @@
+{
+  "name": "screeps-bot",
+  "version": "1.0.0",
+  "description": "Screeps AI bot - auto-deploys to PTR via GitHub Actions",
+  "main": "main.js",
+  "scripts": {
+    "deploy": "node deploy.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

@@ -1,0 +1,269 @@
+name: 🔒 Security Monitor
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Daily at 3 AM JST (6 PM UTC previous day)
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  issues: write
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Comprehensive Security Scan
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for better analysis
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      # 1. Dependency Security Check
+      - name: 📦 Check Dependencies for Vulnerabilities
+        run: |
+          echo "🔍 Scanning dependencies..."
+          if [ -f "package.json" ]; then
+            npm audit --json > audit-report.json || true
+            
+            # Parse and display results
+            if [ -s audit-report.json ]; then
+              echo "📊 Audit Report:"
+              cat audit-report.json | node -e "
+                const fs = require('fs');
+                const data = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
+                
+                if (data.metadata) {
+                  const meta = data.metadata;
+                  console.log('Total Vulnerabilities:', meta.vulnerabilities?.total || 0);
+                  console.log('  - Critical:', meta.vulnerabilities?.critical || 0);
+                  console.log('  - High:', meta.vulnerabilities?.high || 0);
+                  console.log('  - Moderate:', meta.vulnerabilities?.moderate || 0);
+                  console.log('  - Low:', meta.vulnerabilities?.low || 0);
+                  
+                  if (meta.vulnerabilities?.critical > 0 || meta.vulnerabilities?.high > 0) {
+                    console.log('\n⚠️  Critical or High vulnerabilities found!');
+                    process.exit(0); // Don't fail the build, just warn
+                  }
+                }
+              "
+            fi
+          else
+            echo "ℹ️  No package.json found"
+          fi
+      
+      # 2. Secret Scanning
+      - name: 🔑 Scan for Exposed Secrets
+        run: |
+          echo "🔍 Scanning for secrets..."
+          
+          # Pattern matching for common secrets
+          FOUND_SECRETS=0
+          
+          # API Keys
+          if grep -r -E "(api[_-]?key|apikey)\s*[:=]\s*['\"][a-zA-Z0-9]{20,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.yml" --exclude="*.yaml" --exclude="*.json" 2>/dev/null; then
+            echo "⚠️  Potential API key found!"
+            FOUND_SECRETS=$((FOUND_SECRETS + 1))
+          fi
+          
+          # Passwords in code
+          if grep -r -E "(password|passwd|pwd)\s*[:=]\s*['\"][^'\"]{3,}['\"]" . --exclude-dir=.git --exclude-dir=node_modules --exclude="*.yml" --exclude="*.yaml" --exclude="*.md" 2>/dev/null | grep -v "example" | grep -v "test"; then
+            echo "⚠️  Potential hardcoded password found!"
+            FOUND_SECRETS=$((FOUND_SECRETS + 1))
+          fi
+          
+          # Private keys
+          if grep -r "BEGIN.*PRIVATE KEY" . --exclude-dir=.git --exclude-dir=node_modules 2>/dev/null; then
+            echo "⚠️  Private key found in repository!"
+            FOUND_SECRETS=$((FOUND_SECRETS + 1))
+          fi
+          
+          # AWS Keys
+          if grep -r -E "(AKIA[0-9A-Z]{16})" . --exclude-dir=.git --exclude-dir=node_modules 2>/dev/null; then
+            echo "⚠️  Potential AWS access key found!"
+            FOUND_SECRETS=$((FOUND_SECRETS + 1))
+          fi
+          
+          # GitHub Tokens
+          if grep -r -E "(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|ghu_[a-zA-Z0-9]{36})" . --exclude-dir=.git --exclude-dir=node_modules 2>/dev/null; then
+            echo "⚠️  Potential GitHub token found!"
+            FOUND_SECRETS=$((FOUND_SECRETS + 1))
+          fi
+          
+          if [ $FOUND_SECRETS -eq 0 ]; then
+            echo "✅ No secrets detected"
+          else
+            echo "⚠️  $FOUND_SECRETS potential secret(s) found - please review!"
+          fi
+      
+      # 3. Code Security Analysis
+      - name: 🛡️ Static Code Security Analysis
+        run: |
+          echo "🔍 Analyzing code for security issues..."
+          
+          # Dangerous patterns
+          echo "\n📋 Checking for dangerous patterns..."
+          
+          # eval() usage
+          if grep -r "eval(" . --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+            echo "⚠️  Warning: eval() usage detected - potential security risk"
+          fi
+          
+          # innerHTML usage
+          if grep -r "\.innerHTML" . --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+            echo "ℹ️  Note: innerHTML usage detected - ensure input is sanitized"
+          fi
+          
+          # require() with user input
+          if grep -r "require(.*(Memory|Game)" . --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | grep -v "//"; then
+            echo "⚠️  Warning: Dynamic require() detected - validate input"
+          fi
+          
+          # Unsafe file operations (if any)
+          if grep -r "fs\.write.*Memory" . --include="*.js" --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null; then
+            echo "⚠️  Warning: File write with Memory data - ensure sanitization"
+          fi
+          
+          echo "✅ Static analysis complete"
+      
+      # 4. Workflow Security Check
+      - name: 🔐 Workflow Security Analysis
+        run: |
+          echo "🔍 Analyzing GitHub Actions workflows..."
+          
+          ISSUES=0
+          
+          # Check for hardcoded secrets
+          if grep -r -E "(token|key|secret|password)\s*:\s*['\"][a-zA-Z0-9]+['\"]" .github/workflows/ 2>/dev/null; then
+            echo "⚠️  Potential hardcoded secret in workflow"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check for insecure actions versions
+          if grep -r "@master" .github/workflows/ 2>/dev/null | grep "uses:"; then
+            echo "⚠️  Warning: Action using @master instead of pinned version"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          # Check for pull_request_target without explicit checkout
+          if grep -r "pull_request_target:" .github/workflows/ 2>/dev/null; then
+            echo "ℹ️  Note: pull_request_target detected - ensure proper security measures"
+          fi
+          
+          # Check for overly permissive permissions
+          if grep -r "permissions:" .github/workflows/ -A 5 2>/dev/null | grep -q "write-all"; then
+            echo "⚠️  Warning: write-all permission detected - consider least privilege"
+            ISSUES=$((ISSUES + 1))
+          fi
+          
+          if [ $ISSUES -eq 0 ]; then
+            echo "✅ Workflows appear secure"
+          else
+            echo "⚠️  $ISSUES potential workflow security issue(s) found"
+          fi
+      
+      # 5. Generate Security Report
+      - name: 📊 Generate Security Report
+        run: |
+          cat > SECURITY_REPORT.md << 'EOF'
+          # 🔒 Security Scan Report
+          
+          **Generated**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          **Repository**: tadanobutubutu/screeps
+          **Branch**: ${{ github.ref_name }}
+          
+          ---
+          
+          ## 📋 Scan Summary
+          
+          This automated security scan checks for:
+          
+          - 📦 **Dependency Vulnerabilities** - Known CVEs in dependencies
+          - 🔑 **Secret Exposure** - Hardcoded credentials and keys
+          - 🛡️ **Code Security** - Dangerous patterns (eval, innerHTML, etc.)
+          - 🔐 **Workflow Security** - GitHub Actions best practices
+          
+          ## ✅ Security Checks Performed
+          
+          1. ✓ Dependency audit completed
+          2. ✓ Secret scanning completed
+          3. ✓ Static code analysis completed
+          4. ✓ Workflow security analysis completed
+          
+          ## 🎯 Recommendations
+          
+          - Keep dependencies up to date
+          - Never commit secrets or credentials
+          - Use GitHub Secrets for sensitive data
+          - Pin action versions for reproducibility
+          - Follow principle of least privilege
+          
+          ## 📚 Additional Resources
+          
+          - [GitHub Security Best Practices](https://docs.github.com/en/code-security)
+          - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
+          - Repository [SECURITY.md](./SECURITY.md)
+          
+          ---
+          
+          *This report is automatically generated. For security concerns, see SECURITY.md*
+          EOF
+          
+          echo "✅ Security report generated"
+      
+      # 6. Upload Security Report as Artifact
+      - name: 📤 Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ github.run_number }}
+          path: SECURITY_REPORT.md
+          retention-days: 90
+      
+      # 7. Create Security Badge
+      - name: 🏅 Update Security Status
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p .github/badges
+          
+          # Simple security badge
+          cat > .github/badges/security-status.json << 'EOF'
+          {
+            "schemaVersion": 1,
+            "label": "security",
+            "message": "monitored",
+            "color": "green",
+            "namedLogo": "security"
+          }
+          EOF
+          
+          echo "✅ Security badge updated"
+      
+      - name: 📝 Commit Security Report (if on main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name 'Security Bot'
+          git config user.email 'security@screeps.local'
+          git add SECURITY_REPORT.md .github/badges/ || true
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "🔒 Security scan report: $(date '+%Y-%m-%d')
+            
+            Automated security monitoring scan completed"
+            git push || echo "Nothing to push"
+          else
+            echo "No changes to commit"
+          fi

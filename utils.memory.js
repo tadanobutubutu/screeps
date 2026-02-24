@@ -2,6 +2,15 @@
 // Inspired by best practices from daily update 2026-02-20
 
 module.exports = {
+  // Clean up memory of dead creeps
+  cleanMemory: function() {
+    for (const name in Memory.creeps) {
+      if (!Game.creeps[name]) {
+        delete Memory.creeps[name];
+      }
+    }
+  },
+  
   // Safe memory access with default values
   getRoomMemory: function(roomName, key, defaultValue) {
     if (!Memory.rooms[roomName]) {

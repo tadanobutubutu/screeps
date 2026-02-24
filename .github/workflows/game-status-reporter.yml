@@ -1,215 +1,33 @@
-name: 📊 Game Status Reporter
+name: 📊 Game Status (Legacy - Disabled)
+
+# This workflow is disabled in favor of GitHub Sync mode
+# See game-monitor-15min.yml for current status monitoring
 
 on:
-  schedule:
-    # Every hour
-    - cron: '0 * * * *'
-  workflow_dispatch:
+  workflow_dispatch:  # Manual only
 
 permissions:
   contents: write
 
 jobs:
-  report-game-status:
+  legacy-notice:
     runs-on: ubuntu-latest
-    name: Fetch and Report Game Status
+    name: Legacy API Mode (Disabled)
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Fetch game status from Screeps API
-        env:
-          SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
+      - name: Notice
         run: |
-          node -e "
-          const https = require('https');
-          const fs = require('fs');
-          
-          const token = process.env.SCREEPS_TOKEN;
-          if (!token) {
-            console.log('⚠️ SCREEPS_TOKEN not set, skipping...');
-            process.exit(0);
-          }
-          
-          function apiCall(path) {
-            return new Promise((resolve, reject) => {
-              const options = {
-                hostname: 'screeps.com',
-                port: 443,
-                path: path,
-                method: 'GET',
-                headers: { 'X-Token': token }
-              };
-              
-              const req = https.request(options, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => {
-                  try {
-                    resolve(JSON.parse(data));
-                  } catch(e) {
-                    reject(e);
-                  }
-                });
-              });
-              req.on('error', reject);
-              req.setTimeout(10000, () => {
-                req.destroy();
-                reject(new Error('Timeout'));
-              });
-              req.end();
-            });
-          }
-          
-          (async () => {
-            try {
-              console.log('🔍 Fetching game data...');
-              
-              // ユーザー情報
-              const user = await apiCall('/api/auth/me');
-              console.log('✅ User data fetched');
-              
-              // 所有している部屋のリスト
-              const rooms = await apiCall('/api/user/rooms');
-              console.log('✅ Room data fetched');
-              
-              // メモリ情報
-              const memory = await apiCall('/api/user/memory');
-              console.log('✅ Memory data fetched');
-              
-              // 現在時刻
-              const now = new Date();
-              const timestamp = now.toISOString();
-              const dateStr = now.toISOString().split('T')[0];
-              const timeStr = now.toTimeString().split(' ')[0];
-              
-              // レポート作成
-              let report = \`# 🎮 Screeps Game Status Report\n\n\`;
-              report += \`**更新日時**: \${timestamp} (JST: \${new Date(now.getTime() + 9*60*60*1000).toISOString().replace('T', ' ').slice(0, 19)})\n\n\`;
-              report += \`---\n\n\`;
-              
-              // ユーザー情報
-              report += \`## 👤 プレイヤー情報\n\n\`;
-              report += \`- **ユーザー名**: \${user.username || 'N/A'}\n\`;
-              report += \`- **GCL**: \${user.gcl ? Math.floor(user.gcl) : 'N/A'}\n\`;
-              report += \`- **CPU制限**: \${user.cpu || 'N/A'}\n\`;
-              report += \`- **Credits**: \${user.money || 0}\n\n\`;
-              
-              // 部屋情報
-              if (rooms && rooms.rooms && rooms.rooms.length > 0) {
-                report += \`## 🏰 所有部屋 (\${rooms.rooms.length}部屋)\n\n\`;
-                
-                rooms.rooms.forEach(room => {
-                  report += \`### 部屋: \${room.name || room}\n\n\`;
-                  if (typeof room === 'object') {
-                    report += \`- **RCL**: \${room.level || 'N/A'}\n\`;
-                    report += \`- **エネルギー**: \${room.energyAvailable || 0} / \${room.energyCapacityAvailable || 0}\n\`;
-                  }
-                  report += \`\n\`;
-                });
-              } else {
-                report += \`## 🏰 所有部屋\n\n\`;
-                report += \`*まだ部屋を所有していません*\n\n\`;
-              }
-              
-              // メモリ統計
-              if (memory && memory.data) {
-                report += \`## 💾 メモリ統計\n\n\`;
-                const memStr = JSON.stringify(memory.data);
-                const memSize = memStr.length;
-                const memLimit = 2048 * 1024;
-                const memPercent = ((memSize / memLimit) * 100).toFixed(2);
-                
-                report += \`- **使用量**: \${(memSize / 1024).toFixed(2)} KB / \${(memLimit / 1024).toFixed(2)} KB (\${memPercent}%)\n\`;
-                
-                // クリープ数
-                if (memory.data.creeps) {
-                  const creepCount = Object.keys(memory.data.creeps).length;
-                  report += \`- **クリープ数**: \${creepCount}\n\`;
-                  
-                  // ロール別集計
-                  const roleCount = {};
-                  Object.values(memory.data.creeps).forEach(creep => {
-                    const role = creep.role || 'unknown';
-                    roleCount[role] = (roleCount[role] || 0) + 1;
-                  });
-                  
-                  if (Object.keys(roleCount).length > 0) {
-                    report += \`\n**ロール別内訳**:\n\`;
-                    Object.entries(roleCount).sort((a, b) => b[1] - a[1]).forEach(([role, count]) => {
-                      report += \`  - \${role}: \${count}\n\`;
-                    });
-                  }
-                }
-                
-                report += \`\n\`;
-              }
-              
-              // フッター
-              report += \`---\n\n\`;
-              report += \`*このレポートは自動生成されています（毎時更新）*\n\`;
-              report += \`*最終更新: \${timestamp}*\n\`;
-              
-              // ファイルに保存
-              fs.writeFileSync('GAME_STATUS.md', report);
-              console.log('✅ Report saved to GAME_STATUS.md');
-              
-              // 履歴ファイルも作成（日付ごと）
-              const historyDir = 'game-history';
-              if (!fs.existsSync(historyDir)) {
-                fs.mkdirSync(historyDir);
-              }
-              
-              const historyFile = \`\${historyDir}/\${dateStr}.md\`;
-              let historyContent = '';
-              
-              if (fs.existsSync(historyFile)) {
-                historyContent = fs.readFileSync(historyFile, 'utf8');
-              } else {
-                historyContent = \`# 📅 \${dateStr} のゲーム履歴\n\n\`;
-              }
-              
-              historyContent += \`\n## ⏰ \${timeStr}\n\n\`;
-              historyContent += \`- GCL: \${user.gcl ? Math.floor(user.gcl) : 'N/A'}\n\`;
-              historyContent += \`- CPU: \${user.cpu || 'N/A'}\n\`;
-              historyContent += \`- 部屋数: \${rooms.rooms ? rooms.rooms.length : 0}\n\`;
-              if (memory && memory.data && memory.data.creeps) {
-                historyContent += \`- クリープ数: \${Object.keys(memory.data.creeps).length}\n\`;
-              }
-              historyContent += \`\n\`;
-              
-              fs.writeFileSync(historyFile, historyContent);
-              console.log(\`✅ History saved to \${historyFile}\`);
-              
-            } catch(e) {
-              console.error('❌ Error fetching game data:', e.message);
-              
-              // エラーでも最低限のレポートを作成
-              const errorReport = \`# 🎮 Screeps Game Status Report\n\n**Status**: ⚠️ データ取得エラー\n\n**エラー**: \${e.message}\n\n*購入前、またはトークンが無効な可能性があります*\n\`;
-              fs.writeFileSync('GAME_STATUS.md', errorReport);
-              process.exit(0); // エラーでも成功扱いにしてワークフローを継続
-            }
-          })();
-          "
-      
-      - name: Commit game status
-        run: |
-          git config user.name 'Game Status Bot'
-          git config user.email 'status@screeps.local'
-          git add GAME_STATUS.md game-history/
-          
-          if ! git diff --staged --quiet; then
-            TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-            git commit -m "📊 Game status update: ${TIMESTAMP}
-            
-            Automated hourly game status report"
-            git push
-          else
-            echo "No changes in game status"
-          fi
+          echo "ℹ️ This workflow is disabled"
+          echo "✅ Using GitHub Sync mode instead (API-free)"
+          echo "🔗 Screeps syncs directly from this repository"
+          echo ""
+          echo "Benefits of GitHub Sync:"
+          echo "  - No API tokens needed"
+          echo "  - Instant deployment"
+          echo "  - Simpler setup"
+          echo "  - Zero API rate limits"
+          echo ""
+          echo "To check game status:"
+          echo "  1. Use Screeps in-game console"
+          echo "  2. Check Memory.logs for errors"
+          echo "  3. Auto-fix system monitors errors"

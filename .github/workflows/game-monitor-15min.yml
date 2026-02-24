@@ -1,4 +1,4 @@
-name: ⏱️ Game Monitor (GitHub Sync)
+name: ⏱️ Game Monitor (Hybrid Mode)
 
 on:
   schedule:
@@ -10,129 +10,230 @@ permissions:
   issues: write
 
 jobs:
-  monitor-via-sync:
+  monitor-hybrid:
     runs-on: ubuntu-latest
-    name: Monitor via GitHub Sync (No API)
+    name: Monitor Game (Hybrid Mode)
     
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Check if using GitHub Sync
-        id: check
-        run: |
-          echo "📡 GitHub Sync Mode Enabled"
-          echo "ℹ️  Game auto-syncs from this repository"
-          echo "ℹ️  No API calls needed - fully integrated!"
-          
-          # Check if we have any error reports from game
-          if [ -f "DETECTED_ERRORS.json" ]; then
-            echo "has_errors=true" >> $GITHUB_OUTPUT
-            echo "⚠️ Error report found from previous run"
-          else
-            echo "has_errors=false" >> $GITHUB_OUTPUT
-            echo "✅ No errors detected"
-          fi
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       
-      - name: Update Status (Sync Mode)
+      - name: Fetch Console Logs & Stats
+        id: fetch
+        env:
+          SCREEPS_TOKEN: ${{ secrets.SCREEPS_PROD_TOKEN || secrets.SCREEPS_TOKEN }}
         run: |
-          cat > GAME_STATUS.md << 'EOF'
-          # 🎮 Game Status (GitHub Sync Mode)
+          node << 'EOF'
+          const https = require('https');
+          const fs = require('fs');
           
-          **Updated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-          **Mode**: GitHub Sync (API-free) ✅
+          const token = process.env.SCREEPS_TOKEN;
+          
+          const api = (path) => new Promise((ok, fail) => {
+            if (!token) {
+              fail(new Error('No API token'));
+              return;
+            }
+            
+            const req = https.request({
+              hostname: 'screeps.com',
+              port: 443,
+              path: path,
+              method: 'GET',
+              headers: { 'X-Token': token }
+            }, res => {
+              let data = '';
+              res.on('data', d => data += d);
+              res.on('end', () => {
+                try {
+                  ok(JSON.parse(data));
+                } catch(e) {
+                  fail(e);
+                }
+              });
+            });
+            req.on('error', fail);
+            req.end();
+          });
+          
+          (async () => {
+            try {
+              if (!token) {
+                console.log('⚠️  No API token - stats & logs not available');
+                console.log('💡 Set SCREEPS_PROD_TOKEN in GitHub Secrets for full features');
+                
+                // Create basic status without API
+                const basicStatus = `# 🎮 Game Status (GitHub Sync Mode)
+          
+          **Updated**: ${new Date().toISOString()}
+          **Mode**: GitHub Sync (Deploy only) ✅
           
           ---
           
-          ## 🔗 GitHub Integration
+          ## 📊 Statistics
           
-          This repository uses **Screeps GitHub Integration**:
+          ⚠️  API token not set - Real-time stats unavailable.
           
-          - ✅ **Auto-sync enabled**: Every push automatically deploys
-          - ✅ **No API tokens needed**: Direct integration
-          - ✅ **Zero cost**: Completely free
-          - ✅ **Real-time**: Changes reflect immediately
-          
-          ## 📊 How to Check Game Status
-          
-          ### In Screeps Console:
-          ```javascript
-          // Check current stats
-          Game.time
-          Game.gcl.level
-          Object.keys(Game.creeps).length
-          
-          // Check errors
-          Memory.logs.filter(l => l.level === 'error')
-          
-          // Get role counts
-          const roles = {};
-          for (let name in Game.creeps) {
-            const role = Game.creeps[name].memory.role;
-            roles[role] = (roles[role] || 0) + 1;
-          }
-          console.log(JSON.stringify(roles));
-          ```
-          
-          ## 🔄 Current System Status
-          
-          - **Deployment**: GitHub Sync Active
-          - **Error Detection**: In-game logging to Memory.logs
-          - **Auto-Fix**: Monitors Memory.logs for errors
-          - **Code Quality**: Auto-formatting on push
-          - **Security**: Daily scans
-          
-          ## 🐛 Error Reporting
-          
-          Errors are automatically logged to `Memory.logs` in-game.
-          
-          To report errors to GitHub:
-          1. Errors are logged with `logger.error()`
-          2. Stored in `Memory.logs`
-          3. Auto-fix system analyzes patterns
-          4. PRs created for fixes
+          To enable:
+          1. Get token from https://screeps.com → Account Settings → API
+          2. Add to GitHub Secrets as SCREEPS_PROD_TOKEN
           
           ## 📝 Console Logs
           
-          Since we use GitHub Sync mode, console logs are:
-          - Stored in-game in `Memory.logs`
-          - Accessible via Screeps console
-          - Auto-fix monitors them for errors
+          ⚠️  API token not set - Console logs unavailable.
           
-          **View logs in Screeps Console**:
-          ```javascript
-          Memory.logs.slice(-10).forEach(l => 
-            console.log(`[${l.level}] ${l.message}`)
-          )
-          ```
+          Check logs in Screeps game console:
+          \`\`\`javascript
+          Memory.logs.slice(-10)
+          \`\`\`
           
           ---
           
-          *This repository uses GitHub Sync - No API tokens required!*
-          *Last checked: $(date -u +%Y-%m-%dT%H:%M:%SZ)*
+          **Code deployment**: Active via GitHub Sync ✅
+          **Error auto-fix**: Active ✅
+          `;
+                
+                fs.writeFileSync('GAME_STATUS.md', basicStatus);
+                process.exit(0);
+              }
+              
+              // Fetch data with API
+              const [user, rooms, memory] = await Promise.all([
+                api('/api/auth/me'),
+                api('/api/user/rooms'),
+                api('/api/user/memory')
+              ]);
+              
+              const timestamp = new Date().toISOString();
+              const logs = memory?.data?.logs || [];
+              const errors = logs.filter(l => l.level === 'error');
+              
+              // Generate status with real-time data
+              let status = '# 🎮 Game Status (Hybrid Mode)\n\n';
+              status += `**Updated**: ${timestamp}\n`;
+              status += `**Mode**: GitHub Sync + API Stats ✅\n\n`;
+              status += '---\n\n';
+              
+              status += `## 👤 Player\n\n`;
+              status += `- **Username**: ${user.username}\n`;
+              status += `- **GCL**: ${Math.floor(user.gcl || 0)}\n`;
+              status += `- **CPU**: ${user.cpu}\n`;
+              status += `- **Credits**: ${user.money?.toLocaleString() || 0}\n\n`;
+              
+              if (rooms.rooms?.length) {
+                status += `## 🏰 Rooms (${rooms.rooms.length})\n\n`;
+                rooms.rooms.forEach(r => {
+                  status += `- **${r.name}**: RCL${r.level || 0}\n`;
+                });
+                status += '\n';
+              }
+              
+              if (memory.data?.creeps) {
+                const creeps = Object.values(memory.data.creeps);
+                const roles = {};
+                creeps.forEach(c => {
+                  const role = c.role || 'unknown';
+                  roles[role] = (roles[role] || 0) + 1;
+                });
+                
+                status += `## 🐛 Creeps (${creeps.length})\n\n`;
+                Object.entries(roles).sort((a, b) => b[1] - a[1]).forEach(([role, count]) => {
+                  status += `- **${role}**: ${count}\n`;
+                });
+                status += '\n';
+              }
+              
+              if (errors.length > 0) {
+                status += `## ⚠️  Errors (${errors.length})\n\n`;
+                errors.slice(-5).forEach(e => {
+                  status += `- **[${e.time}]** ${e.message}\n`;
+                });
+                status += '\n';
+                fs.writeFileSync('DETECTED_ERRORS.json', JSON.stringify(errors, null, 2));
+                fs.writeFileSync('.github/HAS_ERRORS', 'true');
+              } else {
+                fs.writeFileSync('.github/HAS_ERRORS', 'false');
+                if (fs.existsSync('DETECTED_ERRORS.json')) {
+                  fs.unlinkSync('DETECTED_ERRORS.json');
+                }
+              }
+              
+              status += '---\n\n';
+              status += '## 📋 System Status\n\n';
+              status += '- **Deployment**: GitHub Sync ✅\n';
+              status += '- **Statistics**: API Real-time ✅\n';
+              status += '- **Console Logs**: Available below ✅\n';
+              status += '- **Error Auto-Fix**: Active ✅\n\n';
+              status += '---\n\n';
+              status += '*Updated every 15 minutes*\n';
+              
+              fs.writeFileSync('GAME_STATUS.md', status);
+              
+              // Generate console logs
+              if (logs.length > 0) {
+                let consoleLogs = '# 📝 Console Logs\n\n';
+                consoleLogs += `**Updated**: ${timestamp}\n\n`;
+                consoleLogs += '---\n\n';
+                
+                const recentLogs = logs.slice(-50).reverse();
+                recentLogs.forEach(log => {
+                  const emoji = {
+                    'error': '❌',
+                    'warn': '⚠️',
+                    'info': 'ℹ️',
+                    'debug': '🔍'
+                  }[log.level] || '💬';
+                  
+                  consoleLogs += `${emoji} **[Tick ${log.time}]** ${log.message}\n\n`;
+                });
+                
+                consoleLogs += '---\n\n';
+                consoleLogs += `**Total Logs**: ${logs.length}\n`;
+                consoleLogs += `**Errors**: ${logs.filter(l => l.level === 'error').length}\n`;
+                consoleLogs += `**Warnings**: ${logs.filter(l => l.level === 'warn').length}\n`;
+                consoleLogs += `**Info**: ${logs.filter(l => l.level === 'info').length}\n\n`;
+                consoleLogs += '*Showing last 50 logs*\n';
+                
+                fs.writeFileSync('CONSOLE_LOGS.md', consoleLogs);
+              }
+              
+              console.log('✅ Status updated with real-time data');
+              if (errors.length > 0) {
+                console.log(`⚠️  ${errors.length} errors detected`);
+              }
+              
+            } catch(e) {
+              console.error('❌ Error fetching data:', e.message);
+              
+              const errorStatus = `# 🎮 Game Status\n\n❌ Error: ${e.message}\n\n`;
+              errorStatus += 'Check API token in GitHub Secrets.\n';
+              fs.writeFileSync('GAME_STATUS.md', errorStatus);
+            }
+          })();
           EOF
-          
-          echo "✅ Status page updated for GitHub Sync mode"
       
-      - name: Trigger Auto-Fix if Needed
-        if: steps.check.outputs.has_errors == 'true'
+      - name: Commit Changes
         run: |
-          echo "🔧 Errors detected - triggering auto-fix"
-          gh workflow run auto-fix-errors.yml || echo "Auto-fix will run on next schedule"
-        env:
-          GH_TOKEN: ${{ github.token }}
-      
-      - name: Commit Status Update
-        run: |
-          git config user.name 'Sync Monitor Bot'
-          git config user.email 'sync@screeps.local'
-          git add GAME_STATUS.md
+          git config user.name 'Game Monitor Bot'
+          git config user.email 'monitor@screeps.local'
+          git add GAME_STATUS.md CONSOLE_LOGS.md DETECTED_ERRORS.json .github/HAS_ERRORS || true
           
           if ! git diff --staged --quiet; then
-            git commit -m "⏱️ Status check: $(date '+%Y-%m-%d %H:%M')
-            
-            GitHub Sync mode - No API needed"
+            git commit -m "⏱️  Stats & logs update: $(date '+%Y-%m-%d %H:%M')"
             git push
-          else
-            echo "No status changes"
           fi
+      
+      - name: Trigger Auto-Fix
+        if: success()
+        run: |
+          if [ -f ".github/HAS_ERRORS" ] && [ "$(cat .github/HAS_ERRORS)" = "true" ]; then
+            echo "🔧 Errors detected - triggering auto-fix"
+            gh workflow run auto-fix-errors.yml || echo "Auto-fix will run on next schedule"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

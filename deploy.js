@@ -23,6 +23,7 @@ const files = [
   { name: "role.upgrader", file: "role.upgrader.js" },
   { name: "role.builder", file: "role.builder.js" },
   { name: "role.repairer", file: "role.repairer.js" },
+  { name: "role.explorer", file: "role.explorer.js" },
 ];
 
 console.log("Reading module files...");

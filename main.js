@@ -5,6 +5,7 @@ const roleRepairer = require("role.repairer");
 const roleScout = require("role.scout");
 const roleMedic = require("role.medic");
 const roleTransporter = require("role.transporter");
+const roleExplorer = require("role.explorer");
 
 const StatsManager = require("utils.stats");
 const DashboardRenderer = require("utils.dashboard");
@@ -35,6 +36,7 @@ module.exports.loop = function () {
     const scouts = creeps.filter((c) => c.memory.role === "scout");
     const medics = creeps.filter((c) => c.memory.role === "medic");
     const transporters = creeps.filter((c) => c.memory.role === "transporter");
+    const explorers = creeps.filter((c) => c.memory.role === "explorer");
 
     const energyCapacity = room.energyCapacityAvailable;
     const energyAvailable = room.energyAvailable;
@@ -136,6 +138,15 @@ module.exports.loop = function () {
           });
           StatsManager.recordCreepBirth();
         }
+      } else if (explorers.length < 1 && Game.time % 1000 === 0) {
+        const body = getScoutBody();
+        const cost = _.sum(body, (p) => BODYPART_COST[p]);
+        if (energyAvailable >= cost && !spawn.spawning) {
+          spawn.spawnCreep(body, "Explorer" + Game.time, {
+            memory: { role: "explorer" },
+          });
+          StatsManager.recordCreepBirth();
+        }
       }
     }
 
@@ -161,6 +172,7 @@ module.exports.loop = function () {
     else if (creep.memory.role === "scout") roleScout.run(creep);
     else if (creep.memory.role === "medic") roleMedic.run(creep);
     else if (creep.memory.role === "transporter") roleTransporter.run(creep);
+    else if (creep.memory.role === "explorer") roleExplorer.run(creep);
   }
 
   if (Game.time % 20 === 0) {
@@ -182,9 +194,10 @@ module.exports.loop = function () {
       scout: allCreeps.filter((c) => c.memory.role === "scout").length,
       medic: allCreeps.filter((c) => c.memory.role === "medic").length,
       transporter: allCreeps.filter((c) => c.memory.role === "transporter").length,
+      explorer: allCreeps.filter((c) => c.memory.role === "explorer").length,
     };
     console.log(
-      `📊 [${Game.time}] Creeps: ${allCreeps.length} | H:${summary.harvester} U:${summary.upgrader} B:${summary.builder} R:${summary.repairer} S:${summary.scout} M:${summary.medic} T:${summary.transporter}`
+      `📊 [${Game.time}] Creeps: ${allCreeps.length} | H:${summary.harvester} U:${summary.upgrader} B:${summary.builder} R:${summary.repairer} S:${summary.scout} M:${summary.medic} T:${summary.transporter} E:${summary.explorer}`
     );
 
     const stats = StatsManager.getStats();

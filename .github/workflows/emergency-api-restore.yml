@@ -1,0 +1,280 @@
+name: 🚨 Emergency: Restore API Mode
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for switching to API mode'
+        required: true
+        type: choice
+        options:
+          - 'GitHub Sync not working'
+          - 'Too many errors'
+          - 'Need real-time monitoring'
+          - 'Manual decision'
+      api_token_set:
+        description: 'API token already set in Secrets?'
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  restore-api-mode:
+    runs-on: ubuntu-latest
+    name: Switch to API Mode
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Check API Token
+        id: check
+        env:
+          SCREEPS_TOKEN: ${{ secrets.SCREEPS_PROD_TOKEN || secrets.SCREEPS_TOKEN }}
+        run: |
+          if [ -n "$SCREEPS_TOKEN" ]; then
+            echo "has_token=true" >> $GITHUB_OUTPUT
+            echo "✅ API token found"
+          else
+            echo "has_token=false" >> $GITHUB_OUTPUT
+            echo "⚠️ No API token set"
+          fi
+      
+      - name: Restore API-based Game Monitor
+        run: |
+          cat > .github/workflows/game-monitor-api.yml << 'EOF'
+          name: 📊 Game Monitor (API Mode)
+          
+          on:
+            schedule:
+              - cron: '*/15 * * * *'
+            workflow_dispatch:
+          
+          permissions:
+            contents: write
+          
+          jobs:
+            monitor:
+              runs-on: ubuntu-latest
+              steps:
+                - uses: actions/checkout@v4
+                - uses: actions/setup-node@v4
+                  with:
+                    node-version: '20'
+                
+                - name: Fetch Game Data
+                  env:
+                    SCREEPS_TOKEN: \${{ secrets.SCREEPS_PROD_TOKEN || secrets.SCREEPS_TOKEN }}
+                  run: |
+                    node << 'SCRIPT'
+                    const https = require('https');
+                    const fs = require('fs');
+                    
+                    const token = process.env.SCREEPS_TOKEN;
+                    if (!token) {
+                      console.log('No token - please set SCREEPS_PROD_TOKEN');
+                      process.exit(0);
+                    }
+                    
+                    const api = (path) => new Promise((ok, fail) => {
+                      https.request({
+                        hostname: 'screeps.com',
+                        port: 443,
+                        path: path,
+                        headers: { 'X-Token': token }
+                      }, res => {
+                        let data = '';
+                        res.on('data', d => data += d);
+                        res.on('end', () => ok(JSON.parse(data)));
+                      }).on('error', fail).end();
+                    });
+                    
+                    (async () => {
+                      try {
+                        const [user, rooms, memory] = await Promise.all([
+                          api('/api/auth/me'),
+                          api('/api/user/rooms'),
+                          api('/api/user/memory')
+                        ]);
+                        
+                        const logs = memory?.data?.logs || [];
+                        const errors = logs.filter(l => l.level === 'error');
+                        
+                        let status = `# 🎮 Game Status (API Mode)\n\n**Updated**: \${new Date().toISOString()}\n\n`;
+                        status += `## 👤 Player\n- User: \${user.username}\n- GCL: \${Math.floor(user.gcl)}\n- CPU: \${user.cpu}\n\n`;
+                        
+                        if (rooms.rooms?.length) {
+                          status += `## 🏰 Rooms (\${rooms.rooms.length})\n`;
+                          rooms.rooms.forEach(r => status += `- \${r.name}: RCL\${r.level}\n`);
+                          status += '\n';
+                        }
+                        
+                        if (memory.data?.creeps) {
+                          const creeps = Object.values(memory.data.creeps);
+                          const roles = {};
+                          creeps.forEach(c => roles[c.role] = (roles[c.role] || 0) + 1);
+                          status += `## 🐛 Creeps (\${creeps.length})\n`;
+                          Object.entries(roles).forEach(([r, n]) => status += `- \${r}: \${n}\n`);
+                          status += '\n';
+                        }
+                        
+                        if (errors.length) {
+                          status += `## ⚠️ Errors (\${errors.length})\n\n`;
+                          errors.slice(-5).forEach(e => status += `- [\${e.time}] \${e.message}\n`);
+                          status += '\n';
+                          fs.writeFileSync('DETECTED_ERRORS.json', JSON.stringify(errors, null, 2));
+                        }
+                        
+                        fs.writeFileSync('GAME_STATUS.md', status);
+                        
+                        if (logs.length) {
+                          let logMd = `# 📜 Console Logs\n\n`;
+                          logs.slice(-50).reverse().forEach(l => {
+                            const icon = l.level === 'error' ? '❌' : l.level === 'warn' ? '⚠️' : 'ℹ️';
+                            logMd += `\${icon} [\${l.time}] \${l.message}\n\n`;
+                          });
+                          fs.writeFileSync('CONSOLE_LOGS.md', logMd);
+                        }
+                        
+                      } catch(e) {
+                        fs.writeFileSync('GAME_STATUS.md', `# Error: \${e.message}`);
+                      }
+                    })();
+                    SCRIPT
+                
+                - name: Commit
+                  run: |
+                    git config user.name 'API Monitor'
+                    git config user.email 'api@screeps'
+                    git add -A
+                    git diff --staged --quiet || (git commit -m "📊 API status update" && git push)
+          EOF
+          
+          echo "✅ API-based monitor restored"
+      
+      - name: Disable GitHub Sync Monitor
+        run: |
+          # Rename to disable
+          if [ -f ".github/workflows/game-monitor-15min.yml" ]; then
+            mv .github/workflows/game-monitor-15min.yml .github/workflows/game-monitor-15min.yml.disabled
+            echo "✅ GitHub Sync monitor disabled"
+          fi
+      
+      - name: Update README
+        run: |
+          sed -i 's/GitHub Sync Mode/API Mode (Emergency Restore)/g' README.md
+          sed -i 's/API完全不要/APIモード有効/g' README.md
+          echo "✅ README updated for API mode"
+      
+      - name: Create Notice
+        run: |
+          cat > API_MODE_NOTICE.md << 'EOF'
+          # 🚨 Emergency: API Mode Activated
+          
+          **Activated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          **Reason**: ${{ inputs.reason }}
+          
+          ---
+          
+          ## 🔄 What Changed
+          
+          - ✅ API-based monitoring enabled (15-min intervals)
+          - ✅ Real-time game status via API
+          - ✅ Console logs collection
+          - ⚠️ GitHub Sync monitor disabled
+          
+          ## 🔧 Required Setup
+          
+          **API Token must be set**:
+          
+          1. Go to https://screeps.com
+          2. Account Settings → API Access
+          3. Generate token
+          4. Add to GitHub Secrets as `SCREEPS_PROD_TOKEN`
+          
+          ## ✅ Benefits of API Mode
+          
+          - 📊 Real-time monitoring
+          - 📝 Console logs on GitHub
+          - 🐛 Detailed creep statistics
+          - 📈 Historical data
+          
+          ## 🔙 How to Revert
+          
+          To switch back to GitHub Sync mode:
+          
+          ```bash
+          # Manually run workflow: "Restore GitHub Sync Mode"
+          # Or:
+          mv .github/workflows/game-monitor-15min.yml.disabled .github/workflows/game-monitor-15min.yml
+          rm .github/workflows/game-monitor-api.yml
+          git add -A
+          git commit -m "Restore GitHub Sync mode"
+          git push
+          ```
+          
+          ---
+          
+          **Note**: Both modes work fine, this is just a fallback option.
+          EOF
+          
+          echo "✅ Notice created"
+      
+      - name: Commit All Changes
+        run: |
+          git config user.name 'Emergency Restore Bot'
+          git config user.email 'emergency@screeps.local'
+          git add -A
+          
+          git commit -m "🚨 Emergency: Switch to API mode
+          
+          Reason: ${{ inputs.reason }}
+          
+          Changes:
+          - Enabled API-based monitoring
+          - Disabled GitHub Sync monitor
+          - Updated README
+          - Created API_MODE_NOTICE.md
+          
+          To revert, see API_MODE_NOTICE.md"
+          
+          git push
+      
+      - name: Create Issue if No Token
+        if: steps.check.outputs.has_token == 'false'
+        run: |
+          gh issue create \
+            --title "🚨 API Token Required - API Mode Activated" \
+            --body "## ⚠️ Action Required
+          
+          API mode has been activated but **no API token is set**.
+          
+          ### 🔧 Setup Instructions
+          
+          1. Go to https://screeps.com
+          2. Login with your account
+          3. Account Settings → API Access
+          4. Click 'Generate Token'
+          5. Copy the token
+          6. Go to GitHub repository Settings → Secrets and Variables → Actions
+          7. Click 'New repository secret'
+          8. Name: \`SCREEPS_PROD_TOKEN\`
+          9. Value: [paste your token]
+          10. Click 'Add secret'
+          
+          ### ✅ Once Set
+          
+          The API monitor will automatically start working on next run (15 minutes).
+          
+          ---
+          
+          **Reason for switch**: ${{ inputs.reason }}
+          
+          See [API_MODE_NOTICE.md](./API_MODE_NOTICE.md) for details." \
+            --label "urgent,setup-required"
+        env:
+          GH_TOKEN: ${{ github.token }}

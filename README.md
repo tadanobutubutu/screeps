@@ -1,177 +1,206 @@
 # 🎮 Screeps AI - 完全自動化リポジトリ
 
-> Screeps AI code repository with **full automation** - no API keys required!
+> **API不要・GitHub Syncモード** - 完全無料・完全自動・ゼロメンテナンス
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Status](https://img.shields.io/badge/Status-Active-green)](.github/workflows)
-[![Free Tier](https://img.shields.io/badge/Cost-¥0%20Forever-brightgreen)](https://github.com/pricing)
+[![GitHub Sync](https://img.shields.io/badge/Mode-GitHub%20Sync-green)](https://docs.screeps.com/commit.html)
+[![Free Forever](https://img.shields.io/badge/Cost-¥0%20Forever-brightgreen)](https://github.com/pricing)
+[![No API](https://img.shields.io/badge/API-Not%20Required-orange)](./SETUP.md)
 
 ## 🚀 特徴
 
-- ✅ **完全無料**: パブリックリポジトリはGitHub Actions無制限
-- 🤖 **完全自動化**: 放置で自動改善・拡張
-- 📊 **リアルタイム監視**: ゲーム状況をGitHubで確認
-- 🆕 **自動拡張**: 新しいロールが週次で追加
-- 💰 **コスト監視**: 使用量自動最適化
+- ✅ **API完全不要**: GitHub Syncで自動同期
+- 💰 **完全無料**: パブリックリポジトリはGitHub Actions無制限
+- 🤖 **完全自動**: エラー修正・コード改善・セキュリティスキャン
+- 🔄 **完全放置**: 何もしなくてOK
+- 🔒 **安全**: 多層セキュリティ監視
+- 🆕 **自動拡張**: 新機能・新ロールが週次で追加
 
-## 💰 無料枠情報
+## 📡 GitHub Syncモード
 
-### GitHub Actions (パブリックリポジトリ)
+**APIトークン不要！**
 
-- ✅ **実行時間**: 無制限
-- ✅ **同時実行数**: 20ジョブ
-- ✅ **タイムアウト**: 6時間/ジョブ
-- ✅ **ストレージ**: 500MB (Artifact)
+```
+GitHubリポジトリ (main)
+  ↓ push
+GitHub Actions
+  ↓ 自動整形・エラーチェック
+Screepsが自動同期
+  ↓ 5-10分
+ゲーム内で実行
+```
 
-### 📈 使用量監視
+**メリット**:
+- ✅ トークン管理不要
+- ✅ APIレート制限なし
+- ✅ セットアップ簡単
+- ✅ 完全無料
 
-**自動最適化システム**が稼働中：
+## ⚡ クイックスタート
 
-1. **毎日チェック** - 9:00 JSTに使用量確認
-2. **自動最適化** - 高負荷時に頻度を自動調整
-3. **アラート** - 異常検知時にIssue自動作成
+### 1. 🔗 GitHub連携
 
-**現在の使用状況**: [⁠`USAGE_REPORT.md`](./USAGE_REPORT.md)
+1. [Screeps.com](https://screeps.com) でログイン
+2. Account Settings → Git → Connect to GitHub
+3. このリポジトリ `tadanobutubutu/screeps` を選択
+4. Branch: `main` を選択
+5. Save
 
-### 🔧 自動最適化例
+### 2. 🎮 スポーン
 
-使用量が閾値を超えると自動で：
-- 15分間隔 → 1時間間隔
-- 毎時実行 → 6時間間隔
-- 非重要ワークフローの一時停止
+1. Screepsで部屋を選ぶ
+2. Spawnをクリック
+3. 自動化システムが起動！
 
-## 📊 ゲーム状況
-
-**現在の状況を確認**: [⁠`GAME_STATUS.md`](./GAME_STATUS.md)
-
-15分ごとに自動更新されるリアルタイムレポート：
-- 👤 プレイヤー情報 (GCL, CPU, Credits)
-- 🏰 所有部屋の状況
-- 🐛 クリープ統計
-- 💾 メモリ使用率
+詳しくは [⁠`SETUP.md`](./SETUP.md) を参照
 
 ## 🤖 自動化システム
 
-### コード改善ワークフロー
+### 🔧 コード改善 (完全自動)
 
-| ワークフロー | 実行頻度 | 機能 |
-|------------|---------|------|
-| 🔧 **Rule-Based Auto-Improve** | 6時間ごと | コード最適化ルールを適用 |
-| 🎨 **Auto-Format & Lint** | 毎日 2:00 JST | ESLint + Prettier で自動整形 |
-| 🎲 **Random Experiment** | 毎週日曜 4:00 JST | 実験的機能をランダム追加 |
-| 🆕 **Auto Create Roles** | 毎週月曜 3:00 JST | 新しいロールファイルを自動生成 |
+| 機能 | 頻度 | 説明 |
+|------|------|------|
+| 🔧 ルールベース最適化 | 6時間ごと | 非効率コードを自動修正 |
+| 🎨 自動整形 | 毎日 2:00 | ESLint + Prettier |
+| 🎲 ランダム実験 | 毎週日曜 | 新機能をランダム追加 |
+| 🆕 ロール自動生成 | 毎週月曜 | 新ロールを自動作成 |
 
-### 監視・メンテナンス
+### 🔧 エラー自動修正 (プランB)
 
-| ワークフロー | 実行頻度 | 機能 |
-|------------|---------|------|
-| ⏱️ **Game Monitor** | 15分ごと* | ゲーム状況取得・エラー検出 |
-| 🔧 **Auto-Fix Errors** | エラー検出時 | 自動修正・PR作成 |
-| 💰 **Usage Monitor** | 毎日 9:00 JST | 使用量監視・自動最適化 |
-| 🔒 **Security Monitor** | 毎日 3:00 JST | セキュリティスキャン |
-| 📚 **Doc Updater** | コード変更時 | ドキュメント自動更新 |
-| 🚀 **Deploy** | main push時 | 自動デプロイ |
+```
+エラー発生
+  ↓ Memory.logsに記録
+自動検出 (15分ごと*)
+  ↓ パターン分析
+修正適用
+  ↓ PR自動作成
+レビュー
+  ↓ 安全なら自動マージ
+デプロイ
+  ↓ GitHub Sync
+解決✅
+```
 
-*高負荷時は自動で時間間隔に変更
+*高負荷時は時間間隔に自動調整
 
-詳しくは [⁠`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
+### 🔒 セキュリティ (5層防御)
+
+1. **CodeQL** - 高度な静的分析
+2. **Dependency Scan** - 脆弱性チェック
+3. **Secret Scan** - 機密情報漏洩検知
+4. **Code Pattern** - 危険パターン検知
+5. **Workflow Security** - Actionsセキュリティ
+
+詳細: [⁠`SECURITY.md`](./SECURITY.md)
+
+### 💰 使用量自動最適化
+
+- 毎日使用量チェック
+- 高負荷時に自動で頻度削減
+- 超高負荷時にIssue自動作成
+
+現在の状況: [⁠`USAGE_REPORT.md`](./USAGE_REPORT.md)
 
 ## 🐛 実装済みロール
 
-- 🌾 **harvester** - エネルギー採取
-- ⬆️ **upgrader** - コントローラー強化
-- 🛠️ **builder** - 建築
-- 🔧 **repairer** - 修理
-- 🔍 **scout** - 探索
-- 💊 **medic** - 回復
-- 🚚 **transporter** - 輸送
-- 🌍 **explorer** - 周辺探査
+現在 8種類のロールが稼働中：
 
-### 自動生成予定のロール
+- 🌾 harvester - エネルギー採取
+- ⬆️ upgrader - Controller強化
+- 🛠️ builder - 建築
+- 🔧 repairer - 修理
+- 🔍 scout - 探索
+- 💊 medic - 回復
+- 🚚 transporter - 輸送
+- 🌍 explorer - 周达探査
 
-以下のロールが週次で自動追加されます：
-- 🛡️ **defender** - 防衛
-- ⛏️ **miner** - 固定採掘
-- 🏴 **claimer** - 領土拡張
-- 🌎 **remoteHarvester** - 遠隔採取
-- ❤️‍🩹 **healer** - 回復支援
-- 📍 **scout** (改良版) - マップ探索
-- ⚡ **powerHarvester** - Power Bank攻略
+**自動追加予定** (毎週月曜):
+- 🛡️ defender - 防衛
+- ⛏️ miner - 固定採掘
+- 🏴 claimer - 領土拡張
+- 🌎 remoteHarvester - 遠隔採取
 
-## 🔧 セットアップ
+## 📊 ゲーム状況の確認
 
-### 1. Steam版購入後
+### Screepsコンソールで
 
-1. Screeps公式サイトでログイン
-2. Account Settings → API Access でトークン生成
-3. GitHubリポジトリ Settings → Secrets で `SCREEPS_PROD_TOKEN` に設定
-4. mainブランチにpushすれば自動デプロイ開始
+```javascript
+// 統計情報
+Game.time              // 現在tick
+Game.gcl.level         // GCLレベル
+Object.keys(Game.creeps).length  // クリープ数
 
-### 2. ローカル開発 (オプション)
+// エラー確認
+Memory.logs.filter(l => l.level === 'error')
 
-```bash
-git clone https://github.com/tadanobutubutu/screeps.git
-cd screeps
-npm install
+// ログ統計
+require('utils.logging').getStats()
 ```
 
-## 📁 ファイル構成
+### GitHubで
 
-```
-.
-├── .github/workflows/     # 自動化ワークフロー
-├── role.*.js              # クリープロール
-├── utils.*.js             # ユーティリティ関数
-├── main.js                # メインループ
-├── deploy.js              # デプロイスクリプト
-├── GAME_STATUS.md         # リアルタイムゲーム状況
-├── CONSOLE_LOGS.md        # コンソールログ
-├── USAGE_REPORT.md        # 使用量レポート
-├── WORKFLOWS.md           # ワークフロー詳細説明
-└── game-history/          # 日付別履歴
-```
+- 📊 [GAME_STATUS.md](./GAME_STATUS.md) - ステータス
+- 📝 [CONSOLE_LOGS.md](./CONSOLE_LOGS.md) - ログ
+- 💰 [USAGE_REPORT.md](./USAGE_REPORT.md) - 使用量
+- 🔒 [SECURITY_REPORT.md](./SECURITY_REPORT.md) - セキュリティ
 
 ## 📚 ドキュメント
 
-- [⁠`WORKFLOWS.md`](./WORKFLOWS.md) - 自動化ワークフローの詳細
-- [⁠`GAME_STATUS.md`](./GAME_STATUS.md) - リアルタイムゲーム状況
-- [⁠`CONSOLE_LOGS.md`](./CONSOLE_LOGS.md) - コンソール出力
-- [⁠`USAGE_REPORT.md`](./USAGE_REPORT.md) - GitHub Actions使用量
+- [⁠`SETUP.md`](./SETUP.md) - 詳細セットアップ手順
+- [⁠`WORKFLOWS.md`](./WORKFLOWS.md) - ワークフロー詳細
 - [⁠`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
+- [⁠`LICENSE`](./LICENSE) - MIT License
 
-## ✨ 特徴詳細
+## ✨ 主な機能
 
-### 🔧 ルールベース自動改善
+### 🔧 コード最適化
+- console.log 削除
+- var → const 変換
+- ループ最適化
+- メモリクリーンアップ
 
-- `console.log` の削除
-- `var` を `const` に変更
-- 非効率なループの最適化
-- メモリクリーンアップの自動追加
+### 🎲 実験機能
+- パフォーマンスモニター
+- パスファインディングキャッシュ
+- スマートスポーン優先度
+- タワー最適化
 
-### 🎲 ランダム実験
+### 🔧 自動修正
+- Null参照エラー
+- 未定義関数エラー
+- 参照エラー
 
-毎週以下のいずれかを自動追加：
-- 📊 パフォーマンスモニター
-- 🧭 パスファインディングキャッシュ
-- 🎯 スマートスポーン優先度
-- 🛡️ タワー最適化
-- ⚡ エネルギー効率トラッキング
+## 💰 コスト
 
-### 🆕 自動ロール作成
+**完全無料・永久無料**
 
-毎週新しいロールを自動生成して `main.js` に統合します。
+- ✅ GitHub Actions: 無制限 (パブリックリポジトリ)
+- ✅ GitHub Sync: 無料
+- ✅ API: 不要
+- ✅ 外部サービス: 不要
 
-### 🔧 エラー自動修正
+**総コスト: ¥0**
 
-エラー検出時に自動で：
-1. エラーパターンを分析
-2. 修正を適用
-3. PRでレビュー依頼
-4. 安全なら自動マージ
+## ❓ FAQ
+
+**Q: APIトークンは必要？**  
+A: 不要です！GitHub Syncを使用します。
+
+**Q: コストは？**  
+A: 完全無料です！
+
+**Q: 何もしなくていい？**  
+A: はい！完全放置でOK。
+
+**Q: エラーが起きたら？**  
+A: 15分以内に自動修正されます。
+
+**Q: セキュリティは？**  
+A: 5層防御システムで毎日監視。
 
 ## 👨‍💻 貢献
 
-改善提案やバグ報告はIssuesでお願いします。
+Issues・PR歓迎！
 
 ## 📝 ライセンス
 
@@ -179,6 +208,14 @@ MIT License
 
 ---
 
-**Enjoy your fully automated Screeps experience!** 🎮🤖
+## 🎉 まとめ
 
-*完全無料・完全自動・ゼロメンテナンス*
+✅ **API不要** - GitHub Syncで自動同期  
+✅ **完全無料** - 永久に無料  
+✅ **完全自動** - エラー修正・コード改善  
+✅ **完全放置** - 何もしなくてOK  
+✅ **安全安心** - 多層セキュリティ  
+
+**楽しんでください！** 🎮🤖✨
+
+*GitHub Sync Mode - No API Tokens Required - Completely Free Forever*

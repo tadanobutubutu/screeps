@@ -1,0 +1,263 @@
+name: 💰 Usage Monitor & Auto-Optimize
+
+on:
+  schedule:
+    # Check usage daily at 9 AM JST (midnight UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  check-usage:
+    runs-on: ubuntu-latest
+    name: Monitor & Optimize Usage
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Check GitHub Actions Usage
+        id: usage
+        run: |
+          # Public repos have unlimited Actions minutes
+          # But we'll monitor workflow runs to prevent abuse
+          
+          echo "📊 Checking workflow statistics..."
+          
+          # Count recent workflow runs (last 7 days)
+          WEEK_AGO=$(date -d '7 days ago' -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          # Get workflow run count from GitHub API
+          RUNS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs \
+            --paginate \
+            --jq "[.workflow_runs[] | select(.created_at > \"$WEEK_AGO\")] | length")
+          
+          echo "runs_count=$RUNS" >> $GITHUB_OUTPUT
+          echo "📈 Workflow runs (last 7 days): $RUNS"
+          
+          # Estimate total runtime
+          TOTAL_MINUTES=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            /repos/${{ github.repository }}/actions/runs \
+            --paginate \
+            --jq "[.workflow_runs[] | select(.created_at > \"$WEEK_AGO\")] | map(.run_duration_ms // 0) | add / 60000 | floor")
+          
+          echo "total_minutes=$TOTAL_MINUTES" >> $GITHUB_OUTPUT
+          echo "⏱️  Total runtime: $TOTAL_MINUTES minutes"
+          
+          # Free tier info
+          echo "💡 GitHub Actions (Public Repo):"
+          echo "   - Minutes: Unlimited ✅"
+          echo "   - Concurrent jobs: 20"
+          echo "   - Job timeout: 6 hours"
+          
+          # Set thresholds for optimization
+          DAILY_RUN_THRESHOLD=100
+          WEEKLY_MINUTES_THRESHOLD=1000
+          
+          if [ $RUNS -gt $DAILY_RUN_THRESHOLD ]; then
+            echo "⚠️  High usage detected: $RUNS runs"
+            echo "needs_optimization=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Usage is normal"
+            echo "needs_optimization=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Analyze Workflows
+        id: analyze
+        if: steps.usage.outputs.needs_optimization == 'true'
+        run: |
+          echo "🔍 Analyzing workflow efficiency..."
+          
+          # List all workflows with their schedules
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          const workflowDir = '.github/workflows';
+          const workflows = fs.readdirSync(workflowDir)
+            .filter(f => f.endsWith('.yml') || f.endsWith('.yaml'))
+            .map(f => {
+              const content = fs.readFileSync(path.join(workflowDir, f), 'utf8');
+              const cronMatch = content.match(/cron:\s*'([^']+)'/g);
+              
+              let frequency = 'manual';
+              if (cronMatch) {
+                const cron = cronMatch[0];
+                if (cron.includes('*/15')) frequency = '15min';
+                else if (cron.includes('*/30')) frequency = '30min';
+                else if (cron.includes('0 *')) frequency = 'hourly';
+                else if (cron.includes('0 0')) frequency = 'daily';
+                else if (cron.includes('0 18')) frequency = 'daily';
+                else frequency = 'scheduled';
+              }
+              
+              return { file: f, frequency };
+            });
+          
+          console.log('\n📋 Current Workflows:');
+          workflows.forEach(w => {
+            console.log(`  - ${w.file}: ${w.frequency}`);
+          });
+          
+          // Optimization recommendations
+          const highFreq = workflows.filter(w => w.frequency === '15min' || w.frequency === '30min');
+          
+          const recommendations = {
+            reduce_frequency: [],
+            disable_optional: [],
+            optimize_runtime: []
+          };
+          
+          highFreq.forEach(w => {
+            if (w.file.includes('monitor') || w.file.includes('status')) {
+              recommendations.reduce_frequency.push({
+                file: w.file,
+                current: w.frequency,
+                suggested: 'hourly',
+                reason: 'Status updates can be less frequent'
+              });
+            }
+          });
+          
+          fs.writeFileSync('USAGE_RECOMMENDATIONS.json', JSON.stringify(recommendations, null, 2));
+          
+          if (recommendations.reduce_frequency.length > 0) {
+            console.log('\n💡 Recommendations:');
+            recommendations.reduce_frequency.forEach(r => {
+              console.log(`  - ${r.file}: ${r.current} → ${r.suggested}`);
+              console.log(`    Reason: ${r.reason}`);
+            });
+          }
+          EOF
+      
+      - name: Apply Auto-Optimization
+        if: steps.usage.outputs.needs_optimization == 'true'
+        run: |
+          echo "🔧 Applying automatic optimizations..."
+          
+          node << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+          
+          const recommendations = JSON.parse(fs.readFileSync('USAGE_RECOMMENDATIONS.json', 'utf8'));
+          const applied = [];
+          
+          recommendations.reduce_frequency.forEach(rec => {
+            const filePath = path.join('.github/workflows', rec.file);
+            let content = fs.readFileSync(filePath, 'utf8');
+            
+            // Change frequency
+            if (rec.current === '15min' && rec.suggested === 'hourly') {
+              content = content.replace(/cron:\s*'\*\/15 \* \* \* \*'/, "cron: '0 * * * *'");
+              fs.writeFileSync(filePath, content);
+              applied.push(rec.file);
+              console.log(`✅ Optimized ${rec.file}: 15min → hourly`);
+            }
+          });
+          
+          fs.writeFileSync('APPLIED_OPTIMIZATIONS.json', JSON.stringify(applied, null, 2));
+          
+          if (applied.length > 0) {
+            fs.writeFileSync('.github/OPTIMIZATIONS_APPLIED', 'true');
+          }
+          EOF
+      
+      - name: Generate Usage Report
+        run: |
+          cat > USAGE_REPORT.md << 'EOF'
+          # 💰 GitHub Actions Usage Report
+          
+          **Generated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          ## 📊 Current Usage
+          
+          - **Workflow Runs (7 days)**: ${{ steps.usage.outputs.runs_count }}
+          - **Total Runtime**: ${{ steps.usage.outputs.total_minutes }} minutes
+          - **Repository Type**: Public (Unlimited minutes ✅)
+          
+          ## 💡 Free Tier Limits
+          
+          GitHub Actions for **public repositories**:
+          - ✅ **Unlimited minutes**
+          - ✅ **20 concurrent jobs**
+          - ✅ **6 hour job timeout**
+          
+          ## 🎯 Optimization Status
+          
+          $(if [ "${{ steps.usage.outputs.needs_optimization }}" = "true" ]; then
+            echo "⚠️ High usage detected - optimizations applied"
+            if [ -f "APPLIED_OPTIMIZATIONS.json" ]; then
+              echo ""
+              echo "**Applied Optimizations**:"
+              cat APPLIED_OPTIMIZATIONS.json | head -20
+            fi
+          else
+            echo "✅ Usage is within normal range"
+          fi)
+          
+          ## 📋 Active Workflows
+          
+          $(ls -1 .github/workflows/*.yml | wc -l) workflows configured
+          
+          ## 🔄 Monitoring Schedule
+          
+          - Daily usage check at 9 AM JST
+          - Auto-optimization when needed
+          - Manual review available anytime
+          
+          ---
+          
+          *This report is automatically generated daily*
+          EOF
+      
+      - name: Commit Changes
+        run: |
+          git config user.name 'Usage Monitor Bot'
+          git config user.email 'usage@screeps.local'
+          git add USAGE_REPORT.md .github/workflows/ USAGE_RECOMMENDATIONS.json APPLIED_OPTIMIZATIONS.json .github/OPTIMIZATIONS_APPLIED || true
+          
+          if ! git diff --staged --quiet; then
+            if [ -f ".github/OPTIMIZATIONS_APPLIED" ]; then
+              git commit -m "💰 Auto-optimize: Reduce workflow frequency to save resources
+              
+              Applied optimizations:
+              $(cat APPLIED_OPTIMIZATIONS.json 2>/dev/null || echo 'See USAGE_REPORT.md')
+              
+              This helps maintain sustainable usage levels."
+            else
+              git commit -m "💰 Usage report: $(date '+%Y-%m-%d')"
+            fi
+            git push
+          fi
+      
+      - name: Create Issue if Critical
+        if: steps.usage.outputs.runs_count > 500
+        run: |
+          gh issue create \
+            --title "⚠️ Very High Workflow Usage Detected" \
+            --body "## 🚨 Critical Usage Alert
+          
+          **Workflow runs (7 days)**: ${{ steps.usage.outputs.runs_count }}
+          
+          This is unusually high usage. Please review:
+          
+          1. Check USAGE_REPORT.md for details
+          2. Consider disabling non-essential workflows
+          3. Review workflow schedules
+          
+          Auto-optimizations have been applied, but manual review recommended.
+          
+          ---
+          
+          See [USAGE_REPORT.md](./USAGE_REPORT.md) for details." \
+            --label "performance,automated"
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,5 +1,5 @@
-// Screeps AI - Main Loop
-// Last sync test: 2026-02-25 06:40 JST
+// Screeps AI - Main Loop with Error Detection
+// Auto-monitoring enabled: 15-minute intervals
 
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
@@ -11,118 +11,139 @@ const roleTransporter = require('role.transporter');
 const roleScout = require('role.scout');
 const defenseManager = require('defense.manager');
 const utilsMemory = require('utils.memory');
+const logger = require('utils.logging');
 
 module.exports.loop = function () {
-  // Clean up memory
-  utilsMemory.cleanMemory();
-
-  // Auto-spawn configuration
-  const targetCreeps = {
-    harvester: 2,
-    upgrader: 2,
-    builder: 2,
-    repairer: 1,
-    transporter: 1,
-    scout: 1,
-    medic: 1,
-    explorer: 1
-  };
-
-  // Count creeps by role
-  const creepCounts = {};
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    const role = creep.memory.role;
-    creepCounts[role] = (creepCounts[role] || 0) + 1;
-  }
-
-  // Auto-spawn logic
-  for (const spawnName in Game.spawns) {
-    const spawn = Game.spawns[spawnName];
+  try {
+    // Initialize logging
+    logger.init();
     
-    if (spawn.spawning) {
-      const spawningCreep = Game.creeps[spawn.spawning.name];
-      spawn.room.visual.text(
-        '🛠️' + spawningCreep.memory.role,
-        spawn.pos.x + 1,
-        spawn.pos.y,
-        { align: 'left', opacity: 0.8 }
-      );
-      continue;
+    // Clean up memory
+    utilsMemory.cleanMemory();
+
+    // Auto-spawn configuration
+    const targetCreeps = {
+      harvester: 2,
+      upgrader: 2,
+      builder: 2,
+      repairer: 1,
+      transporter: 1,
+      scout: 1,
+      medic: 1,
+      explorer: 1
+    };
+
+    // Count creeps by role
+    const creepCounts = {};
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      const role = creep.memory.role;
+      creepCounts[role] = (creepCounts[role] || 0) + 1;
     }
 
-    // Find role that needs spawning
-    for (const role in targetCreeps) {
-      const current = creepCounts[role] || 0;
-      const target = targetCreeps[role];
+    // Auto-spawn logic
+    for (const spawnName in Game.spawns) {
+      const spawn = Game.spawns[spawnName];
       
-      if (current < target) {
-        const newName = role + '_' + Game.time;
-        const body = getBodyForRole(role, spawn.room.energyAvailable);
+      if (spawn.spawning) {
+        const spawningCreep = Game.creeps[spawn.spawning.name];
+        spawn.room.visual.text(
+          '🛠️' + spawningCreep.memory.role,
+          spawn.pos.x + 1,
+          spawn.pos.y,
+          { align: 'left', opacity: 0.8 }
+        );
+        continue;
+      }
+
+      // Find role that needs spawning
+      for (const role in targetCreeps) {
+        const current = creepCounts[role] || 0;
+        const target = targetCreeps[role];
         
-        if (body.length > 0) {
-          const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
+        if (current < target) {
+          const newName = role + '_' + Game.time;
+          const body = getBodyForRole(role, spawn.room.energyAvailable);
           
-          if (result === OK) {
-            console.log('✅ Spawning new ' + role + ': ' + newName);
-            creepCounts[role] = current + 1;
-            break;
+          if (body.length > 0) {
+            const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
+            
+            if (result === OK) {
+              logger.info('Spawning new ' + role + ': ' + newName);
+              creepCounts[role] = current + 1;
+              break;
+            } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
+              logger.warn('Failed to spawn ' + role + ': ' + result);
+            }
           }
+          break;
         }
-        break;
       }
     }
-  }
 
-  // Run all creeps
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    const role = creep.memory.role;
+    // Run all creeps with error handling
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      const role = creep.memory.role;
 
-    switch (role) {
-      case 'harvester':
-        roleHarvester.run(creep);
-        break;
-      case 'upgrader':
-        roleUpgrader.run(creep);
-        break;
-      case 'builder':
-        roleBuilder.run(creep);
-        break;
-      case 'repairer':
-        roleRepairer.run(creep);
-        break;
-      case 'explorer':
-        roleExplorer.run(creep);
-        break;
-      case 'medic':
-        roleMedic.run(creep);
-        break;
-      case 'transporter':
-        roleTransporter.run(creep);
-        break;
-      case 'scout':
-        roleScout.run(creep);
-        break;
-      default:
-        console.log('⚠️ Unknown role: ' + role);
+      logger.tryCatch(() => {
+        switch (role) {
+          case 'harvester':
+            roleHarvester.run(creep);
+            break;
+          case 'upgrader':
+            roleUpgrader.run(creep);
+            break;
+          case 'builder':
+            roleBuilder.run(creep);
+            break;
+          case 'repairer':
+            roleRepairer.run(creep);
+            break;
+          case 'explorer':
+            roleExplorer.run(creep);
+            break;
+          case 'medic':
+            roleMedic.run(creep);
+            break;
+          case 'transporter':
+            roleTransporter.run(creep);
+            break;
+          case 'scout':
+            roleScout.run(creep);
+            break;
+          default:
+            logger.warn('Unknown role: ' + role);
+        }
+      }, 'creep_' + name);
     }
-  }
 
-  // Run defense manager for all owned rooms
-  for (const roomName in Game.rooms) {
-    const room = Game.rooms[roomName];
-    if (room.controller && room.controller.my) {
-      defenseManager.run(room);
+    // Run defense manager for all owned rooms
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      if (room.controller && room.controller.my) {
+        logger.tryCatch(() => {
+          defenseManager.run(room);
+        }, 'defense_' + roomName);
+      }
     }
-  }
 
-  // Display stats every 100 ticks
-  if (Game.time % 100 === 0) {
-    console.log('📊 Tick: ' + Game.time);
-    console.log('👥 Creeps: ' + Object.keys(Game.creeps).length);
-    for (const role in creepCounts) {
-      console.log('  - ' + role + ': ' + creepCounts[role]);
+    // Display stats every 100 ticks
+    if (Game.time % 100 === 0) {
+      logger.info('Tick: ' + Game.time + ', Creeps: ' + Object.keys(Game.creeps).length);
+      
+      const logStats = logger.getStats();
+      if (logStats.errors > 0) {
+        logger.warn('Recent errors: ' + logStats.errors + ' (auto-fix system active)');
+      }
+    }
+    
+  } catch (e) {
+    // Top-level error catch
+    if (typeof logger !== 'undefined' && logger.error) {
+      logger.error('CRITICAL: Main loop exception: ' + e.message + '\n' + e.stack);
+    } else {
+      console.log('❌ CRITICAL ERROR: ' + e.message);
     }
   }
 };

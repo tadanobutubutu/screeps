@@ -1,44 +1,54 @@
 # 🎮 Screeps AI - 完全自動化リポジトリ
 
-> **API不要・GitHub Syncモード** - 完全無料・完全自動・ゼロメンテナンス
+> **ハイブリッドモード** - GitHub Sync + API Stats - 完全無料・完全自動
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![GitHub Sync](https://img.shields.io/badge/Mode-GitHub%20Sync-green)](https://docs.screeps.com/commit.html)
+[![Hybrid Mode](https://img.shields.io/badge/Mode-Hybrid-green)](https://docs.screeps.com/commit.html)
 [![Free Forever](https://img.shields.io/badge/Cost-¥0%20Forever-brightgreen)](https://github.com/pricing)
-[![No API](https://img.shields.io/badge/API-Not%20Required-orange)](./SETUP.md)
+[![API Optional](https://img.shields.io/badge/API-Optional-orange)](./SETUP.md)
 
 ## 🚀 特徴
 
-- ✅ **API完全不要**: GitHub Syncで自動同期
+- 🔄 **ハイブリッド**: GitHub Syncデプロイ + API統計
+- 📊 **リアルタイム統計**: GCL・CPU・クリープ数
+- 📝 **コンソールログ**: GitHubでいつでも確認
 - 💰 **完全無料**: パブリックリポジトリはGitHub Actions無制限
 - 🤖 **完全自動**: エラー修正・コード改善・セキュリティスキャン
 - 🔄 **完全放置**: 何もしなくてOK
-- 🔒 **安全**: 多層セキュリティ監視
-- 🆕 **自動拡張**: 新機能・新ロールが週次で追加
 
-## 📡 GitHub Syncモード
+## 📊 ハイブリッドモード
 
-**APIトークン不要！**
+**両方のいいとこ取り！**
 
 ```
 GitHubリポジトリ (main)
   ↓ push
 GitHub Actions
   ↓ 自動整形・エラーチェック
-Screepsが自動同期
+Screepsが自動同期 (GitHub Sync)
   ↓ 5-10分
 ゲーム内で実行
+
+同時に...
+
+GitHub Actions (15分ごと)
+  ↓ APIで統計取得
+GAME_STATUS.md 更新
+  ↓ リアルタイム統計
+CONSOLE_LOGS.md 更新
+  ↓ コンソールログ
 ```
 
 **メリット**:
-- ✅ トークン管理不要
-- ✅ APIレート制限なし
+- ✅ デプロイ: GitHub Sync (トークン不要)
+- ✅ 統計: API (リアルタイム)
+- ✅ ログ: API (GitHubで確認)
 - ✅ セットアップ簡単
 - ✅ 完全無料
 
 ## ⚡ クイックスタート
 
-### 1. 🔗 GitHub連携
+### 1. 🔗 GitHub連携 (必須)
 
 1. [Screeps.com](https://screeps.com) でログイン
 2. Account Settings → Git → Connect to GitHub
@@ -46,7 +56,22 @@ Screepsが自動同期
 4. Branch: `main` を選択
 5. Save
 
-### 2. 🎮 スポーン
+### 2. 🔑 APIトークン設定 (オプション)
+
+**リアルタイム統計・コンソールログを有効にするには**:
+
+1. [Screeps.com](https://screeps.com) → Account Settings → API Access
+2. "Generate Token" をクリック
+3. トークンをコピー
+4. GitHubリポジトリ → Settings → Secrets and Variables → Actions
+5. "New repository secret" をクリック
+6. Name: `SCREEPS_PROD_TOKEN`
+7. Value: [トークンをペースト]
+8. "Add secret" をクリック
+
+⚠️ **トークンなしでも動きます** - 統計・ログなしでデプロイのみ
+
+### 3. 🎮 スポーン
 
 1. Screepsで部屋を選ぶ
 2. Spawnをクリック
@@ -112,7 +137,7 @@ Screepsが自動同期
 - 🔍 scout - 探索
 - 💊 medic - 回復
 - 🚚 transporter - 輸送
-- 🌍 explorer - 周达探査
+- 🌍 explorer - 周達探査
 
 **自動追加予定** (毎週月曜):
 - 🛡️ defender - 防衛
@@ -122,13 +147,31 @@ Screepsが自動同期
 
 ## 📊 ゲーム状況の確認
 
+### GitHubで (推奨)
+
+- 📊 [GAME_STATUS.md](./GAME_STATUS.md) - **リアルタイム統計**
+  - GCLレベル
+  - CPU使用量
+  - Credits
+  - クリープ数
+  - ロール別分布
+  
+- 📝 [CONSOLE_LOGS.md](./CONSOLE_LOGS.md) - **コンソールログ**
+  - 最新50件のログ
+  - エラー・警告・情報
+  - ログ統計
+
+- 💰 [USAGE_REPORT.md](./USAGE_REPORT.md) - 使用量
+- 🔒 [SECURITY_REPORT.md](./SECURITY_REPORT.md) - セキュリティ
+
 ### Screepsコンソールで
 
 ```javascript
 // 統計情報
-Game.time              // 現在tick
-Game.gcl.level         // GCLレベル
-Object.keys(Game.creeps).length  // クリープ数
+Game.time
+Game.gcl.level
+Game.cpu.getUsed()
+Object.keys(Game.creeps).length
 
 // エラー確認
 Memory.logs.filter(l => l.level === 'error')
@@ -137,16 +180,10 @@ Memory.logs.filter(l => l.level === 'error')
 require('utils.logging').getStats()
 ```
 
-### GitHubで
-
-- 📊 [GAME_STATUS.md](./GAME_STATUS.md) - ステータス
-- 📝 [CONSOLE_LOGS.md](./CONSOLE_LOGS.md) - ログ
-- 💰 [USAGE_REPORT.md](./USAGE_REPORT.md) - 使用量
-- 🔒 [SECURITY_REPORT.md](./SECURITY_REPORT.md) - セキュリティ
-
 ## 📚 ドキュメント
 
 - [⁠`SETUP.md`](./SETUP.md) - 詳細セットアップ手順
+- [⁠`ERROR_HANDLING.md`](./ERROR_HANDLING.md) - エラー対応完全ガイド
 - [⁠`WORKFLOWS.md`](./WORKFLOWS.md) - ワークフロー詳細
 - [⁠`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
 - [⁠`LICENSE`](./LICENSE) - MIT License
@@ -176,27 +213,30 @@ require('utils.logging').getStats()
 
 - ✅ GitHub Actions: 無制限 (パブリックリポジトリ)
 - ✅ GitHub Sync: 無料
-- ✅ API: 不要
+- ✅ API: 無料 (オプション)
 - ✅ 外部サービス: 不要
 
 **総コスト: ¥0**
 
 ## ❓ FAQ
 
-**Q: APIトークンは必要？**  
-A: 不要です！GitHub Syncを使用します。
+**Q: APIトークンは必須？**  
+A: いいえ！トークンなしでもデプロイは動きます。統計・ログが欲しい場合のみ設定。
+
+**Q: コンソールログをGitHubで見れる？**  
+A: はい！APIトークンを設定すればCONSOLE_LOGS.mdで確認できます。
+
+**Q: リアルタイム統計は？**  
+A: APIトークン設定でGAME_STATUS.mdに15分ごと更新されます。
 
 **Q: コストは？**  
 A: 完全無料です！
 
-**Q: 何もしなくていい？**  
-A: はい！完全放置でOK。
-
 **Q: エラーが起きたら？**  
 A: 15分以内に自動修正されます。
 
-**Q: セキュリティは？**  
-A: 5層防御システムで毎日監視。
+**Q: 完全放置でいい？**  
+A: はい！全て自動です。
 
 ## 👨‍💻 貢献
 
@@ -210,7 +250,7 @@ MIT License
 
 ## 🎉 まとめ
 
-✅ **API不要** - GitHub Syncで自動同期  
+✅ **ハイブリッド** - デプロイ + 統計 + ログ  
 ✅ **完全無料** - 永久に無料  
 ✅ **完全自動** - エラー修正・コード改善  
 ✅ **完全放置** - 何もしなくてOK  
@@ -218,4 +258,4 @@ MIT License
 
 **楽しんでください！** 🎮🤖✨
 
-*GitHub Sync Mode - No API Tokens Required - Completely Free Forever*
+*Hybrid Mode: GitHub Sync Deploy + API Stats & Logs - Completely Free Forever*

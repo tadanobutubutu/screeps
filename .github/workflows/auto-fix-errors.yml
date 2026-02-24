@@ -1,0 +1,205 @@
+name: 🔧 Auto-Fix Errors
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  analyze-and-fix:
+    runs-on: ubuntu-latest
+    name: Analyze Errors & Create Fix PR
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Check for Errors
+        id: check
+        run: |
+          if [ ! -f "DETECTED_ERRORS.json" ]; then
+            echo "No errors detected"
+            echo "has_errors=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          ERROR_COUNT=$(cat DETECTED_ERRORS.json | grep -o '"level": "error"' | wc -l)
+          echo "has_errors=true" >> $GITHUB_OUTPUT
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "🔍 Found $ERROR_COUNT errors"
+      
+      - name: Analyze Errors
+        if: steps.check.outputs.has_errors == 'true'
+        id: analyze
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          const errors = JSON.parse(fs.readFileSync('DETECTED_ERRORS.json', 'utf8'));
+          
+          // Common error patterns and fixes
+          const fixes = [];
+          
+          errors.forEach(error => {
+            const msg = error.message;
+            
+            // Pattern 1: undefined is not a function
+            if (msg.includes('is not a function')) {
+              const match = msg.match(/(\w+) is not a function/);
+              if (match) {
+                fixes.push({
+                  type: 'missing_function',
+                  function: match[1],
+                  suggestion: `Add or fix the ${match[1]} function`
+                });
+              }
+            }
+            
+            // Pattern 2: Cannot read property
+            if (msg.includes('Cannot read property')) {
+              const match = msg.match(/Cannot read property '(\w+)' of (\w+)/);
+              if (match) {
+                fixes.push({
+                  type: 'null_reference',
+                  property: match[1],
+                  object: match[2],
+                  suggestion: `Add null check for ${match[2]} before accessing ${match[1]}`
+                });
+              }
+            }
+            
+            // Pattern 3: ReferenceError
+            if (msg.includes('ReferenceError')) {
+              const match = msg.match(/ReferenceError: (\w+) is not defined/);
+              if (match) {
+                fixes.push({
+                  type: 'undefined_variable',
+                  variable: match[1],
+                  suggestion: `Define ${match[1]} or check spelling`
+                });
+              }
+            }
+          });
+          
+          fs.writeFileSync('ANALYZED_FIXES.json', JSON.stringify(fixes, null, 2));
+          console.log(`✅ Analyzed ${fixes.length} fixable errors`);
+          EOF
+      
+      - name: Apply Automatic Fixes
+        if: steps.check.outputs.has_errors == 'true'
+        id: apply
+        run: |
+          node << 'EOF'
+          const fs = require('fs');
+          
+          if (!fs.existsSync('ANALYZED_FIXES.json')) {
+            console.log('No fixes to apply');
+            process.exit(0);
+          }
+          
+          const fixes = JSON.parse(fs.readFileSync('ANALYZED_FIXES.json', 'utf8'));
+          let appliedFixes = [];
+          
+          // Apply fixes to code
+          fixes.forEach(fix => {
+            if (fix.type === 'null_reference') {
+              // Find and fix null reference errors
+              const files = fs.readdirSync('.').filter(f => f.endsWith('.js'));
+              
+              files.forEach(file => {
+                let content = fs.readFileSync(file, 'utf8');
+                const pattern = new RegExp(`${fix.object}\.${fix.property}`, 'g');
+                
+                if (pattern.test(content)) {
+                  // Add null check
+                  const fixed = content.replace(
+                    pattern,
+                    `${fix.object} && ${fix.object}.${fix.property}`
+                  );
+                  
+                  if (fixed !== content) {
+                    fs.writeFileSync(file, fixed);
+                    appliedFixes.push({
+                      file: file,
+                      fix: `Added null check for ${fix.object}.${fix.property}`
+                    });
+                    console.log(`✅ Fixed ${file}: Added null check`);
+                  }
+                }
+              });
+            }
+          });
+          
+          fs.writeFileSync('APPLIED_FIXES.json', JSON.stringify(appliedFixes, null, 2));
+          console.log(`✅ Applied ${appliedFixes.length} fixes`);
+          
+          if (appliedFixes.length > 0) {
+            fs.writeFileSync('.github/FIXES_APPLIED', 'true');
+          }
+          EOF
+      
+      - name: Create Fix Branch
+        if: hashFiles('.github/FIXES_APPLIED')
+        run: |
+          BRANCH="auto-fix-$(date +%Y%m%d-%H%M%S)"
+          git config user.name 'Auto-Fix Bot'
+          git config user.email 'autofix@screeps.local'
+          git checkout -b $BRANCH
+          git add -A
+          git commit -m "🔧 Auto-fix: Apply error corrections
+          
+          Automatically detected and fixed errors:
+          $(cat APPLIED_FIXES.json | head -20)
+          
+          See APPLIED_FIXES.json for details."
+          git push origin $BRANCH
+          echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+      
+      - name: Create Pull Request
+        if: env.BRANCH
+        run: |
+          gh pr create \
+            --title "🔧 [Auto-Fix] Error corrections $(date +%Y-%m-%d)" \
+            --body "## 🤖 Automatic Error Fixes
+          
+          This PR contains automatic fixes for detected errors.
+          
+          ### 📊 Detected Errors
+          \`\`\`
+          $(cat DETECTED_ERRORS.json)
+          \`\`\`
+          
+          ### ✅ Applied Fixes
+          \`\`\`
+          $(cat APPLIED_FIXES.json)
+          \`\`\`
+          
+          ### ⚠️ Review Required
+          Please review these changes before merging.
+          Auto-fixes may not be perfect.
+          
+          **Plan B**: If errors persist, system will switch to Plan A (notification only)." \
+            --base main \
+            --head $BRANCH
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Auto-Merge (if safe)
+        if: env.BRANCH && github.event_name == 'workflow_dispatch'
+        run: |
+          # Wait a bit for CI checks
+          sleep 30
+          
+          # Only auto-merge if fixes are simple
+          FIX_COUNT=$(cat APPLIED_FIXES.json | grep -o '"file"' | wc -l)
+          
+          if [ $FIX_COUNT -le 3 ]; then
+            echo "🚀 Auto-merging (simple fixes)"
+            gh pr merge $BRANCH --auto --squash || echo "Could not auto-merge"
+          else
+            echo "⚠️ Too many changes ($FIX_COUNT), manual review required"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -13,9 +13,25 @@ const DefenseManager = require("utils.defense");
 const AIHelper = require("utils.ai");
 const MissionSystem = require("utils.missions");
 
+// 🎮 NEW: AI-powered systems
+const strategyMemory = require("strategy-memory");
+const dailyChallenge = require("daily-challenge");
+const defenseManager = require("defense.manager");
+
 module.exports.loop = function () {
   StatsManager.initMemory();
   MissionSystem.initMemory();
+
+  // 🧠 Load AI strategy every 100 ticks
+  if (Game.time % 100 === 0) {
+    strategyMemory.loadStrategy();
+  }
+
+  // 🎯 Display strategic briefing every 500 ticks
+  if (Game.time % 500 === 0) {
+    strategyMemory.displayBriefing();
+    dailyChallenge.displayChallenge();
+  }
 
   for (let name in Memory.creeps) {
     if (!Game.creeps[name]) {
@@ -161,6 +177,9 @@ module.exports.loop = function () {
     }
 
     DefenseManager.findTowerTargets(room);
+    
+    // 🛡️ NEW: Advanced defense manager
+    defenseManager.run(room);
   }
 
   for (let name in Game.creeps) {
@@ -173,6 +192,7 @@ module.exports.loop = function () {
     else if (creep.memory.role === "medic") roleMedic.run(creep);
     else if (creep.memory.role === "transporter") roleTransporter.run(creep);
     else if (creep.memory.role === "explorer") roleExplorer.run(creep);
+    else if (creep.memory.role === "defender") defenseManager.runDefender(creep);
   }
 
   if (Game.time % 20 === 0) {
@@ -195,9 +215,10 @@ module.exports.loop = function () {
       medic: allCreeps.filter((c) => c.memory.role === "medic").length,
       transporter: allCreeps.filter((c) => c.memory.role === "transporter").length,
       explorer: allCreeps.filter((c) => c.memory.role === "explorer").length,
+      defender: allCreeps.filter((c) => c.memory.role === "defender").length,
     };
     console.log(
-      `📊 [${Game.time}] Creeps: ${allCreeps.length} | H:${summary.harvester} U:${summary.upgrader} B:${summary.builder} R:${summary.repairer} S:${summary.scout} M:${summary.medic} T:${summary.transporter} E:${summary.explorer}`
+      `📊 [${Game.time}] Creeps: ${allCreeps.length} | H:${summary.harvester} U:${summary.upgrader} B:${summary.builder} R:${summary.repairer} S:${summary.scout} M:${summary.medic} T:${summary.transporter} E:${summary.explorer} D:${summary.defender}`
     );
 
     const stats = StatsManager.getStats();

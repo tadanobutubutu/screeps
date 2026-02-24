@@ -1,0 +1,45 @@
+{
+  "name": "screeps",
+  "description": "Fully automated Screeps AI repository with zero-cost GitHub Actions",
+  "topics": [
+    "screeps",
+    "automation",
+    "github-actions",
+    "ai",
+    "game-bot",
+    "javascript",
+    "nodejs",
+    "continuous-integration",
+    "security-monitoring",
+    "self-improving"
+  ],
+  "homepage": "https://github.com/tadanobutubutu/screeps",
+  "license": "MIT",
+  "language": "JavaScript",
+  "custom_properties": {
+    "automation_level": "Full",
+    "api_cost": "Zero",
+    "security_layers": "5",
+    "workflows": "7+",
+    "auto_improvement": "Enabled",
+    "monitoring": "Real-time",
+    "deployment": "Automatic",
+    "documentation": "Self-updating"
+  },
+  "features": [
+    "Rule-based code optimization",
+    "Auto-formatting with ESLint & Prettier",
+    "Random experimental features",
+    "Automatic role generation",
+    "Real-time game status reporting",
+    "Multi-layer security monitoring",
+    "Self-updating documentation",
+    "Zero external API costs"
+  ],
+  "stats": {
+    "roles": 8,
+    "workflows": 7,
+    "security_scans": "Daily",
+    "auto_updates": "Continuous"
+  }
+}

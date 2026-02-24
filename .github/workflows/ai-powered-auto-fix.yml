@@ -1,0 +1,337 @@
+name: 🤖 AI-Powered Auto-Fix
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/30 * * * *'  # Every 30 minutes
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  ai-fix-errors:
+    runs-on: ubuntu-latest
+    name: AI Error Analysis & Fix
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Check for Errors
+        id: check
+        run: |
+          if [ ! -f "DETECTED_ERRORS.json" ]; then
+            echo "has_errors=false" >> $GITHUB_OUTPUT
+            echo "✅ No errors detected"
+            exit 0
+          fi
+          
+          ERROR_COUNT=$(cat DETECTED_ERRORS.json | grep -o '"level": "error"' | wc -l)
+          echo "has_errors=true" >> $GITHUB_OUTPUT
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "🔍 Found $ERROR_COUNT errors"
+      
+      - name: Create AI Fix Branch
+        if: steps.check.outputs.has_errors == 'true'
+        id: branch
+        run: |
+          BRANCH="ai-fix-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b $BRANCH
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "📝 Created branch: $BRANCH"
+      
+      - name: Analyze Errors with Context
+        if: steps.check.outputs.has_errors == 'true'
+        id: analyze
+        run: |
+          cat > error-context.md << 'EOF'
+          # 🐛 Error Analysis Context
+          
+          ## Detected Errors
+          $(cat DETECTED_ERRORS.json | head -100)
+          
+          ## Current Code Structure
+          
+          ### Main Files
+          - main.js: Main game loop
+          - role.*.js: Creep role implementations
+          - utils.*.js: Utility functions
+          
+          ## Task
+          
+          Analyze these errors and fix them. Common patterns:
+          
+          1. **Null Reference Errors**
+             - Add null checks before property access
+             - Use optional chaining where possible
+          
+          2. **Undefined Function Errors**
+             - Check function exists before calling
+             - Verify require() statements
+             - Check spelling
+          
+          3. **Reference Errors**
+             - Add missing variable declarations
+             - Fix typos in variable names
+             - Add missing require() statements
+          
+          4. **Logic Errors**
+             - Fix infinite loops
+             - Fix incorrect conditions
+             - Fix off-by-one errors
+          
+          ## Requirements
+          
+          - Maintain existing functionality
+          - Add defensive programming
+          - Keep code readable
+          - Add comments for complex fixes
+          - Test edge cases
+          
+          EOF
+          
+          echo "📋 Created error context"
+      
+      - name: Create AI Fix Issue
+        if: steps.check.outputs.has_errors == 'true'
+        id: issue
+        run: |
+          ISSUE_URL=$(gh issue create \
+            --title "🤖 AI Task: Fix Detected Errors ($(date '+%Y-%m-%d %H:%M'))" \
+            --body "## 🎯 Task
+          
+          Fix all detected errors in the codebase.
+          
+          ### 📊 Error Summary
+          
+          - **Error Count**: ${{ steps.check.outputs.error_count }}
+          - **Detection Time**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          - **Branch**: ${{ steps.branch.outputs.branch }}
+          
+          ### 🐛 Detected Errors
+          
+          \`\`\`json
+          $(cat DETECTED_ERRORS.json | head -50)
+          \`\`\`
+          
+          ### 📝 Instructions for Copilot
+          
+          @github-copilot Please analyze these errors and create fixes:
+          
+          1. **Analyze Error Patterns**
+             - Identify common error types
+             - Find root causes
+             - Determine best fix approach
+          
+          2. **Apply Fixes**
+             - Add null checks for undefined property access
+             - Fix function references
+             - Add missing variable declarations
+             - Improve error handling
+          
+          3. **Testing**
+             - Ensure no breaking changes
+             - Add defensive programming
+             - Handle edge cases
+          
+          ### 🎯 Success Criteria
+          
+          - All errors fixed
+          - No new errors introduced
+          - Code remains readable
+          - Defensive programming added
+          
+          ### 📁 Files to Check
+          
+          Focus on these file patterns:
+          - \`main.js\` - Main loop
+          - \`role.*.js\` - Role implementations
+          - \`utils.*.js\` - Utilities
+          - \`defense.*.js\` - Defense systems
+          
+          ---
+          
+          **Note**: This issue is for GitHub Copilot to work on.
+          A PR will be created automatically with the fixes." \
+            --label "ai-task,auto-fix,copilot" \
+            --assignee "@me")
+          
+          ISSUE_NUMBER=$(echo $ISSUE_URL | grep -o '[0-9]*$')
+          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          echo "issue_url=$ISSUE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Created issue: $ISSUE_URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Assign Copilot to Issue
+        if: steps.check.outputs.has_errors == 'true'
+        id: copilot
+        run: |
+          # Use GitHub Copilot to fix errors
+          echo "🤖 Assigning to GitHub Copilot..."
+          
+          # Create instruction file for Copilot
+          cat > .github/COPILOT_INSTRUCTIONS.md << 'EOF'
+          # GitHub Copilot Instructions
+          
+          ## Current Task: Fix Detected Errors
+          
+          ### Error Details
+          See DETECTED_ERRORS.json for full error list.
+          
+          ### Approach
+          
+          1. **Analyze each error**:
+             - Read error message
+             - Find relevant code
+             - Understand root cause
+          
+          2. **Apply appropriate fix**:
+             - Null checks: `obj && obj.property`
+             - Function checks: `typeof fn === 'function' && fn()`
+             - Variable checks: Add declarations or fix typos
+          
+          3. **Test the fix**:
+             - Ensure no breaking changes
+             - Add error handling
+             - Consider edge cases
+          
+          ### Code Style
+          - Use const/let, not var
+          - Add comments for complex logic
+          - Keep functions small and focused
+          - Follow existing patterns
+          
+          ### Safety
+          - Always add null checks
+          - Never remove functionality
+          - Preserve existing behavior
+          - Add defensive programming
+          EOF
+          
+          echo "📝 Created Copilot instructions"
+          
+          # Commit setup
+          git config user.name 'AI Fix Bot'
+          git config user.email 'ai@screeps.local'
+          git add .github/COPILOT_INSTRUCTIONS.md error-context.md
+          git commit -m "🤖 Setup: Prepare for AI fixes
+          
+          Issue: #${{ steps.issue.outputs.issue_number }}
+          Errors: ${{ steps.check.outputs.error_count }}"
+          git push origin ${{ steps.branch.outputs.branch }}
+      
+      - name: Create Draft PR for Copilot
+        if: steps.check.outputs.has_errors == 'true'
+        run: |
+          PR_URL=$(gh pr create \
+            --title "🤖 [AI Fix] Automatic Error Corrections" \
+            --body "## 🤖 AI-Powered Error Fixes
+          
+          This PR contains automatic fixes generated by GitHub Copilot.
+          
+          ### 📊 Summary
+          
+          - **Errors Fixed**: ${{ steps.check.outputs.error_count }}
+          - **Related Issue**: #${{ steps.issue.outputs.issue_number }}
+          - **Method**: GitHub Copilot AI Analysis
+          
+          ### 🔍 What's Fixed
+          
+          See DETECTED_ERRORS.json for the full list of errors addressed.
+          
+          ### ✅ Review Checklist
+          
+          - [ ] All errors resolved
+          - [ ] No breaking changes
+          - [ ] Code quality maintained
+          - [ ] Tests pass (if applicable)
+          - [ ] Edge cases handled
+          
+          ### 🤖 AI Instructions
+          
+          @github-copilot Please:
+          1. Analyze errors in DETECTED_ERRORS.json
+          2. Fix each error with appropriate solution
+          3. Add defensive programming
+          4. Ensure code quality
+          5. Update this PR with your changes
+          
+          ---
+          
+          **Auto-merge**: Will merge automatically if safe (< 5 files changed)
+          
+          Closes #${{ steps.issue.outputs.issue_number }}" \
+            --base main \
+            --head ${{ steps.branch.outputs.branch }} \
+            --draft \
+            --label "ai-fix,automated,needs-review")
+          
+          echo "✅ Created draft PR: $PR_URL"
+          echo "🤖 GitHub Copilot can now work on this PR"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Alternative: Manual AI Suggestions
+        if: steps.check.outputs.has_errors == 'true'
+        run: |
+          echo "💡 Alternative approach: Generate fix suggestions"
+          
+          node << 'SCRIPT'
+          const fs = require('fs');
+          const errors = JSON.parse(fs.readFileSync('DETECTED_ERRORS.json', 'utf8'));
+          
+          let suggestions = '# 🤖 AI-Generated Fix Suggestions\n\n';
+          
+          errors.forEach((error, index) => {
+            suggestions += `## Error ${index + 1}: Tick ${error.time}\n\n`;
+            suggestions += `**Message**: \`${error.message}\`\n\n`;
+            
+            // Generate fix suggestion based on error pattern
+            if (error.message.includes('Cannot read property')) {
+              const match = error.message.match(/Cannot read property '(\w+)' of (\w+)/);
+              if (match) {
+                suggestions += `### 💡 Suggested Fix\n\n`;
+                suggestions += `\`\`\`javascript\n`;
+                suggestions += `// Add null check\n`;
+                suggestions += `if (${match[2]} && ${match[2]}.${match[1]}) {\n`;
+                suggestions += `  // Use ${match[2]}.${match[1]}\n`;
+                suggestions += `}\n`;
+                suggestions += `\`\`\`\n\n`;
+              }
+            } else if (error.message.includes('is not a function')) {
+              const match = error.message.match(/(\w+) is not a function/);
+              if (match) {
+                suggestions += `### 💡 Suggested Fix\n\n`;
+                suggestions += `\`\`\`javascript\n`;
+                suggestions += `// Add function check\n`;
+                suggestions += `if (typeof ${match[1]} === 'function') {\n`;
+                suggestions += `  ${match[1]}();\n`;
+                suggestions += `}\n`;
+                suggestions += `\`\`\`\n\n`;
+              }
+            } else if (error.message.includes('is not defined')) {
+              const match = error.message.match(/(\w+) is not defined/);
+              if (match) {
+                suggestions += `### 💡 Suggested Fix\n\n`;
+                suggestions += `\`\`\`javascript\n`;
+                suggestions += `// Add variable declaration or require\n`;
+                suggestions += `const ${match[1]} = require('./${match[1]}'); // if it's a module\n`;
+                suggestions += `// OR\n`;
+                suggestions += `let ${match[1]} = defaultValue; // if it's a variable\n`;
+                suggestions += `\`\`\`\n\n`;
+              }
+            }
+            
+            suggestions += '---\n\n';
+          });
+          
+          fs.writeFileSync('AI_FIX_SUGGESTIONS.md', suggestions);
+          console.log('✅ Generated AI fix suggestions');
+          SCRIPT
+          
+          git add AI_FIX_SUGGESTIONS.md
+          git commit -m "🤖 Add AI-generated fix suggestions" || true
+          git push origin ${{ steps.branch.outputs.branch }} || true

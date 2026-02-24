@@ -1,0 +1,139 @@
+name: 🎨 Auto-Format & Lint
+
+on:
+  schedule:
+    # Every day at 2 AM JST (5 PM UTC previous day)
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    name: Format Code with ESLint & Prettier
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install formatting tools
+        run: |
+          npm init -y
+          npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-prettier
+      
+      - name: Create ESLint config
+        run: |
+          cat > .eslintrc.json << 'EOF'
+          {
+            "env": {
+              "es6": true,
+              "node": true
+            },
+            "extends": [
+              "eslint:recommended",
+              "prettier"
+            ],
+            "plugins": ["prettier"],
+            "parserOptions": {
+              "ecmaVersion": 2020,
+              "sourceType": "module"
+            },
+            "globals": {
+              "Game": "readonly",
+              "Memory": "readonly",
+              "PathFinder": "readonly",
+              "RawMemory": "readonly",
+              "FIND_MY_SPAWNS": "readonly",
+              "FIND_SOURCES": "readonly",
+              "FIND_STRUCTURES": "readonly",
+              "FIND_HOSTILE_CREEPS": "readonly",
+              "STRUCTURE_EXTENSION": "readonly",
+              "STRUCTURE_TOWER": "readonly",
+              "STRUCTURE_CONTROLLER": "readonly",
+              "STRUCTURE_SPAWN": "readonly",
+              "OK": "readonly",
+              "ERR_NOT_ENOUGH_ENERGY": "readonly",
+              "ERR_BUSY": "readonly"
+            },
+            "rules": {
+              "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+              "no-console": "off",
+              "prefer-const": "error",
+              "no-var": "error",
+              "prettier/prettier": "error",
+              "eqeqeq": ["error", "always"],
+              "curly": ["error", "all"],
+              "brace-style": ["error", "1tbs"]
+            }
+          }
+          EOF
+      
+      - name: Create Prettier config
+        run: |
+          cat > .prettierrc.json << 'EOF'
+          {
+            "semi": true,
+            "singleQuote": true,
+            "tabWidth": 4,
+            "trailingComma": "es5",
+            "printWidth": 100,
+            "arrowParens": "always",
+            "endOfLine": "lf"
+          }
+          EOF
+      
+      - name: Run ESLint with auto-fix
+        run: |
+          npx eslint --fix *.js || true
+          echo "✅ ESLint fixes applied"
+      
+      - name: Run Prettier
+        run: |
+          npx prettier --write "*.js"
+          echo "✅ Prettier formatting applied"
+      
+      - name: Generate formatting report
+        run: |
+          cat > format-report.txt << EOF
+          Formatting Report - $(date)
+          ================================
+          
+          ESLint Rules Applied:
+          - prefer-const: Use const for variables that are never reassigned
+          - no-var: Replace var with const/let
+          - eqeqeq: Use === instead of ==
+          - curly: Always use braces for control structures
+          
+          Prettier Formatting:
+          - Single quotes for strings
+          - 4-space indentation
+          - 100-character line width
+          - Trailing commas in ES5
+          
+          Files processed: $(ls *.js | wc -l)
+          EOF
+          cat format-report.txt
+      
+      - name: Commit formatted code
+        run: |
+          git config user.name 'Code Formatter Bot'
+          git config user.email 'formatter@screeps.local'
+          git add *.js .eslintrc.json .prettierrc.json format-report.txt
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "🎨 Auto-format: ESLint + Prettier applied
+            
+            - Code style standardized
+            - Linting rules enforced
+            - Formatting consistency improved"
+            git push
+          else
+            echo "✨ Code already perfectly formatted!"
+          fi

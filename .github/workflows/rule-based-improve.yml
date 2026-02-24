@@ -1,0 +1,133 @@
+name: 🔧 Rule-Based Auto-Improve
+
+on:
+  schedule:
+    # Every 6 hours - frequent but not aggressive
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    name: Apply Code Optimization Rules
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Apply automatic improvements
+        run: |
+          node -e "
+          const fs = require('fs');
+          
+          // 改善ルール集
+          const improvements = [
+            // 1. console.log を削除（パフォーマンス向上）
+            { 
+              name: 'Remove console.log',
+              pattern: /console\.log\([^)]*\);?\s*/g, 
+              replace: '' 
+            },
+            
+            // 2. var を const/let に変更
+            { 
+              name: 'Replace var with const',
+              pattern: /\bvar\s+/g, 
+              replace: 'const ' 
+            },
+            
+            // 3. 非効率な for-in ループを最適化
+            { 
+              name: 'Optimize Game.creeps loop',
+              pattern: /for\s*\(\s*const\s+(\w+)\s+in\s+Game\.creeps\s*\)\s*{/g, 
+              replace: 'for (const creep of Object.values(Game.creeps)) {' 
+            },
+            
+            // 4. 死んだクリープのメモリクリーンアップを追加
+            {
+              name: 'Add memory cleanup',
+              pattern: /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+              replace: \`\$1
+    // Auto-added: Memory cleanup
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
+        }
+        Memory.lastCleanup = Game.time;
+    }
+\`
+            },
+            
+            // 5. undefined チェックを厳密に
+            { 
+              name: 'Strict undefined check',
+              pattern: /if\s*\(\s*!\s*(\w+)\s*\)/g, 
+              replace: 'if (\$1 === undefined || \$1 === null)' 
+            }
+          ];
+          
+          const files = fs.readdirSync('.')
+            .filter(f => f.endsWith('.js') && !f.includes('node_modules'));
+          
+          let changedFiles = [];
+          let appliedRules = [];
+          
+          files.forEach(file => {
+            let content = fs.readFileSync(file, 'utf8');
+            let original = content;
+            let fileRules = [];
+            
+            improvements.forEach(imp => {
+              const before = content;
+              content = content.replace(imp.pattern, imp.replace);
+              if (content !== before) {
+                fileRules.push(imp.name);
+              }
+            });
+            
+            if (content !== original) {
+              fs.writeFileSync(file, content);
+              changedFiles.push(file);
+              appliedRules.push(...fileRules);
+              console.log(\`✅ Improved: \${file} (\${fileRules.join(', ')})\`);
+            }
+          });
+          
+          if (changedFiles.length > 0) {
+            const summary = {
+              files: changedFiles,
+              rules: [...new Set(appliedRules)],
+              timestamp: new Date().toISOString()
+            };
+            fs.writeFileSync('last-rule-improvement.json', JSON.stringify(summary, null, 2));
+            console.log(\`\n🎉 Total improved: \${changedFiles.length} files\`);
+            console.log(\`📋 Rules applied: \${summary.rules.join(', ')}\`);
+          } else {
+            console.log('✨ Code already optimal!');
+            process.exit(1);
+          }
+          "
+      
+      - name: Commit improvements
+        run: |
+          git config user.name 'Rule-Based Optimizer'
+          git config user.email 'optimizer@screeps.local'
+          git add *.js last-rule-improvement.json
+          
+          if ! git diff --staged --quiet; then
+            RULES=$(node -e "console.log(require('./last-rule-improvement.json').rules.join(', '))" 2>/dev/null || echo "optimizations")
+            git commit -m "🔧 Auto-improvement: Applied ${RULES}"
+            git push
+          else
+            echo "No changes to commit"
+          fi

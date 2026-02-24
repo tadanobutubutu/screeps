@@ -1,0 +1,345 @@
+name: ✨ AI Code Improvement
+
+on:
+  schedule:
+    - cron: '0 */12 * * *'  # Every 12 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  ai-improve-code:
+    runs-on: ubuntu-latest
+    name: AI-Powered Code Analysis & Improvement
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Analyze Code Quality
+        id: analyze
+        run: |
+          echo "🔍 Analyzing code quality..."
+          
+          # Count various code metrics
+          TOTAL_LINES=$(find . -name '*.js' -not -path './node_modules/*' -not -path './.git/*' | xargs wc -l | tail -1 | awk '{print $1}')
+          CONSOLE_LOGS=$(grep -r 'console.log' --include='*.js' --exclude-dir=node_modules --exclude-dir=.git | wc -l)
+          VAR_USAGE=$(grep -r '\bvar\b' --include='*.js' --exclude-dir=node_modules --exclude-dir=.git | wc -l)
+          TODO_COUNT=$(grep -r 'TODO\|FIXME\|HACK' --include='*.js' --exclude-dir=node_modules --exclude-dir=.git | wc -l)
+          
+          echo "total_lines=$TOTAL_LINES" >> $GITHUB_OUTPUT
+          echo "console_logs=$CONSOLE_LOGS" >> $GITHUB_OUTPUT
+          echo "var_usage=$VAR_USAGE" >> $GITHUB_OUTPUT
+          echo "todo_count=$TODO_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "📊 Code Metrics:"
+          echo "  - Total Lines: $TOTAL_LINES"
+          echo "  - Console.logs: $CONSOLE_LOGS"
+          echo "  - Var usage: $VAR_USAGE"
+          echo "  - TODOs: $TODO_COUNT"
+          
+          # Determine if improvement needed
+          NEEDS_IMPROVEMENT=false
+          if [ $CONSOLE_LOGS -gt 5 ] || [ $VAR_USAGE -gt 0 ] || [ $TODO_COUNT -gt 10 ]; then
+            NEEDS_IMPROVEMENT=true
+          fi
+          echo "needs_improvement=$NEEDS_IMPROVEMENT" >> $GITHUB_OUTPUT
+      
+      - name: Create Improvement Branch
+        if: steps.analyze.outputs.needs_improvement == 'true'
+        id: branch
+        run: |
+          BRANCH="ai-improve-$(date +%Y%m%d-%H%M)"
+          git checkout -b $BRANCH
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "🌱 Created branch: $BRANCH"
+      
+      - name: Generate Code Analysis Report
+        if: steps.analyze.outputs.needs_improvement == 'true'
+        run: |
+          cat > CODE_ANALYSIS.md << EOF
+          # 📊 Code Analysis Report
+          
+          **Generated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          ## 📈 Metrics
+          
+          - **Total Lines**: ${{ steps.analyze.outputs.total_lines }}
+          - **Console.logs**: ${{ steps.analyze.outputs.console_logs }}
+          - **Var declarations**: ${{ steps.analyze.outputs.var_usage }}
+          - **TODOs/FIXMEs**: ${{ steps.analyze.outputs.todo_count }}
+          
+          ## 🎯 Improvement Areas
+          
+          ### 1. Code Quality
+          $(if [ ${{ steps.analyze.outputs.console_logs }} -gt 0 ]; then
+            echo "- ⚠️ Remove debug console.log statements"
+          fi)
+          $(if [ ${{ steps.analyze.outputs.var_usage }} -gt 0 ]; then
+            echo "- ⚠️ Replace 'var' with 'const' or 'let'"
+          fi)
+          $(if [ ${{ steps.analyze.outputs.todo_count }} -gt 5 ]; then
+            echo "- ⚠️ Address TODOs and FIXMEs"
+          fi)
+          
+          ### 2. Performance
+          - Optimize loops and iterations
+          - Cache frequently accessed data
+          - Reduce unnecessary computations
+          
+          ### 3. Maintainability
+          - Add JSDoc comments
+          - Improve function names
+          - Split large functions
+          - Add error handling
+          
+          ### 4. Best Practices
+          - Use const/let instead of var
+          - Add null checks
+          - Use optional chaining
+          - Implement defensive programming
+          
+          ## 🤖 AI Task
+          
+          Use GitHub Copilot to:
+          1. Analyze all .js files
+          2. Apply improvements systematically
+          3. Maintain functionality
+          4. Add helpful comments
+          5. Follow Screeps best practices
+          EOF
+          
+          echo "📝 Generated analysis report"
+      
+      - name: Create AI Improvement Issue
+        if: steps.analyze.outputs.needs_improvement == 'true'
+        id: issue
+        run: |
+          ISSUE_URL=$(gh issue create \
+            --title "✨ AI Task: Code Quality Improvements ($(date '+%Y-%m-%d'))" \
+            --body "## 🎯 Goal
+          
+          Improve code quality across the codebase using AI analysis.
+          
+          ### 📊 Current State
+          
+          - **Total Lines**: ${{ steps.analyze.outputs.total_lines }}
+          - **Console.logs**: ${{ steps.analyze.outputs.console_logs }} ⚠️
+          - **Var usage**: ${{ steps.analyze.outputs.var_usage }} ⚠️
+          - **TODOs**: ${{ steps.analyze.outputs.todo_count }}
+          - **Branch**: ${{ steps.branch.outputs.branch }}
+          
+          ### ✨ Improvements Needed
+          
+          #### 1. Clean Up
+          - Remove debug console.log statements
+          - Replace 'var' with 'const'/'let'
+          - Clean up commented code
+          
+          #### 2. Performance
+          - Optimize loops
+          - Cache repeated calculations
+          - Reduce CPU usage
+          
+          #### 3. Code Quality
+          - Add JSDoc comments
+          - Improve function names
+          - Add error handling
+          - Use modern JavaScript features
+          
+          #### 4. Screeps-Specific
+          - Optimize pathfinding
+          - Improve memory usage
+          - Better creep logic
+          - Efficient resource management
+          
+          ### 🤖 Instructions for Copilot
+          
+          @github-copilot Please improve the codebase:
+          
+          1. **Code Cleanup**
+             - Remove console.log statements (keep important ones)
+             - Convert var to const/let
+             - Remove dead code
+          
+          2. **Performance Optimization**
+             - Cache frequently used values
+             - Optimize loops
+             - Reduce redundant calculations
+          
+          3. **Code Quality**
+             - Add JSDoc comments to functions
+             - Improve variable names
+             - Add null checks
+             - Use modern syntax (optional chaining, etc.)
+          
+          4. **Screeps Best Practices**
+             - Cache room objects
+             - Optimize pathfinding
+             - Efficient memory structure
+             - Smart creep behavior
+          
+          ### ✅ Success Criteria
+          
+          - All warnings addressed
+          - Code more readable
+          - Performance improved
+          - No functionality lost
+          - Tests pass (if any)
+          
+          ---
+          
+          See CODE_ANALYSIS.md for detailed analysis." \
+            --label "ai-task,enhancement,code-quality" \
+            --assignee "@me")
+          
+          ISSUE_NUMBER=$(echo $ISSUE_URL | grep -o '[0-9]*$')
+          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          echo "issue_url=$ISSUE_URL" >> $GITHUB_OUTPUT
+          echo "✅ Created issue: $ISSUE_URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Setup for AI
+        if: steps.analyze.outputs.needs_improvement == 'true'
+        run: |
+          # Create instructions for Copilot
+          cat > .github/IMPROVEMENT_GUIDE.md << 'EOF'
+          # AI Code Improvement Guide
+          
+          ## Priority Order
+          
+          1. **Safety First**: Never break existing functionality
+          2. **Performance**: Optimize without sacrificing readability
+          3. **Maintainability**: Make code easier to understand
+          4. **Best Practices**: Follow JavaScript and Screeps standards
+          
+          ## Specific Improvements
+          
+          ### JavaScript Modernization
+          ```javascript
+          // Before
+          var creep = Game.creeps[name];
+          if (creep) {
+            if (creep.memory.role === 'harvester') {
+              // do something
+            }
+          }
+          
+          // After
+          const creep = Game.creeps[name];
+          if (creep?.memory?.role === 'harvester') {
+            // do something
+          }
+          ```
+          
+          ### Performance Optimization
+          ```javascript
+          // Before
+          for (let name in Game.creeps) {
+            const creep = Game.creeps[name];
+            if (creep.room.find(FIND_SOURCES).length > 0) {
+              // ...
+            }
+          }
+          
+          // After
+          const creeps = Object.values(Game.creeps);
+          const sourcesByRoom = {};
+          
+          for (const creep of creeps) {
+            if (!sourcesByRoom[creep.room.name]) {
+              sourcesByRoom[creep.room.name] = creep.room.find(FIND_SOURCES);
+            }
+            if (sourcesByRoom[creep.room.name].length > 0) {
+              // ...
+            }
+          }
+          ```
+          
+          ### Error Handling
+          ```javascript
+          // Before
+          const target = creep.pos.findClosestByPath(FIND_SOURCES);
+          creep.moveTo(target);
+          
+          // After
+          const target = creep.pos.findClosestByPath(FIND_SOURCES);
+          if (target) {
+            creep.moveTo(target);
+          } else {
+            console.log(`No sources found for creep ${creep.name}`);
+          }
+          ```
+          
+          ## What NOT to Change
+          
+          - Game logic that works
+          - Role definitions
+          - Spawn configurations
+          - Memory structure (unless improving)
+          EOF
+          
+          git config user.name 'AI Improve Bot'
+          git config user.email 'ai-improve@screeps.local'
+          git add CODE_ANALYSIS.md .github/IMPROVEMENT_GUIDE.md
+          git commit -m "✨ Setup: Prepare for AI improvements
+          
+          Issue: #${{ steps.issue.outputs.issue_number }}
+          Improvements needed: console.logs, var usage, TODOs"
+          git push origin ${{ steps.branch.outputs.branch }}
+      
+      - name: Create Draft PR
+        if: steps.analyze.outputs.needs_improvement == 'true'
+        run: |
+          gh pr create \
+            --title "✨ [AI] Code Quality Improvements" \
+            --body "## ✨ AI-Powered Code Improvements
+          
+          This PR contains code quality improvements generated by GitHub Copilot.
+          
+          ### 📈 Improvements
+          
+          - 🧹 Code cleanup (console.logs, var declarations)
+          - ⚡ Performance optimizations
+          - 📝 Documentation improvements
+          - 🛡️ Error handling enhancements
+          
+          ### 📊 Stats
+          
+          Before:
+          - Console.logs: ${{ steps.analyze.outputs.console_logs }}
+          - Var usage: ${{ steps.analyze.outputs.var_usage }}
+          - TODOs: ${{ steps.analyze.outputs.todo_count }}
+          
+          ### 🤖 AI Instructions
+          
+          @github-copilot Please:
+          1. Review CODE_ANALYSIS.md
+          2. Follow guidelines in .github/IMPROVEMENT_GUIDE.md
+          3. Apply improvements systematically
+          4. Maintain all functionality
+          5. Update this PR with changes
+          
+          ### ✅ Review Checklist
+          
+          - [ ] All improvements applied
+          - [ ] No functionality broken
+          - [ ] Code more readable
+          - [ ] Performance maintained/improved
+          - [ ] Comments added where needed
+          
+          ---
+          
+          Related: #${{ steps.issue.outputs.issue_number }}" \
+            --base main \
+            --head ${{ steps.branch.outputs.branch }} \
+            --draft \
+            --label "ai-improvement,enhancement,automated"
+          
+          echo "✅ Created draft PR for AI improvements"
+        env:
+          GH_TOKEN: ${{ github.token }}

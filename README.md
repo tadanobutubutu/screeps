@@ -1,134 +1,155 @@
-# 🎮 Screeps AI - 完全自動化リポジトリ
+# 🎮 Screeps AI - AI強化完全自動化リポジトリ
 
-> **ハイブリッドモード** - GitHub Sync + API Stats - 完全無料・完全自動
+> **AIパワーで完全自動化** - GitHub Copilot統合 - 完全無料・ゼロメンテナンス
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
+[![AI Powered](https://img.shields.io/badge/AI-GitHub%20Copilot-purple)](https://github.com/features/copilot)
 [![Hybrid Mode](https://img.shields.io/badge/Mode-Hybrid-green)](https://docs.screeps.com/commit.html)
 [![Free Forever](https://img.shields.io/badge/Cost-¥0%20Forever-brightgreen)](https://github.com/pricing)
-[![API Optional](https://img.shields.io/badge/API-Optional-orange)](./SETUP.md)
 
 ## 🚀 特徴
 
+- 🤖 **AIパワー**: GitHub Copilotがエラー修正・コード改善
 - 🔄 **ハイブリッド**: GitHub Syncデプロイ + API統計
 - 📊 **リアルタイム統計**: GCL・CPU・クリープ数
 - 📝 **コンソールログ**: GitHubでいつでも確認
-- 💰 **完全無料**: パブリックリポジトリはGitHub Actions無制限
-- 🤖 **完全自動**: エラー修正・コード改善・セキュリティスキャン
+- 💰 **完全無料**: GitHub Actions無制限
 - 🔄 **完全放置**: 何もしなくてOK
+
+## 🤖 AI強化システム
+
+### 1. 🐛 AIエラー自動修正
+
+**GitHub Copilotがエラーを分析・修正**
+
+```
+インゲームでエラー発生
+  ↓ Memory.logsに記録
+AIがエラーを分析 (30分ごと)
+  ↓ パターン認識
+  ↓ 根本原因特定
+  ↓ 最適な修正方法を選択
+Copilotが修正を適用
+  ↓ コード変更
+  ↓ テスト
+  ↓ PR作成
+レビュー & マージ
+  ↓ 自動デプロイ
+解決✅
+```
+
+**対応可能なエラー**:
+- ✅ Null参照エラー
+- ✅ 未定義関数
+- ✅ 参照エラー
+- ✅ ロジックエラー
+- ✅ パフォーマンス問題
+- ✅ その他あらゆるエラー
+
+### 2. ✨ AIコード改善
+
+**12時間ごとにコード品質を向上**
+
+```
+AIがコードを分析
+  ↓ メトリクス計測
+  ↓ 問題箇所特定
+Copilotが改善提案
+  ↓ パフォーマンス最適化
+  ↓ 可読性向上
+  ↓ ベストプラクティス適用
+PR作成
+  ↓ レビュー
+  ↓ マージ
+コード品質向上✨
+```
+
+**改善項目**:
+- 🧹 console.log削除
+- ⚡ var→const/let変換
+- 📝 JSDocコメント追加
+- 🛡️ エラーハンドリング
+- 🚀 パフォーマンス最適化
+- 🎯 Screepsベストプラクティス
+
+### 3. 🔧 従来型自動修正 (バックアップ)
+
+**パターンマッチングで基本的な修正**
+
+- シンプルなエラーは即座に修正
+- AIが必要な場合のバックアップ
 
 ## 📊 ハイブリッドモード
 
 **両方のいいとこ取り！**
 
 ```
-GitHubリポジトリ (main)
-  ↓ push
-GitHub Actions
-  ↓ 自動整形・エラーチェック
-Screepsが自動同期 (GitHub Sync)
-  ↓ 5-10分
-ゲーム内で実行
+GitHubリポジトリ
+  ↓ GitHub Sync (トークン不要)
+Screepsゲーム
 
 同時に...
 
-GitHub Actions (15分ごと)
-  ↓ APIで統計取得
-GAME_STATUS.md 更新
-  ↓ リアルタイム統計
-CONSOLE_LOGS.md 更新
-  ↓ コンソールログ
+GitHub Actions
+  ↓ API (オプション)
+GAME_STATUS.md (統計)
+CONSOLE_LOGS.md (ログ)
 ```
-
-**メリット**:
-- ✅ デプロイ: GitHub Sync (トークン不要)
-- ✅ 統計: API (リアルタイム)
-- ✅ ログ: API (GitHubで確認)
-- ✅ セットアップ簡単
-- ✅ 完全無料
 
 ## ⚡ クイックスタート
 
-### 1. 🔗 GitHub連携 (必須)
+### 1. GitHub連携 (必須)
 
-1. [Screeps.com](https://screeps.com) でログイン
-2. Account Settings → Git → Connect to GitHub
-3. このリポジトリ `tadanobutubutu/screeps` を選択
-4. Branch: `main` を選択
+1. [Screeps.com](https://screeps.com) → Account Settings → Git
+2. Connect to GitHub
+3. リポジトリ: `tadanobutubutu/screeps`
+4. Branch: `main`
 5. Save
 
-### 2. 🔑 APIトークン設定 (オプション)
+### 2. APIトークン (オプション)
 
-**リアルタイム統計・コンソールログを有効にするには**:
+**統計・ログを有効にするには**:
 
-1. [Screeps.com](https://screeps.com) → Account Settings → API Access
-2. "Generate Token" をクリック
-3. トークンをコピー
-4. GitHubリポジトリ → Settings → Secrets and Variables → Actions
-5. "New repository secret" をクリック
-6. Name: `SCREEPS_PROD_TOKEN`
-7. Value: [トークンをペースト]
-8. "Add secret" をクリック
+1. Screeps.com → API Access → Generate Token
+2. GitHub Secretsに `SCREEPS_PROD_TOKEN` として設定
 
-⚠️ **トークンなしでも動きます** - 統計・ログなしでデプロイのみ
+### 3. スポーン & 放置
 
-### 3. 🎮 スポーン
+それだけ！あとはAIが全部やります。
 
-1. Screepsで部屋を選ぶ
-2. Spawnをクリック
-3. 自動化システムが起動！
+## 🤖 自動化システム一覧
 
-詳しくは [⁠`SETUP.md`](./SETUP.md) を参照
+| システム | 方式 | 頻度 | 機能 |
+|--------|------|------|------|
+| 🤖 **AIエラー修正** | Copilot | 30分 | あらゆるエラーをAIが修正 |
+| ✨ **AIコード改善** | Copilot | 12時間 | コード品質をAIが向上 |
+| 🔧 **パターン修正** | ルール | 15分 | シンプルなエラー修正 |
+| 🎨 **自動整形** | ツール | 毎日 | ESLint + Prettier |
+| 🎲 **実験機能** | ランダム | 毎週 | 新機能追加 |
+| 🆕 **ロール生成** | テンプレート | 毎週 | 新ロール作成 |
+| 🔒 **セキュリティ** | 5層防御 | 毎日 | 脆弱性スキャン |
+| 💰 **使用量最適化** | 自動 | 毎日 | 負荷管理 |
 
-## 🤖 自動化システム
+## 📊 ゲーム状況確認
 
-### 🔧 コード改善 (完全自動)
+### GitHubで (推奨)
 
-| 機能 | 頻度 | 説明 |
-|------|------|------|
-| 🔧 ルールベース最適化 | 6時間ごと | 非効率コードを自動修正 |
-| 🎨 自動整形 | 毎日 2:00 | ESLint + Prettier |
-| 🎲 ランダム実験 | 毎週日曜 | 新機能をランダム追加 |
-| 🆕 ロール自動生成 | 毎週月曜 | 新ロールを自動作成 |
+- 📊 [GAME_STATUS.md](./GAME_STATUS.md) - リアルタイム統計
+- 📝 [CONSOLE_LOGS.md](./CONSOLE_LOGS.md) - コンソールログ
+- 🐛 [ERROR_HANDLING.md](./ERROR_HANDLING.md) - エラー対応ガイド
+- 💰 [USAGE_REPORT.md](./USAGE_REPORT.md) - 使用量
 
-### 🔧 エラー自動修正 (プランB)
+### Screepsコンソールで
 
+```javascript
+Game.time              // 現在tick
+Game.gcl.level         // GCL
+Memory.logs.slice(-10) // 最近10ログ
 ```
-エラー発生
-  ↓ Memory.logsに記録
-自動検出 (15分ごと*)
-  ↓ パターン分析
-修正適用
-  ↓ PR自動作成
-レビュー
-  ↓ 安全なら自動マージ
-デプロイ
-  ↓ GitHub Sync
-解決✅
-```
-
-*高負荷時は時間間隔に自動調整
-
-### 🔒 セキュリティ (5層防御)
-
-1. **CodeQL** - 高度な静的分析
-2. **Dependency Scan** - 脆弱性チェック
-3. **Secret Scan** - 機密情報漏洩検知
-4. **Code Pattern** - 危険パターン検知
-5. **Workflow Security** - Actionsセキュリティ
-
-詳細: [⁠`SECURITY.md`](./SECURITY.md)
-
-### 💰 使用量自動最適化
-
-- 毎日使用量チェック
-- 高負荷時に自動で頻度削減
-- 超高負荷時にIssue自動作成
-
-現在の状況: [⁠`USAGE_REPORT.md`](./USAGE_REPORT.md)
 
 ## 🐛 実装済みロール
 
-現在 8種類のロールが稼働中：
+8種類のロール + AIが適宜追加：
 
 - 🌾 harvester - エネルギー採取
 - ⬆️ upgrader - Controller強化
@@ -137,106 +158,42 @@ CONSOLE_LOGS.md 更新
 - 🔍 scout - 探索
 - 💊 medic - 回復
 - 🚚 transporter - 輸送
-- 🌍 explorer - 周達探査
-
-**自動追加予定** (毎週月曜):
-- 🛡️ defender - 防衛
-- ⛏️ miner - 固定採掘
-- 🏴 claimer - 領土拡張
-- 🌎 remoteHarvester - 遠隔採取
-
-## 📊 ゲーム状況の確認
-
-### GitHubで (推奨)
-
-- 📊 [GAME_STATUS.md](./GAME_STATUS.md) - **リアルタイム統計**
-  - GCLレベル
-  - CPU使用量
-  - Credits
-  - クリープ数
-  - ロール別分布
-  
-- 📝 [CONSOLE_LOGS.md](./CONSOLE_LOGS.md) - **コンソールログ**
-  - 最新50件のログ
-  - エラー・警告・情報
-  - ログ統計
-
-- 💰 [USAGE_REPORT.md](./USAGE_REPORT.md) - 使用量
-- 🔒 [SECURITY_REPORT.md](./SECURITY_REPORT.md) - セキュリティ
-
-### Screepsコンソールで
-
-```javascript
-// 統計情報
-Game.time
-Game.gcl.level
-Game.cpu.getUsed()
-Object.keys(Game.creeps).length
-
-// エラー確認
-Memory.logs.filter(l => l.level === 'error')
-
-// ログ統計
-require('utils.logging').getStats()
-```
+- 🌍 explorer - 探査
 
 ## 📚 ドキュメント
 
-- [⁠`SETUP.md`](./SETUP.md) - 詳細セットアップ手順
-- [⁠`ERROR_HANDLING.md`](./ERROR_HANDLING.md) - エラー対応完全ガイド
+- [⁠`SETUP.md`](./SETUP.md) - セットアップ手順
+- [⁠`ERROR_HANDLING.md`](./ERROR_HANDLING.md) - エラー対応ガイド
 - [⁠`WORKFLOWS.md`](./WORKFLOWS.md) - ワークフロー詳細
-- [⁠`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
-- [⁠`LICENSE`](./LICENSE) - MIT License
-
-## ✨ 主な機能
-
-### 🔧 コード最適化
-- console.log 削除
-- var → const 変換
-- ループ最適化
-- メモリクリーンアップ
-
-### 🎲 実験機能
-- パフォーマンスモニター
-- パスファインディングキャッシュ
-- スマートスポーン優先度
-- タワー最適化
-
-### 🔧 自動修正
-- Null参照エラー
-- 未定義関数エラー
-- 参照エラー
+- [⁠`SECURITY.md`](./SECURITY.md) - セキュリティ
 
 ## 💰 コスト
 
 **完全無料・永久無料**
 
-- ✅ GitHub Actions: 無制限 (パブリックリポジトリ)
+- ✅ GitHub Actions: 無制限
+- ✅ GitHub Copilot: 無料 (パブリックリポジトリ)
 - ✅ GitHub Sync: 無料
 - ✅ API: 無料 (オプション)
-- ✅ 外部サービス: 不要
 
 **総コスト: ¥0**
 
 ## ❓ FAQ
 
-**Q: APIトークンは必須？**  
-A: いいえ！トークンなしでもデプロイは動きます。統計・ログが欲しい場合のみ設定。
+**Q: AIが何をする？**  
+A: エラー分析・修正・コード改善を自動で実行。
 
-**Q: コンソールログをGitHubで見れる？**  
-A: はい！APIトークンを設定すればCONSOLE_LOGS.mdで確認できます。
+**Q: 本当に何もしなくていい？**  
+A: はい！GitHub連携だけであとはAIが全部やります。
 
-**Q: リアルタイム統計は？**  
-A: APIトークン設定でGAME_STATUS.mdに15分ごと更新されます。
+**Q: エラーが起きたら？**  
+A: 30分以内にAIが分析・修正します。
+
+**Q: コード品質は？**  
+A: AIが12時間ごとに自動改善します。
 
 **Q: コストは？**  
 A: 完全無料です！
-
-**Q: エラーが起きたら？**  
-A: 15分以内に自動修正されます。
-
-**Q: 完全放置でいい？**  
-A: はい！全て自動です。
 
 ## 👨‍💻 貢献
 
@@ -250,12 +207,13 @@ MIT License
 
 ## 🎉 まとめ
 
+✅ **AIパワー** - Copilotがエラー修正・コード改善  
 ✅ **ハイブリッド** - デプロイ + 統計 + ログ  
 ✅ **完全無料** - 永久に無料  
-✅ **完全自動** - エラー修正・コード改善  
+✅ **完全自動** - AIが全部やる  
 ✅ **完全放置** - 何もしなくてOK  
-✅ **安全安心** - 多層セキュリティ  
+✅ **安全安心** - 5層セキュリティ  
 
 **楽しんでください！** 🎮🤖✨
 
-*Hybrid Mode: GitHub Sync Deploy + API Stats & Logs - Completely Free Forever*
+*AI-Powered Complete Automation - GitHub Copilot Integration - Completely Free Forever*

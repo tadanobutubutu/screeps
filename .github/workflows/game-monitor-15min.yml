@@ -1,0 +1,145 @@
+name: ⏱️ Game Monitor (15min)
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  monitor-game:
+    runs-on: ubuntu-latest
+    name: Monitor Game Status & Detect Errors
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Fetch Game Data
+        id: fetch
+        env:
+          SCREEPS_TOKEN: ${{ secrets.SCREEPS_PROD_TOKEN || secrets.SCREEPS_TOKEN }}
+        run: |
+          node << 'EOF'
+          const https = require('https');
+          const fs = require('fs');
+          
+          const token = process.env.SCREEPS_TOKEN;
+          if (!token) {
+            console.log('No token set');
+            process.exit(0);
+          }
+          
+          const api = (path) => new Promise((ok, fail) => {
+            const req = https.request({
+              hostname: 'screeps.com',
+              port: 443,
+              path: path,
+              method: 'GET',
+              headers: { 'X-Token': token }
+            }, res => {
+              let data = '';
+              res.on('data', d => data += d);
+              res.on('end', () => ok(JSON.parse(data)));
+            });
+            req.on('error', fail);
+            req.end();
+          });
+          
+          (async () => {
+            try {
+              const user = await api('/api/auth/me');
+              const rooms = await api('/api/user/rooms');
+              const memory = await api('/api/user/memory');
+              
+              const timestamp = new Date().toISOString();
+              const logs = memory?.data?.logs || [];
+              const errors = logs.filter(l => l.level === 'error');
+              
+              let status = '# 🎮 Game Status\n\n';
+              status += `**Updated**: ${timestamp}\n\n`;
+              status += `## 👤 Player\n- ${user.username}\n- GCL: ${Math.floor(user.gcl || 0)}\n- CPU: ${user.cpu}\n\n`;
+              
+              if (rooms.rooms?.length) {
+                status += `## 🏰 Rooms (${rooms.rooms.length})\n`;
+                rooms.rooms.forEach(r => {
+                  status += `- ${r.name}: RCL${r.level || 0}\n`;
+                });
+                status += '\n';
+              }
+              
+              if (memory.data?.creeps) {
+                const creeps = Object.values(memory.data.creeps);
+                const roles = {};
+                creeps.forEach(c => roles[c.role] = (roles[c.role] || 0) + 1);
+                status += `## 🐛 Creeps (${creeps.length})\n`;
+                Object.entries(roles).forEach(([r, n]) => status += `- ${r}: ${n}\n`);
+                status += '\n';
+              }
+              
+              if (errors.length > 0) {
+                status += `## ⚠️ Errors (${errors.length})\n\n`;
+                errors.slice(-5).forEach(e => {
+                  status += `- **[${e.time}]** ${e.message}\n`;
+                });
+                status += '\n';
+                fs.writeFileSync('DETECTED_ERRORS.json', JSON.stringify(errors, null, 2));
+                fs.writeFileSync('.github/HAS_ERRORS', 'true');
+              } else {
+                fs.writeFileSync('.github/HAS_ERRORS', 'false');
+              }
+              
+              if (logs.length > 0) {
+                let consoleLogs = '# 📜 Console Logs\n\n';
+                consoleLogs += `**Updated**: ${timestamp}\n\n`;
+                logs.slice(-50).reverse().forEach(l => {
+                  const emoji = l.level === 'error' ? '❌' : l.level === 'warn' ? '⚠️' : 'ℹ️';
+                  consoleLogs += `${emoji} **[${l.time}]** ${l.message}\n\n`;
+                });
+                fs.writeFileSync('CONSOLE_LOGS.md', consoleLogs);
+              }
+              
+              status += '---\n*Updated every 15 minutes*\n';
+              fs.writeFileSync('GAME_STATUS.md', status);
+              
+              console.log('✅ Status updated');
+              if (errors.length > 0) {
+                console.log(`⚠️ ${errors.length} errors detected`);
+              }
+              
+            } catch(e) {
+              console.error('Error:', e.message);
+              fs.writeFileSync('GAME_STATUS.md', `# 🎮 Game Status\n\n❌ Error: ${e.message}\n`);
+            }
+          })();
+          EOF
+      
+      - name: Commit Changes
+        run: |
+          git config user.name 'Game Monitor Bot'
+          git config user.email 'monitor@screeps.local'
+          git add GAME_STATUS.md CONSOLE_LOGS.md DETECTED_ERRORS.json .github/HAS_ERRORS
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "⏱️ Status update: $(date '+%Y-%m-%d %H:%M')"
+            git push
+          fi
+      
+      - name: Trigger Auto-Fix
+        if: success()
+        run: |
+          if [ -f ".github/HAS_ERRORS" ] && [ "$(cat .github/HAS_ERRORS)" = "true" ]; then
+            echo "🔧 Errors detected - triggering auto-fix"
+            gh workflow run auto-fix-errors.yml || echo "Auto-fix workflow not found yet"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

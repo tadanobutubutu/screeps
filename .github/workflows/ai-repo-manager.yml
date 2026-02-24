@@ -1,0 +1,170 @@
+name: 🤖 AI Repository Manager
+
+on:
+  schedule:
+    # Every 6 hours
+    - cron: '15 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  autonomous-improvement:
+    runs-on: ubuntu-latest
+    name: Autonomous Repository Enhancement
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 🧠 AI Analysis and Auto-Improvement
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node -e "
+          const https = require('https');
+          const fs = require('fs');
+          const path = require('path');
+
+          // Get all JS files in repo
+          function getAllFiles(dir, files = []) {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = path.join(dir, entry.name);
+              if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
+              if (entry.isDirectory()) {
+                getAllFiles(fullPath, files);
+              } else if (entry.name.endsWith('.js')) {
+                files.push(fullPath);
+              }
+            }
+            return files;
+          }
+
+          const jsFiles = getAllFiles('.');
+          const fileContents = {};
+          jsFiles.forEach(file => {
+            fileContents[file] = fs.readFileSync(file, 'utf8');
+          });
+
+          const fileList = Object.keys(fileContents).map(f => 
+            \`\${f}:\n\${fileContents[f].substring(0, 500)}...\`
+          ).join('\n\n');
+
+          const prompt = \`You are an autonomous AI developer managing a Screeps bot repository. Analyze the current codebase and decide what improvements to make.
+
+Your task:
+1. Identify ONE specific improvement opportunity (new feature, optimization, bug fix, or new utility file)
+2. Decide if you need to CREATE a new file or UPDATE an existing file
+3. Generate the complete code
+
+Current files summary:
+\${fileList}
+
+Full repository structure:
+\${JSON.stringify(Object.keys(fileContents), null, 2)}
+
+Respond with ONLY valid JSON in this exact format:
+{
+  \"action\": \"create\" or \"update\",
+  \"filename\": \"exact/path/to/file.js\",
+  \"description\": \"Brief description of what you're doing\",
+  \"code\": \"<complete file content>\"
+}
+
+Ideas for improvements:
+- Create new role files (role.miner.js, role.claimer.js, role.warrior.js)
+- Create new utility files (utils.pathfinding.js, utils.market.js, utils.tower.js)
+- Enhance existing roles with smarter logic
+- Add new features to main.js
+- Create monitoring/analytics modules
+- Add room expansion logic
+- Optimize energy management
+
+Be creative and autonomous. Choose what makes the most sense right now.\`;
+
+          const body = JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
+          });
+
+          const options = {
+            hostname: 'generativelanguage.googleapis.com',
+            path: '/v1beta/models/gemini-2.0-flash:generateContent?key=' + process.env.GEMINI_API_KEY,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(body)
+            }
+          };
+
+          const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+              try {
+                const response = JSON.parse(data);
+                const text = response.candidates[0].content.parts[0].text;
+                const cleaned = text.replace(/\`\`\`json\n?/g, '').replace(/\`\`\`\n?/g, '').trim();
+                const decision = JSON.parse(cleaned);
+                
+                console.log('🤖 AI Decision:', decision.description);
+                console.log('📝 Action:', decision.action);
+                console.log('📄 File:', decision.filename);
+                
+                // Create directory if needed
+                const dir = path.dirname(decision.filename);
+                if (!fs.existsSync(dir)) {
+                  fs.mkdirSync(dir, { recursive: true });
+                }
+                
+                // Write the file
+                fs.writeFileSync(decision.filename, decision.code);
+                
+                // Save decision log
+                const logEntry = {
+                  timestamp: new Date().toISOString(),
+                  action: decision.action,
+                  filename: decision.filename,
+                  description: decision.description
+                };
+                
+                let log = [];
+                if (fs.existsSync('ai-decisions.json')) {
+                  log = JSON.parse(fs.readFileSync('ai-decisions.json', 'utf8'));
+                }
+                log.push(logEntry);
+                fs.writeFileSync('ai-decisions.json', JSON.stringify(log, null, 2));
+                
+                console.log('✅ Autonomous improvement completed!');
+              } catch(e) {
+                console.error('❌ Failed to parse AI response:', e.message);
+                console.error('Raw response:', data.substring(0, 500));
+                process.exit(1);
+              }
+            });
+          });
+          req.on('error', e => { console.error(e); process.exit(1); });
+          req.write(body);
+          req.end();
+          "
+
+      - name: 📝 Commit AI Changes
+        run: |
+          git config --global user.name 'AI Repository Manager'
+          git config --global user.email 'ai-manager@screeps-bot.local'
+          git add -A
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            DESCRIPTION=$(node -e "const log = require('./ai-decisions.json'); console.log(log[log.length-1].description);")
+            git commit -m "🤖 AI Auto-improvement: ${DESCRIPTION}"
+            git push
+          fi

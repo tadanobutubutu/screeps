@@ -33,35 +33,36 @@ jobs:
 
           const existingFiles = fs.readdirSync('.').filter(f => f.endsWith('.js'));
 
-          const prompt = \`You are a creative Screeps developer. Come up with an INNOVATIVE and FUN new feature that doesn't exist yet in this repository.
+          const prompt = \`あなたは創造的なScreeps開発者です。このリポジトリにまだ存在しない、革新的で面白い新機能を考えてください。
 
-Existing files: \${existingFiles.join(', ')}
+既存ファイル: \${existingFiles.join(', ')}
 
-Creative feature ideas:
-- role.entertainer.js - Creeps that draw patterns and art with room visuals
-- role.diplomat.js - Automated alliance and diplomacy logic
-- role.scientist.js - Research and optimize strategies dynamically
-- utils.emoji.js - Fun emoji-based status indicators
-- utils.music.js - Play \"music\" through console logs based on colony state
-- role.storyteller.js - Generate narrative descriptions of colony events
-- utils.personality.js - Give creeps unique personalities and behaviors
-- role.architect.js - Creeps that autonomously design base layouts
-- utils.achievements.js - Achievement system with fun unlockables
-- role.artist.js - Creeps that create visual art in the room
-- utils.memes.js - Generate memes based on game events
-- role.prophet.js - Predict future threats and opportunities
+クリエイティブな機能アイデア:
+- role.entertainer.js - Creepがルームビジュアルでパターンやアートを描く
+- role.diplomat.js - 自動同盟・外交ロジック
+- role.scientist.js - 戦略を動的に研究・最適化
+- utils.emoji.js - 絵文字ベースの楽しいステータス表示
+- utils.music.js - コロニー状態に基づいてコンソールで「音楽」を奏でる
+- role.storyteller.js - コロニーイベントの物語的な説明を生成
+- utils.personality.js - Creepにユニークな個性と行動を持たせる
+- role.architect.js - 自律的にベースレイアウトを設計するCreep
+- utils.achievements.js - 面白いアンロック要素付きアチーブメントシステム
+- role.artist.js - 部屋で視覚的なアートを作成するCreep
+- utils.memes.js - ゲームイベントからミームを生成
+- role.prophet.js - 将来の脅威と機会を予測
 
-Create something UNIQUE, FUN, and CREATIVE that makes the bot more interesting!
+独創的で楽しく、ボットをより面白くする何かを作ってください！
 
-Return ONLY valid JSON:
+以下のJSON形式で返してください:
 {
   \"filename\": \"exact-filename.js\",
-  \"feature_name\": \"Cool Feature Name\",
-  \"description\": \"What this feature does\",
+  \"feature_name\": \"機能名（日本語）\",
+  \"description\": \"Brief English description\",
+  \"description_ja\": \"この機能の詳しい日本語説明（何ができるか、どう面白いか）\",
   \"code\": \"<complete working JavaScript code>\"
 }
 
-Be wildly creative!\`;
+思い切りクリエイティブに！\`;
 
           const body = JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
@@ -89,17 +90,17 @@ Be wildly creative!\`;
                 const feature = JSON.parse(cleaned);
                 
                 console.log('🎨 Creative Feature:', feature.feature_name);
-                console.log('📝 Description:', feature.description);
+                console.log('📝 Description:', feature.description_ja);
                 console.log('📄 Filename:', feature.filename);
                 
                 fs.writeFileSync(feature.filename, feature.code);
                 
-                // Update feature log
                 const logEntry = {
                   timestamp: new Date().toISOString(),
                   name: feature.feature_name,
                   filename: feature.filename,
-                  description: feature.description
+                  description: feature.description,
+                  description_ja: feature.description_ja
                 };
                 
                 let log = [];
@@ -108,6 +109,24 @@ Be wildly creative!\`;
                 }
                 log.push(logEntry);
                 fs.writeFileSync('creative-features.json', JSON.stringify(log, null, 2));
+                
+                // Update META-CHANGELOG
+                const today = new Date().toISOString().split('T')[0];
+                let changelog = '';
+                if (fs.existsSync('META-CHANGELOG.md')) {
+                  changelog = fs.readFileSync('META-CHANGELOG.md', 'utf8');
+                }
+                
+                const timeStr = new Date().toLocaleTimeString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
+                const entry = \`\n### \${timeStr} - 🎨 クリエイティブ新機能\n\n**ファイル**: \\`\${feature.filename}\\`  \n**機能名**: \${feature.feature_name}\n\n**説明**:  \n\${feature.description_ja}\n\`;
+                
+                if (changelog.includes(\`## \${today}\`)) {
+                  changelog = changelog.replace(\`## \${today}\`, \`## \${today}\${entry}\`);
+                } else {
+                  changelog = \`## \${today}\n\${entry}\n\${changelog}\`;
+                }
+                
+                fs.writeFileSync('META-CHANGELOG.md', changelog);
                 
                 console.log('✨ Creative feature generated!');
               } catch(e) {
@@ -131,7 +150,7 @@ Be wildly creative!\`;
           if git diff --staged --quiet; then
             echo "No new feature to commit"
           else
-            FEATURE=$(node -e "const log = require('./creative-features.json'); console.log(log[log.length-1].name);")
-            git commit -m "🎨 New creative feature: ${FEATURE}"
+            FEATURE=$(node -e "const log = require('./creative-features.json'); console.log(log[log.length-1].name);" 2>/dev/null || echo "New feature")
+            git commit -m "🎨 ${FEATURE}"
             git push
           fi

@@ -32,7 +32,12 @@ jobs:
           const fs = require('fs');
           const path = require('path');
 
-          // Get all JS files in repo
+          // Load policy
+          let policy = { complexity_level: 1, temperature_base: 0.7, focus_areas: {} };
+          if (fs.existsSync('ai-policy.json')) {
+            policy = JSON.parse(fs.readFileSync('ai-policy.json', 'utf8'));
+          }
+
           function getAllFiles(dir, files = []) {
             const entries = fs.readdirSync(dir, { withFileTypes: true });
             for (const entry of entries) {
@@ -57,41 +62,51 @@ jobs:
             \`\${f}:\n\${fileContents[f].substring(0, 500)}...\`
           ).join('\n\n');
 
-          const prompt = \`You are an autonomous AI developer managing a Screeps bot repository. Analyze the current codebase and decide what improvements to make.
+          const prompt = \`あなたはScreepsボットリポジトリを管理する自律AIです。現在のコードベースを分析して改善を決定してください。
 
-Your task:
-1. Identify ONE specific improvement opportunity (new feature, optimization, bug fix, or new utility file)
-2. Decide if you need to CREATE a new file or UPDATE an existing file
-3. Generate the complete code
+現在のポリシー:
+- 複雑度レベル: \${policy.complexity_level}/10
+- 温度: \${policy.temperature_base}
+- フォーカスエリア: \${JSON.stringify(policy.focus_areas)}
 
-Current files summary:
+現在のファイル概要:
 \${fileList}
 
-Full repository structure:
+完全なファイルリスト:
 \${JSON.stringify(Object.keys(fileContents), null, 2)}
 
-Respond with ONLY valid JSON in this exact format:
+タスク:
+1. 新規ファイル作成 OR 既存ファイル更新を1つ選択
+2. 複雑度レベル\${policy.complexity_level}に適した改善を実施
+3. フォーカスエリアの配分に従って改善カテゴリを選択
+
+改善アイデア:
+- 新しいroleファイル（role.miner.js, role.claimer.js, role.warrior.js等）
+- 新しいutilityファイル（utils.pathfinding.js, utils.market.js, utils.tower.js等）
+- 既存roleの機能強化
+- main.jsへの新機能追加
+- 監視・分析モジュール
+- room拡張ロジック
+- エネルギー管理最適化
+
+以下のJSON形式で返してください:
 {
   \"action\": \"create\" or \"update\",
   \"filename\": \"exact/path/to/file.js\",
-  \"description\": \"Brief description of what you're doing\",
+  \"category\": \"performance\"|\"new_features\"|\"optimization\"|\"creative\"|\"infrastructure\",
+  \"complexity\": 1-10,
+  \"risk\": \"low\"|\"medium\"|\"high\",
+  \"description\": \"Brief English description\",
+  \"description_ja\": \"詳しい日本語説明（何をなぜ改善したか、どういう効果が期待できるか）\",
   \"code\": \"<complete file content>\"
-}
-
-Ideas for improvements:
-- Create new role files (role.miner.js, role.claimer.js, role.warrior.js)
-- Create new utility files (utils.pathfinding.js, utils.market.js, utils.tower.js)
-- Enhance existing roles with smarter logic
-- Add new features to main.js
-- Create monitoring/analytics modules
-- Add room expansion logic
-- Optimize energy management
-
-Be creative and autonomous. Choose what makes the most sense right now.\`;
+}\`;
 
           const body = JSON.stringify({
             contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
+            generationConfig: { 
+              temperature: policy.temperature_base, 
+              maxOutputTokens: 8192 
+            }
           });
 
           const options = {
@@ -114,25 +129,30 @@ Be creative and autonomous. Choose what makes the most sense right now.\`;
                 const cleaned = text.replace(/\`\`\`json\n?/g, '').replace(/\`\`\`\n?/g, '').trim();
                 const decision = JSON.parse(cleaned);
                 
-                console.log('🤖 AI Decision:', decision.description);
+                console.log('🤖 AI Decision:', decision.description_ja);
                 console.log('📝 Action:', decision.action);
                 console.log('📄 File:', decision.filename);
+                console.log('🎯 Category:', decision.category);
+                console.log('📊 Complexity:', decision.complexity);
+                console.log('⚠️  Risk:', decision.risk);
                 
-                // Create directory if needed
                 const dir = path.dirname(decision.filename);
                 if (!fs.existsSync(dir)) {
                   fs.mkdirSync(dir, { recursive: true });
                 }
                 
-                // Write the file
                 fs.writeFileSync(decision.filename, decision.code);
                 
-                // Save decision log
                 const logEntry = {
                   timestamp: new Date().toISOString(),
                   action: decision.action,
                   filename: decision.filename,
-                  description: decision.description
+                  category: decision.category,
+                  complexity: decision.complexity,
+                  risk: decision.risk,
+                  description: decision.description,
+                  description_ja: decision.description_ja,
+                  policy_version: policy.version || 1
                 };
                 
                 let log = [];
@@ -141,6 +161,24 @@ Be creative and autonomous. Choose what makes the most sense right now.\`;
                 }
                 log.push(logEntry);
                 fs.writeFileSync('ai-decisions.json', JSON.stringify(log, null, 2));
+                
+                // Update META-CHANGELOG
+                const today = new Date().toISOString().split('T')[0];
+                let changelog = '';
+                if (fs.existsSync('META-CHANGELOG.md')) {
+                  changelog = fs.readFileSync('META-CHANGELOG.md', 'utf8');
+                }
+                
+                const timeStr = new Date().toLocaleTimeString('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit' });
+                const entry = \`\n### \${timeStr} - 🤖 自律改善\n\n**ファイル**: \\`\${decision.filename}\\`  \n**アクション**: \${decision.action === 'create' ? '新規作成' : '更新'}  \n**カテゴリ**: \${decision.category}  \n**複雑度**: \${decision.complexity}/10  \n**リスク**: \${decision.risk}\n\n**説明**:  \n\${decision.description_ja}\n\`;
+                
+                if (changelog.includes(\`## \${today}\`)) {
+                  changelog = changelog.replace(\`## \${today}\`, \`## \${today}\${entry}\`);
+                } else {
+                  changelog = \`## \${today}\n\${entry}\n\${changelog}\`;
+                }
+                
+                fs.writeFileSync('META-CHANGELOG.md', changelog);
                 
                 console.log('✅ Autonomous improvement completed!');
               } catch(e) {
@@ -164,7 +202,7 @@ Be creative and autonomous. Choose what makes the most sense right now.\`;
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
-            DESCRIPTION=$(node -e "const log = require('./ai-decisions.json'); console.log(log[log.length-1].description);")
-            git commit -m "🤖 AI Auto-improvement: ${DESCRIPTION}"
+            DESCRIPTION=$(node -e "const log = require('./ai-decisions.json'); console.log(log[log.length-1].description);" 2>/dev/null || echo "Auto-improvement")
+            git commit -m "🤖 AI: ${DESCRIPTION}"
             git push
           fi

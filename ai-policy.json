@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "complexity_level": 1,
+  "max_complexity": 10,
+  "temperature_base": 0.7,
+  "focus_areas": {
+    "performance": 20,
+    "new_features": 30,
+    "optimization": 25,
+    "creative": 15,
+    "infrastructure": 10
+  },
+  "success_patterns": [],
+  "last_updated": "2026-02-24T20:26:00.000Z",
+  "description_ja": "このファイルはAIの自己改善戦略を管理します。メタプランナーが毎日このポリシーを分析・更新し、改善の方向性と複雑度を進化させます。"
+}

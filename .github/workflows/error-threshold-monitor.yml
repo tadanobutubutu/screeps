@@ -1,0 +1,177 @@
+name: 🚨 Error Threshold Monitor
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check-error-rate:
+    runs-on: ubuntu-latest
+    name: Monitor Error Rate
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Analyze Recent Errors
+        id: analyze
+        run: |
+          # Check if DETECTED_ERRORS.json exists
+          if [ ! -f "DETECTED_ERRORS.json" ]; then
+            echo "error_count=0" >> $GITHUB_OUTPUT
+            echo "✅ No errors detected"
+            exit 0
+          fi
+          
+          # Count errors
+          ERROR_COUNT=$(cat DETECTED_ERRORS.json | grep -o '"level": "error"' | wc -l)
+          echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          echo "📊 Error count: $ERROR_COUNT"
+          
+          # Threshold: 10 errors
+          if [ $ERROR_COUNT -ge 10 ]; then
+            echo "high_errors=true" >> $GITHUB_OUTPUT
+            echo "⚠️ High error rate detected!"
+          else
+            echo "high_errors=false" >> $GITHUB_OUTPUT
+            echo "✅ Error rate is acceptable"
+          fi
+      
+      - name: Check Auto-Fix Success Rate
+        id: autofix
+        if: steps.analyze.outputs.high_errors == 'true'
+        run: |
+          # Check recent PRs
+          RECENT_FIX_PRS=$(gh pr list --label "auto-fix" --state all --limit 10 --json state | grep -o '"state":"MERGED"' | wc -l)
+          TOTAL_FIX_PRS=$(gh pr list --label "auto-fix" --state all --limit 10 | wc -l)
+          
+          if [ $TOTAL_FIX_PRS -gt 0 ]; then
+            SUCCESS_RATE=$((RECENT_FIX_PRS * 100 / TOTAL_FIX_PRS))
+            echo "success_rate=$SUCCESS_RATE" >> $GITHUB_OUTPUT
+            echo "📊 Auto-fix success rate: $SUCCESS_RATE%"
+            
+            if [ $SUCCESS_RATE -lt 50 ]; then
+              echo "suggest_api=true" >> $GITHUB_OUTPUT
+              echo "⚠️ Auto-fix success rate is low, suggesting API mode"
+            else
+              echo "suggest_api=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "suggest_api=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Create API Mode Suggestion Issue
+        if: steps.analyze.outputs.high_errors == 'true' && steps.autofix.outputs.suggest_api == 'true'
+        run: |
+          # Check if issue already exists
+          EXISTING=$(gh issue list --label "api-mode-suggestion" --state open | wc -l)
+          
+          if [ $EXISTING -gt 0 ]; then
+            echo "ℹ️ Issue already exists"
+            exit 0
+          fi
+          
+          gh issue create \
+            --title "🚨 Consider Switching to API Mode - High Error Rate" \
+            --body "## 📊 Error Analysis
+          
+          **Error Count**: ${{ steps.analyze.outputs.error_count }} errors detected
+          **Auto-Fix Success**: ${{ steps.autofix.outputs.success_rate }}%
+          **Recommendation**: Consider switching to API mode
+          
+          ---
+          
+          ## 🤔 Why API Mode?
+          
+          With API mode, you get:
+          
+          - 📊 **Real-time monitoring**: Immediate error detection
+          - 📝 **Full console logs**: Complete error context
+          - 🐛 **Detailed statistics**: Better debugging info
+          - 📈 **Historical data**: Track trends over time
+          
+          ## ⚡ Quick Switch
+          
+          ### Option 1: Automatic (Recommended)
+          
+          1. Go to [Actions](../../actions/workflows/emergency-api-restore.yml)
+          2. Click 'Run workflow'
+          3. Select reason: 'Too many errors'
+          4. Click 'Run workflow'
+          5. Set API token (if not already set)
+          
+          ### Option 2: Manual
+          
+          1. Get API token from https://screeps.com
+          2. Add to GitHub Secrets as \`SCREEPS_PROD_TOKEN\`
+          3. System will auto-detect and switch
+          
+          ## ✅ Current Status
+          
+          - Mode: GitHub Sync (API-free)
+          - Auto-fix: Active but struggling
+          - Errors: High rate detected
+          
+          ## 🔙 You Can Always Switch Back
+          
+          GitHub Sync mode will always remain available.
+          This is just a suggestion based on error patterns.
+          
+          ---
+          
+          **Note**: This is an automated suggestion. You can close this if you prefer to continue with GitHub Sync mode.
+          
+          Auto-fix will continue trying to resolve errors." \
+            --label "api-mode-suggestion,automated"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Update Error Stats
+        if: steps.analyze.outputs.error_count != '0'
+        run: |
+          cat > ERROR_STATS.md << EOF
+          # 📊 Error Statistics
+          
+          **Last Check**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          **Error Count**: ${{ steps.analyze.outputs.error_count }}
+          **Threshold**: 10 errors
+          **Status**: $(if [ ${{ steps.analyze.outputs.error_count }} -ge 10 ]; then echo "⚠️ High"; else echo "✅ Normal"; fi)
+          
+          ---
+          
+          ## 🐛 Recent Errors
+          
+          See [DETECTED_ERRORS.json](./DETECTED_ERRORS.json) for details.
+          
+          ## 🔧 Auto-Fix Status
+          
+          Auto-fix system is actively working on resolving these errors.
+          PRs will be created automatically.
+          
+          ## 💡 Recommendations
+          
+          $(if [ ${{ steps.analyze.outputs.high_errors }} = "true" ]; then
+            echo "- Consider reviewing error patterns"
+            echo "- Check if manual intervention needed"
+            echo "- API mode available for better monitoring"
+          else
+            echo "- Error rate is within acceptable range"
+            echo "- Auto-fix is handling issues effectively"
+          fi)
+          
+          ---
+          
+          *This report is automatically generated every 6 hours*
+          EOF
+          
+          git config user.name 'Error Monitor Bot'
+          git config user.email 'errors@screeps.local'
+          git add ERROR_STATS.md
+          git diff --staged --quiet || (git commit -m "📊 Error stats update" && git push)

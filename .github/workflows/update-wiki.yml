@@ -1,0 +1,360 @@
+name: 📚 Update Wiki
+
+on:
+  push:
+    paths:
+      - 'wiki/**'
+      - '.github/workflows/update-wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-wiki:
+    runs-on: ubuntu-latest
+    name: Update GitHub Wiki
+    
+    steps:
+      - name: Checkout Main Repository
+        uses: actions/checkout@v4
+      
+      - name: Checkout Wiki Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki-repo
+      
+      - name: Copy Wiki Files
+        run: |
+          echo "📝 Copying wiki files..."
+          
+          # Create wiki directory if it doesn't exist in main repo
+          mkdir -p wiki
+          
+          # If wiki files exist in main repo, copy them to wiki repo
+          if [ -d "wiki" ] && [ "$(ls -A wiki)" ]; then
+            cp -r wiki/* wiki-repo/ 2>/dev/null || echo "No files to copy yet"
+          else
+            echo "📝 Creating default wiki pages..."
+            
+            # Create Home page
+            cat > wiki-repo/Home.md << 'EOF'
+# 🎮 Screeps AI - Wiki
+
+Welcome to the Screeps AI automation project wiki!
+
+## 📚 Documentation
+
+- [Getting Started](Getting-Started)
+- [Bot System](Bot-System)
+- [Error Handling](Error-Handling)
+- [API Reference](API-Reference)
+
+## 🤖 Features
+
+- **23 Automated Bots**: Maintaining code 24/7
+- **AI-Powered**: GitHub Copilot integration
+- **Complete Automation**: Zero maintenance required
+
+## 🚀 Quick Links
+
+- [Main Repository](https://github.com/tadanobutubutu/screeps)
+- [Contributors](https://github.com/tadanobutubutu/screeps/graphs/contributors)
+- [Actions](https://github.com/tadanobutubutu/screeps/actions)
+
+---
+
+*Last updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)*
+EOF
+
+            # Create Getting Started page
+            cat > wiki-repo/Getting-Started.md << 'EOF'
+# 🚀 Getting Started
+
+## Prerequisites
+
+1. GitHub account
+2. Screeps account
+3. Basic knowledge of JavaScript
+
+## Setup
+
+### 1. GitHub Connection
+
+1. Go to [Screeps.com](https://screeps.com)
+2. Navigate to Account Settings → Git
+3. Click "Connect to GitHub"
+4. Select repository: `tadanobutubutu/screeps`
+5. Choose branch: `main`
+6. Save settings
+
+### 2. API Token (Optional)
+
+For real-time statistics and console logs:
+
+1. Go to Account Settings → API Access
+2. Generate new token
+3. Add to GitHub Secrets as `SCREEPS_PROD_TOKEN`
+
+### 3. Spawn Your First Creep
+
+1. Enter a room in Screeps
+2. Click on a spawn
+3. The AI will automatically start managing everything
+
+## What Happens Next?
+
+- **Automatic deployment** via GitHub Sync
+- **Error detection** every 15 minutes
+- **AI-powered fixes** every 30 minutes
+- **Code improvements** every 12 hours
+- **Complete automation** - just sit back and watch!
+
+---
+
+[← Back to Home](Home) | [Next: Bot System →](Bot-System)
+EOF
+
+            # Create Bot System page
+            cat > wiki-repo/Bot-System.md << 'EOF'
+# 🤖 Bot System
+
+This project is maintained by 23+ specialized bots.
+
+## Bot Categories
+
+### 🔧 Core Development Bots
+
+1. **Code Reviewer Bot** - Reviews code quality
+2. **Documentation Bot** - Maintains documentation
+3. **Performance Bot** - Optimizes performance
+4. **Security Bot** - Scans for vulnerabilities
+5. **Test Bot** - Runs automated tests
+6. **Refactor Bot** - Suggests refactoring
+7. **Stats Bot** - Collects statistics
+
+**Frequency**: Every 2 hours
+
+### 🛠️ Maintenance Bots
+
+8. **Changelog Bot** - Maintains changelog
+9. **Metrics Bot** - Collects metrics
+10. **Dependency Bot** - Checks dependencies
+11. **Cleanup Bot** - Cleans up code
+12. **Backup Bot** - Verifies backups
+13. **Integration Bot** - Tests integration
+14. **QA Bot** - Quality assurance
+
+**Frequency**: Every 3 hours
+
+### 🤖 AI-Powered Bots
+
+15. **AI Fix Bot** - AI-powered error fixing
+16. **AI Improve Bot** - AI-powered code improvement
+
+**Technology**: GitHub Copilot
+
+### 🔧 System Bots
+
+17. **Workflow Fix Bot** - Fixes workflows
+18. **Format Bot** - Formats code
+19. **CodeQL Bot** - Security analysis
+20. **Dependabot** - Updates dependencies
+
+### 📊 Monitoring Bots
+
+21. **Game Monitor Bot** - Monitors game status
+22. **Error Detector Bot** - Detects errors
+23. **Usage Monitor Bot** - Monitors usage
+
+## How It Works
+
+```
+Code Change
+  ↓
+GitHub Actions Triggered
+  ↓
+Bots Analyze & Process
+  ↓
+Automated Fixes Applied
+  ↓
+PR Created (if needed)
+  ↓
+Review & Merge
+  ↓
+Deploy to Screeps
+```
+
+---
+
+[← Back to Home](Home) | [Next: Error Handling →](Error-Handling)
+EOF
+
+            # Create Error Handling page
+            cat > wiki-repo/Error-Handling.md << 'EOF'
+# 🐛 Error Handling System
+
+## 3-Layer Defense
+
+### Layer 1: In-Game Detection
+
+```javascript
+// Errors are logged automatically
+logger.error("Error message");
+  ↓
+Memory.logs (max 100 entries)
+```
+
+### Layer 2: Automatic Fix
+
+```
+Every 15 minutes:
+  ↓
+Check Memory.logs
+  ↓
+Detect errors
+  ↓
+AI analyzes pattern
+  ↓
+Generate fix
+  ↓
+Create PR
+  ↓
+Auto-merge (if safe)
+```
+
+### Layer 3: Escalation
+
+```
+Every 6 hours:
+  ↓
+Count errors
+  ↓
+10+ errors?
+  ↓
+Check fix success rate
+  ↓
+<50% success?
+  ↓
+Create issue
+  ↓
+Suggest API mode
+```
+
+## Error Types Handled
+
+- ✅ Null reference errors
+- ✅ Undefined functions
+- ✅ Reference errors
+- ✅ Logic errors
+- ✅ Performance issues
+- ✅ Any other errors (via AI)
+
+## Emergency Response
+
+If GitHub Sync fails:
+
+1. Automatic detection within 6 hours
+2. Issue created with instructions
+3. One-click API mode switch available
+
+---
+
+[← Back to Home](Home) | [Next: API Reference →](API-Reference)
+EOF
+
+            # Create API Reference page
+            cat > wiki-repo/API-Reference.md << 'EOF'
+# 📚 API Reference
+
+## Core Modules
+
+### main.js
+
+Main game loop.
+
+```javascript
+module.exports.loop = function() {
+  // Main game logic
+}
+```
+
+### Role Modules
+
+#### role.harvester
+
+Energy harvesting role.
+
+```javascript
+const roleHarvester = {
+  run: function(creep) {
+    // Harvest energy
+  }
+};
+```
+
+#### role.upgrader
+
+Controller upgrading role.
+
+#### role.builder
+
+Construction role.
+
+### Utility Modules
+
+#### utils.logging
+
+Logging system.
+
+```javascript
+const logger = require('utils.logging');
+
+logger.error("Error message");
+logger.warn("Warning message");
+logger.info("Info message");
+```
+
+**Methods**:
+- `error(message)` - Log error
+- `warn(message)` - Log warning
+- `info(message)` - Log info
+- `getStats()` - Get log statistics
+- `clear()` - Clear logs
+
+## Memory Structure
+
+```javascript
+Memory = {
+  logs: [],      // Log entries (max 100)
+  creeps: {},    // Creep memory
+  rooms: {},     // Room memory
+  stats: {}      // Statistics
+}
+```
+
+---
+
+[← Back to Home](Home)
+EOF
+
+            echo "✅ Created default wiki pages"
+          fi
+      
+      - name: Commit and Push to Wiki
+        run: |
+          cd wiki-repo
+          
+          git config user.name 'Wiki Bot'
+          git config user.email 'wiki@screeps.bot'
+          
+          git add .
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "📚 Wiki update: $(date '+%Y-%m-%d %H:%M')"
+            git push
+            echo "✅ Wiki updated successfully!"
+          else
+            echo "ℹ️ No changes to wiki"
+          fi

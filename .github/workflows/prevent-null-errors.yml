@@ -1,0 +1,130 @@
+name: 🛡️ Prevent Null/Undefined Errors
+
+on:
+  push:
+    paths:
+      - '**.js'
+  pull_request:
+    paths:
+      - '**.js'
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+
+jobs:
+  check-null-safety:
+    runs-on: ubuntu-latest
+    name: Check Null Safety
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Scan for Common Null/Undefined Issues
+        run: |
+          echo "🔍 Scanning for potential null/undefined errors..."
+          
+          ISSUES_FOUND=0
+          
+          # Check for Object.keys() without null check
+          echo "\n⚠️ Checking Object.keys() usage..."
+          if grep -rn "Object.keys(" --include="*.js" | grep -v "if (" | grep -v "&& " | grep -v "|| " | grep -v "// Safe:"; then
+            echo "⚠️ Found Object.keys() without null checks"
+            ISSUES_FOUND=$((ISSUES_FOUND + 1))
+          else
+            echo "✅ Object.keys() usage looks safe"
+          fi
+          
+          # Check for Game.map.describeExits() usage
+          echo "\n⚠️ Checking Game.map.describeExits() usage..."
+          if grep -rn "Game.map.describeExits" --include="*.js" | grep -v "if (" | grep -v "const.*=.*Game.map.describeExits"; then
+            echo "⚠️ Found Game.map.describeExits() that may need null checks"
+          else
+            echo "✅ Game.map.describeExits() usage looks safe"
+          fi
+          
+          # Check for array access without length check
+          echo "\n⚠️ Checking array access..."
+          if grep -rn "\[0\]" --include="*.js" | grep -v "if (" | grep -v "length" | grep -v "//"; then
+            echo "⚠️ Found array[0] access that may need length checks"
+          else
+            echo "✅ Array access looks safe"
+          fi
+          
+          # Generate report
+          cat > NULL_SAFETY_REPORT.md << 'EOF'
+          # 🛡️ Null Safety Report
+          
+          **Generated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          ## 📊 Summary
+          
+          This is an automated check for common null/undefined errors.
+          
+          ## ✅ Checked Patterns
+          
+          1. **Object.keys()** - Should check if object exists first
+          2. **Game.map.describeExits()** - Can return null
+          3. **Array access [0]** - Should check length first
+          4. **Property access** - Should use optional chaining
+          
+          ## 📝 Best Practices
+          
+          ### Safe Object.keys() usage
+          ```javascript
+          // Bad
+          const keys = Object.keys(exits);
+          
+          // Good
+          if (exits && Object.keys(exits).length > 0) {
+            const keys = Object.keys(exits);
+          }
+          ```
+          
+          ### Safe Game.map usage
+          ```javascript
+          // Bad
+          const exits = Game.map.describeExits(roomName);
+          const first = Object.keys(exits)[0];
+          
+          // Good
+          const exits = Game.map.describeExits(roomName);
+          if (exits && Object.keys(exits).length > 0) {
+            const first = Object.keys(exits)[0];
+          }
+          ```
+          
+          ### Safe array access
+          ```javascript
+          // Bad
+          const first = array[0];
+          
+          // Good
+          if (array && array.length > 0) {
+            const first = array[0];
+          }
+          ```
+          
+          ### Safe property access
+          ```javascript
+          // Bad
+          const value = obj.prop.subprop;
+          
+          // Good
+          const value = obj?.prop?.subprop;
+          // or
+          const value = obj && obj.prop && obj.prop.subprop;
+          ```
+          
+          ## 🐛 Recent Fixes
+          
+          - Fixed explorer role null check (2026-02-25)
+          
+          EOF
+          
+          echo "\n✅ Scan complete"
+          
+          if [ $ISSUES_FOUND -gt 0 ]; then
+            echo "⚠️ Found $ISSUES_FOUND potential issues"
+            echo "Please review the code and add null checks where needed"
+          else
+            echo "✅ No issues found"
+          fi

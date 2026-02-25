@@ -1,0 +1,223 @@
+name: 🎯 Daily Quest
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Every day at midnight UTC (9AM JST)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  daily-quest:
+    runs-on: ubuntu-latest
+    name: Generate Daily Quest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Generate Quest
+        id: quest
+        run: |
+          echo "🎯 Generating today's quest..."
+          
+          # Get day of year for variety
+          DAY_OF_YEAR=$(date +%j)
+          QUEST_INDEX=$((DAY_OF_YEAR % 10))
+          
+          case $QUEST_INDEX in
+            0)
+              QUEST_TITLE="🐛 Bug Hunter"
+              QUEST_DESCRIPTION="Find and fix a bug today"
+              QUEST_TASK="Close at least 1 bug issue"
+              QUEST_REWARD="50 bonus points"
+              QUEST_EMOJI="🐛"
+              ;;
+            1)
+              QUEST_TITLE="✨ Feature Friday"
+              QUEST_DESCRIPTION="Add something new to the codebase"
+              QUEST_TASK="Merge 1 feature PR"
+              QUEST_REWARD="100 bonus points"
+              QUEST_EMOJI="✨"
+              ;;
+            2)
+              QUEST_TITLE="📝 Documentation Day"
+              QUEST_DESCRIPTION="Improve project documentation"
+              QUEST_TASK="Update README or add comments"
+              QUEST_REWARD="30 bonus points"
+              QUEST_EMOJI="📝"
+              ;;
+            3)
+              QUEST_TITLE="🔒 Security Sentinel"
+              QUEST_DESCRIPTION="Enhance project security"
+              QUEST_TASK="Fix a security issue or add security feature"
+              QUEST_REWARD="150 bonus points"
+              QUEST_EMOJI="🔒"
+              ;;
+            4)
+              QUEST_TITLE="♻️ Refactor Master"
+              QUEST_DESCRIPTION="Clean up and improve code quality"
+              QUEST_TASK="Refactor 1 module"
+              QUEST_REWARD="75 bonus points"
+              QUEST_EMOJI="♻️"
+              ;;
+            5)
+              QUEST_TITLE="⚡ Performance Boost"
+              QUEST_DESCRIPTION="Optimize code performance"
+              QUEST_TASK="Improve performance in any module"
+              QUEST_REWARD="120 bonus points"
+              QUEST_EMOJI="⚡"
+              ;;
+            6)
+              QUEST_TITLE="🤖 Automation Expert"
+              QUEST_DESCRIPTION="Automate something manual"
+              QUEST_TASK="Add or improve workflow/script"
+              QUEST_REWARD="90 bonus points"
+              QUEST_EMOJI="🤖"
+              ;;
+            7)
+              QUEST_TITLE="🎯 Issue Closer"
+              QUEST_DESCRIPTION="Help reduce open issues"
+              QUEST_TASK="Close 3 issues today"
+              QUEST_REWARD="80 bonus points"
+              QUEST_EMOJI="🎯"
+              ;;
+            8)
+              QUEST_TITLE="🚀 Deploy Day"
+              QUEST_DESCRIPTION="Ship something to production"
+              QUEST_TASK="Merge to main branch"
+              QUEST_REWARD="60 bonus points"
+              QUEST_EMOJI="🚀"
+              ;;
+            9)
+              QUEST_TITLE="🤝 Team Player"
+              QUEST_DESCRIPTION="Help other contributors"
+              QUEST_TASK="Review or help with someone's PR/issue"
+              QUEST_REWARD="70 bonus points"
+              QUEST_EMOJI="🤝"
+              ;;
+          esac
+          
+          echo "title=$QUEST_TITLE" >> $GITHUB_OUTPUT
+          echo "description=$QUEST_DESCRIPTION" >> $GITHUB_OUTPUT
+          echo "task=$QUEST_TASK" >> $GITHUB_OUTPUT
+          echo "reward=$QUEST_REWARD" >> $GITHUB_OUTPUT
+          echo "emoji=$QUEST_EMOJI" >> $GITHUB_OUTPUT
+          
+          echo "✅ Quest generated: $QUEST_TITLE"
+      
+      - name: Create Quest File
+        run: |
+          cat > DAILY_QUEST.md << 'EOF'
+          # 🎯 Daily Quest
+          
+          **Date**: $(date +%Y-%m-%d)
+          **Day**: $(date +%A)
+          
+          ## ${{ steps.quest.outputs.emoji }} Today's Quest: ${{ steps.quest.outputs.title }}
+          
+          ### 📝 Description
+          ${{ steps.quest.outputs.description }}
+          
+          ### 🎯 Task
+          ${{ steps.quest.outputs.task }}
+          
+          ### 🏆 Reward
+          **${{ steps.quest.outputs.reward }}**
+          
+          ---
+          
+          ## 🗓️ Quest Calendar
+          
+          Complete daily quests to earn bonus points and special badges!
+          
+          ### This Week's Quests
+          - [ ] Monday: ...
+          - [ ] Tuesday: ...
+          - [ ] Wednesday: ...
+          - [ ] Thursday: ...
+          - [ ] Friday: ...
+          - [ ] Saturday: ...
+          - [ ] Sunday: ...
+          
+          ### Quest Streak
+          Current Streak: 0 days 🔥
+          Longest Streak: 0 days 🏆
+          
+          ## 🎁 Bonus Rewards
+          
+          - 🔥 **7-Day Streak**: +500 bonus points
+          - 💪 **30-Day Streak**: +2000 bonus points & Special Badge
+          - ⭐ **Complete All Weekly Quests**: +300 bonus points
+          
+          ---
+          
+          *Quest resets daily at midnight UTC (9AM JST)*
+          EOF
+          
+          echo "✅ Quest file created!"
+      
+      - name: Create Quest Issue
+        run: |
+          # Check if today's quest issue already exists
+          TODAY=$(date +%Y-%m-%d)
+          EXISTING=$(gh issue list --search "Daily Quest $TODAY" --json number | jq 'length')
+          
+          if [ "$EXISTING" = "0" ]; then
+            gh issue create \
+              --title "${{ steps.quest.outputs.emoji }} Daily Quest: ${{ steps.quest.outputs.title }} ($(date +%Y-%m-%d))" \
+              --body "## 🎯 Today's Daily Quest
+          
+          ### ${{ steps.quest.outputs.emoji }} ${{ steps.quest.outputs.title }}
+          
+          **Description**: ${{ steps.quest.outputs.description }}
+          
+          **Task**: ${{ steps.quest.outputs.task }}
+          
+          **Reward**: ${{ steps.quest.outputs.reward }} 🏆
+          
+          ---
+          
+          ## How to Complete
+          
+          1. Complete the task described above
+          2. Comment on this issue with your progress
+          3. Close this issue when done
+          4. Claim your reward! 🎉
+          
+          ## Tips
+          
+          - Complete daily quests to build your streak 🔥
+          - 7-day streak = 500 bonus points!
+          - Check DAILY_QUEST.md for more info
+          
+          Good luck, adventurer! 🚀" \
+              --label "daily-quest,gamification" \
+              --assignee "@me"
+            
+            echo "✅ Daily quest issue created!"
+          else
+            echo "ℹ️ Quest already exists for today"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Commit Quest File
+        run: |
+          git config user.name 'Quest Bot'
+          git config user.email 'quest@screeps.bot'
+          git add DAILY_QUEST.md
+          git commit -m "${{ steps.quest.outputs.emoji }} Daily Quest: ${{ steps.quest.outputs.title }} [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
+      
+      - name: Send Summary
+        run: |
+          echo "## 🎯 Daily Quest Generated! 🎯" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Quest**: ${{ steps.quest.outputs.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Task**: ${{ steps.quest.outputs.task }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Reward**: ${{ steps.quest.outputs.reward }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Good luck! 🚀" >> $GITHUB_STEP_SUMMARY

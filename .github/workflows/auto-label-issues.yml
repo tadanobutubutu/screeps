@@ -18,70 +18,59 @@ jobs:
           echo "🏷️ Analyzing issue..."
           
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          TITLE="${{ github.event.issue.title }}"
-          BODY="${{ github.event.issue.body }}"
           
           LABELS=""
           
-          # Detect issue type from title and body
-          CONTENT="$TITLE $BODY"
+          # Use jq to safely parse JSON and check for patterns
+          gh issue view $ISSUE_NUMBER --json title,body | jq -r '.title + " " + .body' > content.txt
           
-          # Error/Bug detection
-          if echo "$CONTENT" | grep -qi "error\|exception\|crash\|fail\|\u274c"; then
+          # Detect issue type from content
+          if grep -qi 'error\|exception\|crash\|fail' content.txt; then
             LABELS="$LABELS,bug,error"
             echo "🐛 Detected: Bug/Error"
           fi
           
-          # Null/Undefined
-          if echo "$CONTENT" | grep -qi "null\|undefined\|cannot read property\|cannot convert"; then
+          if grep -qi 'null\|undefined\|cannot read property\|cannot convert' content.txt; then
             LABELS="$LABELS,null-error"
             echo "⚠️ Detected: Null/Undefined error"
           fi
           
-          # Performance
-          if echo "$CONTENT" | grep -qi "performance\|slow\|lag\|timeout\|cpu"; then
+          if grep -qi 'performance\|slow\|lag\|timeout\|cpu' content.txt; then
             LABELS="$LABELS,performance"
             echo "⚡ Detected: Performance issue"
           fi
           
-          # Feature request
-          if echo "$CONTENT" | grep -qi "feature\|enhancement\|improve\|add\|\u2728"; then
+          if grep -qi 'feature\|enhancement\|improve\|add' content.txt; then
             LABELS="$LABELS,enhancement"
             echo "✨ Detected: Feature request"
           fi
           
-          # Documentation
-          if echo "$CONTENT" | grep -qi "documentation\|docs\|readme\|wiki"; then
+          if grep -qi 'documentation\|docs\|readme\|wiki' content.txt; then
             LABELS="$LABELS,documentation"
             echo "📚 Detected: Documentation"
           fi
           
-          # Security
-          if echo "$CONTENT" | grep -qi "security\|vulnerability\|exploit\|unsafe"; then
+          if grep -qi 'security\|vulnerability\|exploit\|unsafe' content.txt; then
             LABELS="$LABELS,security"
             echo "🔒 Detected: Security issue"
           fi
           
-          # Workflow
-          if echo "$CONTENT" | grep -qi "workflow\|action\|ci\|cd\|github"; then
+          if grep -qi 'workflow\|action\|ci\|cd\|github' content.txt; then
             LABELS="$LABELS,workflow"
             echo "🔧 Detected: Workflow issue"
           fi
           
-          # Question
-          if echo "$CONTENT" | grep -qi "how to\|how do\|question\|help\|\?"; then
+          if grep -qi 'how to\|how do\|question\|help' content.txt; then
             LABELS="$LABELS,question"
             echo "❓ Detected: Question"
           fi
           
-          # Priority detection
-          if echo "$CONTENT" | grep -qi "urgent\|critical\|asap\|important"; then
+          if grep -qi 'urgent\|critical\|asap\|important' content.txt; then
             LABELS="$LABELS,urgent"
             echo "🔴 Detected: Urgent"
           fi
           
-          # Auto-fixable
-          if echo "$CONTENT" | grep -qi "syntax\|typo\|formatting\|null\|undefined"; then
+          if grep -qi 'syntax\|typo\|formatting\|null\|undefined' content.txt; then
             LABELS="$LABELS,auto-fix"
             echo "🤖 Detected: Auto-fixable"
           fi

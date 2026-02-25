@@ -42,13 +42,14 @@ jobs:
           ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
           echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
           
-          # Get issue details
-          ISSUE_JSON=$(gh issue view $ISSUE_NUMBER --json title,body,labels)
-          echo "$ISSUE_JSON" > issue_details.json
+          # Get issue details and save to file
+          gh issue view $ISSUE_NUMBER --json title,body,labels > issue_details.json
           
-          TITLE=$(echo "$ISSUE_JSON" | jq -r '.title')
-          echo "title=$TITLE" >> $GITHUB_OUTPUT
-          echo "📝 Issue: $TITLE"
+          # Extract title safely
+          jq -r '.title' issue_details.json > title.txt
+          
+          # Display title (safe for logging)
+          echo "📝 Issue title saved"
         env:
           GH_TOKEN: ${{ github.token }}
       
@@ -57,30 +58,34 @@ jobs:
         run: |
           echo "🔍 Analyzing issue type..."
           
-          TITLE="${{ steps.issue.outputs.title }}"
-          BODY=$(jq -r '.body' issue_details.json)
+          # Extract title and body to file for safe processing
+          jq -r '.title' issue_details.json > title.txt
+          jq -r '.body' issue_details.json > body.txt
+          
+          # Combine for analysis
+          cat title.txt body.txt > content.txt
           
           FIX_TYPE="general"
           PRIORITY="normal"
           
-          # Detect issue type from title and body
-          if echo "$TITLE $BODY" | grep -qi "error\|exception\|crash\|fail"; then
+          # Detect issue type from content file
+          if grep -qi 'error\|exception\|crash\|fail' content.txt; then
             FIX_TYPE="error"
             PRIORITY="high"
             echo "🐛 Detected: Error/Exception"
-          elif echo "$TITLE $BODY" | grep -qi "null\|undefined\|cannot read property"; then
+          elif grep -qi 'null\|undefined\|cannot read property' content.txt; then
             FIX_TYPE="null_check"
             PRIORITY="high"
             echo "⚠️ Detected: Null/Undefined error"
-          elif echo "$TITLE $BODY" | grep -qi "performance\|slow\|lag"; then
+          elif grep -qi 'performance\|slow\|lag' content.txt; then
             FIX_TYPE="performance"
             PRIORITY="medium"
             echo "⚡ Detected: Performance issue"
-          elif echo "$TITLE $BODY" | grep -qi "bug\|broken\|not working"; then
+          elif grep -qi 'bug\|broken\|not working' content.txt; then
             FIX_TYPE="bug"
             PRIORITY="normal"
             echo "🐛 Detected: Bug"
-          elif echo "$TITLE $BODY" | grep -qi "feature\|enhancement\|improve"; then
+          elif grep -qi 'feature\|enhancement\|improve' content.txt; then
             FIX_TYPE="feature"
             PRIORITY="low"
             echo "✨ Detected: Feature request"
@@ -94,12 +99,12 @@ jobs:
       - name: Create Fix Branch
         id: branch
         run: |
-          ISSUE_NUMBER=${{ steps.issue.outputs.issue_number }}
+          ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
           BRANCH="auto-fix/issue-$ISSUE_NUMBER"
           
           git config user.name 'Auto-Fix Bot'
           git config user.email 'auto-fix@screeps.bot'
-          git checkout -b $BRANCH
+          git checkout -b "$BRANCH"
           
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
           echo "🌱 Created branch: $BRANCH"
@@ -109,12 +114,15 @@ jobs:
         run: |
           echo "🔧 Applying automatic fixes..."
           
+          ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
+          FIX_TYPE="${{ steps.analyze.outputs.fix_type }}"
+          
           # Create fix report
           cat > AUTO_FIX_REPORT.md << EOF
           # 🤖 Automatic Fix Report
           
-          **Issue**: #${{ steps.issue.outputs.issue_number }}
-          **Type**: ${{ steps.analyze.outputs.fix_type }}
+          **Issue**: #${ISSUE_NUMBER}
+          **Type**: ${FIX_TYPE}
           **Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
           
           ## Applied Fixes
@@ -133,14 +141,16 @@ jobs:
           git add .
           
           if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-fix: Issue #${{ steps.issue.outputs.issue_number }}
+            ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
+            FIX_TYPE="${{ steps.analyze.outputs.fix_type }}"
+            PRIORITY="${{ steps.analyze.outputs.priority }}"
             
-            Fix type: ${{ steps.analyze.outputs.fix_type }}
-            Priority: ${{ steps.analyze.outputs.priority }}
+            git commit -m "🤖 Auto-fix: Issue #${ISSUE_NUMBER}" \
+                       -m "Fix type: ${FIX_TYPE}" \
+                       -m "Priority: ${PRIORITY}" \
+                       -m "Closes #${ISSUE_NUMBER}"
             
-            Closes #${{ steps.issue.outputs.issue_number }}"
-            
-            git push origin ${{ steps.branch.outputs.branch }}
+            git push origin "${{ steps.branch.outputs.branch }}"
             echo "✅ Changes committed and pushed"
           else
             echo "ℹ️ No automatic fixes available"
@@ -155,15 +165,26 @@ jobs:
             exit 0
           fi
           
+          ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
+          
+          # Get title from file for PR
+          TITLE=$(cat title.txt | head -c 100)
+          
+          # Create PR body
+          cat > pr_body.txt << 'EOF'
+          ## 🤖 Automatic Fix
+          
+          This PR contains an automatic fix for the reported issue.
+          EOF
+          
+          echo "" >> pr_body.txt
+          echo "Closes #${ISSUE_NUMBER}" >> pr_body.txt
+          
           PR_URL=$(gh pr create \
-            --title "🤖 [Auto-Fix] Issue #${{ steps.issue.outputs.issue_number }}: ${{ steps.issue.outputs.title }}" \
-            --body "## 🤖 Automatic Fix
-          
-          This PR contains an automatic fix for issue #${{ steps.issue.outputs.issue_number }}.
-          
-          Closes #${{ steps.issue.outputs.issue_number }}" \
+            --title "🤖 [Auto-Fix] Issue #${ISSUE_NUMBER}: ${TITLE}" \
+            --body-file pr_body.txt \
             --base main \
-            --head ${{ steps.branch.outputs.branch }} \
+            --head "${{ steps.branch.outputs.branch }}" \
             --label "auto-fix,automated")
           
           echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT

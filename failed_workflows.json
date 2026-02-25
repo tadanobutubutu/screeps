@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
+    "id": 22388527298,
+    "created": "2026-02-25T08:26:35Z"
+  },
+  {
     "workflow": ".github/workflows/emergency-api-restore.yml",
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22388519291,
@@ -208,17 +214,5 @@
     "name": ".github/workflows/update-wiki.yml",
     "id": 22388210653,
     "created": "2026-02-25T08:16:56Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22388210395,
-    "created": "2026-02-25T08:16:56Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22388210152,
-    "created": "2026-02-25T08:16:55Z"
   }
 ]

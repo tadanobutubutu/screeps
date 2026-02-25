@@ -1,5 +1,5 @@
-// Screeps AI - Main Loop with Auto Tutorial & Full Automation
-// Auto-monitoring enabled: 15-minute intervals
+// Screeps AI - Z世代向けドーパミン爆発システム
+// Auto-monitoring + Gamification + Visual Effects
 
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
@@ -15,6 +15,8 @@ const logger = require('utils.logging');
 const EmotionSystem = require('utils.emotions');
 const memVis = require('memory.visualizer');
 const autoTutorial = require('tutorial.auto');
+const gamification = require('gamification');
+const vfx = require('visual.effects');
 
 module.exports.loop = function () {
   try {
@@ -23,11 +25,13 @@ module.exports.loop = function () {
       console.log('🤖 AUTO TUTORIAL MODE ACTIVE');
       autoTutorial.run();
       autoTutorial.showProgress();
-      return; // チュートリアル中は通常ロジックをスキップ
+      return;
     }
     
-    // Initialize logging
+    // Initialize systems
     logger.init();
+    gamification.init();
+    gamification.updateStreak();
     
     // Clean up memory
     utilsMemory.cleanMemory();
@@ -43,6 +47,16 @@ module.exports.loop = function () {
     // 💾 Auto backup (every 1000 ticks)
     if (Game.time % 1000 === 0) {
       memVis.backup();
+    }
+    
+    // 🎮 Gamification milestones
+    if (Game.time % 100 === 0) {
+      gamification.checkMilestones();
+    }
+    
+    // 📊 Render gamification dashboard
+    if (Game.time % 10 === 0) {
+      gamification.renderDashboard();
     }
 
     // Auto-spawn configuration
@@ -77,6 +91,12 @@ module.exports.loop = function () {
           spawn.pos.y,
           { align: 'left', opacity: 0.8 }
         );
+        
+        // スポーンエフェクト
+        if (Game.time % 5 === 0) {
+          vfx.stars(spawn.pos, 5);
+        }
+        
         continue;
       }
 
@@ -95,6 +115,11 @@ module.exports.loop = function () {
             if (result === OK) {
               logger.info('Spawning new ' + role + ': ' + newName);
               creepCounts[role] = current + 1;
+              
+              // スポーン成功エフェクト
+              vfx.successExplosion(spawn.pos);
+              gamification.addXP(20, 'Spawned ' + role);
+              
               break;
             } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
               logger.warn('Failed to spawn ' + role + ': ' + result);
@@ -151,7 +176,7 @@ module.exports.loop = function () {
       const creeps = Object.values(Game.creeps);
       for (let i = 0; i < creeps.length; i++) {
         for (let j = i + 1; j < creeps.length; j++) {
-          if (Math.random() > 0.7) { // 30% chance to interact
+          if (Math.random() > 0.7) {
             EmotionSystem.interact(creeps[i], creeps[j]);
           }
         }
@@ -182,6 +207,13 @@ module.exports.loop = function () {
       logger.info('Emotions - Happy: ' + (emotionStats.veryHappy + emotionStats.happy) + 
                   ', Neutral: ' + emotionStats.neutral + 
                   ', Sad: ' + (emotionStats.sad + emotionStats.verySad));
+      
+      // 🎮 Display gamification stats
+      const gm = Memory.gamification;
+      if (gm) {
+        logger.info('Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext + 
+                    ', Score: ' + gm.totalScore);
+      }
     }
     
   } catch (e) {
@@ -238,6 +270,10 @@ global.mr = memVis.restore.bind(memVis);
 global.t = autoTutorial.showProgress.bind(autoTutorial);
 global.ts = autoTutorial.skipIfPossible.bind(autoTutorial);
 
+// ✨ Gamification commands
+global.g = gamification.showDashboard.bind(gamification);
+global.gr = gamification.reset.bind(gamification);
+
 // Helper function for common commands
 global.help = function() {
   console.log('\n✨ === Quick Commands === ✨');
@@ -258,6 +294,9 @@ global.help = function() {
   console.log('\n🎮 Tutorial:');
   console.log('  t()       - tutorial progress');
   console.log('  ts()      - skip tutorial');
+  console.log('\n✨ Gamification:');
+  console.log('  g()       - gamification dashboard');
+  console.log('  gr()      - reset gamification');
   console.log('\nLeaderboard types:');
   console.log('  harvested, built, upgraded, repaired');
   console.log('\n✨ Type help() to see this again!');

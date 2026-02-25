@@ -24,6 +24,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      - name: Ensure Labels Exist
+        run: |
+          echo "🏷️ Ensuring labels exist..."
+          
+          # Function to create label if it doesn't exist
+          create_label_if_missing() {
+            local name="$1"
+            local color="$2"
+            local description="$3"
+            
+            if ! gh label list --json name --jq '.[].name' | grep -q "^${name}$"; then
+              gh label create "$name" --color "$color" --description "$description" || echo "⚠️ Could not create label $name"
+              echo "✅ Created label: $name"
+            fi
+          }
+          
+          create_label_if_missing "workflow-health" "FF6B6B" "Workflow health monitoring"
+          create_label_if_missing "automated" "95E1D3" "Automated by bots"
+          create_label_if_missing "workflow-fix" "4ECDC4" "Workflow fixes"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
       - name: Analyze Recent Workflow Runs
         id: analyze
         run: |
@@ -51,148 +73,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
       
-      - name: Get Failure Details
-        if: steps.analyze.outputs.has_failures == 'true'
-        id: details
-        run: |
-          echo "🔍 Getting failure details..."
-          
-          # Analyze failure patterns
-          node << 'EOF'
-          const fs = require('fs');
-          const failures = JSON.parse(fs.readFileSync('failed_workflows.json', 'utf8'));
-          
-          const patterns = {
-            token_missing: [],
-            syntax_error: [],
-            permission_error: [],
-            timeout: [],
-            api_error: [],
-            unknown: []
-          };
-          
-          failures.forEach(failure => {
-            const name = failure.workflow.toLowerCase();
-            
-            // Pattern detection based on workflow name and common issues
-            if (name.includes('api') || name.includes('status') || name.includes('monitor')) {
-              patterns.token_missing.push(failure);
-            } else if (name.includes('security') || name.includes('scan')) {
-              patterns.permission_error.push(failure);
-            } else if (name.includes('copilot') || name.includes('ai')) {
-              patterns.api_error.push(failure);
-            } else {
-              patterns.unknown.push(failure);
-            }
-          });
-          
-          console.log('\n📊 Failure Patterns:');
-          console.log('Token Missing:', patterns.token_missing.length);
-          console.log('Syntax Errors:', patterns.syntax_error.length);
-          console.log('Permission Errors:', patterns.permission_error.length);
-          console.log('Timeouts:', patterns.timeout.length);
-          console.log('API Errors:', patterns.api_error.length);
-          console.log('Unknown:', patterns.unknown.length);
-          
-          fs.writeFileSync('failure_patterns.json', JSON.stringify(patterns, null, 2));
-          
-          // Determine fix strategy
-          let needsFix = false;
-          if (patterns.token_missing.length > 0) {
-            console.log('\n⚠️ Fix needed: API token configuration');
-            needsFix = true;
-          }
-          if (patterns.syntax_error.length > 0) {
-            console.log('\n⚠️ Fix needed: Workflow syntax');
-            needsFix = true;
-          }
-          if (patterns.permission_error.length > 0) {
-            console.log('\n⚠️ Fix needed: Permissions');
-            needsFix = true;
-          }
-          
-          process.exit(needsFix ? 0 : 1);
-          EOF
-          
-          if [ $? -eq 0 ]; then
-            echo "needs_fix=true" >> $GITHUB_OUTPUT
-          else
-            echo "needs_fix=false" >> $GITHUB_OUTPUT
-          fi
-      
-      - name: Create Fix Branch
-        if: steps.analyze.outputs.has_failures == 'true' && steps.details.outputs.needs_fix == 'true'
-        id: branch
-        run: |
-          BRANCH="workflow-fix-$(date +%Y%m%d-%H%M%S)"
-          git checkout -b $BRANCH
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
-          echo "🌱 Created fix branch: $BRANCH"
-      
-      - name: Apply Automatic Fixes
-        if: steps.analyze.outputs.has_failures == 'true' && steps.details.outputs.needs_fix == 'true'
-        run: |
-          echo "🔧 Applying automatic fixes..."
-          
-          node << 'EOF'
-          const fs = require('fs');
-          const path = require('path');
-          const patterns = JSON.parse(fs.readFileSync('failure_patterns.json', 'utf8'));
-          
-          let fixes = [];
-          
-          // Fix 1: Add graceful fallback for API token issues
-          if (patterns.token_missing.length > 0) {
-            const workflowDir = '.github/workflows';
-            const files = fs.readdirSync(workflowDir).filter(f => f.endsWith('.yml'));
-            
-            files.forEach(file => {
-              const filePath = path.join(workflowDir, file);
-              let content = fs.readFileSync(filePath, 'utf8');
-              
-              // Check if workflow uses SCREEPS_TOKEN
-              if (content.includes('SCREEPS_TOKEN') && !content.includes('if (!token)')) {
-                console.log(`🔧 Adding token check to ${file}`);
-                
-                // Add token existence check pattern
-                const tokenCheckPattern = `
-          if (!token) {
-            console.log('⚠️  No API token - skipping API calls');
-            process.exit(0);
-          }`;
-                
-                // This is a simplified fix - actual implementation would be more sophisticated
-                fixes.push({
-                  file: file,
-                  type: 'token_check',
-                  description: 'Added graceful token missing handling'
-                });
-              }
-            });
-          }
-          
-          // Fix 2: Add error handling
-          if (patterns.api_error.length > 0) {
-            fixes.push({
-              file: 'various',
-              type: 'error_handling',
-              description: 'Need to add try-catch blocks around API calls'
-            });
-          }
-          
-          // Fix 3: Update permissions
-          if (patterns.permission_error.length > 0) {
-            fixes.push({
-              file: 'workflows',
-              type: 'permissions',
-              description: 'Need to update workflow permissions'
-            });
-          }
-          
-          fs.writeFileSync('APPLIED_WORKFLOW_FIXES.json', JSON.stringify(fixes, null, 2));
-          console.log(`\n✅ Prepared ${fixes.length} fixes`);
-          EOF
-      
       - name: Generate Workflow Health Report
         if: steps.analyze.outputs.has_failures == 'true'
         run: |
@@ -205,72 +85,67 @@ jobs:
           
           - **Failed Runs**: ${{ steps.analyze.outputs.failed_count }}
           - **Analysis**: Complete
-          - **Fix Applied**: ${{ steps.details.outputs.needs_fix }}
           
           ## 🐛 Detected Issues
           
-          $(cat failure_patterns.json | head -50)
+          $(cat failed_workflows.json | head -50)
           
-          ## 🔧 Recommended Fixes
+          ## 🔧 Recommended Actions
           
-          ### 1. API Token Configuration
+          ### 1. Missing Labels
+          Some workflows may fail because required labels don't exist.
+          - Run "Setup Labels" workflow to create them
+          - Or manually create labels in repository settings
+          
+          ### 2. API Token Configuration
           If workflows fail due to missing tokens:
-          - Set `SCREEPS_PROD_TOKEN` in GitHub Secrets
-          - Or accept that API features are optional
+          - Set `SCREEPS_PROD_TOKEN` in GitHub Secrets (optional)
+          - Workflows will gracefully skip API features if not set
           
-          ### 2. Workflow Syntax
+          ### 3. Workflow Syntax
           - Check YAML syntax
           - Validate workflow structure
-          - Test locally with `act`
           
-          ### 3. Permissions
+          ### 4. Permissions
           - Ensure workflows have necessary permissions
           - Check repository settings
-          
-          ## ✅ Auto-Fix Status
-          
-          $(if [ -f "APPLIED_WORKFLOW_FIXES.json" ]; then
-            echo "Fixes applied:"
-            cat APPLIED_WORKFLOW_FIXES.json
-          else
-            echo "No automatic fixes available - manual review needed"
-          fi)
           
           ## 📝 Next Steps
           
           1. Review this report
-          2. Check PR for automatic fixes
-          3. Manually fix remaining issues
-          4. Re-run failed workflows
+          2. Run "Setup Labels" workflow
+          3. Re-run failed workflows
+          4. Monitor for 24 hours
           
           EOF
           
           echo "📝 Generated health report"
       
-      - name: Commit Fixes
-        if: steps.analyze.outputs.has_failures == 'true' && steps.details.outputs.needs_fix == 'true'
+      - name: Commit Health Report
+        if: steps.analyze.outputs.has_failures == 'true'
         run: |
-          git config user.name 'Workflow Fix Bot'
-          git config user.email 'workflow-fix@screeps.local'
-          git add WORKFLOW_HEALTH.md failure_patterns.json APPLIED_WORKFLOW_FIXES.json
-          git commit -m "🔧 Auto-fix: Workflow health issues
-          
-          Fixed workflows: ${{ steps.analyze.outputs.failed_count }}
-          See WORKFLOW_HEALTH.md for details"
-          git push origin ${{ steps.branch.outputs.branch }}
+          git config user.name 'Workflow Health Bot'
+          git config user.email 'workflow-health@screeps.bot'
+          git add WORKFLOW_HEALTH.md failed_workflows.json
+          git diff --staged --quiet || (
+            git commit -m "🔧 Workflow health report: ${{ steps.analyze.outputs.failed_count }} issues"
+            git push
+          )
       
       - name: Create Issue for Failed Workflows
         if: steps.analyze.outputs.has_failures == 'true'
+        continue-on-error: true
         run: |
           # Check if issue already exists
-          EXISTING=$(gh issue list --label "workflow-health" --state open | wc -l)
+          EXISTING=$(gh issue list --label "workflow-health" --state open 2>/dev/null | wc -l || echo "0")
           
-          if [ $EXISTING -gt 0 ]; then
+          if [ "$EXISTING" -gt 0 ]; then
             echo "ℹ️ Issue already exists"
             exit 0
           fi
           
-          gh issue create \
+          # Try to create issue without label first, then add label
+          ISSUE_URL=$(gh issue create \
             --title "🔧 Workflow Health Issues Detected" \
             --body "## ⚠️ Workflow Failures
           
@@ -279,85 +154,31 @@ jobs:
           
           ### 🐛 Issues Found
           
-          \`\`\`json
-          $(cat failed_workflows.json)
-          \`\`\`
+          See [WORKFLOW_HEALTH.md](../blob/main/WORKFLOW_HEALTH.md) for details.
           
-          ### 🔧 Auto-Fix Status
+          ### 📝 Quick Fixes
           
-          $(if [ \"${{ steps.details.outputs.needs_fix }}\" = \"true\" ]; then
-            echo "✅ Automatic fixes applied - see PR"
-          else
-            echo "⚠️ Manual intervention required"
-          fi)
+          1. **Missing Labels**: Run the \"Setup Labels\" workflow
+          2. **API Token**: Optional - set \`SCREEPS_PROD_TOKEN\` in Secrets
+          3. **Permissions**: Check workflow permissions
           
-          ### 📊 Common Issues
+          ### 🚀 Actions
           
-          1. **Missing API Token**
-             - Some workflows need SCREEPS_PROD_TOKEN
-             - Set in Settings → Secrets → Actions
-             - Or accept workflows will skip API features
-          
-          2. **Syntax Errors**
-             - Check YAML formatting
-             - Validate with yamllint
-          
-          3. **Permission Issues**
-             - Workflows may need additional permissions
-             - Check workflow permissions section
-          
-          ### 📝 Next Steps
-          
-          1. Review WORKFLOW_HEALTH.md
-          2. Check auto-fix PR (if created)
-          3. Re-run failed workflows
-          4. Monitor for 24 hours
-          
-          This issue will auto-close when all workflows are healthy.
+          1. Go to [Actions](../../actions/workflows/setup-labels.yml)
+          2. Click \"Run workflow\"
+          3. Wait for completion
+          4. Re-run failed workflows
           
           ---
           
-          **Auto-generated by Workflow Health Monitor**" \
-            --label "workflow-health,automated"
-        env:
-          GH_TOKEN: ${{ github.token }}
-      
-      - name: Create PR if Fixes Applied
-        if: steps.analyze.outputs.has_failures == 'true' && steps.details.outputs.needs_fix == 'true'
-        run: |
-          gh pr create \
-            --title "🔧 [Auto-Fix] Workflow Health Improvements" \
-            --body "## 🔧 Workflow Health Auto-Fix
+          **Auto-generated by Workflow Health Monitor**")
           
-          This PR contains automatic fixes for workflow issues.
-          
-          ### 📊 Summary
-          
-          - **Failed Workflows**: ${{ steps.analyze.outputs.failed_count }}
-          - **Fixes Applied**: See APPLIED_WORKFLOW_FIXES.json
-          
-          ### 🔧 What's Fixed
-          
-          - ✅ Added graceful error handling
-          - ✅ Improved token missing checks
-          - ✅ Enhanced workflow robustness
-          
-          ### 📝 Details
-          
-          See WORKFLOW_HEALTH.md for complete analysis.
-          
-          ### ✅ Testing
-          
-          - [ ] Review changes
-          - [ ] Re-run failed workflows
-          - [ ] Verify all workflows pass
-          
-          ---
-          
-          **Note**: Some issues may require manual fixes." \
-            --base main \
-            --head ${{ steps.branch.outputs.branch }} \
-            --label "workflow-fix,automated"
+          # Try to add label
+          if [ -n "$ISSUE_URL" ]; then
+            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -o '[0-9]*$')
+            gh issue edit "$ISSUE_NUMBER" --add-label "workflow-health,automated" 2>/dev/null || \
+              echo "⚠️ Could not add labels (they may not exist yet)"
+          fi
         env:
           GH_TOKEN: ${{ github.token }}
       
@@ -366,4 +187,9 @@ jobs:
         run: |
           echo "📊 Workflow Health Check Complete"
           echo "Failed workflows: ${{ steps.analyze.outputs.failed_count }}"
-          echo "Auto-fix applied: ${{ steps.details.outputs.needs_fix }}"
+          if [ "${{ steps.analyze.outputs.failed_count }}" = "0" ]; then
+            echo "✅ All workflows are healthy!"
+          else
+            echo "⚠️ Some workflows need attention"
+            echo "See WORKFLOW_HEALTH.md for details"
+          fi

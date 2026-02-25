@@ -1,0 +1,22 @@
+[
+  {
+    "file": "auto-improve.yml",
+    "type": "token_check",
+    "description": "Added graceful token missing handling"
+  },
+  {
+    "file": "auto-update-docs.yml",
+    "type": "token_check",
+    "description": "Added graceful token missing handling"
+  },
+  {
+    "file": "deploy.yml",
+    "type": "token_check",
+    "description": "Added graceful token missing handling"
+  },
+  {
+    "file": "various",
+    "type": "error_handling",
+    "description": "Need to add try-catch blocks around API calls"
+  }
+]

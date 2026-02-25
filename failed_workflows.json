@@ -202,17 +202,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22388211079,
     "created": "2026-02-25T08:16:57Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22388210861,
-    "created": "2026-02-25T08:16:57Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22388210653,
-    "created": "2026-02-25T08:16:56Z"
   }
 ]

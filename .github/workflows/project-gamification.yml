@@ -1,0 +1,258 @@
+name: 🎮 Project Gamification
+
+on:
+  issues:
+    types: [opened, closed, labeled]
+  pull_request:
+    types: [opened, closed, merged]
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  gamification:
+    runs-on: ubuntu-latest
+    name: Update Achievements & Stats
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Calculate Stats
+        id: stats
+        run: |
+          echo "📊 Calculating project stats..."
+          
+          # Get total issues
+          TOTAL_ISSUES=$(gh issue list --limit 1000 --json number | jq 'length')
+          CLOSED_ISSUES=$(gh issue list --state closed --limit 1000 --json number | jq 'length')
+          OPEN_ISSUES=$(gh issue list --state open --limit 1000 --json number | jq 'length')
+          
+          # Get PRs
+          TOTAL_PRS=$(gh pr list --limit 1000 --json number | jq 'length')
+          MERGED_PRS=$(gh pr list --state merged --limit 1000 --json number | jq 'length')
+          
+          # Calculate completion rate
+          if [ $TOTAL_ISSUES -gt 0 ]; then
+            COMPLETION_RATE=$((CLOSED_ISSUES * 100 / TOTAL_ISSUES))
+          else
+            COMPLETION_RATE=0
+          fi
+          
+          # Get contributor count
+          CONTRIBUTORS=$(gh api repos/${{ github.repository }}/contributors | jq 'length')
+          
+          # Get commit count
+          COMMITS=$(gh api repos/${{ github.repository }}/commits --paginate | jq -s 'length')
+          
+          echo "total_issues=$TOTAL_ISSUES" >> $GITHUB_OUTPUT
+          echo "closed_issues=$CLOSED_ISSUES" >> $GITHUB_OUTPUT
+          echo "open_issues=$OPEN_ISSUES" >> $GITHUB_OUTPUT
+          echo "completion_rate=$COMPLETION_RATE" >> $GITHUB_OUTPUT
+          echo "total_prs=$TOTAL_PRS" >> $GITHUB_OUTPUT
+          echo "merged_prs=$MERGED_PRS" >> $GITHUB_OUTPUT
+          echo "contributors=$CONTRIBUTORS" >> $GITHUB_OUTPUT
+          echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+          
+          echo "✅ Stats calculated!"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Check Achievements
+        id: achievements
+        run: |
+          echo "🏆 Checking achievements..."
+          
+          ACHIEVEMENTS=""
+          
+          # Issue-based achievements
+          if [ ${{ steps.stats.outputs.closed_issues }} -ge 1 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🎯 First Blood - Closed first issue"
+          fi
+          
+          if [ ${{ steps.stats.outputs.closed_issues }} -ge 10 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n⭐ Issue Hunter - Closed 10 issues"
+          fi
+          
+          if [ ${{ steps.stats.outputs.closed_issues }} -ge 50 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🏅 Issue Master - Closed 50 issues"
+          fi
+          
+          if [ ${{ steps.stats.outputs.closed_issues }} -ge 100 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n👑 Issue Legend - Closed 100 issues"
+          fi
+          
+          # PR-based achievements
+          if [ ${{ steps.stats.outputs.merged_prs }} -ge 1 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🚀 First Flight - Merged first PR"
+          fi
+          
+          if [ ${{ steps.stats.outputs.merged_prs }} -ge 10 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n💎 PR Pro - Merged 10 PRs"
+          fi
+          
+          if [ ${{ steps.stats.outputs.merged_prs }} -ge 50 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🌟 Merge Wizard - Merged 50 PRs"
+          fi
+          
+          # Commit-based achievements
+          if [ ${{ steps.stats.outputs.commits }} -ge 100 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🔥 Commit Streak - 100 commits"
+          fi
+          
+          if [ ${{ steps.stats.outputs.commits }} -ge 500 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n💪 Code Warrior - 500 commits"
+          fi
+          
+          # Completion rate achievements
+          if [ ${{ steps.stats.outputs.completion_rate }} -ge 80 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n✨ Perfectionist - 80% completion rate"
+          fi
+          
+          # Team achievements
+          if [ ${{ steps.stats.outputs.contributors }} -ge 5 ]; then
+            ACHIEVEMENTS="$ACHIEVEMENTS\n🤝 Team Builder - 5+ contributors"
+          fi
+          
+          echo "achievements<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$ACHIEVEMENTS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Determine Level
+        id: level
+        run: |
+          TOTAL_POINTS=$(( ${{ steps.stats.outputs.closed_issues }} * 10 + ${{ steps.stats.outputs.merged_prs }} * 20 + ${{ steps.stats.outputs.commits }} ))
+          
+          if [ $TOTAL_POINTS -lt 100 ]; then
+            LEVEL="🌱 Newbie"
+            LEVEL_NUM=1
+          elif [ $TOTAL_POINTS -lt 500 ]; then
+            LEVEL="🔰 Beginner"
+            LEVEL_NUM=2
+          elif [ $TOTAL_POINTS -lt 1000 ]; then
+            LEVEL="⚡ Intermediate"
+            LEVEL_NUM=3
+          elif [ $TOTAL_POINTS -lt 5000 ]; then
+            LEVEL="🌟 Advanced"
+            LEVEL_NUM=4
+          elif [ $TOTAL_POINTS -lt 10000 ]; then
+            LEVEL="💎 Expert"
+            LEVEL_NUM=5
+          else
+            LEVEL="👑 Master"
+            LEVEL_NUM=6
+          fi
+          
+          echo "level=$LEVEL" >> $GITHUB_OUTPUT
+          echo "level_num=$LEVEL_NUM" >> $GITHUB_OUTPUT
+          echo "total_points=$TOTAL_POINTS" >> $GITHUB_OUTPUT
+      
+      - name: Generate Progress Bar
+        id: progress
+        run: |
+          COMPLETION=${{ steps.stats.outputs.completion_rate }}
+          FILLED=$((COMPLETION / 5))
+          EMPTY=$((20 - FILLED))
+          
+          BAR="["
+          for i in $(seq 1 $FILLED); do BAR="${BAR}█"; done
+          for i in $(seq 1 $EMPTY); do BAR="${BAR}░"; done
+          BAR="${BAR}]"
+          
+          echo "bar=$BAR" >> $GITHUB_OUTPUT
+      
+      - name: Create Stats Dashboard
+        run: |
+          cat > GAME_STATS.md << 'EOF'
+          # 🎮 Project Game Stats
+          
+          **Last Updated**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ## 📊 Current Status
+          
+          ### Level & Points
+          - **Level**: ${{ steps.level.outputs.level }} (Level ${{ steps.level.outputs.level_num }})
+          - **Total Points**: ${{ steps.level.outputs.total_points }}
+          
+          ### Project Stats
+          - **Total Issues**: ${{ steps.stats.outputs.total_issues }}
+            - ✅ Closed: ${{ steps.stats.outputs.closed_issues }}
+            - 🔄 Open: ${{ steps.stats.outputs.open_issues }}
+          - **Total PRs**: ${{ steps.stats.outputs.total_prs }}
+            - ✅ Merged: ${{ steps.stats.outputs.merged_prs }}
+          - **Total Commits**: ${{ steps.stats.outputs.commits }}
+          - **Contributors**: ${{ steps.stats.outputs.contributors }}
+          
+          ### Completion Rate
+          ${{ steps.progress.outputs.bar }} ${{ steps.stats.outputs.completion_rate }}%
+          
+          ## 🏆 Achievements Unlocked
+          
+          ${{ steps.achievements.outputs.achievements }}
+          
+          ## 📈 Points System
+          
+          - Close Issue: **10 points** 🎯
+          - Merge PR: **20 points** 🚀
+          - Commit: **1 point** 💻
+          
+          ## 🎚️ Level System
+          
+          1. 🌱 **Newbie** (0-99 points)
+          2. 🔰 **Beginner** (100-499 points)
+          3. ⚡ **Intermediate** (500-999 points)
+          4. 🌟 **Advanced** (1,000-4,999 points)
+          5. 💎 **Expert** (5,000-9,999 points)
+          6. 👑 **Master** (10,000+ points)
+          
+          ## 🎯 Next Milestone
+          
+          $(if [ ${{ steps.stats.outputs.closed_issues }} -lt 10 ]; then echo "- Close $(( 10 - ${{ steps.stats.outputs.closed_issues }} )) more issues to unlock ⭐ Issue Hunter"; fi)
+          $(if [ ${{ steps.stats.outputs.merged_prs }} -lt 10 ]; then echo "- Merge $(( 10 - ${{ steps.stats.outputs.merged_prs }} )) more PRs to unlock 💎 PR Pro"; fi)
+          $(if [ ${{ steps.stats.outputs.completion_rate }} -lt 80 ]; then echo "- Reach $(( 80 - ${{ steps.stats.outputs.completion_rate }} ))% more completion for ✨ Perfectionist"; fi)
+          
+          ---
+          
+          *Auto-updated by Project Gamification System 🎮*
+          EOF
+          
+          echo "✅ Dashboard created!"
+      
+      - name: Commit Stats
+        run: |
+          git config user.name 'Game Stats Bot'
+          git config user.email 'stats@screeps.bot'
+          git add GAME_STATS.md
+          git commit -m "🎮 Update game stats [skip ci]" || echo "No changes"
+          git push || echo "Nothing to push"
+      
+      - name: Celebrate Milestones
+        if: |
+          steps.stats.outputs.closed_issues == '10' || 
+          steps.stats.outputs.closed_issues == '50' ||
+          steps.stats.outputs.merged_prs == '10'
+        run: |
+          echo "🎉 MILESTONE REACHED! 🎉"
+          echo "🎊 Congratulations on this achievement!"
+          
+          # Create celebration issue
+          gh issue create \
+            --title "🎉 Milestone Achievement Unlocked!" \
+            --body "## 🎊 Congratulations!
+          
+          You've reached an amazing milestone:
+          
+          - **Closed Issues**: ${{ steps.stats.outputs.closed_issues }}
+          - **Merged PRs**: ${{ steps.stats.outputs.merged_prs }}
+          - **Level**: ${{ steps.level.outputs.level }}
+          
+          Keep up the great work! 🚀
+          
+          ${{ steps.achievements.outputs.achievements }}" \
+            --label "celebration,milestone"
+        env:
+          GH_TOKEN: ${{ github.token }}

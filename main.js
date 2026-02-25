@@ -1,4 +1,4 @@
-// Screeps AI - Main Loop with Error Detection
+// Screeps AI - Main Loop with Error Detection & Emotion System
 // Auto-monitoring enabled: 15-minute intervals
 
 const roleHarvester = require('role.harvester');
@@ -12,6 +12,7 @@ const roleScout = require('role.scout');
 const defenseManager = require('defense.manager');
 const utilsMemory = require('utils.memory');
 const logger = require('utils.logging');
+const EmotionSystem = require('utils.emotions');
 
 module.exports.loop = function () {
   try {
@@ -81,12 +82,16 @@ module.exports.loop = function () {
       }
     }
 
-    // Run all creeps with error handling
+    // Run all creeps with error handling & emotion system
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
 
       logger.tryCatch(() => {
+        // 😊 Update and display emotions
+        EmotionSystem.display(creep);
+        
+        // Run role logic
         switch (role) {
           case 'harvester':
             roleHarvester.run(creep);
@@ -117,6 +122,18 @@ module.exports.loop = function () {
         }
       }, 'creep_' + name);
     }
+    
+    // 👥 Social interactions - creeps greet each other when nearby
+    if (Game.time % 50 === 0) {
+      const creeps = Object.values(Game.creeps);
+      for (let i = 0; i < creeps.length; i++) {
+        for (let j = i + 1; j < creeps.length; j++) {
+          if (Math.random() > 0.7) { // 30% chance to interact
+            EmotionSystem.interact(creeps[i], creeps[j]);
+          }
+        }
+      }
+    }
 
     // Run defense manager for all owned rooms
     for (const roomName in Game.rooms) {
@@ -136,6 +153,12 @@ module.exports.loop = function () {
       if (logStats.errors > 0) {
         logger.warn('Recent errors: ' + logStats.errors + ' (auto-fix system active)');
       }
+      
+      // 😊 Display emotion stats
+      const emotionStats = EmotionSystem.getStats();
+      logger.info('Emotions - Happy: ' + (emotionStats.veryHappy + emotionStats.happy) + 
+                  ', Neutral: ' + emotionStats.neutral + 
+                  ', Sad: ' + (emotionStats.sad + emotionStats.verySad));
     }
     
   } catch (e) {
@@ -169,3 +192,19 @@ function getBodyForRole(role, energy) {
   // Fallback to minimal body
   return [MOVE, WORK, CARRY];
 }
+
+// 😊 Console commands for emotion system
+global.checkEmotion = function(creepName) {
+  EmotionSystem.checkCreep(creepName);
+};
+
+global.emotionStats = function() {
+  const stats = EmotionSystem.getStats();
+  console.log('\n😊 Emotion Statistics:');
+  console.log('Very Happy: ' + stats.veryHappy + ' 😄');
+  console.log('Happy: ' + stats.happy + ' 😊');
+  console.log('Neutral: ' + stats.neutral + ' 😐');
+  console.log('Sad: ' + stats.sad + ' 😟');
+  console.log('Very Sad: ' + stats.verySad + ' 😭');
+  console.log('Total Creeps: ' + stats.total);
+};

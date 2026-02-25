@@ -27,13 +27,14 @@ const gamification = {
   /**
    * XP獲得
    */
-  addXP: function(amount, reason = '') {
+  addXP: function(amount, reason) {
+    reason = reason || '';
     this.init();
     
     Memory.gamification.xp += amount;
     Memory.gamification.totalScore += amount;
     
-    console.log(`✨ +${amount} XP ${reason ? '(' + reason + ')' : ''}`);
+    console.log('✨ +' + amount + ' XP ' + (reason ? '(' + reason + ')' : ''));
     
     // レベルアップチェック
     this.checkLevelUp();
@@ -50,7 +51,7 @@ const gamification = {
       gm.level++;
       gm.xpToNext = Math.floor(gm.xpToNext * 1.5);
       
-      console.log(`🎉 LEVEL UP! Now level ${gm.level}!`);
+      console.log('🎉 LEVEL UP! Now level ' + gm.level + '!');
       
       // スポーンにエフェクト
       const spawn = Object.values(Game.spawns)[0];
@@ -59,20 +60,21 @@ const gamification = {
       }
       
       // 達成通知
-      this.unlockAchievement('level_' + gm.level, `Reached Level ${gm.level}`);
+      this.unlockAchievement('level_' + gm.level, 'Reached Level ' + gm.level);
     }
   },
   
   /**
    * 達成解除
    */
-  unlockAchievement: function(id, title, icon = '🏆') {
+  unlockAchievement: function(id, title, icon) {
+    icon = icon || '🏆';
     this.init();
     
     if (!Memory.gamification.achievements.includes(id)) {
       Memory.gamification.achievements.push(id);
       
-      console.log(`🏆 ACHIEVEMENT UNLOCKED: ${title}`);
+      console.log('🏆 ACHIEVEMENT UNLOCKED: ' + title);
       
       const spawn = Object.values(Game.spawns)[0];
       if (spawn) {
@@ -110,7 +112,7 @@ const gamification = {
     
     if (combo.count >= 3) {
       const bonusXP = combo.count * 2;
-      this.addXP(bonusXP, `${combo.count}x ${type} combo!`);
+      this.addXP(bonusXP, combo.count + 'x ' + type + ' combo!');
     }
     
     return combo.count;
@@ -163,7 +165,7 @@ const gamification = {
    * ランク計算
    */
   getRank: function() {
-    const level = Memory.gamification?.level || 1;
+    const level = Memory.gamification && Memory.gamification.level ? Memory.gamification.level : 1;
     
     if (level >= 20) return 'Master';
     if (level >= 15) return 'Expert';
@@ -181,17 +183,17 @@ const gamification = {
     const gm = Memory.gamification;
     
     console.log('\n🎮 === GAMIFICATION DASHBOARD === 🎮');
-    console.log(`Level: ${gm.level} | Rank: ${this.getRank()}`);
-    console.log(`XP: ${gm.xp} / ${gm.xpToNext} (${Math.floor(gm.xp / gm.xpToNext * 100)}%)`);
-    console.log(`Total Score: ${gm.totalScore}`);
-    console.log(`Achievements: ${gm.achievements.length}`);
-    console.log(`Streak: ${gm.streakDays} days 🔥`);
+    console.log('Level: ' + gm.level + ' | Rank: ' + this.getRank());
+    console.log('XP: ' + gm.xp + ' / ' + gm.xpToNext + ' (' + Math.floor(gm.xp / gm.xpToNext * 100) + '%)');
+    console.log('Total Score: ' + gm.totalScore);
+    console.log('Achievements: ' + gm.achievements.length);
+    console.log('Streak: ' + gm.streakDays + ' days 🔥');
     
     // 最近の達成
     if (gm.achievements.length > 0) {
       console.log('\n🏆 Recent Achievements:');
-      gm.achievements.slice(-5).forEach(a => {
-        console.log(`  - ${a}`);
+      gm.achievements.slice(-5).forEach(function(a) {
+        console.log('  - ' + a);
       });
     }
   },
@@ -225,7 +227,7 @@ const gamification = {
     });
     
     // レベル
-    visual.text(`Lv.${gm.level}`, x - 2, y - 0.3, {
+    visual.text('Lv.' + gm.level, x - 2, y - 0.3, {
       color: '#00FF00',
       font: 0.7,
       align: 'left'
@@ -235,14 +237,14 @@ const gamification = {
     vfx.progressBar({x: x, y: y + 0.5, roomName: spawn.room.name}, gm.xp, gm.xpToNext, 'XP');
     
     // スコア
-    visual.text(`Score: ${gm.totalScore}`, x - 2, y + 1.3, {
+    visual.text('Score: ' + gm.totalScore, x - 2, y + 1.3, {
       color: '#FFD700',
       font: 0.6,
       align: 'left'
     });
     
     // 達成
-    visual.text(`🏆 ${gm.achievements.length}`, x - 2, y + 2, {
+    visual.text('🏆 ' + gm.achievements.length, x - 2, y + 2, {
       color: '#FFFFFF',
       font: 0.6,
       align: 'left'
@@ -250,7 +252,7 @@ const gamification = {
     
     // ストリーク
     if (gm.streakDays > 0) {
-      visual.text(`🔥 ${gm.streakDays} days`, x - 2, y + 2.7, {
+      visual.text('🔥 ' + gm.streakDays + ' days', x - 2, y + 2.7, {
         color: '#FF69B4',
         font: 0.6,
         align: 'left'

@@ -1,50 +1,69 @@
-# Screeps AI - Complete Automation Repository Wiki
+# 🎮 Screeps AI - Wiki
 
-Welcome to the Screeps AI Complete Automation Repository Wiki. This repository features a fully automated Screeps bot powered by GitHub Actions and AI.
+Welcome to the Screeps AI automation project wiki!
 
-## Quick Navigation
+## 📚 Documentation
 
-- [Getting Started](./Getting-Started) - Setup and first steps
-- [Architecture Overview](./Architecture-Overview) - System design and components
-- [Automation Systems](./Automation-Systems) - All automated workflows
-- [Role System](./Role-System) - Creep roles and behaviors
-- [Error Handling](./Error-Handling) - Error detection and auto-fix
-- [Defense System](./Defense-System) - Tower and defender management
-- [Utilities](./Utilities) - Helper modules and tools
-- [Troubleshooting](./Troubleshooting) - Common issues and solutions
-- [Contributing](./Contributing) - How to contribute
-- [FAQ](./FAQ) - Frequently asked questions
+- [Getting Started](Getting-Started)
+- [Bot System](Bot-System)
+- [Error Handling](Error-Handling)
+- [API Reference](API-Reference)
+- [Contributors](Contributors)
 
-## Repository Features
+## 🤖 Features
 
-- **Zero Cost**: GitHub Actions unlimited for public repos
-- **AI-Powered**: GitHub Copilot integration for error fixing and code improvement
-- **Hybrid Mode**: GitHub Sync deployment + optional API statistics
-- **Fully Automated**: Error detection, fixing, and code optimization
-- **Security**: 5-layer security monitoring
-- **Multi-Bot System**: 23+ specialized bots maintaining the codebase
+### 🚀 Complete Automation
+- **23 Automated Bots**: Maintaining code 24/7
+- **AI-Powered**: GitHub Copilot integration for intelligent fixes
+- **Zero Maintenance**: Everything runs automatically
+- **Free Forever**: No costs, no limits
 
-## Key Statistics
+### 📈 Real-Time Monitoring
+- **Game Status**: Live statistics every 15 minutes
+- **Console Logs**: Full access on GitHub
+- **Error Detection**: Automatic within 30 minutes
+- **Performance**: Continuous optimization
 
-- **Workflows**: 15+ automated workflows
-- **Roles**: 8+ creep roles
-- **Bots**: 23+ specialized maintenance bots
-- **Update Frequency**: 15-minute monitoring, hourly reports
-- **Deployment**: Automatic via GitHub Sync
+### 🔒 Security
+- **5-Layer Defense**: Multiple security scans
+- **CodeQL Analysis**: Advanced threat detection
+- **Dependency Scanning**: Vulnerability checks
+- **Secret Detection**: Prevents leaks
 
-## Quick Links
+## 🚀 Quick Start
 
-- [GitHub Repository](https://github.com/tadanobutubutu/screeps)
-- [Game Status Report](../GAME_STATUS.md)
-- [Security Policy](../SECURITY.md)
-- [Workflow Documentation](../WORKFLOWS.md)
+1. **GitHub Connection** (Required)
+   - Screeps.com → Settings → Git
+   - Connect to `tadanobutubutu/screeps`
+   - Branch: `main`
 
-## Support
+2. **API Token** (Optional)
+   - For statistics & logs
+   - Set `SCREEPS_PROD_TOKEN` in GitHub Secrets
 
-- Create an [Issue](https://github.com/tadanobutubutu/screeps/issues) for bugs or feature requests
-- Check the [FAQ](./FAQ) for common questions
-- Read [Troubleshooting](./Troubleshooting) for problem-solving guides
+3. **Spawn & Relax**
+   - Everything else is automatic!
+
+## 📊 Project Stats
+
+- **Bots**: 23+ specialized contributors
+- **Roles**: 8 creep roles implemented
+- **Automation**: 100%
+- **Uptime**: 24/7/365
+
+## 🔗 Quick Links
+
+- [Main Repository](https://github.com/tadanobutubutu/screeps)
+- [Contributors](https://github.com/tadanobutubutu/screeps/graphs/contributors)
+- [Actions](https://github.com/tadanobutubutu/screeps/actions)
+- [Issues](https://github.com/tadanobutubutu/screeps/issues)
+
+## 📝 Latest Updates
+
+Check out the [Changelog](https://github.com/tadanobutubutu/screeps/blob/main/CHANGELOG.md) for recent changes.
 
 ---
 
-Last Updated: 2026-02-25
+**🎉 Built with AI · Maintained by Bots · Powered by Automation**
+
+*Last updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)*

@@ -100,11 +100,5 @@
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22395456998,
     "created": "2026-02-25T11:46:38Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22395456735,
-    "created": "2026-02-25T11:46:38Z"
   }
 ]

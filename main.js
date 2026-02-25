@@ -1,5 +1,5 @@
 // Screeps AI - Z世代向けドーパミン爆発システム
-// Auto-monitoring + Gamification + Visual Effects
+// Auto-monitoring + Gamification + Visual Effects + Auto Evolution
 
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
@@ -17,9 +17,13 @@ const memVis = require('memory.visualizer');
 const autoTutorial = require('tutorial.auto');
 const gamification = require('gamification');
 const vfx = require('visual.effects');
+const autoEvolution = require('auto.evolution');
 
 module.exports.loop = function () {
   try {
+    // 🤖 AUTO EVOLUTION - 自動進化システム
+    autoEvolution.run();
+    
     // 🎮 AUTO TUTORIAL MODE - チュートリアル自動実行
     if (autoTutorial.isTutorial()) {
       console.log('🤖 AUTO TUTORIAL MODE ACTIVE');
@@ -135,7 +139,7 @@ module.exports.loop = function () {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
 
-      logger.tryCatch(() => {
+      logger.tryCatch(function() {
         // 😊 Update and display emotions
         EmotionSystem.display(creep);
         
@@ -187,7 +191,7 @@ module.exports.loop = function () {
     for (const roomName in Game.rooms) {
       const room = Game.rooms[roomName];
       if (room.controller && room.controller.my) {
-        logger.tryCatch(() => {
+        logger.tryCatch(function() {
           defenseManager.run(room);
         }, 'defense_' + roomName);
       }
@@ -214,6 +218,14 @@ module.exports.loop = function () {
         logger.info('Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext + 
                     ', Score: ' + gm.totalScore);
       }
+      
+      // 🤖 Display evolution stats
+      const evo = Memory.evolution;
+      if (evo) {
+        logger.info('Evolutions: ' + evo.stats.totalEvolutions + 
+                    ', Queue: ' + evo.queue.length + 
+                    ', Suggestions: ' + evo.suggestions.length);
+      }
     }
     
   } catch (e) {
@@ -238,10 +250,12 @@ function getBodyForRole(role, energy) {
     explorer: [[MOVE], 50]
   };
 
-  const [body, cost] = bodies[role] || [[MOVE, WORK, CARRY], 200];
+  const body = bodies[role] || [[MOVE, WORK, CARRY], 200];
+  const cost = body[1];
+  const parts = body[0];
   
   if (energy >= cost) {
-    return body;
+    return parts;
   }
   
   // Fallback to minimal body
@@ -274,6 +288,10 @@ global.ts = autoTutorial.skipIfPossible.bind(autoTutorial);
 global.g = gamification.showDashboard.bind(gamification);
 global.gr = gamification.reset.bind(gamification);
 
+// 🤖 Auto Evolution commands
+global.evo = autoEvolution.showDashboard.bind(autoEvolution);
+global.evor = autoEvolution.reset.bind(autoEvolution);
+
 // Helper function for common commands
 global.help = function() {
   console.log('\n✨ === Quick Commands === ✨');
@@ -297,6 +315,9 @@ global.help = function() {
   console.log('\n✨ Gamification:');
   console.log('  g()       - gamification dashboard');
   console.log('  gr()      - reset gamification');
+  console.log('\n🤖 Auto Evolution:');
+  console.log('  evo()     - evolution dashboard');
+  console.log('  evor()    - reset evolution');
   console.log('\nLeaderboard types:');
   console.log('  harvested, built, upgraded, repaired');
   console.log('\n✨ Type help() to see this again!');

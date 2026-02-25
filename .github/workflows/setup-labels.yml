@@ -1,0 +1,68 @@
+name: 🏷️ Setup Labels
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/setup-labels.yml'
+
+permissions:
+  issues: write
+
+jobs:
+  setup-labels:
+    runs-on: ubuntu-latest
+    name: Create Required Labels
+    
+    steps:
+      - name: Create Labels
+        run: |
+          echo "🏷️ Creating labels..."
+          
+          # Function to create label if it doesn't exist
+          create_label() {
+            local name="$1"
+            local color="$2"
+            local description="$3"
+            
+            if gh label list --json name --jq '.[].name' | grep -q "^${name}$"; then
+              echo "ℹ️ Label '$name' already exists"
+            else
+              gh label create "$name" --color "$color" --description "$description"
+              echo "✅ Created label: $name"
+            fi
+          }
+          
+          # Workflow-related labels
+          create_label "workflow-health" "FF6B6B" "Workflow health monitoring issues"
+          create_label "workflow-fix" "4ECDC4" "Workflow fixes and improvements"
+          create_label "automated" "95E1D3" "Automated by bots"
+          
+          # Bot-related labels
+          create_label "ai-task" "FF6B6B" "Tasks for AI/Copilot"
+          create_label "ai-fix" "4ECDC4" "AI-powered fixes"
+          create_label "ai-improvement" "95E1D3" "AI-powered improvements"
+          create_label "auto-fix" "F38181" "Automatic fixes"
+          create_label "code-quality" "AA96DA" "Code quality improvements"
+          
+          # System labels
+          create_label "enhancement" "84CEEB" "New features or improvements"
+          create_label "bug" "FF6B6B" "Something isn't working"
+          create_label "documentation" "FFA07A" "Documentation improvements"
+          create_label "security" "C23B22" "Security related"
+          create_label "performance" "90EE90" "Performance improvements"
+          
+          # Status labels
+          create_label "needs-review" "FBBC04" "Needs human review"
+          create_label "urgent" "FF0000" "Urgent attention required"
+          create_label "setup-required" "FFA500" "Setup or configuration needed"
+          create_label "api-mode-suggestion" "9370DB" "Suggests switching to API mode"
+          
+          # Copilot labels
+          create_label "copilot" "7B68EE" "GitHub Copilot related"
+          
+          echo "✅ All labels created!"
+        env:
+          GH_TOKEN: ${{ github.token }}

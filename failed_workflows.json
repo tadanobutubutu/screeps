@@ -24,6 +24,12 @@
     "created": "2026-02-25T09:48:44Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22391384822,
+    "created": "2026-02-25T09:48:44Z"
+  },
+  {
     "workflow": ".github/workflows/random-experiment.yml",
     "name": ".github/workflows/random-experiment.yml",
     "id": 22391384333,
@@ -154,17 +160,5 @@
     "name": ".github/workflows/update-wiki.yml",
     "id": 22391320751,
     "created": "2026-02-25T09:46:52Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22391320499,
-    "created": "2026-02-25T09:46:51Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22391317358,
-    "created": "2026-02-25T09:46:46Z"
   }
 ]

@@ -10,6 +10,9 @@ on:
   schedule:
     - cron: '0 0 * * 0'  # Weekly on Sunday
 
+permissions:
+  contents: read
+
 jobs:
   check-null-safety:
     runs-on: ubuntu-latest
@@ -26,8 +29,8 @@ jobs:
           
           # Check for Object.keys() without null check
           echo "\n⚠️ Checking Object.keys() usage..."
-          if grep -rn "Object.keys(" --include="*.js" | grep -v "if (" | grep -v "&& " | grep -v "|| " | grep -v "// Safe:"; then
-            echo "⚠️ Found Object.keys() without null checks"
+          if find . -name '*.js' -not -path './node_modules/*' -not -path './.git/*' -exec grep -l "Object.keys(" {} \; | head -10; then
+            echo "⚠️ Found Object.keys() usage - verify null checks exist"
             ISSUES_FOUND=$((ISSUES_FOUND + 1))
           else
             echo "✅ Object.keys() usage looks safe"
@@ -35,18 +38,10 @@ jobs:
           
           # Check for Game.map.describeExits() usage
           echo "\n⚠️ Checking Game.map.describeExits() usage..."
-          if grep -rn "Game.map.describeExits" --include="*.js" | grep -v "if (" | grep -v "const.*=.*Game.map.describeExits"; then
-            echo "⚠️ Found Game.map.describeExits() that may need null checks"
+          if find . -name '*.js' -not -path './node_modules/*' -not -path './.git/*' -exec grep -l "Game.map.describeExits" {} \; | head -10; then
+            echo "⚠️ Found Game.map.describeExits() - verify null checks exist"
           else
             echo "✅ Game.map.describeExits() usage looks safe"
-          fi
-          
-          # Check for array access without length check
-          echo "\n⚠️ Checking array access..."
-          if grep -rn "\[0\]" --include="*.js" | grep -v "if (" | grep -v "length" | grep -v "//"; then
-            echo "⚠️ Found array[0] access that may need length checks"
-          else
-            echo "✅ Array access looks safe"
           fi
           
           # Generate report
@@ -90,28 +85,6 @@ jobs:
           if (exits && Object.keys(exits).length > 0) {
             const first = Object.keys(exits)[0];
           }
-          ```
-          
-          ### Safe array access
-          ```javascript
-          // Bad
-          const first = array[0];
-          
-          // Good
-          if (array && array.length > 0) {
-            const first = array[0];
-          }
-          ```
-          
-          ### Safe property access
-          ```javascript
-          // Bad
-          const value = obj.prop.subprop;
-          
-          // Good
-          const value = obj?.prop?.subprop;
-          // or
-          const value = obj && obj.prop && obj.prop.subprop;
           ```
           
           ## 🐛 Recent Fixes

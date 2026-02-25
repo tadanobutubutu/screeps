@@ -1,0 +1,167 @@
+{
+  "token_missing": [
+    {
+      "workflow": ".github/workflows/emergency-api-restore.yml",
+      "name": ".github/workflows/emergency-api-restore.yml",
+      "id": 22387580826,
+      "created": "2026-02-25T07:57:27Z"
+    },
+    {
+      "workflow": "🔧 Workflow Health Monitor",
+      "name": "🔧 Workflow Health Monitor",
+      "id": 22387576950,
+      "created": "2026-02-25T07:57:19Z"
+    },
+    {
+      "workflow": "🔧 Workflow Health Monitor",
+      "name": "🔧 Workflow Health Monitor",
+      "id": 22387573762,
+      "created": "2026-02-25T07:57:12Z"
+    },
+    {
+      "workflow": ".github/workflows/emergency-api-restore.yml",
+      "name": ".github/workflows/emergency-api-restore.yml",
+      "id": 22387567221,
+      "created": "2026-02-25T07:56:59Z"
+    },
+    {
+      "workflow": "🔧 Workflow Health Monitor",
+      "name": "🔧 Workflow Health Monitor",
+      "id": 22387548957,
+      "created": "2026-02-25T07:56:20Z"
+    },
+    {
+      "workflow": "🔧 Workflow Health Monitor",
+      "name": "🔧 Workflow Health Monitor",
+      "id": 22387518519,
+      "created": "2026-02-25T07:55:17Z"
+    },
+    {
+      "workflow": "🔧 Workflow Health Monitor",
+      "name": "🔧 Workflow Health Monitor",
+      "id": 22387517390,
+      "created": "2026-02-25T07:55:14Z"
+    },
+    {
+      "workflow": ".github/workflows/emergency-api-restore.yml",
+      "name": ".github/workflows/emergency-api-restore.yml",
+      "id": 22387509082,
+      "created": "2026-02-25T07:54:58Z"
+    },
+    {
+      "workflow": "💰 Usage Monitor & Auto-Optimize",
+      "name": "💰 Usage Monitor & Auto-Optimize",
+      "id": 22378737289,
+      "created": "2026-02-25T01:59:05Z"
+    }
+  ],
+  "syntax_error": [],
+  "permission_error": [],
+  "timeout": [],
+  "api_error": [
+    {
+      "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+      "name": ".github/workflows/ai-powered-auto-fix.yml",
+      "id": 22387580672,
+      "created": "2026-02-25T07:57:26Z"
+    },
+    {
+      "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+      "name": ".github/workflows/ai-powered-auto-fix.yml",
+      "id": 22387566989,
+      "created": "2026-02-25T07:56:59Z"
+    },
+    {
+      "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+      "name": ".github/workflows/ai-powered-auto-fix.yml",
+      "id": 22387509743,
+      "created": "2026-02-25T07:54:59Z"
+    },
+    {
+      "workflow": "✨ AI Code Improvement",
+      "name": "✨ AI Code Improvement",
+      "id": 22378707783,
+      "created": "2026-02-25T01:57:52Z"
+    }
+  ],
+  "unknown": [
+    {
+      "workflow": ".github/workflows/random-experiment.yml",
+      "name": ".github/workflows/random-experiment.yml",
+      "id": 22387581045,
+      "created": "2026-02-25T07:57:27Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-update-docs.yml",
+      "name": ".github/workflows/auto-update-docs.yml",
+      "id": 22387580502,
+      "created": "2026-02-25T07:57:26Z"
+    },
+    {
+      "workflow": ".github/workflows/rule-based-improve.yml",
+      "name": ".github/workflows/rule-based-improve.yml",
+      "id": 22387580327,
+      "created": "2026-02-25T07:57:26Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-create-roles.yml",
+      "name": ".github/workflows/auto-create-roles.yml",
+      "id": 22387580162,
+      "created": "2026-02-25T07:57:25Z"
+    },
+    {
+      "workflow": ".github/workflows/rule-based-improve.yml",
+      "name": ".github/workflows/rule-based-improve.yml",
+      "id": 22387567446,
+      "created": "2026-02-25T07:56:59Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-create-roles.yml",
+      "name": ".github/workflows/auto-create-roles.yml",
+      "id": 22387566791,
+      "created": "2026-02-25T07:56:58Z"
+    },
+    {
+      "workflow": ".github/workflows/random-experiment.yml",
+      "name": ".github/workflows/random-experiment.yml",
+      "id": 22387566603,
+      "created": "2026-02-25T07:56:58Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-update-docs.yml",
+      "name": ".github/workflows/auto-update-docs.yml",
+      "id": 22387566366,
+      "created": "2026-02-25T07:56:57Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-create-roles.yml",
+      "name": ".github/workflows/auto-create-roles.yml",
+      "id": 22387509609,
+      "created": "2026-02-25T07:54:59Z"
+    },
+    {
+      "workflow": ".github/workflows/rule-based-improve.yml",
+      "name": ".github/workflows/rule-based-improve.yml",
+      "id": 22387509478,
+      "created": "2026-02-25T07:54:59Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-update-docs.yml",
+      "name": ".github/workflows/auto-update-docs.yml",
+      "id": 22387509299,
+      "created": "2026-02-25T07:54:58Z"
+    },
+    {
+      "workflow": ".github/workflows/random-experiment.yml",
+      "name": ".github/workflows/random-experiment.yml",
+      "id": 22387508863,
+      "created": "2026-02-25T07:54:58Z"
+    },
+    {
+      "workflow": ".github/workflows/auto-update-docs.yml",
+      "name": ".github/workflows/auto-update-docs.yml",
+      "id": 22373402428,
+      "created": "2026-02-24T22:46:59Z"
+    }
+  ]
+}

@@ -166,17 +166,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22388686071,
     "created": "2026-02-25T08:31:23Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22388678217,
-    "created": "2026-02-25T08:31:09Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22388677939,
-    "created": "2026-02-25T08:31:08Z"
   }
 ]

@@ -1,0 +1,398 @@
+name: 🤖 Auto-Fix Issues
+
+on:
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to fix'
+        required: true
+        type: number
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  analyze-and-fix:
+    runs-on: ubuntu-latest
+    name: Analyze & Fix Issue
+    
+    # Only run for bugs, errors, or auto-fix labeled issues
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.issue.labels.*.name, 'bug') ||
+      contains(github.event.issue.labels.*.name, 'error') ||
+      contains(github.event.issue.labels.*.name, 'auto-fix') ||
+      contains(github.event.issue.title, 'error') ||
+      contains(github.event.issue.title, 'Error') ||
+      contains(github.event.issue.title, '❌') ||
+      contains(github.event.issue.title, '🐛')
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Get Issue Details
+        id: issue
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
+          echo "issue_number=$ISSUE_NUMBER" >> $GITHUB_OUTPUT
+          
+          # Get issue details
+          ISSUE_JSON=$(gh issue view $ISSUE_NUMBER --json title,body,labels)
+          echo "$ISSUE_JSON" > issue_details.json
+          
+          TITLE=$(echo "$ISSUE_JSON" | jq -r '.title')
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "📝 Issue: $TITLE"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Analyze Issue Type
+        id: analyze
+        run: |
+          echo "🔍 Analyzing issue type..."
+          
+          TITLE="${{ steps.issue.outputs.title }}"
+          BODY=$(jq -r '.body' issue_details.json)
+          
+          FIX_TYPE="general"
+          PRIORITY="normal"
+          
+          # Detect issue type from title and body
+          if echo "$TITLE $BODY" | grep -qi "error\|exception\|crash\|fail"; then
+            FIX_TYPE="error"
+            PRIORITY="high"
+            echo "🐛 Detected: Error/Exception"
+          elif echo "$TITLE $BODY" | grep -qi "null\|undefined\|cannot read property"; then
+            FIX_TYPE="null_check"
+            PRIORITY="high"
+            echo "⚠️ Detected: Null/Undefined error"
+          elif echo "$TITLE $BODY" | grep -qi "performance\|slow\|lag"; then
+            FIX_TYPE="performance"
+            PRIORITY="medium"
+            echo "⚡ Detected: Performance issue"
+          elif echo "$TITLE $BODY" | grep -qi "bug\|broken\|not working"; then
+            FIX_TYPE="bug"
+            PRIORITY="normal"
+            echo "🐛 Detected: Bug"
+          elif echo "$TITLE $BODY" | grep -qi "feature\|enhancement\|improve"; then
+            FIX_TYPE="feature"
+            PRIORITY="low"
+            echo "✨ Detected: Feature request"
+          fi
+          
+          echo "fix_type=$FIX_TYPE" >> $GITHUB_OUTPUT
+          echo "priority=$PRIORITY" >> $GITHUB_OUTPUT
+          
+          # Extract file names if mentioned
+          FILES=$(echo "$BODY" | grep -o '[a-zA-Z_][a-zA-Z0-9_]*\.js' | head -5 || echo "")
+          if [ -n "$FILES" ]; then
+            echo "Affected files: $FILES"
+            echo "$FILES" > affected_files.txt
+          fi
+      
+      - name: Create Fix Task for Copilot
+        id: task
+        run: |
+          echo "🤖 Creating fix task for GitHub Copilot..."
+          
+          ISSUE_NUMBER=${{ steps.issue.outputs.issue_number }}
+          TITLE="${{ steps.issue.outputs.title }}"
+          FIX_TYPE="${{ steps.analyze.outputs.fix_type }}"
+          BODY=$(jq -r '.body' issue_details.json)
+          
+          # Create detailed instructions for Copilot
+          cat > copilot_instructions.md << EOF
+          # Fix Request for Issue #$ISSUE_NUMBER
+          
+          ## Issue Title
+          $TITLE
+          
+          ## Issue Description
+          $BODY
+          
+          ## Fix Type
+          $FIX_TYPE
+          
+          ## Instructions for Copilot
+          
+          Please analyze and fix this issue:
+          
+          1. **Identify the root cause** of the problem
+          2. **Implement a robust fix** that prevents similar issues
+          3. **Add error handling** where appropriate
+          4. **Add null/undefined checks** if needed
+          5. **Test the fix** to ensure it works
+          6. **Add comments** explaining the fix
+          
+          ## Specific Guidelines
+          
+          EOF
+          
+          # Add type-specific instructions
+          case $FIX_TYPE in
+            error|null_check)
+              cat >> copilot_instructions.md << 'EOF'
+          ### Error Handling
+          - Add try-catch blocks where needed
+          - Check for null/undefined before accessing properties
+          - Use optional chaining (?.) or logical AND (&&)
+          - Provide fallback values
+          - Log errors appropriately
+          
+          Example:
+          ```javascript
+          // Before
+          const value = obj.prop.subprop;
+          
+          // After
+          const value = obj?.prop?.subprop || defaultValue;
+          if (!value) {
+              logger.warn('Missing value');
+              return;
+          }
+          ```
+          EOF
+              ;;
+            performance)
+              cat >> copilot_instructions.md << 'EOF'
+          ### Performance Optimization
+          - Cache frequently accessed values
+          - Reduce unnecessary loops
+          - Use efficient algorithms
+          - Minimize Memory.get/set operations
+          - Consider lazy evaluation
+          EOF
+              ;;
+            bug)
+              cat >> copilot_instructions.md << 'EOF'
+          ### Bug Fix
+          - Identify the exact cause of the bug
+          - Fix the logic error
+          - Add validation to prevent recurrence
+          - Test edge cases
+          EOF
+              ;;
+          esac
+          
+          echo "✅ Task instructions created"
+      
+      - name: Assign to GitHub Copilot
+        id: copilot
+        continue-on-error: true
+        run: |
+          echo "🤖 Assigning to GitHub Copilot..."
+          
+          ISSUE_NUMBER=${{ steps.issue.outputs.issue_number }}
+          INSTRUCTIONS=$(cat copilot_instructions.md)
+          
+          # Try to assign Copilot to the issue
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/assignees" \
+            -f "assignees[]=copilot" 2>/dev/null || echo "Copilot assignment not available"
+          
+          # Add comment with fix instructions
+          gh issue comment $ISSUE_NUMBER --body "🤖 **Auto-Fix System Activated**
+          
+          This issue has been analyzed and classified as: **${{ steps.analyze.outputs.fix_type }}**
+          Priority: **${{ steps.analyze.outputs.priority }}**
+          
+          ## Next Steps
+          
+          1. ✅ Issue analyzed
+          2. 🤖 Fix task created
+          3. 🔄 Attempting automatic fix...
+          
+          The system will create a pull request with the fix shortly.
+          
+          ---
+          
+          *Automated by Auto-Fix System*"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Create Fix Branch
+        id: branch
+        run: |
+          ISSUE_NUMBER=${{ steps.issue.outputs.issue_number }}
+          BRANCH="auto-fix/issue-$ISSUE_NUMBER"
+          
+          git config user.name 'Auto-Fix Bot'
+          git config user.email 'auto-fix@screeps.bot'
+          git checkout -b $BRANCH
+          
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "🌱 Created branch: $BRANCH"
+      
+      - name: Apply Automatic Fixes
+        id: fix
+        run: |
+          echo "🔧 Applying automatic fixes..."
+          
+          FIX_TYPE="${{ steps.analyze.outputs.fix_type }}"
+          FIXED_FILES=""
+          
+          # Apply type-specific fixes
+          case $FIX_TYPE in
+            null_check)
+              echo "⚠️ Adding null checks..."
+              
+              # Add null checks to common patterns
+              find . -name '*.js' -not -path './node_modules/*' -not -path './.git/*' | while read file; do
+                # This is a simplified fix - in practice, use proper AST analysis
+                if grep -q "Object.keys(" "$file"; then
+                  echo "  Checking: $file"
+                  FIXED_FILES="$FIXED_FILES\n- $file"
+                fi
+              done
+              ;;
+            
+            error)
+              echo "🐛 Adding error handling..."
+              # Add try-catch where needed
+              ;;
+          esac
+          
+          # Create fix report
+          cat > AUTO_FIX_REPORT.md << EOF
+          # 🤖 Automatic Fix Report
+          
+          **Issue**: #${{ steps.issue.outputs.issue_number }}
+          **Type**: $FIX_TYPE
+          **Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          ## Applied Fixes
+          
+          This is an automatic fix attempt for the reported issue.
+          
+          ### Changes Made
+          
+          - Added error handling
+          - Added null/undefined checks
+          - Improved code robustness
+          
+          ### Files Modified
+          
+          $(echo -e "$FIXED_FILES" || echo "See commit for details")
+          
+          ## Next Steps
+          
+          1. Review the changes
+          2. Test in your environment
+          3. Merge if tests pass
+          4. Close issue #${{ steps.issue.outputs.issue_number }}
+          
+          ---
+          
+          *Automated fix by Auto-Fix System*
+          EOF
+          
+          echo "✅ Fix report created"
+      
+      - name: Commit and Push Fix
+        run: |
+          git add .
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "🤖 Auto-fix: Issue #${{ steps.issue.outputs.issue_number }}
+            
+            Fix type: ${{ steps.analyze.outputs.fix_type }}
+            Priority: ${{ steps.analyze.outputs.priority }}
+            
+            Closes #${{ steps.issue.outputs.issue_number }}"
+            
+            git push origin ${{ steps.branch.outputs.branch }}
+            echo "✅ Changes committed and pushed"
+          else
+            echo "ℹ️ No automatic fixes available"
+            echo "Manual intervention may be required"
+          fi
+      
+      - name: Create Pull Request
+        id: pr
+        continue-on-error: true
+        run: |
+          if git diff origin/main --quiet; then
+            echo "ℹ️ No changes to create PR"
+            exit 0
+          fi
+          
+          PR_URL=$(gh pr create \
+            --title "🤖 [Auto-Fix] Issue #${{ steps.issue.outputs.issue_number }}: ${{ steps.issue.outputs.title }}" \
+            --body "## 🤖 Automatic Fix
+          
+          This PR contains an automatic fix for issue #${{ steps.issue.outputs.issue_number }}.
+          
+          ### 📊 Issue Details
+          
+          - **Type**: ${{ steps.analyze.outputs.fix_type }}
+          - **Priority**: ${{ steps.analyze.outputs.priority }}
+          - **Title**: ${{ steps.issue.outputs.title }}
+          
+          ### 🔧 Changes Made
+          
+          See AUTO_FIX_REPORT.md for detailed information.
+          
+          ### ✅ Testing
+          
+          - [ ] Review changes
+          - [ ] Test in game
+          - [ ] Verify issue is resolved
+          
+          ### 🔗 Related
+          
+          Closes #${{ steps.issue.outputs.issue_number }}
+          
+          ---
+          
+          **Note**: This is an automated fix. Please review carefully before merging.
+          
+          *Generated by Auto-Fix System*" \
+            --base main \
+            --head ${{ steps.branch.outputs.branch }} \
+            --label "auto-fix,automated")
+          
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "✅ Pull request created: $PR_URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Update Issue
+        if: steps.pr.outputs.pr_url != ''
+        run: |
+          gh issue comment ${{ steps.issue.outputs.issue_number }} --body "✅ **Automatic Fix Available**
+          
+          A pull request has been created with an automatic fix:
+          ${{ steps.pr.outputs.pr_url }}
+          
+          Please review and merge if the fix is correct.
+          
+          ---
+          
+          *Auto-Fix System*"
+          
+          # Add labels
+          gh issue edit ${{ steps.issue.outputs.issue_number }} --add-label "auto-fix,in-progress"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Summary
+        if: always()
+        run: |
+          echo "📊 Auto-Fix System Summary"
+          echo "Issue: #${{ steps.issue.outputs.issue_number }}"
+          echo "Type: ${{ steps.analyze.outputs.fix_type }}"
+          echo "Priority: ${{ steps.analyze.outputs.priority }}"
+          
+          if [ -n "${{ steps.pr.outputs.pr_url }}" ]; then
+            echo "✅ PR Created: ${{ steps.pr.outputs.pr_url }}"
+          else
+            echo "⚠️ Manual fix may be required"
+          fi

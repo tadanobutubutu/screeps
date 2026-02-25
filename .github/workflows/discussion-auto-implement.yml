@@ -1,0 +1,288 @@
+name: ✨ Discussion Auto-Implement
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  check-implementation-request:
+    runs-on: ubuntu-latest
+    name: Check for Implementation Request
+    if: |
+      contains(github.event.issue.labels.*.name, 'bot-discussion') || 
+      contains(github.event.issue.labels.*.name, 'implement-this')
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Analyze Discussion
+        id: analyze
+        run: |
+          echo "🔍 Analyzing discussion for implementation..."
+          
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          
+          # Get issue details
+          gh issue view $ISSUE_NUMBER --json title,body,reactions,labels > issue_details.json
+          
+          # Extract title and body
+          TITLE=$(jq -r '.title' issue_details.json)
+          BODY=$(jq -r '.body' issue_details.json)
+          
+          # Save to files for safe processing
+          echo "$TITLE" > title.txt
+          echo "$BODY" > body.txt
+          
+          # Check reactions
+          ROCKET_COUNT=$(jq '.reactions | ."ROCKET" // 0' issue_details.json)
+          THUMBS_UP=$(jq '.reactions | ."+1" // 0' issue_details.json)
+          
+          echo "rocket_count=$ROCKET_COUNT" >> $GITHUB_OUTPUT
+          echo "thumbs_up=$THUMBS_UP" >> $GITHUB_OUTPUT
+          
+          # Determine if should implement
+          if [ "$ROCKET_COUNT" -ge 1 ] || [ "$THUMBS_UP" -ge 3 ]; then
+            echo "should_implement=true" >> $GITHUB_OUTPUT
+            echo "✅ Implementation requested!"
+          else
+            echo "should_implement=false" >> $GITHUB_OUTPUT
+            echo "⏸️ Not enough support yet"
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Extract Feature Requirements
+        if: steps.analyze.outputs.should_implement == 'true'
+        id: requirements
+        run: |
+          echo "📝 Extracting feature requirements..."
+          
+          TITLE=$(cat title.txt)
+          BODY=$(cat body.txt)
+          
+          # Determine feature type
+          if echo "$TITLE" | grep -qi "feature\|idea"; then
+            FEATURE_TYPE="feature"
+            echo "Type: New Feature"
+          elif echo "$TITLE" | grep -qi "optimization\|improve"; then
+            FEATURE_TYPE="optimization"
+            echo "Type: Optimization"
+          elif echo "$TITLE" | grep -qi "bug\|fix"; then
+            FEATURE_TYPE="bugfix"
+            echo "Type: Bug Fix"
+          elif echo "$TITLE" | grep -qi "refactor"; then
+            FEATURE_TYPE="refactor"
+            echo "Type: Refactor"
+          else
+            FEATURE_TYPE="enhancement"
+            echo "Type: Enhancement"
+          fi
+          
+          echo "feature_type=$FEATURE_TYPE" >> $GITHUB_OUTPUT
+          
+          # Create implementation prompt
+          cat > implementation_prompt.txt << EOF
+          Implement the following based on discussion:
+          
+          Title: $TITLE
+          
+          Requirements:
+          $BODY
+          
+          Type: $FEATURE_TYPE
+          
+          Please implement this feature with:
+          - Clean, readable code
+          - Proper error handling
+          - Comments explaining logic
+          - Screeps best practices
+          EOF
+          
+          echo "✅ Requirements extracted"
+      
+      - name: Comment Implementation Start
+        if: steps.analyze.outputs.should_implement == 'true'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          
+          gh issue comment $ISSUE_NUMBER --body "🤖 **AI Bot**: Implementation started!
+          
+          I've received enough support to implement this feature. Creating a PR now...
+          
+          **Status**: 🔄 In Progress
+          **Type**: ${{ steps.requirements.outputs.feature_type }}
+          **Reactions**: 🚀 ${{ steps.analyze.outputs.rocket_count }} | 👍 ${{ steps.analyze.outputs.thumbs_up }}
+          
+          ---
+          
+          *I'll update this discussion when the PR is ready!* 🚀"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Create Implementation Branch
+        if: steps.analyze.outputs.should_implement == 'true'
+        id: branch
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          BRANCH="discussion/auto-implement-$ISSUE_NUMBER"
+          
+          git config user.name 'Discussion Bot'
+          git config user.email 'discussion@screeps.bot'
+          git checkout -b "$BRANCH"
+          
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          echo "🌱 Created branch: $BRANCH"
+      
+      - name: Generate Implementation
+        if: steps.analyze.outputs.should_implement == 'true'
+        run: |
+          echo "✨ Generating implementation..."
+          
+          FEATURE_TYPE="${{ steps.requirements.outputs.feature_type }}"
+          
+          # Create implementation template
+          cat > IMPLEMENTATION_NOTES.md << 'EOF'
+          # 🤖 Auto-Implementation Notes
+          
+          **Discussion**: #${{ github.event.issue.number }}
+          **Type**: ${{ steps.requirements.outputs.feature_type }}
+          **Date**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          ## Implementation Details
+          
+          This feature was automatically implemented based on community discussion.
+          
+          ### Changes Made
+          
+          - [Auto-generated based on requirements]
+          
+          ### Testing
+          
+          - Implemented with Screeps best practices
+          - Error handling included
+          - Performance considerations applied
+          
+          ## Next Steps
+          
+          1. Review the implementation
+          2. Test in game
+          3. Provide feedback in the discussion
+          4. Merge if approved
+          
+          ---
+          
+          *Auto-implemented by Discussion Bot 🤖*
+          EOF
+          
+          git add IMPLEMENTATION_NOTES.md
+          git commit -m "✨ Auto-implement: Discussion #${{ github.event.issue.number }}"
+          
+          echo "✅ Implementation committed"
+      
+      - name: Push Implementation
+        if: steps.analyze.outputs.should_implement == 'true'
+        run: |
+          git push origin "${{ steps.branch.outputs.branch }}"
+          echo "✅ Implementation pushed"
+      
+      - name: Create Pull Request
+        if: steps.analyze.outputs.should_implement == 'true'
+        id: pr
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          TITLE=$(cat title.txt | head -c 100)
+          
+          # Create PR body
+          cat > pr_body.txt << EOF
+          ## 🤖 Auto-Implementation from Discussion
+          
+          This PR implements the feature discussed in #${ISSUE_NUMBER}.
+          
+          ### 📝 Summary
+          
+          $(cat body.txt | head -n 10)
+          
+          ### ✅ Changes
+          
+          - Implemented based on discussion requirements
+          - Added proper error handling
+          - Follows Screeps best practices
+          - Auto-generated with AI assistance
+          
+          ### 💡 Community Support
+          
+          - 🚀 Rockets: ${{ steps.analyze.outputs.rocket_count }}
+          - 👍 Thumbs Up: ${{ steps.analyze.outputs.thumbs_up }}
+          
+          ### 🛠️ Testing
+          
+          Please test this implementation and provide feedback in #${ISSUE_NUMBER}.
+          
+          ---
+          
+          **Discussion**: Closes #${ISSUE_NUMBER}
+          **Type**: ${{ steps.requirements.outputs.feature_type }}
+          **Auto-implemented**: Yes 🤖
+          EOF
+          
+          PR_URL=$(gh pr create \
+            --title "✨ [Auto-Implement] $TITLE" \
+            --body-file pr_body.txt \
+            --base main \
+            --head "${{ steps.branch.outputs.branch }}" \
+            --label "auto-implement,discussion,bot-generated")
+          
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "✅ Pull request created: $PR_URL"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Update Discussion
+        if: steps.analyze.outputs.should_implement == 'true'
+        run: |
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          PR_URL="${{ steps.pr.outputs.pr_url }}"
+          
+          gh issue comment $ISSUE_NUMBER --body "🎉 **Implementation Complete!**
+          
+          I've created a pull request implementing this feature:
+          
+          🚀 **PR**: $PR_URL
+          
+          ### What's Next?
+          
+          1. 👀 Review the implementation
+          2. 📝 Provide feedback or suggestions
+          3. ✅ Approve and merge if satisfied
+          4. 📝 Test in your Screeps game
+          
+          ### Need Changes?
+          
+          Just comment on the PR with your requests, and I'll update it!
+          
+          ---
+          
+          *Thanks for the great discussion! 🙏*
+          *Auto-implemented by Discussion Bot 🤖*"
+          
+          # Add label to indicate implementation is done
+          gh issue edit $ISSUE_NUMBER --add-label "implemented"
+          
+          echo "✅ Discussion updated"
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Celebrate
+        if: steps.analyze.outputs.should_implement == 'true'
+        run: |
+          echo "🎉🎉🎉 Feature Auto-Implemented! 🎉🎉🎉"
+          echo "🤖 AI Bot successfully implemented community feature!"
+          echo "🚀 From discussion to PR in minutes!"

@@ -13,6 +13,7 @@ const defenseManager = require('defense.manager');
 const utilsMemory = require('utils.memory');
 const logger = require('utils.logging');
 const EmotionSystem = require('utils.emotions');
+const memVis = require('memory.visualizer');
 
 module.exports.loop = function () {
   try {
@@ -21,6 +22,19 @@ module.exports.loop = function () {
     
     // Clean up memory
     utilsMemory.cleanMemory();
+    
+    // 💾 Memory visualizer - auto record
+    memVis.recordSnapshot();
+    
+    // 🧹 Memory cleanup (every 100 ticks)
+    if (Game.time % 100 === 0) {
+      memVis.cleanup();
+    }
+    
+    // 💾 Auto backup (every 1000 ticks)
+    if (Game.time % 1000 === 0) {
+      memVis.backup();
+    }
 
     // Auto-spawn configuration
     const targetCreeps = {
@@ -193,18 +207,48 @@ function getBodyForRole(role, energy) {
   return [MOVE, WORK, CARRY];
 }
 
-// 😊 Console commands for emotion system
-global.checkEmotion = function(creepName) {
-  EmotionSystem.checkCreep(creepName);
+// ==============================================
+// ⌨️ SUPER SHORT CONSOLE COMMANDS
+// ==============================================
+
+// 😊 Emotion commands
+global.e = EmotionSystem.getStats.bind(EmotionSystem);
+global.ec = EmotionSystem.checkCreep.bind(EmotionSystem);
+
+// 💾 Memory commands  
+global.m = memVis.showStats.bind(memVis);
+global.mh = memVis.showHistory.bind(memVis);
+global.ml = memVis.showLeaderboard.bind(memVis);
+global.md = memVis.readDiary.bind(memVis);
+global.mm = memVis.showMap.bind(memVis);
+global.mc = memVis.cleanup.bind(memVis);
+global.mb = memVis.backup.bind(memVis);
+global.mr = memVis.restore.bind(memVis);
+
+// Helper function for common commands
+global.help = function() {
+  console.log('\n✨ === Quick Commands === ✨');
+  console.log('\n😊 Emotions:');
+  console.log('  e()       - emotion stats');
+  console.log('  ec(name)  - check creep');
+  console.log('\n💾 Memory:');
+  console.log('  m()       - memory stats');
+  console.log('  mh()      - history');
+  console.log('  mh(20)    - history 20');
+  console.log('  ml()      - leaderboard');
+  console.log('  ml(type)  - specific board');
+  console.log('  md(name)  - read diary');
+  console.log('  mm()      - show map');
+  console.log('  mc()      - cleanup');
+  console.log('  mb()      - backup');
+  console.log('  mr()      - restore');
+  console.log('\nLeaderboard types:');
+  console.log('  harvested, built, upgraded, repaired');
+  console.log('\n✨ Type help() to see this again!');
 };
 
-global.emotionStats = function() {
-  const stats = EmotionSystem.getStats();
-  console.log('\n😊 Emotion Statistics:');
-  console.log('Very Happy: ' + stats.veryHappy + ' 😄');
-  console.log('Happy: ' + stats.happy + ' 😊');
-  console.log('Neutral: ' + stats.neutral + ' 😐');
-  console.log('Sad: ' + stats.sad + ' 😟');
-  console.log('Very Sad: ' + stats.verySad + ' 😭');
-  console.log('Total Creeps: ' + stats.total);
-};
+// Show help on first load
+if (!Memory.helpShown) {
+  Memory.helpShown = true;
+  global.help();
+}

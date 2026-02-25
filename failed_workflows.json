@@ -108,6 +108,12 @@
     "created": "2026-02-25T09:46:19Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22391302149,
+    "created": "2026-02-25T09:46:19Z"
+  },
+  {
     "workflow": ".github/workflows/rule-based-improve.yml",
     "name": ".github/workflows/rule-based-improve.yml",
     "id": 22391301505,
@@ -160,11 +166,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22391080386,
     "created": "2026-02-25T09:40:07Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22391045523,
-    "created": "2026-02-25T09:39:13Z"
   }
 ]

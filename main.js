@@ -1,4 +1,4 @@
-// Screeps AI - Main Loop with Error Detection & Emotion System
+// Screeps AI - Main Loop with Auto Tutorial & Full Automation
 // Auto-monitoring enabled: 15-minute intervals
 
 const roleHarvester = require('role.harvester');
@@ -14,9 +14,18 @@ const utilsMemory = require('utils.memory');
 const logger = require('utils.logging');
 const EmotionSystem = require('utils.emotions');
 const memVis = require('memory.visualizer');
+const autoTutorial = require('tutorial.auto');
 
 module.exports.loop = function () {
   try {
+    // 🎮 AUTO TUTORIAL MODE - チュートリアル自動実行
+    if (autoTutorial.isTutorial()) {
+      console.log('🤖 AUTO TUTORIAL MODE ACTIVE');
+      autoTutorial.run();
+      autoTutorial.showProgress();
+      return; // チュートリアル中は通常ロジックをスキップ
+    }
+    
     // Initialize logging
     logger.init();
     
@@ -225,6 +234,10 @@ global.mc = memVis.cleanup.bind(memVis);
 global.mb = memVis.backup.bind(memVis);
 global.mr = memVis.restore.bind(memVis);
 
+// 🎮 Tutorial commands
+global.t = autoTutorial.showProgress.bind(autoTutorial);
+global.ts = autoTutorial.skipIfPossible.bind(autoTutorial);
+
 // Helper function for common commands
 global.help = function() {
   console.log('\n✨ === Quick Commands === ✨');
@@ -242,6 +255,9 @@ global.help = function() {
   console.log('  mc()      - cleanup');
   console.log('  mb()      - backup');
   console.log('  mr()      - restore');
+  console.log('\n🎮 Tutorial:');
+  console.log('  t()       - tutorial progress');
+  console.log('  ts()      - skip tutorial');
   console.log('\nLeaderboard types:');
   console.log('  harvested, built, upgraded, repaired');
   console.log('\n✨ Type help() to see this again!');

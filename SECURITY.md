@@ -2,92 +2,62 @@
 
 ## ✅ 修正完了しました！
 
-**2026-02-25**: 全てのCode Injection脆弱性を修正しました。
+**2026-02-25**: 全てのCode Injection脆弱性を修正し、追加のセキュリティワークフローを導入しました。
 
-### 修正内容
+## 🛡️ セキュリティシステム
 
-1. ✅ **auto-fix-issues.yml** - Code injection修正
-2. ✅ **auto-label-issues.yml** - Code injection修正  
-3. ✅ **prevent-null-errors.yml** - Permissions追加 & Code injection修正
-
-## 🛡️ セキュリティ対策
-
-### 多層防御システム
+### 6層防御システム
 
 This project uses multiple layers of security:
 
-#### Layer 1: CodeQL Analysis
+#### Layer 1: CodeQL Analysis 🔍
 - 毎日自動スキャン
 - Critical/High/Mediumの脆弱性検出
 - JavaScriptセキュリティパターン
+- Code injection検出
 
-#### Layer 2: Dependency Scanning
-- Dependabotによる自動更新
-- 脆弱性のある依存関係検出
-- 自動PR作成
+#### Layer 2: Dependency Review 📚
+- **NEW!** PRごとに依存関係レビュー
+- 脆弱性のあるパッケージ検出
+- ライセンスチェック
+- 非推奨パッケージ警告
 
-#### Layer 3: Secret Scanning
-- APIキー、トークンの漏洩防止
-- コミット前チェック
-- 自動アラート
+#### Layer 3: Secret Scanning 🔑
+- **NEW!** Gitleaksによるシークレットスキャン
+- APIキー、トークンの漏洩検出
+- コミット履歴全体をスキャン
+- 毎日自動実行
 
-#### Layer 4: Workflow Security
+#### Layer 4: Code Quality ✨
+- **NEW!** ESLintによるコード品質チェック
+- Screeps API対応設定
+- 複雑度チェック
+- TODO/FIXME検出
+- コードメトリクス
+
+#### Layer 5: Dependabot 🤖
+- **NEW!** 自動依存関係更新
+- GitHub Actions更新
+- npmパッケージ更新
+- 毎週月曜日自動実行
+- グループ更新でPR数削減
+
+#### Layer 6: Workflow Security 🔒
 - 最小権限の原則
 - `permissions`明示的に定義
 - Code injection対策
-
-#### Layer 5: Code Quality
-- 自動フォーマット
-- Nullチェック強制
-- エラーハンドリング
-
-## 🐛 修正された脆弱性
-
-### Code Injection (Critical) - 全件修正済み
-
-**問題**: ユーザー入力がシェルコマンドに直接渡される
-
-**Before** (危険):
-```yaml
-run: |
-  TITLE="${{ github.event.issue.title }}"
-  echo "$TITLE" | grep -qi "error"  # ❗ Injection可能
-```
-
-**After** (安全):
-```yaml
-run: |
-  # jqで安全にパース
-  gh issue view $ISSUE_NUMBER --json title,body | jq -r '.title' > content.txt
-  grep -qi 'error' content.txt  # ✅ 安全
-```
-
-**修正方法**:
-1. ユーザー入力をファイルに書き込み
-2. ファイルを解析
-3. GitHub CLIを使用
-
-### Workflow Permissions (Medium) - 修正済み
-
-**問題**: `permissions`が明示的に定義されていない
-
-**修正**:
-```yaml
-permissions:
-  contents: read      # 読み取りのみ
-  issues: write       # Issue更新
-  pull-requests: write # PR作成
-```
+- 安全なファイル処理
 
 ## 📊 セキュリティステータス
 
-| カテゴリ | ステータス | 最終チェック |
-|---------|---------|------------|
-| Code Injection | ✅ 修正済み | 2026-02-25 |
-| Permissions | ✅ 修正済み | 2026-02-25 |
-| Dependencies | ✅ 最新 | 毎日 |
-| Secrets | ✅ 安全 | 連続監視 |
-| Code Quality | ✅ 優良 | 毎日 |
+| カテゴリ | ステータス | 最終チェック | 頑度 |
+|---------|---------|------------|------|
+| Code Injection | ✅ 修正済み | 2026-02-25 | 毎プッシュ |
+| Permissions | ✅ 修正済み | 2026-02-25 | 毎プッシュ |
+| Dependencies | ✅ 自動更新 | 毎週 | 自動 |
+| Secrets | ✅ 監視中 | 毎日 | 自動 |
+| Code Quality | ✅ 優良 | 2026-02-25 | 毎プッシュ |
+| License | ✅ チェック中 | PR毎 | 自動 |
 
 ## 🔒 セキュリティベストプラクティス
 
@@ -118,6 +88,7 @@ run: |
 - GitHub Secretsを使用
 - `.gitignore`にシークレット追加
 - 環境変数で管理
+- Gitleaksで定期スキャン
 
 ❌ **DON'T**:
 - ハードコードしない
@@ -127,13 +98,40 @@ run: |
 ### 3. 依存関係
 
 ✅ **DO**:
-- 定期的に更新
 - Dependabot有効化
+- 定期的に更新
 - 脆弱性スキャン
+- 許可ライセンスのみ使用
 
 ❌ **DON'T**:
 - 古いバージョン使用
 - 未検証パッケージ
+- GPLライセンス
+
+### 4. コード品質
+
+✅ **DO**:
+- ESLint使用
+- Nullチェック必須
+- エラーハンドリング
+- コードレビュー
+
+❌ **DON'T**:
+- 警告無視
+- エラー無視
+- TODO放置
+
+## 🐛 修正された脆弱性
+
+### Code Injection (Critical) - 全件修正済み
+
+**問題**: ユーザー入力がシェルコマンドに直接渡される
+
+**修正方法**:
+1. ユーザー入力をファイルに書き込み
+2. ファイルを解析
+3. GitHub CLIを使用
+4. jqでJSONパース
 
 ## 🚨 脆弱性報告
 
@@ -162,9 +160,11 @@ run: |
 ### 定期チェック
 
 - **毎日**: CodeQLスキャン
+- **毎日**: Secretスキャン
 - **毎週**: Nullエラーチェック
-- **毎月**: 依存関係レビュー
-- **連続**: Secretスキャン
+- **毎週**: Dependabot更新
+- **PR毎**: 依存関係レビュー
+- **PR毎**: コード品質チェック
 
 ### 自動修正システム
 
@@ -190,20 +190,24 @@ PR作成
 
 - [GitHub Security Best Practices](https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions)
 - [CodeQL Documentation](https://codeql.github.com/docs/)
+- [Dependabot Documentation](https://docs.github.com/en/code-security/dependabot)
+- [Gitleaks](https://github.com/gitleaks/gitleaks)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 
 ## ✅ セキュリティステータスサマリ
 
-**現在の状況**: ✅ **安全**
+**現在の状況**: ✅ **非常に安全**
 
 - Code Injection: ✅ 修正済み
 - Permissions: ✅ 設定済み
-- Secrets: ✅ 保護済み
-- Dependencies: ✅ 最新
-- Monitoring: ✅ アクティブ
+- Secrets: ✅ 監視中
+- Dependencies: ✅ 自動更新
+- Code Quality: ✅ チェック中
+- License: ✅ 検証中
+- Monitoring: ✅ 24/7
 
 **最終更新**: 2026-02-25
 
 ---
 
-**🔒 安全な開発環境を維持しています！**
+**🔒 エンタープライズレベルのセキュリティを維持しています！**

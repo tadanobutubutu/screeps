@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
+    "id": 22427674291,
+    "created": "2026-02-26T04:19:57Z"
+  },
+  {
     "workflow": "🔑 Secret Scanning",
     "name": "🔑 Secret Scanning",
     "id": 22427668109,

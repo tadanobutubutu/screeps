@@ -30,6 +30,12 @@
     "created": "2026-02-26T06:00:48Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22429964082,
+    "created": "2026-02-26T06:00:48Z"
+  },
+  {
     "workflow": ".github/workflows/auto-create-roles.yml",
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22429963824,
@@ -148,17 +154,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22429919936,
     "created": "2026-02-26T05:59:01Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22429919784,
-    "created": "2026-02-26T05:59:00Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22429919632,
-    "created": "2026-02-26T05:59:00Z"
   }
 ]

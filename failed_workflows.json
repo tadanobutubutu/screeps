@@ -24,6 +24,12 @@
     "created": "2026-02-26T05:54:28Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22429808783,
+    "created": "2026-02-26T05:54:14Z"
+  },
+  {
     "workflow": "CxFlow",
     "name": "CxFlow",
     "id": 22429808765,
@@ -142,23 +148,5 @@
     "name": ".github/workflows/random-experiment.yml",
     "id": 22429759370,
     "created": "2026-02-26T05:52:09Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22429759211,
-    "created": "2026-02-26T05:52:08Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22429759086,
-    "created": "2026-02-26T05:52:08Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22429759002,
-    "created": "2026-02-26T05:52:08Z"
   }
 ]

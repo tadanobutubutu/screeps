@@ -21,8 +21,8 @@ const autoEvolution = require('auto.evolution');
 
 module.exports.loop = function () {
   try {
-    // 🤖 AUTO EVOLUTION - 自動進化システム
-    autoEvolution.run();
+    // Clean up memory FIRST to prevent overflow
+    utilsMemory.cleanMemory();
     
     // 🎮 AUTO TUTORIAL MODE - チュートリアル自動実行
     if (autoTutorial.isTutorial()) {
@@ -37,11 +37,10 @@ module.exports.loop = function () {
     gamification.init();
     gamification.updateStreak();
     
-    // Clean up memory
-    utilsMemory.cleanMemory();
-    
-    // 💾 Memory visualizer - auto record
-    memVis.recordSnapshot();
+    // 💾 Memory visualizer - record every 10 ticks instead of every tick
+    if (Game.time % 10 === 0) {
+      memVis.recordSnapshot();
+    }
     
     // 🧹 Memory cleanup (every 100 ticks)
     if (Game.time % 100 === 0) {
@@ -62,6 +61,11 @@ module.exports.loop = function () {
     if (Game.time % 10 === 0) {
       gamification.renderDashboard();
     }
+    
+    // 🤖 AUTO EVOLUTION - 実行頻度を大幅に削減 (500ティックごと)
+    if (Game.time % 500 === 0) {
+      autoEvolution.run();
+    }
 
     // Auto-spawn configuration
     const targetCreeps = {
@@ -80,7 +84,14 @@ module.exports.loop = function () {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
-      creepCounts[role] = (creepCounts[role] || 0) + 1;
+      
+      // role未定義の場合はharvesterに設定
+      if (!role) {
+        creep.memory.role = 'harvester';
+        logger.warn('Creep ' + name + ' had no role, set to harvester');
+      }
+      
+      creepCounts[creep.memory.role] = (creepCounts[creep.memory.role] || 0) + 1;
     }
 
     // Auto-spawn logic
@@ -138,6 +149,12 @@ module.exports.loop = function () {
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
+      
+      // role未定義チェック
+      if (!role) {
+        creep.memory.role = 'harvester';
+        continue;
+      }
 
       logger.tryCatch(function() {
         // 😊 Update and display emotions
@@ -171,12 +188,14 @@ module.exports.loop = function () {
             break;
           default:
             logger.warn('Unknown role: ' + role);
+            // 未知のroleの場合はharvesterに変更
+            creep.memory.role = 'harvester';
         }
       }, 'creep_' + name);
     }
     
-    // 👥 Social interactions - creeps greet each other when nearby
-    if (Game.time % 50 === 0) {
+    // 👥 Social interactions - creeps greet each other when nearby (頻度削減)
+    if (Game.time % 100 === 0) {
       const creeps = Object.values(Game.creeps);
       for (let i = 0; i < creeps.length; i++) {
         for (let j = i + 1; j < creeps.length; j++) {

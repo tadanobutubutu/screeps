@@ -30,6 +30,12 @@
     "created": "2026-02-26T05:59:03Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22429920717,
+    "created": "2026-02-26T05:59:03Z"
+  },
+  {
     "workflow": ".github/workflows/auto-update-docs.yml",
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22429920441,
@@ -130,23 +136,5 @@
     "name": ".github/workflows/random-experiment.yml",
     "id": 22429844919,
     "created": "2026-02-26T05:55:48Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22429844776,
-    "created": "2026-02-26T05:55:47Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22429844615,
-    "created": "2026-02-26T05:55:47Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22429844484,
-    "created": "2026-02-26T05:55:47Z"
   }
 ]

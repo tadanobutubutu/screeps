@@ -46,23 +46,5 @@
     "name": "CxFlow",
     "id": 22430240529,
     "created": "2026-02-26T06:12:14Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22430240219,
-    "created": "2026-02-26T06:12:13Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22430240051,
-    "created": "2026-02-26T06:12:13Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22430239909,
-    "created": "2026-02-26T06:12:12Z"
   }
 ]

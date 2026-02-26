@@ -24,6 +24,12 @@
     "created": "2026-02-26T06:12:28Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22430240575,
+    "created": "2026-02-26T06:12:14Z"
+  },
+  {
     "workflow": "🔑 Secret Scanning",
     "name": "🔑 Secret Scanning",
     "id": 22430240548,
@@ -148,23 +154,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22430212421,
     "created": "2026-02-26T06:11:07Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22430212314,
-    "created": "2026-02-26T06:11:06Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22430212217,
-    "created": "2026-02-26T06:11:06Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22430212059,
-    "created": "2026-02-26T06:11:06Z"
   }
 ]

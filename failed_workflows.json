@@ -118,11 +118,5 @@
     "name": "CodeQL Advanced",
     "id": 22430219453,
     "created": "2026-02-26T06:11:25Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22430219450,
-    "created": "2026-02-26T06:11:25Z"
   }
 ]

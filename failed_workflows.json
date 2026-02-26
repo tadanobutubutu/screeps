@@ -124,23 +124,5 @@
     "name": "🔍 Dependency Review",
     "id": 22430219450,
     "created": "2026-02-26T06:11:25Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22430219443,
-    "created": "2026-02-26T06:11:25Z"
-  },
-  {
-    "workflow": "🔑 Secret Scanning",
-    "name": "🔑 Secret Scanning",
-    "id": 22430219442,
-    "created": "2026-02-26T06:11:25Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22430212708,
-    "created": "2026-02-26T06:11:07Z"
   }
 ]

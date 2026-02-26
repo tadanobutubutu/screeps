@@ -6,14 +6,14 @@
 
 ### Level & Points
 - **Level**: 🌱 Newbie (Level 1)
-- **Total Points**: 1
+- **Total Points**: 21
 
 ### Project Stats
 - **Total Issues**: 1
   - ✅ Closed: 0
   - 🔄 Open: 1
 - **Total PRs**: 0
-  - ✅ Merged: 0
+  - ✅ Merged: 1
 - **Total Commits**: 1
 - **Contributors**: 2
 
@@ -23,6 +23,7 @@
 ## 🏆 Achievements Unlocked
 
 
+🚀 First Flight - Merged first PR
 
 ## 📈 Points System
 
@@ -42,7 +43,7 @@
 ## 🎯 Next Milestone
 
 $(if [ 0 -lt 10 ]; then echo "- Close $(( 10 - 0 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 0 -lt 10 ]; then echo "- Merge $(( 10 - 0 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 1 -lt 10 ]; then echo "- Merge $(( 10 - 1 )) more PRs to unlock 💎 PR Pro"; fi)
 $(if [ 0 -lt 80 ]; then echo "- Reach $(( 80 - 0 ))% more completion for ✨ Perfectionist"; fi)
 
 ---

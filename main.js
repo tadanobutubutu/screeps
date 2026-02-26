@@ -1,82 +1,35 @@
-// Screeps AI - Z世代向けドーパミン爆発システム
-// Auto-monitoring + Gamification + Visual Effects + Auto Evolution
+// Screeps AI - EMERGENCY CPU RECOVERY MODE
+// すべての非必須機能を無効化
 
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');
 const roleRepairer = require('role.repairer');
-const roleExplorer = require('role.explorer');
-const roleMedic = require('role.medic');
-const roleTransporter = require('role.transporter');
-const roleScout = require('role.scout');
-const defenseManager = require('defense.manager');
 const utilsMemory = require('utils.memory');
 const logger = require('utils.logging');
-const EmotionSystem = require('utils.emotions');
-const memVis = require('memory.visualizer');
-const autoTutorial = require('tutorial.auto');
-const gamification = require('gamification');
-const vfx = require('visual.effects');
-const autoEvolution = require('auto.evolution');
 
 module.exports.loop = function () {
   try {
-    // Clean up memory FIRST to prevent overflow
+    // 最優先: メモリクリーンアップ
     utilsMemory.cleanMemory();
     
-    // 🎮 AUTO TUTORIAL MODE - チュートリアル自動実行
-    if (autoTutorial.isTutorial()) {
-      console.log('🤖 AUTO TUTORIAL MODE ACTIVE');
-      autoTutorial.run();
-      autoTutorial.showProgress();
-      return;
-    }
-    
-    // Initialize systems
-    logger.init();
-    gamification.init();
-    gamification.updateStreak();
-    
-    // 💾 Memory visualizer - record every 10 ticks instead of every tick
-    if (Game.time % 10 === 0) {
-      memVis.recordSnapshot();
-    }
-    
-    // 🧹 Memory cleanup (every 100 ticks)
-    if (Game.time % 100 === 0) {
-      memVis.cleanup();
-    }
-    
-    // 💾 Auto backup (every 1000 ticks)
+    // 1000ティックに1回だけ大規模クリーンアップ
     if (Game.time % 1000 === 0) {
-      memVis.backup();
+      // 不要なMemory削除
+      delete Memory.evolution;
+      delete Memory.gamification;
+      delete Memory.emotions;
+      delete Memory.memorySnapshots;
+      delete Memory.backup;
+      console.log('🧹 Emergency memory cleanup completed');
     }
     
-    // 🎮 Gamification milestones
-    if (Game.time % 100 === 0) {
-      gamification.checkMilestones();
-    }
-    
-    // 📊 Render gamification dashboard
-    if (Game.time % 10 === 0) {
-      gamification.renderDashboard();
-    }
-    
-    // 🤖 AUTO EVOLUTION - 実行頻度を大幅に削減 (500ティックごと)
-    if (Game.time % 500 === 0) {
-      autoEvolution.run();
-    }
-
-    // Auto-spawn configuration
+    // Auto-spawn configuration (最小限)
     const targetCreeps = {
       harvester: 2,
-      upgrader: 2,
-      builder: 2,
-      repairer: 1,
-      transporter: 1,
-      scout: 1,
-      medic: 1,
-      explorer: 1
+      upgrader: 1,
+      builder: 1,
+      repairer: 1
     };
 
     // Count creeps by role
@@ -85,33 +38,18 @@ module.exports.loop = function () {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
       
-      // role未定義の場合はharvesterに設定
       if (!role) {
         creep.memory.role = 'harvester';
-        logger.warn('Creep ' + name + ' had no role, set to harvester');
       }
       
       creepCounts[creep.memory.role] = (creepCounts[creep.memory.role] || 0) + 1;
     }
 
-    // Auto-spawn logic
+    // Auto-spawn logic (シンプル版)
     for (const spawnName in Game.spawns) {
       const spawn = Game.spawns[spawnName];
       
       if (spawn.spawning) {
-        const spawningCreep = Game.creeps[spawn.spawning.name];
-        spawn.room.visual.text(
-          '🛠️' + spawningCreep.memory.role,
-          spawn.pos.x + 1,
-          spawn.pos.y,
-          { align: 'left', opacity: 0.8 }
-        );
-        
-        // スポーンエフェクト
-        if (Game.time % 5 === 0) {
-          vfx.stars(spawn.pos, 5);
-        }
-        
         continue;
       }
 
@@ -128,16 +66,8 @@ module.exports.loop = function () {
             const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
             
             if (result === OK) {
-              logger.info('Spawning new ' + role + ': ' + newName);
               creepCounts[role] = current + 1;
-              
-              // スポーン成功エフェクト
-              vfx.successExplosion(spawn.pos);
-              gamification.addXP(20, 'Spawned ' + role);
-              
               break;
-            } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
-              logger.warn('Failed to spawn ' + role + ': ' + result);
             }
           }
           break;
@@ -145,22 +75,17 @@ module.exports.loop = function () {
       }
     }
 
-    // Run all creeps with error handling & emotion system
+    // Run all creeps (最小限)
     for (const name in Game.creeps) {
       const creep = Game.creeps[name];
       const role = creep.memory.role;
       
-      // role未定義チェック
       if (!role) {
         creep.memory.role = 'harvester';
         continue;
       }
 
-      logger.tryCatch(function() {
-        // 😊 Update and display emotions
-        EmotionSystem.display(creep);
-        
-        // Run role logic
+      try {
         switch (role) {
           case 'harvester':
             roleHarvester.run(creep);
@@ -174,176 +99,66 @@ module.exports.loop = function () {
           case 'repairer':
             roleRepairer.run(creep);
             break;
-          case 'explorer':
-            roleExplorer.run(creep);
-            break;
-          case 'medic':
-            roleMedic.run(creep);
-            break;
-          case 'transporter':
-            roleTransporter.run(creep);
-            break;
-          case 'scout':
-            roleScout.run(creep);
-            break;
           default:
-            logger.warn('Unknown role: ' + role);
-            // 未知のroleの場合はharvesterに変更
             creep.memory.role = 'harvester';
         }
-      }, 'creep_' + name);
-    }
-    
-    // 👥 Social interactions - creeps greet each other when nearby (頻度削減)
-    if (Game.time % 100 === 0) {
-      const creeps = Object.values(Game.creeps);
-      for (let i = 0; i < creeps.length; i++) {
-        for (let j = i + 1; j < creeps.length; j++) {
-          if (Math.random() > 0.7) {
-            EmotionSystem.interact(creeps[i], creeps[j]);
-          }
-        }
+      } catch (e) {
+        console.log('Error in creep ' + name + ': ' + e.message);
       }
     }
 
-    // Run defense manager for all owned rooms
-    for (const roomName in Game.rooms) {
-      const room = Game.rooms[roomName];
-      if (room.controller && room.controller.my) {
-        logger.tryCatch(function() {
-          defenseManager.run(room);
-        }, 'defense_' + roomName);
-      }
-    }
-
-    // Display stats every 100 ticks
-    if (Game.time % 100 === 0) {
-      logger.info('Tick: ' + Game.time + ', Creeps: ' + Object.keys(Game.creeps).length);
-      
-      const logStats = logger.getStats();
-      if (logStats.errors > 0) {
-        logger.warn('Recent errors: ' + logStats.errors + ' (auto-fix system active)');
-      }
-      
-      // 😊 Display emotion stats
-      const emotionStats = EmotionSystem.getStats();
-      logger.info('Emotions - Happy: ' + (emotionStats.veryHappy + emotionStats.happy) + 
-                  ', Neutral: ' + emotionStats.neutral + 
-                  ', Sad: ' + (emotionStats.sad + emotionStats.verySad));
-      
-      // 🎮 Display gamification stats
-      const gm = Memory.gamification;
-      if (gm) {
-        logger.info('Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext + 
-                    ', Score: ' + gm.totalScore);
-      }
-      
-      // 🤖 Display evolution stats
-      const evo = Memory.evolution;
-      if (evo) {
-        logger.info('Evolutions: ' + evo.stats.totalEvolutions + 
-                    ', Queue: ' + evo.queue.length + 
-                    ', Suggestions: ' + evo.suggestions.length);
-      }
+    // Stats (500ティックに1回)
+    if (Game.time % 500 === 0) {
+      console.log('⚡ CPU: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit);
+      console.log('📦 Bucket: ' + Game.cpu.bucket);
+      console.log('👥 Creeps: ' + Object.keys(Game.creeps).length);
+      console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
     }
     
   } catch (e) {
-    // Top-level error catch
-    if (typeof logger !== 'undefined' && logger.error) {
-      logger.error('CRITICAL: Main loop exception: ' + e.message + '\n' + e.stack);
-    } else {
-      console.log('❌ CRITICAL ERROR: ' + e.message);
-    }
+    console.log('❌ CRITICAL ERROR: ' + e.message);
   }
 };
 
 function getBodyForRole(role, energy) {
-  const bodies = {
-    harvester: [[WORK, WORK, CARRY, MOVE], 300],
-    upgrader: [[WORK, WORK, CARRY, MOVE], 300],
-    builder: [[WORK, CARRY, CARRY, MOVE], 300],
-    repairer: [[WORK, CARRY, MOVE], 200],
-    transporter: [[CARRY, CARRY, MOVE, MOVE], 200],
-    scout: [[MOVE], 50],
-    medic: [[HEAL, MOVE], 300],
-    explorer: [[MOVE], 50]
-  };
-
-  const body = bodies[role] || [[MOVE, WORK, CARRY], 200];
-  const cost = body[1];
-  const parts = body[0];
-  
-  if (energy >= cost) {
-    return parts;
+  // 最小限のボディ
+  if (energy >= 300) {
+    if (role === 'harvester') return [WORK, WORK, CARRY, MOVE];
+    if (role === 'upgrader') return [WORK, WORK, CARRY, MOVE];
+    if (role === 'builder') return [WORK, CARRY, CARRY, MOVE];
+    if (role === 'repairer') return [WORK, CARRY, MOVE];
   }
   
-  // Fallback to minimal body
+  if (energy >= 200) {
+    return [WORK, CARRY, MOVE];
+  }
+  
   return [MOVE, WORK, CARRY];
 }
 
-// ==============================================
-// ⌨️ SUPER SHORT CONSOLE COMMANDS
-// ==============================================
-
-// 😊 Emotion commands
-global.e = EmotionSystem.getStats.bind(EmotionSystem);
-global.ec = EmotionSystem.checkCreep.bind(EmotionSystem);
-
-// 💾 Memory commands  
-global.m = memVis.showStats.bind(memVis);
-global.mh = memVis.showHistory.bind(memVis);
-global.ml = memVis.showLeaderboard.bind(memVis);
-global.md = memVis.readDiary.bind(memVis);
-global.mm = memVis.showMap.bind(memVis);
-global.mc = memVis.cleanup.bind(memVis);
-global.mb = memVis.backup.bind(memVis);
-global.mr = memVis.restore.bind(memVis);
-
-// 🎮 Tutorial commands
-global.t = autoTutorial.showProgress.bind(autoTutorial);
-global.ts = autoTutorial.skipIfPossible.bind(autoTutorial);
-
-// ✨ Gamification commands
-global.g = gamification.showDashboard.bind(gamification);
-global.gr = gamification.reset.bind(gamification);
-
-// 🤖 Auto Evolution commands
-global.evo = autoEvolution.showDashboard.bind(autoEvolution);
-global.evor = autoEvolution.reset.bind(autoEvolution);
-
-// Helper function for common commands
-global.help = function() {
-  console.log('\n✨ === Quick Commands === ✨');
-  console.log('\n😊 Emotions:');
-  console.log('  e()       - emotion stats');
-  console.log('  ec(name)  - check creep');
-  console.log('\n💾 Memory:');
-  console.log('  m()       - memory stats');
-  console.log('  mh()      - history');
-  console.log('  mh(20)    - history 20');
-  console.log('  ml()      - leaderboard');
-  console.log('  ml(type)  - specific board');
-  console.log('  md(name)  - read diary');
-  console.log('  mm()      - show map');
-  console.log('  mc()      - cleanup');
-  console.log('  mb()      - backup');
-  console.log('  mr()      - restore');
-  console.log('\n🎮 Tutorial:');
-  console.log('  t()       - tutorial progress');
-  console.log('  ts()      - skip tutorial');
-  console.log('\n✨ Gamification:');
-  console.log('  g()       - gamification dashboard');
-  console.log('  gr()      - reset gamification');
-  console.log('\n🤖 Auto Evolution:');
-  console.log('  evo()     - evolution dashboard');
-  console.log('  evor()    - reset evolution');
-  console.log('\nLeaderboard types:');
-  console.log('  harvested, built, upgraded, repaired');
-  console.log('\n✨ Type help() to see this again!');
+// 緊急コマンド
+global.status = function() {
+  console.log('\n⚡ === EMERGENCY STATUS === ⚡');
+  console.log('CPU Used: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit);
+  console.log('CPU Bucket: ' + Game.cpu.bucket + '/10000');
+  console.log('Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB / 2048 KB');
+  console.log('Creeps: ' + Object.keys(Game.creeps).length);
+  console.log('\nWaiting for CPU bucket to recover...');
+  console.log('Type status() to check again.');
 };
 
-// Show help on first load
-if (!Memory.helpShown) {
-  Memory.helpShown = true;
-  global.help();
-}
+global.clean = function() {
+  delete Memory.evolution;
+  delete Memory.gamification;
+  delete Memory.emotions;
+  delete Memory.memorySnapshots;
+  delete Memory.backup;
+  delete Memory.diary;
+  delete Memory.achievements;
+  console.log('🧹 Manual cleanup completed!');
+  console.log('Memory now: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
+};
+
+console.log('\n🚨 EMERGENCY MODE ACTIVE 🚨');
+console.log('All non-essential features disabled.');
+console.log('Commands: status() - check status, clean() - clean memory');

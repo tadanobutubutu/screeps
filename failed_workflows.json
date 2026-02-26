@@ -2,6 +2,12 @@
   {
     "workflow": "🔧 Workflow Health Monitor",
     "name": "🔧 Workflow Health Monitor",
+    "id": 22430270403,
+    "created": "2026-02-26T06:13:27Z"
+  },
+  {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
     "id": 22430250016,
     "created": "2026-02-26T06:12:41Z"
   },
@@ -135,24 +141,6 @@
     "workflow": ".github/workflows/update-wiki.yml",
     "name": ".github/workflows/update-wiki.yml",
     "id": 22430212708,
-    "created": "2026-02-26T06:11:07Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22430212599,
-    "created": "2026-02-26T06:11:07Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22430212502,
-    "created": "2026-02-26T06:11:07Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22430212421,
     "created": "2026-02-26T06:11:07Z"
   }
 ]

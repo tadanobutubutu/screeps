@@ -1,0 +1,24 @@
+# Gitleaks configuration for screeps repository
+# This config excludes false positives while maintaining security scanning
+
+title = "Screeps Repository Gitleaks Configuration"
+
+# Exclude documentation files that contain security best practices examples
+[allowlist]
+  description = "Allowlist for false positives"
+  
+  # Exclude SECURITY.md from generic-api-key rule
+  # Line 88 contains "**\"DO\"**:" which triggers false positive
+  [[allowlist.regexes]]
+    description = "Ignore SECURITY.md documentation"
+    regex = '''SECURITY\.md'''
+  
+  # Allow common placeholder patterns in documentation
+  [[allowlist.regexes]]
+    description = "Ignore documentation examples"
+    regex = '''(YOUR_API_KEY|EXAMPLE_TOKEN|<token>|\[YOUR_.*\])'''
+
+# Custom rules configuration
+[extend]
+  # Use default Gitleaks rules with above allowlist
+  useDefault = true

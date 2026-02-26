@@ -1,0 +1,42 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ],
+  "plugins": ["prettier"],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "globals": {
+    "Game": "readonly",
+    "Memory": "readonly",
+    "PathFinder": "readonly",
+    "RawMemory": "readonly",
+    "FIND_MY_SPAWNS": "readonly",
+    "FIND_SOURCES": "readonly",
+    "FIND_STRUCTURES": "readonly",
+    "FIND_HOSTILE_CREEPS": "readonly",
+    "STRUCTURE_EXTENSION": "readonly",
+    "STRUCTURE_TOWER": "readonly",
+    "STRUCTURE_CONTROLLER": "readonly",
+    "STRUCTURE_SPAWN": "readonly",
+    "OK": "readonly",
+    "ERR_NOT_ENOUGH_ENERGY": "readonly",
+    "ERR_BUSY": "readonly"
+  },
+  "rules": {
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-console": "off",
+    "prefer-const": "error",
+    "no-var": "error",
+    "prettier/prettier": "error",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "brace-style": ["error", "1tbs"]
+  }
+}

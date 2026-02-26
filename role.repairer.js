@@ -1,6 +1,5 @@
 var roleRepairer = {
-
-    run: function(creep) {
+    run: function (creep) {
         if (creep.memory.repairing && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.repairing = false;
             creep.say('⚡ harvest');
@@ -13,7 +12,7 @@ var roleRepairer = {
         if (creep.memory.repairing) {
             // 修理が必要な構造物を探す（壁を除く）
             const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+                filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
             });
             if (targets.length > 0) {
                 // 最もhitsが低い構造物を優先修理
@@ -24,7 +23,9 @@ var roleRepairer = {
             } else {
                 // 修理対象がない場合はアップグレード
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+                    creep.moveTo(creep.room.controller, {
+                        visualizePathStyle: { stroke: '#ffffff' },
+                    });
                 }
             }
         } else {
@@ -36,7 +37,7 @@ var roleRepairer = {
                 }
             }
         }
-    }
+    },
 };
 
 module.exports = roleRepairer;

@@ -1,6 +1,5 @@
 var roleBuilder = {
-
-    run: function(creep) {
+    run: function (creep) {
         if (creep.memory.building && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.building = false;
             creep.say('⚡ harvest');
@@ -22,7 +21,9 @@ var roleBuilder = {
             } else {
                 // 建設サイトがなければアップグレードモードに
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+                    creep.moveTo(creep.room.controller, {
+                        visualizePathStyle: { stroke: '#ffffff' },
+                    });
                 }
             }
         } else {
@@ -34,7 +35,7 @@ var roleBuilder = {
                 }
             }
         }
-    }
+    },
 };
 
 module.exports = roleBuilder;

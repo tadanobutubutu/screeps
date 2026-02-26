@@ -2,32 +2,31 @@
 // 自動防衛システム - タワー制御と緊急防衛creep生成
 
 const defenseManager = {
-    
     // メイン防衛ループ
-    run: function(room) {
+    run: function (room) {
         this.manageTowers(room);
         this.checkThreats(room);
         this.manageDefenders(room);
     },
-    
+
     // タワー自動制御
-    manageTowers: function(room) {
+    manageTowers: function (room) {
         const towers = room.find(FIND_MY_STRUCTURES, {
-            filter: s => s.structureType === STRUCTURE_TOWER
+            filter: (s) => s.structureType === STRUCTURE_TOWER,
         });
-        
+
         if (towers.length === 0) return;
-        
+
         // 脅威の優先順位付け
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
         const damagedCreeps = room.find(FIND_MY_CREEPS, {
-            filter: c => c.hits < c.hitsMax
+            filter: (c) => c.hits < c.hitsMax,
         });
         const damagedStructures = room.find(FIND_STRUCTURES, {
-            filter: s => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+            filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
         });
-        
-        towers.forEach(tower => {
+
+        towers.forEach((tower) => {
             // 優先度1: 敵creepへの攻撃
             if (hostiles.length > 0) {
                 const target = tower.pos.findClosestByRange(hostiles);
@@ -36,21 +35,20 @@ const defenseManager = {
                     return;
                 }
             }
-            
+
             // 優先度2: 味方creepの回復
             if (damagedCreeps.length > 0) {
-                const critical = damagedCreeps.find(c => c.hits < c.hitsMax * 0.5);
+                const critical = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
                 if (critical) {
                     tower.heal(critical);
                     return;
                 }
             }
-            
+
             // 優先度3: 構造物の修理（エネルギーが十分な時のみ）
             if (tower.store[RESOURCE_ENERGY] > 500) {
-                const criticalStructure = damagedStructures.find(s => 
-                    s.hits < s.hitsMax * 0.3 && 
-                    s.structureType !== STRUCTURE_RAMPART
+                const criticalStructure = damagedStructures.find(
+                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
                 );
                 if (criticalStructure) {
                     tower.repair(criticalStructure);
@@ -58,116 +56,132 @@ const defenseManager = {
             }
         });
     },
-    
+
     // 脅威レベル評価
-    checkThreats: function(room) {
+    checkThreats: function (room) {
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
-        
+
         if (hostiles.length === 0) {
             if (Memory.defenseLevel) delete Memory.defenseLevel;
             return 0;
         }
-        
+
         // 脅威レベル計算
         let threatLevel = 0;
-        hostiles.forEach(hostile => {
+        hostiles.forEach((hostile) => {
             const parts = hostile.body;
-            const attackParts = parts.filter(p => 
-                p.type === ATTACK || p.type === RANGED_ATTACK || p.type === HEAL
+            const attackParts = parts.filter(
+                (p) => p.type === ATTACK || p.type === RANGED_ATTACK || p.type === HEAL
             ).length;
             threatLevel += attackParts;
         });
-        
+
         Memory.defenseLevel = threatLevel;
-        
+
         // 警告表示
         if (threatLevel > 5) {
             console.log(`🚨 HIGH THREAT in ${room.name}: Level ${threatLevel}`);
         } else if (threatLevel > 0) {
             console.log(`⚠️ Threat detected in ${room.name}: Level ${threatLevel}`);
         }
-        
+
         return threatLevel;
     },
-    
+
     // 防衛creep管理
-    manageDefenders: function(room) {
+    manageDefenders: function (room) {
         const threatLevel = Memory.defenseLevel || 0;
-        const defenders = _.filter(Game.creeps, c => 
-            c.memory.role === 'defender' && c.room.name === room.name
+        const defenders = _.filter(
+            Game.creeps,
+            (c) => c.memory.role === 'defender' && c.room.name === room.name
         );
-        
+
         // 脅威に応じて必要な防衛creep数を決定
         const requiredDefenders = Math.min(Math.ceil(threatLevel / 3), 4);
-        
+
         if (defenders.length < requiredDefenders && threatLevel > 0) {
             // スポーン準備
             const spawns = room.find(FIND_MY_SPAWNS, {
-                filter: s => !s.spawning
+                filter: (s) => !s.spawning,
             });
-            
+
             if (spawns.length > 0) {
                 this.spawnDefender(spawns[0], threatLevel);
             }
         }
-        
+
         // 既存のdefenderに指示
-        defenders.forEach(defender => this.runDefender(defender));
+        defenders.forEach((defender) => this.runDefender(defender));
     },
-    
+
     // Defender creepの生成
-    spawnDefender: function(spawn, threatLevel) {
+    spawnDefender: function (spawn, threatLevel) {
         const room = spawn.room;
         const energy = room.energyAvailable;
-        
+
         let body = [];
-        
+
         // エネルギーと脅威レベルに応じたbody構成
         if (energy >= 1300 && threatLevel > 10) {
             // 強力な脅威用
-            body = [TOUGH, TOUGH, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
-                    ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, ATTACK, 
-                    RANGED_ATTACK, RANGED_ATTACK, HEAL];
+            body = [
+                TOUGH,
+                TOUGH,
+                MOVE,
+                MOVE,
+                MOVE,
+                MOVE,
+                MOVE,
+                MOVE,
+                ATTACK,
+                ATTACK,
+                ATTACK,
+                ATTACK,
+                ATTACK,
+                ATTACK,
+                RANGED_ATTACK,
+                RANGED_ATTACK,
+                HEAL,
+            ];
         } else if (energy >= 800) {
             // 中程度の脅威用
-            body = [TOUGH, MOVE, MOVE, MOVE, MOVE, 
-                    ATTACK, ATTACK, ATTACK, RANGED_ATTACK, HEAL];
+            body = [TOUGH, MOVE, MOVE, MOVE, MOVE, ATTACK, ATTACK, ATTACK, RANGED_ATTACK, HEAL];
         } else if (energy >= 400) {
             // 最小構成
             body = [MOVE, MOVE, ATTACK, ATTACK, RANGED_ATTACK];
         } else {
             return ERR_NOT_ENOUGH_ENERGY;
         }
-        
+
         const name = `Defender_${Game.time}`;
         const result = spawn.spawnCreep(body, name, {
-            memory: { role: 'defender', mode: 'patrol' }
+            memory: { role: 'defender', mode: 'patrol' },
         });
-        
+
         if (result === OK) {
             console.log(`🛡️ Spawning defender: ${name}`);
         }
-        
+
         return result;
     },
-    
+
     // Defender creepの行動制御
-    runDefender: function(creep) {
+    runDefender: function (creep) {
         const hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        
+
         if (hostile) {
             // 敵を発見
             if (creep.pos.getRangeTo(hostile) > 1) {
                 creep.moveTo(hostile, {
-                    visualizePathStyle: { stroke: '#ff0000' }
+                    visualizePathStyle: { stroke: '#ff0000' },
                 });
             }
-            
+
             // 攻撃
             if (creep.attack(hostile) === ERR_NOT_IN_RANGE) {
                 creep.rangedAttack(hostile);
             }
-            
+
             // 自己回復
             if (creep.hits < creep.hitsMax * 0.6) {
                 creep.heal(creep);
@@ -183,30 +197,31 @@ const defenseManager = {
                     creep.memory.patrolTarget = new RoomPosition(25, 25, creep.room.name);
                 }
             }
-            
+
             if (creep.pos.getRangeTo(creep.memory.patrolTarget) > 3) {
                 creep.moveTo(creep.memory.patrolTarget, {
-                    visualizePathStyle: { stroke: '#00ff00' }
+                    visualizePathStyle: { stroke: '#00ff00' },
                 });
             }
         }
     },
-    
+
     // 統計情報表示
-    showStats: function(room) {
+    showStats: function (room) {
         const towers = room.find(FIND_MY_STRUCTURES, {
-            filter: s => s.structureType === STRUCTURE_TOWER
+            filter: (s) => s.structureType === STRUCTURE_TOWER,
         }).length;
-        
-        const defenders = _.filter(Game.creeps, c => 
-            c.memory.role === 'defender' && c.room.name === room.name
+
+        const defenders = _.filter(
+            Game.creeps,
+            (c) => c.memory.role === 'defender' && c.room.name === room.name
         ).length;
-        
+
         const threatLevel = Memory.defenseLevel || 0;
-        
+
         console.log(`🛡️ Defense Status [${room.name}]:`);
         console.log(`   Towers: ${towers} | Defenders: ${defenders} | Threat: ${threatLevel}`);
-    }
+    },
 };
 
 module.exports = defenseManager;

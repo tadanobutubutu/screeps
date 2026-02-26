@@ -1,6 +1,7 @@
 /**
  * Auto Evolution System - 自動進化AI
  * ゲーム状況に応じて自動的に新コードを生成・更新
+ * CPU最適化版
  */
 
 const autoEvolution = {
@@ -14,11 +15,17 @@ const autoEvolution = {
         queue: [],
         lastRCL: 0,
         lastCheck: 0,
+        lastFullAnalysis: 0,
         suggestions: [],
         stats: {
           totalEvolutions: 0,
           successRate: 1.0
-        }
+        },
+        cache: {
+          gameState: null,
+          cacheTime: 0
+        },
+        analysisPhase: 0 // 段階的処理用
       };
     }
   },
@@ -29,68 +36,115 @@ const autoEvolution = {
   run: function() {
     this.init();
     
-    // 10ティックごとにチェック
-    if (Game.time - Memory.evolution.lastCheck < 10) {
+    // CPU使用率チェック - 50%超えたら処理スキップ
+    if (Game.cpu.getUsed() / Game.cpu.limit > 0.5) {
+      return;
+    }
+    
+    // 100ティックごとにチェック（以前は10ティック）
+    if (Game.time - Memory.evolution.lastCheck < 100) {
       return;
     }
     
     Memory.evolution.lastCheck = Game.time;
     
-    // 状況分析
-    const state = this.analyzeGameState();
-    
-    // 進化が必要か判定
-    const needs = this.needsEvolution(state);
-    
-    // 優先度順にキューに追加
-    needs.forEach(function(need) {
-      this.addToQueue(need);
-    }.bind(this));
-    
-    // キュー処理
-    this.processQueue();
+    // 段階的処理: 1回のrunで全てやらない
+    this.runPhase();
   },
   
   /**
-   * ゲーム状況分析
+   * 段階的処理実行
    */
-  analyzeGameState: function() {
-    const rooms = Object.values(Game.rooms).filter(function(r) {
-      return r.controller && r.controller.my;
-    });
+  runPhase: function() {
+    const phase = Memory.evolution.analysisPhase;
+    
+    switch(phase) {
+      case 0:
+        // Phase 0: 基本状態分析のみ
+        const basicState = this.analyzeBasicState();
+        Memory.evolution.cache.gameState = basicState;
+        Memory.evolution.cache.cacheTime = Game.time;
+        Memory.evolution.analysisPhase = 1;
+        break;
+        
+      case 1:
+        // Phase 1: ボトルネック分析
+        const state = Memory.evolution.cache.gameState;
+        if (state) {
+          state.bottlenecks = this.analyzeBottlenecks();
+          Memory.evolution.cache.gameState = state;
+        }
+        Memory.evolution.analysisPhase = 2;
+        break;
+        
+      case 2:
+        // Phase 2: 進化判定とキュー追加
+        const cachedState = Memory.evolution.cache.gameState;
+        if (cachedState) {
+          const needs = this.needsEvolution(cachedState);
+          const self = this;
+          needs.forEach(function(need) {
+            self.addToQueue(need);
+          });
+        }
+        Memory.evolution.analysisPhase = 3;
+        break;
+        
+      case 3:
+        // Phase 3: キュー処理
+        this.processQueue();
+        Memory.evolution.analysisPhase = 0; // リセット
+        Memory.evolution.lastFullAnalysis = Game.time;
+        break;
+    }
+  },
+  
+  /**
+   * 基本状態分析（軽量版）
+   */
+  analyzeBasicState: function() {
+    // 自分の部屋のみ、キャッシュ活用
+    const myRooms = [];
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      if (room.controller && room.controller.my) {
+        myRooms.push(room);
+      }
+    }
     
     const state = {
-      rcl: rooms.length > 0 ? rooms[0].controller.level : 0,
-      roomCount: rooms.length,
+      rcl: myRooms.length > 0 ? myRooms[0].controller.level : 0,
+      roomCount: myRooms.length,
       creepCount: Object.keys(Game.creeps).length,
       spawns: Object.keys(Game.spawns).length,
       gcl: Game.gcl.level,
-      resources: this.analyzeResources(rooms),
-      threats: this.analyzeThreats(rooms),
-      opportunities: this.analyzeOpportunities(rooms),
-      bottlenecks: this.analyzeBottlenecks(rooms),
-      structures: this.analyzeStructures(rooms)
+      resources: this.analyzeResourcesLight(myRooms),
+      structures: this.analyzeStructuresLight(myRooms),
+      threats: [], // 後で追加可能
+      opportunities: {},
+      bottlenecks: [] // Phase 1で追加
     };
     
     return state;
   },
   
   /**
-   * リソース分析
+   * リソース分析（軽量版）
    */
-  analyzeResources: function(rooms) {
+  analyzeResourcesLight: function(rooms) {
     let totalEnergy = 0;
     let storageEnergy = 0;
     let capacity = 0;
     
-    rooms.forEach(function(room) {
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i];
       totalEnergy += room.energyAvailable;
       capacity += room.energyCapacityAvailable;
       
       if (room.storage) {
         storageEnergy += room.storage.store[RESOURCE_ENERGY] || 0;
       }
-    });
+    }
     
     return {
       energy: totalEnergy,
@@ -101,80 +155,59 @@ const autoEvolution = {
   },
   
   /**
-   * 脅威分析
+   * 構造物分析（軽量版）
    */
-  analyzeThreats: function(rooms) {
-    const threats = [];
-    
-    rooms.forEach(function(room) {
-      const hostiles = room.find(FIND_HOSTILE_CREEPS);
-      
-      if (hostiles.length > 0) {
-        threats.push({
-          room: room.name,
-          type: 'hostile_creeps',
-          count: hostiles.length,
-          severity: hostiles.length > 3 ? 'high' : 'medium'
-        });
-      }
-      
-      // 構造物のダメージ
-      const damaged = room.find(FIND_STRUCTURES, {
-        filter: function(s) {
-          return s.hits < s.hitsMax * 0.5;
-        }
-      });
-      
-      if (damaged.length > 5) {
-        threats.push({
-          room: room.name,
-          type: 'heavy_damage',
-          count: damaged.length,
-          severity: 'medium'
-        });
-      }
-    });
-    
-    return threats;
-  },
-  
-  /**
-   * 機会分析
-   */
-  analyzeOpportunities: function(rooms) {
-    const opportunities = {
-      newRooms: [],
-      deposits: [],
-      powerBanks: []
+  analyzeStructuresLight: function(rooms) {
+    const structures = {
+      towers: 0,
+      storage: 0,
+      links: 0,
+      labs: 0,
+      terminals: 0
     };
     
-    rooms.forEach(function(room) {
-      // 隣接部屋チェック
-      const exits = Game.map.describeExits(room.name);
-      for (const direction in exits) {
-        const roomName = exits[direction];
-        // 実際には隣接部屋の状態をチェックする必要がある
-        // 簡略化のため省略
+    for (let i = 0; i < rooms.length; i++) {
+      const room = rooms[i];
+      
+      // find()を使わず、room.structuresキャッシュを活用
+      if (room.storage) structures.storage++;
+      if (room.terminal) structures.terminals++;
+      
+      // 他の構造物はカウントのみ（詳細分析は不要）
+      const roomStructures = room.find(FIND_MY_STRUCTURES);
+      for (let j = 0; j < roomStructures.length; j++) {
+        const s = roomStructures[j];
+        if (s.structureType === STRUCTURE_TOWER) structures.towers++;
+        if (s.structureType === STRUCTURE_LINK) structures.links++;
+        if (s.structureType === STRUCTURE_LAB) structures.labs++;
       }
-    });
+    }
     
-    return opportunities;
+    return structures;
   },
   
   /**
-   * ボトルネック分析
+   * ボトルネック分析（必要最小限）
    */
-  analyzeBottlenecks: function(rooms) {
+  analyzeBottlenecks: function() {
     const bottlenecks = [];
     
-    rooms.forEach(function(room) {
-      const creeps = room.find(FIND_MY_CREEPS);
-      const sources = room.find(FIND_SOURCES);
+    // 1部屋のみチェック（CPU節約）
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      if (!room.controller || !room.controller.my) continue;
       
-      // Harvester不足
-      const harvesters = creeps.filter(function(c) {
-        return c.memory.role === 'harvester';
-      });
+      const creeps = room.find(FIND_MY_CREEPS);
+      
+      // Harvester数チェックのみ
+      const harvesters = [];
+      for (let i = 0; i < creeps.length; i++) {
+        if (creeps[i].memory.role === 'harvester') {
+          harvesters.push(creeps[i]);
+        }
+      }
+      
+      const sources = room.find(FIND_SOURCES);
       
       if (harvesters.length < sources.length * 2) {
         bottlenecks.push({
@@ -185,21 +218,7 @@ const autoEvolution = {
         });
       }
       
-      // Upgrader不足
-      const upgraders = creeps.filter(function(c) {
-        return c.memory.role === 'upgrader';
-      });
-      
-      if (upgraders.length < 3 && room.controller.level < 8) {
-        bottlenecks.push({
-          room: room.name,
-          type: 'insufficient_upgraders',
-          current: upgraders.length,
-          needed: 3
-        });
-      }
-      
-      // エネルギー不足
+      // エネルギー不足チェック
       if (room.energyAvailable < room.energyCapacityAvailable * 0.3) {
         bottlenecks.push({
           room: room.name,
@@ -207,40 +226,16 @@ const autoEvolution = {
           severity: 'high'
         });
       }
-    });
+      
+      // 1部屋のみで終了
+      break;
+    }
     
     return bottlenecks;
   },
   
   /**
-   * 構造物分析
-   */
-  analyzeStructures: function(rooms) {
-    const structures = {
-      towers: 0,
-      storage: 0,
-      links: 0,
-      labs: 0,
-      terminals: 0
-    };
-    
-    rooms.forEach(function(room) {
-      const roomStructures = room.find(FIND_MY_STRUCTURES);
-      
-      roomStructures.forEach(function(s) {
-        if (s.structureType === STRUCTURE_TOWER) structures.towers++;
-        if (s.structureType === STRUCTURE_STORAGE) structures.storage++;
-        if (s.structureType === STRUCTURE_LINK) structures.links++;
-        if (s.structureType === STRUCTURE_LAB) structures.labs++;
-        if (s.structureType === STRUCTURE_TERMINAL) structures.terminals++;
-      });
-    });
-    
-    return structures;
-  },
-  
-  /**
-   * 進化必要性判定
+   * 進化必要性判定（簡略版）
    */
   needsEvolution: function(state) {
     const needs = [];
@@ -259,53 +254,24 @@ const autoEvolution = {
       Memory.evolution.lastRCL = state.rcl;
     }
     
-    // 脅威対応
-    state.threats.forEach(function(threat) {
-      if (threat.severity === 'high') {
-        needs.push({
-          type: 'threat_response',
-          priority: 10,
-          data: threat,
-          action: 'create_defense'
-        });
-      }
-    });
-    
-    // ボトルネック解消
-    state.bottlenecks.forEach(function(bottleneck) {
+    // ボトルネック解消（最大2つまで）
+    const bottlenecks = state.bottlenecks || [];
+    for (let i = 0; i < Math.min(bottlenecks.length, 2); i++) {
       needs.push({
         type: 'bottleneck_fix',
         priority: 7,
-        data: bottleneck,
+        data: bottlenecks[i],
         action: 'optimize_production'
       });
-    });
+    }
     
-    // 新機能追加（構造物ベース）
+    // 新機能追加（構造物ベース）- RCL 3のみチェック
     if (state.rcl >= 3 && state.structures.towers === 0) {
       needs.push({
         type: 'new_feature',
         priority: 8,
         data: { feature: 'tower_management' },
         action: 'create_tower_logic'
-      });
-    }
-    
-    if (state.rcl >= 4 && state.structures.storage > 0) {
-      needs.push({
-        type: 'new_feature',
-        priority: 7,
-        data: { feature: 'storage_management' },
-        action: 'create_storage_logic'
-      });
-    }
-    
-    if (state.rcl >= 5 && state.structures.links > 0) {
-      needs.push({
-        type: 'new_feature',
-        priority: 6,
-        data: { feature: 'link_network' },
-        action: 'create_link_logic'
       });
     }
     
@@ -317,9 +283,15 @@ const autoEvolution = {
    */
   addToQueue: function(need) {
     // 重複チェック
-    const exists = Memory.evolution.queue.some(function(item) {
-      return item.type === need.type && item.action === need.action;
-    });
+    const queue = Memory.evolution.queue;
+    let exists = false;
+    
+    for (let i = 0; i < queue.length; i++) {
+      if (queue[i].type === need.type && queue[i].action === need.action) {
+        exists = true;
+        break;
+      }
+    }
     
     if (!exists) {
       need.timestamp = Game.time;
@@ -374,10 +346,6 @@ const autoEvolution = {
         suggestion = this.generateRCLFeatures(item.data);
         break;
         
-      case 'create_defense':
-        suggestion = this.generateDefenseCode(item.data);
-        break;
-        
       case 'optimize_production':
         suggestion = this.generateProductionOptimization(item.data);
         break;
@@ -386,13 +354,8 @@ const autoEvolution = {
         suggestion = this.generateTowerLogic();
         break;
         
-      case 'create_storage_logic':
-        suggestion = this.generateStorageLogic();
-        break;
-        
-      case 'create_link_logic':
-        suggestion = this.generateLinkLogic();
-        break;
+      default:
+        suggestion = '// Evolution suggestion';
     }
     
     Memory.evolution.suggestions.push({
@@ -429,13 +392,6 @@ const autoEvolution = {
   },
   
   /**
-   * 防衛コード生成
-   */
-  generateDefenseCode: function(data) {
-    return '// Defender role needed\n// Threat in room: ' + data.room;
-  },
-  
-  /**
    * 生産最適化コード生成
    */
   generateProductionOptimization: function(data) {
@@ -447,20 +403,6 @@ const autoEvolution = {
    */
   generateTowerLogic: function() {
     return 'module.exports = {\n  run: function(tower) {\n    // Attack hostiles\n    // Repair structures\n  }\n};';
-  },
-  
-  /**
-   * Storageロジック生成
-   */
-  generateStorageLogic: function() {
-    return 'module.exports = {\n  run: function(room) {\n    // Manage storage distribution\n  }\n};';
-  },
-  
-  /**
-   * Linkロジック生成
-   */
-  generateLinkLogic: function() {
-    return 'module.exports = {\n  run: function(room) {\n    // Transfer energy between links\n  }\n};';
   },
   
   /**
@@ -489,30 +431,38 @@ const autoEvolution = {
     console.log('Total Evolutions: ' + evo.stats.totalEvolutions);
     console.log('Success Rate: ' + (evo.stats.successRate * 100) + '%');
     console.log('Queue Length: ' + evo.queue.length);
+    console.log('Current Phase: ' + evo.analysisPhase);
+    console.log('Last Full Analysis: ' + (Game.time - evo.lastFullAnalysis) + ' ticks ago');
     
     // 履歴
     if (evo.history.length > 0) {
       console.log('\n📜 Recent Evolution History:');
-      evo.history.slice(-5).forEach(function(h) {
+      const recentHistory = evo.history.slice(-5);
+      for (let i = 0; i < recentHistory.length; i++) {
+        const h = recentHistory[i];
         console.log('  [' + h.time + '] ' + h.type + ': ' + h.action);
-      });
+      }
     }
     
     // キュー
     if (evo.queue.length > 0) {
       console.log('\n⏳ Pending Evolutions:');
-      evo.queue.slice(0, 5).forEach(function(q) {
+      const pendingQueue = evo.queue.slice(0, 5);
+      for (let i = 0; i < pendingQueue.length; i++) {
+        const q = pendingQueue[i];
         console.log('  Priority ' + q.priority + ': ' + q.type + ' (' + q.action + ')');
-      });
+      }
     }
     
     // 提案
     if (evo.suggestions.length > 0) {
       console.log('\n💡 Code Suggestions:');
-      evo.suggestions.slice(-3).forEach(function(s) {
+      const recentSuggestions = evo.suggestions.slice(-3);
+      for (let i = 0; i < recentSuggestions.length; i++) {
+        const s = recentSuggestions[i];
         console.log('  [' + s.time + '] ' + s.filename);
         console.log('  ' + s.code.split('\n')[0]);
-      });
+      }
     }
   },
   

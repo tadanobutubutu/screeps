@@ -88,11 +88,5 @@
     "name": ".github/workflows/update-wiki.yml",
     "id": 22430239460,
     "created": "2026-02-26T06:12:11Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22430239299,
-    "created": "2026-02-26T06:12:11Z"
   }
 ]

@@ -5,17 +5,17 @@
 ## 📊 Current Status
 
 ### Level & Points
-- **Level**: 🌱 Newbie (Level 1)
-- **Total Points**: 81
+- **Level**: 🔰 Beginner (Level 2)
+- **Total Points**: 101
 
 ### Project Stats
 - **Total Issues**: 3
   - ✅ Closed: 0
   - 🔄 Open: 3
-- **Total PRs**: 1
-  - ✅ Merged: 4
+- **Total PRs**: 0
+  - ✅ Merged: 5
 - **Total Commits**: 1
-- **Contributors**: 2
+- **Contributors**: 4
 
 ### Completion Rate
 [░░░░░░░░░░░░░░░░░░░░] 0%
@@ -43,7 +43,7 @@
 ## 🎯 Next Milestone
 
 $(if [ 0 -lt 10 ]; then echo "- Close $(( 10 - 0 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 4 -lt 10 ]; then echo "- Merge $(( 10 - 4 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 5 -lt 10 ]; then echo "- Merge $(( 10 - 5 )) more PRs to unlock 💎 PR Pro"; fi)
 $(if [ 0 -lt 80 ]; then echo "- Reach $(( 80 - 0 ))% more completion for ✨ Perfectionist"; fi)
 
 ---

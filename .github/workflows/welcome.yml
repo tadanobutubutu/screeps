@@ -1,0 +1,51 @@
+name: 👋 Welcome Bot
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    name: Welcome New Contributors
+    
+    steps:
+      - name: Welcome First Time Contributors
+        uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            🎉 **Welcome to the Screeps AI project!**
+            
+            Thank you for opening your first issue! We're excited to have you as part of our community.
+            
+            👀 A maintainer will review your issue soon. In the meantime:
+            - Please ensure you've provided all relevant information
+            - Check out our [Contributing Guide](../blob/main/CONTRIBUTING.md)
+            - Join our [Discussions](../../discussions) for questions
+            
+            We appreciate your contribution! 🚀
+          pr-message: |
+            🎉 **Thank you for your first pull request!**
+            
+            Welcome to the Screeps AI project! We're thrilled to have you contribute.
+            
+            👀 A maintainer will review your PR soon. Please note:
+            - Ensure all tests pass
+            - Check that your code follows our style guidelines
+            - Update documentation if needed
+            
+            Thank you for making this project better! 🚀
+            
+            ---
+            
+            **Helpful Resources:**
+            - [Contributing Guide](../blob/main/CONTRIBUTING.md)
+            - [Code of Conduct](../blob/main/CODE_OF_CONDUCT.md)
+            - [Development Setup](../blob/main/SETUP.md)

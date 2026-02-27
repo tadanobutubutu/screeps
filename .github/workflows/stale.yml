@@ -1,0 +1,57 @@
+name: 🗑️ Stale Issue and PR Management
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Daily at midnight JST
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    name: Close Stale Issues and PRs
+    
+    steps:
+      - name: Stale Bot
+        uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          
+          # Issues configuration
+          stale-issue-message: |
+            🔔 This issue has been automatically marked as stale because it has not had recent activity.
+            It will be closed in 7 days if no further activity occurs.
+            
+            If this issue is still relevant, please add a comment to keep it open.
+            Thank you for your contributions! 🚀
+          close-issue-message: |
+            🔒 This issue was automatically closed due to inactivity.
+            If you believe this was closed in error, please reopen it or create a new issue.
+          stale-issue-label: 'stale'
+          exempt-issue-labels: 'pinned,security,in-progress,bug'
+          days-before-issue-stale: 60
+          days-before-issue-close: 7
+          
+          # Pull Requests configuration
+          stale-pr-message: |
+            🔔 This pull request has been automatically marked as stale because it has not had recent activity.
+            It will be closed in 14 days if no further activity occurs.
+            
+            Please review and update if still relevant. Thank you! 🚀
+          close-pr-message: |
+            🔒 This pull request was automatically closed due to inactivity.
+            If you'd like to continue working on this, please reopen or create a new PR.
+          stale-pr-label: 'stale'
+          exempt-pr-labels: 'pinned,security,in-progress,wip'
+          days-before-pr-stale: 45
+          days-before-pr-close: 14
+          
+          # General settings
+          exempt-all-milestones: false
+          exempt-all-assignees: false
+          operations-per-run: 100
+          remove-stale-when-updated: true
+          ascending: false

@@ -1,9 +1,29 @@
-# Dependabot configuration for automatic dependency updates
+# Dependabot configuration for automated dependency updates
+# This will add dependabot[bot] as a contributor
 
 version: 2
-
 updates:
-  # GitHub Actions updates
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "tadanobutubutu"
+    assignees:
+      - "tadanobutubutu"
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "⬆️"
+      include: "scope"
+    
+  # Enable version updates for GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -12,43 +32,12 @@ updates:
       time: "09:00"
       timezone: "Asia/Tokyo"
     open-pull-requests-limit: 5
-    commit-message:
-      prefix: "⬆️"
-      include: "scope"
+    reviewers:
+      - "tadanobutubutu"
     labels:
-      - "dependencies"
       - "github-actions"
-    reviewers:
-      - "tadanobutubutu"
-    assignees:
-      - "tadanobutubutu"
-    
-  # npm dependencies (if package.json exists)
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday" 
-      time: "10:00"
-      timezone: "Asia/Tokyo"
-    open-pull-requests-limit: 10
+      - "dependencies"
+      - "automated"
     commit-message:
       prefix: "⬆️"
       include: "scope"
-    labels:
-      - "dependencies"
-      - "npm"
-    reviewers:
-      - "tadanobutubutu"
-    assignees:
-      - "tadanobutubutu"
-    # Security updates only for npm
-    versioning-strategy: increase
-    # Group minor and patch updates
-    groups:
-      minor-and-patch:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"

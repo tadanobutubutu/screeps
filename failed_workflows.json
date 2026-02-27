@@ -244,23 +244,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22501138090,
     "created": "2026-02-27T19:42:24Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22501137621,
-    "created": "2026-02-27T19:42:23Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22501137429,
-    "created": "2026-02-27T19:42:23Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22501137265,
-    "created": "2026-02-27T19:42:23Z"
   }
 ]

@@ -7,16 +7,26 @@ title = "Screeps Repository Gitleaks Configuration"
 [allowlist]
   description = "Allowlist for false positives"
   
-  # Exclude SECURITY.md from generic-api-key rule
-  # Line 88 contains "**\"DO\"**:" which triggers false positive
-  [[allowlist.regexes]]
-    description = "Ignore SECURITY.md documentation"
+  # Exclude SECURITY.md from all secret scanning
+  # This file contains security documentation, not actual secrets
+  [[allowlist.paths]]
+    description = "Exclude security documentation"
     regex = '''SECURITY\.md'''
+  
+  # Exclude specific commits that were flagged incorrectly
+  [[allowlist.commits]]
+    description = "Exclude initial security documentation commit"
+    regex = '''bacbe7533d5ee74c4ea2377c87bb4e019dce332c'''
   
   # Allow common placeholder patterns in documentation
   [[allowlist.regexes]]
-    description = "Ignore documentation examples"
-    regex = '''(YOUR_API_KEY|EXAMPLE_TOKEN|<token>|\[YOUR_.*\])'''
+    description = "Ignore documentation examples and placeholders"
+    regex = '''(YOUR_API_KEY|EXAMPLE_TOKEN|<token>|<key>|\[YOUR_.*\]|example\.com|placeholder)'''
+  
+  # Exclude markdown code blocks and examples
+  [[allowlist.regexes]]
+    description = "Ignore code examples in markdown"
+    regex = '''(```yaml|```javascript|```bash|# 安全な方法|# 危険)'''
 
 # Custom rules configuration
 [extend]

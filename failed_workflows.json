@@ -2,6 +2,12 @@
   {
     "workflow": "🔧 Workflow Health Monitor",
     "name": "🔧 Workflow Health Monitor",
+    "id": 22500775882,
+    "created": "2026-02-27T19:31:13Z"
+  },
+  {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
     "id": 22500760943,
     "created": "2026-02-27T19:30:45Z"
   },
@@ -82,6 +88,12 @@
     "name": "🏷️ PR Auto Labeler",
     "id": 22500745287,
     "created": "2026-02-27T19:30:15Z"
+  },
+  {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22500745257,
+    "created": "2026-02-27T19:30:14Z"
   },
   {
     "workflow": "🔍 Dependency Review",

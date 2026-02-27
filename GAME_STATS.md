@@ -9,13 +9,13 @@
 - **Total Points**: 81
 
 ### Project Stats
-- **Total Issues**: 2
+- **Total Issues**: 3
   - ✅ Closed: 0
-  - 🔄 Open: 2
+  - 🔄 Open: 3
 - **Total PRs**: 0
   - ✅ Merged: 4
 - **Total Commits**: 1
-- **Contributors**: 2
+- **Contributors**: 4
 
 ### Completion Rate
 [░░░░░░░░░░░░░░░░░░░░] 0%

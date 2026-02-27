@@ -1,0 +1,32 @@
+name: 👤 Auto Assign Issues and PRs
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    name: Auto Assign to Owner
+    
+    steps:
+      - name: Auto Assign Issues
+        if: github.event_name == 'issues'
+        uses: pozil/auto-assign-issue@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: tadanobutubutu
+          numOfAssignee: 1
+      
+      - name: Auto Assign PRs
+        if: github.event_name == 'pull_request'
+        uses: kentaro-m/auto-assign-action@v1.2.5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          configuration-path: '.github/auto-assign.yml'

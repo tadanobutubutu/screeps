@@ -24,6 +24,12 @@
     "created": "2026-02-27T20:18:14Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22502285210,
+    "created": "2026-02-27T20:18:00Z"
+  },
+  {
     "workflow": "CxFlow",
     "name": "CxFlow",
     "id": 22502285198,
@@ -154,23 +160,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22502183755,
     "created": "2026-02-27T20:14:50Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22502181134,
-    "created": "2026-02-27T20:14:45Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22502178720,
-    "created": "2026-02-27T20:14:41Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22502178110,
-    "created": "2026-02-27T20:14:40Z"
   }
 ]

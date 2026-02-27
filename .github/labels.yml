@@ -1,0 +1,129 @@
+# Label configuration for label-sync
+
+- name: bug
+  color: 'd73a4a'
+  description: Something isn't working
+
+- name: documentation
+  color: '0075ca'
+  description: Improvements or additions to documentation
+
+- name: enhancement
+  color: 'a2eeef'
+  description: New feature or request
+
+- name: feature
+  color: '84b6eb'
+  description: New feature implementation
+
+- name: good first issue
+  color: '7057ff'
+  description: Good for newcomers
+
+- name: help wanted
+  color: '008672'
+  description: Extra attention is needed
+
+- name: invalid
+  color: 'e4e669'
+  description: This doesn't seem right
+
+- name: question
+  color: 'd876e3'
+  description: Further information is requested
+
+- name: wontfix
+  color: 'ffffff'
+  description: This will not be worked on
+
+- name: duplicate
+  color: 'cfd3d7'
+  description: This issue or pull request already exists
+
+- name: dependencies
+  color: '0366d6'
+  description: Pull requests that update a dependency file
+
+- name: security
+  color: 'ee0701'
+  description: Security-related issue
+
+- name: automated
+  color: 'ededed'
+  description: Automated by bots or workflows
+
+- name: github-actions
+  color: '000000'
+  description: Related to GitHub Actions
+
+- name: javascript
+  color: 'f1e05a'
+  description: JavaScript code
+
+- name: performance
+  color: 'ff6b6b'
+  description: Performance improvements
+
+- name: refactor
+  color: 'fbca04'
+  description: Code refactoring
+
+- name: test
+  color: '1d76db'
+  description: Testing related
+
+- name: ci
+  color: '2b67c6'
+  description: Continuous Integration
+
+- name: breaking
+  color: 'b60205'
+  description: Breaking changes
+
+- name: major
+  color: 'b60205'
+  description: Major version bump
+
+- name: minor
+  color: 'fbca04'
+  description: Minor version bump
+
+- name: patch
+  color: '0e8a16'
+  description: Patch version bump
+
+- name: stale
+  color: 'eeeeee'
+  description: This issue or PR has been inactive
+
+- name: wip
+  color: 'fef2c0'
+  description: Work in progress
+
+- name: needs-review
+  color: 'fbca04'
+  description: Needs code review
+
+- name: large-pr
+  color: 'd93f0b'
+  description: Large pull request
+
+- name: auto-merged
+  color: '0e8a16'
+  description: Automatically merged by bot
+
+- name: pinned
+  color: 'c2e0c6'
+  description: This issue is pinned
+
+- name: in-progress
+  color: 'fbca04'
+  description: Currently being worked on
+
+- name: workflow-health
+  color: 'ff6b6b'
+  description: Workflow health monitoring
+
+- name: bot
+  color: 'ededed'
+  description: Bot-generated content

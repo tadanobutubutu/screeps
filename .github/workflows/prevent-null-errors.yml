@@ -19,7 +19,7 @@ jobs:
     name: Check Null Safety
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Scan for Common Null/Undefined Issues
         run: |

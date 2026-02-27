@@ -31,7 +31,7 @@ jobs:
     if: github.event.inputs.bot_name == 'code-reviewer-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Code Reviewer Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Review Code Quality
         run: |
@@ -69,7 +69,7 @@ jobs:
     if: github.event.inputs.bot_name == 'documentation-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Documentation Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Update Documentation
         run: |
@@ -109,7 +109,7 @@ jobs:
     if: github.event.inputs.bot_name == 'performance-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Performance Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Analyze Performance
         run: |
@@ -146,7 +146,7 @@ jobs:
     if: github.event.inputs.bot_name == 'security-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Security Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Security Scan
         run: |
@@ -183,7 +183,7 @@ jobs:
     if: github.event.inputs.bot_name == 'test-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Test Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Generate Test Report
         run: |
@@ -221,7 +221,7 @@ jobs:
     if: github.event.inputs.bot_name == 'refactor-bot' || github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Refactor Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Suggest Refactoring
         run: |
@@ -259,7 +259,7 @@ jobs:
     if: github.event.inputs.bot_name == 'all' || github.event.schedule
     name: Stats Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Generate Statistics
         run: |

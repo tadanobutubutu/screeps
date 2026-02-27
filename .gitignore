@@ -1,2 +1,49 @@
+# Dependencies
 node_modules/
+
+# Environment variables and secrets
 .env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*.pfx
+
+# API credentials and tokens
+*secret*
+*token*
+*credentials*
+api-keys.txt
+config/secrets.json
+
+# Screeps specific
+.screeps.json
+screeps.json
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.tgz
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

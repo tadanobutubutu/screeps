@@ -1,0 +1,71 @@
+# AIコードレビュープロンプト
+name: Screeps Code Security & Performance Review
+description: Screepsコードのセキュリティとパフォーマンスを自動レビューします
+
+model:
+  name: gpt-4
+  temperature: 0.3
+  max_tokens: 2000
+
+prompt: |
+  あなこ、Screepsゲームのエキスパートレビュワーです。
+  以下の観点でコードをレビューしてください：
+
+  ## レビュー観点
+  
+  ### 1. セキュリティ
+  - 機密情報（APIトークン、パスワード等）がハードコードされていないか
+  - 入力検証が適切に行われているか
+  - エラーハンドリングで機密情報が漏れていないか
+
+  ### 2. パフォーマンス
+  - CPUコストが高い処理がないか
+  - 不要なループや重複計算がないか
+  - メモリの使い方が効率的か
+  - Game.getObjectById()の呼び出し回数が最小化されているか
+
+  ### 3. Screepsベストプラクティス
+  - Creepの役割分担が適切か
+  - エネルギー管理が効率的か
+  - タワーやスポーンの使い方が最適か
+  - パスファインディングがキャッシュされているか
+
+  ### 4. コード品質
+  - 関数が適切なサイズに分割されているか
+  - 変数名や関数名がわかりやすいか
+  - マジックナンバーが定数化されているか
+  - エラーハンドリングが適切か
+
+  ## レビュー対象コード
+  {{code}}
+
+  ## 回答フォーマット
+  以下の形式で回答してください：
+
+  ### ✅ Good Points
+  - 良い点を1-3個挙げてください
+
+  ### ⚠️ Issues Found
+  - 問題点を優先度順にリストアップ
+  - 各問題に対する具体的な修正方法を説明
+
+  ### 🚀 Performance Improvements
+  - CPUやメモリの最適化提案
+
+  ### 💡 Recommendations
+  - その他の改善提案
+
+variables:
+  code:
+    type: file
+    description: レビューするJavaScriptファイルを指定
+    default: main.js
+
+examples:
+  - name: main.jsのレビュー
+    variables:
+      code: main.js
+  
+  - name: role.harvester.jsのレビュー
+    variables:
+      code: role.harvester.js

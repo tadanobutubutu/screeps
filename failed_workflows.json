@@ -34,11 +34,5 @@
     "name": "CodeQL Advanced",
     "id": 22502285210,
     "created": "2026-02-27T20:18:00Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22502285198,
-    "created": "2026-02-27T20:18:00Z"
   }
 ]

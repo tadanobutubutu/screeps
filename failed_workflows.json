@@ -148,23 +148,5 @@
     "name": ".github/workflows/random-experiment.yml",
     "id": 22496456661,
     "created": "2026-02-27T17:22:11Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22496456472,
-    "created": "2026-02-27T17:22:11Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22496456286,
-    "created": "2026-02-27T17:22:10Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22496456085,
-    "created": "2026-02-27T17:22:10Z"
   }
 ]

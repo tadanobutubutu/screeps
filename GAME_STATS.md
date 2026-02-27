@@ -15,7 +15,7 @@
 - **Total PRs**: 0
   - ✅ Merged: 4
 - **Total Commits**: 1
-- **Contributors**: 4
+- **Contributors**: 2
 
 ### Completion Rate
 [░░░░░░░░░░░░░░░░░░░░] 0%

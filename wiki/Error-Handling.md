@@ -1,18 +1,18 @@
-# Error Handling
+# エラーハンドリング
 
-3-layer error handling system:
+3層エラーハンドリングシステム:
 
-## Layer 1: In-Game Detection
-Errors logged via `utils.logging.js` to Memory.logs
+## レイヤー1: ゲーム内検出
+`utils.logging.js` を使用してエラーをMemory.logsに記録
 
-## Layer 2: Automatic Fix
-GitHub Actions detects errors every 15 minutes and applies fixes
+## レイヤー2: 自動修正
+GitHub Actionsが15分ごとにエラーを検出し、修正を適用
 
-## Layer 3: Threshold Monitoring
-Monitors error rates and suggests escalation if needed
+## レイヤー3: しきい値監視
+エラー率を監視し、必要に応じてエスカレーションを提案
 
-For details, see [ERROR_HANDLING.md](../ERROR_HANDLING.md).
+詳細については、[ERROR_HANDLING.md](../ERROR_HANDLING.md)を参照してください。
 
 ---
 
-[Home](./Home) | [Previous: Utilities](./Utilities) | [Next: Troubleshooting](./Troubleshooting)
+[ホーム](./Home) | [前へ: ユーティリティ](./Utilities) | [次へ: トラブルシューティング](./Troubleshooting)

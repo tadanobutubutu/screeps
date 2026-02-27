@@ -1,14 +1,14 @@
-# Defense System
+# 防衛システム
 
-Automated defense through `defense.manager.js`:
+`defense.manager.js` による自動防衛:
 
-- Automatic tower targeting
-- Threat assessment
-- Emergency defender spawning
-- Patrol mode
+- タワーの自動ターゲティング
+- 脅威の評価
+- 緊急防衛クリープのスポーン
+- パトロールモード
 
-The system responds automatically to hostile threats.
+システムは敵の脅威に自動的に対応します。
 
 ---
 
-[Home](./Home) | [Previous: Roles](./Role-System) | [Next: Utilities](./Utilities)
+[ホーム](./Home) | [前へ: ロール](./Role-System) | [次へ: ユーティリティ](./Utilities)

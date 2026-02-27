@@ -1,16 +1,16 @@
-# Utilities
+# ユーティリティ
 
-8 utility modules provide helper functions:
+8つのユーティリティモジュールがヘルパー関数を提供します:
 
-1. **utils.logging.js** - Error logging system
-2. **utils.memory.js** - Memory management
-3. **utils.planning.js** - Room layout planning
-4. **utils.defense.js** - Defense helpers
-5. **utils.ai.js** - AI decision making
-6. **utils.stats.js** - Statistics tracking
-7. **utils.dashboard.js** - Visual displays
-8. **utils.missions.js** - Mission system
+1. **utils.logging.js** - エラーログシステム
+2. **utils.memory.js** - メモリ管理
+3. **utils.planning.js** - ルームレイアウト計画
+4. **utils.defense.js** - 防衛ヘルパー
+5. **utils.ai.js** - AI意思決定
+6. **utils.stats.js** - 統計追跡
+7. **utils.dashboard.js** - ビジュアルディスプレイ
+8. **utils.missions.js** - ミッションシステム
 
 ---
 
-[Home](./Home) | [Previous: Defense](./Defense-System) | [Next: Error Handling](./Error-Handling)
+[ホーム](./Home) | [前へ: 防衛](./Defense-System) | [次へ: エラーハンドリング](./Error-Handling)

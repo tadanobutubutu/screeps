@@ -1,21 +1,21 @@
-# Troubleshooting
+# トラブルシューティング
 
-Common issues and solutions:
+よくある問題と解決方法:
 
-## Deployment Issues
-- Code not syncing
-- Deploy workflow failing
+## デプロイの問題
+- コードが同期されない
+- デプロイワークフローが失敗する
 
-## Creep Issues
-- Creeps not spawning
-- Creeps not working
+## クリープの問題
+- クリープがスポーンしない
+- クリープが動作しない
 
-## Automation Issues
-- Errors not detected
-- Auto-fix not working
+## 自動化の問題
+- エラーが検出されない
+- 自動修正が機能しない
 
-For detailed solutions, check the main troubleshooting guide.
+詳細な解決方法については、メインのトラブルシューティングガイドを確認してください。
 
 ---
 
-[Home](./Home) | [Previous: Error Handling](./Error-Handling) | [Next: FAQ](./FAQ)
+[ホーム](./Home) | [前へ: エラーハンドリング](./Error-Handling) | [次へ: よくある質問](./FAQ)

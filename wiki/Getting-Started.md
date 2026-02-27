@@ -1,126 +1,126 @@
-# Getting Started
+# はじめに
 
-This guide will help you set up and run the Screeps AI automation system.
+このガイドでは、Screeps AI自動化システムのセットアップと実行方法を説明します。
 
-## Prerequisites
+## 前提条件
 
-1. Screeps game purchased on Steam
-2. GitHub account
-3. Basic understanding of Git
+1. SteamでScreepsゲームを購入済み
+2. GitHubアカウント
+3. Gitの基本的な知識
 
-## Setup Steps
+## セットアップ手順
 
-### 1. GitHub Sync Configuration (Required)
+### 1. GitHub同期設定（必須）
 
-1. Visit [Screeps.com](https://screeps.com) and login with your Steam account
-2. Navigate to **Account Settings** > **Git**
-3. Click **Connect to GitHub**
-4. Authorize GitHub access
-5. Select repository: `tadanobutubutu/screeps`
-6. Set branch to: `main`
-7. Click **Save**
+1. [Screeps.com](https://screeps.com) にアクセスし、Steamアカウントでログイン
+2. **アカウント設定** > **Git** に移動
+3. **GitHubに接続** をクリック
+4. GitHubアクセスを承認
+5. リポジトリを選択: `tadanobutubutu/screeps`
+6. ブランチを設定: `main`
+7. **保存** をクリック
 
-That's it! No API token needed for basic functionality.
+これだけです！基本機能にはAPIトークンは不要です。
 
-### 2. API Token Setup (Optional)
+### 2. APIトークン設定（任意）
 
-For real-time statistics and console logs on GitHub:
+GitHubでリアルタイムの統計とコンソールログを確認するには:
 
-1. Go to Screeps.com > **Account Settings** > **API Access**
-2. Click **Generate Token**
-3. Copy the token
-4. Add to GitHub repository:
-   - Go to **Settings** > **Secrets and variables** > **Actions**
-   - Click **New repository secret**
-   - Name: `SCREEPS_PROD_TOKEN`
-   - Value: [paste your token]
-   - Click **Add secret**
+1. Screeps.com > **アカウント設定** > **APIアクセス** に移動
+2. **トークンを生成** をクリック
+3. トークンをコピー
+4. GitHubリポジトリに追加:
+   - **Settings** > **Secrets and variables** > **Actions** に移動
+   - **New repository secret** をクリック
+   - 名前: `SCREEPS_PROD_TOKEN`
+   - 値: [トークンを貼り付け]
+   - **Add secret** をクリック
 
-### 3. First Spawn
+### 3. 最初のスポーン
 
-1. Open Screeps game
-2. Select a room on the World map
-3. Click **Spawn**
-4. The automation system will start automatically
+1. Screepsゲームを開く
+2. ワールドマップでルームを選択
+3. **スポーン** をクリック
+4. 自動化システムが自動的に開始されます
 
-## How It Works
+## 仕組み
 
-### Deployment Flow
+### デプロイフロー
 
 ```
-Push to main branch
+mainブランチにプッシュ
   |
 GitHub Actions
-  - Code formatting
-  - Security scan
-  - Error check
+  - コードフォーマット
+  - セキュリティスキャン
+  - エラーチェック
   |
-Screeps auto-syncs (5-10 minutes)
+Screepsが自動同期（5〜10分）
   |
-Code runs in-game
+ゲーム内でコードが実行
 ```
 
-### Monitoring Flow
+### 監視フロー
 
 ```
-Errors occur in-game
+ゲーム内でエラー発生
   |
-Memory.logs recorded
+Memory.logsに記録
   |
-GitHub Actions detects (15 min)
+GitHub Actionsが検出（15分）
   |
-Auto-fix applied
+自動修正を適用
   |
-PR created and merged
+PRを作成してマージ
   |
-Deployed automatically
+自動的にデプロイ
 ```
 
-## Verify Setup
+## セットアップの確認
 
-### Check GitHub Sync
+### GitHub同期の確認
 
 ```bash
-# Make a small change
+# 小さな変更を加える
 echo "# Test sync" >> README.md
 git add README.md
 git commit -m "Test sync"
 git push origin main
 
-# Wait 5-10 minutes and check Screeps console
+# 5〜10分待ってScreepsコンソールを確認
 ```
 
-### Check In-Game
+### ゲーム内の確認
 
-Open Screeps console:
+Screepsコンソールを開く:
 
 ```javascript
-// Check current tick
+// 現在のティックを確認
 Game.time
 
-// Check creeps
+// クリープ数を確認
 Object.keys(Game.creeps).length
 
-// Check recent logs
+// 最近のログを確認
 Memory.logs.slice(-10)
 
-// Check for errors
+// エラーを確認
 Memory.logs.filter(l => l.level === 'error')
 ```
 
-## Next Steps
+## 次のステップ
 
-- Read [Architecture Overview](./Architecture-Overview) to understand the system
-- Explore [Automation Systems](./Automation-Systems) to see what runs automatically
-- Check [Role System](./Role-System) to understand creep behaviors
-- Review [Error Handling](./Error-Handling) for error management
+- [アーキテクチャ概要](./Architecture-Overview)を読んでシステムを理解する
+- [自動化システム](./Automation-Systems)で自動実行されるものを確認する
+- [ロールシステム](./Role-System)でクリープの動作を理解する
+- [エラーハンドリング](./Error-Handling)でエラー管理を確認する
 
-## Need Help?
+## ヘルプが必要ですか？
 
-- Check [Troubleshooting](./Troubleshooting)
-- Read [FAQ](./FAQ)
-- Create an [Issue](https://github.com/tadanobutubutu/screeps/issues)
+- [トラブルシューティング](./Troubleshooting)を確認
+- [よくある質問](./FAQ)を読む
+- [イシュー](https://github.com/tadanobutubutu/screeps/issues)を作成
 
 ---
 
-[Home](./Home) | [Next: Architecture Overview](./Architecture-Overview)
+[ホーム](./Home) | [次へ: アーキテクチャ概要](./Architecture-Overview)

@@ -1,17 +1,17 @@
-# Architecture Overview
+# アーキテクチャ概要
 
-This page explains the overall architecture of the Screeps AI automation system.
+このページでは、Screeps AI自動化システムの全体的なアーキテクチャを説明します。
 
-## System Components
+## システムコンポーネント
 
-The system consists of three main layers:
+システムは3つの主要レイヤーで構成されています:
 
-1. **Game Layer** - In-game Screeps code execution
-2. **Automation Layer** - GitHub Actions workflows
-3. **Monitoring Layer** - Error detection and statistics
+1. **ゲームレイヤー** - ゲーム内のScreepsコード実行
+2. **自動化レイヤー** - GitHub Actionsワークフロー
+3. **監視レイヤー** - エラー検出と統計
 
-For full architectural details, see the main documentation files.
+詳細なアーキテクチャについては、メインドキュメントファイルを参照してください。
 
 ---
 
-[Home](./Home) | [Previous: Getting Started](./Getting-Started) | [Next: Automation Systems](./Automation-Systems)
+[ホーム](./Home) | [前へ: はじめに](./Getting-Started) | [次へ: 自動化システム](./Automation-Systems)

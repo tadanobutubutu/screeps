@@ -1,17 +1,17 @@
-# Automation Systems
+# 自動化システム
 
-This repository features 15+ automated workflows running on GitHub Actions.
+このリポジトリには、GitHub Actions上で動作する15以上の自動化ワークフローがあります。
 
-## Key Workflows
+## 主要ワークフロー
 
-- Game monitoring every 15 minutes
-- Error auto-fix
-- Code quality improvements
-- Security scanning
-- Weekly feature additions
+- 15分ごとのゲーム監視
+- エラー自動修正
+- コード品質改善
+- セキュリティスキャン
+- 週次機能追加
 
-For complete workflow documentation, see [WORKFLOWS.md](../WORKFLOWS.md).
+完全なワークフローのドキュメントについては、[WORKFLOWS.md](../WORKFLOWS.md)を参照してください。
 
 ---
 
-[Home](./Home) | [Previous: Architecture](./Architecture-Overview) | [Next: Role System](./Role-System)
+[ホーム](./Home) | [前へ: アーキテクチャ](./Architecture-Overview) | [次へ: ロールシステム](./Role-System)

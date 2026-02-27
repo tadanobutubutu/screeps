@@ -1,0 +1,110 @@
+# Mergify configuration for automatic PR merging
+# This will add mergify[bot] as a contributor
+
+queue_rules:
+  - name: default
+    conditions:
+      - check-success=CodeQL
+      - check-success=Code Quality
+
+pull_request_rules:
+  # Auto-merge Dependabot PRs
+  - name: ⬆️ Auto-merge Dependabot PRs (minor/patch)
+    conditions:
+      - author=dependabot[bot]
+      - or:
+        - title~=^\[Security\]
+        - title~=^bump.*from.*to
+        - body~=patch
+        - body~=minor
+      - check-success=CodeQL
+      - -title~=major
+      - -conflict
+    actions:
+      merge:
+        method: squash
+      label:
+        add:
+          - auto-merged
+      comment:
+        message: "✅ Automatically merged by Mergify Bot"
+  
+  # Auto-merge approved automated PRs
+  - name: 🤖 Auto-merge automated PRs with approvals
+    conditions:
+      - or:
+        - author=github-actions[bot]
+        - author=renovate[bot]
+      - label=automated
+      - "#approved-reviews-by>=1"
+      - check-success=CodeQL
+      - -conflict
+    actions:
+      merge:
+        method: squash
+      label:
+        add:
+          - auto-merged
+  
+  # Auto-approve and merge documentation updates
+  - name: 📝 Auto-merge documentation updates
+    conditions:
+      - or:
+        - files~=^.*\.md$
+        - files~=^wiki/
+      - author=tadanobutubutu
+      - label=documentation
+      - -conflict
+    actions:
+      review:
+        type: APPROVE
+        message: "Automatically approved documentation update"
+      merge:
+        method: squash
+  
+  # Add labels based on file changes
+  - name: 🏷️ Auto-label: Documentation
+    conditions:
+      - or:
+        - files~=^.*\.md$
+        - files~=^wiki/
+    actions:
+      label:
+        add:
+          - documentation
+  
+  - name: 🏷️ Auto-label: GitHub Actions
+    conditions:
+      - files~=^\.github/workflows/
+    actions:
+      label:
+        add:
+          - github-actions
+  
+  - name: 🏷️ Auto-label: JavaScript
+    conditions:
+      - files~=.*\.js$
+    actions:
+      label:
+        add:
+          - javascript
+  
+  # Auto-request reviews
+  - name: 👀 Request review for large PRs
+    conditions:
+      - "#files>10"
+    actions:
+      request_reviews:
+        users:
+          - tadanobutubutu
+      label:
+        add:
+          - needs-review
+          - large-pr
+  
+  # Delete head branch after merge
+  - name: 🗑️ Delete head branch after merge
+    conditions:
+      - merged
+    actions:
+      delete_head_branch: {}

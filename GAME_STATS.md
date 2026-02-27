@@ -9,9 +9,9 @@
 - **Total Points**: 21
 
 ### Project Stats
-- **Total Issues**: 1
+- **Total Issues**: 2
   - ✅ Closed: 0
-  - 🔄 Open: 1
+  - 🔄 Open: 2
 - **Total PRs**: 0
   - ✅ Merged: 1
 - **Total Commits**: 1

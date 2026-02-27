@@ -36,6 +36,12 @@
     "created": "2026-02-27T17:23:17Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22496494191,
+    "created": "2026-02-27T17:23:17Z"
+  },
+  {
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 22496493695,

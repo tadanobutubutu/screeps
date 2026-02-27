@@ -1,19 +1,19 @@
-# Frequently Asked Questions
+# よくある質問
 
-## Do I need an API token?
-No, but it's recommended for statistics and logs.
+## APIトークンは必要ですか？
+いいえ、ただし統計やログの確認には推奨されます。
 
-## Is this really free?
-Yes, completely free using GitHub Actions.
+## 本当に無料ですか？
+はい、GitHub Actionsを使用して完全無料です。
 
-## How fast are errors fixed?
-30-45 minutes for simple errors.
+## エラーはどのくらい早く修正されますか？
+単純なエラーの場合、30〜45分です。
 
-## Can I customize the bot?
-Yes, all code is fully customizable.
+## ボットをカスタマイズできますか？
+はい、すべてのコードは完全にカスタマイズ可能です。
 
-For more questions, see the full FAQ.
+その他の質問については、完全なFAQを参照してください。
 
 ---
 
-[Home](./Home) | [Previous: Troubleshooting](./Troubleshooting) | [Next: Contributing](./Contributing)
+[ホーム](./Home) | [前へ: トラブルシューティング](./Troubleshooting) | [次へ: コントリビュートガイド](./Contributing)

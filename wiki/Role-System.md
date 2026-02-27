@@ -1,18 +1,18 @@
-# Role System
+# ロールシステム
 
-The bot uses 8 specialized creep roles:
+ボットは8つの専門クリープロールを使用します:
 
-1. **harvester** - Energy collection
-2. **upgrader** - Controller upgrading
-3. **builder** - Construction
-4. **repairer** - Structure maintenance
-5. **explorer** - Room exploration
-6. **scout** - Reconnaissance
-7. **medic** - Healing support
-8. **transporter** - Energy logistics
+1. **harvester（ハーベスター）** - エネルギー収集
+2. **upgrader（アップグレーダー）** - コントローラーのアップグレード
+3. **builder（ビルダー）** - 建設
+4. **repairer（リペアラー）** - 構造物のメンテナンス
+5. **explorer（エクスプローラー）** - ルームの探索
+6. **scout（スカウト）** - 偵察
+7. **medic（メディック）** - 回復サポート
+8. **transporter（トランスポーター）** - エネルギー物流
 
-Each role has its own module file and dedicated behavior logic.
+各ロールには独自のモジュールファイルと専用の行動ロジックがあります。
 
 ---
 
-[Home](./Home) | [Previous: Automation](./Automation-Systems) | [Next: Defense System](./Defense-System)
+[ホーム](./Home) | [前へ: 自動化](./Automation-Systems) | [次へ: 防衛システム](./Defense-System)

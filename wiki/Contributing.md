@@ -1,23 +1,23 @@
-# Contributing
+# コントリビュートガイド
 
-Contributions welcome!
+コントリビューションを歓迎します！
 
-## How to Contribute
+## コントリビュートの方法
 
-1. Report bugs via Issues
-2. Suggest features
-3. Submit Pull Requests
-4. Improve documentation
+1. イシューでバグを報告する
+2. 機能を提案する
+3. プルリクエストを送信する
+4. ドキュメントを改善する
 
-## Guidelines
+## ガイドライン
 
-- Follow existing code style
-- Test your changes
-- Write clear commit messages
-- Update documentation
+- 既存のコードスタイルに従う
+- 変更をテストする
+- 明確なコミットメッセージを書く
+- ドキュメントを更新する
 
-Thank you for contributing!
+ご協力ありがとうございます！
 
 ---
 
-[Home](./Home) | [Previous: FAQ](./FAQ)
+[ホーム](./Home) | [前へ: よくある質問](./FAQ)

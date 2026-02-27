@@ -1,69 +1,69 @@
 # 🎮 Screeps AI - Wiki
 
-Welcome to the Screeps AI automation project wiki!
+Screeps AI 自動化プロジェクトのWikiへようこそ！
 
-## 📚 Documentation
+## 📚 ドキュメント
 
-- [Getting Started](Getting-Started)
-- [Bot System](Bot-System)
-- [Error Handling](Error-Handling)
-- [API Reference](API-Reference)
-- [Contributors](Contributors)
+- [はじめに](Getting-Started)
+- [ボットシステム](Bot-System)
+- [エラーハンドリング](Error-Handling)
+- [APIリファレンス](API-Reference)
+- [コントリビューター](Contributors)
 
-## 🤖 Features
+## 🤖 機能
 
-### 🚀 Complete Automation
-- **23 Automated Bots**: Maintaining code 24/7
-- **AI-Powered**: GitHub Copilot integration for intelligent fixes
-- **Zero Maintenance**: Everything runs automatically
-- **Free Forever**: No costs, no limits
+### 🚀 完全自動化
+- **23の自動化ボット**: コードを24時間365日メンテナンス
+- **AI搭載**: GitHub Copilot統合によるインテリジェントな修正
+- **メンテナンス不要**: すべて自動で稼働
+- **永久無料**: コストなし、制限なし
 
-### 📈 Real-Time Monitoring
-- **Game Status**: Live statistics every 15 minutes
-- **Console Logs**: Full access on GitHub
-- **Error Detection**: Automatic within 30 minutes
-- **Performance**: Continuous optimization
+### 📈 リアルタイム監視
+- **ゲームステータス**: 15分ごとのライブ統計
+- **コンソールログ**: GitHubで完全アクセス
+- **エラー検出**: 30分以内に自動検出
+- **パフォーマンス**: 継続的な最適化
 
-### 🔒 Security
-- **5-Layer Defense**: Multiple security scans
-- **CodeQL Analysis**: Advanced threat detection
-- **Dependency Scanning**: Vulnerability checks
-- **Secret Detection**: Prevents leaks
+### 🔒 セキュリティ
+- **5層防御**: 複数のセキュリティスキャン
+- **CodeQL解析**: 高度な脅威検出
+- **依存関係スキャン**: 脆弱性チェック
+- **シークレット検出**: 漏洩防止
 
-## 🚀 Quick Start
+## 🚀 クイックスタート
 
-1. **GitHub Connection** (Required)
-   - Screeps.com → Settings → Git
-   - Connect to `tadanobutubutu/screeps`
-   - Branch: `main`
+1. **GitHub接続**（必須）
+   - Screeps.com → 設定 → Git
+   - `tadanobutubutu/screeps` に接続
+   - ブランチ: `main`
 
-2. **API Token** (Optional)
-   - For statistics & logs
-   - Set `SCREEPS_PROD_TOKEN` in GitHub Secrets
+2. **APIトークン**（任意）
+   - 統計とログ用
+   - GitHub Secretsに `SCREEPS_PROD_TOKEN` を設定
 
-3. **Spawn & Relax**
-   - Everything else is automatic!
+3. **スポーン＆リラックス**
+   - あとはすべて自動です！
 
-## 📊 Project Stats
+## 📊 プロジェクト統計
 
-- **Bots**: 23+ specialized contributors
-- **Roles**: 8 creep roles implemented
-- **Automation**: 100%
-- **Uptime**: 24/7/365
+- **ボット**: 23以上の専門コントリビューター
+- **ロール**: 8つのクリープロールを実装
+- **自動化**: 100%
+- **稼働時間**: 24時間365日
 
-## 🔗 Quick Links
+## 🔗 クイックリンク
 
-- [Main Repository](https://github.com/tadanobutubutu/screeps)
-- [Contributors](https://github.com/tadanobutubutu/screeps/graphs/contributors)
-- [Actions](https://github.com/tadanobutubutu/screeps/actions)
-- [Issues](https://github.com/tadanobutubutu/screeps/issues)
+- [メインリポジトリ](https://github.com/tadanobutubutu/screeps)
+- [コントリビューター](https://github.com/tadanobutubutu/screeps/graphs/contributors)
+- [アクション](https://github.com/tadanobutubutu/screeps/actions)
+- [イシュー](https://github.com/tadanobutubutu/screeps/issues)
 
-## 📝 Latest Updates
+## 📝 最新アップデート
 
-Check out the [Changelog](https://github.com/tadanobutubutu/screeps/blob/main/CHANGELOG.md) for recent changes.
+最近の変更については[チェンジログ](https://github.com/tadanobutubutu/screeps/blob/main/CHANGELOG.md)をご確認ください。
 
 ---
 
-**🎉 Built with AI · Maintained by Bots · Powered by Automation**
+**🎉 AIで構築 · ボットがメンテナンス · 自動化で稼働**
 
-*Last updated: $(date -u +%Y-%m-%dT%H:%M:%SZ)*
+*最終更新: $(date -u +%Y-%m-%dT%H:%M:%SZ)*

@@ -83,7 +83,7 @@ pull_request_rules:
   
   - name: 🏷️ Auto-label: JavaScript
     conditions:
-      - files~=.*\.js$
+      - files~=^.*\.js$
     actions:
       label:
         add:

@@ -1,26 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     ":dependencyDashboard",
     ":semanticCommits",
     ":preserveSemverRanges"
   ],
   "timezone": "Asia/Tokyo",
-  "schedule": [
-    "before 10am on monday"
-  ],
-  "labels": [
-    "dependencies",
-    "renovate",
-    "automated"
-  ],
-  "assignees": [
-    "tadanobutubutu"
-  ],
-  "reviewers": [
-    "tadanobutubutu"
-  ],
+  "schedule": ["before 10am on monday"],
+  "labels": ["dependencies", "renovate", "automated"],
+  "assignees": ["tadanobutubutu"],
+  "reviewers": ["tadanobutubutu"],
   "prConcurrentLimit": 3,
   "prCreation": "not-pending",
   "prHourlyLimit": 2,
@@ -41,15 +31,11 @@
   },
   "github-actions": {
     "enabled": true,
-    "fileMatch": [
-      "^\\.github/workflows/[^/]+\\.ya?ml$"
-    ]
+    "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"]
   },
   "ignoreDeps": [],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": [
-      "security"
-    ]
+    "labels": ["security"]
   }
 }

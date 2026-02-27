@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🔑 Secret Scanning",
+    "name": "🔑 Secret Scanning",
+    "id": 22472506688,
+    "created": "2026-02-27T04:15:22Z"
+  },
+  {
     "workflow": "🎯 Daily Quest",
     "name": "🎯 Daily Quest",
     "id": 22470191569,

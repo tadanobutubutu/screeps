@@ -1,0 +1,96 @@
+# Release Drafter configuration
+name-template: 'v$RESOLVED_VERSION 🚀'
+tag-template: 'v$RESOLVED_VERSION'
+
+categories:
+  - title: '🚀 Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'bugfix'
+      - 'fix'
+  - title: '🔒 Security'
+    labels:
+      - 'security'
+  - title: '📝 Documentation'
+    labels:
+      - 'documentation'
+      - 'docs'
+  - title: '⬆️ Dependencies'
+    labels:
+      - 'dependencies'
+  - title: '🤖 Automation'
+    labels:
+      - 'automated'
+      - 'github-actions'
+  - title: '🛠️ Maintenance'
+    labels:
+      - 'maintenance'
+      - 'chore'
+  - title: '⚡️ Performance'
+    labels:
+      - 'performance'
+
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+change-title-escapes: '\<*_&#@'
+
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'enhancement'
+  patch:
+    labels:
+      - 'patch'
+      - 'bug'
+      - 'bugfix'
+      - 'fix'
+      - 'dependencies'
+  default: patch
+
+autolabeler:
+  - label: 'documentation'
+    files:
+      - '*.md'
+      - 'wiki/**/*'
+  - label: 'bug'
+    title:
+      - '/fix/i'
+      - '/bug/i'
+  - label: 'feature'
+    title:
+      - '/feat/i'
+      - '/feature/i'
+  - label: 'enhancement'
+    title:
+      - '/enhance/i'
+      - '/improvement/i'
+  - label: 'dependencies'
+    files:
+      - 'package.json'
+      - 'package-lock.json'
+  - label: 'github-actions'
+    files:
+      - '.github/workflows/**/*'
+  - label: 'javascript'
+    files:
+      - '**/*.js'
+
+template: |
+  ## What's Changed
+  
+  $CHANGES
+  
+  ## Contributors
+  
+  Thank you to all the contributors who made this release possible! 🚀
+  
+  $CONTRIBUTORS

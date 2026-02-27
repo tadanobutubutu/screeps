@@ -1,0 +1,134 @@
+# Screeps戦略生成AIプロンプト
+name: Screeps Strategy Generator
+description: 現在のゲーム状況に応じた最適な戦略を生成します
+
+model:
+  name: gpt-4
+  temperature: 0.7
+  max_tokens: 3000
+
+prompt: |
+  あなたはScreepsのエキスパートストラテジストです。
+  以下の状況を分析し、最適な戦略を提案してください。
+
+  ## 現在の状況
+  - Room Control Level (RCL): {{rcl}}
+  - 利用可能Energy: {{energy}}
+  - Creep数: {{creep_count}}
+  - 脅威レベル: {{threat_level}}
+  - 目標: {{goal}}
+
+  ## 分析項目
+
+  ### 1. 現状分析
+  - RCLレベルに応じた利用可能な機能
+  - 現在のリソース配分の効率
+  - 脇威への対応度
+
+  ### 2. 優先順位の決定
+  - 短期目標（次の1-2ティック）
+  - 中期目標（次の10-20ティック）
+  - 長期目標（RCLアップグレード等）
+
+  ### 3. Creep構成の最適化
+  - 各役割の推奨数
+  - 推奨Body構成
+  - スポーン優先度
+
+  ### 4. エネルギー管理
+  - Harvesterの配置
+  - エネルギー輸送ルート
+  - ストレージ戦略
+
+  ### 5. 防衛戦略
+  - Towerの配置と優先度
+  - 防衛Creepの必要性
+  - RampartやWallの強化計画
+
+  ## 回答フォーマット
+
+  ### 🎯 戦略サマリ
+  （一言で現在の戦略を表現）
+
+  ### 📊 現状評価
+  - 強み: （現在の良い点）
+  - 弱み: （改善が必要な点）
+  - 機会: （活用できるリソース）
+  - 脅威: （注意すべきリスク）
+
+  ### 🛠️ 推奨Creep構成
+  ```
+  Harvester: X体 - [WORK,WORK,CARRY,MOVE]
+  Upgrader: X体 - [WORK,CARRY,MOVE,MOVE]
+  Builder: X体 - [WORK,CARRY,MOVE]
+  ...
+  ```
+
+  ### 📝 アクションプラン
+  1. **即座に実行** (次の1-2ティック)
+     - 具体的な行動をリストアップ
+  
+  2. **短期目標** (次の5-10ティック)
+     - 中期的な改善項目
+  
+  3. **中長期目標** (10+ティック)
+     - RCLアップグレードや大規模建設
+
+  ### 💡 コード例
+  ```javascript
+  // 提案された戦略を実装するためのサンプルコード
+  ```
+
+  ### ⚠️ 注意事項
+  - この戦略を実行する際のリスクや注意点
+
+variables:
+  rcl:
+    type: number
+    description: Room Control Level (1-8)
+    default: 3
+  
+  energy:
+    type: number
+    description: 利用可能Energy量
+    default: 1000
+  
+  creep_count:
+    type: number
+    description: 現在のCreep数
+    default: 10
+  
+  threat_level:
+    type: string
+    description: 脅威レベル (none/low/medium/high)
+    default: "none"
+  
+  goal:
+    type: string
+    description: 現在の目標
+    default: "RCLを上げる"
+
+examples:
+  - name: 初期成長フェーズ
+    variables:
+      rcl: 2
+      energy: 500
+      creep_count: 5
+      threat_level: "none"
+      goal: "RCL3に到達する"
+  
+  - name: 中期拡張フェーズ
+    variables:
+      rcl: 5
+      energy: 5000
+      creep_count: 20
+      threat_level: "low"
+      goal: "隣接ルームを探索する"
+  
+  - name: 防衛態勢
+    variables:
+      rcl: 4
+      energy: 2000
+      creep_count: 15
+      threat_level: "high"
+      goal: "部屋を守る"

@@ -1,5 +1,17 @@
 [
   {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
+    "id": 22500408466,
+    "created": "2026-02-27T19:20:07Z"
+  },
+  {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
+    "id": 22500406568,
+    "created": "2026-02-27T19:20:04Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22500399600,
@@ -226,17 +238,5 @@
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22500382397,
     "created": "2026-02-27T19:19:19Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22500382232,
-    "created": "2026-02-27T19:19:18Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22500382172,
-    "created": "2026-02-27T19:19:18Z"
   }
 ]

@@ -1,20 +1,31 @@
 {
-  "name": "screeps-bot",
+  "name": "screeps-ai",
   "version": "1.0.0",
-  "description": "Screeps AI bot - auto-deploys to PTR via GitHub Actions",
-  "type": "module",
+  "description": "Screeps AI with automated GitHub workflows",
   "main": "main.js",
   "scripts": {
-    "deploy": "node deploy.js"
+    "test": "echo \"No tests specified\" && exit 0"
   },
-  "engines": {
-    "node": ">=20"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tadanobutubutu/screeps.git"
   },
-  "private": true,
+  "keywords": [
+    "screeps",
+    "ai",
+    "game",
+    "automation"
+  ],
+  "author": "tadanobutubutu",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tadanobutubutu/screeps/issues"
+  },
+  "homepage": "https://github.com/tadanobutubutu/screeps#readme",
+  "dependencies": {
+    "lodash": "4.17.20"
+  },
   "devDependencies": {
-    "eslint": "^10.0.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "prettier": "^3.8.1"
+    "eslint": "8.0.0"
   }
 }

@@ -127,3 +127,7 @@
 - name: bot
   color: 'ededed'
   description: Bot-generated content
+
+- name: verified
+  color: '00ff00'
+  description: Verified and approved

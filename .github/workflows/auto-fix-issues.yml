@@ -168,7 +168,8 @@ jobs:
           ISSUE_NUMBER=${{ github.event.issue.number || github.event.inputs.issue_number }}
           
           # Get title from file for PR
-          TITLE=$(cat title.txt | head -c 100)
+          ISSUE_TITLE=$(cat title.txt | head -c 100)
+          export PR_TITLE="🤖 [Auto-Fix] Issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}"
           
           # Create PR body
           cat > pr_body.txt << 'EOF'
@@ -181,7 +182,7 @@ jobs:
           echo "Closes #${ISSUE_NUMBER}" >> pr_body.txt
           
           PR_URL=$(gh pr create \
-            --title "🤖 [Auto-Fix] Issue #${ISSUE_NUMBER}: ${TITLE}" \
+            --title "$PR_TITLE" \
             --body-file pr_body.txt \
             --base main \
             --head "${{ steps.branch.outputs.branch }}" \

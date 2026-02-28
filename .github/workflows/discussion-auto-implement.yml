@@ -198,7 +198,8 @@ jobs:
         id: pr
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          TITLE=$(cat title.txt | head -c 100)
+          ISSUE_TITLE=$(cat title.txt | head -c 100)
+          export PR_TITLE="✨ [Auto-Implement] $ISSUE_TITLE"
           
           # Create PR body
           cat > pr_body.txt << EOF
@@ -234,7 +235,7 @@ jobs:
           EOF
           
           PR_URL=$(gh pr create \
-            --title "✨ [Auto-Implement] $TITLE" \
+            --title "$PR_TITLE" \
             --body-file pr_body.txt \
             --base main \
             --head "${{ steps.branch.outputs.branch }}" \

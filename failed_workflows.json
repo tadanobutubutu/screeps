@@ -40,11 +40,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22515999525,
     "created": "2026-02-28T07:14:45Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22515999500,
-    "created": "2026-02-28T07:14:44Z"
   }
 ]

@@ -28,11 +28,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22502292353,
     "created": "2026-02-27T20:18:14Z"
-  },
-  {
-    "workflow": "CodeQL Advanced",
-    "name": "CodeQL Advanced",
-    "id": 22502285210,
-    "created": "2026-02-27T20:18:00Z"
   }
 ]

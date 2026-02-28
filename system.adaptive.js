@@ -121,13 +121,23 @@ const adaptiveSystem = {
      */
     getModeChangeReason: function (mode, cpuUsage, cpuBucket, memoryUsage) {
         if (mode === this.MODE.EMERGENCY) {
-            if (cpuBucket < 1000) return 'CPU bucket critical';
-            if (memoryUsage > 95) return 'Memory critical';
+            if (cpuBucket < 1000) {
+                return 'CPU bucket critical';
+            }
+            if (memoryUsage > 95) {
+                return 'Memory critical';
+            }
         }
         if (mode === this.MODE.MINIMAL) {
-            if (cpuBucket < 3000) return 'CPU bucket low';
-            if (memoryUsage > 85) return 'Memory high';
-            if (cpuUsage > 80) return 'CPU usage high';
+            if (cpuBucket < 3000) {
+                return 'CPU bucket low';
+            }
+            if (memoryUsage > 85) {
+                return 'Memory high';
+            }
+            if (cpuUsage > 80) {
+                return 'CPU usage high';
+            }
         }
         if (mode === this.MODE.NORMAL) {
             return 'Moderate load';

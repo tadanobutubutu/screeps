@@ -28,8 +28,12 @@ module.exports = {
                 const x = centerX + dx;
                 const y = centerY + dy;
 
-                if (x < 0 || x >= 50 || y < 0 || y >= 50) return false;
-                if (terrain.get(x, y) === TERRAIN_MASK_WALL) return false;
+                if (x < 0 || x >= 50 || y < 0 || y >= 50) {
+                    return false;
+                }
+                if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
+                    return false;
+                }
             }
         }
 
@@ -41,7 +45,9 @@ module.exports = {
         const controller = room.controller;
         const sources = room.find(FIND_SOURCES);
 
-        if (!controller || sources.length === 0) return null;
+        if (!controller || sources.length === 0) {
+            return null;
+        }
 
         const openSpaces = this.findOpenSpaces(room, 2);
         let bestPos = null;
@@ -92,7 +98,9 @@ module.exports = {
 
     // Visualize room planning
     visualizePlanning: function (room, positions, color = '#00ff00') {
-        if (!positions || positions.length === 0) return;
+        if (!positions || positions.length === 0) {
+            return;
+        }
 
         positions.forEach((pos) => {
             room.visual.circle(pos.x, pos.y, {
@@ -109,7 +117,9 @@ module.exports = {
         const sources = room.find(FIND_SOURCES);
         const controller = room.controller;
 
-        if (!spawn) return [];
+        if (!spawn) {
+            return [];
+        }
 
         const roadPositions = [];
 

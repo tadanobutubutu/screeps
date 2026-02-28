@@ -1,7 +1,7 @@
 const gamification = require('gamification');
 const vfx = require('visual.effects');
 
-var roleHarvester = {
+const roleHarvester = {
     run: function (creep) {
         // レインボートレイル
         if (Game.time % 2 === 0) {

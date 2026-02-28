@@ -170,16 +170,26 @@ const autoEvolution = {
             const room = rooms[i];
 
             // find()を使わず、room.structuresキャッシュを活用
-            if (room.storage) structures.storage++;
-            if (room.terminal) structures.terminals++;
+            if (room.storage) {
+                structures.storage++;
+            }
+            if (room.terminal) {
+                structures.terminals++;
+            }
 
             // 他の構造物はカウントのみ（詳細分析は不要）
             const roomStructures = room.find(FIND_MY_STRUCTURES);
             for (let j = 0; j < roomStructures.length; j++) {
                 const s = roomStructures[j];
-                if (s.structureType === STRUCTURE_TOWER) structures.towers++;
-                if (s.structureType === STRUCTURE_LINK) structures.links++;
-                if (s.structureType === STRUCTURE_LAB) structures.labs++;
+                if (s.structureType === STRUCTURE_TOWER) {
+                    structures.towers++;
+                }
+                if (s.structureType === STRUCTURE_LINK) {
+                    structures.links++;
+                }
+                if (s.structureType === STRUCTURE_LAB) {
+                    structures.labs++;
+                }
             }
         }
 
@@ -195,7 +205,9 @@ const autoEvolution = {
         // 1部屋のみチェック（CPU節約）
         for (const roomName in Game.rooms) {
             const room = Game.rooms[roomName];
-            if (!room.controller || !room.controller.my) continue;
+            if (!room.controller || !room.controller.my) {
+                continue;
+            }
 
             const creeps = room.find(FIND_MY_CREEPS);
 

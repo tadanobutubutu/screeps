@@ -76,7 +76,9 @@ const memoryVisualizer = {
     recordSnapshot: function () {
         this.initTimeMachine();
 
-        if (!Memory.timeMachine.enabled) return;
+        if (!Memory.timeMachine.enabled) {
+            return;
+        }
 
         const snapshot = {
             time: Game.time,
@@ -162,7 +164,9 @@ const memoryVisualizer = {
      * Creep日記 - 各Creepの行動記録
      */
     initDiary: function (creepName) {
-        if (!Memory.creeps[creepName]) return;
+        if (!Memory.creeps[creepName]) {
+            return;
+        }
 
         if (!Memory.creeps[creepName].diary) {
             Memory.creeps[creepName].diary = {
@@ -175,7 +179,9 @@ const memoryVisualizer = {
     addDiaryEntry: function (creepName, message) {
         this.initDiary(creepName);
 
-        if (!Memory.creeps[creepName] || !Memory.creeps[creepName].diary) return;
+        if (!Memory.creeps[creepName] || !Memory.creeps[creepName].diary) {
+            return;
+        }
 
         const entry = {
             time: Game.time,
@@ -222,7 +228,9 @@ const memoryVisualizer = {
         this.initMemoryMap();
 
         const room = Game.rooms[roomName];
-        if (!room) return;
+        if (!room) {
+            return;
+        }
 
         Memory.map.rooms[roomName] = {
             lastVisit: Game.time,

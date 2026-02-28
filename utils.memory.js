@@ -59,9 +59,11 @@ module.exports = {
 
     // Clean up old cache entries
     cleanCache: function (maxAge = 500) {
-        if (!Memory.cache) return;
+        if (!Memory.cache) {
+            return;
+        }
 
-        for (let key in Memory.cache) {
+        for (const key in Memory.cache) {
             if (Game.time - Memory.cache[key].timestamp > maxAge) {
                 delete Memory.cache[key];
             }
@@ -78,7 +80,7 @@ module.exports = {
             creep.memory.working = false;
         }
 
-        for (let key in extraData) {
+        for (const key in extraData) {
             if (creep.memory[key] === undefined) {
                 creep.memory[key] = extraData[key];
             }

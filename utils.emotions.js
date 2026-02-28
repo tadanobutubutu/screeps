@@ -124,10 +124,14 @@ class EmotionSystem {
         // Role-based emotions
         switch (creep.memory.role) {
             case 'harvester':
-                if (creep.harvest) emoji = EMOTIONS.HARVESTING;
+                if (creep.harvest) {
+                    emoji = EMOTIONS.HARVESTING;
+                }
                 break;
             case 'builder':
-                if (creep.build) emoji = EMOTIONS.BUILDING;
+                if (creep.build) {
+                    emoji = EMOTIONS.BUILDING;
+                }
                 break;
             case 'upgrader':
                 emoji = EMOTIONS.UPGRADING;
@@ -193,10 +197,18 @@ class EmotionSystem {
         this.initialize(creep);
         const mood = creep.memory.emotions.mood;
 
-        if (mood >= 5) return 'Very Happy 😄';
-        if (mood >= 4) return 'Happy 😊';
-        if (mood >= 3) return 'Neutral 😐';
-        if (mood >= 2) return 'Sad 😟';
+        if (mood >= 5) {
+            return 'Very Happy 😄';
+        }
+        if (mood >= 4) {
+            return 'Happy 😊';
+        }
+        if (mood >= 3) {
+            return 'Neutral 😐';
+        }
+        if (mood >= 2) {
+            return 'Sad 😟';
+        }
         return 'Very Sad 😭';
     }
 
@@ -226,10 +238,18 @@ class EmotionSystem {
         const mood = creep.memory.emotions.mood;
 
         // Happy creeps work slightly better!
-        if (mood >= 5) return 1.1; // 10% bonus
-        if (mood >= 4) return 1.05; // 5% bonus
-        if (mood >= 3) return 1.0; // Normal
-        if (mood >= 2) return 0.95; // 5% penalty
+        if (mood >= 5) {
+            return 1.1;
+        } // 10% bonus
+        if (mood >= 4) {
+            return 1.05;
+        } // 5% bonus
+        if (mood >= 3) {
+            return 1.0;
+        } // Normal
+        if (mood >= 2) {
+            return 0.95;
+        } // 5% penalty
         return 0.9; // 10% penalty
     }
 
@@ -251,11 +271,17 @@ class EmotionSystem {
             this.initialize(creep);
             const mood = creep.memory.emotions.mood;
 
-            if (mood >= 5) stats.veryHappy++;
-            else if (mood >= 4) stats.happy++;
-            else if (mood >= 3) stats.neutral++;
-            else if (mood >= 2) stats.sad++;
-            else stats.verySad++;
+            if (mood >= 5) {
+                stats.veryHappy++;
+            } else if (mood >= 4) {
+                stats.happy++;
+            } else if (mood >= 3) {
+                stats.neutral++;
+            } else if (mood >= 2) {
+                stats.sad++;
+            } else {
+                stats.verySad++;
+            }
 
             stats.total++;
         }

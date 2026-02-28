@@ -45,17 +45,17 @@ if (!prodValidation.valid) {
 function validateFilePath(filePath) {
     const normalizedPath = path.normalize(filePath);
     const resolvedPath = path.resolve(__dirname, normalizedPath);
-    
+
     // __dirname配下にあることを確認
     if (!resolvedPath.startsWith(__dirname)) {
         throw new Error(`Invalid file path: ${filePath}`);
     }
-    
+
     // 親ディレクトリへの参照を含まないことを確認
     if (normalizedPath.includes('..')) {
         throw new Error(`Path traversal detected: ${filePath}`);
     }
-    
+
     return resolvedPath;
 }
 
@@ -93,13 +93,13 @@ function deployTo(label, apiPath, token) {
             console.log(`[${label}] Token not set, skipping.`);
             return resolve();
         }
-        
+
         const validation = validateToken(token, label);
         if (!validation.valid) {
             console.log(`[${label}] ${validation.message}, skipping.`);
             return resolve();
         }
-        
+
         const options = {
             hostname: 'screeps.com',
             port: 443,
@@ -113,7 +113,7 @@ function deployTo(label, apiPath, token) {
             // SSL証明書の検証を明示的に有効化
             rejectUnauthorized: true,
         };
-        
+
         console.log(`[${label}] Deploying...`);
         const req = https.request(options, (res) => {
             let data = '';
@@ -146,19 +146,19 @@ function deployTo(label, apiPath, token) {
                 }
             });
         });
-        
+
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外
             const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
             console.error(`[${label}] Request error:`, safeMessage);
             reject(new Error(`${label} request failed`));
         });
-        
+
         req.setTimeout(30000, () => {
             req.destroy();
             reject(new Error(`${label} request timeout`));
         });
-        
+
         req.write(body);
         req.end();
     });

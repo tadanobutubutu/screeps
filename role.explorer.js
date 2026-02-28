@@ -1,4 +1,4 @@
-var roleExplorer = {
+const roleExplorer = {
     run: function (creep) {
         // メモリにターゲットの部屋がなければ設定（例: 隣の部屋）
         if (!creep.memory.targetRoom) {

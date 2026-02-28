@@ -66,13 +66,17 @@ module.exports = {
 
     // Get recent logs
     getRecentLogs: function (count = 10) {
-        if (!Memory.logs) return [];
+        if (!Memory.logs) {
+            return [];
+        }
         return Memory.logs.slice(-count);
     },
 
     // Get errors only
     getErrors: function (count = 10) {
-        if (!Memory.logs) return [];
+        if (!Memory.logs) {
+            return [];
+        }
         return Memory.logs.filter((log) => log.level === 'error').slice(-count);
     },
 
@@ -84,7 +88,9 @@ module.exports = {
 
     // Get statistics
     getStats: function () {
-        if (!Memory.logs) return {};
+        if (!Memory.logs) {
+            return {};
+        }
 
         const stats = {
             total: Memory.logs.length,
@@ -95,10 +101,15 @@ module.exports = {
         };
 
         Memory.logs.forEach((log) => {
-            if (log.level === 'error') stats.errors++;
-            else if (log.level === 'warn') stats.warnings++;
-            else if (log.level === 'info') stats.info++;
-            else if (log.level === 'debug') stats.debug++;
+            if (log.level === 'error') {
+                stats.errors++;
+            } else if (log.level === 'warn') {
+                stats.warnings++;
+            } else if (log.level === 'info') {
+                stats.info++;
+            } else if (log.level === 'debug') {
+                stats.debug++;
+            }
         });
 
         return stats;

@@ -15,7 +15,9 @@ const defenseManager = {
             filter: (s) => s.structureType === STRUCTURE_TOWER,
         });
 
-        if (towers.length === 0) return;
+        if (towers.length === 0) {
+            return;
+        }
 
         // 脅威の優先順位付け
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
@@ -62,7 +64,9 @@ const defenseManager = {
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
 
         if (hostiles.length === 0) {
-            if (Memory.defenseLevel) delete Memory.defenseLevel;
+            if (Memory.defenseLevel) {
+                delete Memory.defenseLevel;
+            }
             return 0;
         }
 

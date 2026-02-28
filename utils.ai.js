@@ -58,8 +58,12 @@ const AIHelper = {
     shouldBuildStructure(room) {
         const decision = this.getAIDecision(room);
 
-        if (decision.phase === 'defense') return false;
-        if (decision.phase === 'early_game') return false;
+        if (decision.phase === 'defense') {
+            return false;
+        }
+        if (decision.phase === 'early_game') {
+            return false;
+        }
 
         const structures = room.find(FIND_MY_STRUCTURES);
         const structureCount = structures.length;

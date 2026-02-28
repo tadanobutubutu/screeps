@@ -51,7 +51,9 @@ const autoTutorial = {
      */
     step1_createHarvester: function () {
         const spawn = Game.spawns['Spawn1'];
-        if (!spawn) return;
+        if (!spawn) {
+            return;
+        }
 
         // Harvesterがいなければ作成
         const harvesters = _.filter(Game.creeps, (c) => c.memory.role === 'harvester');
@@ -225,7 +227,9 @@ const autoTutorial = {
      * チュートリアル進捗表示
      */
     showProgress: function () {
-        if (!this.isTutorial()) return;
+        if (!this.isTutorial()) {
+            return;
+        }
 
         console.log('🎮 Tutorial Progress:');
         console.log('  Current Step: ' + Game.tutorial.currentStep);

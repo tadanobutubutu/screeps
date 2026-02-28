@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "Auto Improve Screeps Code",
+    "name": "Auto Improve Screeps Code",
+    "id": 22518367085,
+    "created": "2026-02-28T09:48:54Z"
+  },
+  {
     "workflow": "🔧 Workflow Health Monitor",
     "name": "🔧 Workflow Health Monitor",
     "id": 22516008772,
@@ -63,18 +69,6 @@
     "workflow": ".github/workflows/rule-based-improve.yml",
     "name": ".github/workflows/rule-based-improve.yml",
     "id": 22515998624,
-    "created": "2026-02-28T07:14:41Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22515998527,
-    "created": "2026-02-28T07:14:41Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22515998456,
     "created": "2026-02-28T07:14:41Z"
   }
 ]

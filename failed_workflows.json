@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🔧 Workflow Health Monitor",
+    "name": "🔧 Workflow Health Monitor",
+    "id": 22515873266,
+    "created": "2026-02-28T07:06:48Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22515869191,
@@ -111,18 +117,6 @@
     "workflow": ".github/workflows/discussion-bot.yml",
     "name": ".github/workflows/discussion-bot.yml",
     "id": 22515777750,
-    "created": "2026-02-28T07:01:19Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22515777676,
-    "created": "2026-02-28T07:01:19Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22515777575,
     "created": "2026-02-28T07:01:19Z"
   }
 ]

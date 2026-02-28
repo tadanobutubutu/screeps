@@ -4,7 +4,7 @@
 
 ## 📊 Status
 
-- **Failed Runs**: 31
+- **Failed Runs**: 24
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues

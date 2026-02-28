@@ -19,6 +19,7 @@ const gamification = require('gamification');
 const vfx = require('visual.effects');
 const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
+const DashboardRenderer = require('utils.dashboard');
 
 module.exports.loop = function () {
     try {
@@ -130,11 +131,11 @@ module.exports.loop = function () {
 
             if (spawn.spawning) {
                 const spawningCreep = Game.creeps[spawn.spawning.name];
-                spawn.room.visual.text(
-                    '🛠️' + spawningCreep.memory.role,
-                    spawn.pos.x + 1,
-                    spawn.pos.y,
-                    { align: 'left', opacity: 0.8 }
+                vfx.progressBar(
+                    { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                    spawn.spawning.needTime - spawn.spawning.remainingTime,
+                    spawn.spawning.needTime,
+                    spawningCreep.memory.role
                 );
 
                 // スポーンエフェクト (FULLモードのみ)
@@ -282,6 +283,16 @@ module.exports.loop = function () {
                             console.log('Error in defense ' + roomName + ': ' + e.message);
                         }
                     }
+                }
+            }
+        }
+
+        // Display Dashboard
+        if (adaptiveSystem.isEnabled('visualEffects')) {
+            for (const roomName in Game.rooms) {
+                const room = Game.rooms[roomName];
+                if (room.controller && room.controller.my) {
+                    DashboardRenderer.displayVisuals(room);
                 }
             }
         }

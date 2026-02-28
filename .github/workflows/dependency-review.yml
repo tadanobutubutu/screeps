@@ -22,11 +22,7 @@ jobs:
         with:
           # Fail on critical or high severity vulnerabilities
           fail-on-severity: moderate
-          # Deny specific licenses
-          deny-licenses: GPL-2.0, GPL-3.0
           # Allow only approved licenses
           allow-licenses: MIT, Apache-2.0, BSD-3-Clause, ISC
           # Comment on PR with results
           comment-summary-in-pr: always
-          # Warn about deprecated packages
-          warn-on-deprecated: true

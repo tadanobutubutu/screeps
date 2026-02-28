@@ -112,17 +112,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22515970520,
     "created": "2026-02-28T07:12:47Z"
-  },
-  {
-    "workflow": "📝 Semantic PR Title Check",
-    "name": "📝 Semantic PR Title Check",
-    "id": 22515967403,
-    "created": "2026-02-28T07:12:35Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22515967246,
-    "created": "2026-02-28T07:12:34Z"
   }
 ]

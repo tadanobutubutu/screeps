@@ -1,7 +1,5 @@
 # PR Labeler configuration - automatically label PRs based on file changes
 
-# PR Labeler configuration - automatically label PRs based on file changes
-
 # Documentation
 documentation:
   - changed-files:

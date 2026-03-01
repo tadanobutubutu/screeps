@@ -54,31 +54,12 @@ module.exports = {
         this.log('debug', message);
     },
 
-    /**
-     * Sanitizes a stack trace to remove internal file paths while keeping
-     * function names and line numbers for debugging.
-     * @param {string} stack - The raw stack trace
-     * @returns {string} - The sanitized stack trace
-     */
-    getSafeStack: function (stack) {
-        if (!stack) return '';
-
-        // Remove file paths and keep only the function/module name and line:col
-        // Example: at Object.loop (main.js:335:15) -> at Object.loop (main.js:335:15)
-        // But if it's a full path: at Object.loop (/app/main.js:335:15) -> at Object.loop (main.js:335:15)
-        return stack.split('\n')
-            .map(line => line.replace(/(\/|\\)([\w.-]+\.js:)/g, '$2'))
-            .join('\n');
-    },
-
     // Wrap function with error catching
     tryCatch: function (fn, context) {
         try {
             return fn();
         } catch (e) {
-            // Security: Sanitize stack trace before logging to avoid internal path exposure
-            const safeStack = this.getSafeStack(e.stack);
-            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
+            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
             return null;
         }
     },

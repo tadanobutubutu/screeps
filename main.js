@@ -331,11 +331,9 @@ module.exports.loop = function () {
             }
         }
     } catch (e) {
-        // Security: Sanitize stack trace to avoid internal path exposure
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            const safeStack = logger.getSafeStack(e.stack);
-            console.log(safeStack);
+            console.log(e.stack);
         }
     }
 };

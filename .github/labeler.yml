@@ -1,73 +1,62 @@
 # PR Labeler configuration - automatically label PRs based on file changes
 
-# PR Labeler configuration - automatically label PRs based on file changes
-
 # Documentation
 documentation:
-  - any-glob-to-any-file:
-    - '**/*.md'
-    - 'docs/**/*'
-    - 'wiki/**/*'
+  - '**/*.md'
+  - 'docs/**/*'
+  - 'wiki/**/*'
 
 # GitHub Actions
 github-actions:
-  - any-glob-to-any-file:
-    - '.github/workflows/**/*'
-    - '.github/actions/**/*'
+  - '.github/workflows/**/*'
+  - '.github/actions/**/*'
 
 # Dependencies
 dependencies:
-  - any-glob-to-any-file:
-    - 'package.json'
-    - 'package-lock.json'
-    - 'yarn.lock'
-    - 'pnpm-lock.yaml'
+  - 'package.json'
+  - 'package-lock.json'
+  - 'yarn.lock'
+  - 'pnpm-lock.yaml'
 
 # JavaScript
 javascript:
-  - any-glob-to-any-file:
-    - '**/*.js'
-    - '**/*.mjs'
-    - '**/*.cjs'
+  - '**/*.js'
+  - '**/*.mjs'
+  - '**/*.cjs'
 
 # Configuration
 config:
-  - any-glob-to-any-file:
-    - '**/*.json'
-    - '**/*.yml'
-    - '**/*.yaml'
-    - '**/*.toml'
-    - '.gitignore'
-    - '.gitattributes'
+  - '**/*.json'
+  - '**/*.yml'
+  - '**/*.yaml'
+  - '**/*.toml'
+  - '.gitignore'
+  - '.gitattributes'
 
 # Tests
 test:
-  - any-glob-to-any-file:
-    - '**/*.test.js'
-    - '**/*.spec.js'
-    - 'test/**/*'
-    - 'tests/**/*'
+  - '**/*.test.js'
+  - '**/*.spec.js'
+  - 'test/**/*'
+  - 'tests/**/*'
 
 # CI/CD
 ci:
-  - any-glob-to-any-file:
-    - '.github/**/*'
-    - '.gitlab-ci.yml'
-    - '.circleci/**/*'
-    - 'azure-pipelines.yml'
+  - '.github/**/*'
+  - '.gitlab-ci.yml'
+  - '.circleci/**/*'
+  - 'azure-pipelines.yml'
 
 # Security
 security:
-  - any-glob-to-any-file:
-    - 'SECURITY.md'
-    - '.github/workflows/codeql.yml'
-    - '.github/workflows/secret-scanning.yml'
-    - '.gitleaks.toml'
+  - 'SECURITY.md'
+  - '.github/workflows/codeql.yml'
+  - '.github/workflows/secret-scanning.yml'
+  - '.gitleaks.toml'
 
 # Bot-related
 bot:
-  - any-glob-to-any-file:
-    - '.github/dependabot.yml'
-    - '.github/renovate.json'
-    - '.github/mergify.yml'
-    - '.all-contributorsrc'
+  - '.github/dependabot.yml'
+  - '.github/renovate.json'
+  - '.github/mergify.yml'
+  - '.all-contributorsrc'

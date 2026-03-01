@@ -54,12 +54,25 @@ module.exports = {
         this.log('debug', message);
     },
 
+    /**
+     * Sanitizes a stack trace to remove internal file paths while keeping
+     * function names and line numbers for debugging.
+     */
+    getSafeStack: function (stack) {
+        if (!stack) return '';
+        return stack.split('\n')
+            .map(line => line.replace(/(\/|\\)([\w.-]+\.js:)/g, '$2'))
+            .join('\n');
+    },
+
     // Wrap function with error catching
     tryCatch: function (fn, context) {
         try {
             return fn();
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            // Security: Sanitize stack trace before logging to avoid path exposure
+            const safeStack = this.getSafeStack(e.stack);
+            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
             return null;
         }
     },

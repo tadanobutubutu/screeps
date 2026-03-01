@@ -78,6 +78,12 @@
     "created": "2026-03-01T06:48:42Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22537969378,
+    "created": "2026-03-01T06:48:42Z"
+  },
+  {
     "workflow": "🏷️ PR Auto Labeler",
     "name": "🏷️ PR Auto Labeler",
     "id": 22537969376,

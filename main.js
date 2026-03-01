@@ -20,6 +20,20 @@ const vfx = require('visual.effects');
 const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
 
+/**
+ * Role body configurations (Hoisted for performance)
+ */
+const ROLE_BODIES = {
+    harvester: [[WORK, WORK, CARRY, MOVE], 300],
+    upgrader: [[WORK, WORK, CARRY, MOVE], 300],
+    builder: [[WORK, CARRY, CARRY, MOVE], 300],
+    repairer: [[WORK, CARRY, MOVE], 200],
+    transporter: [[CARRY, CARRY, MOVE, MOVE], 200],
+    scout: [[MOVE], 50],
+    medic: [[HEAL, MOVE], 300],
+    explorer: [[MOVE], 50],
+};
+
 module.exports.loop = function () {
     try {
         // ⚡ ADAPTIVE SYSTEM - 現在の負荷を評価
@@ -193,59 +207,11 @@ module.exports.loop = function () {
                 continue;
             }
 
-            const runCreepLogic = function () {
-                // 😊 Emotions (NORMAL以上)
-                if (adaptiveSystem.isEnabled('emotions')) {
-                    EmotionSystem.display(creep);
-                }
-
-                // Run role logic
-                switch (role) {
-                    case 'harvester':
-                        roleHarvester.run(creep);
-                        break;
-                    case 'upgrader':
-                        roleUpgrader.run(creep);
-                        break;
-                    case 'builder':
-                        roleBuilder.run(creep);
-                        break;
-                    case 'repairer':
-                        roleRepairer.run(creep);
-                        break;
-                    case 'explorer':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleExplorer.run(creep);
-                        }
-                        break;
-                    case 'medic':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleMedic.run(creep);
-                        }
-                        break;
-                    case 'transporter':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleTransporter.run(creep);
-                        }
-                        break;
-                    case 'scout':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleScout.run(creep);
-                        }
-                        break;
-                    default:
-                        if (adaptiveSystem.isEnabled('logging')) {
-                            logger.warn('Unknown role: ' + role);
-                        }
-                        creep.memory.role = 'harvester';
-                }
-            };
-
             if (adaptiveSystem.isEnabled('logging')) {
-                logger.tryCatch(runCreepLogic, 'creep_' + name);
+                logger.tryCatch(() => runCreepLogic(creep, role), 'creep_' + name);
             } else {
                 try {
-                    runCreepLogic();
+                    runCreepLogic(creep, role);
                 } catch (e) {
                     console.log('Error in creep ' + name + ': ' + e.message);
                 }
@@ -269,15 +235,11 @@ module.exports.loop = function () {
             for (const roomName in Game.rooms) {
                 const room = Game.rooms[roomName];
                 if (room.controller && room.controller.my) {
-                    const runDefense = function () {
-                        defenseManager.run(room);
-                    };
-
                     if (adaptiveSystem.isEnabled('logging')) {
-                        logger.tryCatch(runDefense, 'defense_' + roomName);
+                        logger.tryCatch(() => runDefense(room), 'defense_' + roomName);
                     } else {
                         try {
-                            runDefense();
+                            runDefense(room);
                         } catch (e) {
                             console.log('Error in defense ' + roomName + ': ' + e.message);
                         }
@@ -338,19 +300,66 @@ module.exports.loop = function () {
     }
 };
 
-function getBodyForRole(role, energy) {
-    const bodies = {
-        harvester: [[WORK, WORK, CARRY, MOVE], 300],
-        upgrader: [[WORK, WORK, CARRY, MOVE], 300],
-        builder: [[WORK, CARRY, CARRY, MOVE], 300],
-        repairer: [[WORK, CARRY, MOVE], 200],
-        transporter: [[CARRY, CARRY, MOVE, MOVE], 200],
-        scout: [[MOVE], 50],
-        medic: [[HEAL, MOVE], 300],
-        explorer: [[MOVE], 50],
-    };
+/**
+ * Hoisted creep logic to reduce function object allocations per tick
+ */
+function runCreepLogic(creep, role) {
+    // 😊 Emotions (NORMAL以上)
+    if (adaptiveSystem.isEnabled('emotions')) {
+        EmotionSystem.display(creep);
+    }
 
-    const body = bodies[role] || [[MOVE, WORK, CARRY], 200];
+    // Run role logic
+    switch (role) {
+        case 'harvester':
+            roleHarvester.run(creep);
+            break;
+        case 'upgrader':
+            roleUpgrader.run(creep);
+            break;
+        case 'builder':
+            roleBuilder.run(creep);
+            break;
+        case 'repairer':
+            roleRepairer.run(creep);
+            break;
+        case 'explorer':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleExplorer.run(creep);
+            }
+            break;
+        case 'medic':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleMedic.run(creep);
+            }
+            break;
+        case 'transporter':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleTransporter.run(creep);
+            }
+            break;
+        case 'scout':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleScout.run(creep);
+            }
+            break;
+        default:
+            if (adaptiveSystem.isEnabled('logging')) {
+                logger.warn('Unknown role: ' + role);
+            }
+            creep.memory.role = 'harvester';
+    }
+}
+
+/**
+ * Hoisted defense logic to reduce function object allocations per tick
+ */
+function runDefense(room) {
+    defenseManager.run(room);
+}
+
+function getBodyForRole(role, energy) {
+    const body = ROLE_BODIES[role] || [[MOVE, WORK, CARRY], 200];
     const cost = body[1];
     const parts = body[0];
 

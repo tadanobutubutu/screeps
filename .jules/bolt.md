@@ -1,0 +1,3 @@
+## 2026-03-01 - [Hoisting frequently allocated objects and functions]
+**Learning:** In a Screeps-like environment where the code loop runs every tick, defining function literals and object literals within those loops or frequently called functions creates a significant amount of garbage. Hoisting these to the module level and passing necessary context as parameters is a high-impact, low-risk optimization that reduces CPU jitter and memory pressure.
+**Action:** Always check the main loop and high-frequency utility functions for nested function definitions and object literals that can be safely hoisted.

@@ -183,56 +183,7 @@ const adaptiveSystem = {
     isEnabled: function (feature) {
         this.init();
         const mode = Memory.adaptive.currentMode;
-
-        // 各モードで有効な機能を定義
-        const features = {
-            // EMERGENCY: 最小限
-            [this.MODE.EMERGENCY]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-            },
-
-            // MINIMAL: 基本機能
-            [this.MODE.MINIMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-            },
-
-            // NORMAL: 通常機能
-            [this.MODE.NORMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-            },
-
-            // FULL: 全機能
-            [this.MODE.FULL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-                visualEffects: true,
-                autoEvolution: true,
-                tutorial: true,
-                socialInteractions: true,
-                advancedRoles: true,
-            },
-        };
-
-        return features[mode][feature] === true;
+        return FEATURES[mode] && FEATURES[mode][feature] === true;
     },
 
     /**
@@ -377,6 +328,56 @@ const adaptiveSystem = {
     reset: function () {
         delete Memory.adaptive;
         console.log('🔄 Adaptive system reset!');
+    },
+};
+
+/**
+ * 各モードで有効な機能を定義 (Hoisted for performance)
+ */
+const FEATURES = {
+    // EMERGENCY: 最小限
+    0: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+    },
+
+    // MINIMAL: 基本機能
+    1: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+    },
+
+    // NORMAL: 通常機能
+    2: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+    },
+
+    // FULL: 全機能
+    3: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+        visualEffects: true,
+        autoEvolution: true,
+        tutorial: true,
+        socialInteractions: true,
+        advancedRoles: true,
     },
 };
 

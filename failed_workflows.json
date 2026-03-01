@@ -1,5 +1,53 @@
 [
   {
+    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+    "name": ".github/workflows/ai-powered-auto-fix.yml",
+    "id": 22537969041,
+    "created": "2026-03-01T06:48:41Z"
+  },
+  {
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 22537968990,
+    "created": "2026-03-01T06:48:41Z"
+  },
+  {
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 22537968908,
+    "created": "2026-03-01T06:48:40Z"
+  },
+  {
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 22537968822,
+    "created": "2026-03-01T06:48:40Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 22537968750,
+    "created": "2026-03-01T06:48:40Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 22537968679,
+    "created": "2026-03-01T06:48:40Z"
+  },
+  {
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 22537968611,
+    "created": "2026-03-01T06:48:39Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-create-roles.yml",
+    "name": ".github/workflows/auto-create-roles.yml",
+    "id": 22537968551,
+    "created": "2026-03-01T06:48:39Z"
+  },
+  {
     "workflow": "CodeQL Advanced",
     "name": "CodeQL Advanced",
     "id": 22535003450,
@@ -16,17 +64,5 @@
     "name": "🎯 Daily Quest",
     "id": 22534357880,
     "created": "2026-03-01T02:42:56Z"
-  },
-  {
-    "workflow": "💰 Usage Monitor & Auto-Optimize",
-    "name": "💰 Usage Monitor & Auto-Optimize",
-    "id": 22533799956,
-    "created": "2026-03-01T02:06:02Z"
-  },
-  {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 22533776425,
-    "created": "2026-03-01T02:04:36Z"
   }
 ]

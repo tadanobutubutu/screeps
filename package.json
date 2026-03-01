@@ -27,9 +27,6 @@
     "lodash": "4.17.20"
   },
   "devDependencies": {
-    "eslint": "8.0.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.5",
-    "prettier": "^3.8.1"
+    "eslint": "8.0.0"
   }
 }

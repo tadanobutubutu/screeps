@@ -6,36 +6,34 @@
 // strategyMemory.loadStrategy();
 
 module.exports = {
-    loadStrategy: function () {
-        if (!Memory.strategy) {
-            Memory.strategy = {};
-        }
+  loadStrategy: function() {
+    if (!Memory.strategy) {
+      Memory.strategy = {};
+    }
 
-        // Strategy will be loaded from this file
-        console.log('🧠 AI Strategy Loaded');
-    },
+    // Strategy will be loaded from this file
+    console.log('🧠 AI Strategy Loaded');
+  },
 
-    displayBriefing: function () {
-        if (!Memory.strategy) {
-            return;
-        }
+  displayBriefing: function() {
+    if (!Memory.strategy) return;
 
-        console.log('\n' + '='.repeat(60));
-        console.log('🎯 STRATEGIC BRIEFING BOARD');
-        console.log('='.repeat(60));
-        console.log(`🕒 Updated: ${Memory.strategy.timestamp || 'Unknown'}`);
-        console.log(`🎯 Focus: ${Memory.strategy.focus || 'None'}`);
-        console.log(`📌 Objective: ${Memory.strategy.objective || 'Maintain operations'}`);
-        console.log('\n🛠️ TACTICAL ORDERS:');
+    console.log('\n' + '='.repeat(60));
+    console.log('🎯 STRATEGIC BRIEFING BOARD');
+    console.log('='.repeat(60));
+    console.log(`🕒 Updated: ${Memory.strategy.timestamp || 'Unknown'}`);
+    console.log(`🎯 Focus: ${Memory.strategy.focus || 'None'}`);
+    console.log(`📌 Objective: ${Memory.strategy.objective || 'Maintain operations'}`);
+    console.log('\n🛠️ TACTICAL ORDERS:');
 
-        if (Memory.strategy.tactics) {
-            for (const role in Memory.strategy.tactics) {
-                console.log(`  • ${role}: ${Memory.strategy.tactics[role]}`);
-            }
-        }
+    if (Memory.strategy.tactics) {
+      for (let role in Memory.strategy.tactics) {
+        console.log(`  • ${role}: ${Memory.strategy.tactics[role]}`);
+      }
+    }
 
-        console.log(`\n🎯 Priority: ${Memory.strategy.priority || 'Balanced'}`);
-        console.log(`📈 Expected: ${Memory.strategy.outcomes || 'Standard performance'}`);
-        console.log('='.repeat(60) + '\n');
-    },
+    console.log(`\n🎯 Priority: ${Memory.strategy.priority || 'Balanced'}`);
+    console.log(`📈 Expected: ${Memory.strategy.outcomes || 'Standard performance'}`);
+    console.log('='.repeat(60) + '\n');
+  }
 };

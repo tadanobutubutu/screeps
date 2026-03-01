@@ -64,14 +64,17 @@ const adaptiveSystem = {
         // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
         if (cpuBucket < 1000 || memoryUsagePercent > 95) {
             newMode = this.MODE.EMERGENCY;
-        } else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
-            // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
+        }
+        // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
+        else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
             newMode = this.MODE.MINIMAL;
-        } else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
-            // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
+        }
+        // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
+        else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
             newMode = this.MODE.NORMAL;
-        } else {
-            // FULL: 余裕あり
+        }
+        // FULL: 余裕あり
+        else {
             newMode = this.MODE.FULL;
         }
 
@@ -209,7 +212,6 @@ const adaptiveSystem = {
                 gamification: true,
                 emotions: true,
                 memoryVisualizer: true,
-                dashboard: true,
             },
 
             // FULL: 全機能
@@ -227,7 +229,6 @@ const adaptiveSystem = {
                 tutorial: true,
                 socialInteractions: true,
                 advancedRoles: true,
-                dashboard: true,
             },
         };
 
@@ -310,7 +311,6 @@ const adaptiveSystem = {
             'tutorial',
             'socialInteractions',
             'advancedRoles',
-            'dashboard',
         ];
 
         let enabledCount = 0;

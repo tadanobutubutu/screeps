@@ -336,14 +336,14 @@ const adaptiveSystem = {
  */
 const FEATURES = {
     // EMERGENCY: 最小限
-    0: {
+    [adaptiveSystem.MODE.EMERGENCY]: {
         basicRoles: true,
         spawn: true,
         memoryCleanup: true,
     },
 
     // MINIMAL: 基本機能
-    1: {
+    [adaptiveSystem.MODE.MINIMAL]: {
         basicRoles: true,
         spawn: true,
         memoryCleanup: true,
@@ -352,7 +352,7 @@ const FEATURES = {
     },
 
     // NORMAL: 通常機能
-    2: {
+    [adaptiveSystem.MODE.NORMAL]: {
         basicRoles: true,
         spawn: true,
         memoryCleanup: true,
@@ -364,7 +364,7 @@ const FEATURES = {
     },
 
     // FULL: 全機能
-    3: {
+    [adaptiveSystem.MODE.FULL]: {
         basicRoles: true,
         spawn: true,
         memoryCleanup: true,

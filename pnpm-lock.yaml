@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       lodash:
-        specifier: 4.17.20
-        version: 4.17.20
+        specifier: 4.17.23
+        version: 4.17.23
     devDependencies:
       eslint:
         specifier: 8.0.0
@@ -254,8 +254,8 @@ packages:
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
-  lodash@4.17.20:
-    resolution: {integrity: sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==}
+  lodash@4.17.23:
+    resolution: {integrity: sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==}
 
   minimatch@3.1.5:
     resolution: {integrity: sha512-VgjWUsnnT6n+NUk6eZq77zeFdpW2LWDzP6zFGrCbHXiYNul5Dzqk2HHQ5uFH2DNW5Xbp8+jVzaeNt94ssEEl4w==}
@@ -621,7 +621,7 @@ snapshots:
 
   lodash.merge@4.6.2: {}
 
-  lodash@4.17.20: {}
+  lodash@4.17.23: {}
 
   minimatch@3.1.5:
     dependencies:

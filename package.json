@@ -4,7 +4,8 @@
   "description": "Screeps AI with automated GitHub workflows",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "echo \"No tests specified\" && exit 0",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,9 @@
     "lodash": "4.17.20"
   },
   "devDependencies": {
-    "eslint": "8.0.0"
+    "eslint": "8.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "prettier": "^3.8.1"
   }
 }

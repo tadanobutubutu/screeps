@@ -19,6 +19,7 @@ const gamification = require('gamification');
 const vfx = require('visual.effects');
 const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
+const dashboard = require('utils.dashboard');
 
 module.exports.loop = function () {
     try {
@@ -264,11 +265,11 @@ module.exports.loop = function () {
             }
         }
 
-        // Defense manager (MINIMAL以上)
-        if (adaptiveSystem.isEnabled('defense')) {
-            for (const roomName in Game.rooms) {
-                const room = Game.rooms[roomName];
-                if (room.controller && room.controller.my) {
+        // Defense manager (MINIMAL以上) & Dashboard (NORMAL以上)
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            if (room.controller && room.controller.my) {
+                if (adaptiveSystem.isEnabled('defense')) {
                     const runDefense = function () {
                         defenseManager.run(room);
                     };
@@ -282,6 +283,10 @@ module.exports.loop = function () {
                             console.log('Error in defense ' + roomName + ': ' + e.message);
                         }
                     }
+                }
+
+                if (adaptiveSystem.isEnabled('dashboard')) {
+                    dashboard.displayVisuals(room);
                 }
             }
         }

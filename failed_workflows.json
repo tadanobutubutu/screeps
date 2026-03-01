@@ -1,5 +1,29 @@
 [
   {
+    "workflow": "📝 Semantic PR Title Check",
+    "name": "📝 Semantic PR Title Check",
+    "id": 22537970189,
+    "created": "2026-03-01T06:48:46Z"
+  },
+  {
+    "workflow": "🔍 Dependency Review",
+    "name": "🔍 Dependency Review",
+    "id": 22537969387,
+    "created": "2026-03-01T06:48:42Z"
+  },
+  {
+    "workflow": "🏷️ PR Auto Labeler",
+    "name": "🏷️ PR Auto Labeler",
+    "id": 22537969376,
+    "created": "2026-03-01T06:48:42Z"
+  },
+  {
+    "workflow": "📝 Semantic PR Title Check",
+    "name": "📝 Semantic PR Title Check",
+    "id": 22537969375,
+    "created": "2026-03-01T06:48:42Z"
+  },
+  {
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 22537969041,
@@ -46,23 +70,5 @@
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22537968551,
     "created": "2026-03-01T06:48:39Z"
-  },
-  {
-    "workflow": "CodeQL Advanced",
-    "name": "CodeQL Advanced",
-    "id": 22535003450,
-    "created": "2026-03-01T03:25:36Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22534359886,
-    "created": "2026-03-01T02:43:05Z"
-  },
-  {
-    "workflow": "🎯 Daily Quest",
-    "name": "🎯 Daily Quest",
-    "id": 22534357880,
-    "created": "2026-03-01T02:42:56Z"
   }
 ]

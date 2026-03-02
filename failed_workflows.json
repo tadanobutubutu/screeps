@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🎯 Daily Quest",
+    "name": "🎯 Daily Quest",
+    "id": 22558995384,
+    "created": "2026-03-02T02:31:48Z"
+  },
+  {
     "workflow": "💰 Usage Monitor & Auto-Optimize",
     "name": "💰 Usage Monitor & Auto-Optimize",
     "id": 22558290269,
@@ -130,11 +136,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22556382352,
     "created": "2026-03-02T00:20:07Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22556380837,
-    "created": "2026-03-02T00:20:03Z"
   }
 ]

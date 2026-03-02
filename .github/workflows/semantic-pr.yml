@@ -58,7 +58,7 @@ jobs:
             doesn't start with an uppercase character.
           
           # Allow custom emojis
-          headerPattern: '^(\w+)(\(\w+\))?!?: (.+)$'
+          headerPattern: '^.?.?\s?(\w+)(\(\w+\))?!?: (.+)$'
           headerPatternCorrespondence: 'type, scope, subject'
           
           # Ignore PR from specific branches

@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 22558290269,
+    "created": "2026-03-02T01:56:34Z"
+  },
+  {
     "workflow": "✨ AI Code Improvement",
     "name": "✨ AI Code Improvement",
     "id": 22558264166,
@@ -165,12 +171,6 @@
     "workflow": "🔧 Workflow Health Monitor",
     "name": "🔧 Workflow Health Monitor",
     "id": 22556375608,
-    "created": "2026-03-02T00:19:48Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22556375413,
     "created": "2026-03-02T00:19:48Z"
   }
 ]

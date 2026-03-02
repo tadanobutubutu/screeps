@@ -54,12 +54,27 @@ module.exports = {
         this.log('debug', message);
     },
 
+    // Sanitize stack trace to prevent path leakage
+    getSafeStack: function (e) {
+        if (!e || !e.stack) {
+            return 'No stack trace available';
+        }
+
+        return e.stack
+            .split('\n')
+            .map((line) => {
+                // Strip absolute paths, keep filename, line and column
+                return line.replace(/(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g, '$2');
+            })
+            .join('\n');
+    },
+
     // Wrap function with error catching
     tryCatch: function (fn, context) {
         try {
             return fn();
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            this.error(`Exception in ${context}: ${e.message}\n${this.getSafeStack(e)}`);
             return null;
         }
     },

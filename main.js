@@ -186,66 +186,12 @@ module.exports.loop = function () {
         // Run all creeps
         for (const name in Game.creeps) {
             const creep = Game.creeps[name];
-            const role = creep.memory.role;
-
-            if (!role) {
-                creep.memory.role = 'harvester';
-                continue;
-            }
-
-            const runCreepLogic = function () {
-                // 😊 Emotions (NORMAL以上)
-                if (adaptiveSystem.isEnabled('emotions')) {
-                    EmotionSystem.display(creep);
-                }
-
-                // Run role logic
-                switch (role) {
-                    case 'harvester':
-                        roleHarvester.run(creep);
-                        break;
-                    case 'upgrader':
-                        roleUpgrader.run(creep);
-                        break;
-                    case 'builder':
-                        roleBuilder.run(creep);
-                        break;
-                    case 'repairer':
-                        roleRepairer.run(creep);
-                        break;
-                    case 'explorer':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleExplorer.run(creep);
-                        }
-                        break;
-                    case 'medic':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleMedic.run(creep);
-                        }
-                        break;
-                    case 'transporter':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleTransporter.run(creep);
-                        }
-                        break;
-                    case 'scout':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleScout.run(creep);
-                        }
-                        break;
-                    default:
-                        if (adaptiveSystem.isEnabled('logging')) {
-                            logger.warn('Unknown role: ' + role);
-                        }
-                        creep.memory.role = 'harvester';
-                }
-            };
 
             if (adaptiveSystem.isEnabled('logging')) {
-                logger.tryCatch(runCreepLogic, 'creep_' + name);
+                logger.tryCatch(() => runCreepLogic(creep), 'creep_' + name);
             } else {
                 try {
-                    runCreepLogic();
+                    runCreepLogic(creep);
                 } catch (e) {
                     console.log('Error in creep ' + name + ': ' + e.message);
                 }
@@ -337,6 +283,64 @@ module.exports.loop = function () {
         }
     }
 };
+
+/**
+ * ⚡ PERFORMANCE: Hoisted creep logic function to prevent per-creep allocation
+ * BOLT: Moving this outside of the loop avoids creating a new function instance for every creep.
+ */
+function runCreepLogic(creep) {
+    // ⚡ PERFORMANCE: Ensure role is persisted to memory if missing to avoid repeated lookups
+    if (!creep.memory.role) {
+        creep.memory.role = 'harvester';
+    }
+    const role = creep.memory.role;
+
+    // 😊 Emotions (NORMAL以上)
+    if (adaptiveSystem.isEnabled('emotions')) {
+        EmotionSystem.display(creep);
+    }
+
+    // Run role logic
+    switch (role) {
+        case 'harvester':
+            roleHarvester.run(creep);
+            break;
+        case 'upgrader':
+            roleUpgrader.run(creep);
+            break;
+        case 'builder':
+            roleBuilder.run(creep);
+            break;
+        case 'repairer':
+            roleRepairer.run(creep);
+            break;
+        case 'explorer':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleExplorer.run(creep);
+            }
+            break;
+        case 'medic':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleMedic.run(creep);
+            }
+            break;
+        case 'transporter':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleTransporter.run(creep);
+            }
+            break;
+        case 'scout':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleScout.run(creep);
+            }
+            break;
+        default:
+            if (adaptiveSystem.isEnabled('logging')) {
+                logger.warn('Unknown role: ' + role);
+            }
+            creep.memory.role = 'harvester';
+    }
+}
 
 function getBodyForRole(role, energy) {
     const bodies = {

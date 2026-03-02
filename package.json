@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/tadanobutubutu/screeps#readme",
   "dependencies": {
-    "lodash": "4.17.20"
+    "lodash": "4.17.23"
   },
   "devDependencies": {
     "eslint": "8.0.0"

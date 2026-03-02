@@ -130,11 +130,12 @@ module.exports.loop = function () {
 
             if (spawn.spawning) {
                 const spawningCreep = Game.creeps[spawn.spawning.name];
-                spawn.room.visual.text(
-                    '🛠️' + spawningCreep.memory.role,
-                    spawn.pos.x + 1,
-                    spawn.pos.y,
-                    { align: 'left', opacity: 0.8 }
+
+                vfx.progressBar(
+                    { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                    spawn.spawning.needTime - spawn.spawning.remainingTime,
+                    spawn.spawning.needTime,
+                    '🛠️' + spawningCreep.memory.role
                 );
 
                 // スポーンエフェクト (FULLモードのみ)

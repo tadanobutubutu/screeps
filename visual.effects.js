@@ -182,10 +182,19 @@ const visualEffects = {
             opacity: 0.8,
         });
 
+        // テキスト背景 (High contrast for accessibility)
+        visual.rect(pos.x - width / 2, pos.y - 1.1, width, 0.6, {
+            fill: '#000000',
+            opacity: 0.5,
+            stroke: 'transparent',
+        });
+
         // テキスト
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 

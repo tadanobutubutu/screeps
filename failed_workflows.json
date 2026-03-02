@@ -102,6 +102,12 @@
     "created": "2026-03-02T07:10:01Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22565293473,
+    "created": "2026-03-02T07:10:01Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22565293472,
@@ -166,11 +172,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22565287988,
     "created": "2026-03-02T07:09:48Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22565283384,
-    "created": "2026-03-02T07:09:38Z"
   }
 ]

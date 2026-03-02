@@ -1,24 +1,24 @@
 // Screeps AI - Z世代向けドーパミン爆発システム
 // Adaptive Load Management - CPU/メモリに応じて機能を動的に制御
 
-const roleHarvester = require('role.harvester');
-const roleUpgrader = require('role.upgrader');
-const roleBuilder = require('role.builder');
-const roleRepairer = require('role.repairer');
-const roleExplorer = require('role.explorer');
-const roleMedic = require('role.medic');
-const roleTransporter = require('role.transporter');
-const roleScout = require('role.scout');
-const defenseManager = require('defense.manager');
-const utilsMemory = require('utils.memory');
-const logger = require('utils.logging');
-const EmotionSystem = require('utils.emotions');
-const memVis = require('memory.visualizer');
-const autoTutorial = require('tutorial.auto');
-const gamification = require('gamification');
-const vfx = require('visual.effects');
-const autoEvolution = require('auto.evolution');
-const adaptiveSystem = require('system.adaptive');
+const roleHarvester = require('./role.harvester');
+const roleUpgrader = require('./role.upgrader');
+const roleBuilder = require('./role.builder');
+const roleRepairer = require('./role.repairer');
+const roleExplorer = require('./role.explorer');
+const roleMedic = require('./role.medic');
+const roleTransporter = require('./role.transporter');
+const roleScout = require('./role.scout');
+const defenseManager = require('./defense.manager');
+const utilsMemory = require('./utils.memory');
+const logger = require('./utils.logging');
+const EmotionSystem = require('./utils.emotions');
+const memVis = require('./memory.visualizer');
+const autoTutorial = require('./tutorial.auto');
+const gamification = require('./gamification');
+const vfx = require('./visual.effects');
+const autoEvolution = require('./auto.evolution');
+const adaptiveSystem = require('./system.adaptive');
 
 module.exports.loop = function () {
     try {

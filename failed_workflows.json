@@ -6,6 +6,12 @@
     "created": "2026-03-02T07:17:06Z"
   },
   {
+    "workflow": "🏷️ PR Auto Labeler",
+    "name": "🏷️ PR Auto Labeler",
+    "id": 22565488800,
+    "created": "2026-03-02T07:17:06Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22565488777,
@@ -118,35 +124,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22565461161,
     "created": "2026-03-02T07:16:05Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22565461000,
-    "created": "2026-03-02T07:16:05Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22565460842,
-    "created": "2026-03-02T07:16:05Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22565460657,
-    "created": "2026-03-02T07:16:04Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22565460467,
-    "created": "2026-03-02T07:16:04Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22565460319,
-    "created": "2026-03-02T07:16:04Z"
   }
 ]

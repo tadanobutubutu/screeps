@@ -40,11 +40,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22612413532,
     "created": "2026-03-03T07:14:06Z"
-  },
-  {
-    "workflow": "📝 Semantic PR Title Check",
-    "name": "📝 Semantic PR Title Check",
-    "id": 22612413490,
-    "created": "2026-03-03T07:14:05Z"
   }
 ]

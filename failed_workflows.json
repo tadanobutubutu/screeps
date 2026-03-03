@@ -46,11 +46,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22612413490,
     "created": "2026-03-03T07:14:05Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22612413388,
-    "created": "2026-03-03T07:14:05Z"
   }
 ]

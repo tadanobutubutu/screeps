@@ -148,17 +148,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22611962837,
     "created": "2026-03-03T06:57:26Z"
-  },
-  {
-    "workflow": "CodeQL Advanced",
-    "name": "CodeQL Advanced",
-    "id": 22611962828,
-    "created": "2026-03-03T06:57:25Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22611962827,
-    "created": "2026-03-03T06:57:25Z"
   }
 ]

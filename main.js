@@ -333,7 +333,8 @@ module.exports.loop = function () {
     } catch (e) {
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            console.log(e.stack);
+            // Sanitize stack trace before outputting to console
+            console.log(logger.getSafeStack(e.stack));
         }
     }
 };

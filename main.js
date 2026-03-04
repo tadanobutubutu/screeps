@@ -331,9 +331,11 @@ module.exports.loop = function () {
             }
         }
     } catch (e) {
-        console.log('❌ CRITICAL ERROR: ' + e.message);
-        if (e.stack) {
-            console.log(e.stack);
+        const safeStack = logger.getSafeStack(e.stack);
+        if (adaptiveSystem.isEnabled('logging')) {
+            logger.error(`CRITICAL ERROR: ${e.message}\n${safeStack}`);
+        } else {
+            console.log(`❌ CRITICAL ERROR: ${e.message}\n${safeStack}`);
         }
     }
 };

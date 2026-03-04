@@ -14,6 +14,13 @@ module.exports = {
         }
     },
 
+    // Sanitize stack traces to prevent absolute path leakage
+    getSafeStack: function (stack) {
+        if (!stack) return '';
+        // Strip absolute paths, keep only filename:line:column
+        return stack.replace(/(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g, '$1$2');
+    },
+
     // Log a message
     log: function (level, message) {
         if (!Memory.logs) {
@@ -59,7 +66,8 @@ module.exports = {
         try {
             return fn();
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            const safeStack = this.getSafeStack(e.stack);
+            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
             return null;
         }
     },

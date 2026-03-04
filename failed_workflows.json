@@ -130,29 +130,5 @@
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22659117386,
     "created": "2026-03-04T07:15:46Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22659117273,
-    "created": "2026-03-04T07:15:46Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22659117148,
-    "created": "2026-03-04T07:15:45Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22659117019,
-    "created": "2026-03-04T07:15:45Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22659116903,
-    "created": "2026-03-04T07:15:45Z"
   }
 ]

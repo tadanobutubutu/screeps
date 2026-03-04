@@ -331,12 +331,11 @@ module.exports.loop = function () {
             }
         }
     } catch (e) {
-        const safeStack = logger.getSafeStack(e.stack);
-        if (adaptiveSystem.isEnabled('logging')) {
-            logger.error(`CRITICAL ERROR: ${e.message}\n${safeStack}`);
-        } else {
-            console.log(`❌ CRITICAL ERROR: ${e.message}\n${safeStack}`);
-        }
+        // Sanitize stack trace locally to avoid dependencies in critical error path
+        const safeStack = e.stack
+            ? e.stack.replace(/(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g, '$1$2')
+            : '';
+        console.log(`❌ CRITICAL ERROR: ${e.message}\n${safeStack}`);
     }
 };
 

@@ -248,7 +248,7 @@ module.exports.loop = function () {
             const creep = Game.creeps[name];
 
             if (adaptiveSystem.isEnabled('logging')) {
-                logger.tryCatch(() => runCreepLogic(creep), 'creep_' + name);
+                logger.tryCatch(runCreepLogic, 'creep_' + name, creep);
             } else {
                 try {
                     runCreepLogic(creep);

@@ -130,12 +130,25 @@ module.exports.loop = function () {
 
             if (spawn.spawning) {
                 const spawningCreep = Game.creeps[spawn.spawning.name];
-                spawn.room.visual.text(
-                    '🛠️' + spawningCreep.memory.role,
-                    spawn.pos.x + 1,
-                    spawn.pos.y,
-                    { align: 'left', opacity: 0.8 }
-                );
+                const progress =
+                    (spawn.spawning.needTime - spawn.spawning.remainingTime) /
+                    spawn.spawning.needTime;
+
+                if (adaptiveSystem.isEnabled('visualEffects')) {
+                    vfx.progressBar(
+                        { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                        spawn.spawning.needTime - spawn.spawning.remainingTime,
+                        spawn.spawning.needTime,
+                        '🛠️' + spawningCreep.memory.role
+                    );
+                } else {
+                    spawn.room.visual.text(
+                        '🛠️' + spawningCreep.memory.role + ' ' + Math.floor(progress * 100) + '%',
+                        spawn.pos.x + 1,
+                        spawn.pos.y,
+                        { align: 'left', opacity: 0.8 }
+                    );
+                }
 
                 // スポーンエフェクト (FULLモードのみ)
                 if (adaptiveSystem.isEnabled('visualEffects') && Game.time % 5 === 0) {

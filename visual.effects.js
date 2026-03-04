@@ -144,17 +144,21 @@ const visualEffects = {
             font: 1.5,
         });
 
-        // タイトル
+        // タイトル (ストロークを追加)
         visual.text(title, pos.x + 0.5, pos.y - 0.3, {
             color: '#FFD700',
             font: 0.8,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         visual.text('Achievement Unlocked!', pos.x + 0.5, pos.y + 0.5, {
             color: '#FFFFFF',
             font: 0.5,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.04,
         });
     },
 
@@ -182,10 +186,17 @@ const visualEffects = {
             opacity: 0.8,
         });
 
-        // テキスト
+        // テキスト (背景とストロークで視認性を向上)
+        visual.rect(pos.x - width / 2, pos.y - 1.0, width, 0.6, {
+            fill: '#000000',
+            opacity: 0.5,
+        });
+
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 

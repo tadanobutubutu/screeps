@@ -154,17 +154,5 @@
     "name": "CxFlow",
     "id": 22720827460,
     "created": "2026-03-05T13:46:54Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22720827451,
-    "created": "2026-03-05T13:46:54Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22720827431,
-    "created": "2026-03-05T13:46:54Z"
   }
 ]

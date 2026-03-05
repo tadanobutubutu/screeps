@@ -58,23 +58,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22706690538,
     "created": "2026-03-05T07:13:20Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22706687337,
-    "created": "2026-03-05T07:13:14Z"
-  },
-  {
-    "workflow": "📝 Semantic PR Title Check",
-    "name": "📝 Semantic PR Title Check",
-    "id": 22706687335,
-    "created": "2026-03-05T07:13:14Z"
-  },
-  {
-    "workflow": "CodeQL Advanced",
-    "name": "CodeQL Advanced",
-    "id": 22706687332,
-    "created": "2026-03-05T07:13:14Z"
   }
 ]

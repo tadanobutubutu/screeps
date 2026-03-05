@@ -76,11 +76,5 @@
     "name": "CodeQL Advanced",
     "id": 22706687332,
     "created": "2026-03-05T07:13:14Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22706687314,
-    "created": "2026-03-05T07:13:14Z"
   }
 ]

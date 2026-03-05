@@ -333,7 +333,9 @@ module.exports.loop = function () {
     } catch (e) {
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            console.log(e.stack);
+            // Sanitize stack trace locally to avoid module dependencies in critical path
+            const safeStack = e.stack.replace(/(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g, '$2');
+            console.log(safeStack);
         }
     }
 };

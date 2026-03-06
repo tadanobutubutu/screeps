@@ -124,11 +124,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22752625148,
     "created": "2026-03-06T06:52:00Z"
-  },
-  {
-    "workflow": ".github/workflows/checkmarx.yml",
-    "name": "CxFlow",
-    "id": 22752625136,
-    "created": "2026-03-06T06:52:00Z"
   }
 ]

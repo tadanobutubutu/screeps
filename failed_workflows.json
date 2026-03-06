@@ -148,17 +148,5 @@
     "name": "🏷️ PR Auto Labeler",
     "id": 22753612653,
     "created": "2026-03-06T07:28:00Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22753612641,
-    "created": "2026-03-06T07:28:00Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22753612639,
-    "created": "2026-03-06T07:28:00Z"
   }
 ]

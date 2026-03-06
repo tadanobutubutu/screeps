@@ -48,6 +48,12 @@
     "created": "2026-03-06T07:35:17Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22753823902,
+    "created": "2026-03-06T07:35:17Z"
+  },
+  {
     "workflow": ".github/workflows/auto-create-roles.yml",
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 22753823778,
@@ -141,12 +147,6 @@
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22753612657,
-    "created": "2026-03-06T07:28:00Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22753612653,
     "created": "2026-03-06T07:28:00Z"
   }
 ]

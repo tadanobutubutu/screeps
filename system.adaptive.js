@@ -3,20 +3,66 @@
  * 負荷が高い時は自動的に機能を制限し、余裕がある時は全機能を有効化
  */
 
+const MODE = {
+    EMERGENCY: 0,
+    MINIMAL: 1,
+    NORMAL: 2,
+    FULL: 3,
+};
+
+// 各モードで有効な機能を定義 (Hoist to avoid per-call allocations)
+const FEATURES = {
+    // EMERGENCY: 最小限
+    [MODE.EMERGENCY]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+    },
+
+    // MINIMAL: 基本機能
+    [MODE.MINIMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+    },
+
+    // NORMAL: 通常機能
+    [MODE.NORMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+    },
+
+    // FULL: 全機能
+    [MODE.FULL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+        visualEffects: true,
+        autoEvolution: true,
+        tutorial: true,
+        socialInteractions: true,
+        advancedRoles: true,
+    },
+};
+
 const adaptiveSystem = {
     /**
      * システムモード
-     * 0: EMERGENCY - 最小限の機能のみ
-     * 1: MINIMAL - 基本機能のみ
-     * 2: NORMAL - 通常機能
-     * 3: FULL - 全機能有効
      */
-    MODE: {
-        EMERGENCY: 0,
-        MINIMAL: 1,
-        NORMAL: 2,
-        FULL: 3,
-    },
+    MODE: MODE,
 
     /**
      * 初期化
@@ -64,17 +110,14 @@ const adaptiveSystem = {
         // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
         if (cpuBucket < 1000 || memoryUsagePercent > 95) {
             newMode = this.MODE.EMERGENCY;
-        }
-        // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
-        else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
+        } else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
+            // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
             newMode = this.MODE.MINIMAL;
-        }
-        // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
-        else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
+        } else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
+            // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
             newMode = this.MODE.NORMAL;
-        }
-        // FULL: 余裕あり
-        else {
+        } else {
+            // FULL: 余裕あり
             newMode = this.MODE.FULL;
         }
 
@@ -179,60 +222,19 @@ const adaptiveSystem = {
 
     /**
      * 機能が有効かチェック
+     * @param {string} feature - 機能名
+     * @returns {boolean} 有効かどうか
      */
     isEnabled: function (feature) {
+        // Ensure initialization
         this.init();
-        const mode = Memory.adaptive.currentMode;
 
-        // 各モードで有効な機能を定義
-        const features = {
-            // EMERGENCY: 最小限
-            [this.MODE.EMERGENCY]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-            },
+        const mode =
+            Memory.adaptive && Memory.adaptive.currentMode !== undefined
+                ? Memory.adaptive.currentMode
+                : MODE.NORMAL;
 
-            // MINIMAL: 基本機能
-            [this.MODE.MINIMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-            },
-
-            // NORMAL: 通常機能
-            [this.MODE.NORMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-            },
-
-            // FULL: 全機能
-            [this.MODE.FULL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-                visualEffects: true,
-                autoEvolution: true,
-                tutorial: true,
-                socialInteractions: true,
-                advancedRoles: true,
-            },
-        };
-
-        return features[mode][feature] === true;
+        return FEATURES[mode] && FEATURES[mode][feature] === true;
     },
 
     /**

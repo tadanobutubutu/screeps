@@ -60,6 +60,12 @@
     "created": "2026-03-06T07:47:20Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22754163244,
+    "created": "2026-03-06T07:47:20Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22754163237,

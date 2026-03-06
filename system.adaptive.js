@@ -234,7 +234,7 @@ const adaptiveSystem = {
                 ? Memory.adaptive.currentMode
                 : MODE.NORMAL;
 
-        return FEATURES[mode] && FEATURES[mode][feature] === true;
+        return !!(FEATURES[mode] && FEATURES[mode][feature]);
     },
 
     /**

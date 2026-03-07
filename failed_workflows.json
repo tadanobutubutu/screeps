@@ -136,17 +136,5 @@
     "name": ".github/workflows/rule-based-improve.yml",
     "id": 22794659049,
     "created": "2026-03-07T07:23:45Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22794658953,
-    "created": "2026-03-07T07:23:44Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22794658868,
-    "created": "2026-03-07T07:23:44Z"
   }
 ]

@@ -19,6 +19,7 @@ const gamification = require('gamification');
 const vfx = require('visual.effects');
 const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
+const dashboard = require('utils.dashboard');
 
 module.exports.loop = function () {
     try {
@@ -79,6 +80,10 @@ module.exports.loop = function () {
 
             if (Game.time % 10 === 0) {
                 gamification.renderDashboard();
+                // 🎨 Palette: Render room dashboard for each room
+                for (const roomName in Game.rooms) {
+                    dashboard.displayVisuals(Game.rooms[roomName]);
+                }
             }
         }
 
@@ -134,7 +139,12 @@ module.exports.loop = function () {
                     '🛠️' + spawningCreep.memory.role,
                     spawn.pos.x + 1,
                     spawn.pos.y,
-                    { align: 'left', opacity: 0.8 }
+                    {
+                        align: 'left',
+                        opacity: 0.8,
+                        stroke: '#000000',
+                        strokeWidth: 0.05,
+                    }
                 );
 
                 // スポーンエフェクト (FULLモードのみ)

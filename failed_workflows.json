@@ -72,6 +72,12 @@
     "created": "2026-03-07T07:21:19Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22794623582,
+    "created": "2026-03-07T07:21:19Z"
+  },
+  {
     "workflow": "🏷️ PR Auto Labeler",
     "name": "🏷️ PR Auto Labeler",
     "id": 22794623580,
@@ -130,11 +136,5 @@
     "name": ".github/workflows/discussion-bot.yml",
     "id": 22794622884,
     "created": "2026-03-07T07:21:16Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22794430128,
-    "created": "2026-03-07T07:08:22Z"
   }
 ]

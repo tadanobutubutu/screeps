@@ -70,23 +70,5 @@
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 22795235624,
     "created": "2026-03-07T08:02:36Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22795235560,
-    "created": "2026-03-07T08:02:36Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22795235501,
-    "created": "2026-03-07T08:02:35Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22795235392,
-    "created": "2026-03-07T08:02:35Z"
   }
 ]

@@ -52,23 +52,5 @@
     "name": ".github/workflows/discussion-bot.yml",
     "id": 22795235821,
     "created": "2026-03-07T08:02:37Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22795235752,
-    "created": "2026-03-07T08:02:37Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22795235686,
-    "created": "2026-03-07T08:02:36Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22795235624,
-    "created": "2026-03-07T08:02:36Z"
   }
 ]

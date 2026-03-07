@@ -54,26 +54,12 @@ module.exports = {
         this.log('debug', message);
     },
 
-    /**
-     * Sanitizes error stack traces to prevent information leakage.
-     * Strips absolute paths while retaining filename and line numbers.
-     */
-    getSafeStack: function (stack) {
-        if (!stack) {
-            return 'No stack trace available';
-        }
-        // Optimized regex to sanitize both Unix-style and Windows-style absolute paths
-        const pathRegex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g;
-        return stack.replace(pathRegex, '$2');
-    },
-
     // Wrap function with error catching
     tryCatch: function (fn, context) {
         try {
             return fn();
         } catch (e) {
-            const safeStack = this.getSafeStack(e.stack);
-            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
+            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
             return null;
         }
     },

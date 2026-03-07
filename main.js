@@ -333,10 +333,7 @@ module.exports.loop = function () {
     } catch (e) {
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            // Local stack trace sanitization to avoid module dependencies in critical path
-            const pathRegex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g;
-            const safeStack = e.stack.replace(pathRegex, '$2');
-            console.log(safeStack);
+            console.log(e.stack);
         }
     }
 };

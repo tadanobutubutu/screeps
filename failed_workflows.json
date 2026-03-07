@@ -112,11 +112,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22794700132,
     "created": "2026-03-07T07:26:28Z"
-  },
-  {
-    "workflow": "📝 Semantic PR Title Check",
-    "name": "📝 Semantic PR Title Check",
-    "id": 22794696671,
-    "created": "2026-03-07T07:26:17Z"
   }
 ]

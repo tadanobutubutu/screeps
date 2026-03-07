@@ -82,11 +82,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22795235392,
     "created": "2026-03-07T08:02:35Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22795206150,
-    "created": "2026-03-07T08:00:41Z"
   }
 ]

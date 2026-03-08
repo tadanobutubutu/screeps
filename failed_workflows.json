@@ -82,17 +82,5 @@
     "name": ".github/workflows/update-wiki.yml",
     "id": 22826283390,
     "created": "2026-03-08T17:38:48Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22826283327,
-    "created": "2026-03-08T17:38:48Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22826283231,
-    "created": "2026-03-08T17:38:47Z"
   }
 ]

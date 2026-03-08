@@ -1,80 +1,71 @@
 # PR Labeler configuration - automatically label PRs based on file changes
 
-# Documentation
 documentation:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '**/*.md'
-          - 'docs/**/*'
-          - 'wiki/**/*'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.md'
+    - 'docs/**/*'
+    - 'wiki/**/*'
 
-# GitHub Actions
 github-actions:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '.github/workflows/**/*'
-          - '.github/actions/**/*'
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/workflows/**/*'
+    - '.github/actions/**/*'
 
-# Dependencies
 dependencies:
-  - changed-files:
-      - any-glob-to-any-file:
-          - 'package.json'
-          - 'package-lock.json'
-          - 'yarn.lock'
-          - 'pnpm-lock.yaml'
+- changed-files:
+  - any-glob-to-any-file:
+    - 'package.json'
+    - 'package-lock.json'
+    - 'yarn.lock'
+    - 'pnpm-lock.yaml'
 
-# JavaScript
 javascript:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '**/*.js'
-          - '**/*.mjs'
-          - '**/*.cjs'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.js'
+    - '**/*.mjs'
+    - '**/*.cjs'
 
-# Configuration
 config:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '**/*.json'
-          - '**/*.yml'
-          - '**/*.yaml'
-          - '**/*.toml'
-          - '.gitignore'
-          - '.gitattributes'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.json'
+    - '**/*.yml'
+    - '**/*.yaml'
+    - '**/*.toml'
+    - '.gitignore'
+    - '.gitattributes'
 
-# Tests
 test:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '**/*.test.js'
-          - '**/*.spec.js'
-          - 'test/**/*'
-          - 'tests/**/*'
+- changed-files:
+  - any-glob-to-any-file:
+    - '**/*.test.js'
+    - '**/*.spec.js'
+    - 'test/**/*'
+    - 'tests/**/*'
 
-# CI/CD
 ci:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '.github/**/*'
-          - '.gitlab-ci.yml'
-          - '.circleci/**/*'
-          - 'azure-pipelines.yml'
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/**/*'
+    - '.gitlab-ci.yml'
+    - '.circleci/**/*'
+    - 'azure-pipelines.yml'
 
-# Security
 security:
-  - changed-files:
-      - any-glob-to-any-file:
-          - 'SECURITY.md'
-          - '.github/workflows/codeql.yml'
-          - '.github/workflows/secret-scanning.yml'
-          - '.gitleaks.toml'
+- changed-files:
+  - any-glob-to-any-file:
+    - 'SECURITY.md'
+    - '.github/workflows/codeql.yml'
+    - '.github/workflows/secret-scanning.yml'
+    - '.gitleaks.toml'
 
-# Bot-related
 bot:
-  - changed-files:
-      - any-glob-to-any-file:
-          - '.github/dependabot.yml'
-          - '.github/renovate.json'
-          - '.github/mergify.yml'
-          - '.all-contributorsrc'
+- changed-files:
+  - any-glob-to-any-file:
+    - '.github/dependabot.yml'
+    - '.github/renovate.json'
+    - '.github/mergify.yml'
+    - '.all-contributorsrc'

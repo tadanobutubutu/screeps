@@ -3,6 +3,61 @@
  * 負荷が高い時は自動的に機能を制限し、余裕がある時は全機能を有効化
  */
 
+const MODES = {
+    EMERGENCY: 0,
+    MINIMAL: 1,
+    NORMAL: 2,
+    FULL: 3,
+};
+
+// ⚡ PERFORMANCE: Hoisted feature configuration to avoid per-call object allocation
+const FEATURES = {
+    // EMERGENCY: 最小限
+    [MODES.EMERGENCY]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+    },
+
+    // MINIMAL: 基本機能
+    [MODES.MINIMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+    },
+
+    // NORMAL: 通常機能
+    [MODES.NORMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+    },
+
+    // FULL: 全機能
+    [MODES.FULL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+        visualEffects: true,
+        autoEvolution: true,
+        tutorial: true,
+        socialInteractions: true,
+        advancedRoles: true,
+    },
+};
+
 const adaptiveSystem = {
     /**
      * システムモード
@@ -11,12 +66,7 @@ const adaptiveSystem = {
      * 2: NORMAL - 通常機能
      * 3: FULL - 全機能有効
      */
-    MODE: {
-        EMERGENCY: 0,
-        MINIMAL: 1,
-        NORMAL: 2,
-        FULL: 3,
-    },
+    MODE: MODES,
 
     /**
      * 初期化
@@ -183,56 +233,8 @@ const adaptiveSystem = {
     isEnabled: function (feature) {
         this.init();
         const mode = Memory.adaptive.currentMode;
-
-        // 各モードで有効な機能を定義
-        const features = {
-            // EMERGENCY: 最小限
-            [this.MODE.EMERGENCY]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-            },
-
-            // MINIMAL: 基本機能
-            [this.MODE.MINIMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-            },
-
-            // NORMAL: 通常機能
-            [this.MODE.NORMAL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-            },
-
-            // FULL: 全機能
-            [this.MODE.FULL]: {
-                basicRoles: true,
-                spawn: true,
-                memoryCleanup: true,
-                defense: true,
-                logging: true,
-                gamification: true,
-                emotions: true,
-                memoryVisualizer: true,
-                visualEffects: true,
-                autoEvolution: true,
-                tutorial: true,
-                socialInteractions: true,
-                advancedRoles: true,
-            },
-        };
-
-        return features[mode][feature] === true;
+        // ⚡ PERFORMANCE: Use hoisted FEATURES constant
+        return FEATURES[mode] && FEATURES[mode][feature] === true;
     },
 
     /**

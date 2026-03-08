@@ -64,23 +64,5 @@
     "name": ".github/workflows/discussion-bot.yml",
     "id": 22826283619,
     "created": "2026-03-08T17:38:49Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22826283529,
-    "created": "2026-03-08T17:38:48Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22826283468,
-    "created": "2026-03-08T17:38:48Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22826283390,
-    "created": "2026-03-08T17:38:48Z"
   }
 ]

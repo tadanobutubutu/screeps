@@ -52,17 +52,5 @@
     "name": "CxFlow",
     "id": 22817400403,
     "created": "2026-03-08T08:29:34Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22817400169,
-    "created": "2026-03-08T08:29:33Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22817400111,
-    "created": "2026-03-08T08:29:33Z"
   }
 ]

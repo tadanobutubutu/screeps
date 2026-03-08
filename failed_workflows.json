@@ -24,6 +24,12 @@
     "created": "2026-03-08T07:10:33Z"
   },
   {
+    "workflow": "CxFlow",
+    "name": "CxFlow",
+    "id": 22816213895,
+    "created": "2026-03-08T07:10:24Z"
+  },
+  {
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22816213887,
@@ -147,12 +153,6 @@
     "workflow": "CodeQL Advanced",
     "name": "CodeQL Advanced",
     "id": 22816197473,
-    "created": "2026-03-08T07:09:14Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22816197465,
     "created": "2026-03-08T07:09:14Z"
   }
 ]

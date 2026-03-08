@@ -148,11 +148,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22816443168,
     "created": "2026-03-08T07:25:39Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22816442382,
-    "created": "2026-03-08T07:25:35Z"
   }
 ]

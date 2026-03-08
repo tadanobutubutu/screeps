@@ -178,23 +178,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22826281722,
     "created": "2026-03-08T17:38:42Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22826281658,
-    "created": "2026-03-08T17:38:42Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22826281522,
-    "created": "2026-03-08T17:38:41Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22826281153,
-    "created": "2026-03-08T17:38:40Z"
   }
 ]

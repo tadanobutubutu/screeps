@@ -100,11 +100,5 @@
     "name": ".github/workflows/discussion-bot.yml",
     "id": 22844030160,
     "created": "2026-03-09T08:07:04Z"
-  },
-  {
-    "workflow": "📝 Semantic PR Title Check",
-    "name": "📝 Semantic PR Title Check",
-    "id": 22843986688,
-    "created": "2026-03-09T08:05:40Z"
   }
 ]

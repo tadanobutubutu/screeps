@@ -42,6 +42,12 @@
     "created": "2026-03-09T08:00:51Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22843840081,
+    "created": "2026-03-09T08:00:51Z"
+  },
+  {
     "workflow": "CxFlow",
     "name": "CxFlow",
     "id": 22843840078,
@@ -141,18 +147,6 @@
     "workflow": "CxFlow",
     "name": "CxFlow",
     "id": 22843472710,
-    "created": "2026-03-09T07:48:28Z"
-  },
-  {
-    "workflow": "🔍 Dependency Review",
-    "name": "🔍 Dependency Review",
-    "id": 22843472708,
-    "created": "2026-03-09T07:48:28Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22843472702,
     "created": "2026-03-09T07:48:28Z"
   }
 ]

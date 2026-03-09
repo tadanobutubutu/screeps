@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "🎯 Daily Quest",
+    "name": "🎯 Daily Quest",
+    "id": 22835987205,
+    "created": "2026-03-09T02:34:17Z"
+  },
+  {
     "workflow": "💰 Usage Monitor & Auto-Optimize",
     "name": "💰 Usage Monitor & Auto-Optimize",
     "id": 22835236696,
@@ -136,23 +142,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22833239343,
     "created": "2026-03-09T00:18:20Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22833236681,
-    "created": "2026-03-09T00:18:13Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22833236573,
-    "created": "2026-03-09T00:18:13Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22833236419,
-    "created": "2026-03-09T00:18:12Z"
   }
 ]

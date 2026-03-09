@@ -134,8 +134,9 @@ module.exports.loop = function () {
                 if (adaptiveSystem.isEnabled('visualEffects')) {
                     vfx.progressBar(
                         { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
-                        spawn.spawning.needTime - spawn.spawning.remainingTime,
-                        spawn.spawning.needTime,
+                        (spawn.spawning.needTime - spawn.spawning.remainingTime) /
+                            spawn.spawning.needTime,
+                        1,
                         '🛠️' + spawningCreep.memory.role
                     );
                 } else {

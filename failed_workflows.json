@@ -124,11 +124,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22842299078,
     "created": "2026-03-09T07:08:04Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22842298919,
-    "created": "2026-03-09T07:08:03Z"
   }
 ]

@@ -124,17 +124,5 @@
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 22833249723,
     "created": "2026-03-09T00:18:45Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22833249615,
-    "created": "2026-03-09T00:18:45Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 22833249490,
-    "created": "2026-03-09T00:18:44Z"
   }
 ]

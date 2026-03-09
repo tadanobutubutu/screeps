@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 22854527449,
+    "created": "2026-03-09T12:57:37Z"
+  },
+  {
     "workflow": "Auto Improve Screeps Code",
     "name": "Auto Improve Screeps Code",
     "id": 22849025663,
@@ -34,17 +40,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22844040802,
     "created": "2026-03-09T08:07:25Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22844037737,
-    "created": "2026-03-09T08:07:19Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22844037303,
-    "created": "2026-03-09T08:07:18Z"
   }
 ]

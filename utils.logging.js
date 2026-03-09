@@ -54,12 +54,26 @@ module.exports = {
         this.log('debug', message);
     },
 
+    /**
+     * Sanitizes error stack traces by removing absolute file paths.
+     * Preserves filenames and line numbers for debugging.
+     * @param {string} stack - The raw error stack trace.
+     * @returns {string} The sanitized stack trace.
+     */
+    getSafeStack: function (stack) {
+        if (!stack || typeof stack !== 'string') return stack;
+        // Regex to match absolute paths (Unix and Windows style) and extract filename:line:column
+        const pathRegex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g;
+        return stack.replace(pathRegex, '$2');
+    },
+
     // Wrap function with error catching
     tryCatch: function (fn, context) {
         try {
             return fn();
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            const safeStack = this.getSafeStack(e.stack);
+            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
             return null;
         }
     },

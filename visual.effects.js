@@ -169,7 +169,8 @@ const visualEffects = {
 
         // 背景
         visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, {
-            fill: '#333333',
+            fill: '#000000',
+            opacity: 0.5,
             stroke: '#FFFFFF',
             strokeWidth: 0.05,
         });
@@ -186,6 +187,8 @@ const visualEffects = {
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 

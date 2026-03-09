@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 22835236696,
+    "created": "2026-03-09T01:58:17Z"
+  },
+  {
     "workflow": "✨ AI Code Improvement",
     "name": "✨ AI Code Improvement",
     "id": 22835209110,
@@ -178,17 +184,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22833235882,
     "created": "2026-03-09T00:18:11Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22833233749,
-    "created": "2026-03-09T00:18:05Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22833233731,
-    "created": "2026-03-09T00:18:05Z"
   }
 ]

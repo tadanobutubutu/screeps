@@ -76,17 +76,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22892392648,
     "created": "2026-03-10T07:48:54Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 22892392492,
-    "created": "2026-03-10T07:48:54Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22892392324,
-    "created": "2026-03-10T07:48:54Z"
   }
 ]

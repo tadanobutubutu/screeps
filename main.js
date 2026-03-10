@@ -134,8 +134,23 @@ module.exports.loop = function () {
                     '🛠️' + spawningCreep.memory.role,
                     spawn.pos.x + 1,
                     spawn.pos.y,
-                    { align: 'left', opacity: 0.8 }
+                    {
+                        align: 'left',
+                        opacity: 0.8,
+                        stroke: '#000000',
+                        strokeWidth: 0.05,
+                    }
                 );
+
+                // 🛠️ Spawning progress bar
+                if (adaptiveSystem.isEnabled('visualEffects')) {
+                    vfx.progressBar(
+                        { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                        spawn.spawning.needTime - spawn.spawning.remainingTime,
+                        spawn.spawning.needTime,
+                        'SPAWN'
+                    );
+                }
 
                 // スポーンエフェクト (FULLモードのみ)
                 if (adaptiveSystem.isEnabled('visualEffects') && Game.time % 5 === 0) {

@@ -186,6 +186,8 @@ const visualEffects = {
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 

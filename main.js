@@ -174,20 +174,31 @@ module.exports.loop = function () {
             ? TARGET_CREEPS_ADVANCED
             : TARGET_CREEPS_NORMAL;
 
-        // Count creeps by role
+        // --- Single loop over creeps for counting and execution (O(N)) ---
         const creepCounts = {};
         for (const name in Game.creeps) {
             const creep = Game.creeps[name];
             let role = creep.memory.role;
 
+            // Ensure role and count it
             if (!role) {
                 role = creep.memory.role = 'harvester';
                 if (adaptiveSystem.isEnabled('logging')) {
                     logger.warn('Creep ' + name + ' had no role, set to harvester');
                 }
             }
-
             creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+            // Run creep logic immediately
+            if (adaptiveSystem.isEnabled('logging')) {
+                logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role);
+            } else {
+                try {
+                    runCreepLogic(creep, role);
+                } catch (e) {
+                    console.log('Error in creep ' + name + ': ' + e.message);
+                }
+            }
         }
 
         // Auto-spawn logic
@@ -249,22 +260,6 @@ module.exports.loop = function () {
             }
         }
 
-        // Run all creeps
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
-            const role = creep.memory.role || 'harvester';
-
-            if (adaptiveSystem.isEnabled('logging')) {
-                logger.tryCatch(() => runCreepLogic(creep, role), 'creep_' + name);
-            } else {
-                try {
-                    runCreepLogic(creep, role);
-                } catch (e) {
-                    console.log('Error in creep ' + name + ': ' + e.message);
-                }
-            }
-        }
-
         // 👥 Social interactions (FULLモードのみ)
         if (adaptiveSystem.isEnabled('socialInteractions') && Game.time % 100 === 0) {
             const creeps = Object.values(Game.creeps);
@@ -283,7 +278,7 @@ module.exports.loop = function () {
                 const room = Game.rooms[roomName];
                 if (room.controller && room.controller.my) {
                     if (adaptiveSystem.isEnabled('logging')) {
-                        logger.tryCatch(() => runDefenseLogic(room), 'defense_' + roomName);
+                        logger.tryCatch(runDefenseLogic, 'defense_' + roomName, room);
                     } else {
                         try {
                             runDefenseLogic(room);

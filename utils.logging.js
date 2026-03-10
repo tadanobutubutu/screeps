@@ -55,9 +55,9 @@ module.exports = {
     },
 
     // Wrap function with error catching
-    tryCatch: function (fn, context) {
+    tryCatch: function (fn, context, ...args) {
         try {
-            return fn();
+            return fn(...args);
         } catch (e) {
             this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
             return null;

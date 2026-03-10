@@ -1,0 +1,3 @@
+## 2026-02-26 - Hoisting for high-frequency Screeps logic
+**Learning:** Redefining functions and objects inside loops (especially the main Game.creeps and Game.rooms loops) causes massive per-tick memory allocation and GC pressure in Screeps. Hoisting configuration objects like `FEATURES` and logic functions like `runCreepLogic` to the module level provides a measurable performance gain by eliminating these redundant allocations.
+**Action:** Always hoist configuration maps and logic functions outside of per-tick loops. Pass necessary context (like `creep` or `room`) as arguments to these hoisted functions.

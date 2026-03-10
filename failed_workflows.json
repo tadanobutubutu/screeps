@@ -54,6 +54,12 @@
     "created": "2026-03-10T07:45:48Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22892299877,
+    "created": "2026-03-10T07:45:48Z"
+  },
+  {
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 22892299858,
@@ -123,12 +129,6 @@
     "workflow": "📝 Semantic PR Title Check",
     "name": "📝 Semantic PR Title Check",
     "id": 22892217075,
-    "created": "2026-03-10T07:43:09Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22892217074,
     "created": "2026-03-10T07:43:09Z"
   }
 ]

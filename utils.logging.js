@@ -1,6 +1,18 @@
 // Logging System for Error Detection
 // Logs are stored in Memory.logs and collected by GitHub Actions
 
+/**
+ * Sanitizes stack traces to remove absolute internal file paths
+ * @param {string} stack - The raw stack trace
+ * @returns {string} - Sanitized stack trace
+ */
+const getSafeStack = (stack) => {
+    if (!stack) return '';
+    // Removes absolute paths from both Unix and Windows (including drive letters)
+    const regex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g;
+    return stack.replace(regex, '$2');
+};
+
 module.exports = {
     // Initialize logging system
     init: function () {
@@ -59,7 +71,8 @@ module.exports = {
         try {
             return fn();
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            const safeStack = getSafeStack(e.stack);
+            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
             return null;
         }
     },

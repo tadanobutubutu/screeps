@@ -333,7 +333,10 @@ module.exports.loop = function () {
     } catch (e) {
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            console.log(e.stack);
+            // Sanitize stack trace to remove absolute paths
+            const regex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g;
+            const safeStack = e.stack.replace(regex, '$2');
+            console.log(safeStack);
         }
     }
 };

@@ -42,25 +42,37 @@ const DashboardRenderer = {
             font: 0.8,
             color: '#00ff00',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
         room.visual.text(`RCL: ${info.controller}`, x, y, {
             font: 0.7,
             color: '#ffff00',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
         room.visual.text(`Energy: ${info.energy} | Storage: ${info.storage}`, x, y, {
             font: 0.7,
             color: '#00ffff',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
         room.visual.text(
             `H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`,
             x,
             y,
-            { font: 0.7, color: '#ff00ff', align: 'left' }
+            {
+                font: 0.7,
+                color: '#ff00ff',
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
         );
 
         if (info.hostiles > 0) {
@@ -69,6 +81,8 @@ const DashboardRenderer = {
                 font: 0.8,
                 color: '#ff0000',
                 align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
             });
         }
     },

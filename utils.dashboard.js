@@ -34,47 +34,21 @@ const DashboardRenderer = {
 
     displayVisuals(room) {
         const info = this.renderRoomDashboard(room);
-
         let y = 2;
         const x = 1;
+        const style = { font: 0.7, align: 'left', stroke: '#000000', strokeWidth: 0.05 };
 
-        const textStyle = {
-            font: 0.7,
-            align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
-        };
-
-        room.visual.text(`Room: ${info.room}`, x, y, {
-            ...textStyle,
-            font: 0.8,
-            color: '#00ff00',
-        });
+        room.visual.text(`Room: ${info.room}`, x, y, { ...style, font: 0.8, color: '#00ff00' });
         y++;
-        room.visual.text(`RCL: ${info.controller}`, x, y, {
-            ...textStyle,
-            color: '#ffff00',
-        });
+        room.visual.text(`RCL: ${info.controller}`, x, y, { ...style, color: '#ffff00' });
         y++;
-        room.visual.text(`Energy: ${info.energy} | Storage: ${info.storage}`, x, y, {
-            ...textStyle,
-            color: '#00ffff',
-        });
+        room.visual.text(`Energy: ${info.energy} | Storage: ${info.storage}`, x, y, { ...style, color: '#00ffff' });
         y++;
-        room.visual.text(
-            `H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`,
-            x,
-            y,
-            { ...textStyle, color: '#ff00ff' }
-        );
+        room.visual.text(`H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`, x, y, { ...style, color: '#ff00ff' });
 
         if (info.hostiles > 0) {
             y++;
-            room.visual.text(`⚠️ HOSTILES: ${info.hostiles}`, x, y, {
-                ...textStyle,
-                font: 0.8,
-                color: '#ff0000',
-            });
+            room.visual.text(`⚠️ HOSTILES: ${info.hostiles}`, x, y, { ...style, font: 0.8, color: '#ff0000' });
         }
     },
 };

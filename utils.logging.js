@@ -14,6 +14,7 @@ const getSafeStack = (stack) => {
 };
 
 module.exports = {
+    getSafeStack: getSafeStack,
     // Initialize logging system
     init: function () {
         if (!Memory.logs) {

@@ -257,8 +257,6 @@ const gamification = {
         visual.text('🎮 STATS 🎮', x, y - 1.3, {
             color: '#FFD700',
             font: 0.8,
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
 
         // レベル
@@ -266,8 +264,6 @@ const gamification = {
             color: '#00FF00',
             font: 0.7,
             align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
 
         // XPバー
@@ -278,8 +274,6 @@ const gamification = {
             color: '#FFD700',
             font: 0.6,
             align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
 
         // 達成
@@ -287,8 +281,6 @@ const gamification = {
             color: '#FFFFFF',
             font: 0.6,
             align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
 
         // ストリーク
@@ -297,8 +289,6 @@ const gamification = {
                 color: '#FF69B4',
                 font: 0.6,
                 align: 'left',
-                stroke: '#000000',
-                strokeWidth: 0.05,
             });
         }
 

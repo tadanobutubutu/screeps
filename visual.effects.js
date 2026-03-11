@@ -149,16 +149,12 @@ const visualEffects = {
             color: '#FFD700',
             font: 0.8,
             align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
 
         visual.text('Achievement Unlocked!', pos.x + 0.5, pos.y + 0.5, {
             color: '#FFFFFF',
             font: 0.5,
             align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
     },
 
@@ -169,7 +165,7 @@ const visualEffects = {
         const visual = new RoomVisual(pos.roomName);
         const width = 3;
         const height = 0.3;
-        const progress = max > 0 ? Math.min(current / max, 1) : 0;
+        const progress = Math.min(current / max, 1);
 
         // 背景
         visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, {
@@ -190,8 +186,6 @@ const visualEffects = {
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
     },
 
@@ -321,8 +315,6 @@ const visualEffects = {
         visual.text(label, pos.x, pos.y + 0.5, {
             color: '#FFFFFF',
             font: 0.6,
-            stroke: '#000000',
-            strokeWidth: 0.05,
         });
     },
 

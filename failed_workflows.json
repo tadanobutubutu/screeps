@@ -130,17 +130,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22941588283,
     "created": "2026-03-11T07:27:09Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22941588276,
-    "created": "2026-03-11T07:27:09Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22941588272,
-    "created": "2026-03-11T07:27:09Z"
   }
 ]

@@ -54,10 +54,10 @@ module.exports = {
         this.log('debug', message);
     },
 
-    // Wrap function with error catching
-    tryCatch: function (fn, context) {
+    // Wrap function with error catching (Supports arguments to avoid closures)
+    tryCatch: function (fn, context, ...args) {
         try {
-            return fn();
+            return fn(...args);
         } catch (e) {
             this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
             return null;

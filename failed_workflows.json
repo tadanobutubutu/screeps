@@ -54,6 +54,12 @@
     "created": "2026-03-11T07:19:11Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22941340457,
+    "created": "2026-03-11T07:19:07Z"
+  },
+  {
     "workflow": "CxFlow",
     "name": "CxFlow",
     "id": 22941340421,
@@ -124,23 +130,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22941337198,
     "created": "2026-03-11T07:19:01Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22940842508,
-    "created": "2026-03-11T07:02:08Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22940842269,
-    "created": "2026-03-11T07:02:08Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22940842249,
-    "created": "2026-03-11T07:02:08Z"
   }
 ]

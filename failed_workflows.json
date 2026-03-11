@@ -64,23 +64,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22942611304,
     "created": "2026-03-11T08:00:35Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 22942611081,
-    "created": "2026-03-11T08:00:35Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22942610882,
-    "created": "2026-03-11T08:00:34Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 22942610720,
-    "created": "2026-03-11T08:00:34Z"
   }
 ]

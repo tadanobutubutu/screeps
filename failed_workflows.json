@@ -130,11 +130,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22942433408,
     "created": "2026-03-11T07:54:53Z"
-  },
-  {
-    "workflow": "🏷️ PR Auto Labeler",
-    "name": "🏷️ PR Auto Labeler",
-    "id": 22942433371,
-    "created": "2026-03-11T07:54:53Z"
   }
 ]

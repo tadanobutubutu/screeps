@@ -15,7 +15,7 @@
 - **Total PRs**: 0
   - ✅ Merged: 13
 - **Total Commits**: 1
-- **Contributors**: 4
+- **Contributors**: 5
 
 ### Completion Rate
 [████████████████████] 100%
@@ -27,6 +27,7 @@
 🚀 First Flight - Merged first PR
 💎 PR Pro - Merged 10 PRs
 ✨ Perfectionist - 80% completion rate
+🤝 Team Builder - 5+ contributors
 
 ## 📈 Points System
 

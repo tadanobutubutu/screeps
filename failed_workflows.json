@@ -1,5 +1,59 @@
 [
   {
+    "workflow": "CxFlow",
+    "name": "CxFlow",
+    "id": 22997642556,
+    "created": "2026-03-12T10:32:13Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 22997642107,
+    "created": "2026-03-12T10:32:12Z"
+  },
+  {
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 22997641779,
+    "created": "2026-03-12T10:32:12Z"
+  },
+  {
+    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+    "name": ".github/workflows/ai-powered-auto-fix.yml",
+    "id": 22997641509,
+    "created": "2026-03-12T10:32:12Z"
+  },
+  {
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 22997641219,
+    "created": "2026-03-12T10:32:11Z"
+  },
+  {
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 22997640912,
+    "created": "2026-03-12T10:32:11Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-create-roles.yml",
+    "name": ".github/workflows/auto-create-roles.yml",
+    "id": 22997640556,
+    "created": "2026-03-12T10:32:10Z"
+  },
+  {
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 22997640350,
+    "created": "2026-03-12T10:32:10Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 22997640113,
+    "created": "2026-03-12T10:32:10Z"
+  },
+  {
     "workflow": "Auto Improve Screeps Code",
     "name": "Auto Improve Screeps Code",
     "id": 22996702378,
@@ -70,23 +124,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22996231588,
     "created": "2026-03-12T09:55:41Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22996231372,
-    "created": "2026-03-12T09:55:40Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22995916217,
-    "created": "2026-03-12T09:47:27Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22995678608,
-    "created": "2026-03-12T09:41:11Z"
   }
 ]

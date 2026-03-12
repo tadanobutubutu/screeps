@@ -130,17 +130,5 @@
     "name": "📝 Semantic PR Title Check",
     "id": 22990031968,
     "created": "2026-03-12T06:47:16Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22990031948,
-    "created": "2026-03-12T06:47:16Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22990031708,
-    "created": "2026-03-12T06:47:15Z"
   }
 ]

@@ -23,6 +23,7 @@ permissions:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    if: github.repository == 'tadanobutubutu/screeps' && github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     # The type of runner that the job will run on - Ubuntu is required as Docker is leveraged for the action
     permissions:
       contents: read # for actions/checkout to fetch code
@@ -40,7 +41,7 @@ jobs:
     - name: Checkmarx CxFlow Action
       uses: checkmarx-ts/checkmarx-cxflow-github-action@e2ac58582fdd13daa4f6700c0be06ce3f686ecb4
       with:
-        project: ${{ secrets.CHECKMARX_PROJECT }}
+        project: ${{ secrets.CHECKMARX_PROJECT || github.event.repository.name }}
         team: ${{ secrets.CHECKMARX_TEAMS }}
         checkmarx_url: ${{ secrets.CHECKMARX_URL }}
         checkmarx_username: ${{ secrets.CHECKMARX_USERNAME }}

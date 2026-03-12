@@ -54,12 +54,20 @@ module.exports = {
         this.log('debug', message);
     },
 
+    // Sanitize stack traces to remove internal file paths (Security)
+    getSafeStack: function (stack) {
+        if (!stack) return '';
+        // Remove absolute paths, keep only filename:line:column
+        return stack.replace(/(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g, '$2');
+    },
+
     // Wrap function with error catching
-    tryCatch: function (fn, context) {
+    tryCatch: function (fn, context, ...args) {
         try {
-            return fn();
+            return fn(...args);
         } catch (e) {
-            this.error(`Exception in ${context}: ${e.message}\n${e.stack}`);
+            const safeStack = this.getSafeStack(e.stack);
+            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
             return null;
         }
     },

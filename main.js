@@ -333,7 +333,12 @@ module.exports.loop = function () {
     } catch (e) {
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
-            console.log(e.stack);
+            // Sanitize stack trace locally to prevent information leakage
+            const safeStack = e.stack.replace(
+                /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\ ]+:\d+:\d+)/g,
+                '$2'
+            );
+            console.log(safeStack);
         }
     }
 };

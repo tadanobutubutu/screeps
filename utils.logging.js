@@ -60,8 +60,9 @@ module.exports = {
      */
     getSafeStack: function (stack) {
         if (!stack) return '';
-        return stack.split('\n')
-            .map(line => line.replace(/(\/|\\)([\w.-]+\.js:)/g, '$2'))
+        return stack
+            .split('\n')
+            .map((line) => line.replace(/(\/|\\)([\w.-]+\.js:)/g, '$2'))
             .join('\n');
     },
 

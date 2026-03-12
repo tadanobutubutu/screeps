@@ -6,24 +6,27 @@
 
 ### Level & Points
 - **Level**: 🔰 Beginner (Level 2)
-- **Total Points**: 141
+- **Total Points**: 281
 
 ### Project Stats
-- **Total Issues**: 3
-  - ✅ Closed: 0
-  - 🔄 Open: 3
-- **Total PRs**: 41
-  - ✅ Merged: 7
+- **Total Issues**: 1
+  - ✅ Closed: 2
+  - 🔄 Open: 1
+- **Total PRs**: 0
+  - ✅ Merged: 13
 - **Total Commits**: 1
 - **Contributors**: 4
 
 ### Completion Rate
-[░░░░░░░░░░░░░░░░░░░░] 0%
+[████████████████████████████████████████] 200%
 
 ## 🏆 Achievements Unlocked
 
 
+🎯 First Blood - Closed first issue
 🚀 First Flight - Merged first PR
+💎 PR Pro - Merged 10 PRs
+✨ Perfectionist - 80% completion rate
 
 ## 📈 Points System
 
@@ -42,9 +45,9 @@
 
 ## 🎯 Next Milestone
 
-$(if [ 0 -lt 10 ]; then echo "- Close $(( 10 - 0 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 7 -lt 10 ]; then echo "- Merge $(( 10 - 7 )) more PRs to unlock 💎 PR Pro"; fi)
-$(if [ 0 -lt 80 ]; then echo "- Reach $(( 80 - 0 ))% more completion for ✨ Perfectionist"; fi)
+$(if [ 2 -lt 10 ]; then echo "- Close $(( 10 - 2 )) more issues to unlock ⭐ Issue Hunter"; fi)
+$(if [ 13 -lt 10 ]; then echo "- Merge $(( 10 - 13 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 200 -lt 80 ]; then echo "- Reach $(( 80 - 200 ))% more completion for ✨ Perfectionist"; fi)
 
 ---
 

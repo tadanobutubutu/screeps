@@ -64,11 +64,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 23015279020,
     "created": "2026-03-12T17:32:01Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23015278737,
-    "created": "2026-03-12T17:32:00Z"
   }
 ]

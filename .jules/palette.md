@@ -1,0 +1,3 @@
+## 2025-05-15 - [High-Contrast Room Visuals]
+**Learning:** In the Screeps environment, standard `RoomVisual` text and bars can easily blend into the varying background of the game world (terrain, structures, other creeps). Using a semi-transparent black rectangle (`opacity: 0.5`) as a background for complex visual elements like progress bars significantly improves scanability. Additionally, adding a `stroke` and `strokeWidth` to text elements ensures they remain legible regardless of the color they are rendered on.
+**Action:** When implementing new in-game visual elements using `RoomVisual`, always include a semi-transparent background rectangle and use text strokes for labels.

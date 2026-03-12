@@ -166,6 +166,14 @@ const visualEffects = {
         const width = 3;
         const height = 0.3;
         const progress = Math.min(current / max, 1);
+        const percent = Math.floor(progress * 100);
+
+        // 全体の背景（視認性向上）
+        visual.rect(pos.x - width / 2 - 0.1, pos.y - 1.0, width + 0.2, 1.4, {
+            fill: '#000000',
+            opacity: 0.5,
+            stroke: 'transparent',
+        });
 
         // 背景
         visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, {
@@ -183,9 +191,11 @@ const visualEffects = {
         });
 
         // テキスト
-        visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
+        visual.text(`${label} ${percent}%`, pos.x, pos.y - 0.65, {
             color: '#FFFFFF',
-            font: 0.5,
+            font: 0.45,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 

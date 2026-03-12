@@ -9,16 +9,16 @@
 - **Total Points**: 281
 
 ### Project Stats
-- **Total Issues**: 1
+- **Total Issues**: 2
   - ✅ Closed: 2
-  - 🔄 Open: 1
+  - 🔄 Open: 2
 - **Total PRs**: 0
   - ✅ Merged: 13
 - **Total Commits**: 1
 - **Contributors**: 4
 
 ### Completion Rate
-[████████████████████████████████████████] 200%
+[████████████████████] 100%
 
 ## 🏆 Achievements Unlocked
 
@@ -47,7 +47,7 @@
 
 $(if [ 2 -lt 10 ]; then echo "- Close $(( 10 - 2 )) more issues to unlock ⭐ Issue Hunter"; fi)
 $(if [ 13 -lt 10 ]; then echo "- Merge $(( 10 - 13 )) more PRs to unlock 💎 PR Pro"; fi)
-$(if [ 200 -lt 80 ]; then echo "- Reach $(( 80 - 200 ))% more completion for ✨ Perfectionist"; fi)
+$(if [ 100 -lt 80 ]; then echo "- Reach $(( 80 - 100 ))% more completion for ✨ Perfectionist"; fi)
 
 ---
 

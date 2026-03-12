@@ -1,5 +1,11 @@
 [
   {
+    "workflow": "👋 Welcome Bot",
+    "name": "👋 Welcome Bot",
+    "id": 23000739449,
+    "created": "2026-03-12T11:55:34Z"
+  },
+  {
     "workflow": "🔧 Workflow Health Monitor",
     "name": "🔧 Workflow Health Monitor",
     "id": 22998566619,
@@ -52,35 +58,5 @@
     "name": ".github/workflows/emergency-api-restore.yml",
     "id": 22998554884,
     "created": "2026-03-12T10:56:18Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 22998554631,
-    "created": "2026-03-12T10:56:18Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22998554457,
-    "created": "2026-03-12T10:56:18Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22997659407,
-    "created": "2026-03-12T10:32:39Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22997655779,
-    "created": "2026-03-12T10:32:33Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22997654246,
-    "created": "2026-03-12T10:32:31Z"
   }
 ]

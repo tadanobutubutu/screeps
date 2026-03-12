@@ -118,29 +118,5 @@
     "name": ".github/workflows/auto-create-roles.yml",
     "id": 23003846520,
     "created": "2026-03-12T13:16:50Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23003846271,
-    "created": "2026-03-12T13:16:49Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23003846012,
-    "created": "2026-03-12T13:16:49Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 23003845708,
-    "created": "2026-03-12T13:16:48Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 23003845355,
-    "created": "2026-03-12T13:16:48Z"
   }
 ]

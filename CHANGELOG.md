@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-12T13:41:25Z
+**Last Updated**: 2026-03-12T16:33:44Z
 
 ## Recent Changes
 
-- 🔧 Workflow health report: 27 issues
-- 🔧 Workflow health report: 29 issues
-- 🔧 Workflow health report: 25 issues
-- feat: streamlit_app.py を再生成
+- 🔧 Workflow health report: 15 issues
+- 🔧 Workflow health report: 16 issues
+- 🔧 Workflow health report: 18 issues
+- 🔧 Workflow health report: 18 issues
+- Add CITATION.cff for Zenodo/ORCID integration
+- 🔧 Workflow health report: 17 issues
+- 🔧 Workflow health report: 20 issues
+- 📊 Statistics update by Stats Bot
 - 🔧 Workflow health report: 24 issues
-- 🔧 Workflow health report: 22 issues
-- chore: streamlit_app.py を削除
-- 🔧 Workflow health report: 25 issues
-- 🔧 Workflow health report: 22 issues
-- feat: Streamlit ダッシュボードアプリを追加
+- 🔧 Workflow health report: 26 issues
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

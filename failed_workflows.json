@@ -82,23 +82,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22997654246,
     "created": "2026-03-12T10:32:31Z"
-  },
-  {
-    "workflow": "CxFlow",
-    "name": "CxFlow",
-    "id": 22997642556,
-    "created": "2026-03-12T10:32:13Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 22997642107,
-    "created": "2026-03-12T10:32:12Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 22997641779,
-    "created": "2026-03-12T10:32:12Z"
   }
 ]

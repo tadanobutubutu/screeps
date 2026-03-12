@@ -36,6 +36,12 @@
     "created": "2026-03-12T06:52:08Z"
   },
   {
+    "workflow": "CodeQL Advanced",
+    "name": "CodeQL Advanced",
+    "id": 22990163738,
+    "created": "2026-03-12T06:52:08Z"
+  },
+  {
     "workflow": ".github/workflows/auto-update-docs.yml",
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22990163129,
@@ -118,17 +124,5 @@
     "name": "🔧 Workflow Health Monitor",
     "id": 22990076005,
     "created": "2026-03-12T06:48:56Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22990075252,
-    "created": "2026-03-12T06:48:55Z"
-  },
-  {
-    "workflow": "CodeQL Advanced",
-    "name": "CodeQL Advanced",
-    "id": 22990071516,
-    "created": "2026-03-12T06:48:46Z"
   }
 ]

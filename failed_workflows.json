@@ -130,11 +130,5 @@
     "name": ".github/workflows/random-experiment.yml",
     "id": 22997640350,
     "created": "2026-03-12T10:32:10Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 22997640113,
-    "created": "2026-03-12T10:32:10Z"
   }
 ]

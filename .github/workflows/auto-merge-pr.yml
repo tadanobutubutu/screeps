@@ -1,0 +1,52 @@
+name: Auto Merge PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto merge PR
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            console.log(`Auto-merging PR #${pr.number}: ${pr.title}`);
+
+            // Wait a moment to allow checks to register
+            await new Promise(resolve => setTimeout(resolve, 3000));
+
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'squash',
+                commit_title: pr.title,
+                commit_message: `Auto-merged PR #${pr.number}\n\n${pr.body || ''}`.slice(0, 65536),
+              });
+              console.log(`✅ Successfully merged PR #${pr.number}`);
+            } catch (error) {
+              console.log(`⚠️ Could not auto-merge PR #${pr.number}: ${error.message}`);
+              // If conflict, try to update the branch first
+              if (error.message.includes('conflict') || error.message.includes('merge')) {
+                console.log('Attempting branch update due to conflict...');
+                try {
+                  await github.rest.pulls.updateBranch({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                  });
+                  console.log('Branch updated, will retry on next push event');
+                } catch (updateError) {
+                  console.log(`Could not update branch: ${updateError.message}`);
+                }
+              }
+            }

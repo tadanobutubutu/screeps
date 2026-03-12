@@ -236,7 +236,7 @@ const adaptiveSystem = {
     isEnabled: function (feature) {
         if (!Memory.adaptive) return false;
         const mode = Memory.adaptive.currentMode;
-        return FEATURES[mode] && FEATURES[mode][feature] === true;
+        return (FEATURES[mode] && FEATURES[mode][feature]) === true;
     },
 
     /**

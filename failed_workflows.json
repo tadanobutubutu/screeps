@@ -148,11 +148,5 @@
     "name": ".github/workflows/auto-update-docs.yml",
     "id": 22995597671,
     "created": "2026-03-12T09:39:02Z"
-  },
-  {
-    "workflow": "🔧 Workflow Health Monitor",
-    "name": "🔧 Workflow Health Monitor",
-    "id": 22995279817,
-    "created": "2026-03-12T09:30:42Z"
   }
 ]

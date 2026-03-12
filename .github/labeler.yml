@@ -2,61 +2,36 @@
 
 # Documentation
 documentation:
-  - '**/*.md'
-  - 'docs/**/*'
-  - 'wiki/**/*'
+  - any: ['**/*.md', 'docs/**/*', 'wiki/**/*']
 
 # GitHub Actions
 github-actions:
-  - '.github/workflows/**/*'
-  - '.github/actions/**/*'
+  - any: ['.github/workflows/**/*', '.github/actions/**/*']
 
 # Dependencies
 dependencies:
-  - 'package.json'
-  - 'package-lock.json'
-  - 'yarn.lock'
-  - 'pnpm-lock.yaml'
+  - any: ['package.json', 'package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']
 
 # JavaScript
 javascript:
-  - '**/*.js'
-  - '**/*.mjs'
-  - '**/*.cjs'
+  - any: ['**/*.js', '**/*.mjs', '**/*.cjs']
 
 # Configuration
 config:
-  - '**/*.json'
-  - '**/*.yml'
-  - '**/*.yaml'
-  - '**/*.toml'
-  - '.gitignore'
-  - '.gitattributes'
+  - any: ['**/*.json', '**/*.yml', '**/*.yaml', '**/*.toml', '.gitignore', '.gitattributes']
 
 # Tests
 test:
-  - '**/*.test.js'
-  - '**/*.spec.js'
-  - 'test/**/*'
-  - 'tests/**/*'
+  - any: ['**/*.test.js', '**/*.spec.js', 'test/**/*', 'tests/**/*']
 
 # CI/CD
 ci:
-  - '.github/**/*'
-  - '.gitlab-ci.yml'
-  - '.circleci/**/*'
-  - 'azure-pipelines.yml'
+  - any: ['.github/**/*', '.gitlab-ci.yml', '.circleci/**/*', 'azure-pipelines.yml']
 
 # Security
 security:
-  - 'SECURITY.md'
-  - '.github/workflows/codeql.yml'
-  - '.github/workflows/secret-scanning.yml'
-  - '.gitleaks.toml'
+  - any: ['SECURITY.md', '.github/workflows/codeql.yml', '.github/workflows/secret-scanning.yml', '.gitleaks.toml']
 
 # Bot-related
 bot:
-  - '.github/dependabot.yml'
-  - '.github/renovate.json'
-  - '.github/mergify.yml'
-  - '.all-contributorsrc'
+  - any: ['.github/dependabot.yml', '.github/renovate.json', '.github/mergify.yml', '.all-contributorsrc']

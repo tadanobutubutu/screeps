@@ -1,50 +1,30 @@
 ---
-name: 🐛 Bug Report
-about: Report a bug or error
-title: '[BUG] '
-labels: bug
-assignees: ''
+name: 🐛 バグ報告
+about: 動作がおかしい・エラーが出る場合はこちら
+title: "[Bug] "
+labels: ["bug"]
+assignees: tadanobutubutu
 ---
 
-## 🐛 Bug Description
+## 🐛 バグの概要
+<!-- 何が起きているか簡潔に説明してください -->
 
-A clear and concise description of the bug.
+## 再現手順
+1. 
+2. 
+3. 
 
-## 🔄 Steps to Reproduce
+## 期待する動作
+<!-- 本来どうなるべきか -->
 
-1. Go to '...'
-2. Run '...'
-3. See error
+## 実際の動作
+<!-- 実際に何が起きているか -->
 
-## ✅ Expected Behavior
-
-What should happen?
-
-## ❌ Actual Behavior
-
-What actually happens?
-
-## 📜 Error Log
-
+## エラーログ
 ```
-Paste error message or stack trace here
+貼り付けてください
 ```
 
-## 🎮 Environment
-
-- **Game Tick**: 
-- **Room**: 
-- **Creep Role**: 
-- **File**: 
-
-## 📸 Screenshots (Optional)
-
-If applicable, add screenshots.
-
-## 💡 Additional Context
-
-Any other context about the problem.
-
----
-
-**Note**: The auto-fix system will analyze this issue and may create an automatic fix.
+## 環境
+- Screepsサーバー: [ ] Official / [ ] Private
+- ブランチ: `main`

@@ -58,6 +58,8 @@ const visualEffects = {
         visual.text('⭐', pos.x, pos.y, {
             color: '#FFD700',
             font: 1.5,
+            stroke: '#000000',
+            strokeWidth: 0.1,
         });
     },
 
@@ -120,8 +122,16 @@ const visualEffects = {
 
         // 炎エフェクト
         if (count >= 5) {
-            visual.text('🔥', pos.x - 2, pos.y, { font: 1 });
-            visual.text('🔥', pos.x + 2, pos.y, { font: 1 });
+            visual.text('🔥', pos.x - 2, pos.y, {
+                font: 1,
+                stroke: '#000000',
+                strokeWidth: 0.1,
+            });
+            visual.text('🔥', pos.x + 2, pos.y, {
+                font: 1,
+                stroke: '#000000',
+                strokeWidth: 0.1,
+            });
         }
     },
 
@@ -142,6 +152,8 @@ const visualEffects = {
         // アイコン
         visual.text(icon, pos.x - 2, pos.y, {
             font: 1.5,
+            stroke: '#000000',
+            strokeWidth: 0.1,
         });
 
         // タイトル
@@ -149,12 +161,16 @@ const visualEffects = {
             color: '#FFD700',
             font: 0.8,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         visual.text('Achievement Unlocked!', pos.x + 0.5, pos.y + 0.5, {
             color: '#FFFFFF',
             font: 0.5,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 
@@ -165,11 +181,12 @@ const visualEffects = {
         const visual = new RoomVisual(pos.roomName);
         const width = 3;
         const height = 0.3;
-        const progress = Math.min(current / max, 1);
+        const progress = max > 0 ? Math.min(current / max, 1) : 0;
 
         // 背景
         visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, {
-            fill: '#333333',
+            fill: '#000000',
+            opacity: 0.5,
             stroke: '#FFFFFF',
             strokeWidth: 0.05,
         });
@@ -186,6 +203,8 @@ const visualEffects = {
         visual.text(`${label} ${Math.floor(progress * 100)}%`, pos.x, pos.y - 0.7, {
             color: '#FFFFFF',
             font: 0.5,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 
@@ -242,8 +261,16 @@ const visualEffects = {
         });
 
         if (isCritical) {
-            visual.text('💥', pos.x - 0.5, pos.y - 1, { font: 1 });
-            visual.text('💥', pos.x + 0.5, pos.y - 1, { font: 1 });
+            visual.text('💥', pos.x - 0.5, pos.y - 1, {
+                font: 1,
+                stroke: '#000000',
+                strokeWidth: 0.1,
+            });
+            visual.text('💥', pos.x + 0.5, pos.y - 1, {
+                font: 1,
+                stroke: '#000000',
+                strokeWidth: 0.1,
+            });
         }
     },
 
@@ -262,6 +289,8 @@ const visualEffects = {
             visual.text('💚', x, y, {
                 font: 0.5,
                 opacity: 1 - (Game.time % 10) * 0.1,
+                stroke: '#000000',
+                strokeWidth: 0.05,
             });
         }
     },
@@ -281,6 +310,8 @@ const visualEffects = {
 
             visual.text(emojis[i % emojis.length], x, y, {
                 font: 0.6,
+                stroke: '#000000',
+                strokeWidth: 0.05,
             });
         }
     },
@@ -315,6 +346,8 @@ const visualEffects = {
         visual.text(label, pos.x, pos.y + 0.5, {
             color: '#FFFFFF',
             font: 0.6,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 
@@ -337,6 +370,8 @@ const visualEffects = {
 
         visual.text(badge.icon, pos.x, pos.y, {
             font: 1.5,
+            stroke: '#000000',
+            strokeWidth: 0.1,
         });
 
         visual.text(rank, pos.x, pos.y + 1, {

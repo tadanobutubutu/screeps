@@ -1,3 +1,3 @@
-## 2026-02-18 - Standardized Text Strokes for Screeps Accessibility
-**Learning:** RoomVisual text elements in Screeps can be difficult to read when they overlap with various game terrain types (swamp, wall, plain). Applying a consistent black stroke (`stroke: '#000000'`, `strokeWidth: 0.05` or `0.1`) significantly improves legibility and accessibility by providing a clear boundary for text and emojis regardless of the background color.
-**Action:** Always include a black stroke and strokeWidth when rendering text or emojis using RoomVisuals to ensure high contrast and readability across all terrain.
+## 2026-02-18 - Spawning Progress Feedback
+**Learning:** In Screeps, background processes like spawning can feel opaque if only represented by a static label. Adding a dynamic progress bar using `RoomVisual` provides immediate, intuitive feedback to the user about the remaining time, making the interface feel more responsive.
+**Action:** Always provide visual progress indicators for multi-tick background processes like spawning or long-distance travel to improve user feedback.

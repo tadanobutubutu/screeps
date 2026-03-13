@@ -7,6 +7,10 @@ name: CxFlow
 on:
   workflow_dispatch: # manual only, never runs automatically
 
+# Minimal permissions (read-only) as required by security best practices
+permissions:
+  contents: read
+
 jobs:
   disabled:
     runs-on: ubuntu-latest

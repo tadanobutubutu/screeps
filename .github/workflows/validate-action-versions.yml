@@ -1,73 +1,66 @@
-name: 🛡️ Validate Action Versions
+name: 🛡️ Auto-Fix Action Versions
 
 on:
   push:
     paths:
       - '.github/workflows/**'
-  pull_request:
-    paths:
-      - '.github/workflows/**'
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
-  validate-versions:
+  auto-fix-versions:
     runs-on: ubuntu-latest
-    name: Check for invalid action versions
+    name: Detect & auto-fix invalid action versions
+    # ボット自身のコミットで無限ループしないようスキップ
+    if: github.actor != 'Version Guard Bot' && !contains(github.event.head_commit.message, 'Auto-fix: revert invalid action versions')
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref || github.ref }}
           token: ${{ github.token }}
 
-      - name: Detect invalid action versions
-        id: detect
+      - name: Scan for invalid action versions
+        id: scan
         run: |
-          echo "🔍 Scanning workflow files for invalid action versions..."
+          echo "🔍 Scanning .github/workflows/ for invalid action versions (v5+)..."
 
-          # v5以上の存在しないバージョンを検出
-          INVALID=$(grep -rn 'uses:.*@v[5-9]\|uses:.*@v[1-9][0-9]' .github/workflows/ \
+          INVALID=$(grep -rn 'uses:.*actions/.*@v[5-9][0-9]*' .github/workflows/ \
             --include='*.yml' \
-            --exclude='validate-action-versions.yml' || true)
+            --exclude='validate-action-versions.yml' 2>/dev/null || true)
 
           if [ -n "$INVALID" ]; then
             echo "found=true" >> $GITHUB_OUTPUT
-            echo "⚠️ Invalid action versions detected:"
+            echo "⚠️ Invalid versions found:"
             echo "$INVALID"
           else
             echo "found=false" >> $GITHUB_OUTPUT
-            echo "✅ All action versions look valid!"
+            echo "✅ All action versions are valid!"
           fi
 
-      - name: Auto-fix invalid versions
-        if: steps.detect.outputs.found == 'true'
+      - name: Auto-fix to v4
+        if: steps.scan.outputs.found == 'true'
         run: |
-          echo "🔧 Auto-fixing invalid action versions..."
+          echo "🔧 Fixing invalid versions to @v4..."
 
-          # actions/checkout@v5+ -> @v4 に修正
           find .github/workflows/ -name '*.yml' \
-            ! -name 'validate-action-versions.yml' \
-            -exec sed -i \
-              -e 's|actions/checkout@v[5-9]\b|actions/checkout@v4|g' \
-              -e 's|actions/checkout@v[1-9][0-9]\+|actions/checkout@v4|g' \
-              -e 's|actions/setup-node@v[5-9]\b|actions/setup-node@v4|g' \
-              -e 's|actions/setup-node@v[1-9][0-9]\+|actions/setup-node@v4|g' \
-              -e 's|actions/upload-artifact@v[5-9]\b|actions/upload-artifact@v4|g' \
-              -e 's|actions/upload-artifact@v[1-9][0-9]\+|actions/upload-artifact@v4|g' \
-              -e 's|actions/download-artifact@v[5-9]\b|actions/download-artifact@v4|g' \
-              -e 's|actions/download-artifact@v[1-9][0-9]\+|actions/download-artifact@v4|g' \
-              -e 's|actions/cache@v[5-9]\b|actions/cache@v4|g' \
-              -e 's|actions/cache@v[1-9][0-9]\+|actions/cache@v4|g' \
-              {} +
+            ! -name 'validate-action-versions.yml' | while read f; do
+            sed -i \
+              -e 's|actions/checkout@v[5-9][0-9]*|actions/checkout@v4|g' \
+              -e 's|actions/setup-node@v[5-9][0-9]*|actions/setup-node@v4|g' \
+              -e 's|actions/upload-artifact@v[5-9][0-9]*|actions/upload-artifact@v4|g' \
+              -e 's|actions/download-artifact@v[5-9][0-9]*|actions/download-artifact@v4|g' \
+              -e 's|actions/cache@v[5-9][0-9]*|actions/cache@v4|g' \
+              -e 's|actions/github-script@v[5-9][0-9]*|actions/github-script@v6|g' \
+              "$f"
+          done
 
-          echo "✅ Fixed! Diff:"
+          echo "✅ Done. Changes:"
           git diff
 
-      - name: Commit auto-fix
-        if: steps.detect.outputs.found == 'true'
+      - name: Commit fix
+        if: steps.scan.outputs.found == 'true'
         run: |
           git config user.name 'Version Guard Bot'
           git config user.email 'version-guard@screeps.bot'
@@ -76,10 +69,4 @@ jobs:
             git commit -m "🔧 Auto-fix: revert invalid action versions to stable (v4)"
             git push
           )
-
-      - name: Fail if on PR and invalid versions found
-        if: steps.detect.outputs.found == 'true' && github.event_name == 'pull_request'
-        run: |
-          echo "❌ PR contains invalid action versions (e.g. @v6 which does not exist)."
-          echo "Please use @v4 for actions/checkout, actions/setup-node, etc."
-          exit 1
+          echo "✅ Fix committed and pushed!"

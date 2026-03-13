@@ -8,6 +8,27 @@ queue_rules:
       - check-success=Code Quality
 
 pull_request_rules:
+  # 🛡️ Block PRs that introduce invalid action versions (Jules protection)
+  - name: 🛡️ Block PRs with invalid action versions (e.g. @v6)
+    conditions:
+      - files~=^\.github/workflows/
+      - body~=v[5-9]\d*|check-failure=validate-versions
+    actions:
+      label:
+        add:
+          - invalid-action-version
+      comment:
+        message: |
+          ⚠️ **Invalid action version detected!**
+
+          This PR appears to use a non-existent action version (e.g. `actions/checkout@v6`).
+          Please use `@v4` for standard GitHub Actions.
+
+          The `validate-action-versions` workflow will attempt to auto-fix this.
+      request_reviews:
+        users:
+          - tadanobutubutu
+
   # Auto-merge Dependabot PRs
   - name: ⬆️ Auto-merge Dependabot PRs (minor/patch)
     conditions:
@@ -28,7 +49,7 @@ pull_request_rules:
           - auto-merged
       comment:
         message: "✅ Automatically merged by Mergify Bot"
-  
+
   # Auto-merge approved automated PRs
   - name: 🤖 Auto-merge automated PRs with approvals
     conditions:
@@ -45,7 +66,7 @@ pull_request_rules:
       label:
         add:
           - auto-merged
-  
+
   # Auto-approve and merge documentation updates
   - name: 📝 Auto-merge documentation updates
     conditions:
@@ -61,7 +82,7 @@ pull_request_rules:
         message: "Automatically approved documentation update"
       merge:
         method: squash
-  
+
   # Add labels based on file changes
   - name: 🏷️ Auto-label: Documentation
     conditions:
@@ -72,7 +93,7 @@ pull_request_rules:
       label:
         add:
           - documentation
-  
+
   - name: 🏷️ Auto-label: GitHub Actions
     conditions:
       - files~=^\.github/workflows/
@@ -80,7 +101,7 @@ pull_request_rules:
       label:
         add:
           - github-actions
-  
+
   - name: 🏷️ Auto-label: JavaScript
     conditions:
       - files~=^.*\.js$
@@ -88,7 +109,7 @@ pull_request_rules:
       label:
         add:
           - javascript
-  
+
   # Auto-request reviews
   - name: 👀 Request review for large PRs
     conditions:
@@ -101,7 +122,7 @@ pull_request_rules:
         add:
           - needs-review
           - large-pr
-  
+
   # Delete head branch after merge
   - name: 🗑️ Delete head branch after merge
     conditions:

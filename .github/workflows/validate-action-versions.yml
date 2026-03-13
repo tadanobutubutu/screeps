@@ -1,0 +1,85 @@
+name: 🛡️ Validate Action Versions
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate-versions:
+    runs-on: ubuntu-latest
+    name: Check for invalid action versions
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          token: ${{ github.token }}
+
+      - name: Detect invalid action versions
+        id: detect
+        run: |
+          echo "🔍 Scanning workflow files for invalid action versions..."
+
+          # v5以上の存在しないバージョンを検出
+          INVALID=$(grep -rn 'uses:.*@v[5-9]\|uses:.*@v[1-9][0-9]' .github/workflows/ \
+            --include='*.yml' \
+            --exclude='validate-action-versions.yml' || true)
+
+          if [ -n "$INVALID" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Invalid action versions detected:"
+            echo "$INVALID"
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+            echo "✅ All action versions look valid!"
+          fi
+
+      - name: Auto-fix invalid versions
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          echo "🔧 Auto-fixing invalid action versions..."
+
+          # actions/checkout@v5+ -> @v4 に修正
+          find .github/workflows/ -name '*.yml' \
+            ! -name 'validate-action-versions.yml' \
+            -exec sed -i \
+              -e 's|actions/checkout@v[5-9]\b|actions/checkout@v4|g' \
+              -e 's|actions/checkout@v[1-9][0-9]\+|actions/checkout@v4|g' \
+              -e 's|actions/setup-node@v[5-9]\b|actions/setup-node@v4|g' \
+              -e 's|actions/setup-node@v[1-9][0-9]\+|actions/setup-node@v4|g' \
+              -e 's|actions/upload-artifact@v[5-9]\b|actions/upload-artifact@v4|g' \
+              -e 's|actions/upload-artifact@v[1-9][0-9]\+|actions/upload-artifact@v4|g' \
+              -e 's|actions/download-artifact@v[5-9]\b|actions/download-artifact@v4|g' \
+              -e 's|actions/download-artifact@v[1-9][0-9]\+|actions/download-artifact@v4|g' \
+              -e 's|actions/cache@v[5-9]\b|actions/cache@v4|g' \
+              -e 's|actions/cache@v[1-9][0-9]\+|actions/cache@v4|g' \
+              {} +
+
+          echo "✅ Fixed! Diff:"
+          git diff
+
+      - name: Commit auto-fix
+        if: steps.detect.outputs.found == 'true'
+        run: |
+          git config user.name 'Version Guard Bot'
+          git config user.email 'version-guard@screeps.bot'
+          git add .github/workflows/
+          git diff --staged --quiet || (
+            git commit -m "🔧 Auto-fix: revert invalid action versions to stable (v4)"
+            git push
+          )
+
+      - name: Fail if on PR and invalid versions found
+        if: steps.detect.outputs.found == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "❌ PR contains invalid action versions (e.g. @v6 which does not exist)."
+          echo "Please use @v4 for actions/checkout, actions/setup-node, etc."
+          exit 1

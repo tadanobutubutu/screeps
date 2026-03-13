@@ -16,20 +16,38 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
+      - name: Check required files exist
+        id: check_files
+        run: |
+          MISSING=false
+          for f in main.js role.harvester.js role.upgrader.js role.builder.js role.repairer.js; do
+            if [ ! -f "$f" ]; then
+              echo "Warning: $f does not exist, skipping improvement"
+              MISSING=true
+            fi
+          done
+          echo "missing=$MISSING" >> $GITHUB_OUTPUT
+
       - name: Generate improved code with Gemini API
+        if: steps.check_files.outputs.missing == 'false'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           node -e "
           const https = require('https');
           const fs = require('fs');
+
+          if (!process.env.GEMINI_API_KEY) {
+            console.error('GEMINI_API_KEY secret is not set!');
+            process.exit(1);
+          }
 
           const currentMain = fs.readFileSync('main.js', 'utf8');
           const currentHarvester = fs.readFileSync('role.harvester.js', 'utf8');
@@ -83,9 +101,17 @@ jobs:
             res.on('end', () => {
               try {
                 const response = JSON.parse(data);
+                if (!response.candidates || !response.candidates[0]) {
+                  console.error('No candidates in response. Full response:', JSON.stringify(response).substring(0, 1000));
+                  process.exit(1);
+                }
                 const text = response.candidates[0].content.parts[0].text;
-                const cleaned = text.replace(/\`\`\`json\n?/g, '').replace(/\`\`\`\n?/g, '').trim();
+                const cleaned = text.replace(/\`\`\`json\\n?/g, '').replace(/\`\`\`\\n?/g, '').trim();
                 const improved = JSON.parse(cleaned);
+                if (!improved.main || !improved.harvester || !improved.upgrader || !improved.builder || !improved.repairer) {
+                  console.error('Response missing required keys:', Object.keys(improved));
+                  process.exit(1);
+                }
                 fs.writeFileSync('main.js', improved.main);
                 fs.writeFileSync('role.harvester.js', improved.harvester);
                 fs.writeFileSync('role.upgrader.js', improved.upgrader);
@@ -94,17 +120,18 @@ jobs:
                 console.log('Code improved successfully!');
               } catch(e) {
                 console.error('Failed to parse response:', e.message);
-                console.error('Raw response:', data.substring(0, 500));
+                console.error('Raw response:', data.substring(0, 1000));
                 process.exit(1);
               }
             });
           });
-          req.on('error', e => { console.error(e); process.exit(1); });
+          req.on('error', e => { console.error('Request error:', e.message); process.exit(1); });
           req.write(body);
           req.end();
           "
 
       - name: Commit improved code
+        if: steps.check_files.outputs.missing == 'false'
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
@@ -113,6 +140,7 @@ jobs:
           git push
 
       - name: Deploy to Screeps
+        if: steps.check_files.outputs.missing == 'false'
         env:
           SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
           SCREEPS_PROD_TOKEN: ${{ secrets.SCREEPS_PROD_TOKEN }}

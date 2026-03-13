@@ -1,6 +1,6 @@
-name: 🤖 Auto-Assign Jules to Bot Issues
+name: 🤖 Auto-Mention Jules on Bot Issues
 
-# Botが作成したIssueにのみJulesを自動アサインする
+# Botが作成したIssueにのみ @google-labs-jules をmentionする
 # 外部ユーザーのIssueには絶対に反応しない（Prompt Injection防止）
 
 on:
@@ -11,10 +11,10 @@ permissions:
   issues: write
 
 jobs:
-  assign-jules:
+  mention-jules:
     runs-on: ubuntu-latest
-    name: Assign Jules to Bot Issues
-    
+    name: Mention Jules on Bot Issues
+
     # 信頼できるBotが作成したIssueのみ処理する
     if: |
       contains(fromJson('[
@@ -24,91 +24,73 @@ jobs:
       ]'), github.event.issue.user.login)
 
     steps:
-      - name: Check Issue Labels
+      - name: Check if Jules should be notified
         id: check
         uses: actions/github-script@v7
         with:
           script: |
             const issue = context.payload.issue;
-            const labels = issue.labels.map(l => l.name);
             const title = issue.title.toLowerCase();
-            const body = issue.body || '';
-            
-            // 信頼できるBotのリスト
+            const body = (issue.body || '').toLowerCase();
+
+            // 信頼できるBotのホワイトリスト
             const TRUSTED_BOTS = [
               'github-actions[bot]',
               'workflow-health-bot',
               'security-monitor-bot'
             ];
-            
+
             const creator = issue.user.login;
-            
             if (!TRUSTED_BOTS.includes(creator)) {
-              console.log(`❌ Skipping: creator "${creator}" is not a trusted bot.`);
+              console.log(`❌ Skipping: "${creator}" is not a trusted bot.`);
               return;
             }
-            
+
             // 修正が必要そうなキーワードをチェック
             const fixKeywords = [
               'failure', 'failed', 'error', 'fix', 'broken',
-              'issue', 'problem', 'bug', 'vulnerability', 'security',
+              'bug', 'vulnerability', 'security', 'invalid', 'crash',
               'エラー', '修正', '問題', '失敗', '脆弱性'
             ];
-            
-            const needsFix = fixKeywords.some(kw =>
-              title.includes(kw) || body.toLowerCase().includes(kw)
-            );
-            
+
+            const needsFix = fixKeywords.some(kw => title.includes(kw) || body.includes(kw));
+
             if (!needsFix) {
-              console.log('ℹ️ No fix keywords found, skipping Jules assignment.');
+              console.log('ℹ️ No fix keywords found. Skipping Jules mention.');
               return;
             }
-            
-            console.log(`✅ Trusted bot issue detected. Assigning Jules...`);
-            core.setOutput('should_assign', 'true');
-      
-      - name: Assign Jules
-        if: steps.check.outputs.should_assign == 'true'
+
+            console.log('✅ Fix keywords found. Will mention Jules.');
+            core.setOutput('should_mention', 'true');
+
+      - name: Mention Jules in comment
+        if: steps.check.outputs.should_mention == 'true'
         uses: actions/github-script@v7
         with:
           script: |
-            const issueNumber = context.payload.issue.number;
-            
-            // Julesをassigneeに追加
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: issueNumber,
-              assignees: ['tadanobutubutu']  // JulesはオーナーのCopilot枠で動く
-            });
-            
-            // jules labelを追加
-            try {
-              await github.rest.issues.addLabels({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                labels: ['jules']
-              });
-            } catch (e) {
-              console.log('jules label not found, skipping label.');
-            }
-            
-            // コメントで通知
+            const issue = context.payload.issue;
+            const issueNumber = issue.number;
+            const title = issue.title;
+
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
               body: [
-                '### 🤖 Jules Auto-Assignment',
+                '### 🤖 Jules Auto-Fix Request',
                 '',
-                'This issue was automatically created by a trusted bot and assigned to Jules for investigation and fix.',
+                `@google-labs-jules This issue was automatically detected by a trusted bot.`,
                 '',
-                '> ⚠️ **Note**: Jules will analyze this issue and create a PR if a fix is needed.',
+                '**Task**: Please investigate and fix the issue described above.',
+                '',
+                '**Guidelines**:',
+                '- Do **not** upgrade any GitHub Actions versions (e.g. keep `actions/checkout@v4`, never use `@v5` or above)',
+                '- Do not modify secret names or `runs-on` values',
+                '- See `.github/JULES_INSTRUCTIONS.md` for full rules',
                 '',
                 '---',
-                '*Triggered by: auto-assign-jules workflow*'
+                '*This mention was triggered automatically by a trusted bot issue. External user issues are ignored.*'
               ].join('\n')
             });
-            
-            console.log(`✅ Jules assigned to issue #${issueNumber}`);
+
+            console.log(`✅ @google-labs-jules mentioned on issue #${issueNumber}`);

@@ -60,9 +60,12 @@ module.exports = {
      */
     getSafeStack: function (stack) {
         if (!stack) return '';
+        // Robust regex to correctly handle both Unix and Windows absolute paths
+        // (including those with spaces) while preserving filename:line:column format.
+        const regex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\?%*:|"<>]+:\d+:\d+)/g;
         return stack
             .split('\n')
-            .map((line) => line.replace(/(\/|\\)([\w.-]+\.js:)/g, '$2'))
+            .map((line) => line.replace(regex, '$2'))
             .join('\n');
     },
 

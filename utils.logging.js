@@ -67,9 +67,9 @@ module.exports = {
     },
 
     // Wrap function with error catching
-    tryCatch: function (fn, context) {
+    tryCatch: function (fn, context, ...args) {
         try {
-            return fn();
+            return fn(...args);
         } catch (e) {
             // Security: Sanitize stack trace before logging to avoid path exposure
             const safeStack = this.getSafeStack(e.stack);

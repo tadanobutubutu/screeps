@@ -21,6 +21,95 @@ const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
 const dashboard = require('utils.dashboard');
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoisted configurations and logic functions
+// Moving these outside the loop prevents redundant object allocation and function re-definition every tick.
+const TARGET_CREEPS_NORMAL = {
+    harvester: 2,
+    upgrader: 1,
+    builder: 1,
+    repairer: 1,
+};
+
+const TARGET_CREEPS_ADVANCED = {
+    harvester: 2,
+    upgrader: 2,
+    builder: 2,
+    repairer: 1,
+    transporter: 1,
+    scout: 1,
+    medic: 1,
+    explorer: 1,
+};
+
+const BODY_CONFIGS = {
+    harvester: [[WORK, WORK, CARRY, MOVE], 300],
+    upgrader: [[WORK, WORK, CARRY, MOVE], 300],
+    builder: [[WORK, CARRY, CARRY, MOVE], 300],
+    repairer: [[WORK, CARRY, MOVE], 200],
+    transporter: [[CARRY, CARRY, MOVE, MOVE], 200],
+    scout: [[MOVE], 50],
+    medic: [[HEAL, MOVE], 300],
+    explorer: [[MOVE], 50],
+};
+
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted creep logic function.
+ */
+function runCreepLogic(creep, role) {
+    // 😊 Emotions (NORMAL以上)
+    if (adaptiveSystem.isEnabled('emotions')) {
+        EmotionSystem.display(creep);
+    }
+
+    // Run role logic
+    switch (role) {
+        case 'harvester':
+            roleHarvester.run(creep);
+            break;
+        case 'upgrader':
+            roleUpgrader.run(creep);
+            break;
+        case 'builder':
+            roleBuilder.run(creep);
+            break;
+        case 'repairer':
+            roleRepairer.run(creep);
+            break;
+        case 'explorer':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleExplorer.run(creep);
+            }
+            break;
+        case 'medic':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleMedic.run(creep);
+            }
+            break;
+        case 'transporter':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleTransporter.run(creep);
+            }
+            break;
+        case 'scout':
+            if (adaptiveSystem.isEnabled('advancedRoles')) {
+                roleScout.run(creep);
+            }
+            break;
+        default:
+            if (adaptiveSystem.isEnabled('logging')) {
+                logger.warn('Unknown role: ' + role);
+            }
+            creep.memory.role = 'harvester';
+    }
+}
+
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted defense logic function.
+ */
+function runDefenseLogic(room) {
+    defenseManager.run(room);
+}
+
 module.exports.loop = function () {
     try {
         // ⚡ ADAPTIVE SYSTEM - 現在の負荷を評価
@@ -89,39 +178,42 @@ module.exports.loop = function () {
             }
         }
 
-        // Auto-spawn configuration
-        const targetCreeps = adaptiveSystem.isEnabled('advancedRoles')
-            ? {
-                  harvester: 2,
-                  upgrader: 2,
-                  builder: 2,
-                  repairer: 1,
-                  transporter: 1,
-                  scout: 1,
-                  medic: 1,
-                  explorer: 1,
-              }
-            : {
-                  harvester: 2,
-                  upgrader: 1,
-                  builder: 1,
-                  repairer: 1,
-              };
+        // ⚡ PERFORMANCE OPTIMIZATION: Cache feature status outside of high-frequency loops.
+        const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
+        const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
+        const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
 
-        // Count creeps by role
+        // Auto-spawn configuration
+        const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL;
+
+        // ⚡ PERFORMANCE OPTIMIZATION: Merged creep counting and logic execution.
+        // This reduces the complexity from 2*N to 1*N where N is the number of creeps.
         const creepCounts = {};
         for (const name in Game.creeps) {
             const creep = Game.creeps[name];
-            const role = creep.memory.role;
+            let role = creep.memory.role;
 
             if (!role) {
-                creep.memory.role = 'harvester';
-                if (adaptiveSystem.isEnabled('logging')) {
+                role = 'harvester';
+                creep.memory.role = role;
+                if (isLoggingEnabled) {
                     logger.warn('Creep ' + name + ' had no role, set to harvester');
                 }
             }
 
-            creepCounts[creep.memory.role] = (creepCounts[creep.memory.role] || 0) + 1;
+            // Count roles for spawning logic
+            creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+            // Execute creep logic
+            if (isLoggingEnabled) {
+                logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role);
+            } else {
+                try {
+                    runCreepLogic(creep, role);
+                } catch (e) {
+                    console.log('Error in creep ' + name + ': ' + e.message);
+                }
+            }
         }
 
         // Auto-spawn logic
@@ -139,7 +231,7 @@ module.exports.loop = function () {
                 });
 
                 // プログレスバー表示
-                if (adaptiveSystem.isEnabled('visualEffects')) {
+                if (isVisualEffectsEnabled) {
                     const progress =
                         (spawn.spawning.needTime - spawn.spawning.remainingTime) /
                         spawn.spawning.needTime;
@@ -152,7 +244,7 @@ module.exports.loop = function () {
                 }
 
                 // スポーンエフェクト (FULLモードのみ)
-                if (adaptiveSystem.isEnabled('visualEffects') && Game.time % 5 === 0) {
+                if (isVisualEffectsEnabled && Game.time % 5 === 0) {
                     vfx.stars(spawn.pos, 5);
                 }
 
@@ -172,13 +264,13 @@ module.exports.loop = function () {
                         const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
 
                         if (result === OK) {
-                            if (adaptiveSystem.isEnabled('logging')) {
+                            if (isLoggingEnabled) {
                                 logger.info('Spawning new ' + role + ': ' + newName);
                             }
                             creepCounts[role] = current + 1;
 
                             // スポーン成功エフェクト
-                            if (adaptiveSystem.isEnabled('visualEffects')) {
+                            if (isVisualEffectsEnabled) {
                                 vfx.successExplosion(spawn.pos);
                             }
                             if (adaptiveSystem.isEnabled('gamification')) {
@@ -187,81 +279,12 @@ module.exports.loop = function () {
 
                             break;
                         } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
-                            if (adaptiveSystem.isEnabled('logging')) {
+                            if (isLoggingEnabled) {
                                 logger.warn('Failed to spawn ' + role + ': ' + result);
                             }
                         }
                     }
                     break;
-                }
-            }
-        }
-
-        // Run all creeps
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
-            const role = creep.memory.role;
-
-            if (!role) {
-                creep.memory.role = 'harvester';
-                continue;
-            }
-
-            const runCreepLogic = function () {
-                // 😊 Emotions (NORMAL以上)
-                if (adaptiveSystem.isEnabled('emotions')) {
-                    EmotionSystem.display(creep);
-                }
-
-                // Run role logic
-                switch (role) {
-                    case 'harvester':
-                        roleHarvester.run(creep);
-                        break;
-                    case 'upgrader':
-                        roleUpgrader.run(creep);
-                        break;
-                    case 'builder':
-                        roleBuilder.run(creep);
-                        break;
-                    case 'repairer':
-                        roleRepairer.run(creep);
-                        break;
-                    case 'explorer':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleExplorer.run(creep);
-                        }
-                        break;
-                    case 'medic':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleMedic.run(creep);
-                        }
-                        break;
-                    case 'transporter':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleTransporter.run(creep);
-                        }
-                        break;
-                    case 'scout':
-                        if (adaptiveSystem.isEnabled('advancedRoles')) {
-                            roleScout.run(creep);
-                        }
-                        break;
-                    default:
-                        if (adaptiveSystem.isEnabled('logging')) {
-                            logger.warn('Unknown role: ' + role);
-                        }
-                        creep.memory.role = 'harvester';
-                }
-            };
-
-            if (adaptiveSystem.isEnabled('logging')) {
-                logger.tryCatch(runCreepLogic, 'creep_' + name);
-            } else {
-                try {
-                    runCreepLogic();
-                } catch (e) {
-                    console.log('Error in creep ' + name + ': ' + e.message);
                 }
             }
         }
@@ -284,19 +307,15 @@ module.exports.loop = function () {
                 const room = Game.rooms[roomName];
                 if (room.controller && room.controller.my) {
                     // 🏠 Room Dashboard
-                    if (adaptiveSystem.isEnabled('visualEffects')) {
+                    if (isVisualEffectsEnabled) {
                         dashboard.displayVisuals(room);
                     }
 
-                    const runDefense = function () {
-                        defenseManager.run(room);
-                    };
-
-                    if (adaptiveSystem.isEnabled('logging')) {
-                        logger.tryCatch(runDefense, 'defense_' + roomName);
+                    if (isLoggingEnabled) {
+                        logger.tryCatch(runDefenseLogic, 'defense_' + roomName, room);
                     } else {
                         try {
-                            runDefense();
+                            runDefenseLogic(room);
                         } catch (e) {
                             console.log('Error in defense ' + roomName + ': ' + e.message);
                         }
@@ -360,20 +379,9 @@ module.exports.loop = function () {
 };
 
 function getBodyForRole(role, energy) {
-    const bodies = {
-        harvester: [[WORK, WORK, CARRY, MOVE], 300],
-        upgrader: [[WORK, WORK, CARRY, MOVE], 300],
-        builder: [[WORK, CARRY, CARRY, MOVE], 300],
-        repairer: [[WORK, CARRY, MOVE], 200],
-        transporter: [[CARRY, CARRY, MOVE, MOVE], 200],
-        scout: [[MOVE], 50],
-        medic: [[HEAL, MOVE], 300],
-        explorer: [[MOVE], 50],
-    };
-
-    const body = bodies[role] || [[MOVE, WORK, CARRY], 200];
-    const cost = body[1];
-    const parts = body[0];
+    const bodyConfig = BODY_CONFIGS[role] || [[MOVE, WORK, CARRY], 200];
+    const cost = bodyConfig[1];
+    const parts = bodyConfig[0];
 
     if (energy >= cost) {
         return parts;

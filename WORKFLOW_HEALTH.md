@@ -1,10 +1,10 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-13T13:06:31Z
+**Generated**: 2026-03-13T18:48:56Z
 
 ## 📊 Status
 
-- **Failed Runs**: 13
+- **Failed Runs**: 4
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
@@ -33,32 +33,8 @@
     "name": ".github/workflows/rule-based-improve.yml",
     "id": 23043814136,
     "created": "2026-03-13T09:06:18Z"
-  },
-  {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23043813907,
-    "created": "2026-03-13T09:06:18Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23043813622,
-    "created": "2026-03-13T09:06:18Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 23043813434,
-    "created": "2026-03-13T09:06:17Z"
-  },
-  {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23043813126,
-    "created": "2026-03-13T09:06:17Z"
-  },
-  {
+  }
+]
 
 ## 🔧 Recommended Actions
 

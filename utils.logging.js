@@ -28,13 +28,13 @@ module.exports = {
 
         // Also output to console with emoji
         const emoji = {
-            error: '❌',
-            warn: '⚠️',
-            info: 'ℹ️',
-            debug: '🔍',
+            error: '\u274c',
+            warn: '\u26a0\ufe0f',
+            info: '\u2139\ufe0f',
+            debug: '\ud83d\udd0d',
         };
 
-        console.log(`${emoji[level] || '💬'} [${level}] ${message}`);
+        console.log(`${emoji[level] || '\ud83d\udcac'} [${level}] ${message}`);
     },
 
     // Convenience methods
@@ -57,15 +57,26 @@ module.exports = {
     /**
      * Sanitizes a stack trace to remove internal file paths while keeping
      * function names and line numbers for debugging.
+     *
+     * Security: Rewritten to avoid ReDoS (super-linear backtracking).
+     * Instead of a single complex regex, we use a simple split-based approach
+     * that extracts only the filename:line:col portion without catastrophic backtracking.
      */
     getSafeStack: function (stack) {
         if (!stack) return '';
-        // Robust regex to correctly handle both Unix and Windows absolute paths
-        // (including those with spaces) while preserving filename:line:column format.
-        const regex = /(?:[a-zA-Z]:)?(\/|\\)(?:.*[\/\\\\])?([^\/\\?%*:|"<>]+:\d+:\d+)/g;
+
         return stack
             .split('\n')
-            .map((line) => line.replace(regex, '$2'))
+            .map((line) => {
+                // Match "filename:line:col" at the end of a path segment.
+                // Uses a simple non-backtracking pattern: match the last
+                // path component only, without nested quantifiers.
+                const match = line.match(/[^\/\\]+:\d+:\d+/);
+                if (match) {
+                    return match[0];
+                }
+                return line;
+            })
             .join('\n');
     },
 
@@ -100,7 +111,7 @@ module.exports = {
     // Clear all logs
     clear: function () {
         Memory.logs = [];
-        console.log('🗑️ Logs cleared');
+        console.log('\ud83d\uddd1\ufe0f Logs cleared');
     },
 
     // Get statistics

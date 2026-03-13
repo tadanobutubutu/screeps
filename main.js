@@ -19,6 +19,7 @@ const gamification = require('gamification');
 const vfx = require('visual.effects');
 const autoEvolution = require('auto.evolution');
 const adaptiveSystem = require('system.adaptive');
+const dashboard = require('utils.dashboard');
 
 module.exports.loop = function () {
     try {
@@ -77,9 +78,8 @@ module.exports.loop = function () {
                 gamification.checkMilestones();
             }
 
-            if (Game.time % 10 === 0) {
-                gamification.renderDashboard();
-            }
+            // 🎨 Accessibility: Render every tick to prevent flickering
+            gamification.renderDashboard();
         }
 
         // 🤖 AUTO EVOLUTION
@@ -278,11 +278,16 @@ module.exports.loop = function () {
             }
         }
 
-        // Defense manager (MINIMAL以上)
+        // Defense & Dashboard (MINIMAL以上)
         if (adaptiveSystem.isEnabled('defense')) {
             for (const roomName in Game.rooms) {
                 const room = Game.rooms[roomName];
                 if (room.controller && room.controller.my) {
+                    // 🏠 Room Dashboard
+                    if (adaptiveSystem.isEnabled('visualEffects')) {
+                        dashboard.displayVisuals(room);
+                    }
+
                     const runDefense = function () {
                         defenseManager.run(room);
                     };

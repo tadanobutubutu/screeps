@@ -35,32 +35,71 @@ const DashboardRenderer = {
     displayVisuals(room) {
         const info = this.renderRoomDashboard(room);
 
-        let y = 2;
+        let y = 2.5;
         const x = 1;
+        const width = 8;
+        const height = 6.5;
 
-        room.visual.text(`Room: ${info.room}`, x, y, {
+        // 🎨 Accessibility: Semi-transparent background for readability
+        room.visual.rect(x - 0.5, y - 1, width, height, {
+            fill: '#000000',
+            opacity: 0.5,
+            stroke: '#ffffff',
+            strokeWidth: 0.05,
+        });
+
+        // 🏠 Room Name
+        room.visual.text(`🏠 Room: ${info.room}`, x, y, {
             font: 0.8,
             color: '#00ff00',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
-        room.visual.text(`RCL: ${info.controller}`, x, y, {
+
+        // 🎮 Controller info
+        room.visual.text(`🎮 RCL: ${info.controller}`, x, y, {
             font: 0.7,
             color: '#ffff00',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
-        room.visual.text(`Energy: ${info.energy} | Storage: ${info.storage}`, x, y, {
+
+        // ⚡ Energy info
+        room.visual.text(`⚡ Energy: ${info.energy}`, x, y, {
             font: 0.7,
             color: '#00ffff',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
         y++;
+
+        // 📦 Storage info
+        room.visual.text(`📦 Storage: ${info.storage}`, x, y, {
+            font: 0.7,
+            color: '#00ffff',
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y++;
+
+        // 👥 Creeps info
         room.visual.text(
-            `H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`,
+            `👥 H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`,
             x,
             y,
-            { font: 0.7, color: '#ff00ff', align: 'left' }
+            {
+                font: 0.7,
+                color: '#ff00ff',
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
         );
 
         if (info.hostiles > 0) {
@@ -69,6 +108,8 @@ const DashboardRenderer = {
                 font: 0.8,
                 color: '#ff0000',
                 align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.1,
             });
         }
     },

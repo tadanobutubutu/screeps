@@ -21,7 +21,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -94,20 +94,13 @@ jobs:
       - name: Check Code Complexity
         run: |
           echo "📊 Checking code complexity..."
-          
-          # Count lines of code
           TOTAL_LINES=$(find . -name '*.js' -not -path './node_modules/*' -exec wc -l {} + | tail -1 | awk '{print $1}')
           echo "Total lines of code: $TOTAL_LINES"
-          
-          # Count files
           FILE_COUNT=$(find . -name '*.js' -not -path './node_modules/*' | wc -l)
           echo "Total JS files: $FILE_COUNT"
-          
-          # Average lines per file
           if [ $FILE_COUNT -gt 0 ]; then
             AVG_LINES=$((TOTAL_LINES / FILE_COUNT))
             echo "Average lines per file: $AVG_LINES"
-            
             if [ $AVG_LINES -gt 500 ]; then
               echo "⚠️ Warning: Large files detected. Consider refactoring."
             fi
@@ -118,31 +111,10 @@ jobs:
           echo "📝 Checking for TODOs..."
           TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.js" . | wc -l || echo 0)
           echo "Found $TODO_COUNT TODOs/FIXMEs"
-          
           if [ $TODO_COUNT -gt 0 ]; then
-            echo "List of TODOs:"
             grep -rn "TODO\|FIXME\|XXX\|HACK" --include="*.js" . || true
           fi
       
       - name: Generate Quality Report
         run: |
-          cat > CODE_QUALITY_REPORT.md << 'EOF'
-          # ✨ Code Quality Report
-          
-          **Generated**: $(date -u +%Y-%m-%dT%H:%M:%SZ)
-          
-          ## 📊 Metrics
-          
-          - Total Lines: $(find . -name '*.js' -not -path './node_modules/*' -exec wc -l {} + | tail -1 | awk '{print $1}')
-          - Total Files: $(find . -name '*.js' -not -path './node_modules/*' | wc -l)
-          - TODOs/FIXMEs: $(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.js" . | wc -l || echo 0)
-          
-          ## ✅ Status
-          
-          - ESLint: Passed
-          - Complexity: Good
-          - Code Style: Consistent
-          
-          EOF
-          
-          echo "✅ Quality report generated"
+          echo "✅ Quality check complete"

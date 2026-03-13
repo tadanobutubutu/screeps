@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Changelog Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
@@ -23,7 +23,6 @@ jobs:
         run: |
           echo "📝 Changelog Bot updating changelog..."
           
-          # Get recent commits
           RECENT_COMMITS=$(git log --oneline --pretty=format:"- %s" -n 10)
           
           cat > CHANGELOG.md << EOF
@@ -54,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Metrics Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Collect Metrics
         run: |
@@ -91,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Dependency Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Check Dependencies
         run: |
@@ -126,7 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Cleanup Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Code Cleanup
         run: |
@@ -161,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Backup Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Verify Backups
         run: |
@@ -198,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Integration Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Test Integration
         run: |
@@ -235,7 +234,7 @@ jobs:
     runs-on: ubuntu-latest
     name: QA Bot
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       
       - name: Quality Assurance
         run: |

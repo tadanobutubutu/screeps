@@ -3,6 +3,12 @@ name: 🔖 Auto Zenodo DOI Release
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows:
+      - "Auto Improve Screeps Code"
+      - "🔧 Rule-Based Auto-Improve"
+    types: [completed]
+    branches: [main]
   schedule:
     # 毎週月曜日 00:00 UTC (JST 09:00) に定期スナップショット
     - cron: '0 0 * * 1'
@@ -60,7 +66,7 @@ jobs:
             const run = context.runNumber;
 
             // トリガー種別をタグに含める
-            const triggerLabel = trigger === 'schedule' ? 'weekly' : trigger === 'workflow_dispatch' ? 'manual' : 'push';
+            const triggerLabel = trigger === 'schedule' ? 'weekly' : trigger === 'workflow_dispatch' ? 'manual' : trigger === 'workflow_run' ? 'ai-push' : 'push';
             const tag = `zenodo-${date}-${time}-${triggerLabel}-${run}`;
 
             // タグ作成

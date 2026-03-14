@@ -1,0 +1,358 @@
+name: 🤖 OpenRouter Auto-Fix (SonarCloud + Codecov)
+
+on:
+  issues:
+    types: [opened, edited]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to fix'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  detect-and-fix:
+    runs-on: ubuntu-latest
+    name: Detect Issue Type & Auto-Fix
+    # SonarCloudまたはCodecovのissueのみ対象
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issues' && github.event.action == 'opened' &&
+       (contains(github.event.issue.labels.*.name, 'sonarcloud') ||
+        contains(github.event.issue.labels.*.name, 'codecov')))
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get Issue Content
+        id: issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let issueNumber;
+            if (context.eventName === 'workflow_dispatch') {
+              issueNumber = parseInt(core.getInput('issue_number') || '${{ github.event.inputs.issue_number }}');
+            } else {
+              issueNumber = context.payload.issue.number;
+            }
+
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber
+            });
+
+            const labels = issue.labels.map(l => l.name);
+            const isSonar = labels.includes('sonarcloud');
+            const isCodecov = labels.includes('codecov');
+
+            core.setOutput('issue_number', issueNumber);
+            core.setOutput('issue_body', issue.body || '');
+            core.setOutput('issue_title', issue.title);
+            core.setOutput('is_sonar', isSonar.toString());
+            core.setOutput('is_codecov', isCodecov.toString());
+
+            console.log(`Issue #${issueNumber}: sonar=${isSonar}, codecov=${isCodecov}`);
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get all source files
+        id: files
+        run: |
+          # ルートのJSファイルとsrc/のJSファイルを収集
+          JS_FILES=$(find . -maxdepth 2 -name '*.js' \
+            ! -path './.git/*' \
+            ! -path './node_modules/*' \
+            ! -name '*.test.js' \
+            ! -name '*.spec.js' \
+            | sort | head -30)
+          echo "js_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$JS_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Found files:"
+          echo "$JS_FILES"
+
+      - name: Build context for OpenRouter
+        id: context
+        run: |
+          ISSUE_BODY='${{ steps.issue.outputs.issue_body }}'
+          IS_SONAR='${{ steps.issue.outputs.is_sonar }}'
+          IS_CODECOV='${{ steps.issue.outputs.is_codecov }}'
+
+          # 主要ファイルの内容を結合（トークン節約のため各ファイル最大150行）
+          CODE_CONTEXT=""
+          while IFS= read -r f; do
+            if [ -f "$f" ]; then
+              CODE_CONTEXT+="\n\n### FILE: $f\n\`\`\`javascript\n"
+              CODE_CONTEXT+=$(head -150 "$f")
+              CODE_CONTEXT+="\n\`\`\`"
+            fi
+          done <<< "${{ steps.files.outputs.js_files }}"
+
+          # JSONに安全に埋め込むためエスケープ
+          echo "context_ready=true" >> $GITHUB_OUTPUT
+
+      - name: Call OpenRouter API (SonarCloud Fix)
+        if: steps.issue.outputs.is_sonar == 'true'
+        id: sonar_fix
+        run: |
+          # ファイル内容を収集
+          FILE_CONTENTS=""
+          while IFS= read -r f; do
+            if [ -f "$f" ]; then
+              FILE_CONTENTS+="\n### $f\n$(cat $f | head -200)\n---"
+            fi
+          done < <(find . -maxdepth 2 -name '*.js' ! -path './.git/*' ! -path './node_modules/*' ! -name '*.test.js' | sort | head -20)
+
+          ISSUE_BODY=$(cat << 'ISSUE_EOF'
+          ${{ steps.issue.outputs.issue_body }}
+          ISSUE_EOF
+          )
+
+          # OpenRouter APIコール
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENROUTER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -H "X-Title: screeps-auto-fix" \
+            -d "$(jq -n \
+              --arg issue "$ISSUE_BODY" \
+              --arg files "$FILE_CONTENTS" \
+              '{
+                model: "anthropic/claude-3.5-sonnet",
+                max_tokens: 8000,
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are an expert JavaScript developer fixing Screeps AI code. You MUST respond with ONLY valid JSON in this exact format, no markdown, no explanation:\n{\"fixes\": [{\"file\": \"filename.js\", \"description\": \"what was fixed\", \"content\": \"FULL file content here\"}]}\n\nRULES:\n- Output ONLY the JSON object, nothing else\n- Include the COMPLETE file content for each fixed file\n- Fix ALL issues listed in the issue body\n- For optional chaining: replace obj && obj.prop with obj?.prop\n- For cognitive complexity: extract helper functions\n- For unnecessary escape: fix regex patterns\n- Do NOT change GitHub Actions versions"
+                  },
+                  {
+                    role: "user",
+                    content: ("Fix these SonarCloud issues:\n\n" + $issue + "\n\nSource files:\n" + $files)
+                  }
+                ]
+              }')
+          )
+
+          echo "$RESPONSE" > /tmp/sonar_response.json
+          echo "API call completed"
+          cat /tmp/sonar_response.json | jq '.choices[0].message.content' | head -5
+        env:
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+
+      - name: Call OpenRouter API (Codecov Tests)
+        if: steps.issue.outputs.is_codecov == 'true'
+        id: codecov_fix
+        run: |
+          FILE_CONTENTS=""
+          while IFS= read -r f; do
+            if [ -f "$f" ]; then
+              FILE_CONTENTS+="\n### $f\n$(cat $f | head -150)\n---"
+            fi
+          done < <(find . -maxdepth 2 -name '*.js' ! -path './.git/*' ! -path './node_modules/*' ! -name '*.test.js' ! -name 'deploy.js' | sort | head -20)
+
+          # package.jsonのjest設定を取得
+          JEST_CONFIG=$(cat package.json 2>/dev/null || echo '{}')
+
+          ISSUE_BODY=$(cat << 'ISSUE_EOF'
+          ${{ steps.issue.outputs.issue_body }}
+          ISSUE_EOF
+          )
+
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.OPENROUTER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -H "X-Title: screeps-auto-fix" \
+            -d "$(jq -n \
+              --arg issue "$ISSUE_BODY" \
+              --arg files "$FILE_CONTENTS" \
+              --arg jest "$JEST_CONFIG" \
+              '{
+                model: "anthropic/claude-3.5-sonnet",
+                max_tokens: 8000,
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are an expert at writing Jest unit tests for Screeps JavaScript code. You MUST respond with ONLY valid JSON in this exact format, no markdown:\n{\"fixes\": [{\"file\": \"filename.test.js\", \"description\": \"tests added\", \"content\": \"FULL test file content\"}]}\n\nRULES:\n- Output ONLY the JSON object, nothing else\n- Write Jest tests that achieve 50%+ coverage\n- Mock Screeps Game/Memory/Room objects as needed\n- Use jest.mock() for dependencies\n- Test both happy paths and error cases\n- Place test files in __tests__/ directory or alongside source as *.test.js"
+                  },
+                  {
+                    role: "user",
+                    content: ("Write Jest tests to improve coverage for these files:\n\n" + $issue + "\n\nSource files:\n" + $files + "\n\npackage.json:\n" + $jest)
+                  }
+                ]
+              }')
+          )
+
+          echo "$RESPONSE" > /tmp/codecov_response.json
+          echo "API call completed"
+          cat /tmp/codecov_response.json | jq '.choices[0].message.content' | head -5
+        env:
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+
+      - name: Apply Fixes to Files
+        id: apply
+        run: |
+          FIXED_FILES=""
+          IS_SONAR='${{ steps.issue.outputs.is_sonar }}'
+          IS_CODECOV='${{ steps.issue.outputs.is_codecov }}'
+
+          apply_fixes() {
+            local response_file=$1
+            if [ ! -f "$response_file" ]; then
+              echo "No response file: $response_file"
+              return 1
+            fi
+
+            CONTENT=$(cat "$response_file" | jq -r '.choices[0].message.content // empty')
+            if [ -z "$CONTENT" ]; then
+              echo "Empty content from API"
+              cat "$response_file"
+              return 1
+            fi
+
+            # JSON文字列をパース
+            echo "$CONTENT" > /tmp/parsed_content.json
+
+            # fixesの数を確認
+            FIX_COUNT=$(echo "$CONTENT" | jq '.fixes | length' 2>/dev/null || echo 0)
+            echo "Fixes to apply: $FIX_COUNT"
+
+            for i in $(seq 0 $((FIX_COUNT - 1))); do
+              FILE=$(echo "$CONTENT" | jq -r ".fixes[$i].file")
+              CONTENT_DATA=$(echo "$CONTENT" | jq -r ".fixes[$i].content")
+              DESC=$(echo "$CONTENT" | jq -r ".fixes[$i].description")
+
+              if [ -n "$FILE" ] && [ "$FILE" != "null" ]; then
+                # ディレクトリ作成
+                mkdir -p "$(dirname $FILE)"
+                echo "$CONTENT_DATA" > "$FILE"
+                echo "✅ Written: $FILE ($DESC)"
+                FIXED_FILES+="$FILE "
+              fi
+            done
+          }
+
+          if [ "$IS_SONAR" = "true" ] && [ -f "/tmp/sonar_response.json" ]; then
+            echo "=== Applying SonarCloud fixes ==="
+            apply_fixes "/tmp/sonar_response.json"
+          fi
+
+          if [ "$IS_CODECOV" = "true" ] && [ -f "/tmp/codecov_response.json" ]; then
+            echo "=== Applying Codecov test files ==="
+            apply_fixes "/tmp/codecov_response.json"
+          fi
+
+          echo "fixed_files=$FIXED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Create Branch and PR
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const issueNumber = '${{ steps.issue.outputs.issue_number }}';
+            const isSonar = '${{ steps.issue.outputs.is_sonar }}' === 'true';
+            const isCodecov = '${{ steps.issue.outputs.is_codecov }}' === 'true';
+
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const type = isSonar ? 'sonar' : 'codecov';
+            const branchName = `auto-fix/${type}-issue-${issueNumber}-${timestamp}`;
+
+            // git設定
+            execSync('git config user.name "OpenRouter Auto-Fix Bot"');
+            execSync('git config user.email "autofix@screeps.local"');
+
+            // ブランチ作成
+            execSync(`git checkout -b ${branchName}`);
+
+            // 変更をステージング
+            execSync('git add -A');
+
+            const statusOutput = execSync('git status --porcelain').toString();
+            if (!statusOutput.trim()) {
+              console.log('No changes detected, skipping PR creation');
+              core.setOutput('pr_created', 'false');
+              return;
+            }
+
+            const title = isSonar
+              ? `🔧 [Auto-Fix] SonarCloud issues (Issue #${issueNumber})`
+              : `🧪 [Auto-Fix] Codecov coverage tests (Issue #${issueNumber})`;
+
+            execSync(`git commit -m "${title}\n\nAuto-generated by OpenRouter (claude-3.5-sonnet)\nCloses #${issueNumber}"`);
+            execSync(`git push origin ${branchName}`);
+
+            // PR作成
+            const prBody = [
+              `## 🤖 OpenRouter Auto-Fix`,
+              ``,
+              `Closes #${issueNumber}`,
+              ``,
+              `### 変更内容`,
+              isSonar ? `- SonarCloudで検出されたコード品質問題を修正` : `- Codecovカバレッジ改善のためJestテストを追加`,
+              ``,
+              `### 生成モデル`,
+              `- **Model**: anthropic/claude-3.5-sonnet (via OpenRouter)`,
+              ``,
+              `### レビューポイント`,
+              `- [ ] 修正内容が正しいか確認`,
+              `- [ ] 既存の動作が壊れていないか確認`,
+              isSonar ? `- [ ] SonarCloud再スキャンで問題が解消されるか確認` : `- [ ] テストが実際にパスするか確認`,
+              ``,
+              `---`,
+              `*Auto-generated by [openrouter-auto-fix.yml](/.github/workflows/openrouter-auto-fix.yml)*`
+            ].join('\n');
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: prBody,
+              head: branchName,
+              base: 'main',
+              draft: false
+            });
+
+            // ラベル追加
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: ['auto-fix', 'automated']
+              });
+            } catch (e) { console.log('Label add failed (ok):', e.message); }
+
+            // 元のIssueにコメント
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(issueNumber),
+              body: `🤖 **OpenRouter Auto-Fix** が修正PRを作成しました！\n\nPR: ${pr.html_url}\n\nレビューして問題なければマージしてください。`
+            });
+
+            core.setOutput('pr_url', pr.html_url);
+            core.setOutput('pr_number', pr.number.toString());
+            core.setOutput('pr_created', 'true');
+            console.log(`✅ PR created: ${pr.html_url}`);
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## 🤖 Auto-Fix Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Issue**: #${{ steps.issue.outputs.issue_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Type**: ${{ steps.issue.outputs.is_sonar == 'true' && 'SonarCloud' || 'Codecov' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR Created**: ${{ steps.pr.outputs.pr_created }}" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.pr.outputs.pr_created }}" = "true" ]; then
+            echo "- **PR URL**: ${{ steps.pr.outputs.pr_url }}" >> $GITHUB_STEP_SUMMARY
+          fi

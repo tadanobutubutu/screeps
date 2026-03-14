@@ -4,7 +4,8 @@
   "description": "Screeps AI with automated GitHub workflows",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -26,6 +27,7 @@
     "lodash": "4.17.23"
   },
   "devDependencies": {
-    "eslint": "10.0.3"
+    "eslint": "10.0.3",
+    "jest": "^29.7.0"
   }
 }

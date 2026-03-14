@@ -3,17 +3,17 @@ name: SonarCloud Analysis + Jules Auto-Fix
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
+  schedule:
+    - cron: '0 0 * * *'  # 毎日UTC0時（JST9時）に定期スキャン
 
 permissions:
   contents: read
-  pull-requests: write
+  issues: write
 
 jobs:
   sonarcloud:
     runs-on: ubuntu-latest
-    # ループ防止: Julesのコミットはスキップ
+    # ループ防止: Julesのコミット・[skip ci]はスキップ
     if: |
       !contains(github.event.head_commit.message, '[skip ci]') &&
       github.actor != 'google-labs-jules[bot]'
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # SonarCloudはフル履歴が必要
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,8 +42,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-      - name: Fetch SonarCloud issues and notify Jules
-        if: github.event_name == 'pull_request'
+      - name: Fetch SonarCloud issues and create Jules Issue
         uses: actions/github-script@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -51,22 +50,16 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { execSync } = require('child_process');
-
-            // SonarCloud APIで問題を取得
             const org = process.env.SONAR_ORGANIZATION;
             const token = process.env.SONAR_TOKEN;
             const projectKey = `${org}_screeps`;
 
+            // SonarCloud APIで未解決のCRITICAL/MAJORを取得
             let issues = [];
             try {
               const response = await fetch(
-                `https://sonarcloud.io/api/issues/search?componentKeys=${projectKey}&resolved=false&severities=CRITICAL,MAJOR&ps=10`,
-                {
-                  headers: {
-                    'Authorization': `Bearer ${token}`
-                  }
-                }
+                `https://sonarcloud.io/api/issues/search?componentKeys=${projectKey}&resolved=false&severities=CRITICAL,MAJOR&ps=20`,
+                { headers: { 'Authorization': `Bearer ${token}` } }
               );
               const data = await response.json();
               issues = data.issues || [];
@@ -76,33 +69,56 @@ jobs:
             }
 
             if (issues.length === 0) {
-              console.log('No critical/major issues found.');
+              console.log('No critical/major issues found. Skipping issue creation.');
               return;
             }
 
-            // 問題リストをフォーマット
-            const issueList = issues.slice(0, 5).map(issue => {
+            // 重複Issue防止: 同タイトルのopenなIssueが既にあればスキップ
+            const issueTitle = `🔍 SonarCloud: ${issues.length}件のコード品質問題を修正してください`;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'sonarcloud'
+            });
+            const alreadyExists = existing.data.some(i => i.title === issueTitle);
+            if (alreadyExists) {
+              console.log('Issue already exists. Skipping.');
+              return;
+            }
+
+            const issueList = issues.slice(0, 10).map(issue => {
               const file = issue.component.split(':').pop();
               const line = issue.line ? `:${issue.line}` : '';
-              return `- **[${issue.severity}]** \`${file}${line}\` - ${issue.message}`;
+              const type = issue.type || 'ISSUE';
+              return `- **[${issue.severity}][${type}]** \`${file}${line}\`\n  ${issue.message}`;
             }).join('\n');
 
             const body = [
-              '## 🔍 SonarCloud 解析結果',
+              '## 🔍 SonarCloud 定期スキャン結果',
               '',
-              `**${issues.length}件**の重要な問題が検出されました：`,
+              `**${issues.length}件**の重要な問題が検出されました。`,
+              '',
+              '### 検出された問題',
               '',
               issueList,
               '',
+              `> 詳細: https://sonarcloud.io/project/issues?id=${projectKey}&resolved=false`,
+              '',
               '---',
-              `@google-labs-jules 上記のSonarCloudで検出された問題を修正してください。各ファイルのコード品質を改善し、バグ・セキュリティホール・コードスメルを解消するようにお願いします。`,
+              '@google-labs-jules 上記の問題をすべて修正してください。',
+              '',
+              '**ガイドライン**:',
+              '- GitHub Actionsのバージョンは変更しないこと（`actions/checkout@v4`等はそのまま）',
+              '- `.github/JULES_INSTRUCTIONS.md` のルールに従うこと',
             ].join('\n');
 
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            const newIssue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: body
+              title: issueTitle,
+              body: body,
+              labels: ['sonarcloud', 'bug']
             });
 
-            console.log(`Posted Jules notification with ${issues.length} issues.`);
+            console.log(`✅ Created issue #${newIssue.data.number}`);

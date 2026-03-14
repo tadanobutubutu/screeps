@@ -1,6 +1,23 @@
 // Memory Management Utilities
 // Inspired by best practices from daily update 2026-02-20
 
+/**
+ * Security: Validates that a key is safe to use for object access.
+ * Prevents Prototype Pollution attacks by blocking special properties.
+ * Defined as a local constant to avoid 'this' context issues during destructuring.
+ */
+const isSafeKey = (key) => {
+    // Numbers are always safe keys in JavaScript objects
+    if (typeof key === 'number') return true;
+    // Only allow safe strings
+    return (
+        typeof key === 'string' &&
+        key !== '__proto__' &&
+        key !== 'constructor' &&
+        key !== 'prototype'
+    );
+};
+
 module.exports = {
     // Clean up memory of dead creeps
     cleanMemory: function () {
@@ -11,8 +28,16 @@ module.exports = {
         }
     },
 
+    // Exported version of isSafeKey
+    isSafeKey: isSafeKey,
+
     // Safe memory access with default values
     getRoomMemory: function (roomName, key, defaultValue) {
+        // Security: Validate roomName and key to prevent prototype pollution
+        if (!isSafeKey(roomName) || !isSafeKey(key)) {
+            return defaultValue;
+        }
+
         if (!Memory.rooms[roomName]) {
             Memory.rooms[roomName] = {};
         }
@@ -25,6 +50,11 @@ module.exports = {
     },
 
     setRoomMemory: function (roomName, key, value) {
+        // Security: Validate roomName and key to prevent prototype pollution
+        if (!isSafeKey(roomName) || !isSafeKey(key)) {
+            return;
+        }
+
         if (!Memory.rooms[roomName]) {
             Memory.rooms[roomName] = {};
         }
@@ -32,6 +62,11 @@ module.exports = {
     },
 
     clearRoomMemory: function (roomName, key) {
+        // Security: Validate roomName and key to prevent prototype pollution
+        if (!isSafeKey(roomName) || !isSafeKey(key)) {
+            return;
+        }
+
         if (Memory.rooms[roomName]) {
             delete Memory.rooms[roomName][key];
         }
@@ -39,6 +74,11 @@ module.exports = {
 
     // Memoization helper for expensive calculations
     memoize: function (fn, cacheKey, ttl = 100) {
+        // Security: Validate cacheKey to prevent prototype pollution
+        if (!isSafeKey(cacheKey)) {
+            return fn();
+        }
+
         if (!Memory.cache) {
             Memory.cache = {};
         }

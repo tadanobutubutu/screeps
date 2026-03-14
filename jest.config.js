@@ -15,6 +15,14 @@ module.exports = {
     '**/*.test.js',
     '**/*.spec.js',
   ],
+  reporters: [
+    'default',
+    ['jest-junit', {
+      outputDirectory: '.',
+      outputName: 'junit.xml',
+      classNameTemplate: '{filepath}',
+    }],
+  ],
   // Screeps globals
   globals: {},
   testPathIgnorePatterns: ['/node_modules/'],

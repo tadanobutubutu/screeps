@@ -1,3 +1,16 @@
+/**
+ * Formats a number for better readability (e.g., 1000 -> 1.0K, 1000000 -> 1.0M)
+ */
+function formatNumber(num) {
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    }
+    if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+}
+
 const DashboardRenderer = {
     renderRoomDashboard(room) {
         const creeps = room.find(FIND_MY_CREEPS);
@@ -20,12 +33,21 @@ const DashboardRenderer = {
         const info = {
             room: room.name,
             controller: room.controller
-                ? `RCL ${room.controller.level} (${room.controller.progress}/${room.controller.progressTotal})`
-                : 'None',
+                ? {
+                      level: room.controller.level,
+                      progress: room.controller.progress || 0,
+                      progressTotal: room.controller.progressTotal || 0,
+                      percent: room.controller.progressTotal
+                          ? Math.floor(
+                                (room.controller.progress / room.controller.progressTotal) * 100
+                            )
+                          : 100,
+                  }
+                : null,
             hostiles: hostiles.length,
             structures: structures.length,
-            energy: `${energyStats.available}/${energyStats.capacity}`,
-            storage: energyStats.storageEnergy,
+            energy: `${formatNumber(energyStats.available)}/${formatNumber(energyStats.capacity)}`,
+            storage: formatNumber(energyStats.storageEnergy),
             creeps: roleCount,
         };
 
@@ -38,7 +60,7 @@ const DashboardRenderer = {
         let y = 2.5;
         const x = 1;
         const width = 8;
-        const height = 6.5;
+        const height = 7.2;
 
         // 🎨 Accessibility: Semi-transparent background for readability
         room.visual.rect(x - 0.5, y - 1, width, height, {
@@ -59,14 +81,35 @@ const DashboardRenderer = {
         y++;
 
         // 🎮 Controller info
-        room.visual.text(`🎮 RCL: ${info.controller}`, x, y, {
+        const controllerText = info.controller
+            ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
+            : '🎮 RCL: None';
+        room.visual.text(controllerText, x, y, {
             font: 0.7,
             color: '#ffff00',
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
         });
-        y++;
+        y += 0.4;
+
+        // RCL Progress Bar
+        if (info.controller) {
+            const barWidth = 6;
+            const barHeight = 0.2;
+            const progress = info.controller.progress / info.controller.progressTotal;
+
+            room.visual.rect(x, y - 0.1, barWidth, barHeight, {
+                fill: '#333333',
+                stroke: '#ffffff',
+                strokeWidth: 0.02,
+            });
+            room.visual.rect(x, y - 0.1, barWidth * progress, barHeight, {
+                fill: '#ffff00',
+                opacity: 0.8,
+            });
+        }
+        y += 0.8;
 
         // ⚡ Energy info
         room.visual.text(`⚡ Energy: ${info.energy}`, x, y, {
@@ -81,7 +124,7 @@ const DashboardRenderer = {
         // 📦 Storage info
         room.visual.text(`📦 Storage: ${info.storage}`, x, y, {
             font: 0.7,
-            color: '#00ffff',
+            color: '#ffffff',
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,

@@ -43,6 +43,9 @@ dist/
 build/
 *.tgz
 
+# Test results
+junit.xml
+
 # Temporary files
 *.tmp
 *.temp

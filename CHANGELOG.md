@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-14T09:55:32Z
+**Last Updated**: 2026-03-14T13:27:13Z
 
 ## Recent Changes
 
-- Updated package-lock.json
-- Deleted secret-scanning.yml.disabled
-- 🎮 Update game stats [skip ci]
-- chore: add sonarcloud and codecov labels via setup workflow [skip ci]
-- refactor: switch SonarCloud & Codecov to repo-wide scan with Issue-based Jules workflow
-- fix: add explicit permissions to coverage.yml and sonarcloud.yml
+- 🔧 Workflow health report: 20 issues
+- fix: auto-improve を直接mainにpushするシンプルな形に変更 (OpenRouter版)
 - 📊 Statistics update by Stats Bot
+- fix: replace GEMINI_API_KEY with OPENROUTER_TOKEN, disable blanket auto-merge
+- ✨ Add OpenRouter-powered unified auto-fix workflow for SonarCloud & Codecov issues
+- feat: add JupyterLab support to devcontainer
+- feat: add OPENROUTER_API_KEY to devcontainer env
 - 🎮 Update game stats [skip ci]
-- fix: remove unnecessary exclusions from sonar-project.properties
-- 🛡️ Sentinel: [HIGH] Fix Prototype Pollution in memory utilities
+- feat: add .devcontainer for Aider on GitHub Codespaces
+- 🎮 Update game stats [skip ci]
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

@@ -11,17 +11,21 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
+    # auto-fixボット由来のPRのみ自動マージ（手動レビューPRは対象外）
+    if: |
+      startsWith(github.head_ref, 'auto-fix/') ||
+      startsWith(github.head_ref, 'renovate/')
     steps:
-      - name: Auto merge PR
-        uses: actions/github-script@v8
+      - name: Auto merge bot PRs only
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            console.log(`Auto-merging PR #${pr.number}: ${pr.title}`);
+            console.log(`Auto-merging bot PR #${pr.number}: ${pr.title}`);
 
-            // Wait a moment to allow checks to register
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            // チェックが登録されるまで少し待つ
+            await new Promise(resolve => setTimeout(resolve, 5000));
 
             try {
               await github.rest.pulls.merge({
@@ -30,14 +34,12 @@ jobs:
                 pull_number: pr.number,
                 merge_method: 'squash',
                 commit_title: pr.title,
-                commit_message: `Auto-merged PR #${pr.number}\n\n${pr.body || ''}`.slice(0, 65536),
+                commit_message: `Auto-merged bot PR #${pr.number}\n\n${(pr.body || '').slice(0, 500)}`,
               });
-              console.log(`✅ Successfully merged PR #${pr.number}`);
+              console.log(`✅ Merged PR #${pr.number}`);
             } catch (error) {
               console.log(`⚠️ Could not auto-merge PR #${pr.number}: ${error.message}`);
-              // If conflict, try to update the branch first
               if (error.message.includes('conflict') || error.message.includes('merge')) {
-                console.log('Attempting branch update due to conflict...');
                 try {
                   await github.rest.pulls.updateBranch({
                     owner: context.repo.owner,

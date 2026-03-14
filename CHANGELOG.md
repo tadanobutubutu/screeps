@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-14T07:11:16Z
+**Last Updated**: 2026-03-14T09:55:32Z
 
 ## Recent Changes
 
-- feat: add Jest for coverage reporting
+- Updated package-lock.json
+- Deleted secret-scanning.yml.disabled
 - 🎮 Update game stats [skip ci]
-- feat: add Codecov coverage reporting with Jest
-- 🎨 Palette: enhance room dashboard with human-readable numbers and RCL progress bar
-- 🔧 Workflow health report: 20 issues
-- ⚡ Bolt: optimize visual effects with adaptive system guarding
+- chore: add sonarcloud and codecov labels via setup workflow [skip ci]
+- refactor: switch SonarCloud & Codecov to repo-wide scan with Issue-based Jules workflow
+- fix: add explicit permissions to coverage.yml and sonarcloud.yml
 - 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
-- 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
+- 🎮 Update game stats [skip ci]
+- fix: remove unnecessary exclusions from sonar-project.properties
+- 🛡️ Sentinel: [HIGH] Fix Prototype Pollution in memory utilities
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

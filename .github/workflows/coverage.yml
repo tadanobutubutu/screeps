@@ -33,6 +33,11 @@ jobs:
         run: npx jest --coverage --coverageReporters=lcov json-summary --passWithNoTests
         continue-on-error: true
 
+      - name: Build with Rollup (Codecov Bundle Analysis)
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: npm run build
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:

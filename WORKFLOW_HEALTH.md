@@ -1,40 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-13T18:48:56Z
+**Generated**: 2026-03-14T02:24:12Z
 
 ## 📊 Status
 
-- **Failed Runs**: 4
+- **Failed Runs**: 18
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23077718668,
+    "created": "2026-03-14T01:52:20Z"
+  },
+  {
     "workflow": "✨ AI Code Improvement",
     "name": "✨ AI Code Improvement",
-    "id": 23051736885,
-    "created": "2026-03-13T12:53:55Z"
+    "id": 23077695119,
+    "created": "2026-03-14T01:51:01Z"
   },
   {
-    "workflow": "Auto Improve Screeps Code",
-    "name": "Auto Improve Screeps Code",
-    "id": 23045856316,
-    "created": "2026-03-13T10:04:09Z"
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23067527599,
+    "created": "2026-03-13T19:38:37Z"
   },
   {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23043814295,
-    "created": "2026-03-13T09:06:19Z"
+    "workflow": ".github/workflows/validate-action-versions.yml",
+    "name": ".github/workflows/validate-action-versions.yml",
+    "id": 23067527314,
+    "created": "2026-03-13T19:38:36Z"
   },
   {
     "workflow": ".github/workflows/rule-based-improve.yml",
     "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23043814136,
-    "created": "2026-03-13T09:06:18Z"
-  }
-]
+    "id": 23067527094,
+    "created": "2026-03-13T19:38:36Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23067526818,
+    "created": "2026-03-13T19:38:36Z"
+  },
+  {
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 23067526632,
+    "created": "2026-03-13T19:38:35Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 23067526474,
+    "created": "2026-03-13T19:38:35Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

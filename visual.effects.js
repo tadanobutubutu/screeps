@@ -2,11 +2,29 @@
  * Visual Effects System - Z世代向けドーパミン爆発ビジュアル
  */
 
+const adaptiveSystem = require('system.adaptive');
+
+// ⚡ PERFORMANCE: Per-tick cache for visual effects enablement
+let _isVfxEnabledTick = -1;
+let _isVfxEnabledValue = true;
+
+/**
+ * Checks if visual effects are enabled, with per-tick caching.
+ */
+function isVfxEnabled() {
+    if (typeof Game !== 'undefined' && Game.time !== _isVfxEnabledTick) {
+        _isVfxEnabledTick = Game.time;
+        _isVfxEnabledValue = adaptiveSystem.isEnabled('visualEffects');
+    }
+    return _isVfxEnabledValue;
+}
+
 const visualEffects = {
     /**
      * 派手なパーティクルエフェクト
      */
     particles: function (pos, color = '#FFD700', count = 20) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         for (let i = 0; i < count; i++) {
@@ -27,6 +45,7 @@ const visualEffects = {
      * 成功時の爆発エフェクト
      */
     successExplosion: function (pos) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
         const colors = ['#FFD700', '#FFA500', '#FF69B4', '#00FF00', '#00FFFF'];
 
@@ -65,6 +84,7 @@ const visualEffects = {
      * レベルアップエフェクト
      */
     levelUp: function (pos, level) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         // 虹色の輪
@@ -107,6 +127,7 @@ const visualEffects = {
      * コンボカウンター
      */
     combo: function (pos, count) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         const color = count >= 10 ? '#FF0000' : count >= 5 ? '#FF69B4' : '#FFD700';
@@ -129,6 +150,7 @@ const visualEffects = {
      * 達成通知
      */
     achievement: function (pos, title, icon = '🏆') {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         // 背景ボックス
@@ -162,10 +184,11 @@ const visualEffects = {
      * プログレスバー
      */
     progressBar: function (pos, current, max, label = '') {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
         const width = 3;
         const height = 0.3;
-        const progress = Math.min(current / max, 1);
+        const progress = max > 0 ? Math.min(current / max, 1) : 0;
         const percent = Math.floor(progress * 100);
 
         // 全体の背景（視認性向上）
@@ -203,6 +226,12 @@ const visualEffects = {
      * レインボートレイル
      */
     rainbowTrail: function (creep) {
+        if (!isVfxEnabled()) {
+            if (creep.memory.trailPositions) {
+                delete creep.memory.trailPositions;
+            }
+            return;
+        }
         const visual = new RoomVisual(creep.room.name);
         const colors = [
             '#FF0000',
@@ -238,6 +267,7 @@ const visualEffects = {
      * ダメージ数字
      */
     damageNumber: function (pos, amount, isCritical = false) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         const color = isCritical ? '#FF0000' : '#FFA500';
@@ -261,6 +291,7 @@ const visualEffects = {
      * エネルギー回復エフェクト
      */
     healEffect: function (pos) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         for (let i = 0; i < 8; i++) {
@@ -280,6 +311,7 @@ const visualEffects = {
      * スターエフェクト
      */
     stars: function (pos, count = 5) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
         const emojis = ['⭐', '✨', '🌟', '💫'];
 
@@ -299,6 +331,7 @@ const visualEffects = {
      * ストリークカウンター
      */
     streak: function (pos, days) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         visual.text(`🔥 ${days} DAY STREAK! 🔥`, pos.x, pos.y, {
@@ -313,6 +346,7 @@ const visualEffects = {
      * スコアポップアップ
      */
     scorePopup: function (pos, points, label = 'POINTS') {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         visual.text(`+${points}`, pos.x, pos.y - 0.5, {
@@ -332,6 +366,7 @@ const visualEffects = {
      * ランクバッジ
      */
     rankBadge: function (pos, rank) {
+        if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
         const badges = {

@@ -1,64 +1,28 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-14T18:43:05Z
+**Generated**: 2026-03-15T02:43:45Z
 
 ## 📊 Status
 
-- **Failed Runs**: 9
+- **Failed Runs**: 2
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23088272861,
-    "created": "2026-03-14T12:49:06Z"
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23101282605,
+    "created": "2026-03-15T02:09:03Z"
   },
   {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23088272798,
-    "created": "2026-03-14T12:49:06Z"
-  },
-  {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23088272703,
-    "created": "2026-03-14T12:49:06Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23088272633,
-    "created": "2026-03-14T12:49:05Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23088272546,
-    "created": "2026-03-14T12:49:05Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 23088272444,
-    "created": "2026-03-14T12:49:05Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 23088272369,
-    "created": "2026-03-14T12:49:05Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 23088272314,
-    "created": "2026-03-14T12:49:04Z"
-  },
-  {
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 23101262020,
+    "created": "2026-03-15T02:07:48Z"
+  }
+]
 
 ## 🔧 Recommended Actions
 

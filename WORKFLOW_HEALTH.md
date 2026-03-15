@@ -1,62 +1,62 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-15T07:02:25Z
+**Generated**: 2026-03-15T13:00:39Z
 
 ## 📊 Status
 
-- **Failed Runs**: 20
+- **Failed Runs**: 13
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 23105443345,
-    "created": "2026-03-15T06:59:44Z"
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 23110673814,
+    "created": "2026-03-15T12:47:31Z"
   },
   {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23105443184,
-    "created": "2026-03-15T06:59:44Z"
+    "workflow": "Auto Improve Screeps Code",
+    "name": "Auto Improve Screeps Code",
+    "id": 23108058190,
+    "created": "2026-03-15T09:58:12Z"
   },
   {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23105443131,
-    "created": "2026-03-15T06:59:43Z"
+    "workflow": "Coverage Report + Jules Auto-Fix",
+    "name": "Coverage Report + Jules Auto-Fix",
+    "id": 23106355155,
+    "created": "2026-03-15T08:03:53Z"
   },
   {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23105443059,
-    "created": "2026-03-15T06:59:43Z"
-  },
-  {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23105443019,
-    "created": "2026-03-15T06:59:43Z"
+    "workflow": "SonarCloud Analysis + Jules Auto-Fix",
+    "name": "SonarCloud Analysis + Jules Auto-Fix",
+    "id": 23106355147,
+    "created": "2026-03-15T08:03:53Z"
   },
   {
     "workflow": ".github/workflows/emergency-api-restore.yml",
     "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 23105442975,
-    "created": "2026-03-15T06:59:42Z"
+    "id": 23106355058,
+    "created": "2026-03-15T08:03:52Z"
   },
   {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 23105442929,
-    "created": "2026-03-15T06:59:42Z"
+    "workflow": ".github/workflows/validate-action-versions.yml",
+    "name": ".github/workflows/validate-action-versions.yml",
+    "id": 23106355015,
+    "created": "2026-03-15T08:03:52Z"
   },
   {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 23105442866,
-    "created": "2026-03-15T06:59:42Z"
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 23106354962,
+    "created": "2026-03-15T08:03:52Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 23106354918,
+    "created": "2026-03-15T08:03:51Z"
   },
   {
 

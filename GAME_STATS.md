@@ -6,19 +6,19 @@
 
 ### Level & Points
 - **Level**: ⚡ Intermediate (Level 3)
-- **Total Points**: 641
+- **Total Points**: 681
 
 ### Project Stats
-- **Total Issues**: 2
+- **Total Issues**: 4
   - ✅ Closed: 6
-  - 🔄 Open: 2
+  - 🔄 Open: 4
 - **Total PRs**: 0
-  - ✅ Merged: 29
+  - ✅ Merged: 31
 - **Total Commits**: 1
 - **Contributors**: 5
 
 ### Completion Rate
-[████████████████████████████████████████████████████████████] 300%
+[██████████████████████████████] 150%
 
 ## 🏆 Achievements Unlocked
 
@@ -47,8 +47,8 @@
 ## 🎯 Next Milestone
 
 $(if [ 6 -lt 10 ]; then echo "- Close $(( 10 - 6 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 29 -lt 10 ]; then echo "- Merge $(( 10 - 29 )) more PRs to unlock 💎 PR Pro"; fi)
-$(if [ 300 -lt 80 ]; then echo "- Reach $(( 80 - 300 ))% more completion for ✨ Perfectionist"; fi)
+$(if [ 31 -lt 10 ]; then echo "- Merge $(( 10 - 31 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 150 -lt 80 ]; then echo "- Reach $(( 80 - 150 ))% more completion for ✨ Perfectionist"; fi)
 
 ---
 

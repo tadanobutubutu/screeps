@@ -45,4 +45,19 @@ describe('utils.memory', () => {
       expect(utilsMemory.get('testKey')).toBe('testValue');
     }
   });
+
+  test('isSafeKey blocks dangerous properties', () => {
+    expect(utilsMemory.isSafeKey('__proto__')).toBe(false);
+    expect(utilsMemory.isSafeKey('constructor')).toBe(false);
+    expect(utilsMemory.isSafeKey('prototype')).toBe(false);
+    expect(utilsMemory.isSafeKey('toString')).toBe(false);
+    expect(utilsMemory.isSafeKey('valueOf')).toBe(false);
+    expect(utilsMemory.isSafeKey('__defineGetter__')).toBe(false);
+  });
+
+  test('isSafeKey allows safe properties', () => {
+    expect(utilsMemory.isSafeKey('myKey')).toBe(true);
+    expect(utilsMemory.isSafeKey(123)).toBe(true);
+    expect(utilsMemory.isSafeKey('room1')).toBe(true);
+  });
 });

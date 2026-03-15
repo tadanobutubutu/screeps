@@ -9,13 +9,19 @@
 const isSafeKey = (key) => {
     // Numbers are always safe keys in JavaScript objects
     if (typeof key === 'number') return true;
-    // Only allow safe strings
-    return (
-        typeof key === 'string' &&
-        key !== '__proto__' &&
-        key !== 'constructor' &&
-        key !== 'prototype'
-    );
+    // Only allow safe strings and block dangerous properties
+    const dangerousKeys = [
+        '__proto__',
+        'constructor',
+        'prototype',
+        '__defineGetter__',
+        '__defineSetter__',
+        '__lookupGetter__',
+        '__lookupSetter__',
+        'toString',
+        'valueOf',
+    ];
+    return typeof key === 'string' && !dangerousKeys.includes(key);
 };
 
 module.exports = {

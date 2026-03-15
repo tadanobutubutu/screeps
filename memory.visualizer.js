@@ -2,6 +2,8 @@
  * Memory Visualizer - メモリを視覚化する楽しいシステム
  */
 
+const utilsMemory = require('utils.memory');
+
 const memoryVisualizer = {
     /**
      * メモリ全体の統計を表示
@@ -131,6 +133,11 @@ const memoryVisualizer = {
 
     recordAchievement: function (creepName, type, amount) {
         this.initLeaderboard();
+
+        // Security: Validate creepName and type to prevent prototype pollution
+        if (!utilsMemory.isSafeKey(creepName) || !utilsMemory.isSafeKey(type)) {
+            return;
+        }
 
         if (!Memory.leaderboard[type]) {
             Memory.leaderboard[type] = {};
@@ -346,7 +353,12 @@ const memoryVisualizer = {
             delete Memory[key];
         }
 
-        Object.assign(Memory, backup.data);
+        // Security: Use safe iteration instead of Object.assign to prevent prototype pollution
+        for (const key in backup.data) {
+            if (utilsMemory.isSafeKey(key)) {
+                Memory[key] = backup.data[key];
+            }
+        }
         Memory.backups = backups;
 
         console.log(`✅ Restored backup from tick ${backup.time}`);

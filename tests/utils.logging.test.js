@@ -45,4 +45,12 @@ describe('utils.logging', () => {
     const keys = Object.keys(utilsLogging);
     expect(keys.length).toBeGreaterThan(0);
   });
+
+  test('log function truncates long messages', () => {
+    const longMessage = 'A'.repeat(600);
+    utilsLogging.log('info', longMessage);
+
+    expect(Memory.logs[Memory.logs.length - 1].message.length).toBe(500);
+    expect(Memory.logs[Memory.logs.length - 1].message).toBe('A'.repeat(500));
+  });
 });

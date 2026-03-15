@@ -1,3 +1,5 @@
+const adaptiveSystem = require('system.adaptive');
+
 /**
  * Formats a number for better readability (e.g., 1000 -> 1.0K, 1000000 -> 1.0M)
  */
@@ -49,6 +51,8 @@ const DashboardRenderer = {
             energy: `${formatNumber(energyStats.available)}/${formatNumber(energyStats.capacity)}`,
             storage: formatNumber(energyStats.storageEnergy),
             creeps: roleCount,
+            mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
+            bucket: Game.cpu.bucket,
         };
 
         return info;
@@ -60,7 +64,7 @@ const DashboardRenderer = {
         let y = 2.5;
         const x = 1;
         const width = 8;
-        const height = 7.2;
+        const height = 8.0;
 
         // 🎨 Accessibility: Semi-transparent background for readability
         room.visual.rect(x - 0.5, y - 1, width, height, {
@@ -70,8 +74,8 @@ const DashboardRenderer = {
             strokeWidth: 0.05,
         });
 
-        // 🏠 Room Name
-        room.visual.text(`🏠 Room: ${info.room}`, x, y, {
+        // 🏠 Room Name & Mode
+        room.visual.text(`🏠 ${info.room} [${info.mode}]`, x, y, {
             font: 0.8,
             color: '#00ff00',
             align: 'left',
@@ -155,6 +159,20 @@ const DashboardRenderer = {
                 strokeWidth: 0.1,
             });
         }
+
+        // 🔋 CPU Bucket
+        y += 0.8;
+        const bucketProgress = Math.min(info.bucket / 10000, 1);
+        room.visual.rect(x, y, 6, 0.2, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 });
+        room.visual.rect(x, y, 6 * bucketProgress, 0.2, {
+            fill: bucketProgress > 0.5 ? '#00ff00' : '#ff0000',
+            opacity: 0.7,
+        });
+        room.visual.text(`CPU: ${info.bucket}`, x + 6.2, y + 0.15, {
+            font: 0.4,
+            color: '#ffffff',
+            align: 'left',
+        });
     },
 };
 

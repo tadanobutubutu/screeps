@@ -83,6 +83,14 @@ class EmotionSystem {
         this.initialize(creep);
 
         const emotions = creep.memory.emotions;
+
+        // ⚡ PERFORMANCE: Only update full emotion logic every 5 ticks
+        // Use a stable offset based on creep name to distribute load
+        const updateOffset = creep.name.length % 5;
+        if ((Game.time + updateOffset) % 5 !== 0 && emotions.lastEmotion) {
+            return emotions.lastEmotion;
+        }
+
         let emoji = EMOTIONS.WORKING;
         let moodChange = 0;
 

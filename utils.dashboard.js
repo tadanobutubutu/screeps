@@ -1,3 +1,5 @@
+const adaptiveSystem = require('system.adaptive');
+
 /**
  * Formats a number for better readability (e.g., 1000 -> 1.0K, 1000000 -> 1.0M)
  */
@@ -10,8 +12,6 @@ function formatNumber(num) {
     }
     return num.toString();
 }
-
-const adaptiveSystem = require('system.adaptive');
 
 const DashboardRenderer = {
     renderRoomDashboard(room) {

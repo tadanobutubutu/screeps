@@ -19,8 +19,8 @@ jobs:
       - name: Welcome First Time Contributors
         uses: actions/first-interaction@v3
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
             🎉 **Welcome to the Screeps AI project!**
             
             Thank you for opening your first issue! We're excited to have you as part of our community.
@@ -31,7 +31,7 @@ jobs:
             - Join our [Discussions](../../discussions) for questions
             
             We appreciate your contribution! 🚀
-          pr-message: |
+          pr_message: |
             🎉 **Thank you for your first pull request!**
             
             Welcome to the Screeps AI project! We're thrilled to have you contribute.

@@ -55,9 +55,9 @@ const BODY_CONFIGS = {
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoisted creep logic function.
  */
-function runCreepLogic(creep, role) {
+function runCreepLogic(creep, role, isEmotionsEnabled) {
     // 😊 Emotions (NORMAL以上)
-    if (adaptiveSystem.isEnabled('emotions')) {
+    if (isEmotionsEnabled) {
         EmotionSystem.display(creep);
     }
 
@@ -182,6 +182,7 @@ module.exports.loop = function () {
         const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
         const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
         const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
+        const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
 
         // Auto-spawn configuration
         const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL;
@@ -206,10 +207,10 @@ module.exports.loop = function () {
 
             // Execute creep logic
             if (isLoggingEnabled) {
-                logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role);
+                logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);
             } else {
                 try {
-                    runCreepLogic(creep, role);
+                    runCreepLogic(creep, role, isEmotionsEnabled);
                 } catch (e) {
                     console.log('Error in creep ' + name + ': ' + e.message);
                 }

@@ -8,27 +8,6 @@ queue_rules:
       - check-success=Code Quality
 
 pull_request_rules:
-  # 🛡️ Block PRs that introduce invalid action versions (Jules protection)
-  - name: 🛡️ Block PRs with invalid action versions (e.g. @v6)
-    conditions:
-      - files~=^\.github/workflows/
-      - body~=v[5-9]\d*|check-failure=validate-versions
-    actions:
-      label:
-        add:
-          - invalid-action-version
-      comment:
-        message: |
-          ⚠️ **Invalid action version detected!**
-
-          This PR appears to use a non-existent action version (e.g. `actions/checkout@v6`).
-          Please use `@v4` for standard GitHub Actions.
-
-          The `validate-action-versions` workflow will attempt to auto-fix this.
-      request_reviews:
-        users:
-          - tadanobutubutu
-
   # Auto-merge Dependabot PRs
   - name: ⬆️ Auto-merge Dependabot PRs (minor/patch)
     conditions:

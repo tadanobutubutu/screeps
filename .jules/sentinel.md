@@ -7,3 +7,13 @@
 **Vulnerability:** Prototype Pollution via unsanitized room names and cache keys.
 **Learning:** Using user-controlled strings (like room names or external cache keys) directly as object keys in the global `Memory` object can allow attackers to overwrite `Object.prototype` properties (e.g., via `__proto__`). This is especially dangerous in Screeps where `Memory` is persistent and globally accessible.
 **Prevention:** Always validate object keys against a blocklist of dangerous properties (`__proto__`, `constructor`, `prototype`). Implement validation helpers as local constants to ensure they remain safe even when functions are destructured from their modules.
+
+## 2026-03-04 - Global Object Hijacking via Object.assign
+**Vulnerability:** Prototype Pollution via `Object.assign` on global `Memory`.
+**Learning:** Using `Object.assign(Memory, data)` is dangerous if `data` is from an external source (like a backup or user input). It bypasses simple property assignment and can lead to prototype pollution if the source object contains a `__proto__` key.
+**Prevention:** Replace `Object.assign` on global or sensitive objects with a safe iteration that validates every key using a hardened `isSafeKey` helper.
+
+## 2026-03-04 - Memory Denial of Service in Screeps
+**Vulnerability:** Denial of Service (DoS) via log-driven memory exhaustion.
+**Learning:** In environments with tight memory limits (like Screeps' 2MB limit), unbounded logging or data accumulation can be used to crash the system. Attackers can intentionally trigger verbose logs with large payloads.
+**Prevention:** Implement strict length limits (truncation) and volume limits (rotation/sampling) for all persistent data structures, especially logs and telemetry.

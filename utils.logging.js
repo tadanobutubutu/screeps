@@ -20,10 +20,13 @@ module.exports = {
             Memory.logs = [];
         }
 
+        // Security: Truncate message to avoid Memory DoS (2MB limit)
+        const sanitizedMessage = String(message).substring(0, 500);
+
         Memory.logs.push({
             time: Game.time,
             level: level,
-            message: String(message),
+            message: sanitizedMessage,
         });
 
         // Also output to console with emoji
@@ -34,7 +37,7 @@ module.exports = {
             debug: '\ud83d\udd0d',
         };
 
-        console.log(`${emoji[level] || '\ud83d\udcac'} [${level}] ${message}`);
+        console.log(`${emoji[level] || '\ud83d\udcac'} [${level}] ${sanitizedMessage}`);
     },
 
     // Convenience methods

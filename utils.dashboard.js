@@ -19,12 +19,16 @@ const DashboardRenderer = {
         const structures = room.find(FIND_MY_STRUCTURES);
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
 
-        const roleCount = {
-            harvester: creeps.filter((c) => c.memory.role === 'harvester').length,
-            upgrader: creeps.filter((c) => c.memory.role === 'upgrader').length,
-            builder: creeps.filter((c) => c.memory.role === 'builder').length,
-            repairer: creeps.filter((c) => c.memory.role === 'repairer').length,
-        };
+        // ⚡ PERFORMANCE OPTIMIZATION: Use a single loop to count roles instead of multiple filters.
+        // This reduces complexity from O(4N) to O(N) and avoids multiple array allocations.
+        const roleCount = { harvester: 0, upgrader: 0, builder: 0, repairer: 0 };
+        for (let i = 0; i < creeps.length; i++) {
+            const role = creeps[i].memory.role;
+            if (role === 'harvester') roleCount.harvester++;
+            else if (role === 'upgrader') roleCount.upgrader++;
+            else if (role === 'builder') roleCount.builder++;
+            else if (role === 'repairer') roleCount.repairer++;
+        }
 
         const energyStats = {
             available: room.energyAvailable,

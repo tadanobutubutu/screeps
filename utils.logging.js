@@ -29,6 +29,11 @@ module.exports = {
             message: sanitizedMessage,
         });
 
+        // Security: Immediate rotation to prevent Memory DoS mid-tick
+        if (Memory.logs.length > 100) {
+            Memory.logs.shift();
+        }
+
         // Also output to console with emoji
         const emoji = {
             error: '\u274c',

@@ -17,3 +17,8 @@
 **Vulnerability:** Denial of Service (DoS) via log-driven memory exhaustion.
 **Learning:** In environments with tight memory limits (like Screeps' 2MB limit), unbounded logging or data accumulation can be used to crash the system. Attackers can intentionally trigger verbose logs with large payloads.
 **Prevention:** Implement strict length limits (truncation) and volume limits (rotation/sampling) for all persistent data structures, especially logs and telemetry.
+
+## 2026-03-05 - Recursive Backup Memory DoS
+**Vulnerability:** Exponential memory growth via recursive serialization of the global `Memory` object.
+**Learning:** Storing a JSON-serialized snapshot of the entire `Memory` object *inside* a property of that same `Memory` object (e.g., `Memory.backups`) causes the serialized size to double with every backup. This quickly exceeds the environment's memory limit (2MB in Screeps) and crashes the process.
+**Prevention:** Always exclude the backup storage property (e.g., `backups`) from the object before serialization. Use a shallow clone and `delete` the recursive key before calling `JSON.stringify`.

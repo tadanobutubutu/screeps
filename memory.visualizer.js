@@ -2,7 +2,7 @@
  * Memory Visualizer - メモリを視覚化する楽しいシステム
  */
 
-const utilsMemory = require('utils.memory');
+const utilsMemory = require('./utils.memory');
 
 const memoryVisualizer = {
     /**
@@ -318,9 +318,14 @@ const memoryVisualizer = {
             Memory.backups = [];
         }
 
+        // Security: Exclude the backups array itself from the backup to avoid
+        // exponential memory growth (recursion).
+        const memoryClone = { ...Memory };
+        delete memoryClone.backups;
+
         const backup = {
             time: Game.time,
-            data: JSON.parse(JSON.stringify(Memory)),
+            data: JSON.parse(JSON.stringify(memoryClone)),
         };
 
         Memory.backups.push(backup);

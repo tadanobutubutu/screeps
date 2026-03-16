@@ -247,7 +247,7 @@ const adaptiveSystem = {
         // 重いメモリ構造を削除
         delete Memory.evolution;
         delete Memory.memorySnapshots;
-        delete Memory.backup;
+        delete Memory.backups;
         delete Memory.diary;
 
         // emotionsとgamificationは縮小

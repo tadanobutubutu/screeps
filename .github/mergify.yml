@@ -1,25 +1,27 @@
 # Mergify configuration for automatic PR merging
-# This will add mergify[bot] as a contributor
 
 queue_rules:
   - name: default
-    conditions:
-      - check-success=CodeQL
-      - check-success=Code Quality
+    merge_conditions:
+      - or:
+        - check-success=CodeQL
+        - check-neutral=CodeQL
+        - check-skipped=CodeQL
+      - or:
+        - check-success=Code Quality
+        - check-neutral=Code Quality
+        - check-skipped=Code Quality
 
 pull_request_rules:
-  # Auto-merge Dependabot PRs
-  - name: ⬆️ Auto-merge Dependabot PRs (minor/patch)
+  # Auto-merge Dependabot PRs (all types)
+  - name: ⬆️ Auto-merge Dependabot PRs
     conditions:
       - author=dependabot[bot]
-      - or:
-        - title~=^\[Security\]
-        - title~=^bump.*from.*to
-        - body~=patch
-        - body~=minor
-      - check-success=CodeQL
-      - -title~=major
       - -conflict
+      - or:
+        - check-success=CodeQL
+        - check-neutral=CodeQL
+        - check-skipped=CodeQL
     actions:
       merge:
         method: squash
@@ -29,15 +31,29 @@ pull_request_rules:
       comment:
         message: "✅ Automatically merged by Mergify Bot"
 
-  # Auto-merge approved automated PRs
-  - name: 🤖 Auto-merge automated PRs with approvals
+  # Auto-merge Renovate PRs (no approval needed)
+  - name: 🤖 Auto-merge Renovate PRs
     conditions:
+      - author=renovate[bot]
+      - -conflict
       - or:
-        - author=github-actions[bot]
-        - author=renovate[bot]
+        - check-success=CodeQL
+        - check-neutral=CodeQL
+        - check-skipped=CodeQL
+    actions:
+      merge:
+        method: squash
+      label:
+        add:
+          - auto-merged
+      comment:
+        message: "✅ Automatically merged by Mergify Bot"
+
+  # Auto-merge other automated PRs (github-actions[bot] etc)
+  - name: 🤖 Auto-merge other automated PRs
+    conditions:
+      - author=github-actions[bot]
       - label=automated
-      - "#approved-reviews-by>=1"
-      - check-success=CodeQL
       - -conflict
     actions:
       merge:
@@ -89,10 +105,13 @@ pull_request_rules:
         add:
           - javascript
 
-  # Auto-request reviews
+  # Auto-request reviews for large PRs
   - name: 👀 Request review for large PRs
     conditions:
       - "#files>10"
+      - author!=dependabot[bot]
+      - author!=renovate[bot]
+      - author!=github-actions[bot]
     actions:
       request_reviews:
         users:

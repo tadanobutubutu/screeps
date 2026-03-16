@@ -10,20 +10,26 @@
   "schedule": ["before 10am on monday"],
   "labels": ["dependencies", "renovate", "automated"],
   "assignees": ["tadanobutubutu"],
-  "reviewers": ["tadanobutubutu"],
-  "prConcurrentLimit": 3,
+  "reviewers": [],
+  "prConcurrentLimit": 5,
   "prCreation": "not-pending",
-  "prHourlyLimit": 2,
+  "prHourlyLimit": 4,
+  "automerge": false,
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
+      "automerge": false,
+      "labels": ["dependencies", "renovate", "automated"]
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "renovate", "automated", "major"]
     },
     {
       "matchDepTypes": ["devDependencies"],
-      "automerge": true
+      "automerge": false,
+      "labels": ["dependencies", "renovate", "automated"]
     }
   ],
   "npm": {
@@ -36,6 +42,6 @@
   "ignoreDeps": [],
   "vulnerabilityAlerts": {
     "enabled": true,
-    "labels": ["security"]
+    "labels": ["security", "dependencies", "renovate", "automated"]
   }
 }

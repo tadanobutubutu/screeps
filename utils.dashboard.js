@@ -53,6 +53,8 @@ const DashboardRenderer = {
             hostiles: hostiles.length,
             structures: structures.length,
             energy: `${formatNumber(energyStats.available)}/${formatNumber(energyStats.capacity)}`,
+            energyAvailable: energyStats.available,
+            energyCapacity: energyStats.capacity,
             storage: formatNumber(energyStats.storageEnergy),
             creeps: roleCount,
             mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
@@ -68,7 +70,7 @@ const DashboardRenderer = {
         let y = 2.5;
         const x = 1;
         const width = 8;
-        const height = 8.0;
+        const height = 9.0;
 
         // 🎨 Accessibility: Semi-transparent background for readability
         room.visual.rect(x - 0.5, y - 1, width, height, {
@@ -127,7 +129,22 @@ const DashboardRenderer = {
             stroke: '#000000',
             strokeWidth: 0.05,
         });
-        y++;
+        y += 0.4;
+
+        // Energy Progress Bar
+        const energyBarWidth = 6;
+        const energyBarHeight = 0.2;
+        const energyProgress = Math.min(info.energyAvailable / info.energyCapacity, 1);
+        room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, energyBarWidth * energyProgress, energyBarHeight, {
+            fill: '#00ffff',
+            opacity: 0.8,
+        });
+        y += 0.6;
 
         // 📦 Storage info
         room.visual.text(`📦 Storage: ${info.storage}`, x, y, {
@@ -141,7 +158,7 @@ const DashboardRenderer = {
 
         // 👥 Creeps info
         room.visual.text(
-            `👥 H:${info.creeps.harvester} U:${info.creeps.upgrader} B:${info.creeps.builder} R:${info.creeps.repairer}`,
+            `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
             x,
             y,
             {
@@ -168,8 +185,16 @@ const DashboardRenderer = {
         y += 0.8;
         const bucketProgress = Math.min(info.bucket / 10000, 1);
         room.visual.rect(x, y, 6, 0.2, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 });
+
+        let bucketColor = '#ff0000';
+        if (info.bucket > 7000) {
+            bucketColor = '#00ff00';
+        } else if (info.bucket > 3000) {
+            bucketColor = '#ffff00';
+        }
+
         room.visual.rect(x, y, 6 * bucketProgress, 0.2, {
-            fill: bucketProgress > 0.5 ? '#00ff00' : '#ff0000',
+            fill: bucketColor,
             opacity: 0.7,
         });
         room.visual.text(`CPU: ${info.bucket}`, x + 6.2, y + 0.15, {

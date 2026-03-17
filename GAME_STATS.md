@@ -12,7 +12,7 @@
 - **Total Issues**: 4
   - ✅ Closed: 6
   - 🔄 Open: 4
-- **Total PRs**: 1
+- **Total PRs**: 0
   - ✅ Merged: 44
 - **Total Commits**: 1
 - **Contributors**: 7

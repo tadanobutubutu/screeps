@@ -39,8 +39,12 @@ describe('role.repairer', () => {
       say: jest.fn(),
       repair: jest.fn().mockReturnValue(global.OK),
       harvest: jest.fn().mockReturnValue(global.OK),
+      upgradeController: jest.fn().mockReturnValue(global.OK),
       moveTo: jest.fn(),
-      room: { find: jest.fn().mockReturnValue([]) },
+      room: {
+        find: jest.fn().mockReturnValue([]),
+        controller: { id: 'controller1' },
+      },
       pos: { x: 1, y: 1 },
     };
     expect(() => roleRepairer.run(creep)).not.toThrow();

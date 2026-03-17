@@ -20,14 +20,21 @@ const DashboardRenderer = {
         const hostiles = room.find(FIND_HOSTILE_CREEPS);
 
         // ⚡ PERFORMANCE OPTIMIZATION: Use a single loop to count roles instead of multiple filters.
-        // This reduces complexity from O(4N) to O(N) and avoids multiple array allocations.
-        const roleCount = { harvester: 0, upgrader: 0, builder: 0, repairer: 0 };
+        const roleCount = {
+            harvester: 0,
+            upgrader: 0,
+            builder: 0,
+            repairer: 0,
+            transporter: 0,
+            scout: 0,
+            medic: 0,
+            explorer: 0,
+        };
         for (let i = 0; i < creeps.length; i++) {
             const role = creeps[i].memory.role;
-            if (role === 'harvester') roleCount.harvester++;
-            else if (role === 'upgrader') roleCount.upgrader++;
-            else if (role === 'builder') roleCount.builder++;
-            else if (role === 'repairer') roleCount.repairer++;
+            if (roleCount[role] !== undefined) {
+                roleCount[role]++;
+            }
         }
 
         const energyStats = {
@@ -38,6 +45,12 @@ const DashboardRenderer = {
 
         const info = {
             room: room.name,
+            gcl: {
+                level: Game.gcl.level,
+                percent: Math.floor((Game.gcl.progress / Game.gcl.progressTotal) * 100),
+                progress: Game.gcl.progress,
+                progressTotal: Game.gcl.progressTotal,
+            },
             controller: room.controller
                 ? {
                       level: room.controller.level,
@@ -67,10 +80,10 @@ const DashboardRenderer = {
     displayVisuals(room) {
         const info = this.renderRoomDashboard(room);
 
-        let y = 2.5;
+        let y = 2.0;
         const x = 1;
-        const width = 8;
-        const height = 9.0;
+        const width = 8.5;
+        const height = 11.5;
 
         // 🎨 Accessibility: Semi-transparent background for readability
         room.visual.rect(x - 0.5, y - 1, width, height, {
@@ -90,6 +103,31 @@ const DashboardRenderer = {
         });
         y++;
 
+        // 🌐 GCL info
+        room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent}%)`, x, y, {
+            font: 0.7,
+            color: '#ffffff',
+            align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+        y += 0.4;
+
+        // GCL Progress Bar
+        const gclBarWidth = 6;
+        const gclBarHeight = 0.2;
+        const gclProgress = info.gcl.progress / info.gcl.progressTotal;
+        room.visual.rect(x, y - 0.1, gclBarWidth, gclBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, gclBarWidth * gclProgress, gclBarHeight, {
+            fill: '#ffffff',
+            opacity: 0.8,
+        });
+        y += 0.6;
+
         // 🎮 Controller info
         const controllerText = info.controller
             ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
@@ -104,7 +142,7 @@ const DashboardRenderer = {
         y += 0.4;
 
         // RCL Progress Bar
-        if (info.controller) {
+        if (info.controller && info.controller.level < 8) {
             const barWidth = 6;
             const barHeight = 0.2;
             const progress = info.controller.progress / info.controller.progressTotal;
@@ -134,7 +172,7 @@ const DashboardRenderer = {
         // Energy Progress Bar
         const energyBarWidth = 6;
         const energyBarHeight = 0.2;
-        const energyProgress = Math.min(info.energyAvailable / info.energyCapacity, 1);
+        const energyProgress = Math.min(info.energyAvailable / info.energyCapacity, 1) || 0;
         room.visual.rect(x, y - 0.1, energyBarWidth, energyBarHeight, {
             fill: '#333333',
             stroke: '#ffffff',
@@ -159,6 +197,19 @@ const DashboardRenderer = {
         // 👥 Creeps info
         room.visual.text(
             `👥 ⛏️:${info.creeps.harvester} ⬆️:${info.creeps.upgrader} 🛠️:${info.creeps.builder} 🔧:${info.creeps.repairer}`,
+            x,
+            y,
+            {
+                font: 0.7,
+                color: '#ff00ff',
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
+        );
+        y += 0.8;
+        room.visual.text(
+            `   🚚:${info.creeps.transporter} 📡:${info.creeps.scout} 💊:${info.creeps.medic} 🗺️:${info.creeps.explorer}`,
             x,
             y,
             {

@@ -9,3 +9,7 @@
 ## 2024-05-23 - [Multi-state Visual Feedback]
 **Learning:** For critical game resources like the CPU Bucket in Screeps, binary color states (red/green) are often insufficient. Adding a middle "warning" state (e.g., yellow for 30%-70% levels) provides much better proactive feedback to users, allowing them to adjust their strategy before the system hits an emergency state.
 **Action:** Use multi-state color coding (Red/Yellow/Green) for all continuous resource monitors in dashboards to improve user awareness.
+
+## 2025-05-20 - [Comprehensive Information Density]
+**Learning:** In information-heavy dashboards like the Screeps Room Dashboard, cramming all data into single lines reduces scanability and causes text overflow issues. Using a multi-line approach with thematic grouping (e.g., basic roles vs. advanced roles) and intuitive emojis improves cognitive load and ensures the UI remains usable as the bot's complexity grows.
+**Action:** When adding more than 4-5 categories of metrics to a dashboard, group them logically and use multi-line layouts to maintain legibility.

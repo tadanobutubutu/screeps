@@ -1,28 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-16T19:07:12Z
+**Generated**: 2026-03-17T02:27:58Z
 
 ## 📊 Status
 
-- **Failed Runs**: 2
+- **Failed Runs**: 13
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23145156009,
-    "created": "2026-03-16T13:06:01Z"
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23174816648,
+    "created": "2026-03-17T01:57:28Z"
   },
   {
-    "workflow": "Auto Improve Screeps Code",
-    "name": "Auto Improve Screeps Code",
-    "id": 23139434604,
-    "created": "2026-03-16T10:35:46Z"
-  }
-]
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 23174789604,
+    "created": "2026-03-17T01:56:22Z"
+  },
+  {
+    "workflow": "Coverage Report + Jules Auto-Fix",
+    "name": "Coverage Report + Jules Auto-Fix",
+    "id": 23161802322,
+    "created": "2026-03-16T19:22:46Z"
+  },
+  {
+    "workflow": "SonarCloud Analysis + Jules Auto-Fix",
+    "name": "SonarCloud Analysis + Jules Auto-Fix",
+    "id": 23161802288,
+    "created": "2026-03-16T19:22:46Z"
+  },
+  {
+    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+    "name": ".github/workflows/ai-powered-auto-fix.yml",
+    "id": 23161801865,
+    "created": "2026-03-16T19:22:46Z"
+  },
+  {
+    "workflow": ".github/workflows/validate-action-versions.yml",
+    "name": ".github/workflows/validate-action-versions.yml",
+    "id": 23161801619,
+    "created": "2026-03-16T19:22:45Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23161801363,
+    "created": "2026-03-16T19:22:45Z"
+  },
+  {
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23161801167,
+    "created": "2026-03-16T19:22:44Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

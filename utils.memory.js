@@ -20,6 +20,10 @@ const isSafeKey = (key) => {
         '__lookupSetter__',
         'toString',
         'valueOf',
+        'hasOwnProperty',
+        'toLocaleString',
+        'isPrototypeOf',
+        'propertyIsEnumerable',
     ];
     return typeof key === 'string' && !dangerousKeys.includes(key);
 };
@@ -27,11 +31,20 @@ const isSafeKey = (key) => {
 module.exports = {
     // Clean up memory of dead creeps
     cleanMemory: function () {
+        if (!Memory.creeps) return 0;
+        let cleaned = 0;
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) {
+            // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+            if (
+                isSafeKey(name) &&
+                Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
+                !Game.creeps[name]
+            ) {
                 delete Memory.creeps[name];
+                cleaned++;
             }
         }
+        return cleaned;
     },
 
     // Exported version of isSafeKey
@@ -110,8 +123,11 @@ module.exports = {
         }
 
         for (const key in Memory.cache) {
-            if (Game.time - Memory.cache[key].timestamp > maxAge) {
-                delete Memory.cache[key];
+            // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+            if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(Memory.cache, key)) {
+                if (Game.time - Memory.cache[key].timestamp > maxAge) {
+                    delete Memory.cache[key];
+                }
             }
         }
     },
@@ -127,7 +143,12 @@ module.exports = {
         }
 
         for (const key in extraData) {
-            if (creep.memory[key] === undefined) {
+            // Security: Use isSafeKey and hasOwnProperty when merging extraData
+            if (
+                isSafeKey(key) &&
+                Object.prototype.hasOwnProperty.call(extraData, key) &&
+                creep.memory[key] === undefined
+            ) {
                 creep.memory[key] = extraData[key];
             }
         }

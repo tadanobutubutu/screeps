@@ -53,6 +53,10 @@ describe('utils.memory', () => {
     expect(utilsMemory.isSafeKey('toString')).toBe(false);
     expect(utilsMemory.isSafeKey('valueOf')).toBe(false);
     expect(utilsMemory.isSafeKey('__defineGetter__')).toBe(false);
+    expect(utilsMemory.isSafeKey('hasOwnProperty')).toBe(false);
+    expect(utilsMemory.isSafeKey('toLocaleString')).toBe(false);
+    expect(utilsMemory.isSafeKey('isPrototypeOf')).toBe(false);
+    expect(utilsMemory.isSafeKey('propertyIsEnumerable')).toBe(false);
   });
 
   test('isSafeKey allows safe properties', () => {

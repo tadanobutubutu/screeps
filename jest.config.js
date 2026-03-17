@@ -25,4 +25,5 @@ module.exports = {
     // Screeps globals
     globals: {},
     testPathIgnorePatterns: ['/node_modules/'],
+    modulePaths: ['<rootDir>'],
 };

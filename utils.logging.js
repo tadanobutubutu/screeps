@@ -80,7 +80,7 @@ module.exports = {
                 // Match "filename:line:col" at the end of a path segment.
                 // Uses a simple non-backtracking pattern: match the last
                 // path component only, without nested quantifiers.
-                const match = line.match(/[^\/\\]+:\d+:\d+/);
+                const match = line.match(/[^/\\]+:\d+:\d+/);
                 if (match) {
                     return match[0];
                 }

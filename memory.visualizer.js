@@ -33,7 +33,6 @@ const memoryVisualizer = {
     showTopMemoryUsers: function (limit = 10) {
         const sizes = [];
 
-        // Creepメモリ
         for (const name in Memory.creeps) {
             sizes.push({
                 type: 'creep',
@@ -42,7 +41,6 @@ const memoryVisualizer = {
             });
         }
 
-        // Roomメモリ
         for (const name in Memory.rooms) {
             sizes.push({
                 type: 'room',
@@ -51,7 +49,6 @@ const memoryVisualizer = {
             });
         }
 
-        // ソート
         sizes.sort((a, b) => b.size - a.size);
 
         console.log(`📈 Top ${limit} Memory Users:`);
@@ -63,7 +60,7 @@ const memoryVisualizer = {
     },
 
     /**
-     * メモリタイムマシン - 過去のデータを記録
+     * メモリタイムマシン
      */
     initTimeMachine: function () {
         if (!Memory.timeMachine) {
@@ -95,7 +92,6 @@ const memoryVisualizer = {
 
         Memory.timeMachine.snapshots.push(snapshot);
 
-        // 古いスナップショットを削除
         if (Memory.timeMachine.snapshots.length > Memory.timeMachine.maxSnapshots) {
             Memory.timeMachine.snapshots.shift();
         }
@@ -117,7 +113,7 @@ const memoryVisualizer = {
     },
 
     /**
-     * メモリリーダーボード - Creepの成績表
+     * メモリリーダーボード
      */
     initLeaderboard: function () {
         if (!Memory.leaderboard) {
@@ -134,7 +130,6 @@ const memoryVisualizer = {
     recordAchievement: function (creepName, type, amount) {
         this.initLeaderboard();
 
-        // Security: Validate creepName and type to prevent prototype pollution
         if (!utilsMemory.isSafeKey(creepName) || !utilsMemory.isSafeKey(type)) {
             return;
         }
@@ -168,7 +163,7 @@ const memoryVisualizer = {
     },
 
     /**
-     * Creep日記 - 各Creepの行動記録
+     * Creep日記
      */
     initDiary: function (creepName) {
         if (!Memory.creeps[creepName]) {
@@ -186,7 +181,7 @@ const memoryVisualizer = {
     addDiaryEntry: function (creepName, message) {
         this.initDiary(creepName);
 
-        if (!Memory.creeps[creepName] || !Memory.creeps[creepName].diary) {
+        if (!Memory.creeps[creepName]?.diary) {
             return;
         }
 
@@ -197,7 +192,6 @@ const memoryVisualizer = {
 
         Memory.creeps[creepName].diary.entries.push(entry);
 
-        // 古いエントリを削除
         const diary = Memory.creeps[creepName].diary;
         if (diary.entries.length > diary.maxEntries) {
             diary.entries.shift();
@@ -205,7 +199,7 @@ const memoryVisualizer = {
     },
 
     readDiary: function (creepName) {
-        if (!Memory.creeps[creepName] || !Memory.creeps[creepName].diary) {
+        if (!Memory.creeps[creepName]?.diary) {
             console.log(`📝 No diary for ${creepName}`);
             return [];
         }
@@ -220,7 +214,7 @@ const memoryVisualizer = {
     },
 
     /**
-     * メモリマップ - 部屋の視覚化
+     * メモリマップ
      */
     initMemoryMap: function () {
         if (!Memory.map) {
@@ -243,7 +237,7 @@ const memoryVisualizer = {
             lastVisit: Game.time,
             controller: room.controller
                 ? {
-                      owner: room.controller.owner ? room.controller.owner.username : null,
+                      owner: room.controller.owner?.username ?? null,
                       level: room.controller.level,
                   }
                 : null,
@@ -265,8 +259,7 @@ const memoryVisualizer = {
 
         for (const roomName in Memory.map.rooms) {
             const info = Memory.map.rooms[roomName];
-            const owner =
-                info.controller && info.controller.owner ? info.controller.owner : 'Unclaimed';
+            const owner = info.controller?.owner ?? 'Unclaimed';
             console.log(
                 `  ${roomName}: Owner=${owner}, Sources=${info.sources}, Hostiles=${info.hostiles}`
             );
@@ -274,18 +267,15 @@ const memoryVisualizer = {
     },
 
     /**
-     * メモリクリーナー - 使われていないメモリを削除
+     * メモリクリーナー
      */
     cleanup: function () {
         let cleaned = 0;
 
-        // 死んだCreepのメモリ削除
         cleaned += utilsMemory.cleanMemory();
 
-        // 消えたFlagのメモリ削除
         if (Memory.flags) {
             for (const name in Memory.flags) {
-                // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
                 if (
                     utilsMemory.isSafeKey(name) &&
                     Object.prototype.hasOwnProperty.call(Memory.flags, name) &&
@@ -297,10 +287,8 @@ const memoryVisualizer = {
             }
         }
 
-        // 古いRoomメモリ削除 (1000tick以上訪問なし)
-        if (Memory.map && Memory.map.rooms) {
+        if (Memory.map?.rooms) {
             for (const roomName in Memory.map.rooms) {
-                // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
                 if (
                     utilsMemory.isSafeKey(roomName) &&
                     Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
@@ -326,8 +314,6 @@ const memoryVisualizer = {
             Memory.backups = [];
         }
 
-        // Security: Exclude the backups array itself from the backup to avoid
-        // exponential memory growth (recursion).
         const memoryClone = { ...Memory };
         delete memoryClone.backups;
 
@@ -338,7 +324,6 @@ const memoryVisualizer = {
 
         Memory.backups.push(backup);
 
-        // 古いバックアップ削除 (最大5個)
         if (Memory.backups.length > 5) {
             Memory.backups.shift();
         }
@@ -358,15 +343,12 @@ const memoryVisualizer = {
             return false;
         }
 
-        // バックアップ以外を保存
         const backups = Memory.backups;
 
-        // 復元
         for (const key in Memory) {
             delete Memory[key];
         }
 
-        // Security: Use safe iteration instead of Object.assign to prevent prototype pollution
         for (const key in backup.data) {
             if (utilsMemory.isSafeKey(key)) {
                 Memory[key] = backup.data[key];

@@ -6,29 +6,22 @@
  */
 
 const EMOTIONS = {
-    // 😊 Positive emotions
     HAPPY: '😊',
     EXCITED: '🤩',
     PROUD: '😎',
     LOVE: '😍',
     ENERGETIC: '⚡',
     SUCCESSFUL: '⭐',
-
-    // 😐 Neutral emotions
     WORKING: '🛠️',
     THINKING: '🤔',
     FOCUSED: '🎯',
     WALKING: '🚶',
-
-    // 😔 Negative emotions
     TIRED: '😫',
     CONFUSED: '😵',
     WORRIED: '😟',
     HURT: '🤕',
     STUCK: '😨',
     HUNGRY: '🍔',
-
-    // 💪 Activity-based
     HARVESTING: '⛏️',
     BUILDING: '🛠️',
     UPGRADING: '⬆️',
@@ -36,8 +29,6 @@ const EMOTIONS = {
     HEALING: '💊',
     FIGHTING: '⚔️',
     TRANSPORTING: '🚚',
-
-    // 🎉 Special
     BIRTHDAY: '🎉',
     LEVELUP: '🎆',
     CELEBRATING: '🎊',
@@ -52,9 +43,6 @@ const MOOD_LEVELS = {
 };
 
 class EmotionSystem {
-    /**
-     * Initialize emotion system for a creep
-     */
     static initialize(creep) {
         if (!creep.memory.emotions) {
             creep.memory.emotions = {
@@ -68,24 +56,70 @@ class EmotionSystem {
         }
     }
 
-    /**
-     * Generate random personality traits
-     */
     static generatePersonality() {
         const traits = ['cheerful', 'serious', 'energetic', 'calm', 'curious', 'determined'];
         return traits[Math.floor(Math.random() * traits.length)];
     }
 
     /**
-     * Update creep's emotion based on current situation
+     * エネルギーレベルに基づく感情を取得
      */
+    static _getEnergyEmotion(creep) {
+        const energyPercent =
+            creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY);
+        if (energyPercent < 0.1) return { emoji: EMOTIONS.HUNGRY, moodChange: -1 };
+        if (energyPercent > 0.9) return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 };
+        return null;
+    }
+
+    /**
+     * 健康状態に基づく感情を取得
+     */
+    static _getHealthEmotion(creep) {
+        const healthPercent = creep.hits / creep.hitsMax;
+        if (healthPercent < 0.5) return { emoji: EMOTIONS.HURT, moodChange: -2 };
+        return null;
+    }
+
+    /**
+     * スタック状態に基づく感情を取得
+     */
+    static _getStuckEmotion(creep) {
+        if (
+            creep.memory.lastPos &&
+            creep.pos.x === creep.memory.lastPos.x &&
+            creep.pos.y === creep.memory.lastPos.y
+        ) {
+            creep.memory.stuckCounter = (creep.memory.stuckCounter || 0) + 1;
+            if (creep.memory.stuckCounter > 3) {
+                return { emoji: EMOTIONS.STUCK, moodChange: -1 };
+            }
+        } else {
+            creep.memory.stuckCounter = 0;
+        }
+        creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y };
+        return null;
+    }
+
+    /**
+     * ロールに基づく感情を取得
+     */
+    static _getRoleEmotion(creep) {
+        switch (creep.memory.role) {
+            case 'harvester': return creep.harvest ? EMOTIONS.HARVESTING : null;
+            case 'builder': return creep.build ? EMOTIONS.BUILDING : null;
+            case 'upgrader': return EMOTIONS.UPGRADING;
+            case 'repairer': return EMOTIONS.REPAIRING;
+            case 'medic': return EMOTIONS.HEALING;
+            default: return null;
+        }
+    }
+
     static updateEmotion(creep) {
         this.initialize(creep);
 
         const emotions = creep.memory.emotions;
 
-        // ⚡ PERFORMANCE: Only update full emotion logic every 5 ticks
-        // Use a stable offset based on creep name to distribute load
         const updateOffset = creep.name.length % 5;
         if ((Game.time + updateOffset) % 5 !== 0 && emotions.lastEmotion) {
             return emotions.lastEmotion;
@@ -94,75 +128,37 @@ class EmotionSystem {
         let emoji = EMOTIONS.WORKING;
         let moodChange = 0;
 
-        // Check energy level
-        const energyPercent =
-            creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY);
-
-        if (energyPercent < 0.1) {
-            emoji = EMOTIONS.HUNGRY;
-            moodChange = -1;
-        } else if (energyPercent > 0.9) {
-            emoji = EMOTIONS.ENERGETIC;
-            moodChange = 1;
+        const energyResult = this._getEnergyEmotion(creep);
+        if (energyResult) {
+            emoji = energyResult.emoji;
+            moodChange += energyResult.moodChange;
         }
 
-        // Check health
-        const healthPercent = creep.hits / creep.hitsMax;
-        if (healthPercent < 0.5) {
-            emoji = EMOTIONS.HURT;
-            moodChange = -2;
+        const healthResult = this._getHealthEmotion(creep);
+        if (healthResult) {
+            emoji = healthResult.emoji;
+            moodChange += healthResult.moodChange;
         }
 
-        // Check if stuck (same position)
-        if (
-            creep.memory.lastPos &&
-            creep.pos.x === creep.memory.lastPos.x &&
-            creep.pos.y === creep.memory.lastPos.y
-        ) {
-            creep.memory.stuckCounter = (creep.memory.stuckCounter || 0) + 1;
-            if (creep.memory.stuckCounter > 3) {
-                emoji = EMOTIONS.STUCK;
-                moodChange = -1;
-            }
-        } else {
-            creep.memory.stuckCounter = 0;
-        }
-        creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y };
-
-        // Role-based emotions
-        switch (creep.memory.role) {
-            case 'harvester':
-                if (creep.harvest) {
-                    emoji = EMOTIONS.HARVESTING;
-                }
-                break;
-            case 'builder':
-                if (creep.build) {
-                    emoji = EMOTIONS.BUILDING;
-                }
-                break;
-            case 'upgrader':
-                emoji = EMOTIONS.UPGRADING;
-                break;
-            case 'repairer':
-                emoji = EMOTIONS.REPAIRING;
-                break;
-            case 'medic':
-                emoji = EMOTIONS.HEALING;
-                break;
+        const stuckResult = this._getStuckEmotion(creep);
+        if (stuckResult) {
+            emoji = stuckResult.emoji;
+            moodChange += stuckResult.moodChange;
         }
 
-        // Check for achievements
+        const roleEmoji = this._getRoleEmotion(creep);
+        if (roleEmoji) {
+            emoji = roleEmoji;
+        }
+
         if (Game.time - emotions.birthTick === 1500) {
             emoji = EMOTIONS.BIRTHDAY;
             this.celebrate(creep, 'Lived 1500 ticks!');
             moodChange = 3;
         }
 
-        // Update mood (between 1-5)
         emotions.mood = Math.max(1, Math.min(5, emotions.mood + moodChange));
 
-        // Personality affects emoji choice
         if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
             emoji = EMOTIONS.HAPPY;
         }
@@ -171,17 +167,11 @@ class EmotionSystem {
         return emoji;
     }
 
-    /**
-     * Display emotion above creep
-     */
     static display(creep) {
         const emoji = this.updateEmotion(creep);
         creep.say(emoji, true);
     }
 
-    /**
-     * Make creep celebrate
-     */
     static celebrate(creep, achievement) {
         if (!creep.memory.emotions.achievements) {
             creep.memory.emotions.achievements = [];
@@ -192,78 +182,46 @@ class EmotionSystem {
         });
         creep.memory.emotions.mood = MOOD_LEVELS.VERY_HAPPY;
 
-        // Show celebration for 5 ticks
         for (let i = 0; i < 5; i++) {
             creep.say(EMOTIONS.CELEBRATING, true);
         }
     }
 
-    /**
-     * Get creep's current mood description
-     */
     static getMoodDescription(creep) {
         this.initialize(creep);
         const mood = creep.memory.emotions.mood;
 
-        if (mood >= 5) {
-            return 'Very Happy 😄';
-        }
-        if (mood >= 4) {
-            return 'Happy 😊';
-        }
-        if (mood >= 3) {
-            return 'Neutral 😐';
-        }
-        if (mood >= 2) {
-            return 'Sad 😟';
-        }
+        if (mood >= 5) return 'Very Happy 😄';
+        if (mood >= 4) return 'Happy 😊';
+        if (mood >= 3) return 'Neutral 😐';
+        if (mood >= 2) return 'Sad 😟';
         return 'Very Sad 😭';
     }
 
-    /**
-     * Interact with another creep (social feature)
-     */
     static interact(creep1, creep2) {
         if (creep1.pos.inRangeTo(creep2, 1)) {
-            // Both creeps get happy when near each other
             this.initialize(creep1);
             this.initialize(creep2);
 
             creep1.memory.emotions.mood = Math.min(5, creep1.memory.emotions.mood + 0.5);
             creep2.memory.emotions.mood = Math.min(5, creep2.memory.emotions.mood + 0.5);
 
-            // Exchange emojis
             creep1.say('👋', true);
             creep2.say('😊', true);
         }
     }
 
-    /**
-     * Get emotion-based performance modifier
-     */
     static getPerformanceModifier(creep) {
         this.initialize(creep);
         const mood = creep.memory.emotions.mood;
 
-        // Happy creeps work slightly better!
-        if (mood >= 5) {
-            return 1.1;
-        } // 10% bonus
-        if (mood >= 4) {
-            return 1.05;
-        } // 5% bonus
-        if (mood >= 3) {
-            return 1.0;
-        } // Normal
-        if (mood >= 2) {
-            return 0.95;
-        } // 5% penalty
-        return 0.9; // 10% penalty
+        if (mood >= 5) return 1.1;
+        if (mood >= 4) return 1.05;
+        if (mood >= 3) return 1.0;
+        if (mood >= 2) return 0.95;
+        return 0.9;
     }
 
-    /**
-     * Get stats for all creeps
-     */
     static getStats() {
         const stats = {
             veryHappy: 0,
@@ -279,17 +237,11 @@ class EmotionSystem {
             this.initialize(creep);
             const mood = creep.memory.emotions.mood;
 
-            if (mood >= 5) {
-                stats.veryHappy++;
-            } else if (mood >= 4) {
-                stats.happy++;
-            } else if (mood >= 3) {
-                stats.neutral++;
-            } else if (mood >= 2) {
-                stats.sad++;
-            } else {
-                stats.verySad++;
-            }
+            if (mood >= 5) stats.veryHappy++;
+            else if (mood >= 4) stats.happy++;
+            else if (mood >= 3) stats.neutral++;
+            else if (mood >= 2) stats.sad++;
+            else stats.verySad++;
 
             stats.total++;
         }
@@ -297,9 +249,6 @@ class EmotionSystem {
         return stats;
     }
 
-    /**
-     * Console command to check creep emotions
-     */
     static checkCreep(creepName) {
         const creep = Game.creeps[creepName];
         if (!creep) {

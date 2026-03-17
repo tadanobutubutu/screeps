@@ -25,7 +25,7 @@ const autoEvolution = {
                     gameState: null,
                     cacheTime: 0,
                 },
-                analysisPhase: 0, // 段階的処理用
+                analysisPhase: 0,
             };
         }
     },
@@ -41,14 +41,14 @@ const autoEvolution = {
             return;
         }
 
-        // 100ティックごとにチェック（以前は10ティック）
+        // 100ティックごとにチェック
         if (Game.time - Memory.evolution.lastCheck < 100) {
             return;
         }
 
         Memory.evolution.lastCheck = Game.time;
 
-        // 段階的処理: 1回のrunで全てやらない
+        // 段階的処理
         this.runPhase();
     },
 
@@ -59,16 +59,14 @@ const autoEvolution = {
         const phase = Memory.evolution.analysisPhase;
 
         switch (phase) {
-            case 0:
-                // Phase 0: 基本状態分析のみ
+            case 0: {
                 const basicState = this.analyzeBasicState();
                 Memory.evolution.cache.gameState = basicState;
                 Memory.evolution.cache.cacheTime = Game.time;
                 Memory.evolution.analysisPhase = 1;
                 break;
-
-            case 1:
-                // Phase 1: ボトルネック分析
+            }
+            case 1: {
                 const state = Memory.evolution.cache.gameState;
                 if (state) {
                     state.bottlenecks = this.analyzeBottlenecks();
@@ -76,9 +74,8 @@ const autoEvolution = {
                 }
                 Memory.evolution.analysisPhase = 2;
                 break;
-
-            case 2:
-                // Phase 2: 進化判定とキュー追加
+            }
+            case 2: {
                 const cachedState = Memory.evolution.cache.gameState;
                 if (cachedState) {
                     const needs = this.needsEvolution(cachedState);
@@ -89,11 +86,10 @@ const autoEvolution = {
                 }
                 Memory.evolution.analysisPhase = 3;
                 break;
-
+            }
             case 3:
-                // Phase 3: キュー処理
                 this.processQueue();
-                Memory.evolution.analysisPhase = 0; // リセット
+                Memory.evolution.analysisPhase = 0;
                 Memory.evolution.lastFullAnalysis = Game.time;
                 break;
         }
@@ -103,7 +99,6 @@ const autoEvolution = {
      * 基本状態分析（軽量版）
      */
     analyzeBasicState: function () {
-        // 自分の部屋のみ、キャッシュ活用
         const myRooms = [];
         for (const roomName in Game.rooms) {
             const room = Game.rooms[roomName];
@@ -120,9 +115,9 @@ const autoEvolution = {
             gcl: Game.gcl.level,
             resources: this.analyzeResourcesLight(myRooms),
             structures: this.analyzeStructuresLight(myRooms),
-            threats: [], // 後で追加可能
+            threats: [],
             opportunities: {},
-            bottlenecks: [], // Phase 1で追加
+            bottlenecks: [],
         };
 
         return state;
@@ -169,7 +164,6 @@ const autoEvolution = {
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
 
-            // find()を使わず、room.structuresキャッシュを活用
             if (room.storage) {
                 structures.storage++;
             }
@@ -177,7 +171,6 @@ const autoEvolution = {
                 structures.terminals++;
             }
 
-            // 他の構造物はカウントのみ（詳細分析は不要）
             const roomStructures = room.find(FIND_MY_STRUCTURES);
             for (let j = 0; j < roomStructures.length; j++) {
                 const s = roomStructures[j];
@@ -202,7 +195,6 @@ const autoEvolution = {
     analyzeBottlenecks: function () {
         const bottlenecks = [];
 
-        // 1部屋のみチェック（CPU節約）
         for (const roomName in Game.rooms) {
             const room = Game.rooms[roomName];
             if (!room.controller || !room.controller.my) {
@@ -211,7 +203,6 @@ const autoEvolution = {
 
             const creeps = room.find(FIND_MY_CREEPS);
 
-            // Harvester数チェックのみ
             const harvesters = [];
             for (let i = 0; i < creeps.length; i++) {
                 if (creeps[i].memory.role === 'harvester') {
@@ -230,7 +221,6 @@ const autoEvolution = {
                 });
             }
 
-            // エネルギー不足チェック
             if (room.energyAvailable < room.energyCapacityAvailable * 0.3) {
                 bottlenecks.push({
                     room: room.name,
@@ -239,7 +229,6 @@ const autoEvolution = {
                 });
             }
 
-            // 1部屋のみで終了
             break;
         }
 
@@ -247,12 +236,9 @@ const autoEvolution = {
     },
 
     /**
-     * 進化必要性判定（簡略版）
+     * 進化必要性判定 - RCLアップグレード検知
      */
-    needsEvolution: function (state) {
-        const needs = [];
-
-        // RCLアップグレード検知
+    _checkRclUpgrade: function (state, needs) {
         if (state.rcl > Memory.evolution.lastRCL) {
             needs.push({
                 type: 'rcl_upgrade',
@@ -265,8 +251,12 @@ const autoEvolution = {
             });
             Memory.evolution.lastRCL = state.rcl;
         }
+    },
 
-        // ボトルネック解消（最大2つまで）
+    /**
+     * 進化必要性判定 - ボトルネック解消
+     */
+    _checkBottlenecks: function (state, needs) {
         const bottlenecks = state.bottlenecks || [];
         for (let i = 0; i < Math.min(bottlenecks.length, 2); i++) {
             needs.push({
@@ -276,8 +266,12 @@ const autoEvolution = {
                 action: 'optimize_production',
             });
         }
+    },
 
-        // 新機能追加（構造物ベース）- RCL 3のみチェック
+    /**
+     * 進化必要性判定 - 新機能追加
+     */
+    _checkNewFeatures: function (state, needs) {
         if (state.rcl >= 3 && state.structures.towers === 0) {
             needs.push({
                 type: 'new_feature',
@@ -286,7 +280,16 @@ const autoEvolution = {
                 action: 'create_tower_logic',
             });
         }
+    },
 
+    /**
+     * 進化必要性判定（簡略版）
+     */
+    needsEvolution: function (state) {
+        const needs = [];
+        this._checkRclUpgrade(state, needs);
+        this._checkBottlenecks(state, needs);
+        this._checkNewFeatures(state, needs);
         return needs;
     },
 
@@ -294,7 +297,6 @@ const autoEvolution = {
      * キューに追加
      */
     addToQueue: function (need) {
-        // 重複チェック
         const queue = Memory.evolution.queue;
         let exists = false;
 
@@ -308,7 +310,6 @@ const autoEvolution = {
         if (!exists) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-
             console.log('🤖 Evolution queued: ' + need.type + ' (Priority: ' + need.priority + ')');
         }
     },
@@ -321,18 +322,14 @@ const autoEvolution = {
             return;
         }
 
-        // 優先度順にソート
         Memory.evolution.queue.sort(function (a, b) {
             return b.priority - a.priority;
         });
 
-        // 最優先項目を処理
         const item = Memory.evolution.queue[0];
 
-        // コード生成提案を作成
         this.generateCodeSuggestion(item);
 
-        // 履歴に追加
         Memory.evolution.history.push({
             time: Game.time,
             type: item.type,
@@ -340,10 +337,8 @@ const autoEvolution = {
             data: item.data,
         });
 
-        // 統計更新
         Memory.evolution.stats.totalEvolutions++;
 
-        // キューから削除
         Memory.evolution.queue.shift();
     },
 
@@ -387,18 +382,10 @@ const autoEvolution = {
     generateRCLFeatures: function (data) {
         const rcl = data.newRCL;
 
-        if (rcl === 3) {
-            return '// Tower management code needed\n// Create structure.tower.js';
-        }
-        if (rcl === 4) {
-            return '// Storage management needed\n// Create storage.manager.js';
-        }
-        if (rcl === 5) {
-            return '// Link network needed\n// Create link.network.js';
-        }
-        if (rcl === 6) {
-            return '// Mineral mining needed\n// Create role.miner.js';
-        }
+        if (rcl === 3) return '// Tower management code needed\n// Create structure.tower.js';
+        if (rcl === 4) return '// Storage management needed\n// Create storage.manager.js';
+        if (rcl === 5) return '// Link network needed\n// Create link.network.js';
+        if (rcl === 6) return '// Mineral mining needed\n// Create role.miner.js';
 
         return '// RCL ' + rcl + ' features';
     },
@@ -411,9 +398,9 @@ const autoEvolution = {
             '// Optimize ' +
             data.type +
             '\n// Current: ' +
-            data.current +
+            (data.current ?? 'N/A') +
             ', Needed: ' +
-            data.needed
+            (data.needed ?? 'N/A')
         );
     },
 
@@ -453,7 +440,6 @@ const autoEvolution = {
         console.log('Current Phase: ' + evo.analysisPhase);
         console.log('Last Full Analysis: ' + (Game.time - evo.lastFullAnalysis) + ' ticks ago');
 
-        // 履歴
         if (evo.history.length > 0) {
             console.log('\n📜 Recent Evolution History:');
             const recentHistory = evo.history.slice(-5);
@@ -463,7 +449,6 @@ const autoEvolution = {
             }
         }
 
-        // キュー
         if (evo.queue.length > 0) {
             console.log('\n⏳ Pending Evolutions:');
             const pendingQueue = evo.queue.slice(0, 5);
@@ -473,7 +458,6 @@ const autoEvolution = {
             }
         }
 
-        // 提案
         if (evo.suggestions.length > 0) {
             console.log('\n💡 Code Suggestions:');
             const recentSuggestions = evo.suggestions.slice(-3);

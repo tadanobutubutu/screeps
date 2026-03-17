@@ -130,7 +130,14 @@ const visualEffects = {
         if (!isVfxEnabled()) return;
         const visual = new RoomVisual(pos.roomName);
 
-        const color = count >= 10 ? '#FF0000' : count >= 5 ? '#FF69B4' : '#FFD700';
+        let color;
+        if (count >= 10) {
+            color = '#FF0000';
+        } else if (count >= 5) {
+            color = '#FF69B4';
+        } else {
+            color = '#FFD700';
+        }
 
         visual.text(`${count}x COMBO!`, pos.x, pos.y, {
             color: color,
@@ -206,7 +213,14 @@ const visualEffects = {
         });
 
         // プログレス
-        const color = progress >= 0.8 ? '#00FF00' : progress >= 0.5 ? '#FFFF00' : '#FF0000';
+        let color;
+        if (progress >= 0.8) {
+            color = '#00FF00';
+        } else if (progress >= 0.5) {
+            color = '#FFFF00';
+        } else {
+            color = '#FF0000';
+        }
 
         visual.rect(pos.x - width / 2, pos.y - height / 2, width * progress, height, {
             fill: color,

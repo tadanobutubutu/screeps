@@ -43,7 +43,9 @@ module.exports = {
             debug: '\ud83d\udd0d',
         };
 
-        console.log(`${emoji[sanitizedLevel] || '\ud83d\udcac'} [${sanitizedLevel}] ${sanitizedMessage}`);
+        console.log(
+            `${emoji[sanitizedLevel] || '\ud83d\udcac'} [${sanitizedLevel}] ${sanitizedMessage}`
+        );
     },
 
     // Convenience methods

@@ -106,12 +106,18 @@ class EmotionSystem {
      */
     static _getRoleEmotion(creep) {
         switch (creep.memory.role) {
-            case 'harvester': return creep.harvest ? EMOTIONS.HARVESTING : null;
-            case 'builder': return creep.build ? EMOTIONS.BUILDING : null;
-            case 'upgrader': return EMOTIONS.UPGRADING;
-            case 'repairer': return EMOTIONS.REPAIRING;
-            case 'medic': return EMOTIONS.HEALING;
-            default: return null;
+            case 'harvester':
+                return creep.harvest ? EMOTIONS.HARVESTING : null;
+            case 'builder':
+                return creep.build ? EMOTIONS.BUILDING : null;
+            case 'upgrader':
+                return EMOTIONS.UPGRADING;
+            case 'repairer':
+                return EMOTIONS.REPAIRING;
+            case 'medic':
+                return EMOTIONS.HEALING;
+            default:
+                return null;
         }
     }
 

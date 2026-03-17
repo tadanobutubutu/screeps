@@ -160,7 +160,8 @@ const adaptiveSystem = {
         // 統計更新
         const modeName = this.getModeName(newMode);
         if (modeName) {
-            Memory.adaptive.stats[modeName + 'Count'] = (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1;
+            Memory.adaptive.stats[modeName + 'Count'] =
+                (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1;
         }
 
         return newMode;

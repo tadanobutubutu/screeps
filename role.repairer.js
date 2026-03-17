@@ -10,15 +10,30 @@ const roleRepairer = {
         }
 
         if (creep.memory.repairing) {
-            // 修理が必要な構造物を探す（壁を除く）
-            const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
-            });
-            if (targets.length > 0) {
-                // 最もhitsが低い構造物を優先修理
-                targets.sort((a, b) => a.hits - b.hits);
-                if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffff00' } });
+            // ⚡ PERFORMANCE: Per-tick caching of damaged structures
+            if (creep.room._damagedStructuresTick !== Game.time) {
+                creep.room._damagedStructures = creep.room.find(FIND_STRUCTURES, {
+                    filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
+                });
+                creep.room._damagedStructuresTick = Game.time;
+            }
+
+            const targets = creep.room._damagedStructures;
+
+            if (targets && targets.length > 0) {
+                // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
+                let target = targets[0];
+                let minHits = target.hits;
+
+                for (let i = 1; i < targets.length; i++) {
+                    if (targets[i].hits < minHits) {
+                        target = targets[i];
+                        minHits = target.hits;
+                    }
+                }
+
+                if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });
                 }
             } else {
                 // 修理対象がない場合はアップグレード

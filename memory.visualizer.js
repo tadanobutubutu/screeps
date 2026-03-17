@@ -280,28 +280,36 @@ const memoryVisualizer = {
         let cleaned = 0;
 
         // 死んだCreepのメモリ削除
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) {
-                delete Memory.creeps[name];
-                cleaned++;
-            }
-        }
+        cleaned += utilsMemory.cleanMemory();
 
         // 消えたFlagのメモリ削除
-        for (const name in Memory.flags) {
-            if (!Game.flags[name]) {
-                delete Memory.flags[name];
-                cleaned++;
+        if (Memory.flags) {
+            for (const name in Memory.flags) {
+                // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+                if (
+                    utilsMemory.isSafeKey(name) &&
+                    Object.prototype.hasOwnProperty.call(Memory.flags, name) &&
+                    !Game.flags[name]
+                ) {
+                    delete Memory.flags[name];
+                    cleaned++;
+                }
             }
         }
 
         // 古いRoomメモリ削除 (1000tick以上訪問なし)
         if (Memory.map && Memory.map.rooms) {
             for (const roomName in Memory.map.rooms) {
-                const lastVisit = Memory.map.rooms[roomName].lastVisit;
-                if (Game.time - lastVisit > 1000) {
-                    delete Memory.map.rooms[roomName];
-                    cleaned++;
+                // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+                if (
+                    utilsMemory.isSafeKey(roomName) &&
+                    Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
+                ) {
+                    const lastVisit = Memory.map.rooms[roomName].lastVisit;
+                    if (Game.time - lastVisit > 1000) {
+                        delete Memory.map.rooms[roomName];
+                        cleaned++;
+                    }
                 }
             }
         }

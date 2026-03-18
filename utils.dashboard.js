@@ -66,12 +66,16 @@ const DashboardRenderer = {
             hostiles: hostiles.length,
             structures: structures.length,
             energy: `${formatNumber(energyStats.available)}/${formatNumber(energyStats.capacity)}`,
+            energyPercent: energyStats.capacity
+                ? Math.floor((energyStats.available / energyStats.capacity) * 100)
+                : 0,
             energyAvailable: energyStats.available,
             energyCapacity: energyStats.capacity,
             storage: formatNumber(energyStats.storageEnergy),
             creeps: roleCount,
             mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
             bucket: Game.cpu.bucket,
+            cpuUsed: Game.cpu.getUsed().toFixed(2),
         };
 
         return info;
@@ -160,7 +164,7 @@ const DashboardRenderer = {
         y += 0.8;
 
         // ⚡ Energy info
-        room.visual.text(`⚡ Energy: ${info.energy}`, x, y, {
+        room.visual.text(`⚡ Energy: ${info.energy} (${info.energyPercent}%)`, x, y, {
             font: 0.7,
             color: '#00ffff',
             align: 'left',
@@ -248,10 +252,12 @@ const DashboardRenderer = {
             fill: bucketColor,
             opacity: 0.7,
         });
-        room.visual.text(`CPU: ${info.bucket}`, x + 6.2, y + 0.15, {
-            font: 0.4,
+        room.visual.text(`CPU: ${info.cpuUsed} | Bucket: ${info.bucket}`, x, y + 0.6, {
+            font: 0.5,
             color: '#ffffff',
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
     },
 };

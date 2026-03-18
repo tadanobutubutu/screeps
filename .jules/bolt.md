@@ -9,3 +9,7 @@
 ## 2026-03-17 - O(N) Target Selection in High-Frequency Roles
 **Learning:** Using Array.sort() to find a single optimal target (e.g., most damaged structure) in Screeps roles is an O(N log N) operation that wastes CPU, especially in rooms with many structures. A single-pass O(N) loop is significantly more efficient and avoids the memory overhead of sorting.
 **Action:** Replace sort() with linear scans when only the best target is needed, and combine with per-tick caching on the room object to further minimize room.find calls.
+
+## 2026-03-24 - Cross-Role Per-Tick Room Caching
+**Learning:** Attaching search results (like FIND_SOURCES_ACTIVE) to the volatile Room object using a `_cacheKey` and `_cacheKeyTick` pattern allows multiple creeps of different roles to share the same expensive find operation within a single tick. This is significantly faster than per-creep caching in memory.
+**Action:** Implement unified room-level caching for shared search targets (sources, construction sites) to provide global CPU savings across all active roles.

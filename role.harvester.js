@@ -20,10 +20,16 @@ const roleHarvester = {
         }
 
         if (creep.memory.harvesting) {
-            // 最も近いソースから採取
-            const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+            // ⚡ PERFORMANCE: Per-tick caching of active sources
+            if (creep.room._activeSourcesTick !== Game.time) {
+                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
+                creep.room._activeSourcesTick = Game.time;
+            }
+            const sources = creep.room._activeSources;
+
             if (sources.length > 0) {
-                const result = creep.harvest(sources[0]);
+                const source = sources[0];
+                const result = creep.harvest(source);
 
                 if (result === OK) {
                     // 採取成功！
@@ -31,24 +37,30 @@ const roleHarvester = {
 
                     // 偶数tickでエフェクト
                     if (Game.time % 5 === 0) {
-                        vfx.particles(sources[0].pos, '#FFFF00', 8);
+                        vfx.particles(source.pos, '#FFFF00', 8);
                     }
                 } else if (result === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                    creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
                 }
             }
         } else {
             // エネルギーをスポーンまたはエクステンション・タワーに渡す
-            const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) =>
-                    (s.structureType === STRUCTURE_SPAWN ||
-                        s.structureType === STRUCTURE_EXTENSION ||
-                        s.structureType === STRUCTURE_TOWER) &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-            });
+            // ⚡ PERFORMANCE: Per-tick caching of energy targets
+            if (creep.room._energyTargetsTick !== Game.time) {
+                creep.room._energyTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (s) =>
+                        (s.structureType === STRUCTURE_SPAWN ||
+                            s.structureType === STRUCTURE_EXTENSION ||
+                            s.structureType === STRUCTURE_TOWER) &&
+                        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+                });
+                creep.room._energyTargetsTick = Game.time;
+            }
+            const targets = creep.room._energyTargets;
 
             if (targets.length > 0) {
-                const result = creep.transfer(targets[0], RESOURCE_ENERGY);
+                const target = targets[0];
+                const result = creep.transfer(target, RESOURCE_ENERGY);
 
                 if (result === OK) {
                     // 配達成功！
@@ -57,26 +69,32 @@ const roleHarvester = {
 
                     // ターゲットに星エフェクト
                     if (Game.time % 3 === 0) {
-                        vfx.stars(targets[0].pos, 4);
+                        vfx.stars(target.pos, 4);
                     }
                 } else if (result === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                 }
             } else {
                 // 満杯な時はコンテナに充電
-                const containers = creep.room.find(FIND_STRUCTURES, {
-                    filter: (s) =>
-                        s.structureType === STRUCTURE_CONTAINER &&
-                        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-                });
+                // ⚡ PERFORMANCE: Per-tick caching of container targets
+                if (creep.room._containerTargetsTick !== Game.time) {
+                    creep.room._containerTargets = creep.room.find(FIND_STRUCTURES, {
+                        filter: (s) =>
+                            s.structureType === STRUCTURE_CONTAINER &&
+                            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+                    });
+                    creep.room._containerTargetsTick = Game.time;
+                }
+                const containers = creep.room._containerTargets;
 
                 if (containers.length > 0) {
-                    const result = creep.transfer(containers[0], RESOURCE_ENERGY);
+                    const target = containers[0];
+                    const result = creep.transfer(target, RESOURCE_ENERGY);
 
                     if (result === OK) {
                         vfx.scorePopup(creep.pos, 3, 'STORAGE');
                     } else if (result === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(containers[0], { visualizePathStyle: { stroke: '#ffffff' } });
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
                     }
                 } else {
                     // それ以外はコントローラアップグレード

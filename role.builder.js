@@ -11,7 +11,13 @@ const roleBuilder = {
 
         if (creep.memory.building) {
             // 建設サイトを探す
-            const targets = creep.room.find(FIND_CONSTRUCTION_SITES);
+            // ⚡ PERFORMANCE: Per-tick caching of construction sites
+            if (creep.room._constructionSitesTick !== Game.time) {
+                creep.room._constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
+                creep.room._constructionSitesTick = Game.time;
+            }
+            const targets = creep.room._constructionSites;
+
             if (targets.length > 0) {
                 // 最も近い建設サイトへ
                 const target = creep.pos.findClosestByPath(targets);
@@ -28,7 +34,13 @@ const roleBuilder = {
             }
         } else {
             // エネルギーを採取
-            const sources = creep.room.find(FIND_SOURCES_ACTIVE);
+            // ⚡ PERFORMANCE: Per-tick caching of active sources (consistent across roles)
+            if (creep.room._activeSourcesTick !== Game.time) {
+                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
+                creep.room._activeSourcesTick = Game.time;
+            }
+            const sources = creep.room._activeSources;
+
             if (sources.length > 0) {
                 if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });

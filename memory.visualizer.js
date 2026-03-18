@@ -34,19 +34,29 @@ const memoryVisualizer = {
         const sizes = [];
 
         for (const name in Memory.creeps) {
-            sizes.push({
-                type: 'creep',
-                name: name,
-                size: JSON.stringify(Memory.creeps[name]).length,
-            });
+            if (
+                utilsMemory.isSafeKey(name) &&
+                Object.prototype.hasOwnProperty.call(Memory.creeps, name)
+            ) {
+                sizes.push({
+                    type: 'creep',
+                    name: name,
+                    size: JSON.stringify(Memory.creeps[name]).length,
+                });
+            }
         }
 
         for (const name in Memory.rooms) {
-            sizes.push({
-                type: 'room',
-                name: name,
-                size: JSON.stringify(Memory.rooms[name]).length,
-            });
+            if (
+                utilsMemory.isSafeKey(name) &&
+                Object.prototype.hasOwnProperty.call(Memory.rooms, name)
+            ) {
+                sizes.push({
+                    type: 'room',
+                    name: name,
+                    size: JSON.stringify(Memory.rooms[name]).length,
+                });
+            }
         }
 
         sizes.sort((a, b) => b.size - a.size);
@@ -258,11 +268,16 @@ const memoryVisualizer = {
         console.log(`  Explored Rooms: ${Memory.map.explored.length}`);
 
         for (const roomName in Memory.map.rooms) {
-            const info = Memory.map.rooms[roomName];
-            const owner = info.controller?.owner ?? 'Unclaimed';
-            console.log(
-                `  ${roomName}: Owner=${owner}, Sources=${info.sources}, Hostiles=${info.hostiles}`
-            );
+            if (
+                utilsMemory.isSafeKey(roomName) &&
+                Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
+            ) {
+                const info = Memory.map.rooms[roomName];
+                const owner = info.controller?.owner ?? 'Unclaimed';
+                console.log(
+                    `  ${roomName}: Owner=${owner}, Sources=${info.sources}, Hostiles=${info.hostiles}`
+                );
+            }
         }
     },
 

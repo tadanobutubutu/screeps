@@ -13,3 +13,7 @@
 ## 2025-05-20 - [Comprehensive Information Density]
 **Learning:** In information-heavy dashboards like the Screeps Room Dashboard, cramming all data into single lines reduces scanability and causes text overflow issues. Using a multi-line approach with thematic grouping (e.g., basic roles vs. advanced roles) and intuitive emojis improves cognitive load and ensures the UI remains usable as the bot's complexity grows.
 **Action:** When adding more than 4-5 categories of metrics to a dashboard, group them logically and use multi-line layouts to maintain legibility.
+
+## 2025-06-20 - [Semantic Color-Coding for Status Dashboards]
+**Learning:** For status-heavy dashboards, "glanceability" is key. Using semantic color-coding (Red/Orange/Yellow/Green) for system modes and resource levels (Red/Yellow/Cyan) allows users to immediately assess the health of their colony without parsing raw numbers. Syncing the text color with its corresponding progress bar reinforces this visual association.
+**Action:** Always apply semantic colors to status indicators and resource bars to improve cognitive processing speed in high-information-density UIs.

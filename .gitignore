@@ -17,6 +17,9 @@ node_modules/
 api-keys.txt
 config/secrets.json
 
+# Allow GitHub workflow files that match secret/token patterns
+!.github/workflows/secret-scanning.yml
+
 # Screeps specific
 .screeps.json
 screeps.json

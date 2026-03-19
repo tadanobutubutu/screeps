@@ -241,25 +241,41 @@ const adaptiveSystem = {
 
     /**
      * 緊急クリーンアップ実行
+     * ⚡ SECURITY: Enhanced DoS mitigation by clearing more memory-intensive structures.
      */
     emergencyCleanup: function () {
         console.log('🚨 Emergency cleanup triggered!');
 
-        // 重いメモリ構造を削除
+        // Delete heavy root structures
         delete Memory.evolution;
-        delete Memory.memorySnapshots;
         delete Memory.backups;
-        delete Memory.diary;
+        delete Memory.timeMachine;
+        delete Memory.leaderboard;
+        delete Memory.cache;
+        delete Memory.memorySnapshots;
 
-        // emotionsとgamificationは縮小
-        if (Memory.emotions && Memory.emotions.history) {
-            Memory.emotions.history = Memory.emotions.history.slice(-10);
+        // Clean up per-creep memory (non-essential features)
+        if (Memory.creeps) {
+            for (const name in Memory.creeps) {
+                if (Object.prototype.hasOwnProperty.call(Memory.creeps, name)) {
+                    const creepMemory = Memory.creeps[name];
+                    if (creepMemory) {
+                        delete creepMemory.diary;
+                        delete creepMemory.emotions;
+                        delete creepMemory.trailPositions;
+                    }
+                }
+            }
         }
 
-        if (Memory.gamification && Memory.gamification.achievements) {
-            // 最近の成果のみ保持
+        // Truncate gamification achievements to save space
+        if (Memory.gamification && Array.isArray(Memory.gamification.achievements)) {
             Memory.gamification.achievements = Memory.gamification.achievements.slice(-5);
         }
+
+        // Delete any other suspected heavy structures
+        delete Memory.emotions; // Root-level emotions (if any)
+        delete Memory.diary; // Root-level diary
 
         console.log('✅ Emergency cleanup completed');
     },

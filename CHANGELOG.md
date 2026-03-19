@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-19T07:30:32Z
+**Last Updated**: 2026-03-19T10:06:03Z
 
 ## Recent Changes
 
-- 🛡️ Sentinel: [security improvement] Enhance DoS mitigation in adaptive system (#100)
-- ⚡ Bolt: Implement per-tick caching for transporters (#99)
-- 🔧 Workflow health report: 12 issues
-- 📊 Statistics update by Stats Bot
-- 🎨 Palette: Enhance Room Dashboard with color-coded status indicators (#98)
-- 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
-- 📝 Changelog update by Changelog Bot
-- 🔧 Workflow health report: 2 issues
-- 📊 Statistics update by Stats Bot
+- ci: Self-hosted runner の build ジョブを追加
+- ci: CircleCI に deploy ジョブを追加（deploy markers 用）
+- 🎮 Update game stats [skip ci]
+- ci: SonarCloud のスキャン対象を sonar-scan-target のみに限定
+- ci: CircleCI を no-op 構成に戻す
+- 🎮 Update game stats [skip ci]
+- Merge pull request #101 from tadanobutubutu/chunk/changes-1773909912498-1773909912499
+- Merge main into PR branch, resolve conflicts
+- 🎮 Update game stats [skip ci]
+- ci: CircleCI を no-op 構成に変更
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

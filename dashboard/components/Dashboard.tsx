@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/screeps?endpoint=user/overview")
+    fetch("/api/screeps?endpoint=overview")
       .then((r) => r.json())
       .then((data) => {
         setStats(data);

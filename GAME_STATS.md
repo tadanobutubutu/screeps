@@ -5,15 +5,15 @@
 ## 📊 Current Status
 
 ### Level & Points
-- **Level**: ⚡ Intermediate (Level 3)
-- **Total Points**: 941
+- **Level**: 🌟 Advanced (Level 4)
+- **Total Points**: 1061
 
 ### Project Stats
 - **Total Issues**: 4
   - ✅ Closed: 6
   - 🔄 Open: 4
 - **Total PRs**: 0
-  - ✅ Merged: 44
+  - ✅ Merged: 50
 - **Total Commits**: 1
 - **Contributors**: 7
 
@@ -26,6 +26,7 @@
 🎯 First Blood - Closed first issue
 🚀 First Flight - Merged first PR
 💎 PR Pro - Merged 10 PRs
+🌟 Merge Wizard - Merged 50 PRs
 ✨ Perfectionist - 80% completion rate
 🤝 Team Builder - 5+ contributors
 
@@ -47,7 +48,7 @@
 ## 🎯 Next Milestone
 
 $(if [ 6 -lt 10 ]; then echo "- Close $(( 10 - 6 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 44 -lt 10 ]; then echo "- Merge $(( 10 - 44 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 50 -lt 10 ]; then echo "- Merge $(( 10 - 50 )) more PRs to unlock 💎 PR Pro"; fi)
 $(if [ 150 -lt 80 ]; then echo "- Reach $(( 80 - 150 ))% more completion for ✨ Perfectionist"; fi)
 
 ---

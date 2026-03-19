@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-19T10:06:03Z
+**Last Updated**: 2026-03-19T13:46:39Z
 
 ## Recent Changes
 
-- ci: Self-hosted runner の build ジョブを追加
-- ci: CircleCI に deploy ジョブを追加（deploy markers 用）
+- 🔧 Workflow health report: 18 issues
+- fix(deps): update dependency next to v16 [security] (#103)
 - 🎮 Update game stats [skip ci]
-- ci: SonarCloud のスキャン対象を sonar-scan-target のみに限定
-- ci: CircleCI を no-op 構成に戻す
+- feat: Next.js製 Screeps ダッシュボードを dashboard/ に追加
+- 📊 Statistics update by Stats Bot
 - 🎮 Update game stats [skip ci]
-- Merge pull request #101 from tadanobutubutu/chunk/changes-1773909912498-1773909912499
-- Merge main into PR branch, resolve conflicts
-- 🎮 Update game stats [skip ci]
-- ci: CircleCI を no-op 構成に変更
+- refactor(core): modularize main loop into helpers
+- 📊 Statistics update by Stats Bot
+- 🏆 Daily challenge generated [2026-03-19]
+- 📝 Changelog update by Changelog Bot
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

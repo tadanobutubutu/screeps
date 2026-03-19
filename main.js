@@ -196,8 +196,7 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
         const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
         if (isVisualEffectsEnabled) {
             const progress =
-                (spawn.spawning.needTime - spawn.spawning.remainingTime) /
-                spawn.spawning.needTime;
+                (spawn.spawning.needTime - spawn.spawning.remainingTime) / spawn.spawning.needTime;
             vfx.progressBar(
                 { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
                 progress,

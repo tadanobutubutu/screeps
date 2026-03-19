@@ -1,0 +1,3 @@
+module.exports=[64660,a=>{"use strict";var b=a.i(16306),c=a.i(98419);a.s(["default",0,function(){let[a,d]=(0,c.useState)(null),[e,f]=(0,c.useState)(null),[g,h]=(0,c.useState)(!0);return((0,c.useEffect)(()=>{fetch("/api/screeps?endpoint=overview").then(a=>a.json()).then(a=>{d(a),h(!1)}).catch(a=>{f(String(a)),h(!1)})},[]),g)?(0,b.jsx)("p",{children:"Loading..."}):e?(0,b.jsxs)("p",{children:["Error: ",e]}):(0,b.jsxs)("main",{style:{fontFamily:"monospace",padding:"2rem"},children:[(0,b.jsx)("h1",{children:"🐛 Screeps Dashboard"}),(0,b.jsx)("pre",{children:JSON.stringify(a,null,2)})]})}])}];
+
+//# sourceMappingURL=dashboard_components_Dashboard_tsx_0waet7h._.js.map

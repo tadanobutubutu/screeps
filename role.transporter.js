@@ -10,14 +10,19 @@ const roleTransporter = {
         }
 
         if (creep.memory.transporting) {
-            const targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) =>
-                    (s.structureType === STRUCTURE_SPAWN ||
-                        s.structureType === STRUCTURE_EXTENSION ||
-                        s.structureType === STRUCTURE_TOWER ||
-                        s.structureType === STRUCTURE_LAB) &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-            });
+            // ⚡ PERFORMANCE: Per-tick caching of energy delivery targets
+            if (creep.room._deliveryTargetsTick !== Game.time) {
+                creep.room._deliveryTargets = creep.room.find(FIND_STRUCTURES, {
+                    filter: (s) =>
+                        (s.structureType === STRUCTURE_SPAWN ||
+                            s.structureType === STRUCTURE_EXTENSION ||
+                            s.structureType === STRUCTURE_TOWER ||
+                            s.structureType === STRUCTURE_LAB) &&
+                        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+                });
+                creep.room._deliveryTargetsTick = Game.time;
+            }
+            const targets = creep.room._deliveryTargets;
 
             if (targets.length > 0) {
                 const closest = creep.pos.findClosestByRange(targets);
@@ -26,10 +31,15 @@ const roleTransporter = {
                 }
             }
         } else {
-            const containers = creep.room.find(FIND_STRUCTURES, {
-                filter: (s) =>
-                    s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
-            });
+            // ⚡ PERFORMANCE: Per-tick caching of withdrawal containers
+            if (creep.room._withdrawalContainersTick !== Game.time) {
+                creep.room._withdrawalContainers = creep.room.find(FIND_STRUCTURES, {
+                    filter: (s) =>
+                        s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
+                });
+                creep.room._withdrawalContainersTick = Game.time;
+            }
+            const containers = creep.room._withdrawalContainers;
 
             const storage = creep.room.storage;
             const sources = [];

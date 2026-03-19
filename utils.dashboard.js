@@ -98,9 +98,17 @@ const DashboardRenderer = {
         });
 
         // 🏠 Room Name & Mode
+        const modeColors = {
+            EMERGENCY: '#ff0000',
+            MINIMAL: '#ffaa00',
+            NORMAL: '#ffff00',
+            FULL: '#00ff00',
+        };
+        const modeColor = modeColors[info.mode] || '#ffffff';
+
         room.visual.text(`🏠 ${info.room} [${info.mode}]`, x, y, {
             font: 0.8,
-            color: '#00ff00',
+            color: modeColor,
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
@@ -164,9 +172,16 @@ const DashboardRenderer = {
         y += 0.8;
 
         // ⚡ Energy info
+        let energyColor = '#00ffff'; // Cyan (Default/Healthy)
+        if (info.energyPercent < 30) {
+            energyColor = '#ff0000'; // Red (Critical)
+        } else if (info.energyPercent < 70) {
+            energyColor = '#ffff00'; // Yellow (Warning)
+        }
+
         room.visual.text(`⚡ Energy: ${info.energy} (${info.energyPercent}%)`, x, y, {
             font: 0.7,
-            color: '#00ffff',
+            color: energyColor,
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
@@ -183,7 +198,7 @@ const DashboardRenderer = {
             strokeWidth: 0.02,
         });
         room.visual.rect(x, y - 0.1, energyBarWidth * energyProgress, energyBarHeight, {
-            fill: '#00ffff',
+            fill: energyColor,
             opacity: 0.8,
         });
         y += 0.6;
@@ -252,13 +267,19 @@ const DashboardRenderer = {
             fill: bucketColor,
             opacity: 0.7,
         });
-        room.visual.text(`CPU: ${info.cpuUsed} | Bucket: ${info.bucket}`, x, y + 0.6, {
-            font: 0.5,
-            color: '#ffffff',
-            align: 'left',
-            stroke: '#000000',
-            strokeWidth: 0.05,
-        });
+        const bucketPercent = Math.floor(bucketProgress * 100);
+        room.visual.text(
+            `CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%)`,
+            x,
+            y + 0.6,
+            {
+                font: 0.5,
+                color: bucketColor,
+                align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
+            }
+        );
     },
 };
 

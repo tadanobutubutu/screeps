@@ -17,6 +17,13 @@ jobs:
           name: Deploy marker
           command: echo "Deploy completed."
 
+  build:
+    docker:
+      - image: cimg/base:current
+    resource_class: tadanobutubutu/screeps-runner
+    steps:
+      - run: echo "Hi I'm on a Container Runner!"
+
 workflows:
   ci:
     jobs:
@@ -27,3 +34,7 @@ workflows:
           filters:
             branches:
               only: main
+
+  build-workflow:
+    jobs:
+      - build

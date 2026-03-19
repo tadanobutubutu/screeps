@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-19T16:28:51Z
+**Last Updated**: 2026-03-19T19:26:58Z
 
 ## Recent Changes
 
-- Fix fetch endpoint in Dashboard.tsx: user/overview -> overview
-- 🎮 Update game stats [skip ci]
-- Merge pull request #105 from tadanobutubutu/alert-autofix-14
-- Potential fix for code scanning alert no. 14: Server-side request forgery
+- 🔧 Workflow health report: 10 issues
 - 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
-- 🔧 Workflow health report: 18 issues
-- fix(deps): update dependency next to v16 [security] (#103)
+- 🧠 Update AI strategy briefing [2026-03-19 18:53 UTC]
 - 🎮 Update game stats [skip ci]
-- feat: Next.js製 Screeps ダッシュボードを dashboard/ に追加
+- 🎮 Update game stats [skip ci]
+- 🎮 Update game stats [skip ci]
+- 🎮 Update game stats [skip ci]
+- Configure gitleaks to scan dummy folder only
+- 🎮 Update game stats [skip ci]
+- ci: Gitleaks secret-scanning ワークフローを復元
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

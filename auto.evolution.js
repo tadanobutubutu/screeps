@@ -161,6 +161,13 @@ const autoEvolution = {
             terminals: 0,
         };
 
+        const structureCounter = (structure) => {
+            const type = structure.structureType;
+            if (type === STRUCTURE_TOWER) structures.towers++;
+            else if (type === STRUCTURE_LINK) structures.links++;
+            else if (type === STRUCTURE_LAB) structures.labs++;
+        };
+
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
 
@@ -172,18 +179,7 @@ const autoEvolution = {
             }
 
             const roomStructures = room.find(FIND_MY_STRUCTURES);
-            for (let j = 0; j < roomStructures.length; j++) {
-                const s = roomStructures[j];
-                if (s.structureType === STRUCTURE_TOWER) {
-                    structures.towers++;
-                }
-                if (s.structureType === STRUCTURE_LINK) {
-                    structures.links++;
-                }
-                if (s.structureType === STRUCTURE_LAB) {
-                    structures.labs++;
-                }
-            }
+            roomStructures.forEach(structureCounter);
         }
 
         return structures;
@@ -212,7 +208,7 @@ const autoEvolution = {
 
             const sources = room.find(FIND_SOURCES);
 
-            if (harvesters.length < sources.length * 2) {
+            if (harvesters.length < sources?.length * 2) {
                 bottlenecks.push({
                     room: room.name,
                     type: 'insufficient_harvesters',

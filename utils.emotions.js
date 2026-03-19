@@ -134,22 +134,17 @@ class EmotionSystem {
         let emoji = EMOTIONS.WORKING;
         let moodChange = 0;
 
-        const energyResult = this._getEnergyEmotion(creep);
-        if (energyResult) {
-            emoji = energyResult.emoji;
-            moodChange += energyResult.moodChange;
-        }
+        const emotionChecks = [
+            this._getEnergyEmotion(creep),
+            this._getHealthEmotion(creep),
+            this._getStuckEmotion(creep),
+        ];
 
-        const healthResult = this._getHealthEmotion(creep);
-        if (healthResult) {
-            emoji = healthResult.emoji;
-            moodChange += healthResult.moodChange;
-        }
-
-        const stuckResult = this._getStuckEmotion(creep);
-        if (stuckResult) {
-            emoji = stuckResult.emoji;
-            moodChange += stuckResult.moodChange;
+        for (const result of emotionChecks) {
+            if (result) {
+                emoji = result.emoji;
+                moodChange += result.moodChange;
+            }
         }
 
         const roleEmoji = this._getRoleEmotion(creep);

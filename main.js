@@ -110,22 +110,222 @@ function runDefenseLogic(room) {
     defenseManager.run(room);
 }
 
-module.exports.loop = function () {
-    try {
-        // ⚡ ADAPTIVE SYSTEM - 現在の負荷を評価
-        const systemMode = adaptiveSystem.evaluate();
+function handlePeriodicTasks(systemMode) {
+    const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
+    const isGamificationEnabled = adaptiveSystem.isEnabled('gamification');
+    const isMemoryVisualizerEnabled = adaptiveSystem.isEnabled('memoryVisualizer');
+    const isAutoEvolutionEnabled = adaptiveSystem.isEnabled('autoEvolution');
 
-        // 最優先: メモリクリーンアップ
-        utilsMemory.cleanMemory();
+    if (systemMode === adaptiveSystem.MODE.EMERGENCY && Game.time % 100 === 0) {
+        adaptiveSystem.emergencyCleanup();
+    }
 
-        // EMERGENCYモード時は緊急クリーンアップ
-        if (systemMode === adaptiveSystem.MODE.EMERGENCY) {
-            if (Game.time % 100 === 0) {
-                adaptiveSystem.emergencyCleanup();
+    if (isLoggingEnabled) {
+        logger.init();
+    }
+
+    if (isGamificationEnabled) {
+        gamification.init();
+        gamification.updateStreak();
+    }
+
+    if (isMemoryVisualizerEnabled) {
+        if (Game.time % 20 === 0) {
+            memVis.recordSnapshot();
+        }
+        if (Game.time % 200 === 0) {
+            memVis.cleanup();
+        }
+        if (Game.time % 2000 === 0) {
+            memVis.backup();
+        }
+    }
+
+    if (isGamificationEnabled) {
+        if (Game.time % 100 === 0) {
+            gamification.checkMilestones();
+        }
+        gamification.renderDashboard();
+    }
+
+    if (isAutoEvolutionEnabled && Game.time % 1000 === 0) {
+        autoEvolution.run();
+    }
+}
+
+function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
+    const creepCounts = {};
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        let role = creep.memory.role;
+
+        if (!role) {
+            role = 'harvester';
+            creep.memory.role = role;
+            if (isLoggingEnabled) {
+                logger.warn('Creep ' + name + ' had no role, set to harvester');
             }
         }
 
-        // 🎮 TUTORIAL MODE
+        creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        if (isLoggingEnabled) {
+            logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);
+        } else {
+            try {
+                runCreepLogic(creep, role, isEmotionsEnabled);
+            } catch (e) {
+                console.log('Error in creep ' + name + ': ' + e.message);
+            }
+        }
+    }
+    return creepCounts;
+}
+
+function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
+    if (spawn.spawning) {
+        const spawningCreep = Game.creeps[spawn.spawning.name];
+        const role = spawningCreep.memory.role;
+        spawn.room.visual.text('🛠️' + role, spawn.pos.x + 1, spawn.pos.y, {
+            align: 'left',
+            opacity: 0.8,
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+
+        const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
+        if (isVisualEffectsEnabled) {
+            const progress =
+                (spawn.spawning.needTime - spawn.spawning.remainingTime) /
+                spawn.spawning.needTime;
+            vfx.progressBar(
+                { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                progress,
+                1,
+                'SPAWNING'
+            );
+        }
+
+        if (isVisualEffectsEnabled && Game.time % 5 === 0) {
+            vfx.stars(spawn.pos, 5);
+        }
+
+        return;
+    }
+
+    for (const role in targetCreeps) {
+        const current = creepCounts[role] || 0;
+        const target = targetCreeps[role];
+
+        if (current < target) {
+            const newName = role + '_' + Game.time;
+            const body = getBodyForRole(role, spawn.room.energyAvailable);
+
+            if (body.length > 0) {
+                const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
+
+                if (result === OK) {
+                    if (isLoggingEnabled) {
+                        logger.info('Spawning new ' + role + ': ' + newName);
+                    }
+                    creepCounts[role] = current + 1;
+
+                    const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
+                    if (isVisualEffectsEnabled) {
+                        vfx.successExplosion(spawn.pos);
+                    }
+                    if (adaptiveSystem.isEnabled('gamification')) {
+                        gamification.addXP(20, 'Spawned ' + role);
+                    }
+
+                    break;
+                } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
+                    if (isLoggingEnabled) {
+                        logger.warn('Failed to spawn ' + role + ': ' + result);
+                    }
+                }
+            }
+            break;
+        }
+    }
+}
+
+function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
+    if (adaptiveSystem.isEnabled('defense')) {
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            if (room.controller && room.controller.my) {
+                if (isVisualEffectsEnabled) {
+                    dashboard.displayVisuals(room);
+                }
+
+                if (isLoggingEnabled) {
+                    logger.tryCatch(runDefenseLogic, 'defense_' + roomName, room);
+                } else {
+                    try {
+                        runDefenseLogic(room);
+                    } catch (e) {
+                        console.log('Error in defense ' + roomName + ': ' + e.message);
+                    }
+                }
+            }
+        }
+    }
+}
+
+function displayStats() {
+    const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
+    const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
+    const isGamificationEnabled = adaptiveSystem.isEnabled('gamification');
+
+    console.log(
+        '\n⚡ Tick: ' +
+            Game.time +
+            ', Mode: ' +
+            adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase()
+    );
+    console.log('👥 Creeps: ' + Object.keys(Game.creeps).length);
+    console.log(
+        '💡 CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
+            '/' +
+            Game.cpu.limit +
+            ' (Bucket: ' +
+            Game.cpu.bucket +
+            ')'
+    );
+    console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
+
+    if (isLoggingEnabled) {
+        const logStats = logger.getStats();
+        if (logStats.errors > 0) {
+            logger.warn('Recent errors: ' + logStats.errors);
+        }
+    }
+
+    if (isEmotionsEnabled) {
+        const emotionStats = EmotionSystem.getStats();
+        console.log(
+            '😊 Happy: ' +
+                (emotionStats.veryHappy + emotionStats.happy) +
+                ', Neutral: ' +
+                emotionStats.neutral
+        );
+    }
+
+    if (isGamificationEnabled) {
+        const gm = Memory.gamification;
+        if (gm) {
+            console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext);
+        }
+    }
+}
+
+module.exports.loop = function () {
+    try {
+        const systemMode = adaptiveSystem.evaluate();
+        utilsMemory.cleanMemory();
+
         if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
             console.log('🤖 AUTO TUTORIAL MODE ACTIVE');
             autoTutorial.run();
@@ -133,164 +333,22 @@ module.exports.loop = function () {
             return;
         }
 
-        // Initialize systems (機能有効時のみ)
-        if (adaptiveSystem.isEnabled('logging')) {
-            logger.init();
-        }
+        handlePeriodicTasks(systemMode);
 
-        if (adaptiveSystem.isEnabled('gamification')) {
-            gamification.init();
-            gamification.updateStreak();
-        }
-
-        // 💾 Memory visualizer
-        if (adaptiveSystem.isEnabled('memoryVisualizer')) {
-            if (Game.time % 20 === 0) {
-                memVis.recordSnapshot();
-            }
-
-            if (Game.time % 200 === 0) {
-                memVis.cleanup();
-            }
-        }
-
-        // 💾 Auto backup
-        if (adaptiveSystem.isEnabled('memoryVisualizer')) {
-            if (Game.time % 2000 === 0) {
-                memVis.backup();
-            }
-        }
-
-        // 🎮 Gamification
-        if (adaptiveSystem.isEnabled('gamification')) {
-            if (Game.time % 100 === 0) {
-                gamification.checkMilestones();
-            }
-
-            // 🎨 Accessibility: Render every tick to prevent flickering
-            gamification.renderDashboard();
-        }
-
-        // 🤖 AUTO EVOLUTION
-        if (adaptiveSystem.isEnabled('autoEvolution')) {
-            if (Game.time % 1000 === 0) {
-                autoEvolution.run();
-            }
-        }
-
-        // ⚡ PERFORMANCE OPTIMIZATION: Cache feature status outside of high-frequency loops.
         const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
         const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
         const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
         const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
 
-        // Auto-spawn configuration
         const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL;
 
-        // ⚡ PERFORMANCE OPTIMIZATION: Merged creep counting and logic execution.
-        // This reduces the complexity from 2*N to 1*N where N is the number of creeps.
-        const creepCounts = {};
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
-            let role = creep.memory.role;
+        const creepCounts = processCreeps(isLoggingEnabled, isEmotionsEnabled);
 
-            if (!role) {
-                role = 'harvester';
-                creep.memory.role = role;
-                if (isLoggingEnabled) {
-                    logger.warn('Creep ' + name + ' had no role, set to harvester');
-                }
-            }
-
-            // Count roles for spawning logic
-            creepCounts[role] = (creepCounts[role] || 0) + 1;
-
-            // Execute creep logic
-            if (isLoggingEnabled) {
-                logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);
-            } else {
-                try {
-                    runCreepLogic(creep, role, isEmotionsEnabled);
-                } catch (e) {
-                    console.log('Error in creep ' + name + ': ' + e.message);
-                }
-            }
-        }
-
-        // Auto-spawn logic
         for (const spawnName in Game.spawns) {
             const spawn = Game.spawns[spawnName];
-
-            if (spawn.spawning) {
-                const spawningCreep = Game.creeps[spawn.spawning.name];
-                const role = spawningCreep.memory.role;
-                spawn.room.visual.text('🛠️' + role, spawn.pos.x + 1, spawn.pos.y, {
-                    align: 'left',
-                    opacity: 0.8,
-                    stroke: '#000000',
-                    strokeWidth: 0.05,
-                });
-
-                // プログレスバー表示
-                if (isVisualEffectsEnabled) {
-                    const progress =
-                        (spawn.spawning.needTime - spawn.spawning.remainingTime) /
-                        spawn.spawning.needTime;
-                    vfx.progressBar(
-                        { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
-                        progress,
-                        1,
-                        'SPAWNING'
-                    );
-                }
-
-                // スポーンエフェクト (FULLモードのみ)
-                if (isVisualEffectsEnabled && Game.time % 5 === 0) {
-                    vfx.stars(spawn.pos, 5);
-                }
-
-                continue;
-            }
-
-            // Find role that needs spawning
-            for (const role in targetCreeps) {
-                const current = creepCounts[role] || 0;
-                const target = targetCreeps[role];
-
-                if (current < target) {
-                    const newName = role + '_' + Game.time;
-                    const body = getBodyForRole(role, spawn.room.energyAvailable);
-
-                    if (body.length > 0) {
-                        const result = spawn.spawnCreep(body, newName, { memory: { role: role } });
-
-                        if (result === OK) {
-                            if (isLoggingEnabled) {
-                                logger.info('Spawning new ' + role + ': ' + newName);
-                            }
-                            creepCounts[role] = current + 1;
-
-                            // スポーン成功エフェクト
-                            if (isVisualEffectsEnabled) {
-                                vfx.successExplosion(spawn.pos);
-                            }
-                            if (adaptiveSystem.isEnabled('gamification')) {
-                                gamification.addXP(20, 'Spawned ' + role);
-                            }
-
-                            break;
-                        } else if (result !== ERR_NOT_ENOUGH_ENERGY) {
-                            if (isLoggingEnabled) {
-                                logger.warn('Failed to spawn ' + role + ': ' + result);
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
+            handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled);
         }
 
-        // 👥 Social interactions (FULLモードのみ)
         if (adaptiveSystem.isEnabled('socialInteractions') && Game.time % 100 === 0) {
             const creeps = Object.values(Game.creeps);
             for (let i = 0; i < creeps.length; i++) {
@@ -302,75 +360,12 @@ module.exports.loop = function () {
             }
         }
 
-        // Defense & Dashboard (MINIMAL以上)
-        if (adaptiveSystem.isEnabled('defense')) {
-            for (const roomName in Game.rooms) {
-                const room = Game.rooms[roomName];
-                if (room.controller && room.controller.my) {
-                    // 🏠 Room Dashboard
-                    if (isVisualEffectsEnabled) {
-                        dashboard.displayVisuals(room);
-                    }
+        handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled);
 
-                    if (isLoggingEnabled) {
-                        logger.tryCatch(runDefenseLogic, 'defense_' + roomName, room);
-                    } else {
-                        try {
-                            runDefenseLogic(room);
-                        } catch (e) {
-                            console.log('Error in defense ' + roomName + ': ' + e.message);
-                        }
-                    }
-                }
-            }
-        }
-
-        // Display stats
         if (Game.time % 100 === 0) {
-            console.log(
-                '\n⚡ Tick: ' +
-                    Game.time +
-                    ', Mode: ' +
-                    adaptiveSystem.getModeName(systemMode).toUpperCase()
-            );
-            console.log('👥 Creeps: ' + Object.keys(Game.creeps).length);
-            console.log(
-                '💡 CPU: ' +
-                    Game.cpu.getUsed().toFixed(2) +
-                    '/' +
-                    Game.cpu.limit +
-                    ' (Bucket: ' +
-                    Game.cpu.bucket +
-                    ')'
-            );
-            console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
-
-            if (adaptiveSystem.isEnabled('logging')) {
-                const logStats = logger.getStats();
-                if (logStats.errors > 0) {
-                    logger.warn('Recent errors: ' + logStats.errors);
-                }
-            }
-
-            if (adaptiveSystem.isEnabled('emotions')) {
-                const emotionStats = EmotionSystem.getStats();
-                console.log(
-                    '😊 Happy: ' +
-                        (emotionStats.veryHappy + emotionStats.happy) +
-                        ', Neutral: ' +
-                        emotionStats.neutral
-                );
-            }
-
-            if (adaptiveSystem.isEnabled('gamification')) {
-                const gm = Memory.gamification;
-                if (gm) {
-                    console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext);
-                }
-            }
+            displayStats();
         }
     } catch (e) {
-        // Security: Sanitize stack trace to avoid internal path exposure
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
             const safeStack = logger.getSafeStack(e.stack);

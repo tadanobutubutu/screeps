@@ -11,33 +11,69 @@ global.Game = {
   rooms: {},
   cpu: { getUsed: jest.fn().mockReturnValue(10) },
 };
-global.Memory = { stats: {} };
+global.Memory = {};
 
-const utilsStats = require('../utils.stats');
+const StatsManager = require('../utils.stats');
 
 describe('utils.stats', () => {
+  beforeEach(() => {
+    global.Memory = {};
+  });
+
   test('モジュールが正しく読み込める', () => {
-    expect(utilsStats).toBeDefined();
+    expect(StatsManager).toBeDefined();
   });
 
-  test('エクスポートされた関数が少なくとも1つある', () => {
-    const keys = Object.keys(utilsStats);
-    expect(keys.length).toBeGreaterThan(0);
+  test('initMemoryでstatsを初期化', () => {
+    StatsManager.initMemory();
+    expect(global.Memory.stats).toBeDefined();
+    expect(global.Memory.stats.totalEnergyProcessed).toBe(0);
   });
 
-  test('collect/record系関数が存在すれば呼び出せる', () => {
-    const fnNames = ['collect', 'record', 'update', 'init', 'report'];
-    for (const name of fnNames) {
-      if (typeof utilsStats[name] === 'function') {
-        expect(() => utilsStats[name]()).not.toThrow();
-      }
-    }
+  test('recordHarvestで採取エネルギーを記録', () => {
+    StatsManager.initMemory();
+    StatsManager.recordHarvest(100);
+    expect(global.Memory.stats.totalEnergyProcessed).toBe(100);
   });
 
-  test('getStats関数が存在すれば結果を返す', () => {
-    if (typeof utilsStats.getStats === 'function') {
-      const result = utilsStats.getStats();
-      expect(result).toBeDefined();
-    }
+  test('recordUpgradeでアップグレードを記録', () => {
+    StatsManager.initMemory();
+    StatsManager.recordUpgrade(50);
+    expect(global.Memory.stats.totalEnergyUpgraded).toBe(50);
+  });
+
+  test('recordBuildで建築進捗を記録', () => {
+    StatsManager.initMemory();
+    StatsManager.recordBuild(30);
+    expect(global.Memory.stats.totalBuildProgress).toBe(30);
+  });
+
+  test('recordRepairで修理を記録', () => {
+    StatsManager.initMemory();
+    StatsManager.recordRepair(20);
+    expect(global.Memory.stats.totalRepairDone).toBe(20);
+  });
+
+  test('recordCreepBirthとrecordCreepDeathを記録', () => {
+    StatsManager.initMemory();
+    StatsManager.recordCreepBirth();
+    StatsManager.recordCreepDeath();
+    expect(global.Memory.stats.creepsBorn).toBe(1);
+    expect(global.Memory.stats.creepDeaths).toBe(1);
+  });
+
+  test('getStatsで統計を取得', () => {
+    StatsManager.initMemory();
+    StatsManager.recordHarvest(100);
+    const stats = StatsManager.getStats();
+    expect(stats).toBeDefined();
+    expect(stats.energyProcessed).toBe(100);
+  });
+
+  test('displayStatsで статистикуを表示', () => {
+    StatsManager.initMemory();
+    const lines = StatsManager.displayStats();
+    expect(Array.isArray(lines)).toBe(true);
+    expect(lines.length).toBeGreaterThan(0);
   });
 });

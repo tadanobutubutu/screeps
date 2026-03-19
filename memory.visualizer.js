@@ -180,7 +180,7 @@ const memoryVisualizer = {
             return;
         }
 
-        if (!Memory.creeps[creepName].diary) {
+        if (!Memory.creeps[creepName]?.diary) {
             Memory.creeps[creepName].diary = {
                 entries: [],
                 maxEntries: 20,

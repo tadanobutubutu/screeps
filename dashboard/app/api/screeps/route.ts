@@ -4,12 +4,20 @@ const SCREEPS_API = "https://screeps.com/api";
 const TOKEN = process.env.SCREEPS_TOKEN ?? "";
 const USERNAME = process.env.SCREEPS_USERNAME ?? "";
 
+// Allow-list of supported Screeps API endpoints. Query values are mapped to concrete paths.
+const ALLOWED_ENDPOINTS: Record<string, string> = {
+  overview: "user/overview",
+  // add more allowed endpoints here as needed, e.g.:
+  // "stats": "user/stats",
+};
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const endpoint = searchParams.get("endpoint") ?? "user/overview";
+  const endpointKey = searchParams.get("endpoint") ?? "overview";
+  const resolvedEndpoint = ALLOWED_ENDPOINTS[endpointKey] ?? ALLOWED_ENDPOINTS["overview"];
 
   try {
-    const res = await fetch(`${SCREEPS_API}/${endpoint}`, {
+    const res = await fetch(`${SCREEPS_API}/${resolvedEndpoint}`, {
       headers: {
         "X-Token": TOKEN,
         "X-Username": USERNAME,

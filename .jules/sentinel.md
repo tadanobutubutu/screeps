@@ -22,3 +22,8 @@
 **Vulnerability:** Exponential memory growth via recursive serialization of the global `Memory` object.
 **Learning:** Storing a JSON-serialized snapshot of the entire `Memory` object *inside* a property of that same `Memory` object (e.g., `Memory.backups`) causes the serialized size to double with every backup. This quickly exceeds the environment's memory limit (2MB in Screeps) and crashes the process.
 **Prevention:** Always exclude the backup storage property (e.g., `backups`) from the object before serialization. Use a shallow clone and `delete` the recursive key before calling `JSON.stringify`.
+
+## 2026-03-05 - Comprehensive Memory DoS Mitigation
+**Vulnerability:** Denial of Service (DoS) via accumulation of non-essential metadata across multiple systems.
+**Learning:** In memory-constrained environments, simply clearing one or two large structures may not be enough if many small but cumulative data points (diaries, emotion history, visual trails) are scattered across the `Memory` object. A centralized emergency cleanup must be comprehensive and target all known "heavy" or "volatile" properties.
+**Prevention:** Implement a centralized `emergencyCleanup` that not only deletes large root-level structures but also performs a deep pass to prune non-essential metadata from persistent entities like creeps and rooms.

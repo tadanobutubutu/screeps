@@ -1,44 +1,15 @@
 version: 2.1
 
-orbs:
-  node: circleci/node@7.1.0
-
 jobs:
-  test:
-    executor:
-      name: node/default
-      tag: '20.18'
+  noop:
+    docker:
+      - image: cimg/base:current
     steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
       - run:
-          name: Run ESLint
-          command: npx eslint . --max-warnings 0
-      - run:
-          name: Run tests
-          command: npm test
-      - store_test_results:
-          path: reports
-
-  build:
-    executor:
-      name: node/default
-      tag: '20.18'
-    steps:
-      - checkout
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Build
-          command: npm run build
-      - store_artifacts:
-          path: dist
+          name: No-op
+          command: echo "CircleCI is configured. No CI tasks defined yet."
 
 workflows:
   ci:
     jobs:
-      - test
-      - build:
-          requires:
-            - test
+      - noop

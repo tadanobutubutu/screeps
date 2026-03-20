@@ -1,15 +1,39 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-20T13:06:58Z
+**Generated**: 2026-03-20T18:55:35Z
 
 ## 📊 Status
 
-- **Failed Runs**: 9
+- **Failed Runs**: 7
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
+  {
+    "workflow": "CodeQL",
+    "name": "Push on main",
+    "id": 23351356468,
+    "created": "2026-03-20T16:03:52Z"
+  },
+  {
+    "workflow": "CodeQL",
+    "name": "Push on main",
+    "id": 23347924690,
+    "created": "2026-03-20T14:40:58Z"
+  },
+  {
+    "workflow": "CodeQL",
+    "name": "Push on main",
+    "id": 23345364846,
+    "created": "2026-03-20T13:38:52Z"
+  },
+  {
+    "workflow": "CodeQL",
+    "name": "Push on main",
+    "id": 23344185284,
+    "created": "2026-03-20T13:07:00Z"
+  },
   {
     "workflow": "CodeQL",
     "name": "Push on main",
@@ -27,38 +51,8 @@
     "name": "Auto Improve Screeps Code",
     "id": 23338071050,
     "created": "2026-03-20T10:05:46Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-update-docs.yml",
-    "name": ".github/workflows/auto-update-docs.yml",
-    "id": 23332751286,
-    "created": "2026-03-20T07:09:21Z"
-  },
-  {
-    "workflow": "Gitleaks",
-    "name": "Gitleaks",
-    "id": 23332751220,
-    "created": "2026-03-20T07:09:21Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 23332751174,
-    "created": "2026-03-20T07:09:21Z"
-  },
-  {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 23332751045,
-    "created": "2026-03-20T07:09:21Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23332750913,
-    "created": "2026-03-20T07:09:20Z"
-  },
-  {
+  }
+]
 
 ## 🔧 Recommended Actions
 

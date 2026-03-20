@@ -3,6 +3,7 @@
  */
 
 const vfx = require('visual.effects');
+const utilsMemory = require('utils.memory');
 
 const gamification = {
     /**
@@ -88,14 +89,24 @@ const gamification = {
     addCombo: function (type) {
         this.init();
 
-        if (!Memory.gamification.combos[type]) {
-            Memory.gamification.combos[type] = {
+        // Security: Validate and truncate type to prevent Prototype Pollution and Memory DoS
+        if (!utilsMemory.isSafeKey(type)) {
+            return 0;
+        }
+        const sanitizedType = String(type).substring(0, 32);
+
+        if (!Memory.gamification.combos[sanitizedType]) {
+            // Security: Cap the number of combo types to prevent Memory DoS
+            if (Object.keys(Memory.gamification.combos).length >= 10) {
+                return 0;
+            }
+            Memory.gamification.combos[sanitizedType] = {
                 count: 0,
                 lastTick: 0,
             };
         }
 
-        const combo = Memory.gamification.combos[type];
+        const combo = Memory.gamification.combos[sanitizedType];
 
         if (Game.time - combo.lastTick <= 10) {
             combo.count++;
@@ -107,7 +118,7 @@ const gamification = {
 
         if (combo.count >= 3) {
             const bonusXP = combo.count * 2;
-            this.addXP(bonusXP, combo.count + 'x ' + type + ' combo!');
+            this.addXP(bonusXP, combo.count + 'x ' + sanitizedType + ' combo!');
         }
 
         return combo.count;
@@ -264,7 +275,7 @@ const gamification = {
             case 'harvest': {
                 this.addXP(1, 'harvest');
                 const harvestCombo = this.addCombo('harvest');
-                if (harvestCombo >= 5) {
+                if (harvestCombo && harvestCombo >= 5) {
                     vfx.combo(creep.pos, harvestCombo);
                 }
                 break;
@@ -277,7 +288,7 @@ const gamification = {
             case 'upgrade': {
                 this.addXP(2, 'upgrade');
                 const upgradeCombo = this.addCombo('upgrade');
-                if (upgradeCombo >= 3) {
+                if (upgradeCombo && upgradeCombo >= 3) {
                     vfx.combo(creep.pos, upgradeCombo);
                 }
                 break;

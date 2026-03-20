@@ -15,9 +15,18 @@ function formatNumber(num) {
 
 const DashboardRenderer = {
     renderRoomDashboard(room) {
-        const creeps = room.find(FIND_MY_CREEPS);
-        const structures = room.find(FIND_MY_STRUCTURES);
-        const hostiles = room.find(FIND_HOSTILE_CREEPS);
+        // ⚡ PERFORMANCE OPTIMIZATION: Per-tick caching of common searches on the Room object.
+        // This allows other systems (like defense.manager) to reuse these results.
+        if (room._cacheTick !== Game.time) {
+            room._myCreeps = room.find(FIND_MY_CREEPS);
+            room._myStructures = room.find(FIND_MY_STRUCTURES);
+            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+            room._cacheTick = Game.time;
+        }
+
+        const creeps = room._myCreeps;
+        const structures = room._myStructures;
+        const hostiles = room._hostileCreeps;
 
         // ⚡ PERFORMANCE OPTIMIZATION: Use a single loop to count roles instead of multiple filters.
         const roleCount = {

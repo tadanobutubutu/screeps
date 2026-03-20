@@ -1,15 +1,21 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-20T02:26:48Z
+**Generated**: 2026-03-20T07:00:45Z
 
 ## 📊 Status
 
-- **Failed Runs**: 2
+- **Failed Runs**: 3
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
+  {
+    "workflow": "🎯 Daily Quest",
+    "name": "🎯 Daily Quest",
+    "id": 23326553748,
+    "created": "2026-03-20T02:30:13Z"
+  },
   {
     "workflow": "💰 Usage Monitor & Auto-Optimize",
     "name": "💰 Usage Monitor & Auto-Optimize",

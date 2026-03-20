@@ -27,3 +27,8 @@
 **Vulnerability:** Denial of Service (DoS) via accumulation of non-essential metadata across multiple systems.
 **Learning:** In memory-constrained environments, simply clearing one or two large structures may not be enough if many small but cumulative data points (diaries, emotion history, visual trails) are scattered across the `Memory` object. A centralized emergency cleanup must be comprehensive and target all known "heavy" or "volatile" properties.
 **Prevention:** Implement a centralized `emergencyCleanup` that not only deletes large root-level structures but also performs a deep pass to prune non-essential metadata from persistent entities like creeps and rooms.
+
+## 2026-03-20 - Hardening Gamification Combo System
+**Vulnerability:** Prototype Pollution and Memory Denial of Service (DoS) via unsanitized combo types.
+**Learning:** Even internal-looking systems like gamification tracking can be vulnerable if they use external or dynamic strings as object keys. In Screeps, where Memory is limited to 2MB, unbounded object growth is a viable DoS vector.
+**Prevention:** Always validate keys with `isSafeKey`, truncate string lengths, and enforce a strict cap on the number of unique keys allowed in a collection.

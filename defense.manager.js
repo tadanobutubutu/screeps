@@ -11,19 +11,21 @@ const defenseManager = {
 
     // タワー自動制御
     manageTowers: function (room) {
-        const towers = room.find(FIND_MY_STRUCTURES, {
-            filter: (s) => s.structureType === STRUCTURE_TOWER,
-        });
+        // ⚡ PERFORMANCE: Reuse cached room structures and creeps if available (populated by dashboard)
+        const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+        const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
 
         if (towers.length === 0) {
             return;
         }
 
         // 脅威の優先順位付け
-        const hostiles = room.find(FIND_HOSTILE_CREEPS);
-        const damagedCreeps = room.find(FIND_MY_CREEPS, {
-            filter: (c) => c.hits < c.hitsMax,
-        });
+        const hostiles = room._hostileCreeps || room.find(FIND_HOSTILE_CREEPS);
+        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+
+        const damagedCreeps = myCreeps.filter((c) => c.hits < c.hitsMax);
+
+        // FIND_STRUCTURES (including non-my) is not cached yet, but we can filter from myStructures if it's mostly our structures
         const damagedStructures = room.find(FIND_STRUCTURES, {
             filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
         });
@@ -61,7 +63,8 @@ const defenseManager = {
 
     // 脅威レベル評価
     checkThreats: function (room) {
-        const hostiles = room.find(FIND_HOSTILE_CREEPS);
+        // ⚡ PERFORMANCE: Reuse cached hostile creeps
+        const hostiles = room._hostileCreeps || room.find(FIND_HOSTILE_CREEPS);
 
         if (hostiles.length === 0) {
             if (Memory.defenseLevel) {
@@ -95,19 +98,21 @@ const defenseManager = {
     // 防衛creep管理
     manageDefenders: function (room) {
         const threatLevel = Memory.defenseLevel || 0;
-        const defenders = _.filter(
-            Game.creeps,
-            (c) => c.memory.role === 'defender' && c.room.name === room.name
-        );
+
+        // ⚡ PERFORMANCE: Use cached room creeps to find defenders instead of global filter
+        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+        const defenders = myCreeps.filter((c) => c.memory.role === 'defender');
 
         // 脅威に応じて必要な防衛creep数を決定
         const requiredDefenders = Math.min(Math.ceil(threatLevel / 3), 4);
 
         if (defenders.length < requiredDefenders && threatLevel > 0) {
             // スポーン準備
-            const spawns = room.find(FIND_MY_SPAWNS, {
-                filter: (s) => !s.spawning,
-            });
+            // ⚡ PERFORMANCE: Use cached room structures to find spawns
+            const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+            const spawns = myStructures.filter(
+                (s) => s.structureType === STRUCTURE_SPAWN && !s.spawning
+            );
 
             if (spawns.length > 0) {
                 this.spawnDefender(spawns[0], threatLevel);
@@ -171,7 +176,9 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        const hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+        // ⚡ PERFORMANCE: Use cached hostile creeps
+        const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
+        const hostile = creep.pos.findClosestByRange(hostiles);
 
         if (hostile) {
             // 敵を発見
@@ -212,14 +219,12 @@ const defenseManager = {
 
     // 統計情報表示
     showStats: function (room) {
-        const towers = room.find(FIND_MY_STRUCTURES, {
-            filter: (s) => s.structureType === STRUCTURE_TOWER,
-        }).length;
+        // ⚡ PERFORMANCE: Use cached room objects
+        const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+        const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER).length;
 
-        const defenders = _.filter(
-            Game.creeps,
-            (c) => c.memory.role === 'defender' && c.room.name === room.name
-        ).length;
+        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+        const defenders = myCreeps.filter((c) => c.memory.role === 'defender').length;
 
         const threatLevel = Memory.defenseLevel || 0;
 

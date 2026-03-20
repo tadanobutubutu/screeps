@@ -13,3 +13,11 @@
 ## 2026-03-24 - Cross-Role Per-Tick Room Caching
 **Learning:** Attaching search results (like FIND_SOURCES_ACTIVE) to the volatile Room object using a `_cacheKey` and `_cacheKeyTick` pattern allows multiple creeps of different roles to share the same expensive find operation within a single tick. This is significantly faster than per-creep caching in memory.
 **Action:** Implement unified room-level caching for shared search targets (sources, construction sites) to provide global CPU savings across all active roles.
+
+## 2026-03-31 - Dashboard as a Cache Warmer for Global Systems
+**Learning:** The room dashboard often performs comprehensive  calls to gather stats for the UI. By attaching these results to the volatile Room object (e.g., `room._myCreeps`), subsequent heavy systems like Defense or AI can skip their own expensive searches and use simple JS filters on the cached arrays. This turn-based caching provides a massive reduction in per-tick `room.find` calls.
+**Action:** When implementing dashboards or global status checks, always cache the raw search results on the room object to "warm" the cache for downstream logic.
+
+## 2026-03-31 - Dashboard as a Cache Warmer for Global Systems
+**Learning:** The room dashboard often performs comprehensive `room.find` calls to gather stats for the UI. By attaching these results to the volatile Room object (e.g., `room._myCreeps`), subsequent heavy systems like Defense or AI can skip their own expensive searches and use simple JS filters on the cached arrays. This turn-based caching provides a massive reduction in per-tick `room.find` calls.
+**Action:** When implementing dashboards or global status checks, always cache the raw search results on the room object to "warm" the cache for downstream logic.

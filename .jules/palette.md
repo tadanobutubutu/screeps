@@ -17,3 +17,7 @@
 ## 2025-06-20 - [Semantic Color-Coding for Status Dashboards]
 **Learning:** For status-heavy dashboards, "glanceability" is key. Using semantic color-coding (Red/Orange/Yellow/Green) for system modes and resource levels (Red/Yellow/Cyan) allows users to immediately assess the health of their colony without parsing raw numbers. Syncing the text color with its corresponding progress bar reinforces this visual association.
 **Action:** Always apply semantic colors to status indicators and resource bars to improve cognitive processing speed in high-information-density UIs.
+
+## 2025-06-21 - [Dashboard Information Density and Accessibility]
+**Learning:** Magenta text (#ff00ff) on a semi-transparent black background has lower contrast than white text (#ffffff), making it harder for users with visual impairments to read. Additionally, providing absolute values without context (like storage energy) requires more cognitive effort than pairing them with a percentage-based progress bar.
+**Action:** Use white for primary informational text and always accompany large resource counts with a visual progress bar and percentage for faster "at-a-glance" status checks.

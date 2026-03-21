@@ -50,6 +50,7 @@ const DashboardRenderer = {
             available: room.energyAvailable,
             capacity: room.energyCapacityAvailable,
             storageEnergy: room.storage ? room.storage.store[RESOURCE_ENERGY] : 0,
+            storageCapacity: room.storage ? room.storage.store.getCapacity(RESOURCE_ENERGY) : 0,
         };
 
         const info = {
@@ -81,10 +82,14 @@ const DashboardRenderer = {
             energyAvailable: energyStats.available,
             energyCapacity: energyStats.capacity,
             storage: formatNumber(energyStats.storageEnergy),
+            storagePercent: energyStats.storageCapacity
+                ? Math.floor((energyStats.storageEnergy / energyStats.storageCapacity) * 100)
+                : 0,
             creeps: roleCount,
             mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
             bucket: Game.cpu.bucket,
             cpuUsed: Game.cpu.getUsed().toFixed(2),
+            tick: Game.time,
         };
 
         return info;
@@ -96,7 +101,7 @@ const DashboardRenderer = {
         let y = 2.0;
         const x = 1;
         const width = 8.5;
-        const height = 11.5;
+        const height = 12.2;
 
         // 🎨 Accessibility: Semi-transparent background for readability
         room.visual.rect(x - 0.5, y - 1, width, height, {
@@ -213,14 +218,29 @@ const DashboardRenderer = {
         y += 0.6;
 
         // 📦 Storage info
-        room.visual.text(`📦 Storage: ${info.storage}`, x, y, {
+        room.visual.text(`📦 Storage: ${info.storage} (${info.storagePercent}%)`, x, y, {
             font: 0.7,
             color: '#ffffff',
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
         });
-        y++;
+        y += 0.4;
+
+        // Storage Progress Bar
+        const storageBarWidth = 6;
+        const storageBarHeight = 0.2;
+        const storageProgress = info.storagePercent / 100;
+        room.visual.rect(x, y - 0.1, storageBarWidth, storageBarHeight, {
+            fill: '#333333',
+            stroke: '#ffffff',
+            strokeWidth: 0.02,
+        });
+        room.visual.rect(x, y - 0.1, storageBarWidth * storageProgress, storageBarHeight, {
+            fill: '#ffffff',
+            opacity: 0.8,
+        });
+        y += 0.8;
 
         // 👥 Creeps info
         room.visual.text(
@@ -229,7 +249,7 @@ const DashboardRenderer = {
             y,
             {
                 font: 0.7,
-                color: '#ff00ff',
+                color: '#ffffff',
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.05,
@@ -242,7 +262,7 @@ const DashboardRenderer = {
             y,
             {
                 font: 0.7,
-                color: '#ff00ff',
+                color: '#ffffff',
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.05,
@@ -278,11 +298,11 @@ const DashboardRenderer = {
         });
         const bucketPercent = Math.floor(bucketProgress * 100);
         room.visual.text(
-            `CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%)`,
+            `CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
             x,
             y + 0.6,
             {
-                font: 0.5,
+                font: 0.4,
                 color: bucketColor,
                 align: 'left',
                 stroke: '#000000',

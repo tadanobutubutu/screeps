@@ -1,0 +1,116 @@
+name: Protect Package.json Versions
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**/package.json'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  protect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get list of changed package.json files
+        id: get-changes
+        run: |
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- '**/package.json')
+          echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "Changed package.json files:"
+          echo "$CHANGED_FILES"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate changed versions
+        id: validate
+        if: steps.get-changes.outputs.changed_files != ''
+        run: |
+          INVALID_CHANGES=()
+          VALID_CHANGES=()
+          
+          for file in ${{ steps.get-changes.outputs.changed_files }}; do
+            echo "Checking $file"
+            
+            # Get the diff for this specific file
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }} HEAD -- "$file")
+            
+            # Extract package name and old/new versions from diff
+            while IFS= read -r line; do
+              # Match patterns like: -    "next": "^15.3.0",  or  +    "next": "^16.0.0",
+              if [[ "$line" =~ ^[-+][[:space:]]+\"([^\"]+)\"[[:space:]]*:[[:space:]]+\"([^\"]+)\" ]]; then
+                PKG_NAME="${BASH_REMATCH[1]}"
+                PKG_VERSION="${BASH_REMATCH[2]}"
+                
+                if [[ "$line" == -* ]]; then
+                  OLD_VERSION="$PKG_VERSION"
+                else
+                  NEW_VERSION="$PKG_VERSION"
+                  
+                  # Check if new version exists in npm
+                  if ! npm view "$PKG_NAME@$NEW_VERSION" version &>/dev/null; then
+                    # Get latest version
+                    LATEST=$(npm view "$PKG_NAME" version 2>/dev/null || echo "unknown")
+                    INVALID_CHANGES+=("$PKG_NAME|$OLD_VERSION|$NEW_VERSION|$LATEST")
+                    echo "❌ Invalid: $PKG_NAME@$NEW_VERSION (should be $LATEST)"
+                  else
+                    VALID_CHANGES+=("$PKG_NAME|$NEW_VERSION")
+                    echo "✅ Valid: $PKG_NAME@$NEW_VERSION"
+                  fi
+                fi
+              fi
+            done <<< "$DIFF"
+          done
+          
+          # Output results
+          if [ ${#INVALID_CHANGES[@]} -gt 0 ]; then
+            echo "invalid_changes=${INVALID_CHANGES[*]}" >> $GITHUB_OUTPUT
+            echo "has_invalid=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_invalid=false" >> $GITHUB_OUTPUT
+          fi
+          
+          if [ ${#VALID_CHANGES[@]} -gt 0 ]; then
+            echo "valid_changes=${VALID_CHANGES[*]}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Request changes on PR for invalid versions
+        if: steps.validate.outputs.has_invalid == 'true'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          COMMENT_BODY="## ⚠️ Invalid Package Version Changes Detected\n\n"
+          COMMENT_BODY+="The following package version changes are invalid:\n\n"
+          
+          for change in ${{ steps.validate.outputs.invalid_changes }}; do
+            NAME=$(echo "$change" | cut -d'|' -f1)
+            OLD_VER=$(echo "$change" | cut -d'|' -f2)
+            NEW_VER=$(echo "$change" | cut -d'|' -f3)
+            LATEST=$(echo "$change" | cut -d'|' -f4)
+            
+            COMMENT_BODY+="| Package | Invalid Version | Recommended |\n"
+            COMMENT_BODY+="|--------|----------------|-------------|\n"
+            COMMENT_BODY+"| \`$NAME\` | \`$NEW_VER\` | \`$LATEST\` |\n\n"
+          done
+          
+          COMMENT_Body+="**Please fix these issues before merging.**"
+          
+          # Post review with REQUEST_CHANGES
+          gh pr review $PR_NUMBER --body "$COMMENT_BODY" --request-changes
+
+      - name: Confirm valid versions
+        if: steps.validate.outputs.has_invalid == 'false' && steps.get-changes.outputs.changed_files != ''
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          COMMENT_BODY="## ✅ Package Version Check Complete\n\nAll package version changes in this PR are valid."
+          gh pr comment $PR_NUMBER --body "$COMMENT_BODY"

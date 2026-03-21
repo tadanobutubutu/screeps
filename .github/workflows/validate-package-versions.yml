@@ -1,0 +1,176 @@
+name: Validate Package Versions
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate root package.json
+        id: validate-root
+        run: |
+          echo "## Validating root package.json" >> $GITHUB_STEP_SUMMARY
+          
+          INVALID_PACKAGES=()
+          
+          for pkg in $(node -e "
+            const pkg = require('./package.json');
+            const deps = {...pkg.dependencies, ...pkg.devDependencies};
+            Object.entries(deps).forEach(([name, ver]) => console.log(name + '|' + ver));
+          "); do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            VERSION=$(echo "$pkg" | cut -d'|' -f2)
+            
+            if ! npm view "$NAME@$VERSION" version &>/dev/null; then
+              echo "❌ $NAME@$VERSION does not exist in npm registry" >> $GITHUB_STEP_SUMMARY
+              INVALID_PACKAGES+=("$NAME|$VERSION")
+            else
+              echo "✅ $NAME@$VERSION" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          if [ ${#INVALID_PACKAGES[@]} -gt 0 ]; then
+            echo "invalid_packages=${INVALID_PACKAGES[*]}" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Validate dashboard/package.json
+        id: validate-dashboard
+        run: |
+          echo "## Validating dashboard/package.json" >> $GITHUB_STEP_SUMMARY
+          
+          INVALID_PACKAGES=()
+          
+          for pkg in $(node -e "
+            const pkg = require('./dashboard/package.json');
+            const deps = {...pkg.dependencies, ...pkg.devDependencies};
+            Object.entries(deps).forEach(([name, ver]) => console.log(name + '|' + ver));
+          "); do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            VERSION=$(echo "$pkg" | cut -d'|' -f2)
+            
+            if ! npm view "$NAME@$VERSION" version &>/dev/null; then
+              echo "❌ $NAME@$VERSION does not exist in npm registry" >> $GITHUB_STEP_SUMMARY
+              INVALID_PACKAGES+=("$NAME|$VERSION")
+            else
+              echo "✅ $NAME@$VERSION" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+          
+          if [ ${#INVALID_PACKAGES[@]} -gt 0 ]; then
+            echo "invalid_packages=${INVALID_PACKAGES[*]}" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: Post PR comment on failure
+        if: failure() && github.event_name == 'pull_request'
+        run: |
+          PR_NUMBER=$(echo $GITHUB_REF | grep -oP '(?<=refs\/pull\/)\d+')
+          INVALID_ROOT=$(echo "${{ steps.validate-root.outputs.invalid_packages }}" 2>/dev/null || echo "")
+          INVALID_DASHBOARD=$(echo "${{ steps.validate-dashboard.outputs.invalid_packages }}" 2>/dev/null || echo "")
+          
+          COMMENT_BODY="## ⚠️ Invalid Package Versions Detected\n\n"
+          
+          if [ -n "$INVALID_ROOT" ]; then
+            COMMENT_BODY+="### Root package.json Issues:\n"
+            for pkg in $INVALID_ROOT; do
+              NAME=$(echo "$pkg" | cut -d'|' -f1)
+              VERSION=$(echo "$pkg" | cut -d'|' -f2)
+              COMMENT_BODY+="- \`$NAME@$VERSION\` does not exist in npm registry\n"
+            done
+          fi
+          
+          if [ -n "$INVALID_DASHBOARD" ]; then
+            COMMENT_BODY+="### Dashboard package.json Issues:\n"
+            for pkg in $INVALID_DASHBOARD; do
+              NAME=$(echo "$pkg" | cut -d'|' -f1)
+              VERSION=$(echo "$pkg" | cut -d'|' -f2)
+              COMMENT_BODY+="- \`$NAME@$VERSION\` does not exist in npm registry\n"
+            done
+          fi
+          
+          COMMENT_BODY+="\n**This PR cannot be merged until these issues are resolved.**"
+          
+          gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  auto-fix:
+    needs: validate
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fix root package.json
+        run: |
+          for pkg in $(node -e "
+            const pkg = require('./package.json');
+            const deps = {...pkg.dependencies, ...pkg.devDependencies};
+            Object.entries(deps).forEach(([name, ver]) => console.log(name + '|' + ver));
+          "); do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            CURRENT_VER=$(echo "$pkg" | cut -d'|' -f2)
+            
+            if ! npm view "$NAME@$CURRENT_VER" version &>/dev/null; then
+              LATEST=$(npm view "$NAME" version)
+              echo "Fixing $NAME: $CURRENT_VER -> $LATEST"
+              npm pkg set "dependencies.$NAME=$LATEST" 2>/dev/null || npm pkg set "devDependencies.$NAME=$LATEST"
+            fi
+          done
+
+      - name: Fix dashboard/package.json
+        run: |
+          cd dashboard
+          for pkg in $(node -e "
+            const pkg = require('./package.json');
+            const deps = {...pkg.dependencies, ...pkg.devDependencies};
+            Object.entries(deps).forEach(([name, ver]) => console.log(name + '|' + ver));
+          "); do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            CURRENT_VER=$(echo "$pkg" | cut -d'|' -f2)
+            
+            if ! npm view "$NAME@$CURRENT_VER" version &>/dev/null; then
+              LATEST=$(npm view "$NAME" version)
+              echo "Fixing $NAME: $CURRENT_VER -> $LATEST"
+              npm pkg set "dependencies.$NAME=$LATEST" 2>/dev/null || npm pkg set "devDependencies.$NAME=$LATEST"
+            fi
+          done
+
+      - name: Create branch and PR
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          git checkout -b fix/auto-correct-invalid-package-versions
+          git add package.json dashboard/package.json
+          git commit -m "fix: auto-correct invalid package versions"
+          
+          git push -u origin fix/auto-correct-invalid-package-versions || true
+          
+          gh pr create --title "fix: auto-correct invalid package versions in dashboard/package.json" \
+            --body "This PR automatically corrects invalid package versions that do not exist in the npm registry." \
+            --base main || true

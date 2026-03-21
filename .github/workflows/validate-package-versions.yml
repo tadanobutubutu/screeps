@@ -40,7 +40,8 @@ jobs:
             
             if ! npm view "$NAME@$VERSION" version &>/dev/null; then
               echo "❌ $NAME@$VERSION does not exist in npm registry" >> $GITHUB_STEP_SUMMARY
-              INVALID_PACKAGES+=("$NAME|$VERSION")
+              LATEST=$(npm view "$NAME" version 2>/dev/null || echo "unknown")
+              INVALID_PACKAGES+=("$NAME|$VERSION|$LATEST")
             else
               echo "✅ $NAME@$VERSION" >> $GITHUB_STEP_SUMMARY
             fi
@@ -48,8 +49,8 @@ jobs:
           
           if [ ${#INVALID_PACKAGES[@]} -gt 0 ]; then
             echo "invalid_packages=${INVALID_PACKAGES[*]}" >> $GITHUB_OUTPUT
-            exit 1
           fi
+          echo "validation_complete=true" >> $GITHUB_OUTPUT
 
       - name: Validate dashboard/package.json
         id: validate-dashboard
@@ -68,7 +69,8 @@ jobs:
             
             if ! npm view "$NAME@$VERSION" version &>/dev/null; then
               echo "❌ $NAME@$VERSION does not exist in npm registry" >> $GITHUB_STEP_SUMMARY
-              INVALID_PACKAGES+=("$NAME|$VERSION")
+              LATEST=$(npm view "$NAME" version 2>/dev/null || echo "unknown")
+              INVALID_PACKAGES+=("$NAME|$VERSION|$LATEST")
             else
               echo "✅ $NAME@$VERSION" >> $GITHUB_STEP_SUMMARY
             fi
@@ -76,37 +78,49 @@ jobs:
           
           if [ ${#INVALID_PACKAGES[@]} -gt 0 ]; then
             echo "invalid_packages=${INVALID_PACKAGES[*]}" >> $GITHUB_OUTPUT
-            exit 1
           fi
+          echo "validation_complete=true" >> $GITHUB_OUTPUT
 
-      - name: Post PR comment on failure
-        if: failure() && github.event_name == 'pull_request'
+      - name: Post PR comment on pull request
+        if: github.event_name == 'pull_request'
         run: |
           PR_NUMBER=$(echo $GITHUB_REF | grep -oP '(?<=refs\/pull\/)\d+')
           INVALID_ROOT=$(echo "${{ steps.validate-root.outputs.invalid_packages }}" 2>/dev/null || echo "")
           INVALID_DASHBOARD=$(echo "${{ steps.validate-dashboard.outputs.invalid_packages }}" 2>/dev/null || echo "")
           
-          COMMENT_BODY="## ⚠️ Invalid Package Versions Detected\n\n"
+          HAS_INVALID="false"
           
-          if [ -n "$INVALID_ROOT" ]; then
-            COMMENT_BODY+="### Root package.json Issues:\n"
-            for pkg in $INVALID_ROOT; do
-              NAME=$(echo "$pkg" | cut -d'|' -f1)
-              VERSION=$(echo "$pkg" | cut -d'|' -f2)
-              COMMENT_BODY+="- \`$NAME@$VERSION\` does not exist in npm registry\n"
-            done
+          if [ -n "$INVALID_ROOT" ] || [ -n "$INVALID_DASHBOARD" ]; then
+            HAS_INVALID="true"
           fi
           
-          if [ -n "$INVALID_DASHBOARD" ]; then
-            COMMENT_BODY+="### Dashboard package.json Issues:\n"
-            for pkg in $INVALID_DASHBOARD; do
-              NAME=$(echo "$pkg" | cut -d'|' -f1)
-              VERSION=$(echo "$pkg" | cut -d'|' -f2)
-              COMMENT_BODY+="- \`$NAME@$VERSION\` does not exist in npm registry\n"
-            done
+          if [ "$HAS_INVALID" == "true" ]; then
+            COMMENT_BODY="## ⚠️ Invalid Package Versions Detected\n\n"
+            COMMENT_BODY+="This PR contains invalid package versions. It can be merged as-is.\n"
+            COMMENT_BODY+="An auto-fix PR will be created after merging to main.\n\n"
+            COMMENT_BODY+="| Package | Invalid Version | Recommended |\n"
+            COMMENT_BODY+="|---------|----------------|-------------|\n"
+            
+            if [ -n "$INVALID_ROOT" ]; then
+              for pkg in $INVALID_ROOT; do
+                NAME=$(echo "$pkg" | cut -d'|' -f1)
+                VERSION=$(echo "$pkg" | cut -d'|' -f2)
+                LATEST=$(echo "$pkg" | cut -d'|' -f3)
+                COMMENT_BODY+="| \`$NAME\` (root) | \`$VERSION\` | \`$LATEST\` |\n"
+              done
+            fi
+            
+            if [ -n "$INVALID_DASHBOARD" ]; then
+              for pkg in $INVALID_DASHBOARD; do
+                NAME=$(echo "$pkg" | cut -d'|' -f1)
+                VERSION=$(echo "$pkg" | cut -d'|' -f2)
+                LATEST=$(echo "$pkg" | cut -d'|' -f3)
+                COMMENT_BODY+="| \`$NAME\` (dashboard) | \`$VERSION\` | \`$LATEST\` |\n"
+              done
+            fi
+          else
+            COMMENT_BODY="## ✅ All Package Versions Valid\n\nAll package versions in this PR exist in the npm registry."
           fi
-          
-          COMMENT_BODY+="\n**This PR cannot be merged until these issues are resolved.**"
           
           gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
         env:
@@ -114,7 +128,7 @@ jobs:
 
   auto-fix:
     needs: validate
-    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -125,7 +139,20 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Check if there are invalid packages
+        id: check-invalid
+        run: |
+          INVALID_ROOT=$(echo "${{ steps.validate-root.outputs.invalid_packages }}" 2>/dev/null || echo "")
+          INVALID_DASHBOARD=$(echo "${{ steps.validate-dashboard.outputs.invalid_packages }}" 2>/dev/null || echo "")
+          
+          if [ -n "$INVALID_ROOT" ] || [ -n "$INVALID_DASHBOARD" ]; then
+            echo "has_invalid=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_invalid=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Fix root package.json
+        if: steps.check-invalid.outputs.has_invalid == 'true'
         run: |
           for pkg in $(node -e "
             const pkg = require('./package.json');
@@ -143,6 +170,7 @@ jobs:
           done
 
       - name: Fix dashboard/package.json
+        if: steps.check-invalid.outputs.has_invalid == 'true'
         run: |
           cd dashboard
           for pkg in $(node -e "
@@ -161,6 +189,7 @@ jobs:
           done
 
       - name: Create branch and PR
+        if: steps.check-invalid.outputs.has_invalid == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"

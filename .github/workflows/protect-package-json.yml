@@ -84,13 +84,16 @@ jobs:
             echo "valid_changes=${VALID_CHANGES[*]}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Request changes on PR for invalid versions
+      - name: Post comment for invalid versions
         if: steps.validate.outputs.has_invalid == 'true'
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           
-          COMMENT_BODY="## ⚠️ Invalid Package Version Changes Detected\n\n"
-          COMMENT_BODY+="The following package version changes are invalid:\n\n"
+          COMMENT_BODY="## ⚠️ Invalid Package Versions Detected\n\n"
+          COMMENT_BODY+="This PR contains invalid package versions. It can be merged as-is.\n"
+          COMMENT_BODY+="An auto-fix PR will be created after merging to main.\n\n"
+          COMMENT_BODY+="| Package | Invalid Version | Recommended |\n"
+          COMMENT_BODY+="|---------|----------------|-------------|\n"
           
           for change in ${{ steps.validate.outputs.invalid_changes }}; do
             NAME=$(echo "$change" | cut -d'|' -f1)
@@ -98,15 +101,10 @@ jobs:
             NEW_VER=$(echo "$change" | cut -d'|' -f3)
             LATEST=$(echo "$change" | cut -d'|' -f4)
             
-            COMMENT_BODY+="| Package | Invalid Version | Recommended |\n"
-            COMMENT_BODY+="|--------|----------------|-------------|\n"
-            COMMENT_BODY+"| \`$NAME\` | \`$NEW_VER\` | \`$LATEST\` |\n\n"
+            COMMENT_BODY+="| \`$NAME\` | \`$NEW_VER\` | \`$LATEST\` |\n"
           done
           
-          COMMENT_Body+="**Please fix these issues before merging.**"
-          
-          # Post review with REQUEST_CHANGES
-          gh pr review $PR_NUMBER --body "$COMMENT_BODY" --request-changes
+          gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
 
       - name: Confirm valid versions
         if: steps.validate.outputs.has_invalid == 'false' && steps.get-changes.outputs.changed_files != ''
@@ -114,3 +112,8 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           COMMENT_BODY="## ✅ Package Version Check Complete\n\nAll package version changes in this PR are valid."
           gh pr comment $PR_NUMBER --body "$COMMENT_BODY"
+
+      - name: No package.json changes to validate
+        if: steps.get-changes.outputs.changed_files == ''
+        run: |
+          echo "No package.json files were changed in this PR"

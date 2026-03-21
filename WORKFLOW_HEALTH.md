@@ -1,40 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-21T02:21:23Z
+**Generated**: 2026-03-21T06:50:53Z
 
 ## 📊 Status
 
-- **Failed Runs**: 4
+- **Failed Runs**: 13
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "💰 Usage Monitor & Auto-Optimize",
-    "name": "💰 Usage Monitor & Auto-Optimize",
-    "id": 23369467584,
-    "created": "2026-03-21T01:50:37Z"
+    "workflow": "Gitleaks",
+    "name": "Gitleaks",
+    "id": 23374177628,
+    "created": "2026-03-21T06:46:59Z"
   },
   {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23369447789,
-    "created": "2026-03-21T01:49:27Z"
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23374177198,
+    "created": "2026-03-21T06:46:57Z"
   },
   {
-    "workflow": "CodeQL",
-    "name": "Push on main",
-    "id": 23351356468,
-    "created": "2026-03-20T16:03:52Z"
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 23374177101,
+    "created": "2026-03-21T06:46:57Z"
   },
   {
-    "workflow": "CodeQL",
-    "name": "Push on main",
-    "id": 23347924690,
-    "created": "2026-03-20T14:40:58Z"
-  }
-]
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 23374177026,
+    "created": "2026-03-21T06:46:56Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 23374176959,
+    "created": "2026-03-21T06:46:56Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23374176877,
+    "created": "2026-03-21T06:46:56Z"
+  },
+  {
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 23374176813,
+    "created": "2026-03-21T06:46:56Z"
+  },
+  {
+    "workflow": ".github/workflows/validate-action-versions.yml",
+    "name": ".github/workflows/validate-action-versions.yml",
+    "id": 23374176769,
+    "created": "2026-03-21T06:46:55Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

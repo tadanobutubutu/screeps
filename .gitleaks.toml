@@ -3,9 +3,13 @@
 
 title = "Screeps Repository Gitleaks Configuration"
 
-# Exclude documentation files that contain security best practices examples
+# Exclude paths that contain test/dummy files
 [allowlist]
   description = "Allowlist for false positives"
+  
+  # Exclude the entire .gitleaks-dummy directory from scanning
+  [[allowlist.paths]]
+    regex = '''\.gitleaks-dummy/.*'''
   
   # Exclude SECURITY.md from generic-api-key rule
   # Line 88 contains "**\"DO\"**:" which triggers false positive

@@ -52,7 +52,7 @@ jobs:
           script: |
             const org = process.env.SONAR_ORGANIZATION;
             const token = process.env.SONAR_TOKEN;
-            const projectKey = `${org}_screeps`;
+            const projectKey = `${org}:screeps`;
 
             // SonarCloud APIで未解決のCRITICAL/MAJORを取得
             let issues = [];
@@ -103,7 +103,7 @@ jobs:
               '',
               issueList,
               '',
-              `> 詳細: https://sonarcloud.io/project/issues?id=${projectKey}&resolved=false`,
+              `> 詳細: https://sonarcloud.io/project/issues?id=${org}&resolved=false`,
               '',
               '---',
               '@google-labs-jules 上記の問題をすべて修正してください。',

@@ -1,10 +1,11 @@
 /** @type {import('jest').Config} */
-module.exports = {
+export default {
     testEnvironment: 'node',
     collectCoverageFrom: [
         'src/**/*.js',
         '*.js',
         '!jest.config.js',
+        '!jest.config.mjs',
         '!node_modules/**',
         '!coverage/**',
     ],
@@ -22,7 +23,6 @@ module.exports = {
             },
         ],
     ],
-    // Screeps globals
     globals: {},
     testPathIgnorePatterns: ['/node_modules/'],
     modulePaths: ['<rootDir>'],

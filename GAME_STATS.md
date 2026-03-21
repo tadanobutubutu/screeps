@@ -6,14 +6,14 @@
 
 ### Level & Points
 - **Level**: 🌟 Advanced (Level 4)
-- **Total Points**: 1211
+- **Total Points**: 1311
 
 ### Project Stats
 - **Total Issues**: 3
   - ✅ Closed: 9
   - 🔄 Open: 3
 - **Total PRs**: 0
-  - ✅ Merged: 56
+  - ✅ Merged: 61
 - **Total Commits**: 1
 - **Contributors**: 11
 
@@ -48,7 +48,7 @@
 ## 🎯 Next Milestone
 
 $(if [ 9 -lt 10 ]; then echo "- Close $(( 10 - 9 )) more issues to unlock ⭐ Issue Hunter"; fi)
-$(if [ 56 -lt 10 ]; then echo "- Merge $(( 10 - 56 )) more PRs to unlock 💎 PR Pro"; fi)
+$(if [ 61 -lt 10 ]; then echo "- Merge $(( 10 - 61 )) more PRs to unlock 💎 PR Pro"; fi)
 $(if [ 300 -lt 80 ]; then echo "- Reach $(( 80 - 300 ))% more completion for ✨ Perfectionist"; fi)
 
 ---

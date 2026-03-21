@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-21T13:24:11Z
+**Last Updated**: 2026-03-21T15:47:52Z
 
 ## Recent Changes
 
-- 🔧 Workflow health report: 5 issues
-- 📊 Statistics update by Stats Bot
-- 📊 Statistics update by Stats Bot
-- 🏆 Daily challenge generated [2026-03-21]
-- 📝 Changelog update by Changelog Bot
-- 📊 Statistics update by Stats Bot
-- ⚡ Bolt: optimize role.medic with per-tick caching and consolidation (#116)
-- 🛡️ Sentinel: [security improvement] Implement Memory DoS protection for Evolution system (#115)
-- 🔧 Workflow health report: 13 issues
-- 🎨 Palette: Enhance Room Dashboard accessibility and information density (#114)
+- fix: update vercel.json to explicitly set production branch to main
+- 🎮 Update game stats [skip ci]
+- fix: add root vercel.json and .vercelignore for Vercel deployment
+- fix: update pnpm-lock.yaml
+- fix: install pnpm before use in CI workflows
+- fix: use pnpm for dependency installation in CI workflows
+- fix: correct gitleaks.toml syntax
+- fix: resolve CI failures for ESM module, Jest, Gitleaks, and SonarCloud
+- fix: allow PR merge, post comments only for invalid versions
+- feat: add package.json version validation and protection workflows
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

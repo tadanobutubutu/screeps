@@ -5,6 +5,14 @@
   "framework": "nextjs",
   "github": {
     "enabled": true,
-    "autoJobCancelation": true
+    "autoJobCancelation": true,
+    "deploymentEnabled": {
+      "production": true,
+      "preview": true,
+      "branch": "main"
+    }
+  },
+  "git": {
+    "productionBranch": "main"
   }
 }

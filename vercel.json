@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/collect",
+      "schedule": "*/30 * * * *"
+    }
+  ],
   "buildCommand": "cd dashboard && npm run build",
   "outputDirectory": "dashboard/out",
   "installCommand": "cd dashboard && npm install",

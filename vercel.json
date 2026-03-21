@@ -1,0 +1,10 @@
+{
+  "buildCommand": "cd dashboard && npm run build",
+  "outputDirectory": "dashboard/out",
+  "installCommand": "cd dashboard && npm install",
+  "framework": "nextjs",
+  "github": {
+    "enabled": true,
+    "autoJobCancelation": true
+  }
+}

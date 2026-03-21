@@ -1,0 +1,4 @@
+# Exclude all files except dashboard for Vercel deployment
+*
+!dashboard/
+!vercel.json

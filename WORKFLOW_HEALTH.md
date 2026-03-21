@@ -1,46 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-21T12:56:45Z
+**Generated**: 2026-03-21T18:40:44Z
 
 ## 📊 Status
 
-- **Failed Runs**: 5
+- **Failed Runs**: 19
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23379904327,
-    "created": "2026-03-21T12:42:25Z"
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23385068577,
+    "created": "2026-03-21T17:40:05Z"
   },
   {
-    "workflow": "Auto Improve Screeps Code",
-    "name": "Auto Improve Screeps Code",
-    "id": 23377127908,
-    "created": "2026-03-21T09:54:37Z"
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 23385068485,
+    "created": "2026-03-21T17:40:05Z"
   },
   {
-    "workflow": "Gitleaks",
-    "name": "Gitleaks",
-    "id": 23374492932,
-    "created": "2026-03-21T07:07:27Z"
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23385068349,
+    "created": "2026-03-21T17:40:04Z"
+  },
+  {
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 23385068245,
+    "created": "2026-03-21T17:40:04Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 23385068150,
+    "created": "2026-03-21T17:40:04Z"
   },
   {
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23374492835,
-    "created": "2026-03-21T07:07:27Z"
+    "id": 23385068066,
+    "created": "2026-03-21T17:40:03Z"
   },
   {
     "workflow": ".github/workflows/validate-action-versions.yml",
     "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23374492781,
-    "created": "2026-03-21T07:07:27Z"
-  }
-]
+    "id": 23385067992,
+    "created": "2026-03-21T17:40:03Z"
+  },
+  {
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 23385067879,
+    "created": "2026-03-21T17:40:03Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

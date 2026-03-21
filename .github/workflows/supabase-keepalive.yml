@@ -3,7 +3,10 @@ name: Supabase KeepAlive
 on:
   schedule:
     - cron: '0 12 * * *'  # UTC 12:00 = JST 21:00 に毎日実行
-  workflow_dispatch:       # 手動実行も可能
+  workflow_dispatch:       # 手動実行也可能
+
+permissions:
+  contents: read
 
 jobs:
   keepalive:

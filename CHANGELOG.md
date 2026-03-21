@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-21T15:47:52Z
+**Last Updated**: 2026-03-21T18:59:48Z
 
 ## Recent Changes
 
-- fix: update vercel.json to explicitly set production branch to main
+- 🔧 Workflow health report: 19 issues
+- 📊 Statistics update by Stats Bot
+- 🧠 Update AI strategy briefing [2026-03-21 18:31 UTC]
 - 🎮 Update game stats [skip ci]
-- fix: add root vercel.json and .vercelignore for Vercel deployment
-- fix: update pnpm-lock.yaml
-- fix: install pnpm before use in CI workflows
-- fix: use pnpm for dependency installation in CI workflows
-- fix: correct gitleaks.toml syntax
-- fix: resolve CI failures for ESM module, Jest, Gitleaks, and SonarCloud
-- fix: allow PR merge, post comments only for invalid versions
-- feat: add package.json version validation and protection workflows
+- 🎮 Update game stats [skip ci]
+- test: add unit tests for low coverage files
+- 🎨 Auto-format: ESLint + Prettier applied
+- Updated package-lock.json
+- fix: add permissions to supabase-keepalive workflow to resolve CodeQL alert
+- fix: remove cron job to avoid Vercel Hobby plan limitation
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

@@ -18,6 +18,6 @@
 **Learning:** The room dashboard often performs comprehensive  calls to gather stats for the UI. By attaching these results to the volatile Room object (e.g., `room._myCreeps`), subsequent heavy systems like Defense or AI can skip their own expensive searches and use simple JS filters on the cached arrays. This turn-based caching provides a massive reduction in per-tick `room.find` calls.
 **Action:** When implementing dashboards or global status checks, always cache the raw search results on the room object to "warm" the cache for downstream logic.
 
-## 2026-03-31 - Dashboard as a Cache Warmer for Global Systems
-**Learning:** The room dashboard often performs comprehensive `room.find` calls to gather stats for the UI. By attaching these results to the volatile Room object (e.g., `room._myCreeps`), subsequent heavy systems like Defense or AI can skip their own expensive searches and use simple JS filters on the cached arrays. This turn-based caching provides a massive reduction in per-tick `room.find` calls.
-**Action:** When implementing dashboards or global status checks, always cache the raw search results on the room object to "warm" the cache for downstream logic.
+## 2026-04-07 - Unique Cache Tick Keys for Modular Systems
+**Learning:** Using a generic `_cacheTick` property to guard multiple different cached results on the Room object leads to brittle logic and potential runtime errors. If one system (e.g., Dashboard) updates the generic tick but not all cached properties, other systems (e.g., Medic) might skip their required `room.find` calls, resulting in undefined access.
+**Action:** Always use specific, unique tick keys (e.g., `_myCreepsTick`, `_injuredCreepsTick`) for each cached dataset to ensure modular safety and prevent cross-system cache collisions.

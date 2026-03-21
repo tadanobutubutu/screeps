@@ -2,40 +2,70 @@ const roleMedic = {
     run: function (creep) {
         creep.say('💊');
 
+        // ⚡ PERFORMANCE: Per-tick caching of my creeps (using unique tick key to avoid collisions)
+        if (creep.room._myCreepsTick !== Game.time) {
+            creep.room._myCreeps = creep.room.find(FIND_MY_CREEPS);
+            creep.room._myCreepsTick = Game.time;
+        }
+
+        // ⚡ PERFORMANCE: Per-tick caching of injured creeps
+        if (creep.room._injuredCreepsTick !== Game.time) {
+            creep.room._injuredCreeps = creep.room._myCreeps.filter((c) => c.hits < c.hitsMax);
+            creep.room._injuredCreepsTick = Game.time;
+        }
+        const injured = creep.room._injuredCreeps;
+
+        // ⚡ PERFORMANCE: Per-tick caching of active sources (shared across roles)
+        if (creep.room._activeSourcesTick !== Game.time) {
+            creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
+            creep.room._activeSourcesTick = Game.time;
+        }
+        const sources = creep.room._activeSources;
+
+        // State machine: Gather energy or Heal
         if (creep.memory.healing && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.healing = false;
+            creep.say('⚡ harvest');
         }
         if (!creep.memory.healing && creep.store.getFreeCapacity() === 0) {
             creep.memory.healing = true;
+            creep.say('💊 heal');
         }
 
         if (creep.memory.healing) {
-            const injured = creep.room.find(FIND_MY_CREEPS, {
-                filter: (c) => c.hits < c.hitsMax,
-            });
-
             if (injured.length > 0) {
+                // Optimized targeting: healing while moving
                 const target = injured[0];
-                if (creep.heal(target) === ERR_NOT_IN_RANGE) {
+                if (creep.pos.isNearTo(target)) {
+                    creep.heal(target);
+                } else {
+                    creep.rangedHeal(target);
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
                 }
             } else {
-                const sources = creep.room.find(FIND_SOURCES_ACTIVE);
-                if (sources.length > 0) {
-                    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
-                    }
+                // No one to heal: Move to idle position
+                const idlePos = creep.room.controller ? creep.room.controller.pos : new RoomPosition(25, 25, creep.room.name);
+                if (!creep.pos.inRangeTo(idlePos, 3)) {
+                    creep.moveTo(idlePos, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } });
                 }
             }
         } else {
-            const injured = creep.room.find(FIND_MY_CREEPS, {
-                filter: (c) => c.hits < c.hitsMax,
-            });
-
-            if (injured.length > 0) {
+            // Gathering mode
+            const canHarvest = creep.getActiveBodyparts(WORK) > 0;
+            if (canHarvest && sources.length > 0) {
+                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                }
+            } else if (injured.length > 0) {
+                // Secondary behavior: heal even if not in "healing" state if we have some energy
                 const target = injured[0];
-                if (creep.rangedHeal(target) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                if (creep.store[RESOURCE_ENERGY] > 0) {
+                    if (creep.pos.isNearTo(target)) {
+                        creep.heal(target);
+                    } else {
+                        creep.rangedHeal(target);
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                    }
                 }
             }
         }

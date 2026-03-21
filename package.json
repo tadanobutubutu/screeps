@@ -1,6 +1,7 @@
 {
   "name": "screeps-ai",
   "version": "1.0.0",
+  "type": "module",
   "description": "Screeps AI with automated GitHub workflows",
   "main": "main.js",
   "scripts": {
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/tadanobutubutu/screeps#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
     "lodash": "^4.17.23"
   },
   "devDependencies": {

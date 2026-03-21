@@ -4,6 +4,14 @@
  * CPU最適化版
  */
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
+ */
+const MAX_HISTORY = 50;
+const MAX_QUEUE = 10;
+const MAX_SUGGESTIONS = 20;
+
 const autoEvolution = {
     /**
      * 初期化
@@ -294,6 +302,12 @@ const autoEvolution = {
      */
     addToQueue: function (need) {
         const queue = Memory.evolution.queue;
+
+        // Security: Prevent queue flooding (Memory DoS)
+        if (queue.length >= MAX_QUEUE) {
+            return;
+        }
+
         let exists = false;
 
         for (let i = 0; i < queue.length; i++) {
@@ -333,6 +347,11 @@ const autoEvolution = {
             data: item.data,
         });
 
+        // Security: Immediate rotation to prevent Memory DoS
+        if (Memory.evolution.history.length > MAX_HISTORY) {
+            Memory.evolution.history.shift();
+        }
+
         Memory.evolution.stats.totalEvolutions++;
 
         Memory.evolution.queue.shift();
@@ -367,6 +386,11 @@ const autoEvolution = {
             code: suggestion,
             filename: this.getFilename(item.action),
         });
+
+        // Security: Immediate rotation (limited because suggestions contain large code blocks)
+        if (Memory.evolution.suggestions.length > MAX_SUGGESTIONS) {
+            Memory.evolution.suggestions.shift();
+        }
 
         console.log('✨ Code suggestion generated: ' + this.getFilename(item.action));
         console.log('📝 Check Memory.evolution.suggestions for details');

@@ -32,3 +32,8 @@
 **Vulnerability:** Prototype Pollution and Memory Denial of Service (DoS) via unsanitized combo types.
 **Learning:** Even internal-looking systems like gamification tracking can be vulnerable if they use external or dynamic strings as object keys. In Screeps, where Memory is limited to 2MB, unbounded object growth is a viable DoS vector.
 **Prevention:** Always validate keys with `isSafeKey`, truncate string lengths, and enforce a strict cap on the number of unique keys allowed in a collection.
+
+## 2026-03-21 - Memory DoS Protection for Evolution System
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded arrays in the Evolution system (`history`, `suggestions`, `queue`).
+**Learning:** Systems that accumulate data over time, especially those storing large payloads like code suggestions, can quickly exceed environment memory limits (2MB in Screeps) if not capped. This leads to persistent script crashes and loss of state.
+**Prevention:** Implement strict `MAX_` length constants for all arrays in the global `Memory` object. Use immediate rotation (`shift()`) for historical logs and early returns (caps) for processing queues.

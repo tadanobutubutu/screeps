@@ -44,9 +44,13 @@ const roleMedic = {
                 }
             } else {
                 // No one to heal: Move to idle position
-                const idlePos = creep.room.controller ? creep.room.controller.pos : new RoomPosition(25, 25, creep.room.name);
+                const idlePos = creep.room.controller
+                    ? creep.room.controller.pos
+                    : new RoomPosition(25, 25, creep.room.name);
                 if (!creep.pos.inRangeTo(idlePos, 3)) {
-                    creep.moveTo(idlePos, { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } });
+                    creep.moveTo(idlePos, {
+                        visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 },
+                    });
                 }
             }
         } else {

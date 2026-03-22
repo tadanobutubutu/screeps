@@ -21,3 +21,7 @@
 ## 2026-04-07 - Unique Cache Tick Keys for Modular Systems
 **Learning:** Using a generic `_cacheTick` property to guard multiple different cached results on the Room object leads to brittle logic and potential runtime errors. If one system (e.g., Dashboard) updates the generic tick but not all cached properties, other systems (e.g., Medic) might skip their required `room.find` calls, resulting in undefined access.
 **Action:** Always use specific, unique tick keys (e.g., `_myCreepsTick`, `_injuredCreepsTick`) for each cached dataset to ensure modular safety and prevent cross-system cache collisions.
+
+## 2026-04-14 - Heuristic Target Selection and ID Caching
+**Learning:** Repeatedly calling `findClosestByPath` in high-frequency creep roles is extremely expensive ($O(N \cdot \text{Pathfinding})$). Replacing it with `findClosestByRange` ($O(N)$) and caching the resulting target ID in `creep.memory` allows the creep to reuse the target until it is completed or invalid, reducing the search frequency from every tick to once per target lifecycle.
+**Action:** Always prefer `findClosestByRange` for heuristic target selection and implement ID caching in `creep.memory` to minimize spatial search overhead in role logic.

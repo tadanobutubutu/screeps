@@ -2,7 +2,7 @@
  * role.builder.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = { time: 10, getObjectById: jest.fn() };
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
@@ -74,14 +74,16 @@ describe('role.builder', () => {
 
   test('buildingモードで建設サイトがあるときbuildを呼ぶ', () => {
     const mockSite = { id: 'site1', pos: { x: 10, y: 10 } };
+    global.Game.getObjectById.mockReturnValue(null);
+
     const creep = {
-      memory: { building: true },
+      memory: { building: true, buildTargetId: undefined },
       store: { [global.RESOURCE_ENERGY]: 50, getFreeCapacity: jest.fn().mockReturnValue(0) },
       say: jest.fn(),
       build: jest.fn().mockReturnValue(global.OK),
       upgradeController: jest.fn(),
       moveTo: jest.fn(),
-      pos: { findClosestByPath: jest.fn().mockReturnValue(mockSite) },
+      pos: { findClosestByRange: jest.fn().mockReturnValue(mockSite) },
       room: {
         _constructionSitesTick: undefined,
         _constructionSites: [mockSite],
@@ -92,6 +94,32 @@ describe('role.builder', () => {
 
     roleBuilder.run(creep);
     expect(creep.build).toHaveBeenCalled();
+    expect(creep.memory.buildTargetId).toBe('site1');
+  });
+
+  test('buildingモードでキャッシュされたターゲットを使用する', () => {
+    const mockSite = { id: 'site1', pos: { x: 10, y: 10 } };
+    global.Game.getObjectById.mockReturnValue(mockSite);
+
+    const creep = {
+      memory: { building: true, buildTargetId: 'site1' },
+      store: { [global.RESOURCE_ENERGY]: 50, getFreeCapacity: jest.fn().mockReturnValue(0) },
+      say: jest.fn(),
+      build: jest.fn().mockReturnValue(global.OK),
+      upgradeController: jest.fn(),
+      moveTo: jest.fn(),
+      pos: { findClosestByRange: jest.fn() },
+      room: {
+        _constructionSitesTick: 10,
+        _constructionSites: [mockSite],
+        find: jest.fn(),
+        controller: { pos: { x: 5, y: 5 } },
+      },
+    };
+
+    roleBuilder.run(creep);
+    expect(creep.build).toHaveBeenCalledWith(mockSite);
+    expect(creep.pos.findClosestByRange).not.toHaveBeenCalled();
   });
 
   test('buildingモードで建設サイトがないときupgradeControllerを呼ぶ', () => {

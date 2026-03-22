@@ -19,12 +19,25 @@ const roleBuilder = {
             const targets = creep.room._constructionSites;
 
             if (targets.length > 0) {
-                // 最も近い建設サイトへ
-                const target = creep.pos.findClosestByPath(targets);
+                // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
+                let target = Game.getObjectById(creep.memory.buildTargetId);
+
+                // If target is invalid or no longer exists in construction sites, find a new one
+                if (!target || !targets.some((t) => t.id === target.id)) {
+                    // ⚡ PERFORMANCE: Use findClosestByRange (O(N)) instead of findClosestByPath (O(N*Pathfinding))
+                    target = creep.pos.findClosestByRange(targets);
+                    if (target) {
+                        creep.memory.buildTargetId = target.id;
+                    } else {
+                        delete creep.memory.buildTargetId;
+                    }
+                }
+
                 if (target && creep.build(target) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#0000ff' } });
                 }
             } else {
+                delete creep.memory.buildTargetId;
                 // 建設サイトがなければアップグレードモードに
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(creep.room.controller, {

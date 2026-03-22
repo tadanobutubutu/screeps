@@ -4,6 +4,14 @@
 
 const utilsMemory = require('./utils.memory');
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
+ */
+const MAX_EXPLORED_ROOMS = 100;
+const MAX_ROOM_DATA = 50;
+const MAX_DIARY_MESSAGE_LENGTH = 200;
+
 const memoryVisualizer = {
     /**
      * メモリ全体の統計を表示
@@ -176,7 +184,8 @@ const memoryVisualizer = {
      * Creep日記
      */
     initDiary: function (creepName) {
-        if (!Memory.creeps[creepName]) {
+        // Security: Validate creepName to prevent prototype pollution
+        if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName]) {
             return;
         }
 
@@ -189,15 +198,23 @@ const memoryVisualizer = {
     },
 
     addDiaryEntry: function (creepName, message) {
+        // Security: Validate creepName to prevent prototype pollution
+        if (!utilsMemory.isSafeKey(creepName)) {
+            return;
+        }
+
         this.initDiary(creepName);
 
         if (!Memory.creeps[creepName]?.diary) {
             return;
         }
 
+        // Security: Truncate message to avoid Memory DoS
+        const sanitizedMessage = String(message).substring(0, MAX_DIARY_MESSAGE_LENGTH);
+
         const entry = {
             time: Game.time,
-            message: message,
+            message: sanitizedMessage,
         };
 
         Memory.creeps[creepName].diary.entries.push(entry);
@@ -209,7 +226,8 @@ const memoryVisualizer = {
     },
 
     readDiary: function (creepName) {
-        if (!Memory.creeps[creepName]?.diary) {
+        // Security: Validate creepName to prevent prototype pollution
+        if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName]?.diary) {
             console.log(`📝 No diary for ${creepName}`);
             return [];
         }
@@ -236,11 +254,25 @@ const memoryVisualizer = {
     },
 
     recordRoom: function (roomName) {
+        // Security: Validate roomName to prevent prototype pollution
+        if (!utilsMemory.isSafeKey(roomName)) {
+            return;
+        }
+
         this.initMemoryMap();
 
         const room = Game.rooms[roomName];
         if (!room) {
             return;
+        }
+
+        // Security: Cap the number of rooms stored in Memory to prevent DoS
+        const roomKeys = Object.keys(Memory.map.rooms);
+        if (roomKeys.length >= MAX_ROOM_DATA && !Memory.map.rooms[roomName]) {
+            const oldestRoom = roomKeys.sort((a, b) => {
+                return Memory.map.rooms[a].lastVisit - Memory.map.rooms[b].lastVisit;
+            })[0];
+            delete Memory.map.rooms[oldestRoom];
         }
 
         Memory.map.rooms[roomName] = {
@@ -258,6 +290,11 @@ const memoryVisualizer = {
 
         if (!Memory.map.explored.includes(roomName)) {
             Memory.map.explored.push(roomName);
+
+            // Security: Limit history of explored rooms
+            if (Memory.map.explored.length > MAX_EXPLORED_ROOMS) {
+                Memory.map.explored.shift();
+            }
         }
     },
 

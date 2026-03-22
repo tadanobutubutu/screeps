@@ -37,3 +37,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded arrays in the Evolution system (`history`, `suggestions`, `queue`).
 **Learning:** Systems that accumulate data over time, especially those storing large payloads like code suggestions, can quickly exceed environment memory limits (2MB in Screeps) if not capped. This leads to persistent script crashes and loss of state.
 **Prevention:** Implement strict `MAX_` length constants for all arrays in the global `Memory` object. Use immediate rotation (`shift()`) for historical logs and early returns (caps) for processing queues.
+
+## 2026-03-22 - Hardening Memory Map and Diary Systems
+**Vulnerability:** Prototype Pollution and Memory DoS in `memory.visualizer.js` via room and creep names and unbounded data structures.
+**Learning:** Even diagnostic or visualization tools like a "Memory Map" can become attack vectors if they store user-controlled or environment-controlled strings (room names, creep names) without validation. Furthermore, simple history arrays (`explored`) or key-value stores (`rooms`) can grow indefinitely, leading to a "Slow DoS" as the bot's memory reaches its limit.
+**Prevention:** Always validate room/creep names with `isSafeKey`. Enforce strict caps on both arrays and objects. For object-based storage, implement an eviction policy (e.g., deleting the entry with the oldest `lastVisit`) when the size limit is reached.

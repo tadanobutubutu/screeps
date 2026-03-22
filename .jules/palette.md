@@ -21,3 +21,11 @@
 ## 2025-06-21 - [Dashboard Information Density and Accessibility]
 **Learning:** Magenta text (#ff00ff) on a semi-transparent black background has lower contrast than white text (#ffffff), making it harder for users with visual impairments to read. Additionally, providing absolute values without context (like storage energy) requires more cognitive effort than pairing them with a percentage-based progress bar.
 **Action:** Use white for primary informational text and always accompany large resource counts with a visual progress bar and percentage for faster "at-a-glance" status checks.
+
+## 2025-06-25 - [Dynamic UI Section Management]
+**Learning:** When adding dynamic or rotating content to a fixed-size dashboard (like the Daily Challenge), the total visual real estate must be expanded dynamically. Increasing the background container's height and shifting lower elements (like the Rank Badge) using relative positioning ensures the UI remains balanced and prevents element overlapping as new metrics are introduced.
+**Action:** When adding new sections to a dashboard, always calculate and update the container height and provide sufficient padding/offset for existing elements.
+
+## 2025-06-25 - [Deterministic Testing for Rotating Content]
+**Learning:** For systems that rotate content daily (like the Daily Challenge), hardcoding values in unit tests leads to brittle, non-deterministic failures. Fetching the active configuration (e.g., the daily metric) directly from the module under test ensures that assertions remain valid regardless of the execution date.
+**Action:** Use dynamic setup in unit tests for time-dependent or rotating features to ensure consistent test results across different environments and dates.

@@ -59,6 +59,9 @@ describe('utils.emotions', () => {
   test('updateEmotionがenergyが低いときhungryを返す', () => {
     mockCreep.store.getUsedCapacity.mockReturnValue(5);
     mockCreep.store.getCapacity.mockReturnValue(100);
+    global.Game.time = 15; // 15 % 5 == 0, name length 9 % 5 == 4. (15+4)%5 != 0. Wait, name is 'testCreep' (9 chars).
+    // name.length % 5 = 9 % 5 = 4.
+    // (Game.time + 4) % 5 === 0  => Game.time = 1, 6, 11, 16...
     global.Game.time = 11;
     const emoji = EmotionSystem.updateEmotion(mockCreep);
     expect(emoji).toBe('🍔');

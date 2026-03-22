@@ -4,6 +4,7 @@
 
 const vfx = require('visual.effects');
 const utilsMemory = require('utils.memory');
+const dailyChallenge = require('daily-challenge');
 
 const gamification = {
     /**
@@ -224,7 +225,7 @@ const gamification = {
         const x = spawn.pos.x + 5;
         const y = spawn.pos.y - 3;
 
-        visual.rect(x - 3, y - 2, 6, 8, {
+        visual.rect(x - 3, y - 2, 6, 11, {
             fill: '#000000',
             opacity: 0.7,
             stroke: '#FFD700',
@@ -234,12 +235,16 @@ const gamification = {
         visual.text('🎮 STATS 🎮', x, y - 1.3, {
             color: '#FFD700',
             font: 0.8,
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         visual.text('Lv.' + gm.level, x - 2, y - 0.3, {
             color: '#00FF00',
             font: 0.7,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         vfx.progressBar({ x: x, y: y + 0.5, roomName: spawn.room.name }, gm.xp, gm.xpToNext, 'XP');
@@ -248,12 +253,16 @@ const gamification = {
             color: '#FFD700',
             font: 0.6,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         visual.text('🏆 ' + gm.achievements.length, x - 2, y + 2, {
             color: '#FFFFFF',
             font: 0.6,
             align: 'left',
+            stroke: '#000000',
+            strokeWidth: 0.05,
         });
 
         if (gm.streakDays > 0) {
@@ -261,10 +270,28 @@ const gamification = {
                 color: '#FF69B4',
                 font: 0.6,
                 align: 'left',
+                stroke: '#000000',
+                strokeWidth: 0.05,
             });
         }
 
-        vfx.rankBadge({ x: x + 1.5, y: y + 4, roomName: spawn.room.name }, this.getRank());
+        // Daily Challenge info
+        const challenge = dailyChallenge.getChallenge();
+        visual.text('🎯 CHALLENGE 🎯', x, y + 3.8, {
+            color: '#FFD700',
+            font: 0.7,
+            stroke: '#000000',
+            strokeWidth: 0.05,
+        });
+
+        vfx.progressBar(
+            { x: x, y: y + 4.8, roomName: spawn.room.name },
+            challenge.progress,
+            challenge.challenge.target,
+            challenge.challenge.name
+        );
+
+        vfx.rankBadge({ x: x + 1.5, y: y + 6.5, roomName: spawn.room.name }, this.getRank());
     },
 
     /**

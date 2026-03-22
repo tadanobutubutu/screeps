@@ -1,62 +1,62 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-22T12:59:07Z
+**Generated**: 2026-03-22T18:41:43Z
 
 ## 📊 Status
 
-- **Failed Runs**: 11
+- **Failed Runs**: 35
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23403340350,
-    "created": "2026-03-22T12:45:06Z"
-  },
-  {
-    "workflow": "Auto Improve Screeps Code",
-    "name": "Auto Improve Screeps Code",
-    "id": 23400579637,
-    "created": "2026-03-22T09:55:42Z"
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 23408107831,
+    "created": "2026-03-22T17:08:37Z"
   },
   {
     "workflow": ".github/workflows/random-experiment.yml",
     "name": ".github/workflows/random-experiment.yml",
-    "id": 23399985794,
-    "created": "2026-03-22T09:18:30Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23399985706,
-    "created": "2026-03-22T09:18:30Z"
+    "id": 23408107724,
+    "created": "2026-03-22T17:08:37Z"
   },
   {
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23399985630,
-    "created": "2026-03-22T09:18:30Z"
+    "id": 23408107609,
+    "created": "2026-03-22T17:08:36Z"
   },
   {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23399985537,
-    "created": "2026-03-22T09:18:30Z"
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23408107504,
+    "created": "2026-03-22T17:08:36Z"
   },
   {
     "workflow": ".github/workflows/validate-action-versions.yml",
     "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23399985456,
-    "created": "2026-03-22T09:18:29Z"
+    "id": 23408107412,
+    "created": "2026-03-22T17:08:36Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-create-roles.yml",
+    "name": ".github/workflows/auto-create-roles.yml",
+    "id": 23408107306,
+    "created": "2026-03-22T17:08:36Z"
   },
   {
     "workflow": ".github/workflows/discussion-bot.yml",
     "name": ".github/workflows/discussion-bot.yml",
-    "id": 23399985384,
-    "created": "2026-03-22T09:18:29Z"
+    "id": 23408107211,
+    "created": "2026-03-22T17:08:35Z"
+  },
+  {
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23408107129,
+    "created": "2026-03-22T17:08:35Z"
   },
   {
 

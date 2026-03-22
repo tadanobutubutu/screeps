@@ -30,22 +30,26 @@ describe('daily-challenge', () => {
   });
 
   test('updateProgress increases progress', () => {
-    dailyChallenge.updateProgress('moves', 10);
-    const challenge = dailyChallenge.getChallenge();
-    expect(challenge.progress).toBe(10);
+    const { challenge } = dailyChallenge.getChallenge();
+    dailyChallenge.updateProgress(challenge.metric, 10);
+    const updated = dailyChallenge.getChallenge();
+    expect(updated.progress).toBe(10);
   });
 
   test('updateProgress ignores wrong metric', () => {
-    dailyChallenge.updateProgress('moves', 10);
-    dailyChallenge.updateProgress('harvested', 20);
-    const challenge = dailyChallenge.getChallenge();
-    expect(challenge.progress).toBe(10);
+    const { challenge } = dailyChallenge.getChallenge();
+    const wrongMetric = challenge.metric === 'moves' ? 'harvested' : 'moves';
+    dailyChallenge.updateProgress(challenge.metric, 10);
+    dailyChallenge.updateProgress(wrongMetric, 20);
+    const updated = dailyChallenge.getChallenge();
+    expect(updated.progress).toBe(10);
   });
 
   test('updateProgress completes challenge when target reached', () => {
-    dailyChallenge.updateProgress('moves', 500);
-    const challenge = dailyChallenge.getChallenge();
-    expect(challenge.completed).toBe(true);
+    const { challenge } = dailyChallenge.getChallenge();
+    dailyChallenge.updateProgress(challenge.metric, challenge.target);
+    const updated = dailyChallenge.getChallenge();
+    expect(updated.completed).toBe(true);
   });
 
   test('displayChallenge does not throw', () => {

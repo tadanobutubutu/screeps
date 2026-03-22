@@ -1,15 +1,27 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-21T18:40:44Z
+**Generated**: 2026-03-22T02:35:06Z
 
 ## 📊 Status
 
-- **Failed Runs**: 19
+- **Failed Runs**: 11
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
+  {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23393519572,
+    "created": "2026-03-22T02:02:29Z"
+  },
+  {
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 23393500910,
+    "created": "2026-03-22T02:01:19Z"
+  },
   {
     "workflow": ".github/workflows/auto-update-docs.yml",
     "name": ".github/workflows/auto-update-docs.yml",
@@ -44,18 +56,6 @@
     "workflow": ".github/workflows/ai-powered-auto-fix.yml",
     "name": ".github/workflows/ai-powered-auto-fix.yml",
     "id": 23385068066,
-    "created": "2026-03-21T17:40:03Z"
-  },
-  {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23385067992,
-    "created": "2026-03-21T17:40:03Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23385067879,
     "created": "2026-03-21T17:40:03Z"
   },
   {

@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Changelog Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Metrics Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Collect Metrics
         run: |
@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Dependency Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Check Dependencies
         run: |
@@ -125,7 +125,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Cleanup Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Code Cleanup
         run: |
@@ -160,7 +160,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Backup Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Verify Backups
         run: |
@@ -197,7 +197,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Integration Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Test Integration
         run: |
@@ -234,7 +234,7 @@ jobs:
     runs-on: ubuntu-latest
     name: QA Bot
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Quality Assurance
         run: |

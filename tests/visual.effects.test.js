@@ -190,7 +190,7 @@ describe('visual.effects', () => {
   test('rainbowTrailがVFX無効時にtrailPositionsを削除する', () => {
     const { isEnabled } = require('system.adaptive');
     isEnabled.mockReturnValueOnce(false);
-    // 別のGame.timeを使用してキャッシュをリセット
+    // isVfxEnabled()のper-tickキャッシュをリセットするために異なるGame.timeを使用
     global.Game.time = 999;
     const mockCreep = {
       pos: { x: 25, y: 25 },
@@ -199,11 +199,9 @@ describe('visual.effects', () => {
     };
     expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
     expect(mockCreep.memory.trailPositions).toBeUndefined();
-    // 次のテストのためにGame.timeを戻す
-    global.Game.time = 10;
+    // 次のテストのためにmockをリセットし、新しいGame.timeでキャッシュを更新
     isEnabled.mockReturnValue(true);
-    // キャッシュをリセット
-    global.Game.time = 1000;
+    global.Game.time = 1000; // 1000: 次のテスト用のキャッシュリセット値
   });
 
   test('rainbowTrailのtrailPositionsが10件を超えた場合に古い位置を削除する', () => {
@@ -214,7 +212,7 @@ describe('visual.effects', () => {
         trailPositions: Array.from({ length: 10 }, (_, i) => ({ x: i, y: i }))
       }
     };
-    global.Game.time = 2000;
+    global.Game.time = 2000; // 2000: 前のテストと異なるtickでキャッシュをリセット
     expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
     expect(mockCreep.memory.trailPositions.length).toBeLessThanOrEqual(10);
   });

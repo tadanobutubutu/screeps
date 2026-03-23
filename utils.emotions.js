@@ -42,6 +42,13 @@ const MOOD_LEVELS = {
     VERY_SAD: 1,
 };
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
+ */
+const MAX_ACHIEVEMENTS = 10;
+const MAX_ACHIEVEMENT_NAME_LENGTH = 100;
+
 class EmotionSystem {
     static initialize(creep) {
         if (!creep.memory.emotions) {
@@ -177,10 +184,20 @@ class EmotionSystem {
         if (!creep.memory.emotions.achievements) {
             creep.memory.emotions.achievements = [];
         }
+
+        // Security: Truncate achievement name to avoid Memory DoS
+        const sanitizedName = String(achievement).substring(0, MAX_ACHIEVEMENT_NAME_LENGTH);
+
         creep.memory.emotions.achievements.push({
-            name: achievement,
+            name: sanitizedName,
             tick: Game.time,
         });
+
+        // Security: Immediate rotation to prevent Memory DoS
+        if (creep.memory.emotions.achievements.length > MAX_ACHIEVEMENTS) {
+            creep.memory.emotions.achievements.shift();
+        }
+
         creep.memory.emotions.mood = MOOD_LEVELS.VERY_HAPPY;
 
         for (let i = 0; i < 5; i++) {

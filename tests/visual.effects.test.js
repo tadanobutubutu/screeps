@@ -20,9 +20,9 @@ global.RoomVisual = class {
   }
 };
 
-jest.mock('../system.adaptive', () => ({
+jest.mock('system.adaptive', () => ({
   isEnabled: jest.fn().mockReturnValue(true),
-}), { virtual: true });
+}));
 
 const visualEffects = require('../visual.effects');
 
@@ -69,7 +69,8 @@ describe('visual.effects', () => {
 
   test('rainbowTrailがエラーなく実行される', () => {
     const mockCreep = {
-      pos: { x: 25, y: 25, room: { name: 'W0N0' } },
+      pos: { x: 25, y: 25 },
+      room: { name: 'W0N0' },
       memory: {}
     };
     expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
@@ -138,7 +139,8 @@ describe('visual.effects', () => {
 
   test('rainbowTrail with different creeps', () => {
     const creep1 = {
-      pos: { x: 25, y: 25, room: { name: 'W0N0' } },
+      pos: { x: 25, y: 25 },
+      room: { name: 'W0N0' },
       memory: { trail: [] }
     };
     expect(() => visualEffects.rainbowTrail(creep1)).not.toThrow();
@@ -183,5 +185,37 @@ describe('visual.effects', () => {
     expect(() => visualEffects.achievement(mockPos, 'Test', '🏆')).not.toThrow();
     expect(() => visualEffects.achievement(mockPos, 'Test', '⭐')).not.toThrow();
     expect(() => visualEffects.achievement(mockPos, 'Test', '💎')).not.toThrow();
+  });
+
+  test('rainbowTrailがVFX無効時にtrailPositionsを削除する', () => {
+    const { isEnabled } = require('system.adaptive');
+    isEnabled.mockReturnValueOnce(false);
+    // 別のGame.timeを使用してキャッシュをリセット
+    global.Game.time = 999;
+    const mockCreep = {
+      pos: { x: 25, y: 25 },
+      room: { name: 'W0N0' },
+      memory: { trailPositions: [{ x: 1, y: 1 }] }
+    };
+    expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
+    expect(mockCreep.memory.trailPositions).toBeUndefined();
+    // 次のテストのためにGame.timeを戻す
+    global.Game.time = 10;
+    isEnabled.mockReturnValue(true);
+    // キャッシュをリセット
+    global.Game.time = 1000;
+  });
+
+  test('rainbowTrailのtrailPositionsが10件を超えた場合に古い位置を削除する', () => {
+    const mockCreep = {
+      pos: { x: 25, y: 25 },
+      room: { name: 'W0N0' },
+      memory: {
+        trailPositions: Array.from({ length: 10 }, (_, i) => ({ x: i, y: i }))
+      }
+    };
+    global.Game.time = 2000;
+    expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
+    expect(mockCreep.memory.trailPositions.length).toBeLessThanOrEqual(10);
   });
 });

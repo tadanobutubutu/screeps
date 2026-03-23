@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">72.22% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>13/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>12/18</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/1</span>
+                <span class='fraction'>1/1</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">72.22% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/18</span>
+                <span class='fraction'>13/18</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -96,63 +96,63 @@
 <a name='L31'></a><a href='#L31'>31</a>
 <a name='L32'></a><a href='#L32'>32</a>
 <a name='L33'></a><a href='#L33'>33</a>
-<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L34'></a><a href='#L34'>34</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const roleUpgrader = <span class="cstat-no" title="statement not covered" >{</span>
-    run: <span class="fstat-no" title="function not covered" >fu</span>nction (creep) {
-<span class="cstat-no" title="statement not covered" >        if (creep.memory.upgrading &amp;&amp; creep.store[RESOURCE_ENERGY] === 0) {</span>
-<span class="cstat-no" title="statement not covered" >            creep.memory.upgrading = false;</span>
-<span class="cstat-no" title="statement not covered" >            creep.say('⚡ harvest');</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const roleUpgrader = {
+    run: function (creep) {
+        if (creep.memory.upgrading &amp;&amp; creep.store[RESOURCE_ENERGY] === 0) {
+            creep.memory.upgrading = false;
+            creep.say('⚡ harvest');
         }
-<span class="cstat-no" title="statement not covered" >        if (!creep.memory.upgrading &amp;&amp; creep.store.getFreeCapacity() === 0) {</span>
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!creep.memory.upgrading &amp;&amp; creep.store.getFreeCapacity() === 0) {
 <span class="cstat-no" title="statement not covered" >            creep.memory.upgrading = true;</span>
 <span class="cstat-no" title="statement not covered" >            creep.say('⬆ upgrade');</span>
         }
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        if (creep.memory.upgrading) {</span>
-<span class="cstat-no" title="statement not covered" >            if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {</span>
+        if (creep.memory.upgrading) {
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
 <span class="cstat-no" title="statement not covered" >                creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });</span>
             }
         } else {
             // ⚡ PERFORMANCE: Per-tick caching of active sources (consistent across roles)
-<span class="cstat-no" title="statement not covered" >            if (creep.room._activeSourcesTick !== Game.time) {</span>
-<span class="cstat-no" title="statement not covered" >                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);</span>
-<span class="cstat-no" title="statement not covered" >                creep.room._activeSourcesTick = Game.time;</span>
+            <span class="missing-if-branch" title="else path not taken" >E</span>if (creep.room._activeSourcesTick !== Game.time) {
+                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
+                creep.room._activeSourcesTick = Game.time;
             }
-            const sources = <span class="cstat-no" title="statement not covered" >creep.room._activeSources;</span>
+            const sources = creep.room._activeSources;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >            if (sources.length &gt; 0) {</span>
+            <span class="missing-if-branch" title="if path not taken" >I</span>if (sources.length &gt; 0) {
 <span class="cstat-no" title="statement not covered" >                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {</span>
 <span class="cstat-no" title="statement not covered" >                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });</span>
                 }
@@ -161,7 +161,7 @@
     },
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >module.exports = roleUpgrader;</span>
+module.exports = roleUpgrader;
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -169,7 +169,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T15:38:53.836Z
+                at 2026-03-23T15:47:38.315Z
             </div>
         <script src="prettify.js"></script>
         <script>

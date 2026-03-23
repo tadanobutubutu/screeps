@@ -1,11 +1,7 @@
 // deploy.js - Screeps PTR & 本番両方にデプロイ
-import https from 'https';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
 
 const ptrToken = process.env.SCREEPS_TOKEN;
 const prodToken = process.env.SCREEPS_PROD_TOKEN;
@@ -41,35 +37,7 @@ function validateFilePath(filePath, baseDir) {
     return resolvedPath;
 }
 
-// Read all JS files
-const modules = {};
-const files = [
-    { name: 'main', file: 'main.js' },
-    { name: 'role.harvester', file: 'role.harvester.js' },
-    { name: 'role.upgrader', file: 'role.upgrader.js' },
-    { name: 'role.builder', file: 'role.builder.js' },
-    { name: 'role.repairer', file: 'role.repairer.js' },
-    { name: 'role.explorer', file: 'role.explorer.js' },
-];
-
-console.log('Reading module files...');
-for (const m of files) {
-    try {
-        // ファイルパスの検証
-        const filePath = validateFilePath(m.file);
-        modules[m.name] = fs.readFileSync(filePath, 'utf8');
-        console.log(`  [OK] ${m.name} (${m.file})`);
-    } catch (e) {
-        // エラーメッセージから機密情報を除外
-        const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
-        console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-        process.exit(1);
-    }
-}
-
-const body = JSON.stringify({ branch: 'default', modules });
-
-function deployTo(label, apiPath, token) {
+function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
         if (!token) {
@@ -147,15 +115,46 @@ function deployTo(label, apiPath, token) {
     });
 }
 
-(async () => {
-    try {
-        await deployTo('PTR', '/ptr/api/user/code', ptrToken);
-        await deployTo('PROD', '/api/user/code', prodToken);
-        console.log('All done!');
-    } catch (error) {
-        // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-        const safeMessage = error.message.replace(/token/gi, '[REDACTED]');
-        console.error('Deployment process failed:', safeMessage);
-        process.exit(1);
+// スクリプトとして直接実行された場合のみデプロイ処理を実行
+if (require.main === module) {
+    // Read all JS files
+    const files = [
+        { name: 'main', file: 'main.js' },
+        { name: 'role.harvester', file: 'role.harvester.js' },
+        { name: 'role.upgrader', file: 'role.upgrader.js' },
+        { name: 'role.builder', file: 'role.builder.js' },
+        { name: 'role.repairer', file: 'role.repairer.js' },
+        { name: 'role.explorer', file: 'role.explorer.js' },
+    ];
+
+    const modules = {};
+    console.log('Reading module files...');
+    for (const m of files) {
+        try {
+            // ファイルパスの検証
+            const filePath = validateFilePath(m.file);
+            modules[m.name] = fs.readFileSync(filePath, 'utf8');
+            console.log(`  [OK] ${m.name} (${m.file})`);
+        } catch (e) {
+            // エラーメッセージから機密情報を除外
+            const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+            console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+            process.exit(1);
+        }
     }
-})();
+
+    (async () => {
+        try {
+            await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
+            await deployTo('PROD', '/api/user/code', prodToken, modules);
+            console.log('All done!');
+        } catch (error) {
+            // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
+            const safeMessage = error.message.replace(/token/gi, '[REDACTED]');
+            console.error('Deployment process failed:', safeMessage);
+            process.exit(1);
+        }
+    })();
+}
+
+module.exports = { validateToken, validateFilePath, deployTo };

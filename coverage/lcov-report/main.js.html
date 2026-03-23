@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.41% </span>
+                <span class="strong">52.4% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>104/229</span>
+                <span class='fraction'>120/229</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>5/10</span>
+                <span class='fraction'>6/10</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">45.37% </span>
+                <span class="strong">52.42% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>103/227</span>
+                <span class='fraction'>119/227</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -931,22 +931,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -1375,23 +1375,23 @@ global.evo = autoEvolution.showDashboard.bind(autoEvolution);
 global.evor = autoEvolution.reset.bind(autoEvolution);
 &nbsp;
 // Helper function
-global.help = <span class="fstat-no" title="function not covered" >fu</span>nction () {
-<span class="cstat-no" title="statement not covered" >    console.log('\n✨ === Quick Commands === ✨');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('\n⚡ Adaptive System:');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  adaptive() - system dashboard');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  mode(0-3)  - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('\n😊 Emotions:');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  e()        - emotion stats');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  ec(name)   - check creep');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('\n💾 Memory:');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  m()        - memory stats');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  mh()       - history');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  ml()       - leaderboard');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  mc()       - cleanup');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('\n🎮 Gamification:');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  g()        - dashboard');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('\n🤖 Auto Evolution:');</span>
-<span class="cstat-no" title="statement not covered" >    console.log('  evo()      - dashboard');</span>
+global.help = function () {
+    console.log('\n✨ === Quick Commands === ✨');
+    console.log('\n⚡ Adaptive System:');
+    console.log('  adaptive() - system dashboard');
+    console.log('  mode(0-3)  - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    console.log('\n😊 Emotions:');
+    console.log('  e()        - emotion stats');
+    console.log('  ec(name)   - check creep');
+    console.log('\n💾 Memory:');
+    console.log('  m()        - memory stats');
+    console.log('  mh()       - history');
+    console.log('  ml()       - leaderboard');
+    console.log('  mc()       - cleanup');
+    console.log('\n🎮 Gamification:');
+    console.log('  g()        - dashboard');
+    console.log('\n🤖 Auto Evolution:');
+    console.log('  evo()      - dashboard');
 };
 &nbsp;
 <span class="missing-if-branch" title="if path not taken" >I</span>if (!Memory.helpShown) {
@@ -1405,7 +1405,7 @@ global.help = <span class="fstat-no" title="function not covered" >fu</span>ncti
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T04:24:58.526Z
+                at 2026-03-23T15:49:09.040Z
             </div>
         <script src="prettify.js"></script>
         <script>

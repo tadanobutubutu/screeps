@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">54.54% </span>
+                <span class="strong">58.97% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>18/33</span>
+                <span class='fraction'>23/39</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">50% </span>
+                <span class="strong">52.63% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>15/30</span>
+                <span class='fraction'>20/38</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">53.12% </span>
+                <span class="strong">57.89% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>17/32</span>
+                <span class='fraction'>22/38</span>
             </div>
         
             
@@ -127,7 +127,19 @@
 <a name='L62'></a><a href='#L62'>62</a>
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -146,12 +158,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -162,9 +178,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -203,32 +227,44 @@
         }
 &nbsp;
         if (creep.memory.repairing) {
-            // ⚡ PERFORMANCE: Per-tick caching of damaged structures
+            // ⚡ PERFORMANCE: Per-tick caching of damaged structures (Shared across roles)
             <span class="missing-if-branch" title="else path not taken" >E</span>if (creep.room._damagedStructuresTick !== Game.time) {
                 creep.room._damagedStructures = creep.room.find(FIND_STRUCTURES, {
                     filter: <span class="fstat-no" title="function not covered" >(s</span>) =&gt; <span class="cstat-no" title="statement not covered" >s.hits &lt; s.hitsMax &amp;&amp; s.structureType !== STRUCTURE_WALL,</span>
                 });
                 creep.room._damagedStructuresTick = Game.time;
             }
-&nbsp;
             const targets = creep.room._damagedStructures;
 &nbsp;
             if (targets &amp;&amp; targets.length &gt; 0) {
-                // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
-                let target = targets[0];
-                let minHits = target.hits;
+                // ⚡ PERFORMANCE: Cache target ID to avoid redundant O(N) scans every tick
+                let target = Game.getObjectById(creep.memory.repairTargetId);
 &nbsp;
-                for (let i = 1; i &lt; targets.length; i++) {
-<span class="cstat-no" title="statement not covered" >                    if (targets[i].hits &lt; minHits) {</span>
-<span class="cstat-no" title="statement not covered" >                        target = targets[i];</span>
-<span class="cstat-no" title="statement not covered" >                        minHits = target.hits;</span>
+                // If target is invalid or fully repaired, find a new one
+                <span class="missing-if-branch" title="else path not taken" >E</span>if (!target || <span class="branch-1 cbranch-no" title="branch not covered" >target.hits === target.hitsMax)</span> {
+                    // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
+                    target = targets[0];
+                    let minHits = target.hits;
+&nbsp;
+                    for (let i = 1; i &lt; targets.length; i++) {
+<span class="cstat-no" title="statement not covered" >                        if (targets[i].hits &lt; minHits) {</span>
+<span class="cstat-no" title="statement not covered" >                            target = targets[i];</span>
+<span class="cstat-no" title="statement not covered" >                            minHits = target.hits;</span>
+                        }
+                    }
+&nbsp;
+                    if (target) {
+                        creep.memory.repairTargetId = target.id;
+                    } else <span class="missing-if-branch" title="else path not taken" >E</span>{
+<span class="cstat-no" title="statement not covered" >                        delete creep.memory.repairTargetId;</span>
                     }
                 }
 &nbsp;
-                <span class="missing-if-branch" title="if path not taken" >I</span>if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+                <span class="missing-if-branch" title="if path not taken" >I</span>if (target &amp;&amp; creep.repair(target) === ERR_NOT_IN_RANGE) {
 <span class="cstat-no" title="statement not covered" >                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });</span>
                 }
             } else {
+                delete creep.memory.repairTargetId;
                 // 修理対象がない場合はアップグレード
                 <span class="missing-if-branch" title="if path not taken" >I</span>if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
 <span class="cstat-no" title="statement not covered" >                    creep.moveTo(creep.room.controller, {</span>
@@ -262,7 +298,7 @@ module.exports = roleRepairer;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-03-23T04:24:58.526Z
+                at 2026-03-23T15:49:09.040Z
             </div>
         <script src="prettify.js"></script>
         <script>

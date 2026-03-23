@@ -1,7 +1,7 @@
 {
   "name": "screeps-ai",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "description": "Screeps AI with automated GitHub workflows",
   "main": "main.js",
   "scripts": {

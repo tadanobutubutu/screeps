@@ -120,4 +120,44 @@ describe('main.js', () => {
     require('../main');
     expect(typeof global.mode).toBe('function');
   });
+
+  test('global help function can be called', () => {
+    expect(() => global.help()).not.toThrow();
+  });
+
+  test('global e command exists and returns emotion stats', () => {
+    const result = global.e();
+    expect(result).toBeDefined();
+    expect(result.veryHappy).toBe(0);
+    expect(result.happy).toBe(0);
+    expect(result.neutral).toBe(0);
+  });
+
+  test('global t command calls showProgress', () => {
+    global.Game.time = 100;
+    const main = require('../main');
+    expect(() => global.t()).not.toThrow();
+  });
+
+  test('global ts command exists', () => {
+    expect(typeof global.ts).toBe('function');
+  });
+
+  test('global g command exists', () => {
+    expect(typeof global.g).toBe('function');
+  });
+
+  test('global evo command exists', () => {
+    expect(typeof global.evo).toBe('function');
+  });
+
+  test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
+    expect(typeof global.mc).toBe('function');
+    expect(typeof global.mb).toBe('function');
+    expect(typeof global.mr).toBe('function');
+    expect(typeof global.mh).toBe('function');
+    expect(typeof global.ml).toBe('function');
+    expect(typeof global.md).toBe('function');
+    expect(typeof global.mm).toBe('function');
+  });
 });

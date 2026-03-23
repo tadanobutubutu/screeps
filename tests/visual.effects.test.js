@@ -6,10 +6,18 @@ global.Game = { time: 10 };
 global.Memory = { adaptive: { currentMode: 'normal' } };
 global.RoomVisual = class {
   constructor(roomName) {}
-  circle() {}
-  line() {}
-  text() {}
-  rect() {}
+  circle(x, y, options) {
+    this.lastCircle = { x, y, options };
+  }
+  line(x1, y1, x2, y2, options) {
+    this.lastLine = { x1, y1, x2, y2, options };
+  }
+  text(text, x, y, options) {
+    this.lastText = { text, x, y, options };
+  }
+  rect(x, y, width, height, options) {
+    this.lastRect = { x, y, width, height, options };
+  }
 };
 
 jest.mock('../system.adaptive', () => ({
@@ -91,5 +99,89 @@ describe('visual.effects', () => {
   test('rankBadgeがエラーなく実行される', () => {
     expect(() => visualEffects.rankBadge(mockPos, 'Master')).not.toThrow();
     expect(() => visualEffects.rankBadge(mockPos, 'InvalidRank')).not.toThrow();
+  });
+
+  test('particles with different colors and counts', () => {
+    expect(() => visualEffects.particles(mockPos, '#FF0000', 10)).not.toThrow();
+    expect(() => visualEffects.particles(mockPos, '#00FF00', 15)).not.toThrow();
+    expect(() => visualEffects.particles(mockPos, '#0000FF', 20)).not.toThrow();
+  });
+
+  test('successExplosion with different positions', () => {
+    expect(() => visualEffects.successExplosion({ x: 10, y: 10, roomName: 'W0N0' })).not.toThrow();
+    expect(() => visualEffects.successExplosion({ x: 40, y: 40, roomName: 'W0N0' })).not.toThrow();
+  });
+
+  test('levelUp with different levels', () => {
+    expect(() => visualEffects.levelUp(mockPos, 1)).not.toThrow();
+    expect(() => visualEffects.levelUp(mockPos, 10)).not.toThrow();
+    expect(() => visualEffects.levelUp(mockPos, 100)).not.toThrow();
+  });
+
+  test('combo with different counts', () => {
+    expect(() => visualEffects.combo(mockPos, 1)).not.toThrow();
+    expect(() => visualEffects.combo(mockPos, 5)).not.toThrow();
+    expect(() => visualEffects.combo(mockPos, 10)).not.toThrow();
+  });
+
+  test('achievement with different names', () => {
+    expect(() => visualEffects.achievement(mockPos, 'First')).not.toThrow();
+    expect(() => visualEffects.achievement(mockPos, 'First Harvest')).not.toThrow();
+  });
+
+  test('progressBar with different values', () => {
+    expect(() => visualEffects.progressBar(mockPos, 0, 100)).not.toThrow();
+    expect(() => visualEffects.progressBar(mockPos, 25, 100, '25%')).not.toThrow();
+    expect(() => visualEffects.progressBar(mockPos, 75, 100, '75%')).not.toThrow();
+    expect(() => visualEffects.progressBar(mockPos, 100, 100, '100%')).not.toThrow();
+  });
+
+  test('rainbowTrail with different creeps', () => {
+    const creep1 = {
+      pos: { x: 25, y: 25, room: { name: 'W0N0' } },
+      memory: { trail: [] }
+    };
+    expect(() => visualEffects.rainbowTrail(creep1)).not.toThrow();
+  });
+
+  test('damageNumber with critical flag', () => {
+    expect(() => visualEffects.damageNumber(mockPos, 50, false)).not.toThrow();
+    expect(() => visualEffects.damageNumber(mockPos, 150, true)).not.toThrow();
+    expect(() => visualEffects.damageNumber(mockPos, 500, false)).not.toThrow();
+  });
+
+  test('healEffect with different positions', () => {
+    expect(() => visualEffects.healEffect({ x: 10, y: 10, roomName: 'W0N0' })).not.toThrow();
+  });
+
+  test('stars with different counts', () => {
+    expect(() => visualEffects.stars(mockPos, 1)).not.toThrow();
+    expect(() => visualEffects.stars(mockPos, 5)).not.toThrow();
+    expect(() => visualEffects.stars(mockPos, 10)).not.toThrow();
+  });
+
+  test('streak with different counts', () => {
+    expect(() => visualEffects.streak(mockPos, 1)).not.toThrow();
+    expect(() => visualEffects.streak(mockPos, 10)).not.toThrow();
+  });
+
+  test('scorePopup with different scores and types', () => {
+    expect(() => visualEffects.scorePopup(mockPos, 10, 'XP')).not.toThrow();
+    expect(() => visualEffects.scorePopup(mockPos, 100, 'POINTS')).not.toThrow();
+    expect(() => visualEffects.scorePopup(mockPos, 1000, 'GEMS')).not.toThrow();
+  });
+
+  test('rankBadge with all rank types', () => {
+    expect(() => visualEffects.rankBadge(mockPos, 'Novice')).not.toThrow();
+    expect(() => visualEffects.rankBadge(mockPos, 'Apprentice')).not.toThrow();
+    expect(() => visualEffects.rankBadge(mockPos, 'Expert')).not.toThrow();
+    expect(() => visualEffects.rankBadge(mockPos, 'Master')).not.toThrow();
+    expect(() => visualEffects.rankBadge(mockPos, 'Grandmaster')).not.toThrow();
+  });
+
+  test('achievement with different icons', () => {
+    expect(() => visualEffects.achievement(mockPos, 'Test', '🏆')).not.toThrow();
+    expect(() => visualEffects.achievement(mockPos, 'Test', '⭐')).not.toThrow();
+    expect(() => visualEffects.achievement(mockPos, 'Test', '💎')).not.toThrow();
   });
 });

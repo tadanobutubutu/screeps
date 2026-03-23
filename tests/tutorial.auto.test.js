@@ -168,4 +168,96 @@ describe('tutorial.auto', () => {
     global.Game.spawns = {};
     expect(() => autoTutorial.showProgress()).not.toThrow();
   });
+
+  test('step2_harvestEnergyが処理を完了', () => {
+    global.Game.tutorial = { currentStep: 2 };
+    global.Game.creeps = { 
+      creep1: { 
+        body: [{ type: 'work' }], 
+        memory: { role: 'harvester' },
+        store: { energy: 10, getFreeCapacity: () => 90 },
+        harvest: jest.fn(),
+        room: {
+          find: jest.fn().mockReturnValue([{ id: 'source1' }]),
+        },
+      } 
+    };
+    global.Game.spawns = { Spawn1: { spawning: null } };
+    global.Game.rooms = { 
+      W0N0: { 
+        find: jest.fn().mockReturnValue([{ id: 'source1' }]),
+      } 
+    };
+    expect(() => autoTutorial.step2_harvestEnergy()).not.toThrow();
+  });
+
+  test('step3_upgradeControllerが処理を完了', () => {
+    global.Game.tutorial = { currentStep: 3 };
+    global.Game.creeps = { 
+      creep1: { 
+        body: [{ type: 'work' }], 
+        memory: { role: 'upgrader' },
+        store: { energy: 10 },
+        upgradeController: jest.fn(),
+        room: {
+          controller: { pos: { x: 25, y: 25 } },
+        },
+      } 
+    };
+    global.Game.rooms = { 
+      W0N0: { 
+        controller: { pos: { x: 25, y: 25 } },
+      } 
+    };
+    expect(() => autoTutorial.step3_upgradeController()).not.toThrow();
+  });
+
+  test('step4_buildExtensionが処理を完了', () => {
+    global.Game.tutorial = { currentStep: 4 };
+    global.Game.creeps = { 
+      creep1: { 
+        body: [{ type: 'work' }], 
+        memory: { role: 'builder' },
+        store: { energy: 10 },
+        build: jest.fn(),
+        room: {
+          find: jest.fn().mockReturnValue([{ id: 'site1' }]),
+        },
+      } 
+    };
+    global.Game.spawns = { Spawn1: { spawning: null } };
+    global.Game.constructionSites = { site1: { progress: 0, progressTotal: 100 } };
+    global.Game.rooms = { 
+      W0N0: { 
+        find: jest.fn().mockReturnValue([{ id: 'site1' }]),
+      } 
+    };
+    expect(() => autoTutorial.step4_buildExtension()).not.toThrow();
+  });
+
+  test('step5_defendRoomが処理を完了', () => {
+    global.Game.tutorial = { currentStep: 5 };
+    global.Game.creeps = {};
+    global.Game.spawns = { Spawn1: { spawning: null } };
+    global.Game.rooms = { 
+      W0N0: { 
+        find: jest.fn().mockReturnValue([]),
+      } 
+    };
+    expect(() => autoTutorial.step5_defendRoom()).not.toThrow();
+  });
+
+  test('autoStep handles step 0', () => {
+    global.Game.tutorial = { currentStep: 0 };
+    global.Game.creeps = {};
+    global.Game.spawns = {};
+    expect(() => autoTutorial.autoStep()).not.toThrow();
+  });
+
+  test('autoStep handles high step number', () => {
+    global.Game.tutorial = { currentStep: 10 };
+    global.Game.creeps = {};
+    global.Game.spawns = {};
+    expect(() => autoTutorial.autoStep()).not.toThrow();
+  });
 });

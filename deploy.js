@@ -23,31 +23,13 @@ function validateToken(token, label) {
     return { valid: true };
 }
 
-// トークン検証
-const ptrValidation = validateToken(ptrToken, 'PTR');
-const prodValidation = validateToken(prodToken, 'PROD');
-
-if (!ptrValidation.valid && !prodValidation.valid) {
-    console.error('Error: No valid tokens found');
-    console.error(`PTR: ${ptrValidation.message}`);
-    console.error(`PROD: ${prodValidation.message}`);
-    process.exit(1);
-}
-
-if (!ptrValidation.valid) {
-    console.warn(`Warning: ${ptrValidation.message}`);
-}
-if (!prodValidation.valid) {
-    console.warn(`Warning: ${prodValidation.message}`);
-}
-
 // ファイルパス検証関数（パストラバーサル対策）
-function validateFilePath(filePath) {
+function validateFilePath(filePath, baseDir) {
     const normalizedPath = path.normalize(filePath);
-    const resolvedPath = path.resolve(__dirname, normalizedPath);
+    const resolvedPath = path.resolve(baseDir || __dirname, normalizedPath);
 
     // __dirname配下にあることを確認
-    if (!resolvedPath.startsWith(__dirname)) {
+    if (!resolvedPath.startsWith(baseDir || __dirname)) {
         throw new Error(`Invalid file path: ${filePath}`);
     }
 
@@ -88,6 +70,7 @@ for (const m of files) {
 const body = JSON.stringify({ branch: 'default', modules });
 
 function deployTo(label, apiPath, token) {
+    const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
         if (!token) {
             console.log(`[${label}] Token not set, skipping.`);

@@ -29,3 +29,11 @@
 ## 2025-06-25 - [Deterministic Testing for Rotating Content]
 **Learning:** For systems that rotate content daily (like the Daily Challenge), hardcoding values in unit tests leads to brittle, non-deterministic failures. Fetching the active configuration (e.g., the daily metric) directly from the module under test ensures that assertions remain valid regardless of the execution date.
 **Action:** Use dynamic setup in unit tests for time-dependent or rotating features to ensure consistent test results across different environments and dates.
+
+## 2025-06-26 - [Dynamic Urgency Signaling]
+**Learning:** In a high-information-density UI like the Screeps dashboard, static red text for "HOSTILES" can be overlooked during prolonged combat. Implementing a pulsing opacity effect (e.g., `0.7 + 0.3 * Math.sin(Game.time / 3)`) creates a subtle "breathing" animation that draws the eye without being as jarring as a rapid flash, significantly improving alert visibility.
+**Action:** Use sinusoidal pulsing for critical warnings or state changes to provide persistent but non-distracting urgency signaling.
+
+## 2025-06-26 - [Accessibility in Small-Scale Text]
+**Learning:** For very small informational text (e.g., font size 0.4 for CPU/Bucket stats), semantic colors like Green or Yellow can suffer from poor contrast against a 50% opacity black background. Forcing these labels to White (#ffffff) ensures maximum readability and WCAG compliance for small-scale UI elements, while relying on adjacent progress bars to convey status through color.
+**Action:** Prioritize high-contrast white text for sub-0.5 font sizes on transparent backgrounds, even if it replaces semantic status colors.

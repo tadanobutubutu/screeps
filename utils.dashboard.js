@@ -112,6 +112,12 @@ const DashboardRenderer = {
         });
 
         // 🏠 Room Name & Mode
+        const modeIcons = {
+            EMERGENCY: '🚨',
+            MINIMAL: '🔋',
+            NORMAL: '⚖️',
+            FULL: '🚀',
+        };
         const modeColors = {
             EMERGENCY: '#ff0000',
             MINIMAL: '#ffaa00',
@@ -119,8 +125,9 @@ const DashboardRenderer = {
             FULL: '#00ff00',
         };
         const modeColor = modeColors[info.mode] || '#ffffff';
+        const modeIcon = modeIcons[info.mode] || '⚙️';
 
-        room.visual.text(`🏠 ${info.room} [${info.mode}]`, x, y, {
+        room.visual.text(`🏠 ${info.room} ${modeIcon} [${info.mode}]`, x, y, {
             font: 0.8,
             color: modeColor,
             align: 'left',
@@ -271,9 +278,12 @@ const DashboardRenderer = {
 
         if (info.hostiles > 0) {
             y++;
+            // 🎨 Animation: Pulsing opacity for urgency
+            const pulse = 0.7 + 0.3 * Math.sin(Game.time / 3);
             room.visual.text(`⚠️ HOSTILES: ${info.hostiles}`, x, y, {
                 font: 0.8,
                 color: '#ff0000',
+                opacity: pulse,
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.1,
@@ -303,7 +313,7 @@ const DashboardRenderer = {
             y + 0.6,
             {
                 font: 0.4,
-                color: bucketColor,
+                color: '#ffffff', // 🎨 Accessibility: White text for consistency and contrast
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.05,

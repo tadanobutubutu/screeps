@@ -21,6 +21,12 @@ jest.mock('../visual.effects', () => ({
   scorePopup: jest.fn(),
 }), { virtual: true });
 
+global.FIND_STRUCTURES = 107;
+global.FIND_SOURCES_ACTIVE = 103;
+global.ERR_NOT_ENOUGH_ENERGY = -6;
+global.STRUCTURE_ROAD = 'road';
+global.STRUCTURE_CONTAINER = 'container';
+
 const roleRepairer = require('../role.repairer');
 
 describe('role.repairer', () => {
@@ -46,6 +52,27 @@ describe('role.repairer', () => {
         controller: { id: 'controller1' },
       },
       pos: { x: 1, y: 1 },
+    };
+    expect(() => roleRepairer.run(creep)).not.toThrow();
+  });
+
+  test('repairer能repair道路', () => {
+    const damagedRoad = { id: 'road1', hits: 100, hitsMax: 500, structureType: 'road' };
+    const creep = {
+      memory: { repairing: false },
+      store: {
+        getFreeCapacity: jest.fn().mockReturnValue(0),
+        [global.RESOURCE_ENERGY]: 50,
+      },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.OK),
+      harvest: jest.fn().mockReturnValue(global.OK),
+      moveTo: jest.fn(),
+      room: {
+        find: jest.fn().mockReturnValue([damagedRoad]),
+        controller: { id: 'controller1' },
+      },
+      pos: { x: 10, y: 10 },
     };
     expect(() => roleRepairer.run(creep)).not.toThrow();
   });

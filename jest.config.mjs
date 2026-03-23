@@ -1,6 +1,12 @@
 /** @type {import('jest').Config} */
 export default {
     testEnvironment: 'node',
+    transform: {
+        '^.+\\.js$': 'babel-jest',
+    },
+    transformIgnorePatterns: [
+        '/node_modules/(?!(lodash)/)',
+    ],
     collectCoverageFrom: [
         'src/**/*.js',
         '*.js',

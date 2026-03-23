@@ -64,4 +64,43 @@ describe('utils.memory', () => {
     expect(utilsMemory.isSafeKey(123)).toBe(true);
     expect(utilsMemory.isSafeKey('room1')).toBe(true);
   });
+
+  test('getRoomMemory returns default for unsafe keys', () => {
+    const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default');
+    expect(result).toBe('default');
+  });
+
+  test('getRoomMemory returns default for unsafe key2', () => {
+    const result = utilsMemory.getRoomMemory('room1', 'constructor', 'default');
+    expect(result).toBe('default');
+  });
+
+  test('setRoomMemory does not set for unsafe keys', () => {
+    utilsMemory.setRoomMemory('__proto__', 'key', 'value');
+    const result = utilsMemory.getRoomMemory('__proto__', 'key', 'default');
+    expect(result).toBe('default');
+  });
+
+  test('clearRoomMemory handles unsafe keys', () => {
+    expect(() => utilsMemory.clearRoomMemory('constructor', 'key')).not.toThrow();
+    expect(() => utilsMemory.clearRoomMemory('__proto__', 'key')).not.toThrow();
+  });
+
+  test('memoize returns cached value', () => {
+    let callCount = 0;
+    const fn = () => { callCount++; return 'result'; };
+    const cached = utilsMemory.memoize(fn, 'testKey', 100);
+    expect(cached).toBe('result');
+    const cached2 = utilsMemory.memoize(fn, 'testKey', 100);
+    expect(cached2).toBe('result');
+    expect(callCount).toBe(1);
+  });
+
+  test('memoize uses default TTL', () => {
+    let callCount = 0;
+    const fn = () => { callCount++; return 'result'; };
+    utilsMemory.memoize(fn, 'testKey3');
+    const cached = utilsMemory.memoize(fn, 'testKey3');
+    expect(callCount).toBe(1);
+  });
 });

@@ -26,6 +26,10 @@ jest.mock('../visual.effects', () => ({
   particles: jest.fn(),
 }), { virtual: true });
 
+global.FIND_MY_CREEPS = 101;
+global.FIND_SOURCES_ACTIVE = 103;
+global.ERR_NO_PATH = -2;
+
 const roleMedic = require('../role.medic');
 
 describe('role.medic', () => {
@@ -44,18 +48,55 @@ describe('role.medic', () => {
       room: {
         name: 'W1N1',
         find: jest.fn().mockReturnValue([]),
-        _cacheTick: 0
+        _cacheTick: 0,
+        controller: { pos: { x: 25, y: 25 } },
       },
       pos: {
         x: 1, y: 1,
         isNearTo: jest.fn().mockReturnValue(true),
-        inRangeTo: jest.fn().mockReturnValue(true)
+        inRangeTo: jest.fn().mockReturnValue(true),
       },
       store: {
         [global.RESOURCE_ENERGY]: 0,
         getFreeCapacity: jest.fn().mockReturnValue(50),
       },
-      getActiveBodyparts: jest.fn().mockReturnValue(0)
+      getActiveBodyparts: jest.fn().mockReturnValue(0),
+    };
+    expect(() => roleMedic.run(creep)).not.toThrow();
+  });
+
+  test('medicがhealing mode的时候能正常切换', () => {
+    const mockFind = jest.fn()
+      .mockReturnValueOnce([{ hits: 50, hitsMax: 100 }])  // _myCreeps
+      .mockReturnValueOnce([{ hits: 50, hitsMax: 100 }])  // _injuredCreeps
+      .mockReturnValueOnce([]);  // sources
+
+    global.Game.time = 10;
+    const creep = {
+      memory: {},
+      say: jest.fn(),
+      heal: jest.fn().mockReturnValue(global.OK),
+      rangedHeal: jest.fn().mockReturnValue(global.OK),
+      moveTo: jest.fn(),
+      harvest: jest.fn(),
+      room: {
+        name: 'W1N1',
+        find: mockFind,
+        controller: null,
+        _myCreepsTick: 0,
+        _injuredCreepsTick: 0,
+        _activeSourcesTick: 0,
+      },
+      pos: {
+        x: 25, y: 25,
+        isNearTo: jest.fn().mockReturnValue(false),
+        inRangeTo: jest.fn().mockReturnValue(false),
+      },
+      store: {
+        [global.RESOURCE_ENERGY]: 0,
+        getFreeCapacity: jest.fn().mockReturnValue(0),
+      },
+      getActiveBodyparts: jest.fn().mockReturnValue(1),
     };
     expect(() => roleMedic.run(creep)).not.toThrow();
   });

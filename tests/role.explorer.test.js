@@ -25,6 +25,9 @@ jest.mock('../visual.effects', () => ({
   scorePopup: jest.fn(),
 }), { virtual: true });
 
+global.ERR_NO_PATH = -2;
+global.ERR_INVALID_ARGS = -10;
+
 const roleExplorer = require('../role.explorer');
 
 describe('role.explorer', () => {
@@ -49,5 +52,36 @@ describe('role.explorer', () => {
       },
     };
     expect(() => roleExplorer.run(creep)).not.toThrow();
+  });
+
+  test('creepがexitがない房间stay in current room', () => {
+    global.Game.map.describeExits.mockReturnValue(null);
+    const creep = {
+      memory: {},
+      say: jest.fn(),
+      moveTo: jest.fn(),
+      room: { name: 'W1N1' },
+      pos: { x: 5, y: 5 },
+      store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+    };
+    expect(() => roleExplorer.run(creep)).not.toThrow();
+    expect(creep.say).toHaveBeenCalledWith('🤔 No exits');
+  });
+
+  test('creepがcannot find exit的时候reset target', () => {
+    global.Game.map.describeExits.mockReturnValue({ top: 'W0N1' });
+    const creep = {
+      memory: { targetRoom: 'W0N1' },
+      say: jest.fn(),
+      moveTo: jest.fn(),
+      room: {
+        name: 'W1N1',
+        findExitTo: jest.fn().mockReturnValue(-2),
+      },
+      pos: { x: 5, y: 5 },
+      store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+    };
+    expect(() => roleExplorer.run(creep)).not.toThrow();
+    expect(creep.say).toHaveBeenCalledWith('❌ No path');
   });
 });

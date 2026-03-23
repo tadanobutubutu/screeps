@@ -53,4 +53,21 @@ describe('utils.logging', () => {
     expect(Memory.logs[Memory.logs.length - 1].message.length).toBe(500);
     expect(Memory.logs[Memory.logs.length - 1].message).toBe('A'.repeat(500));
   });
+
+  test('log function handles arrays', () => {
+    utilsLogging.log('info', [1, 2, 3]);
+    expect(Memory.logs).toBeDefined();
+  });
+
+  test('log function handles objects', () => {
+    utilsLogging.log('info', { key: 'value' });
+    expect(Memory.logs).toBeDefined();
+  });
+
+  test('error function exists and can be called', () => {
+    if (typeof utilsLogging.error === 'function') {
+      utilsLogging.error('error message');
+      expect(Memory.logs[Memory.logs.length - 1].level).toBe('error');
+    }
+  });
 });

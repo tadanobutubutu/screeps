@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-23T03:28:15Z
+**Last Updated**: 2026-03-23T05:21:22Z
 
 ## Recent Changes
 
+- 🎮 Update game stats [skip ci]
+- 🎮 Update game stats [skip ci]
+- chore(coverage): add coverage directory to repository
+- Add tests to improve codecov coverage for low-coverage files
+- 🎮 Update game stats [skip ci]
+- chore(deps): update dependency node to v24 (#132)
+- chore(deps): update actions/github-script action to v8 (#130)
+- 📝 Changelog update by Changelog Bot
 - 🔧 Workflow health report: 4 issues
 - 📊 Statistics update by Stats Bot
-- chore(deps): update dependency pnpm to v10 (#133)
-- chore(deps): update actions/setup-node action to v6 (#131)
-- :arrow_up:(deps-dev): Bump rollup from 4.59.0 to 4.60.0 (#129)
-- 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
-- chore(deps): update mcr.microsoft.com/devcontainers/python docker tag to v3.14
-- chore(deps): update actions/checkout action to v6 (#128)
-- chore(deps): update dependency eslint to v10.1.0 (#126)
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

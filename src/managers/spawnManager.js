@@ -156,7 +156,7 @@ function _getCurrentCounts(room) {
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
         if (creep.room.name !== room.name) continue;
-        if (creep.spawning) continue; // スポーン中はカウントに含める（別途処理）
+        if (creep.spawning) continue; // スポーン中のクリープはスポーンAPIから別途カウント
 
         const role = creep.memory.role;
         if (role) {

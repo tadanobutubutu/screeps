@@ -153,8 +153,8 @@ function _upgrade(creep) {
     if (result === ERR_NOT_IN_RANGE) {
         pathfinder.moveTo(creep, controller, { range: 3 });
     } else if (result === OK) {
-        // RCL8の場合はダウングレードタイマーが減らないよう確認
-        if (controller.level === 8 && controller.progress > 0) {
+        // RCL8（最大レベル）の場合に表示
+        if (controller.level === 8) {
             creep.say('✨ MAX');
         }
     }

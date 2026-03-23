@@ -36,6 +36,9 @@ const SAFE_MODE_CHECK_INTERVAL = 10;
 /** リンクエネルギー転送の閾値 */
 const LINK_TRANSFER_THRESHOLD = 0.8;
 
+/** 建設計画1サイクルで配置する最大道路数 */
+const MAX_ROADS_PER_CYCLE = 5;
+
 // ============================================================
 // メイン制御
 // ============================================================
@@ -196,7 +199,7 @@ function _planRoads(room) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;
-                    if (planned >= 5) break; // 一度に5か所まで計画
+                    if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }
             }
         }

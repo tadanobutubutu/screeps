@@ -337,6 +337,12 @@ const STATS_DISPLAY_INTERVAL = 100;
 /** セーフモードの発動条件（侵入者数） */
 const SAFE_MODE_TRIGGER_HOSTILES = 3;
 
+/** ルームの有効座標範囲（壁を除く） */
+const ROOM_BOUNDS = {
+    MIN: 1,
+    MAX: 48,
+};
+
 module.exports = {
     ROLES,
     BODY_COSTS,
@@ -361,4 +367,5 @@ module.exports = {
     MEMORY_CLEANUP_INTERVAL,
     STATS_DISPLAY_INTERVAL,
     SAFE_MODE_TRIGGER_HOSTILES,
+    ROOM_BOUNDS,
 };

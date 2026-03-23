@@ -12,7 +12,7 @@
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
-const { MEMORY_KEYS } = require('../constants');
+const { MEMORY_KEYS, ROOM_BOUNDS } = require('../constants');
 
 // ============================================================
 // 定数
@@ -155,8 +155,8 @@ function _fleeFrom(creep, from) {
     const dy = creep.pos.y - from.y;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    const targetX = Math.min(48, Math.max(1, Math.round(creep.pos.x + (dx / len) * 3)));
-    const targetY = Math.min(48, Math.max(1, Math.round(creep.pos.y + (dy / len) * 3)));
+    const targetX = Math.min(ROOM_BOUNDS.MAX, Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.x + (dx / len) * 3)));
+    const targetY = Math.min(ROOM_BOUNDS.MAX, Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.y + (dy / len) * 3)));
 
     try {
         const fleePos = new RoomPosition(targetX, targetY, creep.room.name);

@@ -172,13 +172,13 @@ function success(message) {
 /**
  * スタックトレースから安全な部分を抽出する（長すぎる場合に切り詰め）
  * @param {string} stack
- * @param {number} [maxLines=5]
+ * @param {number} [maxLines=5] - 返す最大行数
  * @returns {string}
  */
-function getSafeStack(stack) {
+function getSafeStack(stack, maxLines) {
     if (!stack) return '';
     const lines = stack.split('\n');
-    return lines.slice(0, 5).join('\n');
+    return lines.slice(0, maxLines || 5).join('\n');
 }
 
 /**

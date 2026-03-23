@@ -103,4 +103,90 @@ describe('utils.memory', () => {
     const cached = utilsMemory.memoize(fn, 'testKey3');
     expect(callCount).toBe(1);
   });
+
+  test('cleanMemory returns 0 when no creeps in memory', () => {
+    global.Memory = { creeps: {} };
+    global.Game.creeps = {};
+    const result = utilsMemory.cleanMemory();
+    expect(result).toBe(0);
+  });
+
+  test('cleanMemory removes dead creeps from memory', () => {
+    global.Memory = { creeps: { creep1: {}, creep2: {} } };
+    global.Game.creeps = { creep1: {} };
+    const result = utilsMemory.cleanMemory();
+    expect(result).toBe(1);
+    expect(Memory.creeps.creep2).toBeUndefined();
+    expect(Memory.creeps.creep1).toBeDefined();
+  });
+
+  test('cleanMemory handles Memory without creeps property', () => {
+    global.Memory = {};
+    global.Game.creeps = {};
+    const result = utilsMemory.cleanMemory();
+    expect(result).toBe(0);
+  });
+
+  test('getRoomMemory creates room object if not exists', () => {
+    global.Memory = { rooms: {} };
+    const result = utilsMemory.getRoomMemory('room1', 'key', 'default');
+    expect(result).toBe('default');
+    expect(Memory.rooms.room1).toBeDefined();
+    expect(Memory.rooms.room1.key).toBe('default');
+  });
+
+  test('getRoomMemory returns stored value', () => {
+    global.Memory = { rooms: { room1: { key: 'stored' } } };
+    const result = utilsMemory.getRoomMemory('room1', 'key', 'default');
+    expect(result).toBe('stored');
+  });
+
+  test('setRoomMemory sets value correctly', () => {
+    global.Memory = { rooms: {} };
+    utilsMemory.setRoomMemory('room1', 'key', 'value');
+    expect(Memory.rooms.room1.key).toBe('value');
+  });
+
+  test('setRoomMemory handles undefined room', () => {
+    global.Memory = { rooms: {} };
+    utilsMemory.setRoomMemory('room1', 'key', 'value');
+    expect(Memory.rooms.room1.key).toBe('value');
+  });
+
+  test('clearRoomMemory removes key from room', () => {
+    global.Memory = { rooms: { room1: { key: 'value' } } };
+    utilsMemory.clearRoomMemory('room1', 'key');
+    expect(Memory.rooms.room1.key).toBeUndefined();
+  });
+
+  test('clearRoomMemory handles non-existent room', () => {
+    global.Memory = { rooms: {} };
+    expect(() => utilsMemory.clearRoomMemory('room1', 'key')).not.toThrow();
+  });
+
+  test('memoize caches based on TTL', () => {
+    let callCount = 0;
+    const fn = () => { callCount++; return 'result'; };
+    global.Game.time = 100;
+    utilsMemory.memoize(fn, 'ttlKey', 10);
+    global.Game.time = 105;
+    const cached = utilsMemory.memoize(fn, 'ttlKey', 10);
+    expect(callCount).toBe(1);
+    global.Game.time = 115;
+    const uncached = utilsMemory.memoize(fn, 'ttlKey', 10);
+    expect(callCount).toBe(2);
+  });
+
+  test('memoize returns fn result for unsafe cacheKey', () => {
+    let callCount = 0;
+    const fn = () => { callCount++; return 'result'; };
+    const result = utilsMemory.memoize(fn, '__proto__');
+    expect(result).toBe('result');
+    expect(callCount).toBe(1);
+  });
+
+  test('isSafeKey blocks other dangerous properties', () => {
+    expect(utilsMemory.isSafeKey('__lookupGetter__')).toBe(false);
+    expect(utilsMemory.isSafeKey('__lookupSetter__')).toBe(false);
+  });
 });

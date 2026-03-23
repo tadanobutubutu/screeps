@@ -54,8 +54,11 @@ describe('defense.manager', () => {
     
     mockRoom = {
       _myStructures: [mockTower],
+      _myStructuresTick: Game.time,
       _hostileCreeps: [],
+      _hostileCreepsTick: Game.time,
       _myCreeps: [],
+      _myCreepsTick: Game.time,
       find: jest.fn().mockImplementation((type) => {
         if (type === FIND_MY_STRUCTURES) return [mockTower];
         if (type === FIND_HOSTILE_CREEPS) return [];
@@ -127,8 +130,15 @@ describe('defense.manager', () => {
   test('runDefenderがhostilesがいるとき攻撃する', () => {
     const mockHostile = { pos: { getRangeTo: jest.fn().mockReturnValue(1) } };
     const mockDefender = {
-      room: { _hostileCreeps: [mockHostile], find: jest.fn().mockReturnValue([mockHostile]) },
-      pos: { findClosestByRange: jest.fn().mockReturnValue(mockHostile), getRangeTo: jest.fn().mockReturnValue(1) },
+      room: {
+        _hostileCreeps: [mockHostile],
+        _hostileCreepsTick: Game.time,
+        find: jest.fn().mockReturnValue([mockHostile]),
+      },
+      pos: {
+        findClosestByRange: jest.fn().mockReturnValue(mockHostile),
+        getRangeTo: jest.fn().mockReturnValue(1),
+      },
       attack: jest.fn().mockReturnValue(OK),
       rangedAttack: jest.fn(),
       heal: jest.fn(),

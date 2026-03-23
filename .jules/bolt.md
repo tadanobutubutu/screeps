@@ -25,3 +25,7 @@
 ## 2026-04-14 - Heuristic Target Selection and ID Caching
 **Learning:** Repeatedly calling `findClosestByPath` in high-frequency creep roles is extremely expensive ($O(N \cdot \text{Pathfinding})$). Replacing it with `findClosestByRange` ($O(N)$) and caching the resulting target ID in `creep.memory` allows the creep to reuse the target until it is completed or invalid, reducing the search frequency from every tick to once per target lifecycle.
 **Action:** Always prefer `findClosestByRange` for heuristic target selection and implement ID caching in `creep.memory` to minimize spatial search overhead in role logic.
+
+## 2026-05-12 - Standardized Tick-Gated Caching and Sticky Repair Targets
+**Learning:** Shared per-tick caching (like FIND_MY_CREEPS) only works reliably across modular systems if every consumer uses unique, standardized tick keys (e.g., `_myCreepsTick`). Using a generic key or failing to check the tick leads to redundant searches or stale data. Furthermore, implementing target ID caching for Repairers significantly reduces per-tick O(N) scans.
+**Action:** Standardize per-tick cache keys on the Room object across all modules and implement sticky target ID caching for all repair and build-heavy roles.

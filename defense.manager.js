@@ -12,7 +12,11 @@ const defenseManager = {
     // タワー自動制御
     manageTowers: function (room) {
         // ⚡ PERFORMANCE: Reuse cached room structures and creeps if available (populated by dashboard)
-        const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+        if (room._myStructuresTick !== Game.time) {
+            room._myStructures = room.find(FIND_MY_STRUCTURES);
+            room._myStructuresTick = Game.time;
+        }
+        const myStructures = room._myStructures;
         const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
 
         if (towers.length === 0) {
@@ -20,15 +24,28 @@ const defenseManager = {
         }
 
         // 脅威の優先順位付け
-        const hostiles = room._hostileCreeps || room.find(FIND_HOSTILE_CREEPS);
-        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+        if (room._hostileCreepsTick !== Game.time) {
+            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+            room._hostileCreepsTick = Game.time;
+        }
+        const hostiles = room._hostileCreeps;
+
+        if (room._myCreepsTick !== Game.time) {
+            room._myCreeps = room.find(FIND_MY_CREEPS);
+            room._myCreepsTick = Game.time;
+        }
+        const myCreeps = room._myCreeps;
 
         const damagedCreeps = myCreeps.filter((c) => c.hits < c.hitsMax);
 
-        // FIND_STRUCTURES (including non-my) is not cached yet, but we can filter from myStructures if it's mostly our structures
-        const damagedStructures = room.find(FIND_STRUCTURES, {
-            filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
-        });
+        // ⚡ PERFORMANCE: Shared per-tick caching for damaged structures
+        if (room._damagedStructuresTick !== Game.time) {
+            room._damagedStructures = room.find(FIND_STRUCTURES, {
+                filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
+            });
+            room._damagedStructuresTick = Game.time;
+        }
+        const damagedStructures = room._damagedStructures;
 
         towers.forEach((tower) => {
             // 優先度1: 敵creepへの攻撃
@@ -64,7 +81,11 @@ const defenseManager = {
     // 脅威レベル評価
     checkThreats: function (room) {
         // ⚡ PERFORMANCE: Reuse cached hostile creeps
-        const hostiles = room._hostileCreeps || room.find(FIND_HOSTILE_CREEPS);
+        if (room._hostileCreepsTick !== Game.time) {
+            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+            room._hostileCreepsTick = Game.time;
+        }
+        const hostiles = room._hostileCreeps;
 
         if (hostiles.length === 0) {
             if (Memory.defenseLevel) {
@@ -100,7 +121,11 @@ const defenseManager = {
         const threatLevel = Memory.defenseLevel || 0;
 
         // ⚡ PERFORMANCE: Use cached room creeps to find defenders instead of global filter
-        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+        if (room._myCreepsTick !== Game.time) {
+            room._myCreeps = room.find(FIND_MY_CREEPS);
+            room._myCreepsTick = Game.time;
+        }
+        const myCreeps = room._myCreeps;
         const defenders = myCreeps.filter((c) => c.memory.role === 'defender');
 
         // 脅威に応じて必要な防衛creep数を決定
@@ -109,7 +134,11 @@ const defenseManager = {
         if (defenders.length < requiredDefenders && threatLevel > 0) {
             // スポーン準備
             // ⚡ PERFORMANCE: Use cached room structures to find spawns
-            const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+            if (room._myStructuresTick !== Game.time) {
+                room._myStructures = room.find(FIND_MY_STRUCTURES);
+                room._myStructuresTick = Game.time;
+            }
+            const myStructures = room._myStructures;
             const spawns = myStructures.filter(
                 (s) => s.structureType === STRUCTURE_SPAWN && !s.spawning
             );
@@ -177,7 +206,11 @@ const defenseManager = {
     // Defender creepの行動制御
     runDefender: function (creep) {
         // ⚡ PERFORMANCE: Use cached hostile creeps
-        const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
+        if (creep.room._hostileCreepsTick !== Game.time) {
+            creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
+            creep.room._hostileCreepsTick = Game.time;
+        }
+        const hostiles = creep.room._hostileCreeps;
         const hostile = creep.pos.findClosestByRange(hostiles);
 
         if (hostile) {
@@ -220,10 +253,18 @@ const defenseManager = {
     // 統計情報表示
     showStats: function (room) {
         // ⚡ PERFORMANCE: Use cached room objects
-        const myStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
+        if (room._myStructuresTick !== Game.time) {
+            room._myStructures = room.find(FIND_MY_STRUCTURES);
+            room._myStructuresTick = Game.time;
+        }
+        const myStructures = room._myStructures;
         const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER).length;
 
-        const myCreeps = room._myCreeps || room.find(FIND_MY_CREEPS);
+        if (room._myCreepsTick !== Game.time) {
+            room._myCreeps = room.find(FIND_MY_CREEPS);
+            room._myCreepsTick = Game.time;
+        }
+        const myCreeps = room._myCreeps;
         const defenders = myCreeps.filter((c) => c.memory.role === 'defender').length;
 
         const threatLevel = Memory.defenseLevel || 0;

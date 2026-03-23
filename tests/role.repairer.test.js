@@ -2,7 +2,10 @@
  * role.repairer.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn(),
+};
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;

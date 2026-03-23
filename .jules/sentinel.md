@@ -42,3 +42,8 @@
 **Vulnerability:** Prototype Pollution and Memory DoS in `memory.visualizer.js` via room and creep names and unbounded data structures.
 **Learning:** Even diagnostic or visualization tools like a "Memory Map" can become attack vectors if they store user-controlled or environment-controlled strings (room names, creep names) without validation. Furthermore, simple history arrays (`explored`) or key-value stores (`rooms`) can grow indefinitely, leading to a "Slow DoS" as the bot's memory reaches its limit.
 **Prevention:** Always validate room/creep names with `isSafeKey`. Enforce strict caps on both arrays and objects. For object-based storage, implement an eviction policy (e.g., deleting the entry with the oldest `lastVisit`) when the size limit is reached.
+
+## 2026-03-24 - Memory DoS Protection for Emotion Achievements
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded achievement tracking in `EmotionSystem.celebrate`.
+**Learning:** Even positive "gamification" features like tracking creep achievements can become a DoS vector if they allow unbounded array growth or store unsanitized, potentially large strings in the global `Memory` object. In environments like Screeps (2MB limit), every byte counts.
+**Prevention:** Always enforce strict length limits on string inputs and maximum size caps on arrays stored in persistent memory. Use `shift()` or `slice()` to implement a "rolling window" for historical data to ensure memory consumption remains constant regardless of the number of events.

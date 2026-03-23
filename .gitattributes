@@ -1,0 +1,2 @@
+# coverage レポートは自動生成ファイルとして除外（GitHub Linguist が言語統計から除外する）
+coverage/** linguist-generated=true

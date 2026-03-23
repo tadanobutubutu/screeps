@@ -17,11 +17,18 @@ const DashboardRenderer = {
     renderRoomDashboard(room) {
         // ⚡ PERFORMANCE OPTIMIZATION: Per-tick caching of common searches on the Room object.
         // This allows other systems (like defense.manager) to reuse these results.
-        if (room._cacheTick !== Game.time) {
+        // Using unique tick keys prevents accidental cache collisions between modules.
+        if (room._myCreepsTick !== Game.time) {
             room._myCreeps = room.find(FIND_MY_CREEPS);
+            room._myCreepsTick = Game.time;
+        }
+        if (room._myStructuresTick !== Game.time) {
             room._myStructures = room.find(FIND_MY_STRUCTURES);
+            room._myStructuresTick = Game.time;
+        }
+        if (room._hostileCreepsTick !== Game.time) {
             room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-            room._cacheTick = Game.time;
+            room._hostileCreepsTick = Game.time;
         }
 
         const creeps = room._myCreeps;

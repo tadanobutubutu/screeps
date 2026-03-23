@@ -10,32 +10,44 @@ const roleRepairer = {
         }
 
         if (creep.memory.repairing) {
-            // ⚡ PERFORMANCE: Per-tick caching of damaged structures
+            // ⚡ PERFORMANCE: Per-tick caching of damaged structures (Shared across roles)
             if (creep.room._damagedStructuresTick !== Game.time) {
                 creep.room._damagedStructures = creep.room.find(FIND_STRUCTURES, {
                     filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
                 });
                 creep.room._damagedStructuresTick = Game.time;
             }
-
             const targets = creep.room._damagedStructures;
 
             if (targets && targets.length > 0) {
-                // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
-                let target = targets[0];
-                let minHits = target.hits;
+                // ⚡ PERFORMANCE: Cache target ID to avoid redundant O(N) scans every tick
+                let target = Game.getObjectById(creep.memory.repairTargetId);
 
-                for (let i = 1; i < targets.length; i++) {
-                    if (targets[i].hits < minHits) {
-                        target = targets[i];
-                        minHits = target.hits;
+                // If target is invalid or fully repaired, find a new one
+                if (!target || target.hits === target.hitsMax) {
+                    // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
+                    target = targets[0];
+                    let minHits = target.hits;
+
+                    for (let i = 1; i < targets.length; i++) {
+                        if (targets[i].hits < minHits) {
+                            target = targets[i];
+                            minHits = target.hits;
+                        }
+                    }
+
+                    if (target) {
+                        creep.memory.repairTargetId = target.id;
+                    } else {
+                        delete creep.memory.repairTargetId;
                     }
                 }
 
-                if (creep.repair(target) === ERR_NOT_IN_RANGE) {
+                if (target && creep.repair(target) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });
                 }
             } else {
+                delete creep.memory.repairTargetId;
                 // 修理対象がない場合はアップグレード
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(creep.room.controller, {

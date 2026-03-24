@@ -25,10 +25,26 @@ const roleTransporter = {
             const targets = creep.room._deliveryTargets;
 
             if (targets.length > 0) {
-                const closest = creep.pos.findClosestByRange(targets);
-                if (creep.transfer(closest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(closest, { visualizePathStyle: { stroke: '#00ffff' } });
+                // ⚡ PERFORMANCE: ターゲットIDをキャッシュして毎ティックの再探索を回避
+                let target = Game.getObjectById(creep.memory.deliveryTargetId);
+
+                // キャッシュされたターゲットがまだ有効かチェック（存在し、空き容量があるか）
+                if (!target || !targets.some((t) => t.id === target.id)) {
+                    target = creep.pos.findClosestByRange(targets);
+                    if (target) {
+                        creep.memory.deliveryTargetId = target.id;
+                    } else {
+                        delete creep.memory.deliveryTargetId;
+                    }
                 }
+
+                if (target) {
+                    if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff' } });
+                    }
+                }
+            } else {
+                delete creep.memory.deliveryTargetId;
             }
         } else {
             // ⚡ PERFORMANCE: Per-tick caching of withdrawal containers
@@ -41,19 +57,42 @@ const roleTransporter = {
             }
             const containers = creep.room._withdrawalContainers;
 
-            const storage = creep.room.storage;
-            const sources = [];
+            // ⚡ PERFORMANCE: 部屋全体の引き出し元リストをキャッシュして、クリープごとの重複計算を回避
+            if (creep.room._withdrawalSourcesTick !== Game.time) {
+                const storage = creep.room.storage;
+                const sources = [];
 
-            if (storage && storage.store[RESOURCE_ENERGY] > 1000) {
-                sources.push(storage);
+                if (storage && storage.store[RESOURCE_ENERGY] > 1000) {
+                    sources.push(storage);
+                }
+                sources.push(...containers);
+
+                creep.room._withdrawalSources = sources;
+                creep.room._withdrawalSourcesTick = Game.time;
             }
-            sources.push(...containers);
+            const sources = creep.room._withdrawalSources;
 
             if (sources.length > 0) {
-                const closest = creep.pos.findClosestByRange(sources);
-                if (creep.withdraw(closest, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(closest, { visualizePathStyle: { stroke: '#ffff00' } });
+                // ⚡ PERFORMANCE: ターゲットIDをキャッシュ
+                let target = Game.getObjectById(creep.memory.withdrawalTargetId);
+
+                // キャッシュが有効かチェック（存在し、エネルギーがあるか）
+                if (!target || !sources.some((s) => s.id === target.id)) {
+                    target = creep.pos.findClosestByRange(sources);
+                    if (target) {
+                        creep.memory.withdrawalTargetId = target.id;
+                    } else {
+                        delete creep.memory.withdrawalTargetId;
+                    }
                 }
+
+                if (target) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });
+                    }
+                }
+            } else {
+                delete creep.memory.withdrawalTargetId;
             }
         }
     },

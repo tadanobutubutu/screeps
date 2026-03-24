@@ -2,7 +2,10 @@
  * role.transporter.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn(),
+};
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
@@ -14,6 +17,7 @@ global.STRUCTURE_EXTENSION = 'extension';
 global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_STORAGE = 'storage';
 global.STRUCTURE_CONTAINER = 'container';
+global.STRUCTURE_LAB = 'lab';
 
 jest.mock('../gamification', () => ({
   trackAction: jest.fn(),

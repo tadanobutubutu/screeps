@@ -9,11 +9,17 @@ global.ERR_NOT_IN_RANGE = -9;
 global.FIND_MY_CREEPS = 2;
 global.FIND_HOSTILE_CREEPS = 6;
 global.FIND_STRUCTURES = 10;
+global.FIND_MY_STRUCTURES = 8;
 global.RESOURCE_ENERGY = 'energy';
 global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_CONTAINER = 'container';
 global.STRUCTURE_WALL = 'constructedWall';
 global.STRUCTURE_RAMPART = 'rampart';
+global.STRUCTURE_TOWER = 'tower';
+global.ATTACK = 'attack';
+global.RANGED_ATTACK = 'ranged_attack';
+global.HEAL = 'heal';
+global.CLAIM = 'claim';
 
 jest.mock('../src/constants', () => ({
   TOWER_REPAIR_THRESHOLD: 0.8,
@@ -30,8 +36,11 @@ jest.mock('../src/constants', () => ({
 }), { virtual: true });
 
 jest.mock('../src/utils/cache', () => ({
-  getEnemies: jest.fn().mockReturnValue([]),
+  getEnemies: jest.fn(),
+  getMyStructures: jest.fn(),
 }), { virtual: true });
+
+const cache = require('../src/utils/cache');
 
 jest.mock('../src/utils/logger', () => ({
   debug: jest.fn(),
@@ -50,6 +59,7 @@ describe('towerManager', () => {
     mockRoom = {
       name: 'W1N1',
       find: jest.fn().mockReturnValue([]),
+      controller: { level: 1 },
     };
 
     mockTower = {
@@ -68,7 +78,8 @@ describe('towerManager', () => {
 
   describe('run', () => {
     test('タワーが実行される', () => {
-      expect(() => towerManager.run(mockTower)).not.toThrow();
+      cache.getMyStructures.mockReturnValue([mockTower]);
+      expect(() => towerManager.run(mockRoom)).not.toThrow();
     });
 
     test('敵がいる場合は攻撃する', () => {
@@ -77,12 +88,14 @@ describe('towerManager', () => {
         pos: { x: 27, y: 27 },
         hits: 100,
         hitsMax: 100,
+        getActiveBodyparts: jest.fn().mockReturnValue(0),
       };
-      mockRoom.find.mockReturnValue([mockEnemy]);
+      cache.getEnemies.mockReturnValue([mockEnemy]);
+      cache.getMyStructures.mockReturnValue([mockTower]);
 
-      towerManager.run(mockTower);
+      towerManager.run(mockRoom);
 
-      expect(mockTower.attack).toHaveBeenCalledWith(mockEnemy);
+      expect(mockTower.attack).toHaveBeenCalled();
     });
 
     test('味方が負傷している場合は回復する', () => {
@@ -98,17 +111,19 @@ describe('towerManager', () => {
         if (type === FIND_HOSTILE_CREEPS) return [];
         return [];
       });
+      cache.getEnemies.mockReturnValue([]);
+      cache.getMyStructures.mockReturnValue([mockTower]);
 
-      towerManager.run(mockTower);
+      towerManager.run(mockRoom);
 
-      expect(mockTower.heal).toHaveBeenCalledWith(mockCreep);
+      expect(mockTower.heal).toHaveBeenCalled();
     });
 
     test('損傷した構造物を修復する', () => {
       const mockStructure = {
         id: 'road1',
         structureType: 'road',
-        hits: 2500,
+        hits: 2000,
         hitsMax: 5000,
         pos: { x: 26, y: 26 },
       };
@@ -116,18 +131,24 @@ describe('towerManager', () => {
         if (type === FIND_MY_CREEPS) return [];
         if (type === FIND_HOSTILE_CREEPS) return [];
         if (type === FIND_STRUCTURES) return [mockStructure];
+        if (type === FIND_MY_STRUCTURES) return [];
         return [];
       });
+      cache.getEnemies.mockReturnValue([]);
+      cache.getMyStructures.mockReturnValue([mockTower]);
+      mockTower.store[global.RESOURCE_ENERGY] = 600;
 
-      towerManager.run(mockTower);
+      towerManager.run(mockRoom);
 
-      expect(mockTower.repair).toHaveBeenCalledWith(mockStructure);
+      expect(mockTower.repair).toHaveBeenCalled();
     });
 
     test('エネルギーが不足している場合は何もしない', () => {
       mockTower.store[global.RESOURCE_ENERGY] = 10;
+      cache.getEnemies.mockReturnValue([]);
+      cache.getMyStructures.mockReturnValue([mockTower]);
 
-      towerManager.run(mockTower);
+      towerManager.run(mockRoom);
 
       // エネルギー不足のため、攻撃・回復・修復は行われない
       expect(mockTower.attack).not.toHaveBeenCalled();

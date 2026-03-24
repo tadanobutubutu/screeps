@@ -36,7 +36,7 @@ describe('constants', () => {
         expect(preset.body).toBeDefined();
         expect(preset.cost).toBeGreaterThan(0);
         expect(Array.isArray(preset.body)).toBe(true);
-      });
+      }
     });
   });
 

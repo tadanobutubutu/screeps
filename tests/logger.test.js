@@ -25,6 +25,7 @@ describe('logger', () => {
     global.Memory = { logs: [] };
     global.Game.time = 100;
     console.log = jest.fn();
+    logger.setLevel(0);
   });
 
   describe('debug', () => {

@@ -3,7 +3,11 @@
  */
 
 // グローバル設定
-global.Game = { time: 100, map: { getRoomTerrain: jest.fn() } };
+global.Game = { 
+  time: 100, 
+  map: { getRoomTerrain: jest.fn() },
+  rooms: {}
+};
 global.PathFinder = {
   search: jest.fn().mockReturnValue({
     path: [],

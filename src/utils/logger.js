@@ -255,6 +255,17 @@ function showDashboard() {
     }
 }
 
+/**
+ * ログ履歴をクリアする
+ */
+function clear() {
+    _history.length = 0;
+    _stats.debug = 0;
+    _stats.info = 0;
+    _stats.warn = 0;
+    _stats.error = 0;
+}
+
 module.exports = {
     LOG_LEVEL,
     setLevel,
@@ -271,4 +282,5 @@ module.exports = {
     resetStats,
     init,
     showDashboard,
+    clear,
 };

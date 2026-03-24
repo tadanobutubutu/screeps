@@ -7,13 +7,31 @@ global.Memory = {};
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
 global.FIND_HOSTILE_CREEPS = 6;
+global.FIND_MY_STRUCTURES = 8;
 global.ATTACK = 'attack';
 global.RANGED_ATTACK = 'ranged_attack';
+global.HEAL = 'heal';
+global.STRUCTURE_RAMPART = 'rampart';
+global.STRUCTURE_CONTROLLER = 'controller';
+global.RoomPosition = class {
+  constructor(x, y, roomName) {
+    this.x = x;
+    this.y = y;
+    this.roomName = roomName;
+  }
+  getRangeTo(target) {
+    if (target instanceof RoomPosition) {
+      return Math.abs(this.x - target.x) + Math.abs(this.y - target.y);
+    }
+    return Math.abs(this.x - target.x) + Math.abs(this.y - target.y);
+  }
+};
 
 jest.mock('../utils/cache', () => ({
-  getEnemies: jest.fn().mockReturnValue([]),
+  getEnemies: jest.fn(),
 }), { virtual: true });
 
+const cache = require('../utils/cache');
 const roleDefender = require('../src/roles/defender');
 
 describe('role.defender', () => {
@@ -59,11 +77,19 @@ describe('role.defender', () => {
   test('敵がいる場合は攻撃する', () => {
     const mockEnemy = {
       id: 'enemy1',
-      pos: { x: 27, y: 27 },
+      pos: { x: 27, y: 27, getRangeTo: jest.fn().mockReturnValue(5) },
       owner: { username: 'Invader' },
+      hits: 100,
+      hitsMax: 100,
+      getActiveBodyparts: jest.fn().mockReturnValue(0),
     };
-    mockCreep.room.find.mockReturnValue([mockEnemy]);
+    cache.getEnemies.mockReturnValue([mockEnemy]);
     mockCreep.pos.getRangeTo.mockReturnValue(1);
+    mockCreep.getActiveBodyparts = jest.fn((part) => {
+      if (part === ATTACK) return 2;
+      if (part === RANGED_ATTACK) return 0;
+      return 0;
+    });
 
     roleDefender.run(mockCreep);
 
@@ -73,11 +99,19 @@ describe('role.defender', () => {
   test('遠距離攻撃可能な場合は遠距離攻撃する', () => {
     const mockEnemy = {
       id: 'enemy1',
-      pos: { x: 27, y: 27 },
+      pos: { x: 27, y: 27, getRangeTo: jest.fn().mockReturnValue(5) },
       owner: { username: 'Invader' },
+      hits: 100,
+      hitsMax: 100,
+      getActiveBodyparts: jest.fn().mockReturnValue(0),
     };
-    mockCreep.room.find.mockReturnValue([mockEnemy]);
+    cache.getEnemies.mockReturnValue([mockEnemy]);
     mockCreep.pos.getRangeTo.mockReturnValue(3);
+    mockCreep.getActiveBodyparts = jest.fn((part) => {
+      if (part === ATTACK) return 0;
+      if (part === RANGED_ATTACK) return 1;
+      return 0;
+    });
 
     roleDefender.run(mockCreep);
 

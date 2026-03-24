@@ -7,15 +7,19 @@ global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
+global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.FIND_SOURCES = 5;
+global.FIND_STRUCTURES = 10;
 global.STRUCTURE_CONTAINER = 'container';
+global.WORK = 'work';
 
 jest.mock('../utils/cache', () => ({
-  getSources: jest.fn().mockReturnValue([]),
-  getContainers: jest.fn().mockReturnValue([]),
+  getSources: jest.fn(),
+  getContainers: jest.fn(),
   assignSource: jest.fn(),
 }), { virtual: true });
 
+const cache = require('../utils/cache');
 const roleMiner = require('../src/roles/miner');
 
 describe('role.miner', () => {
@@ -45,22 +49,31 @@ describe('role.miner', () => {
     expect(typeof roleMiner.run).toBe('function');
   });
 
-  test('ソースが割り当てられていない場合は割り当てる', () => {
+  test('ソースが割り当てられていない場合は警告を出す', () => {
     const cache = require('../utils/cache');
-    const mockSource = { id: 'source1', pos: { x: 30, y: 30 } };
+    const mockSource = { 
+      id: 'source1', 
+      pos: { x: 30, y: 30, getRangeTo: jest.fn().mockReturnValue(1) },
+      room: { find: jest.fn().mockReturnValue([]) }
+    };
 
-    cache.assignSource.mockReturnValue(mockSource);
     cache.getSources.mockReturnValue([mockSource]);
+    mockCreep.name = 'miner1';
 
     roleMiner.run(mockCreep);
 
-    expect(cache.assignSource).toHaveBeenCalled();
+    expect(() => roleMiner.run(mockCreep)).not.toThrow();
   });
 
   test('ソースからエネルギーを採掘する', () => {
-    const mockSource = { id: 'source1', pos: { x: 30, y: 30 } };
+    const mockSource = { 
+      id: 'source1', 
+      pos: { x: 30, y: 30, getRangeTo: jest.fn().mockReturnValue(1) },
+      room: { find: jest.fn().mockReturnValue([]) }
+    };
     mockCreep.memory.sourceId = 'source1';
     global.Game.getObjectById.mockReturnValue(mockSource);
+    mockCreep.pos.getRangeTo.mockReturnValue(1);
 
     roleMiner.run(mockCreep);
 

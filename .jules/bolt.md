@@ -29,3 +29,7 @@
 ## 2026-05-12 - Standardized Tick-Gated Caching and Sticky Repair Targets
 **Learning:** Shared per-tick caching (like FIND_MY_CREEPS) only works reliably across modular systems if every consumer uses unique, standardized tick keys (e.g., `_myCreepsTick`). Using a generic key or failing to check the tick leads to redundant searches or stale data. Furthermore, implementing target ID caching for Repairers significantly reduces per-tick O(N) scans.
 **Action:** Standardize per-tick cache keys on the Room object across all modules and implement sticky target ID caching for all repair and build-heavy roles.
+
+## 2026-05-19 - Transporter Target ID and Withdrawal Cache
+**Learning:** For logistics roles like Transporters, caching both delivery and withdrawal target IDs in memory prevents redundant spatial searches during their back-and-forth cycles. Additionally, combining Storage and Containers into a single room-level withdrawal cache (`_withdrawalSources`) eliminates redundant array filtering and construction for every transporter in the room.
+**Action:** Implement memory-based target ID caching for all logistics roles and use room-level caching for shared multi-structure withdrawal sources.

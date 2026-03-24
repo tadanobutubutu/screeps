@@ -1,3 +1,12 @@
+const utilsMemory = require('./utils.memory');
+
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
+ */
+const MAX_MISSIONS_COUNT = 20;
+const MAX_STRING_LENGTH = 100;
+
 const MissionSystem = {
     initMemory() {
         if (!Memory.missions) {
@@ -9,14 +18,38 @@ const MissionSystem = {
     },
 
     createMission(type, target, reward) {
+        this.initMemory();
+
+        // Security: Sanitize and truncate type and target to prevent Memory DoS.
+        // If a key is unsafe, use a fallback to ensure we don't return null and crash callers.
+        const safeType = utilsMemory.isSafeKey(type) ? type : 'unknown';
+        const safeTarget = utilsMemory.isSafeKey(target) ? target : 'unknown';
+
+        const sanitizedType = String(safeType).substring(0, MAX_STRING_LENGTH);
+        const sanitizedTarget = String(safeTarget).substring(0, MAX_STRING_LENGTH);
+
+        // Security: Enforce mission count limit to prevent Memory DoS (2MB limit)
+        if (Memory.missions.active.length >= MAX_MISSIONS_COUNT) {
+            // Attempt to evict the oldest completed mission first
+            let evictIndex = Memory.missions.active.findIndex((m) => m.status === 'completed');
+
+            // If no completed missions, evict the oldest active mission (first in array)
+            if (evictIndex === -1) {
+                evictIndex = 0;
+            }
+
+            Memory.missions.active.splice(evictIndex, 1);
+        }
+
         const mission = {
             id: Math.random().toString(36).substr(2, 9),
-            type,
-            target,
-            reward,
+            type: sanitizedType,
+            target: sanitizedTarget,
+            reward: reward || 0,
             createdAt: Game.time,
             status: 'active',
         };
+
         Memory.missions.active.push(mission);
         return mission;
     },

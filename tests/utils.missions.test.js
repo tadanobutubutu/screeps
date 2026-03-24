@@ -89,4 +89,53 @@ describe('utils.missions', () => {
     expect(missions.length).toBe(1);
     expect(missions[0].id).toBe('1');
   });
+
+  test('createMission handles unsafe keys with fallback', () => {
+    MissionSystem.initMemory();
+    const result = MissionSystem.createMission('__proto__', 'W0N0', 100);
+    expect(result).not.toBeNull();
+    expect(result.type).toBe('unknown');
+
+    const result2 = MissionSystem.createMission('scout', 'constructor', 100);
+    expect(result2).not.toBeNull();
+    expect(result2.target).toBe('unknown');
+  });
+
+  test('createMission truncates long strings', () => {
+    MissionSystem.initMemory();
+    const longString = 'a'.repeat(200);
+    const mission = MissionSystem.createMission(longString, longString, 100);
+    expect(mission.type.length).toBe(100);
+    expect(mission.target.length).toBe(100);
+    expect(mission.type).toBe('a'.repeat(100));
+  });
+
+  test('createMission enforces MAX_MISSIONS_COUNT and evicts missions', () => {
+    MissionSystem.initMemory();
+    // Fill up to the limit (20)
+    for (let i = 0; i < 20; i++) {
+      MissionSystem.createMission('type' + i, 'target' + i, 100);
+    }
+    expect(Memory.missions.active.length).toBe(20);
+
+    // One more should succeed by evicting the oldest active one (since none are completed)
+    const extraMission = MissionSystem.createMission('overflow', 'target', 100);
+    expect(extraMission).not.toBeNull();
+    expect(Memory.missions.active.length).toBe(20);
+    expect(Memory.missions.active.some((m) => m.type === 'overflow')).toBe(true);
+    // Oldest one ('type0') should be gone
+    expect(Memory.missions.active.some((m) => m.type === 'type0')).toBe(false);
+
+    // Complete one mission
+    const idToComplete = Memory.missions.active[5].id;
+    const typeToComplete = Memory.missions.active[5].type;
+    MissionSystem.completeMission(idToComplete);
+
+    // Now it should succeed by evicting the completed one
+    const successMission = MissionSystem.createMission('new', 'target', 100);
+    expect(successMission).not.toBeNull();
+    expect(Memory.missions.active.length).toBe(20);
+    expect(Memory.missions.active.some((m) => m.type === 'new')).toBe(true);
+    expect(Memory.missions.active.some((m) => m.type === typeToComplete)).toBe(false);
+  });
 });

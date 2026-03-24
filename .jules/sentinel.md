@@ -47,3 +47,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded achievement tracking in `EmotionSystem.celebrate`.
 **Learning:** Even positive "gamification" features like tracking creep achievements can become a DoS vector if they allow unbounded array growth or store unsanitized, potentially large strings in the global `Memory` object. In environments like Screeps (2MB limit), every byte counts.
 **Prevention:** Always enforce strict length limits on string inputs and maximum size caps on arrays stored in persistent memory. Use `shift()` or `slice()` to implement a "rolling window" for historical data to ensure memory consumption remains constant regardless of the number of events.
+
+## 2026-03-26 - Robust Hardening of the Mission System
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded array growth in the mission system and potential script crashes from `null` returns.
+**Learning:** Enforcing array limits is necessary for security, but failing to handle "limit reached" scenarios gracefully (e.g., by returning `null` in a core factory function) can lead to widespread application instability. Furthermore, input validation should prioritize robustness (using fallbacks) over strict rejection when the data is stored as a value rather than a key.
+**Prevention:** Implement "eviction" logic for full arrays (prioritizing the removal of non-essential/completed items) and use safe fallback values (e.g., 'unknown') for sanitized inputs to ensure consistent function output.

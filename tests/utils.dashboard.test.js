@@ -79,12 +79,20 @@ describe('DashboardRenderer', () => {
             expect.objectContaining({ font: 0.4 })
         );
 
-        // Verify storage percent is displayed
+        // Verify GCL color is blue
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('GCL: 3 (50%)'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#00aaff' })
+        );
+
+        // Verify storage percent is displayed with warning color (50%)
         expect(mockRoom.visual.text).toHaveBeenCalledWith(
             expect.stringContaining('Storage: 500.0K (50%)'),
             expect.any(Number),
             expect.any(Number),
-            expect.objectContaining({ color: '#ffffff' })
+            expect.objectContaining({ color: '#ffff00' })
         );
     });
 });

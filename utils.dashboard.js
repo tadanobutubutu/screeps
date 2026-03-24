@@ -146,7 +146,7 @@ const DashboardRenderer = {
         // 🌐 GCL info
         room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent}%)`, x, y, {
             font: 0.7,
-            color: '#ffffff',
+            color: '#00aaff',
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
@@ -163,7 +163,7 @@ const DashboardRenderer = {
             strokeWidth: 0.02,
         });
         room.visual.rect(x, y - 0.1, gclBarWidth * gclProgress, gclBarHeight, {
-            fill: '#ffffff',
+            fill: '#00aaff',
             opacity: 0.8,
         });
         y += 0.6;
@@ -232,9 +232,16 @@ const DashboardRenderer = {
         y += 0.6;
 
         // 📦 Storage info
+        let storageColor = '#00ffff'; // Cyan (Healthy)
+        if (info.storagePercent < 30) {
+            storageColor = '#ff0000'; // Red (Critical)
+        } else if (info.storagePercent < 70) {
+            storageColor = '#ffff00'; // Yellow (Warning)
+        }
+
         room.visual.text(`📦 Storage: ${info.storage} (${info.storagePercent}%)`, x, y, {
             font: 0.7,
-            color: '#ffffff',
+            color: storageColor,
             align: 'left',
             stroke: '#000000',
             strokeWidth: 0.05,
@@ -251,7 +258,7 @@ const DashboardRenderer = {
             strokeWidth: 0.02,
         });
         room.visual.rect(x, y - 0.1, storageBarWidth * storageProgress, storageBarHeight, {
-            fill: '#ffffff',
+            fill: storageColor,
             opacity: 0.8,
         });
         y += 0.8;

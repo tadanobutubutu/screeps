@@ -214,12 +214,14 @@ const visualEffects = {
 
         // プログレス
         let color;
-        if (progress >= 0.8) {
-            color = '#00FF00';
+        if (progress >= 1.0) {
+            color = '#FFD700'; // Gold (Completed)
+        } else if (progress >= 0.8) {
+            color = '#00FF00'; // Green (Near Completion)
         } else if (progress >= 0.5) {
-            color = '#FFFF00';
+            color = '#FFFF00'; // Yellow (Midway)
         } else {
-            color = '#FF0000';
+            color = '#FF0000'; // Red (Just Started)
         }
 
         visual.rect(pos.x - width / 2, pos.y - height / 2, width * progress, height, {

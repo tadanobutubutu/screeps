@@ -6,6 +6,19 @@
 
 'use strict';
 
+// Screeps Global Constants (Testing environment fallback)
+if (typeof MOVE === 'undefined') {
+    global.MOVE = 'move';
+    global.WORK = 'work';
+    global.CARRY = 'carry';
+    global.ATTACK = 'attack';
+    global.RANGED_ATTACK = 'ranged_attack';
+    global.HEAL = 'heal';
+    global.CLAIM = 'claim';
+    global.TOUGH = 'tough';
+}
+
+
 // ============================================================
 // クリープロール定数
 // ============================================================

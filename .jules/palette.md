@@ -37,3 +37,7 @@
 ## 2025-06-26 - [Accessibility in Small-Scale Text]
 **Learning:** For very small informational text (e.g., font size 0.4 for CPU/Bucket stats), semantic colors like Green or Yellow can suffer from poor contrast against a 50% opacity black background. Forcing these labels to White (#ffffff) ensures maximum readability and WCAG compliance for small-scale UI elements, while relying on adjacent progress bars to convey status through color.
 **Action:** Prioritize high-contrast white text for sub-0.5 font sizes on transparent backgrounds, even if it replaces semantic status colors.
+
+## 2025-06-30 - [Visual Rewards for Completion]
+**Learning:** In a gamified UI, reaching 100% on a progress bar should feel distinct from "near completion". Using a unique "Gold" (#FFD700) color specifically for the 100% state provides a clear, satisfying visual reward that distinguishes completed tasks from those still in progress, providing immediate positive reinforcement.
+**Action:** Always implement a dedicated "completed" color state (like Gold) for progress bars in gamified systems to differentiate the "Finished" state from "High Progress".

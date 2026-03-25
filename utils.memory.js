@@ -33,11 +33,7 @@ const isSafeKey = (key) => {
         'isPrototypeOf',
         'propertyIsEnumerable',
     ];
-    return (
-        typeof key === 'string' &&
-        key.length <= MAX_KEY_LENGTH &&
-        !dangerousKeys.includes(key)
-    );
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !dangerousKeys.includes(key);
 };
 
 module.exports = {
@@ -132,10 +128,7 @@ module.exports = {
         }
 
         // Security: Cap the number of cache entries to prevent Memory DoS
-        if (
-            !cached &&
-            Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES
-        ) {
+        if (!cached && Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
             return fn();
         }
 

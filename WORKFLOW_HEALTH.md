@@ -1,10 +1,10 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-25T13:18:52Z
+**Generated**: 2026-03-25T19:00:10Z
 
 ## 📊 Status
 
-- **Failed Runs**: 9
+- **Failed Runs**: 3
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
@@ -27,38 +27,8 @@
     "name": "OpenCode AI Agent",
     "id": 23537857332,
     "created": "2026-03-25T11:06:12Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23537831607,
-    "created": "2026-03-25T11:05:32Z"
-  },
-  {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 23537830049,
-    "created": "2026-03-25T11:05:30Z"
-  },
-  {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23537829858,
-    "created": "2026-03-25T11:05:29Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23537829674,
-    "created": "2026-03-25T11:05:29Z"
-  },
-  {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23537829656,
-    "created": "2026-03-25T11:05:29Z"
-  },
-  {
+  }
+]
 
 ## 🔧 Recommended Actions
 

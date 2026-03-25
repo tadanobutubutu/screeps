@@ -2,13 +2,25 @@
  * role.harvester.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn().mockImplementation((id) => {
+    if (id === 'source1') return { id: 'source1', pos: { x: 5, y: 5 } };
+    if (id === 'spawn1') return { id: 'spawn1', structureType: 'spawn', store: { getFreeCapacity: jest.fn().mockReturnValue(50) } };
+    return null;
+  }),
+};
 global.Memory = { adaptive: { currentMode: 'normal' } };
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
 global.FIND_SOURCES_ACTIVE = 5;
 global.FIND_STRUCTURES = 10;
+global.FIND_MY_STRUCTURES = 11;
+global.STRUCTURE_SPAWN = 'spawn';
+global.STRUCTURE_EXTENSION = 'extension';
+global.STRUCTURE_TOWER = 'tower';
+global.STRUCTURE_CONTAINER = 'container';
 global.RoomVisual = class { circle() {} text() {} rect() {} line() {} };
 
 jest.mock('../gamification', () => ({
@@ -40,7 +52,11 @@ describe('role.harvester', () => {
       transfer: jest.fn(),
       moveTo: jest.fn(),
       upgradeController: jest.fn(),
-      pos: { x: 1, y: 1 },
+      pos: {
+        x: 1,
+        y: 1,
+        findClosestByRange: jest.fn().mockReturnValue(null),
+      },
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [{ id: 'source1', pos: { x: 5, y: 5 } }],
@@ -93,7 +109,11 @@ describe('role.harvester', () => {
       transfer: jest.fn(),
       moveTo: jest.fn(),
       upgradeController: jest.fn(),
-      pos: { x: 1, y: 1 },
+      pos: {
+        x: 1,
+        y: 1,
+        findClosestByRange: jest.fn().mockReturnValue(mockSource),
+      },
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [mockSource],
@@ -120,7 +140,11 @@ describe('role.harvester', () => {
       transfer: jest.fn().mockReturnValue(global.OK),
       moveTo: jest.fn(),
       upgradeController: jest.fn(),
-      pos: { x: 1, y: 1 },
+      pos: {
+        x: 1,
+        y: 1,
+        findClosestByRange: jest.fn().mockReturnValue(mockTarget),
+      },
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [],

@@ -28,7 +28,18 @@ const roleHarvester = {
             const sources = creep.room._activeSources;
 
             if (sources.length > 0) {
-                const source = sources[0];
+                // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range
+                let source = Game.getObjectById(creep.memory.harvestTargetId);
+
+                if (!source || !sources.some((s) => s.id === source.id)) {
+                    source = creep.pos.findClosestByRange(sources);
+                    if (source) {
+                        creep.memory.harvestTargetId = source.id;
+                    } else {
+                        delete creep.memory.harvestTargetId;
+                    }
+                }
+
                 const result = creep.harvest(source);
 
                 if (result === OK) {
@@ -45,9 +56,9 @@ const roleHarvester = {
             }
         } else {
             // エネルギーをスポーンまたはエクステンション・タワーに渡す
-            // ⚡ PERFORMANCE: Per-tick caching of energy targets
+            // ⚡ PERFORMANCE: Per-tick caching of energy targets (Optimized to FIND_MY_STRUCTURES)
             if (creep.room._energyTargetsTick !== Game.time) {
-                creep.room._energyTargets = creep.room.find(FIND_STRUCTURES, {
+                creep.room._energyTargets = creep.room.find(FIND_MY_STRUCTURES, {
                     filter: (s) =>
                         (s.structureType === STRUCTURE_SPAWN ||
                             s.structureType === STRUCTURE_EXTENSION ||
@@ -59,7 +70,18 @@ const roleHarvester = {
             const targets = creep.room._energyTargets;
 
             if (targets.length > 0) {
-                const target = targets[0];
+                // ⚡ PERFORMANCE: Cache delivery target ID to avoid re-searching every tick and use closest by range
+                let target = Game.getObjectById(creep.memory.deliverTargetId);
+
+                if (!target || !targets.some((t) => t.id === target.id)) {
+                    target = creep.pos.findClosestByRange(targets);
+                    if (target) {
+                        creep.memory.deliverTargetId = target.id;
+                    } else {
+                        delete creep.memory.deliverTargetId;
+                    }
+                }
+
                 const result = creep.transfer(target, RESOURCE_ENERGY);
 
                 if (result === OK) {
@@ -88,7 +110,18 @@ const roleHarvester = {
                 const containers = creep.room._containerTargets;
 
                 if (containers.length > 0) {
-                    const target = containers[0];
+                    // ⚡ PERFORMANCE: Cache container ID to avoid re-searching every tick and use closest by range
+                    let target = Game.getObjectById(creep.memory.containerTargetId);
+
+                    if (!target || !containers.some((c) => c.id === target.id)) {
+                        target = creep.pos.findClosestByRange(containers);
+                        if (target) {
+                            creep.memory.containerTargetId = target.id;
+                        } else {
+                            delete creep.memory.containerTargetId;
+                        }
+                    }
+
                     const result = creep.transfer(target, RESOURCE_ENERGY);
 
                     if (result === OK) {

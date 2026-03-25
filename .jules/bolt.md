@@ -33,3 +33,7 @@
 ## 2026-05-19 - Transporter Target ID and Withdrawal Cache
 **Learning:** For logistics roles like Transporters, caching both delivery and withdrawal target IDs in memory prevents redundant spatial searches during their back-and-forth cycles. Additionally, combining Storage and Containers into a single room-level withdrawal cache (`_withdrawalSources`) eliminates redundant array filtering and construction for every transporter in the room.
 **Action:** Implement memory-based target ID caching for all logistics roles and use room-level caching for shared multi-structure withdrawal sources.
+
+## 2026-06-02 - Harvester Efficiency and FIND_MY_STRUCTURES
+**Learning:** Harvesters, being the most numerous role, cause the most CPU pressure. Upgrading their delivery search to `FIND_MY_STRUCTURES` is faster than `FIND_STRUCTURES` as it offloads filtering to the engine. Furthermore, implementing `harvestTargetId` and `deliverTargetId` caching with `findClosestByRange` prevents the "crowding" effect where all creeps rush the first item in a result array, significantly improving resource throughput.
+**Action:** Always use `FIND_MY_STRUCTURES` for own structure searches and implement sticky target caching for high-density roles to ensure better load balancing across sources and structures.

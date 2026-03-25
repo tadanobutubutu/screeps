@@ -24,12 +24,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full history for better analysis
       
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
       
@@ -227,7 +227,7 @@ jobs:
       
       # 6. Upload Security Report as Artifact
       - name: 📤 Upload Security Report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: security-report-${{ github.run_number }}
           path: SECURITY_REPORT.md

@@ -2,8 +2,16 @@
 // Inspired by best practices from daily update 2026-02-20
 
 /**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
+ */
+const MAX_KEY_LENGTH = 256;
+const MAX_CACHE_ENTRIES = 50;
+
+/**
  * Security: Validates that a key is safe to use for object access.
  * Prevents Prototype Pollution attacks by blocking special properties.
+ * Also enforces length limits to prevent Memory DoS.
  * Defined as a local constant to avoid 'this' context issues during destructuring.
  */
 const isSafeKey = (key) => {
@@ -25,7 +33,11 @@ const isSafeKey = (key) => {
         'isPrototypeOf',
         'propertyIsEnumerable',
     ];
-    return typeof key === 'string' && !dangerousKeys.includes(key);
+    return (
+        typeof key === 'string' &&
+        key.length <= MAX_KEY_LENGTH &&
+        !dangerousKeys.includes(key)
+    );
 };
 
 module.exports = {
@@ -57,6 +69,10 @@ module.exports = {
             return defaultValue;
         }
 
+        if (!Memory.rooms) {
+            Memory.rooms = {};
+        }
+
         if (!Memory.rooms[roomName]) {
             Memory.rooms[roomName] = {};
         }
@@ -74,6 +90,10 @@ module.exports = {
             return;
         }
 
+        if (!Memory.rooms) {
+            Memory.rooms = {};
+        }
+
         if (!Memory.rooms[roomName]) {
             Memory.rooms[roomName] = {};
         }
@@ -83,6 +103,10 @@ module.exports = {
     clearRoomMemory: function (roomName, key) {
         // Security: Validate roomName and key to prevent prototype pollution
         if (!isSafeKey(roomName) || !isSafeKey(key)) {
+            return;
+        }
+
+        if (!Memory.rooms) {
             return;
         }
 
@@ -105,6 +129,14 @@ module.exports = {
         const cached = Memory.cache[cacheKey];
         if (cached && Game.time - cached.timestamp < ttl) {
             return cached.value;
+        }
+
+        // Security: Cap the number of cache entries to prevent Memory DoS
+        if (
+            !cached &&
+            Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES
+        ) {
+            return fn();
         }
 
         const result = fn();

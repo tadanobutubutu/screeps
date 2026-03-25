@@ -135,6 +135,7 @@ function handlePeriodicTasks(systemMode) {
         }
         if (Game.time % 200 === 0) {
             memVis.cleanup();
+            utilsMemory.cleanCache();
         }
         if (Game.time % 2000 === 0) {
             memVis.backup();

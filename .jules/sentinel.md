@@ -52,3 +52,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded array growth in the mission system and potential script crashes from `null` returns.
 **Learning:** Enforcing array limits is necessary for security, but failing to handle "limit reached" scenarios gracefully (e.g., by returning `null` in a core factory function) can lead to widespread application instability. Furthermore, input validation should prioritize robustness (using fallbacks) over strict rejection when the data is stored as a value rather than a key.
 **Prevention:** Implement "eviction" logic for full arrays (prioritizing the removal of non-essential/completed items) and use safe fallback values (e.g., 'unknown') for sanitized inputs to ensure consistent function output.
+
+## 2026-03-27 - Hardening Global Cache and Memory Keys
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded global cache growth and excessively large property keys.
+**Learning:** In memory-constrained environments like Screeps (2MB limit), utility functions that store data in the global `Memory` object (e.g., `memoize`) must have built-in limits. Without a cap on the number of entries or the length of keys, a system can be crashed by simply requesting many unique or large-keyed operations.
+**Prevention:** Enforce a strict `MAX_KEY_LENGTH` (e.g., 256) for all user-controlled or dynamic keys and a `MAX_CACHE_ENTRIES` cap for global collections. Implement periodic cache pruning to ensure memory is reclaimed.

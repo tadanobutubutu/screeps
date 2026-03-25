@@ -1,52 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-25T02:32:50Z
+**Generated**: 2026-03-25T07:07:05Z
 
 ## 📊 Status
 
-- **Failed Runs**: 6
+- **Failed Runs**: 17
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "💰 Usage Monitor & Auto-Optimize",
-    "name": "💰 Usage Monitor & Auto-Optimize",
-    "id": 23521316572,
-    "created": "2026-03-25T02:01:26Z"
-  },
-  {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23521274029,
-    "created": "2026-03-25T01:59:47Z"
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23529084858,
+    "created": "2026-03-25T07:03:56Z"
   },
   {
     "workflow": "OpenCode AI Agent",
     "name": "OpenCode AI Agent",
-    "id": 23507854538,
-    "created": "2026-03-24T19:16:03Z"
+    "id": 23529084833,
+    "created": "2026-03-25T07:03:56Z"
   },
   {
     "workflow": "OpenCode AI Agent",
     "name": "OpenCode AI Agent",
-    "id": 23507847565,
-    "created": "2026-03-24T19:15:53Z"
+    "id": 23529084823,
+    "created": "2026-03-25T07:03:56Z"
   },
   {
     "workflow": "OpenCode AI Agent",
     "name": "OpenCode AI Agent",
-    "id": 23507843086,
-    "created": "2026-03-24T19:15:46Z"
+    "id": 23528967038,
+    "created": "2026-03-25T07:00:06Z"
   },
   {
     "workflow": "OpenCode AI Agent",
     "name": "OpenCode AI Agent",
-    "id": 23507838076,
-    "created": "2026-03-24T19:15:38Z"
-  }
-]
+    "id": 23528953558,
+    "created": "2026-03-25T06:59:41Z"
+  },
+  {
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23528945370,
+    "created": "2026-03-25T06:59:25Z"
+  },
+  {
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23528945368,
+    "created": "2026-03-25T06:59:25Z"
+  },
+  {
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23528944729,
+    "created": "2026-03-25T06:59:24Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

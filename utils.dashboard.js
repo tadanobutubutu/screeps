@@ -78,6 +78,8 @@ const DashboardRenderer = {
                                 (room.controller.progress / room.controller.progressTotal) * 100
                             )
                           : 100,
+                      safeMode: room.controller.safeMode,
+                      safeModeAvailable: room.controller.safeModeAvailable,
                   }
                 : null,
             hostiles: hostiles.length,
@@ -169,9 +171,18 @@ const DashboardRenderer = {
         y += 0.6;
 
         // 🎮 Controller info
-        const controllerText = info.controller
+        let controllerText = info.controller
             ? `🎮 RCL: ${info.controller.level} (${info.controller.percent}%)`
             : '🎮 RCL: None';
+
+        if (info.controller) {
+            if (info.controller.safeMode) {
+                controllerText += ` 🛡️:${info.controller.safeMode}`;
+            } else {
+                controllerText += ` 🛡️:x${info.controller.safeModeAvailable || 0}`;
+            }
+        }
+
         room.visual.text(controllerText, x, y, {
             font: 0.7,
             color: '#ffff00',
@@ -201,7 +212,9 @@ const DashboardRenderer = {
 
         // ⚡ Energy info
         let energyColor = '#00ffff'; // Cyan (Default/Healthy)
-        if (info.energyPercent < 30) {
+        if (info.energyAvailable >= info.energyCapacity && info.energyCapacity > 0) {
+            energyColor = '#FFD700'; // Gold (Full)
+        } else if (info.energyPercent < 30) {
             energyColor = '#ff0000'; // Red (Critical)
         } else if (info.energyPercent < 70) {
             energyColor = '#ffff00'; // Yellow (Warning)
@@ -233,7 +246,9 @@ const DashboardRenderer = {
 
         // 📦 Storage info
         let storageColor = '#00ffff'; // Cyan (Healthy)
-        if (info.storagePercent < 30) {
+        if (info.storagePercent >= 100) {
+            storageColor = '#FFD700'; // Gold (Full)
+        } else if (info.storagePercent < 30) {
             storageColor = '#ff0000'; // Red (Critical)
         } else if (info.storagePercent < 70) {
             storageColor = '#ffff00'; // Yellow (Warning)
@@ -307,6 +322,8 @@ const DashboardRenderer = {
         // 🔋 CPU Bucket
         y += 0.8;
         const bucketProgress = Math.min(info.bucket / 10000, 1);
+        const bucketPulse = info.bucket < 1000 ? 0.7 + 0.3 * Math.sin(Game.time / 2) : 1.0;
+
         room.visual.rect(x, y, 6, 0.2, { fill: '#333333', stroke: '#ffffff', strokeWidth: 0.02 });
 
         let bucketColor = '#ff0000';
@@ -318,16 +335,17 @@ const DashboardRenderer = {
 
         room.visual.rect(x, y, 6 * bucketProgress, 0.2, {
             fill: bucketColor,
-            opacity: 0.7,
+            opacity: 0.7 * bucketPulse,
         });
         const bucketPercent = Math.floor(bucketProgress * 100);
         room.visual.text(
-            `CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
+            `📊 CPU: ${info.cpuUsed} | Bucket: ${info.bucket} (${bucketPercent}%) | Tick: ${info.tick}`,
             x,
             y + 0.6,
             {
                 font: 0.4,
                 color: '#ffffff', // 🎨 Accessibility: White text for consistency and contrast
+                opacity: bucketPulse,
                 align: 'left',
                 stroke: '#000000',
                 strokeWidth: 0.05,

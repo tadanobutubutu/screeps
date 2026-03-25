@@ -1,64 +1,52 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-24T19:07:56Z
+**Generated**: 2026-03-25T02:32:50Z
 
 ## 📊 Status
 
-- **Failed Runs**: 20
+- **Failed Runs**: 6
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": ".github/workflows/update-wiki.yml",
-    "name": ".github/workflows/update-wiki.yml",
-    "id": 23507501660,
-    "created": "2026-03-24T19:07:15Z"
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23521316572,
+    "created": "2026-03-25T02:01:26Z"
   },
   {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23507501460,
-    "created": "2026-03-24T19:07:14Z"
+    "workflow": "✨ AI Code Improvement",
+    "name": "✨ AI Code Improvement",
+    "id": 23521274029,
+    "created": "2026-03-25T01:59:47Z"
   },
   {
-    "workflow": ".github/workflows/auto-create-roles.yml",
-    "name": ".github/workflows/auto-create-roles.yml",
-    "id": 23507501301,
-    "created": "2026-03-24T19:07:14Z"
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23507854538,
+    "created": "2026-03-24T19:16:03Z"
   },
   {
-    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
-    "name": ".github/workflows/ai-powered-auto-fix.yml",
-    "id": 23507501015,
-    "created": "2026-03-24T19:07:14Z"
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23507847565,
+    "created": "2026-03-24T19:15:53Z"
   },
   {
-    "workflow": ".github/workflows/validate-action-versions.yml",
-    "name": ".github/workflows/validate-action-versions.yml",
-    "id": 23507500794,
-    "created": "2026-03-24T19:07:13Z"
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23507843086,
+    "created": "2026-03-24T19:15:46Z"
   },
   {
-    "workflow": ".github/workflows/emergency-api-restore.yml",
-    "name": ".github/workflows/emergency-api-restore.yml",
-    "id": 23507500548,
-    "created": "2026-03-24T19:07:13Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 23507500264,
-    "created": "2026-03-24T19:07:13Z"
-  },
-  {
-    "workflow": ".github/workflows/rule-based-improve.yml",
-    "name": ".github/workflows/rule-based-improve.yml",
-    "id": 23507500053,
-    "created": "2026-03-24T19:07:12Z"
-  },
-  {
+    "workflow": "OpenCode AI Agent",
+    "name": "OpenCode AI Agent",
+    "id": 23507838076,
+    "created": "2026-03-24T19:15:38Z"
+  }
+]
 
 ## 🔧 Recommended Actions
 

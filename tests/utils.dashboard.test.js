@@ -17,19 +17,21 @@ describe('DashboardRenderer', () => {
             storage: {
                 store: {
                     getCapacity: jest.fn().mockReturnValue(1000000),
-                    [RESOURCE_ENERGY]: 500000
-                }
+                    [RESOURCE_ENERGY]: 500000,
+                },
             },
             name: 'W1N1',
             controller: {
                 level: 5,
                 progress: 5000,
-                progressTotal: 10000
+                progressTotal: 10000,
+                safeMode: undefined,
+                safeModeAvailable: 3,
             },
             visual: {
                 rect: jest.fn(),
-                text: jest.fn()
-            }
+                text: jest.fn(),
+            },
         };
 
         global.Game = {
@@ -37,18 +39,18 @@ describe('DashboardRenderer', () => {
             gcl: {
                 level: 3,
                 progress: 10000,
-                progressTotal: 20000
+                progressTotal: 20000,
             },
             cpu: {
                 bucket: 9000,
-                getUsed: jest.fn().mockReturnValue(1.23)
-            }
+                getUsed: jest.fn().mockReturnValue(1.23),
+            },
         };
 
         global.Memory = {
             adaptive: {
-                currentMode: 2
-            }
+                currentMode: 2,
+            },
         };
     });
 
@@ -62,6 +64,14 @@ describe('DashboardRenderer', () => {
 
     test('displayVisuals uses correct colors and text', () => {
         DashboardRenderer.displayVisuals(mockRoom);
+
+        // Verify Safe Mode available is shown
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('🛡️:x3'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#ffff00' })
+        );
 
         // Verify white color for creeps info (called twice for the two lines)
         expect(mockRoom.visual.text).toHaveBeenCalledWith(
@@ -93,6 +103,53 @@ describe('DashboardRenderer', () => {
             expect.any(Number),
             expect.any(Number),
             expect.objectContaining({ color: '#ffff00' })
+        );
+    });
+
+    test('displayVisuals shows Safe Mode ticks when active', () => {
+        mockRoom.controller.safeMode = 1000;
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('🛡️:1000'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#ffff00' })
+        );
+    });
+
+    test('displayVisuals uses Gold color for full energy/storage', () => {
+        mockRoom.energyAvailable = 2000; // 100%
+        mockRoom.storage.store[RESOURCE_ENERGY] = 1000000; // 100%
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        // Energy (Gold)
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('Energy:'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#FFD700' })
+        );
+
+        // Storage (Gold)
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('Storage:'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ color: '#FFD700' })
+        );
+    });
+
+    test('displayVisuals uses pulsing opacity for low bucket', () => {
+        global.Game.cpu.bucket = 500; // < 1000
+        DashboardRenderer.displayVisuals(mockRoom);
+
+        // Check that text is called with an opacity property
+        expect(mockRoom.visual.text).toHaveBeenCalledWith(
+            expect.stringContaining('📊 CPU'),
+            expect.any(Number),
+            expect.any(Number),
+            expect.objectContaining({ opacity: expect.any(Number) })
         );
     });
 });

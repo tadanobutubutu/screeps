@@ -41,3 +41,7 @@
 ## 2025-06-30 - [Visual Rewards for Completion]
 **Learning:** In a gamified UI, reaching 100% on a progress bar should feel distinct from "near completion". Using a unique "Gold" (#FFD700) color specifically for the 100% state provides a clear, satisfying visual reward that distinguishes completed tasks from those still in progress, providing immediate positive reinforcement.
 **Action:** Always implement a dedicated "completed" color state (like Gold) for progress bars in gamified systems to differentiate the "Finished" state from "High Progress".
+
+## 2026-03-05 - [Critical Defense Visibility]
+**Learning:** For critical survival mechanics like Safe Mode, simply showing RCL progress is insufficient. Integrating a dedicated shield icon (🛡️) with a countdown (for active states) or a remaining count (for inactive states) directly into the primary status line provides essential security awareness without requiring the user to open secondary menus.
+**Action:** Always include high-priority defensive cooldowns or counts (like Safe Mode or Nuke timers) in the main room status block using distinct, recognizable icons.

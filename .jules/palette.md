@@ -45,3 +45,7 @@
 ## 2026-03-05 - [Critical Defense Visibility]
 **Learning:** For critical survival mechanics like Safe Mode, simply showing RCL progress is insufficient. Integrating a dedicated shield icon (🛡️) with a countdown (for active states) or a remaining count (for inactive states) directly into the primary status line provides essential security awareness without requiring the user to open secondary menus.
 **Action:** Always include high-priority defensive cooldowns or counts (like Safe Mode or Nuke timers) in the main room status block using distinct, recognizable icons.
+
+## 2026-03-10 - [Layout-Stable Feedback & Manual Refresh]
+**Learning:** In data-driven dashboards, especially those fetching from external APIs with potential latency or caching (like the Screeps API), showing a "Last sync" timestamp and providing a manual "Refresh" button significantly improves the user's sense of control and confidence in the data freshness. Furthermore, refactoring components to maintain the dashboard structure (headers, containers) during loading/error states—rather than replacing the entire view—prevents jarring layout shifts and provides a more professional, stable user experience.
+**Action:** Always provide manual refresh controls with "last updated" timestamps for external data views, and ensure the UI structure remains stable during async state transitions.

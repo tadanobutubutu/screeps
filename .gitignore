@@ -45,6 +45,7 @@ yarn-error.log*
 dist/
 build/
 *.tgz
+**/.next/
 
 # Test results
 junit.xml

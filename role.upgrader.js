@@ -22,8 +22,23 @@ const roleUpgrader = {
             const sources = creep.room._activeSources;
 
             if (sources.length > 0) {
-                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range (O(N))
+                let source = Game.getObjectById(creep.memory.harvestTargetId);
+
+                // Check if cached source is still valid and has energy
+                if (!source || source.energy === 0) {
+                    source = creep.pos.findClosestByRange(sources);
+                    if (source) {
+                        creep.memory.harvestTargetId = source.id;
+                    } else {
+                        delete creep.memory.harvestTargetId;
+                    }
+                }
+
+                if (source) {
+                    if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             }
         }

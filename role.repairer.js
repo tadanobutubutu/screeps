@@ -65,8 +65,22 @@ const roleRepairer = {
             const sources = creep.room._activeSources;
 
             if (sources.length > 0) {
-                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
+                let target = Game.getObjectById(creep.memory.harvestTargetId);
+
+                if (!target || target.energy === 0) {
+                    target = creep.pos.findClosestByRange(sources);
+                    if (target) {
+                        creep.memory.harvestTargetId = target.id;
+                    } else {
+                        delete creep.memory.harvestTargetId;
+                    }
+                }
+
+                if (target) {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             }
         }

@@ -2,7 +2,13 @@
  * role.upgrader.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn().mockImplementation((id) => {
+    if (id === 'source1') return { id: 'source1', energy: 100 };
+    return null;
+  }),
+};
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
@@ -66,8 +72,14 @@ describe('role.upgrader', () => {
       room: {
         controller: { pos: { x: 5, y: 5 } },
         find: jest.fn().mockReturnValue([]),
+        _activeSourcesTick: 10,
+        _activeSources: [],
       },
-      pos: { x: 1, y: 1 },
+      pos: {
+        x: 1,
+        y: 1,
+        findClosestByRange: jest.fn().mockReturnValue(null),
+      },
     };
 
     expect(() => roleUpgrader.run(creep)).not.toThrow();

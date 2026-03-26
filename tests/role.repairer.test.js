@@ -4,7 +4,10 @@
 
 global.Game = {
   time: 10,
-  getObjectById: jest.fn(),
+  getObjectById: jest.fn().mockImplementation((id) => {
+    if (id === 'source1') return { id: 'source1', energy: 1000 };
+    return null;
+  }),
 };
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
@@ -54,7 +57,11 @@ describe('role.repairer', () => {
         find: jest.fn().mockReturnValue([]),
         controller: { id: 'controller1' },
       },
-      pos: { x: 1, y: 1 },
+      pos: {
+        x: 1,
+        y: 1,
+        findClosestByRange: jest.fn().mockReturnValue(null),
+      },
     };
     expect(() => roleRepairer.run(creep)).not.toThrow();
   });

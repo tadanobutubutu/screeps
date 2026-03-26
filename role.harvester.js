@@ -31,7 +31,8 @@ const roleHarvester = {
                 // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range
                 let source = Game.getObjectById(creep.memory.harvestTargetId);
 
-                if (!source || !sources.some((s) => s.id === source.id)) {
+                // ⚡ PERFORMANCE: O(1) check for source validity instead of O(N) .some()
+                if (!source || source.energy === 0) {
                     source = creep.pos.findClosestByRange(sources);
                     if (source) {
                         creep.memory.harvestTargetId = source.id;
@@ -73,7 +74,8 @@ const roleHarvester = {
                 // ⚡ PERFORMANCE: Cache delivery target ID to avoid re-searching every tick and use closest by range
                 let target = Game.getObjectById(creep.memory.deliverTargetId);
 
-                if (!target || !targets.some((t) => t.id === target.id)) {
+                // ⚡ PERFORMANCE: O(1) check for target validity instead of O(N) .some()
+                if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
                     target = creep.pos.findClosestByRange(targets);
                     if (target) {
                         creep.memory.deliverTargetId = target.id;
@@ -113,7 +115,8 @@ const roleHarvester = {
                     // ⚡ PERFORMANCE: Cache container ID to avoid re-searching every tick and use closest by range
                     let target = Game.getObjectById(creep.memory.containerTargetId);
 
-                    if (!target || !containers.some((c) => c.id === target.id)) {
+                    // ⚡ PERFORMANCE: O(1) check for container validity instead of O(N) .some()
+                    if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
                         target = creep.pos.findClosestByRange(containers);
                         if (target) {
                             creep.memory.containerTargetId = target.id;

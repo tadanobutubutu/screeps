@@ -5,12 +5,14 @@
 const utilsMemory = require('./utils.memory');
 
 /**
- * Security: Limits for memory-intensive structures to prevent Memory DoS.
- * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
+ * セキュリティ: メモリDoSを防ぐためのメモリ消費構造の制限。
+ * Screepsのメモリは2MBに制限されており、制限のないオブジェクトはAIをクラッシュさせる可能性があります。
  */
 const MAX_EXPLORED_ROOMS = 100;
 const MAX_ROOM_DATA = 50;
 const MAX_DIARY_MESSAGE_LENGTH = 200;
+const MAX_LEADERBOARD_ENTRIES = 50;
+const MAX_LEADERBOARD_TYPES = 10;
 
 const memoryVisualizer = {
     /**
@@ -148,19 +150,44 @@ const memoryVisualizer = {
     recordAchievement: function (creepName, type, amount) {
         this.initLeaderboard();
 
+        // セキュリティ: プロトタイプ汚染とデータ破損を防ぐための入力バリデーション
         if (!utilsMemory.isSafeKey(creepName) || !utilsMemory.isSafeKey(type)) {
             return;
         }
 
+        // セキュリティ: メモリ破損/NaNを防ぐため、amountが有効な数値であることを確認
+        const numericAmount = Number(amount);
+        if (!Number.isFinite(numericAmount)) {
+            return;
+        }
+
         if (!Memory.leaderboard[type]) {
+            // セキュリティ: メモリDoSを防ぐため、リーダーボードのタイプ数を制限
+            if (Object.keys(Memory.leaderboard).length >= MAX_LEADERBOARD_TYPES) {
+                return;
+            }
             Memory.leaderboard[type] = {};
         }
 
-        if (!Memory.leaderboard[type][creepName]) {
-            Memory.leaderboard[type][creepName] = 0;
+        const board = Memory.leaderboard[type];
+
+        // セキュリティ: メモリDoSを防ぐため、リーダーボードあたりのエントリ数を制限
+        if (!board[creepName] && Object.keys(board).length >= MAX_LEADERBOARD_ENTRIES) {
+            // 追い出しポリシー: 最も低いスコアのエントリを削除
+            const lowestEntry = Object.entries(board).sort((a, b) => a[1] - b[1])[0];
+            if (lowestEntry && numericAmount > lowestEntry[1]) {
+                delete board[lowestEntry[0]];
+            } else if (!lowestEntry || numericAmount <= (lowestEntry[1] || 0)) {
+                // If the new score is not better than the lowest, don't add it
+                return;
+            }
         }
 
-        Memory.leaderboard[type][creepName] += amount;
+        if (!board[creepName]) {
+            board[creepName] = 0;
+        }
+
+        board[creepName] += numericAmount;
     },
 
     showLeaderboard: function (type = 'harvested', limit = 10) {

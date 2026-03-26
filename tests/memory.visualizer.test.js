@@ -88,6 +88,43 @@ describe('memory.visualizer', () => {
     expect(board[0][0]).toBe('creep2');
   });
 
+  test('recordAchievementが容量制限と追い出しロジックを遵守する', () => {
+    memoryVisualizer.initLeaderboard();
+
+    // 50個の既存エントリを作成 (スコア 10から590)
+    for (let i = 0; i < 50; i++) {
+      memoryVisualizer.recordAchievement(`creep_${i}`, 'harvested', (i + 1) * 10);
+    }
+    expect(Object.keys(Memory.leaderboard.harvested).length).toBe(50);
+
+    // 最小スコア(creep_0: 10)より小さいスコアで追加試行 -> 追加されないはず
+    memoryVisualizer.recordAchievement('new_creep_fail', 'harvested', 5);
+    expect(Object.keys(Memory.leaderboard.harvested).length).toBe(50);
+    expect(Memory.leaderboard.harvested.new_creep_fail).toBeUndefined();
+
+    // 最小スコア(creep_0: 10)より大きいスコアで追加試行 -> creep_0が削除され、新しいものが追加されるはず
+    memoryVisualizer.recordAchievement('new_creep_success', 'harvested', 15);
+    expect(Object.keys(Memory.leaderboard.harvested).length).toBe(50);
+    expect(Memory.leaderboard.harvested.creep_0).toBeUndefined();
+    expect(Memory.leaderboard.harvested.new_creep_success).toBe(15);
+  });
+
+  test('recordAchievementがリーダーボードタイプの制限を遵守する', () => {
+    memoryVisualizer.initLeaderboard();
+
+    // 10個のタイプを作成 (初期化時に5個作成されているので、あと5個)
+    const types = ['t1', 't2', 't3', 't4', 't5', 't6'];
+    types.forEach(t => memoryVisualizer.recordAchievement('c', t, 1));
+
+    // 5(default) + 5 = 10 types
+    expect(Object.keys(Memory.leaderboard).length).toBe(10);
+
+    // 11個目のタイプを追加試行 -> 追加されないはず
+    memoryVisualizer.recordAchievement('c', 't7', 1);
+    expect(Object.keys(Memory.leaderboard).length).toBe(10);
+    expect(Memory.leaderboard.t7).toBeUndefined();
+  });
+
   test('initDiaryが日記を初期化', () => {
     global.Memory.creeps = {
       creep1: {},

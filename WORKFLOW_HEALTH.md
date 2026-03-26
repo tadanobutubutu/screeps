@@ -1,32 +1,26 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-25T19:00:10Z
+**Generated**: 2026-03-26T02:39:46Z
 
 ## 📊 Status
 
-- **Failed Runs**: 3
+- **Failed Runs**: 2
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23573954598,
+    "created": "2026-03-26T02:07:18Z"
+  },
+  {
     "workflow": "✨ AI Code Improvement",
     "name": "✨ AI Code Improvement",
-    "id": 23542456545,
-    "created": "2026-03-25T13:04:26Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23537990251,
-    "created": "2026-03-25T11:09:40Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23537857332,
-    "created": "2026-03-25T11:06:12Z"
+    "id": 23573919399,
+    "created": "2026-03-26T02:06:00Z"
   }
 ]
 

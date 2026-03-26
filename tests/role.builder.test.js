@@ -2,7 +2,13 @@
  * role.builder.js のユニットテスト
  */
 
-global.Game = { time: 10, getObjectById: jest.fn() };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn().mockImplementation((id) => {
+    if (id === 'source1') return { id: 'source1', energy: 1000 };
+    return null;
+  }),
+};
 global.Memory = {};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
@@ -38,10 +44,15 @@ describe('role.builder', () => {
       build: jest.fn(),
       upgradeController: jest.fn(),
       moveTo: jest.fn(),
-      pos: { findClosestByPath: jest.fn().mockReturnValue(null) },
+      pos: {
+        findClosestByPath: jest.fn().mockReturnValue(null),
+        findClosestByRange: jest.fn().mockReturnValue(null),
+      },
       room: {
         _constructionSitesTick: undefined,
         _constructionSites: [],
+        _activeSourcesTick: 10,
+        _activeSources: [],
         find: jest.fn().mockReturnValue([]),
         controller: { pos: { x: 5, y: 5 } },
       },

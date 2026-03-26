@@ -28,8 +28,8 @@ const roleTransporter = {
                 // ⚡ PERFORMANCE: ターゲットIDをキャッシュして毎ティックの再探索を回避
                 let target = Game.getObjectById(creep.memory.deliveryTargetId);
 
-                // キャッシュされたターゲットがまだ有効かチェック（存在し、空き容量があるか）
-                if (!target || !targets.some((t) => t.id === target.id)) {
+                // ⚡ PERFORMANCE: O(1) check for delivery target validity instead of O(N) .some()
+                if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
                     target = creep.pos.findClosestByRange(targets);
                     if (target) {
                         creep.memory.deliveryTargetId = target.id;
@@ -76,8 +76,8 @@ const roleTransporter = {
                 // ⚡ PERFORMANCE: ターゲットIDをキャッシュ
                 let target = Game.getObjectById(creep.memory.withdrawalTargetId);
 
-                // キャッシュが有効かチェック（存在し、エネルギーがあるか）
-                if (!target || !sources.some((s) => s.id === target.id)) {
+                // ⚡ PERFORMANCE: O(1) check for withdrawal target validity instead of O(N) .some()
+                if (!target || target.store[RESOURCE_ENERGY] === 0) {
                     target = creep.pos.findClosestByRange(sources);
                     if (target) {
                         creep.memory.withdrawalTargetId = target.id;

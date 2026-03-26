@@ -37,3 +37,7 @@
 ## 2026-06-02 - Harvester Efficiency and FIND_MY_STRUCTURES
 **Learning:** Harvesters, being the most numerous role, cause the most CPU pressure. Upgrading their delivery search to `FIND_MY_STRUCTURES` is faster than `FIND_STRUCTURES` as it offloads filtering to the engine. Furthermore, implementing `harvestTargetId` and `deliverTargetId` caching with `findClosestByRange` prevents the "crowding" effect where all creeps rush the first item in a result array, significantly improving resource throughput.
 **Action:** Always use `FIND_MY_STRUCTURES` for own structure searches and implement sticky target caching for high-density roles to ensure better load balancing across sources and structures.
+
+## 2026-06-16 - O(1) Cache Validation vs O(N) Array Scans
+**Learning:** Using `targets.some(t => t.id === target.id)` to validate a cached ID every tick is an O(N) operation that scales poorly as colonies grow. Replacing this with O(1) property checks (e.g., `target.energy > 0` or `target.store.getFreeCapacity() > 0`) on the object retrieved via `Game.getObjectById` drastically reduces per-tick CPU overhead, especially in rooms with many structures.
+**Action:** Avoid using `Array.some` or `Array.find` for per-tick cache validation; instead, use `Game.getObjectById` and verify state directly via object properties.

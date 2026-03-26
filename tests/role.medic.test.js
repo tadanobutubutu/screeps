@@ -2,7 +2,14 @@
  * role.medic.js のユニットテスト
  */
 
-global.Game = { time: 10 };
+global.Game = {
+  time: 10,
+  getObjectById: jest.fn().mockImplementation((id) => {
+    if (id === 'creep1') return { id: 'creep1', hits: 50, hitsMax: 100 };
+    if (id === 'source1') return { id: 'source1', energy: 1000 };
+    return null;
+  }),
+};
 global.Memory = {};
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
@@ -55,6 +62,7 @@ describe('role.medic', () => {
         x: 1, y: 1,
         isNearTo: jest.fn().mockReturnValue(true),
         inRangeTo: jest.fn().mockReturnValue(true),
+        findClosestByRange: jest.fn().mockReturnValue(null),
       },
       store: {
         [global.RESOURCE_ENERGY]: 0,
@@ -91,6 +99,7 @@ describe('role.medic', () => {
         x: 25, y: 25,
         isNearTo: jest.fn().mockReturnValue(false),
         inRangeTo: jest.fn().mockReturnValue(false),
+        findClosestByRange: jest.fn().mockReturnValue(null),
       },
       store: {
         [global.RESOURCE_ENERGY]: 0,

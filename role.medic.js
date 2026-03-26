@@ -34,15 +34,29 @@ const roleMedic = {
 
         if (creep.memory.healing) {
             if (injured.length > 0) {
-                // Optimized targeting: healing while moving
-                const target = injured[0];
-                if (creep.pos.isNearTo(target)) {
-                    creep.heal(target);
-                } else {
-                    creep.rangedHeal(target);
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                // ⚡ PERFORMANCE: Cache heal target ID and use closest by range
+                let target = Game.getObjectById(creep.memory.healTargetId);
+
+                // If target is invalid or fully healed, find a new one
+                if (!target || target.hits === target.hitsMax) {
+                    target = creep.pos.findClosestByRange(injured);
+                    if (target) {
+                        creep.memory.healTargetId = target.id;
+                    } else {
+                        delete creep.memory.healTargetId;
+                    }
+                }
+
+                if (target) {
+                    if (creep.pos.isNearTo(target)) {
+                        creep.heal(target);
+                    } else {
+                        creep.rangedHeal(target);
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                    }
                 }
             } else {
+                delete creep.memory.healTargetId;
                 // No one to heal: Move to idle position
                 const idlePos = creep.room.controller
                     ? creep.room.controller.pos
@@ -57,13 +71,37 @@ const roleMedic = {
             // Gathering mode
             const canHarvest = creep.getActiveBodyparts(WORK) > 0;
             if (canHarvest && sources.length > 0) {
-                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
+                let target = Game.getObjectById(creep.memory.harvestTargetId);
+
+                if (!target || target.energy === 0) {
+                    target = creep.pos.findClosestByRange(sources);
+                    if (target) {
+                        creep.memory.harvestTargetId = target.id;
+                    } else {
+                        delete creep.memory.harvestTargetId;
+                    }
+                }
+
+                if (target) {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             } else if (injured.length > 0) {
-                // Secondary behavior: heal even if not in "healing" state if we have some energy
-                const target = injured[0];
-                if (creep.store[RESOURCE_ENERGY] > 0) {
+                // ⚡ PERFORMANCE: Use heal target cache for secondary healing too
+                let target = Game.getObjectById(creep.memory.healTargetId);
+
+                if (!target || target.hits === target.hitsMax) {
+                    target = creep.pos.findClosestByRange(injured);
+                    if (target) {
+                        creep.memory.healTargetId = target.id;
+                    } else {
+                        delete creep.memory.healTargetId;
+                    }
+                }
+
+                if (target && creep.store[RESOURCE_ENERGY] > 0) {
                     if (creep.pos.isNearTo(target)) {
                         creep.heal(target);
                     } else {
@@ -71,6 +109,8 @@ const roleMedic = {
                         creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
                     }
                 }
+            } else {
+                delete creep.memory.healTargetId;
             }
         }
     },

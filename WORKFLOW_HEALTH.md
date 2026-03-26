@@ -1,10 +1,10 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-26T13:24:50Z
+**Generated**: 2026-03-26T19:12:32Z
 
 ## 📊 Status
 
-- **Failed Runs**: 15
+- **Failed Runs**: 6
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
@@ -45,20 +45,8 @@
     "name": ".github/workflows/random-experiment.yml",
     "id": 23591906081,
     "created": "2026-03-26T11:28:17Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23591906071,
-    "created": "2026-03-26T11:28:17Z"
-  },
-  {
-    "workflow": ".github/workflows/discussion-bot.yml",
-    "name": ".github/workflows/discussion-bot.yml",
-    "id": 23591905853,
-    "created": "2026-03-26T11:28:17Z"
-  },
-  {
+  }
+]
 
 ## 🔧 Recommended Actions
 

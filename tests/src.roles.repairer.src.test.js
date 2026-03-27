@@ -144,4 +144,220 @@ describe('src/roles/repairer', () => {
     expect(repairer.getBody(600)).toEqual([WORK, WORK, CARRY, CARRY, MOVE, MOVE]);
     expect(repairer.getBody(200)).toEqual([WORK, CARRY, MOVE]);
   });
+
+  test('getBodyで300エネルギーボディを返す', () => {
+    expect(repairer.getBody(300)).toEqual([WORK, CARRY, CARRY, MOVE]);
+  });
+
+  test('エネルギーが0のときworkingを解除して補充メッセージを表示する', () => {
+    mockCache.getDroppedResources.mockReturnValue([]);
+    mockCache.getContainers.mockReturnValue([]);
+    mockCache.getStorage.mockReturnValue(null);
+    mockCache.assignSource.mockReturnValue(null);
+
+    const creep = {
+      memory: { working: true, targetId: 'old' },
+      room: {},
+      store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+      pickup: jest.fn(),
+      withdraw: jest.fn(),
+      harvest: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.memory.working).toBe(false);
+    expect(creep.memory.targetId).toBeUndefined();
+    expect(creep.say).toHaveBeenCalledWith('🔄 補充');
+  });
+
+  test('エネルギー満タンのときworkingを設定して修復メッセージを表示する', () => {
+    const target = { id: 't2', hits: 50, hitsMax: 100, structureType: global.STRUCTURE_ROAD, pos: { x: 1, y: 1 } };
+    const room = {
+      controller: { level: 2 },
+      find: jest.fn().mockReturnValue([target]),
+    };
+    const creep = {
+      memory: { working: false },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 100, getCapacity: jest.fn().mockReturnValue(100) },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.memory.working).toBe(true);
+    expect(creep.say).toHaveBeenCalledWith('🔧 修復');
+  });
+
+  test('修復完了時にターゲットをクリアする', () => {
+    const target = { id: 't3', hits: 98, hitsMax: 100, structureType: global.STRUCTURE_ROAD, pos: { x: 1, y: 1 } };
+    global.Game.getObjectById = jest.fn().mockReturnValue(target);
+    const room = {
+      controller: { level: 2 },
+      find: jest.fn().mockReturnValue([]),
+    };
+    const creep = {
+      memory: { working: true, targetId: 't3' },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.OK),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.memory.targetId).toBeUndefined();
+  });
+
+  test('ERR_INVALID_TARGETでターゲットをクリアする', () => {
+    const target = { id: 't4', hits: 10, hitsMax: 100, structureType: global.STRUCTURE_ROAD, pos: { x: 1, y: 1 } };
+    const room = {
+      controller: { level: 2 },
+      find: jest.fn().mockReturnValue([target]),
+    };
+    pathfinder.closest.mockReturnValue(target);
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.ERR_INVALID_TARGET),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.memory.targetId).toBeUndefined();
+  });
+
+  test('壁とランパートの修復判定', () => {
+    const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 300000000 };
+    const room = {
+      controller: { level: 3 },
+      find: jest.fn().mockReturnValue([wall]),
+    };
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.repair).toHaveBeenCalledWith(wall);
+  });
+
+  test('建設補助で建設サイトを修復する', () => {
+    const site = { id: 'site1', pos: { x: 2, y: 2 } };
+    mockCache.getConstructionSites.mockReturnValue([site]);
+    const room = { controller: { level: 2 }, find: jest.fn().mockReturnValue([]) };
+    pathfinder.closest.mockReturnValue(site);
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(2) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.build).toHaveBeenCalledWith(site);
+    expect(creep.say).toHaveBeenCalledWith('🔨 建設');
+  });
+
+  test('建設補助で建設サイトもなくコントローラーをアップグレードする', () => {
+    mockCache.getConstructionSites.mockReturnValue([]);
+    const room = { controller: { level: 2, id: 'ctrl1' }, find: jest.fn().mockReturnValue([]) };
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(2) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn(),
+      upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.upgradeController).toHaveBeenCalledWith(room.controller);
+    expect(creep.say).toHaveBeenCalledWith('⬆️ 強化');
+  });
+
+  test('コンテナからエネルギーを取得する', () => {
+    mockCache.getDroppedResources.mockReturnValue([]);
+    const container = { store: { [global.RESOURCE_ENERGY]: 200 } };
+    mockCache.getContainers.mockReturnValue([container]);
+    mockCache.getStorage.mockReturnValue(null);
+    mockCache.assignSource.mockReturnValue(null);
+    pathfinder.closest.mockReturnValue(container);
+
+    const creep = {
+      memory: { working: false },
+      room: {},
+      store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+      say: jest.fn(),
+      pickup: jest.fn(),
+      withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      harvest: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.withdraw).toHaveBeenCalledWith(container, global.RESOURCE_ENERGY);
+    expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, container, { range: 1 });
+  });
+
+  test('ソースから直接採掘する', () => {
+    mockCache.getDroppedResources.mockReturnValue([]);
+    mockCache.getContainers.mockReturnValue([]);
+    mockCache.getStorage.mockReturnValue(null);
+    const source = { id: 'src1' };
+    mockCache.assignSource.mockReturnValue(source);
+
+    const creep = {
+      memory: { working: false },
+      room: {},
+      store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+      say: jest.fn(),
+      pickup: jest.fn(),
+      withdraw: jest.fn(),
+      harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.harvest).toHaveBeenCalledWith(source);
+    expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, source, { range: 1 });
+  });
+
+  test('REPAIR_PRIORITYでコンテナが最高優先度を持つ', () => {
+    expect(repairer.REPAIR_PRIORITY[global.STRUCTURE_CONTAINER]).toBe(1);
+    expect(repairer.REPAIR_PRIORITY[global.STRUCTURE_ROAD]).toBe(2);
+    expect(repairer.REPAIR_PRIORITY[global.STRUCTURE_RAMPART]).toBe(3);
+  });
 });

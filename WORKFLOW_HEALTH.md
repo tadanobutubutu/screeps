@@ -1,28 +1,64 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-27T02:41:43Z
+**Generated**: 2026-03-27T07:13:42Z
 
 ## 📊 Status
 
-- **Failed Runs**: 2
+- **Failed Runs**: 26
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
-    "workflow": "💰 Usage Monitor & Auto-Optimize",
-    "name": "💰 Usage Monitor & Auto-Optimize",
-    "id": 23627653597,
-    "created": "2026-03-27T02:08:07Z"
+    "workflow": ".github/workflows/emergency-api-restore.yml",
+    "name": ".github/workflows/emergency-api-restore.yml",
+    "id": 23635436338,
+    "created": "2026-03-27T07:12:01Z"
   },
   {
-    "workflow": "✨ AI Code Improvement",
-    "name": "✨ AI Code Improvement",
-    "id": 23627620653,
-    "created": "2026-03-27T02:07:00Z"
-  }
-]
+    "workflow": ".github/workflows/discussion-bot.yml",
+    "name": ".github/workflows/discussion-bot.yml",
+    "id": 23635436161,
+    "created": "2026-03-27T07:12:01Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-update-docs.yml",
+    "name": ".github/workflows/auto-update-docs.yml",
+    "id": 23635436027,
+    "created": "2026-03-27T07:12:01Z"
+  },
+  {
+    "workflow": ".github/workflows/auto-create-roles.yml",
+    "name": ".github/workflows/auto-create-roles.yml",
+    "id": 23635435851,
+    "created": "2026-03-27T07:12:00Z"
+  },
+  {
+    "workflow": ".github/workflows/rule-based-improve.yml",
+    "name": ".github/workflows/rule-based-improve.yml",
+    "id": 23635435677,
+    "created": "2026-03-27T07:12:00Z"
+  },
+  {
+    "workflow": ".github/workflows/ai-powered-auto-fix.yml",
+    "name": ".github/workflows/ai-powered-auto-fix.yml",
+    "id": 23635435560,
+    "created": "2026-03-27T07:12:00Z"
+  },
+  {
+    "workflow": ".github/workflows/random-experiment.yml",
+    "name": ".github/workflows/random-experiment.yml",
+    "id": 23635435408,
+    "created": "2026-03-27T07:11:59Z"
+  },
+  {
+    "workflow": ".github/workflows/update-wiki.yml",
+    "name": ".github/workflows/update-wiki.yml",
+    "id": 23635435276,
+    "created": "2026-03-27T07:11:59Z"
+  },
+  {
 
 ## 🔧 Recommended Actions
 

@@ -84,4 +84,26 @@ describe('logger', () => {
       expect(global.Memory.logs).toBeDefined();
     });
   });
+
+  describe('getSafeStack', () => {
+    test('絶対パスをスタックトレースから削除する', () => {
+      const stack =
+        'Error: something went wrong\n' +
+        '    at Object.run (/home/user/project/main.js:10:5)\n' +
+        '    at /usr/local/lib/node_modules/screeps/index.js:100:20';
+
+      const safeStack = logger.getSafeStack(stack);
+
+      expect(safeStack).not.toContain('/home/user/project/');
+      expect(safeStack).not.toContain('/usr/local/lib/node_modules/screeps/');
+      expect(safeStack).toContain('main.js:10:5');
+      expect(safeStack).toContain('index.js:100:20');
+      expect(safeStack.split('\n').length).toBeLessThanOrEqual(5);
+    });
+
+    test('空のスタックトレースに対して空文字列を返す', () => {
+      expect(logger.getSafeStack('')).toBe('');
+      expect(logger.getSafeStack(null)).toBe('');
+    });
+  });
 });

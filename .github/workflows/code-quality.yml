@@ -1,50 +1,49 @@
-name: ✨ Code Quality
+name: Code Quality
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '**.js'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '**.js'
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
-  code-quality:
+  lint:
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    name: Check Code Quality
-    
+    name: Lint & Check
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-      
+
       - name: Install ESLint
         run: |
           npm init -y
           npm install --save-dev eslint
-      
+
       - name: Create ESLint Config
         run: |
           cat > .eslintrc.json << 'EOF'
           {
-            "env": {
-              "es6": true,
-              "node": true
-            },
+            "env": { "es6": true, "node": true },
             "extends": "eslint:recommended",
-            "parserOptions": {
-              "ecmaVersion": 2020
-            },
+            "parserOptions": { "ecmaVersion": 2020 },
             "rules": {
               "no-unused-vars": "warn",
               "no-console": "off",
@@ -86,35 +85,124 @@ jobs:
             }
           }
           EOF
-      
+
       - name: Run ESLint
-        run: |
-          npx eslint . --ext .js --max-warnings 10 || true
-      
+        run: npx eslint . --ext .js --max-warnings 10 || true
+
       - name: Check Code Complexity
         run: |
-          echo "📊 Checking code complexity..."
           TOTAL_LINES=$(find . -name '*.js' -not -path './node_modules/*' -exec wc -l {} + | tail -1 | awk '{print $1}')
-          echo "Total lines of code: $TOTAL_LINES"
           FILE_COUNT=$(find . -name '*.js' -not -path './node_modules/*' | wc -l)
-          echo "Total JS files: $FILE_COUNT"
+          echo "Total lines: $TOTAL_LINES, Files: $FILE_COUNT"
           if [ $FILE_COUNT -gt 0 ]; then
-            AVG_LINES=$((TOTAL_LINES / FILE_COUNT))
-            echo "Average lines per file: $AVG_LINES"
-            if [ $AVG_LINES -gt 500 ]; then
-              echo "⚠️ Warning: Large files detected. Consider refactoring."
+            AVG=$((TOTAL_LINES / FILE_COUNT))
+            echo "Average lines per file: $AVG"
+            if [ $AVG -gt 500 ]; then
+              echo "Warning: Large files detected. Consider refactoring."
             fi
           fi
-      
+
       - name: Check for TODOs
         run: |
-          echo "📝 Checking for TODOs..."
-          TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.js" . | wc -l || echo 0)
+          TODO_COUNT=$(grep -r "TODO\|FIXME\|XXX\|HACK" --include="*.js" . 2>/dev/null | wc -l || echo 0)
           echo "Found $TODO_COUNT TODOs/FIXMEs"
-          if [ $TODO_COUNT -gt 0 ]; then
-            grep -rn "TODO\|FIXME\|XXX\|HACK" --include="*.js" . || true
-          fi
-      
-      - name: Generate Quality Report
+
+  auto-format:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Auto-Format
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Tools
         run: |
-          echo "✅ Quality check complete"
+          npm init -y
+          npm install --save-dev eslint prettier eslint-config-prettier eslint-plugin-prettier
+
+      - name: Create ESLint Config
+        run: |
+          cat > .eslintrc.json << 'EOF'
+          {
+            "env": { "es6": true, "node": true },
+            "extends": ["eslint:recommended", "prettier"],
+            "plugins": ["prettier"],
+            "parserOptions": { "ecmaVersion": 2020, "sourceType": "module" },
+            "globals": {
+              "Game": "readonly",
+              "Memory": "readonly",
+              "PathFinder": "readonly",
+              "RawMemory": "readonly",
+              "FIND_MY_SPAWNS": "readonly",
+              "FIND_SOURCES": "readonly",
+              "FIND_STRUCTURES": "readonly",
+              "FIND_HOSTILE_CREEPS": "readonly",
+              "STRUCTURE_EXTENSION": "readonly",
+              "STRUCTURE_TOWER": "readonly",
+              "STRUCTURE_CONTROLLER": "readonly",
+              "STRUCTURE_SPAWN": "readonly",
+              "OK": "readonly",
+              "ERR_NOT_ENOUGH_ENERGY": "readonly",
+              "ERR_BUSY": "readonly"
+            },
+            "rules": {
+              "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+              "no-console": "off",
+              "prefer-const": "error",
+              "no-var": "error",
+              "prettier/prettier": "error",
+              "eqeqeq": ["error", "always"],
+              "curly": ["error", "all"]
+            }
+          }
+          EOF
+
+      - name: Create Prettier Config
+        run: |
+          cat > .prettierrc.json << 'EOF'
+          {
+            "semi": true,
+            "singleQuote": true,
+            "tabWidth": 4,
+            "trailingComma": "es5",
+            "printWidth": 100,
+            "arrowParens": "always",
+            "endOfLine": "lf"
+          }
+          EOF
+
+      - name: Run ESLint Fix
+        run: npx eslint --fix *.js || true
+
+      - name: Run Prettier
+        run: npx prettier --write "*.js"
+
+      - name: Create PR if Changed
+        run: |
+          git config user.name 'Code Formatter Bot'
+          git config user.email 'formatter@screeps.local'
+
+          git add *.js .eslintrc.json .prettierrc.json
+          if git diff --staged --quiet; then
+            echo "No formatting changes"
+            exit 0
+          fi
+
+          BRANCH="auto-format-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH"
+          git commit -m "Auto-format: ESLint + Prettier applied"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Auto-format: $(date +%Y-%m-%d)" \
+            --body "Automated ESLint + Prettier formatting applied." \
+            --base main \
+            --head "$BRANCH"
+        env:
+          GH_TOKEN: ${{ github.token }}

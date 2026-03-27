@@ -8,10 +8,6 @@ on:
       - '.github/workflows/**'
       - 'role.*.js'
       - '*.js'
-  schedule:
-    # Weekly on Sunday at 1 AM JST (Saturday 4 PM UTC)
-    - cron: '0 16 * * 6'
-  workflow_dispatch:
 
 permissions:
   contents: write

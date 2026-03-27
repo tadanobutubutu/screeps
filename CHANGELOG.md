@@ -1,20 +1,20 @@
 # 📝 Changelog
 
 **Maintained by**: Changelog Bot
-**Last Updated**: 2026-03-27T16:12:43Z
+**Last Updated**: 2026-03-27T19:22:52Z
 
 ## Recent Changes
 
+- 🔧 Workflow health report: 18 issues
 - 📊 Statistics update by Stats Bot
-- :arrow_up:(deps-dev): Bump brace-expansion (#167)
+- 🧠 Update AI strategy briefing [2026-03-27 18:51 UTC]
+- feat: integrate PostHog with Sentry using env secret
+- 🎮 Update game stats [skip ci]
+- feat: add Sentry error monitoring with source maps
+- 🎨 Auto-format: ESLint + Prettier applied
+- 📊 Statistics update by Stats Bot
 - 📝 Changelog update by Changelog Bot
-- 🔧 Workflow health report: 12 issues
 - 📊 Statistics update by Stats Bot
-- 📊 Statistics update by Stats Bot
-- 🏆 Daily challenge generated [2026-03-27]
-- 📝 Changelog update by Changelog Bot
-- 📊 Statistics update by Stats Bot
-- 📝 Changelog update by Changelog Bot
 
 ## Bot Activity
 All bots are actively maintaining the codebase.

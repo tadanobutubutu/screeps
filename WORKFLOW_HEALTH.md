@@ -1,50 +1,26 @@
 # 🔧 Workflow Health Report
 
-**Generated**: 2026-03-26T19:12:32Z
+**Generated**: 2026-03-27T02:41:43Z
 
 ## 📊 Status
 
-- **Failed Runs**: 6
+- **Failed Runs**: 2
 - **Analysis**: Complete
 
 ## 🐛 Detected Issues
 
 [
   {
+    "workflow": "💰 Usage Monitor & Auto-Optimize",
+    "name": "💰 Usage Monitor & Auto-Optimize",
+    "id": 23627653597,
+    "created": "2026-03-27T02:08:07Z"
+  },
+  {
     "workflow": "✨ AI Code Improvement",
     "name": "✨ AI Code Improvement",
-    "id": 23596033617,
-    "created": "2026-03-26T13:09:41Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23591935553,
-    "created": "2026-03-26T11:29:04Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23591929381,
-    "created": "2026-03-26T11:28:54Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23591929379,
-    "created": "2026-03-26T11:28:54Z"
-  },
-  {
-    "workflow": "OpenCode AI Agent",
-    "name": "OpenCode AI Agent",
-    "id": 23591907400,
-    "created": "2026-03-26T11:28:20Z"
-  },
-  {
-    "workflow": ".github/workflows/random-experiment.yml",
-    "name": ".github/workflows/random-experiment.yml",
-    "id": 23591906081,
-    "created": "2026-03-26T11:28:17Z"
+    "id": 23627620653,
+    "created": "2026-03-27T02:07:00Z"
   }
 ]
 

@@ -76,6 +76,24 @@ export default function Dashboard() {
         </div>
       )}
 
+      {stats?.gcl && (
+        <section style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+            <strong>🌐 GCL: {stats.gcl.level}</strong>
+            <span>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+          </div>
+          <div
+            role="progressbar"
+            aria-valuenow={Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            style={{ width: "100%", height: "10px", background: "#eee", borderRadius: "5px", overflow: "hidden" }}
+          >
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#00aaff", transition: "width 0.3s ease" }} />
+          </div>
+        </section>
+      )}
+
       <section style={{ opacity: (loading || isRefreshing) ? 0.6 : 1, transition: "opacity 0.2s" }}>
         {stats ? (
           <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}>

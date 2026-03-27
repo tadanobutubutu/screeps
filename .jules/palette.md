@@ -49,3 +49,7 @@
 ## 2026-03-10 - [Layout-Stable Feedback & Manual Refresh]
 **Learning:** In data-driven dashboards, especially those fetching from external APIs with potential latency or caching (like the Screeps API), showing a "Last sync" timestamp and providing a manual "Refresh" button significantly improves the user's sense of control and confidence in the data freshness. Furthermore, refactoring components to maintain the dashboard structure (headers, containers) during loading/error states—rather than replacing the entire view—prevents jarring layout shifts and provides a more professional, stable user experience.
 **Action:** Always provide manual refresh controls with "last updated" timestamps for external data views, and ensure the UI structure remains stable during async state transitions.
+
+## 2026-03-15 - [Accessible and Consistent Cross-Platform UI]
+**Learning:** When building external tools for a game (like a web dashboard), maintaining visual consistency by syncing color tokens (e.g., #00aaff for GCL) with the in-game UI improves the user's mental model. Furthermore, semantic HTML and ARIA attributes (e.g., `role="progressbar"`, `aria-valuenow`) are critical for ensuring that high-level metrics are accessible to users with assistive technologies, not just visually present.
+**Action:** Always use established brand/game colors for corresponding metrics in external dashboards and implement full ARIA suites for custom progress indicators.

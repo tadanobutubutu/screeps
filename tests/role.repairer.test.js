@@ -86,4 +86,53 @@ describe('role.repairer', () => {
     };
     expect(() => roleRepairer.run(creep)).not.toThrow();
   });
+
+  test('修理ターゲットを再選択して移動する', () => {
+    const damaged = { id: 'road2', hits: 50, hitsMax: 500, structureType: 'road' };
+    const creep = {
+      memory: { repairing: true, repairTargetId: 'unknown' },
+      store: { getFreeCapacity: jest.fn().mockReturnValue(0), [global.RESOURCE_ENERGY]: 50 },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      harvest: jest.fn(),
+      moveTo: jest.fn(),
+      upgradeController: jest.fn(),
+      room: {
+        _damagedStructuresTick: 0,
+        _activeSourcesTick: 0,
+        find: jest.fn().mockReturnValue([damaged]),
+        controller: { id: 'controller1' },
+      },
+      pos: {
+        findClosestByRange: jest.fn().mockReturnValue(damaged),
+      },
+    };
+
+    expect(() => roleRepairer.run(creep)).not.toThrow();
+    expect(creep.memory.repairTargetId).toBe('road2');
+    expect(creep.moveTo).toHaveBeenCalledWith(damaged, expect.any(Object));
+  });
+
+  test('修理対象がなくコントローラーをアップグレードする', () => {
+    const creep = {
+      memory: { repairing: true, repairTargetId: 'old' },
+      store: { getFreeCapacity: jest.fn().mockReturnValue(0), [global.RESOURCE_ENERGY]: 10 },
+      say: jest.fn(),
+      repair: jest.fn().mockReturnValue(global.OK),
+      harvest: jest.fn(),
+      upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      moveTo: jest.fn(),
+      room: {
+        _damagedStructuresTick: 0,
+        _activeSourcesTick: 0,
+        find: jest.fn().mockReturnValue([]),
+        controller: { id: 'controller1' },
+      },
+      pos: { findClosestByRange: jest.fn().mockReturnValue(null) },
+    };
+
+    roleRepairer.run(creep);
+    expect(creep.memory.repairTargetId).toBeUndefined();
+    expect(creep.moveTo).toHaveBeenCalledWith(creep.room.controller, expect.any(Object));
+  });
 });

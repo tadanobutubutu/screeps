@@ -69,6 +69,8 @@ jest.mock('../src/constants', () => ({
 }), { virtual: true });
 
 const roomManager = require('../src/managers/roomManager');
+const cache = require('../src/utils/cache');
+const pathfinder = require('../src/utils/pathfinder');
 
 describe('roomManager', () => {
   let mockRoom;
@@ -105,6 +107,16 @@ describe('roomManager', () => {
     global.Game.creeps = {};
     global.Game.flags = {};
     global.Memory.creeps = {};
+
+    cache.getSources.mockReturnValue([]);
+    cache.getContainers.mockReturnValue([]);
+    cache.getSpawns.mockReturnValue([]);
+    cache.getConstructionSites.mockReturnValue([]);
+    cache.getEnemies.mockReturnValue([]);
+    cache.getLinks.mockReturnValue([]);
+    cache.getStorage.mockReturnValue(null);
+    cache.getMyStructures.mockReturnValue([]);
+    pathfinder.findPath.mockReturnValue({ incomplete: true, path: [] });
   });
 
   describe('run', () => {
@@ -165,6 +177,58 @@ describe('roomManager', () => {
     test('ビジュアル表示が実行される', () => {
       expect(() => roomManager.showVisuals(mockRoom)).not.toThrow();
       expect(mockRoom.visual.text).toHaveBeenCalled();
+    });
+  });
+
+  describe('planning and links', () => {
+    test('建設計画でコンテナや道路を配置する', () => {
+      global.Game.time = 500;
+      const source = { id: 'src1', pos: { getRangeTo: jest.fn().mockReturnValue(1) } };
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([]);
+      cache.getSpawns.mockReturnValue([{ pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(1) } }]);
+      pathfinder.findNearestOpenTile.mockReturnValue({ x: 11, y: 10 });
+      pathfinder.findPath.mockReturnValue({ incomplete: false, path: [{ x: 10, y: 11 }, { x: 10, y: 12 }] });
+
+      const room = {
+        ...mockRoom,
+        find: jest.fn().mockReturnValue([]),
+        lookForAt: jest.fn().mockReturnValue([]),
+        lookAt: jest.fn().mockReturnValue([]),
+        getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
+        createConstructionSite: jest.fn().mockReturnValue(global.OK),
+      };
+
+      roomManager.run(room);
+
+      expect(room.createConstructionSite).toHaveBeenCalled();
+    });
+
+    test('リンク転送が行われる', () => {
+      global.Game.time = 1;
+      const sink = {
+        pos: { getRangeTo: jest.fn().mockReturnValue(3) },
+        store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(800) },
+        cooldown: 0,
+      };
+      const sourceLink = {
+        pos: { getRangeTo: jest.fn().mockReturnValue(4) },
+        store: {
+          [global.RESOURCE_ENERGY]: 800,
+          getCapacity: jest.fn().mockReturnValue(800),
+        },
+        cooldown: 0,
+        transferEnergy: jest.fn().mockReturnValue(global.OK),
+      };
+
+      cache.getLinks.mockReturnValue([sourceLink, sink]);
+      cache.getSpawns.mockReturnValue([{ pos: { getRangeTo: jest.fn().mockReturnValue(2) } }]);
+      cache.getEnemies.mockReturnValue([]);
+      pathfinder.closest.mockReturnValue(sink);
+
+      roomManager.run(mockRoom);
+
+      expect(sourceLink.transferEnergy).toHaveBeenCalledWith(sink);
     });
   });
 });

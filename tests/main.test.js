@@ -25,6 +25,11 @@ global.STRUCTURE_TOWER = 'tower';
 global.RESOURCE_ENERGY = 'energy';
 global.FIND_HOSTILE_CREEPS = 'findHostileCreeps';
 
+jest.mock('posthog-js', () => ({
+  init: jest.fn(),
+  get_session_id: jest.fn().mockReturnValue('test-session'),
+}), { virtual: true });
+
 jest.mock('../role.harvester', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.upgrader', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.builder', () => ({ run: jest.fn() }), { virtual: true });

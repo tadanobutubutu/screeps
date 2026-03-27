@@ -1,10 +1,9 @@
-/* eslint-disable */
-var addSorting = (function() {
+var addSorting = (function () {
     'use strict';
     var cols,
         currentSort = {
             index: 0,
-            desc: false
+            desc: false,
         };
 
     // returns the summary table element
@@ -19,55 +18,41 @@ var addSorting = (function() {
     function getTableBody() {
         return getTable().querySelector('tbody');
     }
-    // returns the th element for nth column
-    function getNthColumn(n) {
-        return getTableHeader().querySelectorAll('th')[n];
-    }
+    // returns of a list of all the td elements of the [index]th column
+    function getColNodes(index) {
+        var rows = getTableBody().querySelectorAll('tr'),
+            nodes = [],
+            i;
 
-    function onFilterInput() {
-        const searchValue = document.getElementById('fileSearch').value;
-        const rows = document.getElementsByTagName('tbody')[0].children;
-
-        // Try to create a RegExp from the searchValue. If it fails (invalid regex),
-        // it will be treated as a plain text search
-        let searchRegex;
-        try {
-            searchRegex = new RegExp(searchValue, 'i'); // 'i' for case-insensitive
-        } catch (error) {
-            searchRegex = null;
+        for (i = 0; i < rows.length; i += 1) {
+            nodes.push(rows[i].querySelectorAll('td')[index]);
         }
-
-        for (let i = 0; i < rows.length; i++) {
-            const row = rows[i];
-            let isMatch = false;
-
-            if (searchRegex) {
-                // If a valid regex was created, use it for matching
-                isMatch = searchRegex.test(row.textContent);
-            } else {
-                // Otherwise, fall back to the original plain text search
-                isMatch = row.textContent
-                    .toLowerCase()
-                    .includes(searchValue.toLowerCase());
-            }
-
-            row.style.display = isMatch ? '' : 'none';
+        return nodes;
+    }
+    // adds the 'sorted' class to the [index]th column header and
+    // its corresponding cells
+    function addSortedClass(index) {
+        getTableHeader().querySelectorAll('th')[index].classList.add('sorted');
+        getColNodes(index).forEach(function (node) {
+            node.classList.add('sorted');
+        });
+    }
+    // removes the 'sorted' class from the previously sorted column's header and
+    // its corresponding cells
+    function removeSortedClass() {
+        var prevHeader = getTableHeader().querySelectorAll('th')[currentSort.index];
+        if (prevHeader) {
+            prevHeader.classList.remove('sorted');
         }
+        getColNodes(currentSort.index).forEach(function (node) {
+            node.classList.remove('sorted');
+        });
     }
-
-    // loads the search box
-    function addSearchBox() {
-        var template = document.getElementById('filterTemplate');
-        var templateClone = template.content.cloneNode(true);
-        templateClone.getElementById('fileSearch').oninput = onFilterInput;
-        template.parentElement.appendChild(templateClone);
-    }
-
-    // loads all columns
+    // returns an array of objects of all the column summary data,
+    // additionally adds the sorter span for clickable columns
     function loadColumns() {
         var colNodes = getTableHeader().querySelectorAll('th'),
             colNode,
-            cols = [],
             col,
             i;
 
@@ -76,13 +61,14 @@ var addSorting = (function() {
             col = {
                 key: colNode.getAttribute('data-col'),
                 sortable: !colNode.getAttribute('data-nosort'),
-                type: colNode.getAttribute('data-type') || 'string'
+                type: colNode.getAttribute('data-type') || 'string',
             };
             cols.push(col);
             if (col.sortable) {
                 col.defaultDescSort = col.type === 'number';
-                colNode.innerHTML =
-                    colNode.innerHTML + '<span class="sorter"></span>';
+                var sorter = document.createElement('span');
+                sorter.className = 'sorter';
+                colNode.appendChild(sorter);
             }
         }
         return cols;
@@ -119,26 +105,20 @@ var addSorting = (function() {
     // sorts the table using the data for the ith column
     function sortByIndex(index, desc) {
         var key = cols[index].key,
-            sorter = function(a, b) {
+            sorter = function (a, b) {
                 a = a.data[key];
                 b = b.data[key];
                 return a < b ? -1 : a > b ? 1 : 0;
             },
             finalSorter = sorter,
-            tableBody = document.querySelector('.coverage-summary tbody'),
-            rowNodes = tableBody.querySelectorAll('tr'),
-            rows = [],
+            tableBody = getTableBody(),
+            rows = Array.prototype.slice.call(tableBody.querySelectorAll('tr')),
             i;
 
         if (desc) {
-            finalSorter = function(a, b) {
-                return -1 * sorter(a, b);
+            finalSorter = function (a, b) {
+                return -sorter(a, b);
             };
-        }
-
-        for (i = 0; i < rowNodes.length; i += 1) {
-            rows.push(rowNodes[i]);
-            tableBody.removeChild(rowNodes[i]);
         }
 
         rows.sort(finalSorter);
@@ -147,64 +127,46 @@ var addSorting = (function() {
             tableBody.appendChild(rows[i]);
         }
     }
-    // removes sort indicators for current column being sorted
-    function removeSortIndicators() {
-        var col = getNthColumn(currentSort.index),
-            cls = col.className;
+    // shows the sorting functionality
+    function showUI() {
+        var tableHeader = getTableHeader(),
+            headerNodes = tableHeader.querySelectorAll('th'),
+            i;
 
-        cls = cls.replace(/ sorted$/, '').replace(/ sorted-desc$/, '');
-        col.className = cls;
-    }
-    // adds sort indicators for current column being sorted
-    function addSortIndicators() {
-        getNthColumn(currentSort.index).className += currentSort.desc
-            ? ' sorted-desc'
-            : ' sorted';
-    }
-    // adds event listeners for all sorter widgets
-    function enableUI() {
-        var i,
-            el,
-            ithSorter = function ithSorter(i) {
-                var col = cols[i];
-
-                return function() {
-                    var desc = col.defaultDescSort;
-
-                    if (currentSort.index === i) {
-                        desc = !currentSort.desc;
-                    }
-                    sortByIndex(i, desc);
-                    removeSortIndicators();
-                    currentSort.index = i;
-                    currentSort.desc = desc;
-                    addSortIndicators();
-                };
-            };
-        for (i = 0; i < cols.length; i += 1) {
+        // add click handlers to all the clickable headers
+        for (i = 0; i < headerNodes.length; i += 1) {
             if (cols[i].sortable) {
-                // add the click event handler on the th so users
-                // dont have to click on those tiny arrows
-                el = getNthColumn(i).querySelector('.sorter').parentElement;
-                if (el.addEventListener) {
-                    el.addEventListener('click', ithSorter(i));
-                } else {
-                    el.attachEvent('onclick', ithSorter(i));
-                }
+                (function (index) {
+                    headerNodes[index].onclick = function () {
+                        var desc =
+                            currentSort.index === index
+                                ? !currentSort.desc
+                                : cols[index].defaultDescSort;
+                        removeSortedClass();
+                        addSortedClass(index);
+                        sortByIndex(index, desc);
+                        currentSort.index = index;
+                        currentSort.desc = desc;
+                    };
+                })(i);
             }
         }
     }
-    // adds sorting functionality to the UI
-    return function() {
-        if (!getTable()) {
-            return;
+
+    function init() {
+        var table = getTable();
+        if (table) {
+            cols = [];
+            loadColumns();
+            loadData();
+            addSortedClass(0);
+            showUI();
         }
-        cols = loadColumns();
-        loadData();
-        addSearchBox();
-        addSortIndicators();
-        enableUI();
-    };
+    }
+
+    return init;
 })();
 
-window.addEventListener('load', addSorting);
+window.onload = function () {
+    addSorting();
+};

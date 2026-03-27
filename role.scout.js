@@ -5,7 +5,6 @@ const roleScout = {
             const exits = Game.map.describeExits(creep.room.name);
 
             if (exits && Object.keys(exits).length > 0) {
-                const rooms = Object.keys(exits);
                 const exitValues = Object.values(exits);
                 creep.memory.targetRoom = exitValues[Math.floor(Math.random() * exitValues.length)];
             } else {
@@ -17,12 +16,13 @@ const roleScout = {
 
         if (creep.memory.targetRoom) {
             if (creep.room.name !== creep.memory.targetRoom) {
-                const exitDir = Game.map.findExit(creep.room.name, creep.memory.targetRoom);
-                const exit = creep.room.findExitTo(creep.memory.targetRoom);
+                // ⚡ PERFORMANCE: Direct moveTo to room name center is efficient and handles findExit internally.
+                // Avoid redundant Game.map.findExit and creep.room.findExitTo calls which are O(N) or worse.
+                const result = creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
+                    visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 },
+                });
 
-                if (exitDir !== ERR_NO_PATH && exit !== ERR_NO_PATH) {
-                    creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom));
-                } else {
+                if (result === ERR_NO_PATH || result === ERR_INVALID_ARGS) {
                     // Path not found, reset target
                     creep.memory.targetRoom = undefined;
                     creep.say('🚫');
@@ -31,10 +31,25 @@ const roleScout = {
                 // Arrived at target room
                 creep.say('🔍');
 
-                // Scan room
-                const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
-                const resources = creep.room.find(FIND_DROPPED_RESOURCES);
-                const structures = creep.room.find(FIND_STRUCTURES);
+                // ⚡ PERFORMANCE: Per-tick caching of room objects (consistent across roles).
+                // This allows sharing expensive search results across all creeps in the room.
+                if (creep.room._hostileCreepsTick !== Game.time) {
+                    creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
+                    creep.room._hostileCreepsTick = Game.time;
+                }
+                const hostiles = creep.room._hostileCreeps;
+
+                if (creep.room._droppedResourcesTick !== Game.time) {
+                    creep.room._droppedResources = creep.room.find(FIND_DROPPED_RESOURCES);
+                    creep.room._droppedResourcesTick = Game.time;
+                }
+                const resources = creep.room._droppedResources;
+
+                if (creep.room._allStructuresTick !== Game.time) {
+                    creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
+                    creep.room._allStructuresTick = Game.time;
+                }
+                const structures = creep.room._allStructures;
 
                 // Initialize visited memory if needed
                 if (!creep.memory.visited) {

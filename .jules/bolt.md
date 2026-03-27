@@ -41,3 +41,7 @@
 ## 2026-06-16 - O(1) Cache Validation vs O(N) Array Scans
 **Learning:** Using `targets.some(t => t.id === target.id)` to validate a cached ID every tick is an O(N) operation that scales poorly as colonies grow. Replacing this with O(1) property checks (e.g., `target.energy > 0` or `target.store.getFreeCapacity() > 0`) on the object retrieved via `Game.getObjectById` drastically reduces per-tick CPU overhead, especially in rooms with many structures.
 **Action:** Avoid using `Array.some` or `Array.find` for per-tick cache validation; instead, use `Game.getObjectById` and verify state directly via object properties.
+
+## 2026-06-30 - Scout Efficiency and Redundant Pathing
+**Learning:** Redundant pathfinding calls like `Game.map.findExit` and `creep.room.findExitTo` are unnecessary when using `creep.moveTo(targetRoomName)` as the engine handles inter-room routing internally. Additionally, implementing standardized per-tick room caching for scanning roles like Scouts prevents redundant O(N) searches when multiple creeps are present in the same room.
+**Action:** Always prefer direct room-name-based `moveTo` for inter-room travel and use standardized tick-gated room caching for all search-heavy operations to reduce global CPU usage.

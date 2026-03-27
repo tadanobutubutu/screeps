@@ -11,6 +11,7 @@ global.Game = {
 };
 global.Memory = {};
 global.ERR_NO_PATH = -2;
+global.ERR_INVALID_ARGS = -10;
 global.FIND_HOSTILE_CREEPS = 10;
 global.FIND_DROPPED_RESOURCES = 11;
 global.FIND_STRUCTURES = 20;

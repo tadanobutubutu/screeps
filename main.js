@@ -15,6 +15,15 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 });
 
+const posthog = require('posthog-js');
+
+posthog.init(process.env.POSTHOG_API_KEY, {
+  api_host: 'https://us.i.posthog.com',
+  defaults: '2026-01-30'
+});
+
+Sentry.getCurrentScope().setTag('posthog_session_id', posthog.get_session_id());
+
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');

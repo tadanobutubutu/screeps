@@ -25,4 +25,5 @@ jobs:
         env:
           SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
         run: node deploy.js

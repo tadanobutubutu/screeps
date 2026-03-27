@@ -28,7 +28,8 @@
   "dependencies": {
     "@sentry/browser": "^10.46.0",
     "@supabase/supabase-js": "^2.49.4",
-    "lodash": "^4.17.23"
+    "lodash": "^4.17.23",
+    "posthog-js": "^1.364.1"
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^1.9.1",

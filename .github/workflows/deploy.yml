@@ -24,4 +24,5 @@ jobs:
       - name: Deploy to Screeps PTR
         env:
           SCREEPS_TOKEN: ${{ secrets.SCREEPS_TOKEN }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: node deploy.js

@@ -1,6 +1,20 @@
 // Screeps AI - Z世代向けドーパミン爆発システム
 // Adaptive Load Management - CPU/メモリに応じて機能を動的に制御
 
+const Sentry = require("@sentry/browser");
+
+Sentry.init({
+  dsn: "https://a2fb8f53973b3a46d63d378d2160bcb0@o4510911569199104.ingest.us.sentry.io/4511117816037376",
+  sendDefaultPii: true,
+  integrations: [
+    Sentry.browserTracingIntegration(),
+    Sentry.replayIntegration(),
+  ],
+  tracesSampleRate: 0.1,
+  replaysSessionSampleRate: 0.1,
+  replaysOnErrorSampleRate: 1.0,
+});
+
 const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');
@@ -176,6 +190,7 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             try {
                 runCreepLogic(creep, role, isEmotionsEnabled);
             } catch (e) {
+                Sentry.captureException(e);
                 console.log('Error in creep ' + name + ': ' + e.message);
             }
         }
@@ -265,6 +280,7 @@ function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
                     try {
                         runDefenseLogic(room);
                     } catch (e) {
+                        Sentry.captureException(e);
                         console.log('Error in defense ' + roomName + ': ' + e.message);
                     }
                 }
@@ -366,6 +382,7 @@ module.exports.loop = function () {
             displayStats();
         }
     } catch (e) {
+        Sentry.captureException(e);
         console.log('❌ CRITICAL ERROR: ' + e.message);
         if (e.stack) {
             const safeStack = logger.getSafeStack(e.stack);

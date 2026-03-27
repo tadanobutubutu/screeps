@@ -1,10 +1,12 @@
 import { codecovRollupPlugin } from "@codecov/rollup-plugin";
+import { sentryRollupPlugin } from "@sentry/rollup-plugin";
 
 export default {
   input: "main.js",
   output: {
     file: "dist/main.js",
     format: "cjs",
+    sourcemap: true,
   },
   plugins: [
     // Put the Codecov rollup plugin after all other plugins
@@ -12,6 +14,11 @@ export default {
       enableBundleAnalysis: process.env.CODECOV_TOKEN !== undefined,
       bundleName: "screeps-ai",
       uploadToken: process.env.CODECOV_TOKEN,
+    }),
+    sentryRollupPlugin({
+      org: "tadanobutubutu",
+      project: "screeps",
+      authToken: process.env.SENTRY_AUTH_TOKEN,
     }),
   ],
   // Screeps modules are resolved at runtime by the game engine, treat as external

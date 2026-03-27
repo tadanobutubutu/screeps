@@ -57,3 +57,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded global cache growth and excessively large property keys.
 **Learning:** In memory-constrained environments like Screeps (2MB limit), utility functions that store data in the global `Memory` object (e.g., `memoize`) must have built-in limits. Without a cap on the number of entries or the length of keys, a system can be crashed by simply requesting many unique or large-keyed operations.
 **Prevention:** Enforce a strict `MAX_KEY_LENGTH` (e.g., 256) for all user-controlled or dynamic keys and a `MAX_CACHE_ENTRIES` cap for global collections. Implement periodic cache pruning to ensure memory is reclaimed.
+
+## 2026-03-27 - Absolute Path Leakage in Source Logger
+**Vulnerability:** Internal directory structure leakage via unsanitized stack traces in `src/utils/logger.js`.
+**Learning:** While `utils.logging.js` (root utility) was already hardened, duplicated or alternative logging logic in `src/utils/logger.js` still used a naive `slice`-based approach that preserved absolute paths. Splicing or slicing stack trace lines is insufficient for security; the content of each line must be sanitized.
+**Prevention:** Standardize stack trace sanitization across the entire codebase using a robust regex-based extraction of `filename:line:col`, effectively stripping all leading directory information regardless of the OS path format.

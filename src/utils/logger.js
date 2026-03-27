@@ -170,15 +170,28 @@ function success(message) {
 }
 
 /**
- * スタックトレースから安全な部分を抽出する（長すぎる場合に切り詰め）
+ * スタックトレースから安全な部分を抽出する（長すぎる場合に切り詰め、絶対パスを削除）
  * @param {string} stack
  * @param {number} [maxLines=5] - 返す最大行数
  * @returns {string}
+ *
+ * Security: Absolute paths are removed to prevent internal directory structure leakage.
  */
 function getSafeStack(stack, maxLines) {
     if (!stack) return '';
     const lines = stack.split('\n');
-    return lines.slice(0, maxLines || 5).join('\n');
+    return lines
+        .slice(0, maxLines || 5)
+        .map((line) => {
+            // Match "filename:line:col" at the end of a path segment.
+            // Uses a simple non-backtracking pattern to avoid ReDoS.
+            const match = line.match(/[^/\\]+:\d+:\d+/);
+            if (match) {
+                return `    at ${match[0]}`;
+            }
+            return line;
+        })
+        .join('\n');
 }
 
 /**

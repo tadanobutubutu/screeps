@@ -84,4 +84,43 @@ describe('role.upgrader', () => {
 
     expect(() => roleUpgrader.run(creep)).not.toThrow();
   });
+
+  test('アップグレード中に範囲外なら移動する', () => {
+    const creep = {
+      memory: { upgrading: true },
+      store: { [global.RESOURCE_ENERGY]: 20, getFreeCapacity: jest.fn().mockReturnValue(0) },
+      say: jest.fn(),
+      upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      harvest: jest.fn(),
+      moveTo: jest.fn(),
+      room: { controller: { id: 'controller1' } },
+    };
+
+    roleUpgrader.run(creep);
+    expect(creep.moveTo).toHaveBeenCalledWith(creep.room.controller, expect.any(Object));
+  });
+
+  test('採掘ターゲットをキャッシュして移動する', () => {
+    const source = { id: 'source2', energy: 100 };
+    const creep = {
+      memory: { upgrading: false, harvestTargetId: 'old' },
+      store: { [global.RESOURCE_ENERGY]: 0, getFreeCapacity: jest.fn().mockReturnValue(10) },
+      say: jest.fn(),
+      harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+      moveTo: jest.fn(),
+      pos: {
+        findClosestByRange: jest.fn().mockReturnValue(source),
+      },
+      room: {
+        _activeSourcesTick: 0,
+        find: jest.fn().mockReturnValue([source]),
+      },
+    };
+
+    global.Game.time = 20;
+    roleUpgrader.run(creep);
+
+    expect(creep.memory.harvestTargetId).toBe('source2');
+    expect(creep.moveTo).toHaveBeenCalledWith(source, expect.any(Object));
+  });
 });

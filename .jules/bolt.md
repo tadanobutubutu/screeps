@@ -45,3 +45,7 @@
 ## 2026-06-30 - Scout Efficiency and Redundant Pathing
 **Learning:** Redundant pathfinding calls like `Game.map.findExit` and `creep.room.findExitTo` are unnecessary when using `creep.moveTo(targetRoomName)` as the engine handles inter-room routing internally. Additionally, implementing standardized per-tick room caching for scanning roles like Scouts prevents redundant O(N) searches when multiple creeps are present in the same room.
 **Action:** Always prefer direct room-name-based `moveTo` for inter-room travel and use standardized tick-gated room caching for all search-heavy operations to reduce global CPU usage.
+
+## 2026-07-14 - Explorer Pathfinding and Engine-Level Routing
+**Learning:** For roles like Explorers that frequently cross room boundaries, manual exit tile selection via `findClosestByRange(findExitTo(...))` is an unnecessary CPU expense. Passing a `RoomPosition` in the target room directly to `moveTo` allows the Screeps engine to utilize its internal optimized pathing and cache, significantly reducing the per-tick cost of inter-room navigation.
+**Action:** Replace multi-step manual exit tile finding with direct `RoomPosition` targeting in `moveTo` for all inter-room movement logic.

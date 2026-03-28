@@ -17,22 +17,16 @@ const roleExplorer = {
         }
 
         if (creep.room.name !== creep.memory.targetRoom) {
-            const exitDir = creep.room.findExitTo(creep.memory.targetRoom);
+            // ⚡ PERFORMANCE: Direct moveTo to room name center is efficient and handles findExit internally.
+            // Avoid redundant Game.map.findExit and creep.room.findExitTo calls which are O(N) or worse.
+            const result = creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
+                visualizePathStyle: { stroke: '#ffffff', opacity: 0.5 },
+            });
 
-            // Check if exit direction is valid
-            if (exitDir === ERR_NO_PATH || exitDir === ERR_INVALID_ARGS) {
-                // Cannot find exit, reset target
+            // Check if movement is valid
+            if (result === ERR_NO_PATH || result === ERR_INVALID_ARGS) {
+                // Cannot find exit or invalid path, reset target
                 creep.say('❌ No path');
-                delete creep.memory.targetRoom;
-                return;
-            }
-
-            const exit = creep.pos.findClosestByRange(exitDir);
-
-            if (exit) {
-                creep.moveTo(exit, { visualizePathStyle: { stroke: '#ffffff' } });
-            } else {
-                // No exit found, reset target
                 delete creep.memory.targetRoom;
             }
         } else {

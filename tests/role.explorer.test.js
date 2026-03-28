@@ -13,6 +13,13 @@ global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
 global.RESOURCE_ENERGY = 'energy';
 global.FIND_EXIT = 10;
+global.RoomPosition = class {
+  constructor(x, y, roomName) {
+    this.x = x;
+    this.y = y;
+    this.roomName = roomName;
+  }
+};
 
 jest.mock('../gamification', () => ({
   trackAction: jest.fn(),
@@ -73,7 +80,7 @@ describe('role.explorer', () => {
     const creep = {
       memory: { targetRoom: 'W0N1' },
       say: jest.fn(),
-      moveTo: jest.fn(),
+      moveTo: jest.fn().mockReturnValue(global.ERR_NO_PATH),
       room: {
         name: 'W1N1',
         findExitTo: jest.fn().mockReturnValue(-2),

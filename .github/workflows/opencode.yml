@@ -17,6 +17,7 @@ permissions:
 
 jobs:
   opencode:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: opencode-ai/opencode-action@main

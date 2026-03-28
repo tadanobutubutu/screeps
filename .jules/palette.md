@@ -54,6 +54,6 @@
 **Learning:** When building external tools for a game (like a web dashboard), maintaining visual consistency by syncing color tokens (e.g., #00aaff for GCL) with the in-game UI improves the user's mental model. Furthermore, semantic HTML and ARIA attributes (e.g., `role="progressbar"`, `aria-valuenow`) are critical for ensuring that high-level metrics are accessible to users with assistive technologies, not just visually present.
 **Action:** Always use established brand/game colors for corresponding metrics in external dashboards and implement full ARIA suites for custom progress indicators.
 
-## 2025-07-05 - [Skeleton Loaders for Layout Stability]
+## 2024-03-28 - [Skeleton Loaders for Layout Stability]
 **Learning:** In data-driven dashboards, using a simple "Loading..." text causes jarring layout shifts when the data finally arrives. Implementing a "Skeleton" placeholder—a div that roughly matches the dimensions of the expected content—maintains the layout's structural integrity during async fetches, resulting in a much smoother and more professional user experience.
 **Action:** Use skeleton-style placeholders that mirror the shape of the final UI components to eliminate layout shifts during initial data loading.

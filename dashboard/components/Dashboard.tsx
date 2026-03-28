@@ -56,7 +56,7 @@ export default function Dashboard() {
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
-              background: "#00aaff",
+              background: "#0077aa",
               color: "#fff",
               border: "none",
               borderRadius: "4px",
@@ -90,7 +90,7 @@ export default function Dashboard() {
               <strong>🌐 GCL: {stats.gcl.level}</strong>
               {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#888" }}>⚡ Power: {stats.power}</span>}
             </div>
-            <span style={{ fontWeight: "bold", color: "#00aaff" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+            <span style={{ fontWeight: "bold", color: "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
           </div>
           <div
             role="progressbar"
@@ -100,7 +100,7 @@ export default function Dashboard() {
             aria-valuemax={100}
             style={{ width: "100%", height: "12px", background: "#eee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
-            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#00aaff", transition: "width 0.5s ease-in-out" }} />
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#0077aa", transition: "width 0.5s ease-in-out" }} />
           </div>
           <div style={{ fontSize: "0.75rem", color: "#777", textAlign: "right" }}>
             {stats.gcl.progress.toLocaleString()} / {stats.gcl.progressTotal.toLocaleString()}

@@ -1,0 +1,34 @@
+name: 🔧 Workflow Health Monitor
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  issues: write
+
+jobs:
+  check-health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Analyze Runs
+        id: analyze
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          FAILED=$(gh run list --limit 50 --json conclusion | jq '[.[] | select(.conclusion == "failure")] | length')
+          echo "failed_count=$FAILED" >> $GITHUB_OUTPUT
+      - name: Create Issue
+        if: steps.analyze.outputs.failed_count > 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "🔧 Workflow Health Issues Detected" \
+            --body "⚠️ 直近50件の実行で ${{ steps.analyze.outputs.failed_count }} 件の失敗が検出されました。" \
+            --label "workflow-health,automated"

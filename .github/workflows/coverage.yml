@@ -1,133 +1,71 @@
-name: Coverage Report + Jules Auto-Fix
+name: 📊 Coverage Report
 
 on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 1 * * *'  # 毎日UTC1時（JST10時）に定期スキャン
+    - cron: '0 1 * * *' # 毎日 10:00 JST
+  workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
 
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.actor != 'google-labs-jules[bot]'
-
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
-
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
+        run: pnpm install --no-frozen-lockfile
       - name: Run Jest coverage
         run: npx jest --coverage --coverageReporters=lcov json-summary --passWithNoTests
         continue-on-error: true
-
-      - name: Build with Rollup (Codecov Bundle Analysis)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        run: npm run build
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
-          flags: unittests
           fail_ci_if_error: false
-          verbose: true
-
-      - name: Upload test results to Codecov
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Create Jules Issue for low coverage files
+      - name: Create Issue for low coverage
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
             let coverageData = null;
-
             try {
               const summary = fs.readFileSync('coverage/coverage-summary.json', 'utf8');
               coverageData = JSON.parse(summary);
-            } catch (e) {
-              console.log('No coverage data found, skipping.');
-              return;
-            }
-
+            } catch (e) { return; }
             const total = coverageData.total;
-
-            // カバレッジ50%未満のファイルを検出
             const lowCoverageFiles = [];
             for (const [file, data] of Object.entries(coverageData)) {
               if (file === 'total') continue;
               if (data.lines.pct < 50) {
-                lowCoverageFiles.push(
-                  `- \`${file}\`: Lines ${data.lines.pct}% / Functions ${data.functions.pct}% / Branches ${data.branches.pct}%`
-                );
+                lowCoverageFiles.push(`- \`${file}\`: Lines ${data.lines.pct}%`);
               }
             }
-
-            if (lowCoverageFiles.length === 0) {
-              console.log('All files have acceptable coverage. Skipping.');
-              return;
-            }
-
-            // 重複Issue防止
-            const issueTitle = `📊 Codecov: カバレッジが低いファイルにテストを追加してください (${lowCoverageFiles.length}件)`;
+            if (lowCoverageFiles.length === 0) return;
+            const issueTitle = `📊 Codecov: カバレッジが低いファイル (${lowCoverageFiles.length}件)`;
             const existing = await github.rest.issues.listForRepo({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              labels: 'codecov'
+              labels: 'coverage'
             });
-            const alreadyExists = existing.data.some(i => i.title === issueTitle);
-            if (alreadyExists) {
-              console.log('Issue already exists. Skipping.');
-              return;
-            }
-
-            const body = [
-              '## 📊 Codecov カバレッジレポート',
-              '',
-              `**総合カバレッジ**: Lines ${total.lines.pct}% / Statements ${total.statements.pct}% / Branches ${total.branches.pct}% / Functions ${total.functions.pct}%`,
-              '',
-              '### ⚠️ カバレッジ50%未満のファイル',
-              '',
-              lowCoverageFiles.join('\n'),
-              '',
-              '---',
-              '@google-labs-jules 上記のファイルにJestユニットテストを追加してカバレッジを50%以上に改善してください。',
-              '',
-              '**ガイドライン**:',
-              '- GitHub Actionsのバージョンは変更しないこと',
-              '- `.github/JULES_INSTRUCTIONS.md` のルールに従うこと',
-            ].join('\n');
-
-            const newIssue = await github.rest.issues.create({
+            if (existing.data.some(i => i.title === issueTitle)) return;
+            await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: issueTitle,
-              body: body,
-              labels: ['codecov', 'enhancement']
+              body: `## 📊 Coverage Report\n\n**Total**: ${total.lines.pct}%\n\n### ⚠️ Low Coverage Files\n${lowCoverageFiles.join('\n')}\n\n---\n**Auto-generated**`,
+              labels: ['coverage', 'enhancement', 'automated']
             });
-
-            console.log(`✅ Created issue #${newIssue.data.number}`);

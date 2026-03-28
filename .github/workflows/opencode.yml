@@ -17,12 +17,15 @@ permissions:
 
 jobs:
   opencode:
+    if: false
     runs-on: ubuntu-latest
     steps:
-      - uses: opencode-ai/opencode-action@main
-        with:
-          model: "anthropic/claude-sonnet-4-5"
-          agent: "build"
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Disabled
+        run: echo "Opencode is disabled"
+      # - uses: opencode-ai/opencode-action@main
+      #   with:
+      #     model: "anthropic/claude-sonnet-4-5"
+      #     agent: "build"
+      #   env:
+      #     ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

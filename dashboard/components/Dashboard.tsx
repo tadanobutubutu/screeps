@@ -56,9 +56,12 @@ export default function Dashboard() {
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
-              background: "#eee",
-              border: "1px solid #ccc",
-              borderRadius: "4px"
+              background: "#0077aa",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              opacity: (loading || isRefreshing) ? 0.7 : 1,
+              transition: "opacity 0.2s"
             }}
           >
             {isRefreshing ? "Refreshing..." : "🔄 Refresh"}
@@ -67,7 +70,11 @@ export default function Dashboard() {
       </header>
 
       <div aria-live="polite">
-        {loading && <p>Loading initial stats...</p>}
+        {loading && (
+          <div style={{ height: "100px", background: "#f0f0f0", borderRadius: "4px", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", color: "#999" }}>
+            Loading GCL stats...
+          </div>
+        )}
       </div>
 
       {error && (
@@ -78,18 +85,25 @@ export default function Dashboard() {
 
       {stats?.gcl && (
         <section style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.5rem" }}>
-            <strong>🌐 GCL: {stats.gcl.level}</strong>
-            <span>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <strong>🌐 GCL: {stats.gcl.level}</strong>
+              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#888" }}>⚡ Power: {stats.power}</span>}
+            </div>
+            <span style={{ fontWeight: "bold", color: "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
           </div>
           <div
             role="progressbar"
+            aria-label="Global Control Level progress"
             aria-valuenow={Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
-            style={{ width: "100%", height: "10px", background: "#eee", borderRadius: "5px", overflow: "hidden" }}
+            style={{ width: "100%", height: "12px", background: "#eee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
-            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#00aaff", transition: "width 0.3s ease" }} />
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#0077aa", transition: "width 0.5s ease-in-out" }} />
+          </div>
+          <div style={{ fontSize: "0.75rem", color: "#777", textAlign: "right" }}>
+            {stats.gcl.progress.toLocaleString()} / {stats.gcl.progressTotal.toLocaleString()}
           </div>
         </section>
       )}

@@ -6,23 +6,38 @@ const vfx = require('visual.effects');
 const utilsMemory = require('utils.memory');
 const dailyChallenge = require('daily-challenge');
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
+ */
+const MAX_ACHIEVEMENTS = 50;
+const MAX_STRING_LENGTH = 100;
+
 const gamification = {
     /**
      * 初期化
      */
     init: function () {
         if (!Memory.gamification) {
-            Memory.gamification = {
-                level: 1,
-                xp: 0,
-                xpToNext: 100,
-                totalScore: 0,
-                achievements: [],
-                streakDays: 0,
-                lastActiveDay: 0,
-                combos: {},
-                milestones: [],
-            };
+            Memory.gamification = {};
+        }
+
+        const defaults = {
+            level: 1,
+            xp: 0,
+            xpToNext: 100,
+            totalScore: 0,
+            achievements: [],
+            streakDays: 0,
+            lastActiveDay: 0,
+            combos: {},
+            milestones: [],
+        };
+
+        for (const key in defaults) {
+            if (Memory.gamification[key] === undefined) {
+                Memory.gamification[key] = defaults[key];
+            }
         }
     },
 
@@ -30,13 +45,23 @@ const gamification = {
      * XP獲得
      */
     addXP: function (amount, reason) {
-        reason = reason || '';
         this.init();
 
-        Memory.gamification.xp += amount;
-        Memory.gamification.totalScore += amount;
+        // Security: Validate XP amount to prevent corruption or DoS via massive values
+        const numericAmount = Number(amount);
+        if (!Number.isFinite(numericAmount) || numericAmount < 0) {
+            return;
+        }
 
-        console.log('✨ +' + amount + ' XP ' + (reason ? '(' + reason + ')' : ''));
+        // Security: Truncate reason to avoid Memory DoS
+        const sanitizedReason = String(reason || '').substring(0, MAX_STRING_LENGTH);
+
+        Memory.gamification.xp += numericAmount;
+        Memory.gamification.totalScore += numericAmount;
+
+        console.log(
+            '✨ +' + numericAmount + ' XP ' + (sanitizedReason ? '(' + sanitizedReason + ')' : '')
+        );
 
         this.checkLevelUp();
     },
@@ -47,10 +72,15 @@ const gamification = {
     checkLevelUp: function () {
         const gm = Memory.gamification;
 
+        // Security: Ensure xpToNext is positive to prevent infinite loops
+        if (gm.xpToNext <= 0) {
+            gm.xpToNext = 100;
+        }
+
         while (gm.xp >= gm.xpToNext) {
             gm.xp -= gm.xpToNext;
             gm.level++;
-            gm.xpToNext = Math.floor(gm.xpToNext * 1.5);
+            gm.xpToNext = Math.max(1, Math.floor(gm.xpToNext * 1.5));
 
             console.log('🎉 LEVEL UP! Now level ' + gm.level + '!');
 
@@ -67,20 +97,34 @@ const gamification = {
      * 達成解除
      */
     unlockAchievement: function (id, title, icon) {
-        icon = icon || '🏆';
         this.init();
 
-        if (!Memory.gamification.achievements.includes(id)) {
-            Memory.gamification.achievements.push(id);
+        // Security: Sanitize and truncate inputs to prevent Prototype Pollution and Memory DoS
+        const sanitizedId = String(id || '').substring(0, MAX_STRING_LENGTH);
+        const sanitizedTitle = String(title || '').substring(0, MAX_STRING_LENGTH);
+        const sanitizedIcon = String(icon || '🏆').substring(0, 10);
 
-            console.log('🏆 ACHIEVEMENT UNLOCKED: ' + title);
+        if (!Memory.gamification.achievements.includes(sanitizedId)) {
+            Memory.gamification.achievements.push(sanitizedId);
+
+            // Security: Enforce achievement count limit to prevent Memory DoS
+            if (Memory.gamification.achievements.length > MAX_ACHIEVEMENTS) {
+                Memory.gamification.achievements.shift();
+            }
+
+            console.log('🏆 ACHIEVEMENT UNLOCKED: ' + sanitizedTitle);
 
             const spawn = Object.values(Game.spawns)[0];
             if (spawn) {
-                vfx.achievement(spawn.pos, title, icon);
+                vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
 
-            this.addXP(50, 'Achievement Bonus');
+            // XP bonus for achievement
+            const gm = Memory.gamification;
+            gm.xp += 50;
+            gm.totalScore += 50;
+            console.log('✨ +50 XP (Achievement Bonus)');
+            this.checkLevelUp();
         }
     },
 

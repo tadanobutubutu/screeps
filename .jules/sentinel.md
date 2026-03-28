@@ -62,3 +62,8 @@
 **Vulnerability:** Internal directory structure leakage via unsanitized stack traces in `src/utils/logger.js`.
 **Learning:** While `utils.logging.js` (root utility) was already hardened, duplicated or alternative logging logic in `src/utils/logger.js` still used a naive `slice`-based approach that preserved absolute paths. Splicing or slicing stack trace lines is insufficient for security; the content of each line must be sanitized.
 **Prevention:** Standardize stack trace sanitization across the entire codebase using a robust regex-based extraction of `filename:line:col`, effectively stripping all leading directory information regardless of the OS path format.
+
+## 2026-03-28 - Denial of Service via Loop Condition Corruption
+**Vulnerability:** Denial of Service (DoS) via infinite loop in the level-up system.
+**Learning:** If progression variables used in loop conditions (like `xpToNext` in a `while (xp >= xpToNext)` loop) are not strictly validated to be positive, mathematical operations or external state corruption can lead to values (like 0) that cause the loop to never terminate. This hangs the script and exhausts CPU limits.
+**Prevention:** Always enforce a minimum positive value (e.g., `Math.max(1, ...)` or an explicit existence check) for all variables that govern loop termination, especially those stored in persistent memory.

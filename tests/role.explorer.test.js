@@ -83,12 +83,15 @@ describe('role.explorer', () => {
       moveTo: jest.fn().mockReturnValue(global.ERR_NO_PATH),
       room: {
         name: 'W1N1',
-        findExitTo: jest.fn().mockReturnValue(-2),
       },
       pos: { x: 5, y: 5 },
       store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
     };
     expect(() => roleExplorer.run(creep)).not.toThrow();
     expect(creep.say).toHaveBeenCalledWith('❌ No path');
+    expect(creep.moveTo).toHaveBeenCalledWith(
+      expect.objectContaining({ x: 25, y: 25, roomName: 'W0N1' }),
+      expect.any(Object)
+    );
   });
 });

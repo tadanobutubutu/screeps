@@ -16,7 +16,7 @@ const roleExplorer = {
             creep.memory.targetRoom = exits[exitDir];
         }
 
-        if (creep.room.name !== creep.memory.targetRoom) {
+        if (creep.memory.targetRoom && creep.room.name !== creep.memory.targetRoom) {
             // ⚡ PERFORMANCE: Direct moveTo to room name center is efficient and handles findExit internally.
             // Avoid redundant Game.map.findExit and creep.room.findExitTo calls which are O(N) or worse.
             const result = creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {

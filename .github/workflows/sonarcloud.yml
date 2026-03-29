@@ -1,61 +1,109 @@
-name: 🛡️ SonarCloud Analysis
+steps:
+  - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
 
-on:
-  push:
-    branches: [main]
-  schedule:
-    - cron: '0 18 * * *'
-  workflow_dispatch:
+  - name: Setup Node.js
+    uses: actions/setup-node@v4
+    with:
+      node-version: '24'
 
-permissions:
-  contents: read
-  issues: write
+  - name: Install pnpm
+    uses: pnpm/action-setup@v4
+    with:
+      version: 10
 
-jobs:
-  sonarcloud:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      - name: Test
-        run: pnpm test -- --coverage --coverageReporters=lcov --passWithNoTests
-        continue-on-error: true
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Report Issues
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        uses: actions/github-script@v7
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-        with:
-          script: |
-            const org = process.env.SONAR_ORGANIZATION;
-            const projectKey = `${org}:screeps`;
-            const response = await fetch(`https://sonarcloud.io/api/issues/search?componentKeys=${projectKey}&resolved=false&severities=CRITICAL,MAJOR`, {
-              headers: { 'Authorization': `Bearer ${process.env.SONAR_TOKEN}` }
-            });
-            const data = await response.json();
-            const issues = data.issues || [];
-            if (issues.length === 0) return;
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `🛡️ SonarCloud: ${issues.length}件の品質問題を修正してください`,
-              body: `検出された問題の詳細は SonarCloud を確認してください。\n\n---\n**Auto-generated**`,
-              labels: ['sonarcloud', 'bug', 'automated']
-            });
+  - name: Install dependencies
+    run: pnpm install --frozen-lockfile
+
+  - name: Run Jest coverage for SonarCloud
+    run: npx jest --coverage --coverageReporters=lcov --passWithNoTests
+    continue-on-error: true
+
+  - name: SonarCloud Scan
+    uses: SonarSource/sonarcloud-github-action@master
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  - name: Fetch SonarCloud issues and create Issue
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    uses: actions/github-script@v7
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+    with:
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+      script: |
+        const org = process.env.SONAR_ORGANIZATION;
+        const token = process.env.SONAR_TOKEN;
+        const projectKey = `${org}:screeps`;
+
+        // SonarCloud APIで未解決のCRITICAL/MAJORを取得
+        let issues = [];
+        try {
+          const response = await fetch(
+            `https://sonarcloud.io/api/issues/search?componentKeys=${projectKey}&resolved=false&severities=CRITICAL,MAJOR&ps=20`,
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
+          const data = await response.json();
+          issues = data.issues || [];
+        } catch (e) {
+          console.log('Failed to fetch SonarCloud issues:', e.message);
+          return;
+        }
+
+        if (issues.length === 0) {
+          console.log('No critical/major issues found. Skipping issue creation.');
+          return;
+        }
+
+        // 重複Issue防止: 同タイトルのopenなIssueが既にあればスキップ
+        const issueTitle = `🔍 SonarCloud: ${issues.length}件のコード品質問題を修正してください`;
+        const existing = await github.rest.issues.listForRepo({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          state: 'open',
+          labels: 'sonarcloud'
+        });
+        const alreadyExists = existing.data.some(i => i.title === issueTitle);
+        if (alreadyExists) {
+          console.log('Issue already exists. Skipping.');
+          return;
+        }
+
+        const issueList = issues.slice(0, 10).map(issue => {
+          const file = issue.component.split(':').pop();
+          const line = issue.line ? `:${issue.line}` : '';
+          const type = issue.type || 'ISSUE';
+          return `- **[${issue.severity}][${type}]** \`${file}${line}\`\n  ${issue.message}`;
+        }).join('\n');
+
+        const body = [
+          '## 🔍 SonarCloud 定期スキャン結果',
+          '',
+          `**${issues.length}件**の重要な問題が検出されました。`,
+          '',
+          '### 検出された問題',
+          '',
+          issueList,
+          '',
+          `> 詳細: https://sonarcloud.io/project/issues?id=${org}&resolved=false`,
+          '',
+          '---',
+          '上記の問題を修正してください。',
+          '',
+          '**ガイドライン**:',
+          '- GitHub Actionsのバージョンは変更しないこと（`actions/checkout@v4`等はそのまま）',
+          '- プロジェクトの既存コーディング規約に従うこと',
+        ].join('\n');
+
+        const newIssue = await github.rest.issues.create({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          title: issueTitle,
+          body: body,
+          labels: ['sonarcloud', 'bug']
+        });
+
+        console.log(`✅ Created issue #${newIssue.data.number}`);

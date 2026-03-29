@@ -55,4 +55,29 @@ describe('daily-challenge', () => {
   test('displayChallenge does not throw', () => {
     expect(() => dailyChallenge.displayChallenge()).not.toThrow();
   });
+
+  test('updateProgress handles invalid amount safely', () => {
+    const { challenge } = dailyChallenge.getChallenge();
+
+    // Test NaN
+    dailyChallenge.updateProgress(challenge.metric, NaN);
+    expect(dailyChallenge.getChallenge().progress).toBe(0);
+
+    // Test Infinity
+    dailyChallenge.updateProgress(challenge.metric, Infinity);
+    expect(dailyChallenge.getChallenge().progress).toBe(0);
+
+    // Test Negative
+    dailyChallenge.updateProgress(challenge.metric, -100);
+    expect(dailyChallenge.getChallenge().progress).toBe(0);
+
+    // Test non-numeric
+    dailyChallenge.updateProgress(challenge.metric, '100');
+    expect(dailyChallenge.getChallenge().progress).toBe(100);
+
+    // Reset and test invalid string
+    global.Memory.dailyChallenge.progress = 0;
+    dailyChallenge.updateProgress(challenge.metric, 'abc');
+    expect(dailyChallenge.getChallenge().progress).toBe(0);
+  });
 });

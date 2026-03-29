@@ -16,8 +16,13 @@ const defenseManager = {
             room._myStructures = room.find(FIND_MY_STRUCTURES);
             room._myStructuresTick = Game.time;
         }
-        const myStructures = room._myStructures;
-        const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
+
+        // ⚡ PERFORMANCE: Cache towers per-tick
+        if (room._towersTick !== Game.time) {
+            room._towers = room._myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
+            room._towersTick = Game.time;
+        }
+        const towers = room._towers;
 
         if (towers.length === 0) {
             return;
@@ -34,9 +39,13 @@ const defenseManager = {
             room._myCreeps = room.find(FIND_MY_CREEPS);
             room._myCreepsTick = Game.time;
         }
-        const myCreeps = room._myCreeps;
 
-        const damagedCreeps = myCreeps.filter((c) => c.hits < c.hitsMax);
+        // ⚡ PERFORMANCE: Per-tick caching of injured creeps (shared across roles)
+        if (room._injuredCreepsTick !== Game.time) {
+            room._injuredCreeps = room._myCreeps.filter((c) => c.hits < c.hitsMax);
+            room._injuredCreepsTick = Game.time;
+        }
+        const damagedCreeps = room._injuredCreeps;
 
         // ⚡ PERFORMANCE: Shared per-tick caching for damaged structures
         if (room._damagedStructuresTick !== Game.time) {
@@ -97,11 +106,12 @@ const defenseManager = {
         // 脅威レベル計算
         let threatLevel = 0;
         hostiles.forEach((hostile) => {
-            const parts = hostile.body;
-            const attackParts = parts.filter(
-                (p) => p.type === ATTACK || p.type === RANGED_ATTACK || p.type === HEAL
-            ).length;
-            threatLevel += attackParts;
+            // ⚡ PERFORMANCE: Use a simple loop instead of filter().length to avoid memory allocation
+            for (const part of hostile.body) {
+                if (part.type === ATTACK || part.type === RANGED_ATTACK || part.type === HEAL) {
+                    threatLevel++;
+                }
+            }
         });
 
         Memory.defenseLevel = threatLevel;
@@ -125,8 +135,13 @@ const defenseManager = {
             room._myCreeps = room.find(FIND_MY_CREEPS);
             room._myCreepsTick = Game.time;
         }
-        const myCreeps = room._myCreeps;
-        const defenders = myCreeps.filter((c) => c.memory.role === 'defender');
+
+        // ⚡ PERFORMANCE: Cache defenders per-tick
+        if (room._defendersTick !== Game.time) {
+            room._defenders = room._myCreeps.filter((c) => c.memory.role === 'defender');
+            room._defendersTick = Game.time;
+        }
+        const defenders = room._defenders;
 
         // 脅威に応じて必要な防衛creep数を決定
         const requiredDefenders = Math.min(Math.ceil(threatLevel / 3), 4);
@@ -138,10 +153,15 @@ const defenseManager = {
                 room._myStructures = room.find(FIND_MY_STRUCTURES);
                 room._myStructuresTick = Game.time;
             }
-            const myStructures = room._myStructures;
-            const spawns = myStructures.filter(
-                (s) => s.structureType === STRUCTURE_SPAWN && !s.spawning
-            );
+
+            // ⚡ PERFORMANCE: Cache free spawns per-tick
+            if (room._freeSpawnsTick !== Game.time) {
+                room._freeSpawns = room._myStructures.filter(
+                    (s) => s.structureType === STRUCTURE_SPAWN && !s.spawning
+                );
+                room._freeSpawnsTick = Game.time;
+            }
+            const spawns = room._freeSpawns;
 
             if (spawns.length > 0) {
                 this.spawnDefender(spawns[0], threatLevel);
@@ -257,15 +277,23 @@ const defenseManager = {
             room._myStructures = room.find(FIND_MY_STRUCTURES);
             room._myStructuresTick = Game.time;
         }
-        const myStructures = room._myStructures;
-        const towers = myStructures.filter((s) => s.structureType === STRUCTURE_TOWER).length;
+
+        if (room._towersTick !== Game.time) {
+            room._towers = room._myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
+            room._towersTick = Game.time;
+        }
+        const towers = room._towers.length;
 
         if (room._myCreepsTick !== Game.time) {
             room._myCreeps = room.find(FIND_MY_CREEPS);
             room._myCreepsTick = Game.time;
         }
-        const myCreeps = room._myCreeps;
-        const defenders = myCreeps.filter((c) => c.memory.role === 'defender').length;
+
+        if (room._defendersTick !== Game.time) {
+            room._defenders = room._myCreeps.filter((c) => c.memory.role === 'defender');
+            room._defendersTick = Game.time;
+        }
+        const defenders = room._defenders.length;
 
         const threatLevel = Memory.defenseLevel || 0;
 

@@ -71,9 +71,24 @@ export default function Dashboard() {
 
       <div aria-live="polite">
         {loading && (
-          <div style={{ height: "100px", background: "#f0f0f0", borderRadius: "4px", marginBottom: "1.5rem", display: "flex", alignItems: "center", justifyContent: "center", color: "#999" }}>
-            Loading GCL stats...
-          </div>
+          <section
+            aria-busy="true"
+            aria-label="Loading GCL stats"
+            style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6 }}
+          >
+            <span style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
+              Loading GCL stats...
+            </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ width: "120px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
+                <div style={{ width: "80px", height: "0.9rem", background: "#888888", borderRadius: "4px" }} />
+              </div>
+              <div style={{ width: "40px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
+            </div>
+            <div style={{ width: "100%", height: "12px", background: "#767676", borderRadius: "6px", marginBottom: "0.5rem" }} />
+            <div style={{ width: "150px", height: "0.75rem", background: "#888888", borderRadius: "4px", marginLeft: "auto" }} />
+          </section>
         )}
       </div>
 

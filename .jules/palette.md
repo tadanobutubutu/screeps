@@ -57,3 +57,7 @@
 ## 2024-03-28 - [Skeleton Loaders for Layout Stability]
 **Learning:** In data-driven dashboards, using a simple "Loading..." text causes jarring layout shifts when the data finally arrives. Implementing a "Skeleton" placeholder—a div that roughly matches the dimensions of the expected content—maintains the layout's structural integrity during async fetches, resulting in a much smoother and more professional user experience.
 **Action:** Use skeleton-style placeholders that mirror the shape of the final UI components to eliminate layout shifts during initial data loading.
+
+## 2026-03-29 - [Accessible Skeleton Loaders]
+**Learning:** Visual-only skeleton loaders can exclude non-visual users if the original loading text is removed. To ensure accessibility, skeleton loaders must include `aria-busy="true"`, a descriptive `aria-label`, and visually hidden text (e.g., using a "sr-only" style) within an `aria-live` region. Furthermore, skeleton bars must maintain at least a 3:1 contrast ratio (e.g., using #767676 on white) to be visible to users with low vision.
+**Action:** Always pair skeleton loaders with ARIA attributes and visually hidden descriptive text, and ensure contrast ratios meet WCAG AA standards.

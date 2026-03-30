@@ -49,3 +49,7 @@
 ## 2026-07-14 - Explorer Pathfinding and Engine-Level Routing
 **Learning:** For roles like Explorers that frequently cross room boundaries, manual exit tile selection via `findClosestByRange(findExitTo(...))` is an unnecessary CPU expense. Passing a `RoomPosition` in the target room directly to `moveTo` allows the Screeps engine to utilize its internal optimized pathing and cache, significantly reducing the per-tick cost of inter-room navigation.
 **Action:** Replace multi-step manual exit tile finding with direct `RoomPosition` targeting in `moveTo` for all inter-room movement logic.
+
+## 2026-07-28 - O(N²) Social Interaction and findInRange Optimization
+**Learning:** A global nested loop comparing every creep pair for proximity is an O(N²) bottleneck that fails as the colony grows. Refactoring this to a room-based loop using `creep.pos.findInRange(FIND_MY_CREEPS, 1)` leverages the engine's internal spatial indexing, reducing complexity to O(N). Furthermore, passing the FIND constant instead of a pre-filtered array to `findInRange` ensures maximum engine-level optimization.
+**Action:** Always replace global creep-pair comparisons with localized room-based spatial searches using `findInRange` and FIND constants.

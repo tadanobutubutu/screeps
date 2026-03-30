@@ -375,11 +375,30 @@ module.exports.loop = function () {
         }
 
         if (adaptiveSystem.isEnabled('socialInteractions') && Game.time % 100 === 0) {
-            const creeps = Object.values(Game.creeps);
-            for (let i = 0; i < creeps.length; i++) {
-                for (let j = i + 1; j < creeps.length; j++) {
-                    if (Math.random() > 0.7) {
-                        EmotionSystem.interact(creeps[i], creeps[j]);
+            // ⚡ PERFORMANCE: Replace O(N²) global loop with O(N) room-based spatial search.
+            // Using findInRange(1) leverages the engine's internal spatial indexing.
+            const processedPairs = new Set();
+            for (const roomName in Game.rooms) {
+                const room = Game.rooms[roomName];
+                const creepsInRoom = room.find(FIND_MY_CREEPS);
+
+                for (const creep of creepsInRoom) {
+                    const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1);
+                    for (const neighbor of neighbors) {
+                        if (creep.id === neighbor.id) continue;
+
+                        // Create a unique key for the pair to ensure we only check it once.
+                        const pairKey =
+                            creep.id < neighbor.id
+                                ? `${creep.id}:${neighbor.id}`
+                                : `${neighbor.id}:${creep.id}`;
+
+                        if (!processedPairs.has(pairKey)) {
+                            processedPairs.add(pairKey);
+                            if (Math.random() > 0.7) {
+                                EmotionSystem.interact(creep, neighbor);
+                            }
+                        }
                     }
                 }
             }

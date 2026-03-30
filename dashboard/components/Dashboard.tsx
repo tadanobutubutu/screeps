@@ -15,6 +15,18 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    if (!stats) return;
+    try {
+      await navigator.clipboard.writeText(JSON.stringify(stats, null, 2));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy:", err);
+    }
+  }, [stats]);
 
   const fetchStats = useCallback(async (isManual = false) => {
     if (isManual) setIsRefreshing(true);
@@ -125,9 +137,30 @@ export default function Dashboard() {
 
       <section style={{ opacity: (loading || isRefreshing) ? 0.6 : 1, transition: "opacity 0.2s" }}>
         {stats ? (
-          <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}>
-            {JSON.stringify(stats, null, 2)}
-          </pre>
+          <div style={{ position: "relative" }}>
+            <button
+              onClick={handleCopy}
+              aria-label={copied ? "Stats copied" : "Copy stats as JSON"}
+              style={{
+                position: "absolute",
+                top: "0.5rem",
+                right: "0.5rem",
+                padding: "0.25rem 0.5rem",
+                fontSize: "0.75rem",
+                background: copied ? "#28a745" : "#6c757d",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                transition: "background 0.2s"
+              }}
+            >
+              {copied ? "✅ Copied!" : "📋 Copy JSON"}
+            </button>
+            <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}>
+              {JSON.stringify(stats, null, 2)}
+            </pre>
+          </div>
         ) : (
           !loading && <p>No data available. Try refreshing.</p>
         )}

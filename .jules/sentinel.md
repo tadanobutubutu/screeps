@@ -67,3 +67,8 @@
 **Vulnerability:** Denial of Service (DoS) via infinite loop in the level-up system.
 **Learning:** If progression variables used in loop conditions (like `xpToNext` in a `while (xp >= xpToNext)` loop) are not strictly validated to be positive, mathematical operations or external state corruption can lead to values (like 0) that cause the loop to never terminate. This hangs the script and exhausts CPU limits.
 **Prevention:** Always enforce a minimum positive value (e.g., `Math.max(1, ...)` or an explicit existence check) for all variables that govern loop termination, especially those stored in persistent memory.
+
+## 2026-03-29 - Robust Dependency Resolution in Screeps Rollup
+**Vulnerability:** Application crash or security bypass due to failed module resolution of internal security utilities.
+**Learning:** In Screeps environments using Rollup for bundling, internal modules (like `utils.memory.js`) are often treated as external dependencies to be resolved at runtime by the game engine. Using relative paths (`./utils.memory`) in a `require` statement within a root-level utility can fail if the bundler or runtime environment expects absolute module names (`utils.memory`) as defined in the configuration.
+**Prevention:** Always verify internal module imports against the `rollup.config.mjs` (or similar) `external` list and ensure consistency between standard module calls and security utility imports to prevent runtime "Module not found" errors that could lead to unhandled exceptions or failed security checks.

@@ -168,7 +168,7 @@ jobs:
           fi
 
           git commit -m "AI maintenance: rule-based fixes${RULES:+ ($RULES)}${AI_FIXES:+ + $AI_FIXES AI error fixes}"
-          git push origin "$BRANCH"
+          git push origin "$BRANCH" || { echo "::warning::Push failed"; exit 0; }
 
           BODY="## AI Code Maintenance\n\n"
           if [ "$RULE_CHANGES" != "0" ]; then
@@ -183,7 +183,7 @@ jobs:
             --body "$BODY" \
             --base main \
             --head "$BRANCH" \
-            --draft
+            --draft || echo "::warning::PR creation failed - GitHub Actions may not have permission to create PRs. Branch pushed for manual PR creation."
         env:
           GH_TOKEN: ${{ github.token }}
 

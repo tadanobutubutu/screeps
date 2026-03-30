@@ -24,6 +24,7 @@ jobs:
         with:
           repository: ${{ github.repository }}.wiki
           path: wiki-repo
+        continue-on-error: true
       
       - name: Copy Wiki Files
         run: |

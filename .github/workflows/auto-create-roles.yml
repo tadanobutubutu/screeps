@@ -330,7 +330,8 @@ module.exports = rolePowerHarvester;\`
           
           if (availableTemplates.length === 0) {
             console.log('✅ All role templates already exist!');
-            process.exit(1);
+            fs.writeFileSync('last-role-creation.json', JSON.stringify({ role: null, description: 'All templates exist', timestamp: new Date().toISOString(), remaining: 0 }, null, 2));
+            process.exit(0);
           }
           
           // ランダムに1つ選択

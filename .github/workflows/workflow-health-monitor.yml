@@ -28,7 +28,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          ISSUE_TITLE="🔧 Workflow Health Issues Detected"
+          EXISTING=$(gh issue list --state open --search "$ISSUE_TITLE" --json number --jq 'length')
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "⚠️ Open issue already exists. Skipping creation."
+            exit 0
+          fi
           gh issue create \
-            --title "🔧 Workflow Health Issues Detected" \
+            --title "$ISSUE_TITLE" \
             --body "⚠️ main ブランチ直近50件の実行で ${{ steps.analyze.outputs.failed_count }} 件の失敗が検出されました。" \
             --label "workflow-health,automated"

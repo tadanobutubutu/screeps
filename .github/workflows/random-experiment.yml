@@ -181,7 +181,8 @@ jobs:
             console.log('✅ Experiment applied successfully!');
           } else {
             console.log('⚠️ Experiment already exists or not applicable');
-            process.exit(1);
+            fs.writeFileSync('last-experiment.json', JSON.stringify({ experiment: selected.name, description: selected.description, timestamp: new Date().toISOString(), status: 'skipped' }, null, 2));
+            process.exit(0);
           }
           "
       

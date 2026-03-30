@@ -76,4 +76,53 @@ describe('utils.stats', () => {
     expect(Array.isArray(lines)).toBe(true);
     expect(lines.length).toBeGreaterThan(0);
   });
+
+  describe('Security Hardening', () => {
+    test('invalid inputs are ignored (NaN, Infinity, negative)', () => {
+      StatsManager.initMemory();
+      StatsManager.recordHarvest(NaN);
+      StatsManager.recordUpgrade(Infinity);
+      StatsManager.recordBuild(-100);
+      StatsManager.recordRepair('invalid');
+
+      expect(global.Memory.stats.totalEnergyProcessed).toBe(0);
+      expect(global.Memory.stats.totalEnergyUpgraded).toBe(0);
+      expect(global.Memory.stats.totalBuildProgress).toBe(0);
+      expect(global.Memory.stats.totalRepairDone).toBe(0);
+    });
+
+    test('recordRoomStat validates room names and keys', () => {
+      StatsManager.initMemory();
+      StatsManager.recordRoomStat('__proto__', 'energy', 100);
+      StatsManager.recordRoomStat('W1N1', 'constructor', 100);
+
+      // Use hasOwnProperty to check if the property was actually set on the object
+      expect(Object.prototype.hasOwnProperty.call(global.Memory.stats.roomStats, '__proto__')).toBe(false);
+      expect(global.Memory.stats.roomStats['W1N1']).toBeUndefined();
+    });
+
+    test('recordRoomStat enforces MAX_ROOM_STATS limit', () => {
+      StatsManager.initMemory();
+      for (let i = 0; i < 60; i++) {
+        StatsManager.recordRoomStat(`Room${i}`, 'energy', 1);
+      }
+      expect(Object.keys(global.Memory.stats.roomStats).length).toBe(50);
+    });
+
+    test('recordRoomStat enforces keys per room limit', () => {
+      StatsManager.initMemory();
+      for (let i = 0; i < 15; i++) {
+        StatsManager.recordRoomStat('W1N1', `key${i}`, 1);
+      }
+      expect(Object.keys(global.Memory.stats.roomStats['W1N1']).length).toBe(10);
+    });
+
+    test('recordRoomStat handles invalid amounts', () => {
+      StatsManager.initMemory();
+      StatsManager.recordRoomStat('W1N1', 'energy', -50);
+      StatsManager.recordRoomStat('W1N1', 'energy', NaN);
+
+      expect(global.Memory.stats.roomStats['W1N1']).toBeUndefined();
+    });
+  });
 });

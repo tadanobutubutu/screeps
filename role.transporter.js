@@ -10,9 +10,9 @@ const roleTransporter = {
         }
 
         if (creep.memory.transporting) {
-            // ⚡ PERFORMANCE: Per-tick caching of energy delivery targets
+            // ⚡ PERFORMANCE: Per-tick caching of energy delivery targets (Optimized to FIND_MY_STRUCTURES)
             if (creep.room._deliveryTargetsTick !== Game.time) {
-                creep.room._deliveryTargets = creep.room.find(FIND_STRUCTURES, {
+                creep.room._deliveryTargets = creep.room.find(FIND_MY_STRUCTURES, {
                     filter: (s) =>
                         (s.structureType === STRUCTURE_SPAWN ||
                             s.structureType === STRUCTURE_EXTENSION ||

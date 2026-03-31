@@ -52,12 +52,15 @@ export default function Dashboard() {
   }, [fetchStats]);
 
   return (
-    <main style={{ fontFamily: "monospace", padding: "2rem" }}>
+    <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-        <h1 style={{ margin: 0 }}>🐛 Screeps Dashboard</h1>
+        <h1 style={{ margin: 0 }}><span role="img" aria-label="Screeps" title="Screeps">🐛</span> Screeps Dashboard</h1>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           {lastUpdated && (
-            <span style={{ fontSize: "0.8rem", color: "#666" }}>
+            <span
+              style={{ fontSize: "0.8rem", color: "#666" }}
+              title={lastUpdated.toLocaleString()}
+            >
               Last sync: {lastUpdated.toLocaleTimeString()}
             </span>
           )}
@@ -65,6 +68,7 @@ export default function Dashboard() {
             onClick={() => fetchStats(true)}
             disabled={loading || isRefreshing}
             aria-label="Refresh stats"
+            title="Refresh stats"
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
@@ -105,29 +109,37 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div role="alert" style={{ color: "red", padding: "1rem", border: "1px solid red", borderRadius: "4px", marginBottom: "1rem" }}>
-          {error}
+        <div role="alert" style={{ color: "red", padding: "1rem", border: "1px solid red", borderRadius: "4px", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span role="img" aria-label="Warning">⚠️</span> {error}
         </div>
       )}
 
       {stats?.gcl && (
-        <section style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px" }}>
+        <section style={{
+          marginBottom: "1.5rem",
+          padding: "1rem",
+          border: "1px solid #eee",
+          borderRadius: "4px",
+          boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+          transition: "all 0.2s ease-in-out"
+        }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <strong>🌐 GCL: {stats.gcl.level}</strong>
-              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#888" }}>⚡ Power: {stats.power}</span>}
+              <strong><span role="img" aria-label="Global Control Level" title="Global Control Level">🌐</span> GCL: {stats.gcl.level}</strong>
+              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#888" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
             </div>
-            <span style={{ fontWeight: "bold", color: "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+            <span id="gcl-percent" style={{ fontWeight: "bold", color: "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
           </div>
           <div
             role="progressbar"
             aria-label="Global Control Level progress"
+            aria-describedby="gcl-percent"
             aria-valuenow={Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
             style={{ width: "100%", height: "12px", background: "#eee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
-            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#0077aa", transition: "width 0.5s ease-in-out" }} />
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#00aaff", transition: "width 0.5s ease-in-out" }} />
           </div>
           <div style={{ fontSize: "0.75rem", color: "#777", textAlign: "right" }}>
             {stats.gcl.progress.toLocaleString()} / {stats.gcl.progressTotal.toLocaleString()}
@@ -135,12 +147,21 @@ export default function Dashboard() {
         </section>
       )}
 
-      <section style={{ opacity: (loading || isRefreshing) ? 0.6 : 1, transition: "opacity 0.2s" }}>
-        {stats ? (
-          <div style={{ position: "relative" }}>
+      <section style={{
+        opacity: (loading || isRefreshing) ? 0.6 : 1,
+        transition: "opacity 0.2s"
+      }}>
+        {stats && Object.keys(stats).length > 0 ? (
+          <div style={{
+            position: "relative",
+            boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            transition: "all 0.2s ease-in-out",
+            borderRadius: "4px"
+          }}>
             <button
               onClick={handleCopy}
               aria-label={copied ? "Stats copied" : "Copy stats as JSON"}
+              title="Copy to clipboard"
               style={{
                 position: "absolute",
                 top: "0.5rem",
@@ -162,7 +183,11 @@ export default function Dashboard() {
             </pre>
           </div>
         ) : (
-          !loading && <p>No data available. Try refreshing.</p>
+          !loading && (
+            <p style={{ textAlign: "center", color: "#666", padding: "3rem 1rem" }}>
+              <span role="img" aria-label="Ghost">👻</span> No data available. Try refreshing.
+            </p>
+          )
         )}
       </section>
     </main>

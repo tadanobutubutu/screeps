@@ -10,6 +10,30 @@
 
 const { CACHE_TTL } = require('../constants');
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ */
+const MAX_KEY_LENGTH = 256;
+const MAX_CACHE_ENTRIES = 100;
+
+/**
+ * Security: Validates that a key is safe to use for object access.
+ * Prevents Prototype Pollution attacks by blocking special properties.
+ * Also enforces length limits to prevent Memory DoS.
+ */
+const isSafeKey = (key) => {
+    if (typeof key === 'number') return true;
+    const dangerousKeys = [
+        '__proto__',
+        'constructor',
+        'prototype',
+        'toString',
+        'valueOf',
+        'hasOwnProperty',
+    ];
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !dangerousKeys.includes(key);
+};
+
 // global.cache が未初期化の場合に初期化する
 function ensureCache() {
     if (!global.cache) {
@@ -26,11 +50,21 @@ function ensureCache() {
  * @returns {*} キャッシュされたデータ
  */
 function get(key, fetcher, ttl) {
-    const cache = ensureCache();
-    const entry = cache[key];
+    // Security: Validate key
+    if (!isSafeKey(key)) {
+        return fetcher();
+    }
 
-    if (entry && entry.expires > Game.time) {
+    const cache = ensureCache();
+    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
         return entry.data;
+    }
+
+    // Security: Cap the number of cache entries to prevent Memory DoS
+    if (!entry && Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+        return fetcher();
     }
 
     const data = fetcher();
@@ -46,8 +80,11 @@ function get(key, fetcher, ttl) {
  * @param {string} key - 無効化するキャッシュキー
  */
 function invalidate(key) {
+    if (!isSafeKey(key)) return;
     const cache = ensureCache();
-    delete cache[key];
+    if (Object.prototype.hasOwnProperty.call(cache, key)) {
+        delete cache[key];
+    }
 }
 
 /**
@@ -58,8 +95,10 @@ function invalidatePattern(pattern) {
     const cache = ensureCache();
     const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
     for (const key in cache) {
-        if (regex.test(key)) {
-            delete cache[key];
+        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+            if (regex.test(key)) {
+                delete cache[key];
+            }
         }
     }
 }
@@ -72,9 +111,12 @@ function cleanup() {
     const cache = ensureCache();
     let removed = 0;
     for (const key in cache) {
-        if (cache[key].expires <= Game.time) {
-            delete cache[key];
-            removed++;
+        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+            const entry = cache[key];
+            if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
+                delete cache[key];
+                removed++;
+            }
         }
     }
     return removed;
@@ -86,20 +128,24 @@ function cleanup() {
  */
 function getStats() {
     const cache = ensureCache();
-    const keys = Object.keys(cache);
     const now = Game.time;
+    let total = 0;
     let expired = 0;
 
-    for (const key of keys) {
-        if (cache[key].expires <= now) {
-            expired++;
+    for (const key in cache) {
+        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+            total++;
+            const entry = cache[key];
+            if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+                expired++;
+            }
         }
     }
 
     return {
-        total: keys.length,
+        total,
         expired,
-        active: keys.length - expired,
+        active: total - expired,
     };
 }
 
@@ -323,6 +369,7 @@ module.exports = {
     invalidatePattern,
     cleanup,
     getStats,
+    isSafeKey,
     getSources,
     getStructures,
     getMyStructures,

@@ -62,6 +62,10 @@ const FEATURE_CONFIG = {
     },
 };
 
+// ⚡ PERFORMANCE: Per-tick cache for feature configuration
+let _currentConfig = null;
+let _configTick = -1;
+
 const adaptiveSystem = {
     /**
      * システムモード
@@ -84,6 +88,9 @@ const adaptiveSystem = {
                     fullCount: 0,
                 },
             };
+            // ⚡ PERFORMANCE: Reset cache when Memory is re-initialized (important for tests)
+            _currentConfig = null;
+            _configTick = -1;
         }
     },
 
@@ -155,6 +162,10 @@ const adaptiveSystem = {
             }
 
             Memory.adaptive.currentMode = newMode;
+
+            // ⚡ PERFORMANCE: Update cache immediately on mode change
+            _currentConfig = FEATURE_CONFIG[newMode];
+            _configTick = Game.time;
         }
 
         // 統計更新
@@ -235,8 +246,13 @@ const adaptiveSystem = {
      * Estimated impact: Reduces CPU overhead in a high-frequency function.
      */
     isEnabled: function (feature) {
-        const mode = Memory.adaptive.currentMode;
-        return FEATURE_CONFIG?.[mode]?.[feature] === true;
+        // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Memory lookups
+        if (_configTick !== Game.time || !_currentConfig) {
+            const mode = Memory.adaptive ? Memory.adaptive.currentMode : MODES.NORMAL;
+            _currentConfig = FEATURE_CONFIG[mode];
+            _configTick = Game.time;
+        }
+        return _currentConfig?.[feature] === true;
     },
 
     /**
@@ -388,6 +404,11 @@ const adaptiveSystem = {
         }
 
         Memory.adaptive.currentMode = mode;
+
+        // ⚡ PERFORMANCE: Update cache immediately on manual mode change
+        _currentConfig = FEATURE_CONFIG[mode];
+        _configTick = Game.time;
+
         console.log('✅ Mode set to: ' + this.getModeName(mode).toUpperCase());
     },
 
@@ -396,6 +417,9 @@ const adaptiveSystem = {
      */
     reset: function () {
         delete Memory.adaptive;
+        // ⚡ PERFORMANCE: Reset cache when system is reset
+        _currentConfig = null;
+        _configTick = -1;
         console.log('🔄 Adaptive system reset!');
     },
 };

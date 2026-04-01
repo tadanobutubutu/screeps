@@ -57,3 +57,7 @@
 ## 2026-08-11 - Leveraging Specialized FIND Constants for Transporters
 **Learning:** Using `FIND_STRUCTURES` for energy delivery targets in logistics roles is less efficient than `FIND_MY_STRUCTURES` because it returns all structures in the room (including neutral ones like roads and walls) before applying a JavaScript filter. Switching to `FIND_MY_STRUCTURES` offloads the initial filtering to the engine's internal spatial index, significantly narrowing the search space.
 **Action:** Always prefer specialized `FIND` constants (like `FIND_MY_STRUCTURES` or `FIND_MY_CONSTRUCTION_SITES`) over general ones to leverage engine-level optimizations and reduce CPU overhead in high-frequency search logic.
+
+## 2026-04-01 - Per-Tick Cache Isolation in Unit Tests
+**Learning:** Module-level variables used for per-tick caching (e.g., `_currentConfig`) persist across test cases in Jest if they aren't explicitly reset. This causes test failures when `Game.time` is mocked to the same value across different tests that expect different `Memory` states.
+**Action:** Always implement explicit cache reset logic in `init()` or `reset()` functions and call them during test setup (beforeEach) to ensure clean state isolation.

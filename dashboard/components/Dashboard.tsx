@@ -67,7 +67,7 @@ export default function Dashboard() {
           <button
             onClick={() => fetchStats(true)}
             disabled={loading || isRefreshing}
-            aria-label="Refresh stats"
+            aria-label={isRefreshing ? "Refreshing stats" : "Refresh stats"}
             title="Refresh stats"
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
@@ -76,14 +76,19 @@ export default function Dashboard() {
               color: "#fff",
               border: "none",
               borderRadius: "4px",
-              opacity: (loading || isRefreshing) ? 0.7 : 1,
+              opacity: (loading || isRefreshing) ? 0.6 : 1,
               transition: "opacity 0.2s"
             }}
           >
-            {isRefreshing ? "Refreshing..." : "🔄 Refresh"}
+            🔄 {isRefreshing ? "Refreshing..." : "Refresh"}
           </button>
         </div>
       </header>
+
+      <div aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
+        {isRefreshing ? "Refreshing statistics..." : ""}
+        {copied ? "JSON copied to clipboard" : ""}
+      </div>
 
       <div aria-live="polite">
         {loading && (
@@ -109,8 +114,8 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div role="alert" style={{ color: "red", padding: "1rem", border: "1px solid red", borderRadius: "4px", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <span role="img" aria-label="Warning">⚠️</span> {error}
+        <div role="alert" style={{ color: "#d32f2f", padding: "1rem", border: "1px solid #d32f2f", borderRadius: "4px", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#fff5f5" }}>
+          <span role="img" aria-label="Error">⚠️</span> {error}
         </div>
       )}
 
@@ -168,7 +173,7 @@ export default function Dashboard() {
                 right: "0.5rem",
                 padding: "0.25rem 0.5rem",
                 fontSize: "0.75rem",
-                background: copied ? "#28a745" : "#6c757d",
+                background: copied ? "#28a745" : "#5a6268",
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",

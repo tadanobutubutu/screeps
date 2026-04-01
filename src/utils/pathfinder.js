@@ -11,6 +11,37 @@
 
 const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants');
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ */
+const MAX_KEY_LENGTH = 256;
+const MAX_CACHE_ENTRIES = 100;
+
+/**
+ * Security: Validates that a key is safe to use for object access.
+ * Prevents Prototype Pollution attacks by blocking special properties.
+ * Also enforces length limits to prevent Memory DoS.
+ */
+const isSafeKey = (key) => {
+    if (typeof key === 'number') return true;
+    const dangerousKeys = [
+        '__proto__',
+        'constructor',
+        'prototype',
+        '__defineGetter__',
+        '__defineSetter__',
+        '__lookupGetter__',
+        '__lookupSetter__',
+        'toString',
+        'valueOf',
+        'hasOwnProperty',
+        'toLocaleString',
+        'isPrototypeOf',
+        'propertyIsEnumerable',
+    ];
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !dangerousKeys.includes(key);
+};
+
 // ============================================================
 // グローバルキャッシュキー
 // ============================================================
@@ -47,10 +78,15 @@ function buildCostMatrix(roomName, options) {
     const opts = Object.assign({ avoidCreeps: false, useCache: true }, options);
     const cache = ensureCache();
 
+    // Security: Validate input roomName
+    if (!isSafeKey(roomName)) {
+        return new PathFinder.CostMatrix();
+    }
+
     const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`;
 
-    if (opts.useCache) {
-        const entry = cache[cacheKey];
+    if (opts.useCache && isSafeKey(cacheKey)) {
+        const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey) ? cache[cacheKey] : undefined;
         if (entry && entry.expires > Game.time) {
             return entry.data;
         }
@@ -110,11 +146,14 @@ function buildCostMatrix(roomName, options) {
         }
     }
 
-    if (opts.useCache) {
-        cache[cacheKey] = {
-            data: costs,
-            expires: Game.time + CACHE_TTL.PATH,
-        };
+    if (opts.useCache && isSafeKey(cacheKey)) {
+        // Security: Cap the number of cache entries to prevent Memory DoS
+        if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
+            cache[cacheKey] = {
+                data: costs,
+                expires: Game.time + CACHE_TTL.PATH,
+            };
+        }
     }
 
     return costs;
@@ -328,19 +367,33 @@ function getRoadPositions(room) {
  */
 function estimateDistance(origin, goal) {
     const cache = ensureCache();
+
+    // Security: Validate inputs
+    if (!origin || !goal || !isSafeKey(origin.roomName) || !isSafeKey(goal.roomName)) {
+        return Infinity;
+    }
+
     const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
-    const entry = cache[key];
-    if (entry && entry.expires > Game.time) {
-        return entry.data;
+
+    if (isSafeKey(key)) {
+        const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+        if (entry && entry.expires > Game.time) {
+            return entry.data;
+        }
     }
 
     const result = findPath(origin, goal);
     const dist = result.incomplete ? Infinity : result.path.length;
 
-    cache[key] = {
-        data: dist,
-        expires: Game.time + CACHE_TTL.PATH,
-    };
+    if (isSafeKey(key)) {
+        // Security: Cap the number of cache entries to prevent Memory DoS
+        if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
+            cache[key] = {
+                data: dist,
+                expires: Game.time + CACHE_TTL.PATH,
+            };
+        }
+    }
 
     return dist;
 }
@@ -356,4 +409,5 @@ module.exports = {
     findNearestOpenTile,
     getRoadPositions,
     estimateDistance,
+    isSafeKey,
 };

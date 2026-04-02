@@ -61,3 +61,7 @@
 ## 2026-04-01 - Per-Tick Cache Isolation in Unit Tests
 **Learning:** Module-level variables used for per-tick caching (e.g., `_currentConfig`) persist across test cases in Jest if they aren't explicitly reset. This causes test failures when `Game.time` is mocked to the same value across different tests that expect different `Memory` states.
 **Action:** Always implement explicit cache reset logic in `init()` or `reset()` functions and call them during test setup (beforeEach) to ensure clean state isolation.
+
+## 2026-08-25 - Focused Optimization and Syntax Verification
+**Learning:** Attempting multiple optimizations and architectural changes simultaneously in a single PR increases the risk of syntax errors (e.g., truncated blocks) and "Partially Correct" ratings. Scope creep undermines the "small, measurable improvement" mission.
+**Action:** Strictly adhere to the "ONE small performance improvement" directive. Verify file completeness and syntax after all `replace_with_git_merge_diff` calls, and avoid unrequested architectural changes like Memory structure refactoring.

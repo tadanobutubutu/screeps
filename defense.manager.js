@@ -66,23 +66,30 @@ const defenseManager = {
                 }
             }
 
+            // ⚡ PERFORMANCE: Pre-calculate critical targets once per tick to reduce O(N) searches for each tower
+            if (room._criticalCreepTick !== Game.time) {
+                room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
+                room._criticalCreepTick = Game.time;
+            }
+            const criticalCreep = room._criticalCreep;
+
+            if (room._criticalStructureTick !== Game.time) {
+                room._criticalStructure = damagedStructures.find(
+                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
+                );
+                room._criticalStructureTick = Game.time;
+            }
+            const criticalStructure = room._criticalStructure;
+
             // 優先度2: 味方creepの回復
-            if (damagedCreeps.length > 0) {
-                const critical = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
-                if (critical) {
-                    tower.heal(critical);
-                    return;
-                }
+            if (criticalCreep) {
+                tower.heal(criticalCreep);
+                return;
             }
 
             // 優先度3: 構造物の修理（エネルギーが十分な時のみ）
-            if (tower.store[RESOURCE_ENERGY] > 500) {
-                const criticalStructure = damagedStructures.find(
-                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
-                );
-                if (criticalStructure) {
-                    tower.repair(criticalStructure);
-                }
+            if (tower.store[RESOURCE_ENERGY] > 500 && criticalStructure) {
+                tower.repair(criticalStructure);
             }
         });
     },

@@ -23,13 +23,22 @@ const MAX_CACHE_ENTRIES = 100;
  */
 const isSafeKey = (key) => {
     if (typeof key === 'number') return true;
+    // Security: Block dangerous properties that could lead to Prototype Pollution
+    // or property shadowing when using user-provided strings as object keys.
     const dangerousKeys = [
         '__proto__',
         'constructor',
         'prototype',
+        '__defineGetter__',
+        '__defineSetter__',
+        '__lookupGetter__',
+        '__lookupSetter__',
         'toString',
         'valueOf',
         'hasOwnProperty',
+        'toLocaleString',
+        'isPrototypeOf',
+        'propertyIsEnumerable',
     ];
     return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !dangerousKeys.includes(key);
 };

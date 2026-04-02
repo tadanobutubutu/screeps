@@ -58,7 +58,7 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           {lastUpdated && (
             <span
-              style={{ fontSize: "0.8rem", color: "#666" }}
+              style={{ fontSize: "0.8rem", color: "#575757" }}
               title={lastUpdated.toLocaleString()}
             >
               Last sync: {lastUpdated.toLocaleTimeString()}
@@ -103,12 +103,12 @@ export default function Dashboard() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                 <div style={{ width: "120px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
-                <div style={{ width: "80px", height: "0.9rem", background: "#888888", borderRadius: "4px" }} />
+                <div style={{ width: "80px", height: "0.9rem", background: "#767676", borderRadius: "4px" }} />
               </div>
               <div style={{ width: "40px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
             </div>
             <div style={{ width: "100%", height: "12px", background: "#767676", borderRadius: "6px", marginBottom: "0.5rem" }} />
-            <div style={{ width: "150px", height: "0.75rem", background: "#888888", borderRadius: "4px", marginLeft: "auto" }} />
+            <div style={{ width: "150px", height: "0.75rem", background: "#767676", borderRadius: "4px", marginLeft: "auto" }} />
           </section>
         )}
       </div>
@@ -131,9 +131,9 @@ export default function Dashboard() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <strong><span role="img" aria-label="Global Control Level" title="Global Control Level">🌐</span> GCL: {stats.gcl.level}</strong>
-              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#888" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
+              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
             </div>
-            <span id="gcl-percent" style={{ fontWeight: "bold", color: "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+            <span id="gcl-percent" style={{ fontWeight: "bold", color: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
           </div>
           <div
             role="progressbar"
@@ -142,11 +142,11 @@ export default function Dashboard() {
             aria-valuenow={Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}
             aria-valuemin={0}
             aria-valuemax={100}
-            style={{ width: "100%", height: "12px", background: "#eee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
+            style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
-            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: "#00aaff", transition: "width 0.5s ease-in-out" }} />
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#00aaff", transition: "width 0.5s ease-in-out" }} />
           </div>
-          <div style={{ fontSize: "0.75rem", color: "#777", textAlign: "right" }}>
+          <div style={{ fontSize: "0.75rem", color: "#575757", textAlign: "right" }}>
             {stats.gcl.progress.toLocaleString()} / {stats.gcl.progressTotal.toLocaleString()}
           </div>
         </section>
@@ -189,9 +189,25 @@ export default function Dashboard() {
           </div>
         ) : (
           !loading && (
-            <p style={{ textAlign: "center", color: "#666", padding: "3rem 1rem" }}>
-              <span role="img" aria-label="Ghost">👻</span> No data available. Try refreshing.
-            </p>
+            <div style={{ textAlign: "center", color: "#575757", padding: "3rem 1rem", display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
+              <p style={{ margin: 0 }}>
+                <span role="img" aria-label="Ghost">👻</span> No data available.
+              </p>
+              <button
+                onClick={() => fetchStats(true)}
+                style={{
+                  cursor: "pointer",
+                  padding: "0.5rem 1rem",
+                  background: "#0077aa",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "0.9rem"
+                }}
+              >
+                🔄 Refresh Dashboard
+              </button>
+            </div>
           )
         )}
       </section>

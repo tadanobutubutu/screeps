@@ -65,3 +65,7 @@
 ## 2026-08-25 - Focused Optimization and Syntax Verification
 **Learning:** Attempting multiple optimizations and architectural changes simultaneously in a single PR increases the risk of syntax errors (e.g., truncated blocks) and "Partially Correct" ratings. Scope creep undermines the "small, measurable improvement" mission.
 **Action:** Strictly adhere to the "ONE small performance improvement" directive. Verify file completeness and syntax after all `replace_with_git_merge_diff` calls, and avoid unrequested architectural changes like Memory structure refactoring.
+
+## 2026-09-08 - Global Cache Warming and Security Utility Regressions
+**Learning:** Leveraging the mandatory global loop (e.g., `Game.creeps`) to "warm" per-room caches (like `_myCreeps` and `_roleCounts`) eliminates redundant $O(N)$ searches and counting logic in downstream modules (Dashboard, Defense). However, when optimizing core security utilities like `isSafeKey` via hoisting (e.g., using a `Set`), ensuring parity for all supported types (like numeric keys) is critical to prevent functional regressions and "Partially Correct" ratings.
+**Action:** Use global loops for cross-module cache warming to maximize global CPU savings. Always verify type support (e.g., `typeof key === 'number'`) when refactoring high-frequency utility functions.

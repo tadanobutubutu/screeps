@@ -9,31 +9,41 @@ const MAX_KEY_LENGTH = 256;
 const MAX_CACHE_ENTRIES = 50;
 
 /**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
+ * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
+ */
+const DANGEROUS_KEYS = new Set([
+    '__proto__',
+    'constructor',
+    'prototype',
+    '__defineGetter__',
+    '__defineSetter__',
+    '__lookupGetter__',
+    '__lookupSetter__',
+    'toString',
+    'valueOf',
+    'hasOwnProperty',
+    'toLocaleString',
+    'isPrototypeOf',
+    'propertyIsEnumerable',
+]);
+
+/**
  * Security: Validates that a key is safe to use for object access.
  * Prevents Prototype Pollution attacks by blocking special properties.
  * Also enforces length limits to prevent Memory DoS.
  * Defined as a local constant to avoid 'this' context issues during destructuring.
  */
 const isSafeKey = (key) => {
-    // Numbers are always safe keys in JavaScript objects
+    // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
+    // and avoid unnecessary string/Set checks.
     if (typeof key === 'number') return true;
     // Only allow safe strings and block dangerous properties
-    const dangerousKeys = [
-        '__proto__',
-        'constructor',
-        'prototype',
-        '__defineGetter__',
-        '__defineSetter__',
-        '__lookupGetter__',
-        '__lookupSetter__',
-        'toString',
-        'valueOf',
-        'hasOwnProperty',
-        'toLocaleString',
-        'isPrototypeOf',
-        'propertyIsEnumerable',
-    ];
-    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !dangerousKeys.includes(key);
+    return (
+        typeof key === 'string' &&
+        key.length <= MAX_KEY_LENGTH &&
+        !DANGEROUS_KEYS.has(key)
+    );
 };
 
 module.exports = {

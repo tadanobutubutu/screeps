@@ -35,21 +35,25 @@ const DashboardRenderer = {
         const structures = room._myStructures;
         const hostiles = room._hostileCreeps;
 
-        // ⚡ PERFORMANCE OPTIMIZATION: Use a single loop to count roles instead of multiple filters.
-        const roleCount = {
-            harvester: 0,
-            upgrader: 0,
-            builder: 0,
-            repairer: 0,
-            transporter: 0,
-            scout: 0,
-            medic: 0,
-            explorer: 0,
-        };
-        for (let i = 0; i < creeps.length; i++) {
-            const role = creeps[i].memory.role;
-            if (roleCount[role] !== undefined) {
-                roleCount[role]++;
+        // ⚡ PERFORMANCE OPTIMIZATION: Use pre-calculated role counts from the global loop in main.js
+        // to avoid redundant O(N) counting per room in the dashboard.
+        let roleCount = room._roleCounts;
+        if (!roleCount) {
+            roleCount = {
+                harvester: 0,
+                upgrader: 0,
+                builder: 0,
+                repairer: 0,
+                transporter: 0,
+                scout: 0,
+                medic: 0,
+                explorer: 0,
+            };
+            for (let i = 0; i < creeps.length; i++) {
+                const role = creeps[i].memory.role;
+                if (roleCount[role] !== undefined) {
+                    roleCount[role]++;
+                }
             }
         }
 

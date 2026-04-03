@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [copied, setCopied] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   const handleCopy = useCallback(async () => {
     if (!stats) return;
@@ -39,6 +40,10 @@ export default function Dashboard() {
       setStats(data);
       setLastUpdated(new Date());
       setError(null);
+      if (isManual) {
+        setUpdated(true);
+        setTimeout(() => setUpdated(false), 2000);
+      }
     } catch (e) {
       setError(String(e));
     } finally {
@@ -67,26 +72,27 @@ export default function Dashboard() {
           <button
             onClick={() => fetchStats(true)}
             disabled={loading || isRefreshing}
-            aria-label={isRefreshing ? "Refreshing stats" : "Refresh stats"}
+            aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
             title="Refresh stats"
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
-              background: "#0077aa",
+              background: updated ? "#28a745" : "#0077aa",
               color: "#fff",
               border: "none",
               borderRadius: "4px",
               opacity: (loading || isRefreshing) ? 0.6 : 1,
-              transition: "opacity 0.2s"
+              transition: "all 0.2s"
             }}
           >
-            🔄 {isRefreshing ? "Refreshing..." : "Refresh"}
+            {updated ? "✅ Updated!" : isRefreshing ? "🔄 Refreshing..." : "🔄 Refresh"}
           </button>
         </div>
       </header>
 
       <div aria-live="polite" style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
         {isRefreshing ? "Refreshing statistics..." : ""}
+        {updated ? "Dashboard updated" : ""}
         {copied ? "JSON copied to clipboard" : ""}
       </div>
 
@@ -126,6 +132,7 @@ export default function Dashboard() {
           border: "1px solid #eee",
           borderRadius: "4px",
           boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+          opacity: (loading || isRefreshing) ? 0.6 : 1,
           transition: "all 0.2s ease-in-out"
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
@@ -173,7 +180,7 @@ export default function Dashboard() {
                 right: "0.5rem",
                 padding: "0.25rem 0.5rem",
                 fontSize: "0.75rem",
-                background: copied ? "#28a745" : "#5a6268",
+                background: copied ? "#28a745" : "#575757",
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -195,17 +202,20 @@ export default function Dashboard() {
               </p>
               <button
                 onClick={() => fetchStats(true)}
+                disabled={loading || isRefreshing}
                 style={{
-                  cursor: "pointer",
+                  cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
                   padding: "0.5rem 1rem",
-                  background: "#0077aa",
+                  background: updated ? "#28a745" : "#0077aa",
                   color: "#fff",
                   border: "none",
                   borderRadius: "4px",
-                  fontSize: "0.9rem"
+                  fontSize: "0.9rem",
+                  opacity: (loading || isRefreshing) ? 0.6 : 1,
+                  transition: "all 0.2s"
                 }}
               >
-                🔄 Refresh Dashboard
+                {updated ? "✅ Updated!" : "🔄 Refresh Dashboard"}
               </button>
             </div>
           )

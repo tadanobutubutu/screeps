@@ -180,6 +180,24 @@ function handlePeriodicTasks(systemMode) {
 
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = {};
+
+    // ⚡ PERFORMANCE: Pre-initialize per-room creep caches to "warm" them for downstream systems.
+    for (const roomName in Game.rooms) {
+        const room = Game.rooms[roomName];
+        room._myCreeps = [];
+        room._myCreepsTick = Game.time;
+        room._roleCounts = {
+            harvester: 0,
+            upgrader: 0,
+            builder: 0,
+            repairer: 0,
+            transporter: 0,
+            scout: 0,
+            medic: 0,
+            explorer: 0,
+        };
+    }
+
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
         let role = creep.memory.role;
@@ -193,6 +211,16 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         }
 
         creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        // ⚡ PERFORMANCE: Populate room-level caches during global iteration to avoid redundant O(N) searches.
+        if (creep.room) {
+            if (creep.room._myCreeps) {
+                creep.room._myCreeps.push(creep);
+            }
+            if (creep.room._roleCounts && creep.room._roleCounts[role] !== undefined) {
+                creep.room._roleCounts[role]++;
+            }
+        }
 
         if (isLoggingEnabled) {
             logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);

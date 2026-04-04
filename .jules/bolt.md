@@ -69,3 +69,7 @@
 ## 2026-09-08 - Global Cache Warming and Security Utility Regressions
 **Learning:** Leveraging the mandatory global loop (e.g., `Game.creeps`) to "warm" per-room caches (like `_myCreeps` and `_roleCounts`) eliminates redundant $O(N)$ searches and counting logic in downstream modules (Dashboard, Defense). However, when optimizing core security utilities like `isSafeKey` via hoisting (e.g., using a `Set`), ensuring parity for all supported types (like numeric keys) is critical to prevent functional regressions and "Partially Correct" ratings.
 **Action:** Use global loops for cross-module cache warming to maximize global CPU savings. Always verify type support (e.g., `typeof key === 'number'`) when refactoring high-frequency utility functions.
+
+## 2026-04-04 - Tick-Gated Initialization and Reference Safety
+**Learning:** Hoisting default configuration objects to the module level reduces per-tick allocation, but direct assignment to `Memory` creates shared references across ticks and objects. Furthermore, `init()` functions are often called from multiple entry points (e.g., `addXP`, `trackAction`, `renderDashboard`) within a single tick, causing redundant iteration.
+**Action:** Always use shallow or deep cloning when applying hoisted defaults to `Memory` and implement a per-tick `_initTick` guard to ensure initialization logic runs exactly once per tick.

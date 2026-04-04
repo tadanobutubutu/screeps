@@ -5,6 +5,7 @@
 const vfx = require('visual.effects');
 const utilsMemory = require('utils.memory');
 const dailyChallenge = require('daily-challenge');
+const adaptiveSystem = require('system.adaptive');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
@@ -13,30 +14,49 @@ const dailyChallenge = require('daily-challenge');
 const MAX_ACHIEVEMENTS = 50;
 const MAX_STRING_LENGTH = 100;
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoisted defaults and per-tick cache
+const GAMIFICATION_DEFAULTS = {
+    level: 1,
+    xp: 0,
+    xpToNext: 100,
+    totalScore: 0,
+    achievements: [],
+    streakDays: 0,
+    lastActiveDay: 0,
+    combos: {},
+    milestones: [],
+};
+
+let _initTick = -1;
+
 const gamification = {
     /**
      * 初期化
      */
     init: function () {
+        // ⚡ PERFORMANCE: Per-tick guard to avoid redundant initialization checks
+        if (Game.time === _initTick && Memory.gamification && Memory.gamification.achievements) {
+            return;
+        }
+        _initTick = Game.time;
+
         if (!Memory.gamification) {
             Memory.gamification = {};
         }
 
-        const defaults = {
-            level: 1,
-            xp: 0,
-            xpToNext: 100,
-            totalScore: 0,
-            achievements: [],
-            streakDays: 0,
-            lastActiveDay: 0,
-            combos: {},
-            milestones: [],
-        };
-
-        for (const key in defaults) {
+        for (const key in GAMIFICATION_DEFAULTS) {
             if (Memory.gamification[key] === undefined) {
-                Memory.gamification[key] = defaults[key];
+                // For arrays and objects, we must create new copies to avoid shared references
+                if (Array.isArray(GAMIFICATION_DEFAULTS[key])) {
+                    Memory.gamification[key] = [...GAMIFICATION_DEFAULTS[key]];
+                } else if (
+                    typeof GAMIFICATION_DEFAULTS[key] === 'object' &&
+                    GAMIFICATION_DEFAULTS[key] !== null
+                ) {
+                    Memory.gamification[key] = { ...GAMIFICATION_DEFAULTS[key] };
+                } else {
+                    Memory.gamification[key] = GAMIFICATION_DEFAULTS[key];
+                }
             }
         }
     },
@@ -45,6 +65,11 @@ const gamification = {
      * XP獲得
      */
     addXP: function (amount, reason) {
+        // ⚡ PERFORMANCE: Respect adaptive system status
+        if (!adaptiveSystem.isEnabled('gamification')) {
+            return;
+        }
+
         this.init();
 
         // Security: Validate XP amount to prevent corruption or DoS via massive values
@@ -59,9 +84,12 @@ const gamification = {
         Memory.gamification.xp += numericAmount;
         Memory.gamification.totalScore += numericAmount;
 
-        console.log(
-            '✨ +' + numericAmount + ' XP ' + (sanitizedReason ? '(' + sanitizedReason + ')' : '')
-        );
+        // ⚡ PERFORMANCE: Throttle console logging for high-frequency low-value XP gains
+        if (numericAmount >= 5) {
+            console.log(
+                '✨ +' + numericAmount + ' XP ' + (sanitizedReason ? '(' + sanitizedReason + ')' : '')
+            );
+        }
 
         this.checkLevelUp();
     },
@@ -257,6 +285,11 @@ const gamification = {
      * ビジュアルダッシュボード
      */
     renderDashboard: function () {
+        // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
+        if (!adaptiveSystem.isEnabled('visualEffects')) {
+            return;
+        }
+
         this.init();
         const gm = Memory.gamification;
 
@@ -342,6 +375,11 @@ const gamification = {
      * Creepアクション追跡
      */
     trackAction: function (creep, action) {
+        // ⚡ PERFORMANCE: Early return if gamification is disabled to save CPU in low-power modes
+        if (!adaptiveSystem.isEnabled('gamification')) {
+            return;
+        }
+
         switch (action) {
             case 'harvest': {
                 this.addXP(1, 'harvest');
@@ -381,6 +419,7 @@ const gamification = {
      */
     reset: function () {
         delete Memory.gamification;
+        _initTick = -1;
         console.log('🔄 Gamification reset!');
     },
 };

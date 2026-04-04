@@ -57,7 +57,7 @@ export default function Dashboard() {
   }, [fetchStats]);
 
   return (
-    <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)" }}>
+    <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
         <h1 style={{ margin: 0 }}><span role="img" aria-label="Screeps" title="Screeps">🐛</span> Screeps Dashboard</h1>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
@@ -101,7 +101,7 @@ export default function Dashboard() {
           <section
             aria-busy="true"
             aria-label="Loading GCL stats"
-            style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6 }}
+            style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6, boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" }}
           >
             <span style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
               Loading GCL stats...
@@ -139,16 +139,18 @@ export default function Dashboard() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <strong><span role="img" aria-label="Global Control Level" title="Global Control Level">🌐</span> GCL: {stats.gcl.level}</strong>
               {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
+              {stats.cpuUsed !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="CPU Used" title="CPU Used">📊</span> CPU: {stats.cpuUsed}</span>}
             </div>
-            <span id="gcl-percent" style={{ fontWeight: "bold", color: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa" }}>{Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}%</span>
+            <span id="gcl-percent" style={{ fontWeight: "bold", color: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa" }}>{Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}%</span>
           </div>
           <div
             role="progressbar"
             aria-label="Global Control Level progress"
             aria-describedby="gcl-percent"
-            aria-valuenow={Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)}
+            aria-valuenow={Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}
             aria-valuemin={0}
             aria-valuemax={100}
+            title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
             <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#00aaff", transition: "width 0.5s ease-in-out" }} />
@@ -203,6 +205,8 @@ export default function Dashboard() {
               <button
                 onClick={() => fetchStats(true)}
                 disabled={loading || isRefreshing}
+                aria-label="Refresh stats"
+                title="Refresh stats"
                 style={{
                   cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
                   padding: "0.5rem 1rem",

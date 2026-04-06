@@ -30,6 +30,7 @@ describe('visual.effects', () => {
   let mockPos;
 
   beforeEach(() => {
+    visualEffects.reset();
     global.Memory = { adaptive: { currentMode: 'normal' } };
     global.Game.time = 10;
     mockPos = { x: 25, y: 25, roomName: 'W0N0' };

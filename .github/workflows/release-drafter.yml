@@ -8,8 +8,8 @@ on:
     types: [opened, reopened, synchronize]
 
 permissions:
-  contents: read
-  pull-requests: read
+  contents: write
+  pull-requests: write
 
 jobs:
   update_release_draft:
@@ -21,5 +21,6 @@ jobs:
         uses: release-drafter/release-drafter@v7
         with:
           config-name: release-drafter.yml
+          commitish: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

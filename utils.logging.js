@@ -14,6 +14,22 @@ module.exports = {
         }
     },
 
+    /**
+     * Security: Escapes HTML special characters to prevent console injection.
+     */
+    _escapeHTML: function (str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[&<>\"]/g, (tag) => {
+            const chars = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+            };
+            return chars[tag] || tag;
+        });
+    },
+
     // Log a message
     log: function (level, message) {
         if (!Memory.logs) {
@@ -43,8 +59,11 @@ module.exports = {
             debug: '\ud83d\udd0d',
         };
 
+        // Security: Escape message to prevent HTML injection in the console
+        const escapedMessage = this._escapeHTML(sanitizedMessage);
+
         console.log(
-            `${emoji[sanitizedLevel] || '\ud83d\udcac'} [${sanitizedLevel}] ${sanitizedMessage}`
+            `${emoji[sanitizedLevel] || '\ud83d\udcac'} [${sanitizedLevel}] ${escapedMessage}`
         );
     },
 

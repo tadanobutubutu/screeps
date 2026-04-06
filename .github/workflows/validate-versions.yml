@@ -16,9 +16,201 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
+  workflows: write
+  actions: write
 
 jobs:
-  validate:
+  action-versions:
+    if: |
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.actor != 'Version Guard Bot' &&
+      !contains(github.event.head_commit.message, 'Auto-fix: update outdated action versions')
     runs-on: ubuntu-latest
+    name: Fix Action Versions
+
     steps:
-      - run: echo "Done"
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: ${{ github.token }}
+
+      - name: Scan for Invalid Action Versions
+        id: scan
+        run: |
+          INVALID=$(grep -Ern \
+            -e 'uses:\s*actions/checkout@v[1-3][^0-9]' \
+            -e 'uses:\s*actions/setup-node@v[1-3][^0-9]' \
+            -e 'uses:\s*actions/setup-python@v[1-4][^0-9]' \
+            -e 'uses:\s*actions/upload-artifact@v[1-3][^0-9]' \
+            -e 'uses:\s*actions/download-artifact@v[1-3][^0-9]' \
+            -e 'uses:\s*actions/cache@v[1-3][^0-9]' \
+            -e 'uses:\s*actions/github-script@v[1-6][^0-9]' \
+            .github/workflows/ \
+            --include='*.yml' --include='*.yaml' \
+            --exclude='validate-versions.yml' 2>/dev/null || true)
+
+          if [ -n "$INVALID" ]; then
+            echo "found=true" >> $GITHUB_OUTPUT
+            echo "Outdated versions found:"
+            echo "$INVALID"
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto-Fix to Stable Versions
+        if: steps.scan.outputs.found == 'true'
+        run: |
+          find .github/workflows/ \( -name '*.yml' -o -name '*.yaml' \) \
+            ! -name 'validate-versions.yml' | while read f; do
+            sed -i \
+              -e 's|actions/checkout@v[1-3]\b|actions/checkout@v6|g' \
+              -e 's|actions/setup-node@v[1-3]\b|actions/setup-node@v6|g' \
+              -e 's|actions/setup-python@v[1-4]\b|actions/setup-python@v5|g' \
+              -e 's|actions/upload-artifact@v[1-3]\b|actions/upload-artifact@v4|g' \
+              -e 's|actions/download-artifact@v[1-3]\b|actions/download-artifact@v4|g' \
+              -e 's|actions/cache@v[1-3]\b|actions/cache@v4|g' \
+              -e 's|actions/github-script@v[1-6]\b|actions/github-script@v8|g' \
+              "$f"
+          done
+
+      - name: Commit Fix
+        if: steps.scan.outputs.found == 'true'
+        run: |
+          git config user.name 'Version Guard Bot'
+          git config user.email 'version-guard@screeps.bot'
+          git add .github/workflows/
+          git diff --staged --quiet || (
+            git commit -m "Auto-fix: update outdated action versions"
+            git push || echo "::warning::Push failed - likely insufficient permissions for workflow files. Manual update needed."
+          )
+
+  package-versions:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Validate Package Versions
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Validate Root package.json
+        id: validate-root
+        run: |
+          INVALID_PACKAGES=()
+          for pkg in $(node -e "
+            const pkg = require('./package.json');
+            const deps = {...pkg.dependencies, ...pkg.devDependencies};
+            Object.entries(deps).forEach(([name, ver]) => console.log(name + '|' + ver));
+          " 2>/dev/null); do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            VERSION=$(echo "$pkg" | cut -d'|' -f2)
+            if ! npm view "$NAME@$VERSION" version &>/dev/null; then
+              LATEST=$(npm view "$NAME" version 2>/dev/null || echo "unknown")
+              INVALID_PACKAGES+=("$NAME|$VERSION|$LATEST")
+            fi
+          done
+          if [ ${#INVALID_PACKAGES[@]} -gt 0 ]; then
+            echo "invalid_packages=${INVALID_PACKAGES[*]}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Auto-Fix Invalid Packages
+        if: steps.validate-root.outputs.invalid_packages != ''
+        run: |
+          for pkg in ${{ steps.validate-root.outputs.invalid_packages }}; do
+            NAME=$(echo "$pkg" | cut -d'|' -f1)
+            CURRENT_VER=$(echo "$pkg" | cut -d'|' -f2)
+            LATEST=$(npm view "$NAME" version)
+            echo "Fixing $NAME: $CURRENT_VER -> $LATEST"
+            npm pkg set "dependencies.$NAME=$LATEST" 2>/dev/null || npm pkg set "devDependencies.$NAME=$LATEST"
+          done
+
+      - name: Commit Fix
+        if: steps.validate-root.outputs.invalid_packages != ''
+        run: |
+          git config user.name 'Package Guard Bot'
+          git config user.email 'package-guard@screeps.bot'
+          git add package.json
+          git diff --staged --quiet || (
+            git commit -m "Auto-fix: correct invalid package versions"
+            git push || echo "::warning::Push failed for package version fix."
+          )
+
+  pr-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: PR Package Check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Check Changed package.json Files
+        id: check
+        run: |
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }} HEAD -- '**/package.json')
+          echo "changed_files=$CHANGED" >> $GITHUB_OUTPUT
+
+      - name: Validate Changed Versions
+        id: validate
+        if: steps.check.outputs.changed_files != ''
+        run: |
+          INVALID_CHANGES=()
+          for file in ${{ steps.check.outputs.changed_files }}; do
+            DIFF=$(git diff ${{ github.event.pull_request.base.sha }} HEAD -- "$file")
+            while IFS= read -r line; do
+              if [[ "$line" =~ ^[-+][[:space:]]+\"([^\"]+)\"[[:space:]]*:[[:space:]]+\"([^\"]+)\" ]]; then
+                PKG_NAME="${BASH_REMATCH[1]}"
+                PKG_VERSION="${BASH_REMATCH[2]}"
+                if [[ "$line" == -* ]]; then
+                  OLD_VERSION="$PKG_VERSION"
+                else
+                  NEW_VERSION="$PKG_VERSION"
+                  if ! npm view "$PKG_NAME@$NEW_VERSION" version &>/dev/null; then
+                    LATEST=$(npm view "$PKG_NAME" version 2>/dev/null || echo "unknown")
+                    INVALID_CHANGES+=("$PKG_NAME|$OLD_VERSION|$NEW_VERSION|$LATEST")
+                  fi
+                fi
+              fi
+            done <<< "$DIFF"
+          done
+          if [ ${#INVALID_CHANGES[@]} -gt 0 ]; then
+            echo "invalid_changes=${INVALID_CHANGES[*]}" >> $GITHUB_OUTPUT
+            echo "has_invalid=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_invalid=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Post Comment
+        if: steps.check.outputs.changed_files != ''
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          if [ "${{ steps.validate.outputs.has_invalid }}" = "true" ]; then
+            COMMENT="## Invalid Package Versions Detected\n\n"
+            COMMENT+="This PR contains invalid package versions.\n\n"
+            COMMENT+="| Package | Invalid Version | Recommended |\n"
+            COMMENT+="|---------|----------------|-------------|\n"
+            for change in ${{ steps.validate.outputs.invalid_changes }}; do
+              NAME=$(echo "$change" | cut -d'|' -f1)
+              NEW_VER=$(echo "$change" | cut -d'|' -f3)
+              LATEST=$(echo "$change" | cut -d'|' -f4)
+              COMMENT+="| \`$NAME\` | \`$NEW_VER\` | \`$LATEST\` |\n"
+            done
+          else
+            COMMENT="## Package Version Check Complete\n\nAll package version changes are valid."
+          fi
+          gh pr comment $PR_NUMBER --body "$(echo -e "$COMMENT")"
+        env:
+          GH_TOKEN: ${{ github.token }}

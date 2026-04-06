@@ -1,6 +1,9 @@
 name: 🎲 Random Experiment
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Weekly on Sunday at 4 AM JST (Saturday 7 PM UTC)
     - cron: '0 19 * * 6'

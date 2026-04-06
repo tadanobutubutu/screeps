@@ -1,6 +1,9 @@
 name: 🆕 Auto Create New Roles
 
 on:
+  push:
+    branches:
+      - main
   schedule:
     # Every Monday at 3 AM JST (Sunday 6 PM UTC)
     - cron: '0 18 * * 0'

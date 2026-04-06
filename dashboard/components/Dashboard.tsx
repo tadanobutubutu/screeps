@@ -141,6 +141,7 @@ export default function Dashboard() {
               {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
               {stats.cpuUsed !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="CPU Used" title="CPU Used">📊</span> CPU: {stats.cpuUsed}</span>}
             </div>
+<<<<<<< HEAD
             <span
               id="gcl-percent"
               style={{

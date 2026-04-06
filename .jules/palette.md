@@ -61,3 +61,7 @@
 ## 2026-03-29 - [Accessible Skeleton Loaders]
 **Learning:** Visual-only skeleton loaders can exclude non-visual users if the original loading text is removed. To ensure accessibility, skeleton loaders must include `aria-busy="true"`, a descriptive `aria-label`, and visually hidden text (e.g., using a "sr-only" style) within an `aria-live` region. Furthermore, skeleton bars must maintain at least a 3:1 contrast ratio (e.g., using #767676 on white) to be visible to users with low vision.
 **Action:** Always pair skeleton loaders with ARIA attributes and visually hidden descriptive text, and ensure contrast ratios meet WCAG AA standards.
+
+## 2025-06-30 - [High-Contrast Completion States]
+**Learning:** For gold-colored text (#FFD700) indicating 100% completion, the contrast ratio against white backgrounds is often insufficient (around 1.5:1). Adding a dark background (e.g., #333333) specifically for the 100% state not only brings the contrast ratio to a compliant level (>7:1) but also visually distinguishes "finished" from "in-progress" more effectively than color alone.
+**Action:** When using gold or other light-colored status indicators on light themes, always provide a dark background container to ensure WCAG AA/AAA compliance and improve state differentiation.

@@ -141,13 +141,20 @@ export default function Dashboard() {
               {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
               {stats.cpuUsed !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="CPU Used" title="CPU Used">📊</span> CPU: {stats.cpuUsed}</span>}
             </div>
-            <span id="gcl-percent" style={{
-              fontWeight: "bold",
-              color: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa",
-              backgroundColor: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "transparent",
-              padding: stats.gcl.progress >= stats.gcl.progressTotal ? "2px 6px" : "0",
-              borderRadius: "4px"
-            }}>{Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}%</span>
+<<<<<<< HEAD
+            <span
+              id="gcl-percent"
+              style={{
+                fontWeight: "bold",
+                color: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa",
+                backgroundColor: stats.gcl.progress >= stats.gcl.progressTotal ? "#333" : "transparent",
+                padding: stats.gcl.progress >= stats.gcl.progressTotal ? "2px 6px" : "0",
+                borderRadius: "4px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              {Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}%
+            </span>
           </div>
           <div
             role="progressbar"

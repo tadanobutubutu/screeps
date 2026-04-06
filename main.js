@@ -409,7 +409,7 @@ module.exports.loop = function () {
             const processedPairs = new Set();
             for (const roomName in Game.rooms) {
                 const room = Game.rooms[roomName];
-                const creepsInRoom = room.find(FIND_MY_CREEPS);
+                const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS);
 
                 for (const creep of creepsInRoom) {
                     const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1);

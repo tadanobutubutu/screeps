@@ -74,14 +74,21 @@ jobs:
             }
 
             const total = coverageData.total;
+            if (!total) {
+              console.log('No total coverage data found, skipping.');
+              return;
+            }
 
-            // カバレッジ50%未満のファイルを検出
+            // カバレッジ50%未満のファイルを検出（totalキーはスキップ）
             const lowCoverageFiles = [];
             for (const [file, data] of Object.entries(coverageData)) {
               if (file === 'total') continue;
-              if (data.lines.pct < 50) {
+              // 各ファイルデータのlines.pctが50%未満なら追加
+              const linesPct = data?.lines?.pct ?? 100;
+              if (linesPct < 50) {
+                const fileName = file.replace('/root/.openclaw/workspace/screeps-clone/', '');
                 lowCoverageFiles.push(
-                  `- \`${file}\`: Lines ${data.lines.pct}% / Functions ${data.functions.pct}% / Branches ${data.branches.pct}%`
+                  `- \`${fileName}\`: Lines ${linesPct.toFixed(2)}% / Functions ${(data?.functions?.pct ?? 100).toFixed(2)}% / Branches ${(data?.branches?.pct ?? 100).toFixed(2)}%`
                 );
               }
             }

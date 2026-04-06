@@ -12,9 +12,6 @@ permissions:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.actor != 'google-labs-jules[bot]'
     steps:
       - name: Force Merge PR (No Conditions)
         uses: actions/github-script@v8

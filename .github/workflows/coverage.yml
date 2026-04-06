@@ -13,10 +13,6 @@ permissions:
 jobs:
   coverage:
     runs-on: ubuntu-latest
-    if: |
-      !contains(github.event.head_commit.message, '[skip ci]') &&
-      github.actor != 'google-labs-jules[bot]'
-
     steps:
       - uses: actions/checkout@v6
 

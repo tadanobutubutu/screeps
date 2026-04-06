@@ -8,6 +8,10 @@ const adaptiveSystem = require('system.adaptive');
 let _isVfxEnabledTick = -1;
 let _isVfxEnabledValue = true;
 
+// ⚡ PERFORMANCE: Per-tick cache for RoomVisual objects
+let _visualsCache = {};
+let _visualsTick = -1;
+
 /**
  * Checks if visual effects are enabled, with per-tick caching.
  */
@@ -19,13 +23,30 @@ function isVfxEnabled() {
     return _isVfxEnabledValue;
 }
 
+/**
+ * Gets a RoomVisual object for the specified room, using a per-tick cache
+ * to avoid redundant object allocations.
+ */
+function getVisual(roomName) {
+    if (typeof Game !== 'undefined' && Game.time !== _visualsTick) {
+        _visualsTick = Game.time;
+        _visualsCache = {};
+    }
+
+    if (!_visualsCache[roomName]) {
+        _visualsCache[roomName] = new RoomVisual(roomName);
+    }
+
+    return _visualsCache[roomName];
+}
+
 const visualEffects = {
     /**
      * 派手なパーティクルエフェクト
      */
     particles: function (pos, color = '#FFD700', count = 20) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         for (let i = 0; i < count; i++) {
             const angle = (Math.PI * 2 * i) / count;
@@ -46,7 +67,7 @@ const visualEffects = {
      */
     successExplosion: function (pos) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
         const colors = ['#FFD700', '#FFA500', '#FF69B4', '#00FF00', '#00FFFF'];
 
         // 外側の輪
@@ -85,7 +106,7 @@ const visualEffects = {
      */
     levelUp: function (pos, level) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         // 虹色の輪
         const colors = [
@@ -128,7 +149,7 @@ const visualEffects = {
      */
     combo: function (pos, count) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         let color;
         if (count >= 10) {
@@ -158,7 +179,7 @@ const visualEffects = {
      */
     achievement: function (pos, title, icon = '🏆') {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         // 背景ボックス
         visual.rect(pos.x - 3, pos.y - 1, 6, 2, {
@@ -192,7 +213,7 @@ const visualEffects = {
      */
     progressBar: function (pos, current, max, label = '') {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
         const width = 3;
         const height = 0.3;
         const progress = max > 0 ? Math.min(current / max, 1) : 0;
@@ -248,7 +269,7 @@ const visualEffects = {
             }
             return;
         }
-        const visual = new RoomVisual(creep.room.name);
+        const visual = getVisual(creep.room.name);
         const colors = [
             '#FF0000',
             '#FF7F00',
@@ -284,7 +305,7 @@ const visualEffects = {
      */
     damageNumber: function (pos, amount, isCritical = false) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         const color = isCritical ? '#FF0000' : '#FFA500';
         const size = isCritical ? 1.5 : 1;
@@ -308,7 +329,7 @@ const visualEffects = {
      */
     healEffect: function (pos) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         for (let i = 0; i < 8; i++) {
             const angle = (Math.PI * 2 * i) / 8;
@@ -328,7 +349,7 @@ const visualEffects = {
      */
     stars: function (pos, count = 5) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
         const emojis = ['⭐', '✨', '🌟', '💫'];
 
         for (let i = 0; i < count; i++) {
@@ -348,7 +369,7 @@ const visualEffects = {
      */
     streak: function (pos, days) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         visual.text(`🔥 ${days} DAY STREAK! 🔥`, pos.x, pos.y, {
             color: days >= 7 ? '#FF0000' : days >= 3 ? '#FF69B4' : '#FFD700',
@@ -363,7 +384,7 @@ const visualEffects = {
      */
     scorePopup: function (pos, points, label = 'POINTS') {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         visual.text(`+${points}`, pos.x, pos.y - 0.5, {
             color: '#FFD700',
@@ -383,7 +404,7 @@ const visualEffects = {
      */
     rankBadge: function (pos, rank) {
         if (!isVfxEnabled()) return;
-        const visual = new RoomVisual(pos.roomName);
+        const visual = getVisual(pos.roomName);
 
         const badges = {
             Newbie: { icon: '🌱', color: '#90EE90' },

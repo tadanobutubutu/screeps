@@ -72,6 +72,47 @@ function _record(level, message) {
     }
 }
 
+/**
+ * Security: Escapes HTML special characters to prevent console injection.
+ * @param {string} str
+ * @returns {string}
+ */
+function _escapeHTML(str) {
+    if (typeof str !== 'string') return str;
+    return str.replace(/[&<>\"]/g, (tag) => {
+        const chars = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+        };
+        return chars[tag] || tag;
+    });
+}
+
+/**
+ * Security: Safely stringifies an object, handling circular references and limiting length.
+ * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
+ * @param {*} obj
+ * @param {number} [maxLength=500]
+ * @returns {string}
+ */
+function _safeStringify(obj, maxLength = 500) {
+    try {
+        const seen = new WeakSet();
+        const str = JSON.stringify(obj, (key, value) => {
+            if (typeof value === 'object' && value !== null) {
+                if (seen.has(value)) return '[Circular]';
+                seen.add(value);
+            }
+            return value;
+        });
+        return str.substring(0, maxLength);
+    } catch (e) {
+        return '[Unstringifiable Object]';
+    }
+}
+
 // ============================================================
 // 公開API
 // ============================================================
@@ -101,10 +142,11 @@ function debug(message, data) {
     if (_level > LOG_LEVEL.DEBUG) return;
     _stats.debug++;
     const full = data !== undefined
-        ? `${message} ${JSON.stringify(data)}`
+        ? `${message} ${_safeStringify(data)}`
         : message;
     _record('debug', full);
-    console.log(_colorize(`${_prefix('debug')} ${full}`, COLORS.debug));
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix('debug')} ${escapedFull}`, COLORS.debug));
 }
 
 /**
@@ -116,10 +158,11 @@ function info(message, data) {
     if (_level > LOG_LEVEL.INFO) return;
     _stats.info++;
     const full = data !== undefined
-        ? `${message} ${JSON.stringify(data)}`
+        ? `${message} ${_safeStringify(data)}`
         : message;
     _record('info', full);
-    console.log(_colorize(`${_prefix('info')} ${full}`, COLORS.info));
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix('info')} ${escapedFull}`, COLORS.info));
 }
 
 /**
@@ -131,10 +174,11 @@ function warn(message, data) {
     if (_level > LOG_LEVEL.WARN) return;
     _stats.warn++;
     const full = data !== undefined
-        ? `${message} ${JSON.stringify(data)}`
+        ? `${message} ${_safeStringify(data)}`
         : message;
     _record('warn', full);
-    console.log(_colorize(`${_prefix('warn')} ${full}`, COLORS.warn));
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix('warn')} ${escapedFull}`, COLORS.warn));
 }
 
 /**
@@ -152,10 +196,11 @@ function error(message, error) {
             full += `\n${getSafeStack(error.stack)}`;
         }
     } else if (error !== undefined) {
-        full += ` ${JSON.stringify(error)}`;
+        full += ` ${_safeStringify(error)}`;
     }
     _record('error', full);
-    console.log(_colorize(`${_prefix('error')} ${full}`, COLORS.error));
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix('error')} ${escapedFull}`, COLORS.error));
 }
 
 /**

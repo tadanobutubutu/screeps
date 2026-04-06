@@ -8,6 +8,10 @@ const adaptiveSystem = require('system.adaptive');
 let _isVfxEnabledTick = -1;
 let _isVfxEnabledValue = true;
 
+// ⚡ PERFORMANCE: Per-tick cache for RoomVisual objects
+let _visualsCache = {};
+let _visualsTick = -1;
+
 /**
  * Checks if visual effects are enabled, with per-tick caching.
  */
@@ -19,22 +23,20 @@ function isVfxEnabled() {
     return _isVfxEnabledValue;
 }
 
-// ⚡ PERFORMANCE: Per-tick cache for RoomVisual objects
-let _visualsCache = {};
-let _visualsTick = -1;
-
 /**
- * Gets a cached RoomVisual for the specified room, or creates a new one.
- * The cache is cleared every tick.
+ * Gets a RoomVisual object for the specified room, using a per-tick cache
+ * to avoid redundant object allocations.
  */
 function getVisual(roomName) {
     if (typeof Game !== 'undefined' && Game.time !== _visualsTick) {
-        _visualsCache = {};
         _visualsTick = Game.time;
+        _visualsCache = {};
     }
+
     if (!_visualsCache[roomName]) {
         _visualsCache[roomName] = new RoomVisual(roomName);
     }
+
     return _visualsCache[roomName];
 }
 

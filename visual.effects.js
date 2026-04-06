@@ -40,6 +40,27 @@ function getVisual(roomName) {
     return _visualsCache[roomName];
 }
 
+// ⚡ PERFORMANCE: Hoisted constants to avoid per-call allocation
+const SUCCESS_COLORS = ['#FFD700', '#FFA500', '#FF69B4', '#00FF00', '#00FFFF'];
+const RAINBOW_COLORS = [
+    '#FF0000',
+    '#FF7F00',
+    '#FFFF00',
+    '#00FF00',
+    '#0000FF',
+    '#4B0082',
+    '#9400D3',
+];
+const STAR_EMOJIS = ['⭐', '✨', '🌟', '💫'];
+const RANK_BADGE_CONFIG = {
+    Newbie: { icon: '🌱', color: '#90EE90' },
+    Beginner: { icon: '🔰', color: '#87CEEB' },
+    Intermediate: { icon: '⚡', color: '#FFD700' },
+    Advanced: { icon: '🌟', color: '#FF69B4' },
+    Expert: { icon: '💎', color: '#00CED1' },
+    Master: { icon: '👑', color: '#FFD700' },
+};
+
 const visualEffects = {
     /**
      * 派手なパーティクルエフェクト
@@ -68,14 +89,13 @@ const visualEffects = {
     successExplosion: function (pos) {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
-        const colors = ['#FFD700', '#FFA500', '#FF69B4', '#00FF00', '#00FFFF'];
 
         // 外側の輪
         for (let ring = 1; ring <= 3; ring++) {
             visual.circle(pos.x, pos.y, {
                 radius: ring * 0.5,
                 fill: 'transparent',
-                stroke: colors[ring % colors.length],
+                stroke: SUCCESS_COLORS[ring % SUCCESS_COLORS.length],
                 strokeWidth: 0.1,
                 opacity: 1 - ring * 0.2,
             });
@@ -88,7 +108,7 @@ const visualEffects = {
             const endY = pos.y + Math.sin(angle) * 1.5;
 
             visual.line(pos.x, pos.y, endX, endY, {
-                color: colors[i % colors.length],
+                color: SUCCESS_COLORS[i % SUCCESS_COLORS.length],
                 width: 0.15,
                 opacity: 0.8,
             });
@@ -109,20 +129,11 @@ const visualEffects = {
         const visual = getVisual(pos.roomName);
 
         // 虹色の輪
-        const colors = [
-            '#FF0000',
-            '#FF7F00',
-            '#FFFF00',
-            '#00FF00',
-            '#0000FF',
-            '#4B0082',
-            '#9400D3',
-        ];
-        for (let i = 0; i < colors.length; i++) {
+        for (let i = 0; i < RAINBOW_COLORS.length; i++) {
             visual.circle(pos.x, pos.y, {
                 radius: 2 + i * 0.2,
                 fill: 'transparent',
-                stroke: colors[i],
+                stroke: RAINBOW_COLORS[i],
                 strokeWidth: 0.15,
                 opacity: 0.7,
             });
@@ -270,15 +281,6 @@ const visualEffects = {
             return;
         }
         const visual = getVisual(creep.room.name);
-        const colors = [
-            '#FF0000',
-            '#FF7F00',
-            '#FFFF00',
-            '#00FF00',
-            '#0000FF',
-            '#4B0082',
-            '#9400D3',
-        ];
 
         if (!creep.memory.trailPositions) {
             creep.memory.trailPositions = [];
@@ -294,7 +296,7 @@ const visualEffects = {
             const trailPos = creep.memory.trailPositions[i];
             visual.circle(trailPos.x, trailPos.y, {
                 radius: 0.2,
-                fill: colors[i % colors.length],
+                fill: RAINBOW_COLORS[i % RAINBOW_COLORS.length],
                 opacity: 0.3 + i * 0.07,
             });
         }
@@ -350,7 +352,6 @@ const visualEffects = {
     stars: function (pos, count = 5) {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
-        const emojis = ['⭐', '✨', '🌟', '💫'];
 
         for (let i = 0; i < count; i++) {
             const angle = (Math.PI * 2 * i) / count + Game.time * 0.05;
@@ -358,7 +359,7 @@ const visualEffects = {
             const x = pos.x + Math.cos(angle) * distance;
             const y = pos.y + Math.sin(angle) * distance;
 
-            visual.text(emojis[i % emojis.length], x, y, {
+            visual.text(STAR_EMOJIS[i % STAR_EMOJIS.length], x, y, {
                 font: 0.6,
             });
         }
@@ -406,16 +407,7 @@ const visualEffects = {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
 
-        const badges = {
-            Newbie: { icon: '🌱', color: '#90EE90' },
-            Beginner: { icon: '🔰', color: '#87CEEB' },
-            Intermediate: { icon: '⚡', color: '#FFD700' },
-            Advanced: { icon: '🌟', color: '#FF69B4' },
-            Expert: { icon: '💎', color: '#00CED1' },
-            Master: { icon: '👑', color: '#FFD700' },
-        };
-
-        const badge = badges[rank] || badges['Newbie'];
+        const badge = RANK_BADGE_CONFIG[rank] || RANK_BADGE_CONFIG['Newbie'];
 
         visual.text(badge.icon, pos.x, pos.y, {
             font: 1.5,
@@ -427,6 +419,15 @@ const visualEffects = {
             stroke: '#000000',
             strokeWidth: 0.05,
         });
+    },
+
+    /**
+     * Resets the visual effects system (used for testing).
+     */
+    reset: function () {
+        _visualsCache = {};
+        _visualsTick = -1;
+        _isVfxEnabledTick = -1;
     },
 };
 

@@ -65,3 +65,7 @@
 ## 2025-06-30 - [High-Contrast Completion States]
 **Learning:** For gold-colored text (#FFD700) indicating 100% completion, the contrast ratio against white backgrounds is often insufficient (around 1.5:1). Adding a dark background (e.g., #333333) specifically for the 100% state not only brings the contrast ratio to a compliant level (>7:1) but also visually distinguishes "finished" from "in-progress" more effectively than color alone.
 **Action:** When using gold or other light-colored status indicators on light themes, always provide a dark background container to ensure WCAG AA/AAA compliance and improve state differentiation.
+
+## 2026-04-07 - [Actionable Error States & Contrast Guardrails]
+**Learning:** A static error message is a dead end for users. Adding a prominent "Retry" button within the error container transforms a failure into an actionable event, reducing user frustration. Furthermore, maintaining high-contrast color guardrails for primary metrics (like using #0077aa instead of #00aaff for progress bars on light backgrounds) ensures that essential information remains accessible without relying on hover states or external tools.
+**Action:** Always provide a clear recovery path (Retry/Refresh) in error alerts and enforce WCAG AA (4.5:1) minimum contrast for all primary status indicators.

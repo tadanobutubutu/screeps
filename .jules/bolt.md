@@ -73,3 +73,7 @@
 ## 2026-04-04 - Tick-Gated Initialization and Reference Safety
 **Learning:** Hoisting default configuration objects to the module level reduces per-tick allocation, but direct assignment to `Memory` creates shared references across ticks and objects. Furthermore, `init()` functions are often called from multiple entry points (e.g., `addXP`, `trackAction`, `renderDashboard`) within a single tick, causing redundant iteration.
 **Action:** Always use shallow or deep cloning when applying hoisted defaults to `Memory` and implement a per-tick `_initTick` guard to ensure initialization logic runs exactly once per tick.
+
+## 2026-04-07 - Throttling Periodic O(N) Cleanup Tasks
+**Learning:** Performing unoptimized $O(N)$ operations on every tick, such as cleaning up stale `Memory.creeps` entries, is a silent CPU drain. Since creeps live for 1500 ticks, running this cleanup every tick is redundant. Throttling such periodic maintenance tasks to run every 100 ticks (approx. 5 minutes) significantly reduces their cumulative CPU impact without risking Memory overflow.
+**Action:** Identify and throttle periodic $O(N)$ maintenance tasks in the main loop to run at appropriate intervals (e.g., every 100 ticks) instead of every tick.

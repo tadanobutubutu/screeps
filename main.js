@@ -378,7 +378,12 @@ function displayStats() {
 module.exports.loop = function () {
     try {
         const systemMode = adaptiveSystem.evaluate();
-        utilsMemory.cleanMemory();
+
+        // ⚡ PERFORMANCE: Throttle memory cleanup to run every 100 ticks.
+        // This reduces O(N) memory iteration overhead on every tick.
+        if (Game.time % 100 === 0) {
+            utilsMemory.cleanMemory();
+        }
 
         if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
             console.log('🤖 AUTO TUTORIAL MODE ACTIVE');

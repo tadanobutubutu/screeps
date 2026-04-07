@@ -120,8 +120,25 @@ export default function Dashboard() {
       </div>
 
       {error && (
-        <div role="alert" style={{ color: "#d32f2f", padding: "1rem", border: "1px solid #d32f2f", borderRadius: "4px", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", backgroundColor: "#fff5f5" }}>
-          <span role="img" aria-label="Error">⚠️</span> {error}
+        <div role="alert" style={{ color: "#d32f2f", padding: "1rem", border: "1px solid #d32f2f", borderRadius: "4px", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between", backgroundColor: "#fff5f5" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span role="img" aria-label="Error">⚠️</span> {error}
+          </div>
+          <button
+            onClick={() => fetchStats(true)}
+            aria-label="Retry fetching stats"
+            style={{
+              padding: "0.25rem 0.75rem",
+              background: "#d32f2f",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "0.8rem"
+            }}
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -141,7 +158,6 @@ export default function Dashboard() {
               {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
               {stats.cpuUsed !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="CPU Used" title="CPU Used">📊</span> CPU: {stats.cpuUsed}</span>}
             </div>
-<<<<<<< HEAD
             <span
               id="gcl-percent"
               style={{
@@ -166,7 +182,7 @@ export default function Dashboard() {
             title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
-            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#00aaff", transition: "width 0.5s ease-in-out" }} />
+            <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa", transition: "width 0.5s ease-in-out" }} />
           </div>
           <div style={{ fontSize: "0.75rem", color: "#575757", textAlign: "right" }}>
             {stats.gcl.progress.toLocaleString()} / {stats.gcl.progressTotal.toLocaleString()}
@@ -218,7 +234,7 @@ export default function Dashboard() {
               <button
                 onClick={() => fetchStats(true)}
                 disabled={loading || isRefreshing}
-                aria-label="Refresh stats"
+                aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
                 title="Refresh stats"
                 style={{
                   cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",

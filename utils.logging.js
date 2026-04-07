@@ -19,12 +19,14 @@ module.exports = {
      */
     _escapeHTML: function (str) {
         if (typeof str !== 'string') return str;
-        return str.replace(/[&<>\"]/g, (tag) => {
+        return str.replace(/[&<>'\"`]/g, (tag) => {
             const chars = {
                 '&': '&amp;',
                 '<': '&lt;',
                 '>': '&gt;',
+                "'": '&#39;',
                 '"': '&quot;',
+                '`': '&#96;',
             };
             return chars[tag] || tag;
         });
@@ -97,13 +99,14 @@ module.exports = {
 
         return stack
             .split('\n')
+            .slice(0, 5) // Security: Limit number of lines to prevent DoS
             .map((line) => {
                 // Match "filename:line:col" at the end of a path segment.
                 // Uses a simple non-backtracking pattern: match the last
                 // path component only, without nested quantifiers.
                 const match = line.match(/[^/\\]+:\d+:\d+/);
                 if (match) {
-                    return match[0];
+                    return `    at ${match[0]}`;
                 }
                 return line;
             })

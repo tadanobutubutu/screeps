@@ -3,6 +3,7 @@
  */
 
 const vfx = require('visual.effects');
+const logger = require('utils.logging');
 const utilsMemory = require('utils.memory');
 const dailyChallenge = require('daily-challenge');
 const adaptiveSystem = require('system.adaptive');
@@ -86,7 +87,8 @@ const gamification = {
 
         // ⚡ PERFORMANCE: Throttle console logging for high-frequency low-value XP gains
         if (numericAmount >= 5) {
-            console.log(
+            // Security: Use logging system to prevent console injection
+            logger.info(
                 '✨ +' + numericAmount + ' XP ' + (sanitizedReason ? '(' + sanitizedReason + ')' : '')
             );
         }
@@ -110,7 +112,8 @@ const gamification = {
             gm.level++;
             gm.xpToNext = Math.max(1, Math.floor(gm.xpToNext * 1.5));
 
-            console.log('🎉 LEVEL UP! Now level ' + gm.level + '!');
+            // Security: Use logging system to prevent console injection
+            logger.info('🎉 LEVEL UP! Now level ' + gm.level + '!');
 
             const spawn = Object.values(Game.spawns)[0];
             if (spawn) {
@@ -140,7 +143,8 @@ const gamification = {
                 Memory.gamification.achievements.shift();
             }
 
-            console.log('🏆 ACHIEVEMENT UNLOCKED: ' + sanitizedTitle);
+            // Security: Use logging system to prevent console injection
+            logger.info('🏆 ACHIEVEMENT UNLOCKED: ' + sanitizedTitle);
 
             const spawn = Object.values(Game.spawns)[0];
             if (spawn) {
@@ -151,7 +155,7 @@ const gamification = {
             const gm = Memory.gamification;
             gm.xp += 50;
             gm.totalScore += 50;
-            console.log('✨ +50 XP (Achievement Bonus)');
+            logger.info('✨ +50 XP (Achievement Bonus)');
             this.checkLevelUp();
         }
     },
@@ -258,9 +262,10 @@ const gamification = {
         this.init();
         const gm = Memory.gamification;
 
-        console.log('\n🎮 === GAMIFICATION DASHBOARD === 🎮');
-        console.log('Level: ' + gm.level + ' | Rank: ' + this.getRank());
-        console.log(
+        // Security: Use logging system to prevent console injection
+        logger.info('🎮 === GAMIFICATION DASHBOARD === 🎮');
+        logger.info('Level: ' + gm.level + ' | Rank: ' + this.getRank());
+        logger.info(
             'XP: ' +
                 gm.xp +
                 ' / ' +
@@ -269,14 +274,14 @@ const gamification = {
                 Math.floor((gm.xp / gm.xpToNext) * 100) +
                 '%)'
         );
-        console.log('Total Score: ' + gm.totalScore);
-        console.log('Achievements: ' + gm.achievements.length);
-        console.log('Streak: ' + gm.streakDays + ' days 🔥');
+        logger.info('Total Score: ' + gm.totalScore);
+        logger.info('Achievements: ' + gm.achievements.length);
+        logger.info('Streak: ' + gm.streakDays + ' days 🔥');
 
         if (gm.achievements.length > 0) {
-            console.log('\n🏆 Recent Achievements:');
+            logger.info('🏆 Recent Achievements:');
             gm.achievements.slice(-5).forEach(function (a) {
-                console.log('  - ' + a);
+                logger.info('  - ' + a);
             });
         }
     },
@@ -420,7 +425,7 @@ const gamification = {
     reset: function () {
         delete Memory.gamification;
         _initTick = -1;
-        console.log('🔄 Gamification reset!');
+        logger.info('🔄 Gamification reset!');
     },
 };
 

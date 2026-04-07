@@ -14,7 +14,12 @@ const ALLOWED_ENDPOINTS: Record<string, string> = {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const endpointKey = searchParams.get("endpoint") ?? "overview";
-  const resolvedEndpoint = ALLOWED_ENDPOINTS[endpointKey] ?? ALLOWED_ENDPOINTS["overview"];
+
+  // Security: Use hasOwnProperty to prevent using inherited object properties as API paths
+  const resolvedEndpoint =
+    Object.prototype.hasOwnProperty.call(ALLOWED_ENDPOINTS, endpointKey)
+      ? ALLOWED_ENDPOINTS[endpointKey]
+      : ALLOWED_ENDPOINTS["overview"];
 
   try {
     const res = await fetch(`${SCREEPS_API}/${resolvedEndpoint}`, {

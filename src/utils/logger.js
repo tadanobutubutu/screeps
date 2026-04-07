@@ -79,12 +79,14 @@ function _record(level, message) {
  */
 function _escapeHTML(str) {
     if (typeof str !== 'string') return str;
-    return str.replace(/[&<>\"]/g, (tag) => {
+    return str.replace(/[&<>'\"`]/g, (tag) => {
         const chars = {
             '&': '&amp;',
             '<': '&lt;',
             '>': '&gt;',
+            "'": '&#39;',
             '"': '&quot;',
+            '`': '&#96;',
         };
         return chars[tag] || tag;
     });

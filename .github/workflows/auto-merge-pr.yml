@@ -2,7 +2,7 @@ name: Auto Merge PRs - Force Merge All
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
 
 permissions:
   contents: write
@@ -21,7 +21,26 @@ jobs:
             const pr = context.payload.pull_request;
             const prNumber = pr.number;
             const prTitle = pr.title;
-            console.log(`🚀 Force merging PR #${prNumber}: ${prTitle}`);
+            const isDraft = pr.draft;
+            console.log(`🚀 Processing PR #${prNumber}: ${prTitle} (draft: ${isDraft})`);
+
+            async function ensureReadyForReview() {
+              if (isDraft) {
+                console.log(`📝 PR #${prNumber} is draft, converting to ready for review...`);
+                try {
+                  await github.rest.pulls.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                    draft: false,
+                  });
+                  console.log(`✅ Converted PR #${prNumber} to ready for review`);
+                  await new Promise(r => setTimeout(r, 3000));
+                } catch (e) {
+                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
+                }
+              }
+            }
 
             async function tryMerge() {
               // First: try normal merge
@@ -121,6 +140,9 @@ jobs:
             }
 
             // Main execution
+            // First: ensure PR is ready for review (not draft)
+            await ensureReadyForReview();
+            
             let merged = await tryMerge();
             
             if (!merged) {

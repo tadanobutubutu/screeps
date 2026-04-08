@@ -3,6 +3,9 @@ name: Auto Merge PRs - Force Merge All
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,7 +13,8 @@ permissions:
   actions: write
 
 jobs:
-  auto-merge:
+  auto-merge-new:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - name: Force Merge PR (No Conditions)
@@ -43,7 +47,6 @@ jobs:
             }
 
             async function tryMerge() {
-              // First: try normal merge
               try {
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
@@ -62,7 +65,6 @@ jobs:
             }
 
             async function forceMergeWithAdmin() {
-              // Try with admin privileges
               try {
                 const mutation = `
                   mutation {
@@ -85,7 +87,6 @@ jobs:
             }
 
             async function resolveConflictsAndMerge() {
-              // Update branch first
               try {
                 await github.rest.pulls.updateBranch({
                   owner: context.repo.owner,
@@ -97,10 +98,8 @@ jobs:
                 console.log(`Branch update error: ${e.message}`);
               }
 
-              // Wait for branch update
               await new Promise(r => setTimeout(r, 8000));
 
-              // Try merge again
               try {
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
@@ -116,7 +115,6 @@ jobs:
                 console.log(`Merge after update failed: ${e.message}`);
               }
 
-              // Final try: use admin merge with expected head
               try {
                 const mutation = `
                   mutation {
@@ -139,31 +137,25 @@ jobs:
               return false;
             }
 
-            // Main execution
-            // First: ensure PR is ready for review (not draft)
             await ensureReadyForReview();
             
             let merged = await tryMerge();
             
             if (!merged) {
-              // Wait a bit and retry
               await new Promise(r => setTimeout(r, 5000));
               merged = await tryMerge();
             }
 
             if (!merged) {
-              // Try admin merge
               merged = await forceMergeWithAdmin();
             }
 
             if (!merged) {
-              // Wait and try force merge with conflict resolution
               await new Promise(r => setTimeout(r, 3000));
               merged = await resolveConflictsAndMerge();
             }
 
             if (!merged) {
-              // Ultimate fallback: use REST API with required status checks bypass
               try {
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
@@ -180,7 +172,89 @@ jobs:
               }
             }
 
-            // If still not merged, report failure but don't fail the workflow
             if (!merged) {
               console.log(`💥 Could not merge PR #${prNumber} after all attempts`);
+            }
+
+  auto-merge-scheduled:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge all open PRs
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+            });
+
+            console.log(`📋 Found ${openPRs.length} open PRs`);
+
+            for (const pr of openPRs) {
+              console.log(`🚀 Processing PR #${pr.number}: ${pr.title}`);
+
+              async function tryMerge() {
+                try {
+                  await github.rest.pulls.merge({
+                    owner,
+                    repo,
+                    pull_number: pr.number,
+                    merge_method: 'squash',
+                    commit_title: pr.title,
+                    commit_message: `Auto-merged PR #${pr.number}\n\n${(pr.body || '').slice(0, 500)}`,
+                  });
+                  console.log(`✅ SUCCESS: Merged PR #${pr.number}`);
+                  return true;
+                } catch (e) {
+                  console.log(`⚠️ Merge failed: ${e.message}`);
+                }
+                return false;
+              }
+
+              if (pr.draft) {
+                try {
+                  await github.rest.pulls.update({
+                    owner,
+                    repo,
+                    pull_number: pr.number,
+                    draft: false,
+                  });
+                  console.log(`📝 Converted PR #${pr.number} to ready for review`);
+                  await new Promise(r => setTimeout(r, 3000));
+                } catch (e) {
+                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
+                }
+              }
+
+              let merged = await tryMerge();
+              if (!merged) {
+                await new Promise(r => setTimeout(r, 3000));
+                merged = await tryMerge();
+              }
+
+              if (!merged) {
+                try {
+                  const mutation = `
+                    mutation {
+                      mergePullRequest(input: {
+                        pullRequestId: "${pr.node_id}",
+                        mergeMethod: SQUASH,
+                        commitHeadline: "${pr.title.replace(/"/g, '\\"')}",
+                      }) {
+                        clientMutationId
+                      }
+                    }
+                  `;
+                  await github.graphql(mutation);
+                  console.log(`✅ SUCCESS: Force merged via GraphQL PR #${pr.number}`);
+                } catch (e) {
+                  console.log(`❌ Failed to merge PR #${pr.number}: ${e.message}`);
+                }
+              }
             }

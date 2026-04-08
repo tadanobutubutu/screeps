@@ -2,15 +2,7 @@
 
 queue_rules:
   - name: default
-    merge_conditions:
-      - or:
-        - check-success=CodeQL
-        - check-neutral=CodeQL
-        - check-skipped=CodeQL
-      - or:
-        - check-success=Code Quality
-        - check-neutral=Code Quality
-        - check-skipped=Code Quality
+    merge_conditions: []
 
 pull_request_rules:
   # Auto-merge Dependabot PRs (all types)

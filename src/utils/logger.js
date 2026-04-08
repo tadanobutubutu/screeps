@@ -74,23 +74,29 @@ function _record(level, message) {
 
 /**
  * Security: Escapes HTML special characters to prevent console injection.
+ * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
+ * to avoid unnecessary .replace() calls on safe strings.
  * @param {string} str
  * @returns {string}
  */
-function _escapeHTML(str) {
-    if (typeof str !== 'string') return str;
-    return str.replace(/[&<>'\"`]/g, (tag) => {
-        const chars = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;',
-            '`': '&#96;',
-        };
-        return chars[tag] || tag;
-    });
-}
+const _escapeHTML = (function () {
+    const chars = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;',
+        '`': '&#96;',
+    };
+    const escapeRegExp = /[&<>'\"`]/;
+
+    return function (str) {
+        if (typeof str !== 'string' || !escapeRegExp.test(str)) {
+            return str;
+        }
+        return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag);
+    };
+})();
 
 /**
  * Security: Safely stringifies an object, handling circular references and limiting length.

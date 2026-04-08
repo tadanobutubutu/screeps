@@ -56,6 +56,29 @@ export default function Dashboard() {
     fetchStats();
   }, [fetchStats]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isR = e.key.toLowerCase() === "r";
+      const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
+
+      if (isR && !hasModifier && !loading && !isRefreshing) {
+        const activeElement = document.activeElement;
+        const isEditable =
+          activeElement instanceof HTMLInputElement ||
+          activeElement instanceof HTMLTextAreaElement ||
+          activeElement instanceof HTMLSelectElement ||
+          activeElement?.getAttribute("contenteditable") === "true";
+
+        if (!isEditable) {
+          e.preventDefault();
+          fetchStats(true);
+        }
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [fetchStats, loading, isRefreshing]);
+
   return (
     <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
@@ -73,7 +96,8 @@ export default function Dashboard() {
             onClick={() => fetchStats(true)}
             disabled={loading || isRefreshing}
             aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
-            title="Refresh stats"
+            aria-keyshortcuts="r"
+            title="Refresh stats (R)"
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
@@ -235,7 +259,8 @@ export default function Dashboard() {
                 onClick={() => fetchStats(true)}
                 disabled={loading || isRefreshing}
                 aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
-                title="Refresh stats"
+                aria-keyshortcuts="r"
+                title="Refresh stats (R)"
                 style={{
                   cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
                   padding: "0.5rem 1rem",

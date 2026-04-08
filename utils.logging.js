@@ -16,21 +16,27 @@ module.exports = {
 
     /**
      * Security: Escapes HTML special characters to prevent console injection.
+     * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
+     * to avoid unnecessary .replace() calls on safe strings.
      */
-    _escapeHTML: function (str) {
-        if (typeof str !== 'string') return str;
-        return str.replace(/[&<>'\"`]/g, (tag) => {
-            const chars = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                "'": '&#39;',
-                '"': '&quot;',
-                '`': '&#96;',
-            };
-            return chars[tag] || tag;
-        });
-    },
+    _escapeHTML: (function () {
+        const chars = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;',
+            '`': '&#96;',
+        };
+        const escapeRegExp = /[&<>'\"`]/;
+
+        return function (str) {
+            if (typeof str !== 'string' || !escapeRegExp.test(str)) {
+                return str;
+            }
+            return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag);
+        };
+    })(),
 
     // Log a message
     log: function (level, message) {

@@ -66,7 +66,7 @@ describe('system.adaptive', () => {
     expect(adaptiveSystem.getModeName(1)).toBe('minimal');
     expect(adaptiveSystem.getModeName(2)).toBe('normal');
     expect(adaptiveSystem.getModeName(3)).toBe('full');
-    expect(adaptiveSystem.getModeName(99)).toBeNull();
+    expect(adaptiveSystem.getModeName(99)).toBe('unknown');
   });
 
   test('isEnabledが機能をチェック', () => {

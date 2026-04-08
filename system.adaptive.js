@@ -100,6 +100,17 @@ const adaptiveSystem = {
     evaluate: function () {
         this.init();
 
+        // Security: Validate currentMode to prevent DoS crashes in downstream systems.
+        // If the mode is missing or invalid, reset it to NORMAL.
+        if (
+            Memory.adaptive.currentMode === undefined ||
+            ![this.MODE.EMERGENCY, this.MODE.MINIMAL, this.MODE.NORMAL, this.MODE.FULL].includes(
+                Memory.adaptive.currentMode
+            )
+        ) {
+            Memory.adaptive.currentMode = this.MODE.NORMAL;
+        }
+
         // 10ティックごとにチェック
         if (Game.time - Memory.adaptive.lastCheck < 10) {
             return Memory.adaptive.currentMode;
@@ -209,6 +220,9 @@ const adaptiveSystem = {
 
     /**
      * モード名取得
+     *
+     * Security: Returns a safe fallback string for unknown modes to prevent
+     * ".toUpperCase() of null" type crashes (Denial of Service).
      */
     getModeName: function (mode) {
         switch (mode) {
@@ -221,7 +235,7 @@ const adaptiveSystem = {
             case this.MODE.FULL:
                 return 'full';
             default:
-                return null;
+                return 'unknown';
         }
     },
 

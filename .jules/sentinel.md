@@ -82,3 +82,8 @@
 **Vulnerability:** Console Injection (XSS-like) and Denial of Service (DoS) via unsanitized log messages and objects with circular references.
 **Learning:** Log messages that incorporate user-controlled strings (like room names or creep names) can be used to inject HTML tags into the Screeps console. Additionally, using `JSON.stringify` on objects with circular references (which are common in Screeps game objects) causes a fatal error that crashes the script for the current tick, leading to a DoS.
 **Prevention:** Always escape HTML special characters (`&`, `<`, `>`, `"`) in log messages before outputting to the console. Implement a `_safeStringify` helper that handles circular references (e.g., using a `WeakSet`) and enforces string length limits to prevent both crashes and memory-based DoS.
+
+## 2026-04-08 - Denial of Service via State Corruption in Adaptive System
+**Vulnerability:** Denial of Service (DoS) via unvalidated state in `system.adaptive.js`.
+**Learning:** Downstream systems (like Dashboards or Logging) often assume that helper functions returning state-dependent values (like mode names) will always return a valid type (e.g., a string). If these helpers return `null` or `undefined` due to corrupted persistent memory, it can lead to fatal exceptions (like `TypeError: Cannot read property 'toUpperCase' of null`) that halt the entire application.
+**Prevention:** Always provide safe fallback values in helper functions (e.g., an empty string or 'unknown'). Additionally, implement "sanity checks" at the entry point of core systems to validate and reset corrupted persistent state before it is consumed by the rest of the application.

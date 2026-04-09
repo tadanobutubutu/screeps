@@ -69,3 +69,11 @@
 ## 2026-04-07 - [Actionable Error States & Contrast Guardrails]
 **Learning:** A static error message is a dead end for users. Adding a prominent "Retry" button within the error container transforms a failure into an actionable event, reducing user frustration. Furthermore, maintaining high-contrast color guardrails for primary metrics (like using #0077aa instead of #00aaff for progress bars on light backgrounds) ensures that essential information remains accessible without relying on hover states or external tools.
 **Action:** Always provide a clear recovery path (Retry/Refresh) in error alerts and enforce WCAG AA (4.5:1) minimum contrast for all primary status indicators.
+
+## 2026-04-09 - [Discoverable Keyboard Shortcuts]
+**Learning:** Adding keyboard shortcuts (like 'C' for Copy) significantly improves power-user efficiency, but they remain hidden without visual cues. Using the `title` attribute to include the shortcut hint (e.g., "Copy to clipboard (C)") and matching `aria-keyshortcuts` ensures that shortcuts are discoverable for all users, including those using assistive technologies.
+**Action:** Always pair keyboard shortcut implementations with corresponding `title` hints and `aria-keyshortcuts` attributes on the triggering UI elements.
+
+## 2026-04-09 - [Contextual Labels for Technical Content]
+**Learning:** Large blocks of raw data, like JSON in a `<pre>` tag, can be disorienting for screen reader users if they lack clear context. Providing a descriptive `aria-label` (e.g., "Screeps statistics JSON") allows users to quickly identify the nature of the data block they are navigating, improving the overall semantic structure of technical dashboards.
+**Action:** Use `aria-label` to provide concise, descriptive context for large technical data displays that don't have an explicit visible heading.

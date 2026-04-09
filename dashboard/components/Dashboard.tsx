@@ -58,10 +58,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isR = e.key.toLowerCase() === "r";
+      const key = e.key.toLowerCase();
+      const isR = key === "r";
+      const isC = key === "c";
       const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-      if (isR && !hasModifier && !loading && !isRefreshing) {
+      if ((isR || isC) && !hasModifier && !loading && !isRefreshing) {
         const activeElement = document.activeElement;
         const isEditable =
           activeElement instanceof HTMLInputElement ||
@@ -71,13 +73,14 @@ export default function Dashboard() {
 
         if (!isEditable) {
           e.preventDefault();
-          fetchStats(true);
+          if (isR) fetchStats(true);
+          if (isC) handleCopy();
         }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [fetchStats, loading, isRefreshing]);
+  }, [fetchStats, handleCopy, loading, isRefreshing, stats]);
 
   return (
     <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
@@ -151,6 +154,8 @@ export default function Dashboard() {
           <button
             onClick={() => fetchStats(true)}
             aria-label="Retry fetching stats"
+            aria-keyshortcuts="r"
+            title="Retry (R)"
             style={{
               padding: "0.25rem 0.75rem",
               background: "#d32f2f",
@@ -228,7 +233,8 @@ export default function Dashboard() {
             <button
               onClick={handleCopy}
               aria-label={copied ? "Stats copied" : "Copy stats as JSON"}
-              title="Copy to clipboard"
+              aria-keyshortcuts="c"
+              title="Copy to clipboard (C)"
               style={{
                 position: "absolute",
                 top: "0.5rem",
@@ -245,7 +251,10 @@ export default function Dashboard() {
             >
               {copied ? "✅ Copied!" : "📋 Copy JSON"}
             </button>
-            <pre style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}>
+            <pre
+              aria-label="Screeps statistics JSON"
+              style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}
+            >
               {JSON.stringify(stats, null, 2)}
             </pre>
           </div>

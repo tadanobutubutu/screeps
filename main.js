@@ -186,6 +186,8 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         const room = Game.rooms[roomName];
         room._myCreeps = [];
         room._myCreepsTick = Game.time;
+        room._injuredCreeps = [];
+        room._injuredCreepsTick = Game.time;
         room._roleCounts = {
             harvester: 0,
             upgrader: 0,
@@ -216,6 +218,9 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         if (creep.room) {
             if (creep.room._myCreeps) {
                 creep.room._myCreeps.push(creep);
+            }
+            if (creep.room._injuredCreeps && creep.hits < creep.hitsMax) {
+                creep.room._injuredCreeps.push(creep);
             }
             if (creep.room._roleCounts && creep.room._roleCounts[role] !== undefined) {
                 creep.room._roleCounts[role]++;

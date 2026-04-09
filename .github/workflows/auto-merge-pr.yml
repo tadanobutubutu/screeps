@@ -30,16 +30,18 @@ jobs:
 
             async function ensureReadyForReview() {
               if (isDraft) {
-                console.log(`📝 PR #${prNumber} is draft, converting to ready for review...`);
+                console.log(`📝 PR #${prNumber} is draft, converting to ready for review via GraphQL...`);
                 try {
-                  await github.rest.pulls.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    pull_number: prNumber,
-                    draft: false,
-                  });
+                  const mutation = `
+                    mutation {
+                      markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) {
+                        clientMutationId
+                      }
+                    }
+                  `;
+                  await github.graphql(mutation);
                   console.log(`✅ Converted PR #${prNumber} to ready for review`);
-                  await new Promise(r => setTimeout(r, 3000));
+                  await new Promise(r => setTimeout(r, 5000));
                 } catch (e) {
                   console.log(`⚠️ Failed to convert draft: ${e.message}`);
                 }
@@ -86,57 +88,6 @@ jobs:
               return false;
             }
 
-            async function resolveConflictsAndMerge() {
-              try {
-                await github.rest.pulls.updateBranch({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                });
-                console.log('Branch update triggered');
-              } catch (e) {
-                console.log(`Branch update error: ${e.message}`);
-              }
-
-              await new Promise(r => setTimeout(r, 8000));
-
-              try {
-                await github.rest.pulls.merge({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  merge_method: 'squash',
-                  commit_title: prTitle,
-                  commit_message: `Auto-merged PR #${prNumber}\n\n${(pr.body || '').slice(0, 500)}`,
-                });
-                console.log(`✅ SUCCESS: Merged after branch update PR #${prNumber}`);
-                return true;
-              } catch (e) {
-                console.log(`Merge after update failed: ${e.message}`);
-              }
-
-              try {
-                const mutation = `
-                  mutation {
-                    mergePullRequest(input: {
-                      pullRequestId: "${pr.node_id}",
-                      mergeMethod: SQUASH,
-                      commitHeadline: "${prTitle.replace(/"/g, '\\"')}",
-                    }) {
-                      clientMutationId
-                    }
-                  }
-                `;
-                await github.graphql(mutation);
-                console.log(`✅ SUCCESS: Final force merge PR #${prNumber}`);
-                return true;
-              } catch (e) {
-                console.log(`Final force merge failed: ${e.message}`);
-              }
-
-              return false;
-            }
-
             await ensureReadyForReview();
             
             let merged = await tryMerge();
@@ -151,11 +102,6 @@ jobs:
             }
 
             if (!merged) {
-              await new Promise(r => setTimeout(r, 3000));
-              merged = await resolveConflictsAndMerge();
-            }
-
-            if (!merged) {
               try {
                 await github.rest.pulls.merge({
                   owner: context.repo.owner,
@@ -163,7 +109,7 @@ jobs:
                   pull_number: prNumber,
                   merge_method: 'squash',
                   commit_title: prTitle,
-                  commit_message: `Auto-merged PR #${prNumber} (forced)\n\n${(pr.body || '').slice(0, 500)}`,
+                  commit_message: `Auto-merged PR #${prNumber} (forced second pass)\n\n${(pr.body || '').slice(0, 500)}`,
                 });
                 console.log(`✅ SUCCESS: Final merge attempt PR #${prNumber}`);
                 merged = true;
@@ -199,6 +145,24 @@ jobs:
             for (const pr of openPRs) {
               console.log(`🚀 Processing PR #${pr.number}: ${pr.title}`);
 
+              if (pr.draft) {
+                console.log(`📝 PR #${pr.number} is draft, converting to ready for review via GraphQL...`);
+                try {
+                  const mutation = `
+                    mutation {
+                      markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) {
+                        clientMutationId
+                      }
+                    }
+                  `;
+                  await github.graphql(mutation);
+                  console.log(`✅ Converted PR #${pr.number} to ready for review`);
+                  await new Promise(r => setTimeout(r, 5000));
+                } catch (e) {
+                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
+                }
+              }
+
               async function tryMerge() {
                 try {
                   await github.rest.pulls.merge({
@@ -217,24 +181,9 @@ jobs:
                 return false;
               }
 
-              if (pr.draft) {
-                try {
-                  await github.rest.pulls.update({
-                    owner,
-                    repo,
-                    pull_number: pr.number,
-                    draft: false,
-                  });
-                  console.log(`📝 Converted PR #${pr.number} to ready for review`);
-                  await new Promise(r => setTimeout(r, 3000));
-                } catch (e) {
-                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
-                }
-              }
-
               let merged = await tryMerge();
               if (!merged) {
-                await new Promise(r => setTimeout(r, 3000));
+                await new Promise(r => setTimeout(r, 5000));
                 merged = await tryMerge();
               }
 

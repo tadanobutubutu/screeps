@@ -88,7 +88,12 @@ function run(room) {
 function _cleanupRoomMemory(room) {
     // 死亡クリープのメモリ削除
     for (const name in Memory.creeps) {
-        if (!Game.creeps[name]) {
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            cache.isSafeKey(name) &&
+            Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
+            !Game.creeps[name]
+        ) {
             logger.debug(`[RoomManager] クリープメモリ削除: ${name}`);
             delete Memory.creeps[name];
         }
@@ -96,13 +101,19 @@ function _cleanupRoomMemory(room) {
 
     // 不要なフラグのクリーンアップ
     for (const flagName in Game.flags) {
-        const flag = Game.flags[flagName];
-        if (flag.room && flag.room.name !== room.name) continue;
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            cache.isSafeKey(flagName) &&
+            Object.prototype.hasOwnProperty.call(Game.flags, flagName)
+        ) {
+            const flag = Game.flags[flagName];
+            if (flag.room && flag.room.name !== room.name) continue;
 
-        // 古いパトロールフラグを削除（1000ティック以上）
-        if (flagName.startsWith('patrol_') && flag.memory && flag.memory.createdAt) {
-            if (Game.time - flag.memory.createdAt > 1000) {
-                flag.remove();
+            // 古いパトロールフラグを削除（1000ティック以上）
+            if (flagName.startsWith('patrol_') && flag.memory && flag.memory.createdAt) {
+                if (Game.time - flag.memory.createdAt > 1000) {
+                    flag.remove();
+                }
             }
         }
     }
@@ -297,7 +308,7 @@ function _checkSafeMode(room) {
         // 自室のディフェンダー数
         const defenders = Object.values(Game.creeps).filter(
             (c) =>
-                c.room.name === room.name &&
+                c && c.room && c.room.name === room.name &&
                 (c.getActiveBodyparts(ATTACK) > 0 ||
                     c.getActiveBodyparts(RANGED_ATTACK) > 0)
         );
@@ -372,10 +383,18 @@ function _manageLinkNetwork(room) {
 function getStats(room) {
     const creepCounts = {};
     for (const name in Game.creeps) {
-        const creep = Game.creeps[name];
-        if (creep.room.name !== room.name) continue;
-        const role = creep.memory.role || 'unknown';
-        creepCounts[role] = (creepCounts[role] || 0) + 1;
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            cache.isSafeKey(name) &&
+            Object.prototype.hasOwnProperty.call(Game.creeps, name)
+        ) {
+            const creep = Game.creeps[name];
+            // Security: Robust check for creep.room to avoid crashes if object is corrupted
+            if (creep && creep.room && creep.room.name === room.name) {
+                const role = creep.memory.role || 'unknown';
+                creepCounts[role] = (creepCounts[role] || 0) + 1;
+            }
+        }
     }
 
     const storage = cache.getStorage(room);
@@ -392,7 +411,10 @@ function getStats(room) {
         energyCapacity: room.energyCapacityAvailable,
         storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
         creepCounts,
-        totalCreeps: Object.keys(Game.creeps).filter((n) => Game.creeps[n].room.name === room.name).length,
+        totalCreeps: Object.keys(Game.creeps).filter((n) => {
+            const c = Game.creeps[n];
+            return c && c.room && c.room.name === room.name;
+        }).length,
         constructionSites: cache.getConstructionSites(room).length,
         towers: towers.length,
         enemies: enemies.length,

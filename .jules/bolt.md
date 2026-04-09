@@ -77,3 +77,7 @@
 ## 2026-04-07 - Throttling Periodic O(N) Cleanup Tasks
 **Learning:** Performing unoptimized $O(N)$ operations on every tick, such as cleaning up stale `Memory.creeps` entries, is a silent CPU drain. Since creeps live for 1500 ticks, running this cleanup every tick is redundant. Throttling such periodic maintenance tasks to run every 100 ticks (approx. 5 minutes) significantly reduces their cumulative CPU impact without risking Memory overflow.
 **Action:** Identify and throttle periodic $O(N)$ maintenance tasks in the main loop to run at appropriate intervals (e.g., every 100 ticks) instead of every tick.
+
+## 2026-05-26 - Producer-Consumer Alignment in Caching
+**Learning:** Adding cache population logic (the "producer") to a global loop without refactoring downstream logic (the "consumers") to use it creates a performance regression. The extra comparisons and array operations add per-tick CPU cost without any offsetting savings.
+**Action:** When implementing per-tick caching, always ensure all relevant consumers are updated to use the new cache in the same change set to ensure a net performance gain.

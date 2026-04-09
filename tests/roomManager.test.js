@@ -41,6 +41,9 @@ jest.mock('../src/utils/cache', () => ({
   getMyStructures: jest.fn().mockReturnValue([]),
   invalidate: jest.fn(),
   cleanup: jest.fn(),
+  isSafeKey: jest.fn().mockImplementation((key) => {
+    return typeof key === 'string' && !['__proto__', 'constructor', 'prototype'].includes(key);
+  }),
 }), { virtual: true });
 
 jest.mock('../src/utils/pathfinder', () => ({
@@ -239,6 +242,48 @@ describe('roomManager', () => {
       roomManager.run(mockRoom);
 
       expect(mockRoom.controller.activateSafeMode).toHaveBeenCalled();
+    });
+  });
+
+  describe('Security: Prototype Pollution & DoS Protection', () => {
+    test('getStats should not crash when Object.prototype is polluted', () => {
+      // Pollute Object.prototype
+      Object.prototype.polluted = 'dangerous';
+
+      try {
+        const stats = roomManager.getStats(mockRoom);
+        // Should not have 'polluted' as an own property
+        expect(Object.prototype.hasOwnProperty.call(stats.creepCounts, 'polluted')).toBe(false);
+      } finally {
+        // Clean up pollution
+        delete Object.prototype.polluted;
+      }
+    });
+
+    test('run should not crash when Object.prototype is polluted', () => {
+      // Pollute Object.prototype
+      Object.prototype.polluted = 'dangerous';
+
+      try {
+        global.Game.time = 100; // Trigger _cleanupRoomMemory
+        expect(() => roomManager.run(mockRoom)).not.toThrow();
+      } finally {
+        // Clean up pollution
+        delete Object.prototype.polluted;
+      }
+    });
+
+    test('getStats should handle corrupted/missing creep.room gracefully', () => {
+        global.Game.creeps = {
+            corruptedCreep: {
+                memory: { role: 'harvester' }
+                // room is missing
+            }
+        };
+
+        expect(() => roomManager.getStats(mockRoom)).not.toThrow();
+        const stats = roomManager.getStats(mockRoom);
+        expect(stats.creepCounts.harvester).toBeUndefined();
     });
   });
 });

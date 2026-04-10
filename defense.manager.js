@@ -11,7 +11,7 @@ const defenseManager = {
 
     // タワー自動制御
     manageTowers: function (room) {
-        // ⚡ PERFORMANCE: Reuse cached room structures and creeps if available (populated by dashboard)
+        // ⚡ PERFORMANCE: Use centralized room caches for structures, creeps, and hostiles.
         if (room._myStructuresTick !== Game.time) {
             room._myStructures = room.find(FIND_MY_STRUCTURES);
             room._myStructuresTick = Game.time;
@@ -40,21 +40,20 @@ const defenseManager = {
             room._myCreepsTick = Game.time;
         }
 
-        // ⚡ PERFORMANCE: Per-tick caching of injured creeps (shared across roles)
+        // ⚡ PERFORMANCE: Use pre-warmed room caches for injured creeps and all structures.
         if (room._injuredCreepsTick !== Game.time) {
             room._injuredCreeps = room._myCreeps.filter((c) => c.hits < c.hitsMax);
             room._injuredCreepsTick = Game.time;
         }
         const damagedCreeps = room._injuredCreeps;
 
-        // ⚡ PERFORMANCE: Shared per-tick caching for damaged structures
-        if (room._damagedStructuresTick !== Game.time) {
-            room._damagedStructures = room.find(FIND_STRUCTURES, {
-                filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
-            });
-            room._damagedStructuresTick = Game.time;
+        if (room._allStructuresTick !== Game.time) {
+            room._allStructures = room.find(FIND_STRUCTURES);
+            room._allStructuresTick = Game.time;
         }
-        const damagedStructures = room._damagedStructures;
+        const damagedStructures = room._allStructures.filter(
+            (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+        );
 
         towers.forEach((tower) => {
             // 優先度1: 敵creepへの攻撃
@@ -96,7 +95,7 @@ const defenseManager = {
 
     // 脅威レベル評価
     checkThreats: function (room) {
-        // ⚡ PERFORMANCE: Reuse cached hostile creeps
+        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps.
         if (room._hostileCreepsTick !== Game.time) {
             room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
             room._hostileCreepsTick = Game.time;
@@ -137,7 +136,7 @@ const defenseManager = {
     manageDefenders: function (room) {
         const threatLevel = Memory.defenseLevel || 0;
 
-        // ⚡ PERFORMANCE: Use cached room creeps to find defenders instead of global filter
+        // ⚡ PERFORMANCE: Use centralized room cache for my creeps.
         if (room._myCreepsTick !== Game.time) {
             room._myCreeps = room.find(FIND_MY_CREEPS);
             room._myCreepsTick = Game.time;
@@ -232,7 +231,7 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        // ⚡ PERFORMANCE: Use cached hostile creeps
+        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps.
         if (creep.room._hostileCreepsTick !== Game.time) {
             creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
             creep.room._hostileCreepsTick = Game.time;
@@ -279,7 +278,7 @@ const defenseManager = {
 
     // 統計情報表示
     showStats: function (room) {
-        // ⚡ PERFORMANCE: Use cached room objects
+        // ⚡ PERFORMANCE: Use centralized room caches.
         if (room._myStructuresTick !== Game.time) {
             room._myStructures = room.find(FIND_MY_STRUCTURES);
             room._myStructuresTick = Game.time;

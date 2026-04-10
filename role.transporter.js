@@ -10,21 +10,22 @@ const roleTransporter = {
         }
 
         if (creep.memory.transporting) {
-            // ⚡ PERFORMANCE: Per-tick caching of energy delivery targets (Optimized to FIND_MY_STRUCTURES)
-            if (creep.room._deliveryTargetsTick !== Game.time) {
-                creep.room._deliveryTargets = creep.room.find(FIND_MY_STRUCTURES, {
-                    filter: (s) =>
-                        (s.structureType === STRUCTURE_SPAWN ||
-                            s.structureType === STRUCTURE_EXTENSION ||
-                            s.structureType === STRUCTURE_TOWER ||
-                            s.structureType === STRUCTURE_LAB) &&
-                        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-                });
-                creep.room._deliveryTargetsTick = Game.time;
+            // ⚡ PERFORMANCE: Use centralized room cache for my structures and filter in JS.
+            if (creep.room._myStructuresTick !== Game.time) {
+                creep.room._myStructures = creep.room.find(FIND_MY_STRUCTURES);
+                creep.room._myStructuresTick = Game.time;
             }
-            const targets = creep.room._deliveryTargets;
+            const targets = creep.room._myStructures.filter(
+                (s) =>
+                    (s.structureType === STRUCTURE_SPAWN ||
+                        s.structureType === STRUCTURE_EXTENSION ||
+                        s.structureType === STRUCTURE_TOWER ||
+                        s.structureType === STRUCTURE_LAB) &&
+                    s.store &&
+                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            );
 
-            if (targets.length > 0) {
+            if (targets && targets.length > 0) {
                 // ⚡ PERFORMANCE: ターゲットIDをキャッシュして毎ティックの再探索を回避
                 let target = Game.getObjectById(creep.memory.deliveryTargetId);
 
@@ -47,15 +48,14 @@ const roleTransporter = {
                 delete creep.memory.deliveryTargetId;
             }
         } else {
-            // ⚡ PERFORMANCE: Per-tick caching of withdrawal containers
-            if (creep.room._withdrawalContainersTick !== Game.time) {
-                creep.room._withdrawalContainers = creep.room.find(FIND_STRUCTURES, {
-                    filter: (s) =>
-                        s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
-                });
-                creep.room._withdrawalContainersTick = Game.time;
+            // ⚡ PERFORMANCE: Use centralized room cache for all structures and filter in JS.
+            if (creep.room._allStructuresTick !== Game.time) {
+                creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
+                creep.room._allStructuresTick = Game.time;
             }
-            const containers = creep.room._withdrawalContainers;
+            const containers = creep.room._allStructures.filter(
+                (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
+            );
 
             // ⚡ PERFORMANCE: 部屋全体の引き出し元リストをキャッシュして、クリープごとの重複計算を回避
             if (creep.room._withdrawalSourcesTick !== Game.time) {

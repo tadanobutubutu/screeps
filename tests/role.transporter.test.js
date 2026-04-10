@@ -90,7 +90,15 @@ describe('role.transporter', () => {
   });
 
   test('transporter能运送能量到spawn', () => {
-    const spawn = { id: 'spawn1', structureType: 'spawn', store: { energy: 90, getCapacity: () => 100 } };
+    const spawn = {
+      id: 'spawn1',
+      structureType: 'spawn',
+      store: {
+        energy: 90,
+        getCapacity: () => 100,
+        getFreeCapacity: jest.fn().mockReturnValue(10)
+      }
+    };
     const creep = {
       memory: { transporting: true },
       store: {
@@ -115,7 +123,15 @@ describe('role.transporter', () => {
   });
 
   test('transporter能运送能量到extension', () => {
-    const extension = { id: 'ext1', structureType: 'extension', store: { energy: 40, getCapacity: () => 50 } };
+    const extension = {
+      id: 'ext1',
+      structureType: 'extension',
+      store: {
+        energy: 40,
+        getCapacity: () => 50,
+        getFreeCapacity: jest.fn().mockReturnValue(10)
+      }
+    };
     const creep = {
       memory: { transporting: true },
       store: {

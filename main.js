@@ -181,7 +181,8 @@ function handlePeriodicTasks(systemMode) {
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = {};
 
-    // ⚡ PERFORMANCE: Pre-initialize per-room creep caches to "warm" them for downstream systems.
+    // ⚡ PERFORMANCE: Pre-initialize per-room caches to "warm" them for downstream systems.
+    // This reduces redundant O(N) searches across multiple role modules.
     for (const roomName in Game.rooms) {
         const room = Game.rooms[roomName];
         room._myCreeps = [];
@@ -198,6 +199,18 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             medic: 0,
             explorer: 0,
         };
+
+        // Cache structures, hostiles, sources, and construction sites once per tick.
+        room._myStructures = room.find(FIND_MY_STRUCTURES);
+        room._myStructuresTick = Game.time;
+        room._allStructures = room.find(FIND_STRUCTURES);
+        room._allStructuresTick = Game.time;
+        room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+        room._hostileCreepsTick = Game.time;
+        room._activeSources = room.find(FIND_SOURCES_ACTIVE);
+        room._activeSourcesTick = Game.time;
+        room._myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
+        room._myConstructionSitesTick = Game.time;
     }
 
     for (const name in Game.creeps) {

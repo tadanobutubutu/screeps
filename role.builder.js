@@ -11,14 +11,15 @@ const roleBuilder = {
 
         if (creep.memory.building) {
             // 建設サイトを探す
-            // ⚡ PERFORMANCE: Per-tick caching of construction sites
-            if (creep.room._constructionSitesTick !== Game.time) {
-                creep.room._constructionSites = creep.room.find(FIND_CONSTRUCTION_SITES);
-                creep.room._constructionSitesTick = Game.time;
+            // ⚡ PERFORMANCE: Use centralized room cache for construction sites.
+            // Switch to FIND_MY_CONSTRUCTION_SITES for engine-level optimization.
+            if (creep.room._myConstructionSitesTick !== Game.time) {
+                creep.room._myConstructionSites = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
+                creep.room._myConstructionSitesTick = Game.time;
             }
-            const targets = creep.room._constructionSites;
+            const targets = creep.room._myConstructionSites;
 
-            if (targets.length > 0) {
+            if (targets && targets.length > 0) {
                 // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
                 let target = Game.getObjectById(creep.memory.buildTargetId);
 
@@ -48,14 +49,14 @@ const roleBuilder = {
             }
         } else {
             // エネルギーを採取
-            // ⚡ PERFORMANCE: Per-tick caching of active sources (consistent across roles)
+            // ⚡ PERFORMANCE: Use centralized room cache for active sources.
             if (creep.room._activeSourcesTick !== Game.time) {
                 creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
                 creep.room._activeSourcesTick = Game.time;
             }
             const sources = creep.room._activeSources;
 
-            if (sources.length > 0) {
+            if (sources && sources.length > 0) {
                 // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
                 let target = Game.getObjectById(creep.memory.harvestTargetId);
 

@@ -10,14 +10,14 @@ const roleRepairer = {
         }
 
         if (creep.memory.repairing) {
-            // ⚡ PERFORMANCE: Per-tick caching of damaged structures (Shared across roles)
-            if (creep.room._damagedStructuresTick !== Game.time) {
-                creep.room._damagedStructures = creep.room.find(FIND_STRUCTURES, {
-                    filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
-                });
-                creep.room._damagedStructuresTick = Game.time;
+            // ⚡ PERFORMANCE: Use centralized room cache for all structures and filter in JS.
+            if (creep.room._allStructuresTick !== Game.time) {
+                creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
+                creep.room._allStructuresTick = Game.time;
             }
-            const targets = creep.room._damagedStructures;
+            const targets = creep.room._allStructures.filter(
+                (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+            );
 
             if (targets && targets.length > 0) {
                 // ⚡ PERFORMANCE: Cache target ID to avoid redundant O(N) scans every tick
@@ -57,14 +57,14 @@ const roleRepairer = {
             }
         } else {
             // エネルギーを採取
-            // ⚡ PERFORMANCE: Per-tick caching of active sources (consistent across roles)
+            // ⚡ PERFORMANCE: Use centralized room cache for active sources.
             if (creep.room._activeSourcesTick !== Game.time) {
                 creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
                 creep.room._activeSourcesTick = Game.time;
             }
             const sources = creep.room._activeSources;
 
-            if (sources.length > 0) {
+            if (sources && sources.length > 0) {
                 // ⚡ PERFORMANCE: Cache harvest target ID and use closest by range
                 let target = Game.getObjectById(creep.memory.harvestTargetId);
 

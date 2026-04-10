@@ -14,6 +14,7 @@ global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
 global.FIND_CONSTRUCTION_SITES = 8;
+global.FIND_MY_CONSTRUCTION_SITES = 11;
 global.FIND_SOURCES_ACTIVE = 5;
 
 jest.mock('../gamification', () => ({
@@ -49,8 +50,8 @@ describe('role.builder', () => {
         findClosestByRange: jest.fn().mockReturnValue(null),
       },
       room: {
-        _constructionSitesTick: undefined,
-        _constructionSites: [],
+        _myConstructionSitesTick: 10,
+        _myConstructionSites: [],
         _activeSourcesTick: 10,
         _activeSources: [],
         find: jest.fn().mockReturnValue([]),
@@ -72,8 +73,8 @@ describe('role.builder', () => {
       moveTo: jest.fn(),
       pos: { findClosestByPath: jest.fn().mockReturnValue(null) },
       room: {
-        _constructionSitesTick: undefined,
-        _constructionSites: [],
+        _myConstructionSitesTick: 10,
+        _myConstructionSites: [],
         find: jest.fn().mockReturnValue([]),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -96,8 +97,8 @@ describe('role.builder', () => {
       moveTo: jest.fn(),
       pos: { findClosestByRange: jest.fn().mockReturnValue(mockSite) },
       room: {
-        _constructionSitesTick: undefined,
-        _constructionSites: [mockSite],
+        _myConstructionSitesTick: 10,
+        _myConstructionSites: [mockSite],
         find: jest.fn().mockReturnValue([mockSite]),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -121,8 +122,8 @@ describe('role.builder', () => {
       moveTo: jest.fn(),
       pos: { findClosestByRange: jest.fn() },
       room: {
-        _constructionSitesTick: 10,
-        _constructionSites: [mockSite],
+        _myConstructionSitesTick: 10,
+        _myConstructionSites: [mockSite],
         find: jest.fn(),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -143,8 +144,8 @@ describe('role.builder', () => {
       moveTo: jest.fn(),
       pos: { findClosestByPath: jest.fn().mockReturnValue(null) },
       room: {
-        _constructionSitesTick: undefined,
-        _constructionSites: [],
+        _myConstructionSitesTick: 10,
+        _myConstructionSites: [],
         find: jest.fn().mockReturnValue([]),
         controller: { pos: { x: 5, y: 5 } },
       },

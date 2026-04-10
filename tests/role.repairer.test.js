@@ -32,6 +32,7 @@ global.FIND_SOURCES_ACTIVE = 103;
 global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_CONTAINER = 'container';
+global.STRUCTURE_WALL = 'wall';
 
 const roleRepairer = require('../role.repairer');
 

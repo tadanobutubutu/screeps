@@ -31,8 +31,7 @@ const roleScout = {
                 // Arrived at target room
                 creep.say('🔍');
 
-                // ⚡ PERFORMANCE: Per-tick caching of room objects (consistent across roles).
-                // This allows sharing expensive search results across all creeps in the room.
+                // ⚡ PERFORMANCE: Use centralized room cache for hostiles and all structures.
                 if (creep.room._hostileCreepsTick !== Game.time) {
                     creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
                     creep.room._hostileCreepsTick = Game.time;

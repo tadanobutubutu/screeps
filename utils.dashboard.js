@@ -15,9 +15,7 @@ function formatNumber(num) {
 
 const DashboardRenderer = {
     renderRoomDashboard(room) {
-        // ⚡ PERFORMANCE OPTIMIZATION: Per-tick caching of common searches on the Room object.
-        // This allows other systems (like defense.manager) to reuse these results.
-        // Using unique tick keys prevents accidental cache collisions between modules.
+        // ⚡ PERFORMANCE OPTIMIZATION: Use centralized room caches pre-warmed in main.js.
         if (room._myCreepsTick !== Game.time) {
             room._myCreeps = room.find(FIND_MY_CREEPS);
             room._myCreepsTick = Game.time;

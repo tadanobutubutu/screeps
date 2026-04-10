@@ -2,20 +2,19 @@ const roleMedic = {
     run: function (creep) {
         creep.say('💊');
 
-        // ⚡ PERFORMANCE: Per-tick caching of my creeps (using unique tick key to avoid collisions)
-        if (creep.room._myCreepsTick !== Game.time) {
-            creep.room._myCreeps = creep.room.find(FIND_MY_CREEPS);
-            creep.room._myCreepsTick = Game.time;
-        }
-
-        // ⚡ PERFORMANCE: Per-tick caching of injured creeps
+        // ⚡ PERFORMANCE: Use pre-warmed room caches for my creeps and injured creeps.
+        // These are populated in main.js processCreeps global loop.
         if (creep.room._injuredCreepsTick !== Game.time) {
+            if (creep.room._myCreepsTick !== Game.time) {
+                creep.room._myCreeps = creep.room.find(FIND_MY_CREEPS);
+                creep.room._myCreepsTick = Game.time;
+            }
             creep.room._injuredCreeps = creep.room._myCreeps.filter((c) => c.hits < c.hitsMax);
             creep.room._injuredCreepsTick = Game.time;
         }
         const injured = creep.room._injuredCreeps;
 
-        // ⚡ PERFORMANCE: Per-tick caching of active sources (shared across roles)
+        // ⚡ PERFORMANCE: Use centralized room cache for active sources.
         if (creep.room._activeSourcesTick !== Game.time) {
             creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
             creep.room._activeSourcesTick = Game.time;

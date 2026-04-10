@@ -87,6 +87,9 @@ function _buildSpawnQueue(room) {
     const queue = [];
 
     for (const role in targets) {
+        // Security: Use hasOwnProperty to prevent prototype pollution during iteration
+        if (!Object.prototype.hasOwnProperty.call(targets, role)) continue;
+
         const needed = targets[role] - (current[role] || 0);
         if (needed <= 0) continue;
 
@@ -154,6 +157,14 @@ function _getTargetCounts(room, rcl) {
 function _getCurrentCounts(room) {
     const counts = {};
     for (const name in Game.creeps) {
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            !cache.isSafeKey(name) ||
+            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
+        ) {
+            continue;
+        }
+
         const creep = Game.creeps[name];
         if (creep.room.name !== room.name) continue;
         if (creep.spawning) continue; // スポーン中のクリープはスポーンAPIから別途カウント
@@ -166,6 +177,14 @@ function _getCurrentCounts(room) {
 
     // スポーン中のクリープも含める
     for (const spawnName in Game.spawns) {
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            !cache.isSafeKey(spawnName) ||
+            !Object.prototype.hasOwnProperty.call(Game.spawns, spawnName)
+        ) {
+            continue;
+        }
+
         const spawn = Game.spawns[spawnName];
         if (spawn.room.name !== room.name) continue;
         if (!spawn.spawning) continue;

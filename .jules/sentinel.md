@@ -87,3 +87,8 @@
 **Vulnerability:** Denial of Service (DoS) via unvalidated state in `system.adaptive.js`.
 **Learning:** Downstream systems (like Dashboards or Logging) often assume that helper functions returning state-dependent values (like mode names) will always return a valid type (e.g., a string). If these helpers return `null` or `undefined` due to corrupted persistent memory, it can lead to fatal exceptions (like `TypeError: Cannot read property 'toUpperCase' of null`) that halt the entire application.
 **Prevention:** Always provide safe fallback values in helper functions (e.g., an empty string or 'unknown'). Additionally, implement "sanity checks" at the entry point of core systems to validate and reset corrupted persistent state before it is consumed by the rest of the application.
+
+## 2026-04-10 - Hardening Spawn and Role Management
+**Vulnerability:** Prototype Pollution via unvalidated creep names and role keys during aggregation.
+**Learning:** Functions that aggregate data into local objects using dynamic keys (like creep names from `Game.creeps` or role names from configuration) are vulnerable to Prototype Pollution if the keys are not validated. Even if the data source seems "internal", inconsistent state or malicious environment manipulation could exploit these loops.
+**Prevention:** Always use `isSafeKey()` and `Object.prototype.hasOwnProperty.call()` when iterating over environment objects (like `Game.creeps`) and assigning to local objects.

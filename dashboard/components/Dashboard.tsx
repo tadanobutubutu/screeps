@@ -100,7 +100,7 @@ export default function Dashboard() {
             disabled={loading || isRefreshing}
             aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
             aria-keyshortcuts="r"
-            title="Refresh stats (R)"
+            title={isRefreshing ? "Refreshing..." : "Refresh stats (R)"}
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
@@ -109,7 +109,8 @@ export default function Dashboard() {
               border: "none",
               borderRadius: "4px",
               opacity: (loading || isRefreshing) ? 0.6 : 1,
-              transition: "all 0.2s"
+              transition: "all 0.2s",
+              userSelect: "none"
             }}
           >
             {updated ? "✅ Updated!" : isRefreshing ? "🔄 Refreshing..." : "🔄 Refresh"}
@@ -208,6 +209,7 @@ export default function Dashboard() {
             aria-valuenow={Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}
             aria-valuemin={0}
             aria-valuemax={100}
+            aria-valuetext={`${Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
           >
@@ -234,7 +236,7 @@ export default function Dashboard() {
               onClick={handleCopy}
               aria-label={copied ? "Stats copied" : "Copy stats as JSON"}
               aria-keyshortcuts="c"
-              title="Copy to clipboard (C)"
+              title={copied ? "Copied!" : "Copy to clipboard (C)"}
               style={{
                 position: "absolute",
                 top: "0.5rem",
@@ -246,7 +248,8 @@ export default function Dashboard() {
                 border: "none",
                 borderRadius: "4px",
                 cursor: "pointer",
-                transition: "background 0.2s"
+                transition: "all 0.2s",
+                userSelect: "none"
               }}
             >
               {copied ? "✅ Copied!" : "📋 Copy JSON"}

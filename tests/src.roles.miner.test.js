@@ -29,6 +29,7 @@ global.RoomPosition = function(x, y, roomName) {
 
 const mockCache = {
   getSources: jest.fn(),
+  isSafeKey: jest.fn().mockReturnValue(true),
 };
 
 jest.mock('../src/utils/cache', () => mockCache, { virtual: true });

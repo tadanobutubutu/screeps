@@ -74,10 +74,20 @@ function _getAssignedSource(creep) {
     // マイナーの割り当てカウント
     const minerCounts = {};
     for (const name in Game.creeps) {
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            !cache.isSafeKey(name) ||
+            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
+        ) {
+            continue;
+        }
+
         const c = Game.creeps[name];
         if (c.memory.role === 'miner' && c.memory[MEMORY_KEYS.SOURCE_ID]) {
             const sid = c.memory[MEMORY_KEYS.SOURCE_ID];
-            minerCounts[sid] = (minerCounts[sid] || 0) + 1;
+            if (cache.isSafeKey(sid)) {
+                minerCounts[sid] = (minerCounts[sid] || 0) + 1;
+            }
         }
     }
 
@@ -85,7 +95,11 @@ function _getAssignedSource(creep) {
     let bestSource = null;
     let minCount = Infinity;
     for (const src of sources) {
-        const count = minerCounts[src.id] || 0;
+        const count =
+            Object.prototype.hasOwnProperty.call(minerCounts, src.id) &&
+            cache.isSafeKey(src.id)
+                ? minerCounts[src.id]
+                : 0;
         // 各ソースに配置できるマイナー数 = ソース周囲の利用可能スポット数（最大2）
         const maxMiners = _countMiningSpots(src);
         if (count < maxMiners && count < minCount) {
@@ -265,6 +279,14 @@ function getMinerAssignments(room) {
     }
 
     for (const name in Game.creeps) {
+        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
+        if (
+            !cache.isSafeKey(name) ||
+            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
+        ) {
+            continue;
+        }
+
         const creep = Game.creeps[name];
         if (
             creep.memory.role === 'miner' &&
@@ -272,7 +294,10 @@ function getMinerAssignments(room) {
             creep.memory[MEMORY_KEYS.SOURCE_ID]
         ) {
             const sid = creep.memory[MEMORY_KEYS.SOURCE_ID];
-            if (assignments[sid] !== undefined) {
+            if (
+                cache.isSafeKey(sid) &&
+                Object.prototype.hasOwnProperty.call(assignments, sid)
+            ) {
                 assignments[sid]++;
             }
         }

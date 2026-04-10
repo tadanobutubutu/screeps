@@ -18,6 +18,7 @@ global.RANGED_ATTACK = 'ranged_attack';
 jest.mock('../src/utils/cache', () => ({
   getConstructionSites: jest.fn().mockReturnValue([]),
   getEnemies: jest.fn().mockReturnValue([]),
+  isSafeKey: jest.fn().mockReturnValue(true),
 }), { virtual: true });
 
 jest.mock('../src/utils/logger', () => ({

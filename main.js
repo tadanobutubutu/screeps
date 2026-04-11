@@ -211,6 +211,20 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._activeSourcesTick = Game.time;
         room._myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
         room._myConstructionSitesTick = Game.time;
+
+        // ⚡ PERFORMANCE: Pre-filter structures into common target categories once per tick.
+        room._deliveryTargets = room._myStructures.filter(
+            (s) =>
+                (s.structureType === STRUCTURE_SPAWN ||
+                    s.structureType === STRUCTURE_EXTENSION ||
+                    s.structureType === STRUCTURE_TOWER ||
+                    s.structureType === STRUCTURE_LAB) &&
+                s.store &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        );
+        room._repairTargets = room._allStructures.filter(
+            (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+        );
     }
 
     for (const name in Game.creeps) {

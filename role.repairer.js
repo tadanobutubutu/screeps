@@ -10,14 +10,8 @@ const roleRepairer = {
         }
 
         if (creep.memory.repairing) {
-            // ⚡ PERFORMANCE: Use centralized room cache for all structures and filter in JS.
-            if (creep.room._allStructuresTick !== Game.time) {
-                creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
-                creep.room._allStructuresTick = Game.time;
-            }
-            const targets = creep.room._allStructures.filter(
-                (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
-            );
+            // ⚡ PERFORMANCE: Use pre-filtered room-level repair targets.
+            const targets = creep.room._repairTargets || [];
 
             if (targets && targets.length > 0) {
                 // ⚡ PERFORMANCE: Cache target ID to avoid redundant O(N) scans every tick

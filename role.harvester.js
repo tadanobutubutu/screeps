@@ -57,18 +57,9 @@ const roleHarvester = {
             }
         } else {
             // エネルギーをスポーンまたはエクステンション・タワーに渡す
-            // ⚡ PERFORMANCE: Use centralized room cache for my structures and filter in JS.
-            if (creep.room._myStructuresTick !== Game.time) {
-                creep.room._myStructures = creep.room.find(FIND_MY_STRUCTURES);
-                creep.room._myStructuresTick = Game.time;
-            }
-            const targets = creep.room._myStructures.filter(
-                (s) =>
-                    (s.structureType === STRUCTURE_SPAWN ||
-                        s.structureType === STRUCTURE_EXTENSION ||
-                        s.structureType === STRUCTURE_TOWER) &&
-                    s.store &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            // ⚡ PERFORMANCE: Use pre-filtered room-level delivery targets.
+            const targets = (creep.room._deliveryTargets || []).filter(
+                (s) => s.structureType !== STRUCTURE_LAB
             );
 
             if (targets && targets.length > 0) {

@@ -86,7 +86,12 @@ export default function Dashboard() {
     <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
         <h1 style={{ margin: 0 }}><span role="img" aria-label="Screeps" title="Screeps">🐛</span> Screeps Dashboard</h1>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
+          {stats?.rooms && (
+            <span style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem" }}>
+              <span role="img" aria-label="Rooms" title="Rooms">🏠</span> {Object.keys(stats.rooms).length} Rooms
+            </span>
+          )}
           {lastUpdated && (
             <span
               style={{ fontSize: "0.8rem", color: "#575757" }}
@@ -126,24 +131,33 @@ export default function Dashboard() {
 
       <div aria-live="polite">
         {loading && (
-          <section
-            aria-busy="true"
-            aria-label="Loading GCL stats"
-            style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6, boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" }}
-          >
-            <span style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
-              Loading GCL stats...
-            </span>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div style={{ width: "120px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
-                <div style={{ width: "80px", height: "0.9rem", background: "#767676", borderRadius: "4px" }} />
+          <>
+            <section
+              aria-busy="true"
+              aria-label="Loading GCL stats"
+              style={{ marginBottom: "1.5rem", padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6, boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" }}
+            >
+              <span style={{ position: "absolute", width: "1px", height: "1px", padding: 0, margin: "-1px", overflow: "hidden", clip: "rect(0, 0, 0, 0)", whiteSpace: "nowrap", border: 0 }}>
+                Loading GCL stats...
+              </span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <div style={{ width: "120px", height: "1.2rem", background: "#eeeeee", borderRadius: "4px" }} />
+                  <div style={{ width: "80px", height: "0.9rem", background: "#eeeeee", borderRadius: "4px" }} />
+                </div>
+                <div style={{ width: "40px", height: "1.2rem", background: "#eeeeee", borderRadius: "4px" }} />
               </div>
-              <div style={{ width: "40px", height: "1.2rem", background: "#767676", borderRadius: "4px" }} />
-            </div>
-            <div style={{ width: "100%", height: "12px", background: "#767676", borderRadius: "6px", marginBottom: "0.5rem" }} />
-            <div style={{ width: "150px", height: "0.75rem", background: "#767676", borderRadius: "4px", marginLeft: "auto" }} />
-          </section>
+              <div style={{ width: "100%", height: "12px", background: "#eeeeee", borderRadius: "6px", marginBottom: "0.5rem" }} />
+              <div style={{ width: "150px", height: "0.75rem", background: "#eeeeee", borderRadius: "4px", marginLeft: "auto" }} />
+            </section>
+            <section
+              aria-busy="true"
+              aria-label="Loading raw data"
+              style={{ padding: "1rem", border: "1px solid #eee", borderRadius: "4px", opacity: 0.6, boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)" }}
+            >
+              <div style={{ width: "100%", height: "200px", background: "#eeeeee", borderRadius: "4px" }} />
+            </section>
+          </>
         )}
       </div>
 
@@ -228,7 +242,7 @@ export default function Dashboard() {
         {stats && Object.keys(stats).length > 0 ? (
           <div style={{
             position: "relative",
-            boxShadow: "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            boxShadow: copied ? "0 0 0 2px #28a745" : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
             transition: "all 0.2s ease-in-out",
             borderRadius: "4px"
           }}>
@@ -249,14 +263,23 @@ export default function Dashboard() {
                 borderRadius: "4px",
                 cursor: "pointer",
                 transition: "all 0.2s",
-                userSelect: "none"
+                userSelect: "none",
+                zIndex: 1
               }}
             >
               {copied ? "✅ Copied!" : "📋 Copy JSON"}
             </button>
             <pre
               aria-label="Screeps statistics JSON"
-              style={{ background: "#f8f8f8", padding: "1rem", borderRadius: "4px", overflow: "auto" }}
+              style={{
+                background: "#f8f8f8",
+                padding: "1rem",
+                borderRadius: "4px",
+                overflow: "auto",
+                maxHeight: "500px",
+                margin: 0,
+                border: "1px solid #eee"
+              }}
             >
               {JSON.stringify(stats, null, 2)}
             </pre>

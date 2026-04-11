@@ -50,8 +50,10 @@ export async function GET() {
       });
 
       if (error) {
+        // Security: Log the actual error for internal debugging but return a generic message to the client
+        console.error("Supabase stats insertion error:", error.message);
         return NextResponse.json(
-          { error: error.message },
+          { error: "Internal Server Error" },
           { status: 500 }
         );
       }

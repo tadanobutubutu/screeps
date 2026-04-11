@@ -55,6 +55,7 @@ describe('role.repairer', () => {
       upgradeController: jest.fn().mockReturnValue(global.OK),
       moveTo: jest.fn(),
       room: {
+        _repairTargets: [],
         find: jest.fn().mockReturnValue([]),
         controller: { id: 'controller1' },
       },
@@ -78,8 +79,10 @@ describe('role.repairer', () => {
       say: jest.fn(),
       repair: jest.fn().mockReturnValue(global.OK),
       harvest: jest.fn().mockReturnValue(global.OK),
+      upgradeController: jest.fn().mockReturnValue(global.OK),
       moveTo: jest.fn(),
       room: {
+        _repairTargets: [damagedRoad],
         find: jest.fn().mockReturnValue([damagedRoad]),
         controller: { id: 'controller1' },
       },
@@ -97,10 +100,9 @@ describe('role.repairer', () => {
       repair: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
       harvest: jest.fn(),
       moveTo: jest.fn(),
-      upgradeController: jest.fn(),
+      upgradeController: jest.fn().mockReturnValue(global.OK),
       room: {
-        _damagedStructuresTick: 0,
-        _activeSourcesTick: 0,
+        _repairTargets: [damaged],
         find: jest.fn().mockReturnValue([damaged]),
         controller: { id: 'controller1' },
       },
@@ -124,8 +126,7 @@ describe('role.repairer', () => {
       upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
       moveTo: jest.fn(),
       room: {
-        _damagedStructuresTick: 0,
-        _activeSourcesTick: 0,
+        _repairTargets: [],
         find: jest.fn().mockReturnValue([]),
         controller: { id: 'controller1' },
       },

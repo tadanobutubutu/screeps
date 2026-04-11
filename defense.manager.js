@@ -47,13 +47,8 @@ const defenseManager = {
         }
         const damagedCreeps = room._injuredCreeps;
 
-        if (room._allStructuresTick !== Game.time) {
-            room._allStructures = room.find(FIND_STRUCTURES);
-            room._allStructuresTick = Game.time;
-        }
-        const damagedStructures = room._allStructures.filter(
-            (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
-        );
+        // ⚡ PERFORMANCE: Use pre-filtered room-level repair targets.
+        const damagedStructures = room._repairTargets || [];
 
         towers.forEach((tower) => {
             // 優先度1: 敵creepへの攻撃

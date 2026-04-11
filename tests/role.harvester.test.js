@@ -20,6 +20,7 @@ global.FIND_MY_STRUCTURES = 11;
 global.STRUCTURE_SPAWN = 'spawn';
 global.STRUCTURE_EXTENSION = 'extension';
 global.STRUCTURE_TOWER = 'tower';
+global.STRUCTURE_LAB = 'lab';
 global.STRUCTURE_CONTAINER = 'container';
 global.RoomVisual = class { circle() {} text() {} rect() {} line() {} };
 
@@ -60,10 +61,9 @@ describe('role.harvester', () => {
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [{ id: 'source1', pos: { x: 5, y: 5 } }],
-        _energyTargetsTick: undefined,
-        _energyTargets: [],
-        _containerTargetsTick: undefined,
-        _containerTargets: [],
+        _deliveryTargets: [],
+        _allStructuresTick: undefined,
+        _allStructures: [],
         find: jest.fn().mockReturnValue([]),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -86,10 +86,9 @@ describe('role.harvester', () => {
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [{ id: 'source1', pos: { x: 5, y: 5 } }],
-        _energyTargetsTick: undefined,
-        _energyTargets: [],
-        _containerTargetsTick: undefined,
-        _containerTargets: [],
+        _deliveryTargets: [],
+        _allStructuresTick: undefined,
+        _allStructures: [],
         find: jest.fn().mockReturnValue([]),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -117,10 +116,9 @@ describe('role.harvester', () => {
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [mockSource],
-        _energyTargetsTick: undefined,
-        _energyTargets: [],
-        _containerTargetsTick: undefined,
-        _containerTargets: [],
+        _deliveryTargets: [],
+        _allStructuresTick: undefined,
+        _allStructures: [],
         find: jest.fn().mockReturnValue([mockSource]),
         controller: { pos: { x: 5, y: 5 } },
       },
@@ -148,10 +146,9 @@ describe('role.harvester', () => {
       room: {
         _activeSourcesTick: undefined,
         _activeSources: [],
-        _energyTargetsTick: undefined,
-        _energyTargets: [mockTarget],
-        _containerTargetsTick: undefined,
-        _containerTargets: [],
+        _deliveryTargets: [mockTarget],
+        _allStructuresTick: undefined,
+        _allStructures: [],
         find: jest.fn().mockReturnValue([mockTarget]),
         controller: { pos: { x: 5, y: 5 } },
       },

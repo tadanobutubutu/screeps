@@ -128,6 +128,8 @@ describe('role.medic', () => {
         _myCreepsTick: 0,
         _injuredCreepsTick: 0,
         _activeSourcesTick: 0,
+        _injuredCreeps: [injured],
+        _activeSources: [],
         controller: { pos: { x: 25, y: 25, roomName: 'W1N1' } },
       },
       pos: {
@@ -167,6 +169,8 @@ describe('role.medic', () => {
         _myCreepsTick: 0,
         _injuredCreepsTick: 0,
         _activeSourcesTick: 0,
+        _injuredCreeps: [injured],
+        _activeSources: [],
       },
       pos: {
         isNearTo: jest.fn().mockReturnValue(true),

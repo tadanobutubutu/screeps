@@ -36,17 +36,11 @@ const roleTransporter = {
                 delete creep.memory.deliveryTargetId;
             }
         } else {
-            // ⚡ PERFORMANCE: Use centralized room cache for all structures and filter in JS.
-            if (creep.room._allStructuresTick !== Game.time) {
-                creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
-                creep.room._allStructuresTick = Game.time;
-            }
-            const containers = creep.room._allStructures.filter(
-                (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
-            );
-
             // ⚡ PERFORMANCE: 部屋全体の引き出し元リストをキャッシュして、クリープごとの重複計算を回避
             if (creep.room._withdrawalSourcesTick !== Game.time) {
+                const containers = (creep.room._containers || []).filter(
+                    (s) => s.store[RESOURCE_ENERGY] > 0
+                );
                 const storage = creep.room.storage;
                 const sources = [];
 

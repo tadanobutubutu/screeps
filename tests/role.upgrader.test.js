@@ -113,6 +113,7 @@ describe('role.upgrader', () => {
       },
       room: {
         _activeSourcesTick: 0,
+        _activeSources: [source],
         find: jest.fn().mockReturnValue([source]),
       },
     };

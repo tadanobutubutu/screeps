@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [copied, setCopied] = useState(false);
   const [updated, setUpdated] = useState(false);
+  const [isJsonFocused, setIsJsonFocused] = useState(false);
 
   const handleCopy = useCallback(async () => {
     if (!stats) return;
@@ -82,14 +83,29 @@ export default function Dashboard() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [fetchStats, handleCopy, loading, isRefreshing, stats]);
 
+  useEffect(() => {
+    let title = "Screeps Dashboard";
+    if (loading) title = "⏳ Loading...";
+    else if (isRefreshing) title = "🔄 Refreshing...";
+    else if (updated) title = "✅ Updated";
+    else if (stats?.gcl) {
+      const percent = Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100));
+      title = `Screeps (${percent}%)`;
+    }
+    document.title = title;
+  }, [loading, isRefreshing, updated, stats]);
+
   return (
     <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
         <h1 style={{ margin: 0 }}><span role="img" aria-label="Screeps" title="Screeps">🐛</span> Screeps Dashboard</h1>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
           {stats?.rooms && (
-            <span style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem" }}>
-              <span role="img" aria-label="Rooms" title="Rooms">🏠</span> {Object.keys(stats.rooms).length} Rooms
+            <span
+              style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem" }}
+              title={`Rooms: ${Object.keys(stats.rooms).join(", ")}`}
+            >
+              <span role="img" aria-label="Rooms">🏠</span> {Object.keys(stats.rooms).length} Room{Object.keys(stats.rooms).length === 1 ? "" : "s"}
             </span>
           )}
           {lastUpdated && (
@@ -242,7 +258,7 @@ export default function Dashboard() {
         {stats && Object.keys(stats).length > 0 ? (
           <div style={{
             position: "relative",
-            boxShadow: copied ? "0 0 0 2px #28a745" : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            boxShadow: isJsonFocused ? "0 0 0 2px #0077aa" : copied ? "0 0 0 2px #28a745" : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
             transition: "all 0.2s ease-in-out",
             borderRadius: "4px"
           }}>
@@ -271,6 +287,9 @@ export default function Dashboard() {
             </button>
             <pre
               aria-label="Screeps statistics JSON"
+              tabIndex={0}
+              onFocus={() => setIsJsonFocused(true)}
+              onBlur={() => setIsJsonFocused(false)}
               style={{
                 background: "#f8f8f8",
                 padding: "1rem",
@@ -278,7 +297,8 @@ export default function Dashboard() {
                 overflow: "auto",
                 maxHeight: "500px",
                 margin: 0,
-                border: "1px solid #eee"
+                border: "1px solid #eee",
+                outline: "none"
               }}
             >
               {JSON.stringify(stats, null, 2)}

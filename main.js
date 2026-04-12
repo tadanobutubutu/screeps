@@ -185,20 +185,26 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     // This reduces redundant O(N) searches across multiple role modules.
     for (const roomName in Game.rooms) {
         const room = Game.rooms[roomName];
-        room._myCreeps = [];
+
+        // Basic room data caching
+        const myCreeps = room.find(FIND_MY_CREEPS);
+        room._myCreeps = myCreeps;
         room._myCreepsTick = Game.time;
-        room._injuredCreeps = [];
-        room._injuredCreepsTick = Game.time;
-        room._roleCounts = {
-            harvester: 0,
-            upgrader: 0,
-            builder: 0,
-            repairer: 0,
-            transporter: 0,
-            scout: 0,
-            medic: 0,
-            explorer: 0,
+
+        const roleCounts = {
+            harvester: 0, upgrader: 0, builder: 0, repairer: 0,
+            transporter: 0, scout: 0, medic: 0, explorer: 0,
         };
+        const injuredCreeps = [];
+        for (let i = 0; i < myCreeps.length; i++) {
+            const c = myCreeps[i];
+            const r = c.memory.role || 'harvester';
+            if (roleCounts[r] !== undefined) roleCounts[r]++;
+            if (c.hits < c.hitsMax) injuredCreeps.push(c);
+        }
+        room._roleCounts = roleCounts;
+        room._injuredCreeps = injuredCreeps;
+        room._injuredCreepsTick = Game.time;
 
         // Cache structures, hostiles, sources, and construction sites once per tick.
         room._myStructures = room.find(FIND_MY_STRUCTURES);
@@ -212,21 +218,37 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
         room._myConstructionSitesTick = Game.time;
 
-        // ⚡ PERFORMANCE: Pre-filter structures into common target categories once per tick.
-        room._deliveryTargets = room._myStructures.filter(
-            (s) =>
-                (s.structureType === STRUCTURE_SPAWN ||
-                    s.structureType === STRUCTURE_EXTENSION ||
-                    s.structureType === STRUCTURE_TOWER ||
-                    s.structureType === STRUCTURE_LAB) &&
-                s.store &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        );
-        room._repairTargets = room._allStructures.filter(
-            (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
-        );
+        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in single loops.
+        const deliveryTargets = [];
+        const harvesterDeliveryTargets = [];
+        for (let i = 0; i < room._myStructures.length; i++) {
+            const s = room._myStructures[i];
+            const type = s.structureType;
+            if (
+                (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
+                 type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
+                s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+            ) {
+                deliveryTargets.push(s);
+                if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+            }
+        }
+        room._deliveryTargets = deliveryTargets;
+        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
+
+        const repairTargets = [];
+        const containers = [];
+        for (let i = 0; i < room._allStructures.length; i++) {
+            const s = room._allStructures[i];
+            if (s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL) repairTargets.push(s);
+            if (s.structureType === STRUCTURE_CONTAINER) containers.push(s);
+        }
+        room._repairTargets = repairTargets;
+        room._containers = containers;
+        room._containersTick = Game.time;
     }
 
+    // Global creep counts and logic execution
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
         let role = creep.memory.role;
@@ -234,25 +256,10 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         if (!role) {
             role = 'harvester';
             creep.memory.role = role;
-            if (isLoggingEnabled) {
-                logger.warn('Creep ' + name + ' had no role, set to harvester');
-            }
+            if (isLoggingEnabled) logger.warn('Creep ' + name + ' had no role, set to harvester');
         }
 
         creepCounts[role] = (creepCounts[role] || 0) + 1;
-
-        // ⚡ PERFORMANCE: Populate room-level caches during global iteration to avoid redundant O(N) searches.
-        if (creep.room) {
-            if (creep.room._myCreeps) {
-                creep.room._myCreeps.push(creep);
-            }
-            if (creep.room._injuredCreeps && creep.hits < creep.hitsMax) {
-                creep.room._injuredCreeps.push(creep);
-            }
-            if (creep.room._roleCounts && creep.room._roleCounts[role] !== undefined) {
-                creep.room._roleCounts[role]++;
-            }
-        }
 
         if (isLoggingEnabled) {
             logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);

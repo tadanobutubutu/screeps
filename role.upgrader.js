@@ -14,14 +14,10 @@ const roleUpgrader = {
                 creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
             }
         } else {
-            // ⚡ PERFORMANCE: Use centralized room cache for active sources.
-            if (creep.room._activeSourcesTick !== Game.time) {
-                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
-                creep.room._activeSourcesTick = Game.time;
-            }
-            const sources = creep.room._activeSources;
+            // ⚡ PERFORMANCE: Use pre-warmed room cache for active sources.
+            const sources = creep.room._activeSources || [];
 
-            if (sources && sources.length > 0) {
+            if (sources.length > 0) {
                 // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range (O(N))
                 let source = Game.getObjectById(creep.memory.harvestTargetId);
 

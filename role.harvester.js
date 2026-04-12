@@ -20,14 +20,10 @@ const roleHarvester = {
         }
 
         if (creep.memory.harvesting) {
-            // ⚡ PERFORMANCE: Use centralized room cache for active sources.
-            if (creep.room._activeSourcesTick !== Game.time) {
-                creep.room._activeSources = creep.room.find(FIND_SOURCES_ACTIVE);
-                creep.room._activeSourcesTick = Game.time;
-            }
-            const sources = creep.room._activeSources;
+            // ⚡ PERFORMANCE: Use pre-warmed room cache for active sources.
+            const sources = creep.room._activeSources || [];
 
-            if (sources && sources.length > 0) {
+            if (sources.length > 0) {
                 // ⚡ PERFORMANCE: Cache source ID to avoid re-searching every tick and use closest by range
                 let source = Game.getObjectById(creep.memory.harvestTargetId);
 
@@ -57,12 +53,10 @@ const roleHarvester = {
             }
         } else {
             // エネルギーをスポーンまたはエクステンション・タワーに渡す
-            // ⚡ PERFORMANCE: Use pre-filtered room-level delivery targets.
-            const targets = (creep.room._deliveryTargets || []).filter(
-                (s) => s.structureType !== STRUCTURE_LAB
-            );
+            // ⚡ PERFORMANCE: Use pre-filtered room-level delivery targets (excluding Labs for harvesters).
+            const targets = creep.room._harvesterDeliveryTargets || [];
 
-            if (targets && targets.length > 0) {
+            if (targets.length > 0) {
                 // ⚡ PERFORMANCE: Cache delivery target ID to avoid re-searching every tick and use closest by range
                 let target = Game.getObjectById(creep.memory.deliverTargetId);
 
@@ -92,19 +86,12 @@ const roleHarvester = {
                 }
             } else {
                 // 満杯な時はコンテナに充電
-                // ⚡ PERFORMANCE: Use centralized room cache for all structures and filter in JS.
-                if (creep.room._allStructuresTick !== Game.time) {
-                    creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
-                    creep.room._allStructuresTick = Game.time;
-                }
-                const containers = creep.room._allStructures.filter(
-                    (s) =>
-                        s.structureType === STRUCTURE_CONTAINER &&
-                        s.store &&
-                        s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                // ⚡ PERFORMANCE: Use pre-warmed room cache for containers.
+                const containers = (creep.room._containers || []).filter(
+                    (s) => s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
                 );
 
-                if (containers && containers.length > 0) {
+                if (containers.length > 0) {
                     // ⚡ PERFORMANCE: Cache container ID to avoid re-searching every tick and use closest by range
                     let target = Game.getObjectById(creep.memory.containerTargetId);
 

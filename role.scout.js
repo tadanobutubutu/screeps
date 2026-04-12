@@ -31,24 +31,16 @@ const roleScout = {
                 // Arrived at target room
                 creep.say('🔍');
 
-                // ⚡ PERFORMANCE: Use centralized room cache for hostiles and all structures.
-                if (creep.room._hostileCreepsTick !== Game.time) {
-                    creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
-                    creep.room._hostileCreepsTick = Game.time;
-                }
-                const hostiles = creep.room._hostileCreeps;
+                // ⚡ PERFORMANCE: Use pre-warmed room caches for hostiles and structures.
+                // Note: dropped resources are still fetched per room visit if not already cached.
+                const hostiles = creep.room._hostileCreeps || [];
+                const structures = creep.room._allStructures || [];
 
                 if (creep.room._droppedResourcesTick !== Game.time) {
                     creep.room._droppedResources = creep.room.find(FIND_DROPPED_RESOURCES);
                     creep.room._droppedResourcesTick = Game.time;
                 }
                 const resources = creep.room._droppedResources;
-
-                if (creep.room._allStructuresTick !== Game.time) {
-                    creep.room._allStructures = creep.room.find(FIND_STRUCTURES);
-                    creep.room._allStructuresTick = Game.time;
-                }
-                const structures = creep.room._allStructures;
 
                 // Initialize visited memory if needed
                 if (!creep.memory.visited) {

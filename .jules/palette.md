@@ -77,3 +77,15 @@
 ## 2026-04-09 - [Contextual Labels for Technical Content]
 **Learning:** Large blocks of raw data, like JSON in a `<pre>` tag, can be disorienting for screen reader users if they lack clear context. Providing a descriptive `aria-label` (e.g., "Screeps statistics JSON") allows users to quickly identify the nature of the data block they are navigating, improving the overall semantic structure of technical dashboards.
 **Action:** Use `aria-label` to provide concise, descriptive context for large technical data displays that don't have an explicit visible heading.
+
+## 2026-04-10 - [Ambient Awareness via Document Title]
+**Learning:** For dashboard applications that may be left open in background tabs, updating the `document.title` to reflect current status (e.g., "🔄 Refreshing...") or progress metrics (e.g., "Screeps (85%)") provides ambient awareness. This allows users to monitor the application state without needing to switch tabs, reducing cognitive overhead and providing a sense of "live" data.
+**Action:** Always implement dynamic title updates for key application states and primary progress metrics in long-running dashboards.
+
+## 2026-04-10 - [Keyboard-Accessible Technical Data Blocks]
+**Learning:** Large, scrollable technical data blocks like JSON `<pre>` tags are often skipped by keyboard users if they lack a tab index. Adding `tabIndex={0}` makes them reachable, but requires a visual focus indicator. Using focus/blur handlers to toggle a high-contrast focus ring (e.g., blue `boxShadow`) on the parent container, while removing the default browser `outline` on the text block itself, creates a clean and accessible navigation experience.
+**Action:** Use `tabIndex={0}` and container-level focus signaling for all scrollable technical content to ensure full keyboard accessibility.
+
+## 2026-04-10 - [Contextual Tooltips for Summarized Metadata]
+**Learning:** Metadata counts (like "2 Rooms") are useful for high-level overviews but lose detail. Correctly handling pluralization ("1 Room" vs "2 Rooms") is a baseline for professional UX. Furthermore, utilizing the `title` attribute to provide a detailed list (e.g., actual room names) on hover adds a layer of depth and context that is available on demand without cluttering the primary interface.
+**Action:** Always pair summarized metadata counts with proper pluralization and detailed hover tooltips to provide drill-down context without visual noise.

@@ -3,7 +3,15 @@ import { createClient } from "@supabase/supabase-js";
 
 const SCREEPS_API = "https://screeps.com/api";
 
-export async function GET() {
+export async function GET(request: Request) {
+  // Security: Check for authorization secret to prevent unauthorized data collection triggers
+  const authHeader = request.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const token = process.env.SCREEPS_TOKEN;
   const username = process.env.SCREEPS_USERNAME;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

@@ -86,10 +86,8 @@ const roleHarvester = {
                 }
             } else {
                 // 満杯な時はコンテナに充電
-                // ⚡ PERFORMANCE: Use pre-warmed room cache for containers.
-                const containers = (creep.room._containers || []).filter(
-                    (s) => s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                );
+                // ⚡ PERFORMANCE: Use pre-calculated fillable containers cache from main.js
+                const containers = creep.room._fillableContainers || [];
 
                 if (containers.length > 0) {
                     // ⚡ PERFORMANCE: Cache container ID to avoid re-searching every tick and use closest by range

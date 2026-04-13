@@ -36,23 +36,8 @@ const roleTransporter = {
                 delete creep.memory.deliveryTargetId;
             }
         } else {
-            // ⚡ PERFORMANCE: 部屋全体の引き出し元リストをキャッシュして、クリープごとの重複計算を回避
-            if (creep.room._withdrawalSourcesTick !== Game.time) {
-                const containers = (creep.room._containers || []).filter(
-                    (s) => s.store[RESOURCE_ENERGY] > 0
-                );
-                const storage = creep.room.storage;
-                const sources = [];
-
-                if (storage && storage.store[RESOURCE_ENERGY] > 1000) {
-                    sources.push(storage);
-                }
-                sources.push(...containers);
-
-                creep.room._withdrawalSources = sources;
-                creep.room._withdrawalSourcesTick = Game.time;
-            }
-            const sources = creep.room._withdrawalSources;
+            // ⚡ PERFORMANCE: Use pre-calculated withdrawal sources cache from main.js
+            const sources = creep.room._withdrawalSources || [];
 
             if (sources.length > 0) {
                 // ⚡ PERFORMANCE: ターゲットIDをキャッシュ

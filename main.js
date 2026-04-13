@@ -207,10 +207,11 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._injuredCreepsTick = Game.time;
 
         // Cache structures, hostiles, sources, and construction sites once per tick.
-        room._myStructures = room.find(FIND_MY_STRUCTURES);
-        room._myStructuresTick = Game.time;
-        room._allStructures = room.find(FIND_STRUCTURES);
+        // ⚡ PERFORMANCE: Use a single FIND_STRUCTURES call and derive myStructures from it.
+        const allStructures = room.find(FIND_STRUCTURES);
+        room._allStructures = allStructures;
         room._allStructuresTick = Game.time;
+
         room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
         room._hostileCreepsTick = Game.time;
         room._activeSources = room.find(FIND_SOURCES_ACTIVE);
@@ -218,34 +219,66 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
         room._myConstructionSitesTick = Game.time;
 
-        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in single loops.
+        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in a single pass.
+        const myStructures = [];
         const deliveryTargets = [];
         const harvesterDeliveryTargets = [];
-        for (let i = 0; i < room._myStructures.length; i++) {
-            const s = room._myStructures[i];
-            const type = s.structureType;
-            if (
-                (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
-                 type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
-                s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-            ) {
-                deliveryTargets.push(s);
-                if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
-            }
-        }
-        room._deliveryTargets = deliveryTargets;
-        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
-
         const repairTargets = [];
         const containers = [];
-        for (let i = 0; i < room._allStructures.length; i++) {
-            const s = room._allStructures[i];
-            if (s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL) repairTargets.push(s);
-            if (s.structureType === STRUCTURE_CONTAINER) containers.push(s);
+        const fillableContainers = [];
+        const withdrawalSources = [];
+
+        for (let i = 0; i < allStructures.length; i++) {
+            const s = allStructures[i];
+            const type = s.structureType;
+
+            // My structures and delivery targets
+            if (s.my) {
+                myStructures.push(s);
+                if (
+                    (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
+                        type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
+                    s.store &&
+                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                ) {
+                    deliveryTargets.push(s);
+                    if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+                }
+            }
+
+            // Repair targets
+            if (s.hits < s.hitsMax && type !== STRUCTURE_WALL) {
+                repairTargets.push(s);
+            }
+
+            // Logistics: Containers
+            if (type === STRUCTURE_CONTAINER) {
+                containers.push(s);
+                if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                    fillableContainers.push(s);
+                }
+                if (s.store && s.store[RESOURCE_ENERGY] > 0) {
+                    withdrawalSources.push(s);
+                }
+            }
         }
+
+        // Logistics: Storage as withdrawal source
+        if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
+            withdrawalSources.push(room.storage);
+        }
+
+        room._myStructures = myStructures;
+        room._myStructuresTick = Game.time;
+        room._deliveryTargets = deliveryTargets;
+        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
         room._repairTargets = repairTargets;
         room._containers = containers;
         room._containersTick = Game.time;
+        room._fillableContainers = fillableContainers;
+        room._fillableContainersTick = Game.time;
+        room._withdrawalSources = withdrawalSources;
+        room._withdrawalSourcesTick = Game.time;
     }
 
     // Global creep counts and logic execution

@@ -1,0 +1,18 @@
+workflows:
+  screeps-ci:
+    name: Screeps CI
+    max_build_duration: 30
+    environment:
+      node: 20
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+      - name: Run linter
+        script: npm run lint --if-present
+      - name: Run tests
+        script: npm test --if-present
+      - name: Build (rollup)
+        script: npm run build --if-present
+    artifacts:
+      - dist/**
+      - coverage/**

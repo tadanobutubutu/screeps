@@ -179,11 +179,16 @@ function handlePeriodicTasks(systemMode) {
 }
 
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
-    const creepCounts = {};
+    // Security: Use Object.create(null) to prevent Prototype Pollution from dynamic role keys.
+    const creepCounts = Object.create(null);
 
     // ⚡ PERFORMANCE: Pre-initialize per-room caches to "warm" them for downstream systems.
     // This reduces redundant O(N) searches across multiple role modules.
     for (const roomName in Game.rooms) {
+        // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+        if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+            continue;
+        }
         const room = Game.rooms[roomName];
 
         // Basic room data caching
@@ -250,6 +255,10 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
 
     // Global creep counts and logic execution
     for (const name in Game.creeps) {
+        // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+        if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
+            continue;
+        }
         const creep = Game.creeps[name];
         let role = creep.memory.role;
 
@@ -268,7 +277,8 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
                 runCreepLogic(creep, role, isEmotionsEnabled);
             } catch (e) {
                 Sentry.captureException(e);
-                console.log('Error in creep ' + name + ': ' + e.message);
+                // Security: Use logging system for consistent escaping and error tracking.
+                logger.error('Error in creep ' + name + ': ' + e.message);
             }
         }
     }
@@ -345,6 +355,10 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
 function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
     if (adaptiveSystem.isEnabled('defense')) {
         for (const roomName in Game.rooms) {
+            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+                continue;
+            }
             const room = Game.rooms[roomName];
             if (room.controller && room.controller.my) {
                 if (isVisualEffectsEnabled) {
@@ -358,7 +372,8 @@ function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
                         runDefenseLogic(room);
                     } catch (e) {
                         Sentry.captureException(e);
-                        console.log('Error in defense ' + roomName + ': ' + e.message);
+                        // Security: Use logging system for consistent escaping and error tracking.
+                        logger.error('Error in defense ' + roomName + ': ' + e.message);
                     }
                 }
             }
@@ -443,6 +458,10 @@ module.exports.loop = function () {
         const creepCounts = processCreeps(isLoggingEnabled, isEmotionsEnabled);
 
         for (const spawnName in Game.spawns) {
+            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+            if (!Object.prototype.hasOwnProperty.call(Game.spawns, spawnName)) {
+                continue;
+            }
             const spawn = Game.spawns[spawnName];
             handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled);
         }
@@ -452,6 +471,10 @@ module.exports.loop = function () {
             // Using findInRange(1) leverages the engine's internal spatial indexing.
             const processedPairs = new Set();
             for (const roomName in Game.rooms) {
+                // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+                if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+                    continue;
+                }
                 const room = Game.rooms[roomName];
                 const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS);
 
@@ -484,11 +507,9 @@ module.exports.loop = function () {
         }
     } catch (e) {
         Sentry.captureException(e);
-        console.log('❌ CRITICAL ERROR: ' + e.message);
-        if (e.stack) {
-            const safeStack = logger.getSafeStack(e.stack);
-            console.log(safeStack);
-        }
+        // Security: Use logging system for consistent escaping, path sanitization, and error tracking.
+        const safeStack = logger.getSafeStack(e.stack);
+        logger.error('CRITICAL ERROR: ' + e.message + (safeStack ? '\n' + safeStack : ''));
     }
 };
 

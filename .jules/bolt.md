@@ -81,3 +81,7 @@
 ## 2026-05-26 - Producer-Consumer Alignment in Caching
 **Learning:** Adding cache population logic (the "producer") to a global loop without refactoring downstream logic (the "consumers") to use it creates a performance regression. The extra comparisons and array operations add per-tick CPU cost without any offsetting savings.
 **Action:** When implementing per-tick caching, always ensure all relevant consumers are updated to use the new cache in the same change set to ensure a net performance gain.
+
+## 2026-06-09 - Unified Structure Caching and Logistics Warming
+**Learning:** While specialized Screeps `FIND` constants (like `FIND_MY_STRUCTURES`) are engine-optimized, calling multiple related `FIND` constants (e.g., `FIND_STRUCTURES` and `FIND_MY_STRUCTURES`) in the same tick is often slower than a single `FIND_STRUCTURES` call followed by JS-side filtering. Furthermore, pre-calculating state-specific logistics caches (e.g., `fillableContainers`) in the main loop eliminates redundant $O(N \cdot M)$ filtering overhead across all active creeps.
+**Action:** Consolidate related engine `FIND` calls into a single pass and "warm" downstream logistics caches globally to maximize per-tick CPU savings.

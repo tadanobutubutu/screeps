@@ -179,11 +179,16 @@ function handlePeriodicTasks(systemMode) {
 }
 
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
-    const creepCounts = {};
+    // Security: Use Object.create(null) to prevent Prototype Pollution from dynamic role keys.
+    const creepCounts = Object.create(null);
 
     // ⚡ PERFORMANCE: Pre-initialize per-room caches to "warm" them for downstream systems.
     // This reduces redundant O(N) searches across multiple role modules.
     for (const roomName in Game.rooms) {
+        // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+        if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+            continue;
+        }
         const room = Game.rooms[roomName];
 
         // Basic room data caching
@@ -207,10 +212,11 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._injuredCreepsTick = Game.time;
 
         // Cache structures, hostiles, sources, and construction sites once per tick.
-        room._myStructures = room.find(FIND_MY_STRUCTURES);
-        room._myStructuresTick = Game.time;
-        room._allStructures = room.find(FIND_STRUCTURES);
+        // ⚡ PERFORMANCE: Use a single FIND_STRUCTURES call and derive myStructures from it.
+        const allStructures = room.find(FIND_STRUCTURES);
+        room._allStructures = allStructures;
         room._allStructuresTick = Game.time;
+
         room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
         room._hostileCreepsTick = Game.time;
         room._activeSources = room.find(FIND_SOURCES_ACTIVE);
@@ -218,38 +224,74 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._myConstructionSites = room.find(FIND_MY_CONSTRUCTION_SITES);
         room._myConstructionSitesTick = Game.time;
 
-        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in single loops.
+        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in a single pass.
+        const myStructures = [];
         const deliveryTargets = [];
         const harvesterDeliveryTargets = [];
-        for (let i = 0; i < room._myStructures.length; i++) {
-            const s = room._myStructures[i];
-            const type = s.structureType;
-            if (
-                (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
-                 type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
-                s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-            ) {
-                deliveryTargets.push(s);
-                if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
-            }
-        }
-        room._deliveryTargets = deliveryTargets;
-        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
-
         const repairTargets = [];
         const containers = [];
-        for (let i = 0; i < room._allStructures.length; i++) {
-            const s = room._allStructures[i];
-            if (s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL) repairTargets.push(s);
-            if (s.structureType === STRUCTURE_CONTAINER) containers.push(s);
+        const fillableContainers = [];
+        const withdrawalSources = [];
+
+        for (let i = 0; i < allStructures.length; i++) {
+            const s = allStructures[i];
+            const type = s.structureType;
+
+            // My structures and delivery targets
+            if (s.my) {
+                myStructures.push(s);
+                if (
+                    (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
+                        type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
+                    s.store &&
+                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                ) {
+                    deliveryTargets.push(s);
+                    if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+                }
+            }
+
+            // Repair targets
+            if (s.hits < s.hitsMax && type !== STRUCTURE_WALL) {
+                repairTargets.push(s);
+            }
+
+            // Logistics: Containers
+            if (type === STRUCTURE_CONTAINER) {
+                containers.push(s);
+                if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                    fillableContainers.push(s);
+                }
+                if (s.store && s.store[RESOURCE_ENERGY] > 0) {
+                    withdrawalSources.push(s);
+                }
+            }
         }
+
+        // Logistics: Storage as withdrawal source
+        if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
+            withdrawalSources.push(room.storage);
+        }
+
+        room._myStructures = myStructures;
+        room._myStructuresTick = Game.time;
+        room._deliveryTargets = deliveryTargets;
+        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
         room._repairTargets = repairTargets;
         room._containers = containers;
         room._containersTick = Game.time;
+        room._fillableContainers = fillableContainers;
+        room._fillableContainersTick = Game.time;
+        room._withdrawalSources = withdrawalSources;
+        room._withdrawalSourcesTick = Game.time;
     }
 
     // Global creep counts and logic execution
     for (const name in Game.creeps) {
+        // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+        if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
+            continue;
+        }
         const creep = Game.creeps[name];
         let role = creep.memory.role;
 
@@ -268,7 +310,8 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
                 runCreepLogic(creep, role, isEmotionsEnabled);
             } catch (e) {
                 Sentry.captureException(e);
-                console.log('Error in creep ' + name + ': ' + e.message);
+                // Security: Use logging system for consistent escaping and error tracking.
+                logger.error('Error in creep ' + name + ': ' + e.message);
             }
         }
     }
@@ -345,6 +388,10 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
 function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
     if (adaptiveSystem.isEnabled('defense')) {
         for (const roomName in Game.rooms) {
+            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+                continue;
+            }
             const room = Game.rooms[roomName];
             if (room.controller && room.controller.my) {
                 if (isVisualEffectsEnabled) {
@@ -358,7 +405,8 @@ function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
                         runDefenseLogic(room);
                     } catch (e) {
                         Sentry.captureException(e);
-                        console.log('Error in defense ' + roomName + ': ' + e.message);
+                        // Security: Use logging system for consistent escaping and error tracking.
+                        logger.error('Error in defense ' + roomName + ': ' + e.message);
                     }
                 }
             }
@@ -443,6 +491,10 @@ module.exports.loop = function () {
         const creepCounts = processCreeps(isLoggingEnabled, isEmotionsEnabled);
 
         for (const spawnName in Game.spawns) {
+            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+            if (!Object.prototype.hasOwnProperty.call(Game.spawns, spawnName)) {
+                continue;
+            }
             const spawn = Game.spawns[spawnName];
             handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled);
         }
@@ -452,6 +504,10 @@ module.exports.loop = function () {
             // Using findInRange(1) leverages the engine's internal spatial indexing.
             const processedPairs = new Set();
             for (const roomName in Game.rooms) {
+                // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
+                if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
+                    continue;
+                }
                 const room = Game.rooms[roomName];
                 const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS);
 
@@ -484,11 +540,9 @@ module.exports.loop = function () {
         }
     } catch (e) {
         Sentry.captureException(e);
-        console.log('❌ CRITICAL ERROR: ' + e.message);
-        if (e.stack) {
-            const safeStack = logger.getSafeStack(e.stack);
-            console.log(safeStack);
-        }
+        // Security: Use logging system for consistent escaping, path sanitization, and error tracking.
+        const safeStack = logger.getSafeStack(e.stack);
+        logger.error('CRITICAL ERROR: ' + e.message + (safeStack ? '\n' + safeStack : ''));
     }
 };
 

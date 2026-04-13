@@ -29,11 +29,11 @@
     "@sentry/browser": "^10.48.0",
     "@supabase/supabase-js": "^2.101.1",
     "lodash": "^4.18.1",
-    "posthog-js": "^1.364.7"
+    "posthog-js": "^1.367.0"
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^1.9.1",
-    "@sentry/rollup-plugin": "^5.1.1",
+    "@sentry/rollup-plugin": "^5.2.0",
     "eslint": "10.2.0",
     "jest": "^30.3.0",
     "jest-junit": "^16.0.0",

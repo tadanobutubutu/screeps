@@ -102,16 +102,18 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
           {stats?.rooms && (
             <span
-              style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem" }}
+              style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem", cursor: "help", borderBottom: "1px dotted #ccc" }}
               title={`Rooms: ${Object.keys(stats.rooms).join(", ")}`}
+              tabIndex={0}
             >
               <span role="img" aria-label="Rooms">🏠</span> {Object.keys(stats.rooms).length} Room{Object.keys(stats.rooms).length === 1 ? "" : "s"}
             </span>
           )}
           {lastUpdated && (
             <span
-              style={{ fontSize: "0.8rem", color: "#575757" }}
+              style={{ fontSize: "0.8rem", color: "#575757", cursor: "help", borderBottom: "1px dotted #ccc" }}
               title={lastUpdated.toLocaleString()}
+              tabIndex={0}
             >
               Last sync: {lastUpdated.toLocaleTimeString()}
             </span>
@@ -184,6 +186,7 @@ export default function Dashboard() {
           </div>
           <button
             onClick={() => fetchStats(true)}
+            disabled={loading || isRefreshing}
             aria-label="Retry fetching stats"
             aria-keyshortcuts="r"
             title="Retry (R)"
@@ -193,11 +196,14 @@ export default function Dashboard() {
               color: "#fff",
               border: "none",
               borderRadius: "4px",
-              cursor: "pointer",
-              fontSize: "0.8rem"
+              cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
+              fontSize: "0.8rem",
+              opacity: (loading || isRefreshing) ? 0.6 : 1,
+              transition: "all 0.2s",
+              userSelect: "none"
             }}
           >
-            Retry
+            {isRefreshing ? "Retrying..." : "Retry"}
           </button>
         </div>
       )}
@@ -234,6 +240,7 @@ export default function Dashboard() {
           </div>
           <div
             role="progressbar"
+            tabIndex={0}
             aria-label="Global Control Level progress"
             aria-describedby="gcl-percent"
             aria-valuenow={Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}
@@ -241,7 +248,7 @@ export default function Dashboard() {
             aria-valuemax={100}
             aria-valuetext={`${Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
-            style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem" }}
+            style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem", cursor: "help" }}
           >
             <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa", transition: "width 0.5s ease-in-out" }} />
           </div>
@@ -334,6 +341,15 @@ export default function Dashboard() {
           )
         )}
       </section>
+
+      <footer style={{ marginTop: "3rem", paddingTop: "1rem", borderTop: "1px solid #eee", fontSize: "0.8rem", color: "#888", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          Keyboard Shortcuts: <kbd style={{ background: "#eee", padding: "0.1rem 0.3rem", borderRadius: "3px", border: "1px solid #ccc" }}>R</kbd> Refresh · <kbd style={{ background: "#eee", padding: "0.1rem 0.3rem", borderRadius: "3px", border: "1px solid #ccc" }}>C</kbd> Copy JSON
+        </div>
+        <div>
+          Hover/Focus items with <span style={{ cursor: "help", borderBottom: "1px dotted #888" }}>dotted underline</span> for details.
+        </div>
+      </footer>
     </main>
   );
 }

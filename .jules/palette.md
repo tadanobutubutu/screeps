@@ -89,3 +89,7 @@
 ## 2026-04-10 - [Contextual Tooltips for Summarized Metadata]
 **Learning:** Metadata counts (like "2 Rooms") are useful for high-level overviews but lose detail. Correctly handling pluralization ("1 Room" vs "2 Rooms") is a baseline for professional UX. Furthermore, utilizing the `title` attribute to provide a detailed list (e.g., actual room names) on hover adds a layer of depth and context that is available on demand without cluttering the primary interface.
 **Action:** Always pair summarized metadata counts with proper pluralization and detailed hover tooltips to provide drill-down context without visual noise.
+
+## 2026-04-11 - [Keyboard-Accessible Tooltips & Shortcut Discoverability]
+**Learning:** Standard HTML `title` attributes are inaccessible to keyboard-only users because they are only triggered by mouse hover. Adding `tabIndex={0}` and `cursor: "help"` to metadata elements (like room counts or timestamps) makes them focusable, allowing keyboard users to access the supplementary information in the tooltip. Furthermore, a dedicated keyboard shortcut legend in the footer improves discoverability more effectively than relying on tooltips alone.
+**Action:** Always ensure that informative metadata with tooltips is keyboard-focusable and provide a visible shortcut legend for better discoverability of power-user features.

@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [isJsonFocused, setIsJsonFocused] = useState(false);
+  const [timeAgo, setTimeAgo] = useState<string>("just now");
 
   const handleCopy = useCallback(async () => {
     if (!stats) return;
@@ -56,6 +57,31 @@ export default function Dashboard() {
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
+
+  useEffect(() => {
+    if (!lastUpdated) return;
+
+    // 相対時間を更新する関数
+    const updateRelativeTime = () => {
+      const now = new Date();
+      const diffInSeconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
+
+      if (diffInSeconds < 60) {
+        setTimeAgo("just now");
+      } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        setTimeAgo(`${minutes}m ago`);
+      } else {
+        const hours = Math.floor(diffInSeconds / 3600);
+        setTimeAgo(`${hours}h ago`);
+      }
+    };
+
+    updateRelativeTime();
+    // 1分ごとに相対時間を更新
+    const interval = setInterval(updateRelativeTime, 60000);
+    return () => clearInterval(interval);
+  }, [lastUpdated]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -102,7 +128,17 @@ export default function Dashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", justifyContent: "flex-end" }}>
           {stats?.rooms && (
             <span
-              style={{ fontSize: "0.9rem", color: "#575757", display: "flex", alignItems: "center", gap: "0.25rem", cursor: "help", borderBottom: "1px dotted #ccc" }}
+              style={{
+                fontSize: "0.9rem",
+                color: "#575757",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.25rem",
+                cursor: "help",
+                borderBottom: "1px dotted #ccc",
+                borderRadius: "2px",
+                padding: "0 2px"
+              }}
               title={`Rooms: ${Object.keys(stats.rooms).join(", ")}`}
               tabIndex={0}
             >
@@ -111,11 +147,18 @@ export default function Dashboard() {
           )}
           {lastUpdated && (
             <span
-              style={{ fontSize: "0.8rem", color: "#575757", cursor: "help", borderBottom: "1px dotted #ccc" }}
+              style={{
+                fontSize: "0.8rem",
+                color: "#575757",
+                cursor: "help",
+                borderBottom: "1px dotted #ccc",
+                borderRadius: "2px",
+                padding: "0 2px"
+              }}
               title={lastUpdated.toLocaleString()}
               tabIndex={0}
             >
-              Last sync: {lastUpdated.toLocaleTimeString()}
+              Last sync: {timeAgo}
             </span>
           )}
           <button
@@ -342,7 +385,7 @@ export default function Dashboard() {
         )}
       </section>
 
-      <footer style={{ marginTop: "3rem", paddingTop: "1rem", borderTop: "1px solid #eee", fontSize: "0.8rem", color: "#888", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+      <footer style={{ marginTop: "3rem", paddingTop: "1rem", borderTop: "1px solid #eee", fontSize: "0.8rem", color: "#666", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
         <div>
           Keyboard Shortcuts: <kbd style={{ background: "#eee", padding: "0.1rem 0.3rem", borderRadius: "3px", border: "1px solid #ccc" }}>R</kbd> Refresh · <kbd style={{ background: "#eee", padding: "0.1rem 0.3rem", borderRadius: "3px", border: "1px solid #ccc" }}>C</kbd> Copy JSON
         </div>

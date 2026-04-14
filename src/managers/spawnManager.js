@@ -121,7 +121,7 @@ function _buildSpawnQueue(room) {
  */
 function _getTargetCounts(room, rcl) {
     const baseTargets = TARGET_CREEPS_BY_RCL[rcl] || TARGET_CREEPS_BY_RCL[1];
-    const result = Object.assign({}, baseTargets);
+    const result = Object.assign(Object.create(null), baseTargets);
 
     // 建設サイトがある場合はビルダーを追加
     const sites = cache.getConstructionSites(room);
@@ -155,7 +155,7 @@ function _getTargetCounts(room, rcl) {
  * @returns {Object.<string, number>}
  */
 function _getCurrentCounts(room) {
-    const counts = {};
+    const counts = Object.create(null);
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
         if (
@@ -348,6 +348,7 @@ function showStats(room) {
 
     logger.info(`[SpawnManager] ルーム ${room.name} のクリープ状況 (RCL ${rcl}):`);
     for (const role in targets) {
+        if (!Object.prototype.hasOwnProperty.call(targets, role)) continue;
         const t = targets[role];
         const c = current[role] || 0;
         const status = c >= t ? '✓' : '⚠️';

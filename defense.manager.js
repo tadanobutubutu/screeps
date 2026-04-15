@@ -11,40 +11,15 @@ const defenseManager = {
 
     // タワー自動制御
     manageTowers: function (room) {
-        // ⚡ PERFORMANCE: Use centralized room caches for structures, creeps, and hostiles.
-        if (room._myStructuresTick !== Game.time) {
-            room._myStructures = room.find(FIND_MY_STRUCTURES);
-            room._myStructuresTick = Game.time;
-        }
-
-        // ⚡ PERFORMANCE: Cache towers per-tick
-        if (room._towersTick !== Game.time) {
-            room._towers = room._myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
-            room._towersTick = Game.time;
-        }
-        const towers = room._towers;
+        // ⚡ PERFORMANCE: Use centralized room caches pre-warmed in main.js. (main.jsで準備された部屋ごとのキャッシュを使用)
+        const towers = room._towers || [];
 
         if (towers.length === 0) {
             return;
         }
 
         // 脅威の優先順位付け
-        if (room._hostileCreepsTick !== Game.time) {
-            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-            room._hostileCreepsTick = Game.time;
-        }
-        const hostiles = room._hostileCreeps;
-
-        if (room._myCreepsTick !== Game.time) {
-            room._myCreeps = room.find(FIND_MY_CREEPS);
-            room._myCreepsTick = Game.time;
-        }
-
-        // ⚡ PERFORMANCE: Use pre-warmed room caches for injured creeps and all structures.
-        if (room._injuredCreepsTick !== Game.time) {
-            room._injuredCreeps = room._myCreeps.filter((c) => c.hits < c.hitsMax);
-            room._injuredCreepsTick = Game.time;
-        }
+        const hostiles = room._hostileCreeps || [];
         const damagedCreeps = room._injuredCreeps;
 
         // ⚡ PERFORMANCE: Use pre-filtered room-level repair targets.
@@ -90,12 +65,8 @@ const defenseManager = {
 
     // 脅威レベル評価
     checkThreats: function (room) {
-        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps.
-        if (room._hostileCreepsTick !== Game.time) {
-            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-            room._hostileCreepsTick = Game.time;
-        }
-        const hostiles = room._hostileCreeps;
+        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps pre-warmed in main.js. (main.jsで準備された敵クリープのキャッシュを使用)
+        const hostiles = room._hostileCreeps || [];
 
         if (hostiles.length === 0) {
             if (Memory.defenseLevel) {
@@ -131,38 +102,15 @@ const defenseManager = {
     manageDefenders: function (room) {
         const threatLevel = Memory.defenseLevel || 0;
 
-        // ⚡ PERFORMANCE: Use centralized room cache for my creeps.
-        if (room._myCreepsTick !== Game.time) {
-            room._myCreeps = room.find(FIND_MY_CREEPS);
-            room._myCreepsTick = Game.time;
-        }
-
-        // ⚡ PERFORMANCE: Cache defenders per-tick
-        if (room._defendersTick !== Game.time) {
-            room._defenders = room._myCreeps.filter((c) => c.memory.role === 'defender');
-            room._defendersTick = Game.time;
-        }
-        const defenders = room._defenders;
+        // ⚡ PERFORMANCE: Use pre-warmed defenders and spawns caches from main.js. (main.jsで準備された防衛隊とスポーンのキャッシュを使用)
+        const defenders = room._defenders || [];
 
         // 脅威に応じて必要な防衛creep数を決定
         const requiredDefenders = Math.min(Math.ceil(threatLevel / 3), 4);
 
         if (defenders.length < requiredDefenders && threatLevel > 0) {
             // スポーン準備
-            // ⚡ PERFORMANCE: Use cached room structures to find spawns
-            if (room._myStructuresTick !== Game.time) {
-                room._myStructures = room.find(FIND_MY_STRUCTURES);
-                room._myStructuresTick = Game.time;
-            }
-
-            // ⚡ PERFORMANCE: Cache free spawns per-tick
-            if (room._freeSpawnsTick !== Game.time) {
-                room._freeSpawns = room._myStructures.filter(
-                    (s) => s.structureType === STRUCTURE_SPAWN && !s.spawning
-                );
-                room._freeSpawnsTick = Game.time;
-            }
-            const spawns = room._freeSpawns;
+            const spawns = room._freeSpawns || [];
 
             if (spawns.length > 0) {
                 this.spawnDefender(spawns[0], threatLevel);
@@ -226,12 +174,8 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps.
-        if (creep.room._hostileCreepsTick !== Game.time) {
-            creep.room._hostileCreeps = creep.room.find(FIND_HOSTILE_CREEPS);
-            creep.room._hostileCreepsTick = Game.time;
-        }
-        const hostiles = creep.room._hostileCreeps;
+        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps pre-warmed in main.js. (main.jsで準備された敵のキャッシュを使用)
+        const hostiles = creep.room._hostileCreeps || [];
         const hostile = creep.pos.findClosestByRange(hostiles);
 
         if (hostile) {
@@ -273,28 +217,9 @@ const defenseManager = {
 
     // 統計情報表示
     showStats: function (room) {
-        // ⚡ PERFORMANCE: Use centralized room caches.
-        if (room._myStructuresTick !== Game.time) {
-            room._myStructures = room.find(FIND_MY_STRUCTURES);
-            room._myStructuresTick = Game.time;
-        }
-
-        if (room._towersTick !== Game.time) {
-            room._towers = room._myStructures.filter((s) => s.structureType === STRUCTURE_TOWER);
-            room._towersTick = Game.time;
-        }
-        const towers = room._towers.length;
-
-        if (room._myCreepsTick !== Game.time) {
-            room._myCreeps = room.find(FIND_MY_CREEPS);
-            room._myCreepsTick = Game.time;
-        }
-
-        if (room._defendersTick !== Game.time) {
-            room._defenders = room._myCreeps.filter((c) => c.memory.role === 'defender');
-            room._defendersTick = Game.time;
-        }
-        const defenders = room._defenders.length;
+        // ⚡ PERFORMANCE: Use centralized room caches pre-warmed in main.js. (集約されたキャッシュを使用して統計を表示)
+        const towers = (room._towers || []).length;
+        const defenders = (room._defenders || []).length;
 
         const threatLevel = Memory.defenseLevel || 0;
 

@@ -4,11 +4,12 @@ import { createClient } from "@supabase/supabase-js";
 const SCREEPS_API = "https://screeps.com/api";
 
 export async function GET(request: Request) {
-  // Security: Check for authorization secret to prevent unauthorized data collection triggers
+  // Security: Check for authorization secret to prevent unauthorized data collection triggers.
+  // We use a fail-closed logic: if CRON_SECRET is not set or doesn't match, we deny access.
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

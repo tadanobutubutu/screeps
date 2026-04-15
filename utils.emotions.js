@@ -241,6 +241,12 @@ class EmotionSystem {
     }
 
     static getStats() {
+        // ⚡ PERFORMANCE: Use pre-aggregated global emotion stats if available for the current tick. (現在のティックの集計済み統計があればそれを使用)
+        // This avoids an O(N) creep iteration every time stats are requested. (統計が要求されるたびに実行されるO(N)のループを回避)
+        if (global._emotionStatsTick === Game.time && global._emotionStats) {
+            return global._emotionStats;
+        }
+
         const stats = {
             veryHappy: 0,
             happy: 0,

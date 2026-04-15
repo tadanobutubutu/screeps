@@ -181,7 +181,11 @@ function handlePeriodicTasks(systemMode) {
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = Object.create(null);
 
-    // ⚡ PERFORMANCE: Warm per-room caches using global passes to avoid redundant FIND calls.
+    // ⚡ PERFORMANCE: Global emotion stats cache warming. (グローバルな感情統計のキャッシュを初期化)
+    global._emotionStats = { veryHappy: 0, happy: 0, neutral: 0, sad: 0, verySad: 0, total: 0 };
+    global._emotionStatsTick = Game.time;
+
+    // ⚡ PERFORMANCE: Warm per-room caches using global passes to avoid redundant FIND calls. (冗長なFIND呼び出しを避けるため、グローバルパスを使用して部屋ごとのキャッシュを準備)
     for (const r in Game.rooms) {
         if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
         const room = Game.rooms[r];
@@ -189,6 +193,10 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._roleCounts = { harvester: 0, upgrader: 0, builder: 0, repairer: 0, transporter: 0, scout: 0, medic: 0, explorer: 0 };
         room._injuredCreeps = []; room._injuredCreepsTick = Game.time;
         room._myConstructionSites = []; room._myConstructionSitesTick = Game.time;
+        room._defenders = []; room._defendersTick = Game.time;
+        room._towers = []; room._towersTick = Game.time;
+        room._spawns = []; room._spawnsTick = Game.time;
+        room._freeSpawns = []; room._freeSpawnsTick = Game.time;
     }
     for (const n in Game.creeps) {
         if (!Object.prototype.hasOwnProperty.call(Game.creeps, n)) continue;
@@ -199,10 +207,21 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
         }
         creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        // ⚡ PERFORMANCE: Global emotion aggregation. (グローバルな感情統計の集計)
+        global._emotionStats.total++;
+        const mood = (creep.memory.emotions && creep.memory.emotions.mood) || 3;
+        if (mood >= 5) global._emotionStats.veryHappy++;
+        else if (mood >= 4) global._emotionStats.happy++;
+        else if (mood >= 3) global._emotionStats.neutral++;
+        else if (mood >= 2) global._emotionStats.sad++;
+        else global._emotionStats.verySad++;
+
         if (creep.room) {
             creep.room._myCreeps.push(creep);
             if (creep.room._roleCounts[role] !== undefined) creep.room._roleCounts[role]++;
             if (creep.hits < creep.hitsMax) creep.room._injuredCreeps.push(creep);
+            if (role === 'defender') creep.room._defenders.push(creep);
         }
     }
     for (const id in Game.constructionSites) {
@@ -233,6 +252,9 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         const containers = [];
         const fillableContainers = [];
         const withdrawalSources = [];
+        const towers = [];
+        const spawns = [];
+        const freeSpawns = [];
 
         for (let i = 0; i < allStructures.length; i++) {
             const s = allStructures[i];
@@ -241,6 +263,15 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             // My structures and delivery targets
             if (s.my) {
                 myStructures.push(s);
+
+                // ⚡ PERFORMANCE: Populate defense and spawn caches (防衛およびスポーンのキャッシュを生成)
+                if (type === STRUCTURE_TOWER) {
+                    towers.push(s);
+                } else if (type === STRUCTURE_SPAWN) {
+                    spawns.push(s);
+                    if (!s.spawning) freeSpawns.push(s);
+                }
+
                 if (
                     (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
                         type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
@@ -285,6 +316,12 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._fillableContainersTick = Game.time;
         room._withdrawalSources = withdrawalSources;
         room._withdrawalSourcesTick = Game.time;
+        room._towers = towers;
+        room._towersTick = Game.time;
+        room._spawns = spawns;
+        room._spawnsTick = Game.time;
+        room._freeSpawns = freeSpawns;
+        room._freeSpawnsTick = Game.time;
     }
 
     // Global logic execution

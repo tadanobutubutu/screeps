@@ -18,6 +18,10 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [isJsonFocused, setIsJsonFocused] = useState(false);
+  // フォーカス状態を管理するステートを追加
+  const [isRoomsFocused, setIsRoomsFocused] = useState(false);
+  const [isSyncFocused, setIsSyncFocused] = useState(false);
+  const [isBarFocused, setIsBarFocused] = useState(false);
   const [timeAgo, setTimeAgo] = useState<string>("just now");
 
   const handleCopy = useCallback(async () => {
@@ -137,10 +141,16 @@ export default function Dashboard() {
                 cursor: "help",
                 borderBottom: "1px dotted #ccc",
                 borderRadius: "2px",
-                padding: "0 2px"
+                padding: "0 2px",
+                // キーボードナビゲーション用のフォーカスリングを追加
+                boxShadow: isRoomsFocused ? "0 0 0 2px #0077aa" : "none",
+                outline: "none",
+                transition: "box-shadow 0.2s"
               }}
               title={`Rooms: ${Object.keys(stats.rooms).join(", ")}`}
               tabIndex={0}
+              onFocus={() => setIsRoomsFocused(true)}
+              onBlur={() => setIsRoomsFocused(false)}
             >
               <span role="img" aria-label="Rooms">🏠</span> {Object.keys(stats.rooms).length} Room{Object.keys(stats.rooms).length === 1 ? "" : "s"}
             </span>
@@ -153,10 +163,16 @@ export default function Dashboard() {
                 cursor: "help",
                 borderBottom: "1px dotted #ccc",
                 borderRadius: "2px",
-                padding: "0 2px"
+                padding: "0 2px",
+                // キーボードナビゲーション用のフォーカスリングを追加
+                boxShadow: isSyncFocused ? "0 0 0 2px #0077aa" : "none",
+                outline: "none",
+                transition: "box-shadow 0.2s"
               }}
               title={lastUpdated.toLocaleString()}
               tabIndex={0}
+              onFocus={() => setIsSyncFocused(true)}
+              onBlur={() => setIsSyncFocused(false)}
             >
               Last sync: {timeAgo}
             </span>
@@ -170,7 +186,8 @@ export default function Dashboard() {
             style={{
               cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
               padding: "0.5rem 1rem",
-              background: updated ? "#28a745" : "#0077aa",
+              // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+              background: updated ? "#1e7e34" : "#0077aa",
               color: "#fff",
               border: "none",
               borderRadius: "4px",
@@ -291,7 +308,21 @@ export default function Dashboard() {
             aria-valuemax={100}
             aria-valuetext={`${Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
             title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
-            style={{ width: "100%", height: "12px", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee", borderRadius: "6px", overflow: "hidden", marginBottom: "0.5rem", cursor: "help" }}
+            onFocus={() => setIsBarFocused(true)}
+            onBlur={() => setIsBarFocused(false)}
+            style={{
+              width: "100%",
+              height: "12px",
+              background: stats.gcl.progress >= stats.gcl.progressTotal ? "#333333" : "#eeeeee",
+              borderRadius: "6px",
+              overflow: "hidden",
+              marginBottom: "0.5rem",
+              cursor: "help",
+              // キーボードナビゲーション用のフォーカスリングを追加
+              boxShadow: isBarFocused ? "0 0 0 2px #0077aa" : "none",
+              outline: "none",
+              transition: "box-shadow 0.2s"
+            }}
           >
             <div style={{ width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`, height: "100%", background: stats.gcl.progress >= stats.gcl.progressTotal ? "#FFD700" : "#0077aa", transition: "width 0.5s ease-in-out" }} />
           </div>
@@ -308,7 +339,8 @@ export default function Dashboard() {
         {stats && Object.keys(stats).length > 0 ? (
           <div style={{
             position: "relative",
-            boxShadow: isJsonFocused ? "0 0 0 2px #0077aa" : copied ? "0 0 0 2px #28a745" : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+            // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+            boxShadow: isJsonFocused ? "0 0 0 2px #0077aa" : copied ? "0 0 0 2px #1e7e34" : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
             transition: "all 0.2s ease-in-out",
             borderRadius: "4px"
           }}>
@@ -323,7 +355,8 @@ export default function Dashboard() {
                 right: "0.5rem",
                 padding: "0.25rem 0.5rem",
                 fontSize: "0.75rem",
-                background: copied ? "#28a745" : "#575757",
+                // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+                background: copied ? "#1e7e34" : "#575757",
                 color: "#fff",
                 border: "none",
                 borderRadius: "4px",
@@ -369,7 +402,8 @@ export default function Dashboard() {
                 style={{
                   cursor: (loading || isRefreshing) ? "not-allowed" : "pointer",
                   padding: "0.5rem 1rem",
-                  background: updated ? "#28a745" : "#0077aa",
+                  // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+                  background: updated ? "#1e7e34" : "#0077aa",
                   color: "#fff",
                   border: "none",
                   borderRadius: "4px",

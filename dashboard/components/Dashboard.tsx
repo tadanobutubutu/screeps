@@ -22,6 +22,8 @@ export default function Dashboard() {
   const [isRoomsFocused, setIsRoomsFocused] = useState(false);
   const [isSyncFocused, setIsSyncFocused] = useState(false);
   const [isBarFocused, setIsBarFocused] = useState(false);
+  const [isRefreshFocused, setIsRefreshFocused] = useState(false);
+  const [isRetryFocused, setIsRetryFocused] = useState(false);
   const [timeAgo, setTimeAgo] = useState<string>("just now");
 
   const handleCopy = useCallback(async () => {
@@ -139,7 +141,7 @@ export default function Dashboard() {
                 alignItems: "center",
                 gap: "0.25rem",
                 cursor: "help",
-                borderBottom: "1px dotted #ccc",
+                borderBottom: "1px dotted #888",
                 borderRadius: "2px",
                 padding: "0 2px",
                 // キーボードナビゲーション用のフォーカスリングを追加
@@ -161,7 +163,7 @@ export default function Dashboard() {
                 fontSize: "0.8rem",
                 color: "#575757",
                 cursor: "help",
-                borderBottom: "1px dotted #ccc",
+                borderBottom: "1px dotted #888",
                 borderRadius: "2px",
                 padding: "0 2px",
                 // キーボードナビゲーション用のフォーカスリングを追加
@@ -174,11 +176,13 @@ export default function Dashboard() {
               onFocus={() => setIsSyncFocused(true)}
               onBlur={() => setIsSyncFocused(false)}
             >
-              Last sync: {timeAgo}
+              Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
             </span>
           )}
           <button
             onClick={() => fetchStats(true)}
+            onFocus={() => setIsRefreshFocused(true)}
+            onBlur={() => setIsRefreshFocused(false)}
             disabled={loading || isRefreshing}
             aria-label={updated ? "Stats updated" : isRefreshing ? "Refreshing stats" : "Refresh stats"}
             aria-keyshortcuts="r"
@@ -193,7 +197,9 @@ export default function Dashboard() {
               borderRadius: "4px",
               opacity: (loading || isRefreshing) ? 0.6 : 1,
               transition: "all 0.2s",
-              userSelect: "none"
+              userSelect: "none",
+              boxShadow: isRefreshFocused ? "0 0 0 2px #ffffff, 0 0 0 4px #0077aa" : "none",
+              outline: "none"
             }}
           >
             {updated ? "✅ Updated!" : isRefreshing ? "🔄 Refreshing..." : "🔄 Refresh"}
@@ -246,6 +252,8 @@ export default function Dashboard() {
           </div>
           <button
             onClick={() => fetchStats(true)}
+            onFocus={() => setIsRetryFocused(true)}
+            onBlur={() => setIsRetryFocused(false)}
             disabled={loading || isRefreshing}
             aria-label="Retry fetching stats"
             aria-keyshortcuts="r"
@@ -260,7 +268,9 @@ export default function Dashboard() {
               fontSize: "0.8rem",
               opacity: (loading || isRefreshing) ? 0.6 : 1,
               transition: "all 0.2s",
-              userSelect: "none"
+              userSelect: "none",
+              boxShadow: isRetryFocused ? "0 0 0 2px #ffffff, 0 0 0 4px #d32f2f" : "none",
+              outline: "none"
             }}
           >
             {isRefreshing ? "Retrying..." : "Retry"}

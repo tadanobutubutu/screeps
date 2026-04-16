@@ -181,60 +181,26 @@ function handlePeriodicTasks(systemMode) {
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = Object.create(null);
 
-    // ⚡ PERFORMANCE: Global emotion stats cache warming. (グローバルな感情統計のキャッシュを初期化)
-    global._emotionStats = { veryHappy: 0, happy: 0, neutral: 0, sad: 0, verySad: 0, total: 0 };
-    global._emotionStatsTick = Game.time;
+    // ⚡ PERFORMANCE: Global emotion stats cache warming (isEmotionsEnabledの時のみ実行)
+    if (isEmotionsEnabled) {
+        global._emotionStats = { veryHappy: 0, happy: 0, neutral: 0, sad: 0, verySad: 0, total: 0 };
+        global._emotionStatsTick = Game.time;
+    }
 
-    // ⚡ PERFORMANCE: Warm per-room caches using global passes to avoid redundant FIND calls. (冗長なFIND呼び出しを避けるため、グローバルパスを使用して部屋ごとのキャッシュを準備)
-    for (const r in Game.rooms) {
-        if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
-        const room = Game.rooms[r];
+    // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
+    // 部屋ごとのループ回数を削減し、構造物の分類を最適化
+    for (const roomName in Game.rooms) {
+        if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) continue;
+        const room = Game.rooms[roomName];
+
+        // 1. キャッシュ用配列の初期化
         room._myCreeps = []; room._myCreepsTick = Game.time;
         room._roleCounts = { harvester: 0, upgrader: 0, builder: 0, repairer: 0, transporter: 0, scout: 0, medic: 0, explorer: 0 };
         room._injuredCreeps = []; room._injuredCreepsTick = Game.time;
         room._myConstructionSites = []; room._myConstructionSitesTick = Game.time;
         room._defenders = []; room._defendersTick = Game.time;
-        room._towers = []; room._towersTick = Game.time;
-        room._spawns = []; room._spawnsTick = Game.time;
-        room._freeSpawns = []; room._freeSpawnsTick = Game.time;
-    }
-    for (const n in Game.creeps) {
-        if (!Object.prototype.hasOwnProperty.call(Game.creeps, n)) continue;
-        const creep = Game.creeps[n];
-        let role = creep.memory.role;
-        if (!role) {
-            role = creep.memory.role = 'harvester';
-            if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
-        }
-        creepCounts[role] = (creepCounts[role] || 0) + 1;
 
-        // ⚡ PERFORMANCE: Global emotion aggregation. (グローバルな感情統計の集計)
-        global._emotionStats.total++;
-        const mood = (creep.memory.emotions && creep.memory.emotions.mood) || 3;
-        if (mood >= 5) global._emotionStats.veryHappy++;
-        else if (mood >= 4) global._emotionStats.happy++;
-        else if (mood >= 3) global._emotionStats.neutral++;
-        else if (mood >= 2) global._emotionStats.sad++;
-        else global._emotionStats.verySad++;
-
-        if (creep.room) {
-            creep.room._myCreeps.push(creep);
-            if (creep.room._roleCounts[role] !== undefined) creep.room._roleCounts[role]++;
-            if (creep.hits < creep.hitsMax) creep.room._injuredCreeps.push(creep);
-            if (role === 'defender') creep.room._defenders.push(creep);
-        }
-    }
-    for (const id in Game.constructionSites) {
-        if (!Object.prototype.hasOwnProperty.call(Game.constructionSites, id)) continue;
-        const site = Game.constructionSites[id];
-        if (site.my && site.room) site.room._myConstructionSites.push(site);
-    }
-
-    for (const roomName in Game.rooms) {
-        if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) continue;
-        const room = Game.rooms[roomName];
-
-        // Cache structures, hostiles, and sources once per tick.
+        // 2. 構造物、敵、ソースのスキャン（1ティックに1回）
         const allStructures = room.find(FIND_STRUCTURES);
         room._allStructures = allStructures;
         room._allStructuresTick = Game.time;
@@ -244,7 +210,7 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._activeSources = room.find(FIND_SOURCES_ACTIVE);
         room._activeSourcesTick = Game.time;
 
-        // ⚡ PERFORMANCE: Pre-filter structures into common target categories in a single pass.
+        // 3. 構造物の分類（1パスで実行）
         const myStructures = [];
         const deliveryTargets = [];
         const harvesterDeliveryTargets = [];
@@ -260,47 +226,46 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             const s = allStructures[i];
             const type = s.structureType;
 
-            // My structures and delivery targets
+            // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避
             if (s.my) {
                 myStructures.push(s);
 
-                // ⚡ PERFORMANCE: Populate defense and spawn caches (防衛およびスポーンのキャッシュを生成)
-                if (type === STRUCTURE_TOWER) {
-                    towers.push(s);
-                } else if (type === STRUCTURE_SPAWN) {
-                    spawns.push(s);
-                    if (!s.spawning) freeSpawns.push(s);
+                // 防衛・スポーン・納品先の分類
+                if (type === STRUCTURE_EXTENSION || type === STRUCTURE_SPAWN ||
+                    type === STRUCTURE_TOWER || type === STRUCTURE_LAB) {
+
+                    if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                        deliveryTargets.push(s);
+                        if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+                    }
+
+                    if (type === STRUCTURE_TOWER) {
+                        towers.push(s);
+                    } else if (type === STRUCTURE_SPAWN) {
+                        spawns.push(s);
+                        if (!s.spawning) freeSpawns.push(s);
+                    }
                 }
 
-                if (
-                    (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION ||
-                        type === STRUCTURE_TOWER || type === STRUCTURE_LAB) &&
-                    s.store &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-                ) {
-                    deliveryTargets.push(s);
-                    if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+                // 味方の構造物の修理（壁以外）
+                if (s.hits < s.hitsMax) {
+                    repairTargets.push(s);
                 }
-            }
-
-            // Repair targets
-            if (s.hits < s.hitsMax && type !== STRUCTURE_WALL) {
-                repairTargets.push(s);
-            }
-
-            // Logistics: Containers
-            if (type === STRUCTURE_CONTAINER) {
+            } else if (type === STRUCTURE_CONTAINER) {
                 containers.push(s);
-                if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-                    fillableContainers.push(s);
+                const store = s.store;
+                if (store) {
+                    if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) fillableContainers.push(s);
+                    if (store[RESOURCE_ENERGY] > 0) withdrawalSources.push(s);
                 }
-                if (s.store && s.store[RESOURCE_ENERGY] > 0) {
-                    withdrawalSources.push(s);
-                }
+                if (s.hits < s.hitsMax) repairTargets.push(s);
+            } else if (type !== STRUCTURE_WALL && s.hits < s.hitsMax) {
+                // 道路などの修理
+                repairTargets.push(s);
             }
         }
 
-        // Logistics: Storage as withdrawal source
+        // ストレージを引出元に追加
         if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
             withdrawalSources.push(room.storage);
         }
@@ -324,7 +289,46 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._freeSpawnsTick = Game.time;
     }
 
-    // Global logic execution
+    // ⚡ PERFORMANCE: クリープの処理ループ
+    for (const n in Game.creeps) {
+        if (!Object.prototype.hasOwnProperty.call(Game.creeps, n)) continue;
+        const creep = Game.creeps[n];
+        const memory = creep.memory;
+        let role = memory.role;
+        if (!role) {
+            role = memory.role = 'harvester';
+            if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
+        }
+        creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        // ⚡ PERFORMANCE: 感情統計の集計（有効な時のみ）
+        if (isEmotionsEnabled) {
+            global._emotionStats.total++;
+            const mood = (memory.emotions && memory.emotions.mood) || 3;
+            if (mood >= 5) global._emotionStats.veryHappy++;
+            else if (mood >= 4) global._emotionStats.happy++;
+            else if (mood >= 3) global._emotionStats.neutral++;
+            else if (mood >= 2) global._emotionStats.sad++;
+            else global._emotionStats.verySad++;
+        }
+
+        const room = creep.room;
+        if (room) {
+            room._myCreeps.push(creep);
+            if (room._roleCounts[role] !== undefined) room._roleCounts[role]++;
+            if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep);
+            if (role === 'defender') room._defenders.push(creep);
+        }
+    }
+
+    // 建設サイトの処理
+    for (const id in Game.constructionSites) {
+        if (!Object.prototype.hasOwnProperty.call(Game.constructionSites, id)) continue;
+        const site = Game.constructionSites[id];
+        if (site.my && site.room) site.room._myConstructionSites.push(site);
+    }
+
+    // クリープロジックの実行
     for (const name in Game.creeps) {
         if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
         const creep = Game.creeps[name];

@@ -85,3 +85,7 @@
 ## 2026-06-09 - Unified Structure Caching and Logistics Warming
 **Learning:** While specialized Screeps `FIND` constants (like `FIND_MY_STRUCTURES`) are engine-optimized, calling multiple related `FIND` constants (e.g., `FIND_STRUCTURES` and `FIND_MY_STRUCTURES`) in the same tick is often slower than a single `FIND_STRUCTURES` call followed by JS-side filtering. Furthermore, pre-calculating state-specific logistics caches (e.g., `fillableContainers`) in the main loop eliminates redundant $O(N \cdot M)$ filtering overhead across all active creeps.
 **Action:** Consolidate related engine `FIND` calls into a single pass and "warm" downstream logistics caches globally to maximize per-tick CPU savings.
+
+## 2026-09-22 - Consolidating Room Passes and Optimizing Structure Categorization
+**Learning:** Performing multiple independent loops over `Game.rooms` and `allStructures` adds significant CPU overhead due to redundant iteration and property access. Combining room-level cache initialization with structure scanning into a single pass, and refactoring the categorization loop to use an optimized `if-else if` structure (prioritizing `s.my`), reduces cumulative CPU cost. Additionally, grouping non-essential stats (like emotions) behind feature flags avoids unnecessary memory operations when those features are disabled.
+**Action:** Always aim to consolidate related global and room-level iterations into a single pass and use optimized conditional branches to minimize property access on high-volume objects like structures.

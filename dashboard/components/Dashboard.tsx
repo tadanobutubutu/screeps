@@ -24,6 +24,11 @@ export default function Dashboard() {
   const [isBarFocused, setIsBarFocused] = useState(false);
   const [isRefreshFocused, setIsRefreshFocused] = useState(false);
   const [isRetryFocused, setIsRetryFocused] = useState(false);
+  // 追加のフォーカス状態管理
+  const [isGclFocused, setIsGclFocused] = useState(false);
+  const [isPowerFocused, setIsPowerFocused] = useState(false);
+  const [isCpuFocused, setIsCpuFocused] = useState(false);
+  const [isCopyFocused, setIsCopyFocused] = useState(false);
   const [timeAgo, setTimeAgo] = useState<string>("just now");
 
   const handleCopy = useCallback(async () => {
@@ -72,8 +77,10 @@ export default function Dashboard() {
       const now = new Date();
       const diffInSeconds = Math.floor((now.getTime() - lastUpdated.getTime()) / 1000);
 
-      if (diffInSeconds < 60) {
+      if (diffInSeconds < 10) {
         setTimeAgo("just now");
+      } else if (diffInSeconds < 60) {
+        setTimeAgo(`${diffInSeconds}s ago`);
       } else if (diffInSeconds < 3600) {
         const minutes = Math.floor(diffInSeconds / 60);
         setTimeAgo(`${minutes}m ago`);
@@ -84,8 +91,8 @@ export default function Dashboard() {
     };
 
     updateRelativeTime();
-    // 1分ごとに相対時間を更新
-    const interval = setInterval(updateRelativeTime, 60000);
+    // 10秒ごとに相対時間を更新
+    const interval = setInterval(updateRelativeTime, 10000);
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
@@ -288,11 +295,39 @@ export default function Dashboard() {
           opacity: (loading || isRefreshing) ? 0.6 : 1,
           transition: "all 0.2s ease-in-out"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <strong><span role="img" aria-label="Global Control Level" title="Global Control Level">🌐</span> GCL: {stats.gcl.level}</strong>
-              {stats.power !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="Power" title="Power">⚡</span> Power: {stats.power}</span>}
-              {stats.cpuUsed !== undefined && <span style={{ fontSize: "0.9rem", color: "#575757" }}><span role="img" aria-label="CPU Used" title="CPU Used">📊</span> CPU: {stats.cpuUsed}</span>}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem", flexWrap: "wrap", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+              <strong
+                tabIndex={0}
+                onFocus={() => setIsGclFocused(true)}
+                onBlur={() => setIsGclFocused(false)}
+                title="Global Control Level"
+                style={{ cursor: "help", borderBottom: "1px dotted #888", borderRadius: "2px", padding: "0 2px", outline: "none", boxShadow: isGclFocused ? "0 0 0 2px #0077aa" : "none", transition: "box-shadow 0.2s" }}
+              >
+                <span role="img" aria-label="Global Control Level">🌐</span> GCL: {stats.gcl.level}
+              </strong>
+              {stats.power !== undefined && (
+                <span
+                  tabIndex={0}
+                  onFocus={() => setIsPowerFocused(true)}
+                  onBlur={() => setIsPowerFocused(false)}
+                  title="Power"
+                  style={{ fontSize: "0.9rem", color: "#575757", cursor: "help", borderBottom: "1px dotted #888", borderRadius: "2px", padding: "0 2px", outline: "none", boxShadow: isPowerFocused ? "0 0 0 2px #0077aa" : "none", transition: "box-shadow 0.2s" }}
+                >
+                  <span role="img" aria-label="Power">⚡</span> Power: {stats.power.toLocaleString()}
+                </span>
+              )}
+              {stats.cpuUsed !== undefined && (
+                <span
+                  tabIndex={0}
+                  onFocus={() => setIsCpuFocused(true)}
+                  onBlur={() => setIsCpuFocused(false)}
+                  title="CPU Used"
+                  style={{ fontSize: "0.9rem", color: "#575757", cursor: "help", borderBottom: "1px dotted #888", borderRadius: "2px", padding: "0 2px", outline: "none", boxShadow: isCpuFocused ? "0 0 0 2px #0077aa" : "none", transition: "box-shadow 0.2s" }}
+                >
+                  <span role="img" aria-label="CPU Used">📊</span> CPU: {stats.cpuUsed.toLocaleString()}
+                </span>
+              )}
             </div>
             <span
               id="gcl-percent"
@@ -356,6 +391,8 @@ export default function Dashboard() {
           }}>
             <button
               onClick={handleCopy}
+              onFocus={() => setIsCopyFocused(true)}
+              onBlur={() => setIsCopyFocused(false)}
               aria-label={copied ? "Stats copied" : "Copy stats as JSON"}
               aria-keyshortcuts="c"
               title={copied ? "Copied!" : "Copy to clipboard (C)"}
@@ -373,7 +410,9 @@ export default function Dashboard() {
                 cursor: "pointer",
                 transition: "all 0.2s",
                 userSelect: "none",
-                zIndex: 1
+                zIndex: 1,
+                outline: "none",
+                boxShadow: isCopyFocused ? "0 0 0 2px #ffffff, 0 0 0 4px #0077aa" : "none"
               }}
             >
               {copied ? "✅ Copied!" : "📋 Copy JSON"}

@@ -180,6 +180,7 @@ function handlePeriodicTasks(systemMode) {
 
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = Object.create(null);
+    const creepsToProcess = [];
 
     // ⚡ PERFORMANCE: Global emotion stats cache warming (isEmotionsEnabledの時のみ実行)
     if (isEmotionsEnabled) {
@@ -289,7 +290,8 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._freeSpawnsTick = Game.time;
     }
 
-    // ⚡ PERFORMANCE: クリープの処理ループ
+    // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
+    // クリープごとにGame.creepsプロキシへのアクセスを最小限にするため、配列に保存する
     for (const n in Game.creeps) {
         if (!Object.prototype.hasOwnProperty.call(Game.creeps, n)) continue;
         const creep = Game.creeps[n];
@@ -300,6 +302,9 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
             if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
         }
         creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        // ロジック実行用に情報を保持
+        creepsToProcess.push({ creep, role, name: n });
 
         // ⚡ PERFORMANCE: 感情統計の集計（有効な時のみ）
         if (isEmotionsEnabled) {
@@ -328,22 +333,21 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         if (site.my && site.room) site.room._myConstructionSites.push(site);
     }
 
-    // クリープロジックの実行
-    for (const name in Game.creeps) {
-        if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
-        const creep = Game.creeps[name];
-        const role = creep.memory.role;
+    // ⚡ PERFORMANCE: ホイストされたロジック実行
+    // ループ内での条件分岐を避けるため、実行関数を決定する
+    const processFn = isLoggingEnabled
+        ? (item) => logger.tryCatch(runCreepLogic, 'creep_' + item.name, item.creep, item.role, isEmotionsEnabled)
+        : (item) => {
+              try {
+                  runCreepLogic(item.creep, item.role, isEmotionsEnabled);
+              } catch (e) {
+                  Sentry.captureException(e);
+                  logger.error('Error in creep ' + item.name + ': ' + e.message);
+              }
+          };
 
-        if (isLoggingEnabled) {
-            logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled);
-        } else {
-            try {
-                runCreepLogic(creep, role, isEmotionsEnabled);
-            } catch (e) {
-                Sentry.captureException(e);
-                logger.error('Error in creep ' + name + ': ' + e.message);
-            }
-        }
+    for (let i = 0; i < creepsToProcess.length; i++) {
+        processFn(creepsToProcess[i]);
     }
     return creepCounts;
 }

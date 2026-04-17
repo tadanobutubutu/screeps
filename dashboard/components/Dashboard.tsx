@@ -42,7 +42,24 @@ export default function Dashboard() {
     else setLoading(true);
 
     try {
-      const r = await fetch("/api/screeps?endpoint=overview");
+      // Security: sessionStorageからトークンを取得し、認証ヘッダーに含める
+      let token = sessionStorage.getItem("dashboard_token");
+      if (!token) {
+        token = window.prompt("Enter Dashboard Secret:");
+        if (token) sessionStorage.setItem("dashboard_token", token);
+      }
+
+      const r = await fetch("/api/screeps?endpoint=overview", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (r.status === 401) {
+        sessionStorage.removeItem("dashboard_token");
+        throw new Error("Unauthorized: Invalid dashboard secret");
+      }
+
       if (!r.ok) throw new Error(`API error: ${r.status}`);
       const data = await r.json();
       setStats(data);

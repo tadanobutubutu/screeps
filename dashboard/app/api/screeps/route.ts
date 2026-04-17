@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 const SCREEPS_API = "https://screeps.com/api";
 const TOKEN = process.env.SCREEPS_TOKEN ?? "";
 const USERNAME = process.env.SCREEPS_USERNAME ?? "";
+const DASHBOARD_SECRET = process.env.DASHBOARD_SECRET;
 
 // Allow-list of supported Screeps API endpoints. Query values are mapped to concrete paths.
 const ALLOWED_ENDPOINTS: Record<string, string> = {
@@ -12,6 +13,12 @@ const ALLOWED_ENDPOINTS: Record<string, string> = {
 };
 
 export async function GET(request: Request) {
+  // Security: Bearerトークンによる認証を追加し、ダッシュボードへの未承認アクセスを防止
+  const authHeader = request.headers.get("authorization");
+  if (!DASHBOARD_SECRET || authHeader !== `Bearer ${DASHBOARD_SECRET}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const endpointKey = searchParams.get("endpoint") ?? "overview";
 
@@ -31,8 +38,9 @@ export async function GET(request: Request) {
     });
 
     if (!res.ok) {
+      // Security: 詳細なエラー情報を隠蔽し、機密情報の漏洩を防止
       return NextResponse.json(
-        { error: `Screeps API error: ${res.status}` },
+        { error: "Screeps API error" },
         { status: res.status }
       );
     }

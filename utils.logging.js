@@ -40,7 +40,8 @@ module.exports = {
 
     // Log a message
     log: function (level, message) {
-        if (!Memory.logs) {
+        // Security: Memory.logsが改ざんされていた場合に備え、配列であることを確認 (DoS対策)
+        if (!Array.isArray(Memory.logs)) {
             Memory.logs = [];
         }
 
@@ -60,18 +61,23 @@ module.exports = {
         }
 
         // Also output to console with emoji
-        const emoji = {
+        const emojiMap = {
             error: '\u274c',
             warn: '\u26a0\ufe0f',
             info: '\u2139\ufe0f',
             debug: '\ud83d\udd0d',
         };
 
+        // Security: プロトタイプ汚染対策のため、hasOwnProperty.callを使用して安全に絵文字を取得
+        const emoji = Object.prototype.hasOwnProperty.call(emojiMap, sanitizedLevel)
+            ? emojiMap[sanitizedLevel]
+            : '\ud83d\udcac';
+
         // Security: Escape message to prevent HTML injection in the console
         const escapedMessage = this._escapeHTML(sanitizedMessage);
 
         console.log(
-            `${emoji[sanitizedLevel] || '\ud83d\udcac'} [${sanitizedLevel}] ${escapedMessage}`
+            `${emoji} [${sanitizedLevel}] ${escapedMessage}`
         );
     },
 
@@ -103,7 +109,10 @@ module.exports = {
     getSafeStack: function (stack) {
         if (!stack) return '';
 
-        return stack
+        // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
+        const truncatedStack = String(stack).substring(0, 2000);
+
+        return truncatedStack
             .split('\n')
             .slice(0, 5) // Security: Limit number of lines to prevent DoS
             .map((line) => {

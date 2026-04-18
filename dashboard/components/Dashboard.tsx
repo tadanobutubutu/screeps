@@ -148,8 +148,13 @@ export default function Dashboard() {
       const percent = Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100));
       title = `Screeps (${percent}%)`;
     }
+
+    if (!loading && !isRefreshing && timeAgo !== "just now") {
+      title += ` - ${timeAgo}`;
+    }
+
     document.title = title;
-  }, [loading, isRefreshing, updated, stats]);
+  }, [loading, isRefreshing, updated, stats, timeAgo]);
 
   return (
     <main style={{ fontFamily: "monospace", padding: "clamp(1rem, 5vw, 2rem)", maxWidth: "800px", margin: "0 auto" }}>
@@ -185,7 +190,13 @@ export default function Dashboard() {
             <span
               style={{
                 fontSize: "0.8rem",
-                color: "#575757",
+                color: updated
+                  ? "#1e7e34"
+                  : (new Date().getTime() - lastUpdated.getTime()) / 60000 > 15
+                  ? "#d32f2f"
+                  : (new Date().getTime() - lastUpdated.getTime()) / 60000 > 5
+                  ? "#a5532d"
+                  : "#575757",
                 cursor: "help",
                 borderBottom: "1px dotted #888",
                 borderRadius: "2px",
@@ -193,7 +204,7 @@ export default function Dashboard() {
                 // キーボードナビゲーション用のフォーカスリングを追加
                 boxShadow: isSyncFocused ? "0 0 0 2px #0077aa" : "none",
                 outline: "none",
-                transition: "box-shadow 0.2s"
+                transition: "all 0.3s"
               }}
               title={lastUpdated.toLocaleString()}
               tabIndex={0}

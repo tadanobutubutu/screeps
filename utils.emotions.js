@@ -5,6 +5,8 @@
  * They express their feelings through emojis.
  */
 
+const utilsMemory = require('./utils.memory');
+
 const EMOTIONS = {
     HAPPY: '😊',
     EXCITED: '🤩',
@@ -257,6 +259,14 @@ class EmotionSystem {
         };
 
         for (const name in Game.creeps) {
+            // Security: プロトタイプ汚染対策のため、hasOwnProperty.callとisSafeKeyを使用して安全に反復処理
+            if (
+                !utilsMemory.isSafeKey(name) ||
+                !Object.prototype.hasOwnProperty.call(Game.creeps, name)
+            ) {
+                continue;
+            }
+
             const creep = Game.creeps[name];
             this.initialize(creep);
             const mood = creep.memory.emotions.mood;
@@ -274,6 +284,12 @@ class EmotionSystem {
     }
 
     static checkCreep(creepName) {
+        // Security: プロトタイプ汚染対策のため、名前を検証
+        if (!utilsMemory.isSafeKey(creepName)) {
+            console.log('❌ Invalid creep name');
+            return;
+        }
+
         const creep = Game.creeps[creepName];
         if (!creep) {
             console.log('❌ Creep not found');

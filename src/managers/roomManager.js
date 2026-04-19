@@ -249,6 +249,20 @@ function _planExtensions(room) {
     const needed = Math.min(5, maxExtensions - currentCount);
     let placed = 0;
 
+    const top = Math.max(2, spawn.pos.y - 6);
+    const left = Math.max(2, spawn.pos.x - 6);
+    const bottom = Math.min(47, spawn.pos.y + 6);
+    const right = Math.min(47, spawn.pos.x + 6);
+    const area = room.lookAtArea(top, left, bottom, right, true);
+
+    const blockedMap = new Set();
+    for (let i = 0; i < area.length; i++) {
+        const item = area[i];
+        if (item.type === LOOK_STRUCTURES || item.type === LOOK_CONSTRUCTION_SITES) {
+            blockedMap.add(`${item.x},${item.y}`);
+        }
+    }
+
     // スポーン周囲のスパイラルパターンでエクステンションを配置
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
@@ -262,13 +276,8 @@ function _planExtensions(room) {
                 const terrain = room.getTerrain().get(x, y);
                 if (terrain === TERRAIN_MASK_WALL) continue;
 
-                const at = room.lookAt(x, y);
-                const blocked = at.some(
-                    (item) =>
-                        item.type === LOOK_STRUCTURES ||
-                        item.type === LOOK_CONSTRUCTION_SITES
-                );
-                if (blocked) continue;
+                const isBlocked = blockedMap.has(`${x},${y}`);
+                if (isBlocked) continue;
 
                 const r = room.createConstructionSite(x, y, STRUCTURE_EXTENSION);
                 if (r === OK) {

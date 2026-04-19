@@ -196,6 +196,18 @@ function _planRoads(room) {
         room.controller,
     ].filter(Boolean);
 
+    // 既存の構造物と建設サイトを一度に取得し、Setにキャッシュして高速に判定する
+    const occupiedTiles = new Set();
+    const structures = cache.getStructures(room);
+    const sites = cache.getConstructionSites(room);
+
+    for (const s of structures) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    for (const s of sites) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+
     for (const target of targets) {
         const result = pathfinder.findPath(spawn.pos, target);
         if (result.incomplete) continue;
@@ -203,13 +215,13 @@ function _planRoads(room) {
         let planned = 0;
         for (const pos of result.path) {
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-            const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
+            const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
 
-            if (structures.length === 0 && sites.length === 0) {
+            if (!isOccupied) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;
+                    occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
                     if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }
             }

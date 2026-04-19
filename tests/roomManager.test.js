@@ -34,6 +34,7 @@ jest.mock('../src/utils/cache', () => ({
   getSources: jest.fn().mockReturnValue([]),
   getContainers: jest.fn().mockReturnValue([]),
   getSpawns: jest.fn().mockReturnValue([]),
+  getStructures: jest.fn().mockReturnValue([]),
   getConstructionSites: jest.fn().mockReturnValue([]),
   getEnemies: jest.fn().mockReturnValue([]),
   getLinks: jest.fn().mockReturnValue([]),
@@ -190,6 +191,8 @@ describe('roomManager', () => {
       const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(1) } };
       cache.getSources.mockReturnValue([source]);
       cache.getContainers.mockReturnValue([]);
+      cache.getStructures.mockReturnValue([]);
+      cache.getConstructionSites.mockReturnValue([]);
       cache.getSpawns.mockReturnValue([{ pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(1) } }]);
       pathfinder.findNearestOpenTile.mockReturnValue({ x: 11, y: 10 });
       pathfinder.findPath.mockReturnValue({ incomplete: false, path: [{ x: 6, y: 5 }, { x: 7, y: 5 }] });

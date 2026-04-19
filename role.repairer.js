@@ -19,16 +19,8 @@ const roleRepairer = {
 
                 // If target is invalid or fully repaired, find a new one
                 if (!target || target.hits === target.hitsMax) {
-                    // ⚡ PERFORMANCE: Find target with minimum hits in O(N)
-                    target = targets[0];
-                    let minHits = target.hits;
-
-                    for (let i = 1; i < targets.length; i++) {
-                        if (targets[i].hits < minHits) {
-                            target = targets[i];
-                            minHits = target.hits;
-                        }
-                    }
+                    // ⚡ PERFORMANCE: main.jsで計算済みの最優先修理ターゲットを使用 (O(1))
+                    target = creep.room._minHitsRepairTarget;
 
                     if (target) {
                         creep.memory.repairTargetId = target.id;

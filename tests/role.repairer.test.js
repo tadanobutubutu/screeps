@@ -103,6 +103,7 @@ describe('role.repairer', () => {
       upgradeController: jest.fn().mockReturnValue(global.OK),
       room: {
         _repairTargets: [damaged],
+        _minHitsRepairTarget: damaged,
         find: jest.fn().mockReturnValue([damaged]),
         controller: { id: 'controller1' },
       },

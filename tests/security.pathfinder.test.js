@@ -7,6 +7,7 @@ global.TERRAIN_MASK_WALL = 1;
 global.OK = 0;
 global.FIND_STRUCTURES = 1;
 global.FIND_MY_CONSTRUCTION_SITES = 2;
+global.FIND_CONSTRUCTION_SITES = 111;
 global.FIND_CREEPS = 3;
 global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_WALL = 'wall';

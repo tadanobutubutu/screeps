@@ -41,6 +41,8 @@ jest.mock('../src/utils/logger', () => ({
   error: jest.fn(),
 }), { virtual: true });
 jest.mock('../src/constants', () => ({
+  CACHE_TTL: { SOURCES: 10, PATH: 5 },
+  PATHFINDER_DEFAULTS: { REUSE_PATH: 10, MAX_ROOMS: 1, PLAIN_COST: 2, SWAMP_COST: 10, ROAD_COST: 1 },
   MEMORY_KEYS: { SOURCE_ID: 'sourceId' },
 }), { virtual: true });
 

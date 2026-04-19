@@ -10,6 +10,7 @@
 'use strict';
 
 const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants');
+const cacheUtils = require('./cache');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
@@ -113,7 +114,7 @@ function buildCostMatrix(roomName, options) {
     }
 
     // 構造物のコストを設定
-    const structures = room.find(FIND_STRUCTURES);
+    const structures = cacheUtils.getStructures(room);
     for (const struct of structures) {
         switch (struct.structureType) {
             case STRUCTURE_ROAD:
@@ -142,7 +143,7 @@ function buildCostMatrix(roomName, options) {
     }
 
     // 建設中の構造物もコストに含める
-    const sites = room.find(FIND_MY_CONSTRUCTION_SITES);
+    const sites = cacheUtils.getConstructionSites(room);
     for (const site of sites) {
         if (site.structureType !== STRUCTURE_ROAD &&
             site.structureType !== STRUCTURE_RAMPART &&
@@ -361,9 +362,7 @@ function findNearestOpenTile(pos, range) {
  * @returns {RoomPosition[]}
  */
 function getRoadPositions(room) {
-    const roads = room.find(FIND_STRUCTURES, {
-        filter: { structureType: STRUCTURE_ROAD },
-    });
+    const roads = cacheUtils.getStructures(room).filter(r => r.structureType === STRUCTURE_ROAD);
     return roads.map((r) => r.pos);
 }
 

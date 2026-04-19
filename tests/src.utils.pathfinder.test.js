@@ -7,6 +7,7 @@ global.Game = { time: 1, rooms: {} };
 global.Memory = {};
 global.FIND_STRUCTURES = 5;
 global.FIND_MY_CONSTRUCTION_SITES = 6;
+global.FIND_CONSTRUCTION_SITES = 111;
 global.FIND_CREEPS = 7;
 global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_WALL = 'wall';

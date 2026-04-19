@@ -222,6 +222,8 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         const towers = [];
         const spawns = [];
         const freeSpawns = [];
+        let minHitsRepairTarget = null;
+        let minHits = Infinity;
 
         for (let i = 0; i < allStructures.length; i++) {
             const s = allStructures[i];
@@ -251,6 +253,11 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
                 // 味方の構造物の修理（壁以外）
                 if (s.hits < s.hitsMax) {
                     repairTargets.push(s);
+                    // ⚡ PERFORMANCE: 最もダメージを受けているターゲットを追跡 (O(1) lookup用)
+                    if (s.hits < minHits) {
+                        minHits = s.hits;
+                        minHitsRepairTarget = s;
+                    }
                 }
             } else if (type === STRUCTURE_CONTAINER) {
                 containers.push(s);
@@ -259,10 +266,20 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
                     if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) fillableContainers.push(s);
                     if (store[RESOURCE_ENERGY] > 0) withdrawalSources.push(s);
                 }
-                if (s.hits < s.hitsMax) repairTargets.push(s);
+                if (s.hits < s.hitsMax) {
+                    repairTargets.push(s);
+                    if (s.hits < minHits) {
+                        minHits = s.hits;
+                        minHitsRepairTarget = s;
+                    }
+                }
             } else if (type !== STRUCTURE_WALL && s.hits < s.hitsMax) {
                 // 道路などの修理
                 repairTargets.push(s);
+                if (s.hits < minHits) {
+                    minHits = s.hits;
+                    minHitsRepairTarget = s;
+                }
             }
         }
 
@@ -276,6 +293,7 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         room._deliveryTargets = deliveryTargets;
         room._harvesterDeliveryTargets = harvesterDeliveryTargets;
         room._repairTargets = repairTargets;
+        room._minHitsRepairTarget = minHitsRepairTarget;
         room._containers = containers;
         room._containersTick = Game.time;
         room._fillableContainers = fillableContainers;

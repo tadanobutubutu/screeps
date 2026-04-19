@@ -24,6 +24,7 @@ export default function Dashboard() {
     const [isBarFocused, setIsBarFocused] = useState(false);
     const [isRefreshFocused, setIsRefreshFocused] = useState(false);
     const [isRetryFocused, setIsRetryFocused] = useState(false);
+    const [isResetFocused, setIsResetFocused] = useState(false);
     // 追加のフォーカス状態管理
     const [isGclFocused, setIsGclFocused] = useState(false);
     const [isPowerFocused, setIsPowerFocused] = useState(false);
@@ -42,6 +43,15 @@ export default function Dashboard() {
         }
     }, [stats]);
 
+    const handleResetSecret = useCallback(() => {
+        // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
+        if (window.confirm('Reset Dashboard Secret? You will need to enter it again on next refresh.')) {
+            sessionStorage.removeItem('dashboard_token');
+            setStats(null);
+            setError('Secret reset. Please refresh to enter a new secret.');
+        }
+    }, []);
+
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setIsRefreshing(true);
         else setLoading(true);
@@ -51,7 +61,12 @@ export default function Dashboard() {
             let token = sessionStorage.getItem('dashboard_token');
             if (!token) {
                 token = window.prompt('Enter Dashboard Secret:');
-                if (token) sessionStorage.setItem('dashboard_token', token);
+                if (token) {
+                    sessionStorage.setItem('dashboard_token', token);
+                } else {
+                    // 🔑 Security: プロンプトがキャンセルされた場合は、APIリクエストを中断する
+                    throw new Error('Authentication required: Secret not provided');
+                }
             }
 
             const r = await fetch('/api/screeps?endpoint=overview', {
@@ -118,9 +133,10 @@ export default function Dashboard() {
             const key = e.key.toLowerCase();
             const isR = key === 'r';
             const isC = key === 'c';
+            const isL = key === 'l';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC) && !hasModifier && !loading && !isRefreshing) {
+            if ((isR || isC || isL) && !hasModifier && !loading && !isRefreshing) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -132,6 +148,7 @@ export default function Dashboard() {
                     e.preventDefault();
                     if (isR) fetchStats(true);
                     if (isC) handleCopy();
+                    if (isL) handleResetSecret();
                 }
             }
         };
@@ -208,7 +225,7 @@ export default function Dashboard() {
                                 outline: 'none',
                                 transition: 'box-shadow 0.2s',
                             }}
-                            title={`Rooms: ${Object.keys(stats.rooms).join(', ')}`}
+                            title={`Rooms: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
                             tabIndex={0}
                             onFocus={() => setIsRoomsFocused(true)}
                             onBlur={() => setIsRoomsFocused(false)}
@@ -248,6 +265,37 @@ export default function Dashboard() {
                             Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
                         </span>
                     )}
+                    <button
+                        onClick={handleResetSecret}
+                        onFocus={() => setIsResetFocused(true)}
+                        onBlur={() => setIsResetFocused(false)}
+                        disabled={loading || isRefreshing}
+                        aria-label="Reset Secret"
+                        aria-keyshortcuts="l"
+                        title="Reset Secret (L)"
+                        style={{
+                            cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
+                            padding: '0.5rem',
+                            background: '#575757',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '4px',
+                            opacity: loading || isRefreshing ? 0.6 : 1,
+                            transition: 'all 0.2s',
+                            userSelect: 'none',
+                            boxShadow: isResetFocused
+                                ? '0 0 0 2px #ffffff, 0 0 0 4px #575757'
+                                : 'none',
+                            outline: 'none',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        <span role="img" aria-label="Key" style={{ fontSize: '1.1rem' }}>
+                            🔑
+                        </span>
+                    </button>
                     <button
                         onClick={() => fetchStats(true)}
                         onFocus={() => setIsRefreshFocused(true)}
@@ -801,7 +849,18 @@ export default function Dashboard() {
                     >
                         C
                     </kbd>{' '}
-                    Copy JSON
+                    Copy JSON ·{' '}
+                    <kbd
+                        style={{
+                            background: '#eee',
+                            padding: '0.1rem 0.3rem',
+                            borderRadius: '3px',
+                            border: '1px solid #ccc',
+                        }}
+                    >
+                        L
+                    </kbd>{' '}
+                    Reset Secret
                 </div>
                 <div>
                     Hover/Focus items with{' '}

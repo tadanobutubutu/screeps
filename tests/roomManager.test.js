@@ -185,6 +185,63 @@ describe('roomManager', () => {
     });
   });
 
+
+  describe('_planSourceContainers', () => {
+    beforeEach(() => {
+      global.Game.time = 500;
+      mockRoom.controller.level = 2; // _planConstruction is called when level >= 2
+    });
+
+    test('コンテナが既にある場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(2) } };
+      const container = { id: 'cont1', pos: { x: 12, y: 10 } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([container]);
+
+      roomManager.run(mockRoom);
+
+      expect(source.pos.getRangeTo).toHaveBeenCalledWith(container);
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+    });
+
+    test('コンテナの建設サイトが既にある場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(2) } };
+      const constructionSite = { structureType: global.STRUCTURE_CONTAINER, pos: { x: 12, y: 10 } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([]);
+
+      mockRoom.find.mockImplementation((type, opts) => {
+        if (type === global.FIND_CONSTRUCTION_SITES && opts && opts.filter) {
+          if (opts.filter(constructionSite)) {
+             return [constructionSite];
+          }
+        }
+        return [];
+      });
+
+      roomManager.run(mockRoom);
+
+      expect(source.pos.getRangeTo).toHaveBeenCalledWith(constructionSite);
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+    });
+
+    test('配置可能なタイルがない場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(3) } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([]);
+      mockRoom.find.mockReturnValue([]);
+
+      pathfinder.findNearestOpenTile.mockReturnValue(null);
+
+      roomManager.run(mockRoom);
+
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+    });
+  });
+
   describe('planning, links and safety', () => {
     test('建設計画でコンテナや道路を配置しキャッシュを無効化する', () => {
       global.Game.time = 500;

@@ -308,6 +308,71 @@ describe('src/roles/repairer', () => {
     expect(creep.say).toHaveBeenCalledWith('⬆️ 強化');
   });
 
+
+  test('建設補助で建設サイトを修復し、範囲内にいる場合（OK）', () => {
+    const site = { id: 'site1', pos: { x: 2, y: 2 } };
+    mockCache.getConstructionSites.mockReturnValue([site]);
+    const room = { controller: { level: 2 }, find: jest.fn().mockReturnValue([]) };
+    pathfinder.closest.mockReturnValue(site);
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn().mockReturnValue(global.OK),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.build).toHaveBeenCalledWith(site);
+    expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    expect(creep.say).toHaveBeenCalledWith('🔨 建設');
+  });
+
+  test('建設補助で建設サイトもなくコントローラーをアップグレードし、範囲内にいる場合（OK）', () => {
+    mockCache.getConstructionSites.mockReturnValue([]);
+    const room = { controller: { level: 2, id: 'ctrl1' }, find: jest.fn().mockReturnValue([]) };
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn(),
+      upgradeController: jest.fn().mockReturnValue(global.OK),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.upgradeController).toHaveBeenCalledWith(room.controller);
+    expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    expect(creep.say).toHaveBeenCalledWith('⬆️ 強化');
+  });
+
+  test('建設補助で建設サイトもなく、コントローラーもない場合', () => {
+    mockCache.getConstructionSites.mockReturnValue([]);
+    const room = { find: jest.fn().mockReturnValue([]) }; // controller is undefined
+    const creep = {
+      memory: { working: true },
+      room,
+      pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+      store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+      say: jest.fn(),
+      repair: jest.fn(),
+      build: jest.fn(),
+      upgradeController: jest.fn(),
+    };
+
+    repairer.run(creep);
+
+    expect(creep.upgradeController).not.toHaveBeenCalled();
+    expect(creep.say).not.toHaveBeenCalledWith('⬆️ 強化');
+  });
+
   test('コンテナからエネルギーを取得する', () => {
     mockCache.getDroppedResources.mockReturnValue([]);
     const container = { store: { [global.RESOURCE_ENERGY]: 200 } };

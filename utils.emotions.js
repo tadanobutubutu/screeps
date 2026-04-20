@@ -258,16 +258,10 @@ class EmotionSystem {
             total: 0,
         };
 
-        for (const name in Game.creeps) {
-            // Security: プロトタイプ汚染対策のため、hasOwnProperty.callとisSafeKeyを使用して安全に反復処理
-            if (
-                !utilsMemory.isSafeKey(name) ||
-                !Object.prototype.hasOwnProperty.call(Game.creeps, name)
-            ) {
-                continue;
-            }
-
-            const creep = Game.creeps[name];
+        // ⚡ PERFORMANCE: Object.values()を使用してProxyのオーバーヘッドを回避し、反復処理を最適化
+        const creeps = Object.values(Game.creeps || {});
+        for (let i = 0; i < creeps.length; i++) {
+            const creep = creeps[i];
             this.initialize(creep);
             const mood = creep.memory.emotions.mood;
 

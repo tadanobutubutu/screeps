@@ -134,6 +134,22 @@ function runDefenseLogic(room) {
     defenseManager.run(room);
 }
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: ホイストされたクリープ実行関数。クロージャの生成を削減。
+ */
+function runCreepWithLogging(item, isEmotionsEnabled) {
+    logger.tryCatch(runCreepLogic, 'creep_' + item.name, item.creep, item.role, isEmotionsEnabled);
+}
+
+function runCreepMinimal(item, isEmotionsEnabled) {
+    try {
+        runCreepLogic(item.creep, item.role, isEmotionsEnabled);
+    } catch (e) {
+        Sentry.captureException(e);
+        logger.error('Error in creep ' + item.name + ': ' + e.message);
+    }
+}
+
 function handlePeriodicTasks(systemMode) {
     const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
     const isGamificationEnabled = adaptiveSystem.isEnabled('gamification');
@@ -189,10 +205,10 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     }
 
     // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
-    // 部屋ごとのループ回数を削減し、構造物の分類を最適化
-    for (const roomName in Game.rooms) {
-        if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) continue;
-        const room = Game.rooms[roomName];
+    // ⚡ PERFORMANCE: Object.values()を使用してProxyのオーバーヘッドを回避
+    const rooms = Object.values(Game.rooms || {});
+    for (let i = 0; i < rooms.length; i++) {
+        const room = rooms[i];
 
         // 1. キャッシュ用配列の初期化
         room._myCreeps = []; room._myCreepsTick = Game.time;
@@ -309,11 +325,12 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     }
 
     // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
-    // クリープごとにGame.creepsプロキシへのアクセスを最小限にするため、配列に保存する
-    for (const n in Game.creeps) {
-        if (!Object.prototype.hasOwnProperty.call(Game.creeps, n)) continue;
-        const creep = Game.creeps[n];
+    // ⚡ PERFORMANCE: Object.values()を使用してProxyへのキーアクセスを最小限にする
+    const creeps = Object.values(Game.creeps || {});
+    for (let i = 0; i < creeps.length; i++) {
+        const creep = creeps[i];
         const memory = creep.memory;
+        const n = creep.name;
         let role = memory.role;
         if (!role) {
             role = memory.role = 'harvester';
@@ -344,28 +361,19 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
         }
     }
 
-    // 建設サイトの処理
-    for (const id in Game.constructionSites) {
-        if (!Object.prototype.hasOwnProperty.call(Game.constructionSites, id)) continue;
-        const site = Game.constructionSites[id];
+    // 建設サイトの処理 (⚡ PERFORMANCE: Object.values()を使用)
+    const sites = Object.values(Game.constructionSites || {});
+    for (let i = 0; i < sites.length; i++) {
+        const site = sites[i];
         if (site.my && site.room) site.room._myConstructionSites.push(site);
     }
 
     // ⚡ PERFORMANCE: ホイストされたロジック実行
     // ループ内での条件分岐を避けるため、実行関数を決定する
-    const processFn = isLoggingEnabled
-        ? (item) => logger.tryCatch(runCreepLogic, 'creep_' + item.name, item.creep, item.role, isEmotionsEnabled)
-        : (item) => {
-              try {
-                  runCreepLogic(item.creep, item.role, isEmotionsEnabled);
-              } catch (e) {
-                  Sentry.captureException(e);
-                  logger.error('Error in creep ' + item.name + ': ' + e.message);
-              }
-          };
+    const processFn = isLoggingEnabled ? runCreepWithLogging : runCreepMinimal;
 
     for (let i = 0; i < creepsToProcess.length; i++) {
-        processFn(creepsToProcess[i]);
+        processFn(creepsToProcess[i], isEmotionsEnabled);
     }
     return creepCounts;
 }
@@ -439,17 +447,16 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
 
 function handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled) {
     if (adaptiveSystem.isEnabled('defense')) {
-        for (const roomName in Game.rooms) {
-            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
-            if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
-                continue;
-            }
-            const room = Game.rooms[roomName];
+        // ⚡ PERFORMANCE: Object.values()を使用して反復処理を最適化
+        const rooms = Object.values(Game.rooms || {});
+        for (let i = 0; i < rooms.length; i++) {
+            const room = rooms[i];
             if (room.controller && room.controller.my) {
                 if (isVisualEffectsEnabled) {
                     dashboard.displayVisuals(room);
                 }
 
+                const roomName = room.name;
                 if (isLoggingEnabled) {
                     logger.tryCatch(runDefenseLogic, 'defense_' + roomName, room);
                 } else {
@@ -542,12 +549,10 @@ module.exports.loop = function () {
 
         const creepCounts = processCreeps(isLoggingEnabled, isEmotionsEnabled);
 
-        for (const spawnName in Game.spawns) {
-            // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
-            if (!Object.prototype.hasOwnProperty.call(Game.spawns, spawnName)) {
-                continue;
-            }
-            const spawn = Game.spawns[spawnName];
+        // ⚡ PERFORMANCE: Object.values()を使用して反復処理を最適化
+        const spawns = Object.values(Game.spawns || {});
+        for (let i = 0; i < spawns.length; i++) {
+            const spawn = spawns[i];
             handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled);
         }
 
@@ -555,12 +560,9 @@ module.exports.loop = function () {
             // ⚡ PERFORMANCE: Replace O(N²) global loop with O(N) room-based spatial search.
             // Using findInRange(1) leverages the engine's internal spatial indexing.
             const processedPairs = new Set();
-            for (const roomName in Game.rooms) {
-                // Security: Use hasOwnProperty to prevent Prototype Pollution during iteration.
-                if (!Object.prototype.hasOwnProperty.call(Game.rooms, roomName)) {
-                    continue;
-                }
-                const room = Game.rooms[roomName];
+            const rooms = Object.values(Game.rooms || {});
+            for (let i = 0; i < rooms.length; i++) {
+                const room = rooms[i];
                 const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS);
 
                 for (const creep of creepsInRoom) {

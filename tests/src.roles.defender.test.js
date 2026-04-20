@@ -89,6 +89,42 @@ describe('src/roles/defender', () => {
     expect(creep.heal).toHaveBeenCalledWith(creep);
   });
 
+
+  test('fleeFromでmoveToが例外を投げてもクラッシュしない', () => {
+    // 敵が同じ位置（距離0）にいて、RANGED_ATTACKのみを持つ場合、逃走（_fleeFrom）が呼ばれる
+    const target = {
+      id: 'enemy_flee',
+      hits: 50,
+      hitsMax: 100,
+      pos: new RoomPosition(10, 10, 'W0N0'),
+      getActiveBodyparts: jest.fn().mockReturnValue(1),
+    };
+    mockCache.getEnemies.mockReturnValue([target]);
+
+    const creep = {
+      name: 'def_flee',
+      hits: 100,
+      hitsMax: 100,
+      memory: {},
+      room: { name: 'W0N0', visual: { line: jest.fn() } },
+      pos: new RoomPosition(10, 10, 'W0N0'),
+      getActiveBodyparts: jest.fn().mockImplementation((part) => {
+        return part === global.RANGED_ATTACK ? 1 : 0;
+      }),
+      rangedAttack: jest.fn(),
+      attack: jest.fn(),
+      heal: jest.fn(),
+    };
+
+    // fleeFrom内のmoveToが例外を投げるようにモック化
+    pathfinder.moveTo.mockImplementationOnce(() => {
+      throw new Error('Position error');
+    });
+
+    // 例外がキャッチされ、クラッシュしないことを確認
+    expect(() => defender.run(creep)).not.toThrow();
+  });
+
   test('敵がいないときパトロールする', () => {
     mockCache.getEnemies.mockReturnValue([]);
     const rampart = { pos: { x: 5, y: 5 } };

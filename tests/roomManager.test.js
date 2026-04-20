@@ -158,6 +158,23 @@ describe('roomManager', () => {
       expect(stats.energyCapacity).toBe(300);
     });
 
+    test('プロパティが欠落しているエッジケースを処理する（コントローラーなし等）', () => {
+      const roomWithoutController = {
+        name: 'W1N2',
+        energyAvailable: 0,
+        energyCapacityAvailable: 0
+      };
+
+      const stats = roomManager.getStats(roomWithoutController);
+
+      expect(stats).toBeDefined();
+      expect(stats.name).toBe('W1N2');
+      expect(stats.rcl).toBe(0);
+      expect(stats.controllerProgress).toBe(0);
+      expect(stats.safeMode).toBe(false);
+      expect(stats.storageEnergy).toBe(0);
+    });
+
     test('クリープ数をロール別にカウントする', () => {
       global.Game.creeps = {
         creep1: { room: mockRoom, memory: { role: 'harvester' } },
@@ -182,6 +199,63 @@ describe('roomManager', () => {
     test('ビジュアル表示が実行される', () => {
       expect(() => roomManager.showVisuals(mockRoom)).not.toThrow();
       expect(mockRoom.visual.text).toHaveBeenCalled();
+    });
+  });
+
+
+  describe('_planSourceContainers', () => {
+    beforeEach(() => {
+      global.Game.time = 500;
+      mockRoom.controller.level = 2; // _planConstruction is called when level >= 2
+    });
+
+    test('コンテナが既にある場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(2) } };
+      const container = { id: 'cont1', pos: { x: 12, y: 10 } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([container]);
+
+      roomManager.run(mockRoom);
+
+      expect(source.pos.getRangeTo).toHaveBeenCalledWith(container);
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+    });
+
+    test('コンテナの建設サイトが既にある場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(2) } };
+      const constructionSite = { structureType: global.STRUCTURE_CONTAINER, pos: { x: 12, y: 10 } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([]);
+
+      mockRoom.find.mockImplementation((type, opts) => {
+        if (type === global.FIND_CONSTRUCTION_SITES && opts && opts.filter) {
+          if (opts.filter(constructionSite)) {
+             return [constructionSite];
+          }
+        }
+        return [];
+      });
+
+      roomManager.run(mockRoom);
+
+      expect(source.pos.getRangeTo).toHaveBeenCalledWith(constructionSite);
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+    });
+
+    test('配置可能なタイルがない場合はスキップする', () => {
+      const source = { id: 'src1', pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(3) } };
+
+      cache.getSources.mockReturnValue([source]);
+      cache.getContainers.mockReturnValue([]);
+      mockRoom.find.mockReturnValue([]);
+
+      pathfinder.findNearestOpenTile.mockReturnValue(null);
+
+      roomManager.run(mockRoom);
+
+      expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
     });
   });
 

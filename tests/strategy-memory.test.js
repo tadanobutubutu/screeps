@@ -1,9 +1,10 @@
+jest.mock('../src/utils/logger', () => ({ info: jest.fn() }));
 /**
  * strategy-memory.js のユニットテスト
  */
 
 global.Memory = {};
-global.console = { log: jest.fn() };
+
 
 const strategyMemory = require('../strategy-memory');
 

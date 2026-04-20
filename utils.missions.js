@@ -7,6 +7,27 @@ const utilsMemory = require('./utils.memory');
 const MAX_MISSIONS_COUNT = 20;
 const MAX_STRING_LENGTH = 100;
 
+
+/**
+ * セキュアなIDを生成する (PRNGの脆弱性対策)
+ */
+function generateMissionId() {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        if (crypto && crypto.randomBytes) {
+            return crypto.randomBytes(8).toString('hex');
+        }
+    } catch (e) {
+        // Fallback
+    }
+    // Fallback if crypto is unavailable
+    const timePrefix = typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36);
+    return timePrefix + '-' + Math.random().toString(36).substr(2, 9);
+}
+
 const MissionSystem = {
     initMemory() {
         if (!Memory.missions) {
@@ -42,7 +63,7 @@ const MissionSystem = {
         }
 
         const mission = {
-            id: Math.random().toString(36).substr(2, 9),
+            id: generateMissionId(),
             type: sanitizedType,
             target: sanitizedTarget,
             reward: reward || 0,

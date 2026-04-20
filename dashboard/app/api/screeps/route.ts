@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { timingSafeEqual, createHash } from "crypto";
 
 const SCREEPS_API = "https://screeps.com/api";
 const TOKEN = process.env.SCREEPS_TOKEN ?? "";
@@ -14,8 +15,18 @@ const ALLOWED_ENDPOINTS: Record<string, string> = {
 
 export async function GET(request: Request) {
   // Security: Bearerトークンによる認証を追加し、ダッシュボードへの未承認アクセスを防止
-  const authHeader = request.headers.get("authorization");
-  if (!DASHBOARD_SECRET || authHeader !== `Bearer ${DASHBOARD_SECRET}`) {
+  const authHeader = request.headers.get("authorization") || "";
+
+  // Security: タイミング攻撃を防ぐために、ハッシュ化した上で一定時間で比較(constant-time comparison)を行います。
+  let isAuthorized = false;
+  if (DASHBOARD_SECRET && authHeader) {
+    const expectedAuth = `Bearer ${DASHBOARD_SECRET}`;
+    const givenHash = createHash("sha256").update(authHeader).digest();
+    const expectedHash = createHash("sha256").update(expectedAuth).digest();
+    isAuthorized = timingSafeEqual(givenHash, expectedHash);
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

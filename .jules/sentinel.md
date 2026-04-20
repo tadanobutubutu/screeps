@@ -92,3 +92,8 @@
 **Vulnerability:** Prototype Pollution via unvalidated creep names and role keys during aggregation.
 **Learning:** Functions that aggregate data into local objects using dynamic keys (like creep names from `Game.creeps` or role names from configuration) are vulnerable to Prototype Pollution if the keys are not validated. Even if the data source seems "internal", inconsistent state or malicious environment manipulation could exploit these loops.
 **Prevention:** Always use `isSafeKey()` and `Object.prototype.hasOwnProperty.call()` when iterating over environment objects (like `Game.creeps`) and assigning to local objects.
+
+## 2026-04-12 - Memory DoS Hardening for Logging Utility
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded log messages and stack traces in `src/utils/logger.js`.
+**Learning:** In memory-constrained environments like Screeps (2MB limit), utility functions that process and store strings (like loggers) must implement strict length limits. Furthermore, when implementing truncation, it is critical to use robust null/undefined checks (e.g., `val !== null && val !== undefined ? val : ''`) rather than simple falsy checks (e.g., `val || ''`) to ensure that values like `0` or `false` are preserved and correctly logged.
+**Prevention:** Enforce `MAX_LOG_MESSAGE_LENGTH` and `MAX_STACK_TRACE_LENGTH` constants across all logging paths. Always prioritize nullish-aware checks over falsy-based defaults when converting inputs to strings for truncation.

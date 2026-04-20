@@ -196,6 +196,18 @@ function _planRoads(room) {
         room.controller,
     ].filter(Boolean);
 
+    // 既存の構造物と建設サイトを一度に取得し、Setにキャッシュして高速に判定する
+    const occupiedTiles = new Set();
+    const structures = cache.getStructures(room);
+    const sites = cache.getConstructionSites(room);
+
+    for (const s of structures) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    for (const s of sites) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+
     for (const target of targets) {
         const result = pathfinder.findPath(spawn.pos, target);
         if (result.incomplete) continue;
@@ -203,13 +215,13 @@ function _planRoads(room) {
         let planned = 0;
         for (const pos of result.path) {
             // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const structures = room.lookForAt(LOOK_STRUCTURES, pos.x, pos.y);
-            const sites = room.lookForAt(LOOK_CONSTRUCTION_SITES, pos.x, pos.y);
+            const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
 
-            if (structures.length === 0 && sites.length === 0) {
+            if (!isOccupied) {
                 const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
                 if (r === OK) {
                     planned++;
+                    occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
                     if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }
             }
@@ -249,6 +261,20 @@ function _planExtensions(room) {
     const needed = Math.min(5, maxExtensions - currentCount);
     let placed = 0;
 
+    const top = Math.max(2, spawn.pos.y - 6);
+    const left = Math.max(2, spawn.pos.x - 6);
+    const bottom = Math.min(47, spawn.pos.y + 6);
+    const right = Math.min(47, spawn.pos.x + 6);
+    const area = room.lookAtArea(top, left, bottom, right, true);
+
+    const blockedMap = new Set();
+    for (let i = 0; i < area.length; i++) {
+        const item = area[i];
+        if (item.type === LOOK_STRUCTURES || item.type === LOOK_CONSTRUCTION_SITES) {
+            blockedMap.add(`${item.x},${item.y}`);
+        }
+    }
+
     // スポーン周囲のスパイラルパターンでエクステンションを配置
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
@@ -262,13 +288,8 @@ function _planExtensions(room) {
                 const terrain = room.getTerrain().get(x, y);
                 if (terrain === TERRAIN_MASK_WALL) continue;
 
-                const at = room.lookAt(x, y);
-                const blocked = at.some(
-                    (item) =>
-                        item.type === LOOK_STRUCTURES ||
-                        item.type === LOOK_CONSTRUCTION_SITES
-                );
-                if (blocked) continue;
+                const isBlocked = blockedMap.has(`${x},${y}`);
+                if (isBlocked) continue;
 
                 const r = room.createConstructionSite(x, y, STRUCTURE_EXTENSION);
                 if (r === OK) {

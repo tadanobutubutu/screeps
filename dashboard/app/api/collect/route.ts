@@ -1,15 +1,25 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { timingSafeEqual, createHash } from "crypto";
 
 const SCREEPS_API = "https://screeps.com/api";
 
 export async function GET(request: Request) {
   // Security: Check for authorization secret to prevent unauthorized data collection triggers.
   // We use a fail-closed logic: if CRON_SECRET is not set or doesn't match, we deny access.
-  const authHeader = request.headers.get("authorization");
+  const authHeader = request.headers.get("authorization") || "";
   const cronSecret = process.env.CRON_SECRET;
 
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
+  // Security: タイミング攻撃を防ぐために、ハッシュ化した上で一定時間で比較(constant-time comparison)を行います。
+  let isAuthorized = false;
+  if (cronSecret && authHeader) {
+    const expectedAuth = `Bearer ${cronSecret}`;
+    const givenHash = createHash("sha256").update(authHeader).digest();
+    const expectedHash = createHash("sha256").update(expectedAuth).digest();
+    isAuthorized = timingSafeEqual(givenHash, expectedHash);
+  }
+
+  if (!isAuthorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -127,24 +127,24 @@ if (require.main === module) {
         { name: 'role.explorer', file: 'role.explorer.js' },
     ];
 
-    const modules = {};
-    console.log('Reading module files...');
-    for (const m of files) {
-        try {
-            // ファイルパスの検証
-            const filePath = validateFilePath(m.file);
-            modules[m.name] = fs.readFileSync(filePath, 'utf8');
-            console.log(`  [OK] ${m.name} (${m.file})`);
-        } catch (e) {
-            // エラーメッセージから機密情報を除外
-            const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
-            console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-            process.exit(1);
-        }
-    }
-
     (async () => {
         try {
+            const modules = {};
+            console.log('Reading module files...');
+            for (const m of files) {
+                try {
+                    // ファイルパスの検証
+                    const filePath = validateFilePath(m.file);
+                    modules[m.name] = await fs.promises.readFile(filePath, 'utf8');
+                    console.log(`  [OK] ${m.name} (${m.file})`);
+                } catch (e) {
+                    // エラーメッセージから機密情報を除外
+                    const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                    process.exit(1);
+                }
+            }
+
             await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
             await deployTo('PROD', '/api/user/code', prodToken, modules);
             console.log('All done!');

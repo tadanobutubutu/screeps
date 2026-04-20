@@ -137,3 +137,62 @@ describe('src/roles/harvester', () => {
     expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, controller, { range: 3 });
   });
 });
+
+describe('_findDroppedEnergy', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('Returns the closest energy drop if energy drops are found', () => {
+    const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+    const energyDrop1 = { resourceType: global.RESOURCE_ENERGY, amount: 10 };
+    const energyDrop2 = { resourceType: global.RESOURCE_ENERGY, amount: 20 };
+
+    mockCache.getDroppedResources.mockReturnValue([energyDrop1, energyDrop2]);
+    pathfinder.closest.mockReturnValue(energyDrop1);
+
+    const result = harvester._findDroppedEnergy(creep);
+
+    expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
+    expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [energyDrop1, energyDrop2]);
+    expect(result).toBe(energyDrop1);
+  });
+
+  test('Filters out non-energy drops', () => {
+    const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+    const nonEnergyDrop = { resourceType: 'minerals', amount: 10 };
+    const energyDrop = { resourceType: global.RESOURCE_ENERGY, amount: 20 };
+
+    mockCache.getDroppedResources.mockReturnValue([nonEnergyDrop, energyDrop]);
+    pathfinder.closest.mockReturnValue(energyDrop);
+
+    const result = harvester._findDroppedEnergy(creep);
+
+    expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
+    expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [energyDrop]);
+    expect(result).toBe(energyDrop);
+  });
+
+  test('Returns null if no energy drops exist', () => {
+    const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+    const nonEnergyDrop = { resourceType: 'minerals', amount: 10 };
+
+    mockCache.getDroppedResources.mockReturnValue([nonEnergyDrop]);
+
+    const result = harvester._findDroppedEnergy(creep);
+
+    expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
+    expect(result).toBeNull();
+  });
+
+  test('Returns null if getDroppedResources returns empty array', () => {
+    const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+
+    mockCache.getDroppedResources.mockReturnValue([]);
+
+    const result = harvester._findDroppedEnergy(creep);
+
+    expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
+    expect(result).toBeNull();
+  });
+});

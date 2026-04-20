@@ -30,6 +30,7 @@ export default function Dashboard() {
     const [isPowerFocused, setIsPowerFocused] = useState(false);
     const [isCpuFocused, setIsCpuFocused] = useState(false);
     const [isCopyFocused, setIsCopyFocused] = useState(false);
+    const [resetSuccess, setResetSuccess] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
     const handleCopy = useCallback(async () => {
@@ -49,6 +50,8 @@ export default function Dashboard() {
             sessionStorage.removeItem('dashboard_token');
             setStats(null);
             setError('Secret reset. Please refresh to enter a new secret.');
+            setResetSuccess(true);
+            setTimeout(() => setResetSuccess(false), 2000);
         }
     }, []);
 
@@ -270,13 +273,14 @@ export default function Dashboard() {
                         onFocus={() => setIsResetFocused(true)}
                         onBlur={() => setIsResetFocused(false)}
                         disabled={loading || isRefreshing}
-                        aria-label="Reset Secret"
+                        aria-label={resetSuccess ? 'Secret reset' : 'Reset Secret'}
                         aria-keyshortcuts="l"
-                        title="Reset Secret (L)"
+                        title={resetSuccess ? 'Secret Reset!' : 'Reset Secret (L)'}
                         style={{
                             cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                             padding: '0.5rem',
-                            background: '#575757',
+                            // 成功時はアクセシビリティ（コントラスト比）を考慮して濃い緑を使用
+                            background: resetSuccess ? '#1e7e34' : '#575757',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',
@@ -284,7 +288,7 @@ export default function Dashboard() {
                             transition: 'all 0.2s',
                             userSelect: 'none',
                             boxShadow: isResetFocused
-                                ? '0 0 0 2px #ffffff, 0 0 0 4px #575757'
+                                ? `0 0 0 2px #ffffff, 0 0 0 4px ${resetSuccess ? '#1e7e34' : '#575757'}`
                                 : 'none',
                             outline: 'none',
                             display: 'flex',
@@ -292,8 +296,12 @@ export default function Dashboard() {
                             justifyContent: 'center',
                         }}
                     >
-                        <span role="img" aria-label="Key" style={{ fontSize: '1.1rem' }}>
-                            🔑
+                        <span
+                            role="img"
+                            aria-label={resetSuccess ? 'Success' : 'Key'}
+                            style={{ fontSize: '1.1rem' }}
+                        >
+                            {resetSuccess ? '✅' : '🔑'}
                         </span>
                     </button>
                     <button
@@ -834,6 +842,10 @@ export default function Dashboard() {
                             padding: '0.1rem 0.3rem',
                             borderRadius: '3px',
                             border: '1px solid #ccc',
+                            boxShadow: '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
+                            display: 'inline-block',
+                            minWidth: '1.2em',
+                            textAlign: 'center',
                         }}
                     >
                         R
@@ -845,6 +857,10 @@ export default function Dashboard() {
                             padding: '0.1rem 0.3rem',
                             borderRadius: '3px',
                             border: '1px solid #ccc',
+                            boxShadow: '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
+                            display: 'inline-block',
+                            minWidth: '1.2em',
+                            textAlign: 'center',
                         }}
                     >
                         C
@@ -856,6 +872,10 @@ export default function Dashboard() {
                             padding: '0.1rem 0.3rem',
                             borderRadius: '3px',
                             border: '1px solid #ccc',
+                            boxShadow: '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
+                            display: 'inline-block',
+                            minWidth: '1.2em',
+                            textAlign: 'center',
                         }}
                     >
                         L

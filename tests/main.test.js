@@ -30,6 +30,16 @@ jest.mock('posthog-js', () => ({
   get_session_id: jest.fn().mockReturnValue('test-session'),
 }), { virtual: true });
 
+jest.mock('@sentry/browser', () => ({
+  init: jest.fn(),
+  browserTracingIntegration: jest.fn(),
+  replayIntegration: jest.fn(),
+  getCurrentScope: jest.fn().mockReturnValue({
+    setTag: jest.fn(),
+  }),
+  captureException: jest.fn(),
+}), { virtual: true });
+
 jest.mock('../role.harvester', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.upgrader', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.builder', () => ({ run: jest.fn() }), { virtual: true });

@@ -158,6 +158,23 @@ describe('roomManager', () => {
       expect(stats.energyCapacity).toBe(300);
     });
 
+    test('プロパティが欠落しているエッジケースを処理する（コントローラーなし等）', () => {
+      const roomWithoutController = {
+        name: 'W1N2',
+        energyAvailable: 0,
+        energyCapacityAvailable: 0
+      };
+
+      const stats = roomManager.getStats(roomWithoutController);
+
+      expect(stats).toBeDefined();
+      expect(stats.name).toBe('W1N2');
+      expect(stats.rcl).toBe(0);
+      expect(stats.controllerProgress).toBe(0);
+      expect(stats.safeMode).toBe(false);
+      expect(stats.storageEnergy).toBe(0);
+    });
+
     test('クリープ数をロール別にカウントする', () => {
       global.Game.creeps = {
         creep1: { room: mockRoom, memory: { role: 'harvester' } },

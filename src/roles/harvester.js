@@ -249,4 +249,4 @@ function getBody(energy) {
     return [WORK, CARRY, MOVE];
 }
 
-module.exports = { run, getBody, TASK };
+module.exports = { run, getBody, TASK, _findAvailableContainer };

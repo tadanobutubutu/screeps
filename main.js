@@ -194,6 +194,162 @@ function handlePeriodicTasks(systemMode) {
     }
 }
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: 部屋ごとのキャッシュ初期化と構造物のスキャンを行う。
+ * processCreeps関数の肥大化を防ぐための抽出。
+ */
+function warmRoomCache(room) {
+    // 1. キャッシュ用配列の初期化
+    room._myCreeps = []; room._myCreepsTick = Game.time;
+    room._roleCounts = { harvester: 0, upgrader: 0, builder: 0, repairer: 0, transporter: 0, scout: 0, medic: 0, explorer: 0 };
+    room._injuredCreeps = []; room._injuredCreepsTick = Game.time;
+    room._myConstructionSites = []; room._myConstructionSitesTick = Game.time;
+    room._defenders = []; room._defendersTick = Game.time;
+
+    // 2. 構造物、敵、ソースのスキャン（1ティックに1回）
+    const allStructures = room.find(FIND_STRUCTURES);
+    room._allStructures = allStructures;
+    room._allStructuresTick = Game.time;
+
+    room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+    room._hostileCreepsTick = Game.time;
+    room._activeSources = room.find(FIND_SOURCES_ACTIVE);
+    room._activeSourcesTick = Game.time;
+
+    // 3. 構造物の分類（1パスで実行）
+    const myStructures = [];
+    const deliveryTargets = [];
+    const harvesterDeliveryTargets = [];
+    const repairTargets = [];
+    const containers = [];
+    const fillableContainers = [];
+    const withdrawalSources = [];
+    const towers = [];
+    const spawns = [];
+    const freeSpawns = [];
+    let minHitsRepairTarget = null;
+    let minHits = Infinity;
+
+    for (let i = 0; i < allStructures.length; i++) {
+        const s = allStructures[i];
+        const type = s.structureType;
+
+        // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避
+        if (s.my) {
+            myStructures.push(s);
+
+            // 防衛・スポーン・納品先の分類
+            if (type === STRUCTURE_EXTENSION || type === STRUCTURE_SPAWN ||
+                type === STRUCTURE_TOWER || type === STRUCTURE_LAB) {
+
+                if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                    deliveryTargets.push(s);
+                    if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
+                }
+
+                if (type === STRUCTURE_TOWER) {
+                    towers.push(s);
+                } else if (type === STRUCTURE_SPAWN) {
+                    spawns.push(s);
+                    if (!s.spawning) freeSpawns.push(s);
+                }
+            }
+
+            // 味方の構造物の修理（壁以外）
+            if (s.hits < s.hitsMax) {
+                repairTargets.push(s);
+                // ⚡ PERFORMANCE: 最もダメージを受けているターゲットを追跡 (O(1) lookup用)
+                if (s.hits < minHits) {
+                    minHits = s.hits;
+                    minHitsRepairTarget = s;
+                }
+            }
+        } else if (type === STRUCTURE_CONTAINER) {
+            containers.push(s);
+            const store = s.store;
+            if (store) {
+                if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) fillableContainers.push(s);
+                if (store[RESOURCE_ENERGY] > 0) withdrawalSources.push(s);
+            }
+            if (s.hits < s.hitsMax) {
+                repairTargets.push(s);
+                if (s.hits < minHits) {
+                    minHits = s.hits;
+                    minHitsRepairTarget = s;
+                }
+            }
+        } else if (type !== STRUCTURE_WALL && s.hits < s.hitsMax) {
+            // 道路などの修理
+            repairTargets.push(s);
+            if (s.hits < minHits) {
+                minHits = s.hits;
+                minHitsRepairTarget = s;
+            }
+        }
+    }
+
+    // ストレージを引出元に追加
+    if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
+        withdrawalSources.push(room.storage);
+    }
+
+    room._myStructures = myStructures;
+    room._myStructuresTick = Game.time;
+    room._deliveryTargets = deliveryTargets;
+    room._harvesterDeliveryTargets = harvesterDeliveryTargets;
+    room._repairTargets = repairTargets;
+    room._minHitsRepairTarget = minHitsRepairTarget;
+    room._containers = containers;
+    room._containersTick = Game.time;
+    room._fillableContainers = fillableContainers;
+    room._fillableContainersTick = Game.time;
+    room._withdrawalSources = withdrawalSources;
+    room._withdrawalSourcesTick = Game.time;
+    room._towers = towers;
+    room._towersTick = Game.time;
+    room._spawns = spawns;
+    room._spawnsTick = Game.time;
+    room._freeSpawns = freeSpawns;
+    room._freeSpawnsTick = Game.time;
+}
+
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: クリープのデータ収集と初期化を行う。
+ * processCreeps関数の肥大化を防ぐための抽出。
+ */
+function collectCreepData(creep, creepCounts, creepsToProcess, isLoggingEnabled, isEmotionsEnabled) {
+    const memory = creep.memory;
+    const n = creep.name;
+    let role = memory.role;
+    if (!role) {
+        role = memory.role = 'harvester';
+        if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
+    }
+    creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+    // ロジック実行用に情報を保持
+    creepsToProcess.push({ creep, role, name: n });
+
+    // ⚡ PERFORMANCE: 感情統計の集計（有効な時のみ）
+    if (isEmotionsEnabled) {
+        global._emotionStats.total++;
+        const mood = (memory.emotions && memory.emotions.mood) || 3;
+        if (mood >= 5) global._emotionStats.veryHappy++;
+        else if (mood >= 4) global._emotionStats.happy++;
+        else if (mood >= 3) global._emotionStats.neutral++;
+        else if (mood >= 2) global._emotionStats.sad++;
+        else global._emotionStats.verySad++;
+    }
+
+    const room = creep.room;
+    if (room) {
+        room._myCreeps.push(creep);
+        if (room._roleCounts[role] !== undefined) room._roleCounts[role]++;
+        if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep);
+        if (role === 'defender') room._defenders.push(creep);
+    }
+}
+
 function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = Object.create(null);
     const creepsToProcess = [];
@@ -210,118 +366,7 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     for (let i = 0; i < rooms.length; i++) {
         const room = rooms[i];
 
-        // 1. キャッシュ用配列の初期化
-        room._myCreeps = []; room._myCreepsTick = Game.time;
-        room._roleCounts = { harvester: 0, upgrader: 0, builder: 0, repairer: 0, transporter: 0, scout: 0, medic: 0, explorer: 0 };
-        room._injuredCreeps = []; room._injuredCreepsTick = Game.time;
-        room._myConstructionSites = []; room._myConstructionSitesTick = Game.time;
-        room._defenders = []; room._defendersTick = Game.time;
-
-        // 2. 構造物、敵、ソースのスキャン（1ティックに1回）
-        const allStructures = room.find(FIND_STRUCTURES);
-        room._allStructures = allStructures;
-        room._allStructuresTick = Game.time;
-
-        room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-        room._hostileCreepsTick = Game.time;
-        room._activeSources = room.find(FIND_SOURCES_ACTIVE);
-        room._activeSourcesTick = Game.time;
-
-        // 3. 構造物の分類（1パスで実行）
-        const myStructures = [];
-        const deliveryTargets = [];
-        const harvesterDeliveryTargets = [];
-        const repairTargets = [];
-        const containers = [];
-        const fillableContainers = [];
-        const withdrawalSources = [];
-        const towers = [];
-        const spawns = [];
-        const freeSpawns = [];
-        let minHitsRepairTarget = null;
-        let minHits = Infinity;
-
-        for (let i = 0; i < allStructures.length; i++) {
-            const s = allStructures[i];
-            const type = s.structureType;
-
-            // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避
-            if (s.my) {
-                myStructures.push(s);
-
-                // 防衛・スポーン・納品先の分類
-                if (type === STRUCTURE_EXTENSION || type === STRUCTURE_SPAWN ||
-                    type === STRUCTURE_TOWER || type === STRUCTURE_LAB) {
-
-                    if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-                        deliveryTargets.push(s);
-                        if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s);
-                    }
-
-                    if (type === STRUCTURE_TOWER) {
-                        towers.push(s);
-                    } else if (type === STRUCTURE_SPAWN) {
-                        spawns.push(s);
-                        if (!s.spawning) freeSpawns.push(s);
-                    }
-                }
-
-                // 味方の構造物の修理（壁以外）
-                if (s.hits < s.hitsMax) {
-                    repairTargets.push(s);
-                    // ⚡ PERFORMANCE: 最もダメージを受けているターゲットを追跡 (O(1) lookup用)
-                    if (s.hits < minHits) {
-                        minHits = s.hits;
-                        minHitsRepairTarget = s;
-                    }
-                }
-            } else if (type === STRUCTURE_CONTAINER) {
-                containers.push(s);
-                const store = s.store;
-                if (store) {
-                    if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) fillableContainers.push(s);
-                    if (store[RESOURCE_ENERGY] > 0) withdrawalSources.push(s);
-                }
-                if (s.hits < s.hitsMax) {
-                    repairTargets.push(s);
-                    if (s.hits < minHits) {
-                        minHits = s.hits;
-                        minHitsRepairTarget = s;
-                    }
-                }
-            } else if (type !== STRUCTURE_WALL && s.hits < s.hitsMax) {
-                // 道路などの修理
-                repairTargets.push(s);
-                if (s.hits < minHits) {
-                    minHits = s.hits;
-                    minHitsRepairTarget = s;
-                }
-            }
-        }
-
-        // ストレージを引出元に追加
-        if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
-            withdrawalSources.push(room.storage);
-        }
-
-        room._myStructures = myStructures;
-        room._myStructuresTick = Game.time;
-        room._deliveryTargets = deliveryTargets;
-        room._harvesterDeliveryTargets = harvesterDeliveryTargets;
-        room._repairTargets = repairTargets;
-        room._minHitsRepairTarget = minHitsRepairTarget;
-        room._containers = containers;
-        room._containersTick = Game.time;
-        room._fillableContainers = fillableContainers;
-        room._fillableContainersTick = Game.time;
-        room._withdrawalSources = withdrawalSources;
-        room._withdrawalSourcesTick = Game.time;
-        room._towers = towers;
-        room._towersTick = Game.time;
-        room._spawns = spawns;
-        room._spawnsTick = Game.time;
-        room._freeSpawns = freeSpawns;
-        room._freeSpawnsTick = Game.time;
+        warmRoomCache(room);
     }
 
     // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
@@ -329,36 +374,7 @@ function processCreeps(isLoggingEnabled, isEmotionsEnabled) {
     const creeps = Object.values(Game.creeps || {});
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
-        const memory = creep.memory;
-        const n = creep.name;
-        let role = memory.role;
-        if (!role) {
-            role = memory.role = 'harvester';
-            if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester');
-        }
-        creepCounts[role] = (creepCounts[role] || 0) + 1;
-
-        // ロジック実行用に情報を保持
-        creepsToProcess.push({ creep, role, name: n });
-
-        // ⚡ PERFORMANCE: 感情統計の集計（有効な時のみ）
-        if (isEmotionsEnabled) {
-            global._emotionStats.total++;
-            const mood = (memory.emotions && memory.emotions.mood) || 3;
-            if (mood >= 5) global._emotionStats.veryHappy++;
-            else if (mood >= 4) global._emotionStats.happy++;
-            else if (mood >= 3) global._emotionStats.neutral++;
-            else if (mood >= 2) global._emotionStats.sad++;
-            else global._emotionStats.verySad++;
-        }
-
-        const room = creep.room;
-        if (room) {
-            room._myCreeps.push(creep);
-            if (room._roleCounts[role] !== undefined) room._roleCounts[role]++;
-            if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep);
-            if (role === 'defender') room._defenders.push(creep);
-        }
+        collectCreepData(creep, creepCounts, creepsToProcess, isLoggingEnabled, isEmotionsEnabled);
     }
 
     // 建設サイトの処理 (⚡ PERFORMANCE: Object.values()を使用)

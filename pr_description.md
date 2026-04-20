@@ -1,11 +1,7 @@
-💡 **What:**
-Optimized `_planRoads` in `src/managers/roomManager.js` by replacing the expensive `room.lookForAt` engine API calls inside the path calculation loop with a pre-computed `Set` of occupied tiles.
+🎯 **What:** Extracted the room caching and creep data collection logic out of the overly long `processCreeps` function in `main.js`.
 
-🎯 **Why:**
-The `room.lookForAt` method is an expensive O(N) operation that crosses the C++/JS boundary in the Screeps engine. Calling it inside a loop that iterates over path positions for multiple targets resulted in O(Targets * PathLength * Structures) time complexity. By fetching the structures and construction sites once per tick and storing their bit-shifted coordinates `pos.x | (pos.y << 6)` in a Set, we reduce the complexity to O(Structures) + O(Targets * PathLength).
+💡 **Why:** The `processCreeps` function was handling too many concerns directly, making it hard to read and maintain. By extracting the core data gathering logic into dedicated `warmRoomCache` and `collectCreepData` helper functions, the logic is easier to follow and test in isolation.
 
-📊 **Measured Improvement:**
-A benchmark simulating the engine overhead showed a dramatic performance increase:
-- **Baseline (inner lookForAt loop):** ~298ms
-- **Optimized (Set built once):** ~12.5ms
-- **Improvement:** 95.8% faster
+✅ **Verification:** Verified by running the syntax validation (`node -c main.js`) and test suite (`npx jest --reporters default`) with all tests successfully passing.
+
+✨ **Result:** Improved maintainability by reducing complexity within `processCreeps` while keeping the performance optimizations intact.

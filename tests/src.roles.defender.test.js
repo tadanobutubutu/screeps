@@ -7,6 +7,7 @@ global.Memory = {}
 global.OK = 0
 global.ATTACK = 'attack'
 global.RANGED_ATTACK = 'ranged_attack'
+global.FIND_HOSTILE_CREEPS = 103
 global.HEAL = 'heal'
 global.CLAIM = 'claim'
 global.TOUGH = 'tough'

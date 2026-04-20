@@ -107,6 +107,17 @@ const _escapeHTML = (function () {
     };
 })();
 
+function _createCircularReplacer() {
+    const seen = new WeakSet();
+    return (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (seen.has(value)) return '[Circular]';
+            seen.add(value);
+        }
+        return value;
+    };
+}
+
 /**
  * Security: Safely stringifies an object, handling circular references and limiting length.
  * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
@@ -116,14 +127,7 @@ const _escapeHTML = (function () {
  */
 function _safeStringify(obj, maxLength = 500) {
     try {
-        const seen = new WeakSet();
-        const str = JSON.stringify(obj, (key, value) => {
-            if (typeof value === 'object' && value !== null) {
-                if (seen.has(value)) return '[Circular]';
-                seen.add(value);
-            }
-            return value;
-        });
+        const str = JSON.stringify(obj, _createCircularReplacer());
         return str.substring(0, maxLength);
     } catch (e) {
         return '[Unstringifiable Object]';

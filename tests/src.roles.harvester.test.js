@@ -137,3 +137,40 @@ describe('src/roles/harvester', () => {
     expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, controller, { range: 3 });
   });
 });
+
+describe('_findAvailableContainer', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('エネルギーが100未満のコンテナは無視し、条件を満たさない場合はnullを返す', () => {
+    const creep = { room: {}, pos: {} };
+    // エネルギーが100未満のコンテナのみを用意する
+    const containers = [
+      { store: { [global.RESOURCE_ENERGY]: 0 } },
+      { store: { [global.RESOURCE_ENERGY]: 99 } }
+    ];
+    mockCache.getContainers.mockReturnValue(containers);
+
+    const result = harvester._findAvailableContainer(creep);
+
+    expect(result).toBeNull();
+    expect(pathfinder.closest).not.toHaveBeenCalled();
+  });
+
+  test('エネルギーが100以上のコンテナがある場合、pathfinder.closestにフィルタリングされた配列を渡す', () => {
+    const creep = { room: {}, pos: { x: 1, y: 1 } };
+    const validContainer1 = { store: { [global.RESOURCE_ENERGY]: 100 } };
+    const validContainer2 = { store: { [global.RESOURCE_ENERGY]: 200 } };
+    const invalidContainer = { store: { [global.RESOURCE_ENERGY]: 50 } };
+
+    mockCache.getContainers.mockReturnValue([validContainer1, invalidContainer, validContainer2]);
+    pathfinder.closest.mockReturnValue(validContainer2);
+
+    const result = harvester._findAvailableContainer(creep);
+
+    // closestに渡される配列が、エネルギー100以上のコンテナのみであるかを確認
+    expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [validContainer1, validContainer2]);
+    expect(result).toBe(validContainer2);
+  });
+});

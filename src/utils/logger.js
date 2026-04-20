@@ -24,6 +24,15 @@ const _stats = {
 const _history = [];
 const MAX_HISTORY = 50;
 
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded strings can crash the AI.
+ * セキュリティ：メモリ消費によるDoS攻撃を防ぐための制限。
+ * Screepsのメモリは2MBに制限されているため、無制限の文字列はAIをクラッシュさせる可能性があります。
+ */
+const MAX_LOG_MESSAGE_LENGTH = 500;
+const MAX_STACK_TRACE_LENGTH = 2000;
+
 // ============================================================
 // カラーコード（Screeps コンソール用 HTML）
 // ============================================================
@@ -149,9 +158,14 @@ function getLevel() {
 function debug(message, data) {
     if (_level > LOG_LEVEL.DEBUG) return;
     _stats.debug++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+
     const full = data !== undefined
-        ? `${message} ${_safeStringify(data)}`
-        : message;
+        ? `${sanitizedMessage} ${_safeStringify(data)}`
+        : sanitizedMessage;
     _record('debug', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('debug')} ${escapedFull}`, COLORS.debug));
@@ -165,9 +179,14 @@ function debug(message, data) {
 function info(message, data) {
     if (_level > LOG_LEVEL.INFO) return;
     _stats.info++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+
     const full = data !== undefined
-        ? `${message} ${_safeStringify(data)}`
-        : message;
+        ? `${sanitizedMessage} ${_safeStringify(data)}`
+        : sanitizedMessage;
     _record('info', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('info')} ${escapedFull}`, COLORS.info));
@@ -181,9 +200,14 @@ function info(message, data) {
 function warn(message, data) {
     if (_level > LOG_LEVEL.WARN) return;
     _stats.warn++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+
     const full = data !== undefined
-        ? `${message} ${_safeStringify(data)}`
-        : message;
+        ? `${sanitizedMessage} ${_safeStringify(data)}`
+        : sanitizedMessage;
     _record('warn', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('warn')} ${escapedFull}`, COLORS.warn));
@@ -197,9 +221,16 @@ function warn(message, data) {
 function error(message, error) {
     if (_level > LOG_LEVEL.ERROR) return;
     _stats.error++;
-    let full = message;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    let full = sanitizedMessage;
     if (error instanceof Error) {
-        full += ` | ${error.message}`;
+        // Security: Truncate error message to avoid Memory DoS
+        const sanitizedErrorMsg = String(error.message !== null && error.message !== undefined ? error.message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+        full += ` | ${sanitizedErrorMsg}`;
         if (error.stack) {
             full += `\n${getSafeStack(error.stack)}`;
         }
@@ -218,8 +249,13 @@ function error(message, error) {
 function success(message) {
     if (_level > LOG_LEVEL.INFO) return;
     _stats.info++;
-    _record('info', message);
-    console.log(_colorize(`${_prefix('info')} ✓ ${message}`, COLORS.success));
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    _record('info', sanitizedMessage);
+    console.log(_colorize(`${_prefix('info')} ✓ ${sanitizedMessage}`, COLORS.success));
 }
 
 /**
@@ -232,7 +268,11 @@ function success(message) {
  */
 function getSafeStack(stack, maxLines) {
     if (!stack) return '';
-    const lines = stack.split('\n');
+
+    // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
+    const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
+
+    const lines = truncatedStack.split('\n');
     return lines
         .slice(0, maxLines || 5)
         .map((line) => {

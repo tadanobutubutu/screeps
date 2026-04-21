@@ -62,35 +62,64 @@ function run(room) {
  * @param {Room} room
  */
 function _runTower(tower, enemies, injuredCreeps, room) {
-    // 1. 敵への攻撃（最優先）
-    if (enemies.length > 0) {
-        const target = _selectAttackTarget(tower, enemies);
-        if (target) {
-            tower.attack(target);
-            _showAttackVisual(tower, target);
-            return;
-        }
-    }
+    if (_tryAttack(tower, enemies)) return;
+    if (_tryHeal(tower, injuredCreeps)) return;
+    _tryRepair(tower, room);
+}
 
-    // 2. 負傷クリープの回復
-    if (injuredCreeps.length > 0) {
-        const target = _selectHealTarget(tower, injuredCreeps);
-        if (target) {
-            tower.heal(target);
-            _showHealVisual(tower, target);
-            return;
-        }
-    }
+/**
+ * 敵への攻撃を試みる
+ * @param {StructureTower} tower
+ * @param {Creep[]} enemies
+ * @returns {boolean} 攻撃を実行したかどうか
+ */
+function _tryAttack(tower, enemies) {
+    if (enemies.length === 0) return false;
 
-    // 3. 構造物の修復（エネルギーに余裕がある場合のみ）
+    const target = _selectAttackTarget(tower, enemies);
+    if (target) {
+        tower.attack(target);
+        _showAttackVisual(tower, target);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * 負傷クリープの回復を試みる
+ * @param {StructureTower} tower
+ * @param {Creep[]} injuredCreeps
+ * @returns {boolean} 回復を実行したかどうか
+ */
+function _tryHeal(tower, injuredCreeps) {
+    if (injuredCreeps.length === 0) return false;
+
+    const target = _selectHealTarget(tower, injuredCreeps);
+    if (target) {
+        tower.heal(target);
+        _showHealVisual(tower, target);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * 構造物の修復を試みる
+ * @param {StructureTower} tower
+ * @param {Room} room
+ * @returns {boolean} 修復を実行したかどうか
+ */
+function _tryRepair(tower, room) {
     const energyRatio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY);
-    if (energyRatio > TOWER_ENERGY_PRIORITY) {
-        const repairTarget = _selectRepairTarget(tower, room);
-        if (repairTarget) {
-            tower.repair(repairTarget);
-            _showRepairVisual(tower, repairTarget);
-        }
+    if (energyRatio <= TOWER_ENERGY_PRIORITY) return false;
+
+    const repairTarget = _selectRepairTarget(tower, room);
+    if (repairTarget) {
+        tower.repair(repairTarget);
+        _showRepairVisual(tower, repairTarget);
+        return true;
     }
+    return false;
 }
 
 // ============================================================

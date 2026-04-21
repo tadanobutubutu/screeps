@@ -531,9 +531,11 @@ export default function Dashboard() {
                     style={{
                         marginBottom: '1.5rem',
                         padding: '1rem',
-                        border: '1px solid #eee',
+                        border: updated ? '1px solid #1e7e34' : '1px solid #eee',
                         borderRadius: '4px',
-                        boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                        boxShadow: updated
+                            ? '0 0 0 2px #1e7e34'
+                            : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                         opacity: loading || isRefreshing ? 0.6 : 1,
                         transition: 'all 0.2s ease-in-out',
                     }}
@@ -712,9 +714,10 @@ export default function Dashboard() {
                         style={{
                             position: 'relative',
                             // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+                            border: updated ? '1px solid #1e7e34' : 'none',
                             boxShadow: isJsonFocused
                                 ? '0 0 0 2px #0077aa'
-                                : copied
+                                : updated || copied
                                   ? '0 0 0 2px #1e7e34'
                                   : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                             transition: 'all 0.2s ease-in-out',

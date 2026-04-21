@@ -41,6 +41,7 @@ const vfx = require('visual.effects')
 const autoEvolution = require('auto.evolution')
 const adaptiveSystem = require('system.adaptive')
 const dashboard = require('utils.dashboard')
+const TaskQueue = require('utils.tasks')
 
 // ⚡ PERFORMANCE OPTIMIZATION: Hoisted configurations and logic functions
 // Moving these outside the loop prevents redundant object allocation and function re-definition every tick.
@@ -144,50 +145,6 @@ function runCreepMinimal (item, isEmotionsEnabled) {
   } catch (e) {
     Sentry.captureException(e)
     logger.error('Error in creep ' + item.name + ': ' + e.message)
-  }
-}
-
-function handlePeriodicTasks (systemMode) {
-  const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
-  const isGamificationEnabled = adaptiveSystem.isEnabled('gamification')
-  const isMemoryVisualizerEnabled = adaptiveSystem.isEnabled('memoryVisualizer')
-  const isAutoEvolutionEnabled = adaptiveSystem.isEnabled('autoEvolution')
-
-  if (systemMode === adaptiveSystem.MODE.EMERGENCY && Game.time % 100 === 0) {
-    adaptiveSystem.emergencyCleanup()
-  }
-
-  if (isLoggingEnabled) {
-    logger.init()
-  }
-
-  if (isGamificationEnabled) {
-    gamification.init()
-    gamification.updateStreak()
-  }
-
-  if (isMemoryVisualizerEnabled) {
-    if (Game.time % 20 === 0) {
-      memVis.recordSnapshot()
-    }
-    if (Game.time % 200 === 0) {
-      memVis.cleanup()
-      utilsMemory.cleanCache()
-    }
-    if (Game.time % 2000 === 0) {
-      memVis.backup()
-    }
-  }
-
-  if (isGamificationEnabled) {
-    if (Game.time % 100 === 0) {
-      gamification.checkMilestones()
-    }
-    gamification.renderDashboard()
-  }
-
-  if (isAutoEvolutionEnabled && Game.time % 1000 === 0) {
-    autoEvolution.run()
   }
 }
 
@@ -552,9 +509,63 @@ function displayStats (creeps) {
   }
 }
 
+// ==============================================
+// 📋 TASK QUEUE REGISTRATION
+// ==============================================
+TaskQueue.registerTask('emergencyCleanup', 100,
+  () => adaptiveSystem.emergencyCleanup(),
+  () => adaptiveSystem.evaluate() === adaptiveSystem.MODE.EMERGENCY
+)
+
+TaskQueue.registerTask('loggerInit', 1,
+  () => logger.init(),
+  () => adaptiveSystem.isEnabled('logging')
+)
+
+TaskQueue.registerTask('gamificationInit', 1,
+  () => {
+    gamification.init()
+    gamification.updateStreak()
+  },
+  () => adaptiveSystem.isEnabled('gamification')
+)
+
+TaskQueue.registerTask('memVisSnapshot', 20,
+  () => memVis.recordSnapshot(),
+  () => adaptiveSystem.isEnabled('memoryVisualizer')
+)
+
+TaskQueue.registerTask('memVisCleanup', 200,
+  () => {
+    memVis.cleanup()
+    utilsMemory.cleanCache()
+  },
+  () => adaptiveSystem.isEnabled('memoryVisualizer')
+)
+
+TaskQueue.registerTask('memVisBackup', 2000,
+  () => memVis.backup(),
+  () => adaptiveSystem.isEnabled('memoryVisualizer')
+)
+
+TaskQueue.registerTask('gamificationMilestones', 100,
+  () => gamification.checkMilestones(),
+  () => adaptiveSystem.isEnabled('gamification')
+)
+
+TaskQueue.registerTask('gamificationDashboard', 1,
+  () => gamification.renderDashboard(),
+  () => adaptiveSystem.isEnabled('gamification')
+)
+
+TaskQueue.registerTask('autoEvolutionRun', 1000,
+  () => autoEvolution.run(),
+  () => adaptiveSystem.isEnabled('autoEvolution')
+)
+
 module.exports.loop = function () {
   try {
-    const systemMode = adaptiveSystem.evaluate()
+    adaptiveSystem.evaluate()
 
     // ⚡ PERFORMANCE: Throttle memory cleanup to run every 100 ticks.
     // This reduces O(N) memory iteration overhead on every tick.
@@ -569,7 +580,7 @@ module.exports.loop = function () {
       return
     }
 
-    handlePeriodicTasks(systemMode)
+    TaskQueue.run()
 
     const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
     const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects')

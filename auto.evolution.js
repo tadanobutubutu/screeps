@@ -4,6 +4,8 @@
  * CPU最適化版
  */
 
+const utilsMemory = require('./utils.memory');
+
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
@@ -108,8 +110,10 @@ const autoEvolution = {
      */
     analyzeBasicState: function () {
         const myRooms = [];
-        for (const roomName in Game.rooms) {
-            const room = Game.rooms[roomName];
+        // Security: Proxyオブジェクトのオーバーヘッドとプロトタイプ汚染を避けるため、Object.valuesを使用
+        const rooms = Object.values(Game.rooms || {});
+        for (let i = 0; i < rooms.length; i++) {
+            const room = rooms[i];
             if (room.controller && room.controller.my) {
                 myRooms.push(room);
             }
@@ -199,8 +203,10 @@ const autoEvolution = {
     analyzeBottlenecks: function () {
         const bottlenecks = [];
 
-        for (const roomName in Game.rooms) {
-            const room = Game.rooms[roomName];
+        // Security: プロトタイプ汚染対策のため、Object.valuesを使用
+        const rooms = Object.values(Game.rooms || {});
+        for (let i = 0; i < rooms.length; i++) {
+            const room = rooms[i];
             if (!room.controller || !room.controller.my) {
                 continue;
             }
@@ -302,6 +308,11 @@ const autoEvolution = {
      */
     addToQueue: function (need) {
         const queue = Memory.evolution.queue;
+
+        // Security: プロトタイプ汚染対策のため、キーを検証
+        if (!utilsMemory.isSafeKey(need.type) || !utilsMemory.isSafeKey(need.action)) {
+            return;
+        }
 
         // Security: Prevent queue flooding (Memory DoS)
         if (queue.length >= MAX_QUEUE) {
@@ -443,7 +454,10 @@ const autoEvolution = {
             optimize_production: 'spawn.optimizer.js',
         };
 
-        return map[action] || 'evolution.code.js';
+        // Security: hasOwnPropertyを使用してプロトタイプ汚染を防止
+        return Object.prototype.hasOwnProperty.call(map, action)
+            ? map[action]
+            : 'evolution.code.js';
     },
 
     /**

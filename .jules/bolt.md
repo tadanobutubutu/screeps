@@ -97,3 +97,7 @@
 ## 2026-10-20 - Unified Global Collection Caching
 **Learning:** Engine-backed Proxy objects like `Game.rooms`, `Game.creeps`, and `Game.spawns` incur overhead every time `Object.values()` is called. In complex loops where multiple modules need these arrays, calling `Object.values()` repeatedly is wasteful. Fetching them once at the start of the loop and passing them as arguments, combined with tick-gated global caching for common objects like the primary spawn, significantly reduces cumulative CPU cost.
 **Action:** Consolidate `Object.values(Game.*)` calls to the entry point of the main loop and use tick-gated global caches for high-frequency shared object lookups.
+
+## 2026-11-03 - Refactoring Execution Logic with Short-Circuiting Returns
+**Learning:** Extracting conditionals from large execution functions (like `_runTower`) into smaller, focused helper methods (`_tryAttack`, `_tryHeal`) improves maintainability. By making these helpers return a boolean, the original control flow and prioritization can be cleanly maintained using early returns.
+**Action:** Use boolean-returning helper functions to extract complex execution branches while preserving strict short-circuiting logic in priority-based systems.

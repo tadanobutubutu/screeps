@@ -369,7 +369,7 @@ function collectCreepData (
   }
 }
 
-function processCreeps (isLoggingEnabled, isEmotionsEnabled) {
+function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
   const creepsToProcess = []
 
@@ -380,8 +380,7 @@ function processCreeps (isLoggingEnabled, isEmotionsEnabled) {
   }
 
   // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
-  // ⚡ PERFORMANCE: Object.values()を使用してProxyのオーバーヘッドを回避
-  const rooms = Object.values(Game.rooms || {})
+  // 引数で渡されたrooms配列を使用。
   for (let i = 0; i < rooms.length; i++) {
     const room = rooms[i]
 
@@ -389,15 +388,13 @@ function processCreeps (isLoggingEnabled, isEmotionsEnabled) {
   }
 
   // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
-  // ⚡ PERFORMANCE: Object.values()を使用してProxyへのキーアクセスを最小限にする
-  const creeps = Object.values(Game.creeps || {})
+  // 引数で渡されたcreeps配列を使用。
   for (let i = 0; i < creeps.length; i++) {
     const creep = creeps[i]
     collectCreepData(creep, creepCounts, creepsToProcess, isLoggingEnabled, isEmotionsEnabled)
   }
 
-  // 建設サイトの処理 (⚡ PERFORMANCE: Object.values()を使用)
-  const sites = Object.values(Game.constructionSites || {})
+  // 建設サイトの処理 (⚡ PERFORMANCE: 引数で渡されたsites配列を使用)
   for (let i = 0; i < sites.length; i++) {
     const site = sites[i]
     if (site.my && site.room) site.room._myConstructionSites.push(site)
@@ -480,10 +477,9 @@ function handleSpawning (spawn, creepCounts, targetCreeps, isLoggingEnabled) {
   }
 }
 
-function handleDefenseAndDashboard (isLoggingEnabled, isVisualEffectsEnabled) {
+function handleDefenseAndDashboard (rooms, isLoggingEnabled, isVisualEffectsEnabled) {
   if (adaptiveSystem.isEnabled('defense')) {
-    // ⚡ PERFORMANCE: Object.values()を使用して反復処理を最適化
-    const rooms = Object.values(Game.rooms || {})
+    // ⚡ PERFORMANCE: 引数で渡されたrooms配列を使用。
     for (let i = 0; i < rooms.length; i++) {
       const room = rooms[i]
       if (room.controller && room.controller.my) {
@@ -508,7 +504,7 @@ function handleDefenseAndDashboard (isLoggingEnabled, isVisualEffectsEnabled) {
   }
 }
 
-function displayStats () {
+function displayStats (creeps) {
   const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
   const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
   const isGamificationEnabled = adaptiveSystem.isEnabled('gamification')
@@ -519,7 +515,7 @@ function displayStats () {
             ', Mode: ' +
             adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase()
   )
-  console.log('👥 Creeps: ' + Object.keys(Game.creeps).length)
+  console.log('👥 Creeps: ' + (creeps ? creeps.length : Object.keys(Game.creeps).length))
   console.log(
     '💡 CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -580,12 +576,25 @@ module.exports.loop = function () {
     const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles')
     const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
 
+    // ⚡ PERFORMANCE: Fetch global collections once per tick to avoid redundant Proxy lookup overhead.
+    // Proxyオブジェクトへの反復アクセスを避けるため、各コレクションを一度だけ取得する。
+    const rooms = Object.values(Game.rooms || {})
+    const creeps = Object.values(Game.creeps || {})
+    const spawns = Object.values(Game.spawns || {})
+    const constructionSites = Object.values(Game.constructionSites || {})
+
+    // ⚡ PERFORMANCE: Cache the primary spawn for downstream modules.
+    // 他のモジュールで使用するためにプライマリスポーンをキャッシュする。
+    if (spawns.length > 0) {
+      global._primarySpawn = spawns[0]
+      global._primarySpawnTick = Game.time
+    }
+
     const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL
 
-    const creepCounts = processCreeps(isLoggingEnabled, isEmotionsEnabled)
+    const creepCounts = processCreeps(rooms, creeps, constructionSites, isLoggingEnabled, isEmotionsEnabled)
 
-    // ⚡ PERFORMANCE: Object.values()を使用して反復処理を最適化
-    const spawns = Object.values(Game.spawns || {})
+    // ⚡ PERFORMANCE: pre-fetchedなspawns配列を使用して反復処理を最適化
     for (let i = 0; i < spawns.length; i++) {
       const spawn = spawns[i]
       handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled)
@@ -595,7 +604,6 @@ module.exports.loop = function () {
       // ⚡ PERFORMANCE: Replace O(N²) global loop with O(N) room-based spatial search.
       // Using findInRange(1) leverages the engine's internal spatial indexing.
       const processedPairs = new Set()
-      const rooms = Object.values(Game.rooms || {})
       for (let i = 0; i < rooms.length; i++) {
         const room = rooms[i]
         const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS)
@@ -622,10 +630,10 @@ module.exports.loop = function () {
       }
     }
 
-    handleDefenseAndDashboard(isLoggingEnabled, isVisualEffectsEnabled)
+    handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabled)
 
     if (Game.time % 100 === 0) {
-      displayStats()
+      displayStats(creeps)
     }
   } catch (e) {
     Sentry.captureException(e)

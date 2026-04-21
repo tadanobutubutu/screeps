@@ -93,3 +93,7 @@
 ## 2026-10-06 - Proxy Iteration Overhead and Closure Hoisting
 **Learning:** In the Screeps environment, `Game.rooms`, `Game.creeps`, etc., are engine-backed Proxy objects. Iterating over them with `for...in` triggers a Proxy lookup for every key, which is significantly slower than using `Object.values()` to fetch all values in a single pass. Furthermore, defining anonymous functions inside high-frequency loops (like per-creep processing) creates new closures every tick, leading to increased garbage collection pressure.
 **Action:** Always use `Object.values()` and indexed `for` loops for global collections and hoist closure-heavy logic to the module level to minimize tick-to-tick CPU and memory overhead.
+
+## 2026-10-20 - Unified Global Collection Caching
+**Learning:** Engine-backed Proxy objects like `Game.rooms`, `Game.creeps`, and `Game.spawns` incur overhead every time `Object.values()` is called. In complex loops where multiple modules need these arrays, calling `Object.values()` repeatedly is wasteful. Fetching them once at the start of the loop and passing them as arguments, combined with tick-gated global caching for common objects like the primary spawn, significantly reduces cumulative CPU cost.
+**Action:** Consolidate `Object.values(Game.*)` calls to the entry point of the main loop and use tick-gated global caches for high-frequency shared object lookups.

@@ -115,7 +115,8 @@ const gamification = {
             // Security: Use logging system to prevent console injection
             logger.info('🎉 LEVEL UP! Now level ' + gm.level + '!');
 
-            const spawn = Object.values(Game.spawns)[0];
+            // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
+            const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
             if (spawn) {
                 vfx.levelUp(spawn.pos, gm.level);
             }
@@ -146,7 +147,8 @@ const gamification = {
             // Security: Use logging system to prevent console injection
             logger.info('🏆 ACHIEVEMENT UNLOCKED: ' + sanitizedTitle);
 
-            const spawn = Object.values(Game.spawns)[0];
+            // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
+            const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
             if (spawn) {
                 vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
@@ -298,7 +300,8 @@ const gamification = {
         this.init();
         const gm = Memory.gamification;
 
-        const spawn = Object.values(Game.spawns)[0];
+        // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
+        const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
         if (!spawn) {
             return;
         }

@@ -97,3 +97,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded log messages and stack traces in `src/utils/logger.js`.
 **Learning:** In memory-constrained environments like Screeps (2MB limit), utility functions that process and store strings (like loggers) must implement strict length limits. Furthermore, when implementing truncation, it is critical to use robust null/undefined checks (e.g., `val !== null && val !== undefined ? val : ''`) rather than simple falsy checks (e.g., `val || ''`) to ensure that values like `0` or `false` are preserved and correctly logged.
 **Prevention:** Enforce `MAX_LOG_MESSAGE_LENGTH` and `MAX_STACK_TRACE_LENGTH` constants across all logging paths. Always prioritize nullish-aware checks over falsy-based defaults when converting inputs to strings for truncation.
+
+## 2026-04-21 - Hardening Auto Evolution against Prototype Pollution
+**Vulnerability:** Prototype Pollution via iteration over engine-provided objects and dynamic map lookups in `auto.evolution.js`.
+**Learning:** Iterating over engine objects (like `Game.rooms`) using `for...in` is vulnerable if `Object.prototype` is polluted. Similarly, using dynamic strings as keys for map lookups without validation can allow access to inherited properties like `constructor`.
+**Prevention:** Replace `for...in` with `Object.values()` for safe iteration. Use `Object.prototype.hasOwnProperty.call()` for map lookups and implement `isSafeKey` validation for all dynamic keys.

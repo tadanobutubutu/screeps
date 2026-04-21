@@ -78,26 +78,59 @@ function _attack(creep, enemies) {
     const dist = creep.pos.getRangeTo(target);
 
     if (hasRanged) {
-        if (dist <= RANGED_RANGE) {
-            creep.rangedAttack(target);
-            // 近すぎる場合は距離を取る（kiting）
-            if (dist <= 1 && hasMelee) {
-                creep.attack(target);
-            } else if (dist <= 1) {
-                _fleeFrom(creep, target.pos);
-                return;
-            }
-        } else {
-            pathfinder.moveTo(creep, target, { range: RANGED_RANGE });
-        }
+        const shouldReturn = _executeRangedCombat(creep, target, dist, hasMelee);
+        if (shouldReturn) return;
     } else if (hasMelee) {
-        if (dist <= MELEE_RANGE) {
-            creep.attack(target);
-        } else {
-            pathfinder.moveTo(creep, target, { range: MELEE_RANGE });
-        }
+        _executeMeleeCombat(creep, target, dist);
     }
 
+    _drawAttackLine(creep, target);
+}
+
+/**
+ * 遠距離攻撃の実行とカイト処理
+ * @param {Creep} creep
+ * @param {Creep} target
+ * @param {number} dist
+ * @param {boolean} hasMelee
+ * @returns {boolean} 早期リターンすべきか
+ */
+function _executeRangedCombat(creep, target, dist, hasMelee) {
+    if (dist <= RANGED_RANGE) {
+        creep.rangedAttack(target);
+        // 近すぎる場合は距離を取る（kiting）
+        if (dist <= 1 && hasMelee) {
+            creep.attack(target);
+        } else if (dist <= 1) {
+            _fleeFrom(creep, target.pos);
+            return true;
+        }
+    } else {
+        pathfinder.moveTo(creep, target, { range: RANGED_RANGE });
+    }
+    return false;
+}
+
+/**
+ * 近接攻撃の実行
+ * @param {Creep} creep
+ * @param {Creep} target
+ * @param {number} dist
+ */
+function _executeMeleeCombat(creep, target, dist) {
+    if (dist <= MELEE_RANGE) {
+        creep.attack(target);
+    } else {
+        pathfinder.moveTo(creep, target, { range: MELEE_RANGE });
+    }
+}
+
+/**
+ * 攻撃対象へのビジュアルライン描画
+ * @param {Creep} creep
+ * @param {Creep} target
+ */
+function _drawAttackLine(creep, target) {
     // 攻撃対象をビジュアル表示
     creep.room.visual.line(creep.pos, target.pos, {
         color: '#ff4444',

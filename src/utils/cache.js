@@ -62,6 +62,18 @@ function ensureCache() {
     return global.cache;
 }
 
+function _getValidEntry(cache, key) {
+    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
+        return entry;
+    }
+    return undefined;
+}
+
+function _canAddCacheEntry(cache) {
+    return Object.keys(cache).length < MAX_CACHE_ENTRIES;
+}
+
 /**
  * 汎用キャッシュ取得/設定
  * @param {string} key - キャッシュキー
@@ -71,21 +83,15 @@ function ensureCache() {
  */
 function get(key, fetcher, ttl) {
     // Security: Validate key
-    if (!isSafeKey(key)) {
-        return fetcher();
-    }
+    if (!isSafeKey(key)) return fetcher();
 
     const cache = ensureCache();
-    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
 
-    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-        return entry.data;
-    }
+    const validEntry = _getValidEntry(cache, key);
+    if (validEntry) return validEntry.data;
 
     // Security: Cap the number of cache entries to prevent Memory DoS
-    if (!entry && Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-        return fetcher();
-    }
+    if (!_canAddCacheEntry(cache)) return fetcher();
 
     const data = fetcher();
     cache[key] = {

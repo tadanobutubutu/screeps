@@ -85,7 +85,7 @@ describe('defense.manager', () => {
   test('checkThreatsがhostilesがないとき0を返す', () => {
     const result = defenseManager.checkThreats(mockRoom);
     expect(result).toBe(0);
-    expect(Memory.defenseLevel).toBeUndefined();
+    expect(mockRoom._threatLevel).toBe(0);
   });
 
   test('checkThreatsがhostilesがいるときthreatLevelを計算する', () => {
@@ -94,13 +94,13 @@ describe('defense.manager', () => {
     }];
     const result = defenseManager.checkThreats(mockRoom);
     expect(result).toBe(3);
-    expect(Memory.defenseLevel).toBe(3);
+    expect(mockRoom._threatLevel).toBe(3);
   });
 
   test('manageDefendersがthreatLevel > 0でspawnableなときdefenderを生成する', () => {
     mockRoom._myStructures = [mockSpawn];
     mockRoom._myCreeps = [{ memory: { role: 'harvester' } }];
-    Memory.defenseLevel = 5;
+    mockRoom._threatLevel = 5;
     
     const result = defenseManager.manageDefenders(mockRoom);
     expect(() => result).not.toThrow();

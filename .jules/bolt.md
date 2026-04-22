@@ -127,3 +127,7 @@
 
 **Learning:** Extracting conditionals from large execution functions (like `_runTower`) into smaller, focused helper methods (`_tryAttack`, `_tryHeal`) improves maintainability. By making these helpers return a boolean, the original control flow and prioritization can be cleanly maintained using early returns.
 **Action:** Use boolean-returning helper functions to extract complex execution branches while preserving strict short-circuiting logic in priority-based systems.
+
+## 2026-11-17 - Hoisting and Volatile Caching in Defense Logic
+**Learning:** Storing tick-specific data like `threatLevel` in `Memory` causes unnecessary serialization overhead and creates bugs in multi-room environments where values are overwritten. Using volatile properties on the `room` object (e.g., `room._threatLevel`) is faster and room-isolated. Furthermore, hoisting $O(N)$ `find` operations out of tower loops avoids redundant per-tower checks even with per-tick caching guards.
+**Action:** Always prefer room-isolated volatile caching for tick-specific calculations and hoist $O(N)$ operations outside of nested loops to minimize property access and branch checking.

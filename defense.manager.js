@@ -20,47 +20,49 @@ const defenseManager = {
 
         // 脅威の優先順位付け
         const hostiles = room._hostileCreeps || [];
-        const damagedCreeps = room._injuredCreeps;
+        const damagedCreeps = room._injuredCreeps || [];
 
         // ⚡ PERFORMANCE: Use pre-filtered room-level repair targets.
         const damagedStructures = room._repairTargets || [];
 
-        towers.forEach((tower) => {
+        // ⚡ PERFORMANCE: Hoist critical target lookups outside the tower loop
+        // ループの外で一度だけ計算することで、各タワーごとの冗長な走査と条件チェックを回避。
+        if (room._criticalCreepTick !== Game.time) {
+            room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
+            room._criticalCreepTick = Game.time;
+        }
+        const criticalCreep = room._criticalCreep;
+
+        if (room._criticalStructureTick !== Game.time) {
+            room._criticalStructure = damagedStructures.find(
+                (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
+            );
+            room._criticalStructureTick = Game.time;
+        }
+        const criticalStructure = room._criticalStructure;
+
+        for (let i = 0; i < towers.length; i++) {
+            const tower = towers[i];
             // 優先度1: 敵creepへの攻撃
             if (hostiles.length > 0) {
                 const target = tower.pos.findClosestByRange(hostiles);
                 if (target) {
                     tower.attack(target);
-                    return;
+                    continue;
                 }
             }
-
-            // ⚡ PERFORMANCE: Pre-calculate critical targets once per tick to reduce O(N) searches for each tower
-            if (room._criticalCreepTick !== Game.time) {
-                room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
-                room._criticalCreepTick = Game.time;
-            }
-            const criticalCreep = room._criticalCreep;
-
-            if (room._criticalStructureTick !== Game.time) {
-                room._criticalStructure = damagedStructures.find(
-                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
-                );
-                room._criticalStructureTick = Game.time;
-            }
-            const criticalStructure = room._criticalStructure;
 
             // 優先度2: 味方creepの回復
             if (criticalCreep) {
                 tower.heal(criticalCreep);
-                return;
+                continue;
             }
 
             // 優先度3: 構造物の修理（エネルギーが十分な時のみ）
             if (tower.store[RESOURCE_ENERGY] > 500 && criticalStructure) {
                 tower.repair(criticalStructure);
             }
-        });
+        }
     },
 
     // 脅威レベル評価
@@ -69,24 +71,28 @@ const defenseManager = {
         const hostiles = room._hostileCreeps || [];
 
         if (hostiles.length === 0) {
-            if (Memory.defenseLevel) {
-                delete Memory.defenseLevel;
-            }
+            room._threatLevel = 0;
             return 0;
         }
 
         // 脅威レベル計算
         let threatLevel = 0;
-        hostiles.forEach((hostile) => {
+        for (let i = 0; i < hostiles.length; i++) {
+            const hostile = hostiles[i];
+            const body = hostile.body;
             // ⚡ PERFORMANCE: Use a simple loop instead of filter().length to avoid memory allocation
-            for (const part of hostile.body) {
-                if (part.type === ATTACK || part.type === RANGED_ATTACK || part.type === HEAL) {
+            for (let j = 0; j < body.length; j++) {
+                const part = body[j];
+                const type = part.type;
+                if (type === ATTACK || type === RANGED_ATTACK || type === HEAL) {
                     threatLevel++;
                 }
             }
-        });
+        }
 
-        Memory.defenseLevel = threatLevel;
+        // ⚡ PERFORMANCE: Use volatile room caching to avoid Memory serialization overhead
+        // ティックごとの計算値はMemoryではなくRoomオブジェクトに保持することで高速化。
+        room._threatLevel = threatLevel;
 
         // 警告表示
         if (threatLevel > 5) {
@@ -100,7 +106,7 @@ const defenseManager = {
 
     // 防衛creep管理
     manageDefenders: function (room) {
-        const threatLevel = Memory.defenseLevel || 0;
+        const threatLevel = room._threatLevel || 0;
 
         // ⚡ PERFORMANCE: Use pre-warmed defenders and spawns caches from main.js. (main.jsで準備された防衛隊とスポーンのキャッシュを使用)
         const defenders = room._defenders || [];
@@ -118,7 +124,9 @@ const defenseManager = {
         }
 
         // 既存のdefenderに指示
-        defenders.forEach((defender) => this.runDefender(defender));
+        for (let i = 0; i < defenders.length; i++) {
+            this.runDefender(defenders[i]);
+        }
     },
 
     // Defender creepの生成
@@ -221,7 +229,7 @@ const defenseManager = {
         const towers = (room._towers || []).length;
         const defenders = (room._defenders || []).length;
 
-        const threatLevel = Memory.defenseLevel || 0;
+        const threatLevel = room._threatLevel || 0;
 
         console.log(`🛡️ Defense Status [${room.name}]:`);
         console.log(`   Towers: ${towers} | Defenders: ${defenders} | Threat: ${threatLevel}`);

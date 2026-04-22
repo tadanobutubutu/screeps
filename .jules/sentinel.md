@@ -102,3 +102,8 @@
 **Vulnerability:** Prototype Pollution via iteration over engine-provided objects and dynamic map lookups in `auto.evolution.js`.
 **Learning:** Iterating over engine objects (like `Game.rooms`) using `for...in` is vulnerable if `Object.prototype` is polluted. Similarly, using dynamic strings as keys for map lookups without validation can allow access to inherited properties like `constructor`.
 **Prevention:** Replace `for...in` with `Object.values()` for safe iteration. Use `Object.prototype.hasOwnProperty.call()` for map lookups and implement `isSafeKey` validation for all dynamic keys.
+
+## 2026-04-22 - Pragmatic CSP for Next.js Dashboard
+**Vulnerability:** Potential for XSS and Clickjacking due to missing security headers in the dashboard.
+**Learning:** A strict Content Security Policy (CSP) like `script-src 'self'` can break Next.js hydration, which relies on inline scripts for state and components. Pragmatic headers must balance security and functionality to prevent functional regressions.
+**Prevention:** Always include `'unsafe-inline'` in CSP `script-src` for Next.js applications unless a robust nonce/hash system is implemented for all hydration scripts. Implement `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff` as standard global defaults.

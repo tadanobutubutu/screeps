@@ -33,6 +33,17 @@ export default function Dashboard() {
     const [resetSuccess, setResetSuccess] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
+    const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
+
+    const getStalenessInfo = useCallback(() => {
+        if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
+        if (!lastUpdated) return { icon: '🕒', color: '#575757', label: 'Not synced' };
+        const diff = (new Date().getTime() - lastUpdated.getTime()) / 60000;
+        if (diff > 15) return { icon: '🚨', color: '#d32f2f', label: 'Critical staleness' };
+        if (diff > 5) return { icon: '⚠️', color: '#a5532d', label: 'Stale' };
+        return { icon: '🕒', color: '#575757', label: 'Fresh' };
+    }, [updated, lastUpdated]);
+
     const handleCopy = useCallback(async () => {
         if (!stats) return;
         try {
@@ -228,29 +239,23 @@ export default function Dashboard() {
                                 outline: 'none',
                                 transition: 'box-shadow 0.2s',
                             }}
+                            aria-label={`Rooms: ${roomCount}. Locations: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
                             title={`Rooms: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
                             tabIndex={0}
                             onFocus={() => setIsRoomsFocused(true)}
                             onBlur={() => setIsRoomsFocused(false)}
                         >
-                            <span role="img" aria-label="Rooms">
-                                🏠
+                            <span role="img" aria-label={roomCount === 1 ? 'Room' : 'Rooms'}>
+                                {roomCount === 1 ? '🏠' : '🏘️'}
                             </span>{' '}
-                            {Object.keys(stats.rooms).length} Room
-                            {Object.keys(stats.rooms).length === 1 ? '' : 's'}
+                            {roomCount} Room{roomCount === 1 ? '' : 's'}
                         </span>
                     )}
                     {lastUpdated && (
                         <span
                             style={{
                                 fontSize: '0.8rem',
-                                color: updated
-                                    ? '#1e7e34'
-                                    : (new Date().getTime() - lastUpdated.getTime()) / 60000 > 15
-                                      ? '#d32f2f'
-                                      : (new Date().getTime() - lastUpdated.getTime()) / 60000 > 5
-                                        ? '#a5532d'
-                                        : '#575757',
+                                color: getStalenessInfo().color,
                                 cursor: 'help',
                                 borderBottom: '1px dotted #888',
                                 borderRadius: '2px',
@@ -259,12 +264,19 @@ export default function Dashboard() {
                                 boxShadow: isSyncFocused ? '0 0 0 2px #0077aa' : 'none',
                                 outline: 'none',
                                 transition: 'all 0.3s',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
                             }}
+                            aria-label={`Last sync: ${timeAgo} (${getStalenessInfo().label}). Exact time: ${lastUpdated.toLocaleString()}`}
                             title={lastUpdated.toLocaleString()}
                             tabIndex={0}
                             onFocus={() => setIsSyncFocused(true)}
                             onBlur={() => setIsSyncFocused(false)}
                         >
+                            <span role="img" aria-label={getStalenessInfo().label}>
+                                {getStalenessInfo().icon}
+                            </span>
                             Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
                         </span>
                     )}
@@ -755,7 +767,8 @@ export default function Dashboard() {
                             {copied ? '✅ Copied!' : '📋 Copy JSON'}
                         </button>
                         <pre
-                            aria-label="Screeps statistics JSON"
+                            aria-label="Screeps statistics JSON. Press 'C' to copy."
+                            title="Screeps statistics JSON (C to copy)"
                             tabIndex={0}
                             onFocus={() => setIsJsonFocused(true)}
                             onBlur={() => setIsJsonFocused(false)}

@@ -110,8 +110,8 @@ const autoEvolution = {
      */
     analyzeBasicState: function () {
         const myRooms = [];
-        // Security: Proxyオブジェクトのオーバーヘッドとプロトタイプ汚染を避けるため、Object.valuesを使用
-        const rooms = Object.values(Game.rooms || {});
+        // ⚡ PERFORMANCE: main.jsで準備されたグローバルコレクションを再利用。
+        const rooms = global._rooms || Object.values(Game.rooms || {});
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
             if (room.controller && room.controller.my) {
@@ -122,8 +122,8 @@ const autoEvolution = {
         const state = {
             rcl: myRooms.length > 0 ? myRooms[0].controller.level : 0,
             roomCount: myRooms.length,
-            creepCount: Object.keys(Game.creeps).length,
-            spawns: Object.keys(Game.spawns).length,
+            creepCount: global._creeps ? global._creeps.length : Object.keys(Game.creeps).length,
+            spawns: global._spawns ? global._spawns.length : Object.keys(Game.spawns).length,
             gcl: Game.gcl.level,
             resources: this.analyzeResourcesLight(myRooms),
             structures: this.analyzeStructuresLight(myRooms),
@@ -190,7 +190,8 @@ const autoEvolution = {
                 structures.terminals++;
             }
 
-            const roomStructures = room.find(FIND_MY_STRUCTURES);
+            // ⚡ PERFORMANCE: main.jsで準備された部屋ごとのキャッシュを優先使用。
+            const roomStructures = room._myStructures || room.find(FIND_MY_STRUCTURES);
             roomStructures.forEach(structureCounter);
         }
 
@@ -203,31 +204,29 @@ const autoEvolution = {
     analyzeBottlenecks: function () {
         const bottlenecks = [];
 
-        // Security: プロトタイプ汚染対策のため、Object.valuesを使用
-        const rooms = Object.values(Game.rooms || {});
+        // ⚡ PERFORMANCE: main.jsで準備されたグローバルコレクションを再利用。
+        const rooms = global._rooms || Object.values(Game.rooms || {});
         for (let i = 0; i < rooms.length; i++) {
             const room = rooms[i];
             if (!room.controller || !room.controller.my) {
                 continue;
             }
 
-            const creeps = room.find(FIND_MY_CREEPS);
+            // ⚡ PERFORMANCE: main.jsのwarmRoomCacheで計算済みのroleCountsを使用。O(1) lookup。
+            const harvestersCount = room._roleCounts ? room._roleCounts.harvester : 0;
 
-            const harvesters = [];
-            for (let i = 0; i < creeps.length; i++) {
-                if (creeps[i].memory.role === 'harvester') {
-                    harvesters.push(creeps[i]);
-                }
+            // ⚡ PERFORMANCE: ソース数は不変なため、RoomMemoryにキャッシュして毎ティックのfind(FIND_SOURCES)を回避。
+            if (room.memory._sourcesCount === undefined) {
+                room.memory._sourcesCount = room.find(FIND_SOURCES).length;
             }
+            const sourcesCount = room.memory._sourcesCount;
 
-            const sources = room.find(FIND_SOURCES);
-
-            if (harvesters.length < sources?.length * 2) {
+            if (harvestersCount < sourcesCount * 2) {
                 bottlenecks.push({
                     room: room.name,
                     type: 'insufficient_harvesters',
-                    current: harvesters.length,
-                    needed: sources.length * 2,
+                    current: harvestersCount,
+                    needed: sourcesCount * 2,
                 });
             }
 

@@ -558,13 +558,15 @@ TaskQueue.registerTask('gamificationDashboard', 1,
   () => adaptiveSystem.isEnabled('gamification')
 )
 
-TaskQueue.registerTask('autoEvolutionRun', 1000,
-  () => autoEvolution.run(),
-  () => adaptiveSystem.isEnabled('autoEvolution')
-)
-
 module.exports.loop = function () {
   try {
+    // ⚡ PERFORMANCE: Fetch global collections once per tick at the absolute start
+    // to avoid redundant Proxy lookup overhead and provide fresh data for all modules.
+    // Proxyオブジェクトへの反復アクセスを避けるため、ループの最初に各コレクションを取得する。
+    const rooms = global._rooms = Object.values(Game.rooms || {})
+    const creeps = global._creeps = Object.values(Game.creeps || {})
+    const spawns = global._spawns = Object.values(Game.spawns || {})
+
     adaptiveSystem.evaluate()
 
     // ⚡ PERFORMANCE: Throttle memory cleanup to run every 100 ticks.
@@ -587,11 +589,7 @@ module.exports.loop = function () {
     const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles')
     const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
 
-    // ⚡ PERFORMANCE: Fetch global collections once per tick to avoid redundant Proxy lookup overhead.
-    // Proxyオブジェクトへの反復アクセスを避けるため、各コレクションを一度だけ取得する。
-    const rooms = Object.values(Game.rooms || {})
-    const creeps = Object.values(Game.creeps || {})
-    const spawns = Object.values(Game.spawns || {})
+    // ⚡ PERFORMANCE: 使用済みのrooms/creeps/spawns配列を再利用。
     const constructionSites = Object.values(Game.constructionSites || {})
 
     // ⚡ PERFORMANCE: Cache the primary spawn for downstream modules.
@@ -604,6 +602,12 @@ module.exports.loop = function () {
     const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL
 
     const creepCounts = processCreeps(rooms, creeps, constructionSites, isLoggingEnabled, isEmotionsEnabled)
+
+    // ⚡ PERFORMANCE: autoEvolution.run()をprocessCreepsの後に移動し、準備された部屋キャッシュ
+    // (_roleCounts, _myCreeps)を再利用可能にする。1000ティックごとに実行。
+    if (Game.time % 1000 === 0 && adaptiveSystem.isEnabled('autoEvolution')) {
+      autoEvolution.run()
+    }
 
     // ⚡ PERFORMANCE: pre-fetchedなspawns配列を使用して反復処理を最適化
     for (let i = 0; i < spawns.length; i++) {

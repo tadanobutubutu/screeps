@@ -31,6 +31,7 @@ export default function Dashboard() {
     const [isCpuFocused, setIsCpuFocused] = useState(false);
     const [isCopyFocused, setIsCopyFocused] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
+    const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
@@ -57,14 +58,18 @@ export default function Dashboard() {
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
-        if (window.confirm('Reset Dashboard Secret? You will need to enter it again on next refresh.')) {
-            sessionStorage.removeItem('dashboard_token');
-            setStats(null);
-            setError('Secret reset. Please refresh to enter a new secret.');
-            setResetSuccess(true);
-            setTimeout(() => setResetSuccess(false), 2000);
+        if (!isResetConfirming) {
+            setIsResetConfirming(true);
+            setTimeout(() => setIsResetConfirming(false), 3000);
+            return;
         }
-    }, []);
+        sessionStorage.removeItem('dashboard_token');
+        setStats(null);
+        setError('Secret reset. Please refresh to enter a new secret.');
+        setResetSuccess(true);
+        setIsResetConfirming(false);
+        setTimeout(() => setResetSuccess(false), 2000);
+    }, [isResetConfirming]);
 
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setIsRefreshing(true);
@@ -283,16 +288,35 @@ export default function Dashboard() {
                     <button
                         onClick={handleResetSecret}
                         onFocus={() => setIsResetFocused(true)}
-                        onBlur={() => setIsResetFocused(false)}
+                        onBlur={() => {
+                            setIsResetFocused(false);
+                            setIsResetConfirming(false);
+                        }}
+                        onMouseLeave={() => setIsResetConfirming(false)}
                         disabled={loading || isRefreshing}
-                        aria-label={resetSuccess ? 'Secret reset' : 'Reset Secret'}
+                        aria-label={
+                            resetSuccess
+                                ? 'Secret reset'
+                                : isResetConfirming
+                                  ? 'Confirm reset?'
+                                  : 'Reset Secret'
+                        }
                         aria-keyshortcuts="l"
-                        title={resetSuccess ? 'Secret Reset!' : 'Reset Secret (L)'}
+                        title={
+                            resetSuccess
+                                ? 'Secret Reset!'
+                                : isResetConfirming
+                                  ? 'Click again to confirm reset (L)'
+                                  : 'Reset Secret (L)'
+                        }
                         style={{
                             cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                             padding: '0.5rem',
-                            // 成功時はアクセシビリティ（コントラスト比）を考慮して濃い緑を使用
-                            background: resetSuccess ? '#1e7e34' : '#575757',
+                            background: resetSuccess
+                                ? '#1e7e34'
+                                : isResetConfirming
+                                  ? '#a5532d'
+                                  : '#575757',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',
@@ -300,7 +324,13 @@ export default function Dashboard() {
                             transition: 'all 0.2s',
                             userSelect: 'none',
                             boxShadow: isResetFocused
-                                ? `0 0 0 2px #ffffff, 0 0 0 4px ${resetSuccess ? '#1e7e34' : '#575757'}`
+                                ? `0 0 0 2px #ffffff, 0 0 0 4px ${
+                                      resetSuccess
+                                          ? '#1e7e34'
+                                          : isResetConfirming
+                                            ? '#a5532d'
+                                            : '#575757'
+                                  }`
                                 : 'none',
                             outline: 'none',
                             display: 'flex',
@@ -310,10 +340,12 @@ export default function Dashboard() {
                     >
                         <span
                             role="img"
-                            aria-label={resetSuccess ? 'Success' : 'Key'}
+                            aria-label={
+                                resetSuccess ? 'Success' : isResetConfirming ? 'Question' : 'Key'
+                            }
                             style={{ fontSize: '1.1rem' }}
                         >
-                            {resetSuccess ? '✅' : '🔑'}
+                            {resetSuccess ? '✅' : isResetConfirming ? '❓' : '🔑'}
                         </span>
                     </button>
                     <button

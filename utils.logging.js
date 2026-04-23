@@ -73,12 +73,11 @@ module.exports = {
             ? emojiMap[sanitizedLevel]
             : '\ud83d\udcac';
 
-        // Security: Escape message to prevent HTML injection in the console
+        // Security: Escape level and message to prevent HTML injection in the console
+        const escapedLevel = this._escapeHTML(sanitizedLevel);
         const escapedMessage = this._escapeHTML(sanitizedMessage);
 
-        console.log(
-            `${emoji} [${sanitizedLevel}] ${escapedMessage}`
-        );
+        console.log(`${emoji} [${escapedLevel}] ${escapedMessage}`);
     },
 
     // Convenience methods

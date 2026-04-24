@@ -57,6 +57,7 @@ describe('DashboardRenderer', () => {
     test('renderRoomDashboard includes enhanced data fields', () => {
         const info = DashboardRenderer.renderRoomDashboard(mockRoom);
 
+        expect(info.gcl.percent).toBe(50.0);
         expect(info.storagePercent).toBe(50);
         expect(info.tick).toBe(12345);
         expect(info.energyPercent).toBe(50);
@@ -91,7 +92,7 @@ describe('DashboardRenderer', () => {
 
         // Verify GCL color is blue
         expect(mockRoom.visual.text).toHaveBeenCalledWith(
-            expect.stringContaining('GCL: 3 (50%)'),
+            expect.stringContaining('GCL: 3 (50.00%)'),
             expect.any(Number),
             expect.any(Number),
             expect.objectContaining({ color: '#00aaff' })

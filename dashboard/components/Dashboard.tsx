@@ -183,8 +183,8 @@ export default function Dashboard() {
         else if (stats?.gcl) {
             const percent = Math.min(
                 100,
-                Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)
-            );
+                (stats.gcl.progress / stats.gcl.progressTotal) * 100
+            ).toFixed(2);
             title = `Screeps (${percent}%)`;
         }
 
@@ -691,8 +691,8 @@ export default function Dashboard() {
                         >
                             {Math.min(
                                 100,
-                                Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)
-                            )}
+                                (stats.gcl.progress / stats.gcl.progressTotal) * 100
+                            ).toFixed(2)}
                             %
                         </span>
                     </div>
@@ -701,13 +701,15 @@ export default function Dashboard() {
                         tabIndex={0}
                         aria-label="Global Control Level progress"
                         aria-describedby="gcl-percent"
-                        aria-valuenow={Math.min(
-                            100,
-                            Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100)
+                        aria-valuenow={Number(
+                            Math.min(
+                                100,
+                                (stats.gcl.progress / stats.gcl.progressTotal) * 100
+                            ).toFixed(2)
                         )}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-valuetext={`${Math.min(100, Math.floor((stats.gcl.progress / stats.gcl.progressTotal) * 100))}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
+                        aria-valuetext={`${Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
                         title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
                         onFocus={() => setIsBarFocused(true)}
                         onBlur={() => setIsBarFocused(false)}

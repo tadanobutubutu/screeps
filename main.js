@@ -512,17 +512,23 @@ function displayStats (creeps) {
 // ==============================================
 // 📋 TASK QUEUE REGISTRATION
 // ==============================================
-TaskQueue.registerTask('emergencyCleanup', 100,
+TaskQueue.registerTask(
+  'emergencyCleanup',
+  100,
   () => adaptiveSystem.emergencyCleanup(),
   () => adaptiveSystem.evaluate() === adaptiveSystem.MODE.EMERGENCY
 )
 
-TaskQueue.registerTask('loggerInit', 1,
+TaskQueue.registerTask(
+  'loggerInit',
+  1,
   () => logger.init(),
   () => adaptiveSystem.isEnabled('logging')
 )
 
-TaskQueue.registerTask('gamificationInit', 1,
+TaskQueue.registerTask(
+  'gamificationInit',
+  1,
   () => {
     gamification.init()
     gamification.updateStreak()
@@ -530,12 +536,16 @@ TaskQueue.registerTask('gamificationInit', 1,
   () => adaptiveSystem.isEnabled('gamification')
 )
 
-TaskQueue.registerTask('memVisSnapshot', 20,
+TaskQueue.registerTask(
+  'memVisSnapshot',
+  20,
   () => memVis.recordSnapshot(),
   () => adaptiveSystem.isEnabled('memoryVisualizer')
 )
 
-TaskQueue.registerTask('memVisCleanup', 200,
+TaskQueue.registerTask(
+  'memVisCleanup',
+  200,
   () => {
     memVis.cleanup()
     utilsMemory.cleanCache()
@@ -543,17 +553,23 @@ TaskQueue.registerTask('memVisCleanup', 200,
   () => adaptiveSystem.isEnabled('memoryVisualizer')
 )
 
-TaskQueue.registerTask('memVisBackup', 2000,
+TaskQueue.registerTask(
+  'memVisBackup',
+  2000,
   () => memVis.backup(),
   () => adaptiveSystem.isEnabled('memoryVisualizer')
 )
 
-TaskQueue.registerTask('gamificationMilestones', 100,
+TaskQueue.registerTask(
+  'gamificationMilestones',
+  100,
   () => gamification.checkMilestones(),
   () => adaptiveSystem.isEnabled('gamification')
 )
 
-TaskQueue.registerTask('gamificationDashboard', 1,
+TaskQueue.registerTask(
+  'gamificationDashboard',
+  1,
   () => gamification.renderDashboard(),
   () => adaptiveSystem.isEnabled('gamification')
 )
@@ -563,9 +579,18 @@ module.exports.loop = function () {
     // ⚡ PERFORMANCE: Fetch global collections once per tick at the absolute start
     // to avoid redundant Proxy lookup overhead and provide fresh data for all modules.
     // Proxyオブジェクトへの反復アクセスを避けるため、ループの最初に各コレクションを取得する。
-    const rooms = global._rooms = Object.values(Game.rooms || {})
-    const creeps = global._creeps = Object.values(Game.creeps || {})
-    const spawns = global._spawns = Object.values(Game.spawns || {})
+    const rooms = (global._rooms = Object.values(Game.rooms || {}))
+    const creeps = (global._creeps = Object.values(Game.creeps || {}))
+    const spawns = (global._spawns = Object.values(Game.spawns || {}))
+    const constructionSites = (global._constructionSites = Object.values(
+      Game.constructionSites || {}
+    ))
+
+    // ⚡ PERFORMANCE: Cache the primary spawn immediately for use in TaskQueue and initialization.
+    if (spawns.length > 0) {
+      global._primarySpawn = spawns[0]
+      global._primarySpawnTick = Game.time
+    }
 
     adaptiveSystem.evaluate()
 
@@ -589,19 +614,15 @@ module.exports.loop = function () {
     const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles')
     const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
 
-    // ⚡ PERFORMANCE: 使用済みのrooms/creeps/spawns配列を再利用。
-    const constructionSites = Object.values(Game.constructionSites || {})
-
-    // ⚡ PERFORMANCE: Cache the primary spawn for downstream modules.
-    // 他のモジュールで使用するためにプライマリスポーンをキャッシュする。
-    if (spawns.length > 0) {
-      global._primarySpawn = spawns[0]
-      global._primarySpawnTick = Game.time
-    }
-
     const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL
 
-    const creepCounts = processCreeps(rooms, creeps, constructionSites, isLoggingEnabled, isEmotionsEnabled)
+    const creepCounts = processCreeps(
+      rooms,
+      creeps,
+      constructionSites,
+      isLoggingEnabled,
+      isEmotionsEnabled
+    )
 
     // ⚡ PERFORMANCE: autoEvolution.run()をprocessCreepsの後に移動し、準備された部屋キャッシュ
     // (_roleCounts, _myCreeps)を再利用可能にする。1000ティックごとに実行。

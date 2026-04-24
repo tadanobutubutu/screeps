@@ -18,6 +18,11 @@ global.PathFinder = {
 };
 global.TERRAIN_MASK_WALL = 1;
 global.OK = 0;
+global.RoomPosition = function(x, y, roomName) {
+  this.x = x;
+  this.y = y;
+  this.roomName = roomName;
+};
 
 jest.mock('../src/constants', () => ({
   PATHFINDER_DEFAULTS: {
@@ -26,6 +31,7 @@ jest.mock('../src/constants', () => ({
     SWAMP_COST: 10,
     ROAD_COST: 1,
     MAX_ROOMS: 1,
+    MAX_SEARCH_RANGE: 10,
   },
   CACHE_TTL: {
     PATH: 20,
@@ -59,21 +65,52 @@ describe('pathfinder', () => {
   });
 
   describe('findNearestOpenTile', () => {
-    test('最も近い空きタイルを見つける', () => {
-      const mockRoom = {
+    let mockRoom;
+    let pos;
+
+    beforeEach(() => {
+      mockRoom = {
         name: 'W1N1',
         getTerrain: jest.fn().mockReturnValue({
           get: jest.fn().mockReturnValue(0),
         }),
-        lookAt: jest.fn().mockReturnValue([]),
+        lookAtArea: jest.fn().mockReturnValue([]),
       };
+      global.Game.rooms['W1N1'] = mockRoom;
+      pos = { x: 25, y: 25, roomName: 'W1N1' };
+    });
 
-      const pos = { x: 25, y: 25, roomName: 'W1N1' };
+    test('最も近い空きタイルを見つける', () => {
+      const result = pathfinder.findNearestOpenTile(pos, 2);
 
-      const result = pathfinder.findNearestOpenTile(pos, 2, mockRoom);
+      expect(result).toBeDefined();
+      expect(result.x).toBe(23); // (25-2, 25-2) because nested loops start from -r
+      expect(result.y).toBe(23);
+      expect(mockRoom.lookAtArea).toHaveBeenCalled();
+    });
 
-      // 結果が返されることを確認（nullまたは位置オブジェクト）
-      expect(result === null || typeof result === 'object').toBe(true);
+    test('範囲制限 (MAX_SEARCH_RANGE) が適用される', () => {
+      pathfinder.findNearestOpenTile(pos, 20);
+
+      // range=20 but capped at 10. lookAtArea should be called with range 10.
+      // top = 25 - 10 = 15
+      // left = 25 - 10 = 15
+      // bottom = 25 + 10 = 35
+      // right = 25 + 10 = 35
+      expect(mockRoom.lookAtArea).toHaveBeenCalledWith(15, 15, 35, 35, true);
+    });
+
+    test('障害物があるタイルは避ける', () => {
+      // (23, 23) is blocked
+      mockRoom.lookAtArea.mockReturnValue([
+        { x: 23, y: 23, type: 'creep' }
+      ]);
+
+      const result = pathfinder.findNearestOpenTile(pos, 2);
+
+      expect(result).toBeDefined();
+      // Should find (23, 24) or next available
+      expect(result.x === 23 && result.y === 23).toBe(false);
     });
   });
 

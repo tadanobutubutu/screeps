@@ -327,9 +327,27 @@ function closest (origin, objects) {
  * @returns {RoomPosition|null}
  */
 function findNearestOpenTile (pos, range) {
-  const r = range || 3
+  const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE)
   const room = Game.rooms[pos.roomName]
   if (!room) return null
+
+  const top = Math.max(1, pos.y - r)
+  const left = Math.max(1, pos.x - r)
+  const bottom = Math.min(48, pos.y + r)
+  const right = Math.min(48, pos.x + r)
+
+  // ⚡ PERFORMANCE & SECURITY: Use bulk lookAtArea to minimize engine API calls and mitigate CPU DoS.
+  const lookData = room.lookAtArea(top, left, bottom, right, true)
+  const blockedTiles = new Set()
+
+  for (let i = 0; i < lookData.length; i++) {
+    const item = lookData[i]
+    if (item.type === 'structure' || item.type === 'creep') {
+      blockedTiles.add(`${item.x},${item.y}`)
+    }
+  }
+
+  const terrain = room.getTerrain()
 
   for (let dx = -r; dx <= r; dx++) {
     for (let dy = -r; dy <= r; dy++) {
@@ -337,20 +355,10 @@ function findNearestOpenTile (pos, range) {
       const y = pos.y + dy
       if (x < 1 || x > 48 || y < 1 || y > 48) continue
 
-      const terrain = room.getTerrain().get(x, y)
-      if (terrain === TERRAIN_MASK_WALL) continue
+      if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue
+      if (blockedTiles.has(`${x},${y}`)) continue
 
-      const atPos = room.lookAt(x, y)
-      let blocked = false
-      for (const item of atPos) {
-        if (item.type === 'structure' || item.type === 'creep') {
-          blocked = true
-          break
-        }
-      }
-      if (!blocked) {
-        return new RoomPosition(x, y, pos.roomName)
-      }
+      return new RoomPosition(x, y, pos.roomName)
     }
   }
   return null

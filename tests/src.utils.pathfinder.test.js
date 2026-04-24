@@ -54,7 +54,8 @@ jest.mock(
       MAX_ROOMS: 2,
       PLAIN_COST: 2,
       SWAMP_COST: 10,
-      REUSE_PATH: 5
+      REUSE_PATH: 5,
+      MAX_SEARCH_RANGE: 10
     },
     CACHE_TTL: { PATH: 3 }
   }),
@@ -129,7 +130,7 @@ describe('src/utils/pathfinder', () => {
   test('最寄りの空きタイルを返す', () => {
     const room = {
       getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
-      lookAt: jest.fn().mockReturnValue([{ type: 'terrain' }])
+      lookAtArea: jest.fn().mockReturnValue([{ x: 24, y: 24, type: 'terrain' }])
     }
     global.Game.rooms.W1N1 = room
     const pos = { x: 25, y: 25, roomName: 'W1N1' }

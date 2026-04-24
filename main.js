@@ -566,6 +566,13 @@ module.exports.loop = function () {
     const rooms = global._rooms = Object.values(Game.rooms || {})
     const creeps = global._creeps = Object.values(Game.creeps || {})
     const spawns = global._spawns = Object.values(Game.spawns || {})
+    const constructionSites = global._constructionSites = Object.values(Game.constructionSites || {})
+
+    // ⚡ PERFORMANCE: Cache the primary spawn immediately for use in TaskQueue and initialization.
+    if (spawns.length > 0) {
+      global._primarySpawn = spawns[0]
+      global._primarySpawnTick = Game.time
+    }
 
     adaptiveSystem.evaluate()
 
@@ -588,16 +595,6 @@ module.exports.loop = function () {
     const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects')
     const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles')
     const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
-
-    // ⚡ PERFORMANCE: 使用済みのrooms/creeps/spawns配列を再利用。
-    const constructionSites = Object.values(Game.constructionSites || {})
-
-    // ⚡ PERFORMANCE: Cache the primary spawn for downstream modules.
-    // 他のモジュールで使用するためにプライマリスポーンをキャッシュする。
-    if (spawns.length > 0) {
-      global._primarySpawn = spawns[0]
-      global._primarySpawnTick = Game.time
-    }
 
     const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL
 

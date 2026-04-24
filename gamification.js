@@ -115,9 +115,9 @@ const gamification = {
             // Security: Use logging system to prevent console injection
             logger.info('🎉 LEVEL UP! Now level ' + gm.level + '!');
 
-            // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
-            const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
-            if (spawn) {
+            // ⚡ PERFORMANCE: Use tick-cached primary spawn initialized in main.js
+            const spawn = global._primarySpawn;
+            if (spawn && global._primarySpawnTick === Game.time) {
                 vfx.levelUp(spawn.pos, gm.level);
             }
 
@@ -147,9 +147,9 @@ const gamification = {
             // Security: Use logging system to prevent console injection
             logger.info('🏆 ACHIEVEMENT UNLOCKED: ' + sanitizedTitle);
 
-            // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
-            const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
-            if (spawn) {
+            // ⚡ PERFORMANCE: Use tick-cached primary spawn initialized in main.js
+            const spawn = global._primarySpawn;
+            if (spawn && global._primarySpawnTick === Game.time) {
                 vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
 
@@ -231,7 +231,8 @@ const gamification = {
      * マイルストーンチェック
      */
     checkMilestones: function () {
-        const creepCount = Object.keys(Game.creeps).length;
+        // ⚡ PERFORMANCE: Use tick-cached global._creeps initialized in main.js
+        const creepCount = global._creeps ? global._creeps.length : Object.keys(Game.creeps).length;
         const gcl = Game.gcl.level;
 
         if (creepCount >= 10) this.unlockAchievement('creeps_10', '10 Creeps!', '👥');
@@ -300,9 +301,9 @@ const gamification = {
         this.init();
         const gm = Memory.gamification;
 
-        // ⚡ PERFORMANCE: Use tick-cached primary spawn if available
-        const spawn = (global._primarySpawnTick === Game.time) ? global._primarySpawn : Object.values(Game.spawns)[0];
-        if (!spawn) {
+        // ⚡ PERFORMANCE: Use tick-cached primary spawn initialized in main.js
+        const spawn = global._primarySpawn;
+        if (!spawn || global._primarySpawnTick !== Game.time) {
             return;
         }
 

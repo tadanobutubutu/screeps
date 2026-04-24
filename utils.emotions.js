@@ -258,8 +258,9 @@ class EmotionSystem {
             total: 0,
         };
 
-        // ⚡ PERFORMANCE: Object.values()を使用してProxyのオーバーヘッドを回避し、反復処理を最適化
-        const creeps = Object.values(Game.creeps || {});
+        // ⚡ PERFORMANCE: Use pre-fetched global._creeps if available, otherwise Object.values()
+        // This avoids redundant Proxy-to-Array allocations.
+        const creeps = global._creeps || Object.values(Game.creeps || {});
         for (let i = 0; i < creeps.length; i++) {
             const creep = creeps[i];
             this.initialize(creep);

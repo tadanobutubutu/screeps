@@ -5,310 +5,310 @@
  * They express their feelings through emojis.
  */
 
-const utilsMemory = require('./utils.memory');
+const utilsMemory = require('./utils.memory')
 
 const EMOTIONS = {
-    HAPPY: '😊',
-    EXCITED: '🤩',
-    PROUD: '😎',
-    LOVE: '😍',
-    ENERGETIC: '⚡',
-    SUCCESSFUL: '⭐',
-    WORKING: '🛠️',
-    THINKING: '🤔',
-    FOCUSED: '🎯',
-    WALKING: '🚶',
-    TIRED: '😫',
-    CONFUSED: '😵',
-    WORRIED: '😟',
-    HURT: '🤕',
-    STUCK: '😨',
-    HUNGRY: '🍔',
-    HARVESTING: '⛏️',
-    BUILDING: '🛠️',
-    UPGRADING: '⬆️',
-    REPAIRING: '🔧',
-    HEALING: '💊',
-    FIGHTING: '⚔️',
-    TRANSPORTING: '🚚',
-    BIRTHDAY: '🎉',
-    LEVELUP: '🎆',
-    CELEBRATING: '🎊',
-};
+  HAPPY: '😊',
+  EXCITED: '🤩',
+  PROUD: '😎',
+  LOVE: '😍',
+  ENERGETIC: '⚡',
+  SUCCESSFUL: '⭐',
+  WORKING: '🛠️',
+  THINKING: '🤔',
+  FOCUSED: '🎯',
+  WALKING: '🚶',
+  TIRED: '😫',
+  CONFUSED: '😵',
+  WORRIED: '😟',
+  HURT: '🤕',
+  STUCK: '😨',
+  HUNGRY: '🍔',
+  HARVESTING: '⛏️',
+  BUILDING: '🛠️',
+  UPGRADING: '⬆️',
+  REPAIRING: '🔧',
+  HEALING: '💊',
+  FIGHTING: '⚔️',
+  TRANSPORTING: '🚚',
+  BIRTHDAY: '🎉',
+  LEVELUP: '🎆',
+  CELEBRATING: '🎊'
+}
 
 const MOOD_LEVELS = {
-    VERY_HAPPY: 5,
-    HAPPY: 4,
-    NEUTRAL: 3,
-    SAD: 2,
-    VERY_SAD: 1,
-};
+  VERY_HAPPY: 5,
+  HAPPY: 4,
+  NEUTRAL: 3,
+  SAD: 2,
+  VERY_SAD: 1
+}
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
  */
-const MAX_ACHIEVEMENTS = 10;
-const MAX_ACHIEVEMENT_NAME_LENGTH = 100;
+const MAX_ACHIEVEMENTS = 10
+const MAX_ACHIEVEMENT_NAME_LENGTH = 100
 
 class EmotionSystem {
-    static initialize(creep) {
-        if (!creep.memory.emotions) {
-            creep.memory.emotions = {
-                mood: MOOD_LEVELS.NEUTRAL,
-                lastEmotion: EMOTIONS.HAPPY,
-                experiencePoints: 0,
-                achievements: [],
-                personalityTraits: this.generatePersonality(),
-                birthTick: Game.time,
-            };
-        }
+  static initialize (creep) {
+    if (!creep.memory.emotions) {
+      creep.memory.emotions = {
+        mood: MOOD_LEVELS.NEUTRAL,
+        lastEmotion: EMOTIONS.HAPPY,
+        experiencePoints: 0,
+        achievements: [],
+        personalityTraits: this.generatePersonality(),
+        birthTick: Game.time
+      }
     }
+  }
 
-    static generatePersonality() {
-        const traits = ['cheerful', 'serious', 'energetic', 'calm', 'curious', 'determined'];
-        return traits[Math.floor(Math.random() * traits.length)];
-    }
+  static generatePersonality () {
+    const traits = ['cheerful', 'serious', 'energetic', 'calm', 'curious', 'determined']
+    return traits[Math.floor(Math.random() * traits.length)]
+  }
 
-    /**
+  /**
      * エネルギーレベルに基づく感情を取得
      */
-    static _getEnergyEmotion(creep) {
-        const energyPercent =
-            creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY);
-        if (energyPercent < 0.1) return { emoji: EMOTIONS.HUNGRY, moodChange: -1 };
-        if (energyPercent > 0.9) return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 };
-        return null;
-    }
+  static _getEnergyEmotion (creep) {
+    const energyPercent =
+            creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY)
+    if (energyPercent < 0.1) return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
+    if (energyPercent > 0.9) return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
+    return null
+  }
 
-    /**
+  /**
      * 健康状態に基づく感情を取得
      */
-    static _getHealthEmotion(creep) {
-        const healthPercent = creep.hits / creep.hitsMax;
-        if (healthPercent < 0.5) return { emoji: EMOTIONS.HURT, moodChange: -2 };
-        return null;
-    }
+  static _getHealthEmotion (creep) {
+    const healthPercent = creep.hits / creep.hitsMax
+    if (healthPercent < 0.5) return { emoji: EMOTIONS.HURT, moodChange: -2 }
+    return null
+  }
 
-    /**
+  /**
      * スタック状態に基づく感情を取得
      */
-    static _getStuckEmotion(creep) {
-        if (
-            creep.memory.lastPos &&
+  static _getStuckEmotion (creep) {
+    if (
+      creep.memory.lastPos &&
             creep.pos.x === creep.memory.lastPos.x &&
             creep.pos.y === creep.memory.lastPos.y
-        ) {
-            creep.memory.stuckCounter = (creep.memory.stuckCounter || 0) + 1;
-            if (creep.memory.stuckCounter > 3) {
-                return { emoji: EMOTIONS.STUCK, moodChange: -1 };
-            }
-        } else {
-            creep.memory.stuckCounter = 0;
-        }
-        creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y };
-        return null;
+    ) {
+      creep.memory.stuckCounter = (creep.memory.stuckCounter || 0) + 1
+      if (creep.memory.stuckCounter > 3) {
+        return { emoji: EMOTIONS.STUCK, moodChange: -1 }
+      }
+    } else {
+      creep.memory.stuckCounter = 0
     }
+    creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y }
+    return null
+  }
 
-    /**
+  /**
      * ロールに基づく感情を取得
      */
-    static _getRoleEmotion(creep) {
-        switch (creep.memory.role) {
-            case 'harvester':
-                return creep.harvest ? EMOTIONS.HARVESTING : null;
-            case 'builder':
-                return creep.build ? EMOTIONS.BUILDING : null;
-            case 'upgrader':
-                return EMOTIONS.UPGRADING;
-            case 'repairer':
-                return EMOTIONS.REPAIRING;
-            case 'medic':
-                return EMOTIONS.HEALING;
-            default:
-                return null;
-        }
+  static _getRoleEmotion (creep) {
+    switch (creep.memory.role) {
+      case 'harvester':
+        return creep.harvest ? EMOTIONS.HARVESTING : null
+      case 'builder':
+        return creep.build ? EMOTIONS.BUILDING : null
+      case 'upgrader':
+        return EMOTIONS.UPGRADING
+      case 'repairer':
+        return EMOTIONS.REPAIRING
+      case 'medic':
+        return EMOTIONS.HEALING
+      default:
+        return null
+    }
+  }
+
+  static updateEmotion (creep) {
+    this.initialize(creep)
+
+    const emotions = creep.memory.emotions
+
+    const updateOffset = creep.name.length % 5
+    if ((Game.time + updateOffset) % 5 !== 0 && emotions.lastEmotion) {
+      return emotions.lastEmotion
     }
 
-    static updateEmotion(creep) {
-        this.initialize(creep);
+    let emoji = EMOTIONS.WORKING
+    let moodChange = 0
 
-        const emotions = creep.memory.emotions;
+    const emotionChecks = [
+      this._getEnergyEmotion(creep),
+      this._getHealthEmotion(creep),
+      this._getStuckEmotion(creep)
+    ]
 
-        const updateOffset = creep.name.length % 5;
-        if ((Game.time + updateOffset) % 5 !== 0 && emotions.lastEmotion) {
-            return emotions.lastEmotion;
-        }
-
-        let emoji = EMOTIONS.WORKING;
-        let moodChange = 0;
-
-        const emotionChecks = [
-            this._getEnergyEmotion(creep),
-            this._getHealthEmotion(creep),
-            this._getStuckEmotion(creep),
-        ];
-
-        for (const result of emotionChecks) {
-            if (result) {
-                emoji = result.emoji;
-                moodChange += result.moodChange;
-            }
-        }
-
-        const roleEmoji = this._getRoleEmotion(creep);
-        if (roleEmoji) {
-            emoji = roleEmoji;
-        }
-
-        if (Game.time - emotions.birthTick === 1500) {
-            emoji = EMOTIONS.BIRTHDAY;
-            this.celebrate(creep, 'Lived 1500 ticks!');
-            moodChange = 3;
-        }
-
-        emotions.mood = Math.max(1, Math.min(5, emotions.mood + moodChange));
-
-        if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
-            emoji = EMOTIONS.HAPPY;
-        }
-
-        emotions.lastEmotion = emoji;
-        return emoji;
+    for (const result of emotionChecks) {
+      if (result) {
+        emoji = result.emoji
+        moodChange += result.moodChange
+      }
     }
 
-    static display(creep) {
-        const emoji = this.updateEmotion(creep);
-        creep.say(emoji, true);
+    const roleEmoji = this._getRoleEmotion(creep)
+    if (roleEmoji) {
+      emoji = roleEmoji
     }
 
-    static celebrate(creep, achievement) {
-        if (!creep.memory.emotions.achievements) {
-            creep.memory.emotions.achievements = [];
-        }
-
-        // Security: Truncate achievement name to avoid Memory DoS
-        const sanitizedName = String(achievement).substring(0, MAX_ACHIEVEMENT_NAME_LENGTH);
-
-        creep.memory.emotions.achievements.push({
-            name: sanitizedName,
-            tick: Game.time,
-        });
-
-        // Security: Immediate rotation to prevent Memory DoS
-        if (creep.memory.emotions.achievements.length > MAX_ACHIEVEMENTS) {
-            creep.memory.emotions.achievements.shift();
-        }
-
-        creep.memory.emotions.mood = MOOD_LEVELS.VERY_HAPPY;
-
-        for (let i = 0; i < 5; i++) {
-            creep.say(EMOTIONS.CELEBRATING, true);
-        }
+    if (Game.time - emotions.birthTick === 1500) {
+      emoji = EMOTIONS.BIRTHDAY
+      this.celebrate(creep, 'Lived 1500 ticks!')
+      moodChange = 3
     }
 
-    static getMoodDescription(creep) {
-        this.initialize(creep);
-        const mood = creep.memory.emotions.mood;
+    emotions.mood = Math.max(1, Math.min(5, emotions.mood + moodChange))
 
-        if (mood >= 5) return 'Very Happy 😄';
-        if (mood >= 4) return 'Happy 😊';
-        if (mood >= 3) return 'Neutral 😐';
-        if (mood >= 2) return 'Sad 😟';
-        return 'Very Sad 😭';
+    if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
+      emoji = EMOTIONS.HAPPY
     }
 
-    static interact(creep1, creep2) {
-        if (creep1.pos.inRangeTo(creep2, 1)) {
-            this.initialize(creep1);
-            this.initialize(creep2);
+    emotions.lastEmotion = emoji
+    return emoji
+  }
 
-            creep1.memory.emotions.mood = Math.min(5, creep1.memory.emotions.mood + 0.5);
-            creep2.memory.emotions.mood = Math.min(5, creep2.memory.emotions.mood + 0.5);
+  static display (creep) {
+    const emoji = this.updateEmotion(creep)
+    creep.say(emoji, true)
+  }
 
-            creep1.say('👋', true);
-            creep2.say('😊', true);
-        }
+  static celebrate (creep, achievement) {
+    if (!creep.memory.emotions.achievements) {
+      creep.memory.emotions.achievements = []
     }
 
-    static getPerformanceModifier(creep) {
-        this.initialize(creep);
-        const mood = creep.memory.emotions.mood;
+    // Security: Truncate achievement name to avoid Memory DoS
+    const sanitizedName = String(achievement).substring(0, MAX_ACHIEVEMENT_NAME_LENGTH)
 
-        if (mood >= 5) return 1.1;
-        if (mood >= 4) return 1.05;
-        if (mood >= 3) return 1.0;
-        if (mood >= 2) return 0.95;
-        return 0.9;
+    creep.memory.emotions.achievements.push({
+      name: sanitizedName,
+      tick: Game.time
+    })
+
+    // Security: Immediate rotation to prevent Memory DoS
+    if (creep.memory.emotions.achievements.length > MAX_ACHIEVEMENTS) {
+      creep.memory.emotions.achievements.shift()
     }
 
-    static getStats() {
-        // ⚡ PERFORMANCE: Use pre-aggregated global emotion stats if available for the current tick. (現在のティックの集計済み統計があればそれを使用)
-        // This avoids an O(N) creep iteration every time stats are requested. (統計が要求されるたびに実行されるO(N)のループを回避)
-        if (global._emotionStatsTick === Game.time && global._emotionStats) {
-            return global._emotionStats;
-        }
+    creep.memory.emotions.mood = MOOD_LEVELS.VERY_HAPPY
 
-        const stats = {
-            veryHappy: 0,
-            happy: 0,
-            neutral: 0,
-            sad: 0,
-            verySad: 0,
-            total: 0,
-        };
+    for (let i = 0; i < 5; i++) {
+      creep.say(EMOTIONS.CELEBRATING, true)
+    }
+  }
 
-        // ⚡ PERFORMANCE: Use pre-fetched global._creeps if available, otherwise Object.values()
-        // This avoids redundant Proxy-to-Array allocations.
-        const creeps = global._creeps || Object.values(Game.creeps || {});
-        for (let i = 0; i < creeps.length; i++) {
-            const creep = creeps[i];
-            this.initialize(creep);
-            const mood = creep.memory.emotions.mood;
+  static getMoodDescription (creep) {
+    this.initialize(creep)
+    const mood = creep.memory.emotions.mood
 
-            if (mood >= 5) stats.veryHappy++;
-            else if (mood >= 4) stats.happy++;
-            else if (mood >= 3) stats.neutral++;
-            else if (mood >= 2) stats.sad++;
-            else stats.verySad++;
+    if (mood >= 5) return 'Very Happy 😄'
+    if (mood >= 4) return 'Happy 😊'
+    if (mood >= 3) return 'Neutral 😐'
+    if (mood >= 2) return 'Sad 😟'
+    return 'Very Sad 😭'
+  }
 
-            stats.total++;
-        }
+  static interact (creep1, creep2) {
+    if (creep1.pos.inRangeTo(creep2, 1)) {
+      this.initialize(creep1)
+      this.initialize(creep2)
 
-        return stats;
+      creep1.memory.emotions.mood = Math.min(5, creep1.memory.emotions.mood + 0.5)
+      creep2.memory.emotions.mood = Math.min(5, creep2.memory.emotions.mood + 0.5)
+
+      creep1.say('👋', true)
+      creep2.say('😊', true)
+    }
+  }
+
+  static getPerformanceModifier (creep) {
+    this.initialize(creep)
+    const mood = creep.memory.emotions.mood
+
+    if (mood >= 5) return 1.1
+    if (mood >= 4) return 1.05
+    if (mood >= 3) return 1.0
+    if (mood >= 2) return 0.95
+    return 0.9
+  }
+
+  static getStats () {
+    // ⚡ PERFORMANCE: Use pre-aggregated global emotion stats if available for the current tick. (現在のティックの集計済み統計があればそれを使用)
+    // This avoids an O(N) creep iteration every time stats are requested. (統計が要求されるたびに実行されるO(N)のループを回避)
+    if (global._emotionStatsTick === Game.time && global._emotionStats) {
+      return global._emotionStats
     }
 
-    static checkCreep(creepName) {
-        // Security: プロトタイプ汚染対策のため、名前を検証
-        if (!utilsMemory.isSafeKey(creepName)) {
-            console.log('❌ Invalid creep name');
-            return;
-        }
-
-        const creep = Game.creeps[creepName];
-        if (!creep) {
-            console.log('❌ Creep not found');
-            return;
-        }
-
-        this.initialize(creep);
-        const emotions = creep.memory.emotions;
-
-        console.log('\n🤖 Creep Emotion Report');
-        console.log('Name:', creepName);
-        console.log('Mood:', this.getMoodDescription(creep));
-        console.log('Current Emotion:', emotions.lastEmotion);
-        console.log('Personality:', emotions.personalityTraits);
-        console.log('Age:', Game.time - emotions.birthTick, 'ticks');
-        console.log('Achievements:', emotions.achievements.length);
-
-        if (emotions.achievements.length > 0) {
-            console.log('\n🏆 Achievements:');
-            emotions.achievements.forEach((a) => {
-                console.log('-', a.name, '(tick', a.tick, ')');
-            });
-        }
+    const stats = {
+      veryHappy: 0,
+      happy: 0,
+      neutral: 0,
+      sad: 0,
+      verySad: 0,
+      total: 0
     }
+
+    // ⚡ PERFORMANCE: Use pre-fetched global._creeps if available, otherwise Object.values()
+    // This avoids redundant Proxy-to-Array allocations.
+    const creeps = global._creeps || Object.values(Game.creeps || {})
+    for (let i = 0; i < creeps.length; i++) {
+      const creep = creeps[i]
+      this.initialize(creep)
+      const mood = creep.memory.emotions.mood
+
+      if (mood >= 5) stats.veryHappy++
+      else if (mood >= 4) stats.happy++
+      else if (mood >= 3) stats.neutral++
+      else if (mood >= 2) stats.sad++
+      else stats.verySad++
+
+      stats.total++
+    }
+
+    return stats
+  }
+
+  static checkCreep (creepName) {
+    // Security: プロトタイプ汚染対策のため、名前を検証
+    if (!utilsMemory.isSafeKey(creepName)) {
+      console.log('❌ Invalid creep name')
+      return
+    }
+
+    const creep = Game.creeps[creepName]
+    if (!creep) {
+      console.log('❌ Creep not found')
+      return
+    }
+
+    this.initialize(creep)
+    const emotions = creep.memory.emotions
+
+    console.log('\n🤖 Creep Emotion Report')
+    console.log('Name:', creepName)
+    console.log('Mood:', this.getMoodDescription(creep))
+    console.log('Current Emotion:', emotions.lastEmotion)
+    console.log('Personality:', emotions.personalityTraits)
+    console.log('Age:', Game.time - emotions.birthTick, 'ticks')
+    console.log('Achievements:', emotions.achievements.length)
+
+    if (emotions.achievements.length > 0) {
+      console.log('\n🏆 Achievements:')
+      emotions.achievements.forEach((a) => {
+        console.log('-', a.name, '(tick', a.tick, ')')
+      })
+    }
+  }
 }
 
-module.exports = EmotionSystem;
+module.exports = EmotionSystem

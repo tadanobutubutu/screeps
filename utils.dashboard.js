@@ -66,7 +66,7 @@ const DashboardRenderer = {
             room: room.name,
             gcl: {
                 level: Game.gcl.level,
-                percent: Math.floor((Game.gcl.progress / Game.gcl.progressTotal) * 100),
+                percent: Number(((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(2)),
                 progress: Game.gcl.progress,
                 progressTotal: Game.gcl.progressTotal,
             },
@@ -148,7 +148,7 @@ const DashboardRenderer = {
         y++;
 
         // 🌐 GCL info
-        room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent}%)`, x, y, {
+        room.visual.text(`🌐 GCL: ${info.gcl.level} (${info.gcl.percent.toFixed(2)}%)`, x, y, {
             font: 0.7,
             color: '#00aaff',
             align: 'left',

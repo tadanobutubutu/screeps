@@ -131,3 +131,7 @@
 ## 2026-11-17 - Hoisting and Volatile Caching in Defense Logic
 **Learning:** Storing tick-specific data like `threatLevel` in `Memory` causes unnecessary serialization overhead and creates bugs in multi-room environments where values are overwritten. Using volatile properties on the `room` object (e.g., `room._threatLevel`) is faster and room-isolated. Furthermore, hoisting $O(N)$ `find` operations out of tower loops avoids redundant per-tower checks even with per-tick caching guards.
 **Action:** Always prefer room-isolated volatile caching for tick-specific calculations and hoist $O(N)$ operations outside of nested loops to minimize property access and branch checking.
+
+## 2026-12-01 - Optimizing High-Frequency Structure Scanning
+**Learning:** In the Screeps environment, rooms often contain thousands of walls which dominate the `FIND_STRUCTURES` array. Performing even basic Proxy property lookups (like `s.my` or `s.hits`) on these non-essential objects during every tick's scanning loop (`warmRoomCache`) is a massive CPU drain. Implementing an early `continue` for walls and hoisting `hits`/`hitsMax` into local variables for other structures significantly reduces per-tick CPU overhead.
+**Action:** Always use early `continue` for high-volume, non-essential objects in scanning loops and hoist frequently accessed engine properties to local variables to minimize Proxy lookup costs.

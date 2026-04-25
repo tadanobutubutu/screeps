@@ -1,0 +1,3 @@
+## 2025-05-15 - [GCL/Power Delta Tracking]
+**Learning:** Adding immediate visual feedback for incremental progress (like GCL/Power increases) significantly enhances the "living" feel of a dashboard. However, implementation must strictly adhere to React best practices—specifically, avoiding state updates within other state updater functions to prevent side effects and maintain predictable rendering behavior.
+**Action:** Always perform related state updates sequentially in the main logic flow rather than nested within functional updaters. Maintain surgical edits to stay within line count constraints and follow existing style and design patterns.

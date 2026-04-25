@@ -11,6 +11,7 @@ type ScreepsStats = {
 
 export default function Dashboard() {
     const [stats, setStats] = useState<ScreepsStats | null>(null);
+    const [prevStats, setPrevStats] = useState<ScreepsStats | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -35,6 +36,10 @@ export default function Dashboard() {
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
+    const gclPercent = stats?.gcl ? Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100) : 0;
+    const prevGclPercent = prevStats?.gcl ? Math.min(100, (prevStats.gcl.progress / prevStats.gcl.progressTotal) * 100) : 0;
+    const gclDelta = stats?.gcl && prevStats?.gcl ? gclPercent - prevGclPercent : 0;
+    const powerDelta = stats?.power !== undefined && prevStats?.power !== undefined ? stats.power - prevStats.power : 0;
 
     const getStalenessInfo = useCallback(() => {
         if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
@@ -101,6 +106,7 @@ export default function Dashboard() {
 
             if (!r.ok) throw new Error(`API error: ${r.status}`);
             const data = await r.json();
+            setPrevStats(stats);
             setStats(data);
             setLastUpdated(new Date());
             setError(null);
@@ -644,6 +650,7 @@ export default function Dashboard() {
                                         ⚡
                                     </span>{' '}
                                     Power: {stats.power.toLocaleString()}
+                                    {powerDelta > 0 && <span style={{ fontSize: '0.8rem', color: '#1e7e34', marginLeft: '0.25rem', fontWeight: 'bold' }} aria-label={`Increased by ${powerDelta.toLocaleString()}`}>(+{powerDelta.toLocaleString()})</span>}
                                 </span>
                             )}
                             {stats.cpuUsed !== undefined && (
@@ -671,60 +678,43 @@ export default function Dashboard() {
                                 </span>
                             )}
                         </div>
-                        <span
-                            id="gcl-percent"
-                            style={{
-                                fontWeight: 'bold',
-                                color:
-                                    stats.gcl.progress >= stats.gcl.progressTotal
-                                        ? '#FFD700'
-                                        : '#0077aa',
-                                backgroundColor:
-                                    stats.gcl.progress >= stats.gcl.progressTotal
-                                        ? '#333'
-                                        : 'transparent',
-                                padding:
-                                    stats.gcl.progress >= stats.gcl.progressTotal ? '2px 6px' : '0',
-                                borderRadius: '4px',
-                                transition: 'all 0.3s ease',
-                            }}
-                        >
-                            {Math.min(
-                                100,
-                                (stats.gcl.progress / stats.gcl.progressTotal) * 100
-                            ).toFixed(2)}
-                            %
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <span
+                                id="gcl-percent"
+                                style={{
+                                    fontWeight: 'bold',
+                                    color: stats.gcl.progress >= stats.gcl.progressTotal ? '#FFD700' : '#0077aa',
+                                    backgroundColor: stats.gcl.progress >= stats.gcl.progressTotal ? '#333' : 'transparent',
+                                    padding: stats.gcl.progress >= stats.gcl.progressTotal ? '2px 6px' : '0',
+                                    borderRadius: '4px',
+                                    transition: 'all 0.3s ease',
+                                }}
+                            >
+                                {gclPercent.toFixed(2)}%
+                            </span>
+                            {gclDelta > 0 && <span style={{ fontSize: '0.8rem', color: '#1e7e34', fontWeight: 'bold' }} aria-label={`Increased by ${gclDelta.toFixed(2)}%`}>(+{gclDelta.toFixed(2)}%)</span>}
+                        </div>
                     </div>
                     <div
                         role="progressbar"
                         tabIndex={0}
                         aria-label="Global Control Level progress"
                         aria-describedby="gcl-percent"
-                        aria-valuenow={Number(
-                            Math.min(
-                                100,
-                                (stats.gcl.progress / stats.gcl.progressTotal) * 100
-                            ).toFixed(2)
-                        )}
+                        aria-valuenow={Number(gclPercent.toFixed(2))}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-valuetext={`${Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
+                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
                         title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
                         onFocus={() => setIsBarFocused(true)}
                         onBlur={() => setIsBarFocused(false)}
                         style={{
                             width: '100%',
                             height: '12px',
-                            background:
-                                stats.gcl.progress >= stats.gcl.progressTotal
-                                    ? '#333333'
-                                    : '#eeeeee',
+                            background: stats.gcl.progress >= stats.gcl.progressTotal ? '#333333' : '#eeeeee',
                             borderRadius: '6px',
                             overflow: 'hidden',
                             marginBottom: '0.5rem',
                             cursor: 'help',
-                            // キーボードナビゲーション用のフォーカスリングを追加
                             boxShadow: isBarFocused ? '0 0 0 2px #0077aa' : 'none',
                             outline: 'none',
                             transition: 'box-shadow 0.2s',
@@ -732,12 +722,9 @@ export default function Dashboard() {
                     >
                         <div
                             style={{
-                                width: `${(stats.gcl.progress / stats.gcl.progressTotal) * 100}%`,
+                                width: `${gclPercent}%`,
                                 height: '100%',
-                                background:
-                                    stats.gcl.progress >= stats.gcl.progressTotal
-                                        ? '#FFD700'
-                                        : '#0077aa',
+                                background: stats.gcl.progress >= stats.gcl.progressTotal ? '#FFD700' : '#0077aa',
                                 transition: 'width 0.5s ease-in-out',
                             }}
                         />

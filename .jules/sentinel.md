@@ -107,3 +107,8 @@
 **Vulnerability:** Potential for XSS and Clickjacking due to missing security headers in the dashboard.
 **Learning:** A strict Content Security Policy (CSP) like `script-src 'self'` can break Next.js hydration, which relies on inline scripts for state and components. Pragmatic headers must balance security and functionality to prevent functional regressions.
 **Prevention:** Always include `'unsafe-inline'` in CSP `script-src` for Next.js applications unless a robust nonce/hash system is implemented for all hydration scripts. Implement `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff` as standard global defaults.
+
+## 2026-04-23 - Balancing Security and Utility in Room Tracking
+**Vulnerability:** Memory Denial of Service (DoS) via unbounded room tracking in `role.scout.js`.
+**Learning:** While `isSafeKey` is critical for user-controlled strings, applying it to engine-provided strings like `room.name` can be redundant "security theater" if the engine enforces strict formats. However, even "safe" keys can cause DoS if allowed to grow unbounded in the 2MB Screeps memory. A tight limit (e.g., 20) can also cause functional degradation; limits must be balanced with the feature's purpose.
+**Prevention:** Enforce generous but firm limits (e.g., 100) on all dynamic collections in `Memory`. Use pre-calculated counters (`visitedCount`) instead of `Object.keys().length` to maintain performance during security checks.

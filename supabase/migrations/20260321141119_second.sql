@@ -1,0 +1,2 @@
+-- Second migration placeholder
+-- This file tracks the migration applied on 2026-03-21

@@ -1,3 +1,9 @@
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
+ */
+const MAX_VISITED_ROOMS = 100;
+
 const roleScout = {
     run: function (creep) {
         if (!creep.memory.targetRoom) {
@@ -45,20 +51,28 @@ const roleScout = {
                 // Initialize visited memory if needed
                 if (!creep.memory.visited) {
                     creep.memory.visited = {};
+                    creep.memory.visitedCount = 0;
                 }
 
                 // Record visit
-                if (!creep.memory.visited[creep.room.name]) {
-                    creep.memory.visited[creep.room.name] = {
-                        time: Game.time,
-                        hostiles: hostiles.length,
-                        resources: resources.length,
-                        structures: structures.length,
-                    };
+                const roomName = creep.room.name;
+                // Security: Enforce size limits on the visited object to prevent Memory DoS.
+                // While room names are engine-provided, unbounded growth still poses a risk.
+                if (!Object.prototype.hasOwnProperty.call(creep.memory.visited, roomName)) {
+                    // PERFORMANCE: Using a counter to avoid O(N) Object.keys().length calls.
+                    if ((creep.memory.visitedCount || 0) < MAX_VISITED_ROOMS) {
+                        creep.memory.visited[roomName] = {
+                            time: Game.time,
+                            hostiles: hostiles.length,
+                            resources: resources.length,
+                            structures: structures.length,
+                        };
+                        creep.memory.visitedCount = (creep.memory.visitedCount || 0) + 1;
 
-                    console.log(
-                        `🗺️ Scout visited ${creep.room.name}: hostiles=${hostiles.length}, resources=${resources.length}, structures=${structures.length}`
-                    );
+                        console.log(
+                            `🗺️ Scout visited ${roomName}: hostiles=${hostiles.length}, resources=${resources.length}, structures=${structures.length}`
+                        );
+                    }
                 }
 
                 // Reset target to find new room

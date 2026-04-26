@@ -275,6 +275,10 @@ class EmotionSystem {
       stats.total++
     }
 
+    // ⚡ PERFORMANCE: Cache the result for the current tick to avoid redundant O(N) scans.
+    global._emotionStats = stats
+    global._emotionStatsTick = Game.time
+
     return stats
   }
 

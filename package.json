@@ -36,7 +36,7 @@
     "@sentry/rollup-plugin": "^5.2.0",
     "eslint": "10.2.1",
     "jest": "^30.3.0",
-    "jest-junit": "^16.0.0",
+    "jest-junit": "^17.0.0",
     "rollup": "^4.60.1"
   },
   "overrides": {

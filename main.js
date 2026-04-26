@@ -314,17 +314,6 @@ function collectCreepData (
   // ロジック実行用に情報を保持
   creepsToProcess.push({ creep, role, name: n })
 
-  // ⚡ PERFORMANCE: 感情統計の集計（有効な時のみ）
-  if (isEmotionsEnabled) {
-    global._emotionStats.total++
-    const mood = (memory.emotions && memory.emotions.mood) || 3
-    if (mood >= 5) global._emotionStats.veryHappy++
-    else if (mood >= 4) global._emotionStats.happy++
-    else if (mood >= 3) global._emotionStats.neutral++
-    else if (mood >= 2) global._emotionStats.sad++
-    else global._emotionStats.verySad++
-  }
-
   const room = creep.room
   if (room) {
     room._myCreeps.push(creep)
@@ -337,12 +326,6 @@ function collectCreepData (
 function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
   const creepsToProcess = []
-
-  // ⚡ PERFORMANCE: Global emotion stats cache warming (isEmotionsEnabledの時のみ実行)
-  if (isEmotionsEnabled) {
-    global._emotionStats = { veryHappy: 0, happy: 0, neutral: 0, sad: 0, verySad: 0, total: 0 }
-    global._emotionStatsTick = Game.time
-  }
 
   // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
   // 引数で渡されたrooms配列を使用。

@@ -402,7 +402,7 @@ function _manageLinkNetwork(room) {
  * @returns {Object}
  */
 function getStats(room) {
-    const creepCounts = {};
+    const creepCounts = Object.create(null);
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
         if (
@@ -413,7 +413,9 @@ function getStats(room) {
             // Security: Robust check for creep.room to avoid crashes if object is corrupted
             if (creep && creep.room && creep.room.name === room.name) {
                 const role = creep.memory.role || 'unknown';
-                creepCounts[role] = (creepCounts[role] || 0) + 1;
+                if (cache.isSafeKey(role)) {
+                    creepCounts[role] = (creepCounts[role] || 0) + 1;
+                }
             }
         }
     }

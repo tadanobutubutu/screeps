@@ -170,7 +170,7 @@ function _getCurrentCounts(room) {
         if (creep.spawning) continue; // スポーン中のクリープはスポーンAPIから別途カウント
 
         const role = creep.memory.role;
-        if (role) {
+        if (role && cache.isSafeKey(role)) {
             counts[role] = (counts[role] || 0) + 1;
         }
     }
@@ -192,7 +192,9 @@ function _getCurrentCounts(room) {
         const spawningCreep = Game.creeps[spawn.spawning.name];
         if (spawningCreep && spawningCreep.memory.role) {
             const role = spawningCreep.memory.role;
-            counts[role] = (counts[role] || 0) + 1;
+            if (cache.isSafeKey(role)) {
+                counts[role] = (counts[role] || 0) + 1;
+            }
         }
     }
 
@@ -324,7 +326,7 @@ function showSpawnVisual(spawn) {
  * @returns {number}
  */
 function _calcBodyCost(body) {
-    const COSTS = {
+    const COSTS = Object.assign(Object.create(null), {
         [MOVE]: 50,
         [WORK]: 100,
         [CARRY]: 50,
@@ -333,7 +335,7 @@ function _calcBodyCost(body) {
         [HEAL]: 250,
         [CLAIM]: 600,
         [TOUGH]: 10,
-    };
+    });
     return body.reduce((total, part) => total + (COSTS[part] || 0), 0);
 }
 

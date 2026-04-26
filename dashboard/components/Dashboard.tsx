@@ -423,6 +423,7 @@ export default function Dashboard() {
                                 opacity: 0.6,
                                 boxShadow:
                                     '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                                animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                             }}
                         >
                             <span
@@ -510,6 +511,7 @@ export default function Dashboard() {
                                 opacity: 0.6,
                                 boxShadow:
                                     '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                                animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                             }}
                         >
                             <div

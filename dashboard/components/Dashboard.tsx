@@ -36,10 +36,17 @@ export default function Dashboard() {
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
-    const gclPercent = stats?.gcl ? Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100) : 0;
-    const prevGclPercent = prevStats?.gcl ? Math.min(100, (prevStats.gcl.progress / prevStats.gcl.progressTotal) * 100) : 0;
+    const gclPercent = stats?.gcl
+        ? Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100)
+        : 0;
+    const prevGclPercent = prevStats?.gcl
+        ? Math.min(100, (prevStats.gcl.progress / prevStats.gcl.progressTotal) * 100)
+        : 0;
     const gclDelta = stats?.gcl && prevStats?.gcl ? gclPercent - prevGclPercent : 0;
-    const powerDelta = stats?.power !== undefined && prevStats?.power !== undefined ? stats.power - prevStats.power : 0;
+    const powerDelta =
+        stats?.power !== undefined && prevStats?.power !== undefined
+            ? stats.power - prevStats.power
+            : 0;
 
     const getStalenessInfo = useCallback(() => {
         if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
@@ -652,7 +659,19 @@ export default function Dashboard() {
                                         ⚡
                                     </span>{' '}
                                     Power: {stats.power.toLocaleString()}
-                                    {powerDelta > 0 && <span style={{ fontSize: '0.8rem', color: '#1e7e34', marginLeft: '0.25rem', fontWeight: 'bold' }} aria-label={`Increased by ${powerDelta.toLocaleString()}`}>(+{powerDelta.toLocaleString()})</span>}
+                                    {powerDelta > 0 && (
+                                        <span
+                                            style={{
+                                                fontSize: '0.8rem',
+                                                color: '#1e7e34',
+                                                marginLeft: '0.25rem',
+                                                fontWeight: 'bold',
+                                            }}
+                                            aria-label={`Increased by ${powerDelta.toLocaleString()}`}
+                                        >
+                                            (+{powerDelta.toLocaleString()})
+                                        </span>
+                                    )}
                                 </span>
                             )}
                             {stats.cpuUsed !== undefined && (
@@ -685,16 +704,36 @@ export default function Dashboard() {
                                 id="gcl-percent"
                                 style={{
                                     fontWeight: 'bold',
-                                    color: stats.gcl.progress >= stats.gcl.progressTotal ? '#FFD700' : '#0077aa',
-                                    backgroundColor: stats.gcl.progress >= stats.gcl.progressTotal ? '#333' : 'transparent',
-                                    padding: stats.gcl.progress >= stats.gcl.progressTotal ? '2px 6px' : '0',
+                                    color:
+                                        stats.gcl.progress >= stats.gcl.progressTotal
+                                            ? '#FFD700'
+                                            : '#0077aa',
+                                    backgroundColor:
+                                        stats.gcl.progress >= stats.gcl.progressTotal
+                                            ? '#333'
+                                            : 'transparent',
+                                    padding:
+                                        stats.gcl.progress >= stats.gcl.progressTotal
+                                            ? '2px 6px'
+                                            : '0',
                                     borderRadius: '4px',
                                     transition: 'all 0.3s ease',
                                 }}
                             >
                                 {gclPercent.toFixed(2)}%
                             </span>
-                            {gclDelta > 0 && <span style={{ fontSize: '0.8rem', color: '#1e7e34', fontWeight: 'bold' }} aria-label={`Increased by ${gclDelta.toFixed(2)}%`}>(+{gclDelta.toFixed(2)}%)</span>}
+                            {gclDelta > 0 && (
+                                <span
+                                    style={{
+                                        fontSize: '0.8rem',
+                                        color: '#1e7e34',
+                                        fontWeight: 'bold',
+                                    }}
+                                    aria-label={`Increased by ${gclDelta.toFixed(2)}%`}
+                                >
+                                    (+{gclDelta.toFixed(2)}%)
+                                </span>
+                            )}
                         </div>
                     </div>
                     <div
@@ -712,7 +751,10 @@ export default function Dashboard() {
                         style={{
                             width: '100%',
                             height: '12px',
-                            background: stats.gcl.progress >= stats.gcl.progressTotal ? '#333333' : '#eeeeee',
+                            background:
+                                stats.gcl.progress >= stats.gcl.progressTotal
+                                    ? '#333333'
+                                    : '#eeeeee',
                             borderRadius: '6px',
                             overflow: 'hidden',
                             marginBottom: '0.5rem',
@@ -726,7 +768,10 @@ export default function Dashboard() {
                             style={{
                                 width: `${gclPercent}%`,
                                 height: '100%',
-                                background: stats.gcl.progress >= stats.gcl.progressTotal ? '#FFD700' : '#0077aa',
+                                background:
+                                    stats.gcl.progress >= stats.gcl.progressTotal
+                                        ? '#FFD700'
+                                        : '#0077aa',
                                 transition: 'width 0.5s ease-in-out',
                             }}
                         />
@@ -927,7 +972,9 @@ export default function Dashboard() {
                         role="button"
                         tabIndex={0}
                         onClick={() => handleResetSecret()}
-                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleResetSecret()}
+                        onKeyDown={(e) =>
+                            (e.key === 'Enter' || e.key === ' ') && handleResetSecret()
+                        }
                         title="Click or press L to Reset Secret"
                         aria-label="Reset Secret"
                         style={{

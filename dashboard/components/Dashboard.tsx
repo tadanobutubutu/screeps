@@ -876,6 +876,12 @@ export default function Dashboard() {
                 <div>
                     Keyboard Shortcuts:{' '}
                     <kbd
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => fetchStats(true)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
+                        title="Click or press R to Refresh"
+                        aria-label="Refresh stats"
                         style={{
                             background: '#eee',
                             padding: '0.1rem 0.3rem',
@@ -886,12 +892,20 @@ export default function Dashboard() {
                             display: 'inline-block',
                             minWidth: '1.2em',
                             textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
                         }}
                     >
                         R
                     </kbd>{' '}
                     Refresh ·{' '}
                     <kbd
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleCopy()}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
+                        title="Click or press C to Copy JSON"
+                        aria-label="Copy stats as JSON"
                         style={{
                             background: '#eee',
                             padding: '0.1rem 0.3rem',
@@ -902,12 +916,20 @@ export default function Dashboard() {
                             display: 'inline-block',
                             minWidth: '1.2em',
                             textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
                         }}
                     >
                         C
                     </kbd>{' '}
                     Copy JSON ·{' '}
                     <kbd
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => handleResetSecret()}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleResetSecret()}
+                        title="Click or press L to Reset Secret"
+                        aria-label="Reset Secret"
                         style={{
                             background: '#eee',
                             padding: '0.1rem 0.3rem',
@@ -918,6 +940,8 @@ export default function Dashboard() {
                             display: 'inline-block',
                             minWidth: '1.2em',
                             textAlign: 'center',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
                         }}
                     >
                         L

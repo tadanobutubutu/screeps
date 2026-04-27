@@ -112,3 +112,8 @@
 **Vulnerability:** Memory Denial of Service (DoS) via unbounded room tracking in `role.scout.js`.
 **Learning:** While `isSafeKey` is critical for user-controlled strings, applying it to engine-provided strings like `room.name` can be redundant "security theater" if the engine enforces strict formats. However, even "safe" keys can cause DoS if allowed to grow unbounded in the 2MB Screeps memory. A tight limit (e.g., 20) can also cause functional degradation; limits must be balanced with the feature's purpose.
 **Prevention:** Enforce generous but firm limits (e.g., 100) on all dynamic collections in `Memory`. Use pre-calculated counters (`visitedCount`) instead of `Object.keys().length` to maintain performance during security checks.
+
+## 2026-04-24 - Robust Initialization against State Corruption
+**Vulnerability:** Denial of Service (DoS) via `NaN` propagation from partially initialized global `Memory` objects.
+**Learning:** Checking for the existence of a root object (`if (!Memory.stats)`) is insufficient if that object can be pre-initialized as an empty object (`{}`) by external systems, manual resets, or buggy code. Subsequent arithmetic operations on missing properties result in `NaN`, which can propagate and cause fatal errors or logical failures (e.g., `roomStats` access throwing `TypeError`).
+**Prevention:** Use a robust initialization pattern that always iterates over a set of defaults and populates missing properties, even if the root object already exists. This ensures the system always has a valid, consistent state regardless of how the root object was created.

@@ -9,16 +9,24 @@ const MAX_ROOM_STATS = 50;
 const StatsManager = {
     initMemory() {
         if (!Memory.stats) {
-            Memory.stats = {
-                totalEnergyProcessed: 0,
-                totalEnergyUpgraded: 0,
-                totalBuildProgress: 0,
-                totalRepairDone: 0,
-                roomStats: {},
-                creepDeaths: 0,
-                creepsBorn: 0,
-                startTime: Game.time,
-            };
+            Memory.stats = {};
+        }
+
+        const defaults = {
+            totalEnergyProcessed: 0,
+            totalEnergyUpgraded: 0,
+            totalBuildProgress: 0,
+            totalRepairDone: 0,
+            roomStats: {},
+            creepDeaths: 0,
+            creepsBorn: 0,
+            startTime: Game.time,
+        };
+
+        for (const key in defaults) {
+            if (Memory.stats[key] === undefined) {
+                Memory.stats[key] = defaults[key];
+            }
         }
     },
 

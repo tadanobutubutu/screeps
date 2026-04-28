@@ -13,197 +13,37 @@ permissions:
   actions: write
 
 jobs:
-  auto-merge-new:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
+  auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - name: Force Merge PR (No Conditions)
-        uses: actions/github-script@v9
+      - name: Force Merge PR
+        uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pr = context.payload.pull_request;
-            const prNumber = pr.number;
-            const prTitle = pr.title;
-            const isDraft = pr.draft;
-            console.log(`🚀 Processing PR #${prNumber}: ${prTitle} (draft: ${isDraft})`);
-
-            async function ensureReadyForReview() {
-              if (isDraft) {
-                console.log(`📝 PR #${prNumber} is draft, converting to ready for review via GraphQL...`);
-                try {
-                  const mutation = `
-                    mutation {
-                      markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) {
-                        clientMutationId
-                      }
-                    }
-                  `;
-                  await github.graphql(mutation);
-                  console.log(`✅ Converted PR #${prNumber} to ready for review`);
-                  await new Promise(r => setTimeout(r, 5000));
-                } catch (e) {
-                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
-                }
-              }
-            }
-
-            async function tryMerge() {
-              try {
-                await github.rest.pulls.merge({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  merge_method: 'squash',
-                  commit_title: prTitle,
-                  commit_message: `Auto-merged PR #${prNumber}\n\n${(pr.body || '').slice(0, 500)}`,
-                });
-                console.log(`✅ SUCCESS: Merged PR #${prNumber}`);
-                return true;
-              } catch (e) {
-                console.log(`⚠️ First merge attempt failed: ${e.message}`);
-              }
-              return false;
-            }
-
-            async function forceMergeWithAdmin() {
-              try {
-                const mutation = `
-                  mutation {
-                    mergePullRequest(input: {
-                      pullRequestId: "${pr.node_id}",
-                      mergeMethod: SQUASH,
-                      commitHeadline: "${prTitle.replace(/"/g, '\\"')}",
-                    }) {
-                      clientMutationId
-                    }
-                  }
-                `;
-                await github.graphql(mutation);
-                console.log(`✅ SUCCESS: Force merged via GraphQL PR #${prNumber}`);
-                return true;
-              } catch (e) {
-                console.log(`⚠️ GraphQL merge failed: ${e.message}`);
-              }
-              return false;
-            }
-
-            await ensureReadyForReview();
+            const { owner, repo } = context.repo;
+            const pulls = (await github.rest.pulls.list({ owner, repo, state: 'open' })).data;
             
-            let merged = await tryMerge();
-            
-            if (!merged) {
-              await new Promise(r => setTimeout(r, 5000));
-              merged = await tryMerge();
-            }
-
-            if (!merged) {
-              merged = await forceMergeWithAdmin();
-            }
-
-            if (!merged) {
-              try {
-                await github.rest.pulls.merge({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: prNumber,
-                  merge_method: 'squash',
-                  commit_title: prTitle,
-                  commit_message: `Auto-merged PR #${prNumber} (forced second pass)\n\n${(pr.body || '').slice(0, 500)}`,
-                });
-                console.log(`✅ SUCCESS: Final merge attempt PR #${prNumber}`);
-                merged = true;
-              } catch (e) {
-                console.log(`❌ ALL MERGE ATTEMPTS FAILED for PR #${prNumber}: ${e.message}`);
-              }
-            }
-
-            if (!merged) {
-              console.log(`💥 Could not merge PR #${prNumber} after all attempts`);
-            }
-
-  auto-merge-scheduled:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Merge all open PRs
-        uses: actions/github-script@v9
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            const { data: openPRs } = await github.rest.pulls.list({
-              owner,
-              repo,
-              state: 'open',
-            });
-
-            console.log(`📋 Found ${openPRs.length} open PRs`);
-
-            for (const pr of openPRs) {
+            for (const pr of pulls) {
               console.log(`🚀 Processing PR #${pr.number}: ${pr.title}`);
-
+              
+              // 1. ドラフト解除 (GraphQL)
               if (pr.draft) {
-                console.log(`📝 PR #${pr.number} is draft, converting to ready for review via GraphQL...`);
-                try {
-                  const mutation = `
-                    mutation {
-                      markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) {
-                        clientMutationId
-                      }
-                    }
-                  `;
-                  await github.graphql(mutation);
-                  console.log(`✅ Converted PR #${pr.number} to ready for review`);
-                  await new Promise(r => setTimeout(r, 5000));
-                } catch (e) {
-                  console.log(`⚠️ Failed to convert draft: ${e.message}`);
-                }
+                console.log(`📝 PR #${pr.number} is draft, converting...`);
+                await github.graphql(`mutation { markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) { clientMutationId } }`);
+                await new Promise(r => setTimeout(r, 2000));
               }
 
-              async function tryMerge() {
+              // 2. マージ試行
+              try {
+                await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+                console.log(`✅ Merged PR #${pr.number}`);
+              } catch (e) {
+                console.log(`⚠️ Standard merge failed, trying GraphQL force merge...`);
                 try {
-                  await github.rest.pulls.merge({
-                    owner,
-                    repo,
-                    pull_number: pr.number,
-                    merge_method: 'squash',
-                    commit_title: pr.title,
-                    commit_message: `Auto-merged PR #${pr.number}\n\n${(pr.body || '').slice(0, 500)}`,
-                  });
-                  console.log(`✅ SUCCESS: Merged PR #${pr.number}`);
-                  return true;
-                } catch (e) {
-                  console.log(`⚠️ Merge failed: ${e.message}`);
-                }
-                return false;
-              }
-
-              let merged = await tryMerge();
-              if (!merged) {
-                await new Promise(r => setTimeout(r, 5000));
-                merged = await tryMerge();
-              }
-
-              if (!merged) {
-                try {
-                  const mutation = `
-                    mutation {
-                      mergePullRequest(input: {
-                        pullRequestId: "${pr.node_id}",
-                        mergeMethod: SQUASH,
-                        commitHeadline: "${pr.title.replace(/"/g, '\\"')}",
-                      }) {
-                        clientMutationId
-                      }
-                    }
-                  `;
-                  await github.graphql(mutation);
-                  console.log(`✅ SUCCESS: Force merged via GraphQL PR #${pr.number}`);
-                } catch (e) {
-                  console.log(`❌ Failed to merge PR #${pr.number}: ${e.message}`);
+                  await github.graphql(`mutation { mergePullRequest(input: { pullRequestId: "${pr.node_id}", mergeMethod: SQUASH }) { clientMutationId } }`);
+                  console.log(`✅ Force merged PR #${pr.number}`);
+                } catch (err) {
+                  console.log(`❌ Failed to merge PR #${pr.number}: ${err.message}`);
                 }
               }
             }

@@ -205,16 +205,18 @@ describe('visual.effects', () => {
     global.Game.time = 1000; // 1000: 次のテスト用のキャッシュリセット値
   });
 
-  test('rainbowTrailのtrailPositionsが10件を超えた場合に古い位置を削除する', () => {
+  test('rainbowTrailはtrailPositionsをMemoryからvolatile cacheに移行する', () => {
     const mockCreep = {
+      id: 'creep1',
       pos: { x: 25, y: 25 },
       room: { name: 'W0N0' },
       memory: {
         trailPositions: Array.from({ length: 10 }, (_, i) => ({ x: i, y: i }))
       }
     };
-    global.Game.time = 2000; // 2000: 前のテストと異なるtickでキャッシュをリセット
+    global.Game.time = 2000;
     expect(() => visualEffects.rainbowTrail(mockCreep)).not.toThrow();
-    expect(mockCreep.memory.trailPositions.length).toBeLessThanOrEqual(10);
+    // Memoryからは削除されているはず
+    expect(mockCreep.memory.trailPositions).toBeUndefined();
   });
 });

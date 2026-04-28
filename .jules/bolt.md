@@ -135,3 +135,7 @@
 ## 2026-12-01 - Optimizing High-Frequency Structure Scanning
 **Learning:** In the Screeps environment, rooms often contain thousands of walls which dominate the `FIND_STRUCTURES` array. Performing even basic Proxy property lookups (like `s.my` or `s.hits`) on these non-essential objects during every tick's scanning loop (`warmRoomCache`) is a massive CPU drain. Implementing an early `continue` for walls and hoisting `hits`/`hitsMax` into local variables for other structures significantly reduces per-tick CPU overhead.
 **Action:** Always use early `continue` for high-volume, non-essential objects in scanning loops and hoist frequently accessed engine properties to local variables to minimize Proxy lookup costs.
+
+## 2026-04-28 - Volatile Cache for Visual Effects
+**Learning:** Storing high-frequency visual data like trail positions in `Memory` causes significant CPU overhead due to JSON serialization/deserialization every tick. JavaScript `Map` in the module scope provides O(1) access and completely bypasses the `Memory` bottleneck. However, it requires manual cleanup (e.g., every 1500 ticks) to prevent memory leaks from dead creeps.
+**Action:** Use module-scoped `Map` for non-persistent, high-frequency data and implement periodic cleanup tied to object lifespans.

@@ -12,6 +12,10 @@ let _isVfxEnabledValue = true;
 let _visualsCache = {};
 let _visualsTick = -1;
 
+// ⚡ PERFORMANCE: Volatile cache for rainbow trail positions to avoid Memory serialization overhead.
+// Using a Map for O(1) lookups by creep ID.
+let _trailCache = new Map();
+
 /**
  * Checks if visual effects are enabled, with per-tick caching.
  */
@@ -274,26 +278,41 @@ const visualEffects = {
      * レインボートレイル
      */
     rainbowTrail: function (creep) {
+        // ⚡ PERFORMANCE: Periodic cleanup of the volatile trail cache (every 1500 ticks)
+        // This prevents memory leaks from creeps that have died.
+        if (Game.time % 1500 === 0 && _trailCache.size > 0) {
+            _trailCache.clear();
+        }
+
         if (!isVfxEnabled()) {
             if (creep.memory.trailPositions) {
                 delete creep.memory.trailPositions;
             }
+            _trailCache.delete(creep.id);
             return;
         }
         const visual = getVisual(creep.room.name);
 
-        if (!creep.memory.trailPositions) {
-            creep.memory.trailPositions = [];
+        // ⚡ PERFORMANCE: Migrate from Memory to volatile cache if existing data is found.
+        if (creep.memory.trailPositions) {
+            _trailCache.set(creep.id, creep.memory.trailPositions);
+            delete creep.memory.trailPositions;
         }
 
-        creep.memory.trailPositions.push({ x: creep.pos.x, y: creep.pos.y });
-
-        if (creep.memory.trailPositions.length > 10) {
-            creep.memory.trailPositions.shift();
+        let positions = _trailCache.get(creep.id);
+        if (!positions) {
+            positions = [];
+            _trailCache.set(creep.id, positions);
         }
 
-        for (let i = 0; i < creep.memory.trailPositions.length; i++) {
-            const trailPos = creep.memory.trailPositions[i];
+        positions.push({ x: creep.pos.x, y: creep.pos.y });
+
+        if (positions.length > 10) {
+            positions.shift();
+        }
+
+        for (let i = 0; i < positions.length; i++) {
+            const trailPos = positions[i];
             visual.circle(trailPos.x, trailPos.y, {
                 radius: 0.2,
                 fill: RAINBOW_COLORS[i % RAINBOW_COLORS.length],
@@ -428,6 +447,7 @@ const visualEffects = {
         _visualsCache = {};
         _visualsTick = -1;
         _isVfxEnabledTick = -1;
+        _trailCache.clear();
     },
 };
 

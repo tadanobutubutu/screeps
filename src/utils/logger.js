@@ -259,7 +259,9 @@ function success(message) {
     const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
 
     _record('info', sanitizedMessage);
-    console.log(_colorize(`${_prefix('info')} ✓ ${sanitizedMessage}`, COLORS.success));
+    // Security: Escape message to prevent console injection
+    const escapedMessage = _escapeHTML(sanitizedMessage);
+    console.log(_colorize(`${_prefix('info')} ✓ ${escapedMessage}`, COLORS.success));
 }
 
 /**
@@ -361,7 +363,10 @@ function showDashboard() {
     const recent = getHistory(5);
     for (const entry of recent) {
         const color = COLORS[entry.level] || COLORS.info;
-        console.log(_colorize(`  [T:${entry.tick}][${entry.level}] ${entry.message}`, color));
+        // Security: Escape both level and message to prevent console injection when showing history
+        const escapedLevel = _escapeHTML(entry.level);
+        const escapedMessage = _escapeHTML(entry.message);
+        console.log(_colorize(`  [T:${entry.tick}][${escapedLevel}] ${escapedMessage}`, color));
     }
 }
 

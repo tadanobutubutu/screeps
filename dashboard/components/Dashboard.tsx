@@ -920,80 +920,40 @@ export default function Dashboard() {
             >
                 <div>
                     Keyboard Shortcuts:{' '}
-                    <kbd
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => fetchStats(true)}
-                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
-                        title="Click or press R to Refresh"
-                        aria-label="Refresh stats"
-                        style={{
-                            background: '#eee',
-                            padding: '0.1rem 0.3rem',
-                            borderRadius: '3px',
-                            border: '1px solid #ccc',
-                            boxShadow:
-                                '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
-                            display: 'inline-block',
-                            minWidth: '1.2em',
-                            textAlign: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        R
-                    </kbd>{' '}
-                    Refresh ·{' '}
-                    <kbd
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleCopy()}
-                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
-                        title="Click or press C to Copy JSON"
-                        aria-label="Copy stats as JSON"
-                        style={{
-                            background: '#eee',
-                            padding: '0.1rem 0.3rem',
-                            borderRadius: '3px',
-                            border: '1px solid #ccc',
-                            boxShadow:
-                                '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
-                            display: 'inline-block',
-                            minWidth: '1.2em',
-                            textAlign: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        C
-                    </kbd>{' '}
-                    Copy JSON ·{' '}
-                    <kbd
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => handleResetSecret()}
-                        onKeyDown={(e) =>
-                            (e.key === 'Enter' || e.key === ' ') && handleResetSecret()
-                        }
-                        title="Click or press L to Reset Secret"
-                        aria-label="Reset Secret"
-                        style={{
-                            background: '#eee',
-                            padding: '0.1rem 0.3rem',
-                            borderRadius: '3px',
-                            border: '1px solid #ccc',
-                            boxShadow:
-                                '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
-                            display: 'inline-block',
-                            minWidth: '1.2em',
-                            textAlign: 'center',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        L
-                    </kbd>{' '}
-                    Reset Secret
+                    {[
+                        { k: 'R', a: 'Refresh stats', state: isRefreshing ? 'a' : updated ? 's' : '', onClick: () => fetchStats(true), icon: updated ? '✓' : 'R' },
+                        { k: 'C', a: 'Copy stats as JSON', state: copied ? 's' : '', onClick: () => handleCopy(), icon: copied ? '✓' : 'C' },
+                        { k: 'L', a: 'Reset Secret', state: isResetConfirming ? 'w' : resetSuccess ? 's' : '', onClick: () => handleResetSecret(), icon: resetSuccess ? '✓' : isResetConfirming ? '?' : 'L' }
+                    ].map((item, i) => (
+                        <span key={item.k}>
+                            {i > 0 && ' · '}
+                            <kbd
+                                role="button"
+                                tabIndex={0}
+                                onClick={item.onClick}
+                                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && item.onClick()}
+                                title={`Click or press ${item.k} to ${item.a}`}
+                                aria-label={item.a}
+                                style={{
+                                    background: item.state === 'a' ? '#0077aa' : item.state === 's' ? '#1e7e34' : item.state === 'w' ? '#a5532d' : '#eee',
+                                    color: item.state ? '#fff' : '#333',
+                                    padding: '0.1rem 0.3rem',
+                                    borderRadius: '3px',
+                                    border: `1px solid ${item.state === 'a' ? '#005577' : item.state === 's' ? '#155d27' : item.state === 'w' ? '#7d3f22' : '#ccc'}`,
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
+                                    display: 'inline-block',
+                                    minWidth: '1.2em',
+                                    textAlign: 'center',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    userSelect: 'none',
+                                }}
+                            >
+                                {item.icon}
+                            </kbd>{' '}
+                            {item.a.replace(' stats', '').replace(' as JSON', '')}
+                        </span>
+                    ))}
                 </div>
                 <div>
                     Hover/Focus items with{' '}

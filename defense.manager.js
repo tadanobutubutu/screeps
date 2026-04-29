@@ -4,8 +4,8 @@
 const defenseManager = {
     // メイン防衛ループ
     run: function (room) {
-        this.manageTowers(room);
         this.checkThreats(room);
+        this.manageTowers(room);
         this.manageDefenders(room);
     },
 
@@ -18,45 +18,40 @@ const defenseManager = {
             return;
         }
 
-        // 脅威の優先順位付け
-        const hostiles = room._hostileCreeps || [];
-        const damagedCreeps = room._injuredCreeps || [];
-
-        // ⚡ PERFORMANCE: Use pre-filtered room-level repair targets.
-        const damagedStructures = room._repairTargets || [];
-
-        // ⚡ PERFORMANCE: Hoist critical target lookups outside the tower loop
-        // ループの外で一度だけ計算することで、各タワーごとの冗長な走査と条件チェックを回避。
-        if (room._criticalCreepTick !== Game.time) {
-            room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
-            room._criticalCreepTick = Game.time;
-        }
-        const criticalCreep = room._criticalCreep;
-
-        if (room._criticalStructureTick !== Game.time) {
-            room._criticalStructure = damagedStructures.find(
-                (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
-            );
-            room._criticalStructureTick = Game.time;
-        }
-        const criticalStructure = room._criticalStructure;
+        const primaryHostile = room._primaryHostile;
 
         for (let i = 0; i < towers.length; i++) {
             const tower = towers[i];
-            // 優先度1: 敵creepへの攻撃
-            if (hostiles.length > 0) {
-                const target = tower.pos.findClosestByRange(hostiles);
-                if (target) {
-                    tower.attack(target);
-                    continue;
-                }
+
+            // 優先度1: 敵creepへの攻撃 (集中砲火のためにキャッシュされたターゲットを使用)
+            if (primaryHostile) {
+                tower.attack(primaryHostile);
+                continue;
             }
+
+            // ⚡ PERFORMANCE: Lazy target finding - only execute O(N) searches if no hostile is present.
+            // (遅延ターゲット探索：敵がいない場合のみ、O(N)の走査を実行する)
+            if (room._criticalCreepTick !== Game.time) {
+                const damagedCreeps = room._injuredCreeps || [];
+                room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
+                room._criticalCreepTick = Game.time;
+            }
+            const criticalCreep = room._criticalCreep;
 
             // 優先度2: 味方creepの回復
             if (criticalCreep) {
                 tower.heal(criticalCreep);
                 continue;
             }
+
+            if (room._criticalStructureTick !== Game.time) {
+                const damagedStructures = room._repairTargets || [];
+                room._criticalStructure = damagedStructures.find(
+                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
+                );
+                room._criticalStructureTick = Game.time;
+            }
+            const criticalStructure = room._criticalStructure;
 
             // 優先度3: 構造物の修理（エネルギーが十分な時のみ）
             if (tower.store[RESOURCE_ENERGY] > 500 && criticalStructure) {
@@ -72,6 +67,7 @@ const defenseManager = {
 
         if (hostiles.length === 0) {
             room._threatLevel = 0;
+            room._primaryHostile = null;
             return 0;
         }
 
@@ -93,6 +89,10 @@ const defenseManager = {
         // ⚡ PERFORMANCE: Use volatile room caching to avoid Memory serialization overhead
         // ティックごとの計算値はMemoryではなくRoomオブジェクトに保持することで高速化。
         room._threatLevel = threatLevel;
+
+        // ⚡ PERFORMANCE: Hoist primary hostile target selection for focus fire.
+        // Identify a primary target once per tick to avoid redundant O(N) searches in tower/defender loops.
+        room._primaryHostile = hostiles[0];
 
         // 警告表示
         if (threatLevel > 5) {
@@ -182,9 +182,9 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps pre-warmed in main.js. (main.jsで準備された敵のキャッシュを使用)
-        const hostiles = creep.room._hostileCreeps || [];
-        const hostile = creep.pos.findClosestByRange(hostiles);
+        // ⚡ PERFORMANCE: Use pre-cached primary hostile target for focus fire.
+        // (集中砲火のため、キャッシュされた優先ターゲットを使用)
+        const hostile = creep.room._primaryHostile;
 
         if (hostile) {
             // 敵を発見

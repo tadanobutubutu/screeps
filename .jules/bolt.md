@@ -139,3 +139,7 @@
 ## 2026-04-28 - Volatile Cache for Visual Effects
 **Learning:** Storing high-frequency visual data like trail positions in `Memory` causes significant CPU overhead due to JSON serialization/deserialization every tick. JavaScript `Map` in the module scope provides O(1) access and completely bypasses the `Memory` bottleneck. However, it requires manual cleanup (e.g., every 1500 ticks) to prevent memory leaks from dead creeps.
 **Action:** Use module-scoped `Map` for non-persistent, high-frequency data and implement periodic cleanup tied to object lifespans.
+
+## 2026-12-15 - Hostile Target Hoisting and Lazy-Loading Synergy
+**Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
+**Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.

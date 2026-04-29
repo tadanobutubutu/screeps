@@ -8,6 +8,11 @@ global.Game = {
   creeps: {}
 };
 global.Memory = {};
+global.RoomPosition = function(x, y, roomName) {
+  this.x = x;
+  this.y = y;
+  this.roomName = roomName;
+};
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
 global.ERR_NOT_IN_RANGE = -9;
@@ -133,6 +138,7 @@ describe('defense.manager', () => {
       room: {
         _hostileCreeps: [mockHostile],
         _hostileCreepsTick: Game.time,
+        _primaryHostile: mockHostile,
         find: jest.fn().mockReturnValue([mockHostile]),
       },
       pos: {

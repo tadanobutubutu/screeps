@@ -1,3 +1,12 @@
+const utilsMemory = require('./utils.memory')
+const logger = require('./utils.logging')
+
+/**
+ * Security: Limits for task queue to prevent Memory DoS.
+ */
+const MAX_TASKS = 50
+const MAX_TASK_NAME_LENGTH = 100
+
 const TaskQueue = {
   tasks: [],
 
@@ -9,7 +18,27 @@ const TaskQueue = {
    * @param {function} condition - An optional function that must return true for the task to run.
    */
   registerTask: function (name, interval, action, condition = () => true) {
-    this.tasks.push({ name, interval, action, condition })
+    // Security: Validate task name
+    if (!utilsMemory.isSafeKey(name)) return
+    const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH)
+
+    // Check for duplicates to prevent queue bloating
+    const existingTask = this.tasks.find((t) => t.name === sanitizedName)
+    if (existingTask) {
+      existingTask.interval = interval
+      existingTask.action = action
+      existingTask.condition = condition
+      return
+    }
+
+    // Check queue capacity
+    if (this.tasks.length >= MAX_TASKS) {
+      // Security: Use safe logging to prevent console injection
+      logger.warn(`TaskQueue: Maximum task limit reached. Skipping ${sanitizedName}`)
+      return
+    }
+
+    this.tasks.push({ name: sanitizedName, interval, action, condition })
   },
 
   /**
@@ -25,7 +54,8 @@ const TaskQueue = {
           try {
             task.action()
           } catch (e) {
-            console.log(`Error running periodic task ${task.name}: ${e.message}`)
+            // Security: Use logger.error for safe stack traces and HTML escaping
+            logger.error(`Error running periodic task ${task.name}: ${e.message}`)
           }
         }
       }

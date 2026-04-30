@@ -455,11 +455,7 @@ function handleDefenseAndDashboard (rooms, isLoggingEnabled, isVisualEffectsEnab
   }
 }
 
-function displayStats (creeps) {
-  const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
-  const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
-  const isGamificationEnabled = adaptiveSystem.isEnabled('gamification')
-
+function _displayCoreStats (creeps) {
   console.log(
     '\n⚡ Tick: ' +
             Game.time +
@@ -477,29 +473,45 @@ function displayStats (creeps) {
             ')'
   )
   console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB')
+}
 
-  if (isLoggingEnabled) {
-    const logStats = logger.getStats()
-    if (logStats.errors > 0) {
-      logger.warn('Recent errors: ' + logStats.errors)
-    }
+function _displayLogStats () {
+  const logStats = logger.getStats()
+  if (logStats.errors > 0) {
+    logger.warn('Recent errors: ' + logStats.errors)
+  }
+}
+
+function _displayEmotionStats () {
+  const emotionStats = EmotionSystem.getStats()
+  console.log(
+    '😊 Happy: ' +
+              (emotionStats.veryHappy + emotionStats.happy) +
+              ', Neutral: ' +
+              emotionStats.neutral
+  )
+}
+
+function _displayGamificationStats () {
+  const gm = Memory.gamification
+  if (gm) {
+    console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
+  }
+}
+
+function displayStats (creeps) {
+  _displayCoreStats(creeps)
+
+  if (adaptiveSystem.isEnabled('logging')) {
+    _displayLogStats()
   }
 
-  if (isEmotionsEnabled) {
-    const emotionStats = EmotionSystem.getStats()
-    console.log(
-      '😊 Happy: ' +
-                (emotionStats.veryHappy + emotionStats.happy) +
-                ', Neutral: ' +
-                emotionStats.neutral
-    )
+  if (adaptiveSystem.isEnabled('emotions')) {
+    _displayEmotionStats()
   }
 
-  if (isGamificationEnabled) {
-    const gm = Memory.gamification
-    if (gm) {
-      console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
-    }
+  if (adaptiveSystem.isEnabled('gamification')) {
+    _displayGamificationStats()
   }
 }
 

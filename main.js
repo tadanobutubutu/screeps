@@ -316,7 +316,9 @@ function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnable
 
     if (!role) {
       role = memory.role = 'harvester'
-      if (isLoggingEnabled) logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
+      if (isLoggingEnabled) {
+        logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
+      }
     }
     creepCounts[role] = (creepCounts[role] || 0) + 1
 

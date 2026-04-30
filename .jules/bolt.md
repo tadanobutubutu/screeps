@@ -143,3 +143,9 @@
 ## 2026-12-15 - Hostile Target Hoisting and Lazy-Loading Synergy
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
+## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
+**Learning:** Large functions containing multiple complex  chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (, , ) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
+**Action:** Use focused helper functions to break down overly long and complex methods, ensuring each helper has a single, well-defined responsibility.
+## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
+**Learning:** Large functions containing multiple complex `if-else` chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (`_determineTargetMode`, `_applyModeChange`, `_updateStats`) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
+**Action:** Use focused helper functions to break down overly long and complex methods, ensuring each helper has a single, well-defined responsibility.

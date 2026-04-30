@@ -1,271 +1,274 @@
+/* global Game, _, FIND_SOURCES, FIND_CONSTRUCTION_SITES, FIND_HOSTILE_CREEPS, RESOURCE_ENERGY, STRUCTURE_TOWER, ERR_NOT_IN_RANGE, WORK, CARRY, MOVE */
+
 /**
  * Auto Tutorial System - チュートリアルを完全自動でクリア
  */
 
 const autoTutorial = {
-  /**
+    /**
      * チュートリアル検出
      */
-  isTutorial: function () {
-    // Tutorialモード検出
-    return Game.tutorial && Game.tutorial.currentStep !== undefined
-  },
+    isTutorial: function () {
+        // Tutorialモード検出
+        return Game.tutorial && Game.tutorial.currentStep !== undefined;
+    },
 
-  /**
+    /**
      * メイン自動実行
      */
-  run: function () {
-    if (!this.isTutorial()) {
-      return false
-    }
+    run: function () {
+        if (!this.isTutorial()) {
+            return false;
+        }
 
-    const step = Game.tutorial.currentStep
-    console.log('🎮 Auto Tutorial - Step: ' + step)
+        const step = Game.tutorial.currentStep;
+        console.log('🎮 Auto Tutorial - Step: ' + step);
 
-    // ステップ別処理
-    switch (step) {
-      case 1:
-        this.step1_createHarvester()
-        break
-      case 2:
-        this.step2_harvestEnergy()
-        break
-      case 3:
-        this.step3_upgradeController()
-        break
-      case 4:
-        this.step4_buildExtension()
-        break
-      case 5:
-        this.step5_defendRoom()
-        break
-      default:
-        this.autoStep()
-    }
+        // ステップ別処理
+        switch (step) {
+            case 1:
+                this.step1_createHarvester();
+                break;
+            case 2:
+                this.step2_harvestEnergy();
+                break;
+            case 3:
+                this.step3_upgradeController();
+                break;
+            case 4:
+                this.step4_buildExtension();
+                break;
+            case 5:
+                this.step5_defendRoom();
+                break;
+            default:
+                this.autoStep();
+        }
 
-    return true
-  },
+        return true;
+    },
 
-  /**
+    /**
      * Step 1: Create harvester
      */
-  step1_createHarvester: function () {
-    const spawn = Game.spawns.Spawn1
-    if (!spawn) {
-      return
-    }
+    step1_createHarvester: function () {
+        const spawn = Game.spawns['Spawn1'];
+        if (!spawn) {
+            return;
+        }
 
-    // Harvesterがいなければ作成
-    const harvesters = _.filter(Game.creeps, (c) => c.memory.role === 'harvester')
+        // Harvesterがいなければ作成
+        const harvesters = _.filter(Game.creeps, (c) => c.memory.role === 'harvester');
 
-    if (harvesters.length === 0 && !spawn.spawning) {
-      spawn.spawnCreep([WORK, CARRY, MOVE], 'Harvester1', {
-        memory: { role: 'harvester' }
-      })
-      console.log('✅ Created Harvester')
-    }
-  },
+        if (harvesters.length === 0 && !spawn.spawning) {
+            spawn.spawnCreep([WORK, CARRY, MOVE], 'Harvester1', {
+                memory: { role: 'harvester' },
+            });
+            console.log('✅ Created Harvester');
+        }
+    },
 
-  /**
+    /**
      * Step 2: Harvest energy
      */
-  step2_harvestEnergy: function () {
-    const roomSources = {}
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name]
-      const roomName = creep.room.name
+    step2_harvestEnergy: function () {
+        const roomSources = {};
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            const roomName = creep.room.name;
 
-      if (creep.store.getFreeCapacity() > 0) {
-        roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES)
-        const sources = roomSources[roomName]
-        if (sources.length > 0) {
-          if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0])
-          }
+            if (creep.store.getFreeCapacity() > 0) {
+                roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES);
+                const sources = roomSources[roomName];
+                if (sources.length > 0) {
+                    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0]);
+                    }
+                }
+            } else {
+                const spawn = Game.spawns['Spawn1'];
+                if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(spawn);
+                }
+            }
         }
-      } else {
-        const spawn = Game.spawns.Spawn1
-        if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(spawn)
-        }
-      }
-    }
-  },
+    },
 
-  /**
+    /**
      * Step 3: Upgrade controller
      */
-  step3_upgradeController: function () {
-    const roomSources = {}
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name]
-      const roomName = creep.room.name
+    step3_upgradeController: function () {
+        const roomSources = {};
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            const roomName = creep.room.name;
 
-      if (creep.store[RESOURCE_ENERGY] === 0) {
-        roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES)
-        const sources = roomSources[roomName]
-        if (sources.length > 0) {
-          if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0])
-          }
+            if (creep.store[RESOURCE_ENERGY] === 0) {
+                roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES);
+                const sources = roomSources[roomName];
+                if (sources.length > 0) {
+                    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0]);
+                    }
+                }
+            } else {
+                if (creep.room.controller) {
+                    if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(creep.room.controller);
+                    }
+                }
+            }
         }
-      } else {
-        if (creep.room.controller) {
-          if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller)
-          }
-        }
-      }
-    }
-  },
+    },
 
-  /**
+    /**
      * Step 4: Build extension
      */
-  step4_buildExtension: function () {
-    const roomTargets = {}
-    const roomSources = {}
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name]
-      const roomName = creep.room.name
+    step4_buildExtension: function () {
+        const roomTargets = {};
+        const roomSources = {};
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            const roomName = creep.room.name;
 
-      roomTargets[roomName] =
-                roomTargets[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES)
-      const targets = roomTargets[roomName]
-      if (targets.length > 0) {
-        if (creep.store[RESOURCE_ENERGY] === 0) {
-          roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES)
-          const sources = roomSources[roomName]
-          if (sources.length > 0) {
-            if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-              creep.moveTo(sources[0])
+            roomTargets[roomName] =
+                roomTargets[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
+            const targets = roomTargets[roomName];
+            if (targets.length > 0) {
+                if (creep.store[RESOURCE_ENERGY] === 0) {
+                    roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES);
+                    const sources = roomSources[roomName];
+                    if (sources.length > 0) {
+                        if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                            creep.moveTo(sources[0]);
+                        }
+                    }
+                } else {
+                    if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targets[0]);
+                    }
+                }
             }
-          }
-        } else {
-          if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0])
-          }
         }
-      }
-    }
-  },
+    },
 
-  /**
+    /**
      * Step 5: Defend room
      */
-  step5_defendRoom: function () {
-    const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER)
+    step5_defendRoom: function () {
+        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
 
-    if (towers.length > 0) {
-      const roomHostiles = {}
-      for (const tower of towers) {
-        const roomName = tower.room.name
-        roomHostiles[roomName] =
-                    roomHostiles[roomName] || tower.room.find(FIND_HOSTILE_CREEPS)
-        const hostiles = roomHostiles[roomName]
-        if (hostiles.length > 0) {
-          tower.attack(hostiles[0])
-          console.log('💥 Attacking hostile!')
-          break
+        if (towers.length > 0) {
+            const roomHostiles = {};
+            for (const tower of towers) {
+                const roomName = tower.room.name;
+                roomHostiles[roomName] =
+                    roomHostiles[roomName] || tower.room.find(FIND_HOSTILE_CREEPS);
+                const hostiles = roomHostiles[roomName];
+                if (hostiles.length > 0) {
+                    tower.attack(hostiles[0]);
+                    console.log('💥 Attacking hostile!');
+                    break;
+                }
+            }
         }
-      }
-    }
-  },
+    },
 
-  /**
+    /**
      * 汎用自動ステップ
      */
-  autoStep: function () {
-    const roomSources = {}
-    const roomTargets = {}
-    // 基本的なCreep動作
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name]
-      const roomName = creep.room.name
+    autoStep: function () {
+        const roomSources = {};
+        const roomTargets = {};
+        // 基本的なCreep動作
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            const roomName = creep.room.name;
 
-      // エネルギーが空
-      if (creep.store[RESOURCE_ENERGY] === 0) {
-        roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES)
-        const sources = roomSources[roomName]
-        if (sources.length > 0) {
-          if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0])
-          }
+            // エネルギーが空
+            if (creep.store[RESOURCE_ENERGY] === 0) {
+                roomSources[roomName] = roomSources[roomName] || creep.room.find(FIND_SOURCES);
+                const sources = roomSources[roomName];
+                if (sources.length > 0) {
+                    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0]);
+                    }
+                }
+            } else {
+                // 建設サイト優先
+                roomTargets[roomName] =
+                    roomTargets[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
+                const targets = roomTargets[roomName];
+                if (targets.length > 0) {
+                    if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(targets[0]);
+                    }
+                } else if (creep.room.controller) {
+                    // 次にControllerアップグレード
+                    if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(creep.room.controller);
+                    }
+                } else {
+                    // Spawnに配達
+                    const spawn = Game.spawns['Spawn1'];
+                    if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(spawn);
+                    }
+                }
+            }
         }
-      } else {
-        // 建設サイト優先
-        roomTargets[roomName] =
-                    roomTargets[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES)
-        const targets = roomTargets[roomName]
-        if (targets.length > 0) {
-          if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0])
-          }
-        } else if (creep.room.controller) {
-          // 次にControllerアップグレード
-          if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller)
-          }
-        } else {
-          // Spawnに配達
-          const spawn = Game.spawns.Spawn1
-          if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(spawn)
-          }
+
+        // Tower防衛
+        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
+        if (towers.length > 0) {
+            const roomHostiles = {};
+            for (const tower of towers) {
+                const roomName = tower.room.name;
+                roomHostiles[roomName] =
+                    roomHostiles[roomName] || tower.room.find(FIND_HOSTILE_CREEPS);
+                if (roomHostiles[roomName].length > 0) {
+                    tower.attack(roomHostiles[roomName][0]);
+                }
+            }
         }
-      }
-    }
 
-    // Tower防衛
-    const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER)
-    if (towers.length > 0) {
-      const roomHostiles = {}
-      for (const tower of towers) {
-        const roomName = tower.room.name
-        roomHostiles[roomName] =
-                    roomHostiles[roomName] || tower.room.find(FIND_HOSTILE_CREEPS)
-        if (roomHostiles[roomName].length > 0) {
-          tower.attack(roomHostiles[roomName][0])
+        // 自動Spawn
+        const spawn = Game.spawns['Spawn1'];
+        if (spawn && !spawn.spawning && Object.keys(Game.creeps).length < 3) {
+            spawn.spawnCreep([WORK, CARRY, MOVE], 'Worker' + Game.time, {
+                memory: { role: 'worker' },
+            });
         }
-      }
-    }
+    },
 
-    // 自動Spawn
-    const spawn = Game.spawns.Spawn1
-    if (spawn && !spawn.spawning && Object.keys(Game.creeps).length < 3) {
-      spawn.spawnCreep([WORK, CARRY, MOVE], 'Worker' + Game.time, {
-        memory: { role: 'worker' }
-      })
-    }
-  },
-
-  /**
+    /**
      * チュートリアルスキップ（可能な場合）
      */
-  skipIfPossible: function () {
-    if (Game.tutorial && Game.tutorial.skip) {
-      Game.tutorial.skip()
-      console.log('⏩ Tutorial skipped!')
-      return true
-    }
-    return false
-  },
+    skipIfPossible: function () {
+        if (Game.tutorial && Game.tutorial.skip) {
+            Game.tutorial.skip();
+            console.log('⏩ Tutorial skipped!');
+            return true;
+        }
+        return false;
+    },
 
-  /**
+    /**
      * チュートリアル進捗表示
      */
-  showProgress: function () {
-    if (!this.isTutorial()) {
-      return
-    }
+    showProgress: function () {
+        if (!this.isTutorial()) {
+            return;
+        }
 
-    console.log('🎮 Tutorial Progress:')
-    console.log('  Current Step: ' + Game.tutorial.currentStep)
-    console.log('  Creeps: ' + Object.keys(Game.creeps).length)
-    console.log(
-      '  Energy: ' + (Game.spawns.Spawn1 ? Game.spawns.Spawn1.store[RESOURCE_ENERGY] : 0)
-    )
-  }
-}
+        console.log('🎮 Tutorial Progress:');
+        console.log('  Current Step: ' + Game.tutorial.currentStep);
+        console.log('  Creeps: ' + Object.keys(Game.creeps).length);
+        console.log(
+            '  Energy: ' +
+                (Game.spawns['Spawn1'] ? Game.spawns['Spawn1'].store[RESOURCE_ENERGY] : 0)
+        );
+    },
+};
 
-module.exports = autoTutorial
+module.exports = autoTutorial;

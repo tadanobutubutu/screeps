@@ -7,36 +7,36 @@
  * パス結果はキャッシュに格納してCPU使用量を削減する。
  */
 
-'use strict'
+'use strict';
 
-const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants')
-const cacheUtils = require('./cache')
+const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants');
+const cacheUtils = require('./cache');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  */
-const MAX_KEY_LENGTH = 256
-const MAX_CACHE_ENTRIES = 100
+const MAX_KEY_LENGTH = 256;
+const MAX_CACHE_ENTRIES = 100;
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
 const DANGEROUS_KEYS = new Set([
-  '__proto__',
-  'constructor',
-  'prototype',
-  '__defineGetter__',
-  '__defineSetter__',
-  '__lookupGetter__',
-  '__lookupSetter__',
-  'toString',
-  'valueOf',
-  'hasOwnProperty',
-  'toLocaleString',
-  'isPrototypeOf',
-  'propertyIsEnumerable'
-])
+    '__proto__',
+    'constructor',
+    'prototype',
+    '__defineGetter__',
+    '__defineSetter__',
+    '__lookupGetter__',
+    '__lookupSetter__',
+    'toString',
+    'valueOf',
+    'hasOwnProperty',
+    'toLocaleString',
+    'isPrototypeOf',
+    'propertyIsEnumerable',
+]);
 
 /**
  * Security: Validates that a key is safe to use for object access.
@@ -44,27 +44,27 @@ const DANGEROUS_KEYS = new Set([
  * Also enforces length limits to prevent Memory DoS.
  */
 const isSafeKey = (key) => {
-  // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
-  // and avoid unnecessary string/Set checks.
-  if (typeof key === 'number') return true
-  // Security: Block dangerous properties that could lead to Prototype Pollution
-  // or property shadowing when using user-provided strings as object keys.
-  return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key)
-}
+    // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
+    // and avoid unnecessary string/Set checks.
+    if (typeof key === 'number') return true;
+    // Security: Block dangerous properties that could lead to Prototype Pollution
+    // or property shadowing when using user-provided strings as object keys.
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
+};
 
 // ============================================================
 // グローバルキャッシュキー
 // ============================================================
 
-const PATH_CACHE_PREFIX = 'path_'
-const COST_MATRIX_CACHE_PREFIX = 'cm_'
+const PATH_CACHE_PREFIX = 'path_';
+const COST_MATRIX_CACHE_PREFIX = 'cm_';
 
 /**
  * global.cache を初期化する（未定義の場合）
  */
-function ensureCache () {
-  if (!global.cache) global.cache = {}
-  return global.cache
+function ensureCache() {
+    if (!global.cache) global.cache = {};
+    return global.cache;
 }
 
 /**
@@ -72,32 +72,32 @@ function ensureCache () {
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _setStructureCosts (costs, room) {
-  const structures = cacheUtils.getStructures(room)
-  for (const struct of structures) {
-    switch (struct.structureType) {
-      case STRUCTURE_ROAD:
-        costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST)
-        break
-      case STRUCTURE_WALL:
-        costs.set(struct.pos.x, struct.pos.y, 255)
-        break
-      case STRUCTURE_RAMPART:
-        if (!struct.my && !struct.isPublic) {
-          costs.set(struct.pos.x, struct.pos.y, 255)
-        }
-        break
-      default:
-        if (
-          struct.structureType !== STRUCTURE_CONTAINER &&
+function _setStructureCosts(costs, room) {
+    const structures = cacheUtils.getStructures(room);
+    for (const struct of structures) {
+        switch (struct.structureType) {
+            case STRUCTURE_ROAD:
+                costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST);
+                break;
+            case STRUCTURE_WALL:
+                costs.set(struct.pos.x, struct.pos.y, 255);
+                break;
+            case STRUCTURE_RAMPART:
+                if (!struct.my && !struct.isPublic) {
+                    costs.set(struct.pos.x, struct.pos.y, 255);
+                }
+                break;
+            default:
+                if (
+                    struct.structureType !== STRUCTURE_CONTAINER &&
                     struct.structureType !== STRUCTURE_LINK
-        ) {
-          if (!struct.my) {
-            costs.set(struct.pos.x, struct.pos.y, 255)
-          }
+                ) {
+                    if (!struct.my) {
+                        costs.set(struct.pos.x, struct.pos.y, 255);
+                    }
+                }
         }
     }
-  }
 }
 
 /**
@@ -105,17 +105,17 @@ function _setStructureCosts (costs, room) {
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _setConstructionSiteCosts (costs, room) {
-  const sites = cacheUtils.getConstructionSites(room)
-  for (const site of sites) {
-    if (
-      site.structureType !== STRUCTURE_ROAD &&
+function _setConstructionSiteCosts(costs, room) {
+    const sites = cacheUtils.getConstructionSites(room);
+    for (const site of sites) {
+        if (
+            site.structureType !== STRUCTURE_ROAD &&
             site.structureType !== STRUCTURE_RAMPART &&
             site.structureType !== STRUCTURE_CONTAINER
-    ) {
-      costs.set(site.pos.x, site.pos.y, 3)
+        ) {
+            costs.set(site.pos.x, site.pos.y, 3);
+        }
     }
-  }
 }
 
 /**
@@ -123,11 +123,11 @@ function _setConstructionSiteCosts (costs, room) {
  * @param {PathFinder.CostMatrix} costs
  * @param {Room} room
  */
-function _setCreepCosts (costs, room) {
-  const creeps = room.find(FIND_CREEPS)
-  for (const creep of creeps) {
-    costs.set(creep.pos.x, creep.pos.y, 255)
-  }
+function _setCreepCosts(costs, room) {
+    const creeps = room.find(FIND_CREEPS);
+    for (const creep of creeps) {
+        costs.set(creep.pos.x, creep.pos.y, 255);
+    }
 }
 
 // ============================================================
@@ -147,51 +147,51 @@ function _setCreepCosts (costs, room) {
  * @param {boolean} [options.useCache=true] - キャッシュを使用するか
  * @returns {PathFinder.CostMatrix}
  */
-function buildCostMatrix (roomName, options) {
-  const opts = Object.assign({ avoidCreeps: false, useCache: true }, options)
-  const cache = ensureCache()
+function buildCostMatrix(roomName, options) {
+    const opts = Object.assign({ avoidCreeps: false, useCache: true }, options);
+    const cache = ensureCache();
 
-  // Security: Validate input roomName
-  if (!isSafeKey(roomName)) {
-    return new PathFinder.CostMatrix()
-  }
-
-  const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`
-
-  if (opts.useCache && isSafeKey(cacheKey)) {
-    const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey)
-      ? cache[cacheKey]
-      : undefined
-    if (entry && entry.expires > Game.time) {
-      return entry.data
+    // Security: Validate input roomName
+    if (!isSafeKey(roomName)) {
+        return new PathFinder.CostMatrix();
     }
-  }
 
-  const room = Game.rooms[roomName]
-  const costs = new PathFinder.CostMatrix()
+    const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`;
 
-  if (!room) {
-    return costs
-  }
-
-  _setStructureCosts(costs, room)
-  _setConstructionSiteCosts(costs, room)
-
-  if (opts.avoidCreeps) {
-    _setCreepCosts(costs, room)
-  }
-
-  if (opts.useCache && isSafeKey(cacheKey)) {
-    // Security: Cap the number of cache entries to prevent Memory DoS
-    if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
-      cache[cacheKey] = {
-        data: costs,
-        expires: Game.time + CACHE_TTL.PATH
-      }
+    if (opts.useCache && isSafeKey(cacheKey)) {
+        const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey)
+            ? cache[cacheKey]
+            : undefined;
+        if (entry && entry.expires > Game.time) {
+            return entry.data;
+        }
     }
-  }
 
-  return costs
+    const room = Game.rooms[roomName];
+    const costs = new PathFinder.CostMatrix();
+
+    if (!room) {
+        return costs;
+    }
+
+    _setStructureCosts(costs, room);
+    _setConstructionSiteCosts(costs, room);
+
+    if (opts.avoidCreeps) {
+        _setCreepCosts(costs, room);
+    }
+
+    if (opts.useCache && isSafeKey(cacheKey)) {
+        // Security: Cap the number of cache entries to prevent Memory DoS
+        if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
+            cache[cacheKey] = {
+                data: costs,
+                expires: Game.time + CACHE_TTL.PATH,
+            };
+        }
+    }
+
+    return costs;
 }
 
 // ============================================================
@@ -209,25 +209,25 @@ function buildCostMatrix (roomName, options) {
  * @param {number} [options.swampCost=10]
  * @returns {PathFinder.Path}
  */
-function findPath (origin, goal, options) {
-  const opts = Object.assign(
-    {
-      avoidCreeps: false,
-      maxRooms: PATHFINDER_DEFAULTS.MAX_ROOMS,
-      plainCost: PATHFINDER_DEFAULTS.PLAIN_COST,
-      swampCost: PATHFINDER_DEFAULTS.SWAMP_COST
-    },
-    options
-  )
+function findPath(origin, goal, options) {
+    const opts = Object.assign(
+        {
+            avoidCreeps: false,
+            maxRooms: PATHFINDER_DEFAULTS.MAX_ROOMS,
+            plainCost: PATHFINDER_DEFAULTS.PLAIN_COST,
+            swampCost: PATHFINDER_DEFAULTS.SWAMP_COST,
+        },
+        options
+    );
 
-  const pfGoal = goal.pos ? { pos: goal.pos, range: goal.range || 1 } : { pos: goal, range: 1 }
+    const pfGoal = goal.pos ? { pos: goal.pos, range: goal.range || 1 } : { pos: goal, range: 1 };
 
-  return PathFinder.search(origin, pfGoal, {
-    plainCost: opts.plainCost,
-    swampCost: opts.swampCost,
-    maxRooms: opts.maxRooms,
-    roomCallback: (roomName) => buildCostMatrix(roomName, { avoidCreeps: opts.avoidCreeps })
-  })
+    return PathFinder.search(origin, pfGoal, {
+        plainCost: opts.plainCost,
+        swampCost: opts.swampCost,
+        maxRooms: opts.maxRooms,
+        roomCallback: (roomName) => buildCostMatrix(roomName, { avoidCreeps: opts.avoidCreeps }),
+    });
 }
 
 // ============================================================
@@ -246,39 +246,39 @@ function findPath (origin, goal, options) {
  * @param {boolean} [options.visualizePath=true]
  * @returns {number} 移動結果コード（OK, ERR_TIRED, ERR_NO_PATH など）
  */
-function moveTo (creep, target, options) {
-  const opts = Object.assign(
-    {
-      range: 1,
-      avoidCreeps: false,
-      visualizePath: true,
-      reusePath: PATHFINDER_DEFAULTS.REUSE_PATH
-    },
-    options
-  )
+function moveTo(creep, target, options) {
+    const opts = Object.assign(
+        {
+            range: 1,
+            avoidCreeps: false,
+            visualizePath: true,
+            reusePath: PATHFINDER_DEFAULTS.REUSE_PATH,
+        },
+        options
+    );
 
-  const moveOptions = {
-    reusePath: opts.reusePath,
-    maxRooms: opts.avoidCreeps ? 1 : PATHFINDER_DEFAULTS.MAX_ROOMS,
-    costCallback: (roomName, costMatrix) => {
-      return buildCostMatrix(roomName, {
-        avoidCreeps: opts.avoidCreeps,
-        useCache: true
-      })
+    const moveOptions = {
+        reusePath: opts.reusePath,
+        maxRooms: opts.avoidCreeps ? 1 : PATHFINDER_DEFAULTS.MAX_ROOMS,
+        costCallback: (roomName, costMatrix) => {
+            return buildCostMatrix(roomName, {
+                avoidCreeps: opts.avoidCreeps,
+                useCache: true,
+            });
+        },
+    };
+
+    if (opts.visualizePath) {
+        moveOptions.visualizePathStyle = {
+            fill: 'transparent',
+            stroke: '#00bfff',
+            lineStyle: 'dashed',
+            strokeWidth: 0.15,
+            opacity: 0.3,
+        };
     }
-  }
 
-  if (opts.visualizePath) {
-    moveOptions.visualizePathStyle = {
-      fill: 'transparent',
-      stroke: '#00bfff',
-      lineStyle: 'dashed',
-      strokeWidth: 0.15,
-      opacity: 0.3
-    }
-  }
-
-  return creep.moveTo(target, moveOptions)
+    return creep.moveTo(target, moveOptions);
 }
 
 // ============================================================
@@ -291,8 +291,8 @@ function moveTo (creep, target, options) {
  * @param {RoomPosition} b
  * @returns {number}
  */
-function chebyshev (a, b) {
-  return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y))
+function chebyshev(a, b) {
+    return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 }
 
 /**
@@ -301,8 +301,8 @@ function chebyshev (a, b) {
  * @param {RoomPosition} b
  * @returns {number}
  */
-function manhattan (a, b) {
-  return Math.abs(a.x - b.x) + Math.abs(a.y - b.y)
+function manhattan(a, b) {
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
 }
 
 /**
@@ -311,12 +311,12 @@ function manhattan (a, b) {
  * @param {RoomObject[]} objects
  * @returns {RoomObject[]}
  */
-function sortByDistance (origin, objects) {
-  return objects.slice().sort((a, b) => {
-    const da = origin.getRangeTo(a)
-    const db = origin.getRangeTo(b)
-    return da - db
-  })
+function sortByDistance(origin, objects) {
+    return objects.slice().sort((a, b) => {
+        const da = origin.getRangeTo(a);
+        const db = origin.getRangeTo(b);
+        return da - db;
+    });
 }
 
 /**
@@ -325,18 +325,18 @@ function sortByDistance (origin, objects) {
  * @param {RoomObject[]} objects
  * @returns {RoomObject|null}
  */
-function closest (origin, objects) {
-  if (!objects || objects.length === 0) return null
-  let best = null
-  let bestDist = Infinity
-  for (const obj of objects) {
-    const d = origin.getRangeTo(obj)
-    if (d < bestDist) {
-      bestDist = d
-      best = obj
+function closest(origin, objects) {
+    if (!objects || objects.length === 0) return null;
+    let best = null;
+    let bestDist = Infinity;
+    for (const obj of objects) {
+        const d = origin.getRangeTo(obj);
+        if (d < bestDist) {
+            bestDist = d;
+            best = obj;
+        }
     }
-  }
-  return best
+    return best;
 }
 
 /**
@@ -345,42 +345,42 @@ function closest (origin, objects) {
  * @param {number} [range=3]
  * @returns {RoomPosition|null}
  */
-function findNearestOpenTile (pos, range) {
-  const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE)
-  const room = Game.rooms[pos.roomName]
-  if (!room) return null
+function findNearestOpenTile(pos, range) {
+    const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE);
+    const room = Game.rooms[pos.roomName];
+    if (!room) return null;
 
-  const top = Math.max(1, pos.y - r)
-  const left = Math.max(1, pos.x - r)
-  const bottom = Math.min(48, pos.y + r)
-  const right = Math.min(48, pos.x + r)
+    const top = Math.max(1, pos.y - r);
+    const left = Math.max(1, pos.x - r);
+    const bottom = Math.min(48, pos.y + r);
+    const right = Math.min(48, pos.x + r);
 
-  // ⚡ PERFORMANCE & SECURITY: Use bulk lookAtArea to minimize engine API calls and mitigate CPU DoS.
-  const lookData = room.lookAtArea(top, left, bottom, right, true)
-  const blockedTiles = new Set()
+    // ⚡ PERFORMANCE & SECURITY: Use bulk lookAtArea to minimize engine API calls and mitigate CPU DoS.
+    const lookData = room.lookAtArea(top, left, bottom, right, true);
+    const blockedTiles = new Set();
 
-  for (let i = 0; i < lookData.length; i++) {
-    const item = lookData[i]
-    if (item.type === 'structure' || item.type === 'creep') {
-      blockedTiles.add(`${item.x},${item.y}`)
+    for (let i = 0; i < lookData.length; i++) {
+        const item = lookData[i];
+        if (item.type === 'structure' || item.type === 'creep') {
+            blockedTiles.add(`${item.x},${item.y}`);
+        }
     }
-  }
 
-  const terrain = room.getTerrain()
+    const terrain = room.getTerrain();
 
-  for (let dx = -r; dx <= r; dx++) {
-    for (let dy = -r; dy <= r; dy++) {
-      const x = pos.x + dx
-      const y = pos.y + dy
-      if (x < 1 || x > 48 || y < 1 || y > 48) continue
+    for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+            const x = pos.x + dx;
+            const y = pos.y + dy;
+            if (x < 1 || x > 48 || y < 1 || y > 48) continue;
 
-      if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue
-      if (blockedTiles.has(`${x},${y}`)) continue
+            if (terrain.get(x, y) === TERRAIN_MASK_WALL) continue;
+            if (blockedTiles.has(`${x},${y}`)) continue;
 
-      return new RoomPosition(x, y, pos.roomName)
+            return new RoomPosition(x, y, pos.roomName);
+        }
     }
-  }
-  return null
+    return null;
 }
 
 /**
@@ -388,9 +388,9 @@ function findNearestOpenTile (pos, range) {
  * @param {Room} room
  * @returns {RoomPosition[]}
  */
-function getRoadPositions (room) {
-  const roads = cacheUtils.getStructures(room).filter((r) => r.structureType === STRUCTURE_ROAD)
-  return roads.map((r) => r.pos)
+function getRoadPositions(room) {
+    const roads = cacheUtils.getStructures(room).filter((r) => r.structureType === STRUCTURE_ROAD);
+    return roads.map((r) => r.pos);
 }
 
 // ============================================================
@@ -404,49 +404,49 @@ function getRoadPositions (room) {
  * @param {RoomPosition} goal
  * @returns {number} ステップ数、到達不可の場合は Infinity
  */
-function estimateDistance (origin, goal) {
-  const cache = ensureCache()
+function estimateDistance(origin, goal) {
+    const cache = ensureCache();
 
-  // Security: Validate inputs
-  if (!origin || !goal || !isSafeKey(origin.roomName) || !isSafeKey(goal.roomName)) {
-    return Infinity
-  }
-
-  const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`
-
-  if (isSafeKey(key)) {
-    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined
-    if (entry && entry.expires > Game.time) {
-      return entry.data
+    // Security: Validate inputs
+    if (!origin || !goal || !isSafeKey(origin.roomName) || !isSafeKey(goal.roomName)) {
+        return Infinity;
     }
-  }
 
-  const result = findPath(origin, goal)
-  const dist = result.incomplete ? Infinity : result.path.length
+    const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
 
-  if (isSafeKey(key)) {
-    // Security: Cap the number of cache entries to prevent Memory DoS
-    if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
-      cache[key] = {
-        data: dist,
-        expires: Game.time + CACHE_TTL.PATH
-      }
+    if (isSafeKey(key)) {
+        const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+        if (entry && entry.expires > Game.time) {
+            return entry.data;
+        }
     }
-  }
 
-  return dist
+    const result = findPath(origin, goal);
+    const dist = result.incomplete ? Infinity : result.path.length;
+
+    if (isSafeKey(key)) {
+        // Security: Cap the number of cache entries to prevent Memory DoS
+        if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
+            cache[key] = {
+                data: dist,
+                expires: Game.time + CACHE_TTL.PATH,
+            };
+        }
+    }
+
+    return dist;
 }
 
 module.exports = {
-  buildCostMatrix,
-  findPath,
-  moveTo,
-  chebyshev,
-  manhattan,
-  sortByDistance,
-  closest,
-  findNearestOpenTile,
-  getRoadPositions,
-  estimateDistance,
-  isSafeKey
-}
+    buildCostMatrix,
+    findPath,
+    moveTo,
+    chebyshev,
+    manhattan,
+    sortByDistance,
+    closest,
+    findNearestOpenTile,
+    getRoadPositions,
+    estimateDistance,
+    isSafeKey,
+};

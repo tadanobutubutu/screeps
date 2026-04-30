@@ -1,3 +1,4 @@
+global.FIND_HOSTILE_CREEPS = 103;
 /**
  * src/roles/*.js のユニットテスト
  */

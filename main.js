@@ -134,17 +134,18 @@ function runDefenseLogic (room) {
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: ホイストされたクリープ実行関数。クロージャの生成を削減。
+ * 直接引数を受け取ることで中間オブジェクトの割り当てを回避。
  */
-function runCreepWithLogging (item, isEmotionsEnabled) {
-  logger.tryCatch(runCreepLogic, 'creep_' + item.name, item.creep, item.role, isEmotionsEnabled)
+function runCreepWithLogging (creep, role, name, isEmotionsEnabled) {
+  logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled)
 }
 
-function runCreepMinimal (item, isEmotionsEnabled) {
+function runCreepMinimal (creep, role, name, isEmotionsEnabled) {
   try {
-    runCreepLogic(item.creep, item.role, isEmotionsEnabled)
+    runCreepLogic(creep, role, isEmotionsEnabled)
   } catch (e) {
     Sentry.captureException(e)
-    logger.error('Error in creep ' + item.name + ': ' + e.message)
+    logger.error('Error in creep ' + name + ': ' + e.message)
   }
 }
 
@@ -291,70 +292,52 @@ function warmRoomCache (room) {
   room._freeSpawnsTick = Game.time
 }
 
-/**
- * ⚡ PERFORMANCE OPTIMIZATION: クリープのデータ収集と初期化を行う。
- * processCreeps関数の肥大化を防ぐための抽出。
- */
-function collectCreepData (
-  creep,
-  creepCounts,
-  creepsToProcess,
-  isLoggingEnabled,
-  isEmotionsEnabled
-) {
-  const memory = creep.memory
-  const n = creep.name
-  let role = memory.role
-  if (!role) {
-    role = memory.role = 'harvester'
-    if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester')
-  }
-  creepCounts[role] = (creepCounts[role] || 0) + 1
-
-  // ロジック実行用に情報を保持
-  creepsToProcess.push({ creep, role, name: n })
-
-  const room = creep.room
-  if (room) {
-    room._myCreeps.push(creep)
-    if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
-    if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
-    if (role === 'defender') room._defenders.push(creep)
-  }
-}
-
 function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
-  const creepsToProcess = []
 
   // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
-  // 引数で渡されたrooms配列を使用。
   for (let i = 0; i < rooms.length; i++) {
-    const room = rooms[i]
-
-    warmRoomCache(room)
+    warmRoomCache(rooms[i])
   }
 
-  // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
-  // 引数で渡されたcreeps配列を使用。
-  for (let i = 0; i < creeps.length; i++) {
-    const creep = creeps[i]
-    collectCreepData(creep, creepCounts, creepsToProcess, isLoggingEnabled, isEmotionsEnabled)
-  }
-
-  // 建設サイトの処理 (⚡ PERFORMANCE: 引数で渡されたsites配列を使用)
+  // ⚡ PERFORMANCE: 建設サイトの処理
   for (let i = 0; i < sites.length; i++) {
     const site = sites[i]
     if (site.my && site.room) site.room._myConstructionSites.push(site)
   }
 
-  // ⚡ PERFORMANCE: ホイストされたロジック実行
-  // ループ内での条件分岐を避けるため、実行関数を決定する
+  // Pass 1: データ収集
+  // ⚡ PERFORMANCE: 以前の creepsToProcess 配列の作成を回避し、
+  // 中間オブジェクトの割り当てをなくす。
+  for (let i = 0; i < creeps.length; i++) {
+    const creep = creeps[i]
+    const memory = creep.memory
+    let role = memory.role
+
+    if (!role) {
+      role = memory.role = 'harvester'
+      if (isLoggingEnabled) logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
+    }
+    creepCounts[role] = (creepCounts[role] || 0) + 1
+
+    const room = creep.room
+    if (room) {
+      room._myCreeps.push(creep)
+      if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
+      if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
+      if (role === 'defender') room._defenders.push(creep)
+    }
+  }
+
+  // Pass 2: ロジック実行
+  // ⚡ PERFORMANCE: 収集完了後（部屋の統計が揃った状態）でロジックを実行。
   const processFn = isLoggingEnabled ? runCreepWithLogging : runCreepMinimal
 
-  for (let i = 0; i < creepsToProcess.length; i++) {
-    processFn(creepsToProcess[i], isEmotionsEnabled)
+  for (let i = 0; i < creeps.length; i++) {
+    const creep = creeps[i]
+    processFn(creep, creep.memory.role, creep.name, isEmotionsEnabled)
   }
+
   return creepCounts
 }
 

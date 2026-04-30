@@ -49,7 +49,10 @@ jest.mock('../role.medic', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.transporter', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.scout', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../defense.manager', () => ({ run: jest.fn() }), { virtual: true });
-jest.mock('../utils.memory', () => ({ cleanMemory: jest.fn().mockReturnValue(0) }), { virtual: true });
+jest.mock('../utils.memory', () => ({
+  cleanMemory: jest.fn().mockReturnValue(0),
+  isSafeKey: jest.fn().mockReturnValue(true),
+}), { virtual: true });
 jest.mock('../utils.logging', () => ({
   init: jest.fn(),
   warn: jest.fn(),

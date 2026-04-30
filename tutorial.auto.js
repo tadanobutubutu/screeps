@@ -195,8 +195,13 @@ const autoTutorial = {
 
         // Tower防衛
         const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
+        const hostilesCache = {};
         for (const tower of towers) {
-            const hostiles = tower.room.find(FIND_HOSTILE_CREEPS);
+            const roomName = tower.room.name;
+            if (!hostilesCache[roomName]) {
+                hostilesCache[roomName] = tower.room.find(FIND_HOSTILE_CREEPS);
+            }
+            const hostiles = hostilesCache[roomName];
             if (hostiles.length > 0) {
                 tower.attack(hostiles[0]);
             }

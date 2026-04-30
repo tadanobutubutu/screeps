@@ -7,16 +7,8 @@ const ptrToken = process.env.SCREEPS_TOKEN;
 const prodToken = process.env.SCREEPS_PROD_TOKEN;
 
 // トークン検証関数
-function validateToken(token, label) {
-    if (!token) {
-        return { valid: false, message: `${label} token is not set` };
-    }
-    // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
-    const tokenPattern = /^[a-zA-Z0-9_-]{20,}$/;
-    if (!tokenPattern.test(token)) {
-        return { valid: false, message: `${label} token format is invalid` };
-    }
-    return { valid: true };
+function validateToken(token) {
+    return /^[a-f0-9]{32}$/i.test(token);
 }
 
 // ファイルパス検証関数（パストラバーサル対策）
@@ -45,9 +37,8 @@ function deployTo(label, apiPath, token, modules) {
             return resolve();
         }
 
-        const validation = validateToken(token, label);
-        if (!validation.valid) {
-            console.log(`[${label}] ${validation.message}, skipping.`);
+        if (!validateToken(token)) {
+            console.log(`[${label}] token format is invalid, skipping.`);
             return resolve();
         }
 

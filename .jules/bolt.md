@@ -143,3 +143,8 @@
 ## 2026-12-15 - Hostile Target Hoisting and Lazy-Loading Synergy
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
+
+## 2026-03-02 - Optimized Two-Pass Creep Processing and Object Allocation Avoidance
+
+**Learning:** In high-frequency loops like per-creep processing, creating intermediate arrays of objects (e.g., `creepsToProcess`) and using closure-heavy wrappers significantly increases memory allocation and garbage collection pressure. However, merging collection and execution into a single pass breaks world-state consistency (e.g., role counts are incomplete for early creeps). A two-pass approach over the pre-fetched collection, combined with refactored execution wrappers that accept direct arguments, provides the best balance of speed, memory efficiency, and logical correctness.
+**Action:** Use two-pass iteration for world-state sensitive loops and refactor logic wrappers to avoid per-object temporary allocation in high-frequency paths.

@@ -318,15 +318,7 @@ const adaptiveSystem = {
         console.log('✅ Emergency cleanup completed');
     },
 
-    /**
-     * ダッシュボード表示
-     */
-    showDashboard: function () {
-        this.init();
-        const mode = Memory.adaptive.currentMode;
-        // Security: Escape mode name to prevent console injection
-        const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase();
-
+    _printResourceUsage: function (modeName) {
         const cpuUsed = Game.cpu.getUsed();
         const cpuLimit = Game.cpu.limit;
         const cpuBucket = Game.cpu.bucket;
@@ -354,8 +346,9 @@ const adaptiveSystem = {
                 '%)'
         );
         console.log('');
+    },
 
-        // 有効機能リスト
+    _printEnabledFeatures: function () {
         console.log('Enabled Features:');
         const allFeatures = [
             'basicRoles',
@@ -379,9 +372,10 @@ const adaptiveSystem = {
             }
         }
         console.log('  ' + enabledCount + '/' + allFeatures.length + ' features active');
-
-        // 統計
         console.log('');
+    },
+
+    _printModeStatistics: function () {
         console.log('Mode Statistics:');
         const stats = Memory.adaptive.stats;
         const total =
@@ -392,8 +386,9 @@ const adaptiveSystem = {
             console.log('  Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
             console.log('  Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
         }
+    },
 
-        // 最近のモード変更履歴
+    _printRecentHistory: function () {
         if (Memory.adaptive.modeHistory.length > 0) {
             console.log('');
             console.log('Recent Mode Changes:');
@@ -405,18 +400,25 @@ const adaptiveSystem = {
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
                 console.log(
-                    '  [' +
-                        h.time +
-                        '] ' +
-                        fromName +
-                        ' → ' +
-                        toName +
-                        ' (' +
-                        reason +
-                        ')'
+                    '  [' + h.time + '] ' + fromName + ' → ' + toName + ' (' + reason + ')'
                 );
             }
         }
+    },
+
+    /**
+     * ダッシュボード表示
+     */
+    showDashboard: function () {
+        this.init();
+        const mode = Memory.adaptive.currentMode;
+        // Security: Escape mode name to prevent console injection
+        const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase();
+
+        this._printResourceUsage(modeName);
+        this._printEnabledFeatures();
+        this._printModeStatistics();
+        this._printRecentHistory();
     },
 
     /**

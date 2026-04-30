@@ -7,7 +7,9 @@
     "eslint:recommended",
     "prettier"
   ],
-  "plugins": ["prettier"],
+  "plugins": [
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": 2020,
     "sourceType": "module"
@@ -27,16 +29,37 @@
     "STRUCTURE_SPAWN": "readonly",
     "OK": "readonly",
     "ERR_NOT_ENOUGH_ENERGY": "readonly",
-    "ERR_BUSY": "readonly"
+    "ERR_BUSY": "readonly",
+    "ERR_NOT_IN_RANGE": "readonly",
+    "WORK": "readonly",
+    "RESOURCE_ENERGY": "readonly",
+    "CARRY": "readonly",
+    "MOVE": "readonly",
+    "_": "readonly",
+    "FIND_CONSTRUCTION_SITES": "readonly"
   },
   "rules": {
-    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+    "no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_"
+      }
+    ],
     "no-console": "off",
     "prefer-const": "error",
     "no-var": "error",
     "prettier/prettier": "error",
-    "eqeqeq": ["error", "always"],
-    "curly": ["error", "all"],
-    "brace-style": ["error", "1tbs"]
+    "eqeqeq": [
+      "error",
+      "always"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "brace-style": [
+      "error",
+      "1tbs"
+    ]
   }
 }

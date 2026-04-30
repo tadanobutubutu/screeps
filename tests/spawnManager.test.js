@@ -194,3 +194,4 @@ describe('spawnManager', () => {
     });
   });
 });
+global.FIND_CONSTRUCTION_SITES = 111;

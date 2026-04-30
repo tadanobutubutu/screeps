@@ -214,3 +214,4 @@ describe('src/roles/miner', () => {
     expect(visual.circle).toHaveBeenCalled()
   })
 })
+global.FIND_SOURCES = 222;

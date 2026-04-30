@@ -67,7 +67,6 @@ function ensureCache () {
   return global.cache
 }
 
-
 /**
  * 構造物のコストを設定するヘルパー
  * @param {PathFinder.CostMatrix} costs
@@ -91,7 +90,7 @@ function _setStructureCosts (costs, room) {
       default:
         if (
           struct.structureType !== STRUCTURE_CONTAINER &&
-          struct.structureType !== STRUCTURE_LINK
+                    struct.structureType !== STRUCTURE_LINK
         ) {
           if (!struct.my) {
             costs.set(struct.pos.x, struct.pos.y, 255)
@@ -111,8 +110,8 @@ function _setConstructionSiteCosts (costs, room) {
   for (const site of sites) {
     if (
       site.structureType !== STRUCTURE_ROAD &&
-      site.structureType !== STRUCTURE_RAMPART &&
-      site.structureType !== STRUCTURE_CONTAINER
+            site.structureType !== STRUCTURE_RAMPART &&
+            site.structureType !== STRUCTURE_CONTAINER
     ) {
       costs.set(site.pos.x, site.pos.y, 3)
     }
@@ -134,7 +133,6 @@ function _setCreepCosts (costs, room) {
 // ============================================================
 // コストマトリクス構築
 // ============================================================
-
 
 /**
  * ルーム用のカスタムコストマトリクスを構築する

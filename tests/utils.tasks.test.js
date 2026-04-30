@@ -8,6 +8,7 @@ const TaskQueue = require('../utils.tasks');
 const utilsMemory = require('../utils.memory');
 const logger = require('../utils.logging');
 
+    global.Memory = { logs: [] };
 jest.mock('../utils.memory');
 jest.mock('../utils.logging');
 

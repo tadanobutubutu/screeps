@@ -13,6 +13,7 @@ global.CARRY = 'carry';
 global.MOVE = 'move';
 global.ATTACK = 'attack';
 global.RANGED_ATTACK = 'ranged_attack';
+global.FIND_CONSTRUCTION_SITES = 111;
 
 // モックの設定
 jest.mock('../src/utils/cache', () => ({

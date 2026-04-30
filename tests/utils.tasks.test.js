@@ -15,6 +15,7 @@ describe('utils.tasks', () => {
   beforeEach(() => {
     TaskQueue.tasks = [];
     global.Game = { time: 100 };
+    global.Memory = { logs: [] };
     jest.clearAllMocks();
     utilsMemory.isSafeKey.mockReturnValue(true);
   });

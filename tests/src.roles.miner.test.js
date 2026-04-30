@@ -12,6 +12,8 @@ global.ATTACK = 'attack'
 global.RANGED_ATTACK = 'ranged_attack'
 global.HEAL = 'heal'
 global.CLAIM = 'claim'
+global.FIND_SOURCES = 5;
+
 global.TOUGH = 'tough'
 global.TERRAIN_MASK_WALL = 1
 global.FIND_STRUCTURES = 5

@@ -47,8 +47,8 @@ const isSafeKey = (key) => {
   // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
   // and avoid unnecessary string/Set checks.
   if (typeof key === 'number') {
-return true
-}
+    return true
+  }
   // Security: Block dangerous properties that could lead to Prototype Pollution
   // or property shadowing when using user-provided strings as object keys.
   return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key)
@@ -66,8 +66,8 @@ const COST_MATRIX_CACHE_PREFIX = 'cm_'
  */
 function ensureCache () {
   if (!global.cache) {
-global.cache = {}
-}
+    global.cache = {}
+  }
   return global.cache
 }
 
@@ -312,8 +312,8 @@ function sortByDistance (origin, objects) {
  */
 function closest (origin, objects) {
   if (!objects || objects.length === 0) {
-return null
-}
+    return null
+  }
   let best = null
   let bestDist = Infinity
   for (const obj of objects) {
@@ -336,8 +336,8 @@ function findNearestOpenTile (pos, range) {
   const r = Math.min(range || 3, PATHFINDER_DEFAULTS.MAX_SEARCH_RANGE)
   const room = Game.rooms[pos.roomName]
   if (!room) {
-return null
-}
+    return null
+  }
 
   const top = Math.max(1, pos.y - r)
   const left = Math.max(1, pos.x - r)
@@ -362,15 +362,15 @@ return null
       const x = pos.x + dx
       const y = pos.y + dy
       if (x < 1 || x > 48 || y < 1 || y > 48) {
-continue
-}
+        continue
+      }
 
       if (terrain.get(x, y) === TERRAIN_MASK_WALL) {
-continue
-}
+        continue
+      }
       if (blockedTiles.has(`${x},${y}`)) {
-continue
-}
+        continue
+      }
 
       return new RoomPosition(x, y, pos.roomName)
     }

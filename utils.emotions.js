@@ -77,11 +77,11 @@ class EmotionSystem {
     const energyPercent =
             creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY)
     if (energyPercent < 0.1) {
-return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
-}
+      return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
+    }
     if (energyPercent > 0.9) {
-return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
-}
+      return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
+    }
     return null
   }
 
@@ -91,8 +91,8 @@ return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
   static _getHealthEmotion (creep) {
     const healthPercent = creep.hits / creep.hitsMax
     if (healthPercent < 0.5) {
-return { emoji: EMOTIONS.HURT, moodChange: -2 }
-}
+      return { emoji: EMOTIONS.HURT, moodChange: -2 }
+    }
     return null
   }
 
@@ -218,17 +218,17 @@ return { emoji: EMOTIONS.HURT, moodChange: -2 }
     const mood = creep.memory.emotions.mood
 
     if (mood >= 5) {
-return 'Very Happy 😄'
-}
+      return 'Very Happy 😄'
+    }
     if (mood >= 4) {
-return 'Happy 😊'
-}
+      return 'Happy 😊'
+    }
     if (mood >= 3) {
-return 'Neutral 😐'
-}
+      return 'Neutral 😐'
+    }
     if (mood >= 2) {
-return 'Sad 😟'
-}
+      return 'Sad 😟'
+    }
     return 'Very Sad 😭'
   }
 
@@ -250,17 +250,17 @@ return 'Sad 😟'
     const mood = creep.memory.emotions.mood
 
     if (mood >= 5) {
-return 1.1
-}
+      return 1.1
+    }
     if (mood >= 4) {
-return 1.05
-}
+      return 1.05
+    }
     if (mood >= 3) {
-return 1.0
-}
+      return 1.0
+    }
     if (mood >= 2) {
-return 0.95
-}
+      return 0.95
+    }
     return 0.9
   }
 
@@ -289,16 +289,16 @@ return 0.95
       const mood = creep.memory.emotions.mood
 
       if (mood >= 5) {
-stats.veryHappy++
-} else if (mood >= 4) {
-stats.happy++
-} else if (mood >= 3) {
-stats.neutral++
-} else if (mood >= 2) {
-stats.sad++
-} else {
-stats.verySad++
-}
+        stats.veryHappy++
+      } else if (mood >= 4) {
+        stats.happy++
+      } else if (mood >= 3) {
+        stats.neutral++
+      } else if (mood >= 2) {
+        stats.sad++
+      } else {
+        stats.verySad++
+      }
 
       stats.total++
     }

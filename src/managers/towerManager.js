@@ -36,8 +36,8 @@ function run (room) {
   try {
     const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
     if (towers.length === 0) {
-return
-}
+      return
+    }
 
     const enemies = cache.getEnemies(room)
     const myCreeps = room.find(FIND_MY_CREEPS)
@@ -45,8 +45,8 @@ return
 
     for (const tower of towers) {
       if (tower.store[RESOURCE_ENERGY] < 10) {
-continue
-}
+        continue
+      }
       _runTower(tower, enemies, injuredCreeps, room)
     }
   } catch (e) {
@@ -67,11 +67,11 @@ continue
  */
 function _runTower (tower, enemies, injuredCreeps, room) {
   if (_tryAttack(tower, enemies)) {
-return
-}
+    return
+  }
   if (_tryHeal(tower, injuredCreeps)) {
-return
-}
+    return
+  }
   _tryRepair(tower, room)
 }
 
@@ -83,8 +83,8 @@ return
  */
 function _tryAttack (tower, enemies) {
   if (enemies.length === 0) {
-return false
-}
+    return false
+  }
   const target = _selectAttackTarget(tower, enemies)
   if (target) {
     tower.attack(target)
@@ -102,8 +102,8 @@ return false
  */
 function _tryHeal (tower, injuredCreeps) {
   if (injuredCreeps.length === 0) {
-return false
-}
+    return false
+  }
   const target = _selectHealTarget(tower, injuredCreeps)
   if (target) {
     tower.heal(target)
@@ -122,8 +122,8 @@ return false
 function _tryRepair (tower, room) {
   const energyRatio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
   if (energyRatio <= TOWER_ENERGY_PRIORITY) {
-return false
-}
+    return false
+  }
 
   const repairTarget = _selectRepairTarget(tower, room)
   if (repairTarget) {
@@ -147,8 +147,8 @@ return false
  */
 function _selectAttackTarget (tower, enemies) {
   if (enemies.length === 0) {
-return null
-}
+    return null
+  }
 
   // HPが閾値以下の敵を最優先
   const criticalEnemies = enemies.filter((e) => e.hits <= TOWER_ATTACK_PRIORITY_HP)
@@ -191,8 +191,8 @@ return null
  */
 function _selectHealTarget (tower, injured) {
   if (injured.length === 0) {
-return null
-}
+    return null
+  }
   return injured.reduce((a, b) => (a.hits / a.hitsMax < b.hits / b.hitsMax ? a : b))
 }
 
@@ -224,19 +224,19 @@ function _selectRepairTarget (tower, room) {
   const damaged = room.find(FIND_STRUCTURES, {
     filter: (s) => {
       if (s.structureType === STRUCTURE_WALL) {
-return false
-}
+        return false
+      }
       if (s.structureType === STRUCTURE_RAMPART) {
-return false
-}
+        return false
+      }
       const threshold = REPAIR_THRESHOLD[s.structureType] || REPAIR_THRESHOLD.OTHER
       return s.hits < s.hitsMax * threshold
     }
   })
 
   if (damaged.length === 0) {
-return null
-}
+    return null
+  }
 
   // 最も損傷率が高い構造物
   return damaged.reduce((a, b) => {
@@ -339,19 +339,19 @@ function getStats (room) {
   }
 
   if (towers.length === 0) {
-return stats
-}
+    return stats
+  }
 
   let totalEnergy = 0
   for (const tower of towers) {
     const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
     totalEnergy += ratio
     if (ratio < TOWER_ENERGY_PRIORITY) {
-stats.lowEnergy++
-}
+      stats.lowEnergy++
+    }
     if (tower.store[RESOURCE_ENERGY] > 0) {
-stats.active++
-}
+      stats.active++
+    }
   }
   stats.avgEnergy = totalEnergy / towers.length
 

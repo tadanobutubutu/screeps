@@ -72,6 +72,7 @@ const spawnManager = require('../src/managers/spawnManager');
 const cache = require('../src/utils/cache');
 
 describe('spawnManager', () => {
+  beforeEach(() => { global.FIND_CONSTRUCTION_SITES = 111; global.FIND_SOURCES = 105; });
   let mockSpawn;
   let mockRoom;
 

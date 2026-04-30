@@ -60,6 +60,7 @@ const pathfinder = require('../src/utils/pathfinder')
 const defender = require('../src/roles/defender')
 
 describe('src/roles/defender', () => {
+  beforeEach(() => { global.LOG_LEVEL = { ERROR: 3 }; global.FIND_HOSTILE_CREEPS = 'find_hostiles'; });
   beforeEach(() => {
     jest.clearAllMocks()
   })
@@ -165,7 +166,7 @@ describe('src/roles/defender', () => {
   })
 
   test('セーフモード判定が敵数と防衛数でtrueになる', () => {
-    const room = {
+    const room = { find: jest.fn().mockReturnValue([{}]),
       name: 'W0N0',
       controller: { my: true, safeMode: null, safeModeAvailable: 1 }
     }

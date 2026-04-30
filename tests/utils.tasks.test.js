@@ -12,6 +12,7 @@ jest.mock('../utils.memory');
 jest.mock('../utils.logging');
 
 describe('utils.tasks', () => {
+  beforeEach(() => { global.Memory = { logs: [] }; });
   beforeEach(() => {
     TaskQueue.tasks = [];
     global.Game = { time: 100 };

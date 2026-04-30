@@ -3,6 +3,9 @@
  * 負荷が高い時は自動的に機能を制限し、余裕がある時は全機能を有効化
  */
 
+const utilsMemory = require('./utils.memory');
+const logger = require('./utils.logging');
+
 /**
  * System modes:
  * 0: EMERGENCY - Minimal functionality to survive.
@@ -243,8 +246,9 @@ const adaptiveSystem = {
      * モード変更ログ
      */
     logModeChange: function (oldMode, newMode, stats) {
-        const oldName = this.getModeName(oldMode);
-        const newName = this.getModeName(newMode);
+        // Security: Escape mode names to prevent console injection
+        const oldName = logger.escapeHTML(this.getModeName(oldMode));
+        const newName = logger.escapeHTML(this.getModeName(newMode));
 
         console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
         console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
@@ -287,7 +291,11 @@ const adaptiveSystem = {
         // Clean up per-creep memory (non-essential features)
         if (Memory.creeps) {
             for (const name in Memory.creeps) {
-                if (Object.prototype.hasOwnProperty.call(Memory.creeps, name)) {
+                // Security: Use isSafeKey to prevent prototype pollution during iteration
+                if (
+                    utilsMemory.isSafeKey(name) &&
+                    Object.prototype.hasOwnProperty.call(Memory.creeps, name)
+                ) {
                     const creepMemory = Memory.creeps[name];
                     if (creepMemory) {
                         delete creepMemory.diary;
@@ -316,7 +324,8 @@ const adaptiveSystem = {
     showDashboard: function () {
         this.init();
         const mode = Memory.adaptive.currentMode;
-        const modeName = this.getModeName(mode).toUpperCase();
+        // Security: Escape mode name to prevent console injection
+        const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase();
 
         const cpuUsed = Game.cpu.getUsed();
         const cpuLimit = Game.cpu.limit;
@@ -391,15 +400,19 @@ const adaptiveSystem = {
             const recentHistory = Memory.adaptive.modeHistory.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
+                // Security: Escape all dynamic strings before console output
+                const fromName = logger.escapeHTML(this.getModeName(h.from));
+                const toName = logger.escapeHTML(this.getModeName(h.to));
+                const reason = logger.escapeHTML(h.reason);
                 console.log(
                     '  [' +
                         h.time +
                         '] ' +
-                        this.getModeName(h.from) +
+                        fromName +
                         ' → ' +
-                        this.getModeName(h.to) +
+                        toName +
                         ' (' +
-                        h.reason +
+                        reason +
                         ')'
                 );
             }
@@ -412,12 +425,18 @@ const adaptiveSystem = {
     setMode: function (mode) {
         this.init();
 
-        if (mode < this.MODE.EMERGENCY || mode > this.MODE.FULL) {
-            console.log('❌ Invalid mode. Use 0-3.');
+        // Security: Boundary validation and type check for manual mode override
+        const numericMode = Number(mode);
+        if (
+            !Number.isInteger(numericMode) ||
+            numericMode < this.MODE.EMERGENCY ||
+            numericMode > this.MODE.FULL
+        ) {
+            console.log('❌ Invalid mode. Use 0-3 (Integer).');
             return;
         }
 
-        Memory.adaptive.currentMode = mode;
+        Memory.adaptive.currentMode = numericMode;
 
         // ⚡ PERFORMANCE: Update cache immediately on manual mode change
         _currentConfig = FEATURE_CONFIG[mode];

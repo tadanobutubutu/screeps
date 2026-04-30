@@ -25,7 +25,12 @@ function generateMissionId() {
     }
     // Fallback if crypto is unavailable
     const timePrefix = typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36);
-    return timePrefix + '-' + Math.random().toString(36).substr(2, 9);
+    // Fallback if crypto is unavailable but Math.random() is predictable
+    if (typeof global._missionIdCounter === 'undefined') {
+        global._missionIdCounter = 0;
+    }
+    global._missionIdCounter = (global._missionIdCounter + 1) % Number.MAX_SAFE_INTEGER;
+    return timePrefix + '-' + global._missionIdCounter.toString(36);
 }
 
 const MissionSystem = {

@@ -129,34 +129,33 @@
 **Action:** Use boolean-returning helper functions to extract complex execution branches while preserving strict short-circuiting logic in priority-based systems.
 
 ## 2026-11-17 - Hoisting and Volatile Caching in Defense Logic
-
 **Learning:** Storing tick-specific data like `threatLevel` in `Memory` causes unnecessary serialization overhead and creates bugs in multi-room environments where values are overwritten. Using volatile properties on the `room` object (e.g., `room._threatLevel`) is faster and room-isolated. Furthermore, hoisting $O(N)$ `find` operations out of tower loops avoids redundant per-tower checks even with per-tick caching guards.
 **Action:** Always prefer room-isolated volatile caching for tick-specific calculations and hoist $O(N)$ operations outside of nested loops to minimize property access and branch checking.
 
 ## 2026-12-01 - Optimizing High-Frequency Structure Scanning
-
 **Learning:** In the Screeps environment, rooms often contain thousands of walls which dominate the `FIND_STRUCTURES` array. Performing even basic Proxy property lookups (like `s.my` or `s.hits`) on these non-essential objects during every tick's scanning loop (`warmRoomCache`) is a massive CPU drain. Implementing an early `continue` for walls and hoisting `hits`/`hitsMax` into local variables for other structures significantly reduces per-tick CPU overhead.
 **Action:** Always use early `continue` for high-volume, non-essential objects in scanning loops and hoist frequently accessed engine properties to local variables to minimize Proxy lookup costs.
 
 ## 2026-04-28 - Volatile Cache for Visual Effects
-
 **Learning:** Storing high-frequency visual data like trail positions in `Memory` causes significant CPU overhead due to JSON serialization/deserialization every tick. JavaScript `Map` in the module scope provides O(1) access and completely bypasses the `Memory` bottleneck. However, it requires manual cleanup (e.g., every 1500 ticks) to prevent memory leaks from dead creeps.
 **Action:** Use module-scoped `Map` for non-persistent, high-frequency data and implement periodic cleanup tied to object lifespans.
 
 ## 2026-12-15 - Hostile Target Hoisting and Lazy-Loading Synergy
-
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
 
 ## Performance Update: tutorial.auto.js N+1
-
 **Date:** 2024-04-30
 **What:** Fixed N+1 query problem by caching `room.find(FIND_SOURCES)` and `room.find(FIND_CONSTRUCTION_SITES)` during iterative logic in `tutorial.auto.js`.
 **Why:** Prevented redundant and expensive engine array allocations triggered by every single creep lookup in the same room.
 **Improvement:** For a simulation of 50 creeps, reduced engine `find` calls from 1,000,000 per 10k ticks to exactly 10,000 for `step4_buildExtension`. Reduced duration from 68ms to 50ms, a ~25% reduction on raw simulated execution cost in standard JS environments.
 
 ## Lint Update: Global Declarations
-
 **Date:** 2024-04-30
 **What:** Fixed global object declarations to fix linting errors for CodeFactor.
 **Why:** The code references Screeps and Jest global variables but they were undeclared, causing `no-undef` violations. Added `/* global */` blocks directly in `tutorial.auto.js` and `tests/spawnManager.test.js` to suppress false positive linting issues. Format was also confirmed using Prettier.
+
+## Lint Update: Duplicate Declarations
+**Date:** 2024-04-30
+**What:** Fixed `no-redeclare` errors in `tutorial.auto.js` for CodeFactor.
+**Why:** The previous global variables fix included Screeps API globals (`Game`, `FIND_SOURCES`, etc.) that CodeFactor already inherently recognized for the environment. These were removed from the `/* global */` declaration. Format was also confirmed for `tests/utils.tasks.test.js`.

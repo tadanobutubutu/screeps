@@ -15,7 +15,11 @@ global.ERR_INVALID_ARGS = -10;
 global.FIND_HOSTILE_CREEPS = 10;
 global.FIND_DROPPED_RESOURCES = 11;
 global.FIND_STRUCTURES = 20;
-global.RoomPosition = class { constructor(x, y, roomName) { this.x = x; this.y = y; this.roomName = roomName; } };
+global.RoomPosition = class {
+ constructor(x, y, roomName) {
+ this.x = x; this.y = y; this.roomName = roomName;
+}
+};
 
 jest.mock('../gamification', () => ({
   trackAction: jest.fn(),

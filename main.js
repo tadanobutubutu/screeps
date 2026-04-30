@@ -203,7 +203,9 @@ function warmRoomCache (room) {
 
     // ⚡ PERFORMANCE: Skip walls (most numerous) to reduce redundant checks and Proxy lookups.
     // Estimated impact: Reduces structure loop CPU overhead by ~30-50% in fortified rooms.
-    if (type === STRUCTURE_WALL) continue
+    if (type === STRUCTURE_WALL) {
+continue
+}
 
     const hits = s.hits
     const hitsMax = s.hitsMax
@@ -222,14 +224,18 @@ function warmRoomCache (room) {
       ) {
         if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
           deliveryTargets.push(s)
-          if (type !== STRUCTURE_LAB) harvesterDeliveryTargets.push(s)
+          if (type !== STRUCTURE_LAB) {
+harvesterDeliveryTargets.push(s)
+}
         }
 
         if (type === STRUCTURE_TOWER) {
           towers.push(s)
         } else if (type === STRUCTURE_SPAWN) {
           spawns.push(s)
-          if (!s.spawning) freeSpawns.push(s)
+          if (!s.spawning) {
+freeSpawns.push(s)
+}
         }
       }
 
@@ -246,8 +252,12 @@ function warmRoomCache (room) {
       containers.push(s)
       const store = s.store
       if (store) {
-        if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) fillableContainers.push(s)
-        if (store[RESOURCE_ENERGY] > 0) withdrawalSources.push(s)
+        if (store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+fillableContainers.push(s)
+}
+        if (store[RESOURCE_ENERGY] > 0) {
+withdrawalSources.push(s)
+}
       }
       if (isDamaged) {
         repairTargets.push(s)
@@ -307,7 +317,9 @@ function collectCreepData (
   let role = memory.role
   if (!role) {
     role = memory.role = 'harvester'
-    if (isLoggingEnabled) logger.warn('Creep ' + n + ' had no role, set to harvester')
+    if (isLoggingEnabled) {
+logger.warn('Creep ' + n + ' had no role, set to harvester')
+}
   }
   creepCounts[role] = (creepCounts[role] || 0) + 1
 
@@ -317,9 +329,15 @@ function collectCreepData (
   const room = creep.room
   if (room) {
     room._myCreeps.push(creep)
-    if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
-    if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
-    if (role === 'defender') room._defenders.push(creep)
+    if (room._roleCounts[role] !== undefined) {
+room._roleCounts[role]++
+}
+    if (creep.hits < creep.hitsMax) {
+room._injuredCreeps.push(creep)
+}
+    if (role === 'defender') {
+room._defenders.push(creep)
+}
   }
 }
 
@@ -345,7 +363,9 @@ function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnable
   // 建設サイトの処理 (⚡ PERFORMANCE: 引数で渡されたsites配列を使用)
   for (let i = 0; i < sites.length; i++) {
     const site = sites[i]
-    if (site.my && site.room) site.room._myConstructionSites.push(site)
+    if (site.my && site.room) {
+site.room._myConstructionSites.push(site)
+}
   }
 
   // ⚡ PERFORMANCE: ホイストされたロジック実行
@@ -641,7 +661,9 @@ module.exports.loop = function () {
         for (const creep of creepsInRoom) {
           const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1)
           for (const neighbor of neighbors) {
-            if (creep.id === neighbor.id) continue
+            if (creep.id === neighbor.id) {
+continue
+}
 
             // Create a unique key for the pair to ensure we only check it once.
             const pairKey =

@@ -44,14 +44,12 @@ const DANGEROUS_KEYS = new Set([
 const isSafeKey = (key) => {
     // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
     // and avoid unnecessary string/Set checks.
-    if (typeof key === 'number') return true;
+    if (typeof key === 'number') {
+return true;
+}
     // Security: Block dangerous properties that could lead to Prototype Pollution
     // or property shadowing when using user-provided strings as object keys.
-    return (
-        typeof key === 'string' &&
-        key.length <= MAX_KEY_LENGTH &&
-        !DANGEROUS_KEYS.has(key)
-    );
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
 };
 
 // global.cache が未初期化の場合に初期化する
@@ -83,15 +81,21 @@ function _canAddCacheEntry(cache) {
  */
 function get(key, fetcher, ttl) {
     // Security: Validate key
-    if (!isSafeKey(key)) return fetcher();
+    if (!isSafeKey(key)) {
+return fetcher();
+}
 
     const cache = ensureCache();
 
     const validEntry = _getValidEntry(cache, key);
-    if (validEntry) return validEntry.data;
+    if (validEntry) {
+return validEntry.data;
+}
 
     // Security: Cap the number of cache entries to prevent Memory DoS
-    if (!_canAddCacheEntry(cache)) return fetcher();
+    if (!_canAddCacheEntry(cache)) {
+return fetcher();
+}
 
     const data = fetcher();
     cache[key] = {
@@ -106,7 +110,9 @@ function get(key, fetcher, ttl) {
  * @param {string} key - 無効化するキャッシュキー
  */
 function invalidate(key) {
-    if (!isSafeKey(key)) return;
+    if (!isSafeKey(key)) {
+return;
+}
     const cache = ensureCache();
     if (Object.prototype.hasOwnProperty.call(cache, key)) {
         delete cache[key];
@@ -185,11 +191,7 @@ function getStats() {
  * @returns {Source[]}
  */
 function getSources(room) {
-    return get(
-        `sources_${room.name}`,
-        () => room.find(FIND_SOURCES),
-        CACHE_TTL.SOURCES
-    );
+    return get(`sources_${room.name}`, () => room.find(FIND_SOURCES), CACHE_TTL.SOURCES);
 }
 
 /**
@@ -198,11 +200,7 @@ function getSources(room) {
  * @returns {Structure[]}
  */
 function getStructures(room) {
-    return get(
-        `structures_${room.name}`,
-        () => room.find(FIND_STRUCTURES),
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`structures_${room.name}`, () => room.find(FIND_STRUCTURES), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -245,11 +243,7 @@ function getConstructionSites(room) {
  * @returns {Creep[]}
  */
 function getEnemies(room) {
-    return get(
-        `enemies_${room.name}`,
-        () => room.find(FIND_HOSTILE_CREEPS),
-        CACHE_TTL.ENEMIES
-    );
+    return get(`enemies_${room.name}`, () => room.find(FIND_HOSTILE_CREEPS), CACHE_TTL.ENEMIES);
 }
 
 /**
@@ -271,11 +265,7 @@ function getDroppedResources(room) {
  * @returns {StructureSpawn[]}
  */
 function getSpawns(room) {
-    return get(
-        `spawns_${room.name}`,
-        () => room.find(FIND_MY_SPAWNS),
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -337,11 +327,7 @@ function getLinks(room) {
  * @returns {StructureStorage|null}
  */
 function getStorage(room) {
-    return get(
-        `storage_${room.name}`,
-        () => room.storage || null,
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`storage_${room.name}`, () => room.storage || null, CACHE_TTL.STRUCTURES);
 }
 
 // ============================================================
@@ -357,11 +343,15 @@ function getStorage(room) {
 function assignSource(creep, room) {
     if (creep.memory.sourceId) {
         const src = Game.getObjectById(creep.memory.sourceId);
-        if (src) return src;
+        if (src) {
+return src;
+}
     }
 
     const sources = getSources(room);
-    if (sources.length === 0) return null;
+    if (sources.length === 0) {
+return null;
+}
 
     // 各ソースに割り当てられているクリープ数をカウント
     const assignments = {};

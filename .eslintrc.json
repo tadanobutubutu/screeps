@@ -36,7 +36,14 @@
     "WORK": "readonly",
     "CARRY": "readonly",
     "MOVE": "readonly",
-    "_": "readonly"
+    "_": "readonly",
+    "STRUCTURE_WALL": "readonly",
+    "test": "readonly",
+    "jest": "readonly",
+    "expect": "readonly",
+    "describe": "readonly",
+    "beforeEach": "readonly",
+    "global": "readonly"
   },
   "rules": {
     "no-unused-vars": [

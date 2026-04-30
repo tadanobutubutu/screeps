@@ -170,11 +170,15 @@ function _upgrade(creep) {
  */
 function showVisuals(creep) {
     const controller = creep.room.controller;
-    if (!controller) return;
+    if (!controller) {
+return;
+}
 
     const progress = controller.progress;
     const max = controller.progressTotal;
-    if (!max) return;
+    if (!max) {
+return;
+}
 
     const pct = progress / max;
     creep.room.visual.text(

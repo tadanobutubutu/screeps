@@ -48,7 +48,9 @@ const MAX_ROADS_PER_CYCLE = 5;
  * @param {Room} room
  */
 function run(room) {
-    if (!room.controller || !room.controller.my) return;
+    if (!room.controller || !room.controller.my) {
+return;
+}
 
     try {
         // 定期タスク
@@ -107,7 +109,9 @@ function _cleanupRoomMemory(room) {
             Object.prototype.hasOwnProperty.call(Game.flags, flagName)
         ) {
             const flag = Game.flags[flagName];
-            if (flag.room && flag.room.name !== room.name) continue;
+            if (flag.room && flag.room.name !== room.name) {
+continue;
+}
 
             // 古いパトロールフラグを削除（1000ティック以上）
             if (flagName.startsWith('patrol_') && flag.memory && flag.memory.createdAt) {
@@ -160,7 +164,9 @@ function _planSourceContainers(room) {
         const nearby = existingContainers.filter(
             (c) => source.pos.getRangeTo(c) <= 2
         );
-        if (nearby.length > 0) continue;
+        if (nearby.length > 0) {
+continue;
+}
 
         // コンテナの建設サイトがすでにあれば skip
         const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
@@ -168,7 +174,9 @@ function _planSourceContainers(room) {
                 s.structureType === STRUCTURE_CONTAINER &&
                 source.pos.getRangeTo(s) <= 2,
         });
-        if (existingSites.length > 0) continue;
+        if (existingSites.length > 0) {
+continue;
+}
 
         // ソースの隣の空きタイルにコンテナを配置
         const pos = pathfinder.findNearestOpenTile(source.pos, 2);
@@ -188,7 +196,9 @@ function _planSourceContainers(room) {
  */
 function _planRoads(room) {
     const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) return;
+    if (spawns.length === 0) {
+return;
+}
 
     const spawn = spawns[0];
     const targets = [
@@ -210,7 +220,9 @@ function _planRoads(room) {
 
     for (const target of targets) {
         const result = pathfinder.findPath(spawn.pos, target);
-        if (result.incomplete) continue;
+        if (result.incomplete) {
+continue;
+}
 
         let planned = 0;
         for (const pos of result.path) {
@@ -222,7 +234,9 @@ function _planRoads(room) {
                 if (r === OK) {
                     planned++;
                     occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
-                    if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
+                    if (planned >= MAX_ROADS_PER_CYCLE) {
+break;
+} // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }
             }
         }
@@ -242,7 +256,9 @@ function _planExtensions(room) {
     const rcl = room.controller.level;
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][rcl] || 0;
 
-    if (maxExtensions === 0) return;
+    if (maxExtensions === 0) {
+return;
+}
 
     const existing = room.find(FIND_MY_STRUCTURES, {
         filter: { structureType: STRUCTURE_EXTENSION },
@@ -252,10 +268,14 @@ function _planExtensions(room) {
     });
 
     const currentCount = existing.length + sites.length;
-    if (currentCount >= maxExtensions) return;
+    if (currentCount >= maxExtensions) {
+return;
+}
 
     const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) return;
+    if (spawns.length === 0) {
+return;
+}
 
     const spawn = spawns[0];
     const needed = Math.min(5, maxExtensions - currentCount);
@@ -279,17 +299,25 @@ function _planExtensions(room) {
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
             for (let dy = -radius; dy <= radius && placed < needed; dy++) {
-                if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+                if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) {
+continue;
+}
 
                 const x = spawn.pos.x + dx;
                 const y = spawn.pos.y + dy;
-                if (x < 2 || x > 47 || y < 2 || y > 47) continue;
+                if (x < 2 || x > 47 || y < 2 || y > 47) {
+continue;
+}
 
                 const terrain = room.getTerrain().get(x, y);
-                if (terrain === TERRAIN_MASK_WALL) continue;
+                if (terrain === TERRAIN_MASK_WALL) {
+continue;
+}
 
                 const isBlocked = blockedMap.has(`${x},${y}`);
-                if (isBlocked) continue;
+                if (isBlocked) {
+continue;
+}
 
                 const r = room.createConstructionSite(x, y, STRUCTURE_EXTENSION);
                 if (r === OK) {
@@ -315,7 +343,9 @@ function _planExtensions(room) {
  */
 function _checkSafeMode(room) {
     const controller = room.controller;
-    if (!controller || controller.safeMode || controller.safeModeAvailable === 0) return;
+    if (!controller || controller.safeMode || controller.safeModeAvailable === 0) {
+return;
+}
 
     const enemies = cache.getEnemies(room);
     const dangerousEnemies = enemies.filter(
@@ -354,10 +384,14 @@ function _checkSafeMode(room) {
  */
 function _manageLinkNetwork(room) {
     const links = cache.getLinks(room);
-    if (links.length < 2) return;
+    if (links.length < 2) {
+return;
+}
 
     const controller = room.controller;
-    if (!controller) return;
+    if (!controller) {
+return;
+}
 
     // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
     const sourceLinks = links.filter(
@@ -377,11 +411,15 @@ function _manageLinkNetwork(room) {
                 (spawnPos && spawnPos.getRangeTo(l) <= 5))
     );
 
-    if (sourceLinks.length === 0 || sinkLinks.length === 0) return;
+    if (sourceLinks.length === 0 || sinkLinks.length === 0) {
+return;
+}
 
     for (const sourceLink of sourceLinks) {
         const sink = pathfinder.closest(sourceLink.pos, sinkLinks);
-        if (!sink) continue;
+        if (!sink) {
+continue;
+}
 
         const result = sourceLink.transferEnergy(sink);
         if (result === OK) {

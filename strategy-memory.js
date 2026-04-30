@@ -18,7 +18,9 @@ module.exports = {
   },
   
   displayBriefing: function() {
-    if (!Memory.strategy) return;
+    if (!Memory.strategy) {
+return;
+}
     
     logger.info('\n' + '='.repeat(60));
     logger.info('🎯 STRATEGIC BRIEFING BOARD');
@@ -29,7 +31,7 @@ module.exports = {
     logger.info('\n🛠️ TACTICAL ORDERS:');
     
     if (Memory.strategy.tactics) {
-      for (let role in Memory.strategy.tactics) {
+      for (const role in Memory.strategy.tactics) {
         logger.info(`  • ${role}: ${Memory.strategy.tactics[role]}`);
       }
     }

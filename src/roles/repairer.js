@@ -114,7 +114,9 @@ function _getRepairTarget(creep) {
     // 前回のターゲットを再利用
     if (creep.memory[MEMORY_KEYS.TARGET_ID]) {
         const saved = Game.getObjectById(creep.memory[MEMORY_KEYS.TARGET_ID]);
-        if (saved && _needsRepair(saved, creep.room)) return saved;
+        if (saved && _needsRepair(saved, creep.room)) {
+return saved;
+}
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
     }
 
@@ -127,17 +129,23 @@ function _getRepairTarget(creep) {
         filter: (s) => _needsRepair(s, room, wallTarget),
     });
 
-    if (damaged.length === 0) return null;
+    if (damaged.length === 0) {
+return null;
+}
 
     // 優先度 → HP率 → 距離でソート
     const sorted = damaged.slice().sort((a, b) => {
         const pa = REPAIR_PRIORITY[a.structureType] || 9;
         const pb = REPAIR_PRIORITY[b.structureType] || 9;
-        if (pa !== pb) return pa - pb;
+        if (pa !== pb) {
+return pa - pb;
+}
 
         const ra = a.hits / a.hitsMax;
         const rb = b.hits / b.hitsMax;
-        if (Math.abs(ra - rb) > 0.1) return ra - rb;
+        if (Math.abs(ra - rb) > 0.1) {
+return ra - rb;
+}
 
         return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
     });

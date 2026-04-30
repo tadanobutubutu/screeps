@@ -19,7 +19,9 @@ const TaskQueue = {
    */
   registerTask: function (name, interval, action, condition = () => true) {
     // Security: Validate task name
-    if (!utilsMemory.isSafeKey(name)) return
+    if (!utilsMemory.isSafeKey(name)) {
+return
+}
     const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH)
 
     // Check for duplicates to prevent queue bloating

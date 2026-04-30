@@ -24,8 +24,12 @@ describe('utils.defense', () => {
     const mockHostile = { id: 'hostile1' };
     const room = {
       find: jest.fn().mockImplementation((type) => {
-        if (type === FIND_MY_STRUCTURES) return [mockTower];
-        if (type === FIND_HOSTILE_CREEPS) return [mockHostile];
+        if (type === FIND_MY_STRUCTURES) {
+return [mockTower];
+}
+        if (type === FIND_HOSTILE_CREEPS) {
+return [mockHostile];
+}
         return [];
       }),
     };
@@ -43,9 +47,15 @@ describe('utils.defense', () => {
     const mockDamaged = { id: 'damaged1', hits: 50, hitsMax: 100, structureType: 'extension' };
     const room = {
       find: jest.fn().mockImplementation((type) => {
-        if (type === FIND_MY_STRUCTURES) return [mockTower];
-        if (type === FIND_HOSTILE_CREEPS) return [];
-        if (type === FIND_STRUCTURES) return [mockDamaged];
+        if (type === FIND_MY_STRUCTURES) {
+return [mockTower];
+}
+        if (type === FIND_HOSTILE_CREEPS) {
+return [];
+}
+        if (type === FIND_STRUCTURES) {
+return [mockDamaged];
+}
         return [];
       }),
     };
@@ -66,7 +76,9 @@ describe('utils.defense', () => {
           }
           return [mockTower, mockRampart];
         }
-        if (type === FIND_HOSTILE_CREEPS) return [];
+        if (type === FIND_HOSTILE_CREEPS) {
+return [];
+}
         return [];
       }),
     };

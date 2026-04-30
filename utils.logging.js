@@ -106,7 +106,9 @@ module.exports = {
      * that extracts only the filename:line:col portion without catastrophic backtracking.
      */
     getSafeStack: function (stack) {
-        if (!stack) return '';
+        if (!stack) {
+return '';
+}
 
         // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
         const truncatedStack = String(stack).substring(0, 2000);

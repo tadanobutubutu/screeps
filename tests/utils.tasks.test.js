@@ -84,7 +84,9 @@ describe('utils.tasks', () => {
   });
 
   test('runがエラーをキャッチしてセキュアロガーに送る', () => {
-    const errorAction = () => { throw new Error('Boom'); };
+    const errorAction = () => {
+ throw new Error('Boom');
+};
     TaskQueue.registerTask('buggy', 1, errorAction);
 
     expect(() => TaskQueue.run()).not.toThrow();

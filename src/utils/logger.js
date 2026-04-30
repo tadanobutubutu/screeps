@@ -111,7 +111,9 @@ function _createCircularReplacer() {
     const seen = new WeakSet();
     return (key, value) => {
         if (typeof value === 'object' && value !== null) {
-            if (seen.has(value)) return '[Circular]';
+            if (seen.has(value)) {
+return '[Circular]';
+}
             seen.add(value);
         }
         return value;
@@ -160,7 +162,9 @@ function getLevel() {
  * @param {*} [data] - 付加情報（JSON文字列化される）
  */
 function debug(message, data) {
-    if (_level > LOG_LEVEL.DEBUG) return;
+    if (_level > LOG_LEVEL.DEBUG) {
+return;
+}
     _stats.debug++;
 
     // Security: Truncate message to avoid Memory DoS
@@ -181,7 +185,9 @@ function debug(message, data) {
  * @param {*} [data]
  */
 function info(message, data) {
-    if (_level > LOG_LEVEL.INFO) return;
+    if (_level > LOG_LEVEL.INFO) {
+return;
+}
     _stats.info++;
 
     // Security: Truncate message to avoid Memory DoS
@@ -202,7 +208,9 @@ function info(message, data) {
  * @param {*} [data]
  */
 function warn(message, data) {
-    if (_level > LOG_LEVEL.WARN) return;
+    if (_level > LOG_LEVEL.WARN) {
+return;
+}
     _stats.warn++;
 
     // Security: Truncate message to avoid Memory DoS
@@ -223,7 +231,9 @@ function warn(message, data) {
  * @param {Error|*} [error] - エラーオブジェクトまたは付加情報
  */
 function error(message, error) {
-    if (_level > LOG_LEVEL.ERROR) return;
+    if (_level > LOG_LEVEL.ERROR) {
+return;
+}
     _stats.error++;
 
     // Security: Truncate message to avoid Memory DoS
@@ -251,7 +261,9 @@ function error(message, error) {
  * @param {string} message
  */
 function success(message) {
-    if (_level > LOG_LEVEL.INFO) return;
+    if (_level > LOG_LEVEL.INFO) {
+return;
+}
     _stats.info++;
 
     // Security: Truncate message to avoid Memory DoS
@@ -273,7 +285,9 @@ function success(message) {
  * Security: Absolute paths are removed to prevent internal directory structure leakage.
  */
 function getSafeStack(stack, maxLines) {
-    if (!stack) return '';
+    if (!stack) {
+return '';
+}
 
     // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);

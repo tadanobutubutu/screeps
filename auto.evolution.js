@@ -175,9 +175,13 @@ const autoEvolution = {
 
         const structureCounter = (structure) => {
             const type = structure.structureType;
-            if (type === STRUCTURE_TOWER) structures.towers++;
-            else if (type === STRUCTURE_LINK) structures.links++;
-            else if (type === STRUCTURE_LAB) structures.labs++;
+            if (type === STRUCTURE_TOWER) {
+structures.towers++;
+} else if (type === STRUCTURE_LINK) {
+structures.links++;
+} else if (type === STRUCTURE_LAB) {
+structures.labs++;
+}
         };
 
         for (let i = 0; i < rooms.length; i++) {
@@ -412,10 +416,18 @@ const autoEvolution = {
     generateRCLFeatures: function (data) {
         const rcl = data.newRCL;
 
-        if (rcl === 3) return '// Tower management code needed\n// Create structure.tower.js';
-        if (rcl === 4) return '// Storage management needed\n// Create storage.manager.js';
-        if (rcl === 5) return '// Link network needed\n// Create link.network.js';
-        if (rcl === 6) return '// Mineral mining needed\n// Create role.miner.js';
+        if (rcl === 3) {
+return '// Tower management code needed\n// Create structure.tower.js';
+}
+        if (rcl === 4) {
+return '// Storage management needed\n// Create storage.manager.js';
+}
+        if (rcl === 5) {
+return '// Link network needed\n// Create link.network.js';
+}
+        if (rcl === 6) {
+return '// Mineral mining needed\n// Create role.miner.js';
+}
 
         return '// RCL ' + rcl + ' features';
     },

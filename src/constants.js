@@ -7,14 +7,30 @@
 'use strict';
 
 // Screeps Global Constants (Testing environment fallback)
-if (typeof MOVE === 'undefined') global.MOVE = 'move';
-if (typeof WORK === 'undefined') global.WORK = 'work';
-if (typeof CARRY === 'undefined') global.CARRY = 'carry';
-if (typeof ATTACK === 'undefined') global.ATTACK = 'attack';
-if (typeof RANGED_ATTACK === 'undefined') global.RANGED_ATTACK = 'ranged_attack';
-if (typeof HEAL === 'undefined') global.HEAL = 'heal';
-if (typeof CLAIM === 'undefined') global.CLAIM = 'claim';
-if (typeof TOUGH === 'undefined') global.TOUGH = 'tough';
+if (typeof MOVE === 'undefined') {
+global.MOVE = 'move';
+}
+if (typeof WORK === 'undefined') {
+global.WORK = 'work';
+}
+if (typeof CARRY === 'undefined') {
+global.CARRY = 'carry';
+}
+if (typeof ATTACK === 'undefined') {
+global.ATTACK = 'attack';
+}
+if (typeof RANGED_ATTACK === 'undefined') {
+global.RANGED_ATTACK = 'ranged_attack';
+}
+if (typeof HEAL === 'undefined') {
+global.HEAL = 'heal';
+}
+if (typeof CLAIM === 'undefined') {
+global.CLAIM = 'claim';
+}
+if (typeof TOUGH === 'undefined') {
+global.TOUGH = 'tough';
+}
 
 
 // ============================================================

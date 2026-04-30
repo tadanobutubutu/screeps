@@ -238,13 +238,25 @@ const gamification = {
     const creepCount = global._creeps ? global._creeps.length : Object.keys(Game.creeps).length
     const gcl = Game.gcl.level
 
-    if (creepCount >= 10) this.unlockAchievement('creeps_10', '10 Creeps!', '👥')
-    if (creepCount >= 20) this.unlockAchievement('creeps_20', '20 Creeps!', '👥')
-    if (creepCount >= 50) this.unlockAchievement('creeps_50', '50 Creeps!', '👥')
+    if (creepCount >= 10) {
+this.unlockAchievement('creeps_10', '10 Creeps!', '👥')
+}
+    if (creepCount >= 20) {
+this.unlockAchievement('creeps_20', '20 Creeps!', '👥')
+}
+    if (creepCount >= 50) {
+this.unlockAchievement('creeps_50', '50 Creeps!', '👥')
+}
 
-    if (gcl >= 2) this.unlockAchievement('gcl_2', 'GCL 2!', '⬆️')
-    if (gcl >= 3) this.unlockAchievement('gcl_3', 'GCL 3!', '⬆️')
-    if (gcl >= 5) this.unlockAchievement('gcl_5', 'GCL 5!', '⬆️')
+    if (gcl >= 2) {
+this.unlockAchievement('gcl_2', 'GCL 2!', '⬆️')
+}
+    if (gcl >= 3) {
+this.unlockAchievement('gcl_3', 'GCL 3!', '⬆️')
+}
+    if (gcl >= 5) {
+this.unlockAchievement('gcl_5', 'GCL 5!', '⬆️')
+}
   },
 
   /**
@@ -253,11 +265,21 @@ const gamification = {
   getRank: function () {
     const level = Memory.gamification?.level ?? 1
 
-    if (level >= 20) return 'Master'
-    if (level >= 15) return 'Expert'
-    if (level >= 10) return 'Advanced'
-    if (level >= 5) return 'Intermediate'
-    if (level >= 2) return 'Beginner'
+    if (level >= 20) {
+return 'Master'
+}
+    if (level >= 15) {
+return 'Expert'
+}
+    if (level >= 10) {
+return 'Advanced'
+}
+    if (level >= 5) {
+return 'Intermediate'
+}
+    if (level >= 2) {
+return 'Beginner'
+}
     return 'Newbie'
   },
 

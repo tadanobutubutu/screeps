@@ -64,12 +64,16 @@ function run(creep) {
 function _getAssignedSource(creep) {
     if (creep.memory[MEMORY_KEYS.SOURCE_ID]) {
         const src = Game.getObjectById(creep.memory[MEMORY_KEYS.SOURCE_ID]);
-        if (src) return src;
+        if (src) {
+return src;
+}
     }
 
     // ソース割り当てを決定する
     const sources = cache.getSources(creep.room);
-    if (sources.length === 0) return null;
+    if (sources.length === 0) {
+return null;
+}
 
     // マイナーの割り当てカウント
     const minerCounts = {};
@@ -131,10 +135,14 @@ function _countMiningSpots(source) {
 
     for (let dx = -1; dx <= 1; dx++) {
         for (let dy = -1; dy <= 1; dy++) {
-            if (dx === 0 && dy === 0) continue;
+            if (dx === 0 && dy === 0) {
+continue;
+}
             const x = source.pos.x + dx;
             const y = source.pos.y + dy;
-            if (x < 1 || x > 48 || y < 1 || y > 48) continue;
+            if (x < 1 || x > 48 || y < 1 || y > 48) {
+continue;
+}
             if (terrain.get(x, y) !== TERRAIN_MASK_WALL) {
                 count++;
             }
@@ -160,7 +168,9 @@ function _findSourceContainer(source) {
             s.structureType === STRUCTURE_CONTAINER &&
             source.pos.getRangeTo(s) <= CONTAINER_SEARCH_RANGE,
     });
-    if (containers.length === 0) return null;
+    if (containers.length === 0) {
+return null;
+}
     return containers[0];
 }
 

@@ -37,7 +37,9 @@ const DANGEROUS_KEYS = new Set([
 const isSafeKey = (key) => {
     // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
     // and avoid unnecessary string/Set checks.
-    if (typeof key === 'number') return true;
+    if (typeof key === 'number') {
+return true;
+}
     // Only allow safe strings and block dangerous properties
     return (
         typeof key === 'string' &&
@@ -49,7 +51,9 @@ const isSafeKey = (key) => {
 module.exports = {
     // Clean up memory of dead creeps
     cleanMemory: function () {
-        if (!Memory.creeps) return 0;
+        if (!Memory.creeps) {
+return 0;
+}
         let cleaned = 0;
         for (const name in Memory.creeps) {
             // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration

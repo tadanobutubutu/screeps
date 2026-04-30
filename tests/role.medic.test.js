@@ -5,8 +5,12 @@
 global.Game = {
   time: 10,
   getObjectById: jest.fn().mockImplementation((id) => {
-    if (id === 'creep1') return { id: 'creep1', hits: 50, hitsMax: 100 };
-    if (id === 'source1') return { id: 'source1', energy: 1000 };
+    if (id === 'creep1') {
+return { id: 'creep1', hits: 50, hitsMax: 100 };
+}
+    if (id === 'source1') {
+return { id: 'source1', energy: 1000 };
+}
     return null;
   }),
 };

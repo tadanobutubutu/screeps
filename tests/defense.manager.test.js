@@ -65,10 +65,18 @@ describe('defense.manager', () => {
       _myCreeps: [],
       _myCreepsTick: Game.time,
       find: jest.fn().mockImplementation((type) => {
-        if (type === FIND_MY_STRUCTURES) return [mockTower];
-        if (type === FIND_HOSTILE_CREEPS) return [];
-        if (type === FIND_MY_CREEPS) return [];
-        if (type === FIND_STRUCTURES) return [];
+        if (type === FIND_MY_STRUCTURES) {
+return [mockTower];
+}
+        if (type === FIND_HOSTILE_CREEPS) {
+return [];
+}
+        if (type === FIND_MY_CREEPS) {
+return [];
+}
+        if (type === FIND_STRUCTURES) {
+return [];
+}
         return [];
       }),
     };

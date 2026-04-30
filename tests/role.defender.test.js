@@ -53,8 +53,12 @@ describe('role.defender', () => {
         find: jest.fn().mockReturnValue([]),
       },
       getActiveBodyparts: jest.fn((part) => {
-        if (part === ATTACK) return 2;
-        if (part === RANGED_ATTACK) return 1;
+        if (part === ATTACK) {
+return 2;
+}
+        if (part === RANGED_ATTACK) {
+return 1;
+}
         return 0;
       }),
     };
@@ -85,8 +89,12 @@ describe('role.defender', () => {
     };
     cache.getEnemies.mockReturnValue([mockEnemy]);
     mockCreep.getActiveBodyparts = jest.fn((part) => {
-      if (part === ATTACK) return 2;
-      if (part === RANGED_ATTACK) return 0;
+      if (part === ATTACK) {
+return 2;
+}
+      if (part === RANGED_ATTACK) {
+return 0;
+}
       return 0;
     });
 
@@ -104,8 +112,12 @@ describe('role.defender', () => {
     };
     cache.getEnemies.mockReturnValue([mockEnemy]);
     mockCreep.getActiveBodyparts = jest.fn((part) => {
-      if (part === ATTACK) return 0;
-      if (part === RANGED_ATTACK) return 1;
+      if (part === ATTACK) {
+return 0;
+}
+      if (part === RANGED_ATTACK) {
+return 1;
+}
       return 0;
     });
 

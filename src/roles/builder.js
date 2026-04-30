@@ -117,18 +117,24 @@ function _getTargetSite(creep) {
     // メモリに保存されたターゲットを優先的に使用
     if (creep.memory[MEMORY_KEYS.TARGET_ID]) {
         const saved = Game.getObjectById(creep.memory[MEMORY_KEYS.TARGET_ID]);
-        if (saved) return saved;
+        if (saved) {
+return saved;
+}
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
     }
 
     const sites = cache.getConstructionSites(creep.room);
-    if (sites.length === 0) return null;
+    if (sites.length === 0) {
+return null;
+}
 
     // 優先度でソートし、同優先度なら近い方を優先
     const sorted = sites.slice().sort((a, b) => {
         const pa = BUILD_PRIORITY[a.structureType] || 10;
         const pb = BUILD_PRIORITY[b.structureType] || 10;
-        if (pa !== pb) return pa - pb;
+        if (pa !== pb) {
+return pa - pb;
+}
         return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
     });
 

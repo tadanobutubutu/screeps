@@ -5,7 +5,9 @@
 global.Game = {
   time: 10,
   getObjectById: jest.fn().mockImplementation((id) => {
-    if (id === 'source1') return { id: 'source1', energy: 1000 };
+    if (id === 'source1') {
+return { id: 'source1', energy: 1000 };
+}
     return null;
   }),
 };

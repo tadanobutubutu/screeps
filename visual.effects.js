@@ -14,7 +14,7 @@ let _visualsTick = -1;
 
 // ⚡ PERFORMANCE: Volatile cache for rainbow trail positions to avoid Memory serialization overhead.
 // Using a Map for O(1) lookups by creep ID.
-let _trailCache = new Map();
+const _trailCache = new Map();
 
 /**
  * Checks if visual effects are enabled, with per-tick caching.
@@ -70,7 +70,9 @@ const visualEffects = {
      * 派手なパーティクルエフェクト
      */
     particles: function (pos, color = '#FFD700', count = 20) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         for (let i = 0; i < count; i++) {
@@ -91,7 +93,9 @@ const visualEffects = {
      * 成功時の爆発エフェクト
      */
     successExplosion: function (pos) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         // 外側の輪
@@ -129,7 +133,9 @@ const visualEffects = {
      * レベルアップエフェクト
      */
     levelUp: function (pos, level) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         // 虹色の輪
@@ -163,7 +169,9 @@ const visualEffects = {
      * コンボカウンター
      */
     combo: function (pos, count) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         let color;
@@ -193,7 +201,9 @@ const visualEffects = {
      * 達成通知
      */
     achievement: function (pos, title, icon = '🏆') {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         // 背景ボックス
@@ -227,7 +237,9 @@ const visualEffects = {
      * プログレスバー
      */
     progressBar: function (pos, current, max, label = '') {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
         const width = 3;
         const height = 0.3;
@@ -325,7 +337,9 @@ const visualEffects = {
      * ダメージ数字
      */
     damageNumber: function (pos, amount, isCritical = false) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         const color = isCritical ? '#FF0000' : '#FFA500';
@@ -349,7 +363,9 @@ const visualEffects = {
      * エネルギー回復エフェクト
      */
     healEffect: function (pos) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         for (let i = 0; i < 8; i++) {
@@ -369,7 +385,9 @@ const visualEffects = {
      * スターエフェクト
      */
     stars: function (pos, count = 5) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         for (let i = 0; i < count; i++) {
@@ -388,7 +406,9 @@ const visualEffects = {
      * ストリークカウンター
      */
     streak: function (pos, days) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         visual.text(`🔥 ${days} DAY STREAK! 🔥`, pos.x, pos.y, {
@@ -403,7 +423,9 @@ const visualEffects = {
      * スコアポップアップ
      */
     scorePopup: function (pos, points, label = 'POINTS') {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         visual.text(`+${points}`, pos.x, pos.y - 0.5, {
@@ -423,7 +445,9 @@ const visualEffects = {
      * ランクバッジ
      */
     rankBadge: function (pos, rank) {
-        if (!isVfxEnabled()) return;
+        if (!isVfxEnabled()) {
+return;
+}
         const visual = getVisual(pos.roomName);
 
         const badge = RANK_BADGE_CONFIG[rank] || RANK_BADGE_CONFIG['Newbie'];

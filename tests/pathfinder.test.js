@@ -123,8 +123,12 @@ describe('pathfinder', () => {
       ];
 
       pos.getRangeTo.mockImplementation((target) => {
-        if (target.x === 26) return 1;
-        if (target.x === 30) return 7;
+        if (target.x === 26) {
+return 1;
+}
+        if (target.x === 30) {
+return 7;
+}
         return 10;
       });
 

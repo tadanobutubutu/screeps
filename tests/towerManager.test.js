@@ -107,8 +107,12 @@ describe('towerManager', () => {
         pos: { x: 26, y: 26 },
       };
       mockRoom.find.mockImplementation((type) => {
-        if (type === FIND_MY_CREEPS) return [mockCreep];
-        if (type === FIND_HOSTILE_CREEPS) return [];
+        if (type === FIND_MY_CREEPS) {
+return [mockCreep];
+}
+        if (type === FIND_HOSTILE_CREEPS) {
+return [];
+}
         return [];
       });
       cache.getEnemies.mockReturnValue([]);
@@ -128,10 +132,18 @@ describe('towerManager', () => {
         pos: { x: 26, y: 26 },
       };
       mockRoom.find.mockImplementation((type) => {
-        if (type === FIND_MY_CREEPS) return [];
-        if (type === FIND_HOSTILE_CREEPS) return [];
-        if (type === FIND_STRUCTURES) return [mockStructure];
-        if (type === FIND_MY_STRUCTURES) return [];
+        if (type === FIND_MY_CREEPS) {
+return [];
+}
+        if (type === FIND_HOSTILE_CREEPS) {
+return [];
+}
+        if (type === FIND_STRUCTURES) {
+return [mockStructure];
+}
+        if (type === FIND_MY_STRUCTURES) {
+return [];
+}
         return [];
       });
       cache.getEnemies.mockReturnValue([]);

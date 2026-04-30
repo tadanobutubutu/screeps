@@ -22,8 +22,12 @@ const { ROLES, BODY_PRESETS, SPAWN_PRIORITY, TARGET_CREEPS_BY_RCL } = require('.
  * @returns {Array}
  */
 function _getQueue() {
-    if (!global.cache) global.cache = {};
-    if (!global.cache.spawnQueue) global.cache.spawnQueue = [];
+    if (!global.cache) {
+global.cache = {};
+}
+    if (!global.cache.spawnQueue) {
+global.cache.spawnQueue = [];
+}
     return global.cache.spawnQueue;
 }
 
@@ -45,15 +49,21 @@ function clearQueue() {
  * @param {StructureSpawn} spawn
  */
 function run(spawn) {
-    if (!spawn || spawn.spawning) return;
+    if (!spawn || spawn.spawning) {
+return;
+}
 
     const room = spawn.room;
-    if (!room.controller || !room.controller.my) return;
+    if (!room.controller || !room.controller.my) {
+return;
+}
 
     try {
         // スポーンキューを構築
         const queue = _buildSpawnQueue(room);
-        if (queue.length === 0) return;
+        if (queue.length === 0) {
+return;
+}
 
         // キューの先頭からスポーンを試みる
         for (const request of queue) {
@@ -88,17 +98,25 @@ function _buildSpawnQueue(room) {
 
     for (const role in targets) {
         // Security: Use hasOwnProperty to prevent prototype pollution during iteration
-        if (!Object.prototype.hasOwnProperty.call(targets, role)) continue;
+        if (!Object.prototype.hasOwnProperty.call(targets, role)) {
+continue;
+}
 
         const needed = targets[role] - (current[role] || 0);
-        if (needed <= 0) continue;
+        if (needed <= 0) {
+continue;
+}
 
         // エネルギーに応じた最適ボディを取得
         const body = _selectBody(role, room.energyAvailable, room.energyCapacityAvailable);
-        if (!body || body.length === 0) continue;
+        if (!body || body.length === 0) {
+continue;
+}
 
         const cost = _calcBodyCost(body);
-        if (cost > room.energyCapacityAvailable) continue;
+        if (cost > room.energyCapacityAvailable) {
+continue;
+}
 
         queue.push({
             role,
@@ -166,8 +184,12 @@ function _getCurrentCounts(room) {
         }
 
         const creep = Game.creeps[name];
-        if (creep.room.name !== room.name) continue;
-        if (creep.spawning) continue; // スポーン中のクリープはスポーンAPIから別途カウント
+        if (creep.room.name !== room.name) {
+continue;
+}
+        if (creep.spawning) {
+continue;
+} // スポーン中のクリープはスポーンAPIから別途カウント
 
         const role = creep.memory.role;
         if (role && cache.isSafeKey(role)) {
@@ -186,8 +208,12 @@ function _getCurrentCounts(room) {
         }
 
         const spawn = Game.spawns[spawnName];
-        if (spawn.room.name !== room.name) continue;
-        if (!spawn.spawning) continue;
+        if (spawn.room.name !== room.name) {
+continue;
+}
+        if (!spawn.spawning) {
+continue;
+}
 
         const spawningCreep = Game.creeps[spawn.spawning.name];
         if (spawningCreep && spawningCreep.memory.role) {
@@ -214,7 +240,9 @@ function _getCurrentCounts(room) {
  */
 function _selectBody(role, available, capacity) {
     const presets = BODY_PRESETS[role];
-    if (!presets) return null;
+    if (!presets) {
+return null;
+}
 
     // 最大容量以下で最もコストが高いボディを選択（最強のボディ）
     let bestBody = null;
@@ -288,10 +316,14 @@ function _trySpawn(spawn, request) {
  * @param {StructureSpawn} spawn
  */
 function showSpawnVisual(spawn) {
-    if (!spawn.spawning) return;
+    if (!spawn.spawning) {
+return;
+}
 
     const spawningCreep = Game.creeps[spawn.spawning.name];
-    if (!spawningCreep) return;
+    if (!spawningCreep) {
+return;
+}
 
     const role = spawningCreep.memory.role;
     const progress =
@@ -350,7 +382,9 @@ function showStats(room) {
 
     logger.info(`[SpawnManager] ルーム ${room.name} のクリープ状況 (RCL ${rcl}):`);
     for (const role in targets) {
-        if (!Object.prototype.hasOwnProperty.call(targets, role)) continue;
+        if (!Object.prototype.hasOwnProperty.call(targets, role)) {
+continue;
+}
         const t = targets[role];
         const c = current[role] || 0;
         const status = c >= t ? '✓' : '⚠️';

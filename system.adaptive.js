@@ -103,6 +103,31 @@ const adaptiveSystem = {
     evaluate: function () {
         this.init();
 
+        this._validateCurrentMode();
+
+        // 10ティックごとにチェック
+        if (Game.time - Memory.adaptive.lastCheck < 10) {
+            return Memory.adaptive.currentMode;
+        }
+
+        Memory.adaptive.lastCheck = Game.time;
+
+        const stats = this._collectSystemStats();
+        const newMode = this._determineTargetMode(stats);
+
+        if (newMode !== Memory.adaptive.currentMode) {
+            this._handleModeTransition(newMode, stats);
+        }
+
+        this._updateModeStats(newMode);
+
+        return newMode;
+    },
+
+    /**
+     * @private
+     */
+    _validateCurrentMode: function () {
         // Security: Validate currentMode to prevent DoS crashes in downstream systems.
         // If the mode is missing or invalid, reset it to NORMAL.
         if (
@@ -113,14 +138,12 @@ const adaptiveSystem = {
         ) {
             Memory.adaptive.currentMode = this.MODE.NORMAL;
         }
+    },
 
-        // 10ティックごとにチェック
-        if (Game.time - Memory.adaptive.lastCheck < 10) {
-            return Memory.adaptive.currentMode;
-        }
-
-        Memory.adaptive.lastCheck = Game.time;
-
+    /**
+     * @private
+     */
+    _collectSystemStats: function () {
         const cpuUsed = Game.cpu.getUsed();
         const cpuLimit = Game.cpu.limit;
         const cpuBucket = Game.cpu.bucket;
@@ -130,66 +153,81 @@ const adaptiveSystem = {
         const memoryLimit = 2048 * 1024; // 2MB in bytes
         const memoryUsagePercent = (memorySize / memoryLimit) * 100;
 
-        let newMode = this.MODE.FULL;
+        return {
+            cpuUsed,
+            cpuLimit,
+            cpuBucket,
+            cpuUsagePercent,
+            memorySize,
+            memoryLimit,
+            memoryUsagePercent,
+        };
+    },
 
+    /**
+     * @private
+     */
+    _determineTargetMode: function (stats) {
         // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
-        if (cpuBucket < 1000 || memoryUsagePercent > 95) {
-            newMode = this.MODE.EMERGENCY;
+        if (stats.cpuBucket < 1000 || stats.memoryUsagePercent > 95) {
+            return this.MODE.EMERGENCY;
         }
         // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
-        else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
-            newMode = this.MODE.MINIMAL;
+        if (stats.cpuBucket < 3000 || stats.memoryUsagePercent > 85 || stats.cpuUsagePercent > 80) {
+            return this.MODE.MINIMAL;
         }
         // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
-        else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
-            newMode = this.MODE.NORMAL;
+        if (stats.cpuBucket < 7000 || stats.memoryUsagePercent > 70 || stats.cpuUsagePercent > 60) {
+            return this.MODE.NORMAL;
         }
         // FULL: 余裕あり
-        else {
-            newMode = this.MODE.FULL;
+        return this.MODE.FULL;
+    },
+
+    /**
+     * @private
+     */
+    _handleModeTransition: function (newMode, stats) {
+        this.logModeChange(Memory.adaptive.currentMode, newMode, {
+            cpuUsagePercent: stats.cpuUsagePercent,
+            cpuBucket: stats.cpuBucket,
+            memoryUsagePercent: stats.memoryUsagePercent,
+        });
+
+        // モード履歴に追加
+        Memory.adaptive.modeHistory.push({
+            time: Game.time,
+            from: Memory.adaptive.currentMode,
+            to: newMode,
+            reason: this.getModeChangeReason(
+                newMode,
+                stats.cpuUsagePercent,
+                stats.cpuBucket,
+                stats.memoryUsagePercent
+            ),
+        });
+
+        // 履歴は最新20件まで
+        if (Memory.adaptive.modeHistory.length > 20) {
+            Memory.adaptive.modeHistory.shift();
         }
 
-        // モード変更時にログ出力
-        if (newMode !== Memory.adaptive.currentMode) {
-            this.logModeChange(Memory.adaptive.currentMode, newMode, {
-                cpuUsagePercent: cpuUsagePercent,
-                cpuBucket: cpuBucket,
-                memoryUsagePercent: memoryUsagePercent,
-            });
+        Memory.adaptive.currentMode = newMode;
 
-            // モード履歴に追加
-            Memory.adaptive.modeHistory.push({
-                time: Game.time,
-                from: Memory.adaptive.currentMode,
-                to: newMode,
-                reason: this.getModeChangeReason(
-                    newMode,
-                    cpuUsagePercent,
-                    cpuBucket,
-                    memoryUsagePercent
-                ),
-            });
+        // ⚡ PERFORMANCE: Update cache immediately on mode change
+        _currentConfig = FEATURE_CONFIG[newMode];
+        _configTick = Game.time;
+    },
 
-            // 履歴は最新20件まで
-            if (Memory.adaptive.modeHistory.length > 20) {
-                Memory.adaptive.modeHistory.shift();
-            }
-
-            Memory.adaptive.currentMode = newMode;
-
-            // ⚡ PERFORMANCE: Update cache immediately on mode change
-            _currentConfig = FEATURE_CONFIG[newMode];
-            _configTick = Game.time;
-        }
-
-        // 統計更新
+    /**
+     * @private
+     */
+    _updateModeStats: function (newMode) {
         const modeName = this.getModeName(newMode);
         if (modeName) {
             Memory.adaptive.stats[modeName + 'Count'] =
                 (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1;
         }
-
-        return newMode;
     },
 
     /**
@@ -405,15 +443,7 @@ const adaptiveSystem = {
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
                 console.log(
-                    '  [' +
-                        h.time +
-                        '] ' +
-                        fromName +
-                        ' → ' +
-                        toName +
-                        ' (' +
-                        reason +
-                        ')'
+                    '  [' + h.time + '] ' + fromName + ' → ' + toName + ' (' + reason + ')'
                 );
             }
         }

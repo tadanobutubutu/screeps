@@ -76,6 +76,7 @@ describe('spawnManager', () => {
   let mockRoom;
 
   beforeEach(() => {
+        global.FIND_CONSTRUCTION_SITES = 111;
     mockRoom = {
       name: 'W1N1',
       controller: {

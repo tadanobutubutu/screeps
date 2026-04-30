@@ -3,8 +3,8 @@
  * 負荷が高い時は自動的に機能を制限し、余裕がある時は全機能を有効化
  */
 
-const utilsMemory = require('./utils.memory')
-const logger = require('./utils.logging')
+const utilsMemory = require('./utils.memory');
+const logger = require('./utils.logging');
 
 /**
  * System modes:
@@ -14,11 +14,11 @@ const logger = require('./utils.logging')
  * 3: FULL - All features enabled.
  */
 const MODES = {
-  EMERGENCY: 0,
-  MINIMAL: 1,
-  NORMAL: 2,
-  FULL: 3
-}
+    EMERGENCY: 0,
+    MINIMAL: 1,
+    NORMAL: 2,
+    FULL: 3,
+};
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoisted feature configuration.
@@ -26,465 +26,465 @@ const MODES = {
  * redundant object allocation on every call (called many times per tick).
  */
 const FEATURE_CONFIG = {
-  [MODES.EMERGENCY]: {
-    basicRoles: true,
-    spawn: true,
-    memoryCleanup: true
-  },
-  [MODES.MINIMAL]: {
-    basicRoles: true,
-    spawn: true,
-    memoryCleanup: true,
-    defense: true,
-    logging: true
-  },
-  [MODES.NORMAL]: {
-    basicRoles: true,
-    spawn: true,
-    memoryCleanup: true,
-    defense: true,
-    logging: true,
-    gamification: true,
-    emotions: true,
-    memoryVisualizer: true
-  },
-  [MODES.FULL]: {
-    basicRoles: true,
-    spawn: true,
-    memoryCleanup: true,
-    defense: true,
-    logging: true,
-    gamification: true,
-    emotions: true,
-    memoryVisualizer: true,
-    visualEffects: true,
-    autoEvolution: true,
-    tutorial: true,
-    socialInteractions: true,
-    advancedRoles: true
-  }
-}
+    [MODES.EMERGENCY]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+    },
+    [MODES.MINIMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+    },
+    [MODES.NORMAL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+    },
+    [MODES.FULL]: {
+        basicRoles: true,
+        spawn: true,
+        memoryCleanup: true,
+        defense: true,
+        logging: true,
+        gamification: true,
+        emotions: true,
+        memoryVisualizer: true,
+        visualEffects: true,
+        autoEvolution: true,
+        tutorial: true,
+        socialInteractions: true,
+        advancedRoles: true,
+    },
+};
 
 // ⚡ PERFORMANCE: Per-tick cache for feature configuration
-let _currentConfig = null
-let _configTick = -1
+let _currentConfig = null;
+let _configTick = -1;
 
 const adaptiveSystem = {
-  /**
+    /**
      * システムモード
      */
-  MODE: MODES,
+    MODE: MODES,
 
-  /**
+    /**
      * 初期化
      */
-  init: function () {
-    if (!Memory.adaptive) {
-      Memory.adaptive = {
-        currentMode: this.MODE.NORMAL,
-        lastCheck: 0,
-        modeHistory: [],
-        stats: {
-          emergencyCount: 0,
-          minimalCount: 0,
-          normalCount: 0,
-          fullCount: 0
+    init: function () {
+        if (!Memory.adaptive) {
+            Memory.adaptive = {
+                currentMode: this.MODE.NORMAL,
+                lastCheck: 0,
+                modeHistory: [],
+                stats: {
+                    emergencyCount: 0,
+                    minimalCount: 0,
+                    normalCount: 0,
+                    fullCount: 0,
+                },
+            };
+            // ⚡ PERFORMANCE: Reset cache when Memory is re-initialized (important for tests)
+            _currentConfig = null;
+            _configTick = -1;
         }
-      }
-      // ⚡ PERFORMANCE: Reset cache when Memory is re-initialized (important for tests)
-      _currentConfig = null
-      _configTick = -1
-    }
-  },
+    },
 
-  /**
+    /**
      * 現在のシステム状態を評価
      */
-  evaluate: function () {
-    this.init()
+    evaluate: function () {
+        this.init();
 
-    this._validateCurrentMode()
+        this._validateCurrentMode();
 
-    // 10ティックごとにチェック
-    if (Game.time - Memory.adaptive.lastCheck < 10) {
-      return Memory.adaptive.currentMode
-    }
+        // 10ティックごとにチェック
+        if (Game.time - Memory.adaptive.lastCheck < 10) {
+            return Memory.adaptive.currentMode;
+        }
 
-    Memory.adaptive.lastCheck = Game.time
+        Memory.adaptive.lastCheck = Game.time;
 
-    const stats = this._collectSystemStats()
-    const newMode = this._determineTargetMode(stats)
+        const stats = this._collectSystemStats();
+        const newMode = this._determineTargetMode(stats);
 
-    if (newMode !== Memory.adaptive.currentMode) {
-      this._handleModeTransition(newMode, stats)
-    }
+        if (newMode !== Memory.adaptive.currentMode) {
+            this._handleModeTransition(newMode, stats);
+        }
 
-    this._updateModeStats(newMode)
+        this._updateModeStats(newMode);
 
-    return newMode
-  },
+        return newMode;
+    },
 
-  /**
+    /**
      * @private
      */
-  _validateCurrentMode: function () {
-    // Security: Validate currentMode to prevent DoS crashes in downstream systems.
-    // If the mode is missing or invalid, reset it to NORMAL.
-    if (
-      Memory.adaptive.currentMode === undefined ||
+    _validateCurrentMode: function () {
+        // Security: Validate currentMode to prevent DoS crashes in downstream systems.
+        // If the mode is missing or invalid, reset it to NORMAL.
+        if (
+            Memory.adaptive.currentMode === undefined ||
             ![this.MODE.EMERGENCY, this.MODE.MINIMAL, this.MODE.NORMAL, this.MODE.FULL].includes(
-              Memory.adaptive.currentMode
+                Memory.adaptive.currentMode
             )
-    ) {
-      Memory.adaptive.currentMode = this.MODE.NORMAL
-    }
-  },
+        ) {
+            Memory.adaptive.currentMode = this.MODE.NORMAL;
+        }
+    },
 
-  /**
+    /**
      * @private
      */
-  _collectSystemStats: function () {
-    const cpuUsed = Game.cpu.getUsed()
-    const cpuLimit = Game.cpu.limit
-    const cpuBucket = Game.cpu.bucket
-    const cpuUsagePercent = (cpuUsed / cpuLimit) * 100
+    _collectSystemStats: function () {
+        const cpuUsed = Game.cpu.getUsed();
+        const cpuLimit = Game.cpu.limit;
+        const cpuBucket = Game.cpu.bucket;
+        const cpuUsagePercent = (cpuUsed / cpuLimit) * 100;
 
-    const memorySize = RawMemory.get().length
-    const memoryLimit = 2048 * 1024 // 2MB in bytes
-    const memoryUsagePercent = (memorySize / memoryLimit) * 100
+        const memorySize = RawMemory.get().length;
+        const memoryLimit = 2048 * 1024; // 2MB in bytes
+        const memoryUsagePercent = (memorySize / memoryLimit) * 100;
 
-    return {
-      cpuUsed,
-      cpuLimit,
-      cpuBucket,
-      cpuUsagePercent,
-      memorySize,
-      memoryLimit,
-      memoryUsagePercent
-    }
-  },
+        return {
+            cpuUsed,
+            cpuLimit,
+            cpuBucket,
+            cpuUsagePercent,
+            memorySize,
+            memoryLimit,
+            memoryUsagePercent,
+        };
+    },
 
-  /**
+    /**
      * @private
      */
-  _determineTargetMode: function (stats) {
-    // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
-    if (stats.cpuBucket < 1000 || stats.memoryUsagePercent > 95) {
-      return this.MODE.EMERGENCY
-    }
-    // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
-    if (stats.cpuBucket < 3000 || stats.memoryUsagePercent > 85 || stats.cpuUsagePercent > 80) {
-      return this.MODE.MINIMAL
-    }
-    // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
-    if (stats.cpuBucket < 7000 || stats.memoryUsagePercent > 70 || stats.cpuUsagePercent > 60) {
-      return this.MODE.NORMAL
-    }
-    // FULL: 余裕あり
-    return this.MODE.FULL
-  },
+    _determineTargetMode: function (stats) {
+        // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
+        if (stats.cpuBucket < 1000 || stats.memoryUsagePercent > 95) {
+            return this.MODE.EMERGENCY;
+        }
+        // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
+        if (stats.cpuBucket < 3000 || stats.memoryUsagePercent > 85 || stats.cpuUsagePercent > 80) {
+            return this.MODE.MINIMAL;
+        }
+        // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
+        if (stats.cpuBucket < 7000 || stats.memoryUsagePercent > 70 || stats.cpuUsagePercent > 60) {
+            return this.MODE.NORMAL;
+        }
+        // FULL: 余裕あり
+        return this.MODE.FULL;
+    },
 
-  /**
+    /**
      * @private
      */
-  _handleModeTransition: function (newMode, stats) {
-    this.logModeChange(Memory.adaptive.currentMode, newMode, {
-      cpuUsagePercent: stats.cpuUsagePercent,
-      cpuBucket: stats.cpuBucket,
-      memoryUsagePercent: stats.memoryUsagePercent
-    })
+    _handleModeTransition: function (newMode, stats) {
+        this.logModeChange(Memory.adaptive.currentMode, newMode, {
+            cpuUsagePercent: stats.cpuUsagePercent,
+            cpuBucket: stats.cpuBucket,
+            memoryUsagePercent: stats.memoryUsagePercent,
+        });
 
-    // モード履歴に追加
-    Memory.adaptive.modeHistory.push({
-      time: Game.time,
-      from: Memory.adaptive.currentMode,
-      to: newMode,
-      reason: this.getModeChangeReason(
-        newMode,
-        stats.cpuUsagePercent,
-        stats.cpuBucket,
-        stats.memoryUsagePercent
-      )
-    })
+        // モード履歴に追加
+        Memory.adaptive.modeHistory.push({
+            time: Game.time,
+            from: Memory.adaptive.currentMode,
+            to: newMode,
+            reason: this.getModeChangeReason(
+                newMode,
+                stats.cpuUsagePercent,
+                stats.cpuBucket,
+                stats.memoryUsagePercent
+            ),
+        });
 
-    // 履歴は最新20件まで
-    if (Memory.adaptive.modeHistory.length > 20) {
-      Memory.adaptive.modeHistory.shift()
-    }
+        // 履歴は最新20件まで
+        if (Memory.adaptive.modeHistory.length > 20) {
+            Memory.adaptive.modeHistory.shift();
+        }
 
-    Memory.adaptive.currentMode = newMode
+        Memory.adaptive.currentMode = newMode;
 
-    // ⚡ PERFORMANCE: Update cache immediately on mode change
-    _currentConfig = FEATURE_CONFIG[newMode]
-    _configTick = Game.time
-  },
+        // ⚡ PERFORMANCE: Update cache immediately on mode change
+        _currentConfig = FEATURE_CONFIG[newMode];
+        _configTick = Game.time;
+    },
 
-  /**
+    /**
      * @private
      */
-  _updateModeStats: function (newMode) {
-    const modeName = this.getModeName(newMode)
-    if (modeName) {
-      Memory.adaptive.stats[modeName + 'Count'] =
-                (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1
-    }
-  },
+    _updateModeStats: function (newMode) {
+        const modeName = this.getModeName(newMode);
+        if (modeName) {
+            Memory.adaptive.stats[modeName + 'Count'] =
+                (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1;
+        }
+    },
 
-  /**
+    /**
      * モード変更理由を取得
      */
-  getModeChangeReason: function (mode, cpuUsage, cpuBucket, memoryUsage) {
-    if (mode === this.MODE.EMERGENCY) {
-      if (cpuBucket < 1000) {
-        return 'CPU bucket critical'
-      }
-      if (memoryUsage > 95) {
-        return 'Memory critical'
-      }
-    }
-    if (mode === this.MODE.MINIMAL) {
-      if (cpuBucket < 3000) {
-        return 'CPU bucket low'
-      }
-      if (memoryUsage > 85) {
-        return 'Memory high'
-      }
-      if (cpuUsage > 80) {
-        return 'CPU usage high'
-      }
-    }
-    if (mode === this.MODE.NORMAL) {
-      return 'Moderate load'
-    }
-    return 'System healthy'
-  },
+    getModeChangeReason: function (mode, cpuUsage, cpuBucket, memoryUsage) {
+        if (mode === this.MODE.EMERGENCY) {
+            if (cpuBucket < 1000) {
+                return 'CPU bucket critical';
+            }
+            if (memoryUsage > 95) {
+                return 'Memory critical';
+            }
+        }
+        if (mode === this.MODE.MINIMAL) {
+            if (cpuBucket < 3000) {
+                return 'CPU bucket low';
+            }
+            if (memoryUsage > 85) {
+                return 'Memory high';
+            }
+            if (cpuUsage > 80) {
+                return 'CPU usage high';
+            }
+        }
+        if (mode === this.MODE.NORMAL) {
+            return 'Moderate load';
+        }
+        return 'System healthy';
+    },
 
-  /**
+    /**
      * モード名取得
      *
      * Security: Returns a safe fallback string for unknown modes to prevent
      * ".toUpperCase() of null" type crashes (Denial of Service).
      */
-  getModeName: function (mode) {
-    switch (mode) {
-      case this.MODE.EMERGENCY:
-        return 'emergency'
-      case this.MODE.MINIMAL:
-        return 'minimal'
-      case this.MODE.NORMAL:
-        return 'normal'
-      case this.MODE.FULL:
-        return 'full'
-      default:
-        return 'unknown'
-    }
-  },
+    getModeName: function (mode) {
+        switch (mode) {
+            case this.MODE.EMERGENCY:
+                return 'emergency';
+            case this.MODE.MINIMAL:
+                return 'minimal';
+            case this.MODE.NORMAL:
+                return 'normal';
+            case this.MODE.FULL:
+                return 'full';
+            default:
+                return 'unknown';
+        }
+    },
 
-  /**
+    /**
      * モード変更ログ
      */
-  logModeChange: function (oldMode, newMode, stats) {
-    // Security: Escape mode names to prevent console injection
-    const oldName = logger.escapeHTML(this.getModeName(oldMode))
-    const newName = logger.escapeHTML(this.getModeName(newMode))
+    logModeChange: function (oldMode, newMode, stats) {
+        // Security: Escape mode names to prevent console injection
+        const oldName = logger.escapeHTML(this.getModeName(oldMode));
+        const newName = logger.escapeHTML(this.getModeName(newMode));
 
-    console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄')
-    console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase())
-    console.log('CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%')
-    console.log('CPU Bucket: ' + stats.cpuBucket + '/10000')
-    console.log('Memory Usage: ' + stats.memoryUsagePercent.toFixed(1) + '%')
-  },
+        console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
+        console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
+        console.log('CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%');
+        console.log('CPU Bucket: ' + stats.cpuBucket + '/10000');
+        console.log('Memory Usage: ' + stats.memoryUsagePercent.toFixed(1) + '%');
+    },
 
-  /**
+    /**
      * 機能が有効かチェック
      * ⚡ PERFORMANCE OPTIMIZATION: Removed redundant `this.init()` call.
      * `init()` is already called at the start of the loop in `main.js` via `evaluate()`.
      * Estimated impact: Reduces CPU overhead in a high-frequency function.
      */
-  isEnabled: function (feature) {
-    // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Memory lookups
-    if (_configTick !== Game.time || !_currentConfig) {
-      const mode = Memory.adaptive ? Memory.adaptive.currentMode : MODES.NORMAL
-      _currentConfig = FEATURE_CONFIG[mode]
-      _configTick = Game.time
-    }
-    return _currentConfig?.[feature] === true
-  },
+    isEnabled: function (feature) {
+        // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Memory lookups
+        if (_configTick !== Game.time || !_currentConfig) {
+            const mode = Memory.adaptive ? Memory.adaptive.currentMode : MODES.NORMAL;
+            _currentConfig = FEATURE_CONFIG[mode];
+            _configTick = Game.time;
+        }
+        return _currentConfig?.[feature] === true;
+    },
 
-  /**
+    /**
      * 緊急クリーンアップ実行
      * ⚡ SECURITY: Enhanced DoS mitigation by clearing more memory-intensive structures.
      */
-  emergencyCleanup: function () {
-    console.log('🚨 Emergency cleanup triggered!')
+    emergencyCleanup: function () {
+        console.log('🚨 Emergency cleanup triggered!');
 
-    // Delete heavy root structures
-    delete Memory.evolution
-    delete Memory.backups
-    delete Memory.timeMachine
-    delete Memory.leaderboard
-    delete Memory.cache
-    delete Memory.memorySnapshots
+        // Delete heavy root structures
+        delete Memory.evolution;
+        delete Memory.backups;
+        delete Memory.timeMachine;
+        delete Memory.leaderboard;
+        delete Memory.cache;
+        delete Memory.memorySnapshots;
 
-    // Clean up per-creep memory (non-essential features)
-    if (Memory.creeps) {
-      for (const name in Memory.creeps) {
-        // Security: Use isSafeKey to prevent prototype pollution during iteration
-        if (
-          utilsMemory.isSafeKey(name) &&
+        // Clean up per-creep memory (non-essential features)
+        if (Memory.creeps) {
+            for (const name in Memory.creeps) {
+                // Security: Use isSafeKey to prevent prototype pollution during iteration
+                if (
+                    utilsMemory.isSafeKey(name) &&
                     Object.prototype.hasOwnProperty.call(Memory.creeps, name)
-        ) {
-          const creepMemory = Memory.creeps[name]
-          if (creepMemory) {
-            delete creepMemory.diary
-            delete creepMemory.emotions
-            delete creepMemory.trailPositions
-          }
+                ) {
+                    const creepMemory = Memory.creeps[name];
+                    if (creepMemory) {
+                        delete creepMemory.diary;
+                        delete creepMemory.emotions;
+                        delete creepMemory.trailPositions;
+                    }
+                }
+            }
         }
-      }
-    }
 
-    // Truncate gamification achievements to save space
-    if (Memory.gamification && Array.isArray(Memory.gamification.achievements)) {
-      Memory.gamification.achievements = Memory.gamification.achievements.slice(-5)
-    }
+        // Truncate gamification achievements to save space
+        if (Memory.gamification && Array.isArray(Memory.gamification.achievements)) {
+            Memory.gamification.achievements = Memory.gamification.achievements.slice(-5);
+        }
 
-    // Delete any other suspected heavy structures
-    delete Memory.emotions // Root-level emotions (if any)
-    delete Memory.diary // Root-level diary
+        // Delete any other suspected heavy structures
+        delete Memory.emotions; // Root-level emotions (if any)
+        delete Memory.diary; // Root-level diary
 
-    console.log('✅ Emergency cleanup completed')
-  },
+        console.log('✅ Emergency cleanup completed');
+    },
 
-  /**
+    /**
      * ダッシュボード表示
      */
-  showDashboard: function () {
-    this.init()
-    const mode = Memory.adaptive.currentMode
-    // Security: Escape mode name to prevent console injection
-    const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase()
+    showDashboard: function () {
+        this.init();
+        const mode = Memory.adaptive.currentMode;
+        // Security: Escape mode name to prevent console injection
+        const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase();
 
-    const cpuUsed = Game.cpu.getUsed()
-    const cpuLimit = Game.cpu.limit
-    const cpuBucket = Game.cpu.bucket
-    const memorySize = RawMemory.get().length
-    const memoryLimit = 2048 * 1024
+        const cpuUsed = Game.cpu.getUsed();
+        const cpuLimit = Game.cpu.limit;
+        const cpuBucket = Game.cpu.bucket;
+        const memorySize = RawMemory.get().length;
+        const memoryLimit = 2048 * 1024;
 
-    console.log('\n⚡ === ADAPTIVE SYSTEM DASHBOARD === ⚡')
-    console.log('Current Mode: ' + modeName)
-    console.log('')
-    console.log(
-      'CPU Used: ' +
+        console.log('\n⚡ === ADAPTIVE SYSTEM DASHBOARD === ⚡');
+        console.log('Current Mode: ' + modeName);
+        console.log('');
+        console.log(
+            'CPU Used: ' +
                 cpuUsed.toFixed(2) +
                 '/' +
                 cpuLimit +
                 ' (' +
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
-    )
-    console.log('CPU Bucket: ' + cpuBucket + '/10000 (' + (cpuBucket / 100).toFixed(1) + '%)')
-    console.log(
-      'Memory: ' +
+        );
+        console.log('CPU Bucket: ' + cpuBucket + '/10000 (' + (cpuBucket / 100).toFixed(1) + '%)');
+        console.log(
+            'Memory: ' +
                 (memorySize / 1024).toFixed(1) +
                 ' KB / 2048 KB (' +
                 ((memorySize / memoryLimit) * 100).toFixed(1) +
                 '%)'
-    )
-    console.log('')
+        );
+        console.log('');
 
-    // 有効機能リスト
-    console.log('Enabled Features:')
-    const allFeatures = [
-      'basicRoles',
-      'spawn',
-      'defense',
-      'logging',
-      'gamification',
-      'emotions',
-      'memoryVisualizer',
-      'visualEffects',
-      'autoEvolution',
-      'tutorial',
-      'socialInteractions',
-      'advancedRoles'
-    ]
+        // 有効機能リスト
+        console.log('Enabled Features:');
+        const allFeatures = [
+            'basicRoles',
+            'spawn',
+            'defense',
+            'logging',
+            'gamification',
+            'emotions',
+            'memoryVisualizer',
+            'visualEffects',
+            'autoEvolution',
+            'tutorial',
+            'socialInteractions',
+            'advancedRoles',
+        ];
 
-    let enabledCount = 0
-    for (let i = 0; i < allFeatures.length; i++) {
-      if (this.isEnabled(allFeatures[i])) {
-        enabledCount++
-      }
-    }
-    console.log('  ' + enabledCount + '/' + allFeatures.length + ' features active')
+        let enabledCount = 0;
+        for (let i = 0; i < allFeatures.length; i++) {
+            if (this.isEnabled(allFeatures[i])) {
+                enabledCount++;
+            }
+        }
+        console.log('  ' + enabledCount + '/' + allFeatures.length + ' features active');
 
-    // 統計
-    console.log('')
-    console.log('Mode Statistics:')
-    const stats = Memory.adaptive.stats
-    const total =
-            stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount
-    if (total > 0) {
-      console.log('  Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%')
-      console.log('  Minimal: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%')
-      console.log('  Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%')
-      console.log('  Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%')
-    }
+        // 統計
+        console.log('');
+        console.log('Mode Statistics:');
+        const stats = Memory.adaptive.stats;
+        const total =
+            stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
+        if (total > 0) {
+            console.log('  Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
+            console.log('  Minimal: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
+            console.log('  Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
+            console.log('  Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
+        }
 
-    // 最近のモード変更履歴
-    if (Memory.adaptive.modeHistory.length > 0) {
-      console.log('')
-      console.log('Recent Mode Changes:')
-      const recentHistory = Memory.adaptive.modeHistory.slice(-5)
-      for (let i = 0; i < recentHistory.length; i++) {
-        const h = recentHistory[i]
-        // Security: Escape all dynamic strings before console output
-        const fromName = logger.escapeHTML(this.getModeName(h.from))
-        const toName = logger.escapeHTML(this.getModeName(h.to))
-        const reason = logger.escapeHTML(h.reason)
-        console.log(
-          '  [' + h.time + '] ' + fromName + ' → ' + toName + ' (' + reason + ')'
-        )
-      }
-    }
-  },
+        // 最近のモード変更履歴
+        if (Memory.adaptive.modeHistory.length > 0) {
+            console.log('');
+            console.log('Recent Mode Changes:');
+            const recentHistory = Memory.adaptive.modeHistory.slice(-5);
+            for (let i = 0; i < recentHistory.length; i++) {
+                const h = recentHistory[i];
+                // Security: Escape all dynamic strings before console output
+                const fromName = logger.escapeHTML(this.getModeName(h.from));
+                const toName = logger.escapeHTML(this.getModeName(h.to));
+                const reason = logger.escapeHTML(h.reason);
+                console.log(
+                    '  [' + h.time + '] ' + fromName + ' → ' + toName + ' (' + reason + ')'
+                );
+            }
+        }
+    },
 
-  /**
+    /**
      * 強制モード変更
      */
-  setMode: function (mode) {
-    this.init()
+    setMode: function (mode) {
+        this.init();
 
-    // Security: Boundary validation and type check for manual mode override
-    const numericMode = Number(mode)
-    if (
-      !Number.isInteger(numericMode) ||
+        // Security: Boundary validation and type check for manual mode override
+        const numericMode = Number(mode);
+        if (
+            !Number.isInteger(numericMode) ||
             numericMode < this.MODE.EMERGENCY ||
             numericMode > this.MODE.FULL
-    ) {
-      console.log('❌ Invalid mode. Use 0-3 (Integer).')
-      return
-    }
+        ) {
+            console.log('❌ Invalid mode. Use 0-3 (Integer).');
+            return;
+        }
 
-    Memory.adaptive.currentMode = numericMode
+        Memory.adaptive.currentMode = numericMode;
 
-    // ⚡ PERFORMANCE: Update cache immediately on manual mode change
-    _currentConfig = FEATURE_CONFIG[mode]
-    _configTick = Game.time
+        // ⚡ PERFORMANCE: Update cache immediately on manual mode change
+        _currentConfig = FEATURE_CONFIG[mode];
+        _configTick = Game.time;
 
-    console.log('✅ Mode set to: ' + this.getModeName(mode).toUpperCase())
-  },
+        console.log('✅ Mode set to: ' + this.getModeName(mode).toUpperCase());
+    },
 
-  /**
+    /**
      * リセット
      */
-  reset: function () {
-    delete Memory.adaptive
-    // ⚡ PERFORMANCE: Reset cache when system is reset
-    _currentConfig = null
-    _configTick = -1
-    console.log('🔄 Adaptive system reset!')
-  }
-}
+    reset: function () {
+        delete Memory.adaptive;
+        // ⚡ PERFORMANCE: Reset cache when system is reset
+        _currentConfig = null;
+        _configTick = -1;
+        console.log('🔄 Adaptive system reset!');
+    },
+};
 
-module.exports = adaptiveSystem
+module.exports = adaptiveSystem;

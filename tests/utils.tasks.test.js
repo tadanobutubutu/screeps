@@ -9,7 +9,11 @@ const utilsMemory = require('../utils.memory');
 const logger = require('../utils.logging');
 
 jest.mock('../utils.memory');
-jest.mock('../utils.logging');
+jest.mock('../utils.logging', () => ({
+  error: jest.fn(),
+  warn: jest.fn(),
+  log: jest.fn(),
+}));
 
 describe('utils.tasks', () => {
   beforeEach(() => { global.Memory = { logs: [] }; });
@@ -17,6 +21,7 @@ describe('utils.tasks', () => {
     global.Memory = { logs: [] };
     TaskQueue.tasks = [];
     global.Game = { time: 100 };
+    global.Memory = { logs: [] };
     jest.clearAllMocks();
     utilsMemory.isSafeKey.mockReturnValue(true);
   });
@@ -55,7 +60,9 @@ describe('utils.tasks', () => {
 
     TaskQueue.registerTask('overflow', 1, () => {});
     expect(TaskQueue.tasks.length).toBe(50);
-    expect(logger.warn).toHaveBeenCalledWith(expect.stringContaining('Maximum task limit reached'));
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('Maximum task limit reached')
+    );
   });
 
   test('runが正しいティックでタスクを実行する', () => {
@@ -86,10 +93,14 @@ describe('utils.tasks', () => {
   });
 
   test('runがエラーをキャッチしてセキュアロガーに送る', () => {
-    const errorAction = () => { throw new Error('Boom'); };
+    const errorAction = () => {
+      throw new Error('Boom');
+    };
     TaskQueue.registerTask('buggy', 1, errorAction);
 
     expect(() => TaskQueue.run()).not.toThrow();
-    expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('Error running periodic task buggy: Boom'));
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('Error running periodic task buggy: Boom')
+    );
   });
 });

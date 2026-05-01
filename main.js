@@ -134,17 +134,18 @@ function runDefenseLogic (room) {
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: ホイストされたクリープ実行関数。クロージャの生成を削減。
+ * 直接引数を受け取ることで中間オブジェクトの割り当てを回避。
  */
-function runCreepWithLogging (item, isEmotionsEnabled) {
-  logger.tryCatch(runCreepLogic, 'creep_' + item.name, item.creep, item.role, isEmotionsEnabled)
+function runCreepWithLogging (creep, role, name, isEmotionsEnabled) {
+  logger.tryCatch(runCreepLogic, 'creep_' + name, creep, role, isEmotionsEnabled)
 }
 
-function runCreepMinimal (item, isEmotionsEnabled) {
+function runCreepMinimal (creep, role, name, isEmotionsEnabled) {
   try {
-    runCreepLogic(item.creep, item.role, isEmotionsEnabled)
+    runCreepLogic(creep, role, isEmotionsEnabled)
   } catch (e) {
     Sentry.captureException(e)
-    logger.error('Error in creep ' + item.name + ': ' + e.message)
+    logger.error('Error in creep ' + name + ': ' + e.message)
   }
 }
 
@@ -301,66 +302,38 @@ function warmRoomCache (room) {
   room._freeSpawnsTick = Game.time
 }
 
+
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: クリープのデータ収集と初期化を行う。
  * processCreeps関数の肥大化を防ぐための抽出。
  */
-function collectCreepData (
-  creep,
-  creepCounts,
-  creepsToProcess,
-  isLoggingEnabled,
-  isEmotionsEnabled
-) {
+function collectCreepData (creep, creepCounts, isLoggingEnabled) {
   const memory = creep.memory
-  const n = creep.name
   let role = memory.role
   if (!role) {
     role = memory.role = 'harvester'
-    if (isLoggingEnabled) {
-      logger.warn('Creep ' + n + ' had no role, set to harvester')
-    }
+    if (isLoggingEnabled) logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
   }
   creepCounts[role] = (creepCounts[role] || 0) + 1
-
-  // ロジック実行用に情報を保持
-  creepsToProcess.push({ creep, role, name: n })
 
   const room = creep.room
   if (room) {
     room._myCreeps.push(creep)
-    if (room._roleCounts[role] !== undefined) {
-      room._roleCounts[role]++
-    }
-    if (creep.hits < creep.hitsMax) {
-      room._injuredCreeps.push(creep)
-    }
-    if (role === 'defender') {
-      room._defenders.push(creep)
-    }
+    if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
+    if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
+    if (role === 'defender') room._defenders.push(creep)
   }
 }
 
 function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
-  const creepsToProcess = []
 
   // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
-  // 引数で渡されたrooms配列を使用。
   for (let i = 0; i < rooms.length; i++) {
-    const room = rooms[i]
-
-    warmRoomCache(room)
+    warmRoomCache(rooms[i])
   }
 
-  // ⚡ PERFORMANCE: クリープの処理ループとデータ収集を一括で行う
-  // 引数で渡されたcreeps配列を使用。
-  for (let i = 0; i < creeps.length; i++) {
-    const creep = creeps[i]
-    collectCreepData(creep, creepCounts, creepsToProcess, isLoggingEnabled, isEmotionsEnabled)
-  }
-
-  // 建設サイトの処理 (⚡ PERFORMANCE: 引数で渡されたsites配列を使用)
+  // ⚡ PERFORMANCE: 建設サイトの処理
   for (let i = 0; i < sites.length; i++) {
     const site = sites[i]
     if (site.my && site.room) {
@@ -368,13 +341,46 @@ function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnable
     }
   }
 
-  // ⚡ PERFORMANCE: ホイストされたロジック実行
-  // ループ内での条件分岐を避けるため、実行関数を決定する
+  // Pass 1: データ収集
+  // ⚡ PERFORMANCE: 以前の creepsToProcess 配列の作成を回避し、
+  // 中間オブジェクトの割り当てをなくす。
+  for (let i = 0; i < creeps.length; i++) {
+    const creep = creeps[i]
+    const memory = creep.memory
+    let role = memory.role
+
+    if (!role) {
+      role = memory.role = 'harvester'
+      if (isLoggingEnabled) {
+        logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
+      }
+    }
+    creepCounts[role] = (creepCounts[role] || 0) + 1
+
+    const room = creep.room
+    if (room) {
+      room._myCreeps.push(creep)
+      if (room._roleCounts[role] !== undefined) {
+        room._roleCounts[role]++
+      }
+      if (creep.hits < creep.hitsMax) {
+        room._injuredCreeps.push(creep)
+      }
+      if (role === 'defender') {
+        room._defenders.push(creep)
+      }
+    }
+  }
+
+  // Pass 2: ロジック実行
+  // ⚡ PERFORMANCE: 収集完了後（部屋の統計が揃った状態）でロジックを実行。
   const processFn = isLoggingEnabled ? runCreepWithLogging : runCreepMinimal
 
-  for (let i = 0; i < creepsToProcess.length; i++) {
-    processFn(creepsToProcess[i], isEmotionsEnabled)
+  for (let i = 0; i < creeps.length; i++) {
+    const creep = creeps[i]
+    processFn(creep, creep.memory.role, creep.name, isEmotionsEnabled)
   }
+
   return creepCounts
 }
 
@@ -475,11 +481,7 @@ function handleDefenseAndDashboard (rooms, isLoggingEnabled, isVisualEffectsEnab
   }
 }
 
-function displayStats (creeps) {
-  const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
-  const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
-  const isGamificationEnabled = adaptiveSystem.isEnabled('gamification')
-
+function _displayCoreStats (creeps) {
   console.log(
     '\n⚡ Tick: ' +
             Game.time +
@@ -497,29 +499,45 @@ function displayStats (creeps) {
             ')'
   )
   console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB')
+}
 
-  if (isLoggingEnabled) {
-    const logStats = logger.getStats()
-    if (logStats.errors > 0) {
-      logger.warn('Recent errors: ' + logStats.errors)
-    }
+function _displayLogStats () {
+  const logStats = logger.getStats()
+  if (logStats.errors > 0) {
+    logger.warn('Recent errors: ' + logStats.errors)
+  }
+}
+
+function _displayEmotionStats () {
+  const emotionStats = EmotionSystem.getStats()
+  console.log(
+    '😊 Happy: ' +
+              (emotionStats.veryHappy + emotionStats.happy) +
+              ', Neutral: ' +
+              emotionStats.neutral
+  )
+}
+
+function _displayGamificationStats () {
+  const gm = Memory.gamification
+  if (gm) {
+    console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
+  }
+}
+
+function displayStats (creeps) {
+  _displayCoreStats(creeps)
+
+  if (adaptiveSystem.isEnabled('logging')) {
+    _displayLogStats()
   }
 
-  if (isEmotionsEnabled) {
-    const emotionStats = EmotionSystem.getStats()
-    console.log(
-      '😊 Happy: ' +
-                (emotionStats.veryHappy + emotionStats.happy) +
-                ', Neutral: ' +
-                emotionStats.neutral
-    )
+  if (adaptiveSystem.isEnabled('emotions')) {
+    _displayEmotionStats()
   }
 
-  if (isGamificationEnabled) {
-    const gm = Memory.gamification
-    if (gm) {
-      console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
-    }
+  if (adaptiveSystem.isEnabled('gamification')) {
+    _displayGamificationStats()
   }
 }
 
@@ -588,11 +606,44 @@ TaskQueue.registerTask(
   () => adaptiveSystem.isEnabled('gamification')
 )
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Social interaction logic extracted to reduce main loop complexity.
+ */
+function handleSocialInteractions (rooms) {
+  if (!adaptiveSystem.isEnabled('socialInteractions') || Game.time % 100 !== 0) {
+    return
+  }
+
+  const processedPairs = new Set()
+  for (let i = 0; i < rooms.length; i++) {
+    const room = rooms[i]
+    const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS)
+
+    for (const creep of creepsInRoom) {
+      const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1)
+      for (const neighbor of neighbors) {
+        if (creep.id === neighbor.id) {
+          continue
+        }
+
+        const pairKey =
+                    creep.id < neighbor.id
+                      ? `${creep.id}:${neighbor.id}`
+                      : `${neighbor.id}:${creep.id}`
+
+        if (!processedPairs.has(pairKey)) {
+          processedPairs.add(pairKey)
+          if (Math.random() > 0.7) {
+            EmotionSystem.interact(creep, neighbor)
+          }
+        }
+      }
+    }
+  }
+}
+
 module.exports.loop = function () {
   try {
-    // ⚡ PERFORMANCE: Fetch global collections once per tick at the absolute start
-    // to avoid redundant Proxy lookup overhead and provide fresh data for all modules.
-    // Proxyオブジェクトへの反復アクセスを避けるため、ループの最初に各コレクションを取得する。
     const rooms = (global._rooms = Object.values(Game.rooms || {}))
     const creeps = (global._creeps = Object.values(Game.creeps || {}))
     const spawns = (global._spawns = Object.values(Game.spawns || {}))
@@ -600,7 +651,6 @@ module.exports.loop = function () {
       Game.constructionSites || {}
     ))
 
-    // ⚡ PERFORMANCE: Cache the primary spawn immediately for use in TaskQueue and initialization.
     if (spawns.length > 0) {
       global._primarySpawn = spawns[0]
       global._primarySpawnTick = Game.time
@@ -608,14 +658,11 @@ module.exports.loop = function () {
 
     adaptiveSystem.evaluate()
 
-    // ⚡ PERFORMANCE: Throttle memory cleanup to run every 100 ticks.
-    // This reduces O(N) memory iteration overhead on every tick.
     if (Game.time % 100 === 0) {
       utilsMemory.cleanMemory()
     }
 
     if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
-      console.log('🤖 AUTO TUTORIAL MODE ACTIVE')
       autoTutorial.run()
       autoTutorial.showProgress()
       return
@@ -638,50 +685,15 @@ module.exports.loop = function () {
       isEmotionsEnabled
     )
 
-    // ⚡ PERFORMANCE: autoEvolution.run()をprocessCreepsの後に移動し、準備された部屋キャッシュ
-    // (_roleCounts, _myCreeps)を再利用可能にする。1000ティックごとに実行。
     if (Game.time % 1000 === 0 && adaptiveSystem.isEnabled('autoEvolution')) {
       autoEvolution.run()
     }
 
-    // ⚡ PERFORMANCE: pre-fetchedなspawns配列を使用して反復処理を最適化
     for (let i = 0; i < spawns.length; i++) {
-      const spawn = spawns[i]
-      handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled)
+      handleSpawning(spawns[i], creepCounts, targetCreeps, isLoggingEnabled)
     }
 
-    if (adaptiveSystem.isEnabled('socialInteractions') && Game.time % 100 === 0) {
-      // ⚡ PERFORMANCE: Replace O(N²) global loop with O(N) room-based spatial search.
-      // Using findInRange(1) leverages the engine's internal spatial indexing.
-      const processedPairs = new Set()
-      for (let i = 0; i < rooms.length; i++) {
-        const room = rooms[i]
-        const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS)
-
-        for (const creep of creepsInRoom) {
-          const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1)
-          for (const neighbor of neighbors) {
-            if (creep.id === neighbor.id) {
-              continue
-            }
-
-            // Create a unique key for the pair to ensure we only check it once.
-            const pairKey =
-                            creep.id < neighbor.id
-                              ? `${creep.id}:${neighbor.id}`
-                              : `${neighbor.id}:${creep.id}`
-
-            if (!processedPairs.has(pairKey)) {
-              processedPairs.add(pairKey)
-              if (Math.random() > 0.7) {
-                EmotionSystem.interact(creep, neighbor)
-              }
-            }
-          }
-        }
-      }
-    }
-
+    handleSocialInteractions(rooms)
     handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabled)
 
     if (Game.time % 100 === 0) {
@@ -689,22 +701,23 @@ module.exports.loop = function () {
     }
   } catch (e) {
     Sentry.captureException(e)
-    // Security: Use logging system for consistent escaping, path sanitization, and error tracking.
     const safeStack = logger.getSafeStack(e.stack)
     logger.error('CRITICAL ERROR: ' + e.message + (safeStack ? '\n' + safeStack : ''))
   }
 }
 
-function getBodyForRole (role, energy) {
-  const bodyConfig = BODY_CONFIGS[role] || [[MOVE, WORK, CARRY], 200]
-  const cost = bodyConfig[1]
-  const parts = bodyConfig[0]
+// ⚡ PERFORMANCE: Hoisted default body configuration to avoid per-call array allocation.
+const DEFAULT_BODY_CONFIG = [[MOVE, WORK, CARRY], 200]
+const DEFAULT_BODY_PARTS = [MOVE, WORK, CARRY]
 
-  if (energy >= cost) {
-    return parts
+function getBodyForRole (role, energy) {
+  const bodyConfig = BODY_CONFIGS[role] || DEFAULT_BODY_CONFIG
+
+  if (energy >= bodyConfig[1]) {
+    return bodyConfig[0]
   }
 
-  return [MOVE, WORK, CARRY]
+  return DEFAULT_BODY_PARTS
 }
 
 // ==============================================

@@ -8,6 +8,10 @@ const logger = require('./src/utils/logger')
 // strategyMemory.loadStrategy();
 
 module.exports = {
+  getOffsets: function (base) {
+    return { x: base.x + 5, y: base.y - 2 }
+  },
+
   loadStrategy: function () {
     if (!Memory.strategy) {
       Memory.strategy = {}
@@ -18,9 +22,7 @@ module.exports = {
   },
 
   displayBriefing: function () {
-    if (!Memory.strategy) {
-      return
-    }
+    if (!Memory.strategy) return
 
     logger.info('\n' + '='.repeat(60))
     logger.info('🎯 STRATEGIC BRIEFING BOARD')

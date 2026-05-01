@@ -238,25 +238,13 @@ const gamification = {
     const creepCount = global._creeps ? global._creeps.length : Object.keys(Game.creeps).length
     const gcl = Game.gcl.level
 
-    if (creepCount >= 10) {
-      this.unlockAchievement('creeps_10', '10 Creeps!', '👥')
-    }
-    if (creepCount >= 20) {
-      this.unlockAchievement('creeps_20', '20 Creeps!', '👥')
-    }
-    if (creepCount >= 50) {
-      this.unlockAchievement('creeps_50', '50 Creeps!', '👥')
-    }
+    if (creepCount >= 10) this.unlockAchievement('creeps_10', '10 Creeps!', '👥')
+    if (creepCount >= 20) this.unlockAchievement('creeps_20', '20 Creeps!', '👥')
+    if (creepCount >= 50) this.unlockAchievement('creeps_50', '50 Creeps!', '👥')
 
-    if (gcl >= 2) {
-      this.unlockAchievement('gcl_2', 'GCL 2!', '⬆️')
-    }
-    if (gcl >= 3) {
-      this.unlockAchievement('gcl_3', 'GCL 3!', '⬆️')
-    }
-    if (gcl >= 5) {
-      this.unlockAchievement('gcl_5', 'GCL 5!', '⬆️')
-    }
+    if (gcl >= 2) this.unlockAchievement('gcl_2', 'GCL 2!', '⬆️')
+    if (gcl >= 3) this.unlockAchievement('gcl_3', 'GCL 3!', '⬆️')
+    if (gcl >= 5) this.unlockAchievement('gcl_5', 'GCL 5!', '⬆️')
   },
 
   /**
@@ -265,21 +253,11 @@ const gamification = {
   getRank: function () {
     const level = Memory.gamification?.level ?? 1
 
-    if (level >= 20) {
-      return 'Master'
-    }
-    if (level >= 15) {
-      return 'Expert'
-    }
-    if (level >= 10) {
-      return 'Advanced'
-    }
-    if (level >= 5) {
-      return 'Intermediate'
-    }
-    if (level >= 2) {
-      return 'Beginner'
-    }
+    if (level >= 20) return 'Master'
+    if (level >= 15) return 'Expert'
+    if (level >= 10) return 'Advanced'
+    if (level >= 5) return 'Intermediate'
+    if (level >= 2) return 'Beginner'
     return 'Newbie'
   },
 
@@ -335,14 +313,24 @@ const gamification = {
     const visual = spawn.room.visual
     const x = spawn.pos.x + 5
     const y = spawn.pos.y - 3
+    const roomName = spawn.room.name
 
+    this._renderBackground(visual, x, y)
+    this._renderStats(visual, x, y, gm, roomName)
+    this._renderChallenge(visual, x, y, roomName)
+    vfx.rankBadge({ x: x + 1.5, y: y + 6.5, roomName }, this.getRank())
+  },
+
+  _renderBackground: function (visual, x, y) {
     visual.rect(x - 3, y - 2, 6, 11, {
       fill: '#000000',
       opacity: 0.7,
       stroke: '#FFD700',
       strokeWidth: 0.1
     })
+  },
 
+  _renderStats: function (visual, x, y, gm, roomName) {
     visual.text('🎮 STATS 🎮', x, y - 1.3, {
       color: '#FFD700',
       font: 0.8,
@@ -358,7 +346,7 @@ const gamification = {
       strokeWidth: 0.05
     })
 
-    vfx.progressBar({ x, y: y + 0.5, roomName: spawn.room.name }, gm.xp, gm.xpToNext, 'XP')
+    vfx.progressBar({ x, y: y + 0.5, roomName }, gm.xp, gm.xpToNext, 'XP')
 
     visual.text('Score: ' + gm.totalScore, x - 2, y + 1.3, {
       color: '#FFD700',
@@ -385,8 +373,9 @@ const gamification = {
         strokeWidth: 0.05
       })
     }
+  },
 
-    // Daily Challenge info
+  _renderChallenge: function (visual, x, y, roomName) {
     const challenge = dailyChallenge.getChallenge()
     visual.text('🎯 CHALLENGE 🎯', x, y + 3.8, {
       color: '#FFD700',
@@ -396,13 +385,11 @@ const gamification = {
     })
 
     vfx.progressBar(
-      { x, y: y + 4.8, roomName: spawn.room.name },
+      { x, y: y + 4.8, roomName },
       challenge.progress,
       challenge.challenge.target,
       challenge.challenge.name
     )
-
-    vfx.rankBadge({ x: x + 1.5, y: y + 6.5, roomName: spawn.room.name }, this.getRank())
   },
 
   /**

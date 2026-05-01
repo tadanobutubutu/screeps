@@ -54,13 +54,21 @@ const MAX_ACHIEVEMENT_NAME_LENGTH = 100
 class EmotionSystem {
   static initialize (creep) {
     if (!creep.memory.emotions) {
-      creep.memory.emotions = {
-        mood: MOOD_LEVELS.NEUTRAL,
-        lastEmotion: EMOTIONS.HAPPY,
-        experiencePoints: 0,
-        achievements: [],
-        personalityTraits: this.generatePersonality(),
-        birthTick: Game.time
+      creep.memory.emotions = {}
+    }
+
+    const defaults = {
+      mood: MOOD_LEVELS.NEUTRAL,
+      lastEmotion: EMOTIONS.HAPPY,
+      experiencePoints: 0,
+      achievements: [],
+      personalityTraits: this.generatePersonality(),
+      birthTick: Game.time
+    }
+
+    for (const key in defaults) {
+      if (creep.memory.emotions[key] === undefined) {
+        creep.memory.emotions[key] = defaults[key]
       }
     }
   }
@@ -76,12 +84,8 @@ class EmotionSystem {
   static _getEnergyEmotion (creep) {
     const energyPercent =
             creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY)
-    if (energyPercent < 0.1) {
-      return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
-    }
-    if (energyPercent > 0.9) {
-      return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
-    }
+    if (energyPercent < 0.1) return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
+    if (energyPercent > 0.9) return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
     return null
   }
 
@@ -90,9 +94,7 @@ class EmotionSystem {
      */
   static _getHealthEmotion (creep) {
     const healthPercent = creep.hits / creep.hitsMax
-    if (healthPercent < 0.5) {
-      return { emoji: EMOTIONS.HURT, moodChange: -2 }
-    }
+    if (healthPercent < 0.5) return { emoji: EMOTIONS.HURT, moodChange: -2 }
     return null
   }
 
@@ -173,7 +175,9 @@ class EmotionSystem {
       moodChange = 3
     }
 
-    emotions.mood = Math.max(1, Math.min(5, emotions.mood + moodChange))
+    // Security: Ensure mood is a finite number before arithmetic to prevent NaN propagation.
+    const currentMood = Number.isFinite(emotions.mood) ? emotions.mood : MOOD_LEVELS.NEUTRAL
+    emotions.mood = Math.max(1, Math.min(5, currentMood + moodChange))
 
     if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
       emoji = EMOTIONS.HAPPY
@@ -217,28 +221,27 @@ class EmotionSystem {
     this.initialize(creep)
     const mood = creep.memory.emotions.mood
 
-    if (mood >= 5) {
-      return 'Very Happy 😄'
-    }
-    if (mood >= 4) {
-      return 'Happy 😊'
-    }
-    if (mood >= 3) {
-      return 'Neutral 😐'
-    }
-    if (mood >= 2) {
-      return 'Sad 😟'
-    }
+    if (mood >= 5) return 'Very Happy 😄'
+    if (mood >= 4) return 'Happy 😊'
+    if (mood >= 3) return 'Neutral 😐'
+    if (mood >= 2) return 'Sad 😟'
     return 'Very Sad 😭'
   }
 
   static interact (creep1, creep2) {
+    // Security: Validate creep objects and positions before spatial calculations.
+    if (!creep1 || !creep2 || !creep1.pos || !creep2.pos) return
+
     if (creep1.pos.inRangeTo(creep2, 1)) {
       this.initialize(creep1)
       this.initialize(creep2)
 
-      creep1.memory.emotions.mood = Math.min(5, creep1.memory.emotions.mood + 0.5)
-      creep2.memory.emotions.mood = Math.min(5, creep2.memory.emotions.mood + 0.5)
+      // Security: Ensure mood is a finite number before arithmetic to prevent NaN propagation.
+      const mood1 = Number.isFinite(creep1.memory.emotions.mood) ? creep1.memory.emotions.mood : MOOD_LEVELS.NEUTRAL
+      const mood2 = Number.isFinite(creep2.memory.emotions.mood) ? creep2.memory.emotions.mood : MOOD_LEVELS.NEUTRAL
+
+      creep1.memory.emotions.mood = Math.min(5, mood1 + 0.5)
+      creep2.memory.emotions.mood = Math.min(5, mood2 + 0.5)
 
       creep1.say('👋', true)
       creep2.say('😊', true)
@@ -249,18 +252,10 @@ class EmotionSystem {
     this.initialize(creep)
     const mood = creep.memory.emotions.mood
 
-    if (mood >= 5) {
-      return 1.1
-    }
-    if (mood >= 4) {
-      return 1.05
-    }
-    if (mood >= 3) {
-      return 1.0
-    }
-    if (mood >= 2) {
-      return 0.95
-    }
+    if (mood >= 5) return 1.1
+    if (mood >= 4) return 1.05
+    if (mood >= 3) return 1.0
+    if (mood >= 2) return 0.95
     return 0.9
   }
 
@@ -288,17 +283,11 @@ class EmotionSystem {
       this.initialize(creep)
       const mood = creep.memory.emotions.mood
 
-      if (mood >= 5) {
-        stats.veryHappy++
-      } else if (mood >= 4) {
-        stats.happy++
-      } else if (mood >= 3) {
-        stats.neutral++
-      } else if (mood >= 2) {
-        stats.sad++
-      } else {
-        stats.verySad++
-      }
+      if (mood >= 5) stats.veryHappy++
+      else if (mood >= 4) stats.happy++
+      else if (mood >= 3) stats.neutral++
+      else if (mood >= 2) stats.sad++
+      else stats.verySad++
 
       stats.total++
     }

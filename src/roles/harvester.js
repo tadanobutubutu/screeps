@@ -120,9 +120,7 @@ function _harvest (creep) {
 function _findDroppedEnergy (creep) {
   const dropped = cache.getDroppedResources(creep.room)
   const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY)
-  if (energyDrops.length === 0) {
-    return null
-  }
+  if (energyDrops.length === 0) return null
   return pathfinder.closest(creep.pos, energyDrops)
 }
 
@@ -134,9 +132,7 @@ function _findDroppedEnergy (creep) {
 function _findAvailableContainer (creep) {
   const containers = cache.getContainers(creep.room)
   const available = containers.filter((c) => c.store[RESOURCE_ENERGY] >= 100)
-  if (available.length === 0) {
-    return null
-  }
+  if (available.length === 0) return null
   return pathfinder.closest(creep.pos, available)
 }
 
@@ -219,9 +215,7 @@ function _findEnergyTarget (creep) {
  */
 function _upgradeAsBackup (creep) {
   const controller = creep.room.controller
-  if (!controller) {
-    return
-  }
+  if (!controller) return
 
   const result = creep.upgradeController(controller)
   if (result === ERR_NOT_IN_RANGE) {

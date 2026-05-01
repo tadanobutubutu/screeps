@@ -35,18 +35,14 @@ const {
 function run (room) {
   try {
     const towers = cache.getMyStructures(room, STRUCTURE_TOWER)
-    if (towers.length === 0) {
-      return
-    }
+    if (towers.length === 0) return
 
     const enemies = cache.getEnemies(room)
     const myCreeps = room.find(FIND_MY_CREEPS)
     const injuredCreeps = myCreeps.filter((c) => c.hits < c.hitsMax * TOWER_HEAL_THRESHOLD)
 
     for (const tower of towers) {
-      if (tower.store[RESOURCE_ENERGY] < 10) {
-        continue
-      }
+      if (tower.store[RESOURCE_ENERGY] < 10) continue
       _runTower(tower, enemies, injuredCreeps, room)
     }
   } catch (e) {
@@ -66,12 +62,8 @@ function run (room) {
  * @param {Room} room
  */
 function _runTower (tower, enemies, injuredCreeps, room) {
-  if (_tryAttack(tower, enemies)) {
-    return
-  }
-  if (_tryHeal(tower, injuredCreeps)) {
-    return
-  }
+  if (_tryAttack(tower, enemies)) return
+  if (_tryHeal(tower, injuredCreeps)) return
   _tryRepair(tower, room)
 }
 
@@ -82,9 +74,7 @@ function _runTower (tower, enemies, injuredCreeps, room) {
  * @returns {boolean} 攻撃を実行したかどうか
  */
 function _tryAttack (tower, enemies) {
-  if (enemies.length === 0) {
-    return false
-  }
+  if (enemies.length === 0) return false
   const target = _selectAttackTarget(tower, enemies)
   if (target) {
     tower.attack(target)
@@ -101,9 +91,7 @@ function _tryAttack (tower, enemies) {
  * @returns {boolean} 回復を実行したかどうか
  */
 function _tryHeal (tower, injuredCreeps) {
-  if (injuredCreeps.length === 0) {
-    return false
-  }
+  if (injuredCreeps.length === 0) return false
   const target = _selectHealTarget(tower, injuredCreeps)
   if (target) {
     tower.heal(target)
@@ -121,9 +109,7 @@ function _tryHeal (tower, injuredCreeps) {
  */
 function _tryRepair (tower, room) {
   const energyRatio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
-  if (energyRatio <= TOWER_ENERGY_PRIORITY) {
-    return false
-  }
+  if (energyRatio <= TOWER_ENERGY_PRIORITY) return false
 
   const repairTarget = _selectRepairTarget(tower, room)
   if (repairTarget) {
@@ -146,9 +132,7 @@ function _tryRepair (tower, room) {
  * @returns {Creep|null}
  */
 function _selectAttackTarget (tower, enemies) {
-  if (enemies.length === 0) {
-    return null
-  }
+  if (enemies.length === 0) return null
 
   // HPが閾値以下の敵を最優先
   const criticalEnemies = enemies.filter((e) => e.hits <= TOWER_ATTACK_PRIORITY_HP)
@@ -190,9 +174,7 @@ function _selectAttackTarget (tower, enemies) {
  * @returns {Creep|null}
  */
 function _selectHealTarget (tower, injured) {
-  if (injured.length === 0) {
-    return null
-  }
+  if (injured.length === 0) return null
   return injured.reduce((a, b) => (a.hits / a.hitsMax < b.hits / b.hitsMax ? a : b))
 }
 
@@ -223,20 +205,14 @@ function _selectRepairTarget (tower, room) {
   // 道路・コンテナの修復
   const damaged = room.find(FIND_STRUCTURES, {
     filter: (s) => {
-      if (s.structureType === STRUCTURE_WALL) {
-        return false
-      }
-      if (s.structureType === STRUCTURE_RAMPART) {
-        return false
-      }
+      if (s.structureType === STRUCTURE_WALL) return false
+      if (s.structureType === STRUCTURE_RAMPART) return false
       const threshold = REPAIR_THRESHOLD[s.structureType] || REPAIR_THRESHOLD.OTHER
       return s.hits < s.hitsMax * threshold
     }
   })
 
-  if (damaged.length === 0) {
-    return null
-  }
+  if (damaged.length === 0) return null
 
   // 最も損傷率が高い構造物
   return damaged.reduce((a, b) => {
@@ -338,20 +314,14 @@ function getStats (room) {
     lowEnergy: 0
   }
 
-  if (towers.length === 0) {
-    return stats
-  }
+  if (towers.length === 0) return stats
 
   let totalEnergy = 0
   for (const tower of towers) {
     const ratio = tower.store[RESOURCE_ENERGY] / tower.store.getCapacity(RESOURCE_ENERGY)
     totalEnergy += ratio
-    if (ratio < TOWER_ENERGY_PRIORITY) {
-      stats.lowEnergy++
-    }
-    if (tower.store[RESOURCE_ENERGY] > 0) {
-      stats.active++
-    }
+    if (ratio < TOWER_ENERGY_PRIORITY) stats.lowEnergy++
+    if (tower.store[RESOURCE_ENERGY] > 0) stats.active++
   }
   stats.avgEnergy = totalEnergy / towers.length
 

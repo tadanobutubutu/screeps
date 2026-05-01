@@ -54,12 +54,24 @@ const TaskQueue = {
           try {
             task.action()
           } catch (e) {
+            // Record failure count
+            task.failures = (task.failures || 0) + 1
             // Security: Use logger.error for safe stack traces and HTML escaping
             logger.error(`Error running periodic task ${task.name}: ${e.message}`)
           }
         }
       }
     }
+  },
+
+  /**
+   * Unregisters a task by name.
+   * @param {string} name - The name of the task to remove.
+   */
+  removeTask: function (name) {
+    if (!name) return
+    const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH)
+    this.tasks = this.tasks.filter((t) => t.name !== sanitizedName)
   }
 }
 

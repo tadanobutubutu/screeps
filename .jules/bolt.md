@@ -149,3 +149,7 @@
 ## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
 **Learning:** Large functions containing multiple complex `if-else` chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (`_determineTargetMode`, `_applyModeChange`, `_updateStats`) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
 **Action:** Use focused helper functions to break down overly long and complex methods, ensuring each helper has a single, well-defined responsibility.
+
+## 2026-10-27 - Eliminating Per-Tick Intermediate Allocations
+**Learning:** In high-frequency game loops like Screeps' `main.js`, creating intermediate arrays (e.g., `creepsToProcess`) and wrapper objects for every creep every tick significantly increases GC pressure and CPU overhead. Additionally, returning fresh array literals from utility functions (like `getBodyForRole`) adds unnecessary allocation.
+**Action:** Use multiple passes over global collections instead of building intermediate arrays. Hoist static array/object literals to the module level to avoid per-tick re-allocation.

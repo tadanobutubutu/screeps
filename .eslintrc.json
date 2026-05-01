@@ -1,65 +1,55 @@
 {
-  "env": {
-    "es6": true,
-    "node": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "prettier"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 2020,
-    "sourceType": "module"
-  },
-  "globals": {
-    "Game": "readonly",
-    "Memory": "readonly",
-    "PathFinder": "readonly",
-    "RawMemory": "readonly",
-    "FIND_MY_SPAWNS": "readonly",
-    "FIND_SOURCES": "readonly",
-    "FIND_STRUCTURES": "readonly",
-    "FIND_HOSTILE_CREEPS": "readonly",
-    "STRUCTURE_EXTENSION": "readonly",
-    "STRUCTURE_TOWER": "readonly",
-    "STRUCTURE_CONTROLLER": "readonly",
-    "STRUCTURE_SPAWN": "readonly",
-    "OK": "readonly",
-    "ERR_NOT_ENOUGH_ENERGY": "readonly",
-    "ERR_BUSY": "readonly",
-    "ERR_NOT_IN_RANGE": "readonly",
-    "WORK": "readonly",
-    "RESOURCE_ENERGY": "readonly",
-    "CARRY": "readonly",
-    "MOVE": "readonly",
-    "_": "readonly",
-    "FIND_CONSTRUCTION_SITES": "readonly"
-  },
-  "rules": {
-    "no-unused-vars": [
-      "warn",
-      {
-        "argsIgnorePattern": "^_"
-      }
-    ],
-    "no-console": "off",
-    "prefer-const": "error",
-    "no-var": "error",
-    "prettier/prettier": "error",
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
-    "curly": [
-      "error",
-      "all"
-    ],
-    "brace-style": [
-      "error",
-      "1tbs"
-    ]
-  }
+    "env": {
+        "es6": true,
+        "node": true,
+        "jest": true
+    },
+    "extends": ["eslint:recommended", "prettier"],
+    "plugins": ["prettier"],
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "globals": {
+        "Game": "readonly",
+        "Memory": "readonly",
+        "PathFinder": "readonly",
+        "RawMemory": "readonly",
+        "RoomPosition": "readonly",
+        "FIND_MY_SPAWNS": "readonly",
+        "FIND_SOURCES": "readonly",
+        "FIND_SOURCES_ACTIVE": "readonly",
+        "FIND_MY_CREEPS": "readonly",
+        "FIND_CONSTRUCTION_SITES": "readonly",
+        "FIND_STRUCTURES": "readonly",
+        "FIND_HOSTILE_CREEPS": "readonly",
+        "STRUCTURE_EXTENSION": "readonly",
+        "STRUCTURE_TOWER": "readonly",
+        "STRUCTURE_CONTROLLER": "readonly",
+        "STRUCTURE_SPAWN": "readonly",
+        "STRUCTURE_WALL": "readonly",
+        "STRUCTURE_LAB": "readonly",
+        "STRUCTURE_CONTAINER": "readonly",
+        "RESOURCE_ENERGY": "readonly",
+        "WORK": "readonly",
+        "CARRY": "readonly",
+        "MOVE": "readonly",
+        "HEAL": "readonly",
+        "ATTACK": "readonly",
+        "RANGED_ATTACK": "readonly",
+        "OK": "readonly",
+        "ERR_NOT_ENOUGH_ENERGY": "readonly",
+        "ERR_NOT_IN_RANGE": "readonly",
+        "ERR_BUSY": "readonly"
+    },
+    "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+        "no-console": "off",
+        "prefer-const": "error",
+        "no-var": "error",
+        "prettier/prettier": "error",
+        "eqeqeq": ["error", "always"],
+        "curly": ["error", "all"],
+        "brace-style": ["error", "1tbs"]
+    }
 }

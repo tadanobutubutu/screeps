@@ -8,12 +8,12 @@ describe('Security: Gamification Combo System', () => {
     beforeEach(() => {
         global.Game = {
             time: 100,
-            spawns: {}
+            spawns: {},
         };
         global.Memory = {
             gamification: {
-                combos: {}
-            }
+                combos: {},
+            },
         };
         // Mock console.log to avoid cluttering test output
         jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -27,7 +27,9 @@ describe('Security: Gamification Combo System', () => {
         const result = gamification.addCombo('__proto__');
         expect(result).toBe(0);
         // Should not be an OWN property
-        expect(Object.prototype.hasOwnProperty.call(Memory.gamification.combos, '__proto__')).toBe(false);
+        expect(Object.prototype.hasOwnProperty.call(Memory.gamification.combos, '__proto__')).toBe(
+            false
+        );
     });
 
     test('addCombo should truncate long keys (Memory DoS protection)', () => {
@@ -83,7 +85,11 @@ describe('Security: Gamification Combo System', () => {
         global.Game.time = 10000;
         jest.spyOn(gamification, 'unlockAchievement').mockImplementation(() => {});
         gamification.updateStreak();
-        expect(gamification.unlockAchievement).toHaveBeenCalledWith('streak_7', '7 Day Streak!', '🔥');
+        expect(gamification.unlockAchievement).toHaveBeenCalledWith(
+            'streak_7',
+            '7 Day Streak!',
+            '🔥'
+        );
     });
 
     test('checkMilestones checks creep count milestones', () => {
@@ -94,7 +100,11 @@ describe('Security: Gamification Combo System', () => {
         }
         jest.spyOn(gamification, 'unlockAchievement').mockImplementation(() => {});
         gamification.checkMilestones();
-        expect(gamification.unlockAchievement).toHaveBeenCalledWith('creeps_10', '10 Creeps!', '👥');
+        expect(gamification.unlockAchievement).toHaveBeenCalledWith(
+            'creeps_10',
+            '10 Creeps!',
+            '👥'
+        );
     });
 
     test('checkMilestones checks GCL milestones', () => {
@@ -108,19 +118,19 @@ describe('Security: Gamification Combo System', () => {
     test('getRank returns correct rank for level', () => {
         Memory.gamification = { level: 1 };
         expect(gamification.getRank()).toBe('Newbie');
-        
+
         Memory.gamification.level = 2;
         expect(gamification.getRank()).toBe('Beginner');
-        
+
         Memory.gamification.level = 5;
         expect(gamification.getRank()).toBe('Intermediate');
-        
+
         Memory.gamification.level = 10;
         expect(gamification.getRank()).toBe('Advanced');
-        
+
         Memory.gamification.level = 15;
         expect(gamification.getRank()).toBe('Expert');
-        
+
         Memory.gamification.level = 20;
         expect(gamification.getRank()).toBe('Master');
     });
@@ -193,6 +203,18 @@ describe('Security: Gamification Combo System', () => {
         if (initialCount >= 50) {
             expect(Memory.gamification.achievements).not.toContain(firstAchievement);
         }
+    });
+
+    test('unlockAchievement handles pre-populated max achievements array', () => {
+        Memory.gamification.achievements = [];
+        for (let i = 0; i < 50; i++) {
+            Memory.gamification.achievements.push(`mock_${i}`);
+        }
+        expect(Memory.gamification.achievements.length).toBe(50);
+
+        gamification.unlockAchievement('edge_case_test', 'Edge Case');
+        expect(Memory.gamification.achievements.length).toBe(50);
+        expect(Memory.gamification.achievements).toContain('edge_case_test');
     });
 
     test('checkLevelUp should handle invalid xpToNext', () => {

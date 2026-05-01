@@ -1,3 +1,5 @@
+/* global describe, test, expect, beforeEach, jest */
+
 /**
  * auto.evolution.js のユニットテスト
  */
@@ -84,9 +86,16 @@ describe('auto.evolution', () => {
     expect(code).toContain('Tower');
   });
 
-  test('generateTowerLogicがコードを生成する', () => {
+  test('generateTowerLogicが実行可能なコードを生成する', () => {
     const code = autoEvolution.generateTowerLogic();
     expect(code).toContain('module.exports');
+
+    const fakeModule = { exports: {} };
+    const evaluateFn = new Function('module', code);
+    expect(() => evaluateFn(fakeModule)).not.toThrow();
+
+    expect(fakeModule.exports).toBeDefined();
+    expect(typeof fakeModule.exports.run).toBe('function');
   });
 
   test('resetがMemory.evolutionを削除する', () => {
@@ -109,9 +118,7 @@ describe('auto.evolution', () => {
   });
 
   test('analyzeResourcesLightがリソース情報を返す', () => {
-    const rooms = [
-      { energyAvailable: 300, energyCapacityAvailable: 500, storage: null },
-    ];
+    const rooms = [{ energyAvailable: 300, energyCapacityAvailable: 500, storage: null }];
     const result = autoEvolution.analyzeResourcesLight(rooms);
     expect(result.energy).toBe(300);
     expect(result.capacity).toBe(500);

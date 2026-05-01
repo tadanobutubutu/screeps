@@ -129,17 +129,35 @@
 **Action:** Use boolean-returning helper functions to extract complex execution branches while preserving strict short-circuiting logic in priority-based systems.
 
 ## 2026-11-17 - Hoisting and Volatile Caching in Defense Logic
+
 **Learning:** Storing tick-specific data like `threatLevel` in `Memory` causes unnecessary serialization overhead and creates bugs in multi-room environments where values are overwritten. Using volatile properties on the `room` object (e.g., `room._threatLevel`) is faster and room-isolated. Furthermore, hoisting $O(N)$ `find` operations out of tower loops avoids redundant per-tower checks even with per-tick caching guards.
 **Action:** Always prefer room-isolated volatile caching for tick-specific calculations and hoist $O(N)$ operations outside of nested loops to minimize property access and branch checking.
 
 ## 2026-12-01 - Optimizing High-Frequency Structure Scanning
+
 **Learning:** In the Screeps environment, rooms often contain thousands of walls which dominate the `FIND_STRUCTURES` array. Performing even basic Proxy property lookups (like `s.my` or `s.hits`) on these non-essential objects during every tick's scanning loop (`warmRoomCache`) is a massive CPU drain. Implementing an early `continue` for walls and hoisting `hits`/`hitsMax` into local variables for other structures significantly reduces per-tick CPU overhead.
 **Action:** Always use early `continue` for high-volume, non-essential objects in scanning loops and hoist frequently accessed engine properties to local variables to minimize Proxy lookup costs.
 
 ## 2026-04-28 - Volatile Cache for Visual Effects
+
 **Learning:** Storing high-frequency visual data like trail positions in `Memory` causes significant CPU overhead due to JSON serialization/deserialization every tick. JavaScript `Map` in the module scope provides O(1) access and completely bypasses the `Memory` bottleneck. However, it requires manual cleanup (e.g., every 1500 ticks) to prevent memory leaks from dead creeps.
 **Action:** Use module-scoped `Map` for non-persistent, high-frequency data and implement periodic cleanup tied to object lifespans.
 
 ## 2026-12-15 - Hostile Target Hoisting and Lazy-Loading Synergy
+
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
+## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
+
+**Learning:** Large functions containing multiple complex `if-else` chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (`_determineTargetMode`, `_applyModeChange`, `_updateStats`) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
+**Action:** Use focused helper functions to break down overly long and complex methods, ensuring each helper has a single, well-defined responsibility.
+
+## 2026-03-02 - Optimized Two-Pass Creep Processing and Object Allocation Avoidance
+
+**Learning:** In high-frequency loops like per-creep processing, creating intermediate arrays of objects (e.g., `creepsToProcess`) and using closure-heavy wrappers significantly increases memory allocation and garbage collection pressure. However, merging collection and execution into a single pass breaks world-state consistency (e.g., role counts are incomplete for early creeps). A two-pass approach over the pre-fetched collection, combined with refactored execution wrappers that accept direct arguments, provides the best balance of speed, memory efficiency, and logical correctness.
+**Action:** Use two-pass iteration for world-state sensitive loops and refactor logic wrappers to avoid per-object temporary allocation in high-frequency paths.
+
+## 2026-10-27 - Eliminating Per-Tick Intermediate Allocations
+
+**Learning:** In high-frequency game loops like Screeps' `main.js`, creating intermediate arrays (e.g., `creepsToProcess`) and wrapper objects for every creep every tick significantly increases GC pressure and CPU overhead. Additionally, returning fresh array literals from utility functions (like `getBodyForRole`) adds unnecessary allocation.
+**Action:** Use multiple passes over global collections instead of building intermediate arrays. Hoist static array/object literals to the module level to avoid per-tick re-allocation.

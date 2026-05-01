@@ -98,6 +98,15 @@ describe('towerManager', () => {
       expect(mockTower.attack).toHaveBeenCalled();
     });
 
+    test('敵がいない場合は攻撃処理をスキップする', () => {
+      cache.getEnemies.mockReturnValue([]);
+      cache.getMyStructures.mockReturnValue([mockTower]);
+
+      towerManager.run(mockRoom);
+
+      expect(mockTower.attack).not.toHaveBeenCalled();
+    });
+
     test('味方が負傷している場合は回復する', () => {
       const mockCreep = {
         id: 'creep1',

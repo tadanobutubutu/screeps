@@ -54,13 +54,21 @@ const MAX_ACHIEVEMENT_NAME_LENGTH = 100
 class EmotionSystem {
   static initialize (creep) {
     if (!creep.memory.emotions) {
-      creep.memory.emotions = {
-        mood: MOOD_LEVELS.NEUTRAL,
-        lastEmotion: EMOTIONS.HAPPY,
-        experiencePoints: 0,
-        achievements: [],
-        personalityTraits: this.generatePersonality(),
-        birthTick: Game.time
+      creep.memory.emotions = {}
+    }
+
+    const defaults = {
+      mood: MOOD_LEVELS.NEUTRAL,
+      lastEmotion: EMOTIONS.HAPPY,
+      experiencePoints: 0,
+      achievements: [],
+      personalityTraits: this.generatePersonality(),
+      birthTick: Game.time
+    }
+
+    for (const key in defaults) {
+      if (creep.memory.emotions[key] === undefined) {
+        creep.memory.emotions[key] = defaults[key]
       }
     }
   }
@@ -167,7 +175,9 @@ class EmotionSystem {
       moodChange = 3
     }
 
-    emotions.mood = Math.max(1, Math.min(5, emotions.mood + moodChange))
+    // Security: Ensure mood is a finite number before arithmetic to prevent NaN propagation.
+    const currentMood = Number.isFinite(emotions.mood) ? emotions.mood : MOOD_LEVELS.NEUTRAL
+    emotions.mood = Math.max(1, Math.min(5, currentMood + moodChange))
 
     if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
       emoji = EMOTIONS.HAPPY
@@ -219,12 +229,19 @@ class EmotionSystem {
   }
 
   static interact (creep1, creep2) {
+    // Security: Validate creep objects and positions before spatial calculations.
+    if (!creep1 || !creep2 || !creep1.pos || !creep2.pos) return
+
     if (creep1.pos.inRangeTo(creep2, 1)) {
       this.initialize(creep1)
       this.initialize(creep2)
 
-      creep1.memory.emotions.mood = Math.min(5, creep1.memory.emotions.mood + 0.5)
-      creep2.memory.emotions.mood = Math.min(5, creep2.memory.emotions.mood + 0.5)
+      // Security: Ensure mood is a finite number before arithmetic to prevent NaN propagation.
+      const mood1 = Number.isFinite(creep1.memory.emotions.mood) ? creep1.memory.emotions.mood : MOOD_LEVELS.NEUTRAL
+      const mood2 = Number.isFinite(creep2.memory.emotions.mood) ? creep2.memory.emotions.mood : MOOD_LEVELS.NEUTRAL
+
+      creep1.memory.emotions.mood = Math.min(5, mood1 + 0.5)
+      creep2.memory.emotions.mood = Math.min(5, mood2 + 0.5)
 
       creep1.say('👋', true)
       creep2.say('😊', true)

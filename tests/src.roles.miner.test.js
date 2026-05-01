@@ -4,22 +4,21 @@
 
 global.Game = { creeps: {} }
 global.Memory = {}
-global.RESOURCE_ENERGY = 'energy'
 global.WORK = 'work'
 global.CARRY = 'carry'
+global.FIND_SOURCES = 222
 global.MOVE = 'move'
 global.ATTACK = 'attack'
 global.RANGED_ATTACK = 'ranged_attack'
 global.HEAL = 'heal'
 global.CLAIM = 'claim'
-global.FIND_SOURCES = 5
-
 global.TOUGH = 'tough'
 global.TERRAIN_MASK_WALL = 1
 global.FIND_STRUCTURES = 5
 global.STRUCTURE_CONTAINER = 'container'
 global.ERR_NOT_IN_RANGE = -9
 global.ERR_NOT_ENOUGH_ENERGY = -6
+global.RESOURCE_ENERGY = 'energy'
 global.OK = 0
 global.RoomPosition = function (x, y, roomName) {
   this.x = x

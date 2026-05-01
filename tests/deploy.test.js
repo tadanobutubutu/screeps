@@ -30,6 +30,13 @@ describe('deploy.js', () => {
     test('空文字列を無効', () => {
       const result = validateToken('', 'PTR');
       expect(result.valid).toBe(false);
+      expect(result.message).toContain('not set');
+    });
+
+    test('nullを無効', () => {
+      const result = validateToken(null, 'PTR');
+      expect(result.valid).toBe(false);
+      expect(result.message).toContain('not set');
     });
 
     test('正常な長さのトークンを許可', () => {

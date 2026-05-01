@@ -293,28 +293,51 @@ const gamification = {
   },
 
   /**
-     * ビジュアルダッシュボードのベースUI描画
+     * ビジュアルダッシュボード
      */
-  _renderBaseUI: function (visual, x, y) {
+  renderDashboard: function () {
+    // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
+    if (!adaptiveSystem.isEnabled('visualEffects')) {
+      return
+    }
+
+    this.init()
+    const gm = Memory.gamification
+
+    // ⚡ PERFORMANCE: Use tick-cached primary spawn initialized in main.js
+    const spawn = global._primarySpawn
+    if (!spawn || global._primarySpawnTick !== Game.time) {
+      return
+    }
+
+    const visual = spawn.room.visual
+    const x = spawn.pos.x + 5
+    const y = spawn.pos.y - 3
+    const roomName = spawn.room.name
+
+    this._renderBackground(visual, x, y)
+    this._renderStats(visual, x, y, gm, roomName)
+    this._renderChallenge(visual, x, y, roomName)
+    vfx.rankBadge({ x: x + 1.5, y: y + 6.5, roomName }, this.getRank())
+  },
+
+  _renderBackground: function (visual, x, y) {
     visual.rect(x - 3, y - 2, 6, 11, {
       fill: '#000000',
       opacity: 0.7,
       stroke: '#FFD700',
       strokeWidth: 0.1
     })
+  },
 
+  _renderStats: function (visual, x, y, gm, roomName) {
     visual.text('🎮 STATS 🎮', x, y - 1.3, {
       color: '#FFD700',
       font: 0.8,
       stroke: '#000000',
       strokeWidth: 0.05
     })
-  },
 
-  /**
-     * ビジュアルダッシュボードのステータス描画
-     */
-  _renderStats: function (visual, x, y, spawn, gm) {
     visual.text('Lv.' + gm.level, x - 2, y - 0.3, {
       color: '#00FF00',
       font: 0.7,
@@ -323,7 +346,7 @@ const gamification = {
       strokeWidth: 0.05
     })
 
-    vfx.progressBar({ x, y: y + 0.5, roomName: spawn.room.name }, gm.xp, gm.xpToNext, 'XP')
+    vfx.progressBar({ x, y: y + 0.5, roomName }, gm.xp, gm.xpToNext, 'XP')
 
     visual.text('Score: ' + gm.totalScore, x - 2, y + 1.3, {
       color: '#FFD700',
@@ -352,10 +375,7 @@ const gamification = {
     }
   },
 
-  /**
-     * ビジュアルダッシュボードのチャレンジ描画
-     */
-  _renderChallenge: function (visual, x, y, spawn) {
+  _renderChallenge: function (visual, x, y, roomName) {
     const challenge = dailyChallenge.getChallenge()
     visual.text('🎯 CHALLENGE 🎯', x, y + 3.8, {
       color: '#FFD700',
@@ -365,40 +385,11 @@ const gamification = {
     })
 
     vfx.progressBar(
-      { x, y: y + 4.8, roomName: spawn.room.name },
+      { x, y: y + 4.8, roomName },
       challenge.progress,
       challenge.challenge.target,
       challenge.challenge.name
     )
-
-    vfx.rankBadge({ x: x + 1.5, y: y + 6.5, roomName: spawn.room.name }, this.getRank())
-  },
-
-  /**
-     * ビジュアルダッシュボード
-     */
-  renderDashboard: function () {
-    // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
-    if (!adaptiveSystem.isEnabled('visualEffects')) {
-      return
-    }
-
-    this.init()
-    const gm = Memory.gamification
-
-    // ⚡ PERFORMANCE: Use tick-cached primary spawn initialized in main.js
-    const spawn = global._primarySpawn
-    if (!spawn || global._primarySpawnTick !== Game.time) {
-      return
-    }
-
-    const visual = spawn.room.visual
-    const x = spawn.pos.x + 5
-    const y = spawn.pos.y - 3
-
-    this._renderBaseUI(visual, x, y)
-    this._renderStats(visual, x, y, spawn, gm)
-    this._renderChallenge(visual, x, y, spawn)
   },
 
   /**

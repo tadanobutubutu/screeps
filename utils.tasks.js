@@ -11,12 +11,12 @@ const TaskQueue = {
   tasks: [],
 
   /**
-     * Registers a new task to be executed periodically.
-     * @param {string} name - The name of the task.
-     * @param {number} interval - How often (in ticks) the task should run.
-     * @param {function} action - The function to execute.
-     * @param {function} condition - An optional function that must return true for the task to run.
-     */
+   * Registers a new task to be executed periodically.
+   * @param {string} name - The name of the task.
+   * @param {number} interval - How often (in ticks) the task should run.
+   * @param {function} action - The function to execute.
+   * @param {function} condition - An optional function that must return true for the task to run.
+   */
   registerTask: function (name, interval, action, condition = () => true) {
     // Security: Validate task name
     if (!utilsMemory.isSafeKey(name)) return
@@ -42,8 +42,8 @@ const TaskQueue = {
   },
 
   /**
-     * Runs all tasks that are due for execution in the current tick.
-     */
+   * Runs all tasks that are due for execution in the current tick.
+   */
   run: function () {
     // ⚡ PERFORMANCE: Store tasks length and avoid resolving condition on each iteration if possible.
     const tasksLen = this.tasks.length
@@ -54,7 +54,6 @@ const TaskQueue = {
           try {
             task.action()
           } catch (e) {
-            task.failures = (task.failures || 0) + 1
             // Security: Use logger.error for safe stack traces and HTML escaping
             logger.error(`Error running periodic task ${task.name}: ${e.message}`)
           }

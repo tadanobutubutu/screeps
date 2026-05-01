@@ -77,6 +77,7 @@ const pathfinder = require('../src/utils/pathfinder');
 const roomManager = require('../src/managers/roomManager');
 
 describe('roomManager', () => {
+  beforeEach(() => { global.FIND_MY_STRUCTURES = 114; global.STRUCTURE_CONTAINER = 'container'; global.STRUCTURE_ROAD = 'road'; });
   let mockRoom;
 
   beforeEach(() => {

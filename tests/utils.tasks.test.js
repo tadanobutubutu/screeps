@@ -1,27 +1,22 @@
-/**
- * utils.tasks.js のユニットテスト
- */
+const TaskQueue = require('../utils.tasks');
+const utilsMemory = require('../utils.memory');
+const logger = require('../utils.logging');
 
-/* global describe, test, expect, beforeEach, jest */
-
-const TaskQueue = require('../utils.tasks')
-const utilsMemory = require('../utils.memory')
-const logger = require('../utils.logging')
-
-jest.mock('../utils.memory')
-jest.mock('../utils.logging')
+jest.mock('../utils.memory');
+jest.mock('../utils.logging', () => ({
+  error: jest.fn(),
+  warn: jest.fn(),
+  log: jest.fn(),
+}));
 
 describe('utils.tasks', () => {
   beforeEach(() => {
-    TaskQueue.tasks = []
-    global.Game = { time: 100 }
-    global.Memory = { logs: [] }
-    utilsMemory.isSafeKey.mockReturnValue(true)
-    logger.error = jest.fn()
-    logger.warn = jest.fn()
-    jest.clearAllMocks()
-    utilsMemory.isSafeKey.mockReturnValue(true)
-  })
+    global.Memory = { logs: [] };
+    TaskQueue.tasks = [];
+    global.Game = { time: 100 };
+    jest.clearAllMocks();
+    utilsMemory.isSafeKey.mockReturnValue(true);
+  });
 
   test('registerTaskが正しくタスクを追加する', () => {
     TaskQueue.registerTask('testTask', 10, () => {})
@@ -55,12 +50,12 @@ describe('utils.tasks', () => {
     }
     expect(TaskQueue.tasks.length).toBe(50)
 
-    TaskQueue.registerTask('overflow', 1, () => {})
-    expect(TaskQueue.tasks.length).toBe(50)
+    TaskQueue.registerTask('overflow', 1, () => {});
+    expect(TaskQueue.tasks.length).toBe(50);
     expect(logger.warn).toHaveBeenCalledWith(
       expect.stringContaining('Maximum task limit reached')
-    )
-  })
+    );
+  });
 
   test('runが正しいティックでタスクを実行する', () => {
     const action = jest.fn()
@@ -91,18 +86,13 @@ describe('utils.tasks', () => {
 
   test('runがエラーをキャッチしてセキュアロガーに送る', () => {
     const errorAction = () => {
-      throw new Error('Boom')
-    }
-    TaskQueue.registerTask('buggy', 1, errorAction)
+      throw new Error('Boom');
+    };
+    TaskQueue.registerTask('buggy', 1, errorAction);
 
-    expect(() => TaskQueue.run()).not.toThrow()
+    expect(() => TaskQueue.run()).not.toThrow();
     expect(logger.error).toHaveBeenCalledWith(
       expect.stringContaining('Error running periodic task buggy: Boom')
-    )
-    expect(TaskQueue.tasks[0].failures).toBe(1)
-
-    // 複数回失敗した場合
-    TaskQueue.run()
-    expect(TaskQueue.tasks[0].failures).toBe(2)
-  })
-})
+    );
+  });
+});

@@ -138,4 +138,12 @@ describe('utils.missions', () => {
     expect(Memory.missions.active.some((m) => m.type === 'new')).toBe(true);
     expect(Memory.missions.active.some((m) => m.type === typeToComplete)).toBe(false);
   });
+  test('generateMissionId avoids Math.random predictable values when fallback is used', () => {
+    MissionSystem.initMemory();
+    const mockMath = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    const mission1 = MissionSystem.createMission('test1', 'T1', 100);
+    const mission2 = MissionSystem.createMission('test2', 'T2', 100);
+    expect(mission1.id).not.toBe(mission2.id);
+    mockMath.mockRestore();
+  });
 });

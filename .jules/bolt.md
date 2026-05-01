@@ -147,8 +147,17 @@
 
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
+## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
+
+**Learning:** Large functions containing multiple complex `if-else` chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (`_determineTargetMode`, `_applyModeChange`, `_updateStats`) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
+**Action:** Use focused helper functions to break down overly long and complex methods, ensuring each helper has a single, well-defined responsibility.
 
 ## 2026-03-02 - Optimized Two-Pass Creep Processing and Object Allocation Avoidance
 
 **Learning:** In high-frequency loops like per-creep processing, creating intermediate arrays of objects (e.g., `creepsToProcess`) and using closure-heavy wrappers significantly increases memory allocation and garbage collection pressure. However, merging collection and execution into a single pass breaks world-state consistency (e.g., role counts are incomplete for early creeps). A two-pass approach over the pre-fetched collection, combined with refactored execution wrappers that accept direct arguments, provides the best balance of speed, memory efficiency, and logical correctness.
 **Action:** Use two-pass iteration for world-state sensitive loops and refactor logic wrappers to avoid per-object temporary allocation in high-frequency paths.
+
+## 2026-10-27 - Eliminating Per-Tick Intermediate Allocations
+
+**Learning:** In high-frequency game loops like Screeps' `main.js`, creating intermediate arrays (e.g., `creepsToProcess`) and wrapper objects for every creep every tick significantly increases GC pressure and CPU overhead. Additionally, returning fresh array literals from utility functions (like `getBodyForRole`) adds unnecessary allocation.
+**Action:** Use multiple passes over global collections instead of building intermediate arrays. Hoist static array/object literals to the module level to avoid per-tick re-allocation.

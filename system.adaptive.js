@@ -3,6 +3,9 @@
  * 負荷が高い時は自動的に機能を制限し、余裕がある時は全機能を有効化
  */
 
+const utilsMemory = require('./utils.memory');
+const logger = require('./utils.logging');
+
 /**
  * System modes:
  * 0: EMERGENCY - Minimal functionality to survive.
@@ -127,66 +130,83 @@ const adaptiveSystem = {
         const memoryLimit = 2048 * 1024; // 2MB in bytes
         const memoryUsagePercent = (memorySize / memoryLimit) * 100;
 
-        let newMode = this.MODE.FULL;
-
-        // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
-        if (cpuBucket < 1000 || memoryUsagePercent > 95) {
-            newMode = this.MODE.EMERGENCY;
-        }
-        // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
-        else if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
-            newMode = this.MODE.MINIMAL;
-        }
-        // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
-        else if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
-            newMode = this.MODE.NORMAL;
-        }
-        // FULL: 余裕あり
-        else {
-            newMode = this.MODE.FULL;
-        }
+        const newMode = this._determineTargetMode(cpuBucket, cpuUsagePercent, memoryUsagePercent);
 
         // モード変更時にログ出力
         if (newMode !== Memory.adaptive.currentMode) {
-            this.logModeChange(Memory.adaptive.currentMode, newMode, {
-                cpuUsagePercent: cpuUsagePercent,
-                cpuBucket: cpuBucket,
-                memoryUsagePercent: memoryUsagePercent,
-            });
-
-            // モード履歴に追加
-            Memory.adaptive.modeHistory.push({
-                time: Game.time,
-                from: Memory.adaptive.currentMode,
-                to: newMode,
-                reason: this.getModeChangeReason(
-                    newMode,
-                    cpuUsagePercent,
-                    cpuBucket,
-                    memoryUsagePercent
-                ),
-            });
-
-            // 履歴は最新20件まで
-            if (Memory.adaptive.modeHistory.length > 20) {
-                Memory.adaptive.modeHistory.shift();
-            }
-
-            Memory.adaptive.currentMode = newMode;
-
-            // ⚡ PERFORMANCE: Update cache immediately on mode change
-            _currentConfig = FEATURE_CONFIG[newMode];
-            _configTick = Game.time;
+            this._applyModeChange(newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent);
         }
 
         // 統計更新
-        const modeName = this.getModeName(newMode);
+        this._updateStats(newMode);
+
+        return newMode;
+    },
+
+    /**
+     * Determine target mode based on load
+     */
+    _determineTargetMode: function (cpuBucket, cpuUsagePercent, memoryUsagePercent) {
+        // EMERGENCY: CPU bucket < 1000 または メモリ > 95%
+        if (cpuBucket < 1000 || memoryUsagePercent > 95) {
+            return this.MODE.EMERGENCY;
+        }
+        // MINIMAL: CPU bucket < 3000 または メモリ > 85% または CPU使用率 > 80%
+        if (cpuBucket < 3000 || memoryUsagePercent > 85 || cpuUsagePercent > 80) {
+            return this.MODE.MINIMAL;
+        }
+        // NORMAL: CPU bucket < 7000 または メモリ > 70% または CPU使用率 > 60%
+        if (cpuBucket < 7000 || memoryUsagePercent > 70 || cpuUsagePercent > 60) {
+            return this.MODE.NORMAL;
+        }
+        // FULL: 余裕あり
+        return this.MODE.FULL;
+    },
+
+    /**
+     * Apply mode change side effects
+     */
+    _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
+        this.logModeChange(Memory.adaptive.currentMode, newMode, {
+            cpuUsagePercent: cpuUsagePercent,
+            cpuBucket: cpuBucket,
+            memoryUsagePercent: memoryUsagePercent,
+        });
+
+        // モード履歴に追加
+        Memory.adaptive.modeHistory.push({
+            time: Game.time,
+            from: Memory.adaptive.currentMode,
+            to: newMode,
+            reason: this.getModeChangeReason(
+                newMode,
+                cpuUsagePercent,
+                cpuBucket,
+                memoryUsagePercent
+            ),
+        });
+
+        // 履歴は最新20件まで
+        if (Memory.adaptive.modeHistory.length > 20) {
+            Memory.adaptive.modeHistory.shift();
+        }
+
+        Memory.adaptive.currentMode = newMode;
+
+        // ⚡ PERFORMANCE: Update cache immediately on mode change
+        _currentConfig = FEATURE_CONFIG[newMode];
+        _configTick = Game.time;
+    },
+
+    /**
+     * Update usage stats for current mode
+     */
+    _updateStats: function (mode) {
+        const modeName = this.getModeName(mode);
         if (modeName) {
             Memory.adaptive.stats[modeName + 'Count'] =
                 (Memory.adaptive.stats?.[modeName + 'Count'] ?? 0) + 1;
         }
-
-        return newMode;
     },
 
     /**
@@ -243,8 +263,9 @@ const adaptiveSystem = {
      * モード変更ログ
      */
     logModeChange: function (oldMode, newMode, stats) {
-        const oldName = this.getModeName(oldMode);
-        const newName = this.getModeName(newMode);
+        // Security: Escape mode names to prevent console injection
+        const oldName = logger.escapeHTML(this.getModeName(oldMode));
+        const newName = logger.escapeHTML(this.getModeName(newMode));
 
         console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
         console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
@@ -255,7 +276,7 @@ const adaptiveSystem = {
 
     /**
      * 機能が有効かチェック
-     * ⚡ PERFORMANCE OPTIMIZATION: Removed redundant `this.init()` call.
+     * ⚡ PERFORMANCE OPTIMIZATION: Removed redundant `this.init();` call.
      * `init()` is already called at the start of the loop in `main.js` via `evaluate()`.
      * Estimated impact: Reduces CPU overhead in a high-frequency function.
      */
@@ -287,7 +308,11 @@ const adaptiveSystem = {
         // Clean up per-creep memory (non-essential features)
         if (Memory.creeps) {
             for (const name in Memory.creeps) {
-                if (Object.prototype.hasOwnProperty.call(Memory.creeps, name)) {
+                // Security: Use isSafeKey to prevent prototype pollution during iteration
+                if (
+                    utilsMemory.isSafeKey(name) &&
+                    Object.prototype.hasOwnProperty.call(Memory.creeps, name)
+                ) {
                     const creepMemory = Memory.creeps[name];
                     if (creepMemory) {
                         delete creepMemory.diary;
@@ -313,11 +338,7 @@ const adaptiveSystem = {
     /**
      * ダッシュボード表示
      */
-    showDashboard: function () {
-        this.init();
-        const mode = Memory.adaptive.currentMode;
-        const modeName = this.getModeName(mode).toUpperCase();
-
+    _printResourceUsage: function (modeName) {
         const cpuUsed = Game.cpu.getUsed();
         const cpuLimit = Game.cpu.limit;
         const cpuBucket = Game.cpu.bucket;
@@ -345,8 +366,9 @@ const adaptiveSystem = {
                 '%)'
         );
         console.log('');
+    },
 
-        // 有効機能リスト
+    _printEnabledFeatures: function () {
         console.log('Enabled Features:');
         const allFeatures = [
             'basicRoles',
@@ -370,9 +392,10 @@ const adaptiveSystem = {
             }
         }
         console.log('  ' + enabledCount + '/' + allFeatures.length + ' features active');
-
-        // 統計
         console.log('');
+    },
+
+    _printModeStatistics: function () {
         console.log('Mode Statistics:');
         const stats = Memory.adaptive.stats;
         const total =
@@ -383,27 +406,39 @@ const adaptiveSystem = {
             console.log('  Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
             console.log('  Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
         }
+    },
 
-        // 最近のモード変更履歴
+    _printRecentHistory: function () {
         if (Memory.adaptive.modeHistory.length > 0) {
             console.log('');
             console.log('Recent Mode Changes:');
             const recentHistory = Memory.adaptive.modeHistory.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
+                // Security: Escape all dynamic strings before console output
+                const fromName = logger.escapeHTML(this.getModeName(h.from));
+                const toName = logger.escapeHTML(this.getModeName(h.to));
+                const reason = logger.escapeHTML(h.reason);
                 console.log(
-                    '  [' +
-                        h.time +
-                        '] ' +
-                        this.getModeName(h.from) +
-                        ' → ' +
-                        this.getModeName(h.to) +
-                        ' (' +
-                        h.reason +
-                        ')'
+                    '  [' + h.time + '] ' + fromName + ' → ' + toName + ' (' + reason + ')'
                 );
             }
         }
+    },
+
+    /**
+     * ダッシュボード表示
+     */
+    showDashboard: function () {
+        this.init();
+        const mode = Memory.adaptive.currentMode;
+        // Security: Escape mode name to prevent console injection
+        const modeName = logger.escapeHTML(this.getModeName(mode)).toUpperCase();
+
+        this._printResourceUsage(modeName);
+        this._printEnabledFeatures();
+        this._printModeStatistics();
+        this._printRecentHistory();
     },
 
     /**
@@ -412,12 +447,18 @@ const adaptiveSystem = {
     setMode: function (mode) {
         this.init();
 
-        if (mode < this.MODE.EMERGENCY || mode > this.MODE.FULL) {
-            console.log('❌ Invalid mode. Use 0-3.');
+        // Security: Boundary validation and type check for manual mode override
+        const numericMode = Number(mode);
+        if (
+            !Number.isInteger(numericMode) ||
+            numericMode < this.MODE.EMERGENCY ||
+            numericMode > this.MODE.FULL
+        ) {
+            console.log('❌ Invalid mode. Use 0-3 (Integer).');
             return;
         }
 
-        Memory.adaptive.currentMode = mode;
+        Memory.adaptive.currentMode = numericMode;
 
         // ⚡ PERFORMANCE: Update cache immediately on manual mode change
         _currentConfig = FEATURE_CONFIG[mode];

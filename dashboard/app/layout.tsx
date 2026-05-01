@@ -21,6 +21,15 @@ export default function RootLayout({
             0%, 100% { opacity: 0.6; }
             50% { opacity: 0.3; }
           }
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+          }
         `}</style>
       </head>
       <body>{children}</body>

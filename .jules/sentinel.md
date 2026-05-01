@@ -117,3 +117,8 @@
 **Vulnerability:** Denial of Service (DoS) via `NaN` propagation from partially initialized global `Memory` objects.
 **Learning:** Checking for the existence of a root object (`if (!Memory.stats)`) is insufficient if that object can be pre-initialized as an empty object (`{}`) by external systems, manual resets, or buggy code. Subsequent arithmetic operations on missing properties result in `NaN`, which can propagate and cause fatal errors or logical failures (e.g., `roomStats` access throwing `TypeError`).
 **Prevention:** Use a robust initialization pattern that always iterates over a set of defaults and populates missing properties, even if the root object already exists. This ensures the system always has a valid, consistent state regardless of how the root object was created.
+
+## 2026-04-26 - Hardening Adaptive System and Sanitization Exposure
+**Vulnerability:** Console Injection and Prototype Pollution in `system.adaptive.js` via unsanitized mode names and reasons.
+**Learning:** Security helpers like `_escapeHTML` are often implemented as private/internal members within a utility module. When other modules (like `system.adaptive.js`) need to sanitize data for the console, they might either bypass sanitization or try to access "private" members, leading to fragile code or security gaps.
+**Prevention:** Standardize security-critical helpers as public APIs (e.g., `logger.escapeHTML`) to encourage their use across the entire codebase. Always validate environment-controlled keys with `isSafeKey` during iterative memory cleanups to prevent prototype pollution.

@@ -190,10 +190,21 @@ export default function Dashboard() {
 
     useEffect(() => {
         let title = 'Screeps Dashboard';
-        if (loading) title = '⏳ Loading...';
-        else if (isRefreshing) title = '🔄 Refreshing...';
-        else if (updated) title = '✅ Updated';
-        else if (stats?.gcl) {
+        let emoji = '🐛';
+
+        if (loading) {
+            title = '⏳ Loading...';
+            emoji = '⏳';
+        } else if (isRefreshing) {
+            title = '🔄 Refreshing...';
+            emoji = '🔄';
+        } else if (error) {
+            title = '⚠️ Error';
+            emoji = '⚠️';
+        } else if (updated) {
+            title = '✅ Updated';
+            emoji = '✅';
+        } else if (stats?.gcl) {
             const percent = Math.min(
                 100,
                 (stats.gcl.progress / stats.gcl.progressTotal) * 100
@@ -206,7 +217,13 @@ export default function Dashboard() {
         }
 
         document.title = title;
-    }, [loading, isRefreshing, updated, stats, timeAgo]);
+
+        // 🎨 Palette: Update favicon emoji dynamically to reflect application state
+        const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+        if (link) {
+            link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`;
+        }
+    }, [loading, isRefreshing, updated, stats, timeAgo, error]);
 
     return (
         <main
@@ -226,7 +243,15 @@ export default function Dashboard() {
                 }}
             >
                 <h1 style={{ margin: 0 }}>
-                    <span role="img" aria-label="Screeps" title="Screeps">
+                    <span
+                        role="img"
+                        aria-label="Screeps"
+                        title="Screeps"
+                        style={{
+                            display: 'inline-block',
+                            animation: updated ? 'bounce 0.6s ease' : 'none',
+                        }}
+                    >
                         🐛
                     </span>{' '}
                     Screeps Dashboard
@@ -292,7 +317,16 @@ export default function Dashboard() {
                             onFocus={() => setIsSyncFocused(true)}
                             onBlur={() => setIsSyncFocused(false)}
                         >
-                            <span role="img" aria-label={getStalenessInfo().label}>
+                            <span
+                                role="img"
+                                aria-label={getStalenessInfo().label}
+                                style={{
+                                    animation:
+                                        getStalenessInfo().icon === '🚨'
+                                            ? 'pulse 1.5s infinite'
+                                            : 'none',
+                                }}
+                            >
                                 {getStalenessInfo().icon}
                             </span>
                             Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
@@ -392,7 +426,18 @@ export default function Dashboard() {
                             outline: 'none',
                         }}
                     >
-                        {updated ? '✅ Updated!' : isRefreshing ? '🔄 Refreshing...' : '🔄 Refresh'}
+                        {updated ? (
+                            '✅ Updated!'
+                        ) : isRefreshing ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>
+                                    🔄
+                                </span>{' '}
+                                Refreshing...
+                            </span>
+                        ) : (
+                            '🔄 Refresh'
+                        )}
                     </button>
                 </div>
             </header>
@@ -537,6 +582,7 @@ export default function Dashboard() {
             {error && (
                 <div
                     role="alert"
+                    aria-live="assertive"
                     style={{
                         color: '#d32f2f',
                         padding: '1rem',
@@ -580,7 +626,21 @@ export default function Dashboard() {
                             outline: 'none',
                         }}
                     >
-                        {isRefreshing ? 'Retrying...' : 'Retry'}
+                        {isRefreshing ? (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                <span
+                                    style={{
+                                        display: 'inline-block',
+                                        animation: 'spin 1s linear infinite',
+                                    }}
+                                >
+                                    🔄
+                                </span>{' '}
+                                Retrying...
+                            </span>
+                        ) : (
+                            'Retry'
+                        )}
                     </button>
                 </div>
             )}
@@ -898,7 +958,29 @@ export default function Dashboard() {
                                     transition: 'all 0.2s',
                                 }}
                             >
-                                {updated ? '✅ Updated!' : '🔄 Refresh Dashboard'}
+                                {updated ? (
+                                    '✅ Updated!'
+                                ) : isRefreshing ? (
+                                    <span
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem',
+                                        }}
+                                    >
+                                        <span
+                                            style={{
+                                                display: 'inline-block',
+                                                animation: 'spin 1s linear infinite',
+                                            }}
+                                        >
+                                            🔄
+                                        </span>{' '}
+                                        Refreshing Dashboard...
+                                    </span>
+                                ) : (
+                                    '🔄 Refresh Dashboard'
+                                )}
                             </button>
                         </div>
                     )

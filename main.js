@@ -302,6 +302,29 @@ function warmRoomCache (room) {
   room._freeSpawnsTick = Game.time
 }
 
+
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: クリープのデータ収集と初期化を行う。
+ * processCreeps関数の肥大化を防ぐための抽出。
+ */
+function collectCreepData (creep, creepCounts, isLoggingEnabled) {
+  const memory = creep.memory
+  let role = memory.role
+  if (!role) {
+    role = memory.role = 'harvester'
+    if (isLoggingEnabled) logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
+  }
+  creepCounts[role] = (creepCounts[role] || 0) + 1
+
+  const room = creep.room
+  if (room) {
+    room._myCreeps.push(creep)
+    if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
+    if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
+    if (role === 'defender') room._defenders.push(creep)
+  }
+}
+
 function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
 
@@ -458,11 +481,7 @@ function handleDefenseAndDashboard (rooms, isLoggingEnabled, isVisualEffectsEnab
   }
 }
 
-function displayStats (creeps) {
-  const isLoggingEnabled = adaptiveSystem.isEnabled('logging')
-  const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions')
-  const isGamificationEnabled = adaptiveSystem.isEnabled('gamification')
-
+function _displayCoreStats (creeps) {
   console.log(
     '\n⚡ Tick: ' +
             Game.time +
@@ -480,29 +499,45 @@ function displayStats (creeps) {
             ')'
   )
   console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB')
+}
 
-  if (isLoggingEnabled) {
-    const logStats = logger.getStats()
-    if (logStats.errors > 0) {
-      logger.warn('Recent errors: ' + logStats.errors)
-    }
+function _displayLogStats () {
+  const logStats = logger.getStats()
+  if (logStats.errors > 0) {
+    logger.warn('Recent errors: ' + logStats.errors)
+  }
+}
+
+function _displayEmotionStats () {
+  const emotionStats = EmotionSystem.getStats()
+  console.log(
+    '😊 Happy: ' +
+              (emotionStats.veryHappy + emotionStats.happy) +
+              ', Neutral: ' +
+              emotionStats.neutral
+  )
+}
+
+function _displayGamificationStats () {
+  const gm = Memory.gamification
+  if (gm) {
+    console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
+  }
+}
+
+function displayStats (creeps) {
+  _displayCoreStats(creeps)
+
+  if (adaptiveSystem.isEnabled('logging')) {
+    _displayLogStats()
   }
 
-  if (isEmotionsEnabled) {
-    const emotionStats = EmotionSystem.getStats()
-    console.log(
-      '😊 Happy: ' +
-                (emotionStats.veryHappy + emotionStats.happy) +
-                ', Neutral: ' +
-                emotionStats.neutral
-    )
+  if (adaptiveSystem.isEnabled('emotions')) {
+    _displayEmotionStats()
   }
 
-  if (isGamificationEnabled) {
-    const gm = Memory.gamification
-    if (gm) {
-      console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext)
-    }
+  if (adaptiveSystem.isEnabled('gamification')) {
+    _displayGamificationStats()
   }
 }
 
@@ -671,16 +706,18 @@ module.exports.loop = function () {
   }
 }
 
-function getBodyForRole (role, energy) {
-  const bodyConfig = BODY_CONFIGS[role] || [[MOVE, WORK, CARRY], 200]
-  const cost = bodyConfig[1]
-  const parts = bodyConfig[0]
+// ⚡ PERFORMANCE: Hoisted default body configuration to avoid per-call array allocation.
+const DEFAULT_BODY_CONFIG = [[MOVE, WORK, CARRY], 200]
+const DEFAULT_BODY_PARTS = [MOVE, WORK, CARRY]
 
-  if (energy >= cost) {
-    return parts
+function getBodyForRole (role, energy) {
+  const bodyConfig = BODY_CONFIGS[role] || DEFAULT_BODY_CONFIG
+
+  if (energy >= bodyConfig[1]) {
+    return bodyConfig[0]
   }
 
-  return [MOVE, WORK, CARRY]
+  return DEFAULT_BODY_PARTS
 }
 
 // ==============================================

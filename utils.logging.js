@@ -139,6 +139,11 @@ module.exports = {
         }
     },
 
+    // Export HTML escape function for other modules
+    escapeHTML: function (str) {
+        return this._escapeHTML(str);
+    },
+
     // Get recent logs
     getRecentLogs: function (count = 10) {
         if (!Memory.logs) {

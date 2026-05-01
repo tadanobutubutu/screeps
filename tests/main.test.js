@@ -8,37 +8,45 @@ global.Game = {
   gcl: { level: 1 },
   rooms: {},
   creeps: {},
-  spawns: {},
-};
-global.Memory = { helpShown: true };
+  spawns: {}
+}
+global.Memory = { helpShown: true }
 global.RawMemory = {
-  get: jest.fn().mockReturnValue('{}'),
-};
-global.OK = 0;
-global.ERR_NOT_ENOUGH_ENERGY = -6;
-global.ERR_NOT_IN_RANGE = -9;
-global.WORK = 'work';
-global.CARRY = 'carry';
-global.MOVE = 'move';
-global.HEAL = 'heal';
-global.STRUCTURE_TOWER = 'tower';
-global.RESOURCE_ENERGY = 'energy';
-global.FIND_HOSTILE_CREEPS = 'findHostileCreeps';
+  get: jest.fn().mockReturnValue('{}')
+}
+global.OK = 0
+global.ERR_NOT_ENOUGH_ENERGY = -6
+global.ERR_NOT_IN_RANGE = -9
+global.WORK = 'work'
+global.CARRY = 'carry'
+global.MOVE = 'move'
+global.HEAL = 'heal'
+global.STRUCTURE_TOWER = 'tower'
+global.RESOURCE_ENERGY = 'energy'
+global.FIND_HOSTILE_CREEPS = 'findHostileCreeps'
 
-jest.mock('posthog-js', () => ({
-  init: jest.fn(),
-  get_session_id: jest.fn().mockReturnValue('test-session'),
-}), { virtual: true });
-
-jest.mock('@sentry/browser', () => ({
-  init: jest.fn(),
-  browserTracingIntegration: jest.fn(),
-  replayIntegration: jest.fn(),
-  getCurrentScope: jest.fn().mockReturnValue({
-    setTag: jest.fn(),
+jest.mock(
+  'posthog-js',
+  () => ({
+    init: jest.fn(),
+    get_session_id: jest.fn().mockReturnValue('test-session')
   }),
-  captureException: jest.fn(),
-}), { virtual: true });
+  { virtual: true }
+)
+
+jest.mock(
+  '@sentry/browser',
+  () => ({
+    init: jest.fn(),
+    browserTracingIntegration: jest.fn(),
+    replayIntegration: jest.fn(),
+    getCurrentScope: jest.fn().mockReturnValue({
+      setTag: jest.fn()
+    }),
+    captureException: jest.fn()
+  }),
+  { virtual: true }
+);
 
 jest.mock('../role.harvester', () => ({ run: jest.fn() }), { virtual: true });
 jest.mock('../role.upgrader', () => ({ run: jest.fn() }), { virtual: true });
@@ -58,7 +66,7 @@ jest.mock('../utils.logging', () => ({
   warn: jest.fn(),
   info: jest.fn(),
   error: jest.fn(),
-  tryCatch: jest.fn((fn) => fn()),
+  tryCatch: jest.fn((fn, context, ...args) => fn(...args)),
   getStats: jest.fn().mockReturnValue({ errors: 0 }),
   getSafeStack: jest.fn((s) => s),
   _escapeHTML: jest.fn((s) => s),
@@ -115,70 +123,70 @@ jest.mock('../utils.dashboard', () => ({ displayVisuals: jest.fn() }), { virtual
 
 describe('main.js', () => {
   test('モジュールが正しく読み込める', () => {
-    const main = require('../main');
-    expect(main).toBeDefined();
-    expect(typeof main.loop).toBe('function');
-  });
+    const main = require('../main')
+    expect(main).toBeDefined()
+    expect(typeof main.loop).toBe('function')
+  })
 
   test('loop関数が例外を投げない', () => {
-    global.Game.creeps = {};
-    global.Game.spawns = {};
-    const main = require('../main');
-    expect(() => main.loop()).not.toThrow();
-  });
+    global.Game.creeps = {}
+    global.Game.spawns = {}
+    const main = require('../main')
+    expect(() => main.loop()).not.toThrow()
+  })
 
   test('help関数が存在する', () => {
-    require('../main');
-    expect(typeof global.help).toBe('function');
-  });
+    require('../main')
+    expect(typeof global.help).toBe('function')
+  })
 
   test('adaptiveグローバルが存在する', () => {
-    require('../main');
-    expect(typeof global.adaptive).toBe('function');
-  });
+    require('../main')
+    expect(typeof global.adaptive).toBe('function')
+  })
 
   test('modeグローバルが存在する', () => {
-    require('../main');
-    expect(typeof global.mode).toBe('function');
-  });
+    require('../main')
+    expect(typeof global.mode).toBe('function')
+  })
 
   test('global help function can be called', () => {
-    expect(() => global.help()).not.toThrow();
-  });
+    expect(() => global.help()).not.toThrow()
+  })
 
   test('global e command exists and returns emotion stats', () => {
-    const result = global.e();
-    expect(result).toBeDefined();
-    expect(result.veryHappy).toBe(0);
-    expect(result.happy).toBe(0);
-    expect(result.neutral).toBe(0);
-  });
+    const result = global.e()
+    expect(result).toBeDefined()
+    expect(result.veryHappy).toBe(0)
+    expect(result.happy).toBe(0)
+    expect(result.neutral).toBe(0)
+  })
 
   test('global t command calls showProgress', () => {
-    global.Game.time = 100;
-    const main = require('../main');
-    expect(() => global.t()).not.toThrow();
-  });
+    global.Game.time = 100
+    const main = require('../main')
+    expect(() => global.t()).not.toThrow()
+  })
 
   test('global ts command exists', () => {
-    expect(typeof global.ts).toBe('function');
-  });
+    expect(typeof global.ts).toBe('function')
+  })
 
   test('global g command exists', () => {
-    expect(typeof global.g).toBe('function');
-  });
+    expect(typeof global.g).toBe('function')
+  })
 
   test('global evo command exists', () => {
-    expect(typeof global.evo).toBe('function');
-  });
+    expect(typeof global.evo).toBe('function')
+  })
 
   test('mc, mb, mr, mh, ml, md, mm global commands exist', () => {
-    expect(typeof global.mc).toBe('function');
-    expect(typeof global.mb).toBe('function');
-    expect(typeof global.mr).toBe('function');
-    expect(typeof global.mh).toBe('function');
-    expect(typeof global.ml).toBe('function');
-    expect(typeof global.md).toBe('function');
-    expect(typeof global.mm).toBe('function');
-  });
-});
+    expect(typeof global.mc).toBe('function')
+    expect(typeof global.mb).toBe('function')
+    expect(typeof global.mr).toBe('function')
+    expect(typeof global.mh).toBe('function')
+    expect(typeof global.ml).toBe('function')
+    expect(typeof global.md).toBe('function')
+    expect(typeof global.mm).toBe('function')
+  })
+})

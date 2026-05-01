@@ -67,6 +67,16 @@ describe('cache', () => {
 
       expect(fetcher).toHaveBeenCalledTimes(2);
     });
+
+    test('有効期限ジャストの場合はfetcherが再実行される', () => {
+      const fetcher = jest.fn().mockReturnValue('data');
+
+      cache.get('test_key', fetcher, 10);
+      global.Game.time += 10;
+      cache.get('test_key', fetcher, 10);
+
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    });
   });
 
   describe('invalidate', () => {
@@ -110,6 +120,22 @@ describe('cache', () => {
 
       expect(removed).toBeGreaterThan(0);
     });
+
+    test('有効期限ジャストのキャッシュを削除する', () => {
+      cache.get('key1', () => 'data1', 10);
+      global.Game.time += 10;
+      const removed = cache.cleanup();
+
+      expect(removed).toBe(1);
+    });
+
+    test('不正なexpiresプロパティを持つキャッシュは無視する', () => {
+      cache.get('key1', () => 'data1', 10);
+      global.cache['key1'].expires = 'invalid';
+
+      const removed = cache.cleanup();
+      expect(removed).toBe(0);
+    });
   });
 
   describe('getStats', () => {
@@ -122,6 +148,17 @@ describe('cache', () => {
       expect(stats.total).toBe(2);
       expect(stats.active).toBeGreaterThanOrEqual(0);
       expect(stats.expired).toBeGreaterThanOrEqual(0);
+    });
+
+    test('有効期限ジャストのキャッシュを期限切れとしてカウントする', () => {
+      cache.get('key1', () => 'data1', 10);
+      global.Game.time += 10;
+
+      const stats = cache.getStats();
+
+      expect(stats.total).toBe(1);
+      expect(stats.expired).toBe(1);
+      expect(stats.active).toBe(0);
     });
   });
 

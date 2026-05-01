@@ -243,7 +243,15 @@ export default function Dashboard() {
                 }}
             >
                 <h1 style={{ margin: 0 }}>
-                    <span role="img" aria-label="Screeps" title="Screeps">
+                    <span
+                        role="img"
+                        aria-label="Screeps"
+                        title="Screeps"
+                        style={{
+                            display: 'inline-block',
+                            animation: updated ? 'bounce 0.6s ease' : 'none',
+                        }}
+                    >
                         🐛
                     </span>{' '}
                     Screeps Dashboard
@@ -574,6 +582,7 @@ export default function Dashboard() {
             {error && (
                 <div
                     role="alert"
+                    aria-live="assertive"
                     style={{
                         color: '#d32f2f',
                         padding: '1rem',

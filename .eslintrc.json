@@ -1,149 +1,55 @@
 {
-  "env": {
-    "es6": true,
-    "node": true,
-    "jest": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "prettier"
-  ],
-  "plugins": [
-    "prettier"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 2020,
-    "sourceType": "module"
-  },
-  "globals": {
-    "Game": "readonly",
-    "Memory": "readonly",
-    "PathFinder": "readonly",
-    "RawMemory": "readonly",
-    "FIND_MY_SPAWNS": "readonly",
-    "FIND_SOURCES": "readonly",
-    "FIND_STRUCTURES": "readonly",
-    "FIND_HOSTILE_CREEPS": "readonly",
-    "STRUCTURE_EXTENSION": "readonly",
-    "STRUCTURE_TOWER": "readonly",
-    "STRUCTURE_CONTROLLER": "readonly",
-    "STRUCTURE_SPAWN": "readonly",
-    "OK": "readonly",
-    "ERR_NOT_ENOUGH_ENERGY": "readonly",
-    "ERR_BUSY": "readonly",
-    "describe": "readonly",
-    "test": "readonly",
-    "expect": "readonly",
-    "beforeEach": "readonly",
-    "jest": "readonly",
-    "_": "readonly",
-    "WORK": "readonly",
-    "CARRY": "readonly",
-    "MOVE": "readonly",
-    "ATTACK": "readonly",
-    "RANGED_ATTACK": "readonly",
-    "HEAL": "readonly",
-    "TOUGH": "readonly",
-    "CLAIM": "readonly",
-    "STRUCTURE_ROAD": "readonly",
-    "STRUCTURE_WALL": "readonly",
-    "STRUCTURE_RAMPART": "readonly",
-    "STRUCTURE_KEEPER_LAIR": "readonly",
-    "STRUCTURE_PORTAL": "readonly",
-    "STRUCTURE_LINK": "readonly",
-    "STRUCTURE_STORAGE": "readonly",
-    "STRUCTURE_OBSERVER": "readonly",
-    "STRUCTURE_POWER_BANK": "readonly",
-    "STRUCTURE_POWER_SPAWN": "readonly",
-    "STRUCTURE_EXTRACTOR": "readonly",
-    "STRUCTURE_LAB": "readonly",
-    "STRUCTURE_TERMINAL": "readonly",
-    "STRUCTURE_CONTAINER": "readonly",
-    "STRUCTURE_NUKER": "readonly",
-    "STRUCTURE_FACTORY": "readonly",
-    "STRUCTURE_INVADER_CORE": "readonly",
-    "FIND_EXIT_TOP": "readonly",
-    "FIND_EXIT_RIGHT": "readonly",
-    "FIND_EXIT_BOTTOM": "readonly",
-    "FIND_EXIT_LEFT": "readonly",
-    "FIND_EXIT": "readonly",
-    "FIND_CREEPS": "readonly",
-    "FIND_MY_CREEPS": "readonly",
-    "FIND_SOURCES_ACTIVE": "readonly",
-    "FIND_DROPPED_RESOURCES": "readonly",
-    "FIND_MY_STRUCTURES": "readonly",
-    "FIND_HOSTILE_STRUCTURES": "readonly",
-    "FIND_FLAGS": "readonly",
-    "FIND_CONSTRUCTION_SITES": "readonly",
-    "FIND_HOSTILE_SPAWNS": "readonly",
-    "FIND_MY_CONSTRUCTION_SITES": "readonly",
-    "FIND_HOSTILE_CONSTRUCTION_SITES": "readonly",
-    "FIND_MINERALS": "readonly",
-    "FIND_NUKES": "readonly",
-    "FIND_TOMBSTONES": "readonly",
-    "FIND_POWER_CREEPS": "readonly",
-    "FIND_MY_POWER_CREEPS": "readonly",
-    "FIND_HOSTILE_POWER_CREEPS": "readonly",
-    "FIND_DEPOSITS": "readonly",
-    "FIND_RUINS": "readonly",
-    "RESOURCE_ENERGY": "readonly",
-    "RESOURCE_POWER": "readonly",
-    "RESOURCE_HYDROGEN": "readonly",
-    "RESOURCE_OXYGEN": "readonly",
-    "RESOURCE_UTRIUM": "readonly",
-    "RESOURCE_LEMERGIUM": "readonly",
-    "RESOURCE_KEANIUM": "readonly",
-    "RESOURCE_ZYNTHIUM": "readonly",
-    "RESOURCE_CATALYST": "readonly",
-    "RESOURCE_GHODIUM": "readonly",
-    "ERR_NOT_OWNER": "readonly",
-    "ERR_NO_PATH": "readonly",
-    "ERR_NAME_EXISTS": "readonly",
-    "ERR_NOT_FOUND": "readonly",
-    "ERR_NOT_ENOUGH_RESOURCES": "readonly",
-    "ERR_INVALID_TARGET": "readonly",
-    "ERR_FULL": "readonly",
-    "ERR_NOT_IN_RANGE": "readonly",
-    "ERR_INVALID_ARGS": "readonly",
-    "ERR_TIRED": "readonly",
-    "ERR_NO_BODYPART": "readonly",
-    "ERR_NOT_ENOUGH_EXTENSIONS": "readonly",
-    "ERR_RCL_NOT_ENOUGH": "readonly",
-    "ERR_GCL_NOT_ENOUGH": "readonly",
-    "MEMORY_KEYS": "readonly"
-  },
-  "rules": {
-    "no-unused-vars": [
-      "warn",
-      {
-        "argsIgnorePattern": "^_"
-      }
-    ],
-    "no-console": "off",
-    "prefer-const": "error",
-    "no-var": "error",
-    "prettier/prettier": "error",
-    "eqeqeq": [
-      "error",
-      "always"
-    ],
-    "curly": [
-      "error",
-      "all"
-    ],
-    "brace-style": [
-      "error",
-      "1tbs"
-    ]
-  },
-  "overrides": [
-    {
-      "files": [
-        "tests/**/*.test.js"
-      ],
-      "rules": {
-        "no-undef": "off"
-      }
+    "env": {
+        "es6": true,
+        "node": true,
+        "jest": true
+    },
+    "extends": ["eslint:recommended", "prettier"],
+    "plugins": ["prettier"],
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
+    "globals": {
+        "Game": "readonly",
+        "Memory": "readonly",
+        "PathFinder": "readonly",
+        "RawMemory": "readonly",
+        "RoomPosition": "readonly",
+        "FIND_MY_SPAWNS": "readonly",
+        "FIND_SOURCES": "readonly",
+        "FIND_SOURCES_ACTIVE": "readonly",
+        "FIND_MY_CREEPS": "readonly",
+        "FIND_CONSTRUCTION_SITES": "readonly",
+        "FIND_STRUCTURES": "readonly",
+        "FIND_HOSTILE_CREEPS": "readonly",
+        "STRUCTURE_EXTENSION": "readonly",
+        "STRUCTURE_TOWER": "readonly",
+        "STRUCTURE_CONTROLLER": "readonly",
+        "STRUCTURE_SPAWN": "readonly",
+        "STRUCTURE_WALL": "readonly",
+        "STRUCTURE_LAB": "readonly",
+        "STRUCTURE_CONTAINER": "readonly",
+        "RESOURCE_ENERGY": "readonly",
+        "WORK": "readonly",
+        "CARRY": "readonly",
+        "MOVE": "readonly",
+        "HEAL": "readonly",
+        "ATTACK": "readonly",
+        "RANGED_ATTACK": "readonly",
+        "OK": "readonly",
+        "ERR_NOT_ENOUGH_ENERGY": "readonly",
+        "ERR_NOT_IN_RANGE": "readonly",
+        "ERR_BUSY": "readonly"
+    },
+    "rules": {
+        "no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+        "no-console": "off",
+        "prefer-const": "error",
+        "no-var": "error",
+        "prettier/prettier": "error",
+        "eqeqeq": ["error", "always"],
+        "curly": ["error", "all"],
+        "brace-style": ["error", "1tbs"]
     }
-  ]
 }

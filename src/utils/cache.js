@@ -90,8 +90,12 @@ function get(key, fetcher, ttl) {
     const validEntry = _getValidEntry(cache, key);
     if (validEntry) return validEntry.data;
 
-    // Security: Cap the number of cache entries to prevent Memory DoS
-    if (!_canAddCacheEntry(cache)) return fetcher();
+    // Security: Cap the number of cache entries to prevent Memory DoS.
+    // If full, attempt to cleanup expired entries once before giving up.
+    if (!_canAddCacheEntry(cache)) {
+        cleanup();
+        if (!_canAddCacheEntry(cache)) return fetcher();
+    }
 
     const data = fetcher();
     cache[key] = {
@@ -116,16 +120,23 @@ function invalidate(key) {
 /**
  * パターンに一致するキャッシュをまとめて無効化する
  * @param {RegExp|string} pattern - 無効化するキーのパターン
+ *
+ * Security: Wrapped in try-catch to prevent script crashes (DoS) from
+ * invalid or malicious regex strings.
  */
 function invalidatePattern(pattern) {
-    const cache = ensureCache();
-    const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-    for (const key in cache) {
-        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
-            if (regex.test(key)) {
-                delete cache[key];
+    try {
+        const cache = ensureCache();
+        const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+        for (const key in cache) {
+            if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+                if (regex.test(key)) {
+                    delete cache[key];
+                }
             }
         }
+    } catch (e) {
+        // Silently fail if regex is invalid
     }
 }
 

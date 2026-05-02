@@ -45,6 +45,15 @@ const MOOD_LEVELS = {
 }
 
 /**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted constants and static result objects to avoid redundant allocations.
+ */
+const PERSONALITY_TRAITS = ['cheerful', 'serious', 'energetic', 'calm', 'curious', 'determined']
+const RESULT_HUNGRY = { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
+const RESULT_ENERGETIC = { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
+const RESULT_HURT = { emoji: EMOTIONS.HURT, moodChange: -2 }
+const RESULT_STUCK = { emoji: EMOTIONS.STUCK, moodChange: -1 }
+
+/**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded arrays can crash the AI.
  */
@@ -52,40 +61,48 @@ const MAX_ACHIEVEMENTS = 10
 const MAX_ACHIEVEMENT_NAME_LENGTH = 100
 
 class EmotionSystem {
+  /**
+   * ⚡ PERFORMANCE OPTIMIZATION: Refactored initialization to avoid redundant object allocation
+   * and loops. Added an early return for already initialized creeps.
+   */
   static initialize (creep) {
+    if (creep.memory.emotions && creep.memory.emotions.birthTick !== undefined) {
+      return
+    }
+
     if (!creep.memory.emotions) {
-      creep.memory.emotions = {}
-    }
-
-    const defaults = {
-      mood: MOOD_LEVELS.NEUTRAL,
-      lastEmotion: EMOTIONS.HAPPY,
-      experiencePoints: 0,
-      achievements: [],
-      personalityTraits: this.generatePersonality(),
-      birthTick: Game.time
-    }
-
-    for (const key in defaults) {
-      if (creep.memory.emotions[key] === undefined) {
-        creep.memory.emotions[key] = defaults[key]
+      creep.memory.emotions = {
+        mood: MOOD_LEVELS.NEUTRAL,
+        lastEmotion: EMOTIONS.HAPPY,
+        experiencePoints: 0,
+        achievements: [],
+        personalityTraits: this.generatePersonality(),
+        birthTick: Game.time
       }
+    } else {
+      const emotions = creep.memory.emotions
+      if (emotions.mood === undefined) emotions.mood = MOOD_LEVELS.NEUTRAL
+      if (emotions.lastEmotion === undefined) emotions.lastEmotion = EMOTIONS.HAPPY
+      if (emotions.experiencePoints === undefined) emotions.experiencePoints = 0
+      if (emotions.achievements === undefined) emotions.achievements = []
+      if (emotions.personalityTraits === undefined) emotions.personalityTraits = this.generatePersonality()
+      if (emotions.birthTick === undefined) emotions.birthTick = Game.time
     }
   }
 
   static generatePersonality () {
-    const traits = ['cheerful', 'serious', 'energetic', 'calm', 'curious', 'determined']
-    return traits[Math.floor(Math.random() * traits.length)]
+    return PERSONALITY_TRAITS[Math.floor(Math.random() * PERSONALITY_TRAITS.length)]
   }
 
   /**
      * エネルギーレベルに基づく感情を取得
      */
   static _getEnergyEmotion (creep) {
+    const store = creep.store
     const energyPercent =
-            creep.store.getUsedCapacity(RESOURCE_ENERGY) / creep.store.getCapacity(RESOURCE_ENERGY)
-    if (energyPercent < 0.1) return { emoji: EMOTIONS.HUNGRY, moodChange: -1 }
-    if (energyPercent > 0.9) return { emoji: EMOTIONS.ENERGETIC, moodChange: 1 }
+            store.getUsedCapacity(RESOURCE_ENERGY) / store.getCapacity(RESOURCE_ENERGY)
+    if (energyPercent < 0.1) return RESULT_HUNGRY
+    if (energyPercent > 0.9) return RESULT_ENERGETIC
     return null
   }
 
@@ -93,8 +110,7 @@ class EmotionSystem {
      * 健康状態に基づく感情を取得
      */
   static _getHealthEmotion (creep) {
-    const healthPercent = creep.hits / creep.hitsMax
-    if (healthPercent < 0.5) return { emoji: EMOTIONS.HURT, moodChange: -2 }
+    if (creep.hits < creep.hitsMax * 0.5) return RESULT_HURT
     return null
   }
 
@@ -102,19 +118,21 @@ class EmotionSystem {
      * スタック状態に基づく感情を取得
      */
   static _getStuckEmotion (creep) {
+    const pos = creep.pos
+    const lastPos = creep.memory.lastPos
     if (
-      creep.memory.lastPos &&
-            creep.pos.x === creep.memory.lastPos.x &&
-            creep.pos.y === creep.memory.lastPos.y
+      lastPos &&
+            pos.x === lastPos.x &&
+            pos.y === lastPos.y
     ) {
       creep.memory.stuckCounter = (creep.memory.stuckCounter || 0) + 1
       if (creep.memory.stuckCounter > 3) {
-        return { emoji: EMOTIONS.STUCK, moodChange: -1 }
+        return RESULT_STUCK
       }
     } else {
       creep.memory.stuckCounter = 0
     }
-    creep.memory.lastPos = { x: creep.pos.x, y: creep.pos.y }
+    creep.memory.lastPos = { x: pos.x, y: pos.y }
     return null
   }
 
@@ -139,9 +157,11 @@ class EmotionSystem {
   }
 
   static updateEmotion (creep) {
-    this.initialize(creep)
-
-    const emotions = creep.memory.emotions
+    let emotions = creep.memory.emotions
+    if (!emotions || emotions.birthTick === undefined) {
+      this.initialize(creep)
+      emotions = creep.memory.emotions
+    }
 
     const updateOffset = creep.name.length % 5
     if ((Game.time + updateOffset) % 5 !== 0 && emotions.lastEmotion) {
@@ -151,17 +171,23 @@ class EmotionSystem {
     let emoji = EMOTIONS.WORKING
     let moodChange = 0
 
-    const emotionChecks = [
-      this._getEnergyEmotion(creep),
-      this._getHealthEmotion(creep),
-      this._getStuckEmotion(creep)
-    ]
+    // ⚡ PERFORMANCE: Avoid array allocation by checking results individually
+    const energyResult = this._getEnergyEmotion(creep)
+    if (energyResult) {
+      emoji = energyResult.emoji
+      moodChange += energyResult.moodChange
+    }
 
-    for (const result of emotionChecks) {
-      if (result) {
-        emoji = result.emoji
-        moodChange += result.moodChange
-      }
+    const healthResult = this._getHealthEmotion(creep)
+    if (healthResult) {
+      emoji = healthResult.emoji
+      moodChange += healthResult.moodChange
+    }
+
+    const stuckResult = this._getStuckEmotion(creep)
+    if (stuckResult) {
+      emoji = stuckResult.emoji
+      moodChange += stuckResult.moodChange
     }
 
     const roleEmoji = this._getRoleEmotion(creep)
@@ -218,7 +244,9 @@ class EmotionSystem {
   }
 
   static getMoodDescription (creep) {
-    this.initialize(creep)
+    if (!creep.memory.emotions || creep.memory.emotions.birthTick === undefined) {
+      this.initialize(creep)
+    }
     const mood = creep.memory.emotions.mood
 
     if (mood >= 5) return 'Very Happy 😄'
@@ -233,8 +261,12 @@ class EmotionSystem {
     if (!creep1 || !creep2 || !creep1.pos || !creep2.pos) return
 
     if (creep1.pos.inRangeTo(creep2, 1)) {
-      this.initialize(creep1)
-      this.initialize(creep2)
+      if (!creep1.memory.emotions || creep1.memory.emotions.birthTick === undefined) {
+        this.initialize(creep1)
+      }
+      if (!creep2.memory.emotions || creep2.memory.emotions.birthTick === undefined) {
+        this.initialize(creep2)
+      }
 
       // Security: Ensure mood is a finite number before arithmetic to prevent NaN propagation.
       const mood1 = Number.isFinite(creep1.memory.emotions.mood) ? creep1.memory.emotions.mood : MOOD_LEVELS.NEUTRAL
@@ -249,7 +281,9 @@ class EmotionSystem {
   }
 
   static getPerformanceModifier (creep) {
-    this.initialize(creep)
+    if (!creep.memory.emotions || creep.memory.emotions.birthTick === undefined) {
+      this.initialize(creep)
+    }
     const mood = creep.memory.emotions.mood
 
     if (mood >= 5) return 1.1
@@ -280,7 +314,9 @@ class EmotionSystem {
     const creeps = global._creeps || Object.values(Game.creeps || {})
     for (let i = 0; i < creeps.length; i++) {
       const creep = creeps[i]
-      this.initialize(creep)
+      if (!creep.memory.emotions || creep.memory.emotions.birthTick === undefined) {
+        this.initialize(creep)
+      }
       const mood = creep.memory.emotions.mood
 
       if (mood >= 5) stats.veryHappy++
@@ -312,7 +348,9 @@ class EmotionSystem {
       return
     }
 
-    this.initialize(creep)
+    if (!creep.memory.emotions || creep.memory.emotions.birthTick === undefined) {
+      this.initialize(creep)
+    }
     const emotions = creep.memory.emotions
 
     console.log('\n🤖 Creep Emotion Report')

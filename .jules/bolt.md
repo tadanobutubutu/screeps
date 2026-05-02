@@ -161,3 +161,13 @@
 
 **Learning:** In high-frequency game loops like Screeps' `main.js`, creating intermediate arrays (e.g., `creepsToProcess`) and wrapper objects for every creep every tick significantly increases GC pressure and CPU overhead. Additionally, returning fresh array literals from utility functions (like `getBodyForRole`) adds unnecessary allocation.
 **Action:** Use multiple passes over global collections instead of building intermediate arrays. Hoist static array/object literals to the module level to avoid per-tick re-allocation.
+
+## 2026-05-02 - Optimizing High-Frequency Emotion Initialization
+
+**Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding  calls with a fast property check (like ) prevents entering the function and creating temporary objects.
+**Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2026-12-29 - Optimizing High-Frequency Emotion Initialization
+
+**Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
+**Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.

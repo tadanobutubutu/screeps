@@ -77,6 +77,23 @@ describe('cache', () => {
 
       expect(fetcher).toHaveBeenCalledTimes(2);
     });
+
+    test('キャッシュがいっぱいの場合、期限切れをクリーンアップして新しいエントリを追加する', () => {
+      const MAX_CACHE_ENTRIES = 100;
+      // 期限切れのエントリでキャッシュを埋める
+      for (let i = 0; i < MAX_CACHE_ENTRIES; i++) {
+        cache.get(`key_${i}`, () => `data_${i}`, 10);
+      }
+
+      global.Game.time += 20; // すべて期限切れにする
+
+      const fetcher = jest.fn().mockReturnValue('new_data');
+      const result = cache.get('new_key', fetcher, 10);
+
+      expect(fetcher).toHaveBeenCalled();
+      expect(result).toBe('new_data');
+      expect(Object.keys(global.cache).length).toBe(1); // 以前のものはクリーンアップされ、新しい1つだけが残る
+    });
   });
 
   describe('invalidate', () => {
@@ -107,6 +124,12 @@ describe('cache', () => {
 
       expect(fetcher1).toHaveBeenCalledTimes(2);
       expect(fetcher2).toHaveBeenCalledTimes(2);
+    });
+
+    test('不正な正規表現文字列でクラッシュしない', () => {
+      expect(() => {
+        cache.invalidatePattern('['); // 不正な正規表現
+      }).not.toThrow();
     });
   });
 

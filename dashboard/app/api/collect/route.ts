@@ -7,12 +7,13 @@ const SCREEPS_API = "https://screeps.com/api";
 export async function GET(request: Request) {
   // Security: Check for authorization secret to prevent unauthorized data collection triggers.
   // We use a fail-closed logic: if CRON_SECRET is not set or doesn't match, we deny access.
+  // Security: Limit header length and check format to mitigate DoS and malformed inputs
   const authHeader = request.headers.get("authorization") || "";
   const cronSecret = process.env.CRON_SECRET;
 
   // Security: タイミング攻撃を防ぐために、ハッシュ化した上で一定時間で比較(constant-time comparison)を行います。
   let isAuthorized = false;
-  if (cronSecret && authHeader) {
+  if (cronSecret && authHeader && authHeader.length <= 512 && authHeader.startsWith("Bearer ")) {
     const expectedAuth = `Bearer ${cronSecret}`;
     const givenHash = createHash("sha256").update(authHeader).digest();
     const expectedHash = createHash("sha256").update(expectedAuth).digest();

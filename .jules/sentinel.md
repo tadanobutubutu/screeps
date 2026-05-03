@@ -122,3 +122,8 @@
 **Vulnerability:** Console Injection and Prototype Pollution in `system.adaptive.js` via unsanitized mode names and reasons.
 **Learning:** Security helpers like `_escapeHTML` are often implemented as private/internal members within a utility module. When other modules (like `system.adaptive.js`) need to sanitize data for the console, they might either bypass sanitization or try to access "private" members, leading to fragile code or security gaps.
 **Prevention:** Standardize security-critical helpers as public APIs (e.g., `logger.escapeHTML`) to encourage their use across the entire codebase. Always validate environment-controlled keys with `isSafeKey` during iterative memory cleanups to prevent prototype pollution.
+
+## 2026-05-01 - Dashboard API Input Hardening
+**Vulnerability:** Potential Denial of Service (DoS) and malformed input processing in Dashboard API routes.
+**Learning:** Even when using secure comparison methods like `timingSafeEqual`, unbounded input lengths in HTTP headers and query parameters can be exploited to exhaust CPU resources during cryptographic hashing or string manipulation. Relying solely on `TimingSafeEqual` doesn't protect against the initial processing cost of massive payloads.
+**Prevention:** Always enforce strict length limits (e.g., 512 chars for headers, 64 chars for common query params) and verify expected prefixes (e.g., 'Bearer ') at the earliest possible entry point before performing expensive operations like hashing.

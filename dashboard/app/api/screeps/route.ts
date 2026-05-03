@@ -15,11 +15,12 @@ const ALLOWED_ENDPOINTS: Record<string, string> = {
 
 export async function GET(request: Request) {
   // Security: Bearerトークンによる認証を追加し、ダッシュボードへの未承認アクセスを防止
+  // Security: Limit header length and check format to mitigate DoS and malformed inputs
   const authHeader = request.headers.get("authorization") || "";
 
   // Security: タイミング攻撃を防ぐために、ハッシュ化した上で一定時間で比較(constant-time comparison)を行います。
   let isAuthorized = false;
-  if (DASHBOARD_SECRET && authHeader) {
+  if (DASHBOARD_SECRET && authHeader && authHeader.length <= 512 && authHeader.startsWith("Bearer ")) {
     const expectedAuth = `Bearer ${DASHBOARD_SECRET}`;
     const givenHash = createHash("sha256").update(authHeader).digest();
     const expectedHash = createHash("sha256").update(expectedAuth).digest();
@@ -31,7 +32,8 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const endpointKey = searchParams.get("endpoint") ?? "overview";
+  // Security: Limit endpoint key length
+  const endpointKey = (searchParams.get("endpoint") ?? "overview").substring(0, 64);
 
   // Security: Use hasOwnProperty to prevent using inherited object properties as API paths
   const resolvedEndpoint =

@@ -34,7 +34,7 @@
   "devDependencies": {
     "@codecov/rollup-plugin": "^2.0.0",
     "@sentry/rollup-plugin": "^5.2.0",
-    "eslint": "10.2.1",
+    "eslint": "10.3.0",
     "jest": "^30.3.0",
     "jest-junit": "^17.0.0",
     "rollup": "^4.60.1"

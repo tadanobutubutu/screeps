@@ -817,6 +817,7 @@ export default function Dashboard() {
                                     : '#eeeeee',
                             borderRadius: '6px',
                             overflow: 'hidden',
+                            position: 'relative',
                             marginBottom: '0.5rem',
                             cursor: 'help',
                             boxShadow: isBarFocused ? '0 0 0 2px #0077aa' : 'none',
@@ -824,6 +825,19 @@ export default function Dashboard() {
                             transition: 'box-shadow 0.2s',
                         }}
                     >
+                        {prevStats?.gcl && gclDelta > 0 && stats.gcl.level === prevStats.gcl.level && (
+                            <div
+                                title={`Previous progress: ${prevGclPercent.toFixed(2)}%`}
+                                style={{
+                                    left: `${prevGclPercent}%`,
+                                    width: '2px',
+                                    height: '100%',
+                                    position: 'absolute',
+                                    background: 'rgba(255, 255, 255, 0.4)',
+                                    zIndex: 1,
+                                }}
+                            />
+                        )}
                         <div
                             style={{
                                 width: `${gclPercent}%`,

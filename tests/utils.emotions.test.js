@@ -115,4 +115,50 @@ describe('utils.emotions', () => {
     EmotionSystem.display(mockCreep);
     expect(mockCreep.say).toHaveBeenCalled();
   });
+
+  describe('checkCreep', () => {
+    let consoleLogSpy;
+
+    beforeEach(() => {
+      consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => {});
+      global.Game.creeps = {};
+    });
+
+    afterEach(() => {
+      consoleLogSpy.mockRestore();
+    });
+
+    test('invalid creep nameを弾く', () => {
+      EmotionSystem.checkCreep('__proto__');
+      expect(consoleLogSpy).toHaveBeenCalledWith('❌ Invalid creep name');
+    });
+
+    test('creepが見つからない場合エラーを出す', () => {
+      EmotionSystem.checkCreep('nonExistentCreep');
+      expect(consoleLogSpy).toHaveBeenCalledWith('❌ Creep not found');
+    });
+
+    test('emotionsが未初期化の場合初期化してレポートを出す', () => {
+      global.Game.creeps['testCreep'] = mockCreep;
+      EmotionSystem.checkCreep('testCreep');
+      expect(mockCreep.memory.emotions).toBeDefined();
+      expect(consoleLogSpy).toHaveBeenCalledWith('\n🤖 Creep Emotion Report');
+      expect(consoleLogSpy).toHaveBeenCalledWith('Name:', 'testCreep');
+    });
+
+    test('achievementsがある場合それもレポートに出す', () => {
+      global.Game.creeps['testCreep'] = mockCreep;
+      mockCreep.memory.emotions = {
+        mood: 5,
+        lastEmotion: '😊',
+        personalityTraits: 'cheerful',
+        birthTick: 0,
+        achievements: [{ name: 'First Mine', tick: 5 }]
+      };
+      global.Game.time = 10;
+      EmotionSystem.checkCreep('testCreep');
+      expect(consoleLogSpy).toHaveBeenCalledWith('\n🏆 Achievements:');
+      expect(consoleLogSpy).toHaveBeenCalledWith('-', 'First Mine', '(tick', 5, ')');
+    });
+  });
 });

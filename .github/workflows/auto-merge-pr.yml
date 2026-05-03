@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Force Merge PR
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           script: |
             const { owner, repo } = context.repo;

@@ -153,4 +153,24 @@ describe('DashboardRenderer', () => {
             expect.objectContaining({ opacity: expect.any(Number) })
         );
     });
+
+    describe('formatNumber', () => {
+        test('formats numbers under 1000 as string', () => {
+            expect(DashboardRenderer.formatNumber(0)).toBe('0');
+            expect(DashboardRenderer.formatNumber(500)).toBe('500');
+            expect(DashboardRenderer.formatNumber(999)).toBe('999');
+        });
+
+        test('formats numbers between 1000 and 1000000 with K suffix', () => {
+            expect(DashboardRenderer.formatNumber(1000)).toBe('1.0K');
+            expect(DashboardRenderer.formatNumber(1500)).toBe('1.5K');
+            expect(DashboardRenderer.formatNumber(999900)).toBe('999.9K');
+        });
+
+        test('formats numbers over 1000000 with M suffix', () => {
+            expect(DashboardRenderer.formatNumber(1000000)).toBe('1.0M');
+            expect(DashboardRenderer.formatNumber(1500000)).toBe('1.5M');
+            expect(DashboardRenderer.formatNumber(10000000)).toBe('10.0M');
+        });
+    });
 });

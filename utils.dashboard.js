@@ -14,6 +14,8 @@ function formatNumber(num) {
 }
 
 const DashboardRenderer = {
+    formatNumber,
+
     renderRoomDashboard(room) {
         // ⚡ PERFORMANCE OPTIMIZATION: Use centralized room caches pre-warmed in main.js.
         if (room._myCreepsTick !== Game.time) {

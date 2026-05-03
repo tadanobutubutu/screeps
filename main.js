@@ -208,6 +208,7 @@ function warmRoomCache (room) {
       continue
     }
 
+    // ⚡ PERFORMANCE: Hoist hits and hitsMax to minimize Proxy lookups.
     const hits = s.hits
     const hitsMax = s.hitsMax
     const isDamaged = hits < hitsMax
@@ -219,9 +220,9 @@ function warmRoomCache (room) {
       // 防衛・スポーン・納品先の分類
       if (
         type === STRUCTURE_EXTENSION ||
-                type === STRUCTURE_SPAWN ||
-                type === STRUCTURE_TOWER ||
-                type === STRUCTURE_LAB
+        type === STRUCTURE_SPAWN ||
+        type === STRUCTURE_TOWER ||
+        type === STRUCTURE_LAB
       ) {
         if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
           deliveryTargets.push(s)
@@ -239,16 +240,6 @@ function warmRoomCache (room) {
           }
         }
       }
-
-      // 味方の構造物の修理
-      if (isDamaged) {
-        repairTargets.push(s)
-        // ⚡ PERFORMANCE: 最もダメージを受けているターゲットを追跡 (O(1) lookup用)
-        if (hits < minHits) {
-          minHits = hits
-          minHitsRepairTarget = s
-        }
-      }
     } else if (type === STRUCTURE_CONTAINER) {
       containers.push(s)
       const store = s.store
@@ -260,16 +251,12 @@ function warmRoomCache (room) {
           withdrawalSources.push(s)
         }
       }
-      if (isDamaged) {
-        repairTargets.push(s)
-        if (hits < minHits) {
-          minHits = hits
-          minHitsRepairTarget = s
-        }
-      }
-    } else if (isDamaged) {
-      // 道路などの修理 (Walls already skipped via early continue)
+    }
+
+    // ⚡ PERFORMANCE: Consolidate repair logic to avoid redundant checks across branches.
+    if (isDamaged) {
       repairTargets.push(s)
+      // ⚡ PERFORMANCE: Track target with min hits for O(1) lookup.
       if (hits < minHits) {
         minHits = hits
         minHitsRepairTarget = s
@@ -303,28 +290,6 @@ function warmRoomCache (room) {
 }
 
 
-/**
- * ⚡ PERFORMANCE OPTIMIZATION: クリープのデータ収集と初期化を行う。
- * processCreeps関数の肥大化を防ぐための抽出。
- */
-function collectCreepData (creep, creepCounts, isLoggingEnabled) {
-  const memory = creep.memory
-  let role = memory.role
-  if (!role) {
-    role = memory.role = 'harvester'
-    if (isLoggingEnabled) logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
-  }
-  creepCounts[role] = (creepCounts[role] || 0) + 1
-
-  const room = creep.room
-  if (room) {
-    room._myCreeps.push(creep)
-    if (room._roleCounts[role] !== undefined) room._roleCounts[role]++
-    if (creep.hits < creep.hitsMax) room._injuredCreeps.push(creep)
-    if (role === 'defender') room._defenders.push(creep)
-  }
-}
-
 function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
   const creepCounts = Object.create(null)
 
@@ -355,6 +320,8 @@ function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnable
         logger.warn('Creep ' + creep.name + ' had no role, set to harvester')
       }
     }
+    // ⚡ PERFORMANCE: Cache role as a volatile property to avoid second Proxy lookup in Pass 2.
+    creep._role = role
     creepCounts[role] = (creepCounts[role] || 0) + 1
 
     const room = creep.room
@@ -378,7 +345,7 @@ function processCreeps (rooms, creeps, sites, isLoggingEnabled, isEmotionsEnable
 
   for (let i = 0; i < creeps.length; i++) {
     const creep = creeps[i]
-    processFn(creep, creep.memory.role, creep.name, isEmotionsEnabled)
+    processFn(creep, creep._role, creep.name, isEmotionsEnabled)
   }
 
   return creepCounts

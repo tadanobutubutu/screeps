@@ -6,6 +6,7 @@ const logger = require('./utils.logging')
  */
 const MAX_TASKS = 50
 const MAX_TASK_NAME_LENGTH = 100
+const MAX_TASK_FAILURES = 5
 
 const TaskQueue = {
   tasks: [],
@@ -28,6 +29,8 @@ const TaskQueue = {
       existingTask.interval = interval
       existingTask.action = action
       existingTask.condition = condition
+      // Security: Reset failure count when task is updated
+      existingTask.failures = 0
       return
     }
 
@@ -38,7 +41,7 @@ const TaskQueue = {
       return
     }
 
-    this.tasks.push({ name: sanitizedName, interval, action, condition })
+    this.tasks.push({ name: sanitizedName, interval, action, condition, failures: 0 })
   },
 
   /**
@@ -49,6 +52,13 @@ const TaskQueue = {
     const tasksLen = this.tasks.length
     for (let i = 0; i < tasksLen; i++) {
       const task = this.tasks[i]
+
+      // Security: Failure Circuit Breaker
+      // If a task fails repeatedly, disable it to prevent log spam and CPU DoS.
+      if ((task.failures || 0) >= MAX_TASK_FAILURES) {
+        continue
+      }
+
       if (task.interval === 1 || Game.time % task.interval === 0) {
         if (task.condition()) {
           try {
@@ -56,8 +66,16 @@ const TaskQueue = {
           } catch (e) {
             // Record failure count
             task.failures = (task.failures || 0) + 1
-            // Security: Use logger.error for safe stack traces and HTML escaping
-            logger.error(`Error running periodic task ${task.name}: ${e.message}`)
+
+            // Security: Final warning before disabling task
+            if (task.failures === MAX_TASK_FAILURES) {
+              logger.error(
+                `TaskQueue: Task ${task.name} failed ${MAX_TASK_FAILURES} times and has been disabled.`
+              )
+            } else {
+              // Security: Use logger.error for safe stack traces and HTML escaping
+              logger.error(`Error running periodic task ${task.name}: ${e.message}`)
+            }
           }
         }
       }

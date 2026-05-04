@@ -1,13 +1,21 @@
-const TaskQueue = require('../utils.tasks');
-const utilsMemory = require('../utils.memory');
-const logger = require('../utils.logging');
-
 jest.mock('../utils.memory');
 jest.mock('../utils.logging', () => ({
   error: jest.fn(),
   warn: jest.fn(),
   log: jest.fn(),
+  tryCatch: jest.fn((fn, context, ...args) => {
+    try {
+      return fn(...args);
+    } catch (e) {
+      return null;
+    }
+  }),
 }));
+
+// Import after mocking
+const TaskQueue = require('../utils.tasks');
+const utilsMemory = require('../utils.memory');
+const logger = require('../utils.logging');
 
 describe('utils.tasks', () => {
   beforeEach(() => {
@@ -94,5 +102,49 @@ describe('utils.tasks', () => {
     expect(logger.error).toHaveBeenCalledWith(
       expect.stringContaining('Error running periodic task buggy: Boom')
     );
+  });
+
+  test('runが失敗回数上限を超えたタスクを実行しない (Circuit Breaker)', () => {
+    const errorAction = jest.fn(() => {
+      throw new Error('Boom');
+    });
+    TaskQueue.registerTask('broken', 1, errorAction);
+
+    // 5回失敗させる
+    for (let i = 0; i < 5; i++) {
+      TaskQueue.run();
+    }
+
+    expect(errorAction).toHaveBeenCalledTimes(5);
+    expect(logger.error).toHaveBeenCalledWith(
+      expect.stringContaining('Task broken failed 5 times and has been disabled')
+    );
+
+    // 6回目は実行されないはず
+    errorAction.mockClear();
+    TaskQueue.run();
+    expect(errorAction).not.toHaveBeenCalled();
+  });
+
+  test('registerTaskが再登録時に失敗カウントをリセットする', () => {
+    const errorAction = jest.fn(() => {
+      throw new Error('Boom');
+    });
+    TaskQueue.registerTask('broken', 1, errorAction);
+
+    // 5回失敗させて無効化
+    for (let i = 0; i < 5; i++) {
+      TaskQueue.run();
+    }
+    expect(TaskQueue.tasks[0].failures).toBe(5);
+
+    // 再登録
+    TaskQueue.registerTask('broken', 1, errorAction);
+    expect(TaskQueue.tasks[0].failures).toBe(0);
+
+    // 再度実行されるようになる
+    errorAction.mockClear();
+    TaskQueue.run();
+    expect(errorAction).toHaveBeenCalledTimes(1);
   });
 });

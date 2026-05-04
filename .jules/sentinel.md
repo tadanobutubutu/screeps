@@ -127,3 +127,8 @@
 **Vulnerability:** Potential Denial of Service (DoS) and malformed input processing in Dashboard API routes.
 **Learning:** Even when using secure comparison methods like `timingSafeEqual`, unbounded input lengths in HTTP headers and query parameters can be exploited to exhaust CPU resources during cryptographic hashing or string manipulation. Relying solely on `TimingSafeEqual` doesn't protect against the initial processing cost of massive payloads.
 **Prevention:** Always enforce strict length limits (e.g., 512 chars for headers, 64 chars for common query params) and verify expected prefixes (e.g., 'Bearer ') at the earliest possible entry point before performing expensive operations like hashing.
+
+## 2026-05-02 - Failure Circuit Breaker for Task Queue
+**Vulnerability:** Persistent Denial of Service (DoS) and log-driven Memory DoS via buggy or failing periodic tasks.
+**Learning:** Periodic tasks that throw exceptions can cause a script to exhaust its CPU limit every tick or flood the `Memory.logs` structure with repeated error messages, eventually exceeding the 2MB environment limit and crashing the AI. Simply catching errors is insufficient if the failing code continues to execute indefinitely.
+**Prevention:** Implement a "Circuit Breaker" pattern for task runners. Track failure counts for each task and automatically disable execution if a threshold (e.g., 5 failures) is reached. Reset the circuit only when the task is explicitly re-registered or updated.

@@ -36,6 +36,9 @@ export default function Dashboard() {
     const [timeAgo, setTimeAgo] = useState<string>('just now');
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
+    const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
+    const roomDelta = prevStats ? roomCount - prevRoomCount : 0;
+
     const gclPercent = stats?.gcl
         ? Math.min(100, (stats.gcl.progress / stats.gcl.progressTotal) * 100)
         : 0;
@@ -292,6 +295,19 @@ export default function Dashboard() {
                                 {roomCount === 1 ? '🏠' : '🏘️'}
                             </span>{' '}
                             {roomCount} Room{roomCount === 1 ? '' : 's'}
+                            {roomDelta !== 0 && (
+                                <span
+                                    style={{
+                                        fontSize: '0.8rem',
+                                        color: roomDelta > 0 ? '#1e7e34' : '#d32f2f',
+                                        marginLeft: '0.25rem',
+                                        fontWeight: 'bold',
+                                    }}
+                                    aria-label={roomDelta > 0 ? `Gained ${roomDelta} room` : `Lost ${Math.abs(roomDelta)} room`}
+                                >
+                                    ({roomDelta > 0 ? '+' : ''}{roomDelta})
+                                </span>
+                            )}
                         </span>
                     )}
                     {lastUpdated && (
@@ -323,7 +339,7 @@ export default function Dashboard() {
                                 style={{
                                     animation:
                                         getStalenessInfo().icon === '🚨'
-                                            ? 'pulse 1.5s infinite'
+                                            ? 'shake 0.3s infinite'
                                             : 'none',
                                 }}
                             >

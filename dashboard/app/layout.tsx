@@ -30,6 +30,11 @@ export default function RootLayout({
             40% { transform: translateY(-10px); }
             60% { transform: translateY(-5px); }
           }
+          @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+          }
         `}</style>
       </head>
       <body>{children}</body>

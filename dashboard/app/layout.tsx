@@ -35,6 +35,13 @@ export default function RootLayout({
             25% { transform: translateX(-2px); }
             75% { transform: translateX(2px); }
           }
+          kbd:focus-visible {
+            outline: 2px solid #0077aa;
+            outline-offset: 2px;
+          }
+          kbd:hover {
+            filter: brightness(0.9);
+          }
         `}</style>
       </head>
       <body>{children}</body>

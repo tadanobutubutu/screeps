@@ -50,6 +50,10 @@ export default function Dashboard() {
         stats?.power !== undefined && prevStats?.power !== undefined
             ? stats.power - prevStats.power
             : 0;
+    const cpuDelta =
+        stats?.cpuUsed !== undefined && prevStats?.cpuUsed !== undefined
+            ? stats.cpuUsed - prevStats.cpuUsed
+            : 0;
 
     const getStalenessInfo = useCallback(() => {
         if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
@@ -57,7 +61,7 @@ export default function Dashboard() {
         const diff = (new Date().getTime() - lastUpdated.getTime()) / 60000;
         if (diff > 15) return { icon: '🚨', color: '#d32f2f', label: 'Critical staleness' };
         if (diff > 5) return { icon: '⚠️', color: '#a5532d', label: 'Stale' };
-        return { icon: '🕒', color: '#575757', label: 'Fresh' };
+        return { icon: '🟢', color: '#1e7e34', label: 'Fresh' };
     }, [updated, lastUpdated]);
 
     const handleCopy = useCallback(async () => {
@@ -772,6 +776,24 @@ export default function Dashboard() {
                                         📊
                                     </span>{' '}
                                     CPU: {stats.cpuUsed.toLocaleString()}
+                                    {cpuDelta !== 0 && (
+                                        <span
+                                            style={{
+                                                fontSize: '0.8rem',
+                                                color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
+                                                marginLeft: '0.25rem',
+                                                fontWeight: 'bold',
+                                            }}
+                                            aria-label={
+                                                cpuDelta > 0
+                                                    ? `Increased by ${cpuDelta.toLocaleString()}`
+                                                    : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
+                                            }
+                                        >
+                                            ({cpuDelta > 0 ? '+' : ''}
+                                            {cpuDelta.toLocaleString()})
+                                        </span>
+                                    )}
                                 </span>
                             )}
                         </div>

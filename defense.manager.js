@@ -29,13 +29,8 @@ const defenseManager = {
                 continue;
             }
 
-            // ⚡ PERFORMANCE: Lazy target finding - only execute O(N) searches if no hostile is present.
-            // (遅延ターゲット探索：敵がいない場合のみ、O(N)の走査を実行する)
-            if (room._criticalCreepTick !== Game.time) {
-                const damagedCreeps = room._injuredCreeps || [];
-                room._criticalCreep = damagedCreeps.find((c) => c.hits < c.hitsMax * 0.5);
-                room._criticalCreepTick = Game.time;
-            }
+            // ⚡ PERFORMANCE: Use hoisted critical targets pre-calculated in main.js
+            // (main.jsで事前に計算された最優先ターゲットを使用し、タワーごとの検索を回避)
             const criticalCreep = room._criticalCreep;
 
             // 優先度2: 味方creepの回復
@@ -44,13 +39,6 @@ const defenseManager = {
                 continue;
             }
 
-            if (room._criticalStructureTick !== Game.time) {
-                const damagedStructures = room._repairTargets || [];
-                room._criticalStructure = damagedStructures.find(
-                    (s) => s.hits < s.hitsMax * 0.3 && s.structureType !== STRUCTURE_RAMPART
-                );
-                room._criticalStructureTick = Game.time;
-            }
             const criticalStructure = room._criticalStructure;
 
             // 優先度3: 構造物の修理（エネルギーが十分な時のみ）

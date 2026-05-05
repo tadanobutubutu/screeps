@@ -167,6 +167,11 @@
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding  calls with a fast property check (like ) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
 
+## 2027-01-12 - Hoisting Critical Defense Targets to Centralized Passes
+
+**Learning:** Critical target identification for towers (e.g., most damaged creeps or structures) is an expensive $O(N)$ operation when performed per-tower per-tick. By hoisting this logic into the existing global room and creep passes in `main.js`, we can pre-populate these targets on the volatile `room` object with near-zero additional cost, eliminating redundant scans in downstream defense modules.
+**Action:** Always hoist per-tick global target identification (like critical repair or heal targets) to the centralized room/creep scanning passes to maximize CPU efficiency in multi-consumer systems.
+
 ## 2026-12-29 - Optimizing High-Frequency Emotion Initialization
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.

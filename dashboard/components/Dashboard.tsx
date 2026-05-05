@@ -307,9 +307,14 @@ export default function Dashboard() {
                                         marginLeft: '0.25rem',
                                         fontWeight: 'bold',
                                     }}
-                                    aria-label={roomDelta > 0 ? `Gained ${roomDelta} room` : `Lost ${Math.abs(roomDelta)} room`}
+                                    aria-label={
+                                        roomDelta > 0
+                                            ? `Gained ${roomDelta} room`
+                                            : `Lost ${Math.abs(roomDelta)} room`
+                                    }
                                 >
-                                    ({roomDelta > 0 ? '+' : ''}{roomDelta})
+                                    ({roomDelta > 0 ? '+' : ''}
+                                    {roomDelta})
                                 </span>
                             )}
                         </span>
@@ -450,7 +455,12 @@ export default function Dashboard() {
                             '✅ Updated!'
                         ) : isRefreshing ? (
                             <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <span style={{ display: 'inline-block', animation: 'spin 1s linear infinite' }}>
+                                <span
+                                    style={{
+                                        display: 'inline-block',
+                                        animation: 'spin 1s linear infinite',
+                                    }}
+                                >
                                     🔄
                                 </span>{' '}
                                 Refreshing...
@@ -863,19 +873,21 @@ export default function Dashboard() {
                             transition: 'box-shadow 0.2s',
                         }}
                     >
-                        {prevStats?.gcl && gclDelta > 0 && stats.gcl.level === prevStats.gcl.level && (
-                            <div
-                                title={`Previous progress: ${prevGclPercent.toFixed(2)}%`}
-                                style={{
-                                    left: `${prevGclPercent}%`,
-                                    width: '2px',
-                                    height: '100%',
-                                    position: 'absolute',
-                                    background: 'rgba(255, 255, 255, 0.4)',
-                                    zIndex: 1,
-                                }}
-                            />
-                        )}
+                        {prevStats?.gcl &&
+                            gclDelta > 0 &&
+                            stats.gcl.level === prevStats.gcl.level && (
+                                <div
+                                    title={`Previous progress: ${prevGclPercent.toFixed(2)}%`}
+                                    style={{
+                                        left: `${prevGclPercent}%`,
+                                        width: '2px',
+                                        height: '100%',
+                                        position: 'absolute',
+                                        background: 'rgba(255, 255, 255, 0.4)',
+                                        zIndex: 1,
+                                    }}
+                                />
+                            )}
                         <div
                             style={{
                                 width: `${gclPercent}%`,
@@ -1055,9 +1067,27 @@ export default function Dashboard() {
                 <div>
                     Keyboard Shortcuts:{' '}
                     {[
-                        { k: 'R', a: 'Refresh stats', state: isRefreshing ? 'a' : updated ? 's' : '', onClick: () => fetchStats(true), icon: updated ? '✓' : 'R' },
-                        { k: 'C', a: 'Copy stats as JSON', state: copied ? 's' : '', onClick: () => handleCopy(), icon: copied ? '✓' : 'C' },
-                        { k: 'L', a: 'Reset Secret', state: isResetConfirming ? 'w' : resetSuccess ? 's' : '', onClick: () => handleResetSecret(), icon: resetSuccess ? '✓' : isResetConfirming ? '?' : 'L' }
+                        {
+                            k: 'R',
+                            a: 'Refresh stats',
+                            state: isRefreshing ? 'a' : updated ? 's' : '',
+                            onClick: () => fetchStats(true),
+                            icon: updated ? '✓' : 'R',
+                        },
+                        {
+                            k: 'C',
+                            a: 'Copy stats as JSON',
+                            state: copied ? 's' : '',
+                            onClick: () => handleCopy(),
+                            icon: copied ? '✓' : 'C',
+                        },
+                        {
+                            k: 'L',
+                            a: 'Reset Secret',
+                            state: isResetConfirming ? 'w' : resetSuccess ? 's' : '',
+                            onClick: () => handleResetSecret(),
+                            icon: resetSuccess ? '✓' : isResetConfirming ? '?' : 'L',
+                        },
                     ].map((item, i) => (
                         <span key={item.k}>
                             {i > 0 && ' · '}
@@ -1065,16 +1095,26 @@ export default function Dashboard() {
                                 role="button"
                                 tabIndex={0}
                                 onClick={item.onClick}
-                                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && item.onClick()}
+                                onKeyDown={(e) =>
+                                    (e.key === 'Enter' || e.key === ' ') && item.onClick()
+                                }
                                 title={`Click or press ${item.k} to ${item.a}`}
                                 aria-label={item.a}
                                 style={{
-                                    background: item.state === 'a' ? '#0077aa' : item.state === 's' ? '#1e7e34' : item.state === 'w' ? '#a5532d' : '#eee',
+                                    background:
+                                        item.state === 'a'
+                                            ? '#0077aa'
+                                            : item.state === 's'
+                                              ? '#1e7e34'
+                                              : item.state === 'w'
+                                                ? '#a5532d'
+                                                : '#eee',
                                     color: item.state ? '#fff' : '#333',
                                     padding: '0.1rem 0.3rem',
                                     borderRadius: '3px',
                                     border: `1px solid ${item.state === 'a' ? '#005577' : item.state === 's' ? '#155d27' : item.state === 'w' ? '#7d3f22' : '#ccc'}`,
-                                    boxShadow: '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
+                                    boxShadow:
+                                        '0 1px 1px rgba(0,0,0,0.2), 0 2px 0 0 rgba(255,255,255,0.7) inset',
                                     display: 'inline-block',
                                     minWidth: '1.2em',
                                     textAlign: 'center',

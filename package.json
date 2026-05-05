@@ -37,7 +37,7 @@
     "eslint": "10.3.0",
     "jest": "^30.3.0",
     "jest-junit": "^17.0.0",
-    "rollup": "^4.60.1"
+    "rollup": "^4.60.3"
   },
   "overrides": {
     "undici": ">=6.24.0"

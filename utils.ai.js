@@ -1,11 +1,32 @@
+const utilsMemory = require('./utils.memory');
+
 const AIHelper = {
-    getAIDecision(room) {
+    /**
+     * Security: Safely initialize and validate AI state.
+     * Prevents NaN propagation and DoS from corrupted memory.
+     */
+    initMemory() {
         if (!Memory.aiState) {
-            Memory.aiState = {
-                phase: 'expansion',
-                priority: 'energy',
-            };
+            Memory.aiState = {};
         }
+
+        const defaults = {
+            phase: 'expansion',
+            priority: 'energy',
+        };
+
+        for (const key in defaults) {
+            if (!Memory.aiState[key] || !utilsMemory.isSafeKey(Memory.aiState[key])) {
+                Memory.aiState[key] = defaults[key];
+            } else if (typeof Memory.aiState[key] === 'string') {
+                // Security: Limit string length to avoid Memory DoS
+                Memory.aiState[key] = Memory.aiState[key].substring(0, 100);
+            }
+        }
+    },
+
+    getAIDecision(room) {
+        this.initMemory();
 
         const creeps = room.find(FIND_MY_CREEPS);
         const structures = room.find(FIND_MY_STRUCTURES);
@@ -16,7 +37,10 @@ const AIHelper = {
         }
 
         const rcl = room.controller ? room.controller.level : 0;
-        const energyRatio = room.energyAvailable / room.energyCapacityAvailable;
+        const energyRatio =
+            room.energyCapacityAvailable > 0
+                ? room.energyAvailable / room.energyCapacityAvailable
+                : 0;
         const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
 
         if (rcl < 3) {
@@ -52,7 +76,13 @@ const AIHelper = {
             optimization: { harvester: 1, upgrader: 1, builder: 1, repairer: 1 },
         };
 
-        return suggestions[decision.phase] || suggestions.expansion;
+        // Security: Use hasOwnProperty and isSafeKey to prevent Prototype Pollution
+        const phase = decision.phase;
+        if (utilsMemory.isSafeKey(phase) && Object.prototype.hasOwnProperty.call(suggestions, phase)) {
+            return suggestions[phase];
+        }
+
+        return suggestions.expansion;
     },
 
     shouldBuildStructure(room) {
@@ -80,7 +110,12 @@ const AIHelper = {
             8: 60,
         };
 
-        return structureCount < (maxStructures[rcl] || 0);
+        // Security: Use hasOwnProperty and isSafeKey for dynamic lookup
+        if (utilsMemory.isSafeKey(rcl) && Object.prototype.hasOwnProperty.call(maxStructures, rcl)) {
+            return structureCount < maxStructures[rcl];
+        }
+
+        return false;
     },
 };
 

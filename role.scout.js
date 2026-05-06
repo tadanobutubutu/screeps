@@ -4,6 +4,9 @@
  */
 const MAX_VISITED_ROOMS = 100;
 
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } };
+
 const roleScout = {
     run: function (creep) {
         if (!creep.memory.targetRoom) {
@@ -24,9 +27,10 @@ const roleScout = {
             if (creep.room.name !== creep.memory.targetRoom) {
                 // ⚡ PERFORMANCE: Direct moveTo to room name center is efficient and handles findExit internally.
                 // Avoid redundant Game.map.findExit and creep.room.findExitTo calls which are O(N) or worse.
-                const result = creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
-                    visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 },
-                });
+                const result = creep.moveTo(
+                    new RoomPosition(25, 25, creep.memory.targetRoom),
+                    PATH_STYLE_SCOUT
+                );
 
                 if (result === ERR_NO_PATH || result === ERR_INVALID_ARGS) {
                     // Path not found, reset target

@@ -1,3 +1,8 @@
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_HEAL = { visualizePathStyle: { stroke: '#00ff00' } };
+const PATH_STYLE_IDLE = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 } };
+const PATH_STYLE_HARVEST = { visualizePathStyle: { stroke: '#ffaa00' } };
+
 const roleMedic = {
     run: function (creep) {
         creep.say('💊');
@@ -37,7 +42,7 @@ const roleMedic = {
                         creep.heal(target);
                     } else {
                         creep.rangedHeal(target);
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                        creep.moveTo(target, PATH_STYLE_HEAL);
                     }
                 }
             } else {
@@ -47,9 +52,7 @@ const roleMedic = {
                     ? creep.room.controller.pos
                     : new RoomPosition(25, 25, creep.room.name);
                 if (!creep.pos.inRangeTo(idlePos, 3)) {
-                    creep.moveTo(idlePos, {
-                        visualizePathStyle: { stroke: '#ffffff', opacity: 0.2 },
-                    });
+                    creep.moveTo(idlePos, PATH_STYLE_IDLE);
                 }
             }
         } else {
@@ -70,7 +73,7 @@ const roleMedic = {
 
                 if (target) {
                     if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                        creep.moveTo(target, PATH_STYLE_HARVEST);
                     }
                 }
             } else if (injured.length > 0) {
@@ -91,7 +94,7 @@ const roleMedic = {
                         creep.heal(target);
                     } else {
                         creep.rangedHeal(target);
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ff00' } });
+                        creep.moveTo(target, PATH_STYLE_HEAL);
                     }
                 }
             } else {

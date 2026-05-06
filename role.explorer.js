@@ -1,3 +1,6 @@
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_EXPLORE = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.5 } };
+
 const roleExplorer = {
     run: function (creep) {
         // メモリにターゲットの部屋がなければ設定（例: 隣の部屋）
@@ -19,9 +22,10 @@ const roleExplorer = {
         if (creep.memory.targetRoom && creep.room.name !== creep.memory.targetRoom) {
             // ⚡ PERFORMANCE: Direct moveTo to room name center is efficient and handles findExit internally.
             // Avoid redundant Game.map.findExit and creep.room.findExitTo calls which are O(N) or worse.
-            const result = creep.moveTo(new RoomPosition(25, 25, creep.memory.targetRoom), {
-                visualizePathStyle: { stroke: '#ffffff', opacity: 0.5 },
-            });
+            const result = creep.moveTo(
+                new RoomPosition(25, 25, creep.memory.targetRoom),
+                PATH_STYLE_EXPLORE
+            );
 
             // Check if movement is valid
             if (result === ERR_NO_PATH || result === ERR_INVALID_ARGS) {

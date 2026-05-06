@@ -1,3 +1,8 @@
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_UPGRADE = { visualizePathStyle: { stroke: '#ffffff' } };
+const PATH_STYLE_BUILD = { visualizePathStyle: { stroke: '#0000ff' } };
+const PATH_STYLE_HARVEST = { visualizePathStyle: { stroke: '#ffaa00' } };
+
 const roleBuilder = {
     run: function (creep) {
         this._updateState(creep);
@@ -31,9 +36,7 @@ const roleBuilder = {
             delete creep.memory.buildTargetId;
             // 建設サイトがなければアップグレードモードに
             if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(creep.room.controller, {
-                    visualizePathStyle: { stroke: '#ffffff' },
-                });
+                creep.moveTo(creep.room.controller, PATH_STYLE_UPGRADE);
             }
         }
     },
@@ -55,7 +58,7 @@ const roleBuilder = {
         }
 
         if (target && creep.build(target) === ERR_NOT_IN_RANGE) {
-            creep.moveTo(target, { visualizePathStyle: { stroke: '#0000ff' } });
+            creep.moveTo(target, PATH_STYLE_BUILD);
         }
     },
 
@@ -79,11 +82,11 @@ const roleBuilder = {
 
             if (target) {
                 if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    creep.moveTo(target, PATH_STYLE_HARVEST);
                 }
             }
         }
-    }
+    },
 };
 
 module.exports = roleBuilder;

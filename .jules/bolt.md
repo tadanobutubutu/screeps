@@ -147,6 +147,7 @@
 
 **Learning:** Combining per-tick hostile target hoisting (for focus fire) with lazy-loading of secondary targets (repair/heal) in defense loops eliminates redundant $O(N)$ engine calls. Reordering the defense loop to ensure `checkThreats` (the producer) runs before `manageTowers` (the consumer) is critical for cache validity without adding extra tick checks.
 **Action:** Always reorder room-level management loops to follow a Producer-Consumer sequence and use lazy-loading for O(N) searches that are only required when primary targets are absent.
+
 ## 2024-04-30 - Extracting Complex Conditionals into Helper Functions
 
 **Learning:** Large functions containing multiple complex `if-else` chains for determining system states (e.g., adaptive modes) reduce code maintainability and readability. Extracting these into focused helper functions (`_determineTargetMode`, `_applyModeChange`, `_updateStats`) makes the primary logic flow much clearer, easier to test, and reduces cognitive load.
@@ -164,8 +165,13 @@
 
 ## 2026-05-02 - Optimizing High-Frequency Emotion Initialization
 
-**Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding  calls with a fast property check (like ) prevents entering the function and creating temporary objects.
+**Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding calls with a fast property check (like ) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-01-26 - Hoisting Constant Style Objects to Module Scope
+
+**Learning:** In high-frequency loops like Screeps role logic (run per-creep per-tick) and VFX rendering, creating fresh object literals for `moveTo` options (`visualizePathStyle`) or `RoomVisual` styles causes significant per-tick CPU overhead and garbage collection pressure. Since these style objects are often constant, hoisting them to the module scope as constants provides a measurable performance gain without sacrificing readability.
+**Action:** Always hoist static configuration and style objects (like path and visual styles) to the module scope in high-frequency logic paths to minimize redundant allocations and GC churn.
 
 ## 2027-01-12 - Hoisting Critical Defense Targets to Centralized Passes
 

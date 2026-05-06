@@ -6,6 +6,10 @@ const STATE_DELIVERING = 'delivering';
 const STATE_CONTAINER = 'container';
 const STATE_UPGRADING = 'upgrading';
 
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_HARVEST = { visualizePathStyle: { stroke: '#ffaa00' } };
+const PATH_STYLE_DELIVER = { visualizePathStyle: { stroke: '#ffffff' } };
+
 const roleHarvester = {
     run: function (creep) {
         // レインボートレイル
@@ -91,7 +95,7 @@ const roleHarvester = {
                     vfx.particles(source.pos, '#FFFF00', 8);
                 }
             } else if (result === ERR_NOT_IN_RANGE) {
-                creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+                creep.moveTo(source, PATH_STYLE_HARVEST);
             }
         }
     },
@@ -123,7 +127,7 @@ const roleHarvester = {
                 vfx.stars(target.pos, 4);
             }
         } else if (result === ERR_NOT_IN_RANGE) {
-            creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+            creep.moveTo(target, PATH_STYLE_DELIVER);
         }
     },
 
@@ -147,7 +151,7 @@ const roleHarvester = {
         if (result === OK) {
             vfx.scorePopup(creep.pos, 3, 'STORAGE');
         } else if (result === ERR_NOT_IN_RANGE) {
-            creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+            creep.moveTo(target, PATH_STYLE_DELIVER);
         }
     },
 
@@ -161,9 +165,7 @@ const roleHarvester = {
                 vfx.particles(creep.room.controller.pos, '#00FF00', 10);
             }
         } else if (result === ERR_NOT_IN_RANGE) {
-            creep.moveTo(creep.room.controller, {
-                visualizePathStyle: { stroke: '#ffffff' },
-            });
+            creep.moveTo(creep.room.controller, PATH_STYLE_DELIVER);
         }
     },
 };

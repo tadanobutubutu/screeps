@@ -1,3 +1,8 @@
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_REPAIR = { visualizePathStyle: { stroke: '#ffff00' } };
+const PATH_STYLE_UPGRADE = { visualizePathStyle: { stroke: '#ffffff' } };
+const PATH_STYLE_HARVEST = { visualizePathStyle: { stroke: '#ffaa00' } };
+
 const roleRepairer = {
     run: function (creep) {
         if (creep.memory.repairing && creep.store[RESOURCE_ENERGY] === 0) {
@@ -30,15 +35,13 @@ const roleRepairer = {
                 }
 
                 if (target && creep.repair(target) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });
+                    creep.moveTo(target, PATH_STYLE_REPAIR);
                 }
             } else {
                 delete creep.memory.repairTargetId;
                 // 修理対象がない場合はアップグレード
                 if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(creep.room.controller, {
-                        visualizePathStyle: { stroke: '#ffffff' },
-                    });
+                    creep.moveTo(creep.room.controller, PATH_STYLE_UPGRADE);
                 }
             }
         } else {
@@ -61,7 +64,7 @@ const roleRepairer = {
 
                 if (target) {
                     if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                        creep.moveTo(target, PATH_STYLE_HARVEST);
                     }
                 }
             }

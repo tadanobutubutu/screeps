@@ -65,6 +65,29 @@ const RANK_BADGE_CONFIG = {
     Master: { icon: '👑', color: '#FFD700' },
 };
 
+// ⚡ PERFORMANCE: Hoisted constant visual styles to reduce per-tick object allocation.
+const STYLE_PARTICLE_DEFAULT = { opacity: 0.8 };
+const STYLE_SUCCESS_RING = { fill: 'transparent', strokeWidth: 0.1 };
+const STYLE_SUCCESS_LINE = { width: 0.15, opacity: 0.8 };
+const STYLE_SUCCESS_STAR = { color: '#FFD700', font: 1.5 };
+const STYLE_LEVEL_UP_RING = { fill: 'transparent', strokeWidth: 0.15, opacity: 0.7 };
+const STYLE_LEVEL_UP_TEXT_1 = { color: '#FFD700', font: 1.2, stroke: '#000000', strokeWidth: 0.1 };
+const STYLE_LEVEL_UP_TEXT_2 = { color: '#00FF00', font: 2, stroke: '#000000', strokeWidth: 0.15 };
+const STYLE_COMBO_TEXT = { stroke: '#000000', strokeWidth: 0.1 };
+const STYLE_ACHIEVEMENT_BG = { fill: '#000000', opacity: 0.8, stroke: '#FFD700', strokeWidth: 0.1 };
+const STYLE_ACHIEVEMENT_TITLE = { color: '#FFD700', font: 0.8, align: 'left' };
+const STYLE_ACHIEVEMENT_SUB = { color: '#FFFFFF', font: 0.5, align: 'left' };
+const STYLE_PROGRESS_BG_OUTER = { fill: '#000000', opacity: 0.5, stroke: 'transparent' };
+const STYLE_PROGRESS_BG_INNER = { fill: '#333333', stroke: '#FFFFFF', strokeWidth: 0.05 };
+const STYLE_PROGRESS_BAR_OPACITY = { opacity: 0.8 };
+const STYLE_PROGRESS_TEXT = { color: '#FFFFFF', font: 0.45, stroke: '#000000', strokeWidth: 0.05 };
+const STYLE_TRAIL_CIRCLE = { radius: 0.2 };
+const STYLE_DAMAGE_TEXT = { stroke: '#000000', strokeWidth: 0.1 };
+const STYLE_STREAK_TEXT = { font: 1.2, stroke: '#000000', strokeWidth: 0.1 };
+const STYLE_SCORE_TEXT = { color: '#FFD700', font: 1, stroke: '#000000', strokeWidth: 0.1 };
+const STYLE_SCORE_LABEL = { color: '#FFFFFF', font: 0.6 };
+const STYLE_RANK_TEXT = { font: 0.7, stroke: '#000000', strokeWidth: 0.05 };
+
 const visualEffects = {
     /**
      * 派手なパーティクルエフェクト
@@ -82,7 +105,7 @@ const visualEffects = {
             visual.circle(x, y, {
                 radius: 0.1 + Math.random() * 0.2,
                 fill: color,
-                opacity: 0.8,
+                ...STYLE_PARTICLE_DEFAULT,
             });
         }
     },
@@ -98,10 +121,9 @@ const visualEffects = {
         for (let ring = 1; ring <= 3; ring++) {
             visual.circle(pos.x, pos.y, {
                 radius: ring * 0.5,
-                fill: 'transparent',
                 stroke: SUCCESS_COLORS[ring % SUCCESS_COLORS.length],
-                strokeWidth: 0.1,
                 opacity: 1 - ring * 0.2,
+                ...STYLE_SUCCESS_RING,
             });
         }
 
@@ -113,16 +135,12 @@ const visualEffects = {
 
             visual.line(pos.x, pos.y, endX, endY, {
                 color: SUCCESS_COLORS[i % SUCCESS_COLORS.length],
-                width: 0.15,
-                opacity: 0.8,
+                ...STYLE_SUCCESS_LINE,
             });
         }
 
         // 中心の星
-        visual.text('⭐', pos.x, pos.y, {
-            color: '#FFD700',
-            font: 1.5,
-        });
+        visual.text('⭐', pos.x, pos.y, STYLE_SUCCESS_STAR);
     },
 
     /**
@@ -136,27 +154,15 @@ const visualEffects = {
         for (let i = 0; i < RAINBOW_COLORS.length; i++) {
             visual.circle(pos.x, pos.y, {
                 radius: 2 + i * 0.2,
-                fill: 'transparent',
                 stroke: RAINBOW_COLORS[i],
-                strokeWidth: 0.15,
-                opacity: 0.7,
+                ...STYLE_LEVEL_UP_RING,
             });
         }
 
         // LEVEL UP!
-        visual.text('LEVEL UP!', pos.x, pos.y - 1.5, {
-            color: '#FFD700',
-            font: 1.2,
-            stroke: '#000000',
-            strokeWidth: 0.1,
-        });
+        visual.text('LEVEL UP!', pos.x, pos.y - 1.5, STYLE_LEVEL_UP_TEXT_1);
 
-        visual.text(`Lv.${level}`, pos.x, pos.y + 1.5, {
-            color: '#00FF00',
-            font: 2,
-            stroke: '#000000',
-            strokeWidth: 0.15,
-        });
+        visual.text(`Lv.${level}`, pos.x, pos.y + 1.5, STYLE_LEVEL_UP_TEXT_2);
     },
 
     /**
@@ -178,8 +184,7 @@ const visualEffects = {
         visual.text(`${count}x COMBO!`, pos.x, pos.y, {
             color: color,
             font: 1 + count * 0.05,
-            stroke: '#000000',
-            strokeWidth: 0.1,
+            ...STYLE_COMBO_TEXT,
         });
 
         // 炎エフェクト
@@ -197,30 +202,15 @@ const visualEffects = {
         const visual = getVisual(pos.roomName);
 
         // 背景ボックス
-        visual.rect(pos.x - 3, pos.y - 1, 6, 2, {
-            fill: '#000000',
-            opacity: 0.8,
-            stroke: '#FFD700',
-            strokeWidth: 0.1,
-        });
+        visual.rect(pos.x - 3, pos.y - 1, 6, 2, STYLE_ACHIEVEMENT_BG);
 
         // アイコン
-        visual.text(icon, pos.x - 2, pos.y, {
-            font: 1.5,
-        });
+        visual.text(icon, pos.x - 2, pos.y, STYLE_SUCCESS_STAR);
 
         // タイトル
-        visual.text(title, pos.x + 0.5, pos.y - 0.3, {
-            color: '#FFD700',
-            font: 0.8,
-            align: 'left',
-        });
+        visual.text(title, pos.x + 0.5, pos.y - 0.3, STYLE_ACHIEVEMENT_TITLE);
 
-        visual.text('Achievement Unlocked!', pos.x + 0.5, pos.y + 0.5, {
-            color: '#FFFFFF',
-            font: 0.5,
-            align: 'left',
-        });
+        visual.text('Achievement Unlocked!', pos.x + 0.5, pos.y + 0.5, STYLE_ACHIEVEMENT_SUB);
     },
 
     /**
@@ -235,18 +225,16 @@ const visualEffects = {
         const percent = Math.floor(progress * 100);
 
         // 全体の背景（視認性向上）
-        visual.rect(pos.x - width / 2 - 0.1, pos.y - 1.0, width + 0.2, 1.4, {
-            fill: '#000000',
-            opacity: 0.5,
-            stroke: 'transparent',
-        });
+        visual.rect(
+            pos.x - width / 2 - 0.1,
+            pos.y - 1.0,
+            width + 0.2,
+            1.4,
+            STYLE_PROGRESS_BG_OUTER
+        );
 
         // 背景
-        visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, {
-            fill: '#333333',
-            stroke: '#FFFFFF',
-            strokeWidth: 0.05,
-        });
+        visual.rect(pos.x - width / 2, pos.y - height / 2, width, height, STYLE_PROGRESS_BG_INNER);
 
         // プログレス
         let color;
@@ -262,16 +250,11 @@ const visualEffects = {
 
         visual.rect(pos.x - width / 2, pos.y - height / 2, width * progress, height, {
             fill: color,
-            opacity: 0.8,
+            ...STYLE_PROGRESS_BAR_OPACITY,
         });
 
         // テキスト
-        visual.text(`${label} ${percent}%`, pos.x, pos.y - 0.65, {
-            color: '#FFFFFF',
-            font: 0.45,
-            stroke: '#000000',
-            strokeWidth: 0.05,
-        });
+        visual.text(`${label} ${percent}%`, pos.x, pos.y - 0.65, STYLE_PROGRESS_TEXT);
     },
 
     /**
@@ -314,9 +297,9 @@ const visualEffects = {
         for (let i = 0; i < positions.length; i++) {
             const trailPos = positions[i];
             visual.circle(trailPos.x, trailPos.y, {
-                radius: 0.2,
                 fill: RAINBOW_COLORS[i % RAINBOW_COLORS.length],
                 opacity: 0.3 + i * 0.07,
+                ...STYLE_TRAIL_CIRCLE,
             });
         }
     },
@@ -335,8 +318,7 @@ const visualEffects = {
         visual.text(text, pos.x, pos.y - 1, {
             color: color,
             font: size,
-            stroke: '#000000',
-            strokeWidth: 0.1,
+            ...STYLE_DAMAGE_TEXT,
         });
 
         if (isCritical) {
@@ -393,9 +375,7 @@ const visualEffects = {
 
         visual.text(`🔥 ${days} DAY STREAK! 🔥`, pos.x, pos.y, {
             color: days >= 7 ? '#FF0000' : days >= 3 ? '#FF69B4' : '#FFD700',
-            font: 1.2,
-            stroke: '#000000',
-            strokeWidth: 0.1,
+            ...STYLE_STREAK_TEXT,
         });
     },
 
@@ -406,17 +386,9 @@ const visualEffects = {
         if (!isVfxEnabled()) return;
         const visual = getVisual(pos.roomName);
 
-        visual.text(`+${points}`, pos.x, pos.y - 0.5, {
-            color: '#FFD700',
-            font: 1,
-            stroke: '#000000',
-            strokeWidth: 0.1,
-        });
+        visual.text(`+${points}`, pos.x, pos.y - 0.5, STYLE_SCORE_TEXT);
 
-        visual.text(label, pos.x, pos.y + 0.5, {
-            color: '#FFFFFF',
-            font: 0.6,
-        });
+        visual.text(label, pos.x, pos.y + 0.5, STYLE_SCORE_LABEL);
     },
 
     /**
@@ -434,9 +406,7 @@ const visualEffects = {
 
         visual.text(rank, pos.x, pos.y + 1, {
             color: badge.color,
-            font: 0.7,
-            stroke: '#000000',
-            strokeWidth: 0.05,
+            ...STYLE_RANK_TEXT,
         });
     },
 

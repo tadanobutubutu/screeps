@@ -43,6 +43,14 @@ const adaptiveSystem = require('system.adaptive');
 const dashboard = require('utils.dashboard');
 const TaskQueue = require('utils.tasks');
 
+// ⚡ PERFORMANCE OPTIMIZATION: Hoisted constant styles to reduce per-tick object allocation.
+const STYLE_SPAWN_TEXT = {
+    align: 'left',
+    opacity: 0.8,
+    stroke: '#000000',
+    strokeWidth: 0.05,
+};
+
 // ⚡ PERFORMANCE OPTIMIZATION: Hoisted configurations and logic functions
 // Moving these outside the loop prevents redundant object allocation and function re-definition every tick.
 const TARGET_CREEPS_NORMAL = {
@@ -368,12 +376,7 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
     if (spawn.spawning) {
         const spawningCreep = Game.creeps[spawn.spawning.name];
         const role = spawningCreep.memory.role;
-        spawn.room.visual.text('🛠️' + role, spawn.pos.x + 1, spawn.pos.y, {
-            align: 'left',
-            opacity: 0.8,
-            stroke: '#000000',
-            strokeWidth: 0.05,
-        });
+        spawn.room.visual.text('🛠️' + role, spawn.pos.x + 1, spawn.pos.y, STYLE_SPAWN_TEXT);
 
         const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
         if (isVisualEffectsEnabled) {
@@ -606,10 +609,9 @@ function handleSocialInteractions(rooms) {
                     continue;
                 }
 
-                const pairKey =
-                    creep.id < neighbor.id
-                        ? `${creep.id}:${neighbor.id}`
-                        : `${neighbor.id}:${creep.id}`;
+                const id1 = creep.id;
+                const id2 = neighbor.id;
+                const pairKey = id1 < id2 ? id1 + ':' + id2 : id2 + ':' + id1;
 
                 if (!processedPairs.has(pairKey)) {
                     processedPairs.add(pairKey);

@@ -1,3 +1,7 @@
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_DELIVER = { visualizePathStyle: { stroke: '#00ffff' } };
+const PATH_STYLE_WITHDRAW = { visualizePathStyle: { stroke: '#ffff00' } };
+
 const roleTransporter = {
     run: function (creep) {
         creep.say('🚚');
@@ -29,7 +33,7 @@ const roleTransporter = {
 
                 if (target) {
                     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#00ffff' } });
+                        creep.moveTo(target, PATH_STYLE_DELIVER);
                     }
                 }
             } else {
@@ -55,7 +59,7 @@ const roleTransporter = {
 
                 if (target) {
                     if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffff00' } });
+                        creep.moveTo(target, PATH_STYLE_WITHDRAW);
                     }
                 }
             } else {

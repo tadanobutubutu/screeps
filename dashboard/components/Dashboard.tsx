@@ -45,7 +45,12 @@ export default function Dashboard() {
     const prevGclPercent = prevStats?.gcl
         ? Math.min(100, (prevStats.gcl.progress / prevStats.gcl.progressTotal) * 100)
         : 0;
-    const gclDelta = stats?.gcl && prevStats?.gcl ? gclPercent - prevGclPercent : 0;
+    const leveledUp = stats?.gcl && prevStats?.gcl && stats.gcl.level > prevStats.gcl.level;
+    const gclDelta = leveledUp
+        ? 100 - prevGclPercent + gclPercent
+        : stats?.gcl && prevStats?.gcl
+          ? gclPercent - prevGclPercent
+          : 0;
     const powerDelta =
         stats?.power !== undefined && prevStats?.power !== undefined
             ? stats.power - prevStats.power
@@ -134,11 +139,12 @@ export default function Dashboard() {
             setLoading(false);
             setIsRefreshing(false);
         }
-    }, []);
+    }, [stats]);
 
     useEffect(() => {
         fetchStats();
-    }, [fetchStats]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     useEffect(() => {
         if (!lastUpdated) return;
@@ -256,7 +262,11 @@ export default function Dashboard() {
                         title="Screeps"
                         style={{
                             display: 'inline-block',
-                            animation: updated ? 'bounce 0.6s ease' : 'none',
+                            animation: isRefreshing
+                                ? 'spin 1s linear infinite'
+                                : updated
+                                  ? 'bounce 0.6s ease'
+                                  : 'none',
                         }}
                     >
                         🐛
@@ -727,6 +737,19 @@ export default function Dashboard() {
                                 </span>{' '}
                                 GCL: {stats.gcl.level}
                             </strong>
+                            {leveledUp && (
+                                <span
+                                    style={{
+                                        color: '#FFD700',
+                                        fontWeight: 'bold',
+                                        marginLeft: '0.5rem',
+                                        animation: 'bounce 0.6s ease',
+                                        display: 'inline-block',
+                                    }}
+                                >
+                                    LEVEL UP! 🎉
+                                </span>
+                            )}
                             {stats.power !== undefined && (
                                 <span
                                     tabIndex={0}
@@ -837,6 +860,7 @@ export default function Dashboard() {
                                         color: '#1e7e34',
                                         fontWeight: 'bold',
                                     }}
+                                    title="Progress gained since last update"
                                     aria-label={`Increased by ${gclDelta.toFixed(2)}%`}
                                 >
                                     (+{gclDelta.toFixed(2)}%)

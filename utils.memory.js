@@ -160,7 +160,14 @@ module.exports = {
         for (const key in Memory.cache) {
             // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
             if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(Memory.cache, key)) {
-                if (Game.time - Memory.cache[key].timestamp > maxAge) {
+                const entry = Memory.cache[key];
+                // Security: Add null check and ensure timestamp is a valid number to prevent DoS via state corruption.
+                if (entry && typeof entry.timestamp === 'number') {
+                    if (Game.time - entry.timestamp > maxAge) {
+                        delete Memory.cache[key];
+                    }
+                } else {
+                    // Security: If the entry is corrupted, delete it to restore consistency.
                     delete Memory.cache[key];
                 }
             }

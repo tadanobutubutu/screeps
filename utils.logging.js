@@ -181,14 +181,17 @@ module.exports = {
         };
 
         Memory.logs.forEach((log) => {
-            if (log.level === 'error') {
-                stats.errors++;
-            } else if (log.level === 'warn') {
-                stats.warnings++;
-            } else if (log.level === 'info') {
-                stats.info++;
-            } else if (log.level === 'debug') {
-                stats.debug++;
+            // Security: Add null check and validate level to prevent DoS via state corruption.
+            if (log && typeof log.level === 'string') {
+                if (log.level === 'error') {
+                    stats.errors++;
+                } else if (log.level === 'warn') {
+                    stats.warnings++;
+                } else if (log.level === 'info') {
+                    stats.info++;
+                } else if (log.level === 'debug') {
+                    stats.debug++;
+                }
             }
         });
 

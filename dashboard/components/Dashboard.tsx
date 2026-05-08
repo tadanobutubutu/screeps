@@ -18,18 +18,9 @@ export default function Dashboard() {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [copied, setCopied] = useState(false);
     const [updated, setUpdated] = useState(false);
-    const [isJsonFocused, setIsJsonFocused] = useState(false);
-    // フォーカス状態を管理するステートを追加
-    const [isRoomsFocused, setIsRoomsFocused] = useState(false);
-    const [isSyncFocused, setIsSyncFocused] = useState(false);
-    const [isBarFocused, setIsBarFocused] = useState(false);
     const [isRefreshFocused, setIsRefreshFocused] = useState(false);
     const [isRetryFocused, setIsRetryFocused] = useState(false);
     const [isResetFocused, setIsResetFocused] = useState(false);
-    // 追加のフォーカス状態管理
-    const [isGclFocused, setIsGclFocused] = useState(false);
-    const [isPowerFocused, setIsPowerFocused] = useState(false);
-    const [isCpuFocused, setIsCpuFocused] = useState(false);
     const [isCopyFocused, setIsCopyFocused] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
     const [isResetConfirming, setIsResetConfirming] = useState(false);
@@ -284,26 +275,17 @@ export default function Dashboard() {
                 >
                     {stats?.rooms && (
                         <span
+                            className="interactive-hint"
                             style={{
                                 fontSize: '0.9rem',
                                 color: '#575757',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.25rem',
-                                cursor: 'help',
-                                borderBottom: '1px dotted #888',
-                                borderRadius: '2px',
-                                padding: '0 2px',
-                                // キーボードナビゲーション用のフォーカスリングを追加
-                                boxShadow: isRoomsFocused ? '0 0 0 2px #0077aa' : 'none',
-                                outline: 'none',
-                                transition: 'box-shadow 0.2s',
                             }}
                             aria-label={`Rooms: ${roomCount}. Locations: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
                             title={`Rooms: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
                             tabIndex={0}
-                            onFocus={() => setIsRoomsFocused(true)}
-                            onBlur={() => setIsRoomsFocused(false)}
                         >
                             <span role="img" aria-label={roomCount === 1 ? 'Room' : 'Rooms'}>
                                 {roomCount === 1 ? '🏠' : '🏘️'}
@@ -331,17 +313,10 @@ export default function Dashboard() {
                     )}
                     {lastUpdated && (
                         <span
+                            className="interactive-hint"
                             style={{
                                 fontSize: '0.8rem',
                                 color: getStalenessInfo().color,
-                                cursor: 'help',
-                                borderBottom: '1px dotted #888',
-                                borderRadius: '2px',
-                                padding: '0 2px',
-                                // キーボードナビゲーション用のフォーカスリングを追加
-                                boxShadow: isSyncFocused ? '0 0 0 2px #0077aa' : 'none',
-                                outline: 'none',
-                                transition: 'all 0.3s',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.25rem',
@@ -349,8 +324,6 @@ export default function Dashboard() {
                             aria-label={`Last sync: ${timeAgo} (${getStalenessInfo().label}). Exact time: ${lastUpdated.toLocaleString()}`}
                             title={lastUpdated.toLocaleString()}
                             tabIndex={0}
-                            onFocus={() => setIsSyncFocused(true)}
-                            onBlur={() => setIsSyncFocused(false)}
                         >
                             <span
                                 role="img"
@@ -718,19 +691,9 @@ export default function Dashboard() {
                             }}
                         >
                             <strong
+                                className="interactive-hint"
                                 tabIndex={0}
-                                onFocus={() => setIsGclFocused(true)}
-                                onBlur={() => setIsGclFocused(false)}
                                 title="Global Control Level"
-                                style={{
-                                    cursor: 'help',
-                                    borderBottom: '1px dotted #888',
-                                    borderRadius: '2px',
-                                    padding: '0 2px',
-                                    outline: 'none',
-                                    boxShadow: isGclFocused ? '0 0 0 2px #0077aa' : 'none',
-                                    transition: 'box-shadow 0.2s',
-                                }}
                             >
                                 <span role="img" aria-label="Global Control Level">
                                     🌐
@@ -752,20 +715,12 @@ export default function Dashboard() {
                             )}
                             {stats.power !== undefined && (
                                 <span
+                                    className="interactive-hint"
                                     tabIndex={0}
-                                    onFocus={() => setIsPowerFocused(true)}
-                                    onBlur={() => setIsPowerFocused(false)}
                                     title="Power"
                                     style={{
                                         fontSize: '0.9rem',
                                         color: '#575757',
-                                        cursor: 'help',
-                                        borderBottom: '1px dotted #888',
-                                        borderRadius: '2px',
-                                        padding: '0 2px',
-                                        outline: 'none',
-                                        boxShadow: isPowerFocused ? '0 0 0 2px #0077aa' : 'none',
-                                        transition: 'box-shadow 0.2s',
                                     }}
                                 >
                                     <span role="img" aria-label="Power">
@@ -789,20 +744,12 @@ export default function Dashboard() {
                             )}
                             {stats.cpuUsed !== undefined && (
                                 <span
+                                    className="interactive-hint"
                                     tabIndex={0}
-                                    onFocus={() => setIsCpuFocused(true)}
-                                    onBlur={() => setIsCpuFocused(false)}
                                     title="CPU Used"
                                     style={{
                                         fontSize: '0.9rem',
                                         color: '#575757',
-                                        cursor: 'help',
-                                        borderBottom: '1px dotted #888',
-                                        borderRadius: '2px',
-                                        padding: '0 2px',
-                                        outline: 'none',
-                                        boxShadow: isCpuFocused ? '0 0 0 2px #0077aa' : 'none',
-                                        transition: 'box-shadow 0.2s',
                                     }}
                                 >
                                     <span role="img" aria-label="CPU Used">
@@ -870,6 +817,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
+                        className="interactive-hint"
                         tabIndex={0}
                         aria-label="Global Control Level progress"
                         aria-describedby="gcl-percent"
@@ -878,8 +826,6 @@ export default function Dashboard() {
                         aria-valuemax={100}
                         aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
                         title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
-                        onFocus={() => setIsBarFocused(true)}
-                        onBlur={() => setIsBarFocused(false)}
                         style={{
                             width: '100%',
                             height: '12px',
@@ -891,10 +837,7 @@ export default function Dashboard() {
                             overflow: 'hidden',
                             position: 'relative',
                             marginBottom: '0.5rem',
-                            cursor: 'help',
-                            boxShadow: isBarFocused ? '0 0 0 2px #0077aa' : 'none',
-                            outline: 'none',
-                            transition: 'box-shadow 0.2s',
+                            borderBottom: 'none',
                         }}
                     >
                         {prevStats?.gcl &&
@@ -943,11 +886,10 @@ export default function Dashboard() {
                             position: 'relative',
                             // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
                             border: updated ? '1px solid #1e7e34' : 'none',
-                            boxShadow: isJsonFocused
-                                ? '0 0 0 2px #0077aa'
-                                : updated || copied
-                                  ? '0 0 0 2px #1e7e34'
-                                  : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                            boxShadow:
+                                updated || copied
+                                    ? '0 0 0 2px #1e7e34'
+                                    : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                             transition: 'all 0.2s ease-in-out',
                             borderRadius: '4px',
                         }}
@@ -984,10 +926,9 @@ export default function Dashboard() {
                         </button>
                         <pre
                             aria-label="Screeps statistics JSON. Press 'C' to copy."
+                            className="interactive-hint"
                             title="Screeps statistics JSON (C to copy)"
                             tabIndex={0}
-                            onFocus={() => setIsJsonFocused(true)}
-                            onBlur={() => setIsJsonFocused(false)}
                             style={{
                                 background: '#f8f8f8',
                                 padding: '1rem',
@@ -996,7 +937,6 @@ export default function Dashboard() {
                                 maxHeight: '500px',
                                 margin: 0,
                                 border: '1px solid #eee',
-                                outline: 'none',
                             }}
                         >
                             {JSON.stringify(stats, null, 2)}
@@ -1155,10 +1095,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                     Hover/Focus items with{' '}
-                    <span style={{ cursor: 'help', borderBottom: '1px dotted #888' }}>
-                        dotted underline
-                    </span>{' '}
-                    for details.
+                    <span className="interactive-hint">dotted underline</span> for details.
                 </div>
             </footer>
         </main>

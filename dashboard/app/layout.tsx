@@ -38,6 +38,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           kbd:hover {
             filter: brightness(0.9);
           }
+          .interactive-hint {
+            cursor: help;
+            border-bottom: 1px dotted #888;
+            border-radius: 2px;
+            padding: 0 2px;
+            transition: all 0.2s ease-in-out;
+            outline: none;
+          }
+          .interactive-hint:hover, .interactive-hint:focus-visible {
+            background-color: rgba(0, 119, 170, 0.1);
+            border-bottom: 1px solid #0077aa;
+            box-shadow: 0 0 0 2px rgba(0, 119, 170, 0.2);
+          }
         `}</style>
             </head>
             <body>{children}</body>

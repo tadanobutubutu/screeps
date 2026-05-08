@@ -132,3 +132,8 @@
 **Vulnerability:** Persistent Denial of Service (DoS) and log-driven Memory DoS via buggy or failing periodic tasks.
 **Learning:** Periodic tasks that throw exceptions can cause a script to exhaust its CPU limit every tick or flood the `Memory.logs` structure with repeated error messages, eventually exceeding the 2MB environment limit and crashing the AI. Simply catching errors is insufficient if the failing code continues to execute indefinitely.
 **Prevention:** Implement a "Circuit Breaker" pattern for task runners. Track failure counts for each task and automatically disable execution if a threshold (e.g., 5 failures) is reached. Reset the circuit only when the task is explicitly re-registered or updated.
+
+## 2026-05-08 - Robust Initialization for Core Systems
+**Vulnerability:** Denial of Service (DoS) via script crashes from uninitialized or partially initialized persistent memory state.
+**Learning:** Checking for the existence of a root object (`if (!Memory.stats)`) is insufficient if that object can be pre-initialized as an empty object (`{}`) by external systems, manual resets, or buggy code. Subsequent property access (e.g., `.push()`) or arithmetic on missing properties results in fatal TypeErrors or `NaN` propagation, hanging or crashing the AI.
+**Prevention:** Implement a robust initialization pattern that always iterates over a set of defaults and populates missing properties (using a non-destructive merging loop), even if the root object already exists. This ensures the system always has a valid, consistent state regardless of how the root object was created.

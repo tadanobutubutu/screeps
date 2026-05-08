@@ -20,23 +20,38 @@ const autoEvolution = {
      */
     init: function () {
         if (!Memory.evolution) {
-            Memory.evolution = {
-                history: [],
-                queue: [],
-                lastRCL: 0,
-                lastCheck: 0,
-                lastFullAnalysis: 0,
-                suggestions: [],
-                stats: {
-                    totalEvolutions: 0,
-                    successRate: 1.0,
-                },
-                cache: {
-                    gameState: null,
-                    cacheTime: 0,
-                },
-                analysisPhase: 0,
-            };
+            Memory.evolution = {};
+        }
+
+        const defaults = {
+            history: [],
+            queue: [],
+            lastRCL: 0,
+            lastCheck: 0,
+            lastFullAnalysis: 0,
+            suggestions: [],
+            stats: {
+                totalEvolutions: 0,
+                successRate: 1.0,
+            },
+            cache: {
+                gameState: null,
+                cacheTime: 0,
+            },
+            analysisPhase: 0,
+        };
+
+        for (const key in defaults) {
+            if (Memory.evolution[key] === undefined) {
+                // For arrays and objects, we must create new copies to avoid shared references
+                if (Array.isArray(defaults[key])) {
+                    Memory.evolution[key] = [...defaults[key]];
+                } else if (typeof defaults[key] === 'object' && defaults[key] !== null) {
+                    Memory.evolution[key] = { ...defaults[key] };
+                } else {
+                    Memory.evolution[key] = defaults[key];
+                }
+            }
         }
     },
 

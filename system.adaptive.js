@@ -80,20 +80,35 @@ const adaptiveSystem = {
      */
     init: function () {
         if (!Memory.adaptive) {
-            Memory.adaptive = {
-                currentMode: this.MODE.NORMAL,
-                lastCheck: 0,
-                modeHistory: [],
-                stats: {
-                    emergencyCount: 0,
-                    minimalCount: 0,
-                    normalCount: 0,
-                    fullCount: 0,
-                },
-            };
+            Memory.adaptive = {};
             // ⚡ PERFORMANCE: Reset cache when Memory is re-initialized (important for tests)
             _currentConfig = null;
             _configTick = -1;
+        }
+
+        const defaults = {
+            currentMode: this.MODE.NORMAL,
+            lastCheck: 0,
+            modeHistory: [],
+            stats: {
+                emergencyCount: 0,
+                minimalCount: 0,
+                normalCount: 0,
+                fullCount: 0,
+            },
+        };
+
+        for (const key in defaults) {
+            if (Memory.adaptive[key] === undefined) {
+                // For arrays and objects, we must create new copies to avoid shared references
+                if (Array.isArray(defaults[key])) {
+                    Memory.adaptive[key] = [...defaults[key]];
+                } else if (typeof defaults[key] === 'object' && defaults[key] !== null) {
+                    Memory.adaptive[key] = { ...defaults[key] };
+                } else {
+                    Memory.adaptive[key] = defaults[key];
+                }
+            }
         }
     },
 

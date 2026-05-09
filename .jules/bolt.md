@@ -103,6 +103,11 @@
 **Learning:** Adding cache population logic (the "producer") to a global loop without refactoring downstream logic (the "consumers") to use it creates a performance regression. The extra comparisons and array operations add per-tick CPU cost without any offsetting savings.
 **Action:** When implementing per-tick caching, always ensure all relevant consumers are updated to use the new cache in the same change set to ensure a net performance gain.
 
+## 2027-01-26 - Target ID Caching and Hostile Hoisting in Combat Roles
+
+**Learning:** High-frequency combat roles like Attackers often perform redundant O(N) searches for hostile creeps and structures every tick. Implementing ID-based caching in `creep.memory` and leveraging pre-warmed room caches (like `room._hostileCreeps`) significantly reduces per-tick CPU overhead. Additionally, hoisting constant path styles and structure filter functions to the module scope eliminates thousands of redundant object and closure allocations across numerous creeps.
+**Action:** Always implement ID caching for target-heavy combat roles and utilize pre-warmed room caches from the global pass to maximize CPU efficiency.
+
 ## 2026-06-09 - Unified Structure Caching and Logistics Warming
 
 **Learning:** While specialized Screeps `FIND` constants (like `FIND_MY_STRUCTURES`) are engine-optimized, calling multiple related `FIND` constants (e.g., `FIND_STRUCTURES` and `FIND_MY_STRUCTURES`) in the same tick is often slower than a single `FIND_STRUCTURES` call followed by JS-side filtering. Furthermore, pre-calculating state-specific logistics caches (e.g., `fillableContainers`) in the main loop eliminates redundant $O(N \cdot M)$ filtering overhead across all active creeps.

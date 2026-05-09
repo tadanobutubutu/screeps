@@ -48,6 +48,8 @@ export async function GET(request: Request) {
         "X-Token": token,
         "X-Username": username,
       },
+      // Security: Set a 10-second timeout to prevent resource exhaustion from external API hangs
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!res.ok) {

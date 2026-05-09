@@ -48,6 +48,8 @@ export async function GET(request: Request) {
         "X-Username": USERNAME,
       },
       next: { revalidate: 60 }, // 60秒キャッシュ
+      // Security: Set a 10-second timeout to prevent resource exhaustion from external API hangs
+      signal: AbortSignal.timeout(10000),
     });
 
     if (!res.ok) {

@@ -23,9 +23,11 @@ describe('role.attacker', () => {
 
     beforeEach(() => {
         global.Game.flags = {};
+        global.Game.getObjectById = jest.fn();
         mockCreep = {
             hits: 100,
             hitsMax: 100,
+            memory: {},
             attack: jest.fn().mockReturnValue(global.OK),
             moveTo: jest.fn().mockReturnValue(global.OK),
             pos: {
@@ -33,6 +35,7 @@ describe('role.attacker', () => {
             },
             room: {
                 controller: { id: 'controller1' },
+                find: jest.fn().mockReturnValue([]),
             },
         };
     });
@@ -61,9 +64,11 @@ describe('role.attacker', () => {
     });
 
     test('Priority 1: Attack hostile creeps in range', () => {
-        const hostileCreep = { id: 'enemy' };
+        const hostileCreep = { id: 'enemy', room: { name: 'W1N1' } };
+        mockCreep.room.name = 'W1N1';
+        mockCreep.room.find.mockReturnValue([hostileCreep]);
         mockCreep.pos.findClosestByRange.mockImplementation((type) => {
-            if (type === global.FIND_HOSTILE_CREEPS) return hostileCreep;
+            if (type === global.FIND_HOSTILE_CREEPS || Array.isArray(type)) return hostileCreep;
             return null;
         });
 
@@ -74,10 +79,12 @@ describe('role.attacker', () => {
     });
 
     test('Priority 1: Move to hostile creeps out of range', () => {
-        const hostileCreep = { id: 'enemy' };
+        const hostileCreep = { id: 'enemy', room: { name: 'W1N1' } };
+        mockCreep.room.name = 'W1N1';
+        mockCreep.room.find.mockReturnValue([hostileCreep]);
         mockCreep.attack.mockReturnValue(global.ERR_NOT_IN_RANGE);
         mockCreep.pos.findClosestByRange.mockImplementation((type) => {
-            if (type === global.FIND_HOSTILE_CREEPS) return hostileCreep;
+            if (type === global.FIND_HOSTILE_CREEPS || Array.isArray(type)) return hostileCreep;
             return null;
         });
 

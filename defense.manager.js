@@ -1,6 +1,10 @@
 // 🛡️ Advanced Defense Manager
 // 自動防衛システム - タワー制御と緊急防衛creep生成
 
+// ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
+const PATH_STYLE_DEFENSE = { visualizePathStyle: { stroke: '#ff0000' } };
+const PATH_STYLE_PATROL = { visualizePathStyle: { stroke: '#00ff00' } };
+
 const defenseManager = {
     // メイン防衛ループ
     run: function (room) {
@@ -177,9 +181,7 @@ const defenseManager = {
         if (hostile) {
             // 敵を発見
             if (creep.pos.getRangeTo(hostile) > 1) {
-                creep.moveTo(hostile, {
-                    visualizePathStyle: { stroke: '#ff0000' },
-                });
+                creep.moveTo(hostile, PATH_STYLE_DEFENSE);
             }
 
             // 攻撃
@@ -204,9 +206,7 @@ const defenseManager = {
             }
 
             if (creep.pos.getRangeTo(creep.memory.patrolTarget) > 3) {
-                creep.moveTo(creep.memory.patrolTarget, {
-                    visualizePathStyle: { stroke: '#00ff00' },
-                });
+                creep.moveTo(creep.memory.patrolTarget, PATH_STYLE_PATROL);
             }
         }
     },

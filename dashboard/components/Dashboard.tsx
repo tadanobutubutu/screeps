@@ -195,6 +195,7 @@ export default function Dashboard() {
     useEffect(() => {
         let title = 'Screeps Dashboard';
         let emoji = '🐛';
+        const staleness = getStalenessInfo();
 
         if (loading) {
             title = '⏳ Loading...';
@@ -208,6 +209,9 @@ export default function Dashboard() {
         } else if (updated) {
             title = '✅ Updated';
             emoji = '✅';
+        } else if (staleness.icon === '🚨' || staleness.icon === '⚠️') {
+            title = `${staleness.icon} ${staleness.label}`;
+            emoji = staleness.icon;
         } else if (stats?.gcl) {
             const percent = Math.min(
                 100,
@@ -227,7 +231,7 @@ export default function Dashboard() {
         if (link) {
             link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`;
         }
-    }, [loading, isRefreshing, updated, stats, timeAgo, error]);
+    }, [loading, isRefreshing, updated, stats, timeAgo, error, getStalenessInfo]);
 
     return (
         <main
@@ -708,6 +712,9 @@ export default function Dashboard() {
                                         marginLeft: '0.5rem',
                                         animation: 'bounce 0.6s ease',
                                         display: 'inline-block',
+                                        backgroundColor: '#333333',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px',
                                     }}
                                 >
                                     LEVEL UP! 🎉

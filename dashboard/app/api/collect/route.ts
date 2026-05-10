@@ -61,11 +61,20 @@ export async function GET(request: Request) {
 
     const data = await res.json();
 
+    // Security: Validate API response structure to prevent runtime errors from malformed data
+    if (!data || typeof data !== "object" || !data.gcl) {
+      console.error("Malformed Screeps API response: missing data or gcl object");
+      return NextResponse.json(
+        { error: "Malformed response from Screeps API" },
+        { status: 502 }
+      );
+    }
+
     if (supabase) {
       const { error } = await supabase.from("screeps_stats").insert({
-        gcl_level: data.gcl.level,
-        gcl_progress: data.gcl.progress,
-        gcl_progress_total: data.gcl.progressTotal,
+        gcl_level: data.gcl?.level,
+        gcl_progress: data.gcl?.progress,
+        gcl_progress_total: data.gcl?.progressTotal,
         power: data.power,
         cpu_used: data.cpuUsed,
         rooms: data.rooms,
@@ -83,6 +92,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ success: true, data });
   } catch (err) {
+    // Security: Log the actual error for internal debugging while returning a generic message to the client
+    console.error("Screeps API collection error:", err);
     return NextResponse.json(
       { error: "Failed to fetch from Screeps API" },
       { status: 500 }

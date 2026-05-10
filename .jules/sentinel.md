@@ -137,3 +137,8 @@
 **Vulnerability:** Denial of Service (DoS) via script crashes from uninitialized or partially initialized persistent memory state.
 **Learning:** Checking for the existence of a root object (`if (!Memory.stats)`) is insufficient if that object can be pre-initialized as an empty object (`{}`) by external systems, manual resets, or buggy code. Subsequent property access (e.g., `.push()`) or arithmetic on missing properties results in fatal TypeErrors or `NaN` propagation, hanging or crashing the AI.
 **Prevention:** Implement a robust initialization pattern that always iterates over a set of defaults and populates missing properties (using a non-destructive merging loop), even if the root object already exists. This ensures the system always has a valid, consistent state regardless of how the root object was created.
+
+## 2026-05-15 - Hardening Third-Party API Responses
+**Vulnerability:** Denial of Service (DoS) via runtime crash (TypeError) from malformed third-party API responses.
+**Learning:** Dashboard API routes (e.g., `dashboard/app/api/collect/route.ts`) that proxy or collect data from external services often assume the response structure is guaranteed. If the upstream service returns an unexpected format or missing nested objects (like `data.gcl`), accessing those properties directly causes a fatal TypeError that crashes the route for that request.
+**Prevention:** Always strictly validate the existence and type of the response data and its nested objects before property access. Use optional chaining (`?.`) as a secondary defense layer. Log detailed error information internally for debugging while returning generic, safe error messages to the client to prevent internal structure leakage.

@@ -86,51 +86,54 @@ export default function Dashboard() {
         setTimeout(() => setResetSuccess(false), 2000);
     }, [isResetConfirming]);
 
-    const fetchStats = useCallback(async (isManual = false) => {
-        if (isManual) setIsRefreshing(true);
-        else setLoading(true);
+    const fetchStats = useCallback(
+        async (isManual = false) => {
+            if (isManual) setIsRefreshing(true);
+            else setLoading(true);
 
-        try {
-            // Security: sessionStorageからトークンを取得し、認証ヘッダーに含める
-            let token = sessionStorage.getItem('dashboard_token');
-            if (!token) {
-                token = window.prompt('Enter Dashboard Secret:');
-                if (token) {
-                    sessionStorage.setItem('dashboard_token', token);
-                } else {
-                    // 🔑 Security: プロンプトがキャンセルされた場合は、APIリクエストを中断する
-                    throw new Error('Authentication required: Secret not provided');
+            try {
+                // Security: sessionStorageからトークンを取得し、認証ヘッダーに含める
+                let token = sessionStorage.getItem('dashboard_token');
+                if (!token) {
+                    token = window.prompt('Enter Dashboard Secret:');
+                    if (token) {
+                        sessionStorage.setItem('dashboard_token', token);
+                    } else {
+                        // 🔑 Security: プロンプトがキャンセルされた場合は、APIリクエストを中断する
+                        throw new Error('Authentication required: Secret not provided');
+                    }
                 }
-            }
 
-            const r = await fetch('/api/screeps?endpoint=overview', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+                const r = await fetch('/api/screeps?endpoint=overview', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
 
-            if (r.status === 401) {
-                sessionStorage.removeItem('dashboard_token');
-                throw new Error('Unauthorized: Invalid dashboard secret');
-            }
+                if (r.status === 401) {
+                    sessionStorage.removeItem('dashboard_token');
+                    throw new Error('Unauthorized: Invalid dashboard secret');
+                }
 
-            if (!r.ok) throw new Error(`API error: ${r.status}`);
-            const data = await r.json();
-            setPrevStats(stats);
-            setStats(data);
-            setLastUpdated(new Date());
-            setError(null);
-            if (isManual) {
-                setUpdated(true);
-                setTimeout(() => setUpdated(false), 2000);
+                if (!r.ok) throw new Error(`API error: ${r.status}`);
+                const data = await r.json();
+                setPrevStats(stats);
+                setStats(data);
+                setLastUpdated(new Date());
+                setError(null);
+                if (isManual) {
+                    setUpdated(true);
+                    setTimeout(() => setUpdated(false), 2000);
+                }
+            } catch (e) {
+                setError(String(e));
+            } finally {
+                setLoading(false);
+                setIsRefreshing(false);
             }
-        } catch (e) {
-            setError(String(e));
-        } finally {
-            setLoading(false);
-            setIsRefreshing(false);
-        }
-    }, [stats]);
+        },
+        [stats]
+    );
 
     useEffect(() => {
         fetchStats();
@@ -304,6 +307,11 @@ export default function Dashboard() {
                                         fontWeight: 'bold',
                                     }}
                                     aria-label={
+                                        roomDelta > 0
+                                            ? `Gained ${roomDelta} room`
+                                            : `Lost ${Math.abs(roomDelta)} room`
+                                    }
+                                    title={
                                         roomDelta > 0
                                             ? `Gained ${roomDelta} room`
                                             : `Lost ${Math.abs(roomDelta)} room`
@@ -743,6 +751,7 @@ export default function Dashboard() {
                                                 fontWeight: 'bold',
                                             }}
                                             aria-label={`Increased by ${powerDelta.toLocaleString()}`}
+                                            title={`Increased by ${powerDelta.toLocaleString()}`}
                                         >
                                             (+{powerDelta.toLocaleString()})
                                         </span>
@@ -772,6 +781,11 @@ export default function Dashboard() {
                                                 fontWeight: 'bold',
                                             }}
                                             aria-label={
+                                                cpuDelta > 0
+                                                    ? `Increased by ${cpuDelta.toLocaleString()}`
+                                                    : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
+                                            }
+                                            title={
                                                 cpuDelta > 0
                                                     ? `Increased by ${cpuDelta.toLocaleString()}`
                                                     : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
@@ -1043,7 +1057,7 @@ export default function Dashboard() {
                             a: 'Refresh stats',
                             state: isRefreshing ? 'a' : updated ? 's' : '',
                             onClick: () => fetchStats(true),
-                            icon: updated ? '✓' : 'R',
+                            icon: isRefreshing ? '🔄' : updated ? '✓' : 'R',
                         },
                         {
                             k: 'C',

@@ -865,13 +865,14 @@ export default function Dashboard() {
                             gclDelta > 0 &&
                             stats.gcl.level === prevStats.gcl.level && (
                                 <div
-                                    title={`Previous progress: ${prevGclPercent.toFixed(2)}%`}
+                                    title={`Progress gained: ${gclDelta.toFixed(2)}% (from ${prevGclPercent.toFixed(2)}%)`}
                                     style={{
                                         left: `${prevGclPercent}%`,
-                                        width: '2px',
+                                        width: `${gclDelta}%`,
                                         height: '100%',
                                         position: 'absolute',
-                                        background: 'rgba(255, 255, 255, 0.4)',
+                                        background: 'rgba(255, 255, 255, 0.2)',
+                                        animation: 'pulse 2s infinite',
                                         zIndex: 1,
                                     }}
                                 />

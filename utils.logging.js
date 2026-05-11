@@ -1,6 +1,18 @@
 // Logging System for Error Detection
 // Logs are stored in Memory.logs and collected by GitHub Actions
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted emoji mapping to module scope
+ * to avoid redundant object allocation on every log call.
+ */
+const EMOJI_MAP = {
+    error: '\u274c',
+    warn: '\u26a0\ufe0f',
+    info: '\u2139\ufe0f',
+    debug: '\ud83d\udd0d',
+};
+const DEFAULT_EMOJI = '\ud83d\udcac';
+
 module.exports = {
     // Initialize logging system
     init: function () {
@@ -61,17 +73,10 @@ module.exports = {
         }
 
         // Also output to console with emoji
-        const emojiMap = {
-            error: '\u274c',
-            warn: '\u26a0\ufe0f',
-            info: '\u2139\ufe0f',
-            debug: '\ud83d\udd0d',
-        };
-
         // Security: プロトタイプ汚染対策のため、hasOwnProperty.callを使用して安全に絵文字を取得
-        const emoji = Object.prototype.hasOwnProperty.call(emojiMap, sanitizedLevel)
-            ? emojiMap[sanitizedLevel]
-            : '\ud83d\udcac';
+        const emoji = Object.prototype.hasOwnProperty.call(EMOJI_MAP, sanitizedLevel)
+            ? EMOJI_MAP[sanitizedLevel]
+            : DEFAULT_EMOJI;
 
         // Security: Escape level and message to prevent HTML injection in the console
         const escapedLevel = this._escapeHTML(sanitizedLevel);

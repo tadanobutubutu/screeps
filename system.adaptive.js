@@ -21,6 +21,23 @@ const MODES = {
 };
 
 /**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted constants to reduce per-tick allocation and O(1) lookups.
+ */
+const ADAPTIVE_DEFAULTS = {
+    currentMode: MODES.NORMAL,
+    lastCheck: 0,
+    modeHistory: [],
+    stats: {
+        emergencyCount: 0,
+        minimalCount: 0,
+        normalCount: 0,
+        fullCount: 0,
+    },
+};
+
+const VALID_MODES = new Set([MODES.EMERGENCY, MODES.MINIMAL, MODES.NORMAL, MODES.FULL]);
+
+/**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoisted feature configuration.
  * Moving this object literal outside of the `isEnabled` function prevents
  * redundant object allocation on every call (called many times per tick).
@@ -86,27 +103,17 @@ const adaptiveSystem = {
             _configTick = -1;
         }
 
-        const defaults = {
-            currentMode: this.MODE.NORMAL,
-            lastCheck: 0,
-            modeHistory: [],
-            stats: {
-                emergencyCount: 0,
-                minimalCount: 0,
-                normalCount: 0,
-                fullCount: 0,
-            },
-        };
-
-        for (const key in defaults) {
+        // ⚡ PERFORMANCE: Use hoisted defaults to avoid per-tick object literal creation.
+        for (const key in ADAPTIVE_DEFAULTS) {
             if (Memory.adaptive[key] === undefined) {
+                const defaultValue = ADAPTIVE_DEFAULTS[key];
                 // For arrays and objects, we must create new copies to avoid shared references
-                if (Array.isArray(defaults[key])) {
-                    Memory.adaptive[key] = [...defaults[key]];
-                } else if (typeof defaults[key] === 'object' && defaults[key] !== null) {
-                    Memory.adaptive[key] = { ...defaults[key] };
+                if (Array.isArray(defaultValue)) {
+                    Memory.adaptive[key] = [...defaultValue];
+                } else if (typeof defaultValue === 'object' && defaultValue !== null) {
+                    Memory.adaptive[key] = { ...defaultValue };
                 } else {
-                    Memory.adaptive[key] = defaults[key];
+                    Memory.adaptive[key] = defaultValue;
                 }
             }
         }
@@ -116,22 +123,20 @@ const adaptiveSystem = {
      * 現在のシステム状態を評価
      */
     evaluate: function () {
+        // ⚡ PERFORMANCE: Implement fast-path return. Skip full init and validation on 90% of ticks.
+        // evaluate() is called once per tick in main.js, so this saving is significant.
+        if (Memory.adaptive && Game.time - (Memory.adaptive.lastCheck || 0) < 10) {
+            const currentMode = Memory.adaptive.currentMode;
+            return VALID_MODES.has(currentMode) ? currentMode : MODES.NORMAL;
+        }
+
         this.init();
 
         // Security: Validate currentMode to prevent DoS crashes in downstream systems.
         // If the mode is missing or invalid, reset it to NORMAL.
-        if (
-            Memory.adaptive.currentMode === undefined ||
-            ![this.MODE.EMERGENCY, this.MODE.MINIMAL, this.MODE.NORMAL, this.MODE.FULL].includes(
-                Memory.adaptive.currentMode
-            )
-        ) {
-            Memory.adaptive.currentMode = this.MODE.NORMAL;
-        }
-
-        // 10ティックごとにチェック
-        if (Game.time - Memory.adaptive.lastCheck < 10) {
-            return Memory.adaptive.currentMode;
+        // ⚡ PERFORMANCE: Use hoisted Set for O(1) lookup instead of Array.includes (O(N)).
+        if (!VALID_MODES.has(Memory.adaptive.currentMode)) {
+            Memory.adaptive.currentMode = MODES.NORMAL;
         }
 
         Memory.adaptive.lastCheck = Game.time;

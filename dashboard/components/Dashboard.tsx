@@ -433,7 +433,7 @@ export default function Dashboard() {
                             cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                             padding: '0.5rem 1rem',
                             // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                            background: updated ? '#1e7e34' : '#0077aa',
+                            background: updated ? '#1e7e34' : '#006699',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',
@@ -441,7 +441,7 @@ export default function Dashboard() {
                             transition: 'all 0.2s',
                             userSelect: 'none',
                             boxShadow: isRefreshFocused
-                                ? '0 0 0 2px #ffffff, 0 0 0 4px #0077aa'
+                                ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
                                 : 'none',
                             outline: 'none',
                         }}
@@ -806,7 +806,7 @@ export default function Dashboard() {
                                     color:
                                         stats.gcl.progress >= stats.gcl.progressTotal
                                             ? '#FFD700'
-                                            : '#0077aa',
+                                            : '#006699',
                                     backgroundColor:
                                         stats.gcl.progress >= stats.gcl.progressTotal
                                             ? '#333'
@@ -884,14 +884,15 @@ export default function Dashboard() {
                                 background:
                                     stats.gcl.progress >= stats.gcl.progressTotal
                                         ? '#FFD700'
-                                        : '#0077aa',
+                                        : '#006699',
                                 transition: 'width 0.5s ease-in-out',
                             }}
                         />
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#575757', textAlign: 'right' }}>
                         {stats.gcl.progress.toLocaleString()} /{' '}
-                        {stats.gcl.progressTotal.toLocaleString()}
+                        {stats.gcl.progressTotal.toLocaleString()} (
+                        {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining)
                     </div>
                 </section>
             )}
@@ -940,7 +941,7 @@ export default function Dashboard() {
                                 zIndex: 1,
                                 outline: 'none',
                                 boxShadow: isCopyFocused
-                                    ? '0 0 0 2px #ffffff, 0 0 0 4px #0077aa'
+                                    ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
                                     : 'none',
                             }}
                         >
@@ -999,7 +1000,7 @@ export default function Dashboard() {
                                     cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                                     padding: '0.5rem 1rem',
                                     // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                                    background: updated ? '#1e7e34' : '#0077aa',
+                                    background: updated ? '#1e7e34' : '#006699',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -1089,7 +1090,7 @@ export default function Dashboard() {
                                 style={{
                                     background:
                                         item.state === 'a'
-                                            ? '#0077aa'
+                                            ? '#006699'
                                             : item.state === 's'
                                               ? '#1e7e34'
                                               : item.state === 'w'

@@ -41,6 +41,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           kbd:active {
             transform: translateY(1px);
           }
+          button:active {
+            transform: scale(0.98);
+          }
           .interactive-hint {
             cursor: help;
             border-bottom: 1px dotted #888;

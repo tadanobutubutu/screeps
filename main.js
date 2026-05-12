@@ -4,7 +4,7 @@
 const Sentry = require('@sentry/browser');
 
 Sentry.init({
-    dsn: 'https://a2fb8f53973b3a46d63d378d2160bcb0@o4510911569199104.ingest.us.sentry.io/4511117816037376',
+    dsn: process.env.SENTRY_DSN,
     // Security: Prevent unintentional exposure of PII (IP, user IDs, etc.)
     sendDefaultPii: false,
     integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],

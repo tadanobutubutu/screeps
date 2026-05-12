@@ -37,6 +37,29 @@ function validateFilePath(filePath, baseDir) {
     return resolvedPath;
 }
 
+/**
+ * ソースコードに環境変数を注入します。
+ * `process.env.VAR_NAME` のようなパターンを実際の環境変数の値で置換します。
+ * @param {string} content - ソースコードの内容
+ * @returns {string} - 変数が注入された内容
+ */
+function injectEnvVars(content) {
+    if (!content) return content;
+
+    // process.env.VARIABLE_NAME に一致するパターン（単語境界を使用して誤一致を防止）
+    const envVarPattern = /\bprocess\.env\.([a-zA-Z0-9_]+)\b/g;
+
+    return content.replace(envVarPattern, (match, varName) => {
+        const value = process.env[varName];
+        if (value !== undefined) {
+            // JSON.stringify を使用して、クォートやバックスラッシュを安全にエスケープ
+            return JSON.stringify(value);
+        }
+        // 環境変数が未定義の場合、Screeps環境での ReferenceError を防ぐために 'undefined' を返す
+        return 'undefined';
+    });
+}
+
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
@@ -135,7 +158,12 @@ if (require.main === module) {
                 try {
                     // ファイルパスの検証
                     const filePath = validateFilePath(m.file);
-                    modules[m.name] = await fs.promises.readFile(filePath, 'utf8');
+                    let content = await fs.promises.readFile(filePath, 'utf8');
+
+                    // Security: Inject environment variables into the source
+                    content = injectEnvVars(content);
+
+                    modules[m.name] = content;
                     console.log(`  [OK] ${m.name} (${m.file})`);
                 } catch (e) {
                     // エラーメッセージから機密情報を除外
@@ -157,4 +185,4 @@ if (require.main === module) {
     })();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo };
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars };

@@ -71,6 +71,74 @@ function ensureCache () {
 // コストマトリクス構築
 // ============================================================
 
+
+/**
+ * 構造物のコストをマトリクスに適用する
+ * @param {PathFinder.CostMatrix} costs
+ * @param {Room} room
+ */
+function _applyStructureCosts (costs, room) {
+  const structures = cacheUtils.getStructures(room)
+  for (const struct of structures) {
+    switch (struct.structureType) {
+      case STRUCTURE_ROAD:
+        // 道路は平地コスト(2)より低いコスト(1)に設定
+        costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST)
+        break
+      case STRUCTURE_WALL:
+        // ウォールは通行不可
+        costs.set(struct.pos.x, struct.pos.y, 255)
+        break
+      case STRUCTURE_RAMPART:
+        // 自分のランパートは通行可能、敵のランパートは通行不可
+        if (!struct.my && !struct.isPublic) {
+          costs.set(struct.pos.x, struct.pos.y, 255)
+        }
+        break
+      default:
+        // 敵や中立の構造物は通行不可
+        if (
+          struct.structureType !== STRUCTURE_CONTAINER &&
+                    struct.structureType !== STRUCTURE_LINK
+        ) {
+          if (!struct.my) {
+            costs.set(struct.pos.x, struct.pos.y, 255)
+          }
+        }
+    }
+  }
+}
+
+/**
+ * 建設中の構造物のコストをマトリクスに適用する
+ * @param {PathFinder.CostMatrix} costs
+ * @param {Room} room
+ */
+function _applyConstructionSiteCosts (costs, room) {
+  const sites = cacheUtils.getConstructionSites(room)
+  for (const site of sites) {
+    if (
+      site.structureType !== STRUCTURE_ROAD &&
+            site.structureType !== STRUCTURE_RAMPART &&
+            site.structureType !== STRUCTURE_CONTAINER
+    ) {
+      costs.set(site.pos.x, site.pos.y, 3)
+    }
+  }
+}
+
+/**
+ * クリープを障害物としてマトリクスに適用する
+ * @param {PathFinder.CostMatrix} costs
+ * @param {Room} room
+ */
+function _applyCreepCosts (costs, room) {
+  const creeps = room.find(FIND_CREEPS)
+  for (const creep of creeps) {
+    costs.set(creep.pos.x, creep.pos.y, 255)
+  }
+}
+
 /**
  * ルーム用のカスタムコストマトリクスを構築する
  * - 道路: コスト1（優先）
@@ -111,56 +179,18 @@ function buildCostMatrix (roomName, options) {
     return costs
   }
 
+
   // 構造物のコストを設定
-  const structures = cacheUtils.getStructures(room)
-  for (const struct of structures) {
-    switch (struct.structureType) {
-      case STRUCTURE_ROAD:
-        // 道路は平地コスト(2)より低いコスト(1)に設定
-        costs.set(struct.pos.x, struct.pos.y, PATHFINDER_DEFAULTS.ROAD_COST)
-        break
-      case STRUCTURE_WALL:
-        // ウォールは通行不可
-        costs.set(struct.pos.x, struct.pos.y, 255)
-        break
-      case STRUCTURE_RAMPART:
-        // 自分のランパートは通行可能、敵のランパートは通行不可
-        if (!struct.my && !struct.isPublic) {
-          costs.set(struct.pos.x, struct.pos.y, 255)
-        }
-        break
-      default:
-        // 敵や中立の構造物は通行不可
-        if (
-          struct.structureType !== STRUCTURE_CONTAINER &&
-                    struct.structureType !== STRUCTURE_LINK
-        ) {
-          if (!struct.my) {
-            costs.set(struct.pos.x, struct.pos.y, 255)
-          }
-        }
-    }
-  }
+  _applyStructureCosts(costs, room)
 
   // 建設中の構造物もコストに含める
-  const sites = cacheUtils.getConstructionSites(room)
-  for (const site of sites) {
-    if (
-      site.structureType !== STRUCTURE_ROAD &&
-            site.structureType !== STRUCTURE_RAMPART &&
-            site.structureType !== STRUCTURE_CONTAINER
-    ) {
-      costs.set(site.pos.x, site.pos.y, 3)
-    }
-  }
+  _applyConstructionSiteCosts(costs, room)
 
   // クリープを障害物として設定（オプション）
   if (opts.avoidCreeps) {
-    const creeps = room.find(FIND_CREEPS)
-    for (const creep of creeps) {
-      costs.set(creep.pos.x, creep.pos.y, 255)
-    }
+    _applyCreepCosts(costs, room)
   }
+
 
   if (opts.useCache && isSafeKey(cacheKey)) {
     // Security: Cap the number of cache entries to prevent Memory DoS

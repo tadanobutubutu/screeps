@@ -1,5 +1,5 @@
-import subprocess
 import sys
+import subprocess
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -7,7 +7,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     title = sys.argv[1]
-    with open(sys.argv[2], "r") as f:
+    with open(sys.argv[2], 'r') as f:
         desc = f.read()
 
     print(f"Executing: submit '{title}' '{desc}'")

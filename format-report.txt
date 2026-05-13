@@ -1,2 +1,16 @@
-role.attacker.js 87ms (unchanged)
-tests/role.attacker.test.js 53ms (unchanged)
+Formatting Report - Fri Mar 27 17:50:40 UTC 2026
+================================
+
+ESLint Rules Applied:
+- prefer-const: Use const for variables that are never reassigned
+- no-var: Replace var with const/let
+- eqeqeq: Use === instead of ==
+- curly: Always use braces for control structures
+
+Prettier Formatting:
+- Single quotes for strings
+- 4-space indentation
+- 100-character line width
+- Trailing commas in ES5
+
+Files processed: 28

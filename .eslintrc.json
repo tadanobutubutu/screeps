@@ -23,7 +23,6 @@
         "FIND_CONSTRUCTION_SITES": "readonly",
         "FIND_STRUCTURES": "readonly",
         "FIND_HOSTILE_CREEPS": "readonly",
-        "FIND_HOSTILE_STRUCTURES": "readonly",
         "STRUCTURE_EXTENSION": "readonly",
         "STRUCTURE_TOWER": "readonly",
         "STRUCTURE_CONTROLLER": "readonly",

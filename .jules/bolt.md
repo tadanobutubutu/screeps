@@ -187,3 +187,14 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## Optimization: role.attacker.js `findClosestByRange` caching
+
+- **Issue:** Using `room.find` implicitly through `findClosestByRange(FIND_MY_CREEPS, {filter: ...})` caused redundant O(N) array allocation and proxy access every tick.
+- **Solution:** Replaced with the pre-warmed `creep.room._myCreeps` cache populated by `main.js`, falling back to `room.find()` if unavailable. Used a simple `for` loop to build the `healers` array before passing it to `findClosestByRange`.
+- **Benchmark Improvement:**
+  - Iterations: 100,000
+  - Baseline (Uncached find): ~291.91 ms
+  - Optimized (Cached + filter): ~65.07 ms
+  - Optimized (Cached + for loop): ~49.91 ms
+  - Final Improvement: ~82.9% faster.

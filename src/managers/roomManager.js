@@ -71,7 +71,6 @@ function run(room) {
         if (Game.time % 50 === 0) {
             cache.cleanup();
         }
-
     } catch (e) {
         logger.error(`[RoomManager] ルーム ${room.name} でエラー`, e);
     }
@@ -157,16 +156,12 @@ function _planSourceContainers(room) {
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
-        const nearby = existingContainers.filter(
-            (c) => source.pos.getRangeTo(c) <= 2
-        );
+        const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2);
         if (nearby.length > 0) continue;
 
         // コンテナの建設サイトがすでにあれば skip
         const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
-            filter: (s) =>
-                s.structureType === STRUCTURE_CONTAINER &&
-                source.pos.getRangeTo(s) <= 2,
+            filter: (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2,
         });
         if (existingSites.length > 0) continue;
 
@@ -191,10 +186,7 @@ function _planRoads(room) {
     if (spawns.length === 0) return;
 
     const spawn = spawns[0];
-    const targets = [
-        ...cache.getSources(room),
-        room.controller,
-    ].filter(Boolean);
+    const targets = [...cache.getSources(room), room.controller].filter(Boolean);
 
     // 既存の構造物と建設サイトを一度に取得し、Setにキャッシュして高速に判定する
     const occupiedTiles = new Set();
@@ -244,12 +236,10 @@ function _planExtensions(room) {
 
     if (maxExtensions === 0) return;
 
-    const existing = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
-    const sites = room.find(FIND_CONSTRUCTION_SITES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache
+        .getConstructionSites(room)
+        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
 
     const currentCount = existing.length + sites.length;
     if (currentCount >= maxExtensions) return;
@@ -329,15 +319,18 @@ function _checkSafeMode(room) {
         // 自室のディフェンダー数
         const defenders = Object.values(Game.creeps).filter(
             (c) =>
-                c && c.room && c.room.name === room.name &&
-                (c.getActiveBodyparts(ATTACK) > 0 ||
-                    c.getActiveBodyparts(RANGED_ATTACK) > 0)
+                c &&
+                c.room &&
+                c.room.name === room.name &&
+                (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0)
         );
 
         if (defenders.length < dangerousEnemies.length) {
             const result = controller.activateSafeMode();
             if (result === OK) {
-                logger.warn(`[RoomManager] セーフモード発動: ${room.name} 敵 ${dangerousEnemies.length} 体`);
+                logger.warn(
+                    `[RoomManager] セーフモード発動: ${room.name} 敵 ${dangerousEnemies.length} 体`
+                );
             }
         }
     }
@@ -362,8 +355,8 @@ function _manageLinkNetwork(room) {
     // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
     const sourceLinks = links.filter(
         (l) =>
-            l.store[RESOURCE_ENERGY] >= l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD &&
-            l.cooldown === 0
+            l.store[RESOURCE_ENERGY] >=
+                l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD && l.cooldown === 0
     );
 
     // シンクリンク: コントローラー付近またはスポーン付近
@@ -373,8 +366,7 @@ function _manageLinkNetwork(room) {
     const sinkLinks = links.filter(
         (l) =>
             l.store[RESOURCE_ENERGY] < l.store.getCapacity(RESOURCE_ENERGY) * 0.5 &&
-            (controller.pos.getRangeTo(l) <= 5 ||
-                (spawnPos && spawnPos.getRangeTo(l) <= 5))
+            (controller.pos.getRangeTo(l) <= 5 || (spawnPos && spawnPos.getRangeTo(l) <= 5))
     );
 
     if (sourceLinks.length === 0 || sinkLinks.length === 0) return;
@@ -385,9 +377,7 @@ function _manageLinkNetwork(room) {
 
         const result = sourceLink.transferEnergy(sink);
         if (result === OK) {
-            logger.debug(
-                `[RoomManager] リンク転送: ${sourceLink.pos} → ${sink.pos}`
-            );
+            logger.debug(`[RoomManager] リンク転送: ${sourceLink.pos} → ${sink.pos}`);
         }
     }
 }
@@ -405,10 +395,7 @@ function getStats(room) {
     const creepCounts = Object.create(null);
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            cache.isSafeKey(name) &&
-            Object.prototype.hasOwnProperty.call(Game.creeps, name)
-        ) {
+        if (cache.isSafeKey(name) && Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
             const creep = Game.creeps[name];
             // Security: Robust check for creep.room to avoid crashes if object is corrupted
             if (creep && creep.room && creep.room.name === room.name) {
@@ -451,7 +438,9 @@ function getStats(room) {
  */
 function showStats(room) {
     const stats = getStats(room);
-    logger.info(`[Room: ${stats.name}] RCL${stats.rcl} | Energy: ${stats.energy}/${stats.energyCapacity} | Creeps: ${stats.totalCreeps} | Sites: ${stats.constructionSites} | Enemies: ${stats.enemies}`);
+    logger.info(
+        `[Room: ${stats.name}] RCL${stats.rcl} | Energy: ${stats.energy}/${stats.energyCapacity} | Creeps: ${stats.totalCreeps} | Sites: ${stats.constructionSites} | Enemies: ${stats.enemies}`
+    );
 
     if (stats.storageEnergy > 0) {
         logger.info(`  Storage: ${stats.storageEnergy.toLocaleString()} energy`);
@@ -474,31 +463,30 @@ function showVisuals(room) {
 
     if (controller) {
         const progress = stats.controllerProgress.toFixed(1);
-        room.visual.text(
-            `RCL${stats.rcl} (${progress}%)`,
-            controller.pos.x,
-            controller.pos.y - 1,
-            { color: '#00bfff', font: 0.5, align: 'center' }
-        );
+        room.visual.text(`RCL${stats.rcl} (${progress}%)`, controller.pos.x, controller.pos.y - 1, {
+            color: '#00bfff',
+            font: 0.5,
+            align: 'center',
+        });
     }
 
     // エネルギー情報を左上に表示
-    room.visual.text(
-        `⚡ ${stats.energy}/${stats.energyCapacity}`,
-        2, 2,
-        { color: '#ffaa00', font: 0.6, align: 'left' }
-    );
-    room.visual.text(
-        `👥 ${stats.totalCreeps}体`,
-        2, 3,
-        { color: '#ffffff', font: 0.6, align: 'left' }
-    );
+    room.visual.text(`⚡ ${stats.energy}/${stats.energyCapacity}`, 2, 2, {
+        color: '#ffaa00',
+        font: 0.6,
+        align: 'left',
+    });
+    room.visual.text(`👥 ${stats.totalCreeps}体`, 2, 3, {
+        color: '#ffffff',
+        font: 0.6,
+        align: 'left',
+    });
     if (stats.enemies > 0) {
-        room.visual.text(
-            `⚠️ 敵${stats.enemies}体`,
-            2, 4,
-            { color: '#ff4444', font: 0.6, align: 'left' }
-        );
+        room.visual.text(`⚠️ 敵${stats.enemies}体`, 2, 4, {
+            color: '#ff4444',
+            font: 0.6,
+            align: 'left',
+        });
     }
 }
 

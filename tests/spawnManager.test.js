@@ -7,6 +7,7 @@
 global.Game = { time: 100, creeps: {}, spawns: {} }
 global.Memory = {}
 global.FIND_CONSTRUCTION_SITES = 111
+global.FIND_MY_SPAWNS = 112
 global.OK = 0
 global.ERR_NOT_ENOUGH_ENERGY = -6
 global.ERR_NAME_EXISTS = -3
@@ -79,10 +80,12 @@ jest.mock(
 const spawnManager = require('../src/managers/spawnManager')
 const cache = require('../src/utils/cache')
 
-global.FIND_CONSTRUCTION_SITES = 111;
+global.FIND_CONSTRUCTION_SITES = 111
+global.FIND_MY_SPAWNS = 112;
 
 describe('spawnManager', () => {
-  beforeEach(() => { global.FIND_CONSTRUCTION_SITES = 111; global.FIND_SOURCES = 105; });
+  beforeEach(() => { global.FIND_CONSTRUCTION_SITES = 111
+global.FIND_MY_SPAWNS = 112; global.FIND_SOURCES = 105; });
   let mockSpawn;
   let mockRoom;
 

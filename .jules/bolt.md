@@ -187,3 +187,9 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-02-09 - Leveraging Caching for High-Frequency `room.find` Calls
+
+**Learning:** `room.find(FIND_STRUCTURES)` is an extremely expensive CPU operation in Screeps because the C++ engine has to serialize and return all structure objects. In `src/roles/repairer.js`, this was called multiple times without utilizing the existing `cache.getStructures(room)` implementation. By replacing direct `room.find` calls with `cache.getStructures(room).filter(...)`, we eliminate redundant engine-level serializations, replacing them with fast V8 array filters on the already-cached structure list.
+
+**Action:** Always prefer retrieving structured data via the `cache` utility instead of direct `room.find` calls, especially in high-frequency roles or tick loops.

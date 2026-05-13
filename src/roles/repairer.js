@@ -123,9 +123,7 @@ function _getRepairTarget(creep) {
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
 
     // 修復が必要な構造物を収集
-    const damaged = room.find(FIND_STRUCTURES, {
-        filter: (s) => _needsRepair(s, room, wallTarget),
-    });
+    const damaged = cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget));
 
     if (damaged.length === 0) return null;
 
@@ -181,12 +179,11 @@ function _needsRepair(structure, room, wallTarget) {
 function _showRepairVisual(creep, target) {
     const pct = target.hits / target.hitsMax;
     const color = pct < 0.3 ? '#ff4444' : pct < 0.7 ? '#ffaa00' : '#00ff88';
-    creep.room.visual.text(
-        `🔧 ${(pct * 100).toFixed(0)}%`,
-        target.pos.x,
-        target.pos.y - 1,
-        { color, font: 0.4, align: 'center' }
-    );
+    creep.room.visual.text(`🔧 ${(pct * 100).toFixed(0)}%`, target.pos.x, target.pos.y - 1, {
+        color,
+        font: 0.4,
+        align: 'center',
+    });
 }
 
 /**
@@ -228,9 +225,7 @@ function _getEnergy(creep) {
 
     // 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter(
-        (r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 30
-    );
+    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 30);
     if (energyDrops.length > 0) {
         const res = pathfinder.closest(creep.pos, energyDrops);
         if (creep.pickup(res) === ERR_NOT_IN_RANGE) {
@@ -299,9 +294,7 @@ function getBody(energy) {
 function countDamagedStructures(room) {
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-    return room.find(FIND_STRUCTURES, {
-        filter: (s) => _needsRepair(s, room, wallTarget),
-    }).length;
+    return cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget)).length;
 }
 
 module.exports = { run, getBody, countDamagedStructures, REPAIR_PRIORITY };

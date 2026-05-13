@@ -187,3 +187,8 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-02-09 - Leveraging Cached Structures in Defense Logic
+
+**Learning:** Re-querying structures using `room.find(FIND_STRUCTURES)` with custom filters in `utils.defense.js` bypasses the existing efficient structure cache provided by `cache.getStructures(room)`. By replacing these costly engine queries with array filters on the cached structures, we significantly reduce CPU overhead during defense target identification.
+**Action:** Always prefer `cache.getStructures()` or similar pre-warmed cache methods over raw `room.find()` calls when processing structures in high-frequency functions.

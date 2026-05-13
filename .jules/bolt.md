@@ -187,3 +187,8 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-02-09 - Pre-filtered Target Passing to findClosestByRange
+
+**Learning:** `room.find` and `findClosestByRange(type)` are expensive engine calls because they allocate new arrays across the WASM boundary. By leveraging the already populated `room._allStructures` cache and applying the filter manually in JS, we bypass the engine-level array allocation and reduce CPU load per tick for attacker creeps.
+**Action:** Replace expensive engine filtering with manual JS filtering on pre-warmed caches, then pass the pre-filtered array directly to spatial functions like `findClosestByRange`.

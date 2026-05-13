@@ -96,9 +96,11 @@ describe('role.attacker', () => {
 
     test('Priority 2: Attack hostile structures in range', () => {
         const hostileStructure = { structureType: global.STRUCTURE_TOWER };
+        mockCreep.room.find.mockReturnValue([hostileStructure]);
         mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
             if (type === global.FIND_HOSTILE_STRUCTURES && opts.filter(hostileStructure))
                 return hostileStructure;
+            if (Array.isArray(type) && type.includes(hostileStructure)) return hostileStructure;
             return null;
         });
 
@@ -110,10 +112,12 @@ describe('role.attacker', () => {
 
     test('Priority 2: Move to hostile structures out of range', () => {
         const hostileStructure = { structureType: global.STRUCTURE_SPAWN };
+        mockCreep.room.find.mockReturnValue([hostileStructure]);
         mockCreep.attack.mockReturnValue(global.ERR_NOT_IN_RANGE);
         mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
             if (type === global.FIND_HOSTILE_STRUCTURES && opts.filter(hostileStructure))
                 return hostileStructure;
+            if (Array.isArray(type) && type.includes(hostileStructure)) return hostileStructure;
             return null;
         });
 

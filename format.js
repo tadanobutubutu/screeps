@@ -4,5 +4,5 @@ const file = 'tests/utils.defense.test.js'
 let content = fs.readFileSync(file, 'utf8')
 
 // CodeFactor wants 4-space indentation for everything here
-content = content.replace(/  /g, '    ')
+content = content.replace(/ {2}/g, '    ')
 fs.writeFileSync(file, content)

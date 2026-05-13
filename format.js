@@ -1,11 +1,15 @@
-const fs = require('fs')
-
-const content = fs.readFileSync('tests/utils.tasks.test.js', 'utf8')
-
-const newContent = content
-  .replace(/ {2}\}\);/g, '    });')
-  .replace(/ {2}test\(/g, '    test(')
-  .replace(/ {4}\/\/ Tick 100/g, '        // Tick 100')
-  .replace(/ {4}\/\/ Tick 101/g, '        // Tick 101')
-  .replace(/ {4}\/\/ interval/g, '        // interval')
-fs.writeFileSync('tests/utils.tasks.test.js', newContent)
+// We need to apply the specific formatting fixes CodeFactor complained about.
+// However, CodeFactor is failing because in my *previous* commit I introduced some formatting errors.
+// Looking at the CodeFactor log from the previous run:
+/*
+  [WARNING] File: tests/utils.defense.test.js, Line: 84
+    Message: Insert `;` (prettier/prettier)
+  [WARNING] File: utils.defense.js, Line: 1
+    Message: Insert `;` (prettier/prettier)
+  [WARNING] File: tests/utils.defense.test.js, Line: 83
+    Message: Replace `··})` with `····});` (prettier/prettier)
+    ... etc
+*/
+// The commit da18e490762caa245e5b763b1ef474588ad259f8 actually introduced these.
+// Wait! `npx prettier --write ...` just ran and said "(unchanged)".
+// Ah, the repo has `.prettierrc.json` with 4-space indent, but `tests/utils.defense.test.js` may have had 2-space before?

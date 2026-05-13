@@ -1,10 +1,11 @@
-const fs = require('fs')
+const fs = require('fs');
 
-function formatFile (file) {
-  let content = fs.readFileSync(file, 'utf8')
-  content = content.replace(/ {4}/g, '  ') // Replace 4 spaces with 2 spaces
-  fs.writeFileSync(file, content)
+function formatFile(file) {
+    let content = fs.readFileSync(file, 'utf8');
+    content = content.replace(/^  /gm, '    ').replace(/^    /gm, '        ').replace(/^      /gm, '            ');
+    content = content.replace(/^        /gm, '    ').replace(/^            /gm, '        ').replace(/^                /gm, '            ');
+    fs.writeFileSync(file, content);
 }
 
-formatFile('tests/utils.defense.test.js')
-formatFile('utils.defense.js')
+formatFile('tests/utils.defense.test.js');
+formatFile('utils.defense.js');

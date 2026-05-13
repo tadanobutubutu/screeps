@@ -187,3 +187,5 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+- **⚡ Bolt**: In `src/managers/roomManager.js`, replaced `room.find(FIND_MY_STRUCTURES)` with `cache.getMyStructures(room, STRUCTURE_EXTENSION)`. Also updated the search for existing construction sites in `_planSourceContainers` and `_planExtensions` to use `cache.getConstructionSites`. This reduces garbage collection pressure by preventing redundant object allocations from engine arrays.

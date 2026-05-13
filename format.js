@@ -1,5 +1,5 @@
-const fs = require('fs');
+const fs = require('fs')
 
-function restoreOriginal() {
-    // Just restore from github
+function restoreOriginal () {
+  // Just restore from github
 }

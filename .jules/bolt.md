@@ -187,3 +187,8 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-02-02 - Replacing FIND_STRUCTURES with Cache Filtering
+
+**Learning:** Using `room.find(FIND_STRUCTURES)` in high-frequency functions like `_getRepairTarget` and `countDamagedStructures` is a massive CPU drain due to expensive engine-level O(N) array creation and Proxy conversion. Refactoring to map over a pre-fetched cache array via `cache.getStructures(room).filter(...)` drastically reduces CPU cost because it leverages JavaScript's native fast arrays instead of the V8 engine bridge.
+**Action:** Always map or filter over cached structure arrays from `cache.js` instead of using direct `FIND_STRUCTURES` lookups in per-tick logic.

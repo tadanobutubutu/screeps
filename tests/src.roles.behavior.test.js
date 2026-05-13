@@ -271,6 +271,8 @@ describe('src roles behaviors', () => {
         pos: { getRangeTo: jest.fn().mockReturnValue(1) },
       };
 
+      cache.getStructures = jest.fn();
+      cache.getStructures.mockReturnValue([target])
       repairer.run(creep);
 
       expect(creep.repair).toHaveBeenCalledWith(target);

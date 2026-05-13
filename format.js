@@ -1,11 +1,18 @@
-const fs = require('fs')
+const fs = require('fs');
+const prettier = require('prettier');
 
-const content = fs.readFileSync('tests/utils.tasks.test.js', 'utf8')
+async function formatFiles() {
+  const prettierConfig = JSON.parse(fs.readFileSync('.prettierrc.json', 'utf8'));
 
-const newContent = content
-  .replace(/ {2}\}\);/g, '    });')
-  .replace(/ {2}test\(/g, '    test(')
-  .replace(/ {4}\/\/ Tick 100/g, '        // Tick 100')
-  .replace(/ {4}\/\/ Tick 101/g, '        // Tick 101')
-  .replace(/ {4}\/\/ interval/g, '        // interval')
-fs.writeFileSync('tests/utils.tasks.test.js', newContent)
+  for (const file of ['role.attacker.js', 'tests/role.attacker.test.js']) {
+    const code = fs.readFileSync(file, 'utf8');
+    const formatted = await prettier.format(code, {
+      ...prettierConfig,
+      filepath: file,
+    });
+    fs.writeFileSync(file, formatted);
+    console.log(`Formatted ${file}`);
+  }
+}
+
+formatFiles();

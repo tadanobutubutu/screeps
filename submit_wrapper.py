@@ -1,7 +1,9 @@
 import sys
 
+
 def print_usage():
     print("Usage: python submit_wrapper.py submit <branch> <message>")
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

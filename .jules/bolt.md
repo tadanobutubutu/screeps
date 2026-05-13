@@ -187,3 +187,8 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2027-02-09 - Leveraging Unified Cache Over Direct Engine Search
+
+**Learning:** Calling `room.find(FIND_STRUCTURES)` or `room.find(FIND_MY_STRUCTURES)` directly in frequently executed methods like `towerManager`'s `_selectRepairTarget` triggers the Screeps engine to perform expensive full room scans on every execution. By migrating these calls to use the unified cache utility (`cache.getStructures()` and `cache.getMyStructures()`), which fetches and caches the array per room per tick, we significantly reduce CPU overhead and avoid creating duplicate Proxy arrays.
+**Action:** Always prefer centralized caching utilities over direct engine `room.find()` calls for static or semi-static room objects (like structures) in high-frequency loops.

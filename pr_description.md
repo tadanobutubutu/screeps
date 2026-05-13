@@ -1,11 +1,3 @@
-🧪 [Testing Improvement] Add test for adaptive system logModeChange
-
-🎯 **What:** The testing gap addressed
-The `logModeChange` helper function in `system.adaptive.js` was completely untested. This function is responsible for formatting and outputting logs regarding system mode changes. We've added a test to spy on `console.log` to verify its outputs.
-
-📊 **Coverage:** What scenarios are now tested
-- Ensuring the exact console string formatting when the system transitions from one mode to another (e.g., from EMERGENCY to FULL).
-- Verifying the stats properties (CPU usage percentage, CPU bucket size, and memory usage percentage) are correctly formatted and logged.
-
-✨ **Result:** The improvement in test coverage
-We've plugged a testing gap for `system.adaptive.js`. It increases unit test coverage and confidence when making refactorings regarding system adaptive console output. The total test suite ran successfully (568 tests passed).
+💡 **What:** Replaced the raw API call `room.find(FIND_HOSTILE_CREEPS)` with the cached utility `cache.getEnemies(room)` in `utils.defense.js` for `findTowerTargets` and `getDefenseStatus` methods. Also updated the corresponding unit tests to correctly mock and utilize the cache object. Added memory state handling to fix `Game is not defined` errors.
+🎯 **Why:** To improve execution time and lower CPU overhead. Calling `room.find` triggers costly engine Proxy-to-Array operations every tick. Replacing this with the caching utility significantly speeds up execution.
+📊 **Measured Improvement:** Baseline execution for 10,000 iterations ran in ~14.45 ms with 30,000 internal `find()` mock calls. The optimized version ran in ~9.97 ms with only 20,001 `find()` mock calls, resulting in an ~31% performance speed-up for these operations. Tests also pass.

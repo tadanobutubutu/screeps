@@ -187,3 +187,8 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
+## 2026-05-13 - Leveraging Cached Entities over Raw Engine APIs
+
+**Learning:** Replacing direct calls to engine APIs like `room.find(FIND_HOSTILE_CREEPS)` with pre-warmed volatile cache utilities such as `cache.getEnemies(room)` significantly reduces CPU overhead, as it avoids triggering expensive game engine Proxy-to-Array iterations repeatedly per tick.
+**Action:** Always favor using established cache utilities for high-frequency $O(N)$ object lookups instead of invoking `room.find` repeatedly.

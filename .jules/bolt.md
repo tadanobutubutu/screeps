@@ -193,8 +193,8 @@
 - **Issue:** Using `room.find` implicitly through `findClosestByRange(FIND_MY_CREEPS, {filter: ...})` caused redundant O(N) array allocation and proxy access every tick.
 - **Solution:** Replaced with the pre-warmed `creep.room._myCreeps` cache populated by `main.js`, falling back to `room.find()` if unavailable. Used a simple `for` loop to build the `healers` array before passing it to `findClosestByRange`.
 - **Benchmark Improvement:**
-  - Iterations: 100,000
-  - Baseline (Uncached find): ~291.91 ms
-  - Optimized (Cached + filter): ~65.07 ms
-  - Optimized (Cached + for loop): ~49.91 ms
-  - Final Improvement: ~82.9% faster.
+    - Iterations: 100,000
+    - Baseline (Uncached find): ~291.91 ms
+    - Optimized (Cached + filter): ~65.07 ms
+    - Optimized (Cached + for loop): ~49.91 ms
+    - Final Improvement: ~82.9% faster.

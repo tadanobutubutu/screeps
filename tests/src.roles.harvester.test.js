@@ -238,13 +238,20 @@ describe('_findAvailableContainer', () => {
     const validContainer2 = { store: { [global.RESOURCE_ENERGY]: 200 } }
     const invalidContainer = { store: { [global.RESOURCE_ENERGY]: 50 } }
 
-    mockCache.getContainers.mockReturnValue([validContainer1, invalidContainer, validContainer2])
+    mockCache.getContainers.mockReturnValue([
+      validContainer1,
+      invalidContainer,
+      validContainer2
+    ])
     pathfinder.closest.mockReturnValue(validContainer2)
 
     const result = harvester._findAvailableContainer(creep)
 
     // closestに渡される配列が、エネルギー100以上のコンテナのみであるかを確認
-    expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [validContainer1, validContainer2])
+    expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [
+      validContainer1,
+      validContainer2
+    ])
     expect(result).toBe(validContainer2)
   })
 })

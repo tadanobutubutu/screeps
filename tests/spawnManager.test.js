@@ -23,7 +23,7 @@ jest.mock(
     () => ({
         getConstructionSites: jest.fn().mockReturnValue([]),
         getEnemies: jest.fn().mockReturnValue([]),
-        isSafeKey: jest.fn().mockReturnValue(true),,
+        isSafeKey: jest.fn().mockReturnValue(true),
     }),
     { virtual: true }
 );
@@ -114,7 +114,7 @@ describe('spawnManager', () => {
             pos: { x: 10, y: 10 },
         };
 
-        global.Game.creeps = {};;
+        global.Game.creeps = {};
         global.Game.spawns = { Spawn1: mockSpawn };
         global.Game.time = 100;
         // キャッシュモックのクリア
@@ -205,7 +205,7 @@ describe('spawnManager', () => {
         });
 
         test('クリープが0の場合でもエラーなく実行される', () => {
-            global.Game.creeps = {};;
+            global.Game.creeps = {};
             mockRoom.energyAvailable = 200;
             expect(() => spawnManager.run(mockSpawn)).not.toThrow();
         });

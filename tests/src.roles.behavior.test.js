@@ -1,3 +1,4 @@
+global.FIND_SOURCES = 105;
 /**
  * src/roles/*.js のユニットテスト
  */

@@ -22,6 +22,7 @@ global.STRUCTURE_TOWER = 'tower'
 global.FIND_MY_STRUCTURES = 11
 
 const mockCache = {
+  getMyStructures: jest.fn(),
   getDroppedResources: jest.fn(),
   getContainers: jest.fn(),
   getStorage: jest.fn(),
@@ -82,6 +83,7 @@ describe('src/roles/harvester', () => {
       store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
       structureType: global.STRUCTURE_SPAWN
     }
+    mockCache.getMyStructures.mockReturnValue([target])
     const creep = {
       memory: { working: true },
       store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
@@ -127,6 +129,7 @@ describe('src/roles/harvester', () => {
   })
 
   test('納品先がなくコントローラーをアップグレードする', () => {
+    mockCache.getMyStructures.mockReturnValue([])
     mockCache.getDroppedResources.mockReturnValue([])
     mockCache.getContainers.mockReturnValue([])
     mockCache.getStorage.mockReturnValue(null)

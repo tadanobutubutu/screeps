@@ -170,6 +170,7 @@ describe('src roles behaviors', () => {
   describe('harvester', () => {
     test('納品先がある場合にtransferする', () => {
       const target = { structureType: STRUCTURE_SPAWN, store: { getFreeCapacity: jest.fn().mockReturnValue(50) } };
+      cache.getMyStructures = jest.fn().mockReturnValue([target]);
       const creep = {
         memory: { [MEMORY_KEYS.WORKING]: true },
         store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
@@ -182,6 +183,26 @@ describe('src roles behaviors', () => {
       harvester.run(creep);
 
       expect(creep.transfer).toHaveBeenCalledWith(target, RESOURCE_ENERGY);
+    });
+
+    test('納品先がない場合にupgradeControllerする', () => {
+      const controller = {};
+      const creep = {
+        memory: { [MEMORY_KEYS.WORKING]: true },
+        store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+        say: jest.fn(),
+        transfer: jest.fn().mockReturnValue(ERR_NOT_IN_RANGE),
+        upgradeController: jest.fn().mockReturnValue(OK),
+        room: { controller },
+        pos: {},
+      };
+      cache.getMyStructures = jest.fn().mockReturnValue([]);
+      cache.getContainers = jest.fn().mockReturnValue([]);
+      cache.getStorage = jest.fn().mockReturnValue(null);
+
+      harvester.run(creep);
+
+      expect(creep.upgradeController).toHaveBeenCalledWith(controller);
     });
 
     test('ボディ構成が閾値に応じて変化する', () => {

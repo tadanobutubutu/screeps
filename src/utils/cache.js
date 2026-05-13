@@ -47,11 +47,7 @@ const isSafeKey = (key) => {
     if (typeof key === 'number') return true;
     // Security: Block dangerous properties that could lead to Prototype Pollution
     // or property shadowing when using user-provided strings as object keys.
-    return (
-        typeof key === 'string' &&
-        key.length <= MAX_KEY_LENGTH &&
-        !DANGEROUS_KEYS.has(key)
-    );
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
 };
 
 // global.cache が未初期化の場合に初期化する
@@ -196,11 +192,7 @@ function getStats() {
  * @returns {Source[]}
  */
 function getSources(room) {
-    return get(
-        `sources_${room.name}`,
-        () => room.find(FIND_SOURCES),
-        CACHE_TTL.SOURCES
-    );
+    return get(`sources_${room.name}`, () => room.find(FIND_SOURCES), CACHE_TTL.SOURCES);
 }
 
 /**
@@ -209,11 +201,7 @@ function getSources(room) {
  * @returns {Structure[]}
  */
 function getStructures(room) {
-    return get(
-        `structures_${room.name}`,
-        () => room.find(FIND_STRUCTURES),
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`structures_${room.name}`, () => room.find(FIND_STRUCTURES), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -236,6 +224,14 @@ function getMyStructures(room, structureType) {
         CACHE_TTL.STRUCTURES
     );
 }
+/**
+ * ルーム内の味方クリープをキャッシュ付きで取得する
+ * @param {Room} room
+ * @returns {Creep[]}
+ */
+function getMyCreeps(room) {
+    return get(`my_creeps_${room.name}`, () => room.find(FIND_MY_CREEPS), CACHE_TTL.ROOM_OBJECTS);
+}
 
 /**
  * ルーム内の建設サイトをキャッシュ付きで取得する
@@ -256,11 +252,7 @@ function getConstructionSites(room) {
  * @returns {Creep[]}
  */
 function getEnemies(room) {
-    return get(
-        `enemies_${room.name}`,
-        () => room.find(FIND_HOSTILE_CREEPS),
-        CACHE_TTL.ENEMIES
-    );
+    return get(`enemies_${room.name}`, () => room.find(FIND_HOSTILE_CREEPS), CACHE_TTL.ENEMIES);
 }
 
 /**
@@ -282,11 +274,7 @@ function getDroppedResources(room) {
  * @returns {StructureSpawn[]}
  */
 function getSpawns(room) {
-    return get(
-        `spawns_${room.name}`,
-        () => room.find(FIND_MY_SPAWNS),
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -348,11 +336,7 @@ function getLinks(room) {
  * @returns {StructureStorage|null}
  */
 function getStorage(room) {
-    return get(
-        `storage_${room.name}`,
-        () => room.storage || null,
-        CACHE_TTL.STRUCTURES
-    );
+    return get(`storage_${room.name}`, () => room.storage || null, CACHE_TTL.STRUCTURES);
 }
 
 // ============================================================
@@ -410,6 +394,7 @@ module.exports = {
     getSources,
     getStructures,
     getMyStructures,
+    getMyCreeps,
     getConstructionSites,
     getEnemies,
     getDroppedResources,

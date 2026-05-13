@@ -192,3 +192,8 @@
 
 **Learning:** Re-querying structures using `room.find(FIND_STRUCTURES)` with custom filters in `utils.defense.js` bypasses the existing efficient structure cache provided by `cache.getStructures(room)`. By replacing these costly engine queries with array filters on the cached structures, we significantly reduce CPU overhead during defense target identification.
 **Action:** Always prefer `cache.getStructures()` or similar pre-warmed cache methods over raw `room.find()` calls when processing structures in high-frequency functions.
+
+## 2027-02-09 - Leveraging Cached Structures in Defense Logic
+
+**Learning:** Re-querying structures using `room.find(FIND_STRUCTURES)` with custom filters in `utils.defense.js` bypasses the existing efficient structure cache provided by `cache.getStructures(room)`. By replacing these costly engine queries with array filters on the cached structures, we significantly reduce CPU overhead during defense target identification.
+**Action:** Always prefer `cache.getStructures()` or similar pre-warmed cache methods over raw `room.find()` calls when processing structures in high-frequency functions.

@@ -1,6 +1,8 @@
 // Room Planning Utilities
 // Basic implementations inspired by Distance Transform and Floodfill concepts
 
+const cache = require('./src/utils/cache');
+
 module.exports = {
     // Find open spaces in a room (simplified Distance Transform concept)
     findOpenSpaces: function (room, minSize = 3) {
@@ -43,7 +45,7 @@ module.exports = {
     // Find best position for spawn near controller and sources
     findBestSpawnPosition: function (room) {
         const controller = room.controller;
-        const sources = room.find(FIND_SOURCES);
+        const sources = cache.getSources(room);
 
         if (!controller || sources.length === 0) {
             return null;
@@ -114,7 +116,7 @@ module.exports = {
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
         const spawn = room.find(FIND_MY_SPAWNS)[0];
-        const sources = room.find(FIND_SOURCES);
+        const sources = cache.getSources(room);
         const controller = room.controller;
 
         if (!spawn) {

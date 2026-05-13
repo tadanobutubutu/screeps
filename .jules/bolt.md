@@ -187,11 +187,12 @@
 
 **Learning:** Unconditional calls to initialization functions in systems that run per-creep per-tick (like Emotions) cause significant CPU waste due to repeated object allocation and property checks. Hoisting static result objects (e.g., result emojis) and guarding `initialize()` calls with a fast property check (like `birthTick`) prevents entering the function and creating temporary objects.
 **Action:** Always guard initialization methods in high-frequency loops with a simple property existence check and hoist all static result objects/arrays to the module scope.
+
 ## Bolt Memory Journal
 
 ### Optimization: Use getMyStructures Cache in Tower Manager
 
-*   **File:** `src/managers/towerManager.js`
-*   **What:** Replaced the engine-level `room.find(FIND_MY_STRUCTURES)` call with `cache.getMyStructures(room, STRUCTURE_RAMPART)` when searching for urgent rampart repair targets in `_selectRepairTarget`. We then manually apply the filtering using `.filter()` on the cached result.
-*   **Why:** `room.find(FIND_MY_STRUCTURES)` loops through all owned structures and has significant overhead due to Screeps engine Proxy-to-Array conversions every tick. Fetching directly from the cache prevents redundant searches and engine calls, specifically benefiting multi-tower operations during high-RCL defenses where the array size and operation frequency grow.
-*   **Performance Result:** Micro-benchmarks showed a large drop in time (420.6ms -> 56.4ms over 100k iterations) by iterating over JS objects instead of fetching via the mock room's `find` method, simulating the overhead reduction in game.
+- **File:** `src/managers/towerManager.js`
+- **What:** Replaced the engine-level `room.find(FIND_MY_STRUCTURES)` call with `cache.getMyStructures(room, STRUCTURE_RAMPART)` when searching for urgent rampart repair targets in `_selectRepairTarget`. We then manually apply the filtering using `.filter()` on the cached result.
+- **Why:** `room.find(FIND_MY_STRUCTURES)` loops through all owned structures and has significant overhead due to Screeps engine Proxy-to-Array conversions every tick. Fetching directly from the cache prevents redundant searches and engine calls, specifically benefiting multi-tower operations during high-RCL defenses where the array size and operation frequency grow.
+- **Performance Result:** Micro-benchmarks showed a large drop in time (420.6ms -> 56.4ms over 100k iterations) by iterating over JS objects instead of fetching via the mock room's `find` method, simulating the overhead reduction in game.

@@ -1,6 +1,6 @@
-const fs = require('fs');
+const fs = require('fs')
 
-let content = fs.readFileSync('tests/role.attacker.test.js', 'utf8');
+let content = fs.readFileSync('tests/role.attacker.test.js', 'utf8')
 
 const search = `    test('hits < 50% && HEAL available -> moveTo HEAL', () => {
         mockCreep.hits = 40;
@@ -18,7 +18,7 @@ const search = `    test('hits < 50% && HEAL available -> moveTo HEAL', () => {
 
         expect(mockCreep.moveTo).toHaveBeenCalledWith(healTarget, expect.any(Object));
         expect(mockCreep.attack).not.toHaveBeenCalled();
-    });`;
+    });`
 
 const replace = `    test('hits < 50% && HEAL available -> moveTo HEAL', () => {
         mockCreep.hits = 40;
@@ -35,7 +35,7 @@ const replace = `    test('hits < 50% && HEAL available -> moveTo HEAL', () => {
 
         expect(mockCreep.moveTo).toHaveBeenCalledWith(healTarget, expect.any(Object));
         expect(mockCreep.attack).not.toHaveBeenCalled();
-    });`;
+    });`
 
-content = content.replace(search, replace);
-fs.writeFileSync('tests/role.attacker.test.js', content, 'utf8');
+content = content.replace(search, replace)
+fs.writeFileSync('tests/role.attacker.test.js', content, 'utf8')

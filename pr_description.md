@@ -6,6 +6,7 @@ Calling `room.find(FIND_STRUCTURES)` executes an engine-level search and creates
 
 📊 **Measured Improvement:**
 By benchmarking `room.find(FIND_STRUCTURES)` vs `cache.getStructures` with an array length of ~200 structures and simulating standard Screeps engine overhead:
+
 - **Baseline (room.find):** ~113.17 ms
 - **Optimized (cache.getStructures):** ~44.23 ms
 - **Improvement:** ~60.9% decrease in execution time in the benchmark, directly translating to fewer CPU cycles consumed per tick per repairer.

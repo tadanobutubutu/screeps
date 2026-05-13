@@ -8,53 +8,63 @@
 const MAX_METRIC_LENGTH = 32;
 const MAX_NAME_LENGTH = 100;
 
+// ⚡ PERFORMANCE: Hoist challenges array to module scope to avoid re-allocation.
+const CHALLENGES = [
+    {
+        emoji: '🚀',
+        name: 'Speed Demon',
+        desc: 'Move 500 tiles',
+        metric: 'moves',
+        target: 500,
+    },
+    {
+        emoji: '⛏️',
+        name: 'Mining Master',
+        desc: 'Harvest 5000 energy',
+        metric: 'harvested',
+        target: 5000,
+    },
+    {
+        emoji: '🏭',
+        name: 'Architect',
+        desc: 'Build 10 structures',
+        metric: 'built',
+        target: 10,
+    },
+    {
+        emoji: '🔧',
+        name: 'Repairman',
+        desc: 'Repair 3000 HP',
+        metric: 'repaired',
+        target: 3000,
+    },
+    {
+        emoji: '🌟',
+        name: 'Controller King',
+        desc: 'Upgrade 50 times',
+        metric: 'upgrades',
+        target: 50,
+    },
+];
+
+// ⚡ PERFORMANCE: Per-tick cache for challenge info.
+let _cachedChallenge = null;
+let _cachedTick = -1;
+
 module.exports = {
     getChallenge: function () {
+        // ⚡ PERFORMANCE: Use per-tick cache to avoid redundant Date operations and Memory lookups.
+        if (typeof Game !== 'undefined' && Game.time === _cachedTick && _cachedChallenge) {
+            return _cachedChallenge;
+        }
+
         const today = new Date().toISOString().split('T')[0];
 
         if (!Memory.dailyChallenge || Memory.dailyChallenge.date !== today) {
-            const challenges = [
-                {
-                    emoji: '🚀',
-                    name: 'Speed Demon',
-                    desc: 'Move 500 tiles',
-                    metric: 'moves',
-                    target: 500,
-                },
-                {
-                    emoji: '⛏️',
-                    name: 'Mining Master',
-                    desc: 'Harvest 5000 energy',
-                    metric: 'harvested',
-                    target: 5000,
-                },
-                {
-                    emoji: '🏭',
-                    name: 'Architect',
-                    desc: 'Build 10 structures',
-                    metric: 'built',
-                    target: 10,
-                },
-                {
-                    emoji: '🔧',
-                    name: 'Repairman',
-                    desc: 'Repair 3000 HP',
-                    metric: 'repaired',
-                    target: 3000,
-                },
-                {
-                    emoji: '🌟',
-                    name: 'Controller King',
-                    desc: 'Upgrade 50 times',
-                    metric: 'upgrades',
-                    target: 50,
-                },
-            ];
-
             const dayOfYear = Math.floor(
                 (new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000
             );
-            const challenge = challenges[dayOfYear % challenges.length];
+            const challenge = CHALLENGES[dayOfYear % CHALLENGES.length];
 
             // Security: Sanitize challenge configuration (Defense in Depth)
             const sanitizedChallenge = {
@@ -73,11 +83,20 @@ module.exports = {
             };
         }
 
-        return Memory.dailyChallenge;
+        // ⚡ PERFORMANCE: Update per-tick cache.
+        _cachedChallenge = Memory.dailyChallenge;
+        _cachedTick = typeof Game !== 'undefined' ? Game.time : -1;
+
+        return _cachedChallenge;
     },
 
     updateProgress: function (metric, amount) {
         const challenge = this.getChallenge();
+
+        // ⚡ PERFORMANCE: Early return if challenge is already completed to save CPU.
+        if (challenge.completed) {
+            return;
+        }
 
         // Security: Validate amount to prevent corruption or DoS via massive/invalid values
         const numericAmount = Number(amount);

@@ -55,8 +55,8 @@ const repairer = require('../src/roles/repairer')
 
 describe('src/roles/repairer', () => {
   beforeEach(() => {
-    mockCache.getConstructionSites.mockReturnValue([]);
-    mockCache.getStructures.mockReturnValue([]);
+    mockCache.getConstructionSites.mockReturnValue([])
+    mockCache.getStructures.mockReturnValue([])
     jest.clearAllMocks()
   })
 
@@ -69,10 +69,10 @@ describe('src/roles/repairer', () => {
       pos: { x: 1, y: 1 }
     }
     const room = {
-      controller: { level: 2 },
+      controller: { level: 2 }
       // find: jest.fn().mockReturnValue([target])
     }
-    mockCache.getStructures.mockReturnValue([target]);
+    mockCache.getStructures.mockReturnValue([target])
     const creep = {
       memory: { working: true },
       room,
@@ -115,11 +115,11 @@ describe('src/roles/repairer', () => {
     const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 5000 }
     const road = { structureType: global.STRUCTURE_ROAD, hits: 10, hitsMax: 100 }
     const room = {
-      controller: { level: 1 },
+      controller: { level: 1 }
       // find: jest.fn().mockReturnValue([wall, road])
     }
 
-    mockCache.getStructures.mockReturnValue([wall, road]);
+    mockCache.getStructures.mockReturnValue([wall, road])
     const count = repairer.countDamagedStructures(room)
 
     expect(count).toBe(2)
@@ -284,8 +284,8 @@ describe('src/roles/repairer', () => {
   })
 
   test('壁とランパートの修復判定', () => {
-    const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 300000000 };
-    mockCache.getStructures.mockReturnValue([wall]);
+    const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 300000000 }
+    mockCache.getStructures.mockReturnValue([wall])
     const room = {
       controller: { level: 3 },
       find: jest.fn().mockReturnValue([wall])

@@ -126,15 +126,16 @@ function _getTargetCounts(room, rcl) {
     // 建設サイトがある場合はビルダーを追加
     const sites = cache.getConstructionSites(room);
     if (sites.length > 0) {
-        result[ROLES.BUILDER] = Math.max(result[ROLES.BUILDER] || 0, Math.min(3, Math.ceil(sites.length / 5)));
+        result[ROLES.BUILDER] = Math.max(
+            result[ROLES.BUILDER] || 0,
+            Math.min(3, Math.ceil(sites.length / 5))
+        );
     }
 
     // 侵入者がいる場合はディフェンダーを追加
     const enemies = cache.getEnemies(room);
     const attackers = enemies.filter(
-        (e) =>
-            e.getActiveBodyparts(ATTACK) > 0 ||
-            e.getActiveBodyparts(RANGED_ATTACK) > 0
+        (e) => e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0
     );
     if (attackers.length > 0) {
         result[ROLES.DEFENDER] = Math.max(result[ROLES.DEFENDER] || 0, attackers.length);
@@ -158,10 +159,7 @@ function _getCurrentCounts(room) {
     const counts = Object.create(null);
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            !cache.isSafeKey(name) ||
-            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
-        ) {
+        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
             continue;
         }
 
@@ -295,8 +293,7 @@ function showSpawnVisual(spawn) {
 
     const role = spawningCreep.memory.role;
     const progress =
-        (spawn.spawning.needTime - spawn.spawning.remainingTime) /
-        spawn.spawning.needTime;
+        (spawn.spawning.needTime - spawn.spawning.remainingTime) / spawn.spawning.needTime;
 
     // 役割と進捗を表示
     spawn.room.visual.text(
@@ -307,13 +304,10 @@ function showSpawnVisual(spawn) {
     );
 
     // プログレスバー
-    spawn.room.visual.rect(
-        spawn.pos.x - 0.5,
-        spawn.pos.y + 0.6,
-        progress,
-        0.2,
-        { fill: '#00bfff', opacity: 0.8 }
-    );
+    spawn.room.visual.rect(spawn.pos.x - 0.5, spawn.pos.y + 0.6, progress, 0.2, {
+        fill: '#00bfff',
+        opacity: 0.8,
+    });
 }
 
 // ============================================================

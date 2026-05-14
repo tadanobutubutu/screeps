@@ -101,9 +101,7 @@ function _getEnergy(creep) {
     const controller = room.controller;
     if (controller) {
         const nearController = containers.filter(
-            (c) =>
-                c.store[RESOURCE_ENERGY] >= 100 &&
-                c.pos.getRangeTo(controller) <= 5
+            (c) => c.store[RESOURCE_ENERGY] >= 100 && c.pos.getRangeTo(controller) <= 5
         );
         if (nearController.length > 0) {
             const container = pathfinder.closest(creep.pos, nearController);

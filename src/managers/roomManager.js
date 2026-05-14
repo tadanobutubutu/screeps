@@ -153,7 +153,6 @@ function _planConstruction(room) {
 function _planSourceContainers(room) {
     const sources = cache.getSources(room);
     const existingContainers = cache.getContainers(room);
-    const existingAllSites = cache.getConstructionSites(room);
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
@@ -161,9 +160,9 @@ function _planSourceContainers(room) {
         if (nearby.length > 0) continue;
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = existingAllSites.filter(
-            (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2
-        );
+        const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
+            filter: (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2,
+        });
         if (existingSites.length > 0) continue;
 
         // ソースの隣の空きタイルにコンテナを配置
@@ -237,12 +236,10 @@ function _planExtensions(room) {
 
     if (maxExtensions === 0) return;
 
-    const existing = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
-    const sites = room.find(FIND_CONSTRUCTION_SITES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache
+        .getConstructionSites(room)
+        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
 
     const currentCount = existing.length + sites.length;
     if (currentCount >= maxExtensions) return;

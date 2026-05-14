@@ -17,19 +17,6 @@ global.FIND_STRUCTURES = 107;
 global.FIND_SOURCES_ACTIVE = 5;
 
 jest.mock(
-    '../utils/cache',
-    () => ({
-        getStructures: jest.fn().mockReturnValue([]),
-        getSources: jest.fn().mockReturnValue([]),
-        getConstructionSites: jest.fn().mockReturnValue([]),
-        getDroppedResources: jest.fn().mockReturnValue([]),
-        getContainers: jest.fn().mockReturnValue([]),
-        getStorage: jest.fn().mockReturnValue(null),
-        assignSource: jest.fn().mockReturnValue(null),
-    }),
-    { virtual: true }
-);
-jest.mock(
     '../gamification',
     () => ({
         trackAction: jest.fn(),

@@ -1,12 +1,9 @@
-💡 **What:**
-Replaced `room.find(FIND_STRUCTURES)` with `cache.getStructures(room).filter(...)` in `src/roles/repairer.js` (specifically in `_getRepairTarget` and `countDamagedStructures`). Updated tests to reflect this change correctly.
+🧹 Code Health: Refactor `warmRoomCache` to improve readability and maintainability
 
-🎯 **Why:**
-Calling `room.find(FIND_STRUCTURES)` executes an engine-level search and creates new arrays/objects via proxies. This can be highly expensive, especially in rooms with many walls, roads, and ramparts. Using `cache.getStructures()` leverages the utility module's cache, running a simpler JS `Array.prototype.filter` on an already populated array instead, greatly reducing tick execution time.
+🎯 **What:** The `warmRoomCache` function in `main.js` was long and complex, performing multiple distinct operations including basic cache array initialization and looping through structures for categorization. This was split into two functions: `initializeRoomBasicCache` and `categorizeRoomStructures`, with `warmRoomCache` acting as an orchestrator.
 
-📊 **Measured Improvement:**
-By benchmarking `room.find(FIND_STRUCTURES)` vs `cache.getStructures` with an array length of ~200 structures and simulating standard Screeps engine overhead:
+💡 **Why:** Breaking down long functions (Extract Method) improves the codebase's readability, cognitive load, and testability. By separating the initial fast array reset operations from the slower loop-based categorizations, future performance optimizations will be easier to profile and apply.
 
-- **Baseline (room.find):** ~113.17 ms
-- **Optimized (cache.getStructures):** ~44.23 ms
-- **Improvement:** ~60.9% decrease in execution time in the benchmark, directly translating to fewer CPU cycles consumed per tick per repairer.
+✅ **Verification:** Verified the logic remains identical to the previous implementation and ran the full unit test suite via `pnpm test` and formatting via `npx prettier --write main.js`. All core functionality remains intact.
+
+✨ **Result:** Improved the code health of `main.js` without altering behavior. The codebase is now easier to read and maintain for this critical caching path.

@@ -58,7 +58,7 @@ describe('Security: Aggregation Hardening', () => {
 
             // Verify that the malicious role was not used as a key that pollutes the prototype
             expect(stats.creepCounts['__proto__']).toBeUndefined();
-            expect(({})['__proto__']).not.toBe(1);
+            expect({}['__proto__']).not.toBe(1);
             expect(Object.getPrototypeOf(stats.creepCounts)).toBeNull();
         });
     });
@@ -79,7 +79,7 @@ describe('Security: Aggregation Hardening', () => {
                 name: 'maliciousCreep',
                 room: mockRoom,
                 memory: { role: 'constructor' },
-                spawning: false
+                spawning: false,
             };
 
             // Using logger mock to capture output of showStats
@@ -90,7 +90,7 @@ describe('Security: Aggregation Hardening', () => {
 
             // If it pollutes, it might cause weird behavior.
             // But we primarily want to ensure counts['constructor'] is not incremented on Object.prototype
-            expect(({})['constructor']).not.toBe(1);
+            expect({}['constructor']).not.toBe(1);
 
             infoSpy.mockRestore();
         });

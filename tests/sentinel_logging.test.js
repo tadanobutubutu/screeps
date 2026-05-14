@@ -32,14 +32,20 @@ describe('Sentinel: Logging Security Hardening', () => {
         logger.log(maliciousLevel, 'test message');
 
         // Should use default emoji '\ud83d\udcac' (💬)
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('\ud83d\udcac [toString]'));
+        expect(console.log).toHaveBeenCalledWith(
+            expect.stringContaining('\ud83d\udcac [toString]')
+        );
     });
 
     test('log should work correctly with standard levels', () => {
         logger.error('error message');
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('\u274c [error] error message'));
+        expect(console.log).toHaveBeenCalledWith(
+            expect.stringContaining('\u274c [error] error message')
+        );
 
         logger.warn('warn message');
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('\u26a0\ufe0f [warn] warn message'));
+        expect(console.log).toHaveBeenCalledWith(
+            expect.stringContaining('\u26a0\ufe0f [warn] warn message')
+        );
     });
 });

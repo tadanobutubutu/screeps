@@ -1,18 +1,18 @@
 const cache = require('./src/utils/cache');
+
 const DefenseManager = {
     findTowerTargets(room) {
         const towers = room.find(FIND_MY_STRUCTURES, {
             filter: (s) => s.structureType === STRUCTURE_TOWER,
         });
 
-        const hostiles = room.find(FIND_HOSTILE_CREEPS);
-        const structures = cache.getStructures(room);
-        const damagedStructures = structures.filter(
-            (s) => s.hits && s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
-        );
-        const damagedWalls = structures.filter(
-            (s) => s.structureType === STRUCTURE_WALL && s.hits < 100000
-        );
+        const hostiles = cache.getEnemies(room);
+        const damagedStructures = room.find(FIND_STRUCTURES, {
+            filter: (s) => s.hits && s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
+        });
+        const damagedWalls = room.find(FIND_STRUCTURES, {
+            filter: (s) => s.structureType === STRUCTURE_WALL && s.hits < 100000,
+        });
 
         towers.forEach((tower) => {
             if (hostiles.length > 0) {
@@ -29,7 +29,7 @@ const DefenseManager = {
         const towers = room.find(FIND_MY_STRUCTURES, {
             filter: (s) => s.structureType === STRUCTURE_TOWER,
         });
-        const hostiles = room.find(FIND_HOSTILE_CREEPS);
+        const hostiles = cache.getEnemies(room);
         const ramparts = room.find(FIND_MY_STRUCTURES, {
             filter: (s) => s.structureType === STRUCTURE_RAMPART,
         });

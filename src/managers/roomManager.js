@@ -236,12 +236,10 @@ function _planExtensions(room) {
 
     if (maxExtensions === 0) return;
 
-    const existing = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
-    const sites = room.find(FIND_CONSTRUCTION_SITES, {
-        filter: { structureType: STRUCTURE_EXTENSION },
-    });
+    const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
+    const sites = cache
+        .getConstructionSites(room)
+        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
 
     const currentCount = existing.length + sites.length;
     if (currentCount >= maxExtensions) return;

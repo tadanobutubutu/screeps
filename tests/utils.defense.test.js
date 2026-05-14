@@ -3,18 +3,20 @@
  */
 
 global.Memory = {};
-global.Game = { time: 1 };
-const FIND_MY_STRUCTURES = 20;
-global.FIND_MY_STRUCTURES = FIND_MY_STRUCTURES;
-const FIND_HOSTILE_CREEPS = 10;
-global.FIND_HOSTILE_CREEPS = FIND_HOSTILE_CREEPS;
-const FIND_STRUCTURES = 20;
-global.FIND_STRUCTURES = FIND_STRUCTURES;
+global.FIND_MY_STRUCTURES = 20;
+global.FIND_HOSTILE_CREEPS = 10;
+global.FIND_STRUCTURES = 20;
 global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
 
-const cache = require('../src/utils/cache');
+global.Game = { time: 0 };
+jest.mock('../src/utils/cache', () => ({
+    getEnemies: jest.fn((room) => {
+        return room.find(global.FIND_HOSTILE_CREEPS);
+    }),
+}));
+
 const DefenseManager = require('../utils.defense');
 
 describe('utils.defense', () => {
@@ -38,7 +40,6 @@ describe('utils.defense', () => {
                 return [];
             }),
         };
-        jest.spyOn(cache, 'getStructures').mockReturnValue([]);
 
         DefenseManager.findTowerTargets(room);
         expect(mockTower.attack).toHaveBeenCalledWith(mockHostile);
@@ -59,10 +60,12 @@ describe('utils.defense', () => {
                 if (type === FIND_HOSTILE_CREEPS) {
                     return [];
                 }
+                if (type === FIND_STRUCTURES) {
+                    return [mockDamaged];
+                }
                 return [];
             }),
         };
-        jest.spyOn(cache, 'getStructures').mockReturnValue([mockDamaged]);
 
         DefenseManager.findTowerTargets(room);
         expect(mockTower.repair).toHaveBeenCalled();

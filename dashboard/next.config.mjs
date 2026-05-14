@@ -7,6 +7,10 @@ const __dirname = dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     async headers() {
+        // Enable 'unsafe-eval' only in development to allow Next.js Fast Refresh/HMR to work
+        const isDev = process.env.NODE_ENV !== 'production';
+        const scriptSrc = isDev ? "script-src 'self' 'unsafe-eval'" : "script-src 'self'";
+
         return [
             {
                 source: '/(.*)',
@@ -25,7 +29,7 @@ const nextConfig = {
                     },
                     {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';",
+                        value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';`,
                     },
                 ],
             },

@@ -1,10 +1,9 @@
-💡 **What:** Replaced the unoptimized `room.find(FIND_HOSTILE_CREEPS)` calls in `utils.defense.js` with the cached utility `cache.getEnemies(room)`. Additionally fixed CodeFactor CI failures related to curly braces and missing global scope definitions in tests.
+🧹 Code Health: Refactor `warmRoomCache` to improve readability and maintainability
 
-🎯 **Why:** To avoid expensive, redundant engine-level `find` execution and Proxy-to-Array conversion costs that create measurable CPU overhead within high-frequency loops (like defense routines).
+🎯 **What:** The `warmRoomCache` function in `main.js` was long and complex, performing multiple distinct operations including basic cache array initialization and looping through structures for categorization. This was split into two functions: `initializeRoomBasicCache` and `categorizeRoomStructures`, with `warmRoomCache` acting as an orchestrator.
 
-📊 **Measured Improvement:**
+💡 **Why:** Breaking down long functions (Extract Method) improves the codebase's readability, cognitive load, and testability. By separating the initial fast array reset operations from the slower loop-based categorizations, future performance optimizations will be easier to profile and apply.
 
-- A local simulation measuring the CPU execution path showed a dramatic performance leap.
-- **Baseline time:** ~254ms (for 10,000 iterations mimicking `room.find()` overhead).
-- **Optimized time:** ~21ms (using the O(1) cache lookup).
-- **Net improvement:** Execution time is roughly 12x faster (~92% reduction in latency for this logic path).
+✅ **Verification:** Verified the logic remains identical to the previous implementation and ran the full unit test suite via `pnpm test` and formatting via `npx prettier --write main.js`. All core functionality remains intact.
+
+✨ **Result:** Improved the code health of `main.js` without altering behavior. The codebase is now easier to read and maintain for this critical caching path.

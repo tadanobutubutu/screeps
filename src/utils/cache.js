@@ -53,9 +53,10 @@ const isSafeKey = (key) => {
 };
 
 // global.cache が未初期化の場合に初期化する
+// Security: Use Object.create(null) to avoid prototype pollution issues
 function ensureCache() {
     if (!global.cache) {
-        global.cache = {};
+        global.cache = Object.create(null);
     }
     return global.cache;
 }
@@ -128,13 +129,22 @@ function invalidate(key) {
  * @param {RegExp|string} pattern - 無効化するキーのパターン
  *
  * Security: Wrapped in try-catch to prevent script crashes (DoS) from
- * invalid or malicious regex strings.
+ * invalid or malicious regex strings. Also limits pattern length to 100 chars
+ * to mitigate potential ReDoS.
  */
 function invalidatePattern(pattern) {
     try {
+        // Security: Limit pattern length to prevent ReDoS
+        if (typeof pattern === 'string' && pattern.length > 100) {
+            return;
+        }
+
         const cache = ensureCache();
         const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
         for (const key in cache) {
+            // Security: iterate over own keys only. Since cache is Object.create(null),
+            // hasOwnProperty.call is still safe but technically redundant for prototype issues,
+            // yet good for general robustness.
             if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
                 if (regex.test(key)) {
                     delete cache[key];

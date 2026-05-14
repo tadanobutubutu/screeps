@@ -123,9 +123,7 @@ function _getRepairTarget(creep) {
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
 
     // 修復が必要な構造物を収集
-    const damaged = room.find(FIND_STRUCTURES, {
-        filter: (s) => _needsRepair(s, room, wallTarget),
-    });
+    const damaged = cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget));
 
     if (damaged.length === 0) return null;
 
@@ -296,9 +294,7 @@ function getBody(energy) {
 function countDamagedStructures(room) {
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-    return room.find(FIND_STRUCTURES, {
-        filter: (s) => _needsRepair(s, room, wallTarget),
-    }).length;
+    return cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget)).length;
 }
 
 module.exports = { run, getBody, countDamagedStructures, REPAIR_PRIORITY };

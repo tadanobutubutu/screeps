@@ -44,7 +44,9 @@ const DANGEROUS_KEYS = new Set([
 const isSafeKey = (key) => {
     // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
     // and avoid unnecessary string/Set checks.
-    if (typeof key === 'number') return true;
+    if (typeof key === 'number') {
+        return true;
+    }
     // Security: Block dangerous properties that could lead to Prototype Pollution
     // or property shadowing when using user-provided strings as object keys.
     return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
@@ -80,18 +82,24 @@ function _canAddCacheEntry(cache) {
  */
 function get(key, fetcher, ttl) {
     // Security: Validate key
-    if (!isSafeKey(key)) return fetcher();
+    if (!isSafeKey(key)) {
+        return fetcher();
+    }
 
     const cache = ensureCache();
 
     const validEntry = _getValidEntry(cache, key);
-    if (validEntry) return validEntry.data;
+    if (validEntry) {
+        return validEntry.data;
+    }
 
     // Security: Cap the number of cache entries to prevent Memory DoS.
     // If full, attempt to cleanup expired entries once before giving up.
     if (!_canAddCacheEntry(cache)) {
         cleanup();
-        if (!_canAddCacheEntry(cache)) return fetcher();
+        if (!_canAddCacheEntry(cache)) {
+            return fetcher();
+        }
     }
 
     const data = fetcher();
@@ -107,7 +115,9 @@ function get(key, fetcher, ttl) {
  * @param {string} key - 無効化するキャッシュキー
  */
 function invalidate(key) {
-    if (!isSafeKey(key)) return;
+    if (!isSafeKey(key)) {
+        return;
+    }
     const cache = ensureCache();
     if (Object.prototype.hasOwnProperty.call(cache, key)) {
         delete cache[key];
@@ -234,6 +244,14 @@ function getMyStructures(room, structureType) {
         CACHE_TTL.STRUCTURES
     );
 }
+/**
+ * ルーム内の味方クリープをキャッシュ付きで取得する
+ * @param {Room} room
+ * @returns {Creep[]}
+ */
+function getMyCreeps(room) {
+    return get(`my_creeps_${room.name}`, () => room.find(FIND_MY_CREEPS), CACHE_TTL.ROOM_OBJECTS);
+}
 
 /**
  * ルーム内の建設サイトをキャッシュ付きで取得する
@@ -354,11 +372,15 @@ function getStorage(room) {
 function assignSource(creep, room) {
     if (creep.memory.sourceId) {
         const src = Game.getObjectById(creep.memory.sourceId);
-        if (src) return src;
+        if (src) {
+            return src;
+        }
     }
 
     const sources = getSources(room);
-    if (sources.length === 0) return null;
+    if (sources.length === 0) {
+        return null;
+    }
 
     // 各ソースに割り当てられているクリープ数をカウント
     const assignments = {};
@@ -396,6 +418,7 @@ module.exports = {
     getSources,
     getStructures,
     getMyStructures,
+    getMyCreeps,
     getConstructionSites,
     getEnemies,
     getDroppedResources,

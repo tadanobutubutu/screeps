@@ -3,7 +3,6 @@
  */
 
 global.Memory = {};
-global.Game = { time: 1 };
 global.FIND_MY_STRUCTURES = 20;
 global.FIND_HOSTILE_CREEPS = 10;
 global.FIND_STRUCTURES = 20;
@@ -11,13 +10,16 @@ global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
 
+global.Game = { time: 0 };
+jest.mock('../src/utils/cache', () => ({
+    getEnemies: jest.fn((room) => {
+        return room.find(global.FIND_HOSTILE_CREEPS);
+    }),
+}));
+
 const DefenseManager = require('../utils.defense');
 
 describe('utils.defense', () => {
-    beforeEach(() => {
-        global.cache = {};
-    });
-
     test('モジュールが正しく読み込める', () => {
         expect(DefenseManager).toBeDefined();
         expect(typeof DefenseManager.findTowerTargets).toBe('function');
@@ -25,10 +27,9 @@ describe('utils.defense', () => {
     });
 
     test('findTowerTargetsがhostilesがいるときattackを呼ぶ', () => {
-        const mockTower = { attack: jest.fn(), repair: jest.fn() };
+        const mockTower = { attack: jest.fn() };
         const mockHostile = { id: 'hostile1' };
         const room = {
-            name: 'test',
             find: jest.fn().mockImplementation((type) => {
                 if (type === FIND_MY_STRUCTURES) {
                     return [mockTower];
@@ -52,7 +53,6 @@ describe('utils.defense', () => {
         };
         const mockDamaged = { id: 'damaged1', hits: 50, hitsMax: 100, structureType: 'extension' };
         const room = {
-            name: 'test',
             find: jest.fn().mockImplementation((type) => {
                 if (type === FIND_MY_STRUCTURES) {
                     return [mockTower];
@@ -75,19 +75,11 @@ describe('utils.defense', () => {
         const mockTower = { structureType: 'tower' };
         const mockRampart = { structureType: 'rampart' };
         const room = {
-            name: 'test',
             find: jest.fn().mockImplementation((type, options) => {
                 if (type === FIND_MY_STRUCTURES) {
                     if (options && options.filter) {
                         const structures = [mockTower, mockRampart];
-                        if (typeof options.filter === 'function') {
-                            return structures.filter(options.filter);
-                        }
-                        if (typeof options.filter === 'object') {
-                            return structures.filter(
-                                (s) => s.structureType === options.filter.structureType
-                            );
-                        }
+                        return structures.filter(options.filter);
                     }
                     return [mockTower, mockRampart];
                 }

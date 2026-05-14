@@ -61,9 +61,10 @@ const COST_MATRIX_CACHE_PREFIX = 'cm_'
 
 /**
  * global.cache を初期化する（未定義の場合）
+ * Security: Use Object.create(null) to avoid prototype pollution issues
  */
 function ensureCache () {
-  if (!global.cache) global.cache = {}
+  if (!global.cache) global.cache = Object.create(null)
   return global.cache
 }
 

@@ -60,7 +60,7 @@ const pathfinder = require('../src/utils/pathfinder')
 const defender = require('../src/roles/defender')
 
 describe('src/roles/defender', () => {
-  beforeEach(() => { global.LOG_LEVEL = { ERROR: 3 }; global.FIND_HOSTILE_CREEPS = 'find_hostiles'; });
+  beforeEach(() => { global.LOG_LEVEL = { ERROR: 3 }; global.FIND_HOSTILE_CREEPS = 103; });
   beforeEach(() => {
     jest.clearAllMocks()
   })

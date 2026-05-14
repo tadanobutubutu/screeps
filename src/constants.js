@@ -15,6 +15,16 @@ if (typeof RANGED_ATTACK === 'undefined') global.RANGED_ATTACK = 'ranged_attack'
 if (typeof HEAL === 'undefined') global.HEAL = 'heal';
 if (typeof CLAIM === 'undefined') global.CLAIM = 'claim';
 if (typeof TOUGH === 'undefined') global.TOUGH = 'tough';
+if (typeof STRUCTURE_ROAD === 'undefined') global.STRUCTURE_ROAD = 'road';
+if (typeof STRUCTURE_CONTAINER === 'undefined') global.STRUCTURE_CONTAINER = 'container';
+if (typeof STRUCTURE_RAMPART === 'undefined') global.STRUCTURE_RAMPART = 'rampart';
+if (typeof STRUCTURE_WALL === 'undefined') global.STRUCTURE_WALL = 'constructedWall';
+if (typeof STRUCTURE_SPAWN === 'undefined') global.STRUCTURE_SPAWN = 'spawn';
+if (typeof STRUCTURE_EXTENSION === 'undefined') global.STRUCTURE_EXTENSION = 'extension';
+if (typeof STRUCTURE_TOWER === 'undefined') global.STRUCTURE_TOWER = 'tower';
+if (typeof STRUCTURE_STORAGE === 'undefined') global.STRUCTURE_STORAGE = 'storage';
+if (typeof STRUCTURE_LINK === 'undefined') global.STRUCTURE_LINK = 'link';
+if (typeof STRUCTURE_LAB === 'undefined') global.STRUCTURE_LAB = 'lab';
 
 
 // ============================================================
@@ -40,7 +50,8 @@ const ROLES = {
 // ============================================================
 
 /** 各ボディパーツのエネルギーコスト */
-const BODY_COSTS = {
+// Security: Use Object.create(null) to avoid prototype pollution issues
+const BODY_COSTS = Object.assign(Object.create(null), {
     [MOVE]: 50,
     [WORK]: 100,
     [CARRY]: 50,
@@ -49,7 +60,7 @@ const BODY_COSTS = {
     [HEAL]: 250,
     [CLAIM]: 600,
     [TOUGH]: 10,
-};
+});
 
 // ============================================================
 // ボディ構成プリセット
@@ -112,7 +123,8 @@ const BODY_PRESETS = {
 // ============================================================
 
 /** ロールごとのスポーン優先度（低い数値 = 高優先度）*/
-const SPAWN_PRIORITY = {
+// Security: Use Object.create(null) to avoid prototype pollution issues
+const SPAWN_PRIORITY = Object.assign(Object.create(null), {
     [ROLES.HARVESTER]: 1,
     [ROLES.UPGRADER]: 2,
     [ROLES.BUILDER]: 3,
@@ -123,7 +135,7 @@ const SPAWN_PRIORITY = {
     [ROLES.SCOUT]: 8,
     [ROLES.CLAIMER]: 9,
     [ROLES.REMOTE_HARVESTER]: 10,
-};
+});
 
 // ============================================================
 // RCL別ターゲットクリープ数
@@ -247,13 +259,15 @@ const CACHE_TTL = {
 // ============================================================
 
 /** 修復対象となるHP率の閾値 */
-const REPAIR_THRESHOLD = {
-    ROAD: 0.5,
-    CONTAINER: 0.5,
-    WALL: 0.0001,
-    RAMPART: 0.001,
+// Security: Use Object.create(null) to avoid prototype pollution issues.
+// Fix: Use computed property names with Screeps constants for correct lookups.
+const REPAIR_THRESHOLD = Object.assign(Object.create(null), {
+    [STRUCTURE_ROAD]: 0.5,
+    [STRUCTURE_CONTAINER]: 0.5,
+    [STRUCTURE_WALL]: 0.0001,
+    [STRUCTURE_RAMPART]: 0.001,
     OTHER: 0.75,
-};
+});
 
 /** ウォール・ランパートの最大HP目標値（RCL別） */
 const WALL_HP_TARGET = {

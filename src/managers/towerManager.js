@@ -194,10 +194,8 @@ function _selectRepairTarget (tower, room) {
   const rcl = room.controller ? room.controller.level : 1
   const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1]
 
-  const urgentRamparts = room.find(FIND_MY_STRUCTURES, {
-    filter: (s) =>
-      s.structureType === STRUCTURE_RAMPART && s.hits < Math.min(wallTarget * 0.1, 5000)
-  })
+  const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART)
+  const urgentRamparts = ramparts.filter((s) => s.hits < Math.min(wallTarget * 0.1, 5000))
   if (urgentRamparts.length > 0) {
     return urgentRamparts.reduce((a, b) => (a.hits < b.hits ? a : b))
   }

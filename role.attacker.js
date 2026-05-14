@@ -25,9 +25,16 @@ const roleAttacker = {
     run(creep) {
         // Heal self if damaged and healer not available
         if (creep.hits < creep.hitsMax * 0.5) {
-            const healTarget = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-                filter: (c) => c.getActiveBodyparts(HEAL) > 0,
-            });
+            // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
+            const myCreeps = creep.room._myCreeps || creep.room.find(FIND_MY_CREEPS);
+            const healers = [];
+            for (let i = 0; i < myCreeps.length; i++) {
+                if (myCreeps[i].getActiveBodyparts(HEAL) > 0) {
+                    healers.push(myCreeps[i]);
+                }
+            }
+
+            const healTarget = healers.length > 0 ? creep.pos.findClosestByRange(healers) : null;
             if (healTarget) {
                 creep.moveTo(healTarget, PATH_STYLE_HEAL);
                 return;
@@ -65,9 +72,19 @@ const roleAttacker = {
         let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
 
         if (!hostileStructure) {
-            hostileStructure = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-                filter: STRUCTURE_FILTER,
-            });
+            let hostileStructures;
+            if (creep.room._allStructures) {
+                hostileStructures = creep.room._allStructures.filter(
+                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
+                );
+            } else {
+                hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+                    filter: STRUCTURE_FILTER,
+                });
+            }
+
+            hostileStructure = creep.pos.findClosestByRange(hostileStructures);
+
             if (hostileStructure) {
                 creep.memory.structureTargetId = hostileStructure.id;
             }

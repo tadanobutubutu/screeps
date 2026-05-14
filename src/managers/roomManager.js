@@ -160,11 +160,9 @@ function _planSourceContainers(room) {
         if (nearby.length > 0) continue;
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = cache
-            .getConstructionSites(room)
-            .filter(
-                (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2
-            );
+        const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
+            filter: (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2,
+        });
         if (existingSites.length > 0) continue;
 
         // ソースの隣の空きタイルにコンテナを配置

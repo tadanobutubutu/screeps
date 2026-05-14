@@ -260,7 +260,14 @@ describe('roomManager', () => {
             cache.getSources.mockReturnValue([source]);
             cache.getContainers.mockReturnValue([]);
 
-            cache.getConstructionSites.mockReturnValue([constructionSite]);
+            mockRoom.find.mockImplementation((type, opts) => {
+                if (type === global.FIND_CONSTRUCTION_SITES && opts && opts.filter) {
+                    if (opts.filter(constructionSite)) {
+                        return [constructionSite];
+                    }
+                }
+                return [];
+            });
 
             roomManager.run(mockRoom);
 

@@ -5,3 +5,7 @@
 ## 2025-05-16 - [Urgency Animations & Delta Feedback]
 **Learning:** Subtle, high-frequency animations (like `shake`) are more effective than slow animations (like `pulse`) for conveying critical status or urgency in compact UIs. Additionally, explicit delta indicators (e.g., `+1` for room gains) provide immediate "success feedback" that raw numbers lack, improving the user's sense of progress during brief dashboard checks.
 **Action:** Use `shake` for critical alerts and include numeric deltas for all key resources to emphasize recent changes.
+
+## 2026-05-14 - [GCL Level Up Estimation]
+**Learning:** Providing actionable progress information, such as an "estimated time to level up," transforms raw data into meaningful feedback for long-term players. This enhancement leverages the rate of change between data syncs, making the dashboard feel more dynamic and helpful. Updating ARIA attributes (like `aria-valuetext`) ensures this "delightful" information is also accessible to screen reader users.
+**Action:** Always look for opportunities to derive "velocity" or "time-to-goal" metrics from static stats to improve user engagement and situational awareness.

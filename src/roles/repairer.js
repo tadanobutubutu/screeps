@@ -181,12 +181,11 @@ function _needsRepair(structure, room, wallTarget) {
 function _showRepairVisual(creep, target) {
     const pct = target.hits / target.hitsMax;
     const color = pct < 0.3 ? '#ff4444' : pct < 0.7 ? '#ffaa00' : '#00ff88';
-    creep.room.visual.text(
-        `🔧 ${(pct * 100).toFixed(0)}%`,
-        target.pos.x,
-        target.pos.y - 1,
-        { color, font: 0.4, align: 'center' }
-    );
+    creep.room.visual.text(`🔧 ${(pct * 100).toFixed(0)}%`, target.pos.x, target.pos.y - 1, {
+        color,
+        font: 0.4,
+        align: 'center',
+    });
 }
 
 /**
@@ -228,9 +227,7 @@ function _getEnergy(creep) {
 
     // 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter(
-        (r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 30
-    );
+    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 30);
     if (energyDrops.length > 0) {
         const res = pathfinder.closest(creep.pos, energyDrops);
         if (creep.pickup(res) === ERR_NOT_IN_RANGE) {

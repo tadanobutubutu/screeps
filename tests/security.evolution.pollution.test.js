@@ -22,7 +22,7 @@ describe('Security: Evolution System Prototype Pollution Protection', () => {
             creeps: {},
             gcl: { level: 1 },
             spawns: {},
-            getObjectById: jest.fn()
+            getObjectById: jest.fn(),
         };
         global.Memory = {};
         autoEvolution.init();
@@ -76,9 +76,9 @@ describe('Security: Evolution System Prototype Pollution Protection', () => {
                     controller: { my: true, level: 8 },
                     find: jest.fn().mockReturnValue([]),
                     energyAvailable: 0,
-                    energyCapacityAvailable: 0
+                    energyCapacityAvailable: 0,
                 },
-                enumerable: true
+                enumerable: true,
             });
 
             // This test is tricky because Object.values() includes own enumerable properties.
@@ -91,7 +91,7 @@ describe('Security: Evolution System Prototype Pollution Protection', () => {
                 controller: { my: true, level: 9 },
                 find: jest.fn().mockReturnValue([]),
                 energyAvailable: 0,
-                energyCapacityAvailable: 0
+                energyCapacityAvailable: 0,
             };
             const state2 = autoEvolution.analyzeBasicState();
             expect(state2.roomCount).toBe(1); // Should only see 'polluted', not 'evil' from prototype
@@ -102,7 +102,7 @@ describe('Security: Evolution System Prototype Pollution Protection', () => {
             Object.prototype.evilRoom = {
                 controller: { my: true },
                 find: jest.fn().mockReturnValue([]),
-                name: 'EVIL'
+                name: 'EVIL',
             };
 
             const bottlenecks = autoEvolution.analyzeBottlenecks();

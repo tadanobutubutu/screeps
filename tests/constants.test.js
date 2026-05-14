@@ -80,8 +80,8 @@ describe('constants', () => {
 
   describe('REPAIR_THRESHOLD', () => {
     test('修復閾値が0-1の範囲で定義されている', () => {
-      expect(constants.REPAIR_THRESHOLD.ROAD).toBeGreaterThanOrEqual(0);
-      expect(constants.REPAIR_THRESHOLD.ROAD).toBeLessThanOrEqual(1);
+      expect(constants.REPAIR_THRESHOLD[STRUCTURE_ROAD]).toBeGreaterThanOrEqual(0);
+      expect(constants.REPAIR_THRESHOLD[STRUCTURE_ROAD]).toBeLessThanOrEqual(1);
       expect(constants.REPAIR_THRESHOLD.OTHER).toBeGreaterThanOrEqual(0);
     });
   });

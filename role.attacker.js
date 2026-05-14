@@ -13,87 +13,97 @@ const PATH_STYLE_PATROL_CONTROLLER = { visualizePathStyle: { stroke: '#ffaa00' }
 
 // ⚡ PERFORMANCE: Hoisted filter function to reduce per-tick closure creation.
 const STRUCTURE_FILTER = (s) =>
-  s.structureType === STRUCTURE_INVADER_CORE ||
-  s.structureType === STRUCTURE_TOWER ||
-  s.structureType === STRUCTURE_SPAWN;
+    s.structureType === STRUCTURE_INVADER_CORE ||
+    s.structureType === STRUCTURE_TOWER ||
+    s.structureType === STRUCTURE_SPAWN;
 
 const roleAttacker = {
-  /**
-   * Main run function called every tick.
-   * @param {Creep} creep
-   */
-  run(creep) {
-    // Heal self if damaged and healer not available
-    if (creep.hits < creep.hitsMax * 0.5) {
-      const healTarget = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: (c) => c.getActiveBodyparts(HEAL) > 0,
-      });
-      if (healTarget) {
-        creep.moveTo(healTarget, PATH_STYLE_HEAL);
-        return;
-      }
-    }
+    /**
+     * Main run function called every tick.
+     * @param {Creep} creep
+     */
+    run(creep) {
+        // Heal self if damaged and healer not available
+        if (creep.hits < creep.hitsMax * 0.5) {
+            const healTarget = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+                filter: (c) => c.getActiveBodyparts(HEAL) > 0,
+            });
+            if (healTarget) {
+                creep.moveTo(healTarget, PATH_STYLE_HEAL);
+                return;
+            }
+        }
 
-    // Priority 1: Attack hostile creeps in range
-    // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
-    const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
+        // Priority 1: Attack hostile creeps in range
+        // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
+        const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
 
-    if (hostiles.length > 0) {
-      // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
-      let hostileCreep = Game.getObjectById(creep.memory.targetId);
+        if (hostiles.length > 0) {
+            // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
+            let hostileCreep = Game.getObjectById(creep.memory.targetId);
 
-      // ⚡ PERFORMANCE: O(1) check for target validity instead of O(N) search
-      if (!hostileCreep || hostileCreep.room.name !== creep.room.name) {
-        hostileCreep = creep.pos.findClosestByRange(hostiles);
-        if (hostileCreep) {
-          creep.memory.targetId = hostileCreep.id;
+            // ⚡ PERFORMANCE: O(1) check for target validity instead of O(N) search
+            if (!hostileCreep || hostileCreep.room.name !== creep.room.name) {
+                hostileCreep = creep.pos.findClosestByRange(hostiles);
+                if (hostileCreep) {
+                    creep.memory.targetId = hostileCreep.id;
+                } else {
+                    delete creep.memory.targetId;
+                }
+            }
+
+            if (hostileCreep) {
+                if (creep.attack(hostileCreep) === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(hostileCreep, PATH_STYLE_ATTACK);
+                }
+                return;
+            }
+        }
+
+        // Priority 2: Attack invader core or hostile structures
+        // ⚡ PERFORMANCE: Implement target ID caching for structures
+        let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
+
+        if (!hostileStructure) {
+            let hostileStructures;
+            if (creep.room._allStructures) {
+                hostileStructures = creep.room._allStructures.filter(
+                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
+                );
+            } else {
+                hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
+                    filter: STRUCTURE_FILTER,
+                });
+            }
+
+            hostileStructure = creep.pos.findClosestByRange(hostileStructures);
+
+            if (hostileStructure) {
+                creep.memory.structureTargetId = hostileStructure.id;
+            }
+        }
+
+        if (hostileStructure) {
+            if (creep.attack(hostileStructure) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(hostileStructure, PATH_STYLE_STRUCTURE);
+            }
+            return;
         } else {
-          delete creep.memory.targetId;
+            delete creep.memory.structureTargetId;
         }
-      }
 
-      if (hostileCreep) {
-        if (creep.attack(hostileCreep) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(hostileCreep, PATH_STYLE_ATTACK);
+        // Priority 3: Patrol flag or room center when idle
+        const flag = Game.flags['attack'] || Game.flags['Attack'];
+        if (flag) {
+            creep.moveTo(flag, PATH_STYLE_PATROL);
+        } else {
+            // Move to room controller area as default patrol point
+            const controller = creep.room.controller;
+            if (controller) {
+                creep.moveTo(controller, PATH_STYLE_PATROL_CONTROLLER);
+            }
         }
-        return;
-      }
-    }
-
-    // Priority 2: Attack invader core or hostile structures
-    // ⚡ PERFORMANCE: Implement target ID caching for structures
-    let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
-
-    if (!hostileStructure) {
-      hostileStructure = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES, {
-        filter: STRUCTURE_FILTER,
-      });
-      if (hostileStructure) {
-        creep.memory.structureTargetId = hostileStructure.id;
-      }
-    }
-
-    if (hostileStructure) {
-      if (creep.attack(hostileStructure) === ERR_NOT_IN_RANGE) {
-        creep.moveTo(hostileStructure, PATH_STYLE_STRUCTURE);
-      }
-      return;
-    } else {
-      delete creep.memory.structureTargetId;
-    }
-
-    // Priority 3: Patrol flag or room center when idle
-    const flag = Game.flags['attack'] || Game.flags['Attack'];
-    if (flag) {
-      creep.moveTo(flag, PATH_STYLE_PATROL);
-    } else {
-      // Move to room controller area as default patrol point
-      const controller = creep.room.controller;
-      if (controller) {
-        creep.moveTo(controller, PATH_STYLE_PATROL_CONTROLLER);
-      }
-    }
-  },
+    },
 };
 
 module.exports = roleAttacker;

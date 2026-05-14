@@ -10,10 +10,10 @@ describe('Security: Emotions Protection', () => {
     beforeEach(() => {
         global.Game = {
             time: 100,
-            creeps: {}
+            creeps: {},
         };
         global.Memory = {
-            creeps: {}
+            creeps: {},
         };
         global.RESOURCE_ENERGY = 'energy';
         mockCreep = {
@@ -21,10 +21,10 @@ describe('Security: Emotions Protection', () => {
             memory: {
                 emotions: {
                     mood: 3,
-                    achievements: []
-                }
+                    achievements: [],
+                },
             },
-            say: jest.fn()
+            say: jest.fn(),
         };
     });
 
@@ -85,7 +85,7 @@ describe('Security: Emotions Protection', () => {
                 name: 'testCreep2',
                 memory: { emotions: { mood: NaN } },
                 pos: { x: 11, y: 11, inRangeTo: () => true },
-                say: jest.fn()
+                say: jest.fn(),
             };
             mockCreep.pos = { x: 10, y: 10, inRangeTo: () => true };
             mockCreep.memory.emotions.mood = NaN;

@@ -11,15 +11,15 @@ describe('Security: Memory Map and Diary Protections', () => {
             rooms: {},
             creeps: {},
             cpu: { getUsed: () => 1.0, limit: 20, bucket: 10000 },
-            gcl: { level: 1 }
+            gcl: { level: 1 },
         };
         global.Memory = {
             creeps: {},
             rooms: {},
             map: {
                 rooms: {},
-                explored: []
-            }
+                explored: [],
+            },
         };
         // Mock FIND_SOURCES, etc.
         global.FIND_SOURCES = 1;
@@ -38,13 +38,15 @@ describe('Security: Memory Map and Diary Protections', () => {
         test('recordRoom() should not allow dangerous keys', () => {
             const dangerousKey = '__proto__';
             global.Game.rooms[dangerousKey] = {
-                find: () => []
+                find: () => [],
             };
 
             memVis.recordRoom(dangerousKey);
 
             // Use hasOwnProperty to check if it was explicitly set
-            expect(Object.prototype.hasOwnProperty.call(Memory.map.rooms, dangerousKey)).toBe(false);
+            expect(Object.prototype.hasOwnProperty.call(Memory.map.rooms, dangerousKey)).toBe(
+                false
+            );
             expect(Memory.map.explored).not.toContain(dangerousKey);
         });
     });
@@ -54,7 +56,7 @@ describe('Security: Memory Map and Diary Protections', () => {
             for (let i = 0; i < 110; i++) {
                 const roomName = `W${i}N${i}`;
                 global.Game.rooms[roomName] = {
-                    find: () => []
+                    find: () => [],
                 };
                 memVis.recordRoom(roomName);
             }
@@ -68,7 +70,7 @@ describe('Security: Memory Map and Diary Protections', () => {
             for (let i = 0; i < 60; i++) {
                 const roomName = `E${i}S${i}`;
                 global.Game.rooms[roomName] = {
-                    find: () => []
+                    find: () => [],
                 };
                 global.Game.time = 100 + i; // Increment time for lastVisit
                 memVis.recordRoom(roomName);

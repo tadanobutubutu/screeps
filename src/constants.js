@@ -26,7 +26,6 @@ if (typeof STRUCTURE_STORAGE === 'undefined') global.STRUCTURE_STORAGE = 'storag
 if (typeof STRUCTURE_LINK === 'undefined') global.STRUCTURE_LINK = 'link';
 if (typeof STRUCTURE_LAB === 'undefined') global.STRUCTURE_LAB = 'lab';
 
-
 // ============================================================
 // クリープロール定数
 // ============================================================
@@ -105,12 +104,8 @@ const BODY_PRESETS = {
         { body: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], cost: 400 },
         { body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], cost: 600 },
     ],
-    [ROLES.SCOUT]: [
-        { body: [MOVE], cost: 50 },
-    ],
-    [ROLES.CLAIMER]: [
-        { body: [CLAIM, MOVE], cost: 650 },
-    ],
+    [ROLES.SCOUT]: [{ body: [MOVE], cost: 50 }],
+    [ROLES.CLAIMER]: [{ body: [CLAIM, MOVE], cost: 650 }],
     [ROLES.REMOTE_HARVESTER]: [
         { body: [WORK, CARRY, MOVE, MOVE], cost: 250 },
         { body: [WORK, WORK, CARRY, MOVE, MOVE], cost: 400 },

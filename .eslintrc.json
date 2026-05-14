@@ -46,7 +46,8 @@
         "ERR_NOT_ENOUGH_ENERGY": "readonly",
         "ERR_NOT_IN_RANGE": "readonly",
         "ERR_BUSY": "readonly",
-        "FIND_MY_STRUCTURES": "readonly"
+        "FIND_MY_STRUCTURES": "readonly",
+        "STRUCTURE_RAMPART": "readonly"
     },
     "rules": {
         "no-unused-vars": [

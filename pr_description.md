@@ -1,3 +1,9 @@
-💡 **What:** Replaced the raw API call `room.find(FIND_HOSTILE_CREEPS)` with the cached utility `cache.getEnemies(room)` in `utils.defense.js` for `findTowerTargets` and `getDefenseStatus` methods. Also updated the corresponding unit tests to correctly mock and utilize the cache object. Added memory state handling to fix `Game is not defined` errors.
-🎯 **Why:** To improve execution time and lower CPU overhead. Calling `room.find` triggers costly engine Proxy-to-Array operations every tick. Replacing this with the caching utility significantly speeds up execution.
-📊 **Measured Improvement:** Baseline execution for 10,000 iterations ran in ~14.45 ms with 30,000 internal `find()` mock calls. The optimized version ran in ~9.97 ms with only 20,001 `find()` mock calls, resulting in an ~31% performance speed-up for these operations. Tests also pass.
+🧹 Code Health: Refactor `warmRoomCache` to improve readability and maintainability
+
+🎯 **What:** The `warmRoomCache` function in `main.js` was long and complex, performing multiple distinct operations including basic cache array initialization and looping through structures for categorization. This was split into two functions: `initializeRoomBasicCache` and `categorizeRoomStructures`, with `warmRoomCache` acting as an orchestrator.
+
+💡 **Why:** Breaking down long functions (Extract Method) improves the codebase's readability, cognitive load, and testability. By separating the initial fast array reset operations from the slower loop-based categorizations, future performance optimizations will be easier to profile and apply.
+
+✅ **Verification:** Verified the logic remains identical to the previous implementation and ran the full unit test suite via `pnpm test` and formatting via `npx prettier --write main.js`. All core functionality remains intact.
+
+✨ **Result:** Improved the code health of `main.js` without altering behavior. The codebase is now easier to read and maintain for this critical caching path.

@@ -9,9 +9,13 @@ global.FIND_STRUCTURES = 20;
 global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
-global.Game = { time: 1 };
-global.cache = {};
-global.CACHE_TTL = { ROOM_OBJECTS: 10, ENEMIES: 5 };
+
+global.Game = { time: 0 };
+jest.mock('../src/utils/cache', () => ({
+    getEnemies: jest.fn((room) => {
+        return room.find(global.FIND_HOSTILE_CREEPS);
+    }),
+}));
 
 const DefenseManager = require('../utils.defense');
 
@@ -39,10 +43,6 @@ describe('utils.defense', () => {
 
         DefenseManager.findTowerTargets(room);
         expect(mockTower.attack).toHaveBeenCalledWith(mockHostile);
-    });
-
-    beforeEach(() => {
-        global.cache = {};
     });
 
     test('findTowerTargetsがdamagedStructuresがあるときrepairを呼ぶ', () => {

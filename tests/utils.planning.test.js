@@ -20,18 +20,12 @@ global.RoomPosition = class {
     }
 };
 
-jest.mock('../src/utils/cache', () => ({
-    getSources: jest.fn(),
-}));
-const cache = require('../src/utils/cache');
-
 const utilsPlanning = require('../utils.planning');
 
 describe('utils.planning', () => {
     let mockRoom;
 
     beforeEach(() => {
-        cache.getSources.mockReset();
         global.Memory = {};
         mockRoom = {
             getTerrain: jest.fn().mockReturnValue({
@@ -84,7 +78,6 @@ describe('utils.planning', () => {
     });
 
     test('findBestSpawnPositionがsourcesがないときnullを返す', () => {
-        cache.getSources.mockReturnValue([]);
         mockRoom.find.mockReturnValue([]);
         const pos = utilsPlanning.findBestSpawnPosition(mockRoom);
         expect(pos).toBeNull();
@@ -107,7 +100,6 @@ describe('utils.planning', () => {
     });
 
     test('displayPlanningInfoがエラーを投げない', () => {
-        cache.getSources.mockReturnValue([{ id: 'source1' }]);
         mockRoom.find.mockReturnValue([{ id: 'source1' }]);
         const result = utilsPlanning.displayPlanningInfo(mockRoom);
         expect(result).toBeDefined();

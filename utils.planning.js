@@ -1,4 +1,3 @@
-/* global TERRAIN_MASK_WALL */
 // Room Planning Utilities
 // Basic implementations inspired by Distance Transform and Floodfill concepts
 
@@ -46,7 +45,7 @@ module.exports = {
     // Find best position for spawn near controller and sources
     findBestSpawnPosition: function (room) {
         const controller = room.controller;
-        const sources = cache.getSources(room) || [];
+        const sources = cache.getSources(room);
 
         if (!controller || sources.length === 0) {
             return null;
@@ -117,7 +116,7 @@ module.exports = {
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
         const spawn = room.find(FIND_MY_SPAWNS)[0];
-        const sources = cache.getSources(room) || [];
+        const sources = cache.getSources(room);
         const controller = room.controller;
 
         if (!spawn) {
@@ -151,10 +150,10 @@ module.exports = {
         const bestSpawnPos = this.findBestSpawnPosition(room);
 
         console.log(`\n🏗️ Room Planning [${room.name}]:`);
-        console.log(`   Open spaces (5x5+): ${openSpaces.length}`);
+        console.log(`     Open spaces (5x5+): ${openSpaces.length}`);
 
         if (bestSpawnPos) {
-            console.log(`   Best spawn position: ${bestSpawnPos}`);
+            console.log(`     Best spawn position: ${bestSpawnPos}`);
         }
 
         return { openSpaces, bestSpawnPos };

@@ -1,5 +1,3 @@
-/* global STRUCTURE_ROAD */
-global.FIND_SOURCES = 105;
 /**
  * src/roles/*.js のユニットテスト
  */
@@ -15,6 +13,7 @@ global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.FIND_STRUCTURES = 1;
 global.FIND_MY_STRUCTURES = 2;
 global.FIND_CONSTRUCTION_SITES = 3;
+global.FIND_HOSTILE_CREEPS = 103;
 global.FIND_MY_CONSTRUCTION_SITES = 4;
 global.FIND_CREEPS = 5;
 global.STRUCTURE_CONTAINER = 'container';
@@ -246,14 +245,16 @@ describe('src roles behaviors', () => {
         test('コンテナがある場合は移動して採掘する', () => {
             const room = {
                 name: 'W0N0',
-                find: jest.fn().mockReturnValue([
-                    {
-                        structureType: STRUCTURE_CONTAINER,
-                        pos: { x: 11, y: 10 },
-                        hits: 1000,
-                        hitsMax: 2000,
-                    },
-                ]),
+                find: jest
+                    .fn()
+                    .mockReturnValue([
+                        {
+                            structureType: STRUCTURE_CONTAINER,
+                            pos: { x: 11, y: 10 },
+                            hits: 1000,
+                            hitsMax: 2000,
+                        },
+                    ]),
                 getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
             };
             const source = { id: 'src1', room, pos: { x: 10, y: 10 } };

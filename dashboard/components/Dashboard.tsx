@@ -16,6 +16,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    const [prevLastUpdated, setPrevLastUpdated] = useState<Date | null>(null);
     const [copied, setCopied] = useState(false);
     const [updated, setUpdated] = useState(false);
     const [isRefreshFocused, setIsRefreshFocused] = useState(false);
@@ -50,6 +51,32 @@ export default function Dashboard() {
         stats?.cpuUsed !== undefined && prevStats?.cpuUsed !== undefined
             ? stats.cpuUsed - prevStats.cpuUsed
             : 0;
+
+    const getTimeToLevel = useCallback(() => {
+        if (!stats?.gcl || !prevStats?.gcl || !lastUpdated || !prevLastUpdated) return null;
+        if (stats.gcl.level !== prevStats.gcl.level) return null;
+
+        const xpGain = stats.gcl.progress - prevStats.gcl.progress;
+        const timeDiff = lastUpdated.getTime() - prevLastUpdated.getTime();
+
+        if (xpGain <= 0 || timeDiff <= 0) return null;
+
+        const xpRemaining = stats.gcl.progressTotal - stats.gcl.progress;
+        const xpPerMs = xpGain / timeDiff;
+        return xpRemaining / xpPerMs;
+    }, [stats, prevStats, lastUpdated, prevLastUpdated]);
+
+    const formatDuration = (ms: number) => {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+
+        if (days > 0) return `${days}d ${hours % 24}h`;
+        if (hours > 0) return `${hours}h ${minutes % 60}m`;
+        if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
+        return `${seconds}s`;
+    };
 
     const getStalenessInfo = useCallback(() => {
         if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
@@ -118,6 +145,7 @@ export default function Dashboard() {
                 if (!r.ok) throw new Error(`API error: ${r.status}`);
                 const data = await r.json();
                 setPrevStats(stats);
+                setPrevLastUpdated(lastUpdated);
                 setStats(data);
                 setLastUpdated(new Date());
                 setError(null);
@@ -132,7 +160,7 @@ export default function Dashboard() {
                 setIsRefreshing(false);
             }
         },
-        [stats]
+        [stats, lastUpdated]
     );
 
     useEffect(() => {
@@ -845,8 +873,8 @@ export default function Dashboard() {
                         aria-valuenow={Number(gclPercent.toFixed(2))}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
-                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}`}
+                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${getTimeToLevel() ? ` (est. ${formatDuration(getTimeToLevel()!)} to go)` : ''}`}
+                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${getTimeToLevel() ? ` (est. ${formatDuration(getTimeToLevel()!)} to go)` : ''}`}
                         style={{
                             width: '100%',
                             height: '12px',
@@ -892,7 +920,10 @@ export default function Dashboard() {
                     <div style={{ fontSize: '0.75rem', color: '#575757', textAlign: 'right' }}>
                         {stats.gcl.progress.toLocaleString()} /{' '}
                         {stats.gcl.progressTotal.toLocaleString()} (
-                        {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining)
+                        {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining
+                        {getTimeToLevel() &&
+                            ` • est. ${formatDuration(getTimeToLevel()!)} to level`}
+                        )
                     </div>
                 </section>
             )}

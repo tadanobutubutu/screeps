@@ -161,7 +161,7 @@ function runCreepMinimal(creep, role, name, isEmotionsEnabled) {
  * ⚡ PERFORMANCE OPTIMIZATION: 部屋ごとのキャッシュ初期化と構造物のスキャンを行う。
  * processCreeps関数の肥大化を防ぐための抽出。
  */
-function warmRoomCache(room) {
+function initializeRoomBasicCache(room) {
     // 1. キャッシュ用配列の初期化
     room._myCreeps = [];
     room._myCreepsTick = Game.time;
@@ -194,6 +194,10 @@ function warmRoomCache(room) {
     room._activeSources = room.find(FIND_SOURCES_ACTIVE);
     room._activeSourcesTick = Game.time;
 
+    return allStructures;
+}
+
+function categorizeRoomStructures(room, allStructures) {
     // 3. 構造物の分類（1パスで実行）
     const myStructures = [];
     const deliveryTargets = [];
@@ -303,6 +307,11 @@ function warmRoomCache(room) {
     room._spawnsTick = Game.time;
     room._freeSpawns = freeSpawns;
     room._freeSpawnsTick = Game.time;
+}
+
+function warmRoomCache(room) {
+    const allStructures = initializeRoomBasicCache(room);
+    categorizeRoomStructures(room, allStructures);
 }
 
 function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {

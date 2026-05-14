@@ -26,20 +26,22 @@
   },
   "homepage": "https://github.com/tadanobutubutu/screeps#readme",
   "dependencies": {
-    "@sentry/browser": "^10.52.0",
+    "@sentry/browser": "^10.53.1",
     "@supabase/supabase-js": "^2.105.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
     "lodash": "^4.18.1",
-    "posthog-js": "^1.372.10"
+    "posthog-js": "^1.373.4"
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^2.0.0",
-    "@sentry/rollup-plugin": "^5.2.0",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^10.1.8",
+    "@sentry/rollup-plugin": "^5.3.0",
+    "eslint": "10.3.0",
+    "eslint-plugin-jest": "^29.15.2",
     "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.6.0",
     "jest": "^30.4.2",
     "jest-junit": "^17.0.0",
-    "prettier": "^3.8.3",
     "rollup": "^4.60.3"
   },
   "overrides": {

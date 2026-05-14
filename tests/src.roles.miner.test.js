@@ -132,7 +132,7 @@ describe('src/roles/miner', () => {
     });
 
     test('ソース割り当て状況を集計する', () => {
-        const room = { name: 'W0N0', find: jest.fn().mockReturnValue([]) };
+        const room = { name: 'W0N0' };
         mockCache.getSources.mockReturnValue([
             { id: 'a', room },
             { id: 'b', room },

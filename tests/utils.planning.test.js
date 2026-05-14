@@ -12,11 +12,9 @@ global.RoomPosition = class {
         this.y = y;
         this.roomName = roomName;
     }
-
     getRangeTo() {
         return 5;
     }
-
     findPathTo() {
         return [{ x: 1, y: 1 }];
     }
@@ -43,7 +41,6 @@ describe('utils.planning', () => {
                 line: jest.fn(),
             },
         };
-        global.Game = { time: 1 };
     });
 
     test('モジュールが正しく読み込める', () => {

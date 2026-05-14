@@ -120,9 +120,7 @@ function _harvest(creep) {
 function _findDroppedEnergy(creep) {
     const dropped = cache.getDroppedResources(creep.room);
     const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY);
-    if (energyDrops.length === 0) {
-        return null;
-    }
+    if (energyDrops.length === 0) return null;
     return pathfinder.closest(creep.pos, energyDrops);
 }
 
@@ -134,9 +132,7 @@ function _findDroppedEnergy(creep) {
 function _findAvailableContainer(creep) {
     const containers = cache.getContainers(creep.room);
     const available = containers.filter((c) => c.store[RESOURCE_ENERGY] >= 100);
-    if (available.length === 0) {
-        return null;
-    }
+    if (available.length === 0) return null;
     return pathfinder.closest(creep.pos, available);
 }
 
@@ -175,44 +171,31 @@ function _deliver(creep) {
 function _findEnergyTarget(creep) {
     const room = creep.room;
 
-    const myStructures = cache.getMyStructures(room);
-    const spawnsAndExtensions = [];
-    const towers = [];
-
-    for (let i = 0; i < myStructures.length; i++) {
-        const s = myStructures[i];
-        if (
-            (s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION) &&
-            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-        ) {
-            spawnsAndExtensions.push(s);
-        } else if (
-            s.structureType === STRUCTURE_TOWER &&
-            s.store.getFreeCapacity(RESOURCE_ENERGY) > 200
-        ) {
-            towers.push(s);
-        }
-    }
-
     // 1. スポーン・エクステンション
+    const spawnsAndExtensions = room.find(FIND_MY_STRUCTURES, {
+        filter: (s) =>
+            (s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION) &&
+            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+    });
+
     if (spawnsAndExtensions.length > 0) {
         return pathfinder.closest(creep.pos, spawnsAndExtensions);
     }
 
     // 2. タワー
+    const towers = room.find(FIND_MY_STRUCTURES, {
+        filter: (s) =>
+            s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
+    });
     if (towers.length > 0) {
         return pathfinder.closest(creep.pos, towers);
     }
 
     // 3. コンテナ（空き容量がある場合）
     const containers = cache.getContainers(room);
-    const emptyContainers = [];
-    for (let i = 0; i < containers.length; i++) {
-        if (containers[i].store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
-            emptyContainers.push(containers[i]);
-        }
-    }
-
+    const emptyContainers = containers.filter(
+        (c) => c.store.getFreeCapacity(RESOURCE_ENERGY) > 200
+    );
     if (emptyContainers.length > 0) {
         return pathfinder.closest(creep.pos, emptyContainers);
     }
@@ -232,9 +215,7 @@ function _findEnergyTarget(creep) {
  */
 function _upgradeAsBackup(creep) {
     const controller = creep.room.controller;
-    if (!controller) {
-        return;
-    }
+    if (!controller) return;
 
     const result = creep.upgradeController(controller);
     if (result === ERR_NOT_IN_RANGE) {

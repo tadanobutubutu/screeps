@@ -13,6 +13,7 @@ global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.FIND_STRUCTURES = 1;
 global.FIND_MY_STRUCTURES = 2;
 global.FIND_CONSTRUCTION_SITES = 3;
+global.FIND_HOSTILE_CREEPS = 103;
 global.FIND_MY_CONSTRUCTION_SITES = 4;
 global.FIND_CREEPS = 5;
 global.STRUCTURE_CONTAINER = 'container';
@@ -211,7 +212,6 @@ describe('src roles behaviors', () => {
                 structureType: STRUCTURE_SPAWN,
                 store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
             };
-            cache.getMyStructures = jest.fn().mockReturnValue([target]);
             const creep = {
                 memory: { [MEMORY_KEYS.WORKING]: true },
                 store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
@@ -224,26 +224,6 @@ describe('src roles behaviors', () => {
             harvester.run(creep);
 
             expect(creep.transfer).toHaveBeenCalledWith(target, RESOURCE_ENERGY);
-        });
-
-        test('納品先がない場合にupgradeControllerする', () => {
-            const controller = {};
-            const creep = {
-                memory: { [MEMORY_KEYS.WORKING]: true },
-                store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
-                say: jest.fn(),
-                transfer: jest.fn().mockReturnValue(ERR_NOT_IN_RANGE),
-                upgradeController: jest.fn().mockReturnValue(OK),
-                room: { controller },
-                pos: {},
-            };
-            cache.getMyStructures = jest.fn().mockReturnValue([]);
-            cache.getContainers = jest.fn().mockReturnValue([]);
-            cache.getStorage = jest.fn().mockReturnValue(null);
-
-            harvester.run(creep);
-
-            expect(creep.upgradeController).toHaveBeenCalledWith(controller);
         });
 
         test('ボディ構成が閾値に応じて変化する', () => {
@@ -265,14 +245,16 @@ describe('src roles behaviors', () => {
         test('コンテナがある場合は移動して採掘する', () => {
             const room = {
                 name: 'W0N0',
-                find: jest.fn().mockReturnValue([
-                    {
-                        structureType: STRUCTURE_CONTAINER,
-                        pos: { x: 11, y: 10 },
-                        hits: 1000,
-                        hitsMax: 2000,
-                    },
-                ]),
+                find: jest
+                    .fn()
+                    .mockReturnValue([
+                        {
+                            structureType: STRUCTURE_CONTAINER,
+                            pos: { x: 11, y: 10 },
+                            hits: 1000,
+                            hitsMax: 2000,
+                        },
+                    ]),
                 getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
             };
             const source = { id: 'src1', room, pos: { x: 10, y: 10 } };

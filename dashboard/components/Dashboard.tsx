@@ -921,7 +921,8 @@ export default function Dashboard() {
                         {stats.gcl.progress.toLocaleString()} /{' '}
                         {stats.gcl.progressTotal.toLocaleString()} (
                         {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining
-                        {getTimeToLevel() && ` • est. ${formatDuration(getTimeToLevel()!)} to level`}
+                        {getTimeToLevel() &&
+                            ` • est. ${formatDuration(getTimeToLevel()!)} to level`}
                         )
                     </div>
                 </section>

@@ -39,11 +39,7 @@ const isSafeKey = (key) => {
     // and avoid unnecessary string/Set checks.
     if (typeof key === 'number') return true;
     // Only allow safe strings and block dangerous properties
-    return (
-        typeof key === 'string' &&
-        key.length <= MAX_KEY_LENGTH &&
-        !DANGEROUS_KEYS.has(key)
-    );
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
 };
 
 module.exports = {

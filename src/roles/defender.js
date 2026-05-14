@@ -49,8 +49,7 @@ function run(creep) {
         }
 
         // 自己修復（HEALパーツがある場合）
-        if (creep.getActiveBodyparts(HEAL) > 0 &&
-            creep.hits < creep.hitsMax * 0.9) {
+        if (creep.getActiveBodyparts(HEAL) > 0 && creep.hits < creep.hitsMax * 0.9) {
             creep.heal(creep);
         }
     } catch (e) {
@@ -171,8 +170,8 @@ function _calcThreatScore(attacker, enemy) {
     const distance = attacker.pos.getRangeTo(enemy);
     const distScore = Math.max(0, 10 - distance) / 10;
 
-    const attackParts = enemy.getActiveBodyparts(ATTACK) +
-        enemy.getActiveBodyparts(RANGED_ATTACK) * 0.8;
+    const attackParts =
+        enemy.getActiveBodyparts(ATTACK) + enemy.getActiveBodyparts(RANGED_ATTACK) * 0.8;
     const threatBonus = attackParts * 0.5;
 
     return hpRatio * 3 + distScore * 2 + threatBonus;
@@ -188,8 +187,14 @@ function _fleeFrom(creep, from) {
     const dy = creep.pos.y - from.y;
     const len = Math.sqrt(dx * dx + dy * dy) || 1;
 
-    const targetX = Math.min(ROOM_BOUNDS.MAX, Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.x + (dx / len) * 3)));
-    const targetY = Math.min(ROOM_BOUNDS.MAX, Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.y + (dy / len) * 3)));
+    const targetX = Math.min(
+        ROOM_BOUNDS.MAX,
+        Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.x + (dx / len) * 3))
+    );
+    const targetY = Math.min(
+        ROOM_BOUNDS.MAX,
+        Math.max(ROOM_BOUNDS.MIN, Math.round(creep.pos.y + (dy / len) * 3))
+    );
 
     try {
         const fleePos = new RoomPosition(targetX, targetY, creep.room.name);
@@ -222,11 +227,7 @@ function _patrol(creep) {
         creep.memory[PATROL_INDEX_KEY] = (idx + 1) % points.length;
     }
 
-    pathfinder.moveTo(
-        creep,
-        new RoomPosition(target.x, target.y, creep.room.name),
-        { range: 1 }
-    );
+    pathfinder.moveTo(creep, new RoomPosition(target.x, target.y, creep.room.name), { range: 1 });
 }
 
 /**
@@ -244,9 +245,7 @@ function _getPatrolPoints(room) {
     if (ramparts.length > 0) {
         // ランパートを等間隔で選択
         const step = Math.max(1, Math.floor(ramparts.length / 6));
-        return ramparts
-            .filter((_, i) => i % step === 0)
-            .map((r) => ({ x: r.pos.x, y: r.pos.y }));
+        return ramparts.filter((_, i) => i % step === 0).map((r) => ({ x: r.pos.x, y: r.pos.y }));
     }
 
     // ランパートがなければルームの角付近をパトロール
@@ -273,7 +272,18 @@ function getBody(energy, ranged) {
     if (ranged) {
         // 遠距離攻撃型
         if (energy >= 870) {
-            return [TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE, MOVE, HEAL];
+            return [
+                TOUGH,
+                TOUGH,
+                RANGED_ATTACK,
+                RANGED_ATTACK,
+                RANGED_ATTACK,
+                MOVE,
+                MOVE,
+                MOVE,
+                MOVE,
+                HEAL,
+            ];
         }
         if (energy >= 420) {
             return [TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE, MOVE];
@@ -312,10 +322,7 @@ function detectInvasion(room) {
             e.getActiveBodyparts(CLAIM) > 0
     );
 
-    const strongestHp = hostileCreeps.reduce(
-        (max, e) => Math.max(max, e.hitsMax),
-        0
-    );
+    const strongestHp = hostileCreeps.reduce((max, e) => Math.max(max, e.hitsMax), 0);
 
     return {
         detected: hostileCreeps.length > 0,

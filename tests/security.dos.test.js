@@ -15,13 +15,13 @@ describe('Security: DoS Protections', () => {
             rooms: {},
             creeps: {},
             flags: {},
-            spawns: {}
+            spawns: {},
         };
         global.Memory = {
             creeps: {},
             rooms: {},
             flags: {},
-            spawns: {}
+            spawns: {},
         };
         // Mock console.log to avoid cluttering test output
         jest.spyOn(console, 'log').mockImplementation(() => {});
@@ -81,16 +81,16 @@ describe('Security: DoS Protections', () => {
             Memory.diary = { entries: [] }; // Root diary
 
             Memory.creeps = {
-                'harvester1': {
+                harvester1: {
                     role: 'harvester',
                     diary: { entries: [] },
                     emotions: { mood: 3 },
-                    trailPositions: [{ x: 1, y: 1 }]
-                }
+                    trailPositions: [{ x: 1, y: 1 }],
+                },
             };
 
             Memory.gamification = {
-                achievements: ['a', 'b', 'c', 'd', 'e', 'f']
+                achievements: ['a', 'b', 'c', 'd', 'e', 'f'],
             };
 
             adaptive.emergencyCleanup();
@@ -119,14 +119,14 @@ describe('Security: DoS Protections', () => {
         test('showTopMemoryUsers() should not crash or include inherited properties', () => {
             // Mock Memory.creeps with a dangerous key
             Memory.creeps = {
-                'harvester1': { role: 'harvester' }
+                harvester1: { role: 'harvester' },
             };
 
             // In a real environment, __proto__ or constructor might be present if the object is not a null-prototype object
             // Here we simulate it by adding it to the object.
             Object.defineProperty(Memory.creeps, 'constructor', {
                 value: { length: 1000 }, // Simulate a large object
-                enumerable: true
+                enumerable: true,
             });
 
             // This should not crash and should ideally skip 'constructor' if we add the protection
@@ -135,21 +135,21 @@ describe('Security: DoS Protections', () => {
             // Currently, it will include 'constructor' if it's enumerable.
             // If it's NOT enumerable, for-in might still pick it up in some environments or
             // if it's explicitly added to the object.
-            const constructorEntry = result.find(item => item.name === 'constructor');
+            const constructorEntry = result.find((item) => item.name === 'constructor');
             expect(constructorEntry).toBeUndefined();
         });
 
         test('showMap() should not crash when Memory.map.rooms contains dangerous keys', () => {
             Memory.map = {
                 rooms: {
-                    'E1S1': { lastVisit: 100, sources: 2, hostiles: 0 },
+                    E1S1: { lastVisit: 100, sources: 2, hostiles: 0 },
                 },
-                explored: ['E1S1']
+                explored: ['E1S1'],
             };
 
             Object.defineProperty(Memory.map.rooms, 'constructor', {
                 value: { lastVisit: 100 },
-                enumerable: true
+                enumerable: true,
             });
 
             // This should not crash

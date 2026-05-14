@@ -95,12 +95,11 @@ function _build(creep) {
 
         // 建設進捗をビジュアル表示
         const pct = site.progress / site.progressTotal;
-        creep.room.visual.text(
-            `🔨 ${(pct * 100).toFixed(0)}%`,
-            site.pos.x,
-            site.pos.y - 1,
-            { color: '#ffaa00', font: 0.5, align: 'center' }
-        );
+        creep.room.visual.text(`🔨 ${(pct * 100).toFixed(0)}%`, site.pos.x, site.pos.y - 1, {
+            color: '#ffaa00',
+            font: 0.5,
+            align: 'center',
+        });
     } else if (result === ERR_INVALID_TARGET) {
         // ターゲットが無効になった（完成済み等）
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
@@ -182,9 +181,7 @@ function _getEnergy(creep) {
 
     // 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter(
-        (r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 50
-    );
+    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 50);
     if (energyDrops.length > 0) {
         const res = pathfinder.closest(creep.pos, energyDrops);
         if (creep.pickup(res) === ERR_NOT_IN_RANGE) {

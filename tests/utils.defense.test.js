@@ -10,6 +10,13 @@ global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
 
+global.Game = { time: 0 };
+jest.mock('../src/utils/cache', () => ({
+    getEnemies: jest.fn((room) => {
+        return room.find(global.FIND_HOSTILE_CREEPS);
+    }),
+}));
+
 const DefenseManager = require('../utils.defense');
 
 describe('utils.defense', () => {
@@ -24,8 +31,12 @@ describe('utils.defense', () => {
         const mockHostile = { id: 'hostile1' };
         const room = {
             find: jest.fn().mockImplementation((type) => {
-                if (type === FIND_MY_STRUCTURES) return [mockTower];
-                if (type === FIND_HOSTILE_CREEPS) return [mockHostile];
+                if (type === FIND_MY_STRUCTURES) {
+                    return [mockTower];
+                }
+                if (type === FIND_HOSTILE_CREEPS) {
+                    return [mockHostile];
+                }
                 return [];
             }),
         };
@@ -43,9 +54,15 @@ describe('utils.defense', () => {
         const mockDamaged = { id: 'damaged1', hits: 50, hitsMax: 100, structureType: 'extension' };
         const room = {
             find: jest.fn().mockImplementation((type) => {
-                if (type === FIND_MY_STRUCTURES) return [mockTower];
-                if (type === FIND_HOSTILE_CREEPS) return [];
-                if (type === FIND_STRUCTURES) return [mockDamaged];
+                if (type === FIND_MY_STRUCTURES) {
+                    return [mockTower];
+                }
+                if (type === FIND_HOSTILE_CREEPS) {
+                    return [];
+                }
+                if (type === FIND_STRUCTURES) {
+                    return [mockDamaged];
+                }
                 return [];
             }),
         };
@@ -66,7 +83,9 @@ describe('utils.defense', () => {
                     }
                     return [mockTower, mockRampart];
                 }
-                if (type === FIND_HOSTILE_CREEPS) return [];
+                if (type === FIND_HOSTILE_CREEPS) {
+                    return [];
+                }
                 return [];
             }),
         };

@@ -121,7 +121,8 @@ const StatsManager = {
             repairDone: Memory.stats.totalRepairDone,
             creepDeaths: Memory.stats.creepDeaths,
             creepsBorn: Memory.stats.creepsBorn,
-            avgEnergyPerTick: uptime > 0 ? (Memory.stats.totalEnergyProcessed / uptime).toFixed(2) : '0.00',
+            avgEnergyPerTick:
+                uptime > 0 ? (Memory.stats.totalEnergyProcessed / uptime).toFixed(2) : '0.00',
         };
     },
 

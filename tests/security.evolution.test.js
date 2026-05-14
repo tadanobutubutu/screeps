@@ -12,7 +12,7 @@ describe('Security: Evolution System DoS Protection', () => {
             rooms: {},
             creeps: {},
             gcl: { level: 1 },
-            spawns: {}
+            spawns: {},
         };
         global.Memory = {};
         autoEvolution.init();

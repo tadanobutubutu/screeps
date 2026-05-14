@@ -7,7 +7,6 @@ const utilsMemory = require('./utils.memory');
 const MAX_MISSIONS_COUNT = 20;
 const MAX_STRING_LENGTH = 100;
 
-
 /**
  * セキュアなIDを生成する (PRNGの脆弱性対策)
  */
@@ -24,7 +23,8 @@ function generateMissionId() {
         // Fallback
     }
     // Fallback if crypto is unavailable
-    const timePrefix = typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36);
+    const timePrefix =
+        typeof Game !== 'undefined' && Game.time ? Game.time.toString(36) : Date.now().toString(36);
     // Fallback if crypto is unavailable but Math.random() is predictable
     if (typeof global._missionIdCounter === 'undefined') {
         global._missionIdCounter = 0;

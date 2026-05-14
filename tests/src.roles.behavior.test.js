@@ -13,6 +13,7 @@ global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.FIND_STRUCTURES = 1;
 global.FIND_MY_STRUCTURES = 2;
 global.FIND_CONSTRUCTION_SITES = 3;
+global.FIND_HOSTILE_CREEPS = 103;
 global.FIND_MY_CONSTRUCTION_SITES = 4;
 global.FIND_CREEPS = 5;
 global.STRUCTURE_CONTAINER = 'container';
@@ -21,7 +22,6 @@ global.STRUCTURE_SPAWN = 'spawn';
 global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_STORAGE = 'storage';
 global.STRUCTURE_LINK = 'link';
-global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_ROAD = 'road';
 global.STRUCTURE_RAMPART = 'rampart';
 global.STRUCTURE_WALL = 'wall';
@@ -111,7 +111,7 @@ describe('src roles behaviors', () => {
             };
             const siteB = {
                 id: 'road',
-                structureType: global.STRUCTURE_ROAD,
+                structureType: STRUCTURE_ROAD,
                 pos: { x: 11, y: 11, getRangeTo: jest.fn().mockReturnValue(3) },
                 progress: 5,
                 progressTotal: 10,
@@ -217,7 +217,7 @@ describe('src roles behaviors', () => {
                 store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
                 say: jest.fn(),
                 transfer: jest.fn().mockReturnValue(OK),
-                room: { controller: {}, find: jest.fn().mockReturnValue([target]) },
+                room: { find: jest.fn().mockReturnValue([target]), controller: {} },
                 pos: {},
             };
 
@@ -245,14 +245,16 @@ describe('src roles behaviors', () => {
         test('コンテナがある場合は移動して採掘する', () => {
             const room = {
                 name: 'W0N0',
-                find: jest.fn().mockReturnValue([
-                    {
-                        structureType: STRUCTURE_CONTAINER,
-                        pos: { x: 11, y: 10 },
-                        hits: 1000,
-                        hitsMax: 2000,
-                    },
-                ]),
+                find: jest
+                    .fn()
+                    .mockReturnValue([
+                        {
+                            structureType: STRUCTURE_CONTAINER,
+                            pos: { x: 11, y: 10 },
+                            hits: 1000,
+                            hitsMax: 2000,
+                        },
+                    ]),
                 getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
             };
             const source = { id: 'src1', room, pos: { x: 10, y: 10 } };
@@ -305,7 +307,7 @@ describe('src roles behaviors', () => {
         test('損傷構造物を修復する', () => {
             const target = {
                 id: 't1',
-                structureType: global.STRUCTURE_ROAD,
+                structureType: STRUCTURE_ROAD,
                 hits: 100,
                 hitsMax: 1000,
                 pos: { x: 3, y: 3 },
@@ -327,8 +329,6 @@ describe('src roles behaviors', () => {
                 pos: { getRangeTo: jest.fn().mockReturnValue(1) },
             };
 
-            cache.getStructures = jest.fn();
-            cache.getStructures.mockReturnValue([target]);
             repairer.run(creep);
 
             expect(creep.repair).toHaveBeenCalledWith(target);

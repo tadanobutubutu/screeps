@@ -75,10 +75,7 @@ function _getAssignedSource(creep) {
     const minerCounts = {};
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            !cache.isSafeKey(name) ||
-            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
-        ) {
+        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
             continue;
         }
 
@@ -96,8 +93,7 @@ function _getAssignedSource(creep) {
     let minCount = Infinity;
     for (const src of sources) {
         const count =
-            Object.prototype.hasOwnProperty.call(minerCounts, src.id) &&
-            cache.isSafeKey(src.id)
+            Object.prototype.hasOwnProperty.call(minerCounts, src.id) && cache.isSafeKey(src.id)
                 ? minerCounts[src.id]
                 : 0;
         // 各ソースに配置できるマイナー数 = ソース周囲の利用可能スポット数（最大2）
@@ -280,10 +276,7 @@ function getMinerAssignments(room) {
 
     for (const name in Game.creeps) {
         // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            !cache.isSafeKey(name) ||
-            !Object.prototype.hasOwnProperty.call(Game.creeps, name)
-        ) {
+        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
             continue;
         }
 
@@ -294,10 +287,7 @@ function getMinerAssignments(room) {
             creep.memory[MEMORY_KEYS.SOURCE_ID]
         ) {
             const sid = creep.memory[MEMORY_KEYS.SOURCE_ID];
-            if (
-                cache.isSafeKey(sid) &&
-                Object.prototype.hasOwnProperty.call(assignments, sid)
-            ) {
+            if (cache.isSafeKey(sid) && Object.prototype.hasOwnProperty.call(assignments, sid)) {
                 assignments[sid]++;
             }
         }

@@ -165,11 +165,12 @@ function debug(message, data) {
 
     // Security: Truncate message to avoid Memory DoS
     // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = String(
+        message !== null && message !== undefined ? message : ''
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
 
-    const full = data !== undefined
-        ? `${sanitizedMessage} ${_safeStringify(data)}`
-        : sanitizedMessage;
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
     _record('debug', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('debug')} ${escapedFull}`, COLORS.debug));
@@ -186,11 +187,12 @@ function info(message, data) {
 
     // Security: Truncate message to avoid Memory DoS
     // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = String(
+        message !== null && message !== undefined ? message : ''
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
 
-    const full = data !== undefined
-        ? `${sanitizedMessage} ${_safeStringify(data)}`
-        : sanitizedMessage;
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
     _record('info', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('info')} ${escapedFull}`, COLORS.info));
@@ -207,11 +209,12 @@ function warn(message, data) {
 
     // Security: Truncate message to avoid Memory DoS
     // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = String(
+        message !== null && message !== undefined ? message : ''
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
 
-    const full = data !== undefined
-        ? `${sanitizedMessage} ${_safeStringify(data)}`
-        : sanitizedMessage;
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
     _record('warn', full);
     const escapedFull = _escapeHTML(full);
     console.log(_colorize(`${_prefix('warn')} ${escapedFull}`, COLORS.warn));
@@ -228,12 +231,16 @@ function error(message, error) {
 
     // Security: Truncate message to avoid Memory DoS
     // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = String(
+        message !== null && message !== undefined ? message : ''
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
 
     let full = sanitizedMessage;
     if (error instanceof Error) {
         // Security: Truncate error message to avoid Memory DoS
-        const sanitizedErrorMsg = String(error.message !== null && error.message !== undefined ? error.message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+        const sanitizedErrorMsg = String(
+            error.message !== null && error.message !== undefined ? error.message : ''
+        ).substring(0, MAX_LOG_MESSAGE_LENGTH);
         full += ` | ${sanitizedErrorMsg}`;
         if (error.stack) {
             full += `\n${getSafeStack(error.stack)}`;
@@ -256,7 +263,9 @@ function success(message) {
 
     // Security: Truncate message to avoid Memory DoS
     // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(message !== null && message !== undefined ? message : '').substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = String(
+        message !== null && message !== undefined ? message : ''
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
 
     _record('info', sanitizedMessage);
     // Security: Escape message to prevent console injection
@@ -358,7 +367,9 @@ function showDashboard() {
     const stats = getStats();
     console.log(_colorize('=== Logger Dashboard ===', COLORS.highlight));
     console.log(`Level: ${_level} (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)`);
-    console.log(`Stats: DEBUG=${stats.debug} INFO=${stats.info} WARN=${stats.warn} ERROR=${stats.error}`);
+    console.log(
+        `Stats: DEBUG=${stats.debug} INFO=${stats.info} WARN=${stats.warn} ERROR=${stats.error}`
+    );
     console.log('Recent logs:');
     const recent = getHistory(5);
     for (const entry of recent) {

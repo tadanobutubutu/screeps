@@ -16,7 +16,6 @@ if (typeof HEAL === 'undefined') global.HEAL = 'heal';
 if (typeof CLAIM === 'undefined') global.CLAIM = 'claim';
 if (typeof TOUGH === 'undefined') global.TOUGH = 'tough';
 
-
 // ============================================================
 // クリープロール定数
 // ============================================================
@@ -94,12 +93,8 @@ const BODY_PRESETS = {
         { body: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], cost: 400 },
         { body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], cost: 600 },
     ],
-    [ROLES.SCOUT]: [
-        { body: [MOVE], cost: 50 },
-    ],
-    [ROLES.CLAIMER]: [
-        { body: [CLAIM, MOVE], cost: 650 },
-    ],
+    [ROLES.SCOUT]: [{ body: [MOVE], cost: 50 }],
+    [ROLES.CLAIMER]: [{ body: [CLAIM, MOVE], cost: 650 }],
     [ROLES.REMOTE_HARVESTER]: [
         { body: [WORK, CARRY, MOVE, MOVE], cost: 250 },
         { body: [WORK, WORK, CARRY, MOVE, MOVE], cost: 400 },

@@ -237,16 +237,11 @@ function _planExtensions(room) {
     if (maxExtensions === 0) return;
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
-    const sites = cache.getConstructionSites(room);
+    const sites = cache
+        .getConstructionSites(room)
+        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
 
-    let sitesCount = 0;
-    for (let i = 0; i < sites.length; i++) {
-        if (sites[i].structureType === STRUCTURE_EXTENSION) {
-            sitesCount++;
-        }
-    }
-
-    const currentCount = existing.length + sitesCount;
+    const currentCount = existing.length + sites.length;
     if (currentCount >= maxExtensions) return;
 
     const spawns = cache.getSpawns(room);

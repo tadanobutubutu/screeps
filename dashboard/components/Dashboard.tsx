@@ -52,19 +52,27 @@ export default function Dashboard() {
             ? stats.cpuUsed - prevStats.cpuUsed
             : 0;
 
-    const getTimeToLevel = useCallback(() => {
+    const getXpPerHour = useCallback(() => {
         if (!stats?.gcl || !prevStats?.gcl || !lastUpdated || !prevLastUpdated) return null;
-        if (stats.gcl.level !== prevStats.gcl.level) return null;
-
-        const xpGain = stats.gcl.progress - prevStats.gcl.progress;
         const timeDiff = lastUpdated.getTime() - prevLastUpdated.getTime();
+        if (timeDiff <= 0) return null;
 
-        if (xpGain <= 0 || timeDiff <= 0) return null;
+        const xpGain = leveledUp
+            ? prevStats.gcl.progressTotal - prevStats.gcl.progress + stats.gcl.progress
+            : stats.gcl.progress - prevStats.gcl.progress;
+
+        if (xpGain <= 0) return null;
+        return (xpGain / timeDiff) * 3600000;
+    }, [stats, prevStats, lastUpdated, prevLastUpdated, leveledUp]);
+
+    const getTimeToLevel = useCallback(() => {
+        if (!stats?.gcl || !lastUpdated || !prevLastUpdated) return null;
+        const xpPerHour = getXpPerHour();
+        if (!xpPerHour) return null;
 
         const xpRemaining = stats.gcl.progressTotal - stats.gcl.progress;
-        const xpPerMs = xpGain / timeDiff;
-        return xpRemaining / xpPerMs;
-    }, [stats, prevStats, lastUpdated, prevLastUpdated]);
+        return (xpRemaining / xpPerHour) * 3600000;
+    }, [stats, getXpPerHour, lastUpdated, prevLastUpdated]);
 
     const formatDuration = (ms: number) => {
         const seconds = Math.floor(ms / 1000);
@@ -237,6 +245,12 @@ export default function Dashboard() {
         } else if (error) {
             title = '⚠️ Error';
             emoji = '⚠️';
+        } else if (copied) {
+            title = '📋 Copied';
+            emoji = '📋';
+        } else if (leveledUp) {
+            title = '🦋 LEVEL UP!';
+            emoji = '🦋';
         } else if (updated) {
             title = '✅ Updated';
             emoji = '✅';
@@ -262,7 +276,7 @@ export default function Dashboard() {
         if (link) {
             link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`;
         }
-    }, [loading, isRefreshing, updated, stats, timeAgo, error, getStalenessInfo]);
+    }, [loading, isRefreshing, updated, leveledUp, copied, stats, timeAgo, error, getStalenessInfo]);
 
     return (
         <main
@@ -290,12 +304,12 @@ export default function Dashboard() {
                             display: 'inline-block',
                             animation: isRefreshing
                                 ? 'spin 1s linear infinite'
-                                : updated
+                                : updated || leveledUp
                                   ? 'bounce 0.6s ease'
                                   : 'none',
                         }}
                     >
-                        🐛
+                        {leveledUp ? '🦋' : '🐛'}
                     </span>{' '}
                     Screeps Dashboard
                 </h1>
@@ -698,7 +712,20 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {stats?.gcl && (
+            {stats?.gcl && (() => {
+                const xpPerHour = getXpPerHour();
+                const timeToLevel = getTimeToLevel();
+                const formattedXpPerHour = xpPerHour
+                    ? xpPerHour >= 1000000000
+                        ? `${(xpPerHour / 1000000000).toFixed(2)}B XP/h`
+                        : xpPerHour >= 1000000
+                          ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
+                          : xpPerHour >= 1000
+                            ? `${(xpPerHour / 1000).toFixed(1)}K XP/h`
+                            : `${Math.round(xpPerHour)} XP/h`
+                    : null;
+
+                return (
                 <section
                     style={{
                         marginBottom: '1.5rem',
@@ -873,8 +900,8 @@ export default function Dashboard() {
                         aria-valuenow={Number(gclPercent.toFixed(2))}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${getTimeToLevel() ? ` (est. ${formatDuration(getTimeToLevel()!)} to go)` : ''}`}
-                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${getTimeToLevel() ? ` (est. ${formatDuration(getTimeToLevel()!)} to go)` : ''}`}
+                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
+                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
                         style={{
                             width: '100%',
                             height: '12px',
@@ -921,12 +948,13 @@ export default function Dashboard() {
                         {stats.gcl.progress.toLocaleString()} /{' '}
                         {stats.gcl.progressTotal.toLocaleString()} (
                         {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining
-                        {getTimeToLevel() &&
-                            ` • est. ${formatDuration(getTimeToLevel()!)} to level`}
+                        {formattedXpPerHour && ` • ${formattedXpPerHour}`}
+                        {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level`}
                         )
                     </div>
                 </section>
-            )}
+                );
+            })()}
 
             <section
                 style={{

@@ -146,8 +146,33 @@ function _findAvailableContainer(creep) {
  * @param {Creep} creep
  */
 function _deliver(creep) {
-    // 最優先: スポーン・エクステンションへの補充
-    const target = _findEnergyTarget(creep);
+    // ⚡ PERFORMANCE OPTIMIZATION: Cache the delivery target ID to avoid per-tick search
+    let target = null;
+    const targetId = creep.memory[MEMORY_KEYS.TARGET_ID];
+
+    if (targetId) {
+        target = Game.getObjectById(targetId);
+        // Valid target must still exist and have free capacity
+        if (
+            !target ||
+            !target.store ||
+            target.store.getFreeCapacity(RESOURCE_ENERGY) === 0 ||
+            (target.structureType === STRUCTURE_TOWER &&
+                target.store.getFreeCapacity(RESOURCE_ENERGY) <= 200 &&
+                creep.store[RESOURCE_ENERGY] > target.store.getFreeCapacity(RESOURCE_ENERGY))
+        ) {
+            target = null;
+            delete creep.memory[MEMORY_KEYS.TARGET_ID];
+        }
+    }
+
+    if (!target) {
+        target = _findEnergyTarget(creep);
+        if (target) {
+            creep.memory[MEMORY_KEYS.TARGET_ID] = target.id;
+        }
+    }
+
     if (!target) {
         // 納品先がなければアップグレードを補助
         _upgradeAsBackup(creep);
@@ -157,9 +182,12 @@ function _deliver(creep) {
     const result = creep.transfer(target, RESOURCE_ENERGY);
     if (result === ERR_NOT_IN_RANGE) {
         pathfinder.moveTo(creep, target, { range: 1 });
-    } else if (result === ERR_FULL) {
-        // 満杯なら次のターゲットを探す（キャッシュ無効化）
-        cache.invalidate(`need_energy_${creep.room.name}`);
+    } else if (result === OK || result === ERR_FULL) {
+        // 納品完了または満杯ならターゲットをクリア（次ティックで再検索）
+        delete creep.memory[MEMORY_KEYS.TARGET_ID];
+        if (result === ERR_FULL) {
+            cache.invalidate(`need_energy_${creep.room.name}`);
+        }
     }
 }
 
@@ -171,22 +199,23 @@ function _deliver(creep) {
 function _findEnergyTarget(creep) {
     const room = creep.room;
 
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getStructuresNeedingEnergy cache to avoid redundant room.find calls.
+    // This combines spawns, extensions, and towers into a single cached search.
+    const needingEnergy = cache.getStructuresNeedingEnergy(room);
+
     // 1. スポーン・エクステンション
-    const spawnsAndExtensions = room.find(FIND_MY_STRUCTURES, {
-        filter: (s) =>
-            (s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION) &&
-            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-    });
+    const spawnsAndExtensions = needingEnergy.filter(
+        (s) => s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION
+    );
 
     if (spawnsAndExtensions.length > 0) {
         return pathfinder.closest(creep.pos, spawnsAndExtensions);
     }
 
-    // 2. タワー
-    const towers = room.find(FIND_MY_STRUCTURES, {
-        filter: (s) =>
-            s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200,
-    });
+    // 2. タワー (200以上の空き容量があるものを優先)
+    const towers = needingEnergy.filter(
+        (s) => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200
+    );
     if (towers.length > 0) {
         return pathfinder.closest(creep.pos, towers);
     }

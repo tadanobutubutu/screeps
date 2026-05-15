@@ -27,6 +27,7 @@ const mockCache = {
     getStorage: jest.fn(),
     assignSource: jest.fn(),
     invalidate: jest.fn(),
+    getStructuresNeedingEnergy: jest.fn(),
 };
 
 jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
@@ -38,11 +39,13 @@ jest.mock(
     }),
     { virtual: true }
 );
-jest.mock('../src/utils/logger', () => ({ warn: jest.fn() }), { virtual: true });
+jest.mock('../src/utils/logger', () => ({ warn: jest.fn(), info: jest.fn(), error: jest.fn() }), {
+    virtual: true,
+});
 jest.mock(
     '../src/constants',
     () => ({
-        MEMORY_KEYS: { WORKING: 'working', SOURCE_ID: 'sourceId' },
+        MEMORY_KEYS: { WORKING: 'working', SOURCE_ID: 'sourceId', TARGET_ID: 'targetId' },
         ROLES: { HARVESTER: 'harvester' },
     }),
     { virtual: true }
@@ -82,14 +85,13 @@ describe('src/roles/harvester', () => {
             store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
             structureType: global.STRUCTURE_SPAWN,
         };
+        mockCache.getStructuresNeedingEnergy.mockReturnValue([target]);
         const creep = {
             memory: { working: true },
             store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
             say: jest.fn(),
             transfer: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
-            room: {
-                find: jest.fn().mockReturnValue([target]),
-            },
+            room: {},
             pos: { x: 0, y: 0 },
         };
         pathfinder.closest.mockReturnValue(target);
@@ -97,6 +99,32 @@ describe('src/roles/harvester', () => {
         harvester.run(creep);
 
         expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, target, { range: 1 });
+        expect(creep.memory.targetId).toBe('spawn1');
+    });
+
+    test('キャッシュされた納品先を再利用する', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        const target = {
+            id: 'spawn1',
+            store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
+            structureType: global.STRUCTURE_SPAWN,
+        };
+        global.Game.getObjectById = jest.fn().mockReturnValue(target);
+
+        const creep = {
+            memory: { working: true, targetId: 'spawn1' },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            transfer: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: {},
+            pos: { x: 0, y: 0 },
+        };
+
+        harvester.run(creep);
+
+        expect(global.Game.getObjectById).toHaveBeenCalledWith('spawn1');
+        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, target, { range: 1 });
+        expect(mockCache.getStructuresNeedingEnergy).not.toHaveBeenCalled();
     });
 
     test('getBodyで適切な構成を返す', () => {
@@ -130,6 +158,7 @@ describe('src/roles/harvester', () => {
         mockCache.getDroppedResources.mockReturnValue([]);
         mockCache.getContainers.mockReturnValue([]);
         mockCache.getStorage.mockReturnValue(null);
+        mockCache.getStructuresNeedingEnergy.mockReturnValue([]);
         const controller = {};
         const creep = {
             memory: { working: true },
@@ -139,7 +168,6 @@ describe('src/roles/harvester', () => {
             upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: {
                 controller,
-                find: jest.fn().mockReturnValue([]),
             },
             pos: {},
         };

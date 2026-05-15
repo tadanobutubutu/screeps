@@ -14,6 +14,14 @@ Instead of re-querying the game state, this pattern uses cached objects updated 
 **Takeaway:**
 Whenever a function is querying properties from `room.find`, check if the `src/utils/cache.js` has a wrapper function. Prefer using cached getter functions to minimize engine overhead.
 
+## 2025-05-15 - Optimize Harvester Energy Delivery with Caching
+
+**Learning:**
+Combining multiple `room.find` calls into a single cached function like `cache.getStructuresNeedingEnergy` significantly reduces CPU overhead. Furthermore, caching the target ID in `creep.memory` avoids redundant spatial searches and priority filtering on every tick while the target is still valid.
+
+**Action:**
+In high-frequency roles like Harvester, always look for opportunities to use consolidated cache getters and implement target ID persistence in memory.
+
 ## Bolt Memory Journal
 
 ### Optimization: Use getMyStructures Cache in Tower Manager

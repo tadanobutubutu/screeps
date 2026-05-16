@@ -17,60 +17,28 @@ const DashboardRenderer = {
     formatNumber,
 
     renderRoomDashboard(room) {
-        // ⚡ PERFORMANCE OPTIMIZATION: Use centralized room caches pre-warmed in main.js.
-        if (room._myCreepsTick !== Game.time) {
-            room._myCreeps = room.find(FIND_MY_CREEPS);
-            room._myCreepsTick = Game.time;
-        }
-        if (room._myStructuresTick !== Game.time) {
-            room._myStructures = room.find(FIND_MY_STRUCTURES);
-            room._myStructuresTick = Game.time;
-        }
-        if (room._hostileCreepsTick !== Game.time) {
-            room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
-            room._hostileCreepsTick = Game.time;
-        }
+        // ⚡ PERFORMANCE OPTIMIZATION: Leverage pre-warmed room caches from main.js.
+        // Redundant per-tick find() calls and role counting removed as they are handled globally.
+        const structures = room._myStructures || [];
+        const hostiles = room._hostileCreeps || [];
+        const roleCount = room._roleCounts || {};
 
-        const creeps = room._myCreeps;
-        const structures = room._myStructures;
-        const hostiles = room._hostileCreeps;
+        const energyAvailable = room.energyAvailable;
+        const energyCapacity = room.energyCapacityAvailable;
+        const storageEnergy = room.storage ? room.storage.store[RESOURCE_ENERGY] : 0;
+        const storageCapacity = room.storage ? room.storage.store.getCapacity(RESOURCE_ENERGY) : 0;
 
-        // ⚡ PERFORMANCE OPTIMIZATION: Use pre-calculated role counts from the global loop in main.js
-        // to avoid redundant O(N) counting per room in the dashboard.
-        let roleCount = room._roleCounts;
-        if (!roleCount) {
-            roleCount = {
-                harvester: 0,
-                upgrader: 0,
-                builder: 0,
-                repairer: 0,
-                transporter: 0,
-                scout: 0,
-                medic: 0,
-                explorer: 0,
-            };
-            for (let i = 0; i < creeps.length; i++) {
-                const role = creeps[i].memory.role;
-                if (roleCount[role] !== undefined) {
-                    roleCount[role]++;
-                }
-            }
-        }
-
-        const energyStats = {
-            available: room.energyAvailable,
-            capacity: room.energyCapacityAvailable,
-            storageEnergy: room.storage ? room.storage.store[RESOURCE_ENERGY] : 0,
-            storageCapacity: room.storage ? room.storage.store.getCapacity(RESOURCE_ENERGY) : 0,
-        };
+        const gclProgress = Game.gcl.progress;
+        const gclTotal = Game.gcl.progressTotal;
+        const gclPercent = Number(((gclProgress / gclTotal) * 100).toFixed(2));
 
         const info = {
             room: room.name,
             gcl: {
                 level: Game.gcl.level,
-                percent: Number(((Game.gcl.progress / Game.gcl.progressTotal) * 100).toFixed(2)),
-                progress: Game.gcl.progress,
-                progressTotal: Game.gcl.progressTotal,
+                percent: gclPercent,
+                progress: gclProgress,
+                progressTotal: gclTotal,
             },
             controller: room.controller
                 ? {
@@ -88,16 +56,12 @@ const DashboardRenderer = {
                 : null,
             hostiles: hostiles.length,
             structures: structures.length,
-            energy: `${formatNumber(energyStats.available)}/${formatNumber(energyStats.capacity)}`,
-            energyPercent: energyStats.capacity
-                ? Math.floor((energyStats.available / energyStats.capacity) * 100)
-                : 0,
-            energyAvailable: energyStats.available,
-            energyCapacity: energyStats.capacity,
-            storage: formatNumber(energyStats.storageEnergy),
-            storagePercent: energyStats.storageCapacity
-                ? Math.floor((energyStats.storageEnergy / energyStats.storageCapacity) * 100)
-                : 0,
+            energy: `${formatNumber(energyAvailable)}/${formatNumber(energyCapacity)}`,
+            energyPercent: energyCapacity ? Math.floor((energyAvailable / energyCapacity) * 100) : 0,
+            energyAvailable: energyAvailable,
+            energyCapacity: energyCapacity,
+            storage: formatNumber(storageEnergy),
+            storagePercent: storageCapacity ? Math.floor((storageEnergy / storageCapacity) * 100) : 0,
             creeps: roleCount,
             mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
             bucket: Game.cpu.bucket,

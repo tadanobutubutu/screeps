@@ -30,3 +30,7 @@ In high-frequency roles like Harvester, always look for opportunities to use con
 - **What:** Replaced the engine-level `room.find(FIND_MY_STRUCTURES)` call with `cache.getMyStructures(room, STRUCTURE_RAMPART)` when searching for urgent rampart repair targets in `_selectRepairTarget`. We then manually apply the filtering using `.filter()` on the cached result.
 - **Why:** `room.find(FIND_MY_STRUCTURES)` loops through all owned structures and has significant overhead due to Screeps engine Proxy-to-Array conversions every tick. Fetching directly from the cache prevents redundant searches and engine calls, specifically benefiting multi-tower operations during high-RCL defenses where the array size and operation frequency grow.
 - **Performance Result:** Micro-benchmarks showed a large drop in time (420.6ms -> 56.4ms over 100k iterations) by iterating over JS objects instead of fetching via the mock room's `find` method, simulating the overhead reduction in game.
+
+## 2025-05-16 - Optimize Dashboard with Pre-Warmed Caches
+**Learning:** Redundant engine calls (like `room.find`) in UI/Dashboard components can be eliminated by centralizing data collection in a global tick loop and attaching results to volatile room properties.
+**Action:** Always check if the required data is already available as a volatile property (e.g., `_myStructures`, `_roleCounts`) before performing a new search or filter operation.

@@ -12,6 +12,18 @@ describe('DashboardRenderer', () => {
 
         mockRoom = {
             find: jest.fn().mockReturnValue([]),
+            _myStructures: [],
+            _hostileCreeps: [],
+            _roleCounts: {
+                harvester: 0,
+                upgrader: 0,
+                builder: 0,
+                repairer: 0,
+                transporter: 0,
+                scout: 0,
+                medic: 0,
+                explorer: 0,
+            },
             energyAvailable: 1000,
             energyCapacityAvailable: 2000,
             storage: {

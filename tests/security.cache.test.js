@@ -69,7 +69,10 @@ describe('Security: Cache Hardening', () => {
             expect(fetcher).toHaveBeenCalled();
             // Cache size should still be 100
             expect(Object.keys(global.cache).length).toBe(100);
-            expect(global.cache.extraKey).toBeUndefined();
+            // key0 should have been evicted (oldest)
+            expect(global.cache.key0).toBeUndefined();
+            // extraKey should now be present
+            expect(global.cache.extraKey).toBeDefined();
         });
     });
 

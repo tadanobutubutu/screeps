@@ -94,11 +94,16 @@ function get(key, fetcher, ttl) {
     }
 
     // Security: Cap the number of cache entries to prevent Memory DoS.
-    // If full, attempt to cleanup expired entries once before giving up.
+    // If full, attempt to cleanup expired entries.
     if (!_canAddCacheEntry(cache)) {
         cleanup();
+        // If still full, implement FIFO eviction by deleting the oldest entry.
+        // This ensures the cache remains available for new, potentially more relevant data.
         if (!_canAddCacheEntry(cache)) {
-            return fetcher();
+            const keys = Object.keys(cache);
+            if (keys.length > 0) {
+                delete cache[keys[0]];
+            }
         }
     }
 

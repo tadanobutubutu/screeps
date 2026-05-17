@@ -75,6 +75,16 @@ describe('deploy.js', () => {
                 validateFilePath('/etc/passwd', testBaseDir);
             }).toThrow();
         });
+
+        test('should block partial base path match (starts-with bypass)', () => {
+            const baseDir = '/app';
+            const malicousPath = '../app_danger/main.js';
+            // /app/../app_danger/main.js resolves to /app_danger/main.js
+            // If the check is just .startsWith('/app'), it would bypass
+            expect(() => {
+                validateFilePath(malicousPath, baseDir);
+            }).toThrow();
+        });
     });
 
     describe('deployTo', () => {

@@ -22,6 +22,7 @@ global.ERR_INVALID_TARGET = -7;
 global.OK = 0;
 
 const mockCache = {
+    getStructures: jest.fn(),
     getConstructionSites: jest.fn(),
     getDroppedResources: jest.fn(),
     getContainers: jest.fn(),
@@ -69,6 +70,7 @@ describe('src/roles/repairer', () => {
             controller: { level: 2 },
             find: jest.fn().mockReturnValue([target]),
         };
+        mockCache.getStructures.mockReturnValue([target]);
         const creep = {
             memory: { working: true },
             room,
@@ -89,6 +91,7 @@ describe('src/roles/repairer', () => {
     test('建設サイトを補助するバックアップ動作', () => {
         const site = { id: 'site', pos: { x: 2, y: 2 } };
         mockCache.getConstructionSites.mockReturnValue([site]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { controller: { level: 2 }, find: jest.fn().mockReturnValue([]) };
         const creep = {
             memory: { working: true },
@@ -110,6 +113,7 @@ describe('src/roles/repairer', () => {
     test('壁の修理対象数を数える', () => {
         const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 5000 };
         const road = { structureType: global.STRUCTURE_ROAD, hits: 10, hitsMax: 100 };
+        mockCache.getStructures.mockReturnValue([wall, road]);
         const room = {
             controller: { level: 1 },
             find: jest.fn().mockReturnValue([wall, road]),
@@ -199,6 +203,7 @@ describe('src/roles/repairer', () => {
             structureType: global.STRUCTURE_ROAD,
             pos: { x: 1, y: 1 },
         };
+        mockCache.getStructures.mockReturnValue([target]);
         const room = {
             controller: { level: 2 },
             find: jest.fn().mockReturnValue([target]),
@@ -229,6 +234,7 @@ describe('src/roles/repairer', () => {
             pos: { x: 1, y: 1 },
         };
         global.Game.getObjectById = jest.fn().mockReturnValue(target);
+        mockCache.getStructures.mockReturnValue([]);
         const room = {
             controller: { level: 2 },
             find: jest.fn().mockReturnValue([]),
@@ -257,6 +263,7 @@ describe('src/roles/repairer', () => {
             structureType: global.STRUCTURE_ROAD,
             pos: { x: 1, y: 1 },
         };
+        mockCache.getStructures.mockReturnValue([target]);
         const room = {
             controller: { level: 2 },
             find: jest.fn().mockReturnValue([target]),
@@ -280,6 +287,7 @@ describe('src/roles/repairer', () => {
 
     test('壁とランパートの修復判定', () => {
         const wall = { structureType: global.STRUCTURE_WALL, hits: 500, hitsMax: 300000000 };
+        mockCache.getStructures.mockReturnValue([wall]);
         const room = {
             controller: { level: 3 },
             find: jest.fn().mockReturnValue([wall]),
@@ -303,6 +311,7 @@ describe('src/roles/repairer', () => {
     test('建設補助で建設サイトを修復する', () => {
         const site = { id: 'site1', pos: { x: 2, y: 2 } };
         mockCache.getConstructionSites.mockReturnValue([site]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { controller: { level: 2 }, find: jest.fn().mockReturnValue([]) };
         pathfinder.closest.mockReturnValue(site);
         const creep = {
@@ -324,6 +333,7 @@ describe('src/roles/repairer', () => {
 
     test('建設補助で建設サイトもなくコントローラーをアップグレードする', () => {
         mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { controller: { level: 2, id: 'ctrl1' }, find: jest.fn().mockReturnValue([]) };
         const creep = {
             memory: { working: true },
@@ -345,6 +355,7 @@ describe('src/roles/repairer', () => {
     test('建設補助で建設サイトを修復し、範囲内にいる場合（OK）', () => {
         const site = { id: 'site1', pos: { x: 2, y: 2 } };
         mockCache.getConstructionSites.mockReturnValue([site]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { controller: { level: 2 }, find: jest.fn().mockReturnValue([]) };
         pathfinder.closest.mockReturnValue(site);
         const creep = {
@@ -367,6 +378,7 @@ describe('src/roles/repairer', () => {
 
     test('建設補助で建設サイトもなくコントローラーをアップグレードし、範囲内にいる場合（OK）', () => {
         mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { controller: { level: 2, id: 'ctrl1' }, find: jest.fn().mockReturnValue([]) };
         const creep = {
             memory: { working: true },
@@ -388,6 +400,7 @@ describe('src/roles/repairer', () => {
 
     test('建設補助で建設サイトもなく、コントローラーもない場合', () => {
         mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = { find: jest.fn().mockReturnValue([]) }; // controller is undefined
         const creep = {
             memory: { working: true },

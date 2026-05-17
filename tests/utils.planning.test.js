@@ -2,6 +2,7 @@
  * utils.planning.js のユニットテスト
  */
 
+global.Game = { time: 100 };
 global.Memory = {};
 global.TERRAIN_MASK_WALL = 1;
 global.FIND_SOURCES = 5;
@@ -19,6 +20,12 @@ global.RoomPosition = class {
         return [{ x: 1, y: 1 }];
     }
 };
+
+const mockCache = {
+    getSources: jest.fn(),
+};
+
+jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
 
 const utilsPlanning = require('../utils.planning');
 
@@ -78,7 +85,7 @@ describe('utils.planning', () => {
     });
 
     test('findBestSpawnPositionがsourcesがないときnullを返す', () => {
-        mockRoom.find.mockReturnValue([]);
+        mockCache.getSources.mockReturnValue([]);
         const pos = utilsPlanning.findBestSpawnPosition(mockRoom);
         expect(pos).toBeNull();
     });
@@ -95,12 +102,13 @@ describe('utils.planning', () => {
 
     test('planRoadNetworkがspawnがないとき空配列を返す', () => {
         mockRoom.find.mockReturnValue([]);
+        mockCache.getSources.mockReturnValue([]);
         const roads = utilsPlanning.planRoadNetwork(mockRoom);
         expect(Array.isArray(roads)).toBe(true);
     });
 
     test('displayPlanningInfoがエラーを投げない', () => {
-        mockRoom.find.mockReturnValue([{ id: 'source1' }]);
+        mockCache.getSources.mockReturnValue([{ id: 'source1' }]);
         const result = utilsPlanning.displayPlanningInfo(mockRoom);
         expect(result).toBeDefined();
         expect(result.openSpaces).toBeDefined();

@@ -209,9 +209,10 @@ export default function Dashboard() {
             const isR = key === 'r';
             const isC = key === 'c';
             const isL = key === 'l';
+            const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL) && !hasModifier && !loading && !isRefreshing) {
+            if ((isR || isC || isL || isEsc) && !hasModifier && !loading && !isRefreshing) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -220,16 +221,24 @@ export default function Dashboard() {
                     activeElement?.getAttribute('contenteditable') === 'true';
 
                 if (!isEditable) {
-                    e.preventDefault();
-                    if (isR) fetchStats(true);
-                    if (isC) handleCopy();
-                    if (isL) handleResetSecret();
+                    if (isEsc && isResetConfirming) {
+                        e.preventDefault();
+                        setIsResetConfirming(false);
+                        return;
+                    }
+
+                    if (isR || isC || isL) {
+                        e.preventDefault();
+                        if (isR) fetchStats(true);
+                        if (isC) handleCopy();
+                        if (isL) handleResetSecret();
+                    }
                 }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, handleCopy, loading, isRefreshing, stats]);
+    }, [fetchStats, handleCopy, loading, isRefreshing, stats, isResetConfirming, handleResetSecret]);
 
     useEffect(() => {
         let title = 'Screeps Dashboard';
@@ -347,6 +356,7 @@ export default function Dashboard() {
                                         color: roomDelta > 0 ? '#1e7e34' : '#d32f2f',
                                         marginLeft: '0.25rem',
                                         fontWeight: 'bold',
+                                        animation: roomDelta > 0 ? 'bounce 0.6s ease' : 'none',
                                     }}
                                     aria-label={
                                         roomDelta > 0
@@ -407,7 +417,7 @@ export default function Dashboard() {
                             resetSuccess
                                 ? 'Secret reset'
                                 : isResetConfirming
-                                  ? 'Confirm reset?'
+                                  ? 'Confirm reset? (Esc to cancel)'
                                   : 'Reset Secret'
                         }
                         aria-keyshortcuts="l"
@@ -415,7 +425,7 @@ export default function Dashboard() {
                             resetSuccess
                                 ? 'Secret Reset!'
                                 : isResetConfirming
-                                  ? 'Click again to confirm reset (L)'
+                                  ? 'Click again to confirm reset (L or Esc to cancel)'
                                   : 'Reset Secret (L)'
                         }
                         style={{
@@ -424,7 +434,7 @@ export default function Dashboard() {
                             background: resetSuccess
                                 ? '#1e7e34'
                                 : isResetConfirming
-                                  ? '#a5532d'
+                                  ? '#d32f2f'
                                   : '#575757',
                             color: '#fff',
                             border: 'none',
@@ -432,12 +442,13 @@ export default function Dashboard() {
                             opacity: loading || isRefreshing ? 0.6 : 1,
                             transition: 'all 0.2s',
                             userSelect: 'none',
+                            animation: isResetConfirming ? 'shake 0.3s infinite' : 'none',
                             boxShadow: isResetFocused
                                 ? `0 0 0 2px #ffffff, 0 0 0 4px ${
                                       resetSuccess
                                           ? '#1e7e34'
                                           : isResetConfirming
-                                            ? '#a5532d'
+                                            ? '#d32f2f'
                                             : '#575757'
                                   }`
                                 : 'none',
@@ -1129,7 +1140,7 @@ export default function Dashboard() {
                         },
                         {
                             k: 'L',
-                            a: 'Reset Secret',
+                            a: isResetConfirming ? 'Esc to cancel' : 'Reset Secret',
                             state: isResetConfirming ? 'w' : resetSuccess ? 's' : '',
                             onClick: () => handleResetSecret(),
                             icon: resetSuccess ? '✓' : isResetConfirming ? '?' : 'L',
@@ -1153,7 +1164,7 @@ export default function Dashboard() {
                                             : item.state === 's'
                                               ? '#1e7e34'
                                               : item.state === 'w'
-                                                ? '#a5532d'
+                                                ? '#d32f2f'
                                                 : '#eee',
                                     color: item.state ? '#fff' : '#333',
                                     padding: '0.1rem 0.3rem',

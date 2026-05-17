@@ -1,16 +1,4 @@
 jest.mock('../utils.memory');
-jest.mock('../utils.logging', () => ({
-    error: jest.fn(),
-    warn: jest.fn(),
-    log: jest.fn(),
-    tryCatch: jest.fn((fn, context, ...args) => {
-        try {
-            return fn(...args);
-        } catch (e) {
-            return null;
-        }
-    }),
-}));
 
 // Import after mocking
 const TaskQueue = require('../utils.tasks');
@@ -22,8 +10,22 @@ describe('utils.tasks', () => {
         global.Memory = { logs: [] };
         TaskQueue.tasks = [];
         global.Game = { time: 100 };
-        jest.clearAllMocks();
+        // Use spyOn instead of jest.mock for logger to avoid issues with mock application
+        jest.spyOn(logger, 'error').mockImplementation(() => {});
+        jest.spyOn(logger, 'warn').mockImplementation(() => {});
+        jest.spyOn(logger, 'log').mockImplementation(() => {});
+        jest.spyOn(logger, 'tryCatch').mockImplementation((fn, context, ...args) => {
+            try {
+                return fn(...args);
+            } catch (e) {
+                return null;
+            }
+        });
         utilsMemory.isSafeKey.mockReturnValue(true);
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     test('registerTaskが正しくタスクを追加する', () => {

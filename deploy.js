@@ -22,10 +22,13 @@ function validateToken(token, label) {
 // ファイルパス検証関数（パストラバーサル対策）
 function validateFilePath(filePath, baseDir) {
     const normalizedPath = path.normalize(filePath);
-    const resolvedPath = path.resolve(baseDir || __dirname, normalizedPath);
+    const resolvedBase = baseDir || __dirname;
+    const resolvedPath = path.resolve(resolvedBase, normalizedPath);
 
-    // __dirname配下にあることを確認
-    if (!resolvedPath.startsWith(baseDir || __dirname)) {
+    // Security: Ensure the resolved path is within the base directory.
+    // We append a path separator to the base path to prevent partial matches (e.g., /app matching /app_danger).
+    const safeBase = resolvedBase.endsWith(path.sep) ? resolvedBase : resolvedBase + path.sep;
+    if (!resolvedPath.startsWith(safeBase) && resolvedPath !== resolvedBase) {
         throw new Error(`Invalid file path: ${filePath}`);
     }
 

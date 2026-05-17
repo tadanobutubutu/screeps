@@ -45,6 +45,8 @@ global.RoomPosition = function (x, y, roomName) {
 jest.mock(
     '../src/utils/cache',
     () => ({
+        getStructures: jest.fn().mockReturnValue([]),
+        getStructuresNeedingEnergy: jest.fn().mockReturnValue([]),
         getConstructionSites: jest.fn().mockReturnValue([]),
         getDroppedResources: jest.fn().mockReturnValue([]),
         getContainers: jest.fn().mockReturnValue([]),
@@ -212,6 +214,7 @@ describe('src roles behaviors', () => {
                 structureType: STRUCTURE_SPAWN,
                 store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
             };
+            cache.getStructuresNeedingEnergy.mockReturnValue([target]);
             const creep = {
                 memory: { [MEMORY_KEYS.WORKING]: true },
                 store: { [RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
@@ -312,6 +315,7 @@ describe('src roles behaviors', () => {
                 hitsMax: 1000,
                 pos: { x: 3, y: 3 },
             };
+            cache.getStructures.mockReturnValue([target]);
             const room = {
                 controller: { level: 2 },
                 find: jest.fn().mockReturnValue([target]),

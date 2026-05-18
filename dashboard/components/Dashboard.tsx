@@ -497,6 +497,7 @@ export default function Dashboard() {
                                 ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
                                 : 'none',
                             outline: 'none',
+                            animation: updated ? 'bounce 0.6s ease' : 'none',
                         }}
                     >
                         {updated ? (
@@ -1013,6 +1014,7 @@ export default function Dashboard() {
                                 boxShadow: isCopyFocused
                                     ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
                                     : 'none',
+                                animation: copied ? 'bounce 0.6s ease' : 'none',
                             }}
                         >
                             {copied ? '✅ Copied!' : '📋 Copy JSON'}
@@ -1157,6 +1159,7 @@ export default function Dashboard() {
                                 }
                                 title={`Click or press ${item.k} to ${item.a}`}
                                 aria-label={item.a}
+                                aria-keyshortcuts={item.k.toLowerCase()}
                                 style={{
                                     background:
                                         item.state === 'a'
@@ -1178,6 +1181,7 @@ export default function Dashboard() {
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
                                     userSelect: 'none',
+                                    animation: item.state === 'w' ? 'shake 0.3s infinite' : 'none',
                                 }}
                             >
                                 {item.icon}

@@ -168,7 +168,7 @@ function buildCostMatrix (roomName, options) {
     const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey)
       ? cache[cacheKey]
       : undefined
-    if (entry && entry.expires > Game.time) {
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
       return entry.data
     }
   }
@@ -194,12 +194,23 @@ function buildCostMatrix (roomName, options) {
 
 
   if (opts.useCache && isSafeKey(cacheKey)) {
-    // Security: Cap the number of cache entries to prevent Memory DoS
-    if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
-      cache[cacheKey] = {
-        data: costs,
-        expires: Game.time + CACHE_TTL.PATH
+    // Security: Cap the number of cache entries to prevent Memory DoS.
+    // If full, attempt to cleanup expired entries.
+    if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+      cacheUtils.cleanup()
+      // If still full, implement FIFO eviction by deleting the oldest entry.
+      // This ensures the cache remains available for new, potentially more relevant data.
+      if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+        const keys = Object.keys(cache)
+        if (keys.length > 0) {
+          delete cache[keys[0]]
+        }
       }
+    }
+
+    cache[cacheKey] = {
+      data: costs,
+      expires: Game.time + CACHE_TTL.PATH
     }
   }
 
@@ -428,7 +439,7 @@ function estimateDistance (origin, goal) {
 
   if (isSafeKey(key)) {
     const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined
-    if (entry && entry.expires > Game.time) {
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
       return entry.data
     }
   }
@@ -437,12 +448,23 @@ function estimateDistance (origin, goal) {
   const dist = result.incomplete ? Infinity : result.path.length
 
   if (isSafeKey(key)) {
-    // Security: Cap the number of cache entries to prevent Memory DoS
-    if (Object.keys(cache).length < MAX_CACHE_ENTRIES) {
-      cache[key] = {
-        data: dist,
-        expires: Game.time + CACHE_TTL.PATH
+    // Security: Cap the number of cache entries to prevent Memory DoS.
+    // If full, attempt to cleanup expired entries.
+    if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+      cacheUtils.cleanup()
+      // If still full, implement FIFO eviction by deleting the oldest entry.
+      // This ensures the cache remains available for new, potentially more relevant data.
+      if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+        const keys = Object.keys(cache)
+        if (keys.length > 0) {
+          delete cache[keys[0]]
+        }
       }
+    }
+
+    cache[key] = {
+      data: dist,
+      expires: Game.time + CACHE_TTL.PATH
     }
   }
 

@@ -104,10 +104,10 @@ describe('Security: Pathfinder Hardening', () => {
             expect(pathfinder.isSafeKey(longKey)).toBe(false);
         });
 
-        test('buildCostMatrix should enforce MAX_CACHE_ENTRIES limit', () => {
+        test('buildCostMatrix should implement FIFO eviction when full', () => {
             // Fill cache to limit (100)
             for (let i = 0; i < 100; i++) {
-                global.cache[`key${i}`] = { data: {}, expires: 10 };
+                global.cache[`key${i}`] = { data: {}, expires: Game.time + 10 };
             }
             expect(Object.keys(global.cache).length).toBe(100);
 
@@ -118,22 +118,30 @@ describe('Security: Pathfinder Hardening', () => {
 
             // Cache size should still be 100
             expect(Object.keys(global.cache).length).toBe(100);
-            expect(global.cache[`cm_${roomName}_0`]).toBeUndefined();
+            // Oldest key should be gone
+            expect(global.cache['key0']).toBeUndefined();
+            // New key should be present
+            expect(global.cache[`cm_${roomName}_0`]).toBeDefined();
         });
 
-        test('estimateDistance should enforce MAX_CACHE_ENTRIES limit', () => {
+        test('estimateDistance should implement FIFO eviction when full', () => {
             // Fill cache to limit (100)
             for (let i = 0; i < 100; i++) {
-                global.cache[`key${i}`] = { data: {}, expires: 10 };
+                global.cache[`key${i}`] = { data: {}, expires: Game.time + 10 };
             }
 
             const origin = { x: 1, y: 1, roomName: 'W1N1' };
             const goal = { x: 5, y: 5, roomName: 'W1N1' };
+            const key = `path_${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
 
             pathfinder.estimateDistance(origin, goal);
 
             // Cache size should still be 100
             expect(Object.keys(global.cache).length).toBe(100);
+            // Oldest key should be gone
+            expect(global.cache['key0']).toBeUndefined();
+            // New key should be present
+            expect(global.cache[key]).toBeDefined();
         });
     });
 

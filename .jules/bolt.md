@@ -34,3 +34,7 @@ In high-frequency roles like Harvester, always look for opportunities to use con
 ## 2025-05-16 - Optimize Dashboard with Pre-Warmed Caches
 **Learning:** Redundant engine calls (like `room.find`) in UI/Dashboard components can be eliminated by centralizing data collection in a global tick loop and attaching results to volatile room properties.
 **Action:** Always check if the required data is already available as a volatile property (e.g., `_myStructures`, `_roleCounts`) before performing a new search or filter operation.
+
+## 2025-05-17 - Visual Draining for Stationary Objects
+**Learning:** High-frequency visual effects (like trails) should only update their state when the subject moves. For stationary subjects, draining the state (e.g., shifting out old positions) allows the effect to naturally fade and eventually skip the entire drawing loop, saving significant CPU on `RoomVisual` calls.
+**Action:** In VFX modules, implement movement-based state updates and early returns for empty states to minimize redundant per-tick engine overhead.

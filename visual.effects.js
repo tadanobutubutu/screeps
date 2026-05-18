@@ -274,7 +274,6 @@ const visualEffects = {
             _trailCache.delete(creep.id);
             return;
         }
-        const visual = getVisual(creep.room.name);
 
         // ⚡ PERFORMANCE: Migrate from Memory to volatile cache if existing data is found.
         if (creep.memory.trailPositions) {
@@ -288,12 +287,27 @@ const visualEffects = {
             _trailCache.set(creep.id, positions);
         }
 
-        positions.push({ x: creep.pos.x, y: creep.pos.y });
+        // ⚡ PERFORMANCE: Only update the trail if the creep has actually moved or if we need to drain the trail.
+        // This avoids redundant pushes and allows the trail to catch up to stationary creeps.
+        const lastPos = positions.length > 0 ? positions[positions.length - 1] : null;
+        const hasMoved = !lastPos || lastPos.x !== creep.pos.x || lastPos.y !== creep.pos.y;
 
-        if (positions.length > 10) {
+        if (hasMoved) {
+            positions.push({ x: creep.pos.x, y: creep.pos.y });
+            if (positions.length > 10) {
+                positions.shift();
+            }
+        } else if (positions.length > 0) {
+            // Stationary: Drain the trail to avoid static visuals and reduce redundant loop iterations.
             positions.shift();
         }
 
+        // ⚡ PERFORMANCE: Skip drawing loop entirely if no positions remain.
+        if (positions.length === 0) {
+            return;
+        }
+
+        const visual = getVisual(creep.room.name);
         for (let i = 0; i < positions.length; i++) {
             const trailPos = positions[i];
             visual.circle(trailPos.x, trailPos.y, {

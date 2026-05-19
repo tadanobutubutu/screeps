@@ -8,6 +8,7 @@
  */
 
 'use strict';
+/* global STRUCTURE_RAMPART, TOUGH, CLAIM */
 
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
@@ -69,7 +70,9 @@ function run(creep) {
 function _attack(creep, enemies) {
     // HPが最も低い敵を優先ターゲットにする
     const target = _selectTarget(creep, enemies);
-    if (!target) return;
+    if (!target) {
+        return;
+    }
 
     const hasRanged = creep.getActiveBodyparts(RANGED_ATTACK) > 0;
     const hasMelee = creep.getActiveBodyparts(ATTACK) > 0;
@@ -78,7 +81,9 @@ function _attack(creep, enemies) {
 
     if (hasRanged) {
         const shouldReturn = _executeRangedCombat(creep, target, dist, hasMelee);
-        if (shouldReturn) return;
+        if (shouldReturn) {
+            return;
+        }
     } else if (hasMelee) {
         _executeMeleeCombat(creep, target, dist);
     }
@@ -147,10 +152,14 @@ function _drawAttackLine(creep, target) {
  * @returns {Creep|null}
  */
 function _selectTarget(creep, enemies) {
-    if (enemies.length === 0) return null;
+    if (enemies.length === 0) {
+        return null;
+    }
 
     return enemies.reduce((best, enemy) => {
-        if (!best) return enemy;
+        if (!best) {
+            return enemy;
+        }
 
         const bestScore = _calcThreatScore(creep, best);
         const enemyScore = _calcThreatScore(creep, enemy);
@@ -214,7 +223,9 @@ function _fleeFrom(creep, from) {
  */
 function _patrol(creep) {
     const points = _getPatrolPoints(creep.room);
-    if (points.length === 0) return;
+    if (points.length === 0) {
+        return;
+    }
 
     if (creep.memory[PATROL_INDEX_KEY] === undefined) {
         creep.memory[PATROL_INDEX_KEY] = 0;
@@ -238,9 +249,7 @@ function _patrol(creep) {
  */
 function _getPatrolPoints(room) {
     // ランパートがあればその周囲を巡回
-    const ramparts = room.find(FIND_MY_STRUCTURES, {
-        filter: { structureType: STRUCTURE_RAMPART },
-    });
+    const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART);
 
     if (ramparts.length > 0) {
         // ランパートを等間隔で選択
@@ -337,12 +346,20 @@ function detectInvasion(room) {
  * @returns {boolean}
  */
 function shouldActivateSafeMode(room) {
-    if (!room.controller || !room.controller.my) return false;
-    if (room.controller.safeMode) return false;
-    if (room.controller.safeModeAvailable === 0) return false;
+    if (!room.controller || !room.controller.my) {
+        return false;
+    }
+    if (room.controller.safeMode) {
+        return false;
+    }
+    if (room.controller.safeModeAvailable === 0) {
+        return false;
+    }
 
     const invasion = detectInvasion(room);
-    if (!invasion.detected) return false;
+    if (!invasion.detected) {
+        return false;
+    }
 
     // 自室のディフェンダー数
     const defenders = Object.values(Game.creeps).filter(

@@ -92,6 +92,7 @@ global.FIND_MY_SPAWNS = 112; global.FIND_SOURCES = 105; });
   beforeEach(() => {
     mockRoom = {
       name: 'W1N1',
+      find: jest.fn().mockReturnValue([]),
       controller: {
         level: 3,
         my: true,

@@ -726,6 +726,10 @@ export default function Dashboard() {
 
             {stats?.gcl && (() => {
                 const xpPerHour = getXpPerHour();
+                const predictedPercent =
+                    xpPerHour && stats.gcl.progressTotal
+                        ? (xpPerHour / stats.gcl.progressTotal) * 100
+                        : 0;
                 const timeToLevel = getTimeToLevel();
                 const formattedXpPerHour = xpPerHour
                     ? xpPerHour >= 1000000000
@@ -912,8 +916,8 @@ export default function Dashboard() {
                         aria-valuenow={Number(gclPercent.toFixed(2))}
                         aria-valuemin={0}
                         aria-valuemax={100}
-                        aria-valuetext={`${gclPercent.toFixed(2)}% complete, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
-                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
+                        aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
+                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}`}
                         style={{
                             width: '100%',
                             height: '12px',
@@ -953,8 +957,29 @@ export default function Dashboard() {
                                         ? '#FFD700'
                                         : '#006699',
                                 transition: 'width 0.5s ease-in-out',
+                                position: 'relative',
+                                zIndex: 2,
                             }}
                         />
+                        {predictedPercent > 0 && stats.gcl.progress < stats.gcl.progressTotal && (
+                            <div
+                                title={`Forecast: +${predictedPercent.toFixed(2)}% in 1h`}
+                                style={{
+                                    left: `${gclPercent}%`,
+                                    width: `${Math.min(predictedPercent, 100 - gclPercent)}%`,
+                                    height: '100%',
+                                    position: 'absolute',
+                                    background:
+                                        stats.gcl.progress >= stats.gcl.progressTotal
+                                            ? '#FFD700'
+                                            : '#006699',
+                                    opacity: 0.3,
+                                    animation: 'pulse 2s infinite',
+                                    zIndex: 1,
+                                    transition: 'all 0.5s ease-in-out',
+                                }}
+                            />
+                        )}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#575757', textAlign: 'right' }}>
                         {stats.gcl.progress.toLocaleString()} /{' '}

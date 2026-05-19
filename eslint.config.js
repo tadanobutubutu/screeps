@@ -1,4 +1,4 @@
-const globals = require('globals');
+const globals = require('globals')
 
 module.exports = [
   {
@@ -76,8 +76,8 @@ module.exports = [
         LOOK_STRUCTURES: 'readonly',
         LOOK_CONSTRUCTION_SITES: 'readonly',
         LOOK_AT: 'readonly',
-        CONTROLLER_STRUCTURES: 'readonly',
+        CONTROLLER_STRUCTURES: 'readonly'
       }
     }
   }
-];
+]

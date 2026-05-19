@@ -1,4 +1,10 @@
-# Screeps AI
+# 🎮 Screeps AI
+
+[![Tests](https://img.shields.io/github/actions/workflow/status/tadanobutubutu/screeps/test-minimal.yml?style=for-the-badge&label=Tests&logo=jest)](https://github.com/tadanobutubutu/screeps/actions)
+[![SonarCloud](https://img.shields.io/sonar/quality_gate/tadanobutubutu_screeps?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud)](https://sonarcloud.io/project/overview?id=tadanobutubutu_screeps)
+[![Codecov](https://img.shields.io/codecov/c/github/tadanobutubutu/screeps?style=for-the-badge&logo=codecov)](https://app.codecov.io/gh/tadanobutubutu/screeps)
+[![License](https://img.shields.io/github/license/tadanobutubutu/screeps?style=for-the-badge)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/tadanobutubutu/screeps?style=for-the-badge)](https://github.com/tadanobutubutu/screeps/commits/main)
 
 [Screeps](https://screeps.com/) 向けの自律型 AI Bot。ロールベースのクリープ管理、適応型負荷制御、防衛システム、感情・ゲーミフィケーション機能を搭載しています。
 

@@ -1,0 +1,43 @@
+name: 'CodeQL Advanced Security'
+
+on:
+    push:
+        branches: ['main']
+    pull_request:
+        branches: ['main']
+    schedule:
+        - cron: '30 20 * * 0' # 毎週日曜日の夜に自動スキャン
+
+permissions:
+    actions: read
+    contents: read
+    security-events: write
+
+jobs:
+    analyze:
+        name: Analyze
+        runs-on: ubuntu-latest
+        timeout-minutes: 360
+
+        strategy:
+            fail-fast: false
+            matrix:
+                language: ['javascript']
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Initialize CodeQL
+              uses: github/codeql-action/init@v3
+              with:
+                  languages: ${{ matrix.language }}
+                  queries: security-extended,security-and-quality
+
+            - name: Autobuild
+              uses: github/codeql-action/autobuild@v3
+
+            - name: Perform CodeQL Analysis
+              uses: github/codeql-action/analyze@v3
+              with:
+                  category: '/language:${{matrix.language}}'

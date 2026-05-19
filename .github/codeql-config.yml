@@ -1,0 +1,7 @@
+name: 'CodeQL Custom Config'
+
+paths-ignore:
+    - 'docs'
+    - 'coverage'
+    - '**/node_modules'
+    - '**/vendor'

@@ -1,9 +1,4 @@
-🧹 Code Health: Refactor `warmRoomCache` to improve readability and maintainability
-
-🎯 **What:** The `warmRoomCache` function in `main.js` was long and complex, performing multiple distinct operations including basic cache array initialization and looping through structures for categorization. This was split into two functions: `initializeRoomBasicCache` and `categorizeRoomStructures`, with `warmRoomCache` acting as an orchestrator.
-
-💡 **Why:** Breaking down long functions (Extract Method) improves the codebase's readability, cognitive load, and testability. By separating the initial fast array reset operations from the slower loop-based categorizations, future performance optimizations will be easier to profile and apply.
-
-✅ **Verification:** Verified the logic remains identical to the previous implementation and ran the full unit test suite via `pnpm test` and formatting via `npx prettier --write main.js`. All core functionality remains intact.
-
-✨ **Result:** Improved the code health of `main.js` without altering behavior. The codebase is now easier to read and maintain for this critical caching path.
+🎯 **What:** Removed commented-out require statements and function calls from `strategy-memory.js` lines 6-8.
+💡 **Why:** Commented-out code causes clutter and can cause confusion. Removing it improves code maintainability and readability.
+✅ **Verification:** Verified that linting passes (`eslint --fix`) and code formatting is correct (`prettier --write`). The test suite was run locally via `npm run test` and `npm run test:coverage` and passed without issues, confirming no existing functionality was broken by the change. Pre-commit tests and builds were also successful.
+✨ **Result:** A cleaner file free of dead/commented-out code, improving readability and general code health.

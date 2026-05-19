@@ -54,3 +54,4 @@ junit.xml
 *.tmp
 *.temp
 .cache/
+coverage/

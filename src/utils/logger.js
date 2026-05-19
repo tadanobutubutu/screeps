@@ -297,6 +297,11 @@ function getSafeStack(stack, maxLines) {
             if (match) {
                 return `    at ${match[0]}`;
             }
+            // Security: If the line looks like a stack trace entry but doesn't match
+            // the safe pattern, redact it to prevent internal path leakage.
+            if (line.trim().startsWith('at ')) {
+                return '    at [REDACTED]';
+            }
             return line;
         })
         .join('\n');

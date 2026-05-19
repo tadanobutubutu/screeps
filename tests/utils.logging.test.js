@@ -81,6 +81,15 @@ describe('utils.logging', () => {
         const result = utilsLogging.getSafeStack(stack);
         expect(result).toContain('test.js:10:5');
         expect(result).toContain('test2.js:20:10');
+        expect(result).not.toContain('/workspace/');
+    });
+
+    test('getSafeStack redacts lines that look like paths but do not match the pattern', () => {
+        const stack = 'Error: test\n    at /secret/path/to/internal/file.js';
+        const result = utilsLogging.getSafeStack(stack);
+        // Current behavior: leaks the path
+        // Desired behavior: redacts it
+        expect(result).not.toContain('/secret/path/');
     });
 
     test('getSafeStack returns empty string for null input', () => {

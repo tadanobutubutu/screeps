@@ -127,6 +127,11 @@ module.exports = {
                 if (match) {
                     return `    at ${match[0]}`;
                 }
+                // Security: If the line looks like a stack trace entry but doesn't match
+                // the safe pattern, redact it to prevent internal path leakage.
+                if (line.trim().startsWith('at ')) {
+                    return '    at [REDACTED]';
+                }
                 return line;
             })
             .join('\n');
@@ -151,7 +156,7 @@ module.exports = {
 
     // Get recent logs
     getRecentLogs: function (count = 10) {
-        if (!Memory.logs) {
+        if (!Array.isArray(Memory.logs)) {
             return [];
         }
         return Memory.logs.slice(-count);
@@ -159,7 +164,7 @@ module.exports = {
 
     // Get errors only
     getErrors: function (count = 10) {
-        if (!Memory.logs) {
+        if (!Array.isArray(Memory.logs)) {
             return [];
         }
         return Memory.logs.filter((log) => log.level === 'error').slice(-count);
@@ -173,7 +178,7 @@ module.exports = {
 
     // Get statistics
     getStats: function () {
-        if (!Memory.logs) {
+        if (!Array.isArray(Memory.logs)) {
             return {};
         }
 

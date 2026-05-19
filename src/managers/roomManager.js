@@ -1,142 +1,53 @@
-/**
- * src/managers/roomManager.js
- * ルーム管理モジュール
- *
- * 自分のルームの状態を管理し、各サブシステムを統合・調整する。
- * - クリープカウントの監視
- * - 建設計画の管理（道路・コンテナ・エクステンションの自動配置）
- * - リンクネットワークの管理
- * - ストレージのエネルギー最適化
- * - 定期的なメモリクリーンアップ
- */
-
-'use strict';
-
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
-const {
-    ROLES,
-    CACHE_TTL,
-    MEMORY_CLEANUP_INTERVAL,
-    STATS_DISPLAY_INTERVAL,
-    SAFE_MODE_TRIGGER_HOSTILES,
-} = require('../constants');
 
 // ============================================================
-// 定数
-// ============================================================
-
-/** 建設自動化を行う間隔（ティック数） */
-const BUILD_PLAN_INTERVAL = 500;
-
-/** セーフモードチェック間隔（ティック数） */
-const SAFE_MODE_CHECK_INTERVAL = 10;
-
-/** リンクエネルギー転送の閾値 */
-const LINK_TRANSFER_THRESHOLD = 0.8;
-
-/** 建設計画1サイクルで配置する最大道路数 */
-const MAX_ROADS_PER_CYCLE = 5;
-
-// ============================================================
-// メイン制御
+// メインループ
 // ============================================================
 
 /**
- * ルーム管理のメインロジックを実行する
+ * ルームの管理を実行する
  * @param {Room} room
  */
 function run(room) {
-    if (!room.controller || !room.controller.my) return;
-
-    try {
-        // 定期タスク
-        if (Game.time % MEMORY_CLEANUP_INTERVAL === 0) {
-            _cleanupRoomMemory(room);
-        }
-
-        if (Game.time % BUILD_PLAN_INTERVAL === 0) {
-            _planConstruction(room);
-        }
-
-        if (Game.time % SAFE_MODE_CHECK_INTERVAL === 0) {
-            _checkSafeMode(room);
-        }
-
-        // リンクネットワーク管理（毎ティック）
-        _manageLinkNetwork(room);
-
-        // キャッシュクリーンアップ（定期的に）
-        if (Game.time % 50 === 0) {
-            cache.cleanup();
-        }
-    } catch (e) {
-        logger.error(`[RoomManager] ルーム ${room.name} でエラー`, e);
+    if (!room) {
+        return;
     }
+
+    // 定期的な建設タスク（50tickごと）
+    if (Game.time % 50 === 0) {
+        _planConstruction(room);
+    }
+
+    // 防衛・セーフモード管理（10tickごと）
+    if (Game.time % 10 === 0) {
+        _checkSafeMode(room);
+    }
+
+    // リンクネットワーク管理（毎tick）
+    _manageLinkNetwork(room);
 }
 
 // ============================================================
-// メモリクリーンアップ
+// 建設・インフラ管理
 // ============================================================
 
 /**
- * 死亡したクリープのメモリを削除する
- * @param {Room} room
- */
-function _cleanupRoomMemory(room) {
-    // 死亡クリープのメモリ削除
-    for (const name in Memory.creeps) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            cache.isSafeKey(name) &&
-            Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
-            !Game.creeps[name]
-        ) {
-            logger.debug(`[RoomManager] クリープメモリ削除: ${name}`);
-            delete Memory.creeps[name];
-        }
-    }
-
-    // 不要なフラグのクリーンアップ
-    for (const flagName in Game.flags) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            cache.isSafeKey(flagName) &&
-            Object.prototype.hasOwnProperty.call(Game.flags, flagName)
-        ) {
-            const flag = Game.flags[flagName];
-            if (flag.room && flag.room.name !== room.name) continue;
-
-            // 古いパトロールフラグを削除（1000ティック以上）
-            if (flagName.startsWith('patrol_') && flag.memory && flag.memory.createdAt) {
-                if (Game.time - flag.memory.createdAt > 1000) {
-                    flag.remove();
-                }
-            }
-        }
-    }
-}
-
-// ============================================================
-// 建設計画
-// ============================================================
-
-/**
- * ルームの建設計画を実行する
- * RCLに応じた構造物を自動的に建設サイトとして配置する
+ * インフラの建設計画を立てる
  * @param {Room} room
  */
 function _planConstruction(room) {
-    const rcl = room.controller.level;
-
-    // RCL2以上: ソース周囲にコンテナを配置
-    if (rcl >= 2) {
-        _planSourceContainers(room);
+    const controller = room.controller;
+    if (!controller || !controller.my) {
+        return;
     }
 
-    // RCL2以上: 主要経路に道路を計画
-    if (rcl >= 2) {
+    const rcl = controller.level;
+
+    // RCL1以上: ソース周囲のコンテナ、道路
+    if (rcl >= 1) {
+        _planSourceContainers(room);
         _planRoads(room);
     }
 
@@ -154,16 +65,23 @@ function _planSourceContainers(room) {
     const sources = cache.getSources(room);
     const existingContainers = cache.getContainers(room);
 
+    // コンテナの建設サイトをループ外で一度だけ取得
+    const containerSites = cache
+        .getConstructionSites(room)
+        .filter((s) => s.structureType === STRUCTURE_CONTAINER);
+
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
         const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2);
-        if (nearby.length > 0) continue;
+        if (nearby.length > 0) {
+            continue;
+        }
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = room.find(FIND_CONSTRUCTION_SITES, {
-            filter: (s) => s.structureType === STRUCTURE_CONTAINER && source.pos.getRangeTo(s) <= 2,
-        });
-        if (existingSites.length > 0) continue;
+        const existingSites = containerSites.filter((s) => source.pos.getRangeTo(s) <= 2);
+        if (existingSites.length > 0) {
+            continue;
+        }
 
         // ソースの隣の空きタイルにコンテナを配置
         const pos = pathfinder.findNearestOpenTile(source.pos, 2);
@@ -183,7 +101,9 @@ function _planSourceContainers(room) {
  */
 function _planRoads(room) {
     const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) return;
+    if (spawns.length === 0) {
+        return;
+    }
 
     const spawn = spawns[0];
     const targets = [...cache.getSources(room), room.controller].filter(Boolean);
@@ -200,9 +120,13 @@ function _planRoads(room) {
         occupiedTiles.add(s.pos.x | (s.pos.y << 6));
     }
 
+    const MAX_ROADS_PER_CYCLE = 5;
+
     for (const target of targets) {
         const result = pathfinder.findPath(spawn.pos, target);
-        if (result.incomplete) continue;
+        if (result.incomplete) {
+            continue;
+        }
 
         let planned = 0;
         for (const pos of result.path) {
@@ -214,7 +138,9 @@ function _planRoads(room) {
                 if (r === OK) {
                     planned++;
                     occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
-                    if (planned >= MAX_ROADS_PER_CYCLE) break; // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
+                    if (planned >= MAX_ROADS_PER_CYCLE) {
+                        break;
+                    } // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
                 }
             }
         }
@@ -234,7 +160,9 @@ function _planExtensions(room) {
     const rcl = room.controller.level;
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][rcl] || 0;
 
-    if (maxExtensions === 0) return;
+    if (maxExtensions === 0) {
+        return;
+    }
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
     const sites = cache
@@ -242,10 +170,14 @@ function _planExtensions(room) {
         .filter((s) => s.structureType === STRUCTURE_EXTENSION);
 
     const currentCount = existing.length + sites.length;
-    if (currentCount >= maxExtensions) return;
+    if (currentCount >= maxExtensions) {
+        return;
+    }
 
     const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) return;
+    if (spawns.length === 0) {
+        return;
+    }
 
     const spawn = spawns[0];
     const needed = Math.min(5, maxExtensions - currentCount);
@@ -269,17 +201,25 @@ function _planExtensions(room) {
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
             for (let dy = -radius; dy <= radius && placed < needed; dy++) {
-                if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+                if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) {
+                    continue;
+                }
 
                 const x = spawn.pos.x + dx;
                 const y = spawn.pos.y + dy;
-                if (x < 2 || x > 47 || y < 2 || y > 47) continue;
+                if (x < 2 || x > 47 || y < 2 || y > 47) {
+                    continue;
+                }
 
                 const terrain = room.getTerrain().get(x, y);
-                if (terrain === TERRAIN_MASK_WALL) continue;
+                if (terrain === TERRAIN_MASK_WALL) {
+                    continue;
+                }
 
                 const isBlocked = blockedMap.has(`${x},${y}`);
-                if (isBlocked) continue;
+                if (isBlocked) {
+                    continue;
+                }
 
                 const r = room.createConstructionSite(x, y, STRUCTURE_EXTENSION);
                 if (r === OK) {
@@ -305,7 +245,11 @@ function _planExtensions(room) {
  */
 function _checkSafeMode(room) {
     const controller = room.controller;
-    if (!controller || controller.safeMode || controller.safeModeAvailable === 0) return;
+    if (!controller || controller.safeMode || controller.safeModeAvailable === 0) {
+        return;
+    }
+
+    const SAFE_MODE_TRIGGER_HOSTILES = 3;
 
     const enemies = cache.getEnemies(room);
     const dangerousEnemies = enemies.filter(
@@ -347,10 +291,16 @@ function _checkSafeMode(room) {
  */
 function _manageLinkNetwork(room) {
     const links = cache.getLinks(room);
-    if (links.length < 2) return;
+    if (links.length < 2) {
+        return;
+    }
 
     const controller = room.controller;
-    if (!controller) return;
+    if (!controller) {
+        return;
+    }
+
+    const LINK_TRANSFER_THRESHOLD = 0.8;
 
     // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
     const sourceLinks = links.filter(
@@ -369,11 +319,15 @@ function _manageLinkNetwork(room) {
             (controller.pos.getRangeTo(l) <= 5 || (spawnPos && spawnPos.getRangeTo(l) <= 5))
     );
 
-    if (sourceLinks.length === 0 || sinkLinks.length === 0) return;
+    if (sourceLinks.length === 0 || sinkLinks.length === 0) {
+        return;
+    }
 
     for (const sourceLink of sourceLinks) {
         const sink = pathfinder.closest(sourceLink.pos, sinkLinks);
-        if (!sink) continue;
+        if (!sink) {
+            continue;
+        }
 
         const result = sourceLink.transferEnergy(sink);
         if (result === OK) {

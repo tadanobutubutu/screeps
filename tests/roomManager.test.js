@@ -260,14 +260,7 @@ describe('roomManager', () => {
             cache.getSources.mockReturnValue([source]);
             cache.getContainers.mockReturnValue([]);
 
-            mockRoom.find.mockImplementation((type, opts) => {
-                if (type === global.FIND_CONSTRUCTION_SITES && opts && opts.filter) {
-                    if (opts.filter(constructionSite)) {
-                        return [constructionSite];
-                    }
-                }
-                return [];
-            });
+            cache.getConstructionSites.mockReturnValue([constructionSite]);
 
             roomManager.run(mockRoom);
 
@@ -315,6 +308,9 @@ describe('roomManager', () => {
                     { x: 7, y: 5 },
                 ],
             });
+
+            mockRoom.lookAtArea = jest.fn().mockReturnValue([]);
+            mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 });
 
             roomManager.run(mockRoom);
 

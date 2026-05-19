@@ -23,10 +23,10 @@ jest.mock(
   () => ({
     getConstructionSites: jest.fn().mockReturnValue([]),
     getEnemies: jest.fn().mockReturnValue([]),
-    isSafeKey: jest.fn().mockReturnValue(true),
+    isSafeKey: jest.fn().mockReturnValue(true)
   }),
   { virtual: true }
-);
+)
 
 jest.mock(
   '../src/utils/logger',
@@ -34,10 +34,10 @@ jest.mock(
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
-    error: jest.fn(),
+    error: jest.fn()
   }),
   { virtual: true }
-);
+)
 
 // 定数のモック
 jest.mock(
@@ -49,16 +49,16 @@ jest.mock(
       BUILDER: 'builder',
       REPAIRER: 'repairer',
       DEFENDER: 'defender',
-      MINER: 'miner',
+      MINER: 'miner'
     },
     BODY_PRESETS: {
       harvester: [
         { body: ['work', 'carry', 'move'], cost: 200 },
-        { body: ['work', 'work', 'carry', 'move'], cost: 300 },
+        { body: ['work', 'work', 'carry', 'move'], cost: 300 }
       ],
       upgrader: [{ body: ['work', 'carry', 'move'], cost: 200 }],
       builder: [{ body: ['work', 'carry', 'move'], cost: 200 }],
-      defender: [{ body: ['attack', 'move'], cost: 130 }],
+      defender: [{ body: ['attack', 'move'], cost: 130 }]
     },
     SPAWN_PRIORITY: {
       harvester: 1,
@@ -66,55 +66,59 @@ jest.mock(
       builder: 3,
       repairer: 4,
       defender: 5,
-      miner: 6,
+      miner: 6
     },
     TARGET_CREEPS_BY_RCL: {
       1: { harvester: 2, upgrader: 1, builder: 0 },
       2: { harvester: 2, upgrader: 2, builder: 1 },
-      3: { harvester: 2, upgrader: 2, builder: 2 },
-    },
+      3: { harvester: 2, upgrader: 2, builder: 2 }
+    }
   }),
   { virtual: true }
-);
+)
 
 const spawnManager = require('../src/managers/spawnManager')
 const cache = require('../src/utils/cache')
 
 global.FIND_CONSTRUCTION_SITES = 111
-global.FIND_MY_SPAWNS = 112;
+global.FIND_MY_SPAWNS = 112
 
 describe('spawnManager', () => {
-  beforeEach(() => { global.FIND_CONSTRUCTION_SITES = 111
-global.FIND_MY_SPAWNS = 112; global.FIND_SOURCES = 105; });
-  let mockSpawn;
-  let mockRoom;
+  beforeEach(() => {
+    global.FIND_CONSTRUCTION_SITES = 111
+    global.FIND_MY_SPAWNS = 112
+    global.FIND_SOURCES = 105
+  })
+  let mockSpawn
+  let mockRoom
 
   beforeEach(() => {
     mockRoom = {
       name: 'W1N1',
+      find: jest.fn().mockReturnValue([]),
       controller: {
         level: 3,
-        my: true,
+        my: true
       },
       energyAvailable: 300,
       energyCapacityAvailable: 1000,
       visual: {
         text: jest.fn(),
-        rect: jest.fn(),
-      },
-    };
+        rect: jest.fn()
+      }
+    }
 
     mockSpawn = {
       name: 'Spawn1',
       room: mockRoom,
       spawning: null,
       spawnCreep: jest.fn().mockReturnValue(0), // OK
-      pos: { x: 10, y: 10 },
-    };
+      pos: { x: 10, y: 10 }
+    }
 
-    global.Game.creeps = {};
-    global.Game.spawns = { Spawn1: mockSpawn };
-    global.Game.time = 100;
+    global.Game.creeps = {}
+    global.Game.spawns = { Spawn1: mockSpawn }
+    global.Game.time = 100
     // キャッシュモックのクリア
     cache.getConstructionSites.mockClear()
     cache.getEnemies.mockClear()
@@ -146,11 +150,11 @@ global.FIND_MY_SPAWNS = 112; global.FIND_SOURCES = 105; });
       mockSpawn.spawning = {
         name: 'creep1',
         needTime: 10,
-        remainingTime: 5,
-      };
-      global.Game.creeps['creep1'] = {
-        memory: { role: 'harvester' },
-      };
+        remainingTime: 5
+      }
+      global.Game.creeps.creep1 = {
+        memory: { role: 'harvester' }
+      }
 
       spawnManager.showSpawnVisual(mockSpawn)
       expect(mockRoom.visual.text).toHaveBeenCalled()
@@ -186,26 +190,26 @@ global.FIND_MY_SPAWNS = 112; global.FIND_SOURCES = 105; });
         c1: { memory: { role: 'harvester' }, room: mockRoom },
         c2: { memory: { role: 'harvester' }, room: mockRoom },
         c3: { memory: { role: 'upgrader' }, room: mockRoom },
-        c4: { memory: { role: 'upgrader' }, room: mockRoom },
-      };
+        c4: { memory: { role: 'upgrader' }, room: mockRoom }
+      }
 
-      expect(() => spawnManager.run(mockSpawn)).not.toThrow();
-    });
+      expect(() => spawnManager.run(mockSpawn)).not.toThrow()
+    })
 
     test('敵がいる場合でもエラーなく実行される', () => {
       cache.getEnemies.mockReturnValue([
         {
-          getActiveBodyparts: (part) => (part === 'attack' ? 1 : 0),
-        },
-      ]);
+          getActiveBodyparts: (part) => (part === 'attack' ? 1 : 0)
+        }
+      ])
 
-      expect(() => spawnManager.run(mockSpawn)).not.toThrow();
-    });
+      expect(() => spawnManager.run(mockSpawn)).not.toThrow()
+    })
 
     test('クリープが0の場合でもエラーなく実行される', () => {
-      global.Game.creeps = {};
-      mockRoom.energyAvailable = 200;
-      expect(() => spawnManager.run(mockSpawn)).not.toThrow();
-    });
-  });
-});
+      global.Game.creeps = {}
+      mockRoom.energyAvailable = 200
+      expect(() => spawnManager.run(mockSpawn)).not.toThrow()
+    })
+  })
+})

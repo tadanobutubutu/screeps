@@ -44,6 +44,8 @@ jest.mock(
     () => ({
         getEnemies: jest.fn(),
         getMyStructures: jest.fn(),
+        getMyCreeps: jest.fn(),
+        getStructures: jest.fn(),
     }),
     { virtual: true }
 );
@@ -73,6 +75,11 @@ describe('towerManager', () => {
             find: jest.fn().mockReturnValue([]),
             controller: { level: 1 },
         };
+
+        cache.getMyCreeps.mockReturnValue([]);
+        cache.getStructures.mockReturnValue([]);
+        cache.getEnemies.mockReturnValue([]);
+        cache.getMyStructures.mockReturnValue([]);
 
         mockTower = {
             id: 'tower1',
@@ -127,11 +134,7 @@ describe('towerManager', () => {
                 hitsMax: 100,
                 pos: { x: 26, y: 26 },
             };
-            mockRoom.find.mockImplementation((type) => {
-                if (type === FIND_MY_CREEPS) return [mockCreep];
-                if (type === FIND_HOSTILE_CREEPS) return [];
-                return [];
-            });
+            cache.getMyCreeps.mockReturnValue([mockCreep]);
             cache.getEnemies.mockReturnValue([]);
             cache.getMyStructures.mockReturnValue([mockTower]);
 
@@ -148,13 +151,8 @@ describe('towerManager', () => {
                 hitsMax: 5000,
                 pos: { x: 26, y: 26 },
             };
-            mockRoom.find.mockImplementation((type) => {
-                if (type === FIND_MY_CREEPS) return [];
-                if (type === FIND_HOSTILE_CREEPS) return [];
-                if (type === FIND_STRUCTURES) return [mockStructure];
-                if (type === FIND_MY_STRUCTURES) return [];
-                return [];
-            });
+            cache.getMyCreeps.mockReturnValue([]);
+            cache.getStructures.mockReturnValue([mockStructure]);
             cache.getEnemies.mockReturnValue([]);
             cache.getMyStructures.mockReturnValue([mockTower]);
             mockTower.store[global.RESOURCE_ENERGY] = 600;

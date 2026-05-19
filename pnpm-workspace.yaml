@@ -1,0 +1,14 @@
+allowBuilds:
+    '@sentry/cli': true
+    core-js: false
+    protobufjs: false
+    unrs-resolver: false
+minimumReleaseAgeExclude:
+    - tmp@0.2.4
+    - lodash@4.17.23
+    - lodash@4.17.24
+
+overrides:
+    undici: '>=6.24.0'
+    tmp: '>=0.2.4'
+    lodash: '>=4.18.1'

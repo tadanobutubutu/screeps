@@ -16,26 +16,34 @@ class MockCostMatrix {
 
 global.PathFinder = {
     CostMatrix: MockCostMatrix,
-    search: jest.fn().mockReturnValue({ incomplete: false, path: [] })
+    search: jest.fn().mockReturnValue({ incomplete: false, path: [] }),
 };
 
 // Mock dependencies
-jest.mock('../src/constants', () => ({
-    PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
-    CACHE_TTL: { PATH: 50 }
-}), { virtual: true });
+jest.mock(
+    '../src/constants',
+    () => ({
+        PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
+        CACHE_TTL: { PATH: 50 },
+    }),
+    { virtual: true }
+);
 
-const cacheUtils = require('../src/utils/cache');
 jest.mock('../src/utils/cache', () => ({
     getStructures: jest.fn().mockReturnValue([]),
     getConstructionSites: jest.fn().mockReturnValue([]),
-    cleanup: jest.fn()
+    cleanup: jest.fn(),
 }));
 
-const pathfinder = require('../src/utils/pathfinder');
+let cacheUtils;
+let pathfinder;
 
 describe('Security: Pathfinder FIFO Eviction', () => {
     beforeEach(() => {
+        jest.resetModules();
+        cacheUtils = require('../src/utils/cache');
+        pathfinder = require('../src/utils/pathfinder');
+
         global.cache = {};
         jest.clearAllMocks();
         global.Game.time = 100;

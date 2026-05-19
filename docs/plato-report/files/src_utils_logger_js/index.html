@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - src/utils/logger.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>src/utils/logger.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">70.40</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">417</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">56.10</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">2.53</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">/**
+ * src/utils/logger.js
+ * Screeps ログ出力ユーティリティ
+ *
+ * ログレベル別の出力制御・統計収集・スタック安全化を提供する。
+ * グローバルキャッシュは global.cache.logs に格納する。
+ */
+
+&#039;use strict&#039;;
+
+const { LOG_LEVEL, DEFAULT_LOG_LEVEL } = require(&#039;../constants&#039;);
+
+// ============================================================
+// 内部状態
+// ============================================================
+
+let _level = DEFAULT_LOG_LEVEL;
+const _stats = {
+    debug: 0,
+    info: 0,
+    warn: 0,
+    error: 0,
+};
+const _history = [];
+const MAX_HISTORY = 50;
+
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded strings can crash the AI.
+ * セキュリティ：メモリ消費によるDoS攻撃を防ぐための制限。
+ * Screepsのメモリは2MBに制限されているため、無制限の文字列はAIをクラッシュさせる可能性があります。
+ */
+const MAX_LOG_MESSAGE_LENGTH = 500;
+const MAX_STACK_TRACE_LENGTH = 2000;
+
+// ============================================================
+// カラーコード（Screeps コンソール用 HTML）
+// ============================================================
+
+const COLORS = {
+    debug: &#039;#888888&#039;,
+    info: &#039;#00bfff&#039;,
+    warn: &#039;#ffaa00&#039;,
+    error: &#039;#ff4444&#039;,
+    success: &#039;#00ff88&#039;,
+    highlight: &#039;#ffffff&#039;,
+};
+
+// ============================================================
+// 内部ヘルパー
+// ============================================================
+
+/**
+ * 現在のティックと現在時刻を含むプレフィックスを生成する
+ * @param {string} level - ログレベル文字列
+ * @returns {string}
+ */
+function _prefix(level) {
+    return `[T:${Game.time}][${level.toUpperCase()}]`;
+}
+
+/**
+ * HTML カラータグで文字列をラップする
+ * @param {string} text
+ * @param {string} color - 16進数カラーコード (#rrggbb)
+ * @returns {string}
+ */
+function _colorize(text, color) {
+    return `&lt;font color=&quot;${color}&quot;&gt;${text}&lt;/font&gt;`;
+}
+
+/**
+ * ログエントリを履歴に追加する
+ * @param {string} level
+ * @param {string} message
+ */
+function _record(level, message) {
+    _history.push({ tick: Game.time, level, message });
+    if (_history.length &gt; MAX_HISTORY) {
+        _history.shift();
+    }
+}
+
+/**
+ * Security: Escapes HTML special characters to prevent console injection.
+ * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
+ * to avoid unnecessary .replace() calls on safe strings.
+ * @param {string} str
+ * @returns {string}
+ */
+const _escapeHTML = (function () {
+    const chars = {
+        &#039;&amp;&#039;: &#039;&amp;amp;&#039;,
+        &#039;&lt;&#039;: &#039;&amp;lt;&#039;,
+        &#039;&gt;&#039;: &#039;&amp;gt;&#039;,
+        &quot;&#039;&quot;: &#039;&amp;#39;&#039;,
+        &#039;&quot;&#039;: &#039;&amp;quot;&#039;,
+        &#039;`&#039;: &#039;&amp;#96;&#039;,
+    };
+    const escapeRegExp = /[&amp;&lt;&gt;&#039;\&quot;`]/;
+
+    return function (str) {
+        if (typeof str !== &#039;string&#039; || !escapeRegExp.test(str)) {
+            return str;
+        }
+        return str.replace(/[&amp;&lt;&gt;&#039;\&quot;`]/g, (tag) =&gt; chars[tag] || tag);
+    };
+})();
+
+function _createCircularReplacer() {
+    const seen = new WeakSet();
+    return (key, value) =&gt; {
+        if (typeof value === &#039;object&#039; &amp;&amp; value !== null) {
+            if (seen.has(value)) return &#039;[Circular]&#039;;
+            seen.add(value);
+        }
+        return value;
+    };
+}
+
+/**
+ * Security: Safely stringifies an object, handling circular references and limiting length.
+ * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
+ * @param {*} obj
+ * @param {number} [maxLength=500]
+ * @returns {string}
+ */
+function _safeStringify(obj, maxLength = 500) {
+    try {
+        const str = JSON.stringify(obj, _createCircularReplacer());
+        return str.substring(0, maxLength);
+    } catch (e) {
+        return &#039;[Unstringifiable Object]&#039;;
+    }
+}
+
+// ============================================================
+// 公開API
+// ============================================================
+
+/**
+ * ログレベルを設定する
+ * @param {number} level - LOG_LEVEL 定数のいずれか
+ */
+function setLevel(level) {
+    _level = level;
+}
+
+/**
+ * 現在のログレベルを取得する
+ * @returns {number}
+ */
+function getLevel() {
+    return _level;
+}
+
+/**
+ * DEBUGレベルのログを出力する
+ * @param {string} message
+ * @param {*} [data] - 付加情報（JSON文字列化される）
+ */
+function debug(message, data) {
+    if (_level &gt; LOG_LEVEL.DEBUG) return;
+    _stats.debug++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(
+        message !== null &amp;&amp; message !== undefined ? message : &#039;&#039;
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
+    _record(&#039;debug&#039;, full);
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix(&#039;debug&#039;)} ${escapedFull}`, COLORS.debug));
+}
+
+/**
+ * INFOレベルのログを出力する
+ * @param {string} message
+ * @param {*} [data]
+ */
+function info(message, data) {
+    if (_level &gt; LOG_LEVEL.INFO) return;
+    _stats.info++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(
+        message !== null &amp;&amp; message !== undefined ? message : &#039;&#039;
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
+    _record(&#039;info&#039;, full);
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix(&#039;info&#039;)} ${escapedFull}`, COLORS.info));
+}
+
+/**
+ * WARNレベルのログを出力する
+ * @param {string} message
+ * @param {*} [data]
+ */
+function warn(message, data) {
+    if (_level &gt; LOG_LEVEL.WARN) return;
+    _stats.warn++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(
+        message !== null &amp;&amp; message !== undefined ? message : &#039;&#039;
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    const full =
+        data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
+    _record(&#039;warn&#039;, full);
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix(&#039;warn&#039;)} ${escapedFull}`, COLORS.warn));
+}
+
+/**
+ * ERRORレベルのログを出力する
+ * @param {string} message
+ * @param {Error|*} [error] - エラーオブジェクトまたは付加情報
+ */
+function error(message, error) {
+    if (_level &gt; LOG_LEVEL.ERROR) return;
+    _stats.error++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(
+        message !== null &amp;&amp; message !== undefined ? message : &#039;&#039;
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    let full = sanitizedMessage;
+    if (error instanceof Error) {
+        // Security: Truncate error message to avoid Memory DoS
+        const sanitizedErrorMsg = String(
+            error.message !== null &amp;&amp; error.message !== undefined ? error.message : &#039;&#039;
+        ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+        full += ` | ${sanitizedErrorMsg}`;
+        if (error.stack) {
+            full += `\n${getSafeStack(error.stack)}`;
+        }
+    } else if (error !== undefined) {
+        full += ` ${_safeStringify(error)}`;
+    }
+    _record(&#039;error&#039;, full);
+    const escapedFull = _escapeHTML(full);
+    console.log(_colorize(`${_prefix(&#039;error&#039;)} ${escapedFull}`, COLORS.error));
+}
+
+/**
+ * 成功ログ（INFOレベル）を緑色で出力する
+ * @param {string} message
+ */
+function success(message) {
+    if (_level &gt; LOG_LEVEL.INFO) return;
+    _stats.info++;
+
+    // Security: Truncate message to avoid Memory DoS
+    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
+    const sanitizedMessage = String(
+        message !== null &amp;&amp; message !== undefined ? message : &#039;&#039;
+    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+
+    _record(&#039;info&#039;, sanitizedMessage);
+    // Security: Escape message to prevent console injection
+    const escapedMessage = _escapeHTML(sanitizedMessage);
+    console.log(_colorize(`${_prefix(&#039;info&#039;)} ✓ ${escapedMessage}`, COLORS.success));
+}
+
+/**
+ * スタックトレースから安全な部分を抽出する（長すぎる場合に切り詰め、絶対パスを削除）
+ * @param {string} stack
+ * @param {number} [maxLines=5] - 返す最大行数
+ * @returns {string}
+ *
+ * Security: Absolute paths are removed to prevent internal directory structure leakage.
+ */
+function getSafeStack(stack, maxLines) {
+    if (!stack) return &#039;&#039;;
+
+    // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
+    const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
+
+    const lines = truncatedStack.split(&#039;\n&#039;);
+    return lines
+        .slice(0, maxLines || 5)
+        .map((line) =&gt; {
+            // Match &quot;filename:line:col&quot; at the end of a path segment.
+            // Uses a simple non-backtracking pattern to avoid ReDoS.
+            const match = line.match(/[^/\\]+:\d+:\d+/);
+            if (match) {
+                return `    at ${match[0]}`;
+            }
+            // Security: If the line looks like a stack trace entry but doesn&#039;t match
+            // the safe pattern, redact it to prevent internal path leakage.
+            if (line.trim().startsWith(&#039;at &#039;)) {
+                return &#039;    at [REDACTED]&#039;;
+            }
+            return line;
+        })
+        .join(&#039;\n&#039;);
+}
+
+/**
+ * 関数をtry-catchでラップして実行し、エラー時にログを出力する
+ * @param {Function} fn - 実行する関数
+ * @param {string} context - エラーメッセージに含めるコンテキスト名
+ * @param {...*} args - 関数に渡す引数
+ * @returns {*} 関数の戻り値、エラー時は undefined
+ */
+function tryCatch(fn, context, ...args) {
+    try {
+        return fn(...args);
+    } catch (e) {
+        error(`[${context}] ${e.message}`, e);
+        return undefined;
+    }
+}
+
+/**
+ * ログ統計を返す
+ * @returns {{ debug: number, info: number, warn: number, error: number, total: number }}
+ */
+function getStats() {
+    return {
+        ..._stats,
+        total: _stats.debug + _stats.info + _stats.warn + _stats.error,
+    };
+}
+
+/**
+ * ログ履歴を返す
+ * @param {number} [count=10] - 取得する件数
+ * @returns {Array&lt;{ tick: number, level: string, message: string }&gt;}
+ */
+function getHistory(count) {
+    const n = count || 10;
+    return _history.slice(-n);
+}
+
+/**
+ * 統計をリセットする
+ */
+function resetStats() {
+    _stats.debug = 0;
+    _stats.info = 0;
+    _stats.warn = 0;
+    _stats.error = 0;
+    _history.length = 0;
+}
+
+/**
+ * ロガーを初期化する（各ティックの先頭で呼び出す）
+ * Memory.logLevel が設定されていればそれを使用する
+ */
+function init() {
+    if (Memory.logLevel !== undefined &amp;&amp; Memory.logLevel !== _level) {
+        _level = Memory.logLevel;
+    }
+}
+
+/**
+ * ログ設定ダッシュボードをコンソールに表示する
+ */
+function showDashboard() {
+    const stats = getStats();
+    console.log(_colorize(&#039;=== Logger Dashboard ===&#039;, COLORS.highlight));
+    console.log(`Level: ${_level} (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)`);
+    console.log(
+        `Stats: DEBUG=${stats.debug} INFO=${stats.info} WARN=${stats.warn} ERROR=${stats.error}`
+    );
+    console.log(&#039;Recent logs:&#039;);
+    const recent = getHistory(5);
+    for (const entry of recent) {
+        const color = COLORS[entry.level] || COLORS.info;
+        // Security: Escape both level and message to prevent console injection when showing history
+        const escapedLevel = _escapeHTML(entry.level);
+        const escapedMessage = _escapeHTML(entry.message);
+        console.log(_colorize(`  [T:${entry.tick}][${escapedLevel}] ${escapedMessage}`, color));
+    }
+}
+
+/**
+ * ログ履歴をクリアする
+ */
+function clear() {
+    _history.length = 0;
+    _stats.debug = 0;
+    _stats.info = 0;
+    _stats.warn = 0;
+    _stats.error = 0;
+}
+
+module.exports = {
+    LOG_LEVEL,
+    setLevel,
+    getLevel,
+    debug,
+    info,
+    warn,
+    error,
+    success,
+    getSafeStack,
+    tryCatch,
+    getStats,
+    getHistory,
+    resetStats,
+    init,
+    showDashboard,
+    clear,
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

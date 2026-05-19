@@ -1,39 +1,25 @@
 version: 2.1
-
 jobs:
-  noop:
+  build_and_test:
     docker:
-      - image: cimg/base:current
+      - image: cimg/node:20.11.0
     steps:
+      - checkout
       - run:
-          name: No-op
-          command: echo "CircleCI is configured. No CI tasks defined yet."
-
-  deploy:
-    docker:
-      - image: cimg/base:current
-    steps:
+          name: Install pnpm
+          command: npm install -g pnpm
       - run:
-          name: Deploy marker
-          command: echo "Deploy completed."
-
-  build:
-    docker:
-      - image: cimg/base:current
-    steps:
-      - run: echo "Hi I'm on a Container Runner!"
+          name: Install Dependencies
+          command: pnpm install --frozen-lockfile
+      - run:
+          name: Run Linter
+          command: pnpm run lint
+      - run:
+          name: Run Tests
+          command: pnpm run test
 
 workflows:
-  ci:
+  version: 2
+  screeps_pipeline:
     jobs:
-      - noop
-      - deploy:
-          requires:
-            - noop
-          filters:
-            branches:
-              only: main
-
-  build-workflow:
-    jobs:
-      - build
+      - build_and_test

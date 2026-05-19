@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Plato - src/constants.js</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link href="../../assets/css/vendor/morris.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/bootstrap.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/font-awesome.css" rel="stylesheet">
+  <link href="../../assets/css/vendor/codemirror.css" rel="stylesheet">
+  <link href="../../assets/css/plato.css" rel="stylesheet">
+  <link href="../../assets/css/plato-file.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="http://github.com/es-analysis/plato">Plato on Github</a>
+    <ul class="nav navbar-nav">
+      <li>
+        <a href="../../index.html">Report Home</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="jumbotron">
+  <div class="container">
+    <h1>src/constants.js</h1>
+  </div>
+</div>
+
+<div class="container aggregate-stats">
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Maintainability <a href="http://blogs.msdn.com/b/codeanalysis/archive/2007/11/20/maintainability-index-range-and-meaning.aspx"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="A value between 0 and 100 that represents the relative ease of maintaining the code. A high value means better maintainability." data-original-title="Maintainability Index"  data-container="body"></i></a></h2>
+      <p class="stat">21.39</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Lines of code <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h2>
+      <p class="stat">393</p>
+    </div>
+  </div>
+  <div class="row historical">
+    <div class="col-md-6">
+      <p id="chart_historical_maint" class="chart"></p>
+    </div>
+    <div class="col-md-6">
+      <p id="chart_historical_sloc" class="chart"></p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h2 class="header">Difficulty  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="The difficulty measure is related to the difficulty of the program to write or understand." data-original-title="Difficulty" data-container="body"></i></a></h2>
+      <p class="stat">20.92</p>
+    </div>
+    <div class="col-md-6">
+      <h2 class="header">Estimated Errors  <a href="http://en.wikipedia.org/wiki/Halstead_complexity_measures"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Halstead's delivered bugs is an estimate for the number of errors in the implementation." data-original-title="Delivered Bugs" data-container="body"></i></a></h2>
+      <p class="stat">3.27</p>
+    </div>
+  </div>
+</div>
+
+<div class="container charts">
+  <div class="row">
+    <h2 class="header">Function weight</h2>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <h3 class="chart-header">By Complexity <a href="http://en.wikipedia.org/wiki/Cyclomatic_complexity"><i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="This metric counts the number of distinct paths through a block of code. Lower values are better." data-original-title="Cyclomatic Complexity" data-container="body"></i></a></h3>
+      <div id="fn-by-complexity" class="stat"></div>
+    </div>
+    <div class="col-md-6">
+      <h3 class="chart-header">By SLOC  <i class="icon icon-info-sign" rel="popover" data-placement="top" data-trigger="hover" data-content="Source Lines of Code / Logical Lines of Code" data-original-title="SLOC/LSLOC" data-container="body"></i></h3>
+      <div id="fn-by-sloc" class="stat"></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <textarea id="file-source" class="col-md-12">/**
+ * src/constants.js
+ * Screeps AI 定数定義モジュール
+ * ゲーム全体で使用する定数・設定値を一元管理する
+ */
+
+&#039;use strict&#039;;
+
+// Screeps Global Constants (Testing environment fallback)
+if (typeof MOVE === &#039;undefined&#039;) global.MOVE = &#039;move&#039;;
+if (typeof WORK === &#039;undefined&#039;) global.WORK = &#039;work&#039;;
+if (typeof CARRY === &#039;undefined&#039;) global.CARRY = &#039;carry&#039;;
+if (typeof ATTACK === &#039;undefined&#039;) global.ATTACK = &#039;attack&#039;;
+if (typeof RANGED_ATTACK === &#039;undefined&#039;) global.RANGED_ATTACK = &#039;ranged_attack&#039;;
+if (typeof HEAL === &#039;undefined&#039;) global.HEAL = &#039;heal&#039;;
+if (typeof CLAIM === &#039;undefined&#039;) global.CLAIM = &#039;claim&#039;;
+if (typeof TOUGH === &#039;undefined&#039;) global.TOUGH = &#039;tough&#039;;
+if (typeof STRUCTURE_ROAD === &#039;undefined&#039;) global.STRUCTURE_ROAD = &#039;road&#039;;
+if (typeof STRUCTURE_CONTAINER === &#039;undefined&#039;) global.STRUCTURE_CONTAINER = &#039;container&#039;;
+if (typeof STRUCTURE_RAMPART === &#039;undefined&#039;) global.STRUCTURE_RAMPART = &#039;rampart&#039;;
+if (typeof STRUCTURE_WALL === &#039;undefined&#039;) global.STRUCTURE_WALL = &#039;constructedWall&#039;;
+if (typeof STRUCTURE_SPAWN === &#039;undefined&#039;) global.STRUCTURE_SPAWN = &#039;spawn&#039;;
+if (typeof STRUCTURE_EXTENSION === &#039;undefined&#039;) global.STRUCTURE_EXTENSION = &#039;extension&#039;;
+if (typeof STRUCTURE_TOWER === &#039;undefined&#039;) global.STRUCTURE_TOWER = &#039;tower&#039;;
+if (typeof STRUCTURE_STORAGE === &#039;undefined&#039;) global.STRUCTURE_STORAGE = &#039;storage&#039;;
+if (typeof STRUCTURE_LINK === &#039;undefined&#039;) global.STRUCTURE_LINK = &#039;link&#039;;
+if (typeof STRUCTURE_LAB === &#039;undefined&#039;) global.STRUCTURE_LAB = &#039;lab&#039;;
+
+// ============================================================
+// クリープロール定数
+// ============================================================
+
+/** クリープロール識別子 */
+const ROLES = {
+    HARVESTER: &#039;harvester&#039;,
+    UPGRADER: &#039;upgrader&#039;,
+    BUILDER: &#039;builder&#039;,
+    REPAIRER: &#039;repairer&#039;,
+    DEFENDER: &#039;defender&#039;,
+    MINER: &#039;miner&#039;,
+    TRANSPORTER: &#039;transporter&#039;,
+    SCOUT: &#039;scout&#039;,
+    CLAIMER: &#039;claimer&#039;,
+    REMOTE_HARVESTER: &#039;remoteHarvester&#039;,
+};
+
+// ============================================================
+// ボディパーツコスト（Screeps公式値）
+// ============================================================
+
+/** 各ボディパーツのエネルギーコスト */
+// Security: Use Object.create(null) to avoid prototype pollution issues
+const BODY_COSTS = Object.assign(Object.create(null), {
+    [MOVE]: 50,
+    [WORK]: 100,
+    [CARRY]: 50,
+    [ATTACK]: 80,
+    [RANGED_ATTACK]: 150,
+    [HEAL]: 250,
+    [CLAIM]: 600,
+    [TOUGH]: 10,
+});
+
+// ============================================================
+// ボディ構成プリセット
+// ============================================================
+
+/** ロール別ボディ構成（コスト昇順）*/
+const BODY_PRESETS = {
+    [ROLES.HARVESTER]: [
+        { body: [WORK, CARRY, MOVE], cost: 200 },
+        { body: [WORK, WORK, CARRY, MOVE], cost: 300 },
+        { body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE], cost: 500 },
+        { body: [WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE], cost: 750 },
+    ],
+    [ROLES.UPGRADER]: [
+        { body: [WORK, CARRY, MOVE], cost: 200 },
+        { body: [WORK, WORK, CARRY, MOVE], cost: 350 },
+        { body: [WORK, WORK, WORK, CARRY, MOVE, MOVE], cost: 550 },
+        { body: [WORK, WORK, WORK, WORK, CARRY, CARRY, MOVE, MOVE], cost: 800 },
+    ],
+    [ROLES.BUILDER]: [
+        { body: [WORK, CARRY, MOVE], cost: 200 },
+        { body: [WORK, CARRY, CARRY, MOVE, MOVE], cost: 350 },
+        { body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE], cost: 500 },
+    ],
+    [ROLES.REPAIRER]: [
+        { body: [WORK, CARRY, MOVE], cost: 200 },
+        { body: [WORK, CARRY, CARRY, MOVE], cost: 300 },
+    ],
+    [ROLES.DEFENDER]: [
+        { body: [TOUGH, ATTACK, MOVE], cost: 140 },
+        { body: [TOUGH, TOUGH, ATTACK, ATTACK, MOVE, MOVE], cost: 280 },
+        { body: [TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, MOVE, MOVE, MOVE], cost: 420 },
+        { body: [TOUGH, TOUGH, RANGED_ATTACK, RANGED_ATTACK, MOVE, MOVE], cost: 420 },
+    ],
+    [ROLES.MINER]: [
+        { body: [WORK, WORK, MOVE], cost: 250 },
+        { body: [WORK, WORK, WORK, MOVE], cost: 350 },
+        { body: [WORK, WORK, WORK, WORK, WORK, MOVE], cost: 550 },
+    ],
+    [ROLES.TRANSPORTER]: [
+        { body: [CARRY, CARRY, MOVE, MOVE], cost: 200 },
+        { body: [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE], cost: 400 },
+        { body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE], cost: 600 },
+    ],
+    [ROLES.SCOUT]: [{ body: [MOVE], cost: 50 }],
+    [ROLES.CLAIMER]: [{ body: [CLAIM, MOVE], cost: 650 }],
+    [ROLES.REMOTE_HARVESTER]: [
+        { body: [WORK, CARRY, MOVE, MOVE], cost: 250 },
+        { body: [WORK, WORK, CARRY, MOVE, MOVE], cost: 400 },
+        { body: [WORK, WORK, WORK, CARRY, MOVE, MOVE, MOVE], cost: 600 },
+    ],
+};
+
+// ============================================================
+// スポーン優先度
+// ============================================================
+
+/** ロールごとのスポーン優先度（低い数値 = 高優先度）*/
+// Security: Use Object.create(null) to avoid prototype pollution issues
+const SPAWN_PRIORITY = Object.assign(Object.create(null), {
+    [ROLES.HARVESTER]: 1,
+    [ROLES.UPGRADER]: 2,
+    [ROLES.BUILDER]: 3,
+    [ROLES.REPAIRER]: 4,
+    [ROLES.TRANSPORTER]: 5,
+    [ROLES.MINER]: 6,
+    [ROLES.DEFENDER]: 7,
+    [ROLES.SCOUT]: 8,
+    [ROLES.CLAIMER]: 9,
+    [ROLES.REMOTE_HARVESTER]: 10,
+});
+
+// ============================================================
+// RCL別ターゲットクリープ数
+// ============================================================
+
+/**
+ * RCL（Room Controller Level）に応じた各ロールのターゲット数
+ * キーはRCLレベル（1〜8）
+ */
+const TARGET_CREEPS_BY_RCL = {
+    1: {
+        [ROLES.HARVESTER]: 2,
+        [ROLES.UPGRADER]: 1,
+        [ROLES.BUILDER]: 0,
+        [ROLES.REPAIRER]: 0,
+        [ROLES.MINER]: 0,
+        [ROLES.TRANSPORTER]: 0,
+        [ROLES.DEFENDER]: 0,
+    },
+    2: {
+        [ROLES.HARVESTER]: 2,
+        [ROLES.UPGRADER]: 2,
+        [ROLES.BUILDER]: 1,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 0,
+        [ROLES.TRANSPORTER]: 0,
+        [ROLES.DEFENDER]: 1,
+    },
+    3: {
+        [ROLES.HARVESTER]: 2,
+        [ROLES.UPGRADER]: 2,
+        [ROLES.BUILDER]: 2,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 1,
+        [ROLES.DEFENDER]: 1,
+    },
+    4: {
+        [ROLES.HARVESTER]: 1,
+        [ROLES.UPGRADER]: 3,
+        [ROLES.BUILDER]: 2,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 2,
+        [ROLES.DEFENDER]: 2,
+    },
+    5: {
+        [ROLES.HARVESTER]: 1,
+        [ROLES.UPGRADER]: 3,
+        [ROLES.BUILDER]: 2,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 2,
+        [ROLES.DEFENDER]: 2,
+    },
+    6: {
+        [ROLES.HARVESTER]: 1,
+        [ROLES.UPGRADER]: 2,
+        [ROLES.BUILDER]: 2,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 3,
+        [ROLES.DEFENDER]: 2,
+    },
+    7: {
+        [ROLES.HARVESTER]: 1,
+        [ROLES.UPGRADER]: 2,
+        [ROLES.BUILDER]: 2,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 3,
+        [ROLES.DEFENDER]: 3,
+    },
+    8: {
+        [ROLES.HARVESTER]: 1,
+        [ROLES.UPGRADER]: 1,
+        [ROLES.BUILDER]: 1,
+        [ROLES.REPAIRER]: 1,
+        [ROLES.MINER]: 2,
+        [ROLES.TRANSPORTER]: 3,
+        [ROLES.DEFENDER]: 3,
+    },
+};
+
+// ============================================================
+// メモリキー
+// ============================================================
+
+/** Memory オブジェクト内のキー名 */
+const MEMORY_KEYS = {
+    ROLE: &#039;role&#039;,
+    SOURCE_ID: &#039;sourceId&#039;,
+    TARGET_ID: &#039;targetId&#039;,
+    HOME_ROOM: &#039;homeRoom&#039;,
+    WORKING: &#039;working&#039;,
+    PATH: &#039;path&#039;,
+    PATH_EXPIRY: &#039;pathExpiry&#039;,
+    LAST_ACTIVE: &#039;lastActive&#039;,
+    TASK: &#039;task&#039;,
+    TASK_DATA: &#039;taskData&#039;,
+};
+
+// ============================================================
+// キャッシュTTL（単位: ティック）
+// ============================================================
+
+/** 各種キャッシュの有効期限（ティック数） */
+const CACHE_TTL = {
+    SOURCES: 100,
+    STRUCTURES: 50,
+    ENEMIES: 5,
+    CONSTRUCTION_SITES: 20,
+    DROPPED_RESOURCES: 3,
+    ROOM_OBJECTS: 30,
+    PATH: 20,
+    SPAWN_QUEUE: 10,
+};
+
+// ============================================================
+// 修復関連定数
+// ============================================================
+
+/** 修復対象となるHP率の閾値 */
+// Security: Use Object.create(null) to avoid prototype pollution issues.
+// Fix: Use computed property names with Screeps constants for correct lookups.
+const REPAIR_THRESHOLD = Object.assign(Object.create(null), {
+    [STRUCTURE_ROAD]: 0.5,
+    [STRUCTURE_CONTAINER]: 0.5,
+    [STRUCTURE_WALL]: 0.0001,
+    [STRUCTURE_RAMPART]: 0.001,
+    OTHER: 0.75,
+});
+
+/** ウォール・ランパートの最大HP目標値（RCL別） */
+const WALL_HP_TARGET = {
+    1: 1000,
+    2: 5000,
+    3: 20000,
+    4: 100000,
+    5: 500000,
+    6: 1000000,
+    7: 5000000,
+    8: 10000000,
+};
+
+// ============================================================
+// タワー関連定数
+// ============================================================
+
+/** タワーが優先的に攻撃するHP閾値（低いほど優先） */
+const TOWER_ATTACK_PRIORITY_HP = 200;
+
+/** タワーが修復を開始するHP率 */
+const TOWER_REPAIR_THRESHOLD = 0.8;
+
+/** タワーが修復を停止するHP率 */
+const TOWER_REPAIR_STOP_THRESHOLD = 0.95;
+
+/** タワーが癒しを行うHP率 */
+const TOWER_HEAL_THRESHOLD = 0.9;
+
+/** タワーのエネルギー補充優先度（この割合以下になったら補充優先） */
+const TOWER_ENERGY_PRIORITY = 0.5;
+
+// ============================================================
+// エネルギー閾値
+// ============================================================
+
+/** コンテナ・ストレージからエネルギーを引き出す閾値 */
+const ENERGY_WITHDRAW_THRESHOLD = {
+    CONTAINER: 100,
+    STORAGE: 10000,
+    LINK: 200,
+};
+
+// ============================================================
+// パスファインダー設定
+// ============================================================
+
+/** PathFinder オプションのデフォルト値 */
+const PATHFINDER_DEFAULTS = {
+    /** ルート再計算の間隔（ティック数） */
+    REUSE_PATH: 20,
+    /** 道路をコスト1で通過（平地コスト2の半分） */
+    PLAIN_COST: 2,
+    SWAMP_COST: 10,
+    ROAD_COST: 1,
+    /** 最大検索距離 */
+    MAX_ROOMS: 1,
+    /** 近傍タイル検索の最大範囲 */
+    MAX_SEARCH_RANGE: 10,
+};
+
+// ============================================================
+// ログレベル
+// ============================================================
+
+/** ログ出力レベル */
+const LOG_LEVEL = {
+    DEBUG: 0,
+    INFO: 1,
+    WARN: 2,
+    ERROR: 3,
+    NONE: 4,
+};
+
+/** デフォルトログレベル */
+const DEFAULT_LOG_LEVEL = LOG_LEVEL.INFO;
+
+// ============================================================
+// ゲームプレイ設定
+// ============================================================
+
+/** 緊急モード移行CPU閾値（この値を超えたら非必須処理を停止） */
+const CPU_EMERGENCY_THRESHOLD = 0.9;
+
+/** 通常動作CPU閾値 */
+const CPU_NORMAL_THRESHOLD = 0.7;
+
+/** メモリクリーンアップ実行間隔（ティック数） */
+const MEMORY_CLEANUP_INTERVAL = 100;
+
+/** 統計情報表示間隔（ティック数） */
+const STATS_DISPLAY_INTERVAL = 100;
+
+/** セーフモードの発動条件（侵入者数） */
+const SAFE_MODE_TRIGGER_HOSTILES = 3;
+
+/** ルームの有効座標範囲（壁を除く） */
+const ROOM_BOUNDS = {
+    MIN: 1,
+    MAX: 48,
+};
+
+module.exports = {
+    ROLES,
+    BODY_COSTS,
+    BODY_PRESETS,
+    SPAWN_PRIORITY,
+    TARGET_CREEPS_BY_RCL,
+    MEMORY_KEYS,
+    CACHE_TTL,
+    REPAIR_THRESHOLD,
+    WALL_HP_TARGET,
+    TOWER_ATTACK_PRIORITY_HP,
+    TOWER_REPAIR_THRESHOLD,
+    TOWER_REPAIR_STOP_THRESHOLD,
+    TOWER_HEAL_THRESHOLD,
+    TOWER_ENERGY_PRIORITY,
+    ENERGY_WITHDRAW_THRESHOLD,
+    PATHFINDER_DEFAULTS,
+    LOG_LEVEL,
+    DEFAULT_LOG_LEVEL,
+    CPU_EMERGENCY_THRESHOLD,
+    CPU_NORMAL_THRESHOLD,
+    MEMORY_CLEANUP_INTERVAL,
+    STATS_DISPLAY_INTERVAL,
+    SAFE_MODE_TRIGGER_HOSTILES,
+    ROOM_BOUNDS,
+};</textarea>
+  </div>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <p>.</p>
+  </div>
+</footer>
+
+<script type="text/html" id="complexity-popover-template">
+  <div class="complexity-notice">
+    Complexity : {{ cyclomatic }} <br>
+    Length : {{ halstead.length }} <br>
+    Difficulty : {{ halstead.difficulty.toFixed(2) }} <br>
+    Est # bugs : {{ halstead.bugs.toFixed(2) }}<br>
+  </div>
+</script>
+
+<script type="text/javascript" src="../../assets/scripts/bundles/core-bundle.js"></script>
+<script type="text/javascript" src="../../assets/scripts/bundles/codemirror.js"></script>
+<script type="text/javascript" src="../../assets/scripts/codemirror.markpopovertext.js"></script>
+<script type="text/javascript" src="report.js"></script>
+<script type="text/javascript" src="report.history.js"></script>
+<script type="text/javascript" src="../../assets/scripts/plato-file.js"></script>
+</body>
+</html>

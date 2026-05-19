@@ -183,6 +183,37 @@ describe('deploy.js', () => {
             ).resolves.toBeUndefined();
         });
 
+        test('HTTPステータスが非200でJSONパース失敗の場合はrejectする', async () => {
+            const mockReq = {
+                write: jest.fn(),
+                end: jest.fn(),
+                on: jest.fn(),
+                setTimeout: jest.fn(),
+            };
+            const mockRes = {
+                statusCode: 500,
+                on: jest.fn((event, callback) => {
+                    if (event === 'data') callback('not json error token=secret');
+                    if (event === 'end') callback();
+                }),
+            };
+            https.request.mockImplementation((options, callback) => {
+                callback(mockRes);
+                return mockReq;
+            });
+
+            const validToken = 'valid_token_12345678901234567890';
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
+                'PTR deployment failed'
+            );
+
+            // Should redact token
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[PTR] Deployment failed! Raw:'),
+                expect.stringContaining('not json error [REDACTED]=secret')
+            );
+        });
+
         test('HTTPエラー時（非200）にrejectする', async () => {
             const mockReq = {
                 write: jest.fn(),

@@ -32,10 +32,12 @@ In high-frequency roles like Harvester, always look for opportunities to use con
 - **Performance Result:** Micro-benchmarks showed a large drop in time (420.6ms -> 56.4ms over 100k iterations) by iterating over JS objects instead of fetching via the mock room's `find` method, simulating the overhead reduction in game.
 
 ## 2025-05-16 - Optimize Dashboard with Pre-Warmed Caches
+
 **Learning:** Redundant engine calls (like `room.find`) in UI/Dashboard components can be eliminated by centralizing data collection in a global tick loop and attaching results to volatile room properties.
 **Action:** Always check if the required data is already available as a volatile property (e.g., `_myStructures`, `_roleCounts`) before performing a new search or filter operation.
 
 ## 2025-05-17 - Visual Draining for Stationary Objects
+
 **Learning:** High-frequency visual effects (like trails) should only update their state when the subject moves. For stationary subjects, draining the state (e.g., shifting out old positions) allows the effect to naturally fade and eventually skip the entire drawing loop, saving significant CPU on `RoomVisual` calls.
 **Action:** In VFX modules, implement movement-based state updates and early returns for empty states to minimize redundant per-tick engine overhead.
 
@@ -48,6 +50,7 @@ Tower management can be a significant CPU sink in high-RCL rooms due to frequent
 Always leverage the centralized `src/utils/cache.js` for common room searches, especially in manager modules that iterate over multiple structures (like towers) or run every tick.
 
 **Impact:**
+
 - Reduces engine-level API calls by 1 + N$ per room per tick (where $ is the number of towers).
 - Replaces expensive C++/JS bridge crossings with pure JS array filtering.
 - Estimated CPU saving: 0.1 - 0.5 CPU per room depending on the number of structures and towers.

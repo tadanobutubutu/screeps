@@ -46,10 +46,5 @@
   },
   "overrides": {
     "undici": ">=6.24.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "undici": ">=6.24.0"
-    }
   }
 }

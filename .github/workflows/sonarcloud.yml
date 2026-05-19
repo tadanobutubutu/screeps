@@ -34,7 +34,7 @@ jobs:
           version: 11
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run Jest coverage for SonarCloud
         run: npx jest --coverage --coverageReporters=lcov --passWithNoTests

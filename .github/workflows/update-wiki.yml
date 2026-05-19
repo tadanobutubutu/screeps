@@ -32,6 +32,16 @@ jobs:
         run: |
           echo "📝 Copying wiki files..."
           
+          # Create wiki-repo directory if checkout failed
+          if [ ! -d "wiki-repo" ]; then
+            echo "📝 Wiki repo not found, initializing..."
+            mkdir -p wiki-repo
+            cd wiki-repo
+            git init
+            git remote add origin "https://github.com/${{ github.repository }}.wiki.git" || true
+            cd ..
+          fi
+          
           # Create wiki directory if it doesn't exist in main repo
           mkdir -p wiki
           

@@ -132,9 +132,6 @@ describe('Security: DoS Protections', () => {
             // This should not crash and should ideally skip 'constructor' if we add the protection
             const result = memVis.showTopMemoryUsers();
 
-            // Currently, it will include 'constructor' if it's enumerable.
-            // If it's NOT enumerable, for-in might still pick it up in some environments or
-            // if it's explicitly added to the object.
             const constructorEntry = result.find((item) => item.name === 'constructor');
             expect(constructorEntry).toBeUndefined();
         });

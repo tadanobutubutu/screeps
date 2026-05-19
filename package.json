@@ -31,7 +31,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "lodash": "^4.18.1",
-    "posthog-js": "^1.373.5"
+    "posthog-js": "^1.374.2"
   },
   "devDependencies": {
     "@codecov/rollup-plugin": "^2.0.0",

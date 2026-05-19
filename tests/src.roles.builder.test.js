@@ -27,6 +27,7 @@ global.ERR_INVALID_TARGET = -7;
 global.OK = 0;
 
 const mockCache = {
+    getStructures: jest.fn(),
     getConstructionSites: jest.fn(),
     getDroppedResources: jest.fn(),
     getContainers: jest.fn(),
@@ -259,6 +260,7 @@ describe('src/roles/builder', () => {
             pos: { x: 3, y: 3 },
         };
         mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([damaged]);
         const room = {
             find: jest.fn().mockReturnValue([damaged]),
             visual: { text: jest.fn() },
@@ -286,6 +288,7 @@ describe('src/roles/builder', () => {
 
     test('修復対象も建設サイトもないときコントローラーをアップグレードする', () => {
         mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
         const room = {
             find: jest.fn().mockReturnValue([]),
             visual: { text: jest.fn() },

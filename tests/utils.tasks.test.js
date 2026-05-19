@@ -149,4 +149,26 @@ describe('utils.tasks', () => {
         TaskQueue.run();
         expect(errorAction).toHaveBeenCalledTimes(1);
     });
+
+    test('runがタスク失敗時にfailuresカウントをインクリメントする', () => {
+        const errorAction = () => {
+            throw new Error('Failure Increment Test');
+        };
+        TaskQueue.registerTask('failTask', 1, errorAction);
+
+        const task = TaskQueue.tasks.find((t) => t.name === 'failTask');
+
+        // Initial failures should be 0 (as initialized in registerTask)
+        expect(task.failures).toBe(0);
+
+        TaskQueue.run();
+
+        // After 1 run with error, failures should be 1
+        expect(task.failures).toBe(1);
+
+        TaskQueue.run();
+
+        // After 2 runs with error, failures should be 2
+        expect(task.failures).toBe(2);
+    });
 });

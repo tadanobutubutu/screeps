@@ -1,0 +1,9 @@
+🧹 [Refactor] Categorize room structures in main.js
+
+🎯 **What:** The `categorizeRoomStructures` function in `main.js` was too long and complex. It was refactored by breaking down the loop contents into smaller, distinct helper functions: `_categorizeMyStructure`, `_categorizeContainer`, and `_categorizeRepairTarget`.
+
+💡 **Why:** This improves maintainability and readability by keeping the core loop clean and moving specific logic into clearly named functions.
+
+✅ **Verification:** Verified changes visually with `git diff` and ran the full test suite via `pnpm test` and formatting via `npx prettier --write main.js`. Pre-commit checks (including ESLint) all pass.
+
+✨ **Result:** The `categorizeRoomStructures` function is now cleaner, smaller, and easier to understand, without introducing any changes in behavior.

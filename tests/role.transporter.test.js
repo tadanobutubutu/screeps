@@ -102,11 +102,11 @@ describe('role.transporter', () => {
             id: 'spawn1',
             structureType: 'spawn',
             store: {
-                energy: 90,
-                getCapacity: () => 100,
                 getFreeCapacity: jest.fn().mockReturnValue(10),
             },
         };
+        global.Game.getObjectById.mockReturnValueOnce(null);
+
         const creep = {
             memory: { transporting: true },
             store: {
@@ -117,7 +117,7 @@ describe('role.transporter', () => {
             say: jest.fn(),
             pickup: jest.fn(),
             withdraw: jest.fn(),
-            transfer: jest.fn().mockReturnValue(global.OK),
+            transfer: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             moveTo: jest.fn(),
             pos: {
                 x: 1,
@@ -125,10 +125,19 @@ describe('role.transporter', () => {
                 findClosestByRange: jest.fn().mockReturnValue(spawn),
             },
             room: {
-                find: jest.fn().mockReturnValue([spawn]),
+                _deliveryTargets: [spawn],
             },
         };
-        expect(() => roleTransporter.run(creep)).not.toThrow();
+
+        roleTransporter.run(creep);
+        expect(creep.memory.deliveryTargetId).toBe('spawn1');
+        expect(creep.moveTo).toHaveBeenCalled();
+
+        // second tick with cache
+        global.Game.getObjectById.mockReturnValueOnce(spawn);
+        creep.pos.findClosestByRange.mockClear();
+        roleTransporter.run(creep);
+        expect(creep.pos.findClosestByRange).not.toHaveBeenCalled();
     });
 
     test('transporter能运送能量到extension', () => {
@@ -136,11 +145,11 @@ describe('role.transporter', () => {
             id: 'ext1',
             structureType: 'extension',
             store: {
-                energy: 40,
-                getCapacity: () => 50,
                 getFreeCapacity: jest.fn().mockReturnValue(10),
             },
         };
+        global.Game.getObjectById.mockReturnValueOnce(null);
+
         const creep = {
             memory: { transporting: true },
             store: {
@@ -159,9 +168,53 @@ describe('role.transporter', () => {
                 findClosestByRange: jest.fn().mockReturnValue(extension),
             },
             room: {
-                find: jest.fn().mockReturnValue([extension]),
+                _deliveryTargets: [extension],
             },
         };
-        expect(() => roleTransporter.run(creep)).not.toThrow();
+
+        roleTransporter.run(creep);
+        expect(creep.memory.deliveryTargetId).toBe('ext1');
+        expect(creep.transfer).toHaveBeenCalled();
+    });
+
+    test('transporter can withdraw from _withdrawalSources cache', () => {
+        const container = {
+            id: 'container1',
+            structureType: 'container',
+            store: {
+                [global.RESOURCE_ENERGY]: 100,
+            },
+        };
+        global.Game.getObjectById.mockReturnValueOnce(null);
+
+        const creep = {
+            memory: { transporting: false },
+            store: {
+                getFreeCapacity: jest.fn().mockReturnValue(50),
+                getUsedCapacity: jest.fn().mockReturnValue(0),
+                [global.RESOURCE_ENERGY]: 0,
+            },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            moveTo: jest.fn(),
+            pos: {
+                x: 1,
+                y: 1,
+                findClosestByRange: jest.fn().mockReturnValue(container),
+            },
+            room: {
+                _withdrawalSources: [container],
+            },
+        };
+
+        roleTransporter.run(creep);
+        expect(creep.memory.withdrawalTargetId).toBe('container1');
+        expect(creep.moveTo).toHaveBeenCalled();
+
+        // second tick with cache
+        global.Game.getObjectById.mockReturnValueOnce(container);
+        creep.pos.findClosestByRange.mockClear();
+        roleTransporter.run(creep);
+        expect(creep.pos.findClosestByRange).not.toHaveBeenCalled();
     });
 });

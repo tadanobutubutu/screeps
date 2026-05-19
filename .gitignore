@@ -55,3 +55,4 @@ junit.xml
 *.temp
 .cache/
 coverage/
+docs/plato-report/

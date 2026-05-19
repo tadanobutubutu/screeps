@@ -214,4 +214,43 @@ describe('src/roles/miner', () => {
 
         expect(visual.circle).toHaveBeenCalled();
     });
+
+    test('エラー発生時にロガーがエラーを出力する', () => {
+        const error = new Error('Test error');
+        const source = {
+            id: 's_err',
+            room: {
+                find: jest.fn().mockReturnValue([
+                    {
+                        structureType: global.STRUCTURE_CONTAINER,
+                        pos: { x: 5, y: 5, getRangeTo: () => 1 },
+                        hits: 50,
+                        hitsMax: 100,
+                    },
+                ]),
+                name: 'W0N0',
+            },
+            pos: { x: 5, y: 5, getRangeTo: () => 1 },
+        };
+        global.Game.getObjectById = jest.fn().mockReturnValue(source);
+        const creep = {
+            name: 'error_miner',
+            memory: { sourceId: 's_err' },
+            room: source.room,
+            pos: {
+                isEqualTo: jest.fn().mockImplementation(() => {
+                    throw error;
+                }),
+            },
+            harvest: jest.fn(),
+            repair: jest.fn(),
+            say: jest.fn(),
+        };
+        mockCache.getSources.mockReturnValue([source]);
+        const logger = require('../src/utils/logger');
+
+        miner.run(creep);
+
+        expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
+    });
 });

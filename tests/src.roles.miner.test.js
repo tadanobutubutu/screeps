@@ -226,18 +226,17 @@ describe('src/roles/miner', () => {
     const source = {
       id: 's_err',
       room: {
-        find: jest.fn().mockReturnValue([
-          {
-            structureType: global.STRUCTURE_CONTAINER,
-            pos: { x: 5, y: 5, getRangeTo: () => 1 },
-            hits: 50,
-            hitsMax: 100
-          }
-        ]),
         name: 'W0N0'
       },
       pos: { x: 5, y: 5, getRangeTo: () => 1 }
     }
+    const container = {
+      structureType: global.STRUCTURE_CONTAINER,
+      pos: { x: 5, y: 5, getRangeTo: () => 1 },
+      hits: 50,
+      hitsMax: 100
+    }
+    mockCache.getContainers.mockReturnValue([container])
     global.Game.getObjectById = jest.fn().mockReturnValue(source)
     const creep = {
       name: 'error_miner',

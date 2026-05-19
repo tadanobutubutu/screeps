@@ -80,4 +80,10 @@ describe('logger security (DoS protection)', () => {
         const lines = safeStack.split('\n');
         expect(lines.length).toBeLessThanOrEqual(5);
     });
+
+    test('getSafeStack redacts lines that look like paths but do not match the pattern', () => {
+        const stack = 'Error: test\n    at /secret/path/to/internal/file.js';
+        const result = logger.getSafeStack(stack);
+        expect(result).not.toContain('/secret/path/');
+    });
 });

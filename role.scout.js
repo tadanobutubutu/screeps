@@ -2,6 +2,7 @@
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded objects can crash the AI.
  */
+/* global ERR_NO_PATH, ERR_INVALID_ARGS, FIND_DROPPED_RESOURCES */
 const MAX_VISITED_ROOMS = 100;
 
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
@@ -10,7 +11,7 @@ const PATH_STYLE_SCOUT = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.2
 const roleScout = {
     run: function (creep) {
         if (!creep.memory.targetRoom) {
-            // Fix: Game.map.describeExits() can return null
+            // Note: Game.map.describeExits() can return null
             const exits = Game.map.describeExits(creep.room.name);
 
             if (exits && Object.keys(exits).length > 0) {

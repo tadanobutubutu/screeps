@@ -1,61 +1,25 @@
-## 📝 Description
+## 📋 変更内容
 
-Please include a summary of the changes and which issue is fixed.
+<!-- このPRで何を変更しましたか？ -->
 
-Fixes # (issue)
+## 🎯 関連Issue
 
-## 🎯 Type of Change
+<!-- Closes #XXX -->
 
-Please delete options that are not relevant.
+## 🧪 テスト方法
 
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📝 Documentation update
-- [ ] ♻️ Refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] 🎨 Style/formatting update
+<!-- どのようにテストしましたか？ -->
 
-## ✅ Testing
+- [ ] `npm test` 通過
+- [ ] 手動テスト実施
 
-Please describe the tests you ran and how to reproduce them.
+## 📸 スクリーンショット
 
-- [ ] Tested in Screeps game
-- [ ] No console errors
-- [ ] Performance impact checked
-- [ ] Multiple game ticks tested
-- [ ] Different scenarios tested
+<!-- UI変更がある場合はスクリーンショットを添付 -->
 
-### Test Configuration:
+## ✅ チェックリスト
 
-- **Room**: 
-- **Game Tick**: 
-- **CPU Usage**: 
-- **Creeps**: 
-
-## 📸 Screenshots (if applicable)
-
-Add screenshots of the changes in action.
-
-## 📝 Checklist
-
-Before submitting, please ensure:
-
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings or errors
-- [ ] I have tested this in the game environment
-- [ ] Any dependent changes have been merged and published
-
-## 💡 Additional Notes
-
-Any additional information or context.
-
----
-
-**Automated Checks**: This PR will be automatically checked by:
-- CodeQL security scan
-- Null/undefined error detection
-- Code style validation
+- [ ] コードレビュー依頼済み
+- [ ] テスト追加/更新済み
+- [ ] ドキュメント更新済み
+- [ ] CI通過確認済み

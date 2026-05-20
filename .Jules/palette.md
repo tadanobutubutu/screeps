@@ -17,3 +17,7 @@
 
 **Learning:** Actionable progress metrics like XP/h and "time to goal" significantly enhance user engagement by providing velocity context. Synchronizing the dashboard state (Level Up, Copied) with the browser tab (Title and Favicon) provides high-value feedback for users multi-tasking across tabs. Using local variables in the render body for derived metrics used in both JSX and ARIA attributes ensures efficiency without redundant hook calls.
 **Action:** Always derive velocity metrics from sync deltas and reflect critical state changes in the tab title/favicon for a "living" application feel.
+
+## 2026-05-16 - [Copy-on-Click for Resource Lists]
+**Learning:** Transform static summary labels (like "2 Rooms") into interactive "Copy to Clipboard" buttons. This provides hidden utility for power users who need to export list data (e.g., room names for coordination) without cluttering the UI with explicit "Export" buttons. Keyboard shortcuts (like 'K' for 'Keys/Rooms') and immediate visual feedback (animation + icon swap) make the interaction feel intentional and modern.
+**Action:** Identify summary stats that represent lists of IDs or names and add "Copy to Clipboard" functionality with appropriate ARIA labels and shortcut hints.

@@ -11,7 +11,13 @@
 
 const cache = require('../utils/cache');
 const logger = require('../utils/logger');
-const { ROLES, BODY_PRESETS, SPAWN_PRIORITY, TARGET_CREEPS_BY_RCL } = require('../constants');
+const {
+    ROLES,
+    BODY_PRESETS,
+    BODY_COSTS,
+    SPAWN_PRIORITY,
+    TARGET_CREEPS_BY_RCL,
+} = require('../constants');
 
 // ============================================================
 // スポーンキュー
@@ -157,14 +163,12 @@ function _getTargetCounts(room, rcl) {
  */
 function _getCurrentCounts(room) {
     const counts = Object.create(null);
-    for (const name in Game.creeps) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
-            continue;
-        }
 
-        const creep = Game.creeps[name];
-        if (creep.room.name !== room.name) continue;
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache to avoid redundant iteration over global Game.creeps.
+    // Complexity reduces from O(GlobalCreeps) to O(RoomCreeps).
+    const creeps = cache.getMyCreeps(room);
+    for (let i = 0; i < creeps.length; i++) {
+        const creep = creeps[i];
         if (creep.spawning) continue; // スポーン中のクリープはスポーンAPIから別途カウント
 
         const role = creep.memory.role;
@@ -174,17 +178,10 @@ function _getCurrentCounts(room) {
     }
 
     // スポーン中のクリープも含める
-    for (const spawnName in Game.spawns) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (
-            !cache.isSafeKey(spawnName) ||
-            !Object.prototype.hasOwnProperty.call(Game.spawns, spawnName)
-        ) {
-            continue;
-        }
-
-        const spawn = Game.spawns[spawnName];
-        if (spawn.room.name !== room.name) continue;
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant iteration over global Game.spawns.
+    const spawns = cache.getSpawns(room);
+    for (let i = 0; i < spawns.length; i++) {
+        const spawn = spawns[i];
         if (!spawn.spawning) continue;
 
         const spawningCreep = Game.creeps[spawn.spawning.name];
@@ -320,17 +317,8 @@ function showSpawnVisual(spawn) {
  * @returns {number}
  */
 function _calcBodyCost(body) {
-    const COSTS = Object.assign(Object.create(null), {
-        [MOVE]: 50,
-        [WORK]: 100,
-        [CARRY]: 50,
-        [ATTACK]: 80,
-        [RANGED_ATTACK]: 150,
-        [HEAL]: 250,
-        [CLAIM]: 600,
-        [TOUGH]: 10,
-    });
-    return body.reduce((total, part) => total + (COSTS[part] || 0), 0);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use pre-defined BODY_COSTS from constants to avoid per-call object allocation.
+    return body.reduce((total, part) => total + (BODY_COSTS[part] || 0), 0);
 }
 
 /**

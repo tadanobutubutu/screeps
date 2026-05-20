@@ -23,6 +23,8 @@ jest.mock(
   () => ({
     getConstructionSites: jest.fn().mockReturnValue([]),
     getEnemies: jest.fn().mockReturnValue([]),
+    getMyCreeps: jest.fn().mockReturnValue([]),
+    getSpawns: jest.fn().mockReturnValue([]),
     isSafeKey: jest.fn().mockReturnValue(true)
   }),
   { virtual: true }
@@ -59,6 +61,16 @@ jest.mock(
       upgrader: [{ body: ['work', 'carry', 'move'], cost: 200 }],
       builder: [{ body: ['work', 'carry', 'move'], cost: 200 }],
       defender: [{ body: ['attack', 'move'], cost: 130 }]
+    },
+    BODY_COSTS: {
+      move: 50,
+      work: 100,
+      carry: 50,
+      attack: 80,
+      ranged_attack: 150,
+      heal: 250,
+      claim: 600,
+      tough: 10
     },
     SPAWN_PRIORITY: {
       harvester: 1,
@@ -122,6 +134,11 @@ describe('spawnManager', () => {
     // キャッシュモックのクリア
     cache.getConstructionSites.mockClear()
     cache.getEnemies.mockClear()
+    cache.getMyCreeps.mockClear()
+    cache.getSpawns.mockClear()
+
+    cache.getMyCreeps.mockReturnValue([])
+    cache.getSpawns.mockReturnValue([])
   })
 
   describe('run', () => {

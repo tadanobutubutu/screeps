@@ -128,6 +128,13 @@ function _createCircularReplacer() {
 function _safeStringify(obj, maxLength = 500) {
     try {
         const str = JSON.stringify(obj, _createCircularReplacer());
+        // Security: JSON.stringify returns undefined for functions or undefined,
+        // so we must handle it to avoid "Cannot read properties of undefined (reading 'substring')"
+        // セキュリティ：JSON.stringifyは関数やundefinedに対してundefinedを返すため、
+        // .substring()の呼び出しでエラーが発生しないよう制御する必要があります。
+        if (str === undefined) {
+            return 'undefined';
+        }
         return str.substring(0, maxLength);
     } catch (e) {
         return '[Unstringifiable Object]';
@@ -143,7 +150,16 @@ function _safeStringify(obj, maxLength = 500) {
  * @param {number} level - LOG_LEVEL 定数のいずれか
  */
 function setLevel(level) {
-    _level = level;
+    // Security: Validate level to prevent bypassing checks with invalid types (e.g., undefined)
+    // セキュリティ：無効な型（undefinedなど）によってチェックがバイパスされるのを防ぐため、レベルを検証します。
+    const numericLevel = Number(level);
+    const validLevels = Object.values(LOG_LEVEL);
+    if (Number.isInteger(numericLevel) && validLevels.includes(numericLevel)) {
+        _level = numericLevel;
+    } else {
+        // Fallback to INFO on invalid input
+        _level = LOG_LEVEL.INFO;
+    }
 }
 
 /**

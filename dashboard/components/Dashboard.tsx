@@ -26,6 +26,7 @@ export default function Dashboard() {
     const [resetSuccess, setResetSuccess] = useState(false);
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
+    const [roomCopied, setRoomCopied] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
     const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
@@ -103,6 +104,20 @@ export default function Dashboard() {
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
             console.error('Failed to copy:', err);
+        }
+    }, [stats]);
+
+    const handleCopyRooms = useCallback(async () => {
+        if (!stats?.rooms) return;
+        try {
+            const roomNames = Array.isArray(stats.rooms)
+                ? stats.rooms.join(', ')
+                : Object.keys(stats.rooms).join(', ');
+            await navigator.clipboard.writeText(roomNames);
+            setRoomCopied(true);
+            setTimeout(() => setRoomCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy rooms:', err);
         }
     }, [stats]);
 
@@ -209,10 +224,11 @@ export default function Dashboard() {
             const isR = key === 'r';
             const isC = key === 'c';
             const isL = key === 'l';
+            const isK = key === 'k';
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL || isEsc) && !hasModifier && !loading && !isRefreshing) {
+            if ((isR || isC || isL || isK || isEsc) && !hasModifier && !loading && !isRefreshing) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -227,18 +243,28 @@ export default function Dashboard() {
                         return;
                     }
 
-                    if (isR || isC || isL) {
+                    if (isR || isC || isL || isK) {
                         e.preventDefault();
                         if (isR) fetchStats(true);
                         if (isC) handleCopy();
                         if (isL) handleResetSecret();
+                        if (isK) handleCopyRooms();
                     }
                 }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [fetchStats, handleCopy, loading, isRefreshing, stats, isResetConfirming, handleResetSecret]);
+    }, [
+        fetchStats,
+        handleCopy,
+        handleCopyRooms,
+        loading,
+        isRefreshing,
+        stats,
+        isResetConfirming,
+        handleResetSecret,
+    ]);
 
     useEffect(() => {
         let title = 'Screeps Dashboard';
@@ -285,7 +311,17 @@ export default function Dashboard() {
         if (link) {
             link.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`;
         }
-    }, [loading, isRefreshing, updated, leveledUp, copied, stats, timeAgo, error, getStalenessInfo]);
+    }, [
+        loading,
+        isRefreshing,
+        updated,
+        leveledUp,
+        copied,
+        stats,
+        timeAgo,
+        error,
+        getStalenessInfo,
+    ]);
 
     return (
         <main
@@ -332,23 +368,41 @@ export default function Dashboard() {
                     }}
                 >
                     {stats?.rooms && (
-                        <span
+                        <button
+                            onClick={handleCopyRooms}
                             className="interactive-hint"
                             style={{
                                 fontSize: '0.9rem',
-                                color: '#575757',
+                                color: roomCopied ? '#fff' : '#575757',
+                                background: roomCopied ? '#1e7e34' : 'transparent',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '0.2rem 0.4rem',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                             }}
-                            aria-label={`Rooms: ${roomCount}. Locations: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
-                            title={`Rooms: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`}
-                            tabIndex={0}
+                            aria-label={
+                                roomCopied
+                                    ? 'Room list copied!'
+                                    : `Rooms: ${roomCount}. Locations: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`
+                            }
+                            aria-keyshortcuts="k"
+                            title={
+                                roomCopied
+                                    ? 'Copied!'
+                                    : `Click to copy room list (K). Locations: ${Array.isArray(stats.rooms) ? stats.rooms.join(', ') : Object.keys(stats.rooms).join(', ')}`
+                            }
                         >
                             <span role="img" aria-label={roomCount === 1 ? 'Room' : 'Rooms'}>
-                                {roomCount === 1 ? '🏠' : '🏘️'}
+                                {roomCopied ? '✅' : roomCount === 1 ? '🏠' : '🏘️'}
                             </span>{' '}
-                            {roomCount} Room{roomCount === 1 ? '' : 's'}
+                            {roomCopied
+                                ? 'Copied!'
+                                : `${roomCount} Room${roomCount === 1 ? '' : 's'}`}
                             {roomDelta !== 0 && (
                                 <span
                                     style={{
@@ -373,7 +427,7 @@ export default function Dashboard() {
                                     {roomDelta})
                                 </span>
                             )}
-                        </span>
+                        </button>
                     )}
                     {lastUpdated && (
                         <span
@@ -724,274 +778,288 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {stats?.gcl && (() => {
-                const xpPerHour = getXpPerHour();
-                const predictedPercent =
-                    xpPerHour && stats.gcl.progressTotal
-                        ? (xpPerHour / stats.gcl.progressTotal) * 100
-                        : 0;
-                const timeToLevel = getTimeToLevel();
-                const formattedXpPerHour = xpPerHour
-                    ? xpPerHour >= 1000000000
-                        ? `${(xpPerHour / 1000000000).toFixed(2)}B XP/h`
-                        : xpPerHour >= 1000000
-                          ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
-                          : xpPerHour >= 1000
-                            ? `${(xpPerHour / 1000).toFixed(1)}K XP/h`
-                            : `${Math.round(xpPerHour)} XP/h`
-                    : null;
+            {stats?.gcl &&
+                (() => {
+                    const xpPerHour = getXpPerHour();
+                    const predictedPercent =
+                        xpPerHour && stats.gcl.progressTotal
+                            ? (xpPerHour / stats.gcl.progressTotal) * 100
+                            : 0;
+                    const timeToLevel = getTimeToLevel();
+                    const formattedXpPerHour = xpPerHour
+                        ? xpPerHour >= 1000000000
+                            ? `${(xpPerHour / 1000000000).toFixed(2)}B XP/h`
+                            : xpPerHour >= 1000000
+                              ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
+                              : xpPerHour >= 1000
+                                ? `${(xpPerHour / 1000).toFixed(1)}K XP/h`
+                                : `${Math.round(xpPerHour)} XP/h`
+                        : null;
 
-                return (
-                <section
-                    style={{
-                        marginBottom: '1.5rem',
-                        padding: '1rem',
-                        border: updated ? '1px solid #1e7e34' : '1px solid #eee',
-                        borderRadius: '4px',
-                        boxShadow: updated
-                            ? '0 0 0 2px #1e7e34'
-                            : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-                        opacity: loading || isRefreshing ? 0.6 : 1,
-                        transition: 'all 0.2s ease-in-out',
-                    }}
-                >
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '0.5rem',
-                            flexWrap: 'wrap',
-                            gap: '0.5rem',
-                        }}
-                    >
-                        <div
+                    return (
+                        <section
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.75rem',
-                                flexWrap: 'wrap',
+                                marginBottom: '1.5rem',
+                                padding: '1rem',
+                                border: updated ? '1px solid #1e7e34' : '1px solid #eee',
+                                borderRadius: '4px',
+                                boxShadow: updated
+                                    ? '0 0 0 2px #1e7e34'
+                                    : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
+                                opacity: loading || isRefreshing ? 0.6 : 1,
+                                transition: 'all 0.2s ease-in-out',
                             }}
                         >
-                            <strong
-                                className="interactive-hint"
-                                tabIndex={0}
-                                title="Global Control Level"
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginBottom: '0.5rem',
+                                    flexWrap: 'wrap',
+                                    gap: '0.5rem',
+                                }}
                             >
-                                <span role="img" aria-label="Global Control Level">
-                                    🌐
-                                </span>{' '}
-                                GCL: {stats.gcl.level}
-                            </strong>
-                            {leveledUp && (
-                                <span
+                                <div
                                     style={{
-                                        color: '#FFD700',
-                                        fontWeight: 'bold',
-                                        marginLeft: '0.5rem',
-                                        animation: 'bounce 0.6s ease',
-                                        display: 'inline-block',
-                                        backgroundColor: '#333333',
-                                        padding: '2px 6px',
-                                        borderRadius: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem',
+                                        flexWrap: 'wrap',
                                     }}
                                 >
-                                    LEVEL UP! 🎉
-                                </span>
-                            )}
-                            {stats.power !== undefined && (
-                                <span
-                                    className="interactive-hint"
-                                    tabIndex={0}
-                                    title="Power"
+                                    <strong
+                                        className="interactive-hint"
+                                        tabIndex={0}
+                                        title="Global Control Level"
+                                    >
+                                        <span role="img" aria-label="Global Control Level">
+                                            🌐
+                                        </span>{' '}
+                                        GCL: {stats.gcl.level}
+                                    </strong>
+                                    {leveledUp && (
+                                        <span
+                                            style={{
+                                                color: '#FFD700',
+                                                fontWeight: 'bold',
+                                                marginLeft: '0.5rem',
+                                                animation: 'bounce 0.6s ease',
+                                                display: 'inline-block',
+                                                backgroundColor: '#333333',
+                                                padding: '2px 6px',
+                                                borderRadius: '4px',
+                                            }}
+                                        >
+                                            LEVEL UP! 🎉
+                                        </span>
+                                    )}
+                                    {stats.power !== undefined && (
+                                        <span
+                                            className="interactive-hint"
+                                            tabIndex={0}
+                                            title="Power"
+                                            style={{
+                                                fontSize: '0.9rem',
+                                                color: '#575757',
+                                            }}
+                                        >
+                                            <span role="img" aria-label="Power">
+                                                ⚡
+                                            </span>{' '}
+                                            Power: {stats.power.toLocaleString()}
+                                            {powerDelta > 0 && (
+                                                <span
+                                                    style={{
+                                                        fontSize: '0.8rem',
+                                                        color: '#1e7e34',
+                                                        marginLeft: '0.25rem',
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                    aria-label={`Increased by ${powerDelta.toLocaleString()}`}
+                                                    title={`Increased by ${powerDelta.toLocaleString()}`}
+                                                >
+                                                    (+{powerDelta.toLocaleString()})
+                                                </span>
+                                            )}
+                                        </span>
+                                    )}
+                                    {stats.cpuUsed !== undefined && (
+                                        <span
+                                            className="interactive-hint"
+                                            tabIndex={0}
+                                            title="CPU Used"
+                                            style={{
+                                                fontSize: '0.9rem',
+                                                color: '#575757',
+                                            }}
+                                        >
+                                            <span role="img" aria-label="CPU Used">
+                                                📊
+                                            </span>{' '}
+                                            CPU: {stats.cpuUsed.toLocaleString()}
+                                            {cpuDelta !== 0 && (
+                                                <span
+                                                    style={{
+                                                        fontSize: '0.8rem',
+                                                        color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
+                                                        marginLeft: '0.25rem',
+                                                        fontWeight: 'bold',
+                                                    }}
+                                                    aria-label={
+                                                        cpuDelta > 0
+                                                            ? `Increased by ${cpuDelta.toLocaleString()}`
+                                                            : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
+                                                    }
+                                                    title={
+                                                        cpuDelta > 0
+                                                            ? `Increased by ${cpuDelta.toLocaleString()}`
+                                                            : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
+                                                    }
+                                                >
+                                                    ({cpuDelta > 0 ? '+' : ''}
+                                                    {cpuDelta.toLocaleString()})
+                                                </span>
+                                            )}
+                                        </span>
+                                    )}
+                                </div>
+                                <div
                                     style={{
-                                        fontSize: '0.9rem',
-                                        color: '#575757',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.25rem',
                                     }}
                                 >
-                                    <span role="img" aria-label="Power">
-                                        ⚡
-                                    </span>{' '}
-                                    Power: {stats.power.toLocaleString()}
-                                    {powerDelta > 0 && (
+                                    <span
+                                        id="gcl-percent"
+                                        style={{
+                                            fontWeight: 'bold',
+                                            color:
+                                                stats.gcl.progress >= stats.gcl.progressTotal
+                                                    ? '#FFD700'
+                                                    : '#006699',
+                                            backgroundColor:
+                                                stats.gcl.progress >= stats.gcl.progressTotal
+                                                    ? '#333'
+                                                    : 'transparent',
+                                            padding:
+                                                stats.gcl.progress >= stats.gcl.progressTotal
+                                                    ? '2px 6px'
+                                                    : '0',
+                                            borderRadius: '4px',
+                                            transition: 'all 0.3s ease',
+                                        }}
+                                    >
+                                        {gclPercent.toFixed(2)}%
+                                    </span>
+                                    {gclDelta > 0 && (
                                         <span
                                             style={{
                                                 fontSize: '0.8rem',
                                                 color: '#1e7e34',
-                                                marginLeft: '0.25rem',
                                                 fontWeight: 'bold',
                                             }}
-                                            aria-label={`Increased by ${powerDelta.toLocaleString()}`}
-                                            title={`Increased by ${powerDelta.toLocaleString()}`}
+                                            title="Progress gained since last update"
+                                            aria-label={`Increased by ${gclDelta.toFixed(2)}%`}
                                         >
-                                            (+{powerDelta.toLocaleString()})
+                                            (+{gclDelta.toFixed(2)}%)
                                         </span>
                                     )}
-                                </span>
-                            )}
-                            {stats.cpuUsed !== undefined && (
-                                <span
-                                    className="interactive-hint"
-                                    tabIndex={0}
-                                    title="CPU Used"
-                                    style={{
-                                        fontSize: '0.9rem',
-                                        color: '#575757',
-                                    }}
-                                >
-                                    <span role="img" aria-label="CPU Used">
-                                        📊
-                                    </span>{' '}
-                                    CPU: {stats.cpuUsed.toLocaleString()}
-                                    {cpuDelta !== 0 && (
-                                        <span
-                                            style={{
-                                                fontSize: '0.8rem',
-                                                color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
-                                                marginLeft: '0.25rem',
-                                                fontWeight: 'bold',
-                                            }}
-                                            aria-label={
-                                                cpuDelta > 0
-                                                    ? `Increased by ${cpuDelta.toLocaleString()}`
-                                                    : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
-                                            }
-                                            title={
-                                                cpuDelta > 0
-                                                    ? `Increased by ${cpuDelta.toLocaleString()}`
-                                                    : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
-                                            }
-                                        >
-                                            ({cpuDelta > 0 ? '+' : ''}
-                                            {cpuDelta.toLocaleString()})
-                                        </span>
-                                    )}
-                                </span>
-                            )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <span
-                                id="gcl-percent"
-                                style={{
-                                    fontWeight: 'bold',
-                                    color:
-                                        stats.gcl.progress >= stats.gcl.progressTotal
-                                            ? '#FFD700'
-                                            : '#006699',
-                                    backgroundColor:
-                                        stats.gcl.progress >= stats.gcl.progressTotal
-                                            ? '#333'
-                                            : 'transparent',
-                                    padding:
-                                        stats.gcl.progress >= stats.gcl.progressTotal
-                                            ? '2px 6px'
-                                            : '0',
-                                    borderRadius: '4px',
-                                    transition: 'all 0.3s ease',
-                                }}
-                            >
-                                {gclPercent.toFixed(2)}%
-                            </span>
-                            {gclDelta > 0 && (
-                                <span
-                                    style={{
-                                        fontSize: '0.8rem',
-                                        color: '#1e7e34',
-                                        fontWeight: 'bold',
-                                    }}
-                                    title="Progress gained since last update"
-                                    aria-label={`Increased by ${gclDelta.toFixed(2)}%`}
-                                >
-                                    (+{gclDelta.toFixed(2)}%)
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <div
-                        role="progressbar"
-                        className="interactive-hint"
-                        tabIndex={0}
-                        aria-label="Global Control Level progress"
-                        aria-describedby="gcl-percent"
-                        aria-valuenow={Number(gclPercent.toFixed(2))}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
-                        title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}`}
-                        style={{
-                            width: '100%',
-                            height: '12px',
-                            background:
-                                stats.gcl.progress >= stats.gcl.progressTotal
-                                    ? '#333333'
-                                    : '#eeeeee',
-                            borderRadius: '6px',
-                            overflow: 'hidden',
-                            position: 'relative',
-                            marginBottom: '0.5rem',
-                            borderBottom: 'none',
-                        }}
-                    >
-                        {prevStats?.gcl &&
-                            gclDelta > 0 &&
-                            stats.gcl.level === prevStats.gcl.level && (
-                                <div
-                                    title={`Progress gained: ${gclDelta.toFixed(2)}% (from ${prevGclPercent.toFixed(2)}%)`}
-                                    style={{
-                                        left: `${prevGclPercent}%`,
-                                        width: `${gclDelta}%`,
-                                        height: '100%',
-                                        position: 'absolute',
-                                        background: 'rgba(255, 255, 255, 0.2)',
-                                        animation: 'pulse 2s infinite',
-                                        zIndex: 1,
-                                    }}
-                                />
-                            )}
-                        <div
-                            style={{
-                                width: `${gclPercent}%`,
-                                height: '100%',
-                                background:
-                                    stats.gcl.progress >= stats.gcl.progressTotal
-                                        ? '#FFD700'
-                                        : '#006699',
-                                transition: 'width 0.5s ease-in-out',
-                                position: 'relative',
-                                zIndex: 2,
-                            }}
-                        />
-                        {predictedPercent > 0 && stats.gcl.progress < stats.gcl.progressTotal && (
+                                </div>
+                            </div>
                             <div
-                                title={`Forecast: +${predictedPercent.toFixed(2)}% in 1h`}
+                                role="progressbar"
+                                className="interactive-hint"
+                                tabIndex={0}
+                                aria-label="Global Control Level progress"
+                                aria-describedby="gcl-percent"
+                                aria-valuenow={Number(gclPercent.toFixed(2))}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
+                                title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}`}
                                 style={{
-                                    left: `${gclPercent}%`,
-                                    width: `${Math.min(predictedPercent, 100 - gclPercent)}%`,
-                                    height: '100%',
-                                    position: 'absolute',
+                                    width: '100%',
+                                    height: '12px',
                                     background:
                                         stats.gcl.progress >= stats.gcl.progressTotal
-                                            ? '#FFD700'
-                                            : '#006699',
-                                    opacity: 0.3,
-                                    animation: 'pulse 2s infinite',
-                                    zIndex: 1,
-                                    transition: 'all 0.5s ease-in-out',
+                                            ? '#333333'
+                                            : '#eeeeee',
+                                    borderRadius: '6px',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    marginBottom: '0.5rem',
+                                    borderBottom: 'none',
                                 }}
-                            />
-                        )}
-                    </div>
-                    <div style={{ fontSize: '0.75rem', color: '#575757', textAlign: 'right' }}>
-                        {stats.gcl.progress.toLocaleString()} /{' '}
-                        {stats.gcl.progressTotal.toLocaleString()} (
-                        {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} remaining
-                        {formattedXpPerHour && ` • ${formattedXpPerHour}`}
-                        {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level`}
-                        )
-                    </div>
-                </section>
-                );
-            })()}
+                            >
+                                {prevStats?.gcl &&
+                                    gclDelta > 0 &&
+                                    stats.gcl.level === prevStats.gcl.level && (
+                                        <div
+                                            title={`Progress gained: ${gclDelta.toFixed(2)}% (from ${prevGclPercent.toFixed(2)}%)`}
+                                            style={{
+                                                left: `${prevGclPercent}%`,
+                                                width: `${gclDelta}%`,
+                                                height: '100%',
+                                                position: 'absolute',
+                                                background: 'rgba(255, 255, 255, 0.2)',
+                                                animation: 'pulse 2s infinite',
+                                                zIndex: 1,
+                                            }}
+                                        />
+                                    )}
+                                <div
+                                    style={{
+                                        width: `${gclPercent}%`,
+                                        height: '100%',
+                                        background:
+                                            stats.gcl.progress >= stats.gcl.progressTotal
+                                                ? '#FFD700'
+                                                : '#006699',
+                                        transition: 'width 0.5s ease-in-out',
+                                        position: 'relative',
+                                        zIndex: 2,
+                                    }}
+                                />
+                                {predictedPercent > 0 &&
+                                    stats.gcl.progress < stats.gcl.progressTotal && (
+                                        <div
+                                            title={`Forecast: +${predictedPercent.toFixed(2)}% in 1h`}
+                                            style={{
+                                                left: `${gclPercent}%`,
+                                                width: `${Math.min(predictedPercent, 100 - gclPercent)}%`,
+                                                height: '100%',
+                                                position: 'absolute',
+                                                background:
+                                                    stats.gcl.progress >= stats.gcl.progressTotal
+                                                        ? '#FFD700'
+                                                        : '#006699',
+                                                opacity: 0.3,
+                                                animation: 'pulse 2s infinite',
+                                                zIndex: 1,
+                                                transition: 'all 0.5s ease-in-out',
+                                            }}
+                                        />
+                                    )}
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: '0.75rem',
+                                    color: '#575757',
+                                    textAlign: 'right',
+                                }}
+                            >
+                                {stats.gcl.progress.toLocaleString()} /{' '}
+                                {stats.gcl.progressTotal.toLocaleString()} (
+                                {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()}{' '}
+                                remaining
+                                {formattedXpPerHour && ` • ${formattedXpPerHour}`}
+                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level`})
+                            </div>
+                        </section>
+                    );
+                })()}
 
             <section
                 style={{
@@ -1164,6 +1232,13 @@ export default function Dashboard() {
                             state: copied ? 's' : '',
                             onClick: () => handleCopy(),
                             icon: copied ? '✓' : 'C',
+                        },
+                        {
+                            k: 'K',
+                            a: 'Copy room list',
+                            state: roomCopied ? 's' : '',
+                            onClick: () => handleCopyRooms(),
+                            icon: roomCopied ? '✓' : 'K',
                         },
                         {
                             k: 'L',

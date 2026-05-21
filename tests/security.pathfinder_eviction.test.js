@@ -20,24 +20,16 @@ global.PathFinder = {
 };
 
 // Mock dependencies
-jest.mock(
-    '../src/constants',
-    () => ({
-        PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
-        CACHE_TTL: { PATH: 50 },
-    }),
-    { virtual: true }
-);
+jest.mock('../src/constants', () => ({
+    PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
+    CACHE_TTL: { PATH: 50 },
+}));
 
-jest.mock(
-    '../src/utils/cache',
-    () => ({
-        getStructures: jest.fn().mockReturnValue([]),
-        getConstructionSites: jest.fn().mockReturnValue([]),
-        cleanup: jest.fn(),
-    }),
-    { virtual: true }
-);
+jest.mock('../src/utils/cache', () => ({
+    getStructures: jest.fn().mockReturnValue([]),
+    getConstructionSites: jest.fn().mockReturnValue([]),
+    cleanup: jest.fn(),
+}));
 
 let cacheUtils;
 let pathfinder;

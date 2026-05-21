@@ -20,14 +20,10 @@ global.PathFinder = {
 };
 
 // Mock dependencies
-jest.mock(
-    '../src/constants',
-    () => ({
-        PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
-        CACHE_TTL: { PATH: 50 },
-    }),
-    { virtual: true }
-);
+jest.mock('../src/constants', () => ({
+    PATHFINDER_DEFAULTS: { ROAD_COST: 1 },
+    CACHE_TTL: { PATH: 50 },
+}));
 
 jest.mock('../src/utils/cache', () => ({
     getStructures: jest.fn().mockReturnValue([]),
@@ -35,11 +31,14 @@ jest.mock('../src/utils/cache', () => ({
     cleanup: jest.fn(),
 }));
 
-const cacheUtils = require('../src/utils/cache');
-const pathfinder = require('../src/utils/pathfinder');
+let cacheUtils;
+let pathfinder;
 
 describe('Security: Pathfinder FIFO Eviction', () => {
     beforeEach(() => {
+        jest.resetModules();
+        cacheUtils = require('../src/utils/cache');
+        pathfinder = require('../src/utils/pathfinder');
         global.cache = {};
         jest.clearAllMocks();
         global.Game.time = 100;
@@ -59,7 +58,7 @@ describe('Security: Pathfinder FIFO Eviction', () => {
             pathfinder.buildCostMatrix(roomName);
 
             // Oldest key should be deleted
-            expect(global.cache['key_0']).toBeUndefined();
+            expect(global.cache.key_0).toBeUndefined();
             // New entry should be added
             expect(global.cache[`cm_${roomName}_0`]).toBeDefined();
             // Total size should still be 100
@@ -71,11 +70,11 @@ describe('Security: Pathfinder FIFO Eviction', () => {
             for (let i = 0; i < 99; i++) {
                 global.cache[`key_${i}`] = { data: 'active', expires: 200 };
             }
-            global.cache['expired_key'] = { data: 'expired', expires: 50 }; // Game.time is 100
+            global.cache.expired_key = { data: 'expired', expires: 50 }; // Game.time is 100
 
             // Mock cleanup to actually remove the expired entry
             cacheUtils.cleanup.mockImplementation(() => {
-                delete global.cache['expired_key'];
+                delete global.cache.expired_key;
                 return 1;
             });
 
@@ -87,9 +86,9 @@ describe('Security: Pathfinder FIFO Eviction', () => {
             // cleanup() should have been called
             expect(cacheUtils.cleanup).toHaveBeenCalled();
             // Expired key should be gone
-            expect(global.cache['expired_key']).toBeUndefined();
+            expect(global.cache.expired_key).toBeUndefined();
             // NO FIFO eviction should have happened because cleanup freed space
-            expect(global.cache['key_0']).toBeDefined();
+            expect(global.cache.key_0).toBeDefined();
             // New entry should be added
             expect(global.cache[`cm_${roomName}_0`]).toBeDefined();
             expect(Object.keys(global.cache).length).toBe(100);
@@ -105,12 +104,12 @@ describe('Security: Pathfinder FIFO Eviction', () => {
 
             const origin = { x: 1, y: 1, roomName: 'W3N3' };
             const goal = { x: 10, y: 10, roomName: 'W3N3' };
-            const expectedKey = `path_W3N3_1_1_W3N3_10_10`;
+            const expectedKey = 'path_W3N3_1_1_W3N3_10_10';
 
             pathfinder.estimateDistance(origin, goal);
 
             // Oldest key should be deleted
-            expect(global.cache['key_0']).toBeUndefined();
+            expect(global.cache.key_0).toBeUndefined();
             // New entry should be added
             expect(global.cache[expectedKey]).toBeDefined();
             expect(Object.keys(global.cache).length).toBe(100);

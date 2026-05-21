@@ -387,11 +387,12 @@ function assignSource(creep, room) {
         return null;
     }
 
-    // 各ソースに割り当てられているクリープ数をカウント
+    // ⚡ PERFORMANCE: Use room-local cache to avoid O(GlobalCreeps) iteration.
     const assignments = {};
-    for (const name in Game.creeps) {
-        const c = Game.creeps[name];
-        if (c.memory.sourceId && c.room.name === room.name) {
+    const creeps = getMyCreeps(room);
+    for (let i = 0; i < creeps.length; i++) {
+        const c = creeps[i];
+        if (c.memory.sourceId) {
             assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
         }
     }

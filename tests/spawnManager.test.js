@@ -100,6 +100,8 @@ describe('spawnManager', () => {
     global.FIND_CONSTRUCTION_SITES = 111
     global.FIND_MY_SPAWNS = 112
     global.FIND_SOURCES = 105
+    global.FIND_HOSTILE_CREEPS = 103
+    global.FIND_MY_CREEPS = 102
   })
   let mockSpawn
   let mockRoom

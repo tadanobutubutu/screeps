@@ -62,8 +62,11 @@ const defender = require('../src/roles/defender');
 
 describe('src/roles/defender', () => {
     beforeEach(() => {
-        global.LOG_LEVEL = { ERROR: 3 };
+        global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 };
         global.FIND_HOSTILE_CREEPS = 103;
+        global.ATTACK = 'attack';
+        global.RANGED_ATTACK = 'ranged_attack';
+        global.CLAIM = 'claim';
     });
     beforeEach(() => {
         jest.clearAllMocks();

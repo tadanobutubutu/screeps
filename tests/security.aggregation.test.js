@@ -33,6 +33,8 @@ describe('Security: Aggregation Hardening', () => {
         global.TOUGH = 'tough';
         global.RESOURCE_ENERGY = 'energy';
         global.STRUCTURE_TOWER = 'tower';
+        global.FIND_MY_CREEPS = 6;
+        global.FIND_MY_SPAWNS = 7;
 
         jest.resetModules();
     });

@@ -135,7 +135,17 @@ module.exports = {
 
         // Security: Cap the number of cache entries to prevent Memory DoS
         if (!cached && Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
-            return fn();
+            // Attempt to cleanup expired entries first
+            this.cleanCache();
+
+            // If still full, implement FIFO eviction by deleting the oldest entry.
+            // This ensures the cache remains available for new, potentially more relevant data.
+            if (Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
+                const keys = Object.keys(Memory.cache);
+                if (keys.length > 0) {
+                    delete Memory.cache[keys[0]];
+                }
+            }
         }
 
         const result = fn();

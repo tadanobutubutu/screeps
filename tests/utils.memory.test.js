@@ -108,7 +108,7 @@ describe('utils.memory', () => {
         expect(callCount).toBe(1);
     });
 
-    test('memoize enforces MAX_CACHE_ENTRIES', () => {
+    test('memoize enforces MAX_CACHE_ENTRIES with FIFO eviction', () => {
         let callCount = 0;
         const fn = () => {
             callCount++;
@@ -120,12 +120,17 @@ describe('utils.memory', () => {
             utilsMemory.memoize(fn, 'key' + i, 100);
         }
         expect(callCount).toBe(50);
+        expect(Memory.cache['key0']).toBeDefined();
 
         // Add one more entry
         const result = utilsMemory.memoize(fn, 'oneMoreKey', 100);
         expect(result).toBe('result');
         expect(callCount).toBe(51);
-        expect(Memory.cache['oneMoreKey']).toBeUndefined();
+
+        // Security: Verify FIFO eviction (key0 should be gone, oneMoreKey should be present)
+        expect(Memory.cache['oneMoreKey']).toBeDefined();
+        expect(Memory.cache['key0']).toBeUndefined();
+        expect(Object.keys(Memory.cache).length).toBe(50);
     });
 
     test('memoize uses default TTL', () => {

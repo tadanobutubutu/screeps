@@ -42,6 +42,12 @@ global.RoomPosition = function (x, y, roomName) {
     this.getRangeTo = () => 0;
 };
 
+global.FIND_SOURCES = 105;
+global.FIND_HOSTILE_CREEPS = 103;
+global.FIND_MY_CREEPS = 102;
+global.FIND_MY_SPAWNS = 101;
+global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3 };
+
 jest.mock(
     '../src/utils/cache',
     () => ({

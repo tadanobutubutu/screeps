@@ -11,6 +11,7 @@ global.FIND_CONSTRUCTION_SITES = 14;
 global.FIND_HOSTILE_CREEPS = 6;
 global.FIND_DROPPED_RESOURCES = 7;
 global.FIND_MY_SPAWNS = 8;
+global.FIND_MY_CREEPS = 102;
 global.STRUCTURE_SPAWN = 'spawn';
 global.STRUCTURE_EXTENSION = 'extension';
 global.STRUCTURE_TOWER = 'tower';
@@ -266,7 +267,11 @@ describe('cache', () => {
             };
             const mockRoom = {
                 name: 'W1N1',
-                find: jest.fn().mockReturnValue([{ id: 'source1' }]),
+                find: jest.fn().mockImplementation((type) => {
+                    if (type === FIND_SOURCES) return [{ id: 'source1' }];
+                    if (type === FIND_MY_CREEPS) return [];
+                    return [];
+                }),
             };
 
             const source = cache.assignSource(mockCreep, mockRoom);

@@ -31,6 +31,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             25% { transform: translateX(-2px); }
             75% { transform: translateX(2px); }
           }
+          @keyframes glow {
+            0%, 100% { box-shadow: 0 0 2px #FFD700; }
+            50% { box-shadow: 0 0 12px #FFD700; }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            * {
+              animation: none !important;
+              transition: none !important;
+            }
+          }
           kbd:focus-visible {
             outline: 2px solid #0077aa;
             outline-offset: 2px;

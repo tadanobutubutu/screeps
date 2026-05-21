@@ -991,6 +991,10 @@ export default function Dashboard() {
                                     position: 'relative',
                                     marginBottom: '0.5rem',
                                     borderBottom: 'none',
+                                    animation:
+                                        stats.gcl.progress >= stats.gcl.progressTotal || leveledUp
+                                            ? 'glow 2s infinite'
+                                            : 'none',
                                 }}
                             >
                                 {prevStats?.gcl &&

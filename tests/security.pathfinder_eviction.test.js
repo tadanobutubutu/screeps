@@ -29,11 +29,15 @@ jest.mock(
     { virtual: true }
 );
 
-jest.mock('../src/utils/cache', () => ({
-    getStructures: jest.fn().mockReturnValue([]),
-    getConstructionSites: jest.fn().mockReturnValue([]),
-    cleanup: jest.fn(),
-}));
+jest.mock(
+    '../src/utils/cache',
+    () => ({
+        getStructures: jest.fn().mockReturnValue([]),
+        getConstructionSites: jest.fn().mockReturnValue([]),
+        cleanup: jest.fn(),
+    }),
+    { virtual: true }
+);
 
 const cacheUtils = require('../src/utils/cache');
 const pathfinder = require('../src/utils/pathfinder');

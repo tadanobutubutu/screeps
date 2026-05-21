@@ -35,15 +35,11 @@ jest.mock('../src/utils/cache', () => ({
     cleanup: jest.fn(),
 }));
 
-let cacheUtils;
-let pathfinder;
+const cacheUtils = require('../src/utils/cache');
+const pathfinder = require('../src/utils/pathfinder');
 
 describe('Security: Pathfinder FIFO Eviction', () => {
     beforeEach(() => {
-        jest.resetModules();
-        cacheUtils = require('../src/utils/cache');
-        pathfinder = require('../src/utils/pathfinder');
-
         global.cache = {};
         jest.clearAllMocks();
         global.Game.time = 100;

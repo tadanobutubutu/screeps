@@ -50,7 +50,7 @@ port = 54323
 # External URL of the API server that frontend connects to.
 apiUrl = "http://127.0.0.1"
 # OpenAI API Key to use for Supabase AI in the Supabase Studio.
-openAiApiKey = env("OPENAI_API_KEY")
+openAiApiKey = "env(OPENAI_API_KEY)"
 
 [inbucket]
 enabled = true
@@ -116,7 +116,7 @@ test_otp = {}
 enabled = false
 account_sid = ""
 message_service_sid = ""
-auth_token = env("SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN")
+auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `figma`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`,
@@ -125,7 +125,7 @@ auth_token = env("SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN")
 enabled = false
 client_id = ""
 # DO NOT commit your OAuth provider secret to git. Use environment variable substitution instead:
-secret = env("SUPABASE_AUTH_EXTERNAL_APPLE_SECRET")
+secret = "env(SUPABASE_AUTH_EXTERNAL_APPLE_SECRET)"
 # Overrides the default auth redirectUrl.
 redirect_uri = ""
 # Overrides the default auth provider URL. Used to support self-hosted gitlab, single-tenant Azure,

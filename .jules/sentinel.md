@@ -11,4 +11,9 @@
 ## 2026-05-18 - Pathfinder Cache Starvation DoS
 **Vulnerability:** Cache Starvation and CPU Exhaustion DoS.
 **Learning:** If a cache simply stops accepting new entries when full, it can enter a permanent state of cache misses for any new operations. In a resource-constrained environment like Screeps, this leads to repeated expensive re-computations (CPU exhaustion).
-**Prevention:** Implement a unified eviction policy (like FIFO) across all caching modules. Always attempt to cleanup expired entries before evicting. Ensure cache retrieval is robust against corrupted or non-numeric expiration values.
+**Prevention:** Implement a unified eviction policy (like FIFO) across all caching modules. Always attempt to cleanup expired entries before evicting. Ensure cache retrieval against corrupted or non-numeric expiration values.
+
+## 2026-05-19 - Log-Level Bypass via Memory Injection
+**Vulnerability:** Log-Level Bypass (Information Leakage / DoS).
+**Learning:** Directly assigning user-controlled values from `Memory` to internal state variables (like `_level`) can bypass security logic if the values are malformed (e.g., strings or `null`). In JavaScript, `undefined > 0` is `false`, which can cause level-gating logic to fail open.
+**Prevention:** Always use validated setters (like `setLevel()`) when initializing state from `Memory`. Ensure setters perform strict type checking and range validation, falling back to safe defaults for any invalid input.

@@ -150,8 +150,15 @@ function _safeStringify(obj, maxLength = 500) {
  * @param {number} level - LOG_LEVEL 定数のいずれか
  */
 function setLevel(level) {
-    // Security: Validate level to prevent bypassing checks with invalid types (e.g., undefined)
-    // セキュリティ：無効な型（undefinedなど）によってチェックがバイパスされるのを防ぐため、レベルを検証します。
+    // Security: Strict validation of level to prevent bypassing checks.
+    // Explicitly reject null, booleans, and empty strings which Number() converts to 0 (DEBUG).
+    // セキュリティ：レベルの厳格な検証を行い、バイパスを防ぎます。
+    // Number() が 0 (DEBUG) に変換してしまう null、ブール値、空文字列を明示的に拒否します。
+    if (level === null || typeof level === 'boolean' || level === '') {
+        _level = LOG_LEVEL.INFO;
+        return;
+    }
+
     const numericLevel = Number(level);
     const validLevels = Object.values(LOG_LEVEL);
     if (Number.isInteger(numericLevel) && validLevels.includes(numericLevel)) {

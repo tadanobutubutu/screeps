@@ -34,6 +34,23 @@ describe('src/utils/logger security: log-level bypass', () => {
         expect(debugLogs.length).toBe(0);
     });
 
+    test('init() should handle null/boolean/empty string from Memory securely', () => {
+        const trickyValues = [null, false, ''];
+
+        trickyValues.forEach(val => {
+            global.Memory.logLevel = val;
+            logger.init();
+
+            // Should fallback to INFO and NOT show DEBUG
+            logger.debug('This should be suppressed');
+            const debugLogs = logSpy.mock.calls.filter(call => call[0].includes('DEBUG'));
+            expect(debugLogs.length).toBe(0);
+
+            // Reset for next iteration
+            logSpy.mockClear();
+        });
+    });
+
     test('init() should correctly handle numeric strings from Memory', () => {
         global.Memory.logLevel = '2'; // WARN
         logger.init();

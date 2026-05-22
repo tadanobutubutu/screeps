@@ -19,9 +19,11 @@
 **Action:** Always derive velocity metrics from sync deltas and reflect critical state changes in the tab title/favicon for a "living" application feel.
 
 ## 2026-05-16 - [Copy-on-Click for Resource Lists]
+
 **Learning:** Transform static summary labels (like "2 Rooms") into interactive "Copy to Clipboard" buttons. This provides hidden utility for power users who need to export list data (e.g., room names for coordination) without cluttering the UI with explicit "Export" buttons. Keyboard shortcuts (like 'K' for 'Keys/Rooms') and immediate visual feedback (animation + icon swap) make the interaction feel intentional and modern.
 **Action:** Identify summary stats that represent lists of IDs or names and add "Copy to Clipboard" functionality with appropriate ARIA labels and shortcut hints.
 
 ## 2026-05-17 - [Glanceable Stat Deltas & Copy Summary]
+
 **Learning:** Adding semantic delta indicators (color + animation) significantly improves "at-a-glance" monitoring. Using 'bounce' for positive/improvement and 'shake' for negative/regression creates a clear emotional map of the game's state. A "Copy Summary" feature (shortcut 'S') provides a high-value utility for sharing progress in community channels (Discord/Slack) without exposing raw JSON.
 **Action:** Always pair visual animations with accessible `aria-label` updates that describe the direction of change (e.g., "Increased" vs "Decreased").

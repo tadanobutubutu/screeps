@@ -126,32 +126,13 @@ export default function Dashboard() {
         if (!stats) return;
         try {
             const xp = getXpPerHour();
-            const time = getTimeToLevel();
-            const fxp = xp
-                ? xp >= 1e6
-                    ? `${(xp / 1e6).toFixed(1)}M`
-                    : xp >= 1e3
-                      ? `${(xp / 1e3).toFixed(1)}K`
-                      : Math.round(xp)
-                : '0';
-            const sum = [
-                stats.gcl
-                    ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(1)}%)`
-                    : '',
-                `${roomCount} Rooms`,
-                stats.power !== undefined ? `${(stats.power / 1e6).toFixed(1)}M Power` : '',
-                xp ? `${fxp} XP/h` : '',
-                time ? `${formatDuration(time)} to level` : '',
-            ]
-                .filter(Boolean)
-                .join(', ');
+            const fxp = xp ? (xp >= 1e6 ? `${(xp / 1e6).toFixed(1)}M` : xp >= 1e3 ? `${(xp / 1e3).toFixed(1)}K` : Math.round(xp)) : '0';
+            const sum = [stats.gcl ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(1)}%)` : '', `${roomCount} Rooms`, stats.power !== undefined ? `${(stats.power / 1e6).toFixed(1)}M Power` : '', xp ? `${fxp} XP/h` : ''].filter(Boolean).join(', ');
             await navigator.clipboard.writeText(sum);
             setSummaryCopied(true);
             setTimeout(() => setSummaryCopied(false), 2000);
-        } catch (err) {
-            console.error('Failed to copy summary:', err);
-        }
-    }, [stats, roomCount, getXpPerHour, getTimeToLevel]);
+        } catch (err) { console.error('Failed to copy summary:', err); }
+    }, [stats, roomCount, getXpPerHour]);
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
@@ -261,12 +242,7 @@ export default function Dashboard() {
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if (
-                (isR || isC || isL || isK || isS || isEsc) &&
-                !hasModifier &&
-                !loading &&
-                !isRefreshing
-            ) {
+            if ((isR || isC || isL || isK || isS || isEsc) && !hasModifier && !loading && !isRefreshing) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||

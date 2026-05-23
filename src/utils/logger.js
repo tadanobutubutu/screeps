@@ -374,10 +374,12 @@ function resetStats() {
 /**
  * ロガーを初期化する（各ティックの先頭で呼び出す）
  * Memory.logLevel が設定されていればそれを使用する
+ *
+ * Security: Uses setLevel() to ensure input from Memory is validated.
  */
 function init() {
     if (Memory.logLevel !== undefined && Memory.logLevel !== _level) {
-        _level = Memory.logLevel;
+        setLevel(Memory.logLevel);
     }
 }
 

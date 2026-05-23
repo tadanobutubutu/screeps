@@ -27,6 +27,7 @@ export default function Dashboard() {
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
     const [roomCopied, setRoomCopied] = useState(false);
+    const [summaryCopied, setSummaryCopied] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
     const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
@@ -120,6 +121,19 @@ export default function Dashboard() {
             console.error('Failed to copy rooms:', err);
         }
     }, [stats]);
+
+    const handleCopySummary = useCallback(async () => {
+        if (!stats) return;
+        try {
+            const xp = getXpPerHour();
+            const time = getTimeToLevel();
+            const fxp = xp ? (xp >= 1e6 ? `${(xp / 1e6).toFixed(1)}M` : xp >= 1e3 ? `${(xp / 1e3).toFixed(1)}K` : Math.round(xp)) : '0';
+            const sum = [stats.gcl ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(1)}%)` : '', `${roomCount} Rooms`, stats.power !== undefined ? `${(stats.power / 1e6).toFixed(1)}M Power` : '', xp ? `${fxp} XP/h` : '', time ? `${formatDuration(time)} to level` : ''].filter(Boolean).join(', ');
+            await navigator.clipboard.writeText(sum);
+            setSummaryCopied(true);
+            setTimeout(() => setSummaryCopied(false), 2000);
+        } catch (err) { console.error('Failed to copy summary:', err); }
+    }, [stats, roomCount, getXpPerHour, getTimeToLevel]);
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
@@ -225,10 +239,11 @@ export default function Dashboard() {
             const isC = key === 'c';
             const isL = key === 'l';
             const isK = key === 'k';
+            const isS = key === 's';
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL || isK || isEsc) && !hasModifier && !loading && !isRefreshing) {
+            if ((isR || isC || isL || isK || isS || isEsc) && !hasModifier && !loading && !isRefreshing) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -243,12 +258,13 @@ export default function Dashboard() {
                         return;
                     }
 
-                    if (isR || isC || isL || isK) {
+                    if (isR || isC || isL || isK || isS) {
                         e.preventDefault();
                         if (isR) fetchStats(true);
                         if (isC) handleCopy();
                         if (isL) handleResetSecret();
                         if (isK) handleCopyRooms();
+                        if (isS) handleCopySummary();
                     }
                 }
             }
@@ -1243,6 +1259,13 @@ export default function Dashboard() {
                             state: roomCopied ? 's' : '',
                             onClick: () => handleCopyRooms(),
                             icon: roomCopied ? '✓' : 'K',
+                        },
+                        {
+                            k: 'S',
+                            a: 'Copy summary',
+                            state: summaryCopied ? 's' : '',
+                            onClick: () => handleCopySummary(),
+                            icon: summaryCopied ? '✓' : 'S',
                         },
                         {
                             k: 'L',

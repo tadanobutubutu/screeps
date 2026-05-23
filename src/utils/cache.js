@@ -368,6 +368,10 @@ function getStorage(room) {
 // ソース割り当てキャッシュ
 // ============================================================
 
+// ⚡ PERFORMANCE: Volatile per-tick cache for source assignments.
+let _sourceAssignments = {};
+let _sourceAssignmentsTick = -1;
+
 /**
  * クリープをソースに割り当てる（均等分散）
  * @param {Creep} creep
@@ -387,20 +391,31 @@ function assignSource(creep, room) {
         return null;
     }
 
-    // ⚡ PERFORMANCE: Use room-local cache to avoid O(GlobalCreeps) iteration.
-    const assignments = {};
-    const creeps = getMyCreeps(room);
-    for (let i = 0; i < creeps.length; i++) {
-        const c = creeps[i];
-        if (c.memory.sourceId) {
-            assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
-        }
+    // ⚡ PERFORMANCE: Use per-tick volatile cache to avoid redundant O(N) iterations.
+    if (_sourceAssignmentsTick !== Game.time) {
+        _sourceAssignments = {};
+        _sourceAssignmentsTick = Game.time;
     }
+
+    if (!_sourceAssignments[room.name]) {
+        const assignments = {};
+        const creeps = getMyCreeps(room);
+        for (let i = 0; i < creeps.length; i++) {
+            const c = creeps[i];
+            if (c.memory.sourceId) {
+                assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
+            }
+        }
+        _sourceAssignments[room.name] = assignments;
+    }
+
+    const assignments = _sourceAssignments[room.name];
 
     // 最も割り当てが少ないソースを選択
     let bestSource = null;
     let minAssigned = Infinity;
-    for (const src of sources) {
+    for (let i = 0; i < sources.length; i++) {
+        const src = sources[i];
         const count = assignments[src.id] || 0;
         if (count < minAssigned) {
             minAssigned = count;
@@ -410,6 +425,8 @@ function assignSource(creep, room) {
 
     if (bestSource) {
         creep.memory.sourceId = bestSource.id;
+        // ⚡ PERFORMANCE: Update cache for immediate O(1) consistency in the same tick.
+        assignments[bestSource.id] = (assignments[bestSource.id] || 0) + 1;
     }
     return bestSource;
 }

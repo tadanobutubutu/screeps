@@ -89,3 +89,7 @@ We hoisted the retrieval of construction sites outside the loop using `cache.get
 - Replaced `room.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_RAMPART } })` with `cache.getMyStructures(room, STRUCTURE_RAMPART)` in `_getPatrolPoints` within `src/roles/defender.js`.
 - Impact: Reduces unnecessary engine queries and filter iterations on every defender tick.
 - Benchmark: 232ms -> 18ms per 10k iterations (~92% improvement).
+
+## 2026-05-23 - [Screeps Object Caching Anti-pattern]
+**Learning:** Screeps engine re-instantiates all game objects (Creeps, Structures, etc.) every tick. Storing these objects in a persistent global or Memory cache across ticks leads to stale references and `ERR_INVALID_TARGET` errors.
+**Action:** Only cache primitive IDs or use volatile per-tick caches for calculations involving game objects. For cross-tick persistence, store only the `id` string and resolve it using `Game.getObjectById(id)`.

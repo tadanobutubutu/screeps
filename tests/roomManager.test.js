@@ -185,7 +185,8 @@ describe('roomManager', () => {
       const roomWithoutController = {
         name: 'W1N2',
         energyAvailable: 0,
-        energyCapacityAvailable: 0
+        energyCapacityAvailable: 0,
+        find: jest.fn().mockReturnValue([])
       }
 
       const stats = roomManager.getStats(roomWithoutController)

@@ -2,9 +2,9 @@
 
 ## Performance Learnings
 
-- **Avoid Uncached Structure Queries:** `room.find(FIND_STRUCTURES)` runs $O(N)$ engine-level logic and allocates a new Proxy-to-Array array for each call. We should prefer using cached wrappers like `cache.getStructures(room).filter(...)` where `cache` retains the `room.find()` result per tick to save CPU, particularly in tight loops or idle ticks.
-- **Use Dedicated Mocks for Tests:** When porting a module to `cache.getStructures`, ensure any tests (e.g., `tests/src.roles.builder.test.js`) are updated to use `mockCache.getStructures.mockReturnValue(...)` instead of `room.find.mockReturnValue(...)`.
-- **Measure Before You Optimize:** Writing a quick `benchmark.js` script mimicking the environment (like Screeps) allows for quick validations and proving performance speedups (e.g. from 247ms -> 111ms for 10,000 iterations).
+* **Avoid Uncached Structure Queries:** `room.find(FIND_STRUCTURES)` runs $O(N)$ engine-level logic and allocates a new Proxy-to-Array array for each call. We should prefer using cached wrappers like `cache.getStructures(room).filter(...)` where `cache` retains the `room.find()` result per tick to save CPU, particularly in tight loops or idle ticks.
+* **Use Dedicated Mocks for Tests:** When porting a module to `cache.getStructures`, ensure any tests (e.g., `tests/src.roles.builder.test.js`) are updated to use `mockCache.getStructures.mockReturnValue(...)` instead of `room.find.mockReturnValue(...)`.
+* **Measure Before You Optimize:** Writing a quick `benchmark.js` script mimicking the environment (like Screeps) allows for quick validations and proving performance speedups (e.g. from 247ms -> 111ms for 10,000 iterations).
 
 **Why it matters:**
 `room.find` in Screeps maps to expensive backend C++ array iteration and proxy array creations. When doing this for structures in multiple rooms or during high-frequency checks like building plans, it consumes a large portion of per-tick CPU limits.
@@ -91,6 +91,5 @@ We hoisted the retrieval of construction sites outside the loop using `cache.get
 - Benchmark: 232ms -> 18ms per 10k iterations (~92% improvement).
 
 ## 2026-05-23 - [Screeps Object Caching Anti-pattern]
-
 **Learning:** Screeps engine re-instantiates all game objects (Creeps, Structures, etc.) every tick. Storing these objects in a persistent global or Memory cache across ticks leads to stale references and `ERR_INVALID_TARGET` errors.
 **Action:** Only cache primitive IDs or use volatile per-tick caches for calculations involving game objects. For cross-tick persistence, store only the `id` string and resolve it using `Game.getObjectById(id)`.

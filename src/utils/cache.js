@@ -369,7 +369,8 @@ function getStorage(room) {
 // ============================================================
 
 // ⚡ PERFORMANCE: Volatile per-tick cache for source assignments.
-let _sourceAssignments = {};
+// Security: Use Object.create(null) to avoid prototype pollution.
+let _sourceAssignments = Object.create(null);
 let _sourceAssignmentsTick = -1;
 
 /**
@@ -393,12 +394,12 @@ function assignSource(creep, room) {
 
     // ⚡ PERFORMANCE: Use per-tick volatile cache to avoid redundant O(N) iterations.
     if (_sourceAssignmentsTick !== Game.time) {
-        _sourceAssignments = {};
+        _sourceAssignments = Object.create(null);
         _sourceAssignmentsTick = Game.time;
     }
 
     if (!_sourceAssignments[room.name]) {
-        const assignments = {};
+        const assignments = Object.create(null);
         const creeps = getMyCreeps(room);
         for (let i = 0; i < creeps.length; i++) {
             const c = creeps[i];

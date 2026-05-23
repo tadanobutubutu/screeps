@@ -92,7 +92,7 @@ describe('src/roles/miner', () => {
     const creep = {
       name: 'miner1',
       memory: { sourceId: 's1' },
-      room: source.room,
+      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
       pos: new RoomPosition(0, 0, 'W0N0'),
       harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
       repair: jest.fn(),
@@ -117,7 +117,7 @@ describe('src/roles/miner', () => {
     const creep = {
       name: 'miner2',
       memory: { sourceId: 's2' },
-      room: source.room,
+      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
       pos: new RoomPosition(0, 0, 'W0N0'),
       harvest: jest.fn().mockReturnValue(global.OK),
       drop: jest.fn(),
@@ -132,7 +132,7 @@ describe('src/roles/miner', () => {
   })
 
   test('ソース割り当て状況を集計する', () => {
-    const room = { name: 'W0N0' }
+    const room = { name: 'W0N0', find: jest.fn() }
     mockCache.getSources.mockReturnValue([
       { id: 'a', room },
       { id: 'b', room }
@@ -166,7 +166,7 @@ describe('src/roles/miner', () => {
     const creep = {
       name: 'miner3',
       memory: { sourceId: 's3' },
-      room: source.room,
+      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
       pos: { isEqualTo: jest.fn().mockReturnValue(true) },
       harvest: jest.fn().mockReturnValue(global.OK),
       repair: jest.fn(),
@@ -198,7 +198,7 @@ describe('src/roles/miner', () => {
     const creep = {
       name: 'miner4',
       memory: {},
-      room: sourceA.room,
+      room: { ...sourceA.room, find: jest.fn().mockReturnValue([]) },
       pos: new RoomPosition(0, 0, 'W0N0'),
       harvest: jest.fn().mockReturnValue(global.OK),
       drop: jest.fn(),
@@ -241,7 +241,7 @@ describe('src/roles/miner', () => {
     const creep = {
       name: 'error_miner',
       memory: { sourceId: 's_err' },
-      room: source.room,
+      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
       pos: {
         isEqualTo: jest.fn().mockImplementation(() => {
           throw error

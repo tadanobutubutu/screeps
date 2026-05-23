@@ -5,10 +5,14 @@
 global.Game = { time: 100 };
 global.Memory = {};
 
-jest.mock('../src/constants', () => ({
-    LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 },
-    DEFAULT_LOG_LEVEL: 1,
-}), { virtual: true });
+jest.mock(
+    '../src/constants',
+    () => ({
+        LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 },
+        DEFAULT_LOG_LEVEL: 1,
+    }),
+    { virtual: true }
+);
 
 const logger = require('../src/utils/logger');
 const { LOG_LEVEL } = require('../src/constants');

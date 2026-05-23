@@ -12,3 +12,8 @@
 **Vulnerability:** Cache Starvation and CPU Exhaustion DoS.
 **Learning:** If a cache simply stops accepting new entries when full, it can enter a permanent state of cache misses for any new operations. In a resource-constrained environment like Screeps, this leads to repeated expensive re-computations (CPU exhaustion).
 **Prevention:** Implement a unified eviction policy (like FIFO) across all caching modules. Always attempt to cleanup expired entries before evicting. Ensure cache retrieval is robust against corrupted or non-numeric expiration values.
+
+## 2026-05-23 - Log Level Bypass via Memory
+**Vulnerability:** Log Level Bypass (Missing Input Validation).
+**Learning:** Persistent state stored in `Memory` can be tampered with or become malformed. Direct assignment from `Memory` to internal configuration variables without validation can bypass security controls (e.g., log level gating).
+**Prevention:** Always validate values read from `Memory` before using them to set internal state. Use dedicated setter functions with type and boundary checks.

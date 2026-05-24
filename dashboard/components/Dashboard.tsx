@@ -27,6 +27,8 @@ export default function Dashboard() {
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
     const [roomCopied, setRoomCopied] = useState(false);
+    const [summaryCopied, setSummaryCopied] = useState(false);
+    const [isSummaryFocused, setIsSummaryFocused] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
     const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
@@ -120,6 +122,35 @@ export default function Dashboard() {
             console.error('Failed to copy rooms:', err);
         }
     }, [stats]);
+
+    const handleCopySummary = useCallback(async () => {
+        if (!stats?.gcl) return;
+        try {
+            const xpPerHour = getXpPerHour();
+            const timeToLevel = getTimeToLevel();
+            const formattedXpPerHour = xpPerHour
+                ? xpPerHour >= 1000000
+                    ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
+                    : `${(xpPerHour / 1000).toFixed(1)}K XP/h`
+                : '';
+
+            const summary = [
+                `🐛 GCL ${stats.gcl.level} (${gclPercent.toFixed(2)}%)`,
+                roomCount > 0 ? `🏘️ ${roomCount} Rooms` : '',
+                stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
+                formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
+                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level` : '',
+            ]
+                .filter(Boolean)
+                .join(' | ');
+
+            await navigator.clipboard.writeText(summary);
+            setSummaryCopied(true);
+            setTimeout(() => setSummaryCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy summary:', err);
+        }
+    }, [stats, gclPercent, roomCount, getXpPerHour, getTimeToLevel]);
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
@@ -223,12 +254,18 @@ export default function Dashboard() {
             const key = e.key.toLowerCase();
             const isR = key === 'r';
             const isC = key === 'c';
+            const isS = key === 's';
             const isL = key === 'l';
             const isK = key === 'k';
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL || isK || isEsc) && !hasModifier && !loading && !isRefreshing) {
+            if (
+                (isR || isC || isS || isL || isK || isEsc) &&
+                !hasModifier &&
+                !loading &&
+                !isRefreshing
+            ) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -243,10 +280,11 @@ export default function Dashboard() {
                         return;
                     }
 
-                    if (isR || isC || isL || isK) {
+                    if (isR || isC || isS || isL || isK) {
                         e.preventDefault();
                         if (isR) fetchStats(true);
                         if (isC) handleCopy();
+                        if (isS) handleCopySummary();
                         if (isL) handleResetSecret();
                         if (isK) handleCopyRooms();
                     }
@@ -258,7 +296,9 @@ export default function Dashboard() {
     }, [
         fetchStats,
         handleCopy,
+        handleCopySummary,
         handleCopyRooms,
+        handleCopySummary,
         loading,
         isRefreshing,
         stats,
@@ -317,6 +357,7 @@ export default function Dashboard() {
         updated,
         leveledUp,
         copied,
+        summaryCopied,
         stats,
         timeAgo,
         error,
@@ -367,6 +408,42 @@ export default function Dashboard() {
                         justifyContent: 'flex-end',
                     }}
                 >
+                    {stats && (
+                        <button
+                            onClick={handleCopySummary}
+                            onFocus={() => setIsSummaryFocused(true)}
+                            onBlur={() => {
+                                setIsSummaryFocused(false);
+                            }}
+                            className="interactive-hint"
+                            style={{
+                                fontSize: '0.9rem',
+                                color: summaryCopied ? '#fff' : '#575757',
+                                background: summaryCopied ? '#1e7e34' : 'transparent',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '0.2rem 0.4rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
+                                boxShadow: isSummaryFocused
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                                    : 'none',
+                                outline: 'none',
+                            }}
+                            aria-label={summaryCopied ? 'Summary copied!' : 'Copy Summary'}
+                            aria-keyshortcuts="s"
+                            title={summaryCopied ? 'Copied!' : 'Click to copy summary (S)'}
+                        >
+                            <span role="img" aria-label="Summary">
+                                {summaryCopied ? '✅' : '📋'}
+                            </span>{' '}
+                            {summaryCopied ? 'Copied!' : 'Summary'}
+                        </button>
+                    )}
                     {stats?.rooms && (
                         <button
                             onClick={handleCopyRooms}
@@ -410,7 +487,10 @@ export default function Dashboard() {
                                         color: roomDelta > 0 ? '#1e7e34' : '#d32f2f',
                                         marginLeft: '0.25rem',
                                         fontWeight: 'bold',
-                                        animation: roomDelta > 0 ? 'bounce 0.6s ease' : 'none',
+                                        animation:
+                                            roomDelta > 0
+                                                ? 'bounce 0.6s ease'
+                                                : 'shake 0.3s infinite',
                                     }}
                                     aria-label={
                                         roomDelta > 0
@@ -868,18 +948,24 @@ export default function Dashboard() {
                                                 ⚡
                                             </span>{' '}
                                             Power: {stats.power.toLocaleString()}
-                                            {powerDelta > 0 && (
+                                            {powerDelta !== 0 && (
                                                 <span
                                                     style={{
                                                         fontSize: '0.8rem',
-                                                        color: '#1e7e34',
+                                                        color:
+                                                            powerDelta > 0 ? '#1e7e34' : '#d32f2f',
                                                         marginLeft: '0.25rem',
                                                         fontWeight: 'bold',
+                                                        animation:
+                                                            powerDelta > 0
+                                                                ? 'bounce 0.6s ease'
+                                                                : 'shake 0.3s infinite',
                                                     }}
-                                                    aria-label={`Increased by ${powerDelta.toLocaleString()}`}
-                                                    title={`Increased by ${powerDelta.toLocaleString()}`}
+                                                    aria-label={`${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()}`}
+                                                    title={`${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()}`}
                                                 >
-                                                    (+{powerDelta.toLocaleString()})
+                                                    ({powerDelta > 0 ? '+' : ''}
+                                                    {powerDelta.toLocaleString()})
                                                 </span>
                                             )}
                                         </span>
@@ -905,6 +991,10 @@ export default function Dashboard() {
                                                         color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
                                                         marginLeft: '0.25rem',
                                                         fontWeight: 'bold',
+                                                        animation:
+                                                            cpuDelta > 0
+                                                                ? 'shake 0.3s infinite'
+                                                                : 'bounce 0.6s ease',
                                                     }}
                                                     aria-label={
                                                         cpuDelta > 0
@@ -953,17 +1043,22 @@ export default function Dashboard() {
                                     >
                                         {gclPercent.toFixed(2)}%
                                     </span>
-                                    {gclDelta > 0 && (
+                                    {gclDelta !== 0 && (
                                         <span
                                             style={{
                                                 fontSize: '0.8rem',
-                                                color: '#1e7e34',
+                                                color: gclDelta > 0 ? '#1e7e34' : '#d32f2f',
                                                 fontWeight: 'bold',
+                                                animation:
+                                                    gclDelta > 0
+                                                        ? 'bounce 0.6s ease'
+                                                        : 'shake 0.3s infinite',
                                             }}
                                             title="Progress gained since last update"
-                                            aria-label={`Increased by ${gclDelta.toFixed(2)}%`}
+                                            aria-label={`${gclDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(gclDelta).toFixed(2)}%`}
                                         >
-                                            (+{gclDelta.toFixed(2)}%)
+                                            ({gclDelta > 0 ? '+' : ''}
+                                            {gclDelta.toFixed(2)}%)
                                         </span>
                                     )}
                                 </div>
@@ -1085,37 +1180,70 @@ export default function Dashboard() {
                             borderRadius: '4px',
                         }}
                     >
-                        <button
-                            onClick={handleCopy}
-                            onFocus={() => setIsCopyFocused(true)}
-                            onBlur={() => setIsCopyFocused(false)}
-                            aria-label={copied ? 'Stats copied' : 'Copy stats as JSON'}
-                            aria-keyshortcuts="c"
-                            title={copied ? 'Copied!' : 'Copy to clipboard (C)'}
+                        <div
                             style={{
                                 position: 'absolute',
                                 top: '0.5rem',
                                 right: '0.5rem',
-                                padding: '0.25rem 0.5rem',
-                                fontSize: '0.75rem',
-                                // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                                background: copied ? '#1e7e34' : '#575757',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                userSelect: 'none',
+                                display: 'flex',
+                                gap: '0.5rem',
                                 zIndex: 1,
-                                outline: 'none',
-                                boxShadow: isCopyFocused
-                                    ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
-                                    : 'none',
-                                animation: copied ? 'bounce 0.6s ease' : 'none',
                             }}
                         >
-                            {copied ? '✅ Copied!' : '📋 Copy JSON'}
-                        </button>
+                            <button
+                                onClick={handleCopySummary}
+                                onFocus={() => setIsSummaryFocused(true)}
+                                onBlur={() => setIsSummaryFocused(false)}
+                                aria-label={summaryCopied ? 'Summary copied' : 'Copy summary'}
+                                aria-keyshortcuts="s"
+                                title={summaryCopied ? 'Copied!' : 'Copy Summary (S)'}
+                                style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.75rem',
+                                    background: summaryCopied ? '#1e7e34' : '#575757',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    userSelect: 'none',
+                                    outline: 'none',
+                                    boxShadow: isSummaryFocused
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        : 'none',
+                                    animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
+                                }}
+                            >
+                                {summaryCopied ? '✅ Copied!' : '📝 Copy Summary'}
+                            </button>
+                            <button
+                                onClick={handleCopy}
+                                onFocus={() => setIsCopyFocused(true)}
+                                onBlur={() => setIsCopyFocused(false)}
+                                aria-label={copied ? 'Stats copied' : 'Copy stats as JSON'}
+                                aria-keyshortcuts="c"
+                                title={copied ? 'Copied!' : 'Copy to clipboard (C)'}
+                                style={{
+                                    padding: '0.25rem 0.5rem',
+                                    fontSize: '0.75rem',
+                                    // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
+                                    background: copied ? '#1e7e34' : '#575757',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    userSelect: 'none',
+                                    outline: 'none',
+                                    boxShadow: isCopyFocused
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        : 'none',
+                                    animation: copied ? 'bounce 0.6s ease' : 'none',
+                                }}
+                            >
+                                {copied ? '✅ Copied!' : '📋 Copy JSON'}
+                            </button>
+                        </div>
                         <pre
                             aria-label="Screeps statistics JSON. Press 'C' to copy."
                             className="interactive-hint"
@@ -1238,11 +1366,25 @@ export default function Dashboard() {
                             icon: copied ? '✓' : 'C',
                         },
                         {
+                            k: 'S',
+                            a: 'Copy summary',
+                            state: summaryCopied ? 's' : '',
+                            onClick: () => handleCopySummary(),
+                            icon: summaryCopied ? '✓' : 'S',
+                        },
+                        {
                             k: 'K',
                             a: 'Copy room list',
                             state: roomCopied ? 's' : '',
                             onClick: () => handleCopyRooms(),
                             icon: roomCopied ? '✓' : 'K',
+                        },
+                        {
+                            k: 'S',
+                            a: 'Copy summary',
+                            state: summaryCopied ? 's' : '',
+                            onClick: () => handleCopySummary(),
+                            icon: summaryCopied ? '✓' : 'S',
                         },
                         {
                             k: 'L',

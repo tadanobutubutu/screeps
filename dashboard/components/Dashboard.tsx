@@ -27,7 +27,6 @@ export default function Dashboard() {
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
     const [roomCopied, setRoomCopied] = useState(false);
-    const [summaryCopied, setSummaryCopied] = useState(false);
     const [isSummaryFocused, setIsSummaryFocused] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
@@ -1340,6 +1339,13 @@ export default function Dashboard() {
                             state: roomCopied ? 's' : '',
                             onClick: () => handleCopyRooms(),
                             icon: roomCopied ? '✓' : 'K',
+                        },
+                        {
+                            k: 'S',
+                            a: 'Copy summary',
+                            state: summaryCopied ? 's' : '',
+                            onClick: () => handleCopySummary(),
+                            icon: summaryCopied ? '✓' : 'S',
                         },
                         {
                             k: 'L',

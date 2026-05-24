@@ -30,11 +30,15 @@ jobs:
                   name: Run Linter
                   command: pnpm run lint
             # Timing-Based Test Splitting によるインテリジェントなテスト並列実行
+            # ※ CircleCI は過去の実行時間に基づいてテストを最適に自動分割します。
+            # ※ テスト失敗時は CircleCI UI から "Rerun Job with SSH" を選択することで、
+            #    GitHub Actions にはないコンテナへの直接SSHデバッグが可能です。
             - run:
                   name: Run Tests with Timing-Based Splitting
                   command: |
-                      # テストファイルのリストを取得し、CircleCIが過去の実行時間に基づいて自動分割
-                      TEST_FILES=$(circleci tests glob "tests/**/*.test.js" | circleci tests split --split-by=timings)
+                      # テストファイルのリストを取得し、過去の実行時間に基づいて自動分割
+                      # 改行区切りをスペース区切りに変換して Jest に渡す
+                      TEST_FILES=$(circleci tests glob "tests/**/*.test.js" | circleci tests split --split-by=timings | tr '\n' ' ')
 
                       if [ -z "$TEST_FILES" ]; then
                         echo "このコンテナに割り当てられたテストファイルはありません。"

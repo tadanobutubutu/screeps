@@ -377,7 +377,9 @@ function resetStats() {
  */
 function init() {
     if (Memory.logLevel !== undefined && Memory.logLevel !== _level) {
-        _level = Memory.logLevel;
+        // Security: Use setLevel for validation instead of direct assignment to prevent level bypasses
+        // セキュリティ: レベルのバイパスを防ぐため、直接代入せず検証ロジックを含むsetLevelを使用します
+        setLevel(Memory.logLevel);
     }
 }
 

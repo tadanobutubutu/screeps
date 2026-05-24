@@ -1,0 +1,66 @@
+version: 2.1
+
+jobs:
+    test_parallel:
+        docker:
+            - image: cimg/node:24.16.0
+        parallelism: 2
+        steps:
+            - checkout
+            # 依存関係のキャッシュを復元
+            - restore_cache:
+                  keys:
+                      - v1-deps-{{ checksum "pnpm-lock.yaml" }}
+                      - v1-deps-
+            # pnpm のインストールと依存関係のセットアップ
+            - run:
+                  name: Install pnpm
+                  command: npm install -g pnpm
+            - run:
+                  name: Install Dependencies
+                  command: pnpm install --frozen-lockfile
+            # 依存関係のキャッシュを保存
+            - save_cache:
+                  key: v1-deps-{{ checksum "pnpm-lock.yaml" }}
+                  paths:
+                      - ~/.local/share/pnpm/store
+                      - node_modules
+            # Linterの実行
+            - run:
+                  name: Run Linter
+                  command: pnpm run lint
+            # Timing-Based Test Splitting によるインテリジェントなテスト並列実行
+            - run:
+                  name: Run Tests with Timing-Based Splitting
+                  command: |
+                      # テストファイルのリストを取得し、CircleCIが過去の実行時間に基づいて自動分割
+                      TEST_FILES=$(circleci tests glob "tests/**/*.test.js" | circleci tests split --split-by=timings)
+
+                      if [ -z "$TEST_FILES" ]; then
+                        echo "このコンテナに割り当てられたテストファイルはありません。"
+                        exit 0
+                      fi
+
+                      echo "=== このコンテナで実行するテストファイル ==="
+                      echo "$TEST_FILES"
+                      echo "=========================================="
+
+                      # 各スペース区切りのテストファイルに対して Jest を実行
+                      # JUnitレポートを出力し、CircleCIにテスト時間を学習させる
+                      pnpm jest $TEST_FILES --reporters=default --reporters=jest-junit
+                  environment:
+                      JEST_JUNIT_OUTPUT_DIR: ./test-results/jest
+                      JEST_JUNIT_OUTPUT_NAME: junit.xml
+            # テスト結果（JUnit XML）を保存して、CircleCIにタイミングデータを学習させる
+            - store_test_results:
+                  path: ./test-results
+            # アーティファクトとしてカバレッジデータを保存
+            - store_artifacts:
+                  path: ./coverage
+                  destination: coverage
+
+workflows:
+    version: 2
+    screeps_pipeline:
+        jobs:
+            - test_parallel

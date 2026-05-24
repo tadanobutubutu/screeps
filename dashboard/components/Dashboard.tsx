@@ -255,7 +255,12 @@ export default function Dashboard() {
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL || isK || isS || isEsc) && !hasModifier && !loading && !isRefreshing) {
+            if (
+                (isR || isC || isL || isK || isS || isEsc) &&
+                !hasModifier &&
+                !loading &&
+                !isRefreshing
+            ) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||

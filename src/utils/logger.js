@@ -150,11 +150,14 @@ function _safeStringify(obj, maxLength = 500) {
  * @param {number} level - LOG_LEVEL 定数のいずれか
  */
 function setLevel(level) {
-    // Security: Validate level to prevent bypassing checks with invalid types (e.g., undefined)
-    // セキュリティ：無効な型（undefinedなど）によってチェックがバイパスされるのを防ぐため、レベルを検証します。
-    const numericLevel = Number(level);
+    // Security: Strict validation of level to prevent bypassing checks.
+    // Use parseInt with radix 10 to avoid loose Number() conversions (e.g., null -> 0).
+    // セキュリティ：レベルの厳格な検証を行い、バイパスを防ぎます。
+    // Number() が 0 (DEBUG) に変換してしまう null などの値を避けるため、10進数の parseInt を使用します。
+    const numericLevel = parseInt(level, 10);
     const validLevels = Object.values(LOG_LEVEL);
-    if (Number.isInteger(numericLevel) && validLevels.includes(numericLevel)) {
+
+    if (!isNaN(numericLevel) && validLevels.includes(numericLevel)) {
         _level = numericLevel;
     } else {
         // Fallback to INFO on invalid input
@@ -374,10 +377,14 @@ function resetStats() {
 /**
  * ロガーを初期化する（各ティックの先頭で呼び出す）
  * Memory.logLevel が設定されていればそれを使用する
+ *
+ * Security: Uses setLevel() to ensure input from Memory is validated.
  */
 function init() {
     if (Memory.logLevel !== undefined && Memory.logLevel !== _level) {
-        _level = Memory.logLevel;
+        // Security: Use setLevel to ensure input validation and prevent bypasses
+        // セキュリティ：入力バリデーションを確実に行い、バイパスを防ぐために setLevel を使用します。
+        setLevel(Memory.logLevel);
     }
 }
 

@@ -16,8 +16,8 @@
 **Learning:** If a cache simply stops accepting new entries when full, it can enter a permanent state of cache misses for any new operations. In a resource-constrained environment like Screeps, this leads to repeated expensive re-computations (CPU exhaustion).
 **Prevention:** Implement a unified eviction policy (like FIFO) across all caching modules. Always attempt to cleanup expired entries before evicting. Ensure cache retrieval is robust against corrupted or non-numeric expiration values.
 
-## 2026-05-19 - Log-Level Logic Bypass
+## 2026-05-19 - Log-Level Bypass via Memory Injection
 
-**Vulnerability:** Unvalidated Input / Logic Bypass.
-**Learning:** Directly assigning state from persistent memory (e.g., `Memory.logLevel`) without validation can allow invalid values to bypass logic gates. For example, a negative log level could satisfy `val > LOG_LEVEL.DEBUG`, causing the logger to always output debug info regardless of the intended level.
-**Prevention:** Always use setter functions with validation logic (like `setLevel`) when initializing state from persistent storage or user-controlled input, rather than direct property assignment.
+**Vulnerability:** Log-Level Bypass (Information Leakage / DoS).
+**Learning:** Directly assigning user-controlled values from `Memory` to internal state variables (like `_level`) without validation can bypass security logic if the values are malformed (e.g., negative values, strings, or `null`). In JavaScript, unvalidated values can satisfy or break logic gates (e.g., a negative log level satisfying `val > LOG_LEVEL.DEBUG`, or `undefined > 0` evaluating to `false`), causing the logger to fail open or behave unexpectedly.
+**Prevention:** Always use validated setters (like `setLevel()`) when initializing state from `Memory` or other persistent storage. Ensure setters perform strict type checking and range validation, falling back to safe defaults for any invalid input.

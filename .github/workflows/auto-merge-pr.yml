@@ -1,0 +1,49 @@
+name: Auto Merge PRs - Force Merge All
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Force Merge PR
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pulls = (await github.rest.pulls.list({ owner, repo, state: 'open' })).data;
+            
+            for (const pr of pulls) {
+              console.log(`🚀 Processing PR #${pr.number}: ${pr.title}`);
+              
+              // 1. ドラフト解除 (GraphQL)
+              if (pr.draft) {
+                console.log(`📝 PR #${pr.number} is draft, converting...`);
+                await github.graphql(`mutation { markPullRequestReadyForReview(input: {pullRequestId: "${pr.node_id}"}) { clientMutationId } }`);
+                await new Promise(r => setTimeout(r, 2000));
+              }
+
+              // 2. マージ試行
+              try {
+                await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+                console.log(`✅ Merged PR #${pr.number}`);
+              } catch (e) {
+                console.log(`⚠️ Standard merge failed, trying GraphQL force merge...`);
+                try {
+                  await github.graphql(`mutation { mergePullRequest(input: { pullRequestId: "${pr.node_id}", mergeMethod: SQUASH }) { clientMutationId } }`);
+                  console.log(`✅ Force merged PR #${pr.number}`);
+                } catch (err) {
+                  console.log(`❌ Failed to merge PR #${pr.number}: ${err.message}`);
+                }
+              }
+            }

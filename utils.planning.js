@@ -115,7 +115,8 @@ module.exports = {
 
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
-        const spawn = room.find(FIND_MY_SPAWNS)[0];
+        // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant room.find calls.
+        const spawn = cache.getSpawns(room)[0];
         const sources = cache.getSources(room);
         const controller = room.controller;
 

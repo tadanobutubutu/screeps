@@ -28,8 +28,8 @@ importers:
                 specifier: '>=4.18.1'
                 version: 4.18.1
             posthog-js:
-                specifier: ^1.374.2
-                version: 1.374.2
+                specifier: ^1.376.0
+                version: 1.376.0
         devDependencies:
             '@codecov/rollup-plugin':
                 specifier: ^2.0.1
@@ -1033,16 +1033,16 @@ packages:
             }
         engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-    '@posthog/core@1.29.5':
+    '@posthog/core@1.29.9':
         resolution:
             {
-                integrity: sha512-Jm5AE95EwBRqO6J8+skDufyf5rnEcmOvjYArCKCOzD4mWdH1xGpfcRXj5TEyZII3mD04Kr7pw9aP2ZbAHQGu2A==,
+                integrity: sha512-DjvuIyBZ2Z/gBhtZlITlM2D8PlnMsHSQ1D78dbUYoVsgGguvanpJTobZObjLlFkybyvfZFYkpoJkFNI/2Pw4IQ==,
             }
 
-    '@posthog/types@1.374.2':
+    '@posthog/types@1.376.0':
         resolution:
             {
-                integrity: sha512-ZghQSFMi+HFJNPvPjBoyY/jWQ+q6mSQVtWQxOHMSbBidUZjsyYbxYxBFbHy2qWLNe4mEpX+Wqir2Q4I/4AVvJQ==,
+                integrity: sha512-gbFfxCuZDs/D4QZMwdE+smD1jsuqgGpS6yKGHZZ19foxMy8RYHsU1E47iG1b88n/uN02fAabLibVwuxLtq8juw==,
             }
 
     '@protobufjs/aspromise@1.1.2':
@@ -4020,10 +4020,10 @@ packages:
             }
         engines: { node: '>=8' }
 
-    posthog-js@1.374.2:
+    posthog-js@1.376.0:
         resolution:
             {
-                integrity: sha512-6z1xGlVocd3NmSZlJNFfpedLIHLcejuuQPxvrpHDvtyVI9tN1NPqbM7T7coXw2It6gdZ/nAgDuZkNxfIut+Spw==,
+                integrity: sha512-YGfQ6gSmqmEh287PHjXRDJ9zML3Su1UIt1+xjRy7Yk6yW43Sc7sFK3CpCkLchCGhIA4x6VaqK+LaqB+7+MCo7A==,
             }
 
     preact@10.29.2:
@@ -5530,11 +5530,11 @@ snapshots:
 
     '@pkgr/core@0.2.9': {}
 
-    '@posthog/core@1.29.5':
+    '@posthog/core@1.29.9':
         dependencies:
-            '@posthog/types': 1.374.2
+            '@posthog/types': 1.376.0
 
-    '@posthog/types@1.374.2': {}
+    '@posthog/types@1.376.0': {}
 
     '@protobufjs/aspromise@1.1.2': {}
 
@@ -7345,15 +7345,15 @@ snapshots:
         dependencies:
             find-up: 4.1.0
 
-    posthog-js@1.374.2:
+    posthog-js@1.376.0:
         dependencies:
             '@opentelemetry/api': 1.9.1
             '@opentelemetry/api-logs': 0.208.0
             '@opentelemetry/exporter-logs-otlp-http': 0.208.0(@opentelemetry/api@1.9.1)
             '@opentelemetry/resources': 2.7.1(@opentelemetry/api@1.9.1)
             '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.9.1)
-            '@posthog/core': 1.29.5
-            '@posthog/types': 1.374.2
+            '@posthog/core': 1.29.9
+            '@posthog/types': 1.376.0
             core-js: 3.49.0
             dompurify: 3.4.5
             fflate: 0.4.8

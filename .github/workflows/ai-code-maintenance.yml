@@ -1,0 +1,354 @@
+name: AI Code Maintenance
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  issues:
+    types: [opened, labeled]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  scheduled-maintenance:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Scheduled Code Maintenance
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Detect Errors
+        id: errors
+        run: |
+          if [ -f "DETECTED_ERRORS.json" ]; then
+            ERROR_COUNT=$(grep -o '"level": "error"' DETECTED_ERRORS.json | wc -l || echo 0)
+            echo "has_errors=true" >> $GITHUB_OUTPUT
+            echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
+          else
+            echo "has_errors=false" >> $GITHUB_OUTPUT
+            echo "error_count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Apply Rule-Based Fixes
+        id: rule_fixes
+        run: |
+          node -e "
+          const fs = require('fs');
+
+          const improvements = [
+            { name: 'Remove console.log', pattern: /console\.log\\([^)]*\\);?\\s*/g, replace: '' },
+            { name: 'Replace var with const', pattern: /\\bvar\\s+/g, replace: 'const ' },
+            { name: 'Optimize Game.creeps loop', pattern: /for\\s*\\(\\s*const\\s+(\\w+)\\s+in\\s+Game\\.creeps\\s*\\)\\s*{/g, replace: 'for (const creep of Object.values(Game.creeps)) {' },
+            {
+              name: 'Add memory cleanup',
+              pattern: /(module\\.exports\\.loop\\s*=\\s*function\\s*\\(\\s*\\)\\s*{)/,
+              replace: '\\$1\\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {\\n        for (const name in Memory.creeps) {\\n            if (!Game.creeps[name]) { delete Memory.creeps[name]; }\\n        }\\n        Memory.lastCleanup = Game.time;\\n    }\\n'
+            },
+            { name: 'Strict undefined check', pattern: /if\\s*\\(\\s*!\\s*(\\w+)\\s*\\)/g, replace: 'if (\\$1 === undefined || \\$1 === null)' }
+          ];
+
+          const files = fs.readdirSync('.').filter(f => f.endsWith('.js') && !f.includes('node_modules'));
+          let changedFiles = [];
+          let appliedRules = [];
+
+          files.forEach(file => {
+            let content = fs.readFileSync(file, 'utf8');
+            let original = content;
+            let fileRules = [];
+            improvements.forEach(imp => {
+              const before = content;
+              content = content.replace(imp.pattern, imp.replace);
+              if (content !== before) fileRules.push(imp.name);
+            });
+            if (content !== original) {
+              fs.writeFileSync(file, content);
+              changedFiles.push(file);
+              appliedRules.push(...fileRules);
+            }
+          });
+
+          if (changedFiles.length > 0) {
+            const summary = { files: changedFiles, rules: [...new Set(appliedRules)], timestamp: new Date().toISOString() };
+            fs.writeFileSync('last-rule-improvement.json', JSON.stringify(summary, null, 2));
+            console.log('Improved: ' + changedFiles.length + ' files');
+          } else {
+            console.log('No rule-based changes needed');
+            fs.writeFileSync('last-rule-improvement.json', JSON.stringify({ files: [], rules: [], timestamp: new Date().toISOString() }));
+          }
+          "
+
+      - name: AI Fix Errors (OpenRouter)
+        if: steps.errors.outputs.has_errors == 'true'
+        id: ai_fix
+        env:
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          FILE_CONTENTS=""
+          while IFS= read -r f; do
+            if [ -f "$f" ]; then
+              FILE_CONTENTS+="\n### $f\n$(head -200 "$f")\n---"
+            fi
+          done < <(find . -maxdepth 2 -name '*.js' ! -path './.git/*' ! -path './node_modules/*' ! -name '*.test.js' | sort | head -20)
+
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Title: screeps-ai-maintenance" \
+            -d "$(jq -n \
+              --arg errors "$(head -100 DETECTED_ERRORS.json)" \
+              --arg files "$FILE_CONTENTS" \
+              '{
+                model: "anthropic/claude-3.5-sonnet",
+                max_tokens: 8000,
+                messages: [
+                  {
+                    role: "system",
+                    content: "You are a Screeps JavaScript developer. Fix the errors in the codebase. Respond with ONLY valid JSON: {\"fixes\": [{\"file\": \"name.js\", \"description\": \"what was fixed\", \"content\": \"FULL file content\"}]}"
+                  },
+                  {
+                    role: "user",
+                    content: ("Fix these errors:\n" + $errors + "\n\nSource files:\n" + $files)
+                  }
+                ]
+              }')")
+
+          echo "$RESPONSE" > /tmp/ai_response.json
+          CONTENT=$(cat /tmp/ai_response.json | jq -r '.choices[0].message.content // empty' 2>/dev/null)
+          if [ -n "$CONTENT" ]; then
+            echo "$CONTENT" > /tmp/ai_fixes.json
+            FIX_COUNT=$(echo "$CONTENT" | jq '.fixes | length' 2>/dev/null || echo 0)
+            echo "ai_fix_count=$FIX_COUNT" >> $GITHUB_OUTPUT
+            echo "AI generated $FIX_COUNT fixes"
+
+            for i in $(seq 0 $((FIX_COUNT - 1))); do
+              FILE=$(echo "$CONTENT" | jq -r ".fixes[$i].file")
+              DATA=$(echo "$CONTENT" | jq -r ".fixes[$i].content")
+              if [ -n "$FILE" ] && [ "$FILE" != "null" ]; then
+                mkdir -p "$(dirname "$FILE")"
+                echo "$DATA" > "$FILE"
+                echo "Fixed: $FILE"
+              fi
+            done
+          else
+            echo "ai_fix_count=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create PR
+        if: always()
+        id: pr
+        run: |
+          RULE_CHANGES=$(cat last-rule-improvement.json 2>/dev/null | jq -r '.files | length' || echo 0)
+          AI_FIXES=${{ steps.ai_fix.outputs.ai_fix_count || '0' }}
+
+          if [ "$RULE_CHANGES" = "0" ] && [ "${AI_FIXES}" = "0" ]; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          BRANCH="ai-maintenance-$(date +%Y%m%d-%H%M%S)"
+          git config user.name 'AI Maintenance Bot'
+          git config user.email 'ai-maintenance@screeps.local'
+          git checkout -b "$BRANCH"
+          git add -A
+          git diff --staged --quiet && { echo "Nothing to commit"; exit 0; }
+
+          RULES=""
+          if [ -f last-rule-improvement.json ]; then
+            RULES=$(jq -r '.rules | join(", ")' last-rule-improvement.json 2>/dev/null || echo "rule-based fixes")
+          fi
+
+          git commit -m "AI maintenance: rule-based fixes${RULES:+ ($RULES)}${AI_FIXES:+ + $AI_FIXES AI error fixes}"
+          git push origin "$BRANCH" || { echo "::warning::Push failed"; exit 0; }
+
+          BODY="## AI Code Maintenance\n\n"
+          if [ "$RULE_CHANGES" != "0" ]; then
+            BODY+="### Rule-Based Fixes\n- Applied: ${RULES}\n- Files: $(jq -r '.files | join(", ")' last-rule-improvement.json 2>/dev/null)\n\n"
+          fi
+          if [ "${AI_FIXES}" != "0" ]; then
+            BODY+="### AI Error Fixes\n- Fixes applied: ${AI_FIXES}\n- Source: DETECTED_ERRORS.json\n\n"
+          fi
+
+          gh pr create \
+            --title "AI maintenance: $(date +%Y-%m-%d)${RULES:+ - $RULES}${AI_FIXES:+ + AI fixes}" \
+            --body "$BODY" \
+            --base main \
+            --head "$BRANCH" || echo "::warning::PR creation failed - GitHub Actions may not have permission to create PRs. Branch pushed for manual PR creation."
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  issue-fix:
+    if: |
+      github.event_name == 'issues' && (
+        github.event.action == 'opened' || github.event.action == 'labeled'
+      ) && (
+        contains(github.event.issue.labels.*.name, 'auto-fix') ||
+        contains(github.event.issue.labels.*.name, 'sonarcloud') ||
+        contains(github.event.issue.labels.*.name, 'coverage')
+      )
+    runs-on: ubuntu-latest
+    name: Issue-Triggered Fix
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Get Issue Details
+        id: issue
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.issue.number
+            });
+            const labels = issue.labels.map(l => l.name);
+            core.setOutput('issue_number', issue.number);
+            core.setOutput('issue_body', issue.body || '');
+            core.setOutput('is_sonar', labels.includes('sonarcloud').toString());
+            core.setOutput('is_coverage', labels.includes('coverage').toString());
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Collect Source Files
+        id: files
+        run: |
+          JS_FILES=$(find . -maxdepth 2 -name '*.js' \
+            ! -path './.git/*' \
+            ! -path './node_modules/*' \
+            ! -name '*.test.js' \
+            ! -name '*.spec.js' \
+            | sort | head -30)
+          echo "js_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$JS_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Call OpenRouter API
+        id: fix
+        env:
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          FILE_CONTENTS=""
+          while IFS= read -r f; do
+            if [ -f "$f" ]; then
+              FILE_CONTENTS+="\n### $f\n$(head -200 "$f")\n---"
+            fi
+          done < <(echo "${{ steps.files.outputs.js_files }}")
+
+          IS_SONAR='${{ steps.issue.outputs.is_sonar }}'
+          IS_COVERAGE='${{ steps.issue.outputs.is_coverage }}'
+
+          if [ "$IS_SONAR" = "true" ]; then
+            SYSTEM_PROMPT="You are fixing SonarCloud code quality issues in a Screeps JavaScript project. Respond with ONLY valid JSON: {\"fixes\": [{\"file\": \"name.js\", \"description\": \"what was fixed\", \"content\": \"FULL file content\"}]}. Fix issues like: optional chaining, cognitive complexity, unnecessary escapes. Do NOT change GitHub Actions versions."
+            USER_PROMPT="Fix these SonarCloud issues:\n\n${{ steps.issue.outputs.issue_body }}\n\nSource files:\n$FILE_CONTENTS"
+          elif [ "$IS_COVERAGE" = "true" ]; then
+            SYSTEM_PROMPT="You are writing Jest unit tests for Screeps JavaScript code. Respond with ONLY valid JSON: {\"fixes\": [{\"file\": \"name.test.js\", \"description\": \"tests added\", \"content\": \"FULL test file content\"}]}. Mock Screeps Game/Memory/Room objects. Place tests in __tests__/ or as *.test.js."
+            USER_PROMPT="Write Jest tests to improve coverage:\n\n${{ steps.issue.outputs.issue_body }}\n\nSource files:\n$FILE_CONTENTS"
+          else
+            SYSTEM_PROMPT="You are a Screeps JavaScript developer fixing bugs. Respond with ONLY valid JSON: {\"fixes\": [{\"file\": \"name.js\", \"description\": \"what was fixed\", \"content\": \"FULL file content\"}]}. Add null checks, fix references, improve error handling."
+            USER_PROMPT="Fix the issue described:\n\n${{ steps.issue.outputs.issue_body }}\n\nSource files:\n$FILE_CONTENTS"
+          fi
+
+          RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+            -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "X-Title: screeps-issue-fix" \
+            -d "$(jq -n \
+              --arg system "$SYSTEM_PROMPT" \
+              --arg user "$USER_PROMPT" \
+              '{
+                model: "anthropic/claude-3.5-sonnet",
+                max_tokens: 8000,
+                messages: [
+                  { role: "system", content: $system },
+                  { role: "user", content: $user }
+                ]
+              }')")
+
+          echo "$RESPONSE" > /tmp/issue_response.json
+          CONTENT=$(cat /tmp/issue_response.json | jq -r '.choices[0].message.content // empty' 2>/dev/null)
+
+          if [ -n "$CONTENT" ]; then
+            echo "$CONTENT" > /tmp/issue_fixes.json
+            FIX_COUNT=$(echo "$CONTENT" | jq '.fixes | length' 2>/dev/null || echo 0)
+            echo "fix_count=$FIX_COUNT" >> $GITHUB_OUTPUT
+
+            for i in $(seq 0 $((FIX_COUNT - 1))); do
+              FILE=$(echo "$CONTENT" | jq -r ".fixes[$i].file")
+              DATA=$(echo "$CONTENT" | jq -r ".fixes[$i].content")
+              DESC=$(echo "$CONTENT" | jq -r ".fixes[$i].description")
+              if [ -n "$FILE" ] && [ "$FILE" != "null" ]; then
+                mkdir -p "$(dirname "$FILE")"
+                echo "$DATA" > "$FILE"
+                echo "Fixed: $FILE ($DESC)"
+              fi
+            done
+          else
+            echo "fix_count=0" >> $GITHUB_OUTPUT
+            echo "No response from API"
+          fi
+
+      - name: Create Branch and PR
+        if: steps.fix.outputs.fix_count != '0'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const issueNumber = '${{ steps.issue.outputs.issue_number }}';
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+            const branchName = `auto-fix/issue-${issueNumber}-${timestamp}`;
+
+            execSync('git config user.name \"AI Maintenance Bot\"');
+            execSync('git config user.email \"ai-maintenance@screeps.local\"');
+            execSync(`git checkout -b ${branchName}`);
+            execSync('git add -A');
+
+            const status = execSync('git status --porcelain').toString();
+            if (!status.trim()) {
+              console.log('No changes to commit');
+              return;
+            }
+
+            execSync(`git commit -m \"Auto-fix: Issue #${issueNumber}\\n\\nGenerated by AI Code Maintenance\\nCloses #${issueNumber}\"`);
+            execSync(`git push origin ${branchName}`);
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Auto-fix: Issue #${issueNumber}`,
+              body: `## AI-Powered Fix\\n\\nCloses #${issueNumber}\\n\\n### Changes\\n- Fixes generated by OpenRouter (claude-3.5-sonnet)\\n- Auto-created by AI Code Maintenance workflow\\n\\n### Review\\n- [ ] Fixes are correct\\n- [ ] No breaking changes\\n- [ ] Tests pass`,
+              head: branchName,
+              base: 'main',
+              draft: false
+            });
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              labels: ['auto-fix', 'automated']
+            }).catch(e => console.log('Label add failed:', e.message));
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: parseInt(issueNumber),
+              body: `Auto-fix PR created: ${pr.html_url}\\n\\nReview and merge if the fixes look correct.`
+            });
+
+            console.log('PR created: ' + pr.html_url);
+          github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -27,6 +27,8 @@ export default function Dashboard() {
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
     const [roomCopied, setRoomCopied] = useState(false);
+    const [summaryCopied, setSummaryCopied] = useState(false);
+    const [isSummaryFocused, setIsSummaryFocused] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
     const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
@@ -120,6 +122,30 @@ export default function Dashboard() {
             console.error('Failed to copy rooms:', err);
         }
     }, [stats]);
+
+    const handleCopySummary = useCallback(async () => {
+        if (!stats) return;
+        try {
+            const xpPerHour = getXpPerHour();
+            const timeToLevel = getTimeToLevel();
+
+            const summaryParts = [
+                `GCL: ${stats.gcl?.level} (${gclPercent.toFixed(2)}%)`,
+                `Rooms: ${roomCount}`,
+                stats.power !== undefined ? `Power: ${stats.power.toLocaleString()}` : null,
+                xpPerHour
+                    ? `Velocity: ${xpPerHour >= 1000000 ? (xpPerHour / 1000000).toFixed(1) + 'M' : xpPerHour >= 1000 ? (xpPerHour / 1000).toFixed(1) + 'K' : Math.round(xpPerHour)} XP/h`
+                    : null,
+                timeToLevel ? `ETA: ${formatDuration(timeToLevel)}` : null,
+            ].filter(Boolean);
+
+            await navigator.clipboard.writeText(summaryParts.join(' | '));
+            setSummaryCopied(true);
+            setTimeout(() => setSummaryCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy summary:', err);
+        }
+    }, [stats, gclPercent, roomCount, getXpPerHour, getTimeToLevel]);
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
@@ -225,10 +251,16 @@ export default function Dashboard() {
             const isC = key === 'c';
             const isL = key === 'l';
             const isK = key === 'k';
+            const isS = key === 's';
             const isEsc = key === 'escape' || e.key === 'Escape';
             const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
-            if ((isR || isC || isL || isK || isEsc) && !hasModifier && !loading && !isRefreshing) {
+            if (
+                (isR || isC || isL || isK || isS || isEsc) &&
+                !hasModifier &&
+                !loading &&
+                !isRefreshing
+            ) {
                 const activeElement = document.activeElement;
                 const isEditable =
                     activeElement instanceof HTMLInputElement ||
@@ -243,12 +275,13 @@ export default function Dashboard() {
                         return;
                     }
 
-                    if (isR || isC || isL || isK) {
+                    if (isR || isC || isL || isK || isS) {
                         e.preventDefault();
                         if (isR) fetchStats(true);
                         if (isC) handleCopy();
                         if (isL) handleResetSecret();
                         if (isK) handleCopyRooms();
+                        if (isS) handleCopySummary();
                     }
                 }
             }
@@ -259,6 +292,7 @@ export default function Dashboard() {
         fetchStats,
         handleCopy,
         handleCopyRooms,
+        handleCopySummary,
         loading,
         isRefreshing,
         stats,
@@ -317,6 +351,7 @@ export default function Dashboard() {
         updated,
         leveledUp,
         copied,
+        summaryCopied,
         stats,
         timeAgo,
         error,
@@ -367,6 +402,40 @@ export default function Dashboard() {
                         justifyContent: 'flex-end',
                     }}
                 >
+                    {stats && (
+                        <button
+                            onClick={handleCopySummary}
+                            onFocus={() => setIsSummaryFocused(true)}
+                            onBlur={() => setIsSummaryFocused(false)}
+                            className="interactive-hint"
+                            style={{
+                                fontSize: '0.9rem',
+                                color: summaryCopied ? '#fff' : '#575757',
+                                background: summaryCopied ? '#1e7e34' : 'transparent',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '0.2rem 0.4rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
+                                boxShadow: isSummaryFocused
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                                    : 'none',
+                                outline: 'none',
+                            }}
+                            aria-label={summaryCopied ? 'Summary copied!' : 'Copy Summary'}
+                            aria-keyshortcuts="s"
+                            title={summaryCopied ? 'Copied!' : 'Click to copy summary (S)'}
+                        >
+                            <span role="img" aria-label="Summary">
+                                {summaryCopied ? '✅' : '📋'}
+                            </span>{' '}
+                            {summaryCopied ? 'Copied!' : 'Summary'}
+                        </button>
+                    )}
                     {stats?.rooms && (
                         <button
                             onClick={handleCopyRooms}
@@ -1243,6 +1312,13 @@ export default function Dashboard() {
                             state: roomCopied ? 's' : '',
                             onClick: () => handleCopyRooms(),
                             icon: roomCopied ? '✓' : 'K',
+                        },
+                        {
+                            k: 'S',
+                            a: 'Copy summary',
+                            state: summaryCopied ? 's' : '',
+                            onClick: () => handleCopySummary(),
+                            icon: summaryCopied ? '✓' : 'S',
                         },
                         {
                             k: 'L',

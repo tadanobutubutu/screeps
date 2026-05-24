@@ -27,6 +27,7 @@ export default function Dashboard() {
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
     const [roomCopied, setRoomCopied] = useState(false);
+    const [summaryCopied, setSummaryCopied] = useState(false);
     const [isSummaryFocused, setIsSummaryFocused] = useState(false);
 
     const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
@@ -297,6 +298,7 @@ export default function Dashboard() {
         handleCopy,
         handleCopySummary,
         handleCopyRooms,
+        handleCopySummary,
         loading,
         isRefreshing,
         stats,
@@ -355,6 +357,7 @@ export default function Dashboard() {
         updated,
         leveledUp,
         copied,
+        summaryCopied,
         stats,
         timeAgo,
         error,
@@ -405,6 +408,42 @@ export default function Dashboard() {
                         justifyContent: 'flex-end',
                     }}
                 >
+                    {stats && (
+                        <button
+                            onClick={handleCopySummary}
+                            onFocus={() => setIsSummaryFocused(true)}
+                            onBlur={() => {
+                                setIsSummaryFocused(false);
+                            }}
+                            className="interactive-hint"
+                            style={{
+                                fontSize: '0.9rem',
+                                color: summaryCopied ? '#fff' : '#575757',
+                                background: summaryCopied ? '#1e7e34' : 'transparent',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '0.2rem 0.4rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
+                                boxShadow: isSummaryFocused
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                                    : 'none',
+                                outline: 'none',
+                            }}
+                            aria-label={summaryCopied ? 'Summary copied!' : 'Copy Summary'}
+                            aria-keyshortcuts="s"
+                            title={summaryCopied ? 'Copied!' : 'Click to copy summary (S)'}
+                        >
+                            <span role="img" aria-label="Summary">
+                                {summaryCopied ? '✅' : '📋'}
+                            </span>{' '}
+                            {summaryCopied ? 'Copied!' : 'Summary'}
+                        </button>
+                    )}
                     {stats?.rooms && (
                         <button
                             onClick={handleCopyRooms}

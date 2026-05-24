@@ -134,7 +134,11 @@ function _applyConstructionSiteCosts (costs, room) {
  * @param {Room} room
  */
 function _applyCreepCosts (costs, room) {
-  const creeps = room.find(FIND_CREEPS)
+  // ⚡ PERFORMANCE OPTIMIZATION: Use pre-warmed room caches if available.
+  const creeps = room._myCreeps && room._hostileCreeps
+    ? room._myCreeps.concat(room._hostileCreeps)
+    : room.find(FIND_CREEPS)
+
   for (const creep of creeps) {
     costs.set(creep.pos.x, creep.pos.y, 255)
   }

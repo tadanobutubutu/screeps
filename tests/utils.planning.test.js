@@ -23,6 +23,7 @@ global.RoomPosition = class {
 
 const mockCache = {
     getSources: jest.fn(),
+    getSpawns: jest.fn(),
 };
 
 jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
@@ -101,7 +102,7 @@ describe('utils.planning', () => {
     });
 
     test('planRoadNetworkがspawnがないとき空配列を返す', () => {
-        mockRoom.find.mockReturnValue([]);
+        mockCache.getSpawns.mockReturnValue([]);
         mockCache.getSources.mockReturnValue([]);
         const roads = utilsPlanning.planRoadNetwork(mockRoom);
         expect(Array.isArray(roads)).toBe(true);

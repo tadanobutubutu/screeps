@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           token: ${{ github.token }}
 
@@ -64,13 +64,13 @@ jobs:
           find .github/workflows/ \( -name '*.yml' -o -name '*.yaml' \) \
             ! -name 'validate-versions.yml' | while read f; do
             sed -i \
-              -e 's|actions/checkout@v[1-3]\b|actions/checkout@v6|g' \
-              -e 's|actions/setup-node@v[1-3]\b|actions/setup-node@v6|g' \
+              -e 's|actions/checkout@v[1-3]\b|actions/checkout@v4|g' \
+              -e 's|actions/setup-node@v[1-3]\b|actions/setup-node@v4|g' \
               -e 's|actions/setup-python@v[1-4]\b|actions/setup-python@v5|g' \
               -e 's|actions/upload-artifact@v[1-3]\b|actions/upload-artifact@v4|g' \
               -e 's|actions/download-artifact@v[1-3]\b|actions/download-artifact@v4|g' \
               -e 's|actions/cache@v[1-3]\b|actions/cache@v4|g' \
-              -e 's|actions/github-script@v[1-6]\b|actions/github-script@v8|g' \
+              -e 's|actions/github-script@v[1-6]\b|actions/github-script@v7|g' \
               "$f"
           done
 
@@ -92,10 +92,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
@@ -148,12 +148,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 

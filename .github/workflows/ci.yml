@@ -32,15 +32,15 @@ jobs:
         name: ⬢ Lint & Check Code
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '24'
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v6
+              uses: pnpm/action-setup@v4
               with:
                   version: 11
 
@@ -77,17 +77,17 @@ jobs:
             github.actor != 'google-labs-jules[bot]'
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '24'
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v6
+              uses: pnpm/action-setup@v4
               with:
                   version: 11
 
@@ -101,7 +101,7 @@ jobs:
               run: pnpm build || true
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v6
+              uses: codecov/codecov-action@v5
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   files: ./coverage/lcov.info
@@ -271,15 +271,15 @@ jobs:
         name: 🧹 Auto-Format (Prettier/ESLint Fix)
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '24'
 
             - name: Install pnpm
-              uses: pnpm/action-setup@v6
+              uses: pnpm/action-setup@v4
               with:
                   version: 11
 

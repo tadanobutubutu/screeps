@@ -33,29 +33,17 @@ const mockCache = {
     getMyStructures: jest.fn(),
 };
 
-jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
-jest.mock(
-    '../src/utils/pathfinder',
-    () => ({
-        moveTo: jest.fn(),
-    }),
-    { virtual: true }
-);
-jest.mock(
-    '../src/utils/logger',
-    () => ({
-        error: jest.fn(),
-    }),
-    { virtual: true }
-);
-jest.mock(
-    '../src/constants',
-    () => ({
-        MEMORY_KEYS: { WORKING: 'working' },
-        ROOM_BOUNDS: { MIN: 0, MAX: 49 },
-    }),
-    { virtual: true }
-);
+jest.mock('../src/utils/cache', () => mockCache);
+jest.mock('../src/utils/pathfinder', () => ({
+    moveTo: jest.fn(),
+}));
+jest.mock('../src/utils/logger', () => ({
+    error: jest.fn(),
+}));
+jest.mock('../src/constants', () => ({
+    MEMORY_KEYS: { WORKING: 'working' },
+    ROOM_BOUNDS: { MIN: 0, MAX: 49 },
+}));
 
 const pathfinder = require('../src/utils/pathfinder');
 const defender = require('../src/roles/defender');

@@ -34,37 +34,25 @@ const mockCache = {
     isSafeKey: jest.fn().mockReturnValue(true),
 };
 
-jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
-jest.mock(
-    '../src/utils/pathfinder',
-    () => ({
-        moveTo: jest.fn(),
-    }),
-    { virtual: true }
-);
-jest.mock(
-    '../src/utils/logger',
-    () => ({
-        warn: jest.fn(),
-        error: jest.fn(),
-    }),
-    { virtual: true }
-);
-jest.mock(
-    '../src/constants',
-    () => ({
-        CACHE_TTL: { SOURCES: 10, PATH: 5 },
-        PATHFINDER_DEFAULTS: {
-            REUSE_PATH: 10,
-            MAX_ROOMS: 1,
-            PLAIN_COST: 2,
-            SWAMP_COST: 10,
-            ROAD_COST: 1,
-        },
-        MEMORY_KEYS: { SOURCE_ID: 'sourceId' },
-    }),
-    { virtual: true }
-);
+jest.mock('../src/utils/cache', () => mockCache);
+jest.mock('../src/utils/pathfinder', () => ({
+    moveTo: jest.fn(),
+}));
+jest.mock('../src/utils/logger', () => ({
+    warn: jest.fn(),
+    error: jest.fn(),
+}));
+jest.mock('../src/constants', () => ({
+    CACHE_TTL: { SOURCES: 10, PATH: 5 },
+    PATHFINDER_DEFAULTS: {
+        REUSE_PATH: 10,
+        MAX_ROOMS: 1,
+        PLAIN_COST: 2,
+        SWAMP_COST: 10,
+        ROAD_COST: 1,
+    },
+    MEMORY_KEYS: { SOURCE_ID: 'sourceId' },
+}));
 
 const pathfinder = require('../src/utils/pathfinder');
 const miner = require('../src/roles/miner');

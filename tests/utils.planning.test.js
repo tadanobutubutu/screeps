@@ -13,11 +13,9 @@ global.RoomPosition = class {
         this.y = y;
         this.roomName = roomName;
     }
-
     getRangeTo() {
         return 5;
     }
-
     findPathTo() {
         return [{ x: 1, y: 1 }];
     }

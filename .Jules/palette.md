@@ -21,3 +21,7 @@
 ## 2026-05-16 - [Copy-on-Click for Resource Lists]
 **Learning:** Transform static summary labels (like "2 Rooms") into interactive "Copy to Clipboard" buttons. This provides hidden utility for power users who need to export list data (e.g., room names for coordination) without cluttering the UI with explicit "Export" buttons. Keyboard shortcuts (like 'K' for 'Keys/Rooms') and immediate visual feedback (animation + icon swap) make the interaction feel intentional and modern.
 **Action:** Identify summary stats that represent lists of IDs or names and add "Copy to Clipboard" functionality with appropriate ARIA labels and shortcut hints.
+
+## 2026-05-24 - [Human-Readable Summary Export]
+**Learning:** Providing a human-readable "Copy Summary" feature complements raw JSON exports by allowing users to quickly capture and share key performance metrics (GCL, power, velocity, ETA) without manual formatting. This reduces friction for status updates and documentation.
+**Action:** Always include a "Copy human-readable summary" option alongside raw data exports in status-heavy dashboards.

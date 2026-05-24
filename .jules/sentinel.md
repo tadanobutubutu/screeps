@@ -19,5 +19,5 @@
 ## 2026-05-19 - Log-Level Bypass via Memory Injection
 
 **Vulnerability:** Log-Level Bypass (Information Leakage / DoS).
-**Learning:** Directly assigning user-controlled values from `Memory` to internal state variables (like `_level`) can bypass security logic if the values are malformed (e.g., strings or `null`). In JavaScript, `undefined > 0` is `false`, which can cause level-gating logic to fail open.
-**Prevention:** Always use validated setters (like `setLevel()`) when initializing state from `Memory`. Ensure setters perform strict type checking and range validation, falling back to safe defaults for any invalid input.
+**Learning:** Directly assigning user-controlled values from `Memory` to internal state variables (like `_level`) without validation can bypass security logic if the values are malformed (e.g., negative values, strings, or `null`). In JavaScript, unvalidated values can satisfy or break logic gates (e.g., a negative log level satisfying `val > LOG_LEVEL.DEBUG`, or `undefined > 0` evaluating to `false`), causing the logger to fail open or behave unexpectedly.
+**Prevention:** Always use validated setters (like `setLevel()`) when initializing state from `Memory` or other persistent storage. Ensure setters perform strict type checking and range validation, falling back to safe defaults for any invalid input.

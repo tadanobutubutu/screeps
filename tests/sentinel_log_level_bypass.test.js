@@ -37,6 +37,10 @@ describe('src/utils/logger security: log-level bypass', () => {
     });
 
     test('init() should default to INFO on invalid numeric Memory.logLevel', () => {
+        // Maliciously set Memory.logLevel to -1 to bypass gates
+        // If bug exists, _level is now -1.
+        // debug gate: if (_level > LOG_LEVEL.DEBUG) return;
+        // if (-1 > 0) return; -> false, so it logs!
         global.Memory.logLevel = -1; // Invalid negative value
 
         logger.init();

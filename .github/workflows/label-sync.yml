@@ -1,0 +1,68 @@
+name: Label Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/labels.yml'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    name: Synchronize Labels
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Create Default Labels Config
+        if: hashFiles('.github/labels.yml') == ''
+        run: |
+          mkdir -p .github
+          cat > .github/labels.yml << 'EOF'
+          - name: bug
+            color: d73a4a
+            description: Something isn't working
+          - name: enhancement
+            color: a2eeef
+            description: New feature or request
+          - name: documentation
+            color: 0075ca
+            description: Improvements or additions to documentation
+          - name: security
+            color: e4e669
+            description: Security related
+          - name: auto-fix
+            color: 7057ff
+            description: Automated fix applied
+          - name: sonarcloud
+            color: e05d44
+            description: SonarCloud detected issue
+          - name: coverage
+            color: 007ec6
+            description: Codecov coverage issue
+          - name: automated
+            color: 95E1d3
+            description: Automated by bots
+          - name: stale
+            color: eeeeee
+            description: Stale issue or PR
+          - name: workflow
+            color: f9d0c4
+            description: Workflow related
+          EOF
+          echo "Created default labels.yml"
+
+      - name: Sync Labels
+        uses: micnncim/action-label-syncer@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          manifest: .github/labels.yml
+          prune: true

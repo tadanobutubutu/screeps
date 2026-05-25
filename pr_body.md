@@ -1,6 +1,7 @@
 🎯 **What:** The testing gap in `src/managers/towerManager.js` for the `showDashboard` function has been addressed. The function was completely untested, though easily verifiable since it relies on calling `room.visual.text` to render UI indicators for towers.
 
 📊 **Coverage:** The test coverage has been expanded to test the following scenarios:
+
 - Doing nothing when no towers are present in a room.
 - Proper calculation of energy ratio to pick the correct color.
 - Green color rendering (`#00ff88`) for energy ratio > 0.7.

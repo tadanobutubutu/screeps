@@ -134,7 +134,7 @@ describe('deploy.js', () => {
                 return mockReq;
             });
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(
                 deployTo('PTR', '/ptr/api/user/code', validToken, {})
             ).resolves.toBeUndefined();
@@ -150,9 +150,8 @@ describe('deploy.js', () => {
             const mockRes = {
                 statusCode: 200,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data') {
+                    if (event === 'data')
                         callback(JSON.stringify({ ok: 0, error: 'deploy failed' }));
-                    }
                     if (event === 'end') callback();
                 }),
             };
@@ -161,7 +160,7 @@ describe('deploy.js', () => {
                 return mockReq;
             });
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
         });
 
@@ -184,7 +183,7 @@ describe('deploy.js', () => {
                 return mockReq;
             });
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(
                 deployTo('PTR', '/ptr/api/user/code', validToken, {})
             ).resolves.toBeUndefined();
@@ -209,7 +208,7 @@ describe('deploy.js', () => {
                 return mockReq;
             });
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
                 'PTR deployment failed'
             );
@@ -240,7 +239,7 @@ describe('deploy.js', () => {
                 return mockReq;
             });
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
         });
 
@@ -255,7 +254,7 @@ describe('deploy.js', () => {
             };
             https.request.mockImplementation(() => mockReq);
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
         });
 
@@ -269,7 +268,7 @@ describe('deploy.js', () => {
             };
             https.request.mockImplementation(() => mockReq);
 
-            const validToken = 'dummy_test_token_string_for_testing_01';
+            const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
                 'timeout'
             );

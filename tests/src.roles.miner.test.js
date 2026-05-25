@@ -4,8 +4,6 @@
 
 global.Game = { creeps: {} };
 global.Memory = {};
-global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, FATAL: 4 };
-global.FIND_MY_CREEPS = 102;
 global.WORK = 'work';
 global.CARRY = 'carry';
 global.FIND_SOURCES = 222;

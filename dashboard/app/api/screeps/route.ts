@@ -61,7 +61,23 @@ export async function GET(request: Request) {
     }
 
     const data = await res.json();
-    return NextResponse.json(data);
+
+    // Security: Filter Screeps API response to prevent accidental PII leakage.
+    // We only return fields required by the dashboard.
+    const filteredData = {
+      gcl: data.gcl
+        ? {
+            level: Number(data.gcl.level) || 0,
+            progress: Number(data.gcl.progress) || 0,
+            progressTotal: Number(data.gcl.progressTotal) || 0,
+          }
+        : undefined,
+      power: Number(data.power) || 0,
+      cpuUsed: Number(data.cpuUsed) || 0,
+      rooms: (data.rooms && typeof data.rooms === 'object') ? data.rooms : {},
+    };
+
+    return NextResponse.json(filteredData);
   } catch (err) {
     return NextResponse.json(
       { error: "Failed to fetch from Screeps API" },

@@ -37,7 +37,11 @@ const nextConfig = {
                     },
                     {
                         key: 'Content-Security-Policy',
-                        value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none';`,
+                        value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none';`,
+                    },
+                    {
+                        key: 'X-Permitted-Cross-Domain-Policies',
+                        value: 'none',
                     },
                 ],
             },

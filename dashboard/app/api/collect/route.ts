@@ -61,7 +61,8 @@ export async function GET(request: Request) {
 
     const data = await res.json();
 
-    // Security: Validate API response structure to prevent runtime errors from malformed data
+    // Security: Filter and validate Screeps API response to prevent accidental PII leakage
+    // and ensure data integrity before database insertion.
     if (!data || typeof data !== "object" || !data.gcl) {
       console.error("Malformed Screeps API response: missing data or gcl object");
       return NextResponse.json(
@@ -70,14 +71,25 @@ export async function GET(request: Request) {
       );
     }
 
+    const filteredData = {
+      gcl: {
+        level: Number(data.gcl?.level) || 0,
+        progress: Number(data.gcl?.progress) || 0,
+        progressTotal: Number(data.gcl?.progressTotal) || 0,
+      },
+      power: Number(data.power) || 0,
+      cpuUsed: Number(data.cpuUsed) || 0,
+      rooms: data.rooms && typeof data.rooms === "object" ? data.rooms : {},
+    };
+
     if (supabase) {
       const { error } = await supabase.from("screeps_stats").insert({
-        gcl_level: data.gcl?.level,
-        gcl_progress: data.gcl?.progress,
-        gcl_progress_total: data.gcl?.progressTotal,
-        power: data.power,
-        cpu_used: data.cpuUsed,
-        rooms: data.rooms,
+        gcl_level: filteredData.gcl.level,
+        gcl_progress: filteredData.gcl.progress,
+        gcl_progress_total: filteredData.gcl.progressTotal,
+        power: filteredData.power,
+        cpu_used: filteredData.cpuUsed,
+        rooms: filteredData.rooms,
       });
 
       if (error) {
@@ -90,7 +102,7 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: filteredData });
   } catch (err) {
     // Security: Log the actual error for internal debugging while returning a generic message to the client
     console.error("Screeps API collection error:", err);

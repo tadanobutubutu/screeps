@@ -31,7 +31,7 @@ describe('src/utils/logger robustness', () => {
         expect(logger.getLevel()).toBe(logger.LOG_LEVEL.INFO);
 
         // Set to string that can be parsed as number
-        logger.setLevel("2");
+        logger.setLevel('2');
         expect(logger.getLevel()).toBe(logger.LOG_LEVEL.WARN);
 
         // Set to invalid number

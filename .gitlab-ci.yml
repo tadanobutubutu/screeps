@@ -1,23 +1,23 @@
 image: node:20
 
 cache:
-  paths:
-    - node_modules/
+    paths:
+        - node_modules/
 
 before_script:
-  - npm install -g pnpm
-  - pnpm install --frozen-lockfile
+    - npm install -g pnpm
+    - pnpm install --frozen-lockfile
 
 stages:
-  - test
-  - quality
+    - test
+    - quality
 
 run_tests:
-  stage: test
-  script:
-    - pnpm run test
+    stage: test
+    script:
+        - pnpm run test
 
 run_lint:
-  stage: quality
-  script:
-    - pnpm run lint
+    stage: quality
+    script:
+        - pnpm run lint

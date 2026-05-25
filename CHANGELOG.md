@@ -17,7 +17,9 @@
 - 📊 Statistics update by Stats Bot
 
 ## Bot Activity
+
 All bots are actively maintaining the codebase.
 
 ---
-*Auto-generated changelog*
+
+_Auto-generated changelog_

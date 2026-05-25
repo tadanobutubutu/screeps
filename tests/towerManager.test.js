@@ -74,6 +74,7 @@ describe('towerManager', () => {
             name: 'W1N1',
             find: jest.fn().mockReturnValue([]),
             controller: { level: 1 },
+            visual: { text: jest.fn() },
         };
 
         cache.getMyCreeps.mockReturnValue([]);
@@ -169,6 +170,56 @@ describe('towerManager', () => {
 
             // エネルギー不足のため、攻撃・回復・修復は行われない
             expect(mockTower.attack).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('showDashboard', () => {
+        test('タワーがない場合は何もしない', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            expect(() => towerManager.showDashboard(mockRoom)).not.toThrow();
+            expect(mockRoom.visual.text).not.toHaveBeenCalled();
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（緑：> 0.7）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 800; // ratio = 0.8
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 80%',
+                25,
+                24,
+                expect.objectContaining({ color: '#00ff88', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（オレンジ：> 0.4）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 500; // ratio = 0.5
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 50%',
+                25,
+                24,
+                expect.objectContaining({ color: '#ffaa00', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（赤：<= 0.4）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 300; // ratio = 0.3
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 30%',
+                25,
+                24,
+                expect.objectContaining({ color: '#ff4444', font: 0.4, align: 'center' })
+            );
         });
     });
 });

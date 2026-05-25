@@ -5,12 +5,15 @@
 ## 🤖 機能
 
 ### 自動検出
+
 チュートリアルモードを自動で検出し、専用ロジックに切り替え
 
 ### ステップ別自動実行
+
 各チュートリアルステップを自動で完了
 
 ### 進捗表示
+
 現在のステップと進捗をコンソールに表示
 
 ## 🚀 使い方
@@ -28,45 +31,57 @@
 
 ```javascript
 // 進捗確認
-t()
+t();
 
 // スキップ（可能な場合）
-ts()
+ts();
 ```
 
 ## 📊 対応ステップ
 
 ### Step 1: Create Harvester
+
 ✅ **自動**:
+
 - Harvester Creepを自動生成
 - スポーン状況監視
 
 ### Step 2: Harvest Energy
+
 ✅ **自動**:
+
 - Sourceからエネルギー採取
 - Spawnに配達
 - 自動ループ
 
 ### Step 3: Upgrade Controller
+
 ✅ **自動**:
+
 - Controllerへ移動
 - アップグレード実行
 - エネルギー再補給
 
 ### Step 4: Build Extension
+
 ✅ **自動**:
+
 - 建設サイト検出
 - 建設実行
 - 自動完了
 
 ### Step 5: Defend Room
+
 ✅ **自動**:
+
 - Tower自動制御
 - 敵検出・攻撃
 - 防衛完了
 
 ### Step 6+: 汎用処理
+
 ✅ **自動**:
+
 - 全ステップ対応
 - 追加Creep自動生成
 - Tower自動防衛
@@ -78,16 +93,16 @@ ts()
 ```javascript
 const autoTutorial = require('tutorial.auto');
 
-module.exports.loop = function() {
-  // チュートリアル検出
-  if (autoTutorial.isTutorial()) {
-    console.log('🤖 AUTO TUTORIAL MODE');
-    autoTutorial.run();           // 自動実行
-    autoTutorial.showProgress();  // 進捗表示
-    return;
-  }
-  
-  // 通常モード...
+module.exports.loop = function () {
+    // チュートリアル検出
+    if (autoTutorial.isTutorial()) {
+        console.log('🤖 AUTO TUTORIAL MODE');
+        autoTutorial.run(); // 自動実行
+        autoTutorial.showProgress(); // 進捗表示
+        return;
+    }
+
+    // 通常モード...
 };
 ```
 
@@ -105,6 +120,7 @@ module.exports.loop = function() {
 ### コンソール出力
 
 **チュートリアル中**:
+
 ```
 🤖 AUTO TUTORIAL MODE ACTIVE
 🎮 Auto Tutorial - Step: 1
@@ -116,6 +132,7 @@ module.exports.loop = function() {
 ```
 
 **通常モード**:
+
 ```
 Tick: 100, Creeps: 11
 Emotions - Happy: 5, Neutral: 1, Sad: 5
@@ -124,10 +141,11 @@ Emotions - Happy: 5, Neutral: 1, Sad: 5
 ### 進捗確認
 
 ```javascript
-t()  // 現在のステップ表示
+t(); // 現在のステップ表示
 ```
 
 **出力例**:
+
 ```
 🎮 Tutorial Progress:
   Current Step: 3
@@ -142,20 +160,20 @@ t()  // 現在のステップ表示
 ✅ **コード不要** - 何も書かなくてOK  
 ✅ **クリック不要** - 操作不要  
 ✅ **放置可** - 待つだけ  
-✅ **自動クリア** - 全ステップ対応  
+✅ **自動クリア** - 全ステップ対応
 
 ### 貪欲機能
 
 ✅ **ステップ検出** - 自動切り替え  
 ✅ **進捗表示** - 現在地把握  
 ✅ **エラー対応** - 堅牢な処理  
-✅ **汎用処理** - 未知ステップもOK  
+✅ **汎用処理** - 未知ステップもOK
 
 ### GitHub Sync連携
 
 ✅ **自動デプロイ** - コミットで即反映  
 ✅ **ゼロメンテ** - 何もしなくてOK  
-✅ **完全放置** - 全自動  
+✅ **完全放置** - 全自動
 
 ## 💡 ヒント
 
@@ -169,7 +187,7 @@ t()  // 現在のステップ表示
 ### 進捗確認
 
 ```javascript
-t()  // 進捗見る
+t(); // 進捗見る
 ```
 
 定期的に確認すれば進捗が分かる！
@@ -177,7 +195,7 @@ t()  // 進捗見る
 ### スキップ
 
 ```javascript
-ts()  // スキップ試みる
+ts(); // スキップ試みる
 ```
 
 ゲームが対応していればスキップ可能！
@@ -211,10 +229,12 @@ ts()  // スキップ試みる
 ### 放置でOK
 
 **やること**:
+
 1. チュートリアル開始
 2. 終了
 
 **やらないこと**:
+
 - コード記述 ❌
 - クリック操作 ❌
 - コマンド入力 ❌
@@ -226,7 +246,7 @@ ts()  // スキップ試みる
 
 ```javascript
 // たまに進捗確認
-t()
+t();
 
 // コンソール見る
 // ↓
@@ -274,10 +294,10 @@ A: 自動で通常モードに移行します！
 ✅ **自動実行** - 全ステップ対応  
 ✅ **進捗表示** - 現在地把握  
 ✅ **ゼロ操作** - 何もしない  
-✅ **完全放置** - 待つだけ  
+✅ **完全放置** - 待つだけ
 
 ---
 
 **🤖 チュートリアルが勝手に終わる！** 🎮✨
 
-*最高の放置ゲー！*
+_最高の放置ゲー！_

@@ -1,1 +1,93 @@
-[{"baseRefName":"main","headRefName":"jules-8166021856842999864-817f28a9","mergeable":"CONFLICTING","number":367,"title":"🧪 Cover catch block in TaskQueue run method"},{"baseRefName":"main","headRefName":"jules-tasks-test-coverage-6023007247724086335","mergeable":"CONFLICTING","number":366,"title":"🧪 Add removeTask to TaskQueue and improve test coverage"},{"baseRefName":"main","headRefName":"jules-4776930946588937334-ce4080b9","mergeable":"CONFLICTING","number":363,"title":"⚡ Optimize room.find in tutorial.auto.js with room-aware caching"},{"baseRefName":"main","headRefName":"optimize-tutorial-find-11791407604142577533","mergeable":"CONFLICTING","number":361,"title":"⚡ Optimize room.find in tutorial.auto.js"},{"baseRefName":"main","headRefName":"jules-13820403455311603243-9d25ff76","mergeable":"CONFLICTING","number":359,"title":"🧪 Improve testing and validation for validateToken"},{"baseRefName":"main","headRefName":"jules-8003196373017183751-34f7de22","mergeable":"CONFLICTING","number":358,"title":"🧹 Refactor renderDashboard in gamification.js"},{"baseRefName":"main","headRefName":"fix/system-adaptive-evaluate-refactor-16412223122389694219","mergeable":"CONFLICTING","number":354,"title":"🧹 [Code Health] Refactor evaluate method in system.adaptive.js"},{"baseRefName":"main","headRefName":"perf/optimize-tutorial-find-6376097927140367361","mergeable":"CONFLICTING","number":352,"title":"⚡ Optimize N+1 find calls in tutorial.auto.js"},{"baseRefName":"main","headRefName":"performance/tutorial-auto-n1-find-12278526856533229939","mergeable":"CONFLICTING","number":351,"title":"⚡ Optimize tutorial.auto.js N+1 performance"},{"baseRefName":"main","headRefName":"jules-16192853376381333604-e406c168","mergeable":"CONFLICTING","number":350,"title":"⚡ Optimize tutorial.auto.js N+1 room.find performance"},{"baseRefName":"main","headRefName":"jules-refactor-build-cost-matrix-15084220830013740202","mergeable":"CONFLICTING","number":347,"title":"🧹 [Code Health] Refactor buildCostMatrix in pathfinder.js"},{"baseRefName":"main","headRefName":"jules-15932620889946134780-f4446e89","mergeable":"CONFLICTING","number":342,"title":"⚡ Optimize tutorial.auto.js to prevent N+1 engine calls for tower defense"},{"baseRefName":"main","headRefName":"bolt-optimize-creep-processing-loop-4005725923991987035","mergeable":"CONFLICTING","number":339,"title":"⚡ Bolt: Optimize creep processing loop in main.js"}]
+[
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-8166021856842999864-817f28a9",
+        "mergeable": "CONFLICTING",
+        "number": 367,
+        "title": "🧪 Cover catch block in TaskQueue run method"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-tasks-test-coverage-6023007247724086335",
+        "mergeable": "CONFLICTING",
+        "number": 366,
+        "title": "🧪 Add removeTask to TaskQueue and improve test coverage"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-4776930946588937334-ce4080b9",
+        "mergeable": "CONFLICTING",
+        "number": 363,
+        "title": "⚡ Optimize room.find in tutorial.auto.js with room-aware caching"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "optimize-tutorial-find-11791407604142577533",
+        "mergeable": "CONFLICTING",
+        "number": 361,
+        "title": "⚡ Optimize room.find in tutorial.auto.js"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-13820403455311603243-9d25ff76",
+        "mergeable": "CONFLICTING",
+        "number": 359,
+        "title": "🧪 Improve testing and validation for validateToken"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-8003196373017183751-34f7de22",
+        "mergeable": "CONFLICTING",
+        "number": 358,
+        "title": "🧹 Refactor renderDashboard in gamification.js"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "fix/system-adaptive-evaluate-refactor-16412223122389694219",
+        "mergeable": "CONFLICTING",
+        "number": 354,
+        "title": "🧹 [Code Health] Refactor evaluate method in system.adaptive.js"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "perf/optimize-tutorial-find-6376097927140367361",
+        "mergeable": "CONFLICTING",
+        "number": 352,
+        "title": "⚡ Optimize N+1 find calls in tutorial.auto.js"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "performance/tutorial-auto-n1-find-12278526856533229939",
+        "mergeable": "CONFLICTING",
+        "number": 351,
+        "title": "⚡ Optimize tutorial.auto.js N+1 performance"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-16192853376381333604-e406c168",
+        "mergeable": "CONFLICTING",
+        "number": 350,
+        "title": "⚡ Optimize tutorial.auto.js N+1 room.find performance"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-refactor-build-cost-matrix-15084220830013740202",
+        "mergeable": "CONFLICTING",
+        "number": 347,
+        "title": "🧹 [Code Health] Refactor buildCostMatrix in pathfinder.js"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "jules-15932620889946134780-f4446e89",
+        "mergeable": "CONFLICTING",
+        "number": 342,
+        "title": "⚡ Optimize tutorial.auto.js to prevent N+1 engine calls for tower defense"
+    },
+    {
+        "baseRefName": "main",
+        "headRefName": "bolt-optimize-creep-processing-loop-4005725923991987035",
+        "mergeable": "CONFLICTING",
+        "number": 339,
+        "title": "⚡ Bolt: Optimize creep processing loop in main.js"
+    }
+]

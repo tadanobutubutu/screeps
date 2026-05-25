@@ -487,9 +487,7 @@ export default function Dashboard() {
                                         marginLeft: '0.25rem',
                                         fontWeight: 'bold',
                                         animation:
-                                            roomDelta > 0
-                                                ? 'bounce 0.6s ease'
-                                                : 'shake 0.3s 3',
+                                            roomDelta > 0 ? 'bounce 0.6s ease' : 'shake 0.3s 3',
                                     }}
                                     aria-label={
                                         roomDelta > 0

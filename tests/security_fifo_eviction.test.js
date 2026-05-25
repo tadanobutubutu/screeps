@@ -1,4 +1,3 @@
-
 const cache = require('../src/utils/cache');
 
 describe('Security: Cache FIFO Eviction', () => {

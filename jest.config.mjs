@@ -4,9 +4,7 @@ export default {
     transform: {
         '^.+\\.js$': 'babel-jest',
     },
-    transformIgnorePatterns: [
-        '/node_modules/(?!(lodash)/)',
-    ],
+    transformIgnorePatterns: ['/node_modules/(?!(lodash)/)'],
     collectCoverageFrom: [
         'src/**/*.js',
         '*.js',

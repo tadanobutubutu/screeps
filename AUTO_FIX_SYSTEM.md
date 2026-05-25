@@ -67,15 +67,15 @@ GitHub Copilotを使って自動修正：
 以下の場合に自動修正がトリガーされます：
 
 1. ラベルが付いたとき:
-   - `bug`
-   - `error`
-   - `auto-fix`
+    - `bug`
+    - `error`
+    - `auto-fix`
 
 2. タイトルに含まれる：
-   - "error"
-   - "Error"
-   - "❌"
-   - "🐛"
+    - "error"
+    - "Error"
+    - "❌"
+    - "🐛"
 
 ### 手動トリガー
 
@@ -138,15 +138,17 @@ Issue作成
 ### 例1: Nullエラー
 
 **Issue作成**:
+
 ```
 Title: ❌ Error: Cannot read property 'name' of undefined
-Body: 
+Body:
 role.harvester.jsでエラーが発生します。
 creep.memory.target.nameにアクセスしようとすると
 undefinedエラーになります。
 ```
 
 **自動分析**:
+
 ```
 Type: null_check
 Priority: high
@@ -154,6 +156,7 @@ Affected: role.harvester.js
 ```
 
 **自動修正**:
+
 ```javascript
 // Before
 const targetName = creep.memory.target.name;
@@ -161,12 +164,13 @@ const targetName = creep.memory.target.name;
 // After
 const targetName = creep.memory.target?.name;
 if (!targetName) {
-  logger.warn('No target name');
-  return;
+    logger.warn('No target name');
+    return;
 }
 ```
 
 **結果**:
+
 - PR作成: `auto-fix/issue-1`
 - レビュー後マージ
 - Issue自動クローズ
@@ -174,6 +178,7 @@ if (!targetName) {
 ### 例2: パフォーマンス問題
 
 **Issue作成**:
+
 ```
 Title: ⚡ Slow performance in room scanning
 Body:
@@ -182,29 +187,32 @@ CPU使用量が高いです。
 ```
 
 **自動分析**:
+
 ```
 Type: performance
 Priority: medium
 ```
 
 **自動修正**:
+
 ```javascript
 // Before
 const sources = room.find(FIND_SOURCES);
 for (const creep of creeps) {
-  const source = creep.pos.findClosestByPath(sources);
+    const source = creep.pos.findClosestByPath(sources);
 }
 
 // After (キャッシュを追加)
 if (!room.memory.sources) {
-  room.memory.sources = room.find(FIND_SOURCES).map(s => s.id);
+    room.memory.sources = room.find(FIND_SOURCES).map((s) => s.id);
 }
-const sources = room.memory.sources.map(id => Game.getObjectById(id));
+const sources = room.memory.sources.map((id) => Game.getObjectById(id));
 ```
 
 ### 例3: 機能リクエスト
 
 **Issue作成**:
+
 ```
 Title: ✨ Add tower automatic repair
 Body:
@@ -212,12 +220,14 @@ Towerが自動で修理する機能がほしいです。
 ```
 
 **自動分析**:
+
 ```
 Type: feature
 Priority: low
 ```
 
 **自動処理**:
+
 - Copilotにタスク割り当て
 - 新機能実装のPR作成
 
@@ -226,12 +236,14 @@ Priority: low
 ### 1. Null/Undefinedエラー
 
 **検出**:
+
 - "null"
-- "undefined" 
+- "undefined"
 - "Cannot read property"
 - "Cannot convert"
 
 **修正内容**:
+
 - オプショナルチェーン `?.`
 - nullチェック `if (!obj)`
 - デフォルト値 `|| defaultValue`
@@ -240,12 +252,14 @@ Priority: low
 ### 2. 例外エラー
 
 **検出**:
+
 - "Exception"
 - "Error"
 - "crash"
 - "fail"
 
 **修正内容**:
+
 - try-catch追加
 - エラーハンドラ追加
 - フォールバック処理
@@ -253,12 +267,14 @@ Priority: low
 ### 3. パフォーマンス問題
 
 **検出**:
+
 - "slow"
 - "lag"
 - "performance"
 - "CPU"
 
 **修正内容**:
+
 - キャッシュ追加
 - ループ最適化
 - 不要な処理削除
@@ -266,11 +282,13 @@ Priority: low
 ### 4. 構文エラー
 
 **検出**:
+
 - "syntax"
 - "unexpected token"
 - "missing"
 
 **修正内容**:
+
 - 構文修正
 - 括弧追加
 - セミコロン追加
@@ -298,9 +316,9 @@ Priority: low
 
 ```yaml
 permissions:
-  contents: write    # コード修正
-  issues: write      # Issue更新
-  pull-requests: write # PR作成
+    contents: write # コード修正
+    issues: write # Issue更新
+    pull-requests: write # PR作成
 ```
 
 ### カスタマイズ
@@ -311,8 +329,8 @@ permissions:
 
 ```yaml
 if: |
-  contains(github.event.issue.labels.*.name, 'your-label') ||
-  contains(github.event.issue.title, 'your-keyword')
+    contains(github.event.issue.labels.*.name, 'your-label') ||
+    contains(github.event.issue.title, 'your-keyword')
 ```
 
 #### 修正タイプ追加
@@ -353,10 +371,10 @@ Actions → Auto-Fix Issues → 最新の実行
 ✅ **自動分析** - 問題タイプ判定  
 ✅ **自動修正** - Copilot連携  
 ✅ **PR作成** - 自動レビュー依頼  
-✅ **進捗通知** - Issueへ自動コメント  
+✅ **進捗通知** - Issueへ自動コメント
 
 **Issueを作るだけで、あとは全て自動！** 🤖✨
 
 ---
 
-*自動修正システムによる24/7監視・修正体制*
+_自動修正システムによる24/7監視・修正体制_

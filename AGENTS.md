@@ -1,15 +1,18 @@
 # AGENTS.md
 
 ## プロジェクト概要
+
 Screeps（JavaScriptベースのMMO RTS）のAIボットです。
 プレイヤーはJavaScriptでクリープの行動AIを記述し、自動でリソース採掘・建設・戦闘を行います。
 
 ## ディレクトリ構成
+
 - `main.js` : エントリーポイント。毎ティック呼び出される
 - `role.*.js` : 各クリープロールの行動定義
 - `utils.js` : 共通ユーティリティ関数
 
 ## コーディングルール
+
 - クリープのロールは `creep.memory.role` で管理する
 - `room.find()` の結果はなるべくキャッシュして再利用する
 - グローバルキャッシュは `global.cache` を使用する
@@ -18,9 +21,11 @@ Screeps（JavaScriptベースのMMO RTS）のAIボットです。
 - コメントは日本語で書く
 
 ## 禁止事項
+
 - `Game.cpu.halt()` の使用禁止
 - グローバル変数の乱用禁止（必ず `global.cache` 配下に格納）
 
 ## テスト方法
+
 - Screepsのローカルサーバーまたはプライベートサーバーで動作確認
 - `console.log` でデバッグ出力を確認

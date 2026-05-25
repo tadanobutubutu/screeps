@@ -6,8 +6,8 @@
 
 1. GitHubリポジトリの「Code」→「Codespaces」→「Create codespace on main」
 2. APIキーをCodespacesのSecretsに登録しておく
-   - GitHub Settings → Codespaces → New secret
-   - `ANTHROPIC_API_KEY` または `OPENAI_API_KEY`
+    - GitHub Settings → Codespaces → New secret
+    - `ANTHROPIC_API_KEY` または `OPENAI_API_KEY`
 
 ## Aiderの使い方
 

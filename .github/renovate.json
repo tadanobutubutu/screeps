@@ -1,47 +1,47 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended",
-    ":dependencyDashboard",
-    ":semanticCommits",
-    ":preserveSemverRanges"
-  ],
-  "timezone": "Asia/Tokyo",
-  "schedule": ["before 10am on monday"],
-  "labels": ["dependencies", "renovate", "automated"],
-  "assignees": ["tadanobutubutu"],
-  "reviewers": [],
-  "prConcurrentLimit": 5,
-  "prCreation": "not-pending",
-  "prHourlyLimit": 4,
-  "automerge": false,
-  "packageRules": [
-    {
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": false,
-      "labels": ["dependencies", "renovate", "automated"]
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        ":dependencyDashboard",
+        ":semanticCommits",
+        ":preserveSemverRanges"
+    ],
+    "timezone": "Asia/Tokyo",
+    "schedule": ["before 10am on monday"],
+    "labels": ["dependencies", "renovate", "automated"],
+    "assignees": ["tadanobutubutu"],
+    "reviewers": [],
+    "prConcurrentLimit": 5,
+    "prCreation": "not-pending",
+    "prHourlyLimit": 4,
+    "automerge": false,
+    "packageRules": [
+        {
+            "matchUpdateTypes": ["minor", "patch"],
+            "automerge": false,
+            "labels": ["dependencies", "renovate", "automated"]
+        },
+        {
+            "matchUpdateTypes": ["major"],
+            "automerge": false,
+            "labels": ["dependencies", "renovate", "automated", "major"]
+        },
+        {
+            "matchDepTypes": ["devDependencies"],
+            "automerge": false,
+            "labels": ["dependencies", "renovate", "automated"]
+        }
+    ],
+    "npm": {
+        "enabled": true
     },
-    {
-      "matchUpdateTypes": ["major"],
-      "automerge": false,
-      "labels": ["dependencies", "renovate", "automated", "major"]
+    "github-actions": {
+        "enabled": true,
+        "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"]
     },
-    {
-      "matchDepTypes": ["devDependencies"],
-      "automerge": false,
-      "labels": ["dependencies", "renovate", "automated"]
+    "ignoreDeps": [],
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "labels": ["security", "dependencies", "renovate", "automated"]
     }
-  ],
-  "npm": {
-    "enabled": true
-  },
-  "github-actions": {
-    "enabled": true,
-    "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"]
-  },
-  "ignoreDeps": [],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "labels": ["security", "dependencies", "renovate", "automated"]
-  }
 }

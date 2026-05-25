@@ -190,7 +190,10 @@ function initializeRoomBasicCache(room) {
     room._allStructures = allStructures;
     room._allStructuresTick = Game.time;
 
-    room._hostileCreeps = room.find(FIND_HOSTILE_CREEPS);
+    const allCreeps = room.find(FIND_CREEPS);
+    room._allCreeps = allCreeps;
+    room._allCreepsTick = Game.time;
+    room._hostileCreeps = allCreeps.filter((c) => !c.my);
     room._hostileCreepsTick = Game.time;
     room._activeSources = room.find(FIND_SOURCES_ACTIVE);
     room._activeSourcesTick = Game.time;

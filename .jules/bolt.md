@@ -100,3 +100,14 @@ We hoisted the retrieval of construction sites outside the loop using `cache.get
 **Learning:** In rooms with many harvesters or during logic resets, `assignSource` can become a bottleneck if it re-calculates assignment counts per room on every call ((N \times M)$).
 **Action:** Implement a volatile per-tick cache for source assignments. Calculate counts once per room per tick ((N)$) and update the cache in-place for subsequent calls ((1)$). This reduces complexity to (N + M)$ for $ calls.
 **Impact:** Significantly reduces CPU spikes during high-frequency assignment events.
+
+## 2026-05-24 - Optimize Pathfinder Creep Costs with Centralized Cache
+
+**Learning:**
+In Screeps, pathfinding with `avoidCreeps: true` often triggers redundant `room.find(FIND_CREEPS)` calls across multiple pathfinding requests in the same tick. While caching `room.find(FIND_CREEPS)` centrally in `main.js` and reusing it in `src/utils/pathfinder.js` saves CPU, it is critical to use the full `FIND_CREEPS` result rather than just `FIND_MY_CREEPS` and `FIND_HOSTILE_CREEPS`. Omitting neutral or allied creeps leads to collisions, which trigger even more expensive engine-level path recalculations.
+
+**Action:**
+Centralize the `room.find(FIND_CREEPS)` call in the room-warming phase in `main.js` and store the result in a volatile property (e.g., `room._allCreeps`). In the pathfinder logic, prioritize this cached array to avoid multiple bridge crossings per tick.
+
+**Impact:**
+Reduces engine API calls from $ (where $ is the number of pathfinding calls with creep avoidance) to $ per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.

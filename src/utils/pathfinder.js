@@ -134,8 +134,20 @@ function _applyConstructionSiteCosts (costs, room) {
  * @param {Room} room
  */
 function _applyCreepCosts (costs, room) {
+  // ⚡ PERFORMANCE OPTIMIZATION: Use pre-populated volatile room properties to avoid redundant room.find(FIND_CREEPS) call.
+  // main.js で収集済みのクリープを利用することで、エンジンへのクエリを削減する。
+  // FIND_CREEPS はすべてのクリープ（味方、敵、中立）を含むため、それらを網羅する。
+  if (room._allCreeps && room._allCreepsTick === Game.time) {
+    for (let i = 0; i < room._allCreeps.length; i++) {
+      const creep = room._allCreeps[i]
+      costs.set(creep.pos.x, creep.pos.y, 255)
+    }
+    return
+  }
+
   const creeps = room.find(FIND_CREEPS)
-  for (const creep of creeps) {
+  for (let i = 0; i < creeps.length; i++) {
+    const creep = creeps[i]
     costs.set(creep.pos.x, creep.pos.y, 255)
   }
 }

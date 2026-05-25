@@ -26,6 +26,7 @@ global.RESOURCE_ENERGY = 'energy';
 global.FIND_HOSTILE_CREEPS = 'findHostileCreeps';
 global.FIND_STRUCTURES = 'findStructures';
 global.FIND_MY_CREEPS = 'findMyCreeps';
+global.FIND_CREEPS = 'findCreeps';
 global.STRUCTURE_EXTENSION = 'extension';
 global.STRUCTURE_CONTAINER = 'container';
 global.STRUCTURE_SPAWN = 'spawn';

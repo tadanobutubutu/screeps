@@ -60,8 +60,8 @@ const DashboardRenderer = {
             energyPercent: energyCapacity
                 ? Math.floor((energyAvailable / energyCapacity) * 100)
                 : 0,
-            energyAvailable: energyAvailable,
-            energyCapacity: energyCapacity,
+            energyAvailable,
+            energyCapacity,
             storage: formatNumber(storageEnergy),
             storagePercent: storageCapacity
                 ? Math.floor((storageEnergy / storageCapacity) * 100)

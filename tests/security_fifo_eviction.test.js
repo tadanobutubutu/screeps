@@ -23,7 +23,7 @@ describe('Security: Cache FIFO Eviction', () => {
         }
 
         expect(Object.keys(global.cache).length).toBe(MAX_ENTRIES);
-        expect(global.cache['key_0']).toBeDefined();
+        expect(global.cache.key_0).toBeDefined();
 
         // Add one more entry
         cache.get('new_key', () => 'new_data', 100);
@@ -32,11 +32,11 @@ describe('Security: Cache FIFO Eviction', () => {
         expect(Object.keys(global.cache).length).toBe(MAX_ENTRIES);
 
         // key_0 should have been evicted (oldest)
-        expect(global.cache['key_0']).toBeUndefined();
+        expect(global.cache.key_0).toBeUndefined();
 
         // new_key should be present
-        expect(global.cache['new_key']).toBeDefined();
-        expect(global.cache['new_key'].data).toBe('new_data');
+        expect(global.cache.new_key).toBeDefined();
+        expect(global.cache.new_key.data).toBe('new_data');
     });
 
     test('should attempt cleanup before FIFO eviction', () => {
@@ -56,10 +56,10 @@ describe('Security: Cache FIFO Eviction', () => {
         cache.get('new_key', () => 'new_data', 100);
 
         expect(Object.keys(global.cache).length).toBe(MAX_ENTRIES);
-        expect(global.cache['key_0']).toBeUndefined();
+        expect(global.cache.key_0).toBeUndefined();
 
         // key_1 should still be there because key_0 was removed by cleanup
-        expect(global.cache['key_1']).toBeDefined();
-        expect(global.cache['new_key']).toBeDefined();
+        expect(global.cache.key_1).toBeDefined();
+        expect(global.cache.new_key).toBeDefined();
     });
 });

@@ -184,7 +184,11 @@ describe('src roles behaviors', () => {
                 rangedAttack: jest.fn(),
                 attack: jest.fn(),
                 heal: jest.fn(),
-                room: { visual: { line: jest.fn() } },
+                room: {
+                    name: 'W0N0',
+                    visual: { line: jest.fn() },
+                    find: jest.fn().mockReturnValue([]),
+                },
                 pos: { getRangeTo: jest.fn().mockReturnValue(2) },
                 memory: {},
             };

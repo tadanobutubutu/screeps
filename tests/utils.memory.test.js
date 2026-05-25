@@ -235,4 +235,60 @@ describe('utils.memory', () => {
         expect(utilsMemory.isSafeKey('__lookupGetter__')).toBe(false);
         expect(utilsMemory.isSafeKey('__lookupSetter__')).toBe(false);
     });
+
+    describe('updateWorkingState', () => {
+        let mockCreep;
+
+        beforeEach(() => {
+            mockCreep = {
+                memory: {
+                    working: false,
+                },
+                store: {
+                    getFreeCapacity: jest.fn(),
+                    getUsedCapacity: jest.fn(),
+                },
+            };
+        });
+
+        test('transitions to working when free capacity is 0', () => {
+            mockCreep.memory.working = false;
+            mockCreep.store.getFreeCapacity.mockReturnValue(0);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(true);
+            expect(mockCreep.memory.working).toBe(true);
+        });
+
+        test('transitions to not working when used capacity is 0', () => {
+            mockCreep.memory.working = true;
+            mockCreep.store.getUsedCapacity.mockReturnValue(0);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(false);
+            expect(mockCreep.memory.working).toBe(false);
+        });
+
+        test('remains working when used capacity is > 0', () => {
+            mockCreep.memory.working = true;
+            mockCreep.store.getUsedCapacity.mockReturnValue(10);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(true);
+            expect(mockCreep.memory.working).toBe(true);
+        });
+
+        test('remains not working when free capacity is > 0', () => {
+            mockCreep.memory.working = false;
+            mockCreep.store.getFreeCapacity.mockReturnValue(10);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(false);
+            expect(mockCreep.memory.working).toBe(false);
+        });
+    });
 });

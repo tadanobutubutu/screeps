@@ -1,117 +1,158 @@
-# 🎮 Screeps AI
+# 🎮 Screeps AI - 完全自動化リポジトリ
 
-[![Tests](https://img.shields.io/github/actions/workflow/status/tadanobutubutu/screeps/test-minimal.yml?style=for-the-badge&label=Tests&logo=jest)](https://github.com/tadanobutubutu/screeps/actions)
-[![SonarCloud](https://img.shields.io/sonar/quality_gate/tadanobutubutu_screeps?server=https%3A%2F%2Fsonarcloud.io&style=for-the-badge&logo=sonarcloud)](https://sonarcloud.io/project/overview?id=tadanobutubutu_screeps)
-[![Codecov](https://img.shields.io/codecov/c/github/tadanobutubutu/screeps?style=for-the-badge&logo=codecov)](https://app.codecov.io/gh/tadanobutubutu/screeps)
-[![License](https://img.shields.io/github/license/tadanobutubutu/screeps?style=for-the-badge)](LICENSE)
-[![Last Commit](https://img.shields.io/github/last-commit/tadanobutubutu/screeps?style=for-the-badge)](https://github.com/tadanobutubutu/screeps/commits/main)
+> Screeps AI code repository with **full automation** - no API keys required!
 
-[Screeps](https://screeps.com/) 向けの自律型 AI Bot。ロールベースのクリープ管理、適応型負荷制御、防衛システム、感情・ゲーミフィケーション機能を搭載しています。
+[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
+[![Workflows](https://img.shields.io/badge/Workflows-31-green)](.github/workflows)
+[![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
+[![Lines](https://img.shields.io/badge/Lines-7104-purple)](./)
 
-## 主な機能
+## 🚀 特徴
 
-### ロールシステム
+- ✅ **API不要**: 外部APIキー不要で完全無料
+- 🤖 **完全自動化**: 放置で自動改善・拡張
+- 📊 **リアルタイム監視**: ゲーム状況をGitHubで確認
+- 🆕 **自動拡張**: 新しいロールが週次で追加
 
-8種類のクリープロールを搭載し、コロニーの状況に応じて自動でスポーンを制御します。
+## 📊 ゲーム状況
 
-| ロール | 説明 |
-|--------|------|
-| Harvester | エネルギーの採掘・運搬 |
-| Upgrader | コントローラーのアップグレード |
-| Builder | 建設サイトの構築 |
-| Repairer | 構造物の修理 |
-| Transporter | エネルギーの輸送（上級） |
-| Scout | マップ偵察（上級） |
-| Medic | クリープの回復（上級） |
-| Explorer | 未知の部屋の探索（上級） |
+**現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
 
-### 適応型負荷制御（Adaptive System）
+毎時自動更新されるリアルタイムレポート：
+- 👤 プレイヤー情報 (GCL, CPU, Credits)
+- 🏰 所有部屋の状況
+- 🐛 クリープ統計
+- 💾 メモリ使用率
 
-CPU/メモリの使用状況に応じて、動作モードを自動切替します。
+## 🤖 自動化システム
 
-- **EMERGENCY** — 最低限の機能のみ（メモリクリーンアップ中心）
-- **MINIMAL** — 基本ロール + 防衛
-- **NORMAL** — 感情システム・ログ有効化
-- **FULL** — ビジュアルエフェクト・ゲーミフィケーション・自動進化すべて有効
+### 📋 稼働中のワークフロー (31個)
 
-### その他のシステム
+- **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
+- **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
+- **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
+- **Auto Merge PRs - Force Merge All** (`auto-merge-pr.yml`) - 定期実行
+- **📚 Auto Update Documentation** (`auto-update-docs.yml`) - イベント駆動
+- **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
+- **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
+- **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
+- **Deploy GitHub Pages Dashboard** (`deploy-pages.yml`) - イベント駆動
+- **Deploy to Screeps PTR** (`deploy.yml`) - イベント駆動
+- **✨ Discussion Auto-Implement** (`discussion-auto-implement.yml`) - イベント駆動
+- **🚨 Emergency: Restore API Mode** (`emergency-api-restore.yml`) - 定期実行
+- **🚨 Error Threshold Monitor** (`error-threshold-monitor.yml`) - 定期実行
+- **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
+- **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
+- **🎫 Issue Management** (`issue-management.yml`) - イベント駆動
+- **Junie** (`junie.yaml`) - イベント駆動
+- **Label Sync** (`label-sync.yml`) - イベント駆動
+- **OpenCode AI Agent** (`opencode.yml`) - イベント駆動
+- **🏷️ PR Auto Labeler** (`pr-labeler.yml`) - イベント駆動
+- **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
+- **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
+- **Gitleaks** (`secret-scanning.yml`) - イベント駆動
+- **🗑️ Stale Issue and PR Management** (`stale.yml`) - 定期実行
+- **Supabase KeepAlive** (`supabase-keepalive.yml`) - 定期実行
+- **Test Minimal Workflow** (`test-minimal.yml`) - イベント駆動
+- **📚 Update Wiki** (`update-wiki.yml`) - イベント駆動
+- **Validate Versions** (`validate-versions.yml`) - イベント駆動
+- **📊 Weekly Quality Report** (`weekly-quality-report.yml`) - 定期実行
+- **👋 Welcome Bot** (`welcome.yml`) - イベント駆動
+- **🔧 Workflow Health Monitor** (`workflow-health-monitor.yml`) - 定期実行
 
-- **防衛マネージャー** — 敵侵入時の自動防衛
-- **感情システム** — クリープが感情を持ち、相互作用する
-- **ゲーミフィケーション** — XP・レベル・マイルストーンの追跡
-- **メモリビジュアライザー** — メモリ使用量のスナップショット・履歴・バックアップ
-- **自動進化** — 長期的な戦略の自動最適化
-- **チュートリアルモード** — Screeps チュートリアルの自動進行
+詳しくは [`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
 
-## セットアップ
+## 🐛 実装済みロール (9個)
+
+1. **attacker** - `role.attacker.js`
+2. **builder** - `role.builder.js`
+3. **explorer** - `role.explorer.js`
+4. **harvester** - `role.harvester.js`
+5. **medic** - `role.medic.js`
+6. **repairer** - `role.repairer.js`
+7. **scout** - `role.scout.js`
+8. **transporter** - `role.transporter.js`
+9. **upgrader** - `role.upgrader.js`
+
+## 📈 統計情報
+
+- 📄 **JSファイル数**: 36
+- 📝 **総コード行数**: 7104
+- 🔄 **ワークフロー数**: 31
+- 🎭 **ロール数**: 9
+
+*最終更新: 2026-05-25*
+
+## 🔧 セットアップ
+
+### 1. Steam版購入後
+
+1. Screeps公式サイトでログイン
+2. Account Settings → API Access でトークン生成
+3. GitHubリポジトリ Settings → Secrets で `SCREEPS_TOKEN` に設定
+4. mainブランチにpushすれば自動デプロイ開始
+
+### 2. ローカル開発 (オプション)
 
 ```bash
-# 依存関係のインストール
+git clone https://github.com/tadanobutubutu/screeps.git
+cd screeps
 npm install
-
-# ビルド（Rollup）
-npm run build
-
-# テスト
-npm test
 ```
 
-### デプロイ
-
-`screeps.yml` にデプロイ設定があります。GitHub の `main` ブランチへの push で自動デプロイが走ります（`.github/workflows/deploy.yml`）。
-
-## コンソールコマンド
-
-ゲーム内コンソールから以下のコマンドが使えます。
+## 📁 ファイル構成
 
 ```
-help()       — コマンド一覧
-adaptive()   — 適応システムのダッシュボード
-mode(0-3)    — 動作モードの手動切替
-e()          — 感情の統計
-m()          — メモリ統計
-g()          — ゲーミフィケーションダッシュボード
-evo()        — 自動進化ダッシュボード
+.
+├── .github/workflows/     # 自動化ワークフロー (31個)
+├── role.*.js              # クリープロール (9個)
+├── utils.*.js             # ユーティリティ関数
+├── main.js                # メインループ
+├── deploy.js              # デプロイスクリプト
+├── GAME_STATUS.md         # リアルタイムゲーム状況
+├── WORKFLOWS.md           # ワークフロー詳細説明
+└── game-history/          # 日付別履歴
 ```
 
-## プロジェクト構成
+## 📚 ドキュメント
 
-```
-main.js                 — エントリーポイント（ゲームループ）
-role.*.js               — 各ロールのロジック
-defense.manager.js      — 防衛システム
-system.adaptive.js      — 適応型負荷制御
-utils.*.js              — ユーティリティ（ログ、メモリ、統計など）
-gamification.js         — ゲーミフィケーション
-auto.evolution.js       — 自動進化
-visual.effects.js       — ビジュアルエフェクト
-memory.visualizer.js    — メモリビジュアライザー
-tutorial.auto.js        — チュートリアル自動化
-tests/                  — Jest テスト
-wiki/                   — ドキュメント
-```
+- [`WORKFLOWS.md`](./WORKFLOWS.md) - 自動化ワークフローの詳細
+- [`GAME_STATUS.md`](./GAME_STATUS.md) - リアルタイムゲーム状況
+- [`META-CHANGELOG.md`](./META-CHANGELOG.md) - システム変更履歴
+- [`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
 
-## CI/CD & 自動化
+## ✨ 主な機能
 
-GitHub Actions による自動化が充実しています。
+### 🔧 ルールベース自動改善
 
-- コード品質チェック（ESLint, SonarCloud）
-- セキュリティスキャン（Gitleaks, Checkmarx）
-- テスト・カバレッジ（Jest, Codecov）
-- 自動デプロイ
-- 依存関係の自動更新（Renovate, Dependabot）
-- PR の自動ラベリング・自動マージ
+- `console.log` の削除
+- `var` を `const` に変更
+- 非効率なループの最適化
+- メモリクリーンアップの自動追加
 
-詳細は [BOTS.md](BOTS.md)・[WORKFLOWS.md](WORKFLOWS.md) を参照してください。
+### 🎲 ランダム実験
 
-## ドキュメント
+毎週以下のいずれかを自動追加：
+- 📊 パフォーマンスモニター
+- 🧭 パスファインディングキャッシュ
+- 🎯 スマートスポーン優先度
+- 🛡️ タワー最適化
+- ⚡ エネルギー効率トラッキング
 
-- [Wiki](wiki/) — アーキテクチャ、ロールシステム、トラブルシューティングなど
-- [API リファレンス](API_REFERENCE.md)
-- [Contributing ガイド](CONTRIBUTING.md)
-- [セキュリティポリシー](SECURITY.md)
+### 🆕 自動ロール作成
 
-## ライセンス
+毎週新しいロールを自動生成して `main.js` に統合します。
 
-MIT
+## 👨‍💻 貢献
 
+改善提案やバグ報告はIssuesでお願いします。
+
+## 📝 ライセンス
+
+MIT License
+
+---
+
+**Enjoy your fully automated Screeps experience!** 🎮🤖
+
+*このREADMEは自動更新されます - 最終更新: 2026-05-25T10:03:28.379Z*

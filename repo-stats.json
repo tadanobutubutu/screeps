@@ -1,0 +1,175 @@
+{
+  "updated": "2026-05-25T10:03:28.380Z",
+  "workflows": 31,
+  "roles": 9,
+  "jsFiles": 36,
+  "totalLines": 7104,
+  "workflowList": [
+    {
+      "name": "AI Code Maintenance",
+      "file": "ai-code-maintenance.yml",
+      "scheduled": true
+    },
+    {
+      "name": "👤 Auto Assign Issues and PRs",
+      "file": "auto-assign.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🆕 Auto Create New Roles",
+      "file": "auto-create-roles.yml",
+      "scheduled": true
+    },
+    {
+      "name": "Auto Merge PRs - Force Merge All",
+      "file": "auto-merge-pr.yml",
+      "scheduled": true
+    },
+    {
+      "name": "📚 Auto Update Documentation",
+      "file": "auto-update-docs.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🔖 Auto Zenodo DOI Release",
+      "file": "auto-zenodo-release.yml",
+      "scheduled": true
+    },
+    {
+      "name": "🚀 Unified CI (Lint, Test, Coverage & Analysis)",
+      "file": "ci.yml",
+      "scheduled": true
+    },
+    {
+      "name": "🔍 Dependency Review",
+      "file": "dependency-review.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Deploy GitHub Pages Dashboard",
+      "file": "deploy-pages.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Deploy to Screeps PTR",
+      "file": "deploy.yml",
+      "scheduled": false
+    },
+    {
+      "name": "✨ Discussion Auto-Implement",
+      "file": "discussion-auto-implement.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🚨 Emergency: Restore API Mode",
+      "file": "emergency-api-restore.yml",
+      "scheduled": true
+    },
+    {
+      "name": "🚨 Error Threshold Monitor",
+      "file": "error-threshold-monitor.yml",
+      "scheduled": true
+    },
+    {
+      "name": "Fix undici - Regenerate package-lock.json",
+      "file": "fix-undici-lockfile.yml",
+      "scheduled": false
+    },
+    {
+      "name": "⏱️ Game Monitor (Hybrid Mode)",
+      "file": "game-monitor-15min.yml",
+      "scheduled": true
+    },
+    {
+      "name": "🎫 Issue Management",
+      "file": "issue-management.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Junie",
+      "file": "junie.yaml",
+      "scheduled": false
+    },
+    {
+      "name": "Label Sync",
+      "file": "label-sync.yml",
+      "scheduled": false
+    },
+    {
+      "name": "OpenCode AI Agent",
+      "file": "opencode.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🏷️ PR Auto Labeler",
+      "file": "pr-labeler.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🎲 Random Experiment",
+      "file": "random-experiment.yml",
+      "scheduled": true
+    },
+    {
+      "name": "📦 Release Drafter",
+      "file": "release-drafter.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Gitleaks",
+      "file": "secret-scanning.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🗑️ Stale Issue and PR Management",
+      "file": "stale.yml",
+      "scheduled": true
+    },
+    {
+      "name": "Supabase KeepAlive",
+      "file": "supabase-keepalive.yml",
+      "scheduled": true
+    },
+    {
+      "name": "Test Minimal Workflow",
+      "file": "test-minimal.yml",
+      "scheduled": false
+    },
+    {
+      "name": "📚 Update Wiki",
+      "file": "update-wiki.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Validate Versions",
+      "file": "validate-versions.yml",
+      "scheduled": false
+    },
+    {
+      "name": "📊 Weekly Quality Report",
+      "file": "weekly-quality-report.yml",
+      "scheduled": true
+    },
+    {
+      "name": "👋 Welcome Bot",
+      "file": "welcome.yml",
+      "scheduled": false
+    },
+    {
+      "name": "🔧 Workflow Health Monitor",
+      "file": "workflow-health-monitor.yml",
+      "scheduled": true
+    }
+  ],
+  "roleList": [
+    "attacker",
+    "builder",
+    "explorer",
+    "harvester",
+    "medic",
+    "repairer",
+    "scout",
+    "transporter",
+    "upgrader"
+  ]
+}

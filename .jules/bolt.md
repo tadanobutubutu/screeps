@@ -111,3 +111,5 @@ Centralize the `room.find(FIND_CREEPS)` call in the room-warming phase in `main.
 
 **Impact:**
 Reduces engine API calls from $ (where $ is the number of pathfinding calls with creep avoidance) to $ per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.
+
+- **Memory Iteration Optimization**: Replacing `for...in` loops with `Object.keys()` for object iteration (like in `utils.memory.js`) yields significant performance improvements. This is because `for...in` traverses the prototype chain and often necessitates a `hasOwnProperty` check, whereas `Object.keys()` returns only the object's own enumerable properties directly, enabling faster and simpler iteration, which is particularly beneficial for high-frequency operations.

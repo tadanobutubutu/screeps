@@ -35,7 +35,26 @@ async function keepAlive() {
     }
 
     console.log('SUCCESS: Supabase への ping が成功しました');
-    console.log('データ:', JSON.stringify(data));
+
+    // 安全なフィールドのみを抽出してログに出力
+    const safeData = Array.isArray(data)
+        ? data.map((item) => ({
+              id: item.id,
+              pinged_at: item.pinged_at,
+              source: item.source,
+          }))
+        : data
+          ? {
+                id: data.id,
+                pinged_at: data.pinged_at,
+                source: data.source,
+            }
+          : null;
+    console.log('データ:', JSON.stringify(safeData));
 }
 
-keepAlive();
+if (require.main === module) {
+    keepAlive();
+}
+
+module.exports = { keepAlive };

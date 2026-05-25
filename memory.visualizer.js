@@ -51,7 +51,7 @@ const memoryVisualizer = {
             ) {
                 sizes.push({
                     type: 'creep',
-                    name,
+                    name: name,
                     size: JSON.stringify(Memory.creeps[name]).length,
                 });
             }
@@ -64,7 +64,7 @@ const memoryVisualizer = {
             ) {
                 sizes.push({
                     type: 'room',
-                    name,
+                    name: name,
                     size: JSON.stringify(Memory.rooms[name]).length,
                 });
             }

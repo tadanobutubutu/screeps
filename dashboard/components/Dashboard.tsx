@@ -298,7 +298,6 @@ export default function Dashboard() {
         handleCopy,
         handleCopySummary,
         handleCopyRooms,
-        handleCopySummary,
         loading,
         isRefreshing,
         stats,
@@ -490,7 +489,7 @@ export default function Dashboard() {
                                         animation:
                                             roomDelta > 0
                                                 ? 'bounce 0.6s ease'
-                                                : 'shake 0.3s infinite',
+                                                : 'shake 0.3s 3',
                                     }}
                                     aria-label={
                                         roomDelta > 0
@@ -672,6 +671,9 @@ export default function Dashboard() {
                 {isRefreshing ? 'Refreshing statistics...' : ''}
                 {updated ? 'Dashboard updated' : ''}
                 {copied ? 'JSON copied to clipboard' : ''}
+                {roomCopied ? 'Room list copied to clipboard' : ''}
+                {summaryCopied ? 'Summary copied to clipboard' : ''}
+                {resetSuccess ? 'Secret reset successfully' : ''}
             </div>
 
             <div aria-live="polite">
@@ -959,9 +961,9 @@ export default function Dashboard() {
                                                         animation:
                                                             powerDelta > 0
                                                                 ? 'bounce 0.6s ease'
-                                                                : 'shake 0.3s infinite',
+                                                                : 'shake 0.3s 3',
                                                     }}
-                                                    aria-label={`${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()}`}
+                                                    aria-label={`Power: ${stats.power.toLocaleString()} (${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()})`}
                                                     title={`${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()}`}
                                                 >
                                                     ({powerDelta > 0 ? '+' : ''}
@@ -993,14 +995,10 @@ export default function Dashboard() {
                                                         fontWeight: 'bold',
                                                         animation:
                                                             cpuDelta > 0
-                                                                ? 'shake 0.3s infinite'
+                                                                ? 'shake 0.3s 3'
                                                                 : 'bounce 0.6s ease',
                                                     }}
-                                                    aria-label={
-                                                        cpuDelta > 0
-                                                            ? `Increased by ${cpuDelta.toLocaleString()}`
-                                                            : `Decreased by ${Math.abs(cpuDelta).toLocaleString()}`
-                                                    }
+                                                    aria-label={`CPU: ${stats.cpuUsed.toLocaleString()} (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})`}
                                                     title={
                                                         cpuDelta > 0
                                                             ? `Increased by ${cpuDelta.toLocaleString()}`
@@ -1052,7 +1050,7 @@ export default function Dashboard() {
                                                 animation:
                                                     gclDelta > 0
                                                         ? 'bounce 0.6s ease'
-                                                        : 'shake 0.3s infinite',
+                                                        : 'shake 0.3s 3',
                                             }}
                                             title="Progress gained since last update"
                                             aria-label={`${gclDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(gclDelta).toFixed(2)}%`}
@@ -1378,13 +1376,6 @@ export default function Dashboard() {
                             state: roomCopied ? 's' : '',
                             onClick: () => handleCopyRooms(),
                             icon: roomCopied ? '✓' : 'K',
-                        },
-                        {
-                            k: 'S',
-                            a: 'Copy summary',
-                            state: summaryCopied ? 's' : '',
-                            onClick: () => handleCopySummary(),
-                            icon: summaryCopied ? '✓' : 'S',
                         },
                         {
                             k: 'L',

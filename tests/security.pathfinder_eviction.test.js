@@ -25,24 +25,31 @@ jest.mock('../src/constants', () => ({
     CACHE_TTL: { PATH: 50 },
 }));
 
-jest.mock('../src/utils/cache', () => ({
-    getStructures: jest.fn().mockReturnValue([]),
-    getConstructionSites: jest.fn().mockReturnValue([]),
-    cleanup: jest.fn(),
-}));
-
 let cacheUtils;
 let pathfinder;
 
 describe('Security: Pathfinder FIFO Eviction', () => {
     beforeEach(() => {
         jest.resetModules();
+
+        // Require inside beforeEach after resetModules to guarantee same module instance
         cacheUtils = require('../src/utils/cache');
+
+        // Dynamic spies on cacheUtils to intercept calls safely
+        jest.spyOn(cacheUtils, 'getStructures').mockReturnValue([]);
+        jest.spyOn(cacheUtils, 'getConstructionSites').mockReturnValue([]);
+        jest.spyOn(cacheUtils, 'cleanup').mockImplementation(() => 0);
+
         pathfinder = require('../src/utils/pathfinder');
+
         global.cache = {};
         jest.clearAllMocks();
         global.Game.time = 100;
         global.Game.rooms = {};
+    });
+
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     describe('buildCostMatrix eviction', () => {

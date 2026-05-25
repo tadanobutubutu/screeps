@@ -20,6 +20,7 @@ global.ERR_NOT_IN_RANGE = -9;
 global.ERR_NOT_ENOUGH_ENERGY = -6;
 global.RESOURCE_ENERGY = 'energy';
 global.OK = 0;
+global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 };
 global.RoomPosition = function (x, y, roomName) {
     this.x = x;
     this.y = y;

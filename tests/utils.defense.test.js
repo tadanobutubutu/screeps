@@ -5,7 +5,7 @@
 global.Memory = {};
 global.FIND_MY_STRUCTURES = 20;
 global.FIND_HOSTILE_CREEPS = 10;
-global.FIND_STRUCTURES = 20;
+global.FIND_STRUCTURES = 21; // changed from 20 to 21
 global.STRUCTURE_TOWER = 'tower';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
@@ -13,7 +13,14 @@ global.STRUCTURE_RAMPART = 'rampart';
 global.Game = { time: 0 };
 jest.mock('../src/utils/cache', () => ({
     getEnemies: jest.fn((room) => {
-        return room.find(global.FIND_HOSTILE_CREEPS);
+        return room.find(global.FIND_HOSTILE_CREEPS) || [];
+    }),
+    getMyStructures: jest.fn((room, type) => {
+        const structures = room.find(global.FIND_MY_STRUCTURES) || [];
+        return structures.filter((s) => s.structureType === type);
+    }),
+    getStructures: jest.fn((room) => {
+        return room.find(global.FIND_STRUCTURES) || [];
     }),
 }));
 
@@ -27,7 +34,7 @@ describe('utils.defense', () => {
     });
 
     test('findTowerTargetsがhostilesがいるときattackを呼ぶ', () => {
-        const mockTower = { attack: jest.fn() };
+        const mockTower = { structureType: STRUCTURE_TOWER, attack: jest.fn() };
         const mockHostile = { id: 'hostile1' };
         const room = {
             find: jest.fn().mockImplementation((type) => {
@@ -36,6 +43,9 @@ describe('utils.defense', () => {
                 }
                 if (type === FIND_HOSTILE_CREEPS) {
                     return [mockHostile];
+                }
+                if (type === FIND_STRUCTURES) {
+                    return [];
                 }
                 return [];
             }),
@@ -77,10 +87,6 @@ describe('utils.defense', () => {
         const room = {
             find: jest.fn().mockImplementation((type, options) => {
                 if (type === FIND_MY_STRUCTURES) {
-                    if (options && options.filter) {
-                        const structures = [mockTower, mockRampart];
-                        return structures.filter(options.filter);
-                    }
                     return [mockTower, mockRampart];
                 }
                 if (type === FIND_HOSTILE_CREEPS) {

@@ -120,7 +120,7 @@ describe('utils.memory', () => {
             utilsMemory.memoize(fn, 'key' + i, 100);
         }
         expect(callCount).toBe(50);
-        expect(Memory.cache.key0).toBeDefined();
+        expect(Memory.cache['key0']).toBeDefined();
 
         // Add one more entry
         const result = utilsMemory.memoize(fn, 'oneMoreKey', 100);
@@ -128,8 +128,8 @@ describe('utils.memory', () => {
         expect(callCount).toBe(51);
 
         // Security: Verify FIFO eviction (key0 should be gone, oneMoreKey should be present)
-        expect(Memory.cache.oneMoreKey).toBeDefined();
-        expect(Memory.cache.key0).toBeUndefined();
+        expect(Memory.cache['oneMoreKey']).toBeDefined();
+        expect(Memory.cache['key0']).toBeUndefined();
         expect(Object.keys(Memory.cache).length).toBe(50);
     });
 

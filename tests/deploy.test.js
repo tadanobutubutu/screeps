@@ -65,6 +65,12 @@ describe('deploy.js', () => {
             }).toThrow();
         });
 
+        test('Poison Null Byteをブロック', () => {
+            expect(() => {
+                validateFilePath('\0../../etc/passwd', testBaseDir);
+            }).toThrow('contains null byte');
+        });
+
         test('サブディレクトリを許可', () => {
             const result = validateFilePath('subdir/file.js', testBaseDir);
             expect(result).toContain('subdir/file.js');

@@ -21,19 +21,21 @@ function validateToken(token, label) {
 
 // ファイルパス検証関数（パストラバーサル対策）
 function validateFilePath(filePath, baseDir) {
-    const normalizedPath = path.normalize(filePath);
-    const resolvedBase = baseDir || __dirname;
-    const resolvedPath = path.resolve(resolvedBase, normalizedPath);
-
-    // Security: Ensure the resolved path is within the base directory.
-    // We append a path separator to the base path to prevent partial matches (e.g., /app matching /app_danger).
-    const safeBase = resolvedBase.endsWith(path.sep) ? resolvedBase : resolvedBase + path.sep;
-    if (!resolvedPath.startsWith(safeBase) && resolvedPath !== resolvedBase) {
-        throw new Error(`Invalid file path: ${filePath}`);
+    // 1. Poison Null Byte 対策: パスに null 文字が含まれていないことを確認
+    if (typeof filePath !== 'string' || filePath.indexOf('\0') !== -1) {
+        throw new Error(`Invalid file path: contains null byte or invalid type`);
     }
 
-    // 親ディレクトリへの参照を含まないことを確認
-    if (normalizedPath.includes('..')) {
+    // 2. ベースディレクトリと対象パスを絶対パスに変換
+    const resolvedBase = path.resolve(baseDir || __dirname);
+    const resolvedPath = path.resolve(resolvedBase, filePath);
+
+    // 3. ベースディレクトリから対象パスへの相対パスを取得し、トラバーサルを検知
+    const relative = path.relative(resolvedBase, resolvedPath);
+    if (
+        relative &&
+        (relative.startsWith('..' + path.sep) || relative === '..' || path.isAbsolute(relative))
+    ) {
         throw new Error(`Path traversal detected: ${filePath}`);
     }
 

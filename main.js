@@ -241,7 +241,7 @@ function _categorizeContainer(s, state) {
     }
 }
 
-function _categorizeRepairTarget(s, type, hits, hitsMax, room, state) {
+function _categorizeRepairTarget({ s, type, hits, hitsMax, room, state }) {
     state.repairTargets.push(s);
     // ⚡ PERFORMANCE: Track target with min hits for O(1) lookup.
     if (hits < state.minHits) {
@@ -297,7 +297,7 @@ function categorizeRoomStructures(room, allStructures) {
 
         // ⚡ PERFORMANCE: Consolidate repair logic to avoid redundant checks across branches.
         if (isDamaged) {
-            _categorizeRepairTarget(s, type, hits, hitsMax, room, state);
+            _categorizeRepairTarget({ s, type, hits, hitsMax, room, state });
         }
     }
 

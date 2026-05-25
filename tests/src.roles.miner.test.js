@@ -2,6 +2,7 @@
  * src/roles/miner.js のユニットテスト
  */
 
+global.LOG_LEVEL = { ERROR: 1, WARN: 2, INFO: 3, DEBUG: 4 };
 global.Game = { creeps: {} };
 global.Memory = {};
 global.WORK = 'work';
@@ -29,7 +30,7 @@ global.RoomPosition = function (x, y, roomName) {
 };
 
 const mockCache = {
-    getSources: jest.fn(),
+    getSources: jest.fn().mockReturnValue([]),
     getContainers: jest.fn(),
     isSafeKey: jest.fn().mockReturnValue(true),
 };
@@ -245,5 +246,52 @@ describe('src/roles/miner', () => {
         miner.run(creep);
 
         expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
+    });
+
+    describe('getBody', () => {
+        test('エネルギー650以上の場合、完全最適化ボディを返す', () => {
+            const expected = [
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.CARRY,
+                global.MOVE,
+            ];
+            expect(miner.getBody(650)).toEqual(expected);
+            expect(miner.getBody(700)).toEqual(expected);
+        });
+
+        test('エネルギー550以上650未満の場合、WORK4つのボディを返す', () => {
+            const expected = [
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.CARRY,
+                global.MOVE,
+            ];
+            expect(miner.getBody(550)).toEqual(expected);
+            expect(miner.getBody(649)).toEqual(expected);
+        });
+
+        test('エネルギー450以上550未満の場合、WORK3つのボディを返す', () => {
+            const expected = [global.WORK, global.WORK, global.WORK, global.CARRY, global.MOVE];
+            expect(miner.getBody(450)).toEqual(expected);
+            expect(miner.getBody(549)).toEqual(expected);
+        });
+
+        test('エネルギー250以上450未満の場合、WORK2つのボディを返す', () => {
+            const expected = [global.WORK, global.WORK, global.MOVE];
+            expect(miner.getBody(250)).toEqual(expected);
+            expect(miner.getBody(449)).toEqual(expected);
+        });
+
+        test('エネルギー250未満の場合、最小ボディを返す', () => {
+            const expected = [global.WORK, global.MOVE];
+            expect(miner.getBody(200)).toEqual(expected);
+            expect(miner.getBody(249)).toEqual(expected);
+        });
     });
 });

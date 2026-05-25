@@ -1,11 +1,5 @@
-🧹 Code Health: Refactor categorizeRoomStructures to use helper functions
+🧪 [testing improvement] Add tests for getBody function in miner role
 
-🎯 **What:** The  function in  was too long and complex. It was refactored by breaking down the loop contents into smaller, distinct helper functions: , , and .
-
-💡 **Why:** This improves maintainability and readability by keeping the core loop clean and moving specific logic into clearly named functions.
-
-✅ **Verification:** Verified changes visually with  and ran the full test suite via
-> screeps-ai@1.0.0 test /app
-> jest and formatting via main.js 186ms (unchanged). Pre-commit checks (including ESLint) all pass.
-
-✨ **Result:** The  function is now cleaner, smaller, and easier to understand, without introducing any changes in behavior.
+🎯 **What:** The `getBody` function in `src/roles/miner.js` lacked test coverage despite being a pure and deterministic function. The testing gap is now addressed.
+📊 **Coverage:** Added tests to cover all 5 boundaries/conditions based on `energy` amounts: 650+, 550+, 450+, 250+, and <250. This guarantees the correct body arrays are returned correctly.
+✨ **Result:** Test coverage for `getBody` function in `miner.js` is now at 100%.

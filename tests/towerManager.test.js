@@ -171,4 +171,55 @@ describe('towerManager', () => {
             expect(mockTower.attack).not.toHaveBeenCalled();
         });
     });
+
+    describe('getTowersNeedingEnergy', () => {
+        test('エネルギー比率が閾値未満のタワーを返す', () => {
+            const lowEnergyTower = {
+                id: 'tower_low',
+                store: {
+                    [global.RESOURCE_ENERGY]: 400,
+                    getCapacity: () => 1000,
+                },
+            };
+            const highEnergyTower = {
+                id: 'tower_high',
+                store: {
+                    [global.RESOURCE_ENERGY]: 600,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([lowEnergyTower, highEnergyTower]);
+
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('tower_low');
+        });
+
+        test('すべてのタワーのエネルギー比率が閾値以上の場合は空配列を返す', () => {
+            const highEnergyTower1 = {
+                id: 'tower_high1',
+                store: {
+                    [global.RESOURCE_ENERGY]: 500,
+                    getCapacity: () => 1000,
+                },
+            };
+            const highEnergyTower2 = {
+                id: 'tower_high2',
+                store: {
+                    [global.RESOURCE_ENERGY]: 600,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([highEnergyTower1, highEnergyTower2]);
+
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(0);
+        });
+
+        test('タワーが存在しない場合は空配列を返す', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(0);
+        });
+    });
 });

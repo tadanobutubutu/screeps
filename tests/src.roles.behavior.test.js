@@ -64,6 +64,7 @@ jest.mock(
         getMyStructures: jest.fn().mockReturnValue([]),
         assignSource: jest.fn().mockReturnValue(null),
         invalidate: jest.fn(),
+        isSafeKey: jest.fn().mockReturnValue(true),
     }),
     { virtual: true }
 );
@@ -254,16 +255,14 @@ describe('src roles behaviors', () => {
         test('コンテナがある場合は移動して採掘する', () => {
             const room = {
                 name: 'W0N0',
-                find: jest
-                    .fn()
-                    .mockReturnValue([
-                        {
-                            structureType: STRUCTURE_CONTAINER,
-                            pos: { x: 11, y: 10 },
-                            hits: 1000,
-                            hitsMax: 2000,
-                        },
-                    ]),
+                find: jest.fn().mockReturnValue([
+                    {
+                        structureType: STRUCTURE_CONTAINER,
+                        pos: { x: 11, y: 10 },
+                        hits: 1000,
+                        hitsMax: 2000,
+                    },
+                ]),
                 getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
             };
             const source = { id: 'src1', room, pos: { x: 10, y: 10 } };

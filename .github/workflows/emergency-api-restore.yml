@@ -5,9 +5,6 @@ permissions:
   issues: write
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       reason:

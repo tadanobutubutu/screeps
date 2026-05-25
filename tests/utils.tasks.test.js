@@ -28,14 +28,14 @@ describe('utils.tasks', () => {
         jest.restoreAllMocks();
     });
 
-    test('registerTaskが正しくタスクを追加する', () => {
+    test('registerTask correctly adds a task', () => {
         TaskQueue.registerTask('testTask', 10, () => {});
         expect(TaskQueue.tasks.length).toBe(1);
         expect(TaskQueue.tasks[0].name).toBe('testTask');
         expect(TaskQueue.tasks[0].interval).toBe(10);
     });
 
-    test('registerTaskが重複を検知して更新する', () => {
+    test('registerTask detects and updates duplicates', () => {
         const action1 = () => {};
         const action2 = () => {};
         TaskQueue.registerTask('task1', 10, action1);
@@ -48,13 +48,13 @@ describe('utils.tasks', () => {
         expect(TaskQueue.tasks[0].action).toBe(action2);
     });
 
-    test('registerTaskが安全でないキーを拒否する', () => {
+    test('registerTask rejects unsafe keys', () => {
         utilsMemory.isSafeKey.mockReturnValue(false);
         TaskQueue.registerTask('__proto__', 10, () => {});
         expect(TaskQueue.tasks.length).toBe(0);
     });
 
-    test('registerTaskがタスク上限を強制する', () => {
+    test('registerTask enforces task limit', () => {
         for (let i = 0; i < 50; i++) {
             TaskQueue.registerTask(`task${i}`, 1, () => {});
         }
@@ -67,7 +67,7 @@ describe('utils.tasks', () => {
         );
     });
 
-    test('runが正しいティックでタスクを実行する', () => {
+    test('run executes task at correct tick', () => {
         const action = jest.fn();
         TaskQueue.registerTask('task10', 10, action);
 
@@ -87,14 +87,14 @@ describe('utils.tasks', () => {
         expect(everyTickAction).toHaveBeenCalledTimes(1);
     });
 
-    test('runが条件を満たさないタスクをスキップする', () => {
+    test('run skips tasks that do not meet condition', () => {
         const action = jest.fn();
         TaskQueue.registerTask('conditional', 1, action, () => false);
         TaskQueue.run();
         expect(action).not.toHaveBeenCalled();
     });
 
-    test('runがエラーをキャッチしてセキュアロガーに送る', () => {
+    test('run catches errors and sends them to secure logger', () => {
         const errorAction = () => {
             throw new Error('Boom');
         };
@@ -106,7 +106,7 @@ describe('utils.tasks', () => {
         );
     });
 
-    test('runが失敗回数上限を超えたタスクを実行しない (Circuit Breaker)', () => {
+    test('run does not execute tasks exceeding failure limit (Circuit Breaker)', () => {
         const errorAction = jest.fn(() => {
             throw new Error('Boom');
         });
@@ -128,7 +128,7 @@ describe('utils.tasks', () => {
         expect(errorAction).not.toHaveBeenCalled();
     });
 
-    test('registerTaskが再登録時に失敗カウントをリセットする', () => {
+    test('registerTask resets failure count on re-registration', () => {
         const errorAction = jest.fn(() => {
             throw new Error('Boom');
         });
@@ -150,7 +150,7 @@ describe('utils.tasks', () => {
         expect(errorAction).toHaveBeenCalledTimes(1);
     });
 
-    test('runがタスク失敗時にfailuresカウントをインクリメントする', () => {
+    test('run increments failures count on task failure', () => {
         const errorAction = () => {
             throw new Error('Failure Increment Test');
         };
@@ -170,5 +170,38 @@ describe('utils.tasks', () => {
 
         // After 2 runs with error, failures should be 2
         expect(task.failures).toBe(2);
+    });
+
+    test('removeTask removes an existing task', () => {
+        TaskQueue.registerTask('taskToRemove', 10, () => {});
+        expect(TaskQueue.tasks.length).toBe(1);
+        TaskQueue.removeTask('taskToRemove');
+        expect(TaskQueue.tasks.length).toBe(0);
+    });
+
+    test('removeTask does not throw when removing a non-existent task', () => {
+        TaskQueue.registerTask('existingTask', 10, () => {});
+        expect(TaskQueue.tasks.length).toBe(1);
+        TaskQueue.removeTask('nonExistentTask');
+        expect(TaskQueue.tasks.length).toBe(1);
+    });
+
+    test('removeTask does nothing when given an empty name or null', () => {
+        TaskQueue.registerTask('task1', 10, () => {});
+        expect(TaskQueue.tasks.length).toBe(1);
+        TaskQueue.removeTask('');
+        TaskQueue.removeTask(null);
+        TaskQueue.removeTask(undefined);
+        expect(TaskQueue.tasks.length).toBe(1);
+    });
+
+    test('removeTask correctly sanitizes and removes a long task name', () => {
+        const longName = 'a'.repeat(200);
+
+        TaskQueue.registerTask(longName, 10, () => {});
+        expect(TaskQueue.tasks.length).toBe(1);
+
+        TaskQueue.removeTask(longName);
+        expect(TaskQueue.tasks.length).toBe(0);
     });
 });

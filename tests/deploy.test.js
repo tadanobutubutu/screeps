@@ -150,8 +150,9 @@ describe('deploy.js', () => {
             const mockRes = {
                 statusCode: 200,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data')
+                    if (event === 'data') {
                         callback(JSON.stringify({ ok: 0, error: 'deploy failed' }));
+                    }
                     if (event === 'end') callback();
                 }),
             };

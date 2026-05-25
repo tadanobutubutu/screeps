@@ -23,7 +23,7 @@ function validateToken(token, label) {
 function validateFilePath(filePath, baseDir) {
     // 1. Poison Null Byte 対策: パスに null 文字が含まれていないことを確認
     if (typeof filePath !== 'string' || filePath.indexOf('\0') !== -1) {
-        throw new Error(`Invalid file path: contains null byte or invalid type`);
+        throw new Error('Invalid file path: contains null byte or invalid type');
     }
 
     // 2. ベースディレクトリと対象パスを絶対パスに変換

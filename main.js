@@ -426,9 +426,8 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
     // ⚡ PERFORMANCE: Hoist energyAvailable to avoid redundant Proxy lookups in the role loop.
     const energyAvailable = spawn.room.energyAvailable;
 
-    for (const role in targetCreeps) {
+    for (const [role, target] of Object.entries(targetCreeps)) {
         const current = creepCounts[role] || 0;
-        const target = targetCreeps[role];
 
         if (current < target) {
             const newName = role + '_' + Game.time;

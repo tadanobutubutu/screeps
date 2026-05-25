@@ -111,3 +111,11 @@ Centralize the `room.find(FIND_CREEPS)` call in the room-warming phase in `main.
 
 **Impact:**
 Reduces engine API calls from $ (where $ is the number of pathfinding calls with creep avoidance) to $ per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.
+
+## Role Counting Loop Optimization
+
+Replaced a `for...in` loop with `Object.entries(targetCreeps)` in `main.js` (`handleSpawning`).
+
+**Why:** `for...in` traverses the prototype chain and checks enumerable properties, which adds minor overhead per tick. `Object.entries` is faster and safer as it strictly operates on the object's own enumerable properties.
+
+**Performance Impact:** Based on micro-benchmarks, destructuring via `Object.entries` avoids the prototype lookup and direct property access overhead within the loop, leading to a small but measurable reduction in execution time for role counting operations, especially when called frequently during spawning checks.

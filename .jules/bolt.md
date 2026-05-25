@@ -111,5 +111,4 @@ Centralize the `room.find(FIND_CREEPS)` call in the room-warming phase in `main.
 
 **Impact:**
 Reduces engine API calls from $ (where $ is the number of pathfinding calls with creep avoidance) to $ per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.
-
 - Performance Optimization: Replaced expensive room.find() calls with cached equivalents (cache.getSources, cache.getEnemies) in memory.visualizer.js to reduce redundant engine queries and execution time.

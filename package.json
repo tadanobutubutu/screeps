@@ -30,7 +30,7 @@
     "homepage": "https://github.com/tadanobutubutu/screeps#readme",
     "dependencies": {
         "@sentry/browser": "^10.53.1",
-        "@supabase/supabase-js": "^2.106.1",
+        "@supabase/supabase-js": "^2.106.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "lodash": "^4.18.1",

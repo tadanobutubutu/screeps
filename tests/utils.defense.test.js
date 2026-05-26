@@ -15,6 +15,11 @@ jest.mock('../src/utils/cache', () => ({
     getEnemies: jest.fn((room) => {
         return room.find(global.FIND_HOSTILE_CREEPS);
     }),
+    getMyStructures: jest.fn((room, structureType) => {
+        return room.find(global.FIND_MY_STRUCTURES, {
+            filter: (s) => s.structureType === structureType,
+        });
+    }),
 }));
 
 const DefenseManager = require('../utils.defense');

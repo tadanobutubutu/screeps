@@ -79,7 +79,12 @@ export async function GET(request: Request) {
       },
       power: Number(data.power) || 0,
       cpuUsed: Number(data.cpuUsed) || 0,
-      rooms: data.rooms && typeof data.rooms === "object" ? data.rooms : {},
+      // Security: Data minimization - only return room names as an array, limited to 100 entries.
+      // We don't need the full room objects which might contain sensitive metadata.
+      rooms:
+        data.rooms && typeof data.rooms === "object"
+          ? Object.keys(data.rooms).slice(0, 100)
+          : [],
     };
 
     if (supabase) {

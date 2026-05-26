@@ -6,7 +6,7 @@ type ScreepsStats = {
     power?: number;
     cpuUsed?: number;
     gcl?: { level: number; progress: number; progressTotal: number };
-    rooms?: Record<string, unknown>;
+    rooms?: string[] | Record<string, unknown>;
 };
 
 export default function Dashboard() {
@@ -30,8 +30,16 @@ export default function Dashboard() {
     const [summaryCopied, setSummaryCopied] = useState(false);
     const [isSummaryFocused, setIsSummaryFocused] = useState(false);
 
-    const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
-    const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
+    const roomCount = stats?.rooms
+        ? Array.isArray(stats.rooms)
+            ? stats.rooms.length
+            : Object.keys(stats.rooms).length
+        : 0;
+    const prevRoomCount = prevStats?.rooms
+        ? Array.isArray(prevStats.rooms)
+            ? prevStats.rooms.length
+            : Object.keys(prevStats.rooms).length
+        : 0;
     const roomDelta = prevStats ? roomCount - prevRoomCount : 0;
 
     const gclPercent = stats?.gcl

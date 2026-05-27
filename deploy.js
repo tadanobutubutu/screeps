@@ -25,15 +25,11 @@ function validateFilePath(filePath, baseDir) {
     const resolvedBase = baseDir || __dirname;
     const resolvedPath = path.resolve(resolvedBase, normalizedPath);
 
-    // Security: Ensure the resolved path is within the base directory.
-    // We append a path separator to the base path to prevent partial matches (e.g., /app matching /app_danger).
-    const safeBase = resolvedBase.endsWith(path.sep) ? resolvedBase : resolvedBase + path.sep;
-    if (!resolvedPath.startsWith(safeBase) && resolvedPath !== resolvedBase) {
-        throw new Error(`Invalid file path: ${filePath}`);
-    }
-
-    // 親ディレクトリへの参照を含まないことを確認
-    if (normalizedPath.includes('..')) {
+    // Security: Ensure the resolved path is strictly within the base directory.
+    // path.relative calculates the relative path from base to the resolved path.
+    // If it starts with '..' or is an absolute path, it means it's outside the base directory.
+    const relativePath = path.relative(resolvedBase, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
         throw new Error(`Path traversal detected: ${filePath}`);
     }
 

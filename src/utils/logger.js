@@ -309,7 +309,14 @@ function getSafeStack(stack, maxLines) {
     const lines = truncatedStack.split('\n');
     return lines
         .slice(0, maxLines || 5)
-        .map((line) => {
+        .map((line, index) => {
+            // Security: The first line often contains the error message, which may
+            // include internal paths (e.g., "Error: Cannot find module '/abs/path'").
+            // We redact absolute-looking paths from the message to prevent leakage.
+            if (index === 0) {
+                return line.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+            }
+
             // Match "filename:line:col" at the end of a path segment.
             // Uses a simple non-backtracking pattern to avoid ReDoS.
             const match = line.match(/[^/\\]+:\d+:\d+/);

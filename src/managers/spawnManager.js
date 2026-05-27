@@ -81,6 +81,11 @@ function run(spawn) {
 // スポーンキュー構築
 // ============================================================
 
+// ⚡ PERFORMANCE OPTIMIZATION: Pre-sort SPAWN_PRIORITY keys once globally to avoid per-tick sorting and full iterations.
+const SORTED_ROLES = Object.keys(SPAWN_PRIORITY).sort(
+    (a, b) => SPAWN_PRIORITY[a] - SPAWN_PRIORITY[b]
+);
+
 /**
  * 現在のルーム状態からスポーンキューを構築する
  * @param {Room} room
@@ -92,8 +97,10 @@ function _buildSpawnQueue(room) {
     const current = _getCurrentCounts(room);
     const queue = [];
 
-    for (const role in targets) {
-        // Security: Use hasOwnProperty to prevent prototype pollution during iteration
+    // ⚡ PERFORMANCE OPTIMIZATION: Iterate roles by pre-sorted priority and break early.
+    // This avoids iterating through all roles, allocating bodies, and sorting an array every tick.
+    for (let i = 0; i < SORTED_ROLES.length; i++) {
+        const role = SORTED_ROLES[i];
         if (!Object.prototype.hasOwnProperty.call(targets, role)) continue;
 
         const needed = targets[role] - (current[role] || 0);
@@ -113,10 +120,11 @@ function _buildSpawnQueue(room) {
             priority: SPAWN_PRIORITY[role] || 99,
             cost,
         });
+
+        break; // Only need the highest priority request per tick
     }
 
-    // 優先度でソート
-    return queue.sort((a, b) => a.priority - b.priority);
+    return queue;
 }
 
 /**

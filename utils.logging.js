@@ -119,7 +119,14 @@ module.exports = {
         return truncatedStack
             .split('\n')
             .slice(0, 5) // Security: Limit number of lines to prevent DoS
-            .map((line) => {
+            .map((line, index) => {
+                // Security: The first line often contains the error message, which may
+                // include internal paths (e.g., "Error: Cannot find module '/abs/path'").
+                // We redact absolute-looking paths from the message to prevent leakage.
+                if (index === 0) {
+                    return line.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+                }
+
                 // Match "filename:line:col" at the end of a path segment.
                 // Uses a simple non-backtracking pattern: match the last
                 // path component only, without nested quantifiers.

@@ -52,7 +52,7 @@ Always leverage the centralized `src/utils/cache.js` for common room searches, e
 
 **Impact:**
 
-- Reduces engine-level API calls by 1 + N$ per room per tick (where $ is the number of towers).
+- Reduces engine-level API calls by 1 + N per room per tick (where N is the number of towers).
 - Replaces expensive C++/JS bridge crossings with pure JS array filtering.
 - Estimated CPU saving: 0.1 - 0.5 CPU per room depending on the number of structures and towers.
 
@@ -97,8 +97,8 @@ We hoisted the retrieval of construction sites outside the loop using `cache.get
 
 ## 2026-05-23 - Optimize Source Assignments with Volatile Cache
 
-**Learning:** In rooms with many harvesters or during logic resets, `assignSource` can become a bottleneck if it re-calculates assignment counts per room on every call ((N \times M)$).
-**Action:** Implement a volatile per-tick cache for source assignments. Calculate counts once per room per tick ((N)$) and update the cache in-place for subsequent calls ((1)$). This reduces complexity to (N + M)$ for $ calls.
+**Learning:** In rooms with many harvesters or during logic resets, `assignSource` can become a bottleneck if it re-calculates assignment counts per room on every call (N * M).
+**Action:** Implement a volatile per-tick cache for source assignments. Calculate counts once per room per tick (N) and update the cache in-place for subsequent calls (1). This reduces complexity to (N + M) for M calls.
 **Impact:** Significantly reduces CPU spikes during high-frequency assignment events.
 
 ## 2026-05-24 - Optimize Pathfinder Creep Costs with Centralized Cache
@@ -110,5 +110,18 @@ In Screeps, pathfinding with `avoidCreeps: true` often triggers redundant `room.
 Centralize the `room.find(FIND_CREEPS)` call in the room-warming phase in `main.js` and store the result in a volatile property (e.g., `room._allCreeps`). In the pathfinder logic, prioritize this cached array to avoid multiple bridge crossings per tick.
 
 **Impact:**
-Reduces engine API calls from $ (where $ is the number of pathfinding calls with creep avoidance) to $ per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.
+Reduces engine API calls from M (where M is the number of pathfinding calls with creep avoidance) to 1 per room per tick. Standard `for` loops also provide a micro-optimization over `for...of` in the Screeps V8 environment.
+
 Learned to prioritize spawn targets without redundant looping using sorted order
+
+- Performance Optimization: Replaced expensive room.find() calls with cached equivalents (cache.getSources, cache.getEnemies) in memory.visualizer.js to reduce redundant engine queries and execution time.
+
+- **Memory Iteration Optimization**: Replacing `for...in` loops with `Object.keys()` for object iteration (like in `utils.memory.js`) yields significant performance improvements. This is because `for...in` traverses the prototype chain and often necessitates a `hasOwnProperty` check, whereas `Object.keys()` returns only the object's own enumerable properties directly, enabling faster and simpler iteration, which is particularly beneficial for high-frequency operations.
+
+## Role Counting Loop Optimization
+
+Replaced a `for...in` loop with `Object.entries(targetCreeps)` in `main.js` (`handleSpawning`).
+
+**Why:** `for...in` traverses the prototype chain and checks enumerable properties, which adds minor overhead per tick. `Object.entries` is faster and safer as it strictly operates on the object's own enumerable properties.
+
+**Performance Impact:** Based on micro-benchmarks, destructuring via `Object.entries` avoids the prototype lookup and direct property access overhead within the loop, leading to a small but measurable reduction in execution time for role counting operations, especially when called frequently during spawning checks.

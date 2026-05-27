@@ -103,4 +103,35 @@ describe('utils.defense', () => {
         expect(status.ramparts).toBe(1);
         expect(status.underAttack).toBe(false);
     });
+
+    test('findTowerTargetsが空配列を返されたときにエラーを投げない', () => {
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+        };
+
+        expect(() => {
+            DefenseManager.findTowerTargets(room);
+        }).not.toThrow();
+    });
+
+    test('findTowerTargetsがtowerはあるがターゲットがないときに何もしない', () => {
+        const mockTower = { structureType: STRUCTURE_TOWER, attack: jest.fn(), repair: jest.fn() };
+        const room = {
+            find: jest.fn().mockImplementation((type, options) => {
+                if (type === FIND_MY_STRUCTURES) {
+                    // Note: FIND_STRUCTURES is also 20 in this file
+                    let items = [mockTower];
+                    if (options && options.filter) {
+                        return items.filter(options.filter);
+                    }
+                    return items;
+                }
+                return [];
+            }),
+        };
+
+        DefenseManager.findTowerTargets(room);
+        expect(mockTower.attack).not.toHaveBeenCalled();
+        expect(mockTower.repair).not.toHaveBeenCalled();
+    });
 });

@@ -5,24 +5,31 @@
 ## 🎯 機能一覧
 
 ### 1. 📊 Memory Stats
+
 メモリ使用状況を確認
 
 ### 2. ⏰ Time Machine
+
 過去のデータを記録・再生
 
 ### 3. 🏆 Leaderboard
+
 Creepの成績ランキング
 
 ### 4. 📝 Diary
+
 各Creepの行動日記
 
 ### 5. 🗺️ Memory Map
+
 探索した部屋の記録
 
 ### 6. 🧹 Cleaner
+
 不要なメモリ削除
 
 ### 7. 💾 Backup
+
 メモリのバックアップ・復元
 
 ## 🚀 使い方
@@ -33,21 +40,21 @@ Creepの成績ランキング
 // main.jsに追加
 const memVis = require('memory.visualizer');
 
-module.exports.loop = function() {
-  // タイムマシン記録 (毎ティック)
-  memVis.recordSnapshot();
-  
-  // クリーナー (100ティックごと)
-  if (Game.time % 100 === 0) {
-    memVis.cleanup();
-  }
-  
-  // バックアップ (1000ティックごと)
-  if (Game.time % 1000 === 0) {
-    memVis.backup();
-  }
-  
-  // 通常のコード...
+module.exports.loop = function () {
+    // タイムマシン記録 (毎ティック)
+    memVis.recordSnapshot();
+
+    // クリーナー (100ティックごと)
+    if (Game.time % 100 === 0) {
+        memVis.cleanup();
+    }
+
+    // バックアップ (1000ティックごと)
+    if (Game.time % 1000 === 0) {
+        memVis.backup();
+    }
+
+    // 通常のコード...
 };
 ```
 
@@ -62,6 +69,7 @@ memVis.showStats();
 ```
 
 **出力例**:
+
 ```
 📊 Memory Stats:
   Total Size: 15.32 KB
@@ -78,6 +86,7 @@ memVis.showTopMemoryUsers(10);
 ```
 
 **出力例**:
+
 ```
 📈 Top 10 Memory Users:
   1. [creep] harvester_1: 256 bytes
@@ -103,6 +112,7 @@ memVis.showHistory(10);
 ```
 
 **出力例**:
+
 ```
 ⏰ History (Last 10 snapshots):
   Tick 2900: Creeps=11, CPU=15.23, Energy=300
@@ -131,18 +141,18 @@ Memory.timeMachine.enabled = true;
 ```javascript
 // role.harvester.jsで
 if (creep.harvest(source) === OK) {
-  const memVis = require('memory.visualizer');
-  memVis.recordAchievement(creep.name, 'harvested', source.energyCapacity / 3000);
+    const memVis = require('memory.visualizer');
+    memVis.recordAchievement(creep.name, 'harvested', source.energyCapacity / 3000);
 }
 
 // role.builder.jsで
 if (creep.build(target) === OK) {
-  memVis.recordAchievement(creep.name, 'built', 5);
+    memVis.recordAchievement(creep.name, 'built', 5);
 }
 
 // role.upgrader.jsで
 if (creep.upgradeController(target) === OK) {
-  memVis.recordAchievement(creep.name, 'upgraded', 1);
+    memVis.recordAchievement(creep.name, 'upgraded', 1);
 }
 ```
 
@@ -160,6 +170,7 @@ memVis.showLeaderboard('upgraded', 10);
 ```
 
 **出力例**:
+
 ```
 🏆 Leaderboard - harvested (Top 10):
   🥇 1. harvester_1: 15420
@@ -205,6 +216,7 @@ memVis.readDiary('harvester_1');
 ```
 
 **出力例**:
+
 ```
 📝 Diary of harvester_1:
   [Tick 2850] 🌾 Harvested energy from source
@@ -238,6 +250,7 @@ memVis.showMap();
 ```
 
 **出力例**:
+
 ```
 🗺️ Memory Map:
   Explored Rooms: 5
@@ -262,7 +275,7 @@ memVis.showMap();
 ```javascript
 // main.jsで100ティックごと
 if (Game.time % 100 === 0) {
-  memVis.cleanup();
+    memVis.cleanup();
 }
 ```
 
@@ -273,6 +286,7 @@ memVis.cleanup();
 ```
 
 **出力例**:
+
 ```
 🧹 Cleaned 15 memory entries
 ```
@@ -293,6 +307,7 @@ memVis.backup();
 ```
 
 **出力**:
+
 ```
 💾 Backup created at tick 3000
 ```
@@ -304,10 +319,11 @@ memVis.backup();
 memVis.restore(0);
 
 // 古いバックアップから復元
-memVis.restore(1);  // 2番目に古い
+memVis.restore(1); // 2番目に古い
 ```
 
 **出力**:
+
 ```
 ✅ Restored backup from tick 2000
 ```
@@ -317,7 +333,7 @@ memVis.restore(1);  // 2番目に古い
 ```javascript
 // バックアップ一覧
 Memory.backups.forEach((backup, index) => {
-  console.log(`${index}: Tick ${backup.time}`);
+    console.log(`${index}: Tick ${backup.time}`);
 });
 ```
 
@@ -328,9 +344,9 @@ Memory.backups.forEach((backup, index) => {
 ```javascript
 // 毎日1000ティックで優勝者発表
 if (Game.time % 1000 === 0) {
-  memVis.showLeaderboard('harvested', 3);
-  memVis.showLeaderboard('built', 3);
-  memVis.showLeaderboard('upgraded', 3);
+    memVis.showLeaderboard('harvested', 3);
+    memVis.showLeaderboard('built', 3);
+    memVis.showLeaderboard('upgraded', 3);
 }
 ```
 
@@ -347,8 +363,9 @@ console.log(`Average CPU: ${avgCpu.toFixed(2)}`);
 
 ```javascript
 // ベテランCreepの日記を読む
-const oldestCreep = Object.keys(Game.creeps)
-  .sort((a, b) => Game.creeps[a].ticksToLive - Game.creeps[b].ticksToLive)[0];
+const oldestCreep = Object.keys(Game.creeps).sort(
+    (a, b) => Game.creeps[a].ticksToLive - Game.creeps[b].ticksToLive
+)[0];
 
 memVis.readDiary(oldestCreep);
 ```
@@ -360,8 +377,7 @@ memVis.readDiary(oldestCreep);
 memVis.showMap();
 
 const explored = Memory.map.explored.length;
-const hostile = Object.values(Memory.map.rooms)
-  .filter(r => r.hostiles > 0).length;
+const hostile = Object.values(Memory.map.rooms).filter((r) => r.hostiles > 0).length;
 
 console.log(`Total explored: ${explored}, Hostile rooms: ${hostile}`);
 ```
@@ -371,10 +387,10 @@ console.log(`Total explored: ${explored}, Hostile rooms: ${hostile}`);
 ```javascript
 // 大きいメモリを見つけて減らす
 const topUsers = memVis.showTopMemoryUsers(5);
-topUsers.forEach(user => {
-  if (user.size > 1000) {
-    console.log(`⚠️ ${user.name} is using ${user.size} bytes!`);
-  }
+topUsers.forEach((user) => {
+    if (user.size > 1000) {
+        console.log(`⚠️ ${user.name} is using ${user.size} bytes!`);
+    }
 });
 ```
 
@@ -391,13 +407,15 @@ topUsers.forEach(user => {
 
 ```javascript
 // 記録頻度を調整
-if (Game.time % 10 === 0) {  // 10ティックごと
-  memVis.recordSnapshot();
+if (Game.time % 10 === 0) {
+    // 10ティックごと
+    memVis.recordSnapshot();
 }
 
 // クリーンアップ頻度を増やす
-if (Game.time % 50 === 0) {  // 50ティックごと
-  memVis.cleanup();
+if (Game.time % 50 === 0) {
+    // 50ティックごと
+    memVis.cleanup();
 }
 ```
 
@@ -434,4 +452,4 @@ A: 記録頻度を減らすか、一部機能を無効化しましょう。
 
 **🎉 メモリを楽しもう！** 💾✨
 
-*ScreepsのメモリーはRPGのセーブデータみたい！*
+_ScreepsのメモリーはRPGのセーブデータみたい！_

@@ -57,11 +57,15 @@ const DashboardRenderer = {
             hostiles: hostiles.length,
             structures: structures.length,
             energy: `${formatNumber(energyAvailable)}/${formatNumber(energyCapacity)}`,
-            energyPercent: energyCapacity ? Math.floor((energyAvailable / energyCapacity) * 100) : 0,
-            energyAvailable: energyAvailable,
-            energyCapacity: energyCapacity,
+            energyPercent: energyCapacity
+                ? Math.floor((energyAvailable / energyCapacity) * 100)
+                : 0,
+            energyAvailable,
+            energyCapacity,
             storage: formatNumber(storageEnergy),
-            storagePercent: storageCapacity ? Math.floor((storageEnergy / storageCapacity) * 100) : 0,
+            storagePercent: storageCapacity
+                ? Math.floor((storageEnergy / storageCapacity) * 100)
+                : 0,
             creeps: roleCount,
             mode: adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase(),
             bucket: Game.cpu.bucket,

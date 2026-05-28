@@ -21,3 +21,17 @@
 **Vulnerability:** Log-Level Bypass (Information Leakage / DoS).
 **Learning:** Directly assigning user-controlled values from `Memory` to internal state variables (like `_level`) without validation can bypass security logic if the values are malformed (e.g., negative values, strings, or `null`). In JavaScript, unvalidated values can satisfy or break logic gates (e.g., a negative log level satisfying `val > LOG_LEVEL.DEBUG`, or `undefined > 0` evaluating to `false`), causing the logger to fail open or behave unexpectedly.
 **Prevention:** Always use validated setters (like `setLevel()`) when initializing state from `Memory` or other persistent storage. Ensure setters perform strict type checking and range validation, falling back to safe defaults for any invalid input.
+
+## 2026-05-25 - Object Key Lookup with Screeps Constants
+
+**Vulnerability:** Incorrect Key Lookup / Prototype Pollution / Missing Features.
+**Learning:** Using Screeps constants like `STRUCTURE_CONTAINER` directly as keys in object literals (e.g., `CONTAINER: 100`) creates a key named literally "CONTAINER", not the value of the constant (`"container"`). This leads to runtime failures during property lookups (e.g., `ENERGY_WITHDRAW_THRESHOLD[structureType]`) because the actual structure type strings from the game engine don't match the hardcoded strings in the object. This is an application logic flaw. Using computed property names (`[STRUCTURE_CONTAINER]: 100`) evaluates the constant correctly.
+**Prevention:** Use computed property names `[CONSTANT_NAME]: value` when defining lookup maps that are intended to be indexed by dynamic engine values or constants to guarantee accurate property resolution.
+
+- **deploy.js Path Traversal Fix**: Addressed a path traversal vulnerability by replacing string comparison (`startsWith` + `endsWith`) with secure path boundary resolution. Used `path.relative(baseDir, resolvedPath)` combined with checking `relativePath.startsWith('..')` and `path.isAbsolute(relativePath)` to confidently assert that paths are strictly within the base directory without overly-restrictive substring matching blocks.
+
+## 2026-05-30 - ログにおける内部パスの漏洩 (Information Leakage)
+
+**Vulnerability:** エラーメッセージを通じた内部ファイルシステムのパス漏洩。
+**Learning:** `stack` トレースのサニタイズだけでは不十分であり、`e.message` 自体に絶対パスが含まれるケース（例: "Cannot find module '/abs/path'"）がある。これを放置すると、CIログや共有ログサービスを通じて内部ディレクトリ構造が攻撃者に露呈するリスクがある。
+**Prevention:** エラーメッセージおよびスタックトレースの全行に対して、UnixおよびWindows形式の絶対パスを検知・置換する堅牢な正規表現 (`/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g`) を適用するサニタイズ処理を共通化し、すべてのログ出力ポイントで強制する。

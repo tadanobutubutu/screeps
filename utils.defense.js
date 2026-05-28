@@ -5,12 +5,13 @@ const DefenseManager = {
         const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
 
         const hostiles = cache.getEnemies(room);
-        const damagedStructures = room.find(FIND_STRUCTURES, {
-            filter: (s) => s.hits && s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
-        });
-        const damagedWalls = room.find(FIND_STRUCTURES, {
-            filter: (s) => s.structureType === STRUCTURE_WALL && s.hits < 100000,
-        });
+        const allStructures = cache.getStructures(room);
+        const damagedStructures = allStructures.filter(
+            (s) => s.hits && s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+        );
+        const damagedWalls = allStructures.filter(
+            (s) => s.structureType === STRUCTURE_WALL && s.hits < 100000
+        );
 
         towers.forEach((tower) => {
             if (hostiles.length > 0) {

@@ -5,23 +5,25 @@
 ## 📊 Current Status
 
 ### Level & Points
+
 - **Level**: 🌟 Advanced (Level 4)
 - **Total Points**: 2241
 
 ### Project Stats
+
 - **Total Issues**: 3
-  - ✅ Closed: 28
-  - 🔄 Open: 3
+    - ✅ Closed: 28
+    - 🔄 Open: 3
 - **Total PRs**: 0
-  - ✅ Merged: 98
+    - ✅ Merged: 98
 - **Total Commits**: 1
 - **Contributors**: 16
 
 ### Completion Rate
+
 [██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████] 933%
 
 ## 🏆 Achievements Unlocked
-
 
 🎯 First Blood - Closed first issue
 ⭐ Issue Hunter - Closed 10 issues
@@ -54,4 +56,4 @@ $(if [ 933 -lt 80 ]; then echo "- Reach $(( 80 - 933 ))% more completion for ✨
 
 ---
 
-*Auto-updated by Project Gamification System 🎮*
+_Auto-updated by Project Gamification System 🎮_

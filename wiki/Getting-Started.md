@@ -30,11 +30,11 @@ GitHubでリアルタイムの統計とコンソールログを確認するに�
 2. **トークンを生成** をクリック
 3. トークンをコピー
 4. GitHubリポジトリに追加:
-   - **Settings** > **Secrets and variables** > **Actions** に移動
-   - **New repository secret** をクリック
-   - 名前: `SCREEPS_PROD_TOKEN`
-   - 値: [トークンを貼り付け]
-   - **Add secret** をクリック
+    - **Settings** > **Secrets and variables** > **Actions** に移動
+    - **New repository secret** をクリック
+    - 名前: `SCREEPS_PROD_TOKEN`
+    - 値: [トークンを貼り付け]
+    - **Add secret** をクリック
 
 ### 3. 最初のスポーン
 
@@ -96,16 +96,16 @@ Screepsコンソールを開く:
 
 ```javascript
 // 現在のティックを確認
-Game.time
+Game.time;
 
 // クリープ数を確認
-Object.keys(Game.creeps).length
+Object.keys(Game.creeps).length;
 
 // 最近のログを確認
-Memory.logs.slice(-10)
+Memory.logs.slice(-10);
 
 // エラーを確認
-Memory.logs.filter(l => l.level === 'error')
+Memory.logs.filter((l) => l.level === 'error');
 ```
 
 ## 次のステップ

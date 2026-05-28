@@ -1,46 +1,46 @@
-title: "💡 機能提案・RFC"
+title: '💡 機能提案・RFC'
 labels:
-  - rfc
-  - enhancement
+    - rfc
+    - enhancement
 body:
-  - type: markdown
-    attributes:
-      value: |
-        新機能やアーキテクチャの変更を提案してください！
-  - type: textarea
-    id: summary
-    attributes:
-      label: 📋 概要
-      description: この提案の簡潔な説明
-      placeholder: 新しいクリープロール「偵察兵」を追加したい
-    validations:
-      required: true
-  - type: textarea
-    id: motivation
-    attributes:
-      label: 🎯 動機
-      description: なぜこの変更が必要なのか？
-    validations:
-      required: true
-  - type: textarea
-    id: proposal
-    attributes:
-      label: 💡 提案内容
-      description: 具体的な提案を記述
-    validations:
-      required: true
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: 🔄 代替案
-      description: 他に検討した方法があれば記載
-  - type: dropdown
-    id: priority
-    attributes:
-      label: 📊 優先度
-      options:
-        - 低 (いつでも)
-        - 中 (次のスプリント)
-        - 高 (すぐに)
-    validations:
-      required: true
+    - type: markdown
+      attributes:
+          value: |
+              新機能やアーキテクチャの変更を提案してください！
+    - type: textarea
+      id: summary
+      attributes:
+          label: 📋 概要
+          description: この提案の簡潔な説明
+          placeholder: 新しいクリープロール「偵察兵」を追加したい
+      validations:
+          required: true
+    - type: textarea
+      id: motivation
+      attributes:
+          label: 🎯 動機
+          description: なぜこの変更が必要なのか？
+      validations:
+          required: true
+    - type: textarea
+      id: proposal
+      attributes:
+          label: 💡 提案内容
+          description: 具体的な提案を記述
+      validations:
+          required: true
+    - type: textarea
+      id: alternatives
+      attributes:
+          label: 🔄 代替案
+          description: 他に検討した方法があれば記載
+    - type: dropdown
+      id: priority
+      attributes:
+          label: 📊 優先度
+          options:
+              - 低 (いつでも)
+              - 中 (次のスプリント)
+              - 高 (すぐに)
+      validations:
+          required: true

@@ -74,6 +74,7 @@ describe('towerManager', () => {
             name: 'W1N1',
             find: jest.fn().mockReturnValue([]),
             controller: { level: 1 },
+            visual: { text: jest.fn() },
         };
 
         cache.getMyCreeps.mockReturnValue([]);
@@ -169,6 +170,107 @@ describe('towerManager', () => {
 
             // エネルギー不足のため、攻撃・回復・修復は行われない
             expect(mockTower.attack).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('getTowersNeedingEnergy', () => {
+        test('エネルギー比率が閾値未満のタワーを返す', () => {
+            const lowEnergyTower = {
+                id: 'tower_low',
+                store: {
+                    [global.RESOURCE_ENERGY]: 400,
+                    getCapacity: () => 1000,
+                },
+            };
+            const highEnergyTower = {
+                id: 'tower_high',
+                store: {
+                    [global.RESOURCE_ENERGY]: 600,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([lowEnergyTower, highEnergyTower]);
+
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(1);
+            expect(result[0].id).toBe('tower_low');
+        });
+
+        test('すべてのタワーのエネルギー比率が閾値以上の場合は空配列を返す', () => {
+            const highEnergyTower1 = {
+                id: 'tower_high1',
+                store: {
+                    [global.RESOURCE_ENERGY]: 500,
+                    getCapacity: () => 1000,
+                },
+            };
+            const highEnergyTower2 = {
+                id: 'tower_high2',
+                store: {
+                    [global.RESOURCE_ENERGY]: 600,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([highEnergyTower1, highEnergyTower2]);
+
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(0);
+        });
+
+        test('タワーが存在しない場合は空配列を返す', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(0);
+        });
+    });
+
+    describe('showDashboard', () => {
+        test('タワーがない場合は何もしない', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            expect(() => towerManager.showDashboard(mockRoom)).not.toThrow();
+            expect(mockRoom.visual.text).not.toHaveBeenCalled();
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（緑：> 0.7）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 800; // ratio = 0.8
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 80%',
+                25,
+                24,
+                expect.objectContaining({ color: '#00ff88', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（オレンジ：> 0.4）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 500; // ratio = 0.5
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 50%',
+                25,
+                24,
+                expect.objectContaining({ color: '#ffaa00', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('エネルギー残量に応じた色でテキストを描画する（赤：<= 0.4）', () => {
+            mockTower.store[global.RESOURCE_ENERGY] = 300; // ratio = 0.3
+            cache.getMyStructures.mockReturnValue([mockTower]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 30%',
+                25,
+                24,
+                expect.objectContaining({ color: '#ff4444', font: 0.4, align: 'center' })
+            );
         });
     });
 });

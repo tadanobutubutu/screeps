@@ -1,19 +1,23 @@
 ---
 name: 💡 機能リクエスト
 about: 新しい機能やAIの改善提案はこちら
-title: "[Feature] "
-labels: ["enhancement"]
+title: '[Feature] '
+labels: ['enhancement']
 assignees: tadanobutubutu
 ---
 
 ## 💡 提案の概要
+
 <!-- どんな機能を追加したいか簡潔に -->
 
 ## 背景・理由
+
 <!-- なぜこの機能が必要か -->
 
 ## 具体的なアイデア
+
 <!-- 実装イメージや参考例があれば -->
 
 ## 期待する効果
+
 <!-- この機能でどう改善されるか（CPU削減、勝率向上など） -->

@@ -31,7 +31,9 @@ module.exports = {
         logger.info('\n🛠️ TACTICAL ORDERS:');
 
         if (Memory.strategy.tactics) {
-            for (const role in Memory.strategy.tactics) {
+            const roles = Object.keys(Memory.strategy.tactics);
+            for (let i = 0; i < roles.length; i++) {
+                const role = roles[i];
                 logger.info(`  • ${role}: ${Memory.strategy.tactics[role]}`);
             }
         }

@@ -12,7 +12,7 @@
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
-const { MEMORY_KEYS, ROLES } = require('../constants');
+const { MEMORY_KEYS } = require('../constants');
 
 // ============================================================
 // タスク定義

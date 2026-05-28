@@ -120,7 +120,7 @@ describe('utils.memory', () => {
             utilsMemory.memoize(fn, 'key' + i, 100);
         }
         expect(callCount).toBe(50);
-        expect(Memory.cache['key0']).toBeDefined();
+        expect(Memory.cache.key0).toBeDefined();
 
         // Add one more entry
         const result = utilsMemory.memoize(fn, 'oneMoreKey', 100);
@@ -128,8 +128,8 @@ describe('utils.memory', () => {
         expect(callCount).toBe(51);
 
         // Security: Verify FIFO eviction (key0 should be gone, oneMoreKey should be present)
-        expect(Memory.cache['oneMoreKey']).toBeDefined();
-        expect(Memory.cache['key0']).toBeUndefined();
+        expect(Memory.cache.oneMoreKey).toBeDefined();
+        expect(Memory.cache.key0).toBeUndefined();
         expect(Object.keys(Memory.cache).length).toBe(50);
     });
 
@@ -234,5 +234,116 @@ describe('utils.memory', () => {
     test('isSafeKey blocks other dangerous properties', () => {
         expect(utilsMemory.isSafeKey('__lookupGetter__')).toBe(false);
         expect(utilsMemory.isSafeKey('__lookupSetter__')).toBe(false);
+    });
+
+    describe('updateWorkingState', () => {
+        let mockCreep;
+
+        beforeEach(() => {
+            mockCreep = {
+                memory: {
+                    working: false,
+                },
+                store: {
+                    getFreeCapacity: jest.fn(),
+                    getUsedCapacity: jest.fn(),
+                },
+            };
+        });
+
+        test('transitions to working when free capacity is 0', () => {
+            mockCreep.memory.working = false;
+            mockCreep.store.getFreeCapacity.mockReturnValue(0);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(true);
+            expect(mockCreep.memory.working).toBe(true);
+        });
+
+        test('transitions to not working when used capacity is 0', () => {
+            mockCreep.memory.working = true;
+            mockCreep.store.getUsedCapacity.mockReturnValue(0);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(false);
+            expect(mockCreep.memory.working).toBe(false);
+        });
+
+        test('remains working when used capacity is > 0', () => {
+            mockCreep.memory.working = true;
+            mockCreep.store.getUsedCapacity.mockReturnValue(10);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(true);
+            expect(mockCreep.memory.working).toBe(true);
+        });
+
+        test('remains not working when free capacity is > 0', () => {
+            mockCreep.memory.working = false;
+            mockCreep.store.getFreeCapacity.mockReturnValue(10);
+
+            const result = utilsMemory.updateWorkingState(mockCreep);
+
+            expect(result).toBe(false);
+            expect(mockCreep.memory.working).toBe(false);
+        });
+    });
+
+    describe('initCreepMemory', () => {
+        let creep;
+
+        beforeEach(() => {
+            creep = { memory: {} };
+        });
+
+        test('initializes role and working state if undefined', () => {
+            utilsMemory.initCreepMemory(creep, 'harvester');
+            expect(creep.memory.role).toBe('harvester');
+            expect(creep.memory.working).toBe(false);
+        });
+
+        test('does not overwrite existing role or working state', () => {
+            creep.memory.role = 'builder';
+            creep.memory.working = true;
+            utilsMemory.initCreepMemory(creep, 'harvester');
+            expect(creep.memory.role).toBe('builder');
+            expect(creep.memory.working).toBe(true);
+        });
+
+        test('copies safe properties from extraData', () => {
+            utilsMemory.initCreepMemory(creep, 'harvester', { sourceId: 'abc', count: 5 });
+            expect(creep.memory.sourceId).toBe('abc');
+            expect(creep.memory.count).toBe(5);
+        });
+
+        test('does not overwrite existing properties in creep memory with extraData', () => {
+            creep.memory.sourceId = 'xyz';
+            utilsMemory.initCreepMemory(creep, 'harvester', { sourceId: 'abc' });
+            expect(creep.memory.sourceId).toBe('xyz');
+        });
+
+        test('blocks dangerous keys from extraData', () => {
+            const extraData = { validKey: 'value' };
+            Object.defineProperty(extraData, '__proto__', { value: 'danger', enumerable: true });
+            utilsMemory.initCreepMemory(creep, 'harvester', extraData);
+
+            // Should not copy __proto__ but validKey should be copied
+            expect(creep.memory.validKey).toBe('value');
+            expect(creep.memory.__proto__).not.toBe('danger');
+        });
+
+        test('does not copy inherited properties from extraData', () => {
+            const parent = { inheritedKey: 'inherited' };
+            const child = Object.create(parent);
+            child.ownKey = 'own';
+
+            utilsMemory.initCreepMemory(creep, 'harvester', child);
+
+            expect(creep.memory.ownKey).toBe('own');
+            expect(creep.memory.inheritedKey).toBeUndefined();
+        });
     });
 });

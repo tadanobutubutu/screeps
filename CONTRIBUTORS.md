@@ -7,36 +7,43 @@
 ### 💻 Core Development Bots
 
 #### 1. 🔍 Code Reviewer Bot
+
 - **役割**: コードレビュー
 - **頻度**: 2時間ごと
 - **担当**: CODE_REVIEW.md
 
 #### 2. 📚 Documentation Bot
+
 - **役割**: ドキュメント維持
 - **頻度**: 2時間ごと
 - **担当**: API_REFERENCE.md
 
 #### 3. ⚡ Performance Bot
+
 - **役割**: パフォーマンス最適化
 - **頻度**: 2時間ごと
 - **担当**: PERFORMANCE_REPORT.md
 
 #### 4. 🔒 Security Bot
+
 - **役割**: セキュリティスキャン
 - **頻度**: 2時間ごと
 - **担当**: SECURITY_SCAN.md
 
 #### 5. 🧪 Test Bot
+
 - **役割**: テスト実行
 - **頻度**: 2時間ごと
 - **担当**: TEST_REPORT.md
 
 #### 6. 🔧 Refactor Bot
+
 - **役割**: リファクタリング提案
 - **頻度**: 2時間ごと
 - **担当**: REFACTOR_SUGGESTIONS.md
 
 #### 7. 📊 Stats Bot
+
 - **役割**: 統計情報収集
 - **頻度**: 2時間ごと
 - **担当**: PROJECT_STATS.md
@@ -44,36 +51,43 @@
 ### 🔧 Maintenance Bots
 
 #### 8. 📝 Changelog Bot
+
 - **役割**: 変更履歴管理
 - **頻度**: 3時間ごと
 - **担当**: CHANGELOG.md
 
 #### 9. 📊 Metrics Bot
+
 - **役割**: メトリクス収集
 - **頻度**: 3時間ごと
 - **担当**: METRICS.md
 
 #### 10. 📦 Dependency Bot
+
 - **役割**: 依存関係チェック
 - **頻度**: 3時間ごと
 - **担当**: DEPENDENCIES.md
 
 #### 11. 🧹 Cleanup Bot
+
 - **役割**: コードクリーンアップ
 - **頻度**: 3時間ごと
 - **担当**: CLEANUP_LOG.md
 
 #### 12. 💾 Backup Bot
+
 - **役割**: バックアップ検証
 - **頻度**: 3時間ごと
 - **担当**: BACKUP_STATUS.md
 
 #### 13. 🔗 Integration Bot
+
 - **役割**: 統合テスト
 - **頻度**: 3時間ごと
 - **担当**: INTEGRATION_STATUS.md
 
 #### 14. ✅ QA Bot
+
 - **役割**: 品質保証
 - **頻度**: 3時間ごと
 - **担当**: QA_REPORT.md
@@ -81,11 +95,13 @@
 ### 🤖 AI-Powered Bots
 
 #### 15. 🤖 AI Fix Bot
+
 - **役割**: AIエラー修正
 - **頻度**: 30分ごと
 - **技術**: GitHub Copilot
 
 #### 16. ✨ AI Improve Bot
+
 - **役割**: AIコード改善
 - **頻度**: 12時間ごと
 - **技術**: GitHub Copilot
@@ -93,21 +109,25 @@
 ### 🔧 System Bots
 
 #### 17. 🔧 Workflow Fix Bot
+
 - **役割**: ワークフロー修正
 - **頻度**: 6時間ごと
 - **担当**: WORKFLOW_HEALTH.md
 
 #### 18. 🎨 Format Bot
+
 - **役割**: コード整形
 - **頻度**: 毎日
 - **ツール**: ESLint, Prettier
 
 #### 19. 🔒 CodeQL Bot
+
 - **役割**: 高度なセキュリティ分析
 - **頻度**: 毎日
 - **ツール**: GitHub CodeQL
 
 #### 20. 🛡️ Dependabot
+
 - **役割**: 依存関係更新
 - **頻度**: 自動
 - **ツール**: GitHub Dependabot
@@ -115,16 +135,19 @@
 ### 📊 Monitoring Bots
 
 #### 21. 📊 Game Monitor Bot
+
 - **役割**: ゲーム状況監視
 - **頻度**: 15分ごと
 - **担当**: GAME_STATUS.md, CONSOLE_LOGS.md
 
 #### 22. 🐛 Error Detector Bot
+
 - **役割**: エラー検出
 - **頻度**: 15分ごと
 - **担当**: DETECTED_ERRORS.json
 
 #### 23. 💰 Usage Monitor Bot
+
 - **役割**: 使用量監視
 - **頻度**: 毎日
 - **担当**: USAGE_REPORT.md
@@ -209,4 +232,4 @@ GitHubのContributorsページで全Botの活動を確認できます！
 
 **🎉 全てのBotたちに感謝！**
 
-*This project is maintained by an amazing team of automated bots, working 24/7 to keep everything running smoothly.*
+_This project is maintained by an amazing team of automated bots, working 24/7 to keep everything running smoothly._

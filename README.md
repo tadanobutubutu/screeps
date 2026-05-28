@@ -5,7 +5,7 @@
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
 [![Workflows](https://img.shields.io/badge/Workflows-31-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7104-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-7167-purple)](./)
 
 ## 🚀 特徴
 
@@ -76,12 +76,12 @@
 
 ## 📈 統計情報
 
-- 📄 **JSファイル数**: 36
-- 📝 **総コード行数**: 7104
+- 📄 **JSファイル数**: 37
+- 📝 **総コード行数**: 7167
 - 🔄 **ワークフロー数**: 31
 - 🎭 **ロール数**: 9
 
-*最終更新: 2026-05-25*
+*最終更新: 2026-05-28*
 
 ## 🔧 セットアップ
 
@@ -155,4 +155,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-25T10:14:35.283Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-28T10:32:35.380Z*

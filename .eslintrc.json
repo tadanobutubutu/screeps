@@ -4,13 +4,8 @@
         "node": true,
         "jest": true
     },
-    "extends": [
-        "eslint:recommended",
-        "prettier"
-    ],
-    "plugins": [
-        "prettier"
-    ],
+    "extends": ["eslint:recommended", "prettier"],
+    "plugins": ["prettier"],
     "parserOptions": {
         "ecmaVersion": 2020,
         "sourceType": "module"
@@ -60,17 +55,8 @@
         "prefer-const": "error",
         "no-var": "error",
         "prettier/prettier": "error",
-        "eqeqeq": [
-            "error",
-            "always"
-        ],
-        "curly": [
-            "error",
-            "all"
-        ],
-        "brace-style": [
-            "error",
-            "1tbs"
-        ]
+        "eqeqeq": ["error", "always"],
+        "curly": ["error", "all"],
+        "brace-style": ["error", "1tbs"]
     }
 }

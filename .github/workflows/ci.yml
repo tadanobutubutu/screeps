@@ -32,10 +32,10 @@ jobs:
         name: ⬢ Lint & Check Code
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: '24'
 
@@ -77,12 +77,12 @@ jobs:
             github.actor != 'google-labs-jules[bot]'
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               with:
                   fetch-depth: 0
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: '24'
 
@@ -271,10 +271,10 @@ jobs:
         name: 🧹 Auto-Format (Prettier/ESLint Fix)
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: '24'
 

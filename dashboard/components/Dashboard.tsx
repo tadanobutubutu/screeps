@@ -6,7 +6,7 @@ type ScreepsStats = {
     power?: number;
     cpuUsed?: number;
     gcl?: { level: number; progress: number; progressTotal: number };
-    rooms?: Record<string, unknown>;
+    rooms?: string[] | Record<string, unknown>;
 };
 
 export default function Dashboard() {
@@ -29,9 +29,19 @@ export default function Dashboard() {
     const [roomCopied, setRoomCopied] = useState(false);
     const [summaryCopied, setSummaryCopied] = useState(false);
     const [isSummaryFocused, setIsSummaryFocused] = useState(false);
+    const [isRoomFocused, setIsRoomFocused] = useState(false);
+    const [isSyncFocused, setIsSyncFocused] = useState(false);
 
-    const roomCount = stats?.rooms ? Object.keys(stats.rooms).length : 0;
-    const prevRoomCount = prevStats?.rooms ? Object.keys(prevStats.rooms).length : 0;
+    const roomCount = stats?.rooms
+        ? Array.isArray(stats.rooms)
+            ? stats.rooms.length
+            : Object.keys(stats.rooms).length
+        : 0;
+    const prevRoomCount = prevStats?.rooms
+        ? Array.isArray(prevStats.rooms)
+            ? prevStats.rooms.length
+            : Object.keys(prevStats.rooms).length
+        : 0;
     const roomDelta = prevStats ? roomCount - prevRoomCount : 0;
 
     const gclPercent = stats?.gcl
@@ -46,6 +56,14 @@ export default function Dashboard() {
         : stats?.gcl && prevStats?.gcl
           ? gclPercent - prevGclPercent
           : 0;
+
+    const absoluteXpGain =
+        stats?.gcl && prevStats?.gcl
+            ? leveledUp
+                ? prevStats.gcl.progressTotal - prevStats.gcl.progress + stats.gcl.progress
+                : stats.gcl.progress - prevStats.gcl.progress
+            : 0;
+
     const powerDelta =
         stats?.power !== undefined && prevStats?.power !== undefined
             ? stats.power - prevStats.power
@@ -446,6 +464,8 @@ export default function Dashboard() {
                     {stats?.rooms && (
                         <button
                             onClick={handleCopyRooms}
+                            onFocus={() => setIsRoomFocused(true)}
+                            onBlur={() => setIsRoomFocused(false)}
                             className="interactive-hint"
                             style={{
                                 fontSize: '0.9rem',
@@ -460,6 +480,10 @@ export default function Dashboard() {
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease-in-out',
                                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
+                                boxShadow: isRoomFocused
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#006699'}`
+                                    : 'none',
+                                outline: 'none',
                             }}
                             aria-label={
                                 roomCopied
@@ -487,9 +511,7 @@ export default function Dashboard() {
                                         marginLeft: '0.25rem',
                                         fontWeight: 'bold',
                                         animation:
-                                            roomDelta > 0
-                                                ? 'bounce 0.6s ease'
-                                                : 'shake 0.3s 3',
+                                            roomDelta > 0 ? 'bounce 0.6s ease' : 'shake 0.3s 3',
                                     }}
                                     aria-label={
                                         roomDelta > 0
@@ -509,18 +531,30 @@ export default function Dashboard() {
                         </button>
                     )}
                     {lastUpdated && (
-                        <span
+                        <button
+                            onClick={() => fetchStats(true)}
+                            onFocus={() => setIsSyncFocused(true)}
+                            onBlur={() => setIsSyncFocused(false)}
                             className="interactive-hint"
                             style={{
                                 fontSize: '0.8rem',
                                 color: getStalenessInfo().color,
+                                background: 'transparent',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '0.2rem 0.4rem',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.25rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                boxShadow: isSyncFocused
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${getStalenessInfo().color}`
+                                    : 'none',
+                                outline: 'none',
                             }}
-                            aria-label={`Last sync: ${timeAgo} (${getStalenessInfo().label}). Exact time: ${lastUpdated.toLocaleString()}`}
-                            title={lastUpdated.toLocaleString()}
-                            tabIndex={0}
+                            aria-label={`Last sync: ${timeAgo} (${getStalenessInfo().label}). Click to refresh. Exact time: ${lastUpdated.toLocaleString()}`}
+                            title={`Click to refresh (R). Exact time: ${lastUpdated.toLocaleString()}`}
                         >
                             <span
                                 role="img"
@@ -535,7 +569,7 @@ export default function Dashboard() {
                                 {getStalenessInfo().icon}
                             </span>
                             Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
-                        </span>
+                        </button>
                     )}
                     <button
                         onClick={handleResetSecret}
@@ -1052,8 +1086,8 @@ export default function Dashboard() {
                                                         ? 'bounce 0.6s ease'
                                                         : 'shake 0.3s 3',
                                             }}
-                                            title="Progress gained since last update"
-                                            aria-label={`${gclDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(gclDelta).toFixed(2)}%`}
+                                            aria-label={`${gclDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(gclDelta).toFixed(2)}% (${absoluteXpGain.toLocaleString()} XP)`}
+                                            title={`Progress gained since last update: ${absoluteXpGain.toLocaleString()} XP`}
                                         >
                                             ({gclDelta > 0 ? '+' : ''}
                                             {gclDelta.toFixed(2)}%)
@@ -1070,8 +1104,8 @@ export default function Dashboard() {
                                 aria-valuenow={Number(gclPercent.toFixed(2))}
                                 aria-valuemin={0}
                                 aria-valuemax={100}
-                                aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}`}
-                                title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}`}
+                                aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${absoluteXpGain > 0 ? ` (+${absoluteXpGain.toLocaleString()} XP recently)` : ''}`}
+                                title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}${absoluteXpGain > 0 ? `\nRecent gain: +${absoluteXpGain.toLocaleString()} XP` : ''}`}
                                 style={{
                                     width: '100%',
                                     height: '12px',
@@ -1242,19 +1276,29 @@ export default function Dashboard() {
                                 {copied ? '✅ Copied!' : '📋 Copy JSON'}
                             </button>
                         </div>
+                        {/* 🎨 Palette: JSONブロックをクリック可能にし、コピー体験を向上させる */}
                         <pre
-                            aria-label="Screeps statistics JSON. Press 'C' to copy."
+                            onClick={handleCopy}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
+                            aria-label={
+                                copied
+                                    ? 'Stats copied!'
+                                    : "Screeps statistics JSON. Click or press 'C' to copy."
+                            }
                             className="interactive-hint"
-                            title="Screeps statistics JSON (C to copy)"
+                            title={
+                                copied ? 'Copied!' : 'Screeps statistics JSON (Click or C to copy)'
+                            }
                             tabIndex={0}
                             style={{
-                                background: '#f8f8f8',
+                                background: copied ? '#e8f5e9' : '#f8f8f8',
                                 padding: '1rem',
                                 borderRadius: '4px',
                                 overflow: 'auto',
                                 maxHeight: '500px',
                                 margin: 0,
-                                border: '1px solid #eee',
+                                border: copied ? '1px solid #1e7e34' : '1px solid #eee',
+                                transition: 'all 0.2s ease-in-out',
                             }}
                         >
                             {JSON.stringify(stats, null, 2)}

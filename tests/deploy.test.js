@@ -65,6 +65,12 @@ describe('deploy.js', () => {
             }).toThrow();
         });
 
+        test('Poison Null Byteをブロック', () => {
+            expect(() => {
+                validateFilePath('\0../../etc/passwd', testBaseDir);
+            }).toThrow('contains null byte');
+        });
+
         test('サブディレクトリを許可', () => {
             const result = validateFilePath('subdir/file.js', testBaseDir);
             expect(result).toContain('subdir/file.js');
@@ -144,8 +150,9 @@ describe('deploy.js', () => {
             const mockRes = {
                 statusCode: 200,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data')
+                    if (event === 'data') {
                         callback(JSON.stringify({ ok: 0, error: 'deploy failed' }));
+                    }
                     if (event === 'end') callback();
                 }),
             };

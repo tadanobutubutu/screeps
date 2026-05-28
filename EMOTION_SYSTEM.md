@@ -9,6 +9,7 @@
 Creepたちは30種類以上の絵文字で感情を表現：
 
 #### 😊 ポジティブ感情
+
 - 😊 幸せ
 - 🤩 興奮
 - 😎 誇らしげ
@@ -17,12 +18,14 @@ Creepたちは30種類以上の絵文字で感情を表現：
 - ⭐ 成功
 
 #### 😐 中立感情
+
 - 🛠️ 作業中
 - 🤔 考え中
 - 🎯 集中
 - 🚶 移動中
 
 #### 😔 ネガティブ感情
+
 - 😫 疲れた
 - 😵 混乱
 - 😟 心配
@@ -31,6 +34,7 @@ Creepたちは30種類以上の絵文字で感情を表現：
 - 🍔 お腹が空いた
 
 #### 💪 活動ベース
+
 - ⛏️ 採掘中
 - 🛠️ 建設中
 - ⬆️ アップグレード中
@@ -40,6 +44,7 @@ Creepたちは30種類以上の絵文字で感情を表現：
 - 🚚 運搬中
 
 #### 🎉 特別
+
 - 🎉 誕生日
 - 🎆 レベルアップ
 - 🎊 お祝い
@@ -57,12 +62,14 @@ Creepたちは1～5レベルの気分を持ちます：
 #### 気分が変わる要因
 
 ✅ **ポジティブ**
+
 - エネルギー満タン (+1)
 - 他のCreepと交流 (+0.5)
 - 達成感 (+3)
 - 1500ティック生きる (+3)
 
 ❌ **ネガティブ**
+
 - エネルギー不足 (-1)
 - ダメージ受けた (-2)
 - 動けない (-1)
@@ -119,10 +126,11 @@ Creepどうしは交流します：
 #### 個別のCreepを確認
 
 ```javascript
-checkEmotion('harvester_12345')
+checkEmotion('harvester_12345');
 ```
 
 **表示内容**：
+
 ```
 🤖 Creep Emotion Report
 Name: harvester_12345
@@ -136,10 +144,11 @@ Achievements: 0
 #### 全体の感情統計
 
 ```javascript
-emotionStats()
+emotionStats();
 ```
 
 **表示内容**：
+
 ```
 😊 Emotion Statistics:
 Very Happy: 3 😄
@@ -161,6 +170,7 @@ Total Creeps: 10
 ### コンソール
 
 100ティックごとに：
+
 ```
 Emotions - Happy: 8, Neutral: 2, Sad: 0
 ```
@@ -213,13 +223,13 @@ Creep B: 😊 (こんにちは！)
 
 ```javascript
 Memory.creeps[name].emotions = {
-  mood: 4,                    // 1-5
-  lastEmotion: '😊',        // 最後の絵文字
-  experiencePoints: 0,        // 経験値
-  achievements: [],           // 達成リスト
-  personalityTraits: 'cheerful', // 性格
-  birthTick: 12345           // 生まれたティック
-}
+    mood: 4, // 1-5
+    lastEmotion: '😊', // 最後の絵文字
+    experiencePoints: 0, // 経験値
+    achievements: [], // 達成リスト
+    personalityTraits: 'cheerful', // 性格
+    birthTick: 12345, // 生まれたティック
+};
 ```
 
 ## 🎉 特別イベント
@@ -275,4 +285,4 @@ Creepの感情を更新して表示。
 
 **😊 あなたのCreepたちはもうただのユニットじゃない！**
 
-*彼らは感情を持つ、生きている仒間です。*
+_彼らは感情を持つ、生きている仒間です。_

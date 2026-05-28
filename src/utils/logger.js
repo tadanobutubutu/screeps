@@ -82,6 +82,18 @@ function _record(level, message) {
 }
 
 /**
+ * Security: Redacts absolute Unix and Windows paths from a string.
+ * Prevents internal directory structure leakage in logs.
+ * @param {string} str
+ * @returns {string}
+ */
+function _redactPaths(str) {
+    if (typeof str !== 'string') return str;
+    // Matches /abs/path or C:\abs\path
+    return str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+}
+
+/**
  * Security: Escapes HTML special characters to prevent console injection.
  * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
  * to avoid unnecessary .replace() calls on safe strings.
@@ -256,10 +268,12 @@ function error(message, error) {
 
     let full = sanitizedMessage;
     if (error instanceof Error) {
-        // Security: Truncate error message to avoid Memory DoS
-        const sanitizedErrorMsg = String(
+        // Security: Truncate and redact error message to avoid Memory DoS and path leakage
+        const rawErrorMsg = String(
             error.message !== null && error.message !== undefined ? error.message : ''
         ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+        const sanitizedErrorMsg = _redactPaths(rawErrorMsg);
+
         full += ` | ${sanitizedErrorMsg}`;
         if (error.stack) {
             full += `\n${getSafeStack(error.stack)}`;
@@ -310,25 +324,22 @@ function getSafeStack(stack, maxLines) {
     return lines
         .slice(0, maxLines || 5)
         .map((line, index) => {
-            // Security: The first line often contains the error message, which may
-            // include internal paths (e.g., "Error: Cannot find module '/abs/path'").
-            // We redact absolute-looking paths from the message to prevent leakage.
-            if (index === 0) {
-                return line.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
-            }
-
             // Match "filename:line:col" at the end of a path segment.
             // Uses a simple non-backtracking pattern to avoid ReDoS.
             const match = line.match(/[^/\\]+:\d+:\d+/);
             if (match) {
                 return `    at ${match[0]}`;
             }
+
             // Security: If the line looks like a stack trace entry but doesn't match
             // the safe pattern, redact it to prevent internal path leakage.
             if (line.trim().startsWith('at ')) {
                 return '    at [REDACTED]';
             }
-            return line;
+
+            // Security: For the first line (error message) or non-stack lines,
+            // redact absolute paths to prevent leakage.
+            return _redactPaths(line);
         })
         .join('\n');
 }

@@ -29,3 +29,9 @@
 **Prevention:** Use computed property names `[CONSTANT_NAME]: value` when defining lookup maps that are intended to be indexed by dynamic engine values or constants to guarantee accurate property resolution.
 
 - **deploy.js Path Traversal Fix**: Addressed a path traversal vulnerability by replacing string comparison (`startsWith` + `endsWith`) with secure path boundary resolution. Used `path.relative(baseDir, resolvedPath)` combined with checking `relativePath.startsWith('..')` and `path.isAbsolute(relativePath)` to confidently assert that paths are strictly within the base directory without overly-restrictive substring matching blocks.
+
+## 2026-05-30 - ログにおける内部パスの漏洩 (Information Leakage)
+
+**Vulnerability:** エラーメッセージを通じた内部ファイルシステムのパス漏洩。
+**Learning:** `stack` トレースのサニタイズだけでは不十分であり、`e.message` 自体に絶対パスが含まれるケース（例: "Cannot find module '/abs/path'"）がある。これを放置すると、CIログや共有ログサービスを通じて内部ディレクトリ構造が攻撃者に露呈するリスクがある。
+**Prevention:** エラーメッセージおよびスタックトレースの全行に対して、UnixおよびWindows形式の絶対パスを検知・置換する堅牢な正規表現 (`/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g`) を適用するサニタイズ処理を共通化し、すべてのログ出力ポイントで強制する。

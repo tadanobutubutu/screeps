@@ -171,4 +171,48 @@ describe('towerManager', () => {
             expect(mockTower.attack).not.toHaveBeenCalled();
         });
     });
+
+    describe('getStats', () => {
+        test('タワーがない場合は初期値を返す', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const stats = towerManager.getStats(mockRoom);
+            expect(stats).toEqual({
+                total: 0,
+                active: 0,
+                avgEnergy: 0,
+                lowEnergy: 0,
+            });
+        });
+
+        test('タワーの統計情報を正しく計算する', () => {
+            const tower1 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 800,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                },
+            };
+            const tower2 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 400,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                },
+            };
+            const tower3 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 0,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                },
+            };
+
+            cache.getMyStructures.mockReturnValue([tower1, tower2, tower3]);
+
+            const stats = towerManager.getStats(mockRoom);
+            expect(stats).toEqual({
+                total: 3,
+                active: 2,
+                avgEnergy: (0.8 + 0.4 + 0) / 3,
+                lowEnergy: 2,
+            });
+        });
+    });
 });

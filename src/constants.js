@@ -255,7 +255,6 @@ const CACHE_TTL = {
 
 /** 修復対象となるHP率の閾値 */
 // Security: Use Object.create(null) to avoid prototype pollution issues.
-// Fix: Use computed property names with Screeps constants for correct lookups.
 const REPAIR_THRESHOLD = Object.assign(Object.create(null), {
     [STRUCTURE_ROAD]: 0.5,
     [STRUCTURE_CONTAINER]: 0.5,
@@ -301,9 +300,9 @@ const TOWER_ENERGY_PRIORITY = 0.5;
 
 /** コンテナ・ストレージからエネルギーを引き出す閾値 */
 const ENERGY_WITHDRAW_THRESHOLD = {
-    CONTAINER: 100,
-    STORAGE: 10000,
-    LINK: 200,
+    [STRUCTURE_CONTAINER]: 100,
+    [STRUCTURE_STORAGE]: 10000,
+    [STRUCTURE_LINK]: 200,
 };
 
 // ============================================================

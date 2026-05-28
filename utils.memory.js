@@ -47,13 +47,11 @@ module.exports = {
     cleanMemory: function () {
         if (!Memory.creeps) return 0;
         let cleaned = 0;
-        for (const name in Memory.creeps) {
-            // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-            if (
-                isSafeKey(name) &&
-                Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
-                !Game.creeps[name]
-            ) {
+        const keys = Object.keys(Memory.creeps);
+        for (let i = 0; i < keys.length; i++) {
+            const name = keys[i];
+            // Security: isSafeKey checks are still required, but hasOwnProperty is handled by Object.keys()
+            if (isSafeKey(name) && !Game.creeps[name]) {
                 delete Memory.creeps[name];
                 cleaned++;
             }
@@ -163,9 +161,11 @@ module.exports = {
             return;
         }
 
-        for (const key in Memory.cache) {
-            // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-            if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(Memory.cache, key)) {
+        const keys = Object.keys(Memory.cache);
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            // Security: isSafeKey checks are still required, but hasOwnProperty is handled by Object.keys()
+            if (isSafeKey(key)) {
                 const entry = Memory.cache[key];
                 // Security: Add null check and ensure timestamp is a valid number to prevent DoS via state corruption.
                 if (entry && typeof entry.timestamp === 'number') {

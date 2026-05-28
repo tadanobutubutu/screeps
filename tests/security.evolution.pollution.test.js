@@ -3,7 +3,6 @@
  */
 
 const autoEvolution = require('../auto.evolution');
-const utilsMemory = require('../utils.memory');
 
 describe('Security: Evolution System Prototype Pollution Protection', () => {
     beforeEach(() => {

@@ -25,15 +25,11 @@ function validateFilePath(filePath, baseDir) {
     const resolvedBase = baseDir || __dirname;
     const resolvedPath = path.resolve(resolvedBase, normalizedPath);
 
-    // Security: Ensure the resolved path is within the base directory.
-    // We append a path separator to the base path to prevent partial matches (e.g., /app matching /app_danger).
-    const safeBase = resolvedBase.endsWith(path.sep) ? resolvedBase : resolvedBase + path.sep;
-    if (!resolvedPath.startsWith(safeBase) && resolvedPath !== resolvedBase) {
-        throw new Error(`Invalid file path: ${filePath}`);
-    }
-
-    // 親ディレクトリへの参照を含まないことを確認
-    if (normalizedPath.includes('..')) {
+    // Security: Ensure the resolved path is strictly within the base directory.
+    // path.relative calculates the relative path from base to the resolved path.
+    // If it starts with '..' or is an absolute path, it means it's outside the base directory.
+    const relativePath = path.relative(resolvedBase, resolvedPath);
+    if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
         throw new Error(`Path traversal detected: ${filePath}`);
     }
 
@@ -61,6 +57,17 @@ function injectEnvVars(content) {
         // 環境変数が未定義の場合、Screeps環境での ReferenceError を防ぐために 'undefined' を返す
         return 'undefined';
     });
+}
+
+/**
+ * Security: Redacts sensitive information from a string.
+ * Redacts absolute paths and tokens.
+ */
+function sanitizeLog(str) {
+    if (typeof str !== 'string') return str;
+    return str
+        .replace(/token/gi, '[REDACTED]')
+        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {
@@ -106,7 +113,7 @@ function deployTo(label, apiPath, token, modules) {
                         resolve();
                     } else {
                         // エラーレスポンスから機密情報を除外してログ出力
-                        const safeJson = JSON.stringify(json).replace(/token/gi, '[REDACTED]');
+                        const safeJson = sanitizeLog(JSON.stringify(json));
                         console.error(`[${label}] Deployment failed:`, safeJson);
                         reject(new Error(`${label} deployment failed`));
                     }
@@ -116,7 +123,7 @@ function deployTo(label, apiPath, token, modules) {
                         resolve();
                     } else {
                         // エラーデータから機密情報を除外
-                        const safeData = data.replace(/token/gi, '[REDACTED]');
+                        const safeData = sanitizeLog(data);
                         console.error(`[${label}] Deployment failed! Raw:`, safeData);
                         reject(new Error(`${label} deployment failed`));
                     }
@@ -126,7 +133,7 @@ function deployTo(label, apiPath, token, modules) {
 
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外
-            const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+            const safeMessage = sanitizeLog(e.message);
             console.error(`[${label}] Request error:`, safeMessage);
             reject(new Error(`${label} request failed`));
         });
@@ -170,7 +177,7 @@ if (require.main === module) {
                     console.log(`  [OK] ${m.name} (${m.file})`);
                 } catch (e) {
                     // エラーメッセージから機密情報を除外
-                    const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+                    const safeMessage = sanitizeLog(e.message);
                     console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
                     process.exit(1);
                 }
@@ -181,7 +188,7 @@ if (require.main === module) {
             console.log('All done!');
         } catch (error) {
             // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-            const safeMessage = error.message.replace(/token/gi, '[REDACTED]');
+            const safeMessage = sanitizeLog(error.message);
             console.error('Deployment process failed:', safeMessage);
             process.exit(1);
         }

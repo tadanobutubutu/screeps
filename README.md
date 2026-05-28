@@ -5,7 +5,7 @@
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
 [![Workflows](https://img.shields.io/badge/Workflows-31-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7104-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-7155-purple)](./)
 
 ## 🚀 特徴
 
@@ -19,6 +19,7 @@
 **現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
 
 毎時自動更新されるリアルタイムレポート：
+
 - 👤 プレイヤー情報 (GCL, CPU, Credits)
 - 🏰 所有部屋の状況
 - 🐛 クリープ統計
@@ -76,12 +77,12 @@
 
 ## 📈 統計情報
 
-- 📄 **JSファイル数**: 36
-- 📝 **総コード行数**: 7104
+- 📄 **JSファイル数**: 37
+- 📝 **総コード行数**: 7155
 - 🔄 **ワークフロー数**: 31
 - 🎭 **ロール数**: 9
 
-*最終更新: 2026-05-25*
+_最終更新: 2026-05-28_
 
 ## 🔧 セットアップ
 
@@ -133,6 +134,7 @@ npm install
 ### 🎲 ランダム実験
 
 毎週以下のいずれかを自動追加：
+
 - 📊 パフォーマンスモニター
 - 🧭 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -155,4 +157,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-25T10:14:35.283Z*
+_このREADMEは自動更新されます - 最終更新: 2026-05-28T10:10:17.820Z_

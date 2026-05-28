@@ -16,7 +16,11 @@ describe('Dashboard API Hardening', () => {
                 : undefined,
             power: Number(data.power) || 0,
             cpuUsed: Number(data.cpuUsed) || 0,
-            rooms: data.rooms && typeof data.rooms === 'object' ? data.rooms : {},
+            // Security: Data minimization - only return room names as an array, limited to 100 entries.
+            rooms:
+                data.rooms && typeof data.rooms === 'object'
+                    ? Object.keys(data.rooms).slice(0, 100)
+                    : [],
         };
     };
 
@@ -29,7 +33,10 @@ describe('Dashboard API Hardening', () => {
             },
             power: 100,
             cpuUsed: 15.5,
-            rooms: ['W1N1', 'W1N2'],
+            rooms: {
+                W1N1: { status: 'ok' },
+                W1N2: { status: 'ok' },
+            },
             email: 'user@example.com', // Sensitive PII
             id: '5f9b3a2b1c', // Internal ID
             token: 'secret_session_token', // Sensitive token
@@ -45,6 +52,7 @@ describe('Dashboard API Hardening', () => {
         });
         expect(result.power).toBe(100);
         expect(result.cpuUsed).toBe(15.5);
+        // Verify rooms is now an array of keys
         expect(result.rooms).toEqual(['W1N1', 'W1N2']);
 
         // Verify sensitive fields are removed
@@ -63,7 +71,7 @@ describe('Dashboard API Hardening', () => {
             },
             power: '100px',
             // cpuUsed missing
-            rooms: { W1N1: {} }, // Not an array
+            rooms: { W1N1: {} },
         };
 
         const result = filterScreepsResponse(malformedResponse);
@@ -75,7 +83,8 @@ describe('Dashboard API Hardening', () => {
         });
         expect(result.power).toBe(0); // NaN becomes 0
         expect(result.cpuUsed).toBe(0);
-        expect(result.rooms).toEqual({ W1N1: {} });
+        // Verify rooms is an array containing the key
+        expect(result.rooms).toEqual(['W1N1']);
     });
 
     test('should handle completely empty response', () => {
@@ -84,6 +93,19 @@ describe('Dashboard API Hardening', () => {
         expect(result.gcl).toBeUndefined();
         expect(result.power).toBe(0);
         expect(result.cpuUsed).toBe(0);
-        expect(result.rooms).toEqual({});
+        expect(result.rooms).toEqual([]);
+    });
+
+    test('should limit rooms array to 100 entries', () => {
+        const manyRooms = {};
+        for (let i = 0; i < 150; i++) {
+            manyRooms[`W${i}N${i}`] = { foo: 'bar' };
+        }
+
+        const result = filterScreepsResponse({ rooms: manyRooms });
+
+        expect(Array.isArray(result.rooms)).toBe(true);
+        expect(result.rooms.length).toBe(100);
+        expect(result.rooms[0]).toBe('W0N0');
     });
 });

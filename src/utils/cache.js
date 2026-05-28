@@ -146,11 +146,13 @@ function invalidatePattern(pattern) {
 
         const cache = ensureCache();
         const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-        for (const key in cache) {
+        const keys = Object.keys(cache);
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             // Security: iterate over own keys only. Since cache is Object.create(null),
             // hasOwnProperty.call is still safe but technically redundant for prototype issues,
             // yet good for general robustness.
-            if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+            if (isSafeKey(key)) {
                 if (regex.test(key)) {
                     delete cache[key];
                 }
@@ -168,8 +170,10 @@ function invalidatePattern(pattern) {
 function cleanup() {
     const cache = ensureCache();
     let removed = 0;
-    for (const key in cache) {
-        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+    const keys = Object.keys(cache);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (isSafeKey(key)) {
             const entry = cache[key];
             if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
                 delete cache[key];
@@ -190,8 +194,10 @@ function getStats() {
     let total = 0;
     let expired = 0;
 
-    for (const key in cache) {
-        if (isSafeKey(key) && Object.prototype.hasOwnProperty.call(cache, key)) {
+    const keys = Object.keys(cache);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        if (isSafeKey(key)) {
             total++;
             const entry = cache[key];
             if (entry && typeof entry.expires === 'number' && entry.expires <= now) {

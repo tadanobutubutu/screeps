@@ -45,7 +45,9 @@ const gamification = {
             Memory.gamification = {};
         }
 
-        for (const key in GAMIFICATION_DEFAULTS) {
+        const keys = Object.keys(GAMIFICATION_DEFAULTS);
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             if (Memory.gamification[key] === undefined) {
                 // For arrays and objects, we must create new copies to avoid shared references
                 if (Array.isArray(GAMIFICATION_DEFAULTS[key])) {

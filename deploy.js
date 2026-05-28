@@ -59,6 +59,17 @@ function injectEnvVars(content) {
     });
 }
 
+/**
+ * Security: Redacts sensitive information from a string.
+ * Redacts absolute paths and tokens.
+ */
+function sanitizeLog(str) {
+    if (typeof str !== 'string') return str;
+    return str
+        .replace(/token/gi, '[REDACTED]')
+        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+}
+
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
@@ -102,7 +113,7 @@ function deployTo(label, apiPath, token, modules) {
                         resolve();
                     } else {
                         // エラーレスポンスから機密情報を除外してログ出力
-                        const safeJson = JSON.stringify(json).replace(/token/gi, '[REDACTED]');
+                        const safeJson = sanitizeLog(JSON.stringify(json));
                         console.error(`[${label}] Deployment failed:`, safeJson);
                         reject(new Error(`${label} deployment failed`));
                     }
@@ -112,7 +123,7 @@ function deployTo(label, apiPath, token, modules) {
                         resolve();
                     } else {
                         // エラーデータから機密情報を除外
-                        const safeData = data.replace(/token/gi, '[REDACTED]');
+                        const safeData = sanitizeLog(data);
                         console.error(`[${label}] Deployment failed! Raw:`, safeData);
                         reject(new Error(`${label} deployment failed`));
                     }
@@ -122,7 +133,7 @@ function deployTo(label, apiPath, token, modules) {
 
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外
-            const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+            const safeMessage = sanitizeLog(e.message);
             console.error(`[${label}] Request error:`, safeMessage);
             reject(new Error(`${label} request failed`));
         });
@@ -166,7 +177,7 @@ if (require.main === module) {
                     console.log(`  [OK] ${m.name} (${m.file})`);
                 } catch (e) {
                     // エラーメッセージから機密情報を除外
-                    const safeMessage = e.message.replace(/token/gi, '[REDACTED]');
+                    const safeMessage = sanitizeLog(e.message);
                     console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
                     process.exit(1);
                 }
@@ -177,7 +188,7 @@ if (require.main === module) {
             console.log('All done!');
         } catch (error) {
             // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-            const safeMessage = error.message.replace(/token/gi, '[REDACTED]');
+            const safeMessage = sanitizeLog(error.message);
             console.error('Deployment process failed:', safeMessage);
             process.exit(1);
         }

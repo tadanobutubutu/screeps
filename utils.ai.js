@@ -46,7 +46,9 @@ const AIHelper = {
             Memory.aiState = {};
         }
 
-        for (const key in AI_DEFAULTS) {
+        const keys = Object.keys(AI_DEFAULTS);
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             if (!Memory.aiState[key] || !utilsMemory.isSafeKey(Memory.aiState[key])) {
                 Memory.aiState[key] = AI_DEFAULTS[key];
             } else if (typeof Memory.aiState[key] === 'string') {

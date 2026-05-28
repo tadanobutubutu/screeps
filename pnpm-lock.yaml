@@ -13,11 +13,11 @@ importers:
     .:
         dependencies:
             '@sentry/browser':
-                specifier: ^10.53.1
-                version: 10.53.1
+                specifier: ^10.54.0
+                version: 10.54.0
             '@supabase/supabase-js':
-                specifier: ^2.106.1
-                version: 2.106.1
+                specifier: ^2.106.2
+                version: 2.106.2
             eslint-config-prettier:
                 specifier: ^10.1.8
                 version: 10.1.8(eslint@10.4.0(jiti@2.6.1))
@@ -28,8 +28,8 @@ importers:
                 specifier: '>=4.18.1'
                 version: 4.18.1
             posthog-js:
-                specifier: ^1.376.0
-                version: 1.376.0
+                specifier: ^1.376.2
+                version: 1.376.3
         devDependencies:
             '@codecov/rollup-plugin':
                 specifier: ^2.0.1
@@ -1033,16 +1033,16 @@ packages:
             }
         engines: { node: ^12.20.0 || ^14.18.0 || >=16.0.0 }
 
-    '@posthog/core@1.29.9':
+    '@posthog/core@1.29.12':
         resolution:
             {
-                integrity: sha512-DjvuIyBZ2Z/gBhtZlITlM2D8PlnMsHSQ1D78dbUYoVsgGguvanpJTobZObjLlFkybyvfZFYkpoJkFNI/2Pw4IQ==,
+                integrity: sha512-r/2RUa4zbN0XdBp6d+Yk8Jw1rPWXHxyXIgSm/wJf9yDLIouZbH0Pdkgbc1RIuhwL6BIHCFrOqK5jy8TFKTI6iw==,
             }
 
-    '@posthog/types@1.376.0':
+    '@posthog/types@1.376.3':
         resolution:
             {
-                integrity: sha512-gbFfxCuZDs/D4QZMwdE+smD1jsuqgGpS6yKGHZZ19foxMy8RYHsU1E47iG1b88n/uN02fAabLibVwuxLtq8juw==,
+                integrity: sha512-w21lBoz3/ZGw7BZT7t2lJq1mpJwMvWpZijW7vEwBFNAQlq0KfKf2mj5KKUYZMXM1GdIQ0jHnn931uXPB1Ae60w==,
             }
 
     '@protobufjs/aspromise@1.1.2':
@@ -1318,31 +1318,31 @@ packages:
         cpu: [x64]
         os: [win32]
 
-    '@sentry-internal/browser-utils@10.53.1':
+    '@sentry-internal/browser-utils@10.54.0':
         resolution:
             {
-                integrity: sha512-X4d6y8sBMjmNhcDW4eMBU3ASsNIMz8dqaFkhyIMN/dkYr/yZKnbRZPaVuVUGvHKjnlficPpIH0/HK9KBjrYxPw==,
+                integrity: sha512-Cz6NzYFmWJlHh1tvtltKsmLl+1jlseQaPXk18Z0P1g6lXAwhT3aJ99x7vDm4jwCzcJ12qAa8Oga8T3C23Ihijw==,
             }
         engines: { node: '>=18' }
 
-    '@sentry-internal/feedback@10.53.1':
+    '@sentry-internal/feedback@10.54.0':
         resolution:
             {
-                integrity: sha512-vVpTI/aEYN5d9IgZeYJWMqVaN0+iFgidSrYNAsZTh1US5sJUzF/wrl+68KdpmCtFROrN3jiAn1oPSwL5CKvEJA==,
+                integrity: sha512-14D+TPgi75zogGQ/EWwtIm34FVWP34gso4SfJZRAoHiQrRfd907q8/7MTXNItxi81x79cH9vweu/o55LBml6MA==,
             }
         engines: { node: '>=18' }
 
-    '@sentry-internal/replay-canvas@10.53.1':
+    '@sentry-internal/replay-canvas@10.54.0':
         resolution:
             {
-                integrity: sha512-aueLaf/2prExwA76BGU5/bOXCKWqtt6jQXWA6WJQNrmKpPEtZJB4ypnpsou0McXQCF8tur2Y8U0TEkwQP13yJQ==,
+                integrity: sha512-CGsH019npxnU5cocVDoZKod7JaQtaM6JiR6e2fI8tDwssohJAxP616UQTmoTtBLe3yLG18P4e1BxMxYZFalZEQ==,
             }
         engines: { node: '>=18' }
 
-    '@sentry-internal/replay@10.53.1':
+    '@sentry-internal/replay@10.54.0':
         resolution:
             {
-                integrity: sha512-wZNzTBYkgGUPWMuUQv7L64+OJmoCnz7GQNiTrTFK6EVAjJXFBCSsPp/nhif0bLhbk8+0g4xz633uOhpXuQbFdw==,
+                integrity: sha512-B7eicNhAomJ7bGihJO7mCw7pZ8FFo/THQgGPo85VR3FaJVCCot20WxVgvhjc7IVBQVlaaxSrnlUFvA+yHjszqQ==,
             }
         engines: { node: '>=18' }
 
@@ -1353,10 +1353,10 @@ packages:
             }
         engines: { node: '>= 18' }
 
-    '@sentry/browser@10.53.1':
+    '@sentry/browser@10.54.0':
         resolution:
             {
-                integrity: sha512-zXF373hzUOGzUOrqd8xb1U3LQi5uYC3mwv+z5OMKUUinQlu30tTWBs7ypy6YTchtix9QlYaHWlayUF8vBZ5UjA==,
+                integrity: sha512-XYuAA2E4Hf6NOJiP3PqczPgBhFUEsEAh+avgxcYTjTwYdr+Nh5XmDxXATr6RxXUvRASTiYN9zNWyK2o9kEDloA==,
             }
         engines: { node: '>=18' }
 
@@ -1446,10 +1446,10 @@ packages:
         engines: { node: '>= 10' }
         hasBin: true
 
-    '@sentry/core@10.53.1':
+    '@sentry/core@10.54.0':
         resolution:
             {
-                integrity: sha512-XG4ezlkyuAPjBC5+9kXC94rXXuqYTw9NRhfaDHssbTFaGnqBR8vQX2UUgZfY7ucbeelRDGfBu1sywoU+mB04uA==,
+                integrity: sha512-yC/bc8N5ut6vk9X/ugTnIFAbzaSZ2uGoKiHRGzt7VseDIrjXk5ENDJP0m7Rbchuozr41kBv2QB3mPcHUhfB43w==,
             }
         engines: { node: '>=18' }
 
@@ -1497,17 +1497,17 @@ packages:
                 integrity: sha512-DsG+8/LscQIQg68J6Ef3dv10u6nVyetYn923s3/sus5eaGfTo1of5WMZSLf0UJc9KDuKPilPH0UDJCjvNbDNCA==,
             }
 
-    '@supabase/auth-js@2.106.1':
+    '@supabase/auth-js@2.106.2':
         resolution:
             {
-                integrity: sha512-7eyheXfAGwkB9bZewJPs+N3UYt6kra2JG6mIxNEgbkvcO15PLD1e75PTIUEYYl3zrifm3GrpShVl7QZxKrXO/w==,
+                integrity: sha512-VcAjUErkHkhC5Jaf+g/G1qbkQrFh8edaCdHa7pxJmHUjkWKjT7UnYCtPA89XV0N0GIYRkEqJZw5V62CtOxTmBQ==,
             }
         engines: { node: '>=20.0.0' }
 
-    '@supabase/functions-js@2.106.1':
+    '@supabase/functions-js@2.106.2':
         resolution:
             {
-                integrity: sha512-XbOPnR2mW7jp/EcW447xmGwCa+/Wc00Hkw8t4tUIJjRsHQ4xAESsLKcyLRhRJjJoUnJVXUlC+w0wUxUCM7CG2A==,
+                integrity: sha512-oRnr0QrL8H+zTO1YyQ1QjiHZU/957jvubbxSJTUm2XLAgzoGGV9Tahfyd+uvLsBLRVmXLtpU3oyCjdQIvkGMOA==,
             }
         engines: { node: '>=20.0.0' }
 
@@ -1517,31 +1517,31 @@ packages:
                 integrity: sha512-YSAGnmDAfuleFCVt3CeurQZAhxRfXWeZIIkwp7NhYzQ1UwW6ePSnzsFAiUm/mbCkfoCf70QQHKW/K6RKh52a4A==,
             }
 
-    '@supabase/postgrest-js@2.106.1':
+    '@supabase/postgrest-js@2.106.2':
         resolution:
             {
-                integrity: sha512-Qbn6d2lqiqeaBX1Uko0e/hL90dtQGRN6CG2wMVQtJpRFstlVW45qmUTyTOsiB8dYUWu1fWYo4YzJuDbokGv3tQ==,
+                integrity: sha512-tDOzyPgp9pIRMR2x6C9+uDSJrnXSzxLtt3d7nC+Lrsy3jnJDHYfdQC/xcRyhJE/TOBJ0heSqRKR3UmejDjZxsw==,
             }
         engines: { node: '>=20.0.0' }
 
-    '@supabase/realtime-js@2.106.1':
+    '@supabase/realtime-js@2.106.2':
         resolution:
             {
-                integrity: sha512-eQCYri5E8KsjpDgC7g28cOOS2britjUWdNSJluFMainqrMRepzjOnaxqXc3RoAz7H0dxmBrfLUNF6NGP8C+YaA==,
+                integrity: sha512-LdRGT7DNhyZkPjubUv5bSdAZ0jSEX8wTHvx7htj7+K59TOZRvz4TuQK7tL2RWxyIZVeFMRluL04SzWS61rKnUA==,
             }
         engines: { node: '>=20.0.0' }
 
-    '@supabase/storage-js@2.106.1':
+    '@supabase/storage-js@2.106.2':
         resolution:
             {
-                integrity: sha512-HWcLIhqinhWKpOQ3WzglR2unjW0eh9J7yOu3IZrZNIEkraK4La/HDvTqndljGsNw0itPtyHhuKBxRoPG1VUARw==,
+                integrity: sha512-xgKCSYuev1YarV+iVqr+zlfgSyremnJtn8T0NCT8L4XmMv1CLtESc0Q6kNp8+mKWdX/8ND0nzm7OMKx08kwNAw==,
             }
         engines: { node: '>=20.0.0' }
 
-    '@supabase/supabase-js@2.106.1':
+    '@supabase/supabase-js@2.106.2':
         resolution:
             {
-                integrity: sha512-gP4HurGkGu7Z3xoOCjtAI17BKKp7jpsmwY0Ssbsks9XQRzJ7ZhK7LxfLdBSYgUdgZCQgjRK+Mr7+cl4Gxrk0Rw==,
+                integrity: sha512-2/RZ/1fmJx/MRSEDG2Xk8+J4JVk5clM9V0uSI6kUTrcS32KA89DtqI5RUOC9r6mzY3WBC9qexLjssIHjbLyVJA==,
             }
         engines: { node: '>=20.0.0' }
 
@@ -4020,10 +4020,10 @@ packages:
             }
         engines: { node: '>=8' }
 
-    posthog-js@1.376.0:
+    posthog-js@1.376.3:
         resolution:
             {
-                integrity: sha512-YGfQ6gSmqmEh287PHjXRDJ9zML3Su1UIt1+xjRy7Yk6yW43Sc7sFK3CpCkLchCGhIA4x6VaqK+LaqB+7+MCo7A==,
+                integrity: sha512-Wmj4N6E352b8aWt/AjRYIOfagQgOlkb8LCD/r7i1eGj8WPBhrYLEXojQeZ+jndbiPbRo21l24bFJso7fyNafWQ==,
             }
 
     preact@10.29.2:
@@ -5530,11 +5530,11 @@ snapshots:
 
     '@pkgr/core@0.2.9': {}
 
-    '@posthog/core@1.29.9':
+    '@posthog/core@1.29.12':
         dependencies:
-            '@posthog/types': 1.376.0
+            '@posthog/types': 1.376.3
 
-    '@posthog/types@1.376.0': {}
+    '@posthog/types@1.376.3': {}
 
     '@protobufjs/aspromise@1.1.2': {}
 
@@ -5633,33 +5633,33 @@ snapshots:
     '@rollup/rollup-win32-x64-msvc@4.60.4':
         optional: true
 
-    '@sentry-internal/browser-utils@10.53.1':
+    '@sentry-internal/browser-utils@10.54.0':
         dependencies:
-            '@sentry/core': 10.53.1
+            '@sentry/core': 10.54.0
 
-    '@sentry-internal/feedback@10.53.1':
+    '@sentry-internal/feedback@10.54.0':
         dependencies:
-            '@sentry/core': 10.53.1
+            '@sentry/core': 10.54.0
 
-    '@sentry-internal/replay-canvas@10.53.1':
+    '@sentry-internal/replay-canvas@10.54.0':
         dependencies:
-            '@sentry-internal/replay': 10.53.1
-            '@sentry/core': 10.53.1
+            '@sentry-internal/replay': 10.54.0
+            '@sentry/core': 10.54.0
 
-    '@sentry-internal/replay@10.53.1':
+    '@sentry-internal/replay@10.54.0':
         dependencies:
-            '@sentry-internal/browser-utils': 10.53.1
-            '@sentry/core': 10.53.1
+            '@sentry-internal/browser-utils': 10.54.0
+            '@sentry/core': 10.54.0
 
     '@sentry/babel-plugin-component-annotate@5.3.0': {}
 
-    '@sentry/browser@10.53.1':
+    '@sentry/browser@10.54.0':
         dependencies:
-            '@sentry-internal/browser-utils': 10.53.1
-            '@sentry-internal/feedback': 10.53.1
-            '@sentry-internal/replay': 10.53.1
-            '@sentry-internal/replay-canvas': 10.53.1
-            '@sentry/core': 10.53.1
+            '@sentry-internal/browser-utils': 10.54.0
+            '@sentry-internal/feedback': 10.54.0
+            '@sentry-internal/replay': 10.54.0
+            '@sentry-internal/replay-canvas': 10.54.0
+            '@sentry/core': 10.54.0
 
     '@sentry/bundler-plugin-core@5.3.0':
         dependencies:
@@ -5718,7 +5718,7 @@ snapshots:
             - encoding
             - supports-color
 
-    '@sentry/core@10.53.1': {}
+    '@sentry/core@10.54.0': {}
 
     '@sentry/rollup-plugin@5.3.0(rollup@4.60.4)':
         dependencies:
@@ -5746,37 +5746,37 @@ snapshots:
         dependencies:
             '@sinonjs/commons': 3.0.1
 
-    '@supabase/auth-js@2.106.1':
+    '@supabase/auth-js@2.106.2':
         dependencies:
             tslib: 2.8.1
 
-    '@supabase/functions-js@2.106.1':
+    '@supabase/functions-js@2.106.2':
         dependencies:
             tslib: 2.8.1
 
     '@supabase/phoenix@0.4.2': {}
 
-    '@supabase/postgrest-js@2.106.1':
+    '@supabase/postgrest-js@2.106.2':
         dependencies:
             tslib: 2.8.1
 
-    '@supabase/realtime-js@2.106.1':
+    '@supabase/realtime-js@2.106.2':
         dependencies:
             '@supabase/phoenix': 0.4.2
             tslib: 2.8.1
 
-    '@supabase/storage-js@2.106.1':
+    '@supabase/storage-js@2.106.2':
         dependencies:
             iceberg-js: 0.8.1
             tslib: 2.8.1
 
-    '@supabase/supabase-js@2.106.1':
+    '@supabase/supabase-js@2.106.2':
         dependencies:
-            '@supabase/auth-js': 2.106.1
-            '@supabase/functions-js': 2.106.1
-            '@supabase/postgrest-js': 2.106.1
-            '@supabase/realtime-js': 2.106.1
-            '@supabase/storage-js': 2.106.1
+            '@supabase/auth-js': 2.106.2
+            '@supabase/functions-js': 2.106.2
+            '@supabase/postgrest-js': 2.106.2
+            '@supabase/realtime-js': 2.106.2
+            '@supabase/storage-js': 2.106.2
 
     '@tybys/wasm-util@0.10.2':
         dependencies:
@@ -7345,15 +7345,15 @@ snapshots:
         dependencies:
             find-up: 4.1.0
 
-    posthog-js@1.376.0:
+    posthog-js@1.376.3:
         dependencies:
             '@opentelemetry/api': 1.9.1
             '@opentelemetry/api-logs': 0.208.0
             '@opentelemetry/exporter-logs-otlp-http': 0.208.0(@opentelemetry/api@1.9.1)
             '@opentelemetry/resources': 2.7.1(@opentelemetry/api@1.9.1)
             '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.9.1)
-            '@posthog/core': 1.29.9
-            '@posthog/types': 1.376.0
+            '@posthog/core': 1.29.12
+            '@posthog/types': 1.376.3
             core-js: 3.49.0
             dompurify: 3.4.5
             fflate: 0.4.8

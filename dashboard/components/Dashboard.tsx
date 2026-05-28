@@ -1088,7 +1088,6 @@ export default function Dashboard() {
                                                         ? 'bounce 0.6s ease'
                                                         : 'shake 0.3s 3',
                                             }}
-                                            title="Progress gained since last update"
                                             aria-label={`${gclDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(gclDelta).toFixed(2)}% (${absoluteXpGain.toLocaleString()} XP)`}
                                             title={`Progress gained since last update: ${absoluteXpGain.toLocaleString()} XP`}
                                         >
@@ -1279,19 +1278,29 @@ export default function Dashboard() {
                                 {copied ? '✅ Copied!' : '📋 Copy JSON'}
                             </button>
                         </div>
+                        {/* 🎨 Palette: JSONブロックをクリック可能にし、コピー体験を向上させる */}
                         <pre
-                            aria-label="Screeps statistics JSON. Press 'C' to copy."
+                            onClick={handleCopy}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
+                            aria-label={
+                                copied
+                                    ? 'Stats copied!'
+                                    : "Screeps statistics JSON. Click or press 'C' to copy."
+                            }
                             className="interactive-hint"
-                            title="Screeps statistics JSON (C to copy)"
+                            title={
+                                copied ? 'Copied!' : 'Screeps statistics JSON (Click or C to copy)'
+                            }
                             tabIndex={0}
                             style={{
-                                background: '#f8f8f8',
+                                background: copied ? '#e8f5e9' : '#f8f8f8',
                                 padding: '1rem',
                                 borderRadius: '4px',
                                 overflow: 'auto',
                                 maxHeight: '500px',
                                 margin: 0,
-                                border: '1px solid #eee',
+                                border: copied ? '1px solid #1e7e34' : '1px solid #eee',
+                                transition: 'all 0.2s ease-in-out',
                             }}
                         >
                             {JSON.stringify(stats, null, 2)}

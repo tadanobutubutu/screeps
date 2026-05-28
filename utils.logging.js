@@ -103,6 +103,16 @@ module.exports = {
     },
 
     /**
+     * Security: Redacts absolute Unix and Windows paths from a string.
+     * Prevents internal directory structure leakage in logs.
+     */
+    _redactPaths: function (str) {
+        if (typeof str !== 'string') return str;
+        // Matches /abs/path or C:\abs\path
+        return str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    },
+
+    /**
      * Sanitizes a stack trace to remove internal file paths while keeping
      * function names and line numbers for debugging.
      *
@@ -119,7 +129,7 @@ module.exports = {
         return truncatedStack
             .split('\n')
             .slice(0, 5) // Security: Limit number of lines to prevent DoS
-            .map((line) => {
+            .map((line, index) => {
                 // Match "filename:line:col" at the end of a path segment.
                 // Uses a simple non-backtracking pattern: match the last
                 // path component only, without nested quantifiers.
@@ -127,12 +137,16 @@ module.exports = {
                 if (match) {
                     return `    at ${match[0]}`;
                 }
+
                 // Security: If the line looks like a stack trace entry but doesn't match
                 // the safe pattern, redact it to prevent internal path leakage.
                 if (line.trim().startsWith('at ')) {
                     return '    at [REDACTED]';
                 }
-                return line;
+
+                // Security: For the first line (error message) or non-stack lines,
+                // redact absolute paths to prevent leakage.
+                return this._redactPaths(line);
             })
             .join('\n');
     },
@@ -142,9 +156,10 @@ module.exports = {
         try {
             return fn(...args);
         } catch (e) {
-            // Security: Sanitize stack trace before logging to avoid path exposure
+            // Security: Sanitize error message and stack trace before logging to avoid path exposure
+            const safeMessage = this._redactPaths(e.message);
             const safeStack = this.getSafeStack(e.stack);
-            this.error(`Exception in ${context}: ${e.message}\n${safeStack}`);
+            this.error(`Exception in ${context}: ${safeMessage}\n${safeStack}`);
             return null;
         }
     },

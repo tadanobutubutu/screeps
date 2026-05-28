@@ -45,9 +45,10 @@ PR自動作成
 デプロイ (GitHub Sync)
 ```
 
-*高負荷時は時間間隔に自動調整
+\*高負荷時は時間間隔に自動調整
 
-**ファイル**: 
+**ファイル**:
+
 - `.github/workflows/game-monitor-15min.yml`
 - `.github/workflows/auto-fix-errors.yml`
 
@@ -76,28 +77,32 @@ Issue自動作成
 ### 1. Null参照エラー
 
 **検出**:
+
 ```
 Cannot read property 'xxx' of undefined
 Cannot read property 'xxx' of null
 ```
 
 **修正**:
+
 ```javascript
 // Before
-obj.property
+obj.property;
 
 // After
-obj && obj.property
+obj && obj.property;
 ```
 
 ### 2. 未定義関数
 
 **検出**:
+
 ```
 xxx is not a function
 ```
 
 **修正**:
+
 - 関数が存在するかチェック
 - `require`が正しいか確認
 - 関数名のスペルミスを修正
@@ -105,11 +110,13 @@ xxx is not a function
 ### 3. 参照エラー
 
 **検出**:
+
 ```
 ReferenceError: xxx is not defined
 ```
 
 **修正**:
+
 - 変数宣言を追加
 - スペルミスを修正
 - `require`を追加
@@ -123,24 +130,26 @@ ReferenceError: xxx is not defined
 **ステップ**:
 
 1. **現状確認**
-   ```bash
-   # ERROR_STATS.mdを確認
-   cat ERROR_STATS.md
-   ```
+
+    ```bash
+    # ERROR_STATS.mdを確認
+    cat ERROR_STATS.md
+    ```
 
 2. **エラー詳細を確認**
-   ```bash
-   cat DETECTED_ERRORS.json
-   ```
+
+    ```bash
+    cat DETECTED_ERRORS.json
+    ```
 
 3. **自動修正PRを確認**
-   - GitHubのPull Requestsタブを開く
-   - `auto-fix`ラベルを確認
+    - GitHubのPull Requestsタブを開く
+    - `auto-fix`ラベルを確認
 
 4. **APIモードへ切り替え** (必要なら)
-   - Actions → "Emergency: Restore API Mode"
-   - Run workflow
-   - Reason: "Too many errors"
+    - Actions → "Emergency: Restore API Mode"
+    - Run workflow
+    - Reason: "Too many errors"
 
 ### シナリオ 2: GitHub Syncが動かない
 
@@ -170,6 +179,7 @@ Screeps Account Settings → Git
 **自動対応**:
 
 6時間後に自動で：
+
 - エラー数をカウント
 - 自動修正成功率を計算
 - 10個以上 & 成功率50%未満 → Issue作成
@@ -190,10 +200,10 @@ Screeps Account Settings → Git
 1. [Actions](../../actions/workflows/emergency-api-restore.yml)を開く
 2. "Run workflow" をクリック
 3. Reasonを選択:
-   - GitHub Sync not working
-   - Too many errors
-   - Need real-time monitoring
-   - Manual decision
+    - GitHub Sync not working
+    - Too many errors
+    - Need real-time monitoring
+    - Manual decision
 4. "Run workflow" をクリック
 5. 完了！
 
@@ -235,13 +245,13 @@ git push
 
 ```javascript
 // 最近10件のエラー
-Memory.logs.filter(l => l.level === 'error').slice(-10)
+Memory.logs.filter((l) => l.level === 'error').slice(-10);
 
 // ログ統計
-require('utils.logging').getStats()
+require('utils.logging').getStats();
 
 // ログをクリア (必要なら)
-require('utils.logging').clear()
+require('utils.logging').clear();
 ```
 
 ---
@@ -251,6 +261,7 @@ require('utils.logging').clear()
 ### Q: エラーが発生したらどうなる？
 
 A: 自動で以下が実行されます：
+
 1. Memory.logsに記録 (即座)
 2. GitHubで検知 (15分以内)
 3. エラー分析 (数分)
@@ -262,6 +273,7 @@ A: 自動で以下が実行されます：
 ### Q: 自動修正が失敗したら？
 
 A: 6時間後に自動で：
+
 - エラー率をチェック
 - 高すぎる場合はAPIモードを提案
 - Issueが自動作成されます
@@ -269,6 +281,7 @@ A: 6時間後に自動で：
 ### Q: APIモードは必須？
 
 A: **いいえ**、オプションです。
+
 - GitHub Syncで十分動きます
 - APIモードはエラー多発時の保険
 - いつでも戻せます
@@ -276,6 +289,7 @@ A: **いいえ**、オプションです。
 ### Q: エラーが10個超えたら？
 
 A: 自動で：
+
 - ERROR_STATS.mdが更新されます
 - 6時間後にAPIモードを提案するかも
 - Issueが作成されます
@@ -283,6 +297,7 @@ A: 自動で：
 ### Q: 完全放置でいい？
 
 A: **はい！**
+
 - エラー検知: 自動
 - エラー修正: 自動
 - API切り替え提案: 自動
@@ -295,6 +310,6 @@ A: **はい！**
 ✅ **3層防御** - インゲーム・自動修正・閾値監視  
 ✅ **完全自動** - エラー検知から修正まで  
 ✅ **柔軟対応** - GitHub Sync ⇔ APIモード  
-✅ **安心設計** - エラー多発でも対応可能  
+✅ **安心設計** - エラー多発でも対応可能
 
 **何が起きても大丈夫です！** 🛡️✨

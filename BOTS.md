@@ -5,36 +5,42 @@ This repository uses multiple GitHub Bots and automation tools to enhance develo
 ## 📊 Active Bots
 
 ### 1. ⬆️ Dependabot
+
 **Status**: ✅ Active  
 **Configuration**: `.github/dependabot.yml`
 
 Automatically creates pull requests to update dependencies.
 
 **Features**:
+
 - npm package updates (weekly on Mondays)
 - GitHub Actions updates (weekly on Mondays)
 - Security vulnerability alerts
 - Automatic PR creation with changelogs
 
 **How to use**:
+
 - Dependabot runs automatically on schedule
 - Review and merge PRs labeled with `dependencies`
 
 ---
 
 ### 2. 🔄 Renovate Bot
+
 **Status**: 🟡 Requires GitHub App Installation  
 **Configuration**: `.github/renovate.json`
 
 Advanced dependency management with auto-merge capabilities.
 
 **Features**:
+
 - Smart dependency grouping
 - Auto-merge for minor/patch updates
 - Dependency dashboard
 - Vulnerability alerts
 
 **Installation**:
+
 1. Visit [Renovate GitHub App](https://github.com/apps/renovate)
 2. Click "Install" or "Configure"
 3. Select this repository
@@ -43,30 +49,35 @@ Advanced dependency management with auto-merge capabilities.
 ---
 
 ### 3. 🗑️ Stale Bot
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/stale.yml`
 
 Manages inactive issues and pull requests.
 
 **Features**:
+
 - Marks issues stale after 60 days of inactivity
 - Marks PRs stale after 45 days of inactivity
 - Auto-closes after warning period
 - Respects exemption labels (pinned, security, etc.)
 
 **Exemptions**:
+
 - Issues: `pinned`, `security`, `in-progress`, `bug`
 - PRs: `pinned`, `security`, `in-progress`, `wip`
 
 ---
 
 ### 4. 👋 Welcome Bot
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/welcome.yml`
 
 Welcomes first-time contributors.
 
 **Features**:
+
 - Welcomes first issue creators
 - Welcomes first PR contributors
 - Provides helpful links and guidance
@@ -74,12 +85,14 @@ Welcomes first-time contributors.
 ---
 
 ### 5. 🔀 Mergify
+
 **Status**: 🟡 Requires GitHub App Installation  
 **Configuration**: `.github/mergify.yml`
 
 Intelligent pull request management and auto-merging.
 
 **Features**:
+
 - Auto-merge Dependabot PRs (minor/patch)
 - Auto-merge approved automated PRs
 - Auto-merge documentation updates
@@ -88,6 +101,7 @@ Intelligent pull request management and auto-merging.
 - Delete head branch after merge
 
 **Installation**:
+
 1. Visit [Mergify GitHub App](https://github.com/apps/mergify)
 2. Click "Install"
 3. Select this repository
@@ -96,18 +110,21 @@ Intelligent pull request management and auto-merging.
 ---
 
 ### 6. 📦 Release Drafter
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/release-drafter.yml`, `.github/release-drafter.yml`
 
 Automatically drafts release notes based on pull requests.
 
 **Features**:
+
 - Categorizes changes (Features, Bug Fixes, Security, etc.)
 - Auto-labels PRs based on content
 - Semantic versioning suggestions
 - Contributors list
 
 **Categories**:
+
 - 🚀 Features
 - 🐛 Bug Fixes
 - 🔒 Security
@@ -120,17 +137,20 @@ Automatically drafts release notes based on pull requests.
 ---
 
 ### 7. 📝 Semantic PR
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/semantic-pr.yml`
 
 Enforces semantic commit message format for PR titles.
 
 **Required Format**:
+
 ```
 type(scope): subject
 ```
 
 **Allowed Types**:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -144,6 +164,7 @@ type(scope): subject
 - `revert`: Revert changes
 
 **Example PR Titles**:
+
 - ✅ `feat(api): add new endpoint for user data`
 - ✅ `fix(workflow): resolve dependency issue`
 - ✅ `docs: update README with new features`
@@ -153,12 +174,14 @@ type(scope): subject
 ---
 
 ### 8. 👤 Auto Assign
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/auto-assign.yml`, `.github/auto-assign.yml`
 
 Automatically assigns issues and PRs to maintainers.
 
 **Features**:
+
 - Auto-assigns new issues to `tadanobutubutu`
 - Auto-assigns reviewers to new PRs
 - Skips WIP and draft PRs
@@ -166,12 +189,14 @@ Automatically assigns issues and PRs to maintainers.
 ---
 
 ### 9. 🏷️ Label Sync
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/label-sync.yml`, `.github/labels.yml`
 
 Synchronizes repository labels from configuration.
 
 **Features**:
+
 - Maintains consistent label set
 - Auto-creates missing labels
 - Updates label colors and descriptions
@@ -182,12 +207,14 @@ Synchronizes repository labels from configuration.
 ---
 
 ### 10. 🏷️ PR Labeler
+
 **Status**: ✅ Active  
 **Configuration**: `.github/workflows/pr-labeler.yml`, `.github/labeler.yml`
 
 Automatically labels PRs based on changed files.
 
 **Auto-Applied Labels**:
+
 - `documentation`: `*.md`, `docs/**`, `wiki/**`
 - `github-actions`: `.github/workflows/**`
 - `dependencies`: `package.json`, `*lock*`
@@ -199,23 +226,27 @@ Automatically labels PRs based on changed files.
 ---
 
 ### 11. 🎖️ All Contributors
+
 **Status**: 🟡 Manual Activation Required  
 **Configuration**: `.all-contributorsrc`
 
 Recognizes all contributors to the project.
 
 **Features**:
+
 - Tracks all types of contributions
 - Updates README with contributor list
 - Supports various contribution types (code, docs, design, etc.)
 
 **Usage**:
 Comment on an issue or PR:
+
 ```
 @all-contributors please add @username for code, doc, and infra
 ```
 
 **Installation**:
+
 1. Install [All Contributors Bot](https://github.com/apps/allcontributors)
 2. The bot will respond to comments in issues/PRs
 
@@ -224,14 +255,17 @@ Comment on an issue or PR:
 ## 🔒 Security Bots
 
 ### GitHub Advanced Security
+
 **Status**: ✅ Active (if enabled on repository)
 
 Includes:
+
 - **CodeQL Analysis**: Automatic code security scanning
 - **Dependabot Security Alerts**: Vulnerability notifications
 - **Secret Scanning**: Detects leaked credentials
 
 **Active Workflows**:
+
 - `.github/workflows/codeql.yml`
 - `.github/workflows/dependency-review.yml`
 
@@ -248,6 +282,7 @@ Some bots require GitHub App installation:
 ## 📊 Bot Activity Dashboard
 
 View bot activity:
+
 - **Actions Tab**: See all workflow runs
 - **Pull Requests**: Filter by `bot` or `automated` labels
 - **Insights > Contributors**: See bot contributions

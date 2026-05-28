@@ -13,12 +13,12 @@
 ## 📏 コーディング規約
 
 - **コミットメッセージ**: [Conventional Commits](https://www.conventionalcommits.org/) に従う
-  - `✨ feat:` 新機能
-  - `🐛 fix:` バグ修正
-  - `📚 docs:` ドキュメント
-  - `🔧 chore:` メンテナンス
-  - `♻️ refactor:` リファクタリング
-  - `🧪 test:` テスト
+    - `✨ feat:` 新機能
+    - `🐛 fix:` バグ修正
+    - `📚 docs:` ドキュメント
+    - `🔧 chore:` メンテナンス
+    - `♻️ refactor:` リファクタリング
+    - `🧪 test:` テスト
 - **JavaScript**: CommonJS (`require`/`module.exports`)
 - **テスト**: Jest を使用
 

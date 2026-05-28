@@ -1,17 +1,17 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it using the metadata below."
-title: "Screeps AI code repository"
+message: 'If you use this software, please cite it using the metadata below.'
+title: 'Screeps AI code repository'
 version: 1.0.0
 date-released: 2026-02-19
 authors:
-  - name: "tadanobutubutu"
-    alias: "afif"
-    orcid: "https://orcid.org/0009-0008-4037-8127"
-abstract: "Screeps automation bot written in JavaScript. Game AI and automation scripts for the Screeps programming game."
+    - name: 'tadanobutubutu'
+      alias: 'afif'
+      orcid: 'https://orcid.org/0009-0008-4037-8127'
+abstract: 'Screeps automation bot written in JavaScript. Game AI and automation scripts for the Screeps programming game.'
 keywords:
-  - screeps
-  - game-automation
-  - javascript
-  - game-ai
-repository-code: "https://github.com/tadanobutubutu/screeps"
+    - screeps
+    - game-automation
+    - javascript
+    - game-ai
+repository-code: 'https://github.com/tadanobutubutu/screeps'
 license: MIT

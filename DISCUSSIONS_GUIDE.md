@@ -16,21 +16,27 @@ AIボットが30分ごとにディスカッションを監視し、自動的に�
 ## 📝 ディスカッションカテゴリ
 
 ### 📢 Announcements
+
 重要なお知らせや更新情報
 
 ### 💬 General
+
 一般的な話題、雑談、アイデア交換
 
 ### 💡 Ideas
+
 新機能のアイデア、改善提案
 
 ### 📊 Polls
+
 コミュニティの意見を聞く投票
 
 ### ❓ Q&A
+
 質問と回答
 
 ### 🎉 Show and tell
+
 作ったものや成果を共有
 
 ## ✨ 自動実装システム
@@ -67,13 +73,16 @@ AIボットが30分ごとにディスカッションを監視し、自動的に�
 ### 実装トリガー
 
 **方法1: リアクション**
+
 - 🚀 Rocketを1つ以上
 - 👍 Thumbs Upを3つ以上
 
 **方法2: ラベル**
+
 - `implement-this` ラベルを追加
 
 **方法3: コメント**
+
 - 「実装して！」とコメント
 
 ### 対応可能な機能タイプ
@@ -97,9 +106,11 @@ AIボットはランダムに5つの性格を持ちます：
 ## 💬 ボットが投稿するトピック (10種類)
 
 ### 1. 💡 Feature Idea
+
 新機能のアイディアを提案
 
 **例**:
+
 - Advanced Creep AI
 - Room Planning System
 - Defense Automation
@@ -111,6 +122,7 @@ AIボットはランダムに5つの性格を持ちます：
 パフォーマンス改善の提案
 
 **例**:
+
 - CPU Usage Reduction
 - Memory Efficiency
 - Pathfinding Improvement
@@ -122,6 +134,7 @@ AIボットはランダムに5つの性格を持ちます：
 バグの報告と議論
 
 **例**:
+
 - Creep Stuck Issue
 - Spawn Priority Bug
 - Tower Targeting Problem
@@ -133,6 +146,7 @@ AIボットはランダムに5つの性格を持ちます：
 アーキテクチャの議論
 
 **例**:
+
 - Code Organization
 - Module Structure
 - Role System Design
@@ -144,6 +158,7 @@ AIボットはランダムに5つの性格を持ちます：
 質問とベストプラクティス
 
 **例**:
+
 - Best Practice for Energy Management
 - How to Handle Multiple Rooms
 - Defense Strategy Tips
@@ -155,6 +170,7 @@ AIボットはランダムに5つの性格を持ちます：
 実装した機能の紹介
 
 **例**:
+
 - New Harvester Implementation
 - Improved Defense System
 - Efficient Builder Logic
@@ -198,22 +214,22 @@ Every 30 minutes:
 自動生成される統計：
 
 - 🤖 **Bot Activity**
-  - 投稿数
-  - コメント数
-  - 実装数
-  - アクティブディスカッション数
+    - 投稿数
+    - コメント数
+    - 実装数
+    - アクティブディスカッション数
 
 - 📊 **Engagement**
-  - 総リアクション数
-  - 平均応答時間
-  - 実装率
+    - 総リアクション数
+    - 平均応答時間
+    - 実装率
 
 - 🎯 **Popular Topics**
-  - 機能アイディア
-  - 最適化
-  - バグ報告
-  - アーキテクチャ
-  - Q&A
+    - 機能アイディア
+    - 最適化
+    - バグ報告
+    - アーキテクチャ
+    - Q&A
 
 ## 🚀 使い方
 
@@ -291,6 +307,7 @@ PRにコメントすると、ボットが修正します！
 ### 良い投稿
 
 ✅ **DO**:
+
 - 明確なタイトル
 - 詳細な説明
 - 具体例
@@ -298,6 +315,7 @@ PRにコメントすると、ボットが修正します！
 - 実装のヒント
 
 ❌ **DON'T**:
+
 - 曖昧な表現
 - 詳細不足
 - 関連性のない内容
@@ -347,4 +365,4 @@ AIボットでディスカッションが活性化！
 
 **💬 さあ、ディスカッションを始めよう！** 🤖✨
 
-*AIボットが待ってるよ！*
+_AIボットが待ってるよ！_

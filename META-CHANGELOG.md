@@ -9,12 +9,14 @@
 ### 🔄 ワークフローの大幅変更
 
 **削除されたワークフロー** (外部API依存のため):
+
 - ❌ AI Meta Planner (Gemini API必要)
 - ❌ AI Repository Manager (Gemini API必要)
 - ❌ Enhanced Auto-Improve (Gemini API必要)
 - ❌ Creative Feature Generator (Gemini API必要)
 
 **追加されたワークフロー** (完全無料):
+
 - ✅ 🔧 Rule-Based Auto-Improve - ルールベースのコード最適化
 - ✅ 🎨 Auto-Format & Lint - ESLint + Prettier自動整形
 - ✅ 🎲 Random Experiment - ランダム実験機能
@@ -24,12 +26,15 @@
 ### 🎯 新システムの特徴
 
 #### 1. 💰 完全無料化
+
 - 外部APIキー不要
 - GitHub Actionsの無料枚で完結
 - ランニングコストゼロ
 
 #### 2. 🔧 ルールベース改善
+
 以下の最適化ルールを自動適用：
+
 - `console.log` 削除
 - `var` → `const` 変換
 - 非効率ループ最適化
@@ -37,12 +42,15 @@
 - 厳密な`undefined`チェック
 
 #### 3. 🎨 コード品質統一
+
 - ESLintで品質チェック
 - Prettierでフォーマット統一
 - Screeps専用設定
 
 #### 4. 🎲 実験的機能追加
+
 毎週以下の機能がランダムに追加：
+
 - 📊 パフォーマンスモニター
 - 🧼 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -50,7 +58,9 @@
 - ⚡ エネルギー効率トラッキング
 
 #### 5. 🆕 自動ロール生成
+
 7種類の新しいロールが週次で自動生成：
+
 1. defender - 防衛
 2. miner - 固定採掘
 3. claimer - 領土拡張
@@ -60,7 +70,9 @@
 7. powerHarvester - Power Bank攻略
 
 #### 6. 📊 リアルタイム監視
+
 毎時自動更新されるゲーム状況レポート：
+
 - プレイヤー情報 (GCL, CPU, Credits)
 - 所有部屋の状況
 - クリープ統計
@@ -69,18 +81,19 @@
 
 ### 📊 実行スケジュール
 
-| 時間 | ワークフロー |
-|------|------------|
-| 毎時 | 📊 Game Status Reporter |
-| 2:00 AM | 🎨 Auto-Format & Lint |
-| 3:00 AM (月) | 🆕 Auto Create New Roles |
-| 4:00 AM (日) | 🎲 Random Experiment |
-| 6時間ごと | 🔧 Rule-Based Auto-Improve |
-| main push時 | 🚀 Deploy to Screeps PTR |
+| 時間         | ワークフロー               |
+| ------------ | -------------------------- |
+| 毎時         | 📊 Game Status Reporter    |
+| 2:00 AM      | 🎨 Auto-Format & Lint      |
+| 3:00 AM (月) | 🆕 Auto Create New Roles   |
+| 4:00 AM (日) | 🎲 Random Experiment       |
+| 6時間ごと    | 🔧 Rule-Based Auto-Improve |
+| main push時  | 🚀 Deploy to Screeps PTR   |
 
 ### 💾 生成されるファイル
 
 **レポートファイル**:
+
 - `GAME_STATUS.md` - 現在のゲーム状況
 - `game-history/` - 日付別履歴
 - `last-rule-improvement.json` - ルール適用記録
@@ -89,6 +102,7 @@
 - `format-report.txt` - フォーマットレポート
 
 **設定ファイル**:
+
 - `.eslintrc.json` - ESLint設定
 - `.prettierrc.json` - Prettier設定
 
@@ -110,12 +124,14 @@
 以下の理由により2026-02-25に全面刷新されました：
 
 **問題点**:
+
 - 💸 Gemini APIのコスト
 - ⚠️ 頻繁なAPIエラー
 - 🔒 APIキー管理の負担
 - 🚫 レート制限による失敗
 
 **新システムでの改善**:
+
 - ✅ 完全無料
 - ✅ 安定動作
 - ✅ キー管理不要
@@ -138,4 +154,4 @@
 
 ---
 
-*このファイルは手動で更新されます。自動生成されるレポートは `GAME_STATUS.md` や `game-history/` を参照してください。*
+_このファイルは手動で更新されます。自動生成されるレポートは `GAME_STATUS.md` や `game-history/` を参照してください。_

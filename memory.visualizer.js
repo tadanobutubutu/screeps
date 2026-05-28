@@ -3,6 +3,7 @@
  */
 
 const utilsMemory = require('./utils.memory');
+const cache = require('./src/utils/cache');
 
 /**
  * セキュリティ: メモリDoSを防ぐためのメモリ消費構造の制限。
@@ -50,7 +51,7 @@ const memoryVisualizer = {
             ) {
                 sizes.push({
                     type: 'creep',
-                    name: name,
+                    name,
                     size: JSON.stringify(Memory.creeps[name]).length,
                 });
             }
@@ -63,7 +64,7 @@ const memoryVisualizer = {
             ) {
                 sizes.push({
                     type: 'room',
-                    name: name,
+                    name,
                     size: JSON.stringify(Memory.rooms[name]).length,
                 });
             }
@@ -310,9 +311,9 @@ const memoryVisualizer = {
                       level: room.controller.level,
                   }
                 : null,
-            sources: room.find(FIND_SOURCES).length,
+            sources: cache.getSources(room).length,
             minerals: room.find(FIND_MINERALS).length,
-            hostiles: room.find(FIND_HOSTILE_CREEPS).length,
+            hostiles: cache.getEnemies(room).length,
         };
 
         if (!Memory.map.explored.includes(roomName)) {

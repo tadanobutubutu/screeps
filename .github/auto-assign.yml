@@ -8,7 +8,7 @@ addAssignees: true
 
 # A list of reviewers to be added to pull requests (GitHub user name)
 reviewers:
-  - tadanobutubutu
+    - tadanobutubutu
 
 # A number of reviewers added to the pull request
 # Set 0 to add all the reviewers (default: 0)
@@ -16,7 +16,7 @@ numberOfReviewers: 1
 
 # A list of assignees, overrides reviewers if set
 assignees:
-  - tadanobutubutu
+    - tadanobutubutu
 
 # A number of assignees to add to the pull request
 # Set to 0 to add all of the assignees.
@@ -25,7 +25,7 @@ numberOfAssignees: 1
 
 # A list of keywords to be skipped for reviewer/assignee addition
 skipKeywords:
-  - wip
-  - draft
-  - '[WIP]'
-  - '[DRAFT]'
+    - wip
+    - draft
+    - '[WIP]'
+    - '[DRAFT]'

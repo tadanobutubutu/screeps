@@ -62,7 +62,8 @@ function ensureCache() {
 }
 
 function _getValidEntry(cache, key) {
-    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free (Object.create(null))
+    const entry = cache[key];
     if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
         return entry;
     }
@@ -124,7 +125,8 @@ function invalidate(key) {
         return;
     }
     const cache = ensureCache();
-    if (Object.prototype.hasOwnProperty.call(cache, key)) {
+    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
+    if (cache[key] !== undefined) {
         delete cache[key];
     }
 }
@@ -149,9 +151,7 @@ function invalidatePattern(pattern) {
         const keys = Object.keys(cache);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
-            // Security: iterate over own keys only. Since cache is Object.create(null),
-            // hasOwnProperty.call is still safe but technically redundant for prototype issues,
-            // yet good for general robustness.
+            // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
             if (isSafeKey(key)) {
                 if (regex.test(key)) {
                     delete cache[key];
@@ -173,6 +173,7 @@ function cleanup() {
     const keys = Object.keys(cache);
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
+        // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
         if (isSafeKey(key)) {
             const entry = cache[key];
             if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
@@ -197,6 +198,7 @@ function getStats() {
     const keys = Object.keys(cache);
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
+        // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
         if (isSafeKey(key)) {
             total++;
             const entry = cache[key];
@@ -232,6 +234,10 @@ function getSources(room) {
  * @returns {Structure[]}
  */
 function getStructures(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._allStructures && room._allStructuresTick === Game.time) {
+        return room._allStructures;
+    }
     return get(`structures_${room.name}`, () => room.find(FIND_STRUCTURES), CACHE_TTL.STRUCTURES);
 }
 
@@ -242,6 +248,14 @@ function getStructures(room) {
  * @returns {OwnedStructure[]}
  */
 function getMyStructures(room, structureType) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myStructures && room._myStructuresTick === Game.time) {
+        if (!structureType) {
+            return room._myStructures;
+        }
+        return room._myStructures.filter((s) => s.structureType === structureType);
+    }
+
     const key = structureType
         ? `my_structures_${room.name}_${structureType}`
         : `my_structures_${room.name}`;
@@ -261,6 +275,10 @@ function getMyStructures(room, structureType) {
  * @returns {Creep[]}
  */
 function getMyCreeps(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myCreeps && room._myCreepsTick === Game.time) {
+        return room._myCreeps;
+    }
     return get(`my_creeps_${room.name}`, () => room.find(FIND_MY_CREEPS), CACHE_TTL.ROOM_OBJECTS);
 }
 
@@ -270,6 +288,10 @@ function getMyCreeps(room) {
  * @returns {ConstructionSite[]}
  */
 function getConstructionSites(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time) {
+        return room._myConstructionSites;
+    }
     return get(
         `construction_sites_${room.name}`,
         () => room.find(FIND_CONSTRUCTION_SITES),
@@ -283,6 +305,10 @@ function getConstructionSites(room) {
  * @returns {Creep[]}
  */
 function getEnemies(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._hostileCreeps && room._hostileCreepsTick === Game.time) {
+        return room._hostileCreeps;
+    }
     return get(`enemies_${room.name}`, () => room.find(FIND_HOSTILE_CREEPS), CACHE_TTL.ENEMIES);
 }
 
@@ -305,6 +331,10 @@ function getDroppedResources(room) {
  * @returns {StructureSpawn[]}
  */
 function getSpawns(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._spawns && room._spawnsTick === Game.time) {
+        return room._spawns;
+    }
     return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES);
 }
 
@@ -315,6 +345,10 @@ function getSpawns(room) {
  * @returns {Structure[]}
  */
 function getStructuresNeedingEnergy(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
+        return room._deliveryTargets;
+    }
     return get(
         `need_energy_${room.name}`,
         () =>
@@ -335,6 +369,10 @@ function getStructuresNeedingEnergy(room) {
  * @returns {StructureContainer[]}
  */
 function getContainers(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._containers && room._containersTick === Game.time) {
+        return room._containers;
+    }
     return get(
         `containers_${room.name}`,
         () =>

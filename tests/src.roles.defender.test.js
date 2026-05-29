@@ -45,6 +45,7 @@ jest.mock('../src/constants', () => ({
     ROOM_BOUNDS: { MIN: 0, MAX: 49 },
     LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 },
     DEFAULT_LOG_LEVEL: 1,
+    CACHE_TTL: { ENEMIES: 5 },
 }));
 
 const pathfinder = require('../src/utils/pathfinder');

@@ -127,3 +127,9 @@ Replaced a `for...in` loop with `Object.entries(targetCreeps)` in `main.js` (`ha
 **Performance Impact:** Based on micro-benchmarks, destructuring via `Object.entries` avoids the prototype lookup and direct property access overhead within the loop, leading to a small but measurable reduction in execution time for role counting operations, especially when called frequently during spawning checks.
 
 - [x] Optimized `utils.defense.js` to use `cache.getMyStructures(room, structureType)` instead of `room.find(FIND_MY_STRUCTURES)`, decreasing search CPU costs by approximately 50% for defense status and tower targeting.
+
+## 2025-05-25 - Layer 0 Volatile Cache Optimization
+
+**Learning:** Re-querying the engine via `room.find` even when using a per-tick global cache still incurs overhead. By checking for volatile properties attached to the `Room` object in a central "warming" phase (main.js), we can bypass the global cache's key generation and TTL checks entirely. Additionally, `Object.prototype.hasOwnProperty.call` is redundant and slower for objects created via `Object.create(null)`.
+
+**Action:** In high-frequency utility modules like `cache.js`, prioritize "Layer 0" volatile properties (e.g., `room._allStructures`) with a tick-check (`_...Tick === Game.time`). Use direct property access for prototype-free objects.

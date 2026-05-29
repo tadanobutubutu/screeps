@@ -75,7 +75,12 @@ export async function GET(request: Request) {
                 : undefined,
             power: Number(data.power) || 0,
             cpuUsed: Number(data.cpuUsed) || 0,
-            rooms: data.rooms && typeof data.rooms === 'object' ? data.rooms : {},
+            // Security: Data minimization - only return room names as an array, limited to 100 entries.
+            // This prevents leaking room metadata and limits resource consumption.
+            rooms:
+                data.rooms && typeof data.rooms === 'object'
+                    ? Object.keys(data.rooms).slice(0, 100)
+                    : [],
         };
 
         return NextResponse.json(filteredData);

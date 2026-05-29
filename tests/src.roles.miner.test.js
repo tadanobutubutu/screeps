@@ -57,6 +57,7 @@ jest.mock('../src/constants', () => ({
         ROAD_COST: 1,
     },
     MEMORY_KEYS: { SOURCE_ID: 'sourceId' },
+    LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 },
 }));
 
 const pathfinder = require('../src/utils/pathfinder');
@@ -125,7 +126,7 @@ describe('src/roles/miner', () => {
     });
 
     test('ソース割り当て状況を集計する', () => {
-        const room = { name: 'W0N0', find: jest.fn() };
+        const room = { name: 'W0N0' };
         mockCache.getSources.mockReturnValue([
             { id: 'a', room },
             { id: 'b', room },

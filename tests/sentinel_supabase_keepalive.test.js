@@ -22,7 +22,7 @@ jest.mock('@supabase/supabase-js', () => {
             })),
         })),
     };
-});
+}, { virtual: true });
 
 describe('Supabase Keepalive Security Tests', () => {
     let originalConsoleLog;

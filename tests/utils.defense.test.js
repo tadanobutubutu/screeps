@@ -92,7 +92,11 @@ describe('utils.defense', () => {
         const room = {
             find: jest.fn().mockImplementation((type, options) => {
                 if (type === FIND_MY_STRUCTURES) {
-                    return [mockTower, mockRampart];
+                    const structures = [mockTower, mockRampart];
+                    if (options && options.filter) {
+                        return structures.filter(options.filter);
+                    }
+                    return structures;
                 }
                 if (type === FIND_HOSTILE_CREEPS) {
                     return [];

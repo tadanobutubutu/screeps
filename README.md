@@ -3,9 +3,9 @@
 > Screeps AI code repository with **full automation** - no API keys required!
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-31-green)](.github/workflows)
+[![Workflows](https://img.shields.io/badge/Workflows-33-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7167-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-7179-purple)](./)
 
 ## 🚀 特徴
 
@@ -26,7 +26,7 @@
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (31個)
+### 📋 稼働中のワークフロー (33個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
@@ -44,6 +44,7 @@
 - **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
 - **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
 - **🎫 Issue Management** (`issue-management.yml`) - イベント駆動
+- **JAIPilot Generate** (`jaipilot-generate.yml`) - イベント駆動
 - **Junie** (`junie.yaml`) - イベント駆動
 - **Label Sync** (`label-sync.yml`) - イベント駆動
 - **OpenCode AI Agent** (`opencode.yml`) - イベント駆動
@@ -51,6 +52,7 @@
 - **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
 - **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
 - **Gitleaks** (`secret-scanning.yml`) - イベント駆動
+- **Sentinel Tests** (`sentinel-tests.yml`) - イベント駆動
 - **🗑️ Stale Issue and PR Management** (`stale.yml`) - 定期実行
 - **Supabase KeepAlive** (`supabase-keepalive.yml`) - 定期実行
 - **Test Minimal Workflow** (`test-minimal.yml`) - イベント駆動
@@ -77,11 +79,11 @@
 ## 📈 統計情報
 
 - 📄 **JSファイル数**: 37
-- 📝 **総コード行数**: 7167
-- 🔄 **ワークフロー数**: 31
+- 📝 **総コード行数**: 7179
+- 🔄 **ワークフロー数**: 33
 - 🎭 **ロール数**: 9
 
-*最終更新: 2026-05-29*
+*最終更新: 2026-05-30*
 
 ## 🔧 セットアップ
 
@@ -104,7 +106,7 @@ npm install
 
 ```
 .
-├── .github/workflows/     # 自動化ワークフロー (31個)
+├── .github/workflows/     # 自動化ワークフロー (33個)
 ├── role.*.js              # クリープロール (9個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
@@ -155,4 +157,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-29T20:49:39.592Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-30T18:05:29.929Z*

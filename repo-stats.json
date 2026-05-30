@@ -1,9 +1,9 @@
 {
-  "updated": "2026-05-29T20:49:39.592Z",
-  "workflows": 31,
+  "updated": "2026-05-30T18:05:29.930Z",
+  "workflows": 33,
   "roles": 9,
   "jsFiles": 37,
-  "totalLines": 7167,
+  "totalLines": 7179,
   "workflowList": [
     {
       "name": "AI Code Maintenance",
@@ -86,6 +86,11 @@
       "scheduled": false
     },
     {
+      "name": "JAIPilot Generate",
+      "file": "jaipilot-generate.yml",
+      "scheduled": false
+    },
+    {
       "name": "Junie",
       "file": "junie.yaml",
       "scheduled": false
@@ -118,6 +123,11 @@
     {
       "name": "Gitleaks",
       "file": "secret-scanning.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Sentinel Tests",
+      "file": "sentinel-tests.yml",
       "scheduled": false
     },
     {

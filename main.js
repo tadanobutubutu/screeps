@@ -210,7 +210,9 @@ function _categorizeMyStructure(s, type, state) {
         type === STRUCTURE_TOWER ||
         type === STRUCTURE_LAB
     ) {
-        if (s.store && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+        // ⚡ PERFORMANCE: Hoist store to reduce Proxy property lookups.
+        const store = s.store;
+        if (store && store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
             state.deliveryTargets.push(s);
             if (type !== STRUCTURE_LAB) {
                 state.harvesterDeliveryTargets.push(s);
@@ -284,22 +286,28 @@ function categorizeRoomStructures(room, allStructures) {
         const s = allStructures[i];
         const type = s.structureType;
 
-        // ⚡ PERFORMANCE: Skip walls (most numerous) to reduce redundant checks and Proxy lookups.
-        // Estimated impact: Reduces structure loop CPU overhead by ~30-50% in fortified rooms.
+        // ⚡ PERFORMANCE: Skip walls and roads (most numerous) early to reduce redundant checks and Proxy lookups.
+        // Wall is most numerous in fortified rooms, Road is most numerous in developed rooms.
+        // s.my incurs a cross-boundary Proxy lookup, so we check non-owned types first.
         if (type === STRUCTURE_WALL) {
             continue;
         }
+
+        const isRoad = type === STRUCTURE_ROAD;
 
         // ⚡ PERFORMANCE: Hoist hits and hitsMax to minimize Proxy lookups.
         const hits = s.hits;
         const hitsMax = s.hitsMax;
         const isDamaged = hits < hitsMax;
 
-        // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避
-        if (s.my) {
-            _categorizeMyStructure(s, type, state);
+        // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避。
+        // 一般的な非所有構造物（Road, Container）を先にチェックし、高コストな s.my Proxy ルックアップを回避。
+        if (isRoad) {
+            // Roadは所有物ではないため、個別の分類は不要（修理チェックのみ後に実行）
         } else if (type === STRUCTURE_CONTAINER) {
             _categorizeContainer(s, state);
+        } else if (s.my) {
+            _categorizeMyStructure(s, type, state);
         }
 
         // ⚡ PERFORMANCE: Consolidate repair logic to avoid redundant checks across branches.

@@ -1,0 +1,502 @@
+# Managed by QE Sentinel Test Runner
+# Safe to edit; Sentinel will preserve user edits unless you choose Regenerate.
+
+name: Sentinel Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run tests
+        run: npm run test
+
+
+  shift_protection:
+    name: Shift Protection (visual canaries)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Detect Shift Protection
+        id: sp_enabled
+        run: |
+          set -euo pipefail
+          if [ -f ".sentinel/shift-protection.json" ]; then
+            echo "Shift Protection enabled: true (found .sentinel/shift-protection.json)"
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Shift Protection enabled: false (.sentinel/shift-protection.json not found)"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            ls -la .sentinel || true
+            if [ -d "tests/e2e/shift-protection" ] || [ -d "tests/shift-protection" ] || [ -f "playwright.config.ts" ]; then
+              echo "::error title=Shift Protection misconfigured::Found Shift Protection test assets but missing .sentinel/shift-protection.json."
+              echo "Re-run Shift Protection setup to regenerate the config."
+              exit 1
+            fi
+          fi
+      - uses: actions/setup-node@v4
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: npx playwright install --with-deps
+      - name: Read Shift Protection config
+        id: sp
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: |
+          node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('.sentinel/shift-protection.json','utf8')); const s=c.server||{}; const out=(k,v)=>process.stdout.write(k+'='+String(v||'')+'\n'); out('BASE_URL', c.baseUrl); out('BUILD_CMD', s.buildCommand); out('START_CMD', s.startCommand); out('WAIT_URL', s.waitOnUrl||c.baseUrl);" >> "$GITHUB_OUTPUT"
+      - name: Build app (Shift Protection)
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: ${{ steps.sp.outputs.BUILD_CMD }}
+      - name: Start app server (Shift Protection)
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          (${{ steps.sp.outputs.START_CMD }}) &
+      - name: Wait for server
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          url="${{ steps.sp.outputs.WAIT_URL }}"
+          for i in $(seq 1 60); do
+            if curl -fsS "$url" >/dev/null 2>&1; then
+              echo "Server is up: $url"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not become ready: $url" >&2
+          exit 1
+      - name: Run Shift Protection canaries (initial)
+        id: sp_run
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        env:
+          SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
+          SENTINEL_SHIFT_PASSWORD: ${{ secrets.SENTINEL_SHIFT_PASSWORD }}
+        run: |
+          mkdir -p .sentinel
+          set +e
+          if [ "${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline') }}" = "true" ]; then
+            echo "Updating baselines (label sentinel-accept-baseline detected)"
+            target_dir=""
+            if [ -d "tests/e2e/shift-protection" ]; then
+              target_dir="tests/e2e/shift-protection"
+            elif [ -d "tests/shift-protection" ]; then
+              target_dir="tests/shift-protection"
+            else
+              echo "Shift Protection test directory not found." >&2
+              exit 1
+            fi
+            npx playwright test "$target_dir" --update-snapshots
+          else
+            target_dir=""
+            if [ -d "tests/e2e/shift-protection" ]; then
+              target_dir="tests/e2e/shift-protection"
+            elif [ -d "tests/shift-protection" ]; then
+              target_dir="tests/shift-protection"
+            else
+              echo "Shift Protection test directory not found." >&2
+              exit 1
+            fi
+            npx playwright test "$target_dir"
+          fi
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Detect baseline-missing only
+        id: sp_baseline
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = '.sentinel/playwright-results.json';
+          let baselineOnly = false;
+          let missing = 0;
+          let other = 0;
+          try {
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            const specs = [];
+            const flatten = (suite) => {
+              if (!suite || typeof suite !== 'object') return;
+              if (Array.isArray(suite.specs)) specs.push(...suite.specs);
+              if (Array.isArray(suite.suites)) for (const s of suite.suites) flatten(s);
+            };
+            if (report && Array.isArray(report.suites)) for (const s of report.suites) flatten(s);
+            const errors = [];
+            for (const spec of specs) {
+              const tests = Array.isArray(spec.tests) ? spec.tests : [];
+              for (const t of tests) {
+                const results = Array.isArray(t.results) ? t.results : [];
+                for (const r of results) {
+                  if (r && r.error && (r.error.message || r.error.value)) {
+                    errors.push(String(r.error.message || r.error.value || ''));
+                  }
+                }
+              }
+            }
+            for (const msg of errors) {
+              if (/snapshot\s+doesn'?t\s+exist/i.test(msg)) missing++;
+              else other++;
+            }
+            baselineOnly = errors.length > 0 && other === 0 && missing > 0;
+          } catch {
+            baselineOnly = false;
+          }
+          fs.mkdirSync('.sentinel', { recursive: true });
+          fs.writeFileSync(
+            '.sentinel/sp-baseline-out.txt',
+            'baseline_missing_only=' + String(baselineOnly) + '\n' +
+              'missing_errors=' + String(missing) + '\n' +
+              'other_errors=' + String(other) + '\n'
+          );
+          console.log(
+            'Shift Protection baseline-missing-only: ' +
+              String(baselineOnly) +
+              ' (missing=' +
+              String(missing) +
+              ', other=' +
+              String(other) +
+              ')'
+          );
+          NODE
+          cat .sentinel/sp-baseline-out.txt >> "$GITHUB_OUTPUT"
+
+      - name: Auto-create baselines (first run)
+        id: sp_autobase
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && github.event_name == 'pull_request' && steps.sp_run.outputs.exit_code != '0' && steps.sp_baseline.outputs.baseline_missing_only == 'true' && !(github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline')) }}
+        env:
+          SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
+          SENTINEL_SHIFT_PASSWORD: ${{ secrets.SENTINEL_SHIFT_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "First run: creating baselines automatically (no existing snapshots)."
+          set +e
+          target_dir=""
+          if [ -d "tests/e2e/shift-protection" ]; then
+            target_dir="tests/e2e/shift-protection"
+          elif [ -d "tests/shift-protection" ]; then
+            target_dir="tests/shift-protection"
+          else
+            echo "Shift Protection test directory not found." >&2
+            exit 1
+          fi
+          npx playwright test "$target_dir" --update-snapshots
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          echo "did_update=true" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Finalize Shift Protection result
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          final="${{ steps.sp_run.outputs.exit_code }}"
+          if [ "${{ steps.sp_autobase.outputs.exit_code }}" != "" ]; then
+            final="${{ steps.sp_autobase.outputs.exit_code }}"
+          fi
+          echo "Final exit code: $final"
+          if [ "$final" != "0" ]; then
+            exit 1
+          fi
+      - name: Emit Shift Protection result payload
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = '.sentinel/playwright-results.json';
+          const payloadPath = '.sentinel/shift-protection-result-payload.txt';
+          const markerBegin = '<!-- SENTINEL_SHIFT_PROTECTION_RESULT_BEGIN -->';
+          const markerEnd = '<!-- SENTINEL_SHIFT_PROTECTION_RESULT_END -->';
+          const safeTrim = (s, n) => (typeof s === 'string' && s.length > n ? s.slice(0, n - 1) + '…' : s);
+          const extractKey = (title) => {
+            const m = String(title || '').match(/\bgtc_[a-z0-9]+\b/i);
+            return m ? String(m[0]) : null;
+          };
+          const flattenSpecs = (suite, out) => {
+            if (!suite || typeof suite !== 'object') return;
+            if (Array.isArray(suite.specs)) out.push(...suite.specs);
+            if (Array.isArray(suite.suites)) for (const s of suite.suites) flattenSpecs(s, out);
+          };
+          fs.mkdirSync('.sentinel', { recursive: true });
+          let report = null;
+          try { report = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
+          const specs = [];
+          if (report && Array.isArray(report.suites)) for (const s of report.suites) flattenSpecs(s, specs);
+          const cases = specs.map((spec) => {
+            const title = spec && typeof spec.title === 'string' ? spec.title : '';
+            const key = extractKey(title);
+            const tests = Array.isArray(spec.tests) ? spec.tests : [];
+            const results = tests.flatMap((t) => Array.isArray(t.results) ? t.results : []);
+            const statuses = results.map((r) => String(r.status || '')).filter(Boolean);
+            const status = statuses.includes('passed') ? 'passed' : statuses.includes('skipped') ? 'skipped' : 'failed';
+            const err = results.find((r) => r && r.error)?.error;
+            const failureSummary = err ? safeTrim(String(err.message || err.value || 'Visual drift'), 240) : null;
+            return { descriptorKey: key, title, status, ...(failureSummary ? { failureSummary } : {}) };
+          });
+          const payload = { version: 1, kind: 'shift_protection', runAt: new Date().toISOString(), cases };
+          const body = [markerBegin, JSON.stringify(payload), markerEnd].join('\n');
+          fs.writeFileSync(payloadPath, body + '\n');
+          console.log(body);
+          NODE
+      - name: Upload Shift Protection artifacts
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-shift-protection
+          path: |
+            .sentinel/playwright-results.json
+            .sentinel/shift-protection-result-payload.txt
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+      - name: Post Shift Protection results comment
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const payloadPath = '.sentinel/shift-protection-result-payload.txt';
+            const markerBegin = '<!-- SENTINEL_SHIFT_PROTECTION_RESULT_BEGIN -->';
+            const body = fs.readFileSync(payloadPath, 'utf8').trim();
+            if (!body.includes(markerBegin)) {
+              core.warning('Shift Protection result payload was not generated; skipping PR comment update.');
+              return;
+            }
+            const issue_number = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(markerBegin));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+      - name: Commit updated baselines
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline') || (github.event_name == 'pull_request' && steps.sp_autobase.outputs.did_update == 'true')) }}
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No baseline changes to commit."
+            exit 0
+          fi
+          branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          git checkout -B "$branch"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore(shift-protection): update baselines"
+          git push origin "HEAD:$branch"
+      - name: Remove baseline-accept label
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline') }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+            try {
+              await github.rest.issues.removeLabel({ owner, repo, issue_number, name: 'sentinel-accept-baseline' });
+            } catch {}
+
+
+  behavior_protection:
+    name: Behavior Protection (interaction smoke)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+      - name: Detect Behavior Protection
+        id: bp_enabled
+        run: |
+          set -euo pipefail
+          if [ -f ".sentinel/behavior-protection.json" ]; then
+            echo "Behavior Protection enabled: true (found .sentinel/behavior-protection.json)"
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Behavior Protection enabled: false (.sentinel/behavior-protection.json not found)"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            ls -la .sentinel || true
+            if [ -d "tests/e2e/behavior-protection" ] || [ -d "tests/behavior-protection" ] || [ -f "playwright.behavior.config.ts" ]; then
+              echo "::error title=Behavior Protection misconfigured::Found Behavior Protection test assets but missing .sentinel/behavior-protection.json."
+              echo "Re-run Behavior Protection setup to regenerate the config."
+              exit 1
+            fi
+          fi
+      - uses: actions/setup-node@v4
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        with:
+          node-version: 20
+          cache: 'pnpm'
+      - name: Install dependencies
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: npx playwright install --with-deps
+      - name: Read Behavior Protection config
+        id: bp
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: |
+          node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('.sentinel/behavior-protection.json','utf8')); const s=c.server||{}; const out=(k,v)=>process.stdout.write(k+'='+String(v||'')+'\n'); out('BASE_URL', c.baseUrl); out('BUILD_CMD', s.buildCommand); out('START_CMD', s.startCommand); out('WAIT_URL', s.waitOnUrl||c.baseUrl);" >> "$GITHUB_OUTPUT"
+      - name: Build app (Behavior Protection)
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: ${{ steps.bp.outputs.BUILD_CMD }}
+      - name: Start app server (Behavior Protection)
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          (${{ steps.bp.outputs.START_CMD }}) &
+      - name: Wait for server
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          url="${{ steps.bp.outputs.WAIT_URL }}"
+          for i in $(seq 1 60); do
+            if curl -fsS "$url" >/dev/null 2>&1; then
+              echo "Server is up: $url"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not become ready: $url" >&2
+          exit 1
+      - name: Run Behavior Protection smoke checks
+        id: bp_run
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        env:
+          SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
+          SENTINEL_SHIFT_PASSWORD: ${{ secrets.SENTINEL_SHIFT_PASSWORD }}
+        run: |
+          mkdir -p .sentinel
+          set +e
+          target_dir=""
+          if [ -d "tests/e2e/behavior-protection" ]; then
+            target_dir="tests/e2e/behavior-protection"
+          elif [ -d "tests/behavior-protection" ]; then
+            target_dir="tests/behavior-protection"
+          else
+            echo "Behavior Protection test directory not found." >&2
+            exit 1
+          fi
+          npx playwright test -c playwright.behavior.config.ts "$target_dir"
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit 0
+      - name: Finalize Behavior Protection result
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        run: |
+          set -euo pipefail
+          final="${{ steps.bp_run.outputs.exit_code }}"
+          echo "Final exit code: $final"
+          if [ "$final" != "0" ]; then
+            exit 1
+          fi
+      - name: Emit Behavior Protection result payload
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() }}
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const path = '.sentinel/behavior-protection-results.json';
+          const payloadPath = '.sentinel/behavior-protection-result-payload.txt';
+          const markerBegin = '<!-- SENTINEL_BEHAVIOR_PROTECTION_RESULT_BEGIN -->';
+          const markerEnd = '<!-- SENTINEL_BEHAVIOR_PROTECTION_RESULT_END -->';
+          const safeTrim = (s, n) => (typeof s === 'string' && s.length > n ? s.slice(0, n - 1) + '…' : s);
+          const extractKey = (title) => {
+            const m = String(title || '').match(/\bgtc_[a-z0-9]+\b/i);
+            return m ? String(m[0]) : null;
+          };
+          const flattenSpecs = (suite, out) => {
+            if (!suite || typeof suite !== 'object') return;
+            if (Array.isArray(suite.specs)) out.push(...suite.specs);
+            if (Array.isArray(suite.suites)) for (const s of suite.suites) flattenSpecs(s, out);
+          };
+          fs.mkdirSync('.sentinel', { recursive: true });
+          let report = null;
+          try { report = JSON.parse(fs.readFileSync(path, 'utf8')); } catch {}
+          const specs = [];
+          if (report && Array.isArray(report.suites)) for (const s of report.suites) flattenSpecs(s, specs);
+          const cases = specs.map((spec) => {
+            const title = spec && typeof spec.title === 'string' ? spec.title : '';
+            const key = extractKey(title);
+            const tests = Array.isArray(spec.tests) ? spec.tests : [];
+            const results = tests.flatMap((t) => Array.isArray(t.results) ? t.results : []);
+            const statuses = results.map((r) => String(r.status || '')).filter(Boolean);
+            const status = statuses.includes('passed') ? 'passed' : statuses.includes('skipped') ? 'skipped' : 'failed';
+            const err = results.find((r) => r && r.error)?.error;
+            const failureSummary = err ? safeTrim(String(err.message || err.value || 'Behavior drift'), 240) : null;
+            return { descriptorKey: key, title, status, ...(failureSummary ? { failureSummary } : {}) };
+          });
+          const payload = { version: 1, kind: 'behavior_protection', runAt: new Date().toISOString(), cases };
+          const body = [markerBegin, JSON.stringify(payload), markerEnd].join('\n');
+          fs.writeFileSync(payloadPath, body + '\n');
+          console.log(body);
+          NODE
+      - name: Upload Behavior Protection artifacts
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinel-behavior-protection
+          path: |
+            .sentinel/behavior-protection-results.json
+            .sentinel/behavior-protection-result-payload.txt
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+      - name: Post Behavior Protection results comment
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const payloadPath = '.sentinel/behavior-protection-result-payload.txt';
+            const markerBegin = '<!-- SENTINEL_BEHAVIOR_PROTECTION_RESULT_BEGIN -->';
+            const body = fs.readFileSync(payloadPath, 'utf8').trim();
+            if (!body.includes(markerBegin)) {
+              core.warning('Behavior Protection result payload was not generated; skipping PR comment update.');
+              return;
+            }
+            const issue_number = context.payload.pull_request.number;
+            const { owner, repo } = context.repo;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find((c) => typeof c.body === 'string' && c.body.includes(markerBegin));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }

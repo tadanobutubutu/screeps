@@ -2,6 +2,8 @@
  * Auto Tutorial System - チュートリアルを完全自動でクリア
  */
 
+const logger = require('utils.logging');
+
 const autoTutorial = {
     /**
      * チュートリアル検出
@@ -20,7 +22,8 @@ const autoTutorial = {
         }
 
         const step = Game.tutorial.currentStep;
-        console.log('🎮 Auto Tutorial - Step: ' + step);
+        // Security: Use centralized logger to prevent console injection and ensure HTML escaping
+        logger.info('🎮 Auto Tutorial - Step: ' + step);
 
         // ステップ別処理
         switch (step) {
@@ -62,7 +65,7 @@ const autoTutorial = {
             spawn.spawnCreep([WORK, CARRY, MOVE], 'Harvester1', {
                 memory: { role: 'harvester' },
             });
-            console.log('✅ Created Harvester');
+            logger.info('✅ Created Harvester');
         }
     },
 
@@ -165,7 +168,7 @@ const autoTutorial = {
 
             if (hostiles.length > 0) {
                 tower.attack(hostiles[0]);
-                console.log('💥 Attacking hostile!');
+                logger.info('💥 Attacking hostile!');
             }
         }
     },
@@ -243,7 +246,7 @@ const autoTutorial = {
     skipIfPossible: function () {
         if (Game.tutorial && Game.tutorial.skip) {
             Game.tutorial.skip();
-            console.log('⏩ Tutorial skipped!');
+            logger.info('⏩ Tutorial skipped!');
             return true;
         }
         return false;
@@ -257,10 +260,11 @@ const autoTutorial = {
             return;
         }
 
-        console.log('🎮 Tutorial Progress:');
-        console.log('  Current Step: ' + Game.tutorial.currentStep);
-        console.log('  Creeps: ' + Object.keys(Game.creeps).length);
-        console.log(
+        // Security: Use centralized logger to prevent console injection
+        logger.info('🎮 Tutorial Progress:');
+        logger.info('  Current Step: ' + Game.tutorial.currentStep);
+        logger.info('  Creeps: ' + Object.keys(Game.creeps).length);
+        logger.info(
             '  Energy: ' +
                 (Game.spawns['Spawn1'] ? Game.spawns['Spawn1'].store[RESOURCE_ENERGY] : 0)
         );

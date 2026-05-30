@@ -33,6 +33,7 @@ global.STRUCTURE_SPAWN = 'spawn';
 global.STRUCTURE_LAB = 'lab';
 global.STRUCTURE_WALL = 'wall';
 global.STRUCTURE_RAMPART = 'rampart';
+global.STRUCTURE_ROAD = 'road';
 global.FIND_SOURCES_ACTIVE = 'findSourcesActive';
 global.RoomVisual = class {
     text() {}

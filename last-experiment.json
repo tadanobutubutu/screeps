@@ -1,0 +1,6 @@
+{
+  "experiment": "optimize-pathfinding-cache",
+  "description": "経路探索キャッシュを最適化",
+  "timestamp": "2026-05-30T20:09:38.958Z",
+  "status": "applied"
+}

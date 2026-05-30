@@ -665,6 +665,17 @@ function handleSocialInteractions(rooms) {
 }
 
 module.exports.loop = function () {
+    // Path Cache Cleanup (Auto-added)
+    if (!Memory.pathCache) Memory.pathCache = {};
+    if (Game.time % 1000 === 0) {
+        const oldPaths = Object.keys(Memory.pathCache)
+            .filter(key => Memory.pathCache[key].tick < Game.time - 1000);
+        oldPaths.forEach(key => delete Memory.pathCache[key]);
+        if (oldPaths.length > 0) {
+            console.log(`🧼 Cleaned ${oldPaths.length} old cached paths`);
+        }
+    }
+
     try {
         const rooms = (global._rooms = Object.values(Game.rooms || {}));
         const creeps = (global._creeps = Object.values(Game.creeps || {}));

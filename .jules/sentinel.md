@@ -30,6 +30,12 @@
 
 - **deploy.js Path Traversal Fix**: Addressed a path traversal vulnerability by replacing string comparison (`startsWith` + `endsWith`) with secure path boundary resolution. Used `path.relative(baseDir, resolvedPath)` combined with checking `relativePath.startsWith('..')` and `path.isAbsolute(relativePath)` to confidently assert that paths are strictly within the base directory without overly-restrictive substring matching blocks.
 
+## 2026-05-31 - Console Injection and Over-engineering Constraints
+
+**Vulnerability:** Console Injection via unescaped `console.log` calls.
+**Learning:** While the codebase uses `Object.keys()` and `isSafeKey` to prevent Prototype Pollution, applying these patterns to every loop (especially on engine-provided objects like `Game.creeps`) can lead to verbose, hard-to-maintain code that exceeds the 50-line mission limit. The highest impact fix for Screeps console security is often simply migrating from `console.log` to a centralized logger that enforces HTML escaping.
+**Prevention:** Prioritize centralized logging for all user-facing output. Avoid over-engineering "security theater" that duplicates language-level safety (like `Object.keys()` already ignoring inherited properties) if it compromises code readability or mission constraints.
+
 ## 2026-05-30 - ログにおける内部パスの漏洩 (Information Leakage)
 
 **Vulnerability:** エラーメッセージを通じた内部ファイルシステムのパス漏洩。

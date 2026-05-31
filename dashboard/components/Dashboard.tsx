@@ -153,9 +153,10 @@ export default function Dashboard() {
                 : '';
 
             const summary = [
-                `🐛 GCL ${stats.gcl.level} (${gclPercent.toFixed(2)}%)`,
+                `${leveledUp ? '🦋' : '🐛'} GCL ${stats.gcl.level} (${gclPercent.toFixed(2)}%)`,
                 roomCount > 0 ? `🏘️ ${roomCount} Rooms` : '',
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
+                stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
                 timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level` : '',
             ]
@@ -168,7 +169,7 @@ export default function Dashboard() {
         } catch (err) {
             console.error('Failed to copy summary:', err);
         }
-    }, [stats, gclPercent, roomCount, getXpPerHour, getTimeToLevel]);
+    }, [stats, gclPercent, roomCount, getXpPerHour, getTimeToLevel, leveledUp]);
 
     const handleResetSecret = useCallback(() => {
         // 🔑 Security: セッションから秘密鍵を削除し、状態をリセットする
@@ -408,7 +409,7 @@ export default function Dashboard() {
                             animation: isRefreshing
                                 ? 'spin 1s linear infinite'
                                 : updated || leveledUp
-                                  ? 'bounce 0.6s ease'
+                                  ? 'bounce 0.6s 3'
                                   : 'none',
                         }}
                     >
@@ -561,9 +562,7 @@ export default function Dashboard() {
                                 aria-label={getStalenessInfo().label}
                                 style={{
                                     animation:
-                                        getStalenessInfo().icon === '🚨'
-                                            ? 'shake 0.3s infinite'
-                                            : 'none',
+                                        getStalenessInfo().icon === '🚨' ? 'shake 0.3s 3' : 'none',
                                 }}
                             >
                                 {getStalenessInfo().icon}
@@ -979,13 +978,15 @@ export default function Dashboard() {
                                                 fontSize: '0.9rem',
                                                 color: '#575757',
                                             }}
+                                            aria-label={`Power: ${stats.power.toLocaleString()}${powerDelta !== 0 ? ` (${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()})` : ''}`}
                                         >
-                                            <span role="img" aria-label="Power">
+                                            <span role="img" aria-label="Power" aria-hidden="true">
                                                 ⚡
                                             </span>{' '}
                                             Power: {stats.power.toLocaleString()}
                                             {powerDelta !== 0 && (
                                                 <span
+                                                    aria-hidden="true"
                                                     style={{
                                                         fontSize: '0.8rem',
                                                         color:
@@ -997,7 +998,6 @@ export default function Dashboard() {
                                                                 ? 'bounce 0.6s ease'
                                                                 : 'shake 0.3s 3',
                                                     }}
-                                                    aria-label={`Power: ${stats.power.toLocaleString()} (${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()})`}
                                                     title={`${powerDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(powerDelta).toLocaleString()}`}
                                                 >
                                                     ({powerDelta > 0 ? '+' : ''}
@@ -1015,13 +1015,15 @@ export default function Dashboard() {
                                                 fontSize: '0.9rem',
                                                 color: '#575757',
                                             }}
+                                            aria-label={`CPU Used: ${stats.cpuUsed.toLocaleString()}${cpuDelta !== 0 ? ` (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})` : ''}`}
                                         >
-                                            <span role="img" aria-label="CPU Used">
+                                            <span role="img" aria-label="CPU Used" aria-hidden="true">
                                                 📊
                                             </span>{' '}
                                             CPU: {stats.cpuUsed.toLocaleString()}
                                             {cpuDelta !== 0 && (
                                                 <span
+                                                    aria-hidden="true"
                                                     style={{
                                                         fontSize: '0.8rem',
                                                         color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
@@ -1032,7 +1034,6 @@ export default function Dashboard() {
                                                                 ? 'shake 0.3s 3'
                                                                 : 'bounce 0.6s ease',
                                                     }}
-                                                    aria-label={`CPU: ${stats.cpuUsed.toLocaleString()} (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})`}
                                                     title={
                                                         cpuDelta > 0
                                                             ? `Increased by ${cpuDelta.toLocaleString()}`

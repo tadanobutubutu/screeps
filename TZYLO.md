@@ -37,6 +37,8 @@
 
 - Updated actions/setup-node action from v4 to v6 in all workflows.
 - Updated associated node-version to 20 in workflows using setup-node.
+- Updated actions/labeler action from v5 to v6 in the CI workflow.
+- The labeler configuration file path remains .github/labeler.yml.
 
 <!-- TZYLO:DEP_END -->
 

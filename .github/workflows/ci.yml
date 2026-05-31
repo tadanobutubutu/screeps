@@ -97,6 +97,15 @@ jobs:
             - name: Run Jest tests & collect coverage
               run: npx jest --coverage --coverageReporters=lcov --passWithNoTests
 
+            - name: Upload test results to Kleore
+              if: always()
+              run: |
+                curl -s -X POST "https://www.kleore.com/api/repos/cmpu1vbx504oxnd29mfwu3meg/upload" \
+                  -H "X-Upload-Token: ${{ secrets.KLEORE_UPLOAD_TOKEN }}" \
+                  -H "X-Workflow-Run-Id: ${{ github.run_id }}" \
+                  -H "Content-Type: application/xml" \
+                  --data-binary @test-results/junit.xml
+
             - name: Build with Rollup (Bundle Analysis)
               run: pnpm build || true
 

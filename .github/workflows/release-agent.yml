@@ -1,0 +1,34 @@
+name: Release Agent
+on*
+  workflow_dispatch:
+    inputs:
+      release_plan:
+        required: true
+        type: string
+      issue_number:
+        required: false
+        type: string
+        default: ""
+      dry_run:
+        required: false
+        type: boolean
+        default: false
+  push:
+    branches: [main, master]
+jobs:
+  release:
+    if: ${{ github.event_name == \"workflow_dispatch\" || github.event_name == \"push\" }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: HelicanHQ/tagline-release-agent-action@v1
+        with:
+          release_plan: ${{ inputs.release_plan }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_number: ${{ inputs.issue_number }}
+          dry_run: ${{ inputs.dry_run }}

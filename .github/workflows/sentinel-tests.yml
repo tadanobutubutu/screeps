@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 20
           cache: 'pnpm'
@@ -60,7 +60,7 @@ jobs:
               exit 1
             fi
           fi
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
         with:
           node-version: 20
@@ -358,7 +358,7 @@ jobs:
               exit 1
             fi
           fi
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
         with:
           node-version: 20

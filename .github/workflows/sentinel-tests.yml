@@ -273,7 +273,7 @@ jobs:
           NODE
       - name: Upload Shift Protection artifacts
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sentinel-shift-protection
           path: |
@@ -469,7 +469,7 @@ jobs:
           NODE
       - name: Upload Behavior Protection artifacts
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sentinel-behavior-protection
           path: |

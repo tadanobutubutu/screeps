@@ -57,9 +57,11 @@ module.exports = {
             Memory.logs = [];
         }
 
-        // Security: Truncate level and message to avoid Memory DoS (2MB limit)
+        // Security: Truncate and redact level/message to avoid Memory DoS and path leakage
+        // セキュリティ：メモリDoSとパス漏洩を避けるためにレベルとメッセージを切り詰め、サニタイズする
         const sanitizedLevel = String(level).substring(0, 20);
-        const sanitizedMessage = String(message).substring(0, 500);
+        const rawMessage = String(message).substring(0, 500);
+        const sanitizedMessage = this._redactPaths(rawMessage);
 
         Memory.logs.push({
             time: Game.time,

@@ -131,8 +131,15 @@ function _createCircularReplacer() {
 }
 
 /**
+/**
  * Security: Safely stringifies an object, handling circular references and limiting length.
  * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
+ * Also redacts absolute paths to prevent information leakage in logged objects.
+ *
+ * セキュリティ：循環参照を処理し、長さを制限してオブジェクトを安全に文字列化します。
+ * JSON.stringify の失敗によるティック途中での DoS を防ぎます。
+ * また、ログ出力されたオブジェクトからの情報漏洩を防ぐため、絶対パスをサニタイズします。
+ *
  * @param {*} obj
  * @param {number} [maxLength=500]
  * @returns {string}
@@ -147,7 +154,11 @@ function _safeStringify(obj, maxLength = 500) {
         if (str === undefined) {
             return 'undefined';
         }
-        return str.substring(0, maxLength);
+
+        // Security: Redact paths in stringified data to prevent information leakage
+        // セキュリティ：情報漏洩を防ぐため、文字列化されたデータ内のパスをサニタイズする
+        const redacted = _redactPaths(str);
+        return redacted.substring(0, maxLength);
     } catch (e) {
         return '[Unstringifiable Object]';
     }
@@ -194,11 +205,12 @@ function debug(message, data) {
     if (_level > LOG_LEVEL.DEBUG) return;
     _stats.debug++;
 
-    // Security: Truncate message to avoid Memory DoS
-    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(
+    // Security: Truncate and redact message to avoid Memory DoS and path leakage
+    // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
+    const rawMessage = String(
         message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
         data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
@@ -216,11 +228,12 @@ function info(message, data) {
     if (_level > LOG_LEVEL.INFO) return;
     _stats.info++;
 
-    // Security: Truncate message to avoid Memory DoS
-    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(
+    // Security: Truncate and redact message to avoid Memory DoS and path leakage
+    // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
+    const rawMessage = String(
         message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
         data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
@@ -238,11 +251,12 @@ function warn(message, data) {
     if (_level > LOG_LEVEL.WARN) return;
     _stats.warn++;
 
-    // Security: Truncate message to avoid Memory DoS
-    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(
+    // Security: Truncate and redact message to avoid Memory DoS and path leakage
+    // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
+    const rawMessage = String(
         message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
         data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
@@ -260,11 +274,12 @@ function error(message, error) {
     if (_level > LOG_LEVEL.ERROR) return;
     _stats.error++;
 
-    // Security: Truncate message to avoid Memory DoS
-    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(
+    // Security: Truncate and redact message to avoid Memory DoS and path leakage
+    // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
+    const rawMessage = String(
         message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = _redactPaths(rawMessage);
 
     let full = sanitizedMessage;
     if (error instanceof Error) {
@@ -294,11 +309,12 @@ function success(message) {
     if (_level > LOG_LEVEL.INFO) return;
     _stats.info++;
 
-    // Security: Truncate message to avoid Memory DoS
-    // セキュリティ：メモリDoSを避けるためにメッセージを切り詰める
-    const sanitizedMessage = String(
+    // Security: Truncate and redact message to avoid Memory DoS and path leakage
+    // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
+    const rawMessage = String(
         message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const sanitizedMessage = _redactPaths(rawMessage);
 
     _record('info', sanitizedMessage);
     // Security: Escape message to prevent console injection

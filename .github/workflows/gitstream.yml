@@ -1,0 +1,16 @@
+name: gitStream
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+jobs:
+  gitStream:
+    runs-on: ubuntu-latest
+    setup:
+      extra_params:
+        --fetch-depth=0
+    steps:
+      - name: gitStream
+        id: gitstream
+        uses: linear-bots/gitstream-github-action@v2
+        env:
+          GITSTREPQ_TOKEN: ${{ secrets.GITSTREAM_TOKEN }}

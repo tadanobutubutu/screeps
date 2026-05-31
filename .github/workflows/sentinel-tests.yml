@@ -284,7 +284,7 @@ jobs:
           if-no-files-found: ignore
       - name: Post Shift Protection results comment
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
@@ -321,7 +321,7 @@ jobs:
           git push origin "HEAD:$branch"
       - name: Remove baseline-accept label
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline') }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const issue_number = context.payload.pull_request.number;
@@ -480,7 +480,7 @@ jobs:
           if-no-files-found: ignore
       - name: Post Behavior Protection results comment
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');

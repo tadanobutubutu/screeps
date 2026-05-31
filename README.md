@@ -161,4 +161,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-31T20:03:58.345Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-31T20:06:11.780Z*

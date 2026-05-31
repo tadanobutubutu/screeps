@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -63,7 +63,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
       - name: Install dependencies
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
@@ -361,7 +361,7 @@ jobs:
       - uses: actions/setup-node@v4
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
         with:
-          node-version: 20
+          node-version: 24
           cache: 'pnpm'
       - name: Install dependencies
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}

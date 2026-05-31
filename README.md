@@ -3,7 +3,7 @@
 > Screeps AI code repository with **full automation** - no API keys required!
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-35-green)](.github/workflows)
+[![Workflows](https://img.shields.io/badge/Workflows-36-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
 [![Lines](https://img.shields.io/badge/Lines-7192-purple)](./)
 
@@ -26,7 +26,7 @@
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (35個)
+### 📋 稼働中のワークフロー (36個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
@@ -44,6 +44,7 @@
 - **🚨 Error Threshold Monitor** (`error-threshold-monitor.yml`) - 定期実行
 - **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
 - **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
+- **gitStream** (`gitstream.yml`) - イベント駆動
 - **🎫 Issue Management** (`issue-management.yml`) - イベント駆動
 - **JAIPilot Generate** (`jaipilot-generate.yml`) - イベント駆動
 - **Junie** (`junie.yaml`) - イベント駆動
@@ -82,7 +83,7 @@
 
 - 📄 **JSファイル数**: 37
 - 📝 **総コード行数**: 7192
-- 🔄 **ワークフロー数**: 35
+- 🔄 **ワークフロー数**: 36
 - 🎭 **ロール数**: 9
 
 *最終更新: 2026-05-31*
@@ -108,7 +109,7 @@ npm install
 
 ```
 .
-├── .github/workflows/     # 自動化ワークフロー (35個)
+├── .github/workflows/     # 自動化ワークフロー (36個)
 ├── role.*.js              # クリープロール (9個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
@@ -159,4 +160,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-31T10:52:26.286Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-31T10:55:59.251Z*

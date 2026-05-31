@@ -1,6 +1,6 @@
 {
-  "updated": "2026-05-31T10:52:26.287Z",
-  "workflows": 35,
+  "updated": "2026-05-31T10:55:59.252Z",
+  "workflows": 36,
   "roles": 9,
   "jsFiles": 37,
   "totalLines": 7192,
@@ -84,6 +84,11 @@
       "name": "⏱️ Game Monitor (Hybrid Mode)",
       "file": "game-monitor-15min.yml",
       "scheduled": true
+    },
+    {
+      "name": "gitStream",
+      "file": "gitstream.yml",
+      "scheduled": false
     },
     {
       "name": "🎫 Issue Management",

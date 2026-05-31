@@ -4,8 +4,8 @@
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
 [![Workflows](https://img.shields.io/badge/Workflows-36-green)](.github/workflows)
-[![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7192-purple)](./)
+[![Roles](https://img.shields.io/badge/Roles-10-orange)](./)
+[![Lines](https://img.shields.io/badge/Lines-7226-purple)](./)
 
 ## 🚀 特徴
 
@@ -31,7 +31,7 @@
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
-- **Auto Merge PRs - Force Merge All** (`auto-merge-pr.yml`) - 定期実行
+- **Auto Merge PRs - Force Penetration** (`auto-merge-pr.yml`) - イベント駆動
 - **📚 Auto Update Documentation** (`auto-update-docs.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
@@ -67,24 +67,25 @@
 
 詳しくは [`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
 
-## 🐛 実装済みロール (9個)
+## 🐛 実装済みロール (10個)
 
 1. **attacker** - `role.attacker.js`
 2. **builder** - `role.builder.js`
 3. **explorer** - `role.explorer.js`
 4. **harvester** - `role.harvester.js`
-5. **medic** - `role.medic.js`
-6. **repairer** - `role.repairer.js`
-7. **scout** - `role.scout.js`
-8. **transporter** - `role.transporter.js`
-9. **upgrader** - `role.upgrader.js`
+5. **healer** - `role.healer.js`
+6. **medic** - `role.medic.js`
+7. **repairer** - `role.repairer.js`
+8. **scout** - `role.scout.js`
+9. **transporter** - `role.transporter.js`
+10. **upgrader** - `role.upgrader.js`
 
 ## 📈 統計情報
 
-- 📄 **JSファイル数**: 37
-- 📝 **総コード行数**: 7192
+- 📄 **JSファイル数**: 38
+- 📝 **総コード行数**: 7226
 - 🔄 **ワークフロー数**: 36
-- 🎭 **ロール数**: 9
+- 🎭 **ロール数**: 10
 
 *最終更新: 2026-05-31*
 
@@ -110,7 +111,7 @@ npm install
 ```
 .
 ├── .github/workflows/     # 自動化ワークフロー (36個)
-├── role.*.js              # クリープロール (9個)
+├── role.*.js              # クリープロール (10個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
 ├── deploy.js              # デプロイスクリプト
@@ -160,4 +161,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-31T17:31:53.222Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-31T20:01:41.437Z*

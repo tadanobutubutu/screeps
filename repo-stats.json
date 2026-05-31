@@ -1,9 +1,9 @@
 {
-  "updated": "2026-05-31T17:31:53.223Z",
+  "updated": "2026-05-31T20:01:41.437Z",
   "workflows": 36,
-  "roles": 9,
-  "jsFiles": 37,
-  "totalLines": 7192,
+  "roles": 10,
+  "jsFiles": 38,
+  "totalLines": 7226,
   "workflowList": [
     {
       "name": "AI Code Maintenance",
@@ -21,9 +21,9 @@
       "scheduled": true
     },
     {
-      "name": "Auto Merge PRs - Force Merge All",
+      "name": "Auto Merge PRs - Force Penetration",
       "file": "auto-merge-pr.yml",
-      "scheduled": true
+      "scheduled": false
     },
     {
       "name": "📚 Auto Update Documentation",
@@ -191,6 +191,7 @@
     "builder",
     "explorer",
     "harvester",
+    "healer",
     "medic",
     "repairer",
     "scout",

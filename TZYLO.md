@@ -46,6 +46,9 @@
 - Updated actions/labeler action from v5 to v6 in the CI workflow.
 - The labeler configuration file path remains .github/labeler.yml.
 - Updated base image in .gitlab-ci.yml from node:20 to node:24.
+- Updated Gitleaks action from v2 to v3 in secret-scanning workflow.
+- Gitleaks v3 requires Node 24 runtime.
+- No changes to inputs, outputs, or behavior with the Gitleaks action.
 
 <!-- TZYLO:DEP_END -->
 

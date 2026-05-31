@@ -24,6 +24,7 @@ posthog.init(process.env.POSTHOG_API_KEY, {
 Sentry.getCurrentScope().setTag('posthog_session_id', posthog.get_session_id());
 
 const roleHarvester = require('role.harvester');
+const roleHealer = require('role.healer');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');
 const roleRepairer = require('role.repairer');

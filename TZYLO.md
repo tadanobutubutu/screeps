@@ -37,8 +37,15 @@
 
 - Updated actions/setup-node action from v4 to v6 in all workflows.
 - Updated associated node-version to 20 in workflows using setup-node.
+- Upgraded Node.js version from 20 to 24 in various workflows.
+- Updated node-version in .github/workflows/auto-create-roles.yml.
+- Updated node-version in .github/workflows/auto-update-docs.yml.
+- Updated node-version in .github/workflows/deploy-ptr.yml.
+- Updated node-version in .github/workflows/random-experiment.yml.
+- Updated node-version in .github/workflows/sentinel-tests.yml.
 - Updated actions/labeler action from v5 to v6 in the CI workflow.
 - The labeler configuration file path remains .github/labeler.yml.
+- Updated base image in .gitlab-ci.yml from node:20 to node:24.
 
 <!-- TZYLO:DEP_END -->
 

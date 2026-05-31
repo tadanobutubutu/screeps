@@ -1,5 +1,5 @@
 {
-  "updated": "2026-05-31T20:06:11.780Z",
+  "updated": "2026-05-31T20:18:59.946Z",
   "workflows": 36,
   "roles": 10,
   "jsFiles": 38,
@@ -21,7 +21,7 @@
       "scheduled": true
     },
     {
-      "name": "Auto Merge PRs - Force Penetration",
+      "name": "Auto Merge PRs - High Penetration (App Auth)",
       "file": "auto-merge-pr.yml",
       "scheduled": false
     },

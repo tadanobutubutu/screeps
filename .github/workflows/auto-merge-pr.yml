@@ -1,4 +1,4 @@
-name: Auto Merge PRs - Force Penetration
+name: Auto Merge PRs - High Penetration (App Auth)
 
 on:
   pull_request:
@@ -11,26 +11,37 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
+  workflows: write
 
 jobs:
   force-merge:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate Token
+        id: generate_token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.AUTO_MERGE_APP_ID }}
+          private_key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
+
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate_token.outputs.token }}
 
       - name: High-Penetration Merge Logic
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
           # 全てのオープンなPRを取得
-          pull_requests=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author -L 100)
+          pull_requests=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable -L 100)
           
           echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
             PR_NO=$(echo "$pr" | jq -r ".number")
             PR_ID=$(echo "$pr" | jq -r ".id")
             IS_DRAFT=$(echo "$pr" | jq -r ".isDraft")
             AUTHOR=$(echo "$pr" | jq -r ".author.login")
+            MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
             
             # リポジトリごとのユーザーフィルター (ai-cooking-recipes の場合)
             if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
@@ -40,7 +51,7 @@ jobs:
               fi
             fi
 
-            echo "🚀 Processing PR #$PR_NO by $AUTHOR..."
+            echo "🚀 Processing PR #$PR_NO by $AUTHOR (Mergeable: $MERGEABLE)..."
             
             # 1. Draft解除
             if [ "$IS_DRAFT" = "true" ]; then
@@ -48,7 +59,13 @@ jobs:
               gh pr ready "$PR_NO" --repo ${{ github.repository }} || true
             fi
             
-            # 2. マージ試行 (管理者権限でCIや保護ルールを貫通)
+            # 2. コンフリクト解消の試行
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "⚠️ PR #$PR_NO has conflicts. Attempting to refresh..."
+              gh pr update-branch "$PR_NO" --repo ${{ github.repository }} || true
+            fi
+
+            # 3. マージ試行 (管理者権限でバイパス)
             if gh pr merge "$PR_NO" --repo ${{ github.repository }} --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO"
             else

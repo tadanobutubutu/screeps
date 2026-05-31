@@ -36,6 +36,7 @@ jest.mock(
         getSources: jest.fn().mockReturnValue([]),
         getContainers: jest.fn().mockReturnValue([]),
         getSpawns: jest.fn().mockReturnValue([]),
+        getMyCreeps: jest.fn().mockReturnValue([]),
         getStructures: jest.fn().mockReturnValue([]),
         getConstructionSites: jest.fn().mockReturnValue([]),
         getEnemies: jest.fn().mockReturnValue([]),
@@ -200,11 +201,12 @@ describe('roomManager', () => {
         });
 
         test('クリープ数をロール別にカウントする', () => {
-            global.Game.creeps = {
-                creep1: { room: mockRoom, memory: { role: 'harvester' } },
-                creep2: { room: mockRoom, memory: { role: 'harvester' } },
-                creep3: { room: mockRoom, memory: { role: 'upgrader' } },
-            };
+            const creeps = [
+                { room: mockRoom, memory: { role: 'harvester' } },
+                { room: mockRoom, memory: { role: 'harvester' } },
+                { room: mockRoom, memory: { role: 'upgrader' } },
+            ];
+            cache.getMyCreeps.mockReturnValue(creeps);
 
             const stats = roomManager.getStats(mockRoom);
 
@@ -364,7 +366,11 @@ describe('roomManager', () => {
                 hits: 50,
                 hitsMax: 100,
             };
+            const defender = {
+                getActiveBodyparts: jest.fn().mockReturnValue(1),
+            };
             cache.getEnemies.mockReturnValue([hostile, hostile, hostile]);
+            cache.getMyCreeps.mockReturnValue([defender]);
             cache.getLinks.mockReturnValue([]);
 
             global.Game.time = 10;
@@ -378,6 +384,7 @@ describe('roomManager', () => {
         test('getStats should not crash when Object.prototype is polluted', () => {
             // Pollute Object.prototype
             Object.prototype.polluted = 'dangerous';
+            cache.getMyCreeps.mockReturnValue([]);
 
             try {
                 const stats = roomManager.getStats(mockRoom);
@@ -405,6 +412,7 @@ describe('roomManager', () => {
         });
 
         test('getStats should handle corrupted/missing creep.room gracefully', () => {
+            cache.getMyCreeps.mockReturnValue([]);
             global.Game.creeps = {
                 corruptedCreep: {
                     memory: { role: 'harvester' },

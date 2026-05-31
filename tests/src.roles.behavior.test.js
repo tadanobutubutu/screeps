@@ -59,6 +59,7 @@ jest.mock(
         getStorage: jest.fn().mockReturnValue(null),
         getSources: jest.fn().mockReturnValue([]),
         getSpawns: jest.fn().mockReturnValue([]),
+        getMyCreeps: jest.fn().mockReturnValue([]),
         getEnemies: jest.fn().mockReturnValue([]),
         getLinks: jest.fn().mockReturnValue([]),
         getMyStructures: jest.fn().mockReturnValue([]),
@@ -175,10 +176,16 @@ describe('src roles behaviors', () => {
                 hitsMax: 100,
                 getActiveBodyparts: jest.fn().mockReturnValue(0),
                 pos: { x: 3, y: 3 },
+                room: { name: 'W0N0' },
+            };
+            const room = {
+                name: 'W0N0',
+                visual: { line: jest.fn() },
             };
             cache.getEnemies.mockReturnValue([enemy]);
 
             const creep = {
+                room: room,
                 name: 'def1',
                 getActiveBodyparts: jest.fn((part) => (part === RANGED_ATTACK ? 1 : 0)),
                 rangedAttack: jest.fn(),
@@ -202,6 +209,7 @@ describe('src roles behaviors', () => {
                     safeMode: null,
                     safeModeAvailable: 1,
                 },
+                find: jest.fn().mockReturnValue([]),
             };
             const hostile = {
                 hits: 100,
@@ -209,6 +217,7 @@ describe('src roles behaviors', () => {
                 getActiveBodyparts: jest.fn().mockReturnValue(1),
             };
             cache.getEnemies.mockReturnValue([hostile, hostile, hostile]);
+            cache.getMyCreeps.mockReturnValue([]);
             Game.creeps = {};
 
             expect(defender.shouldActivateSafeMode(room)).toBe(true);

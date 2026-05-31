@@ -362,15 +362,21 @@ function shouldActivateSafeMode(room) {
     }
 
     // 自室のディフェンダー数
-    const defenders = Object.values(Game.creeps).filter(
-        (c) =>
-            c.room.name === room.name &&
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+    let defenderCount = 0;
+    const myCreeps = cache.getMyCreeps(room);
+    for (let i = 0; i < myCreeps.length; i++) {
+        const c = myCreeps[i];
+        if (
             c.memory.role === 'defender' &&
             c.getActiveBodyparts(ATTACK) + c.getActiveBodyparts(RANGED_ATTACK) > 0
-    );
+        ) {
+            defenderCount++;
+        }
+    }
 
     // 敵が3体以上でディフェンダーが少ない場合はセーフモード発動
-    return invasion.count >= 3 && defenders.length < invasion.count;
+    return invasion.count >= 3 && defenderCount < invasion.count;
 }
 
 module.exports = {

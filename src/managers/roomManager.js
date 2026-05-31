@@ -261,15 +261,17 @@ function _checkSafeMode(room) {
 
     if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
         // 自室のディフェンダー数
-        const defenders = Object.values(Game.creeps).filter(
-            (c) =>
-                c &&
-                c.room &&
-                c.room.name === room.name &&
-                (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0)
-        );
+        // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+        let defenderCount = 0;
+        const myCreeps = cache.getMyCreeps(room);
+        for (let i = 0; i < myCreeps.length; i++) {
+            const c = myCreeps[i];
+            if (c.getActiveBodyparts(ATTACK) > 0 || c.getActiveBodyparts(RANGED_ATTACK) > 0) {
+                defenderCount++;
+            }
+        }
 
-        if (defenders.length < dangerousEnemies.length) {
+        if (defenderCount < dangerousEnemies.length) {
             const result = controller.activateSafeMode();
             if (result === OK) {
                 logger.warn(
@@ -346,24 +348,41 @@ function _manageLinkNetwork(room) {
  * @returns {Object}
  */
 function getStats(room) {
-    const creepCounts = Object.create(null);
-    for (const name in Game.creeps) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (cache.isSafeKey(name) && Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
-            const creep = Game.creeps[name];
-            // Security: Robust check for creep.room to avoid crashes if object is corrupted
-            if (creep && creep.room && creep.room.name === room.name) {
-                const role = creep.memory.role || 'unknown';
-                if (cache.isSafeKey(role)) {
-                    creepCounts[role] = (creepCounts[role] || 0) + 1;
-                }
-            }
-        }
-    }
-
     const storage = cache.getStorage(room);
     const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
     const enemies = cache.getEnemies(room);
+
+    // ⚡ PERFORMANCE OPTIMIZATION: Prioritize fresh volatile room cache populated in main.js
+    if (room._roleCounts && room._myCreepsTick === Game.time) {
+        return {
+            name: room.name,
+            rcl: room.controller ? room.controller.level : 0,
+            controllerProgress: room.controller
+                ? (room.controller.progress / (room.controller.progressTotal || 1)) * 100
+                : 0,
+            energy: room.energyAvailable,
+            energyCapacity: room.energyCapacityAvailable,
+            storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
+            creepCounts: room._roleCounts,
+            totalCreeps: room._myCreeps.length,
+            constructionSites: cache.getConstructionSites(room).length,
+            towers: towers.length,
+            enemies: enemies.length,
+            safeMode: room.controller ? !!room.controller.safeMode : false,
+        };
+    }
+
+    // ⚡ PERFORMANCE OPTIMIZATION: Fallback to getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+    const creepCounts = Object.create(null);
+    const myCreeps = cache.getMyCreeps(room);
+    for (let i = 0; i < myCreeps.length; i++) {
+        const creep = myCreeps[i];
+        if (!creep) continue;
+        const role = creep.memory.role || 'unknown';
+        if (cache.isSafeKey(role)) {
+            creepCounts[role] = (creepCounts[role] || 0) + 1;
+        }
+    }
 
     return {
         name: room.name,
@@ -375,10 +394,7 @@ function getStats(room) {
         energyCapacity: room.energyCapacityAvailable,
         storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
         creepCounts,
-        totalCreeps: Object.keys(Game.creeps).filter((n) => {
-            const c = Game.creeps[n];
-            return c && c.room && c.room.name === room.name;
-        }).length,
+        totalCreeps: myCreeps.length,
         constructionSites: cache.getConstructionSites(room).length,
         towers: towers.length,
         enemies: enemies.length,

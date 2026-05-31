@@ -33,13 +33,14 @@ global.RoomPosition = function (x, y, roomName) {
     this.getRangeTo = () => 1;
 };
 
-const mockCache = {
+jest.mock('../src/utils/cache', () => ({
     getSources: jest.fn().mockReturnValue([]),
+    getMyCreeps: jest.fn().mockReturnValue([]),
     getContainers: jest.fn(),
     isSafeKey: jest.fn().mockReturnValue(true),
-};
+}));
 
-jest.mock('../src/utils/cache', () => mockCache);
+const cache = require('../src/utils/cache');
 jest.mock('../src/utils/pathfinder', () => ({
     moveTo: jest.fn(),
 }));
@@ -74,7 +75,7 @@ describe('src/roles/miner', () => {
             room: { name: 'W0N0' },
             pos: { x: 5, y: 5, getRangeTo: () => 1 },
         };
-        mockCache.getContainers.mockReturnValue([
+        cache.getContainers.mockReturnValue([
             {
                 structureType: global.STRUCTURE_CONTAINER,
                 pos: { x: 5, y: 5, getRangeTo: () => 1 },
@@ -92,7 +93,7 @@ describe('src/roles/miner', () => {
             repair: jest.fn(),
             say: jest.fn(),
         };
-        mockCache.getSources.mockReturnValue([source]);
+        cache.getSources.mockReturnValue([source]);
 
         miner.run(creep);
 
@@ -106,7 +107,7 @@ describe('src/roles/miner', () => {
             pos: { x: 10, y: 10, getRangeTo: () => 1 },
             ticksToRegeneration: 5,
         };
-        mockCache.getContainers.mockReturnValue([]);
+        cache.getContainers.mockReturnValue([]);
         global.Game.getObjectById = jest.fn().mockReturnValue(source);
         const creep = {
             name: 'miner2',
@@ -118,7 +119,7 @@ describe('src/roles/miner', () => {
             store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
             say: jest.fn(),
         };
-        mockCache.getSources.mockReturnValue([source]);
+        cache.getSources.mockReturnValue([source]);
 
         miner.run(creep);
 
@@ -127,14 +128,14 @@ describe('src/roles/miner', () => {
 
     test('ソース割り当て状況を集計する', () => {
         const room = { name: 'W0N0' };
-        mockCache.getSources.mockReturnValue([
+        cache.getSources.mockReturnValue([
             { id: 'a', room },
             { id: 'b', room },
         ]);
-        global.Game.creeps = {
-            m1: { memory: { role: 'miner', sourceId: 'a' }, room },
-            m2: { memory: { role: 'miner', sourceId: 'a' }, room },
-        };
+        cache.getMyCreeps.mockReturnValue([
+            { memory: { role: 'miner', sourceId: 'a' }, room },
+            { memory: { role: 'miner', sourceId: 'a' }, room },
+        ]);
 
         const result = miner.getMinerAssignments(room);
 
@@ -155,7 +156,7 @@ describe('src/roles/miner', () => {
             pos: { x: 5, y: 5, getRangeTo: () => 0 },
             ticksToRegeneration: 3,
         };
-        mockCache.getContainers.mockReturnValue([container]);
+        cache.getContainers.mockReturnValue([container]);
         global.Game.getObjectById = jest.fn().mockReturnValue(source);
         const creep = {
             name: 'miner3',
@@ -167,7 +168,7 @@ describe('src/roles/miner', () => {
             say: jest.fn(),
             store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
         };
-        mockCache.getSources.mockReturnValue([source]);
+        cache.getSources.mockReturnValue([source]);
 
         miner.run(creep);
 
@@ -180,13 +181,13 @@ describe('src/roles/miner', () => {
             name: 'W0N0',
             getTerrain: jest.fn().mockReturnValue(terrain),
         };
-        mockCache.getContainers.mockReturnValue([]);
+        cache.getContainers.mockReturnValue([]);
         const sourceA = { id: 'a', room, pos: { x: 1, y: 1, getRangeTo: () => 1 } };
         const sourceB = { id: 'b', room, pos: { x: 2, y: 2, getRangeTo: () => 1 } };
-        mockCache.getSources.mockReturnValue([sourceA, sourceB]);
-        global.Game.creeps = {
-            other: { memory: { role: 'miner', sourceId: 'a' }, room: sourceA.room },
-        };
+        cache.getSources.mockReturnValue([sourceA, sourceB]);
+        cache.getMyCreeps.mockReturnValue([
+            { memory: { role: 'miner', sourceId: 'a' }, room },
+        ]);
         global.Game.getObjectById = jest.fn().mockReturnValue(undefined);
 
         const creep = {
@@ -230,7 +231,7 @@ describe('src/roles/miner', () => {
             hits: 50,
             hitsMax: 100,
         };
-        mockCache.getContainers.mockReturnValue([container]);
+        cache.getContainers.mockReturnValue([container]);
         global.Game.getObjectById = jest.fn().mockReturnValue(source);
         const creep = {
             name: 'error_miner',
@@ -245,7 +246,7 @@ describe('src/roles/miner', () => {
             repair: jest.fn(),
             say: jest.fn(),
         };
-        mockCache.getSources.mockReturnValue([source]);
+        cache.getSources.mockReturnValue([source]);
         const logger = require('../src/utils/logger');
 
         miner.run(creep);

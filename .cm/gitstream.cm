@@ -1,0 +1,17 @@
+#localoops - gitStream rules
+get_stream_config:{version:2.0}
+automations:
+  estimated_time_to_review:
+    if:
+      - true
+    run:
+      - action: add-label@
+        args:
+          label: "{{ pr.eto }} min review"
+  safe_changes:
+    if:{{ source.diff.files.every((msg) => (msg | match(/\dev\\/null/))) }}
+    run:
+      - action: add-label@
+        args:
+          label: "safe-changes"
+      - action: approve@

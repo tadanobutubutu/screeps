@@ -28,12 +28,13 @@ global.RoomPosition = function (x, y, roomName) {
     };
 };
 
-const mockCache = {
+jest.mock('../src/utils/cache', () => ({
     getEnemies: jest.fn(),
+    getMyCreeps: jest.fn().mockReturnValue([]),
     getMyStructures: jest.fn(),
-};
+}));
 
-jest.mock('../src/utils/cache', () => mockCache);
+const cache = require('../src/utils/cache');
 jest.mock('../src/utils/pathfinder', () => ({
     moveTo: jest.fn(),
 }));
@@ -78,7 +79,7 @@ describe('src/roles/defender', () => {
             pos: { x: 20, y: 20 },
             getActiveBodyparts: jest.fn().mockReturnValue(0),
         };
-        mockCache.getEnemies.mockReturnValue([targetNear, targetFar]);
+        cache.getEnemies.mockReturnValue([targetNear, targetFar]);
 
         const creep = {
             name: 'def1',
@@ -115,7 +116,7 @@ describe('src/roles/defender', () => {
             pos: new RoomPosition(10, 10, 'W0N0'),
             getActiveBodyparts: jest.fn().mockReturnValue(1),
         };
-        mockCache.getEnemies.mockReturnValue([target]);
+        cache.getEnemies.mockReturnValue([target]);
 
         const creep = {
             name: 'def_flee',
@@ -142,7 +143,7 @@ describe('src/roles/defender', () => {
     });
 
     test('敵がいないときパトロールする', () => {
-        mockCache.getEnemies.mockReturnValue([]);
+        cache.getEnemies.mockReturnValue([]);
         const rampart = { pos: { x: 5, y: 5 } };
         const creep = {
             memory: { patrolIndex: 0 },
@@ -156,7 +157,7 @@ describe('src/roles/defender', () => {
                 getRangeTo: jest.fn().mockReturnValue(1),
             },
         };
-        mockCache.getEnemies.mockReturnValue([]);
+        cache.getEnemies.mockReturnValue([]);
         pathfinder.moveTo.mockReturnValue(global.OK);
 
         expect(() => defender.run(creep)).not.toThrow();
@@ -169,18 +170,18 @@ describe('src/roles/defender', () => {
             name: 'W0N0',
             controller: { my: true, safeMode: null, safeModeAvailable: 1 },
         };
-        mockCache.getEnemies.mockReturnValue([
+        cache.getEnemies.mockReturnValue([
             { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1) },
             { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1) },
             { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1) },
         ]);
-        global.Game.creeps = {
-            d1: {
+        cache.getMyCreeps.mockReturnValue([
+            {
                 room,
                 memory: { role: 'harvester' },
                 getActiveBodyparts: jest.fn().mockReturnValue(0),
             },
-        };
+        ]);
 
         expect(defender.shouldActivateSafeMode(room)).toBe(true);
     });

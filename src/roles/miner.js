@@ -76,14 +76,11 @@ function _getAssignedSource(creep) {
     }
 
     // マイナーの割り当てカウント
-    const minerCounts = {};
-    for (const name in Game.creeps) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
-            continue;
-        }
-
-        const c = Game.creeps[name];
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+    const minerCounts = Object.create(null);
+    const creeps = cache.getMyCreeps(creep.room);
+    for (let i = 0; i < creeps.length; i++) {
+        const c = creeps[i];
         if (c.memory.role === 'miner' && c.memory[MEMORY_KEYS.SOURCE_ID]) {
             const sid = c.memory[MEMORY_KEYS.SOURCE_ID];
             if (cache.isSafeKey(sid)) {
@@ -277,27 +274,20 @@ function getBody(energy) {
  * @returns {Object.<string, number>} sourceId → マイナー数
  */
 function getMinerAssignments(room) {
-    const assignments = {};
+    const assignments = Object.create(null);
     const sources = cache.getSources(room);
 
-    for (const src of sources) {
-        assignments[src.id] = 0;
+    for (let i = 0; i < sources.length; i++) {
+        assignments[sources[i].id] = 0;
     }
 
-    for (const name in Game.creeps) {
-        // Security: Use isSafeKey and hasOwnProperty to prevent prototype pollution during iteration
-        if (!cache.isSafeKey(name) || !Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
-            continue;
-        }
-
-        const creep = Game.creeps[name];
-        if (
-            creep.memory.role === 'miner' &&
-            creep.room.name === room.name &&
-            creep.memory[MEMORY_KEYS.SOURCE_ID]
-        ) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+    const creeps = cache.getMyCreeps(room);
+    for (let i = 0; i < creeps.length; i++) {
+        const creep = creeps[i];
+        if (creep.memory.role === 'miner' && creep.memory[MEMORY_KEYS.SOURCE_ID]) {
             const sid = creep.memory[MEMORY_KEYS.SOURCE_ID];
-            if (cache.isSafeKey(sid) && Object.prototype.hasOwnProperty.call(assignments, sid)) {
+            if (cache.isSafeKey(sid) && assignments[sid] !== undefined) {
                 assignments[sid]++;
             }
         }

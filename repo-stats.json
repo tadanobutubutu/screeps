@@ -1,9 +1,9 @@
 {
-  "updated": "2026-05-30T18:05:29.930Z",
-  "workflows": 33,
+  "updated": "2026-05-31T10:52:26.287Z",
+  "workflows": 35,
   "roles": 9,
   "jsFiles": 37,
-  "totalLines": 7179,
+  "totalLines": 7192,
   "workflowList": [
     {
       "name": "AI Code Maintenance",
@@ -48,6 +48,11 @@
     {
       "name": "Deploy GitHub Pages Dashboard",
       "file": "deploy-pages.yml",
+      "scheduled": false
+    },
+    {
+      "name": "Deploy to Screeps PTR",
+      "file": "deploy-ptr.yml",
       "scheduled": false
     },
     {
@@ -114,6 +119,11 @@
       "name": "🎲 Random Experiment",
       "file": "random-experiment.yml",
       "scheduled": true
+    },
+    {
+      "name": "Release Agent",
+      "file": "release-agent.yml",
+      "scheduled": false
     },
     {
       "name": "📦 Release Drafter",

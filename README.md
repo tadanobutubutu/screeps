@@ -3,9 +3,9 @@
 > Screeps AI code repository with **full automation** - no API keys required!
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-33-green)](.github/workflows)
+[![Workflows](https://img.shields.io/badge/Workflows-35-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-9-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7179-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-7192-purple)](./)
 
 ## 🚀 特徴
 
@@ -26,7 +26,7 @@
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (33個)
+### 📋 稼働中のワークフロー (35個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
@@ -37,6 +37,7 @@
 - **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
 - **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
 - **Deploy GitHub Pages Dashboard** (`deploy-pages.yml`) - イベント駆動
+- **Deploy to Screeps PTR** (`deploy-ptr.yml`) - イベント駆動
 - **Deploy to Screeps PTR** (`deploy.yml`) - イベント駆動
 - **✨ Discussion Auto-Implement** (`discussion-auto-implement.yml`) - イベント駆動
 - **🚨 Emergency: Restore API Mode** (`emergency-api-restore.yml`) - 定期実行
@@ -50,6 +51,7 @@
 - **OpenCode AI Agent** (`opencode.yml`) - イベント駆動
 - **🏷️ PR Auto Labeler** (`pr-labeler.yml`) - イベント駆動
 - **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
+- **Release Agent** (`release-agent.yml`) - イベント駆動
 - **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
 - **Gitleaks** (`secret-scanning.yml`) - イベント駆動
 - **Sentinel Tests** (`sentinel-tests.yml`) - イベント駆動
@@ -79,11 +81,11 @@
 ## 📈 統計情報
 
 - 📄 **JSファイル数**: 37
-- 📝 **総コード行数**: 7179
-- 🔄 **ワークフロー数**: 33
+- 📝 **総コード行数**: 7192
+- 🔄 **ワークフロー数**: 35
 - 🎭 **ロール数**: 9
 
-*最終更新: 2026-05-30*
+*最終更新: 2026-05-31*
 
 ## 🔧 セットアップ
 
@@ -106,7 +108,7 @@ npm install
 
 ```
 .
-├── .github/workflows/     # 自動化ワークフロー (33個)
+├── .github/workflows/     # 自動化ワークフロー (35個)
 ├── role.*.js              # クリープロール (9個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
@@ -157,4 +159,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-05-30T18:05:29.929Z*
+*このREADMEは自動更新されます - 最終更新: 2026-05-31T10:52:26.286Z*

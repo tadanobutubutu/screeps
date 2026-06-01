@@ -185,9 +185,7 @@ describe('src/roles/miner', () => {
         const sourceA = { id: 'a', room, pos: { x: 1, y: 1, getRangeTo: () => 1 } };
         const sourceB = { id: 'b', room, pos: { x: 2, y: 2, getRangeTo: () => 1 } };
         cache.getSources.mockReturnValue([sourceA, sourceB]);
-        cache.getMyCreeps.mockReturnValue([
-            { memory: { role: 'miner', sourceId: 'a' }, room },
-        ]);
+        cache.getMyCreeps.mockReturnValue([{ memory: { role: 'miner', sourceId: 'a' }, room }]);
         global.Game.getObjectById = jest.fn().mockReturnValue(undefined);
 
         const creep = {

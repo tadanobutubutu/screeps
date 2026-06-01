@@ -187,7 +187,7 @@ describe('src roles behaviors', () => {
             cache.getEnemies.mockReturnValue([enemy]);
 
             const creep = {
-                room: room,
+                room,
                 name: 'def1',
                 getActiveBodyparts: jest.fn((part) => (part === RANGED_ATTACK ? 1 : 0)),
                 rangedAttack: jest.fn(),

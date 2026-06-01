@@ -24,9 +24,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
-          version: 11
+          version: 10
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -48,9 +48,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
-          version: 11
+          version: 10
       - name: Detect Shift Protection
         id: sp_enabled
         run: |
@@ -350,9 +350,9 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
         with:
-          version: 11
+          version: 10
       - name: Detect Behavior Protection
         id: bp_enabled
         run: |

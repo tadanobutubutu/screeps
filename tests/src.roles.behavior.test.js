@@ -2,8 +2,8 @@
  * src/roles/*.js のユニットテスト
  */
 
-global.RESOURCE_ENERGY = "energy";
-global.RESOURCE_ENERGY = "energy";
+global.RESOURCE_ENERGY = 'energy';
+global.RESOURCE_ENERGY = 'energy';
 global.Game = { time: 1, creeps: {}, rooms: {}, getObjectById: jest.fn() };
 global.Memory = { creeps: {} };
 global.RESOURCE_ENERGY = 'energy';
@@ -187,7 +187,7 @@ describe('src roles behaviors', () => {
             cache.getEnemies.mockReturnValue([enemy]);
 
             const creep = {
-                room: room,
+                room,
                 name: 'def1',
                 getActiveBodyparts: jest.fn((part) => (part === RANGED_ATTACK ? 1 : 0)),
                 rangedAttack: jest.fn(),

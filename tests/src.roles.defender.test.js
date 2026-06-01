@@ -86,7 +86,11 @@ describe('src/roles/defender', () => {
             hits: 50,
             hitsMax: 100,
             memory: {},
-            room: { name: "W0N0", visual: { line: jest.fn() }, find: jest.fn().mockReturnValue([]) },
+            room: {
+                name: 'W0N0',
+                visual: { line: jest.fn() },
+                find: jest.fn().mockReturnValue([]),
+            },
             pos: new RoomPosition(11, 11, 'W0N0'),
             getActiveBodyparts: jest
                 .fn()
@@ -123,7 +127,11 @@ describe('src/roles/defender', () => {
             hits: 100,
             hitsMax: 100,
             memory: {},
-            room: { name: "W0N0", visual: { line: jest.fn() }, find: jest.fn().mockReturnValue([]) },
+            room: {
+                name: 'W0N0',
+                visual: { line: jest.fn() },
+                find: jest.fn().mockReturnValue([]),
+            },
             pos: new RoomPosition(10, 10, 'W0N0'),
             getActiveBodyparts: jest.fn().mockImplementation((part) => {
                 return part === global.RANGED_ATTACK ? 1 : 0;

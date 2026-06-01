@@ -46,3 +46,8 @@
 **Vulnerability:** Information Leakage via `JSON.stringify`.
 **Learning:** Even if `message` and `stack` are sanitized, absolute paths can still leak if they are contained within data objects passed to logging functions. Many logging utilities stringify these objects separately, bypassing the redaction applied to the main message.
 **Prevention:** Ensure the object serialization helper (e.g., `_safeStringify`) applies path redaction to the resulting string before it is output or stored. Use comprehensive redaction regex at the lowest level of the logging pipeline.
+
+## 2026-06-01 - [Log Secret Redaction Hardening]
+**Vulnerability:** Accidental logging of credentials (tokens, passwords, API keys) within strings or stringified objects.
+**Learning:** Heuristic-based redaction using regex can effectively catch common credential patterns in logs. A robust regex must account for various separators ( `:`, `=`, spaces) and common prefixes like `Bearer` to avoid partial leaks while ensuring the sensitive value itself is replaced. Applying this redaction within a `_safeStringify` helper ensures that even structured data logged as objects is sanitized before output.
+**Prevention:** Always use centralized logging utilities for any output. Implement multi-layered redaction that covers both system paths and common sensitive keywords.

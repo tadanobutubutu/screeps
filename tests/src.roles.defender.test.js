@@ -86,7 +86,7 @@ describe('src/roles/defender', () => {
             hits: 50,
             hitsMax: 100,
             memory: {},
-            room: { visual: { line: jest.fn() } },
+            room: { name: "W0N0", visual: { line: jest.fn() }, find: jest.fn().mockReturnValue([]) },
             pos: new RoomPosition(11, 11, 'W0N0'),
             getActiveBodyparts: jest
                 .fn()
@@ -123,7 +123,7 @@ describe('src/roles/defender', () => {
             hits: 100,
             hitsMax: 100,
             memory: {},
-            room: { name: 'W0N0', visual: { line: jest.fn() } },
+            room: { name: "W0N0", visual: { line: jest.fn() }, find: jest.fn().mockReturnValue([]) },
             pos: new RoomPosition(10, 10, 'W0N0'),
             getActiveBodyparts: jest.fn().mockImplementation((part) => {
                 return part === global.RANGED_ATTACK ? 1 : 0;
@@ -171,9 +171,9 @@ describe('src/roles/defender', () => {
             controller: { my: true, safeMode: null, safeModeAvailable: 1 },
         };
         cache.getEnemies.mockReturnValue([
-            { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
-            { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
-            { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
+            { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
+            { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
+            { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
         ]);
         cache.getMyCreeps.mockReturnValue([
             {

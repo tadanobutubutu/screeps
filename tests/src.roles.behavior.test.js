@@ -2,6 +2,8 @@
  * src/roles/*.js のユニットテスト
  */
 
+global.RESOURCE_ENERGY = "energy";
+global.RESOURCE_ENERGY = "energy";
 global.Game = { time: 1, creeps: {}, rooms: {}, getObjectById: jest.fn() };
 global.Memory = { creeps: {} };
 global.RESOURCE_ENERGY = 'energy';

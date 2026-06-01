@@ -253,6 +253,10 @@ function getMyStructures(room, structureType) {
         if (!structureType) {
             return room._myStructures;
         }
+        // ⚡ PERFORMANCE: Use type-indexed cache for O(1) lookup if available.
+        if (room._myStructuresByType) {
+            return room._myStructuresByType[structureType] || [];
+        }
         return room._myStructures.filter((s) => s.structureType === structureType);
     }
 
@@ -389,14 +393,8 @@ function getContainers(room) {
  * @returns {StructureLink[]}
  */
 function getLinks(room) {
-    return get(
-        `links_${room.name}`,
-        () =>
-            room.find(FIND_MY_STRUCTURES, {
-                filter: { structureType: STRUCTURE_LINK },
-            }),
-        CACHE_TTL.STRUCTURES
-    );
+    // ⚡ PERFORMANCE: Leverage getMyStructures cache.
+    return getMyStructures(room, STRUCTURE_LINK);
 }
 
 /**

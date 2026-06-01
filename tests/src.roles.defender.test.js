@@ -179,9 +179,9 @@ describe('src/roles/defender', () => {
             controller: { my: true, safeMode: null, safeModeAvailable: 1 },
         };
         cache.getEnemies.mockReturnValue([
-            { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
-            { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
-            { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [], body: [] },
+            { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
+            { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
+            { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1), body: [] },
         ]);
         cache.getMyCreeps.mockReturnValue([
             {

@@ -1,14 +1,13 @@
+global.FIND_MY_CREEPS = 102;
 /**
  * src/managers/roomManager.js のユニットテスト
  */
-global.FIND_MY_CREEPS = 102;
 global.FIND_MY_STRUCTURES = 11;
 global.FIND_SOURCES = 222;
 global.FIND_STRUCTURES = 5;
 global.STRUCTURE_CONTAINER = 'container';
 global.STRUCTURE_LINK = 'link';
 global.RESOURCE_ENERGY = 'energy';
-global.FIND_MY_CREEPS = 102;
 
 // グローバル設定
 global.Game = { time: 100, creeps: {}, flags: {} };

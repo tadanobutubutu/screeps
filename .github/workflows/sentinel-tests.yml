@@ -23,6 +23,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -30,7 +34,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Run tests
-        run: npm run test
+        run: pnpm test
 
 
   shift_protection:
@@ -43,6 +47,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - name: Detect Shift Protection
         id: sp_enabled
         run: |
@@ -341,6 +349,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - name: Detect Behavior Protection
         id: bp_enabled
         run: |

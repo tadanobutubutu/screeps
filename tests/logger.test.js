@@ -142,7 +142,7 @@ describe('logger', () => {
         });
 
         test('秘密情報（token, passwordなど）をサニタイズする', () => {
-            const str1 = 'token: abcdef123456';
+            const str1 = 'token: dummy_token_123';
             expect(logger._redactPaths(str1)).toBe('token: [REDACTED]');
             const str2 = 'PASSWORD = "super_secret_password"';
             expect(logger._redactPaths(str2)).toBe('PASSWORD = "[REDACTED]"');

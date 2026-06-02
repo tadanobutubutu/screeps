@@ -7,7 +7,7 @@ on:
     types: [submitted]
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *" # 毎時
+    - cron: "0 * * * *"
 
 permissions:
   contents: write
@@ -18,21 +18,14 @@ jobs:
   force-merge:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate Token
-        id: generate_token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.AUTO_MERGE_APP_ID }}
-          private-key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
-
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ steps.generate_token.outputs.token }}
+          token: ${{ secrets.AUTO_MERGE_TOKEN }}
 
       - name: High-Speed Penetration Merge
         env:
-          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
         run: |
           # 全てのオープンなPRを取得
           pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
@@ -67,7 +60,7 @@ jobs:
               sleep 2
             fi
 
-            # 管理者権限で強制マージ (ブランチ自動削除 --delete-branch を明示)
+            # 管理者権限で強制マージ
             if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO and deleted branch."
             else

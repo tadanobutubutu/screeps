@@ -13,7 +13,6 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
-  workflows: write
 
 jobs:
   force-merge:
@@ -22,10 +21,10 @@ jobs:
       - name: Generate Token (Optional)
         id: generate_token
         continue-on-error: true
-        uses: actions/create-github-app-token@v1
+        uses: tibdex/github-app-token@v2
         with:
-          app-id: ${{ secrets.AUTO_MERGE_APP_ID }}
-          private-key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
+          app_id: ${{ secrets.AUTO_MERGE_APP_ID }}
+          private_key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
 
       - name: Checkout
         uses: actions/checkout@v4

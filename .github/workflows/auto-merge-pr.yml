@@ -37,10 +37,11 @@ jobs:
             AUTHOR=$(echo "$pr" | jq -r ".author.login")
             MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
             
-            # ai-cooking-recipes 用のユーザー制限
+            # リポジトリごとのユーザー制限 (ai-cooking-recipes の場合のみ適用)
             if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
-              if [[ ! "$AUTHOR" =~ ^(tadanobutubutu|jules|devin)$ ]]; then
-                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Unauthorized)"
+              # 名前の一部に tadanobutubutu, jules, devin のいずれかが含まれているかチェック (大文字小文字無視)
+              if [[ ! $(echo "$AUTHOR" | tr '[:upper:]' '[:lower:]') =~ (tadanobutubutu|jules|devin) ]]; then
+                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Authorized authors only for this repo)"
                 continue
               fi
             fi

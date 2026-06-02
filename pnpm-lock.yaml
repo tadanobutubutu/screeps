@@ -14,8 +14,8 @@ importers:
   .:
     dependencies:
       '@sentry/browser':
-        specifier: ^10.55.0
-        version: 10.55.0
+        specifier: ^10.54.0
+        version: 10.54.0
       '@supabase/supabase-js':
         specifier: ^2.106.2
         version: 2.106.2
@@ -29,8 +29,8 @@ importers:
         specifier: '>=4.18.1'
         version: 4.18.1
       posthog-js:
-        specifier: ^1.376.4
-        version: 1.378.1
+        specifier: ^1.376.3
+        version: 1.376.3
     devDependencies:
       '@codecov/rollup-plugin':
         specifier: ^2.0.1
@@ -655,11 +655,11 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@posthog/core@1.30.2':
-    resolution: {integrity: sha512-d7RTpfi+/q5+SZ+4f1WhanfEtNBz9onMmUxn3BO0GDT8N5ZT4DEP3LqFisqeP+xkJTaFPWCOVA/nGyKmUX9y9g==}
+  '@posthog/core@1.29.12':
+    resolution: {integrity: sha512-r/2RUa4zbN0XdBp6d+Yk8Jw1rPWXHxyXIgSm/wJf9yDLIouZbH0Pdkgbc1RIuhwL6BIHCFrOqK5jy8TFKTI6iw==}
 
-  '@posthog/types@1.378.1':
-    resolution: {integrity: sha512-bKOXVWySe5oKFjV6X9VW9jngIm14d4BvnT7l/Eb7e6DrT5uD+XclvbRdhC5f1/l5KwoIU+qswBobHRPlix2D1w==}
+  '@posthog/types@1.376.3':
+    resolution: {integrity: sha512-w21lBoz3/ZGw7BZT7t2lJq1mpJwMvWpZijW7vEwBFNAQlq0KfKf2mj5KKUYZMXM1GdIQ0jHnn931uXPB1Ae60w==}
 
   '@protobufjs/aspromise@1.1.2':
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
@@ -829,28 +829,28 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sentry-internal/browser-utils@10.55.0':
-    resolution: {integrity: sha512-zUvyBr13EK0evKsSTzwSimRzZ3P9kugS32dLCj3ea5gNN+/DFtU/GsMTdcIQDhusEDraIlH17AGgqJH5gUAv5w==}
+  '@sentry-internal/browser-utils@10.54.0':
+    resolution: {integrity: sha512-Cz6NzYFmWJlHh1tvtltKsmLl+1jlseQaPXk18Z0P1g6lXAwhT3aJ99x7vDm4jwCzcJ12qAa8Oga8T3C23Ihijw==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/feedback@10.55.0':
-    resolution: {integrity: sha512-32X9WW1xs5DjCRlp89QJ/PLw4kbTIX6MsBDXN2RBN1nWBjm/2WcwXqO/v/WoIS4W2kTWXcZnQwalLSI22Fp33A==}
+  '@sentry-internal/feedback@10.54.0':
+    resolution: {integrity: sha512-14D+TPgi75zogGQ/EWwtIm34FVWP34gso4SfJZRAoHiQrRfd907q8/7MTXNItxi81x79cH9vweu/o55LBml6MA==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay-canvas@10.55.0':
-    resolution: {integrity: sha512-lu/y7k9cK7FZ/qJpL0fBX4WqK6IFa/+bTPhedEaC5UpzjUNP7BfXt0H+R7q9CHWmp20Ffh/wGfO3j7O+Tv2MAA==}
+  '@sentry-internal/replay-canvas@10.54.0':
+    resolution: {integrity: sha512-CGsH019npxnU5cocVDoZKod7JaQtaM6JiR6e2fI8tDwssohJAxP616UQTmoTtBLe3yLG18P4e1BxMxYZFalZEQ==}
     engines: {node: '>=18'}
 
-  '@sentry-internal/replay@10.55.0':
-    resolution: {integrity: sha512-OkQpANGwYU5UKfwLk6Y+NpESRC8nrLBjawRDLwF6cJ8HpNScOuNNJDEJEGwXHVkJPH0pcIixsH8y0Qfcltq6Xw==}
+  '@sentry-internal/replay@10.54.0':
+    resolution: {integrity: sha512-B7eicNhAomJ7bGihJO7mCw7pZ8FFo/THQgGPo85VR3FaJVCCot20WxVgvhjc7IVBQVlaaxSrnlUFvA+yHjszqQ==}
     engines: {node: '>=18'}
 
   '@sentry/babel-plugin-component-annotate@5.3.0':
     resolution: {integrity: sha512-p4q8gn8wcFqZGP/s2MnJCAAd8fTikaU6A0mM97RDHQgStcrYiaS0Sc5zUNfb1V+UOLPuvdEdL6MwyxfzjYJQTA==}
     engines: {node: '>= 18'}
 
-  '@sentry/browser@10.55.0':
-    resolution: {integrity: sha512-5n1kxmW1m4j16ZDV9kt+Zo5uafFnKTy7s5YyEcGnC45KnOiO1Gy+QFd3woXns1K5GNxpjF7oOOc6tXgZLuXnQQ==}
+  '@sentry/browser@10.54.0':
+    resolution: {integrity: sha512-XYuAA2E4Hf6NOJiP3PqczPgBhFUEsEAh+avgxcYTjTwYdr+Nh5XmDxXATr6RxXUvRASTiYN9zNWyK2o9kEDloA==}
     engines: {node: '>=18'}
 
   '@sentry/bundler-plugin-core@5.3.0':
@@ -909,8 +909,8 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
-  '@sentry/core@10.55.0':
-    resolution: {integrity: sha512-XUyoNtDSYCvgJnoNzlh+YeAXfIPhCRIXbhWqqM3GQ3AFtZICi85lkyfsrwXEl9wzlPGYnU+Eg8F4tOfScx+FcQ==}
+  '@sentry/core@10.54.0':
+    resolution: {integrity: sha512-yC/bc8N5ut6vk9X/ugTnIFAbzaSZ2uGoKiHRGzt7VseDIrjXk5ENDJP0m7Rbchuozr41kBv2QB3mPcHUhfB43w==}
     engines: {node: '>=18'}
 
   '@sentry/rollup-plugin@5.3.0':
@@ -2400,8 +2400,8 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  posthog-js@1.378.1:
-    resolution: {integrity: sha512-pr9hu7J9eKCWlDxGfn5jbqcaTvaS+quRVxMKo7XRiKHPtFpXoIStOctkRTMumz8LucgD4l5NVbtsaZDi6OrrLQ==}
+  posthog-js@1.376.3:
+    resolution: {integrity: sha512-Wmj4N6E352b8aWt/AjRYIOfagQgOlkb8LCD/r7i1eGj8WPBhrYLEXojQeZ+jndbiPbRo21l24bFJso7fyNafWQ==}
 
   preact@10.29.2:
     resolution: {integrity: sha512-7tNmwg/7mzzAoB/8kSg6Hl37JraAZw3Z3A0JSY7VXlZwo82Xn0G7wKbNNs2qoF4ZEEsQGTwDAroNdqKs1ofJxQ==}
@@ -3600,11 +3600,11 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@posthog/core@1.30.2':
+  '@posthog/core@1.29.12':
     dependencies:
-      '@posthog/types': 1.378.1
+      '@posthog/types': 1.376.3
 
-  '@posthog/types@1.378.1': {}
+  '@posthog/types@1.376.3': {}
 
   '@protobufjs/aspromise@1.1.2': {}
 
@@ -3703,33 +3703,33 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.60.4':
     optional: true
 
-  '@sentry-internal/browser-utils@10.55.0':
+  '@sentry-internal/browser-utils@10.54.0':
     dependencies:
-      '@sentry/core': 10.55.0
+      '@sentry/core': 10.54.0
 
-  '@sentry-internal/feedback@10.55.0':
+  '@sentry-internal/feedback@10.54.0':
     dependencies:
-      '@sentry/core': 10.55.0
+      '@sentry/core': 10.54.0
 
-  '@sentry-internal/replay-canvas@10.55.0':
+  '@sentry-internal/replay-canvas@10.54.0':
     dependencies:
-      '@sentry-internal/replay': 10.55.0
-      '@sentry/core': 10.55.0
+      '@sentry-internal/replay': 10.54.0
+      '@sentry/core': 10.54.0
 
-  '@sentry-internal/replay@10.55.0':
+  '@sentry-internal/replay@10.54.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.55.0
-      '@sentry/core': 10.55.0
+      '@sentry-internal/browser-utils': 10.54.0
+      '@sentry/core': 10.54.0
 
   '@sentry/babel-plugin-component-annotate@5.3.0': {}
 
-  '@sentry/browser@10.55.0':
+  '@sentry/browser@10.54.0':
     dependencies:
-      '@sentry-internal/browser-utils': 10.55.0
-      '@sentry-internal/feedback': 10.55.0
-      '@sentry-internal/replay': 10.55.0
-      '@sentry-internal/replay-canvas': 10.55.0
-      '@sentry/core': 10.55.0
+      '@sentry-internal/browser-utils': 10.54.0
+      '@sentry-internal/feedback': 10.54.0
+      '@sentry-internal/replay': 10.54.0
+      '@sentry-internal/replay-canvas': 10.54.0
+      '@sentry/core': 10.54.0
 
   '@sentry/bundler-plugin-core@5.3.0':
     dependencies:
@@ -3788,7 +3788,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@sentry/core@10.55.0': {}
+  '@sentry/core@10.54.0': {}
 
   '@sentry/rollup-plugin@5.3.0(rollup@4.60.4)':
     dependencies:
@@ -5450,15 +5450,15 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  posthog-js@1.378.1:
+  posthog-js@1.376.3:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/api-logs': 0.208.0
       '@opentelemetry/exporter-logs-otlp-http': 0.208.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.7.1(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.9.1)
-      '@posthog/core': 1.30.2
-      '@posthog/types': 1.378.1
+      '@posthog/core': 1.29.12
+      '@posthog/types': 1.376.3
       core-js: 3.49.0
       dompurify: 3.4.7
       fflate: 0.4.8

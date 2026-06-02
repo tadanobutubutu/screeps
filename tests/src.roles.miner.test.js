@@ -127,7 +127,7 @@ describe('src/roles/miner', () => {
     });
 
     test('ソース割り当て状況を集計する', () => {
-        const room = { name: 'W0N0' };
+        const room = { name: 'W0N0', find: jest.fn().mockReturnValue([]) };
         cache.getSources.mockReturnValue([
             { id: 'a', room },
             { id: 'b', room },
@@ -180,14 +180,13 @@ describe('src/roles/miner', () => {
         const room = {
             name: 'W0N0',
             getTerrain: jest.fn().mockReturnValue(terrain),
+            find: jest.fn().mockReturnValue([]),
         };
         cache.getContainers.mockReturnValue([]);
         const sourceA = { id: 'a', room, pos: { x: 1, y: 1, getRangeTo: () => 1 } };
         const sourceB = { id: 'b', room, pos: { x: 2, y: 2, getRangeTo: () => 1 } };
         cache.getSources.mockReturnValue([sourceA, sourceB]);
-        cache.getMyCreeps.mockReturnValue([
-            { memory: { role: 'miner', sourceId: 'a' }, room },
-        ]);
+        cache.getMyCreeps.mockReturnValue([{ memory: { role: 'miner', sourceId: 'a' }, room }]);
         global.Game.getObjectById = jest.fn().mockReturnValue(undefined);
 
         const creep = {

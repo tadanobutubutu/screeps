@@ -297,4 +297,78 @@ describe('cache', () => {
             expect(mockRoom.find).not.toHaveBeenCalled();
         });
     });
+
+    describe('getStructuresNeedingEnergy', () => {
+        test('エネルギー補充が必要な構造物を取得する', () => {
+            const mockSpawnNeedEnergy = {
+                structureType: global.STRUCTURE_SPAWN,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
+            };
+            const mockExtensionFull = {
+                structureType: global.STRUCTURE_EXTENSION,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
+            };
+            const mockTowerNeedEnergy = {
+                structureType: global.STRUCTURE_TOWER,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(100) },
+            };
+            const mockContainerNeedEnergy = {
+                structureType: global.STRUCTURE_CONTAINER,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            const mockStructures = [
+                mockSpawnNeedEnergy,
+                mockExtensionFull,
+                mockTowerNeedEnergy,
+                mockContainerNeedEnergy,
+            ];
+
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === FIND_STRUCTURES && opts && opts.filter) {
+                        return mockStructures.filter(opts.filter);
+                    }
+                    return [];
+                }),
+            };
+
+            const structures = cache.getStructuresNeedingEnergy(mockRoom);
+
+            expect(structures.length).toBe(2);
+            expect(structures).toContain(mockSpawnNeedEnergy);
+            expect(structures).toContain(mockTowerNeedEnergy);
+            expect(structures).not.toContain(mockExtensionFull);
+            expect(structures).not.toContain(mockContainerNeedEnergy);
+
+            expect(mockSpawnNeedEnergy.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            expect(mockTowerNeedEnergy.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            // mockExtensionFull will be checked, mockContainerNeedEnergy will NOT be checked because condition fails earlier
+            expect(mockExtensionFull.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            expect(mockContainerNeedEnergy.store.getFreeCapacity).not.toHaveBeenCalled();
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockStructures = [
+                { structureType: global.STRUCTURE_SPAWN, store: { getFreeCapacity: () => 10 } },
+            ];
+            const mockRoom = {
+                name: 'W1N1',
+                _deliveryTargets: mockStructures,
+                _myStructuresTick: global.Game.time,
+                find: jest.fn(),
+            };
+
+            const structures = cache.getStructuresNeedingEnergy(mockRoom);
+            expect(structures).toBe(mockStructures);
+            expect(mockRoom.find).not.toHaveBeenCalled();
+        });
+    });
 });

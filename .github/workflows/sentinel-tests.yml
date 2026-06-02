@@ -23,6 +23,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - uses: actions/setup-node@v6
         with:
           node-version: 24
@@ -60,6 +64,11 @@ jobs:
               exit 1
             fi
           fi
+      - name: Install pnpm
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - uses: actions/setup-node@v6
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
         with:
@@ -358,6 +367,11 @@ jobs:
               exit 1
             fi
           fi
+      - name: Install pnpm
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
       - uses: actions/setup-node@v6
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
         with:

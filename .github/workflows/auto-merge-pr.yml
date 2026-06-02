@@ -13,7 +13,6 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
-  workflows: write
 
 jobs:
   force-merge:
@@ -24,7 +23,7 @@ jobs:
         continue-on-error: true
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.AUTO_MERGE_APP_ID }}
+          app_id: ${{ secrets.AUTO_MERGE_APP_ID }}
           private_key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
 
       - name: Checkout
@@ -70,7 +69,6 @@ jobs:
             fi
 
             # 管理者権限で強制マージ (可能であれば)
-            # GITHUB_TOKEN では --admin が効かない場合があるため、失敗しても GraphQL で試行
             if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO"
             else

@@ -155,15 +155,16 @@ function _planRoads(room) {
 }
 
 /**
- * スポーン周囲にエクステンションを配置する計画を立てる
+ * 必要なエクステンションの数を計算する
  * @param {Room} room
+ * @returns {number}
  */
-function _planExtensions(room) {
+function _getNeededExtensionCount(room) {
     const rcl = room.controller.level;
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][rcl] || 0;
 
     if (maxExtensions === 0) {
-        return;
+        return 0;
     }
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
@@ -173,18 +174,19 @@ function _planExtensions(room) {
 
     const currentCount = existing.length + sites.length;
     if (currentCount >= maxExtensions) {
-        return;
+        return 0;
     }
 
-    const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) {
-        return;
-    }
+    return Math.min(5, maxExtensions - currentCount);
+}
 
-    const spawn = spawns[0];
-    const needed = Math.min(5, maxExtensions - currentCount);
-    let placed = 0;
-
+/**
+ * スポーン周辺の障害物マップを作成する
+ * @param {Room} room
+ * @param {StructureSpawn} spawn
+ * @returns {Set<string>}
+ */
+function _getBlockedMap(room, spawn) {
     const top = Math.max(2, spawn.pos.y - 6);
     const left = Math.max(2, spawn.pos.x - 6);
     const bottom = Math.min(47, spawn.pos.y + 6);
@@ -198,6 +200,19 @@ function _planExtensions(room) {
             blockedMap.add(`${item.x},${item.y}`);
         }
     }
+    return blockedMap;
+}
+
+/**
+ * スパイラルパターンでエクステンションを配置する
+ * @param {Room} room
+ * @param {StructureSpawn} spawn
+ * @param {number} needed
+ * @param {Set<string>} blockedMap
+ * @returns {number} 配置された数
+ */
+function _placeExtensions(room, spawn, needed, blockedMap) {
+    let placed = 0;
 
     // スポーン周囲のスパイラルパターンでエクステンションを配置
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
@@ -230,6 +245,27 @@ function _planExtensions(room) {
             }
         }
     }
+    return placed;
+}
+
+/**
+ * スポーン周囲にエクステンションを配置する計画を立てる
+ * @param {Room} room
+ */
+function _planExtensions(room) {
+    const needed = _getNeededExtensionCount(room);
+    if (needed === 0) {
+        return;
+    }
+
+    const spawns = cache.getSpawns(room);
+    if (spawns.length === 0) {
+        return;
+    }
+
+    const spawn = spawns[0];
+    const blockedMap = _getBlockedMap(room, spawn);
+    const placed = _placeExtensions(room, spawn, needed, blockedMap);
 
     if (placed > 0) {
         logger.info(`[RoomManager] エクステンション ${placed} か所を計画`);

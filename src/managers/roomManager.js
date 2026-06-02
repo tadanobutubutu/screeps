@@ -72,14 +72,26 @@ function _planSourceContainers(room) {
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
-        const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2);
-        if (nearby.length > 0) {
+        let hasNearbyContainer = false;
+        for (let i = 0; i < existingContainers.length; i++) {
+            if (source.pos.getRangeTo(existingContainers[i]) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) {
             continue;
         }
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = containerSites.filter((s) => source.pos.getRangeTo(s) <= 2);
-        if (existingSites.length > 0) {
+        let hasNearbySite = false;
+        for (let i = 0; i < containerSites.length; i++) {
+            if (source.pos.getRangeTo(containerSites[i]) <= 2) {
+                hasNearbySite = true;
+                break;
+            }
+        }
+        if (hasNearbySite) {
             continue;
         }
 

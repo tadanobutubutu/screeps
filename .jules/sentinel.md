@@ -49,6 +49,7 @@
 **Prevention:** エラーメッセージおよびスタックトレースの全行に対して、UnixおよびWindows形式の絶対パスを検知・置換する堅牢な正規表現 (`/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g`) を適用するサニタイズ処理を共通化し、すべてのログ出力ポイントで強制する。
 
 ## 2026-06-05 - Object Serialization Path Leakage
+
 **Vulnerability:** Information Leakage via `JSON.stringify`.
 **Learning:** Even if `message` and `stack` are sanitized, absolute paths can still leak if they are contained within data objects passed to logging functions. Many logging utilities stringify these objects separately, bypassing the redaction applied to the main message.
 **Prevention:** Ensure the object serialization helper (e.g., `_safeStringify`) applies path redaction to the resulting string before it is output or stored. Use comprehensive redaction regex at the lowest level of the logging pipeline.

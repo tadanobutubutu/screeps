@@ -89,8 +89,18 @@ function _record(level, message) {
  */
 function _redactPaths(str) {
     if (typeof str !== 'string') return str;
-    // Matches /abs/path or C:\abs\path
-    return str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    // Security: Redact absolute paths and sensitive keywords (tokens, passwords, etc.)
+    // セキュリティ：絶対パスおよび機密キーワード（トークン、パスワードなど）をサニタイズします
+    return str
+        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+        .replace(
+            /(token|password|secret|apiKey|auth|credentials|bearer|session|apiToken)[^a-zA-Z0-9]{0,10}[:= ]+[^a-zA-Z0-9]{0,10}(Bearer\s+)?([^ \n\t"']+)/gi,
+            (match, g1, g2, g3) => {
+                // Keep the keyword, separator, and optional 'Bearer ' prefix, but redact the value
+                const prefix = match.substring(0, match.lastIndexOf(g3));
+                return prefix + '[REDACTED]';
+            }
+        );
 }
 
 /**

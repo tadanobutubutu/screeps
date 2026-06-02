@@ -96,6 +96,53 @@ function _planSourceContainers(room) {
 }
 
 /**
+ * 指定したルームの占有されているタイルをセットとして取得する
+ * @param {Room} room
+ * @returns {Set<number>}
+ */
+function _getOccupiedTiles(room) {
+    const occupiedTiles = new Set();
+    const structures = cache.getStructures(room);
+    const sites = cache.getConstructionSites(room);
+
+    for (const s of structures) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    for (const s of sites) {
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    return occupiedTiles;
+}
+
+/**
+ * 与えられたパスに沿って道路の建設サイトを配置する
+ * @param {Room} room
+ * @param {Array} path
+ * @param {Set<number>} occupiedTiles
+ * @param {number} maxPlacements
+ * @returns {number} 計画された道路の数
+ */
+function _createRoadSitesForPath(room, path, occupiedTiles, maxPlacements) {
+    let planned = 0;
+    for (const pos of path) {
+        // 既存の構造物や建設サイトがない場所にのみ道路を計画
+        const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
+
+        if (!isOccupied) {
+            const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+            if (r === OK) {
+                planned++;
+                occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
+                if (planned >= maxPlacements) {
+                    break;
+                } // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
+            }
+        }
+    }
+    return planned;
+}
+
+/**
  * スポーンからソース・コントローラーへの道路を計画する
  * @param {Room} room
  */
@@ -109,17 +156,7 @@ function _planRoads(room) {
     const targets = [...cache.getSources(room), room.controller].filter(Boolean);
 
     // 既存の構造物と建設サイトを一度に取得し、Setにキャッシュして高速に判定する
-    const occupiedTiles = new Set();
-    const structures = cache.getStructures(room);
-    const sites = cache.getConstructionSites(room);
-
-    for (const s of structures) {
-        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
-    }
-    for (const s of sites) {
-        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
-    }
-
+    const occupiedTiles = _getOccupiedTiles(room);
     const MAX_ROADS_PER_CYCLE = 5;
 
     for (const target of targets) {
@@ -128,22 +165,12 @@ function _planRoads(room) {
             continue;
         }
 
-        let planned = 0;
-        for (const pos of result.path) {
-            // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
-
-            if (!isOccupied) {
-                const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
-                if (r === OK) {
-                    planned++;
-                    occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
-                    if (planned >= MAX_ROADS_PER_CYCLE) {
-                        break;
-                    } // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
-                }
-            }
-        }
+        const planned = _createRoadSitesForPath(
+            room,
+            result.path,
+            occupiedTiles,
+            MAX_ROADS_PER_CYCLE
+        );
 
         if (planned > 0) {
             logger.debug(`[RoomManager] 道路 ${planned} か所を計画`);

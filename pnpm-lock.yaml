@@ -14,7 +14,7 @@ importers:
   .:
     dependencies:
       '@sentry/browser':
-        specifier: ^10.54.0
+        specifier: 10.54.0
         version: 10.54.0
       '@supabase/supabase-js':
         specifier: ^2.106.2
@@ -29,7 +29,7 @@ importers:
         specifier: '>=4.18.1'
         version: 4.18.1
       posthog-js:
-        specifier: ^1.376.3
+        specifier: 1.376.3
         version: 1.376.3
     devDependencies:
       '@codecov/rollup-plugin':

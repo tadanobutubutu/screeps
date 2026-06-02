@@ -36,7 +36,7 @@ global.RoomPosition = function (x, y, roomName) {
 jest.mock('../src/utils/cache', () => ({
     getSources: jest.fn().mockReturnValue([]),
     getMyCreeps: jest.fn().mockReturnValue([]),
-    getContainers: jest.fn(),
+    getContainers: jest.fn().mockReturnValue([]),
     isSafeKey: jest.fn().mockReturnValue(true),
 }));
 
@@ -127,7 +127,10 @@ describe('src/roles/miner', () => {
     });
 
     test('ソース割り当て状況を集計する', () => {
-        const room = { name: 'W0N0' };
+        const room = {
+            name: 'W0N0',
+            find: jest.fn().mockReturnValue([]),
+        };
         cache.getSources.mockReturnValue([
             { id: 'a', room },
             { id: 'b', room },

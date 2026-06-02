@@ -174,7 +174,7 @@ describe('src roles behaviors', () => {
             const enemy = {
                 hits: 50,
                 hitsMax: 100,
-                getActiveBodyparts: jest.fn().mockReturnValue(0),
+                getActiveBodyparts: jest.fn().mockReturnValue(1),
                 pos: { x: 3, y: 3 },
                 room: { name: 'W0N0' },
             };
@@ -209,7 +209,7 @@ describe('src roles behaviors', () => {
                     safeMode: null,
                     safeModeAvailable: 1,
                 },
-                find: jest.fn().mockReturnValue([]),
+                find: jest.fn().mockReturnValue([{}]),
             };
             const hostile = {
                 hits: 100,

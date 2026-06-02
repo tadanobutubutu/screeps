@@ -2,316 +2,335 @@
  * src/roles/miner.js のユニットテスト
  */
 
-global.LOG_LEVEL = { ERROR: 1, WARN: 2, INFO: 3, DEBUG: 4 }
-global.Game = { creeps: {} }
-global.Memory = {}
-global.WORK = 'work'
-global.CARRY = 'carry'
-global.FIND_SOURCES = 222
-global.MOVE = 'move'
-global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 }
-global.FIND_HOSTILE_CREEPS = 200
-global.FIND_MY_CREEPS = 201
-global.ATTACK = 'attack'
-global.RANGED_ATTACK = 'ranged_attack'
-global.HEAL = 'heal'
-global.CLAIM = 'claim'
-global.TOUGH = 'tough'
-global.TERRAIN_MASK_WALL = 1
-global.FIND_STRUCTURES = 5
-global.STRUCTURE_CONTAINER = 'container'
-global.ERR_NOT_IN_RANGE = -9
-global.ERR_NOT_ENOUGH_ENERGY = -6
-global.RESOURCE_ENERGY = 'energy'
-global.OK = 0
-global.LOG_LEVEL = { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 }
+jest.mock(
+    '../src/utils/cache',
+    () => ({
+        getSources: jest.fn().mockReturnValue([]),
+        getMyCreeps: jest.fn().mockReturnValue([]),
+        getContainers: jest.fn().mockReturnValue([]),
+        isSafeKey: jest.fn().mockReturnValue(true),
+        getStructures: jest.fn().mockReturnValue([]),
+        getStructuresNeedingEnergy: jest.fn().mockReturnValue([]),
+        getConstructionSites: jest.fn().mockReturnValue([]),
+        getDroppedResources: jest.fn().mockReturnValue([]),
+        getStorage: jest.fn().mockReturnValue(null),
+        getSpawns: jest.fn().mockReturnValue([]),
+        getEnemies: jest.fn().mockReturnValue([]),
+        getLinks: jest.fn().mockReturnValue([]),
+        getMyStructures: jest.fn().mockReturnValue([]),
+        assignSource: jest.fn().mockReturnValue(null),
+        invalidate: jest.fn(),
+    }),
+    { virtual: true }
+);
+
+jest.mock(
+    '../src/utils/pathfinder',
+    () => ({
+        moveTo: jest.fn(),
+        closest: jest.fn((_, list) => (list && list.length > 0 ? list[0] : null)),
+    }),
+    { virtual: true }
+);
+
+jest.mock(
+    '../src/utils/logger',
+    () => ({
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+    }),
+    { virtual: true }
+);
+
+jest.mock(
+    '../src/constants',
+    () => ({
+        CACHE_TTL: { SOURCES: 10, PATH: 5, STRUCTURES: 10, ROOM_OBJECTS: 10 },
+        PATHFINDER_DEFAULTS: {
+            REUSE_PATH: 10,
+            MAX_ROOMS: 1,
+            PLAIN_COST: 2,
+            SWAMP_COST: 10,
+            ROAD_COST: 1,
+        },
+        MEMORY_KEYS: { SOURCE_ID: 'sourceId', WORKING: 'working', TARGET_ID: 'targetId' },
+        LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 },
+        ROOM_BOUNDS: { MIN: 0, MAX: 49 },
+    }),
+    { virtual: true }
+);
+
+// Globals setup
+global.Game = { creeps: {}, getObjectById: jest.fn(), time: 1 };
+global.Memory = {};
+global.WORK = 'work';
+global.CARRY = 'carry';
+global.MOVE = 'move';
+global.RESOURCE_ENERGY = 'energy';
+global.OK = 0;
+global.ERR_NOT_IN_RANGE = -9;
+global.ERR_NOT_ENOUGH_ENERGY = -6;
+global.FIND_SOURCES = 105;
+global.FIND_STRUCTURES = 1;
+global.STRUCTURE_CONTAINER = 'container';
+global.TERRAIN_MASK_WALL = 1;
+
 global.RoomPosition = function (x, y, roomName) {
-  this.x = x
-  this.y = y
-  this.roomName = roomName
-  this.isEqualTo = jest.fn().mockReturnValue(false)
-  this.getRangeTo = () => 1
-}
+    this.x = x;
+    this.y = y;
+    this.roomName = roomName;
+    this.isEqualTo = jest.fn().mockImplementation((pos) => this.x === pos.x && this.y === pos.y);
+    this.getRangeTo = jest.fn().mockReturnValue(1);
+};
 
-jest.mock('../src/utils/cache', () => ({
-  getSources: jest.fn().mockReturnValue([]),
-  getMyCreeps: jest.fn().mockReturnValue([]),
-  getContainers: jest.fn().mockReturnValue([]),
-  isSafeKey: jest.fn().mockReturnValue(true)
-}))
-
-const cache = require('../src/utils/cache')
-jest.mock('../src/utils/pathfinder', () => ({
-  moveTo: jest.fn()
-}))
-jest.mock('../src/utils/logger', () => ({
-  warn: jest.fn(),
-  error: jest.fn()
-}))
-jest.mock('../src/constants', () => ({
-  CACHE_TTL: { SOURCES: 10, PATH: 5 },
-  PATHFINDER_DEFAULTS: {
-    REUSE_PATH: 10,
-    MAX_ROOMS: 1,
-    PLAIN_COST: 2,
-    SWAMP_COST: 10,
-    ROAD_COST: 1
-  },
-  MEMORY_KEYS: { SOURCE_ID: 'sourceId' },
-  LOG_LEVEL: { DEBUG: 0, INFO: 1, WARN: 2, ERROR: 3, NONE: 4 }
-}))
-
-const pathfinder = require('../src/utils/pathfinder')
-const miner = require('../src/roles/miner')
+const cache = require('../src/utils/cache');
+const pathfinder = require('../src/utils/pathfinder');
+const logger = require('../src/utils/logger');
+const miner = require('../src/roles/miner');
 
 describe('src/roles/miner', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    let roomMock;
 
-  test('コンテナがある場合に移動して採掘する', () => {
-    const source = {
-      id: 's1',
-      room: { name: 'W0N0' },
-      pos: { x: 5, y: 5, getRangeTo: () => 1 }
-    }
-    cache.getContainers.mockReturnValue([
-      {
-        structureType: global.STRUCTURE_CONTAINER,
-        pos: { x: 5, y: 5, getRangeTo: () => 1 },
-        hits: 50,
-        hitsMax: 100
-      }
-    ])
-    global.Game.getObjectById = jest.fn().mockReturnValue(source)
-    const creep = {
-      name: 'miner1',
-      memory: { sourceId: 's1' },
-      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
-      pos: new RoomPosition(0, 0, 'W0N0'),
-      harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
-      repair: jest.fn(),
-      say: jest.fn()
-    }
-    cache.getSources.mockReturnValue([source])
+    beforeEach(() => {
+        jest.clearAllMocks();
+        roomMock = {
+            name: 'W0N0',
+            find: jest.fn().mockReturnValue([]),
+            getTerrain: jest.fn().mockReturnValue({ get: jest.fn().mockReturnValue(0) }),
+            visual: { circle: jest.fn() },
+        };
+    });
 
-    miner.run(creep)
+    test('コンテナがある場合に移動して採掘する', () => {
+        const source = {
+            id: 's1',
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+        };
+        const container = {
+            structureType: global.STRUCTURE_CONTAINER,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            hits: 50,
+            hitsMax: 100,
+        };
+        cache.getContainers.mockReturnValue([container]);
+        global.Game.getObjectById.mockReturnValue(source);
 
-    expect(pathfinder.moveTo).toHaveBeenCalled()
-  })
+        const creep = {
+            name: 'miner1',
+            memory: { sourceId: 's1' },
+            room: roomMock,
+            pos: new RoomPosition(0, 0, 'W0N0'),
+            harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            repair: jest.fn(),
+            say: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            moveTo: jest.fn().mockReturnValue(global.OK),
+        };
+        cache.getSources.mockReturnValue([source]);
 
-  test('コンテナなしで採掘し満タンでドロップする', () => {
-    const source = {
-      id: 's2',
-      room: { name: 'W0N0' },
-      pos: { x: 10, y: 10, getRangeTo: () => 1 },
-      ticksToRegeneration: 5
-    }
-    cache.getContainers.mockReturnValue([])
-    global.Game.getObjectById = jest.fn().mockReturnValue(source)
-    const creep = {
-      name: 'miner2',
-      memory: { sourceId: 's2' },
-      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
-      pos: new RoomPosition(0, 0, 'W0N0'),
-      harvest: jest.fn().mockReturnValue(global.OK),
-      drop: jest.fn(),
-      store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
-      say: jest.fn()
-    }
-    cache.getSources.mockReturnValue([source])
+        miner.run(creep);
 
-    miner.run(creep)
+        expect(pathfinder.moveTo).toHaveBeenCalled();
+    });
 
-    expect(creep.drop).toHaveBeenCalledWith(global.RESOURCE_ENERGY)
-  })
+    test('コンテナなしで採掘し満タンでドロップする', () => {
+        const source = {
+            id: 's2',
+            room: roomMock,
+            pos: new RoomPosition(10, 10, 'W0N0'),
+            ticksToRegeneration: 5,
+        };
+        cache.getContainers.mockReturnValue([]);
+        global.Game.getObjectById.mockReturnValue(source);
 
-  test('ソース割り当て状況を集計する', () => {
-    const room = {
-      name: 'W0N0',
-      find: jest.fn().mockReturnValue([])
-    }
-    cache.getSources.mockReturnValue([
-      { id: 'a', room, find: jest.fn().mockReturnValue([]) },
-      { id: 'b', room, find: jest.fn().mockReturnValue([]) }
-    ])
-    cache.getMyCreeps.mockReturnValue([
-      { memory: { role: 'miner', sourceId: 'a' }, room, find: jest.fn().mockReturnValue([]) },
-      { memory: { role: 'miner', sourceId: 'a' }, room, find: jest.fn().mockReturnValue([]) }
-    ])
+        const creep = {
+            name: 'miner2',
+            memory: { sourceId: 's2' },
+            room: roomMock,
+            pos: new RoomPosition(10, 10, 'W0N0'),
+            harvest: jest.fn().mockReturnValue(global.OK),
+            drop: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
+            say: jest.fn(),
+            moveTo: jest.fn().mockReturnValue(global.OK),
+        };
+        cache.getSources.mockReturnValue([source]);
 
-    const result = miner.getMinerAssignments(room)
+        miner.run(creep);
 
-    expect(result.a).toBe(2)
-    expect(result.b).toBe(0)
-  })
+        expect(creep.drop).toHaveBeenCalledWith(global.RESOURCE_ENERGY);
+    });
 
-  test('コンテナ上で採掘しつつ修復する', () => {
-    const container = {
-      structureType: global.STRUCTURE_CONTAINER,
-      pos: { x: 5, y: 5, getRangeTo: () => 0 },
-      hits: 40,
-      hitsMax: 100
-    }
-    const source = {
-      id: 's3',
-      room: { name: 'W0N0' },
-      pos: { x: 5, y: 5, getRangeTo: () => 0 },
-      ticksToRegeneration: 3
-    }
-    cache.getContainers.mockReturnValue([container])
-    global.Game.getObjectById = jest.fn().mockReturnValue(source)
-    const creep = {
-      name: 'miner3',
-      memory: { sourceId: 's3' },
-      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
-      pos: { isEqualTo: jest.fn().mockReturnValue(true) },
-      harvest: jest.fn().mockReturnValue(global.OK),
-      repair: jest.fn(),
-      say: jest.fn(),
-      store: { getFreeCapacity: jest.fn().mockReturnValue(10) }
-    }
-    cache.getSources.mockReturnValue([source])
+    test('ソース割り当て状況を集計する', () => {
+        cache.getSources.mockReturnValue([
+            { id: 'a', room: roomMock },
+            { id: 'b', room: roomMock },
+        ]);
+        cache.getMyCreeps.mockReturnValue([
+            { memory: { role: 'miner', sourceId: 'a' }, room: roomMock },
+            { memory: { role: 'miner', sourceId: 'a' }, room: roomMock },
+        ]);
 
-    miner.run(creep)
+        const result = miner.getMinerAssignments(roomMock);
 
-    expect(creep.repair).toHaveBeenCalledWith(container)
-  })
+        expect(result.a).toBe(2);
+        expect(result.b).toBe(0);
+    });
 
-  test('未割り当てのソースを優先的に選ぶ', () => {
-    const terrain = { get: jest.fn().mockReturnValue(0) }
-    const room = {
-      name: 'W0N0',
-      getTerrain: jest.fn().mockReturnValue(terrain),
-      find: jest.fn().mockReturnValue([])
-    }
-    cache.getContainers.mockReturnValue([])
-    const sourceA = {
-      id: 'a',
-      room,
-      pos: { x: 1, y: 1, getRangeTo: () => 1 },
-      find: jest.fn().mockReturnValue([])
-    }
-    const sourceB = {
-      id: 'b',
-      room,
-      pos: { x: 2, y: 2, getRangeTo: () => 1 },
-      find: jest.fn().mockReturnValue([])
-    }
-    cache.getSources.mockReturnValue([sourceA, sourceB])
-    cache.getMyCreeps.mockReturnValue([
-      { memory: { role: 'miner', sourceId: 'a' }, room, find: jest.fn().mockReturnValue([]) }
-    ])
-    global.Game.getObjectById = jest.fn().mockReturnValue(undefined)
+    test('コンテナ上で採掘しつつ修復する', () => {
+        const container = {
+            structureType: global.STRUCTURE_CONTAINER,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            hits: 40,
+            hitsMax: 100,
+        };
+        const source = {
+            id: 's3',
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            ticksToRegeneration: 3,
+        };
+        cache.getContainers.mockReturnValue([container]);
+        global.Game.getObjectById.mockReturnValue(source);
 
-    const creep = {
-      name: 'miner4',
-      memory: {},
-      room: { ...sourceA.room, find: jest.fn().mockReturnValue([]) },
-      pos: new RoomPosition(0, 0, 'W0N0'),
-      harvest: jest.fn().mockReturnValue(global.OK),
-      drop: jest.fn(),
-      store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
-      say: jest.fn()
-    }
+        const creep = {
+            name: 'miner3',
+            memory: { sourceId: 's3' },
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'), // Exactly on container
+            harvest: jest.fn().mockReturnValue(global.OK),
+            repair: jest.fn(),
+            say: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
+            moveTo: jest.fn().mockReturnValue(global.OK),
+        };
+        cache.getSources.mockReturnValue([source]);
 
-    miner.run(creep)
+        miner.run(creep);
 
-    expect(creep.memory.sourceId).toBe('b')
-  })
+        expect(creep.repair).toHaveBeenCalledWith(container);
+    });
 
-  test('採掘ビジュアルを表示する', () => {
-    const visual = { circle: jest.fn() }
-    const creep = { room: { visual } }
-    const source = { energy: 50, energyCapacity: 100, pos: { x: 1, y: 1 } }
+    test('未割り当てのソースを優先的に選ぶ', () => {
+        const sourceA = {
+            id: 'a',
+            room: roomMock,
+            pos: new RoomPosition(1, 1, 'W0N0'),
+        };
+        const sourceB = {
+            id: 'b',
+            room: roomMock,
+            pos: new RoomPosition(2, 2, 'W0N0'),
+        };
+        cache.getSources.mockReturnValue([sourceA, sourceB]);
+        cache.getMyCreeps.mockReturnValue([
+            { memory: { role: 'miner', sourceId: 'a' }, room: roomMock },
+        ]);
+        global.Game.getObjectById.mockReturnValue(undefined);
 
-    miner.showMiningVisual(creep, source)
+        const creep = {
+            name: 'miner4',
+            memory: {},
+            room: roomMock,
+            pos: new RoomPosition(0, 0, 'W0N0'),
+            harvest: jest.fn().mockReturnValue(global.OK),
+            drop: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
+            say: jest.fn(),
+            moveTo: jest.fn().mockReturnValue(global.OK),
+        };
 
-    expect(visual.circle).toHaveBeenCalled()
-  })
+        miner.run(creep);
 
-  test('エラー発生時にロガーがエラーを出力する', () => {
-    const error = new Error('Test error')
-    const source = {
-      id: 's_err',
-      room: {
-        name: 'W0N0'
-      },
-      pos: { x: 5, y: 5, getRangeTo: () => 1 }
-    }
-    const container = {
-      structureType: global.STRUCTURE_CONTAINER,
-      pos: { x: 5, y: 5, getRangeTo: () => 1 },
-      hits: 50,
-      hitsMax: 100
-    }
-    cache.getContainers.mockReturnValue([container])
-    global.Game.getObjectById = jest.fn().mockReturnValue(source)
-    const creep = {
-      name: 'error_miner',
-      memory: { sourceId: 's_err' },
-      room: { ...source.room, find: jest.fn().mockReturnValue([]) },
-      pos: {
-        isEqualTo: jest.fn().mockImplementation(() => {
-          throw error
-        })
-      },
-      harvest: jest.fn(),
-      repair: jest.fn(),
-      say: jest.fn()
-    }
-    cache.getSources.mockReturnValue([source])
-    const logger = require('../src/utils/logger')
+        expect(creep.memory.sourceId).toBe('b');
+    });
 
-    miner.run(creep)
+    test('採掘ビジュアルを表示する', () => {
+        const source = { energy: 50, energyCapacity: 100, pos: new RoomPosition(1, 1, 'W0N0') };
+        const creep = { room: roomMock };
 
-    expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error)
-  })
+        miner.showMiningVisual(creep, source);
 
-  describe('getBody', () => {
-    test('エネルギー650以上の場合、完全最適化ボディを返す', () => {
-      const expected = [
-        global.WORK,
-        global.WORK,
-        global.WORK,
-        global.WORK,
-        global.WORK,
-        global.CARRY,
-        global.MOVE
-      ]
-      expect(miner.getBody(650)).toEqual(expected)
-      expect(miner.getBody(700)).toEqual(expected)
-    })
+        expect(roomMock.visual.circle).toHaveBeenCalled();
+    });
 
-    test('エネルギー550以上650未満の場合、WORK4つのボディを返す', () => {
-      const expected = [
-        global.WORK,
-        global.WORK,
-        global.WORK,
-        global.WORK,
-        global.CARRY,
-        global.MOVE
-      ]
-      expect(miner.getBody(550)).toEqual(expected)
-      expect(miner.getBody(649)).toEqual(expected)
-    })
+    test('エラー発生時にロガーがエラーを出力する', () => {
+        const error = new Error('Test error');
+        const source = {
+            id: 's_err',
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+        };
+        cache.getContainers.mockReturnValue([]);
+        global.Game.getObjectById.mockReturnValue(source);
 
-    test('エネルギー450以上550未満の場合、WORK3つのボディを返す', () => {
-      const expected = [global.WORK, global.WORK, global.WORK, global.CARRY, global.MOVE]
-      expect(miner.getBody(450)).toEqual(expected)
-      expect(miner.getBody(549)).toEqual(expected)
-    })
+        const creep = {
+            name: 'error_miner',
+            memory: { sourceId: 's_err' },
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            harvest: jest.fn().mockImplementation(() => {
+                throw error;
+            }),
+            repair: jest.fn(),
+            say: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            moveTo: jest.fn().mockReturnValue(global.OK),
+        };
+        cache.getSources.mockReturnValue([source]);
 
-    test('エネルギー250以上450未満の場合、WORK2つのボディを返す', () => {
-      const expected = [global.WORK, global.WORK, global.MOVE]
-      expect(miner.getBody(250)).toEqual(expected)
-      expect(miner.getBody(449)).toEqual(expected)
-    })
+        miner.run(creep);
 
-    test('エネルギー250未満の場合、最小ボディを返す', () => {
-      const expected = [global.WORK, global.MOVE]
-      expect(miner.getBody(200)).toEqual(expected)
-      expect(miner.getBody(249)).toEqual(expected)
-    })
-  })
-})
+        expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
+    });
+
+    describe('getBody', () => {
+        test('エネルギー650以上の場合、完全最適化ボディを返す', () => {
+            const expected = [
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.CARRY,
+                global.MOVE,
+            ];
+            expect(miner.getBody(650)).toEqual(expected);
+            expect(miner.getBody(700)).toEqual(expected);
+        });
+
+        test('エネルギー550以上650未満の場合、WORK4つのボディを返す', () => {
+            const expected = [
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.WORK,
+                global.CARRY,
+                global.MOVE,
+            ];
+            expect(miner.getBody(550)).toEqual(expected);
+            expect(miner.getBody(649)).toEqual(expected);
+        });
+
+        test('エネルギー450以上550未満の場合、WORK3つのボディを返す', () => {
+            const expected = [global.WORK, global.WORK, global.WORK, global.CARRY, global.MOVE];
+            expect(miner.getBody(450)).toEqual(expected);
+            expect(miner.getBody(549)).toEqual(expected);
+        });
+
+        test('エネルギー250以上450未満の場合、WORK2つのボディを返す', () => {
+            const expected = [global.WORK, global.WORK, global.MOVE];
+            expect(miner.getBody(250)).toEqual(expected);
+            expect(miner.getBody(449)).toEqual(expected);
+        });
+
+        test('エネルギー250未満の場合、最小ボディを返す', () => {
+            const expected = [global.WORK, global.MOVE];
+            expect(miner.getBody(200)).toEqual(expected);
+            expect(miner.getBody(249)).toEqual(expected);
+        });
+    });
+});

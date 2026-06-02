@@ -21,11 +21,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          token: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: High-Speed Penetration Merge
         env:
-          GITHUB_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           # 全てのオープンなPRを取得
           pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
@@ -37,11 +37,10 @@ jobs:
             AUTHOR=$(echo "$pr" | jq -r ".author.login")
             MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
             
-            # リポジトリごとのユーザー制限 (ai-cooking-recipes の場合のみ適用)
+            # ai-cooking-recipes 用のユーザー制限 (大文字小文字無視・正規表現)
             if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
-              # 名前の一部に tadanobutubutu, jules, devin のいずれかが含まれているかチェック (大文字小文字無視)
               if [[ ! $(echo "$AUTHOR" | tr '[:upper:]' '[:lower:]') =~ (tadanobutubutu|jules|devin) ]]; then
-                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Authorized authors only for this repo)"
+                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Authorized authors only)"
                 continue
               fi
             fi
@@ -61,7 +60,7 @@ jobs:
               sleep 2
             fi
 
-            # 管理者権限で強制マージ
+            # 強制マージ実行 (管理者権限バイパス)
             if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO and deleted branch."
             else

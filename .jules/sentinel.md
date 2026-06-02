@@ -30,6 +30,12 @@
 
 - **deploy.js Path Traversal Fix**: Addressed a path traversal vulnerability by replacing string comparison (`startsWith` + `endsWith`) with secure path boundary resolution. Used `path.relative(baseDir, resolvedPath)` combined with checking `relativePath.startsWith('..')` and `path.isAbsolute(relativePath)` to confidently assert that paths are strictly within the base directory without overly-restrictive substring matching blocks.
 
+## 2026-06-02 - JSON-Aware Log Redaction Hardening
+
+**Vulnerability:** Information Leakage via Serialized Objects.
+**Learning:** Standard keyword redaction regex (e.g., `token: [^ ]+`) often fails when data is logged as a JSON-serialized object because of the presence of quotes and lack of whitespace (e.g., `"token":"secret"`). Simple regex patterns that expect a colon and a space will miss these occurrences, leading to credential leakage in logs that handle structured data.
+**Prevention:** Hardened the redaction regex to support optional quotes and varying whitespace in the separator group: `\b(keyword)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)`. This ensures that both plain text and structured JSON formats are sanitized correctly.
+
 ## 2026-05-31 - Console Injection and Over-engineering Constraints
 
 **Vulnerability:** Console Injection via unescaped `console.log` calls.

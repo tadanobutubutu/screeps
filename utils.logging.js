@@ -105,13 +105,21 @@ module.exports = {
     },
 
     /**
-     * Security: Redacts absolute Unix and Windows paths from a string.
-     * Prevents internal directory structure leakage in logs.
+     * Security: Redacts absolute Unix and Windows paths, and sensitive keywords from a string.
+     * Prevents internal directory structure leakage and credential exposure in logs.
+     *
+     * セキュリティ：絶対パスおよび機密キーワード（トークン、パスワード等）を文字列から隠蔽します。
+     * 内部ディレクトリ構造の漏洩や認証情報の露出を防ぎます。
      */
     _redactPaths: function (str) {
         if (typeof str !== 'string') return str;
         // Matches /abs/path or C:\abs\path
-        return str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+        const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+        // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
+        return pathRedacted.replace(
+            /\b(token|password|secret|apiKey|auth|credentials|bearer|session)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
+            '$1$2[REDACTED]'
+        );
     },
 
     /**

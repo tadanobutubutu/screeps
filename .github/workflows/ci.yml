@@ -95,7 +95,7 @@ jobs:
               run: pnpm install
 
             - name: Run Jest tests & collect coverage
-              run: npx jest --coverage --coverageReporters=lcov --passWithNoTests --reporters default --reporters jest-junit
+              run: pnpm exec jest --coverage --coverageReporters=lcov --passWithNoTests
 
             - name: Upload test results to Kleore
               if: always()

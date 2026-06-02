@@ -22,10 +22,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 24
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -39,7 +43,7 @@ jobs:
     timeout-minutes: 25
     needs: test
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
@@ -60,10 +64,15 @@ jobs:
               exit 1
             fi
           fi
-      - uses: actions/setup-node@v6
+      - name: Install pnpm
+        if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
         with:
-          node-version: 24
+          node-version: 22
           cache: 'pnpm'
       - name: Install dependencies
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
@@ -273,7 +282,7 @@ jobs:
           NODE
       - name: Upload Shift Protection artifacts
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: sentinel-shift-protection
           path: |
@@ -284,7 +293,7 @@ jobs:
           if-no-files-found: ignore
       - name: Post Shift Protection results comment
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
@@ -321,7 +330,7 @@ jobs:
           git push origin "HEAD:$branch"
       - name: Remove baseline-accept label
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline') }}
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const issue_number = context.payload.pull_request.number;
@@ -337,7 +346,7 @@ jobs:
     timeout-minutes: 25
     needs: test
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
@@ -358,10 +367,15 @@ jobs:
               exit 1
             fi
           fi
-      - uses: actions/setup-node@v6
+      - name: Install pnpm
+        if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
         with:
-          node-version: 24
+          node-version: 22
           cache: 'pnpm'
       - name: Install dependencies
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
@@ -469,7 +483,7 @@ jobs:
           NODE
       - name: Upload Behavior Protection artifacts
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: sentinel-behavior-protection
           path: |
@@ -480,7 +494,7 @@ jobs:
           if-no-files-found: ignore
       - name: Post Behavior Protection results comment
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' && always() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v9
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');

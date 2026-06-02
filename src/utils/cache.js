@@ -416,24 +416,26 @@ let _sourceAssignments = Object.create(null);
 let _sourceAssignmentsTick = -1;
 
 /**
- * クリープをソースに割り当てる（均等分散）
+ * 既存の割り当てられたソースを取得する
  * @param {Creep} creep
- * @param {Room} room
- * @returns {Source}
+ * @returns {Source|null}
  */
-function assignSource(creep, room) {
+function getExistingSource(creep) {
     if (creep.memory.sourceId) {
         const src = Game.getObjectById(creep.memory.sourceId);
         if (src) {
             return src;
         }
     }
+    return null;
+}
 
-    const sources = getSources(room);
-    if (sources.length === 0) {
-        return null;
-    }
-
+/**
+ * ルームのソース割り当て状況を取得する
+ * @param {Room} room
+ * @returns {Object}
+ */
+function getRoomSourceAssignments(room) {
     // ⚡ PERFORMANCE: Use per-tick volatile cache to avoid redundant O(N) iterations.
     if (_sourceAssignmentsTick !== Game.time) {
         _sourceAssignments = Object.create(null);
@@ -452,9 +454,16 @@ function assignSource(creep, room) {
         _sourceAssignments[room.name] = assignments;
     }
 
-    const assignments = _sourceAssignments[room.name];
+    return _sourceAssignments[room.name];
+}
 
-    // 最も割り当てが少ないソースを選択
+/**
+ * 最も割り当てが少ないソースを見つける
+ * @param {Source[]} sources
+ * @param {Object} assignments
+ * @returns {Source|null}
+ */
+function findLeastAssignedSource(sources, assignments) {
     let bestSource = null;
     let minAssigned = Infinity;
     for (let i = 0; i < sources.length; i++) {
@@ -465,6 +474,28 @@ function assignSource(creep, room) {
             bestSource = src;
         }
     }
+    return bestSource;
+}
+
+/**
+ * クリープをソースに割り当てる（均等分散）
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {Source|null}
+ */
+function assignSource(creep, room) {
+    const existingSource = getExistingSource(creep);
+    if (existingSource) {
+        return existingSource;
+    }
+
+    const sources = getSources(room);
+    if (sources.length === 0) {
+        return null;
+    }
+
+    const assignments = getRoomSourceAssignments(room);
+    const bestSource = findLeastAssignedSource(sources, assignments);
 
     if (bestSource) {
         creep.memory.sourceId = bestSource.id;

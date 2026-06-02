@@ -1,9 +1,9 @@
 {
-  "updated": "2026-06-02T13:06:32.474Z",
+  "updated": "2026-06-02T16:00:40.705Z",
   "workflows": 36,
   "roles": 10,
   "jsFiles": 38,
-  "totalLines": 7226,
+  "totalLines": 7243,
   "workflowList": [
     {
       "name": "AI Code Maintenance",
@@ -21,7 +21,7 @@
       "scheduled": true
     },
     {
-      "name": "Auto Merge PRs - High Penetration (App Auth)",
+      "name": "Auto Merge PRs - Force Penetration (Instant CI)",
       "file": "auto-merge-pr.yml",
       "scheduled": false
     },

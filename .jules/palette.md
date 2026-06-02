@@ -32,3 +32,9 @@
 
 **Learning:** UX improvements are only valuable if they reach production. Redundant or misconfigured CI workflows (like a manual CodeQL config in a Default Setup repo) can block releases. Maintaining up-to-date Actions (v4/v5) prevents deprecation noise that masks real issues.
 **Action:** Proactively prune redundant workflow files and maintain standard action versioning to ensure a clean, reliable delivery pipeline.
+
+## 2026-06-01 - [GCL ETA & Progress Accessibility]
+
+**Learning:** Providing a clock-time ETA (e.g., "14:30") alongside a duration (e.g., "2h 15m") significantly reduces cognitive load for users monitoring long-term goals. Furthermore, interactive progress bars often contain "invisible" markers (forecasts, recent gains) that are only accessible via hover; adding keyboard focus and semantic ARIA labels to these segments ensures that power users and those using assistive technology can access the full breakdown of their progress.
+
+**Action:** Always provide absolute time estimates (ETA) for long-duration tasks and ensure that all visual markers in charts or bars are keyboard-focusable and described by ARIA labels.

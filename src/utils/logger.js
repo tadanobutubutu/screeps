@@ -216,9 +216,10 @@ function debug(message, data) {
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
     // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
-    const rawMessage = String(
-        message !== null && message !== undefined ? message : ''
-    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const rawMessage = String(message !== null && message !== undefined ? message : '').substring(
+        0,
+        MAX_LOG_MESSAGE_LENGTH
+    );
     const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
@@ -239,9 +240,10 @@ function info(message, data) {
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
     // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
-    const rawMessage = String(
-        message !== null && message !== undefined ? message : ''
-    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const rawMessage = String(message !== null && message !== undefined ? message : '').substring(
+        0,
+        MAX_LOG_MESSAGE_LENGTH
+    );
     const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
@@ -262,9 +264,10 @@ function warn(message, data) {
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
     // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
-    const rawMessage = String(
-        message !== null && message !== undefined ? message : ''
-    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const rawMessage = String(message !== null && message !== undefined ? message : '').substring(
+        0,
+        MAX_LOG_MESSAGE_LENGTH
+    );
     const sanitizedMessage = _redactPaths(rawMessage);
 
     const full =
@@ -285,9 +288,10 @@ function error(message, error) {
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
     // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
-    const rawMessage = String(
-        message !== null && message !== undefined ? message : ''
-    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const rawMessage = String(message !== null && message !== undefined ? message : '').substring(
+        0,
+        MAX_LOG_MESSAGE_LENGTH
+    );
     const sanitizedMessage = _redactPaths(rawMessage);
 
     let full = sanitizedMessage;
@@ -320,9 +324,10 @@ function success(message) {
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
     // セキュリティ：メモリDoSとパス漏洩を避けるためにメッセージを切り詰め、サニタイズする
-    const rawMessage = String(
-        message !== null && message !== undefined ? message : ''
-    ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+    const rawMessage = String(message !== null && message !== undefined ? message : '').substring(
+        0,
+        MAX_LOG_MESSAGE_LENGTH
+    );
     const sanitizedMessage = _redactPaths(rawMessage);
 
     _record('info', sanitizedMessage);

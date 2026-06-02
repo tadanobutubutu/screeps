@@ -1,10 +1,14 @@
-name: Auto Merge PRs - High Penetration (App Auth)
+name: Auto Merge PRs - Force Penetration (Instant CI)
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/15 * * * *" # 念のための保険（間隔を広げてリソース節約）
   workflow_dispatch:
 
 permissions:
@@ -29,21 +33,28 @@ jobs:
         with:
           token: ${{ steps.generate_token.outputs.token }}
 
-      - name: High-Penetration Merge Logic
+      - name: High-Speed Penetration Merge
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          TRIGGER_PR_NO: ${{ github.event.pull_request.number }}
         run: |
-          # 全てのオープンなPRを取得
-          pull_requests=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable -L 100)
-          
-          echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
+          # 1. イベント発生元のPRを最優先で処理
+          if [ -n "$TRIGGER_PR_NO" ]; then
+            echo "🎯 Targeting Trigger PR #$TRIGGER_PR_NO"
+            PR_LIST=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable --limit 100 | jq -c ".[] | select(.number == $TRIGGER_PR_NO)")
+          else
+            # スケジュール実行時などは全てのPRを対象
+            PR_LIST=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable --limit 100 | jq -c ".[]")
+          fi
+
+          for pr in $PR_LIST; do
             PR_NO=$(echo "$pr" | jq -r ".number")
             PR_ID=$(echo "$pr" | jq -r ".id")
             IS_DRAFT=$(echo "$pr" | jq -r ".isDraft")
             AUTHOR=$(echo "$pr" | jq -r ".author.login")
             MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
             
-            # リポジトリごとのユーザーフィルター (ai-cooking-recipes の場合)
+            # ai-cooking-recipes 用のユーザー制限
             if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
               if [[ ! "$AUTHOR" =~ ^(tadanobutubutu|jules|devin)$ ]]; then
                 echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Unauthorized)"
@@ -51,31 +62,32 @@ jobs:
               fi
             fi
 
-            echo "🚀 Processing PR #$PR_NO by $AUTHOR (Mergeable: $MERGEABLE)..."
+            echo "🚀 Processing PR #$PR_NO by $AUTHOR (Status: $MERGEABLE)..."
             
-            # 1. Draft解除
+            # Draft解除
             if [ "$IS_DRAFT" = "true" ]; then
-              echo "📝 PR #$PR_NO is draft, converting to ready..."
+              echo "📝 PR #$PR_NO is draft, converting..."
               gh pr ready "$PR_NO" --repo ${{ github.repository }} || true
             fi
             
-            # 2. コンフリクト解消の試行
+            # コンフリクト自動更新
             if [ "$MERGEABLE" = "CONFLICTING" ]; then
-              echo "⚠️ PR #$PR_NO has conflicts. Attempting to refresh..."
+              echo "⚠️ PR #$PR_NO has conflicts, attempting branch refresh..."
               gh pr update-branch "$PR_NO" --repo ${{ github.repository }} || true
+              sleep 2
             fi
 
-            # 3. マージ試行 (管理者権限でバイパス)
+            # 管理者権限で強制マージ (CI 失敗や保護ルールを貫通)
             if gh pr merge "$PR_NO" --repo ${{ github.repository }} --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO"
             else
-              echo "⚠️ Initial merge failed, attempting GraphQL force merge..."
+              echo "⚠️ Merge failed, trying final GraphQL bypass..."
               gh api graphql -f query='
                 mutation($id: ID!) {
                   mergePullRequest(input: {
                     pullRequestId: $id,
                     mergeMethod: SQUASH
                   }) { clientMutationId }
-                }' -f id="$PR_ID" || echo "❌ Could not merge PR #$PR_NO"
+                }' -f id="$PR_ID" || echo "❌ Failed to merge PR #$PR_NO"
             fi
           done

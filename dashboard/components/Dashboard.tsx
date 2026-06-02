@@ -107,6 +107,15 @@ export default function Dashboard() {
         return `${seconds}s`;
     };
 
+    const getEta = useCallback(
+        (timeToLevelMs: number | null) => {
+            if (!timeToLevelMs || !lastUpdated) return null;
+            const etaDate = new Date(lastUpdated.getTime() + timeToLevelMs);
+            return etaDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        },
+        [lastUpdated]
+    );
+
     const getStalenessInfo = useCallback(() => {
         if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
         if (!lastUpdated) return { icon: '🕒', color: '#575757', label: 'Not synced' };
@@ -146,6 +155,7 @@ export default function Dashboard() {
         try {
             const xpPerHour = getXpPerHour();
             const timeToLevel = getTimeToLevel();
+            const eta = getEta(timeToLevel);
             const formattedXpPerHour = xpPerHour
                 ? xpPerHour >= 1000000
                     ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
@@ -158,7 +168,7 @@ export default function Dashboard() {
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
                 stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
-                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level` : '',
+                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}` : '',
             ]
                 .filter(Boolean)
                 .join(' | ');
@@ -901,6 +911,7 @@ export default function Dashboard() {
                             ? (xpPerHour / stats.gcl.progressTotal) * 100
                             : 0;
                     const timeToLevel = getTimeToLevel();
+                    const eta = getEta(timeToLevel);
                     const formattedXpPerHour = xpPerHour
                         ? xpPerHour >= 1000000000
                             ? `${(xpPerHour / 1000000000).toFixed(2)}B XP/h`
@@ -1105,8 +1116,8 @@ export default function Dashboard() {
                                 aria-valuenow={Number(gclPercent.toFixed(2))}
                                 aria-valuemin={0}
                                 aria-valuemax={100}
-                                aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${absoluteXpGain > 0 ? ` (+${absoluteXpGain.toLocaleString()} XP recently)` : ''}`}
-                                title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go)` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}${absoluteXpGain > 0 ? `\nRecent gain: +${absoluteXpGain.toLocaleString()} XP` : ''}`}
+                                aria-valuetext={`${gclPercent.toFixed(2)}% complete${predictedPercent > 0 ? ` (+${predictedPercent.toFixed(2)}% forecast/h)` : ''}, ${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go${eta ? ` • ETA: ${eta}` : ''})` : ''}${absoluteXpGain > 0 ? ` (+${absoluteXpGain.toLocaleString()} XP recently)` : ''}`}
+                                title={`${(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()} XP remaining to level ${stats.gcl.level + 1}${formattedXpPerHour ? ` (${formattedXpPerHour})` : ''}${timeToLevel ? ` (est. ${formatDuration(timeToLevel)} to go${eta ? ` • ETA: ${eta}` : ''})` : ''}${predictedPercent > 0 ? `\nForecast: +${predictedPercent.toFixed(2)}% in 1h` : ''}${absoluteXpGain > 0 ? `\nRecent gain: +${absoluteXpGain.toLocaleString()} XP` : ''}`}
                                 style={{
                                     width: '100%',
                                     height: '12px',
@@ -1129,6 +1140,9 @@ export default function Dashboard() {
                                     gclDelta > 0 &&
                                     stats.gcl.level === prevStats.gcl.level && (
                                         <div
+                                            tabIndex={0}
+                                            role="note"
+                                            aria-label={`Progress gained since last update: ${gclDelta.toFixed(2)}% (${absoluteXpGain.toLocaleString()} XP)`}
                                             title={`Progress gained: ${gclDelta.toFixed(2)}% (from ${prevGclPercent.toFixed(2)}%)`}
                                             style={{
                                                 left: `${prevGclPercent}%`,
@@ -1157,6 +1171,9 @@ export default function Dashboard() {
                                 {predictedPercent > 0 &&
                                     stats.gcl.progress < stats.gcl.progressTotal && (
                                         <div
+                                            tabIndex={0}
+                                            role="note"
+                                            aria-label={`Forecasted progress in 1h: +${predictedPercent.toFixed(2)}%`}
                                             title={`Forecast: +${predictedPercent.toFixed(2)}% in 1h`}
                                             style={{
                                                 left: `${gclPercent}%`,
@@ -1187,7 +1204,7 @@ export default function Dashboard() {
                                 {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()}{' '}
                                 remaining
                                 {formattedXpPerHour && ` • ${formattedXpPerHour}`}
-                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level`})
+                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`})
                             </div>
                         </section>
                     );
@@ -1319,7 +1336,14 @@ export default function Dashboard() {
                             }}
                         >
                             <p style={{ margin: 0 }}>
-                                <span role="img" aria-label="Ghost">
+                                <span
+                                    role="img"
+                                    aria-label="Ghost"
+                                    style={{
+                                        display: 'inline-block',
+                                        animation: 'bounce 0.6s ease',
+                                    }}
+                                >
                                     👻
                                 </span>{' '}
                                 No data available.

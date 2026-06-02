@@ -1,4 +1,0 @@
-- **Issue:** Untested error paths in `findTowerTargets` in `utils.defense` where `room.find` could potentially return an empty array, leading to errors when attempting to access index 0.
-- **Fix:** Added two test cases in `tests/utils.defense.test.js` to ensure the application of defensive coding paths handles arrays without items appropriately. We validated that the function will not throw errors when given an empty return, and handles missing tower targets properly (i.e. does not call `attack` or `repair`). Tests explicitly mock `options.filter` to correctly match implementation structure.
-- **Tools used:** `pnpm test`, `jest`, `eslint`, `prettier`.
-- **Pre-commit:** Code was formatted, linted, and tests were passed successfully. No regressions occurred.

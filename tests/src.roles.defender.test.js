@@ -65,12 +65,14 @@ describe('src/roles/defender', () => {
     });
 
     test('敵がいるとき攻撃し回復する', () => {
+        const roomMock = { visual: { line: jest.fn() }, find: jest.fn().mockReturnValue([]) };
         const targetNear = {
             id: 'enemy1',
             hits: 50,
             hitsMax: 100,
             pos: { x: 10, y: 10 },
             getActiveBodyparts: jest.fn().mockReturnValue(1),
+            room: roomMock,
         };
         const targetFar = {
             id: 'enemy2',
@@ -78,6 +80,7 @@ describe('src/roles/defender', () => {
             hitsMax: 100,
             pos: { x: 20, y: 20 },
             getActiveBodyparts: jest.fn().mockReturnValue(0),
+            room: roomMock,
         };
         cache.getEnemies.mockReturnValue([targetNear, targetFar]);
 
@@ -108,6 +111,11 @@ describe('src/roles/defender', () => {
     });
 
     test('fleeFromでmoveToが例外を投げてもクラッシュしない', () => {
+        const roomMock = {
+            name: 'W0N0',
+            visual: { line: jest.fn() },
+            find: jest.fn().mockReturnValue([]),
+        };
         // 敵が同じ位置（距離0）にいて、RANGED_ATTACKのみを持つ場合、逃走（_fleeFrom）が呼ばれる
         const target = {
             id: 'enemy_flee',
@@ -115,6 +123,7 @@ describe('src/roles/defender', () => {
             hitsMax: 100,
             pos: new RoomPosition(10, 10, 'W0N0'),
             getActiveBodyparts: jest.fn().mockReturnValue(1),
+            room: roomMock,
         };
         cache.getEnemies.mockReturnValue([target]);
 
@@ -171,9 +180,21 @@ describe('src/roles/defender', () => {
             controller: { my: true, safeMode: null, safeModeAvailable: 1 },
         };
         cache.getEnemies.mockReturnValue([
-            { hitsMax: 100, getActiveBodyparts: jest.fn().mockReturnValue(1) },
-            { hitsMax: 80, getActiveBodyparts: jest.fn().mockReturnValue(1) },
-            { hitsMax: 60, getActiveBodyparts: jest.fn().mockReturnValue(1) },
+            {
+                hitsMax: 100,
+                getActiveBodyparts: jest.fn().mockReturnValue(1),
+                room,
+            },
+            {
+                hitsMax: 80,
+                getActiveBodyparts: jest.fn().mockReturnValue(1),
+                room,
+            },
+            {
+                hitsMax: 60,
+                getActiveBodyparts: jest.fn().mockReturnValue(1),
+                room,
+            },
         ]);
         cache.getMyCreeps.mockReturnValue([
             {

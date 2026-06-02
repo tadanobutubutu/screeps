@@ -5,17 +5,14 @@ on:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   pull_request_review:
     types: [submitted]
-  check_suite:
-    types: [completed]
-  schedule:
-    - cron: "*/15 * * * *" # 念のための保険（間隔を広げてリソース節約）
   workflow_dispatch:
+  schedule:
+    - cron: "0 * * * *" # 毎時
 
 permissions:
   contents: write
   pull-requests: write
   actions: write
-  workflows: write
 
 jobs:
   force-merge:
@@ -23,10 +20,10 @@ jobs:
     steps:
       - name: Generate Token
         id: generate_token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v1
         with:
-          app_id: ${{ secrets.AUTO_MERGE_APP_ID }}
-          private_key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.AUTO_MERGE_APP_ID }}
+          private-key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,18 +33,11 @@ jobs:
       - name: High-Speed Penetration Merge
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
-          TRIGGER_PR_NO: ${{ github.event.pull_request.number }}
         run: |
-          # 1. イベント発生元のPRを最優先で処理
-          if [ -n "$TRIGGER_PR_NO" ]; then
-            echo "🎯 Targeting Trigger PR #$TRIGGER_PR_NO"
-            PR_LIST=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable --limit 100 | jq -c ".[] | select(.number == $TRIGGER_PR_NO)")
-          else
-            # スケジュール実行時などは全てのPRを対象
-            PR_LIST=$(gh pr list --repo ${{ github.repository }} --json number,isDraft,id,author,mergeable --limit 100 | jq -c ".[]")
-          fi
-
-          for pr in $PR_LIST; do
+          # 全てのオープンなPRを取得
+          pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
+          
+          echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
             PR_NO=$(echo "$pr" | jq -r ".number")
             PR_ID=$(echo "$pr" | jq -r ".id")
             IS_DRAFT=$(echo "$pr" | jq -r ".isDraft")
@@ -67,18 +57,18 @@ jobs:
             # Draft解除
             if [ "$IS_DRAFT" = "true" ]; then
               echo "📝 PR #$PR_NO is draft, converting..."
-              gh pr ready "$PR_NO" --repo ${{ github.repository }} || true
+              gh pr ready "$PR_NO" || true
             fi
             
             # コンフリクト自動更新
             if [ "$MERGEABLE" = "CONFLICTING" ]; then
               echo "⚠️ PR #$PR_NO has conflicts, attempting branch refresh..."
-              gh pr update-branch "$PR_NO" --repo ${{ github.repository }} || true
+              gh pr update-branch "$PR_NO" || true
               sleep 2
             fi
 
-            # 管理者権限で強制マージ (CI 失敗や保護ルールを貫通)
-            if gh pr merge "$PR_NO" --repo ${{ github.repository }} --admin --squash --delete-branch; then
+            # 管理者権限で強制マージ
+            if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO"
             else
               echo "⚠️ Merge failed, trying final GraphQL bypass..."

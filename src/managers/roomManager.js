@@ -1,3 +1,5 @@
+'use strict';
+
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');

@@ -205,6 +205,12 @@ function initializeRoomBasicCache(room) {
 function _categorizeMyStructure(s, type, state) {
     state.myStructures.push(s);
 
+    // ⚡ PERFORMANCE: Index owned structures by type for O(1) lookup.
+    if (!state.myStructuresByType[type]) {
+        state.myStructuresByType[type] = [];
+    }
+    state.myStructuresByType[type].push(s);
+
     if (
         type === STRUCTURE_EXTENSION ||
         type === STRUCTURE_SPAWN ||
@@ -270,6 +276,7 @@ function categorizeRoomStructures(room, allStructures) {
     // 3. 構造物の分類（1パスで実行）
     const state = {
         myStructures: [],
+        myStructuresByType: Object.create(null),
         deliveryTargets: [],
         harvesterDeliveryTargets: [],
         repairTargets: [],
@@ -323,6 +330,7 @@ function categorizeRoomStructures(room, allStructures) {
     }
 
     room._myStructures = state.myStructures;
+    room._myStructuresByType = state.myStructuresByType;
     room._myStructuresTick = Game.time;
     room._deliveryTargets = state.deliveryTargets;
     room._harvesterDeliveryTargets = state.harvesterDeliveryTargets;
@@ -669,9 +677,10 @@ module.exports.loop = function () {
     // Path Cache Cleanup (Auto-added)
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {
-        const oldPaths = Object.keys(Memory.pathCache)
-            .filter(key => Memory.pathCache[key].tick < Game.time - 1000);
-        oldPaths.forEach(key => delete Memory.pathCache[key]);
+        const oldPaths = Object.keys(Memory.pathCache).filter(
+            (key) => Memory.pathCache[key].tick < Game.time - 1000
+        );
+        oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
             console.log(`🧼 Cleaned ${oldPaths.length} old cached paths`);
         }

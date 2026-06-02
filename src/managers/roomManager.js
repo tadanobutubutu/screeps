@@ -345,32 +345,16 @@ function _manageLinkNetwork(room) {
 // ============================================================
 
 /**
- * ルームの詳細統計を返す
+ * クリープの統計を取得するヘルパー関数
  * @param {Room} room
- * @returns {Object}
+ * @returns {Object} { creepCounts, totalCreeps }
  */
-function getStats(room) {
-    const storage = cache.getStorage(room);
-    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    const enemies = cache.getEnemies(room);
-
+function _getCreepStats(room) {
     // ⚡ PERFORMANCE OPTIMIZATION: Prioritize fresh volatile room cache populated in main.js
     if (room._roleCounts && room._myCreepsTick === Game.time) {
         return {
-            name: room.name,
-            rcl: room.controller ? room.controller.level : 0,
-            controllerProgress: room.controller
-                ? (room.controller.progress / (room.controller.progressTotal || 1)) * 100
-                : 0,
-            energy: room.energyAvailable,
-            energyCapacity: room.energyCapacityAvailable,
-            storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
             creepCounts: room._roleCounts,
             totalCreeps: room._myCreeps.length,
-            constructionSites: cache.getConstructionSites(room).length,
-            towers: towers.length,
-            enemies: enemies.length,
-            safeMode: room.controller ? !!room.controller.safeMode : false,
         };
     }
 
@@ -385,6 +369,23 @@ function getStats(room) {
             creepCounts[role] = (creepCounts[role] || 0) + 1;
         }
     }
+    return {
+        creepCounts,
+        totalCreeps: myCreeps.length,
+    };
+}
+
+/**
+ * ルームの詳細統計を返す
+ * @param {Room} room
+ * @returns {Object}
+ */
+function getStats(room) {
+    const storage = cache.getStorage(room);
+    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
+    const enemies = cache.getEnemies(room);
+
+    const { creepCounts, totalCreeps } = _getCreepStats(room);
 
     return {
         name: room.name,
@@ -396,7 +397,7 @@ function getStats(room) {
         energyCapacity: room.energyCapacityAvailable,
         storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
         creepCounts,
-        totalCreeps: myCreeps.length,
+        totalCreeps,
         constructionSites: cache.getConstructionSites(room).length,
         towers: towers.length,
         enemies: enemies.length,

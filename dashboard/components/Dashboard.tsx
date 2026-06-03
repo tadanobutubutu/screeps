@@ -168,7 +168,9 @@ export default function Dashboard() {
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
                 stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
-                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}` : '',
+                timeToLevel
+                    ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`
+                    : '',
             ]
                 .filter(Boolean)
                 .join(' | ');
@@ -569,7 +571,11 @@ export default function Dashboard() {
                                     ? 'Refreshing stats...'
                                     : `Last sync: ${timeAgo} (${getStalenessInfo().label}). Click to refresh. Exact time: ${lastUpdated.toLocaleString()}`
                             }
-                            title={isRefreshing ? 'Refreshing...' : `Click to refresh (R). Exact time: ${lastUpdated.toLocaleString()}`}
+                            title={
+                                isRefreshing
+                                    ? 'Refreshing...'
+                                    : `Click to refresh (R). Exact time: ${lastUpdated.toLocaleString()}`
+                            }
                         >
                             {/* 🎨 Palette: 同期中の視覚的なフィードバックを強化 */}
                             <span
@@ -1037,7 +1043,11 @@ export default function Dashboard() {
                                             }}
                                             aria-label={`CPU Used: ${stats.cpuUsed.toLocaleString()}${cpuDelta !== 0 ? ` (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})` : ''}`}
                                         >
-                                            <span role="img" aria-label="CPU Used" aria-hidden="true">
+                                            <span
+                                                role="img"
+                                                aria-label="CPU Used"
+                                                aria-hidden="true"
+                                            >
                                                 📊
                                             </span>{' '}
                                             CPU: {stats.cpuUsed.toLocaleString()}
@@ -1213,7 +1223,9 @@ export default function Dashboard() {
                                 {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()}{' '}
                                 remaining
                                 {formattedXpPerHour && ` • ${formattedXpPerHour}`}
-                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`})
+                                {timeToLevel &&
+                                    ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`}
+                                )
                             </div>
                         </section>
                     );

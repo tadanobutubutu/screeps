@@ -564,18 +564,27 @@ export default function Dashboard() {
                                     : 'none',
                                 outline: 'none',
                             }}
-                            aria-label={`Last sync: ${timeAgo} (${getStalenessInfo().label}). Click to refresh. Exact time: ${lastUpdated.toLocaleString()}`}
-                            title={`Click to refresh (R). Exact time: ${lastUpdated.toLocaleString()}`}
+                            aria-label={
+                                isRefreshing
+                                    ? 'Refreshing stats...'
+                                    : `Last sync: ${timeAgo} (${getStalenessInfo().label}). Click to refresh. Exact time: ${lastUpdated.toLocaleString()}`
+                            }
+                            title={isRefreshing ? 'Refreshing...' : `Click to refresh (R). Exact time: ${lastUpdated.toLocaleString()}`}
                         >
+                            {/* 🎨 Palette: 同期中の視覚的なフィードバックを強化 */}
                             <span
                                 role="img"
-                                aria-label={getStalenessInfo().label}
+                                aria-label={isRefreshing ? 'Refreshing' : getStalenessInfo().label}
                                 style={{
-                                    animation:
-                                        getStalenessInfo().icon === '🚨' ? 'shake 0.3s 3' : 'none',
+                                    display: 'inline-block',
+                                    animation: isRefreshing
+                                        ? 'spin 1s linear infinite'
+                                        : getStalenessInfo().icon === '🚨'
+                                          ? 'shake 0.3s 3'
+                                          : 'none',
                                 }}
                             >
-                                {getStalenessInfo().icon}
+                                {isRefreshing ? '🔄' : getStalenessInfo().icon}
                             </span>
                             Last sync: <time dateTime={lastUpdated?.toISOString()}>{timeAgo}</time>
                         </button>

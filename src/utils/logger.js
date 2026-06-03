@@ -95,7 +95,7 @@ function _redactPaths (str) {
   if (typeof str !== 'string') return str
   // Matches /abs/path or C:\abs\path
   const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
-  // Matches sensitive keywords followed by separators, and handles quoted values with spaces.
+  // セキュリティ：機密キーワードに続くセパレータと、スペースを含む引用符で囲まれた値をマッチングし、情報を隠蔽します。
   return pathRedacted.replace(
     /\b(token|password|secret|apiKey|auth|credentials|bearer|session)\b(["' ]*[:= ]+)(?:("[^"]*")|('[^']*')|([^ \n\t"']+))/gi,
     (match, p1, p2, p3, p4, p5) => {

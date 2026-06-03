@@ -17,6 +17,13 @@ const MAX_KEY_LENGTH = 256
 const MAX_CACHE_ENTRIES = 100
 
 /**
+ * ⚡ PERFORMANCE: Track cache size in a module-level variable to make the
+ * capacity check O(1) instead of O(N).
+ */
+let _cacheSize = -1
+let _lastCacheRef = null
+
+/**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
@@ -55,23 +62,18 @@ const isSafeKey = (key) => {
 // global.cache が未初期化の場合に初期化する
 // Security: Use Object.create(null) to avoid prototype pollution issues
 function ensureCache () {
-  if (!global.cache) {
-    global.cache = Object.create(null)
+  // ⚡ PERFORMANCE: Detect external cache resets (e.g. in tests) using O(1) ref comparison.
+  if (global.cache !== _lastCacheRef) {
+    _lastCacheRef = global.cache
+    if (!_lastCacheRef) {
+      _lastCacheRef = global.cache = Object.create(null)
+      _cacheSize = 0
+    } else {
+      // ⚡ PERFORMANCE: Recalculate size only when reference changes or uninitialized.
+      _cacheSize = Object.keys(_lastCacheRef).length
+    }
   }
-  return global.cache
-}
-
-function _getValidEntry (cache, key) {
-  // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free (Object.create(null))
-  const entry = cache[key]
-  if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-    return entry
-  }
-  return undefined
-}
-
-function _canAddCacheEntry (cache) {
-  return Object.keys(cache).length < MAX_CACHE_ENTRIES
+  return _lastCacheRef
 }
 
 /**
@@ -88,22 +90,25 @@ function get (key, fetcher, ttl) {
   }
 
   const cache = ensureCache()
+  const now = Game.time
 
-  const validEntry = _getValidEntry(cache, key)
-  if (validEntry) {
-    return validEntry.data
+  // ⚡ PERFORMANCE: Inline validity check to reduce function call overhead.
+  const entry = cache[key]
+  if (entry && typeof entry.expires === 'number' && entry.expires > now) {
+    return entry.data
   }
 
   // Security: Cap the number of cache entries to prevent Memory DoS.
   // If full, attempt to cleanup expired entries.
-  if (!_canAddCacheEntry(cache)) {
+  if (_cacheSize >= MAX_CACHE_ENTRIES) {
     cleanup()
     // If still full, implement FIFO eviction by deleting the oldest entry.
     // This ensures the cache remains available for new, potentially more relevant data.
-    if (!_canAddCacheEntry(cache)) {
+    if (_cacheSize >= MAX_CACHE_ENTRIES) {
       const keys = Object.keys(cache)
       if (keys.length > 0) {
         delete cache[keys[0]]
+        _cacheSize--
       }
     }
   }
@@ -111,8 +116,9 @@ function get (key, fetcher, ttl) {
   const data = fetcher()
   cache[key] = {
     data,
-    expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS)
+    expires: now + (ttl || CACHE_TTL.ROOM_OBJECTS)
   }
+  _cacheSize++
   return data
 }
 
@@ -128,6 +134,7 @@ function invalidate (key) {
   // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
   if (cache[key] !== undefined) {
     delete cache[key]
+    _cacheSize--
   }
 }
 
@@ -149,15 +156,16 @@ function invalidatePattern (pattern) {
     const cache = ensureCache()
     const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern
     const keys = Object.keys(cache)
+    let removed = 0
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]
-      // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-      if (isSafeKey(key)) {
-        if (regex.test(key)) {
-          delete cache[key]
-        }
+      // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+      if (regex.test(key)) {
+        delete cache[key]
+        removed++
       }
     }
+    _cacheSize -= removed
   } catch (e) {
     // Silently fail if regex is invalid
   }
@@ -171,17 +179,17 @@ function cleanup () {
   const cache = ensureCache()
   let removed = 0
   const keys = Object.keys(cache)
+  const now = Game.time
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-    if (isSafeKey(key)) {
-      const entry = cache[key]
-      if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
-        delete cache[key]
-        removed++
-      }
+    // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+    const entry = cache[key]
+    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+      delete cache[key]
+      removed++
     }
   }
+  _cacheSize -= removed
   return removed
 }
 
@@ -198,13 +206,11 @@ function getStats () {
   const keys = Object.keys(cache)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-    if (isSafeKey(key)) {
-      total++
-      const entry = cache[key]
-      if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
-        expired++
-      }
+    // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+    total++
+    const entry = cache[key]
+    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+      expired++
     }
   }
 
@@ -257,7 +263,15 @@ function getMyStructures (room, structureType) {
     if (room._myStructuresByType) {
       return room._myStructuresByType[structureType] || []
     }
-    return room._myStructures.filter((s) => s.structureType === structureType)
+    // ⚡ PERFORMANCE: Use standard for loop for better performance in V8.
+    const result = []
+    for (let i = 0; i < room._myStructures.length; i++) {
+      const s = room._myStructures[i]
+      if (s.structureType === structureType) {
+        result.push(s)
+      }
+    }
+    return result
   }
 
   const key = structureType

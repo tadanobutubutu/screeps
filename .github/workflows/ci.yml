@@ -110,7 +110,7 @@ jobs:
               run: pnpm build || true
 
             - name: Upload coverage to Codecov
-              uses: codecov/codecov-action@v6
+              uses: codecov/codecov-action@v4
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   files: ./coverage/lcov.info
@@ -129,11 +129,11 @@ jobs:
               uses: SonarSource/sonarcloud-github-action@master
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                  SONAR_TKN_VAL: ${{ secrets.SONAR_TOKEN }}
 
             - name: Codecov Low Coverage Reporter (Schedule/Dispatch Only)
               if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-              uses: actions/github-script@v9
+              uses: actions/github-script@v7
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
@@ -206,22 +206,22 @@ jobs:
 
             - name: SonarCloud Critical Issue Reporter (Schedule/Dispatch Only)
               if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-              uses: actions/github-script@v9
+              uses: actions/github-script@v7
               env:
-                  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                  SONAR_TKN_VAL: ${{ secrets.SONAR_TOKEN }}
                   SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
               with:
                   github-token: ${{ secrets.GITHUB_TOKEN }}
                   script: |
                       const org = process.env.SONAR_ORGANIZATION;
-                      const token = process.env.SONAR_TOKEN;
+                      const sonar_tkn = process.env.SONAR_TKN_VAL;
                       const projectKey = `${org}:screeps`;
 
                       let issues = [];
                       try {
                         const response = await fetch(
                           `https://sonarcloud.io/api/issues/search?componentKeys=${projectKey}&resolved=false&severities=CRITICAL,MAJOR&ps=20`,
-                          { headers: { 'Authorization': `Bearer ${token}` } }
+                          { headers: { 'Authorization': `Bearer ${sonar_tkn}` } }
                         );
                         const data = await response.json();
                         issues = data.issues || [];

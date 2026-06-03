@@ -111,7 +111,7 @@ jobs:
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' }}
         env:
           SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
-          SENTINEL_SHIFT_PWD: ${{ secrets.SENTINEL_SHIFT_PWD }}
+          SENTINEL_SHIFT_CRED: ${{ secrets.SENTINEL_SHIFT_CRED }}
         run: |
           mkdir -p .sentinel
           set +e
@@ -207,7 +207,7 @@ jobs:
         if: ${{ steps.sp_enabled.outputs.enabled == 'true' && github.event_name == 'pull_request' && steps.sp_run.outputs.exit_code != '0' && steps.sp_baseline.outputs.baseline_missing_only == 'true' && !(github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'sentinel-accept-baseline')) }}
         env:
           SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
-          SENTINEL_SHIFT_PWD: ${{ secrets.SENTINEL_SHIFT_PWD }}
+          SENTINEL_SHIFT_CRED: ${{ secrets.SENTINEL_SHIFT_CRED }}
         run: |
           set -euo pipefail
           echo "First run: creating baselines automatically (no existing snapshots)."
@@ -413,7 +413,7 @@ jobs:
         if: ${{ steps.bp_enabled.outputs.enabled == 'true' }}
         env:
           SENTINEL_SHIFT_USER: ${{ secrets.SENTINEL_SHIFT_USER }}
-          SENTINEL_SHIFT_PWD: ${{ secrets.SENTINEL_SHIFT_PWD }}
+          SENTINEL_SHIFT_CRED: ${{ secrets.SENTINEL_SHIFT_CRED }}
         run: |
           mkdir -p .sentinel
           set +e

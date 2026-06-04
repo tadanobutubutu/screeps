@@ -12,61 +12,12 @@
 const { PATHFINDER_DEFAULTS, CACHE_TTL } = require('../constants');
 const cacheUtils = require('./cache');
 
-/**
- * Security: Limits for memory-intensive structures to prevent Memory DoS.
- */
-const MAX_KEY_LENGTH = 256;
-const MAX_CACHE_ENTRIES = 100;
-
-/**
- * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
- * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
- */
-const DANGEROUS_KEYS = new Set([
-    '__proto__',
-    'constructor',
-    'prototype',
-    '__defineGetter__',
-    '__defineSetter__',
-    '__lookupGetter__',
-    '__lookupSetter__',
-    'toString',
-    'valueOf',
-    'hasOwnProperty',
-    'toLocaleString',
-    'isPrototypeOf',
-    'propertyIsEnumerable',
-]);
-
-/**
- * Security: Validates that a key is safe to use for object access.
- * Prevents Prototype Pollution attacks by blocking special properties.
- * Also enforces length limits to prevent Memory DoS.
- */
-const isSafeKey = (key) => {
-    // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
-    // and avoid unnecessary string/Set checks.
-    if (typeof key === 'number') return true;
-    // Security: Block dangerous properties that could lead to Prototype Pollution
-    // or property shadowing when using user-provided strings as object keys.
-    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
-};
-
 // ============================================================
 // グローバルキャッシュキー
 // ============================================================
 
 const PATH_CACHE_PREFIX = 'path_';
 const COST_MATRIX_CACHE_PREFIX = 'cm_';
-
-/**
- * global.cache を初期化する（未定義の場合）
- * Security: Use Object.create(null) to avoid prototype pollution issues
- */
-function ensureCache() {
-    if (!global.cache) global.cache = Object.create(null);
-    return global.cache;
-}
 
 // ============================================================
 // コストマトリクス構築
@@ -166,24 +117,21 @@ function _applyCreepCosts(costs, room) {
  */
 function buildCostMatrix(roomName, options) {
     const opts = Object.assign({ avoidCreeps: false, useCache: true }, options);
-    const cache = ensureCache();
-
-    // Security: Validate input roomName
-    if (!isSafeKey(roomName)) {
-        return new PathFinder.CostMatrix();
-    }
-
     const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`;
 
-    if (opts.useCache && isSafeKey(cacheKey)) {
-        const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey)
-            ? cache[cacheKey]
-            : undefined;
-        if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-            return entry.data;
-        }
+    // ⚡ PERFORMANCE: O(1) 追跡とエビクションのために中央集権的な cache.get を使用
+    if (opts.useCache) {
+        return cacheUtils.get(
+            cacheKey,
+            () => _buildCostMatrixInternal(roomName, opts),
+            CACHE_TTL.PATH
+        );
     }
 
+    return _buildCostMatrixInternal(roomName, opts);
+}
+
+function _buildCostMatrixInternal(roomName, opts) {
     const room = Game.rooms[roomName];
     const costs = new PathFinder.CostMatrix();
 
@@ -200,27 +148,6 @@ function buildCostMatrix(roomName, options) {
     // クリープを障害物として設定（オプション）
     if (opts.avoidCreeps) {
         _applyCreepCosts(costs, room);
-    }
-
-    if (opts.useCache && isSafeKey(cacheKey)) {
-        // Security: Cap the number of cache entries to prevent Memory DoS.
-        // If full, attempt to cleanup expired entries.
-        if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-            cacheUtils.cleanup();
-            // If still full, implement FIFO eviction by deleting the oldest entry.
-            // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-                const keys = Object.keys(cache);
-                if (keys.length > 0) {
-                    delete cache[keys[0]];
-                }
-            }
-        }
-
-        cache[cacheKey] = {
-            data: costs,
-            expires: Game.time + CACHE_TTL.PATH,
-        };
     }
 
     return costs;
@@ -437,47 +364,22 @@ function getRoadPositions(room) {
  * @returns {number} ステップ数、到達不可の場合は Infinity
  */
 function estimateDistance(origin, goal) {
-    const cache = ensureCache();
-
     // Security: Validate inputs
-    if (!origin || !goal || !isSafeKey(origin.roomName) || !isSafeKey(goal.roomName)) {
+    if (!origin || !goal || !cacheUtils.isSafeKey(origin.roomName) || !cacheUtils.isSafeKey(goal.roomName)) {
         return Infinity;
     }
 
     const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
 
-    if (isSafeKey(key)) {
-        const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
-        if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-            return entry.data;
-        }
-    }
-
-    const result = findPath(origin, goal);
-    const dist = result.incomplete ? Infinity : result.path.length;
-
-    if (isSafeKey(key)) {
-        // Security: Cap the number of cache entries to prevent Memory DoS.
-        // If full, attempt to cleanup expired entries.
-        if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-            cacheUtils.cleanup();
-            // If still full, implement FIFO eviction by deleting the oldest entry.
-            // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-                const keys = Object.keys(cache);
-                if (keys.length > 0) {
-                    delete cache[keys[0]];
-                }
-            }
-        }
-
-        cache[key] = {
-            data: dist,
-            expires: Game.time + CACHE_TTL.PATH,
-        };
-    }
-
-    return dist;
+    // ⚡ PERFORMANCE: O(1) 追跡とエビクションのために中央集権的な cache.get を使用
+    return cacheUtils.get(
+        key,
+        () => {
+            const result = findPath(origin, goal);
+            return result.incomplete ? Infinity : result.path.length;
+        },
+        CACHE_TTL.PATH
+    );
 }
 
 module.exports = {
@@ -491,5 +393,4 @@ module.exports = {
     findNearestOpenTile,
     getRoadPositions,
     estimateDistance,
-    isSafeKey,
 };

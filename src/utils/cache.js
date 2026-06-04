@@ -55,7 +55,7 @@ const isSafeKey = (key) => {
 // ⚡ PERFORMANCE: モジュールレベルの変数で状態を追跡し、O(1) での容量チェックとエビクションを実現。
 // グローバルリセットに対応するため、オブジェクト参照チェックにより遅延同期。
 let _cacheSize = 0
-const _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
+let _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
 let _lastCacheRef = null
 
 // global.cache が未初期化の場合に初期化する
@@ -176,6 +176,10 @@ function get (key, fetcher, ttl) {
   if (isNew) {
     _cacheSize++
     _cacheOrder.set(key, true)
+  } else {
+    // 更新時は順序を最後に移動
+    _cacheOrder.delete(key)
+    _cacheOrder.set(key, true)
   }
   return data
 }
@@ -252,6 +256,15 @@ function getStats () {
     expired,
     active: _cacheSize - expired
   }
+}
+
+/**
+ * 内部状態をリセットする（主にテスト用）
+ */
+function reset () {
+  _cacheSize = 0
+  _cacheOrder.clear()
+  _lastCacheRef = null
 }
 
 // ============================================================
@@ -551,6 +564,7 @@ module.exports = {
   cleanup,
   getStats,
   isSafeKey,
+  reset,
   getSources,
   getStructures,
   getMyStructures,

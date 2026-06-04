@@ -23,6 +23,7 @@ export default function Dashboard() {
     const [isRetryFocused, setIsRetryFocused] = useState(false);
     const [isResetFocused, setIsResetFocused] = useState(false);
     const [isCopyFocused, setIsCopyFocused] = useState(false);
+    const [errorCopied, setErrorCopied] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
     const [isResetConfirming, setIsResetConfirming] = useState(false);
     const [timeAgo, setTimeAgo] = useState<string>('just now');
@@ -135,6 +136,17 @@ export default function Dashboard() {
             console.error('Failed to copy:', err);
         }
     }, [stats]);
+
+    const handleCopyError = useCallback(async () => {
+        if (!error) return;
+        try {
+            await navigator.clipboard.writeText(error);
+            setErrorCopied(true);
+            setTimeout(() => setErrorCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy error:', err);
+        }
+    }, [error]);
 
     const handleCopyRooms = useCallback(async () => {
         if (!stats?.rooms) return;
@@ -273,8 +285,8 @@ export default function Dashboard() {
         };
 
         updateRelativeTime();
-        // 10秒ごとに相対時間を更新
-        const interval = setInterval(updateRelativeTime, 10000);
+        // 1秒ごとに相対時間を更新して「just now」のライブ感を高める
+        const interval = setInterval(updateRelativeTime, 1000);
         return () => clearInterval(interval);
     }, [lastUpdated]);
 
@@ -458,7 +470,7 @@ export default function Dashboard() {
                                 transition: 'all 0.2s ease-in-out',
                                 animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
                                 boxShadow: isSummaryFocused
-                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#004b73'}`
                                     : 'none',
                                 outline: 'none',
                             }}
@@ -492,7 +504,7 @@ export default function Dashboard() {
                                 transition: 'all 0.2s ease-in-out',
                                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                                 boxShadow: isRoomFocused
-                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#006699'}`
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#004b73'}`
                                     : 'none',
                                 outline: 'none',
                             }}
@@ -662,7 +674,7 @@ export default function Dashboard() {
                             cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                             padding: '0.5rem 1rem',
                             // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                            background: updated ? '#1e7e34' : '#006699',
+                            background: updated ? '#1e7e34' : '#004b73',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',
@@ -670,7 +682,7 @@ export default function Dashboard() {
                             transition: 'all 0.2s',
                             userSelect: 'none',
                             boxShadow: isRefreshFocused
-                                ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                 : 'none',
                             outline: 'none',
                             animation: updated ? 'bounce 0.6s ease' : 'none',
@@ -859,11 +871,30 @@ export default function Dashboard() {
                         </span>{' '}
                         {error}
                     </div>
-                    <button
-                        onClick={() => fetchStats(true)}
-                        onFocus={() => setIsRetryFocused(true)}
-                        onBlur={() => setIsRetryFocused(false)}
-                        disabled={loading || isRefreshing}
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                            onClick={handleCopyError}
+                            aria-label={errorCopied ? 'Error message copied' : 'Copy error message'}
+                            title={errorCopied ? 'Copied!' : 'Copy error message'}
+                            style={{
+                                padding: '0.25rem 0.75rem',
+                                background: errorCopied ? '#1e7e34' : '#575757',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                fontSize: '0.8rem',
+                                transition: 'all 0.2s',
+                                userSelect: 'none',
+                            }}
+                        >
+                            {errorCopied ? '✅ Copied!' : '📋 Copy'}
+                        </button>
+                        <button
+                            onClick={() => fetchStats(true)}
+                            onFocus={() => setIsRetryFocused(true)}
+                            onBlur={() => setIsRetryFocused(false)}
+                            disabled={loading || isRefreshing}
                         aria-label="Retry fetching stats"
                         aria-keyshortcuts="r"
                         title="Retry (R)"
@@ -884,22 +915,25 @@ export default function Dashboard() {
                             outline: 'none',
                         }}
                     >
-                        {isRefreshing ? (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            {isRefreshing ? (
                                 <span
-                                    style={{
-                                        display: 'inline-block',
-                                        animation: 'spin 1s linear infinite',
-                                    }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
                                 >
-                                    🔄
-                                </span>{' '}
-                                Retrying...
-                            </span>
-                        ) : (
-                            'Retry'
-                        )}
-                    </button>
+                                    <span
+                                        style={{
+                                            display: 'inline-block',
+                                            animation: 'spin 1s linear infinite',
+                                        }}
+                                    >
+                                        🔄
+                                    </span>{' '}
+                                    Retrying...
+                                </span>
+                            ) : (
+                                'Retry'
+                            )}
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -1072,7 +1106,7 @@ export default function Dashboard() {
                                             color:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                     ? '#FFD700'
-                                                    : '#006699',
+                                                    : '#004b73',
                                             backgroundColor:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                     ? '#333'
@@ -1162,7 +1196,7 @@ export default function Dashboard() {
                                         background:
                                             stats.gcl.progress >= stats.gcl.progressTotal
                                                 ? '#FFD700'
-                                                : '#006699',
+                                                : '#004b73',
                                         transition: 'width 0.5s ease-in-out',
                                         position: 'relative',
                                         zIndex: 2,
@@ -1183,7 +1217,7 @@ export default function Dashboard() {
                                                 background:
                                                     stats.gcl.progress >= stats.gcl.progressTotal
                                                         ? '#FFD700'
-                                                        : '#006699',
+                                                        : '#004b73',
                                                 opacity: 0.3,
                                                 animation: 'pulse 2s infinite',
                                                 zIndex: 1,
@@ -1259,7 +1293,7 @@ export default function Dashboard() {
                                     userSelect: 'none',
                                     outline: 'none',
                                     boxShadow: isSummaryFocused
-                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                         : 'none',
                                     animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
                                 }}
@@ -1286,7 +1320,7 @@ export default function Dashboard() {
                                     userSelect: 'none',
                                     outline: 'none',
                                     boxShadow: isCopyFocused
-                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                         : 'none',
                                     animation: copied ? 'bounce 0.6s ease' : 'none',
                                 }}
@@ -1364,7 +1398,7 @@ export default function Dashboard() {
                                     cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                                     padding: '0.5rem 1rem',
                                     // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                                    background: updated ? '#1e7e34' : '#006699',
+                                    background: updated ? '#1e7e34' : '#004b73',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -1469,7 +1503,7 @@ export default function Dashboard() {
                                 style={{
                                     background:
                                         item.state === 'a'
-                                            ? '#006699'
+                                            ? '#004b73'
                                             : item.state === 's'
                                               ? '#1e7e34'
                                               : item.state === 'w'

@@ -1,11 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
-## 2025-05-14 - Error Messaging Usability
+## 2025-05-14 - エラーメッセージの利便性向上
 
-**Learning:** Error messages in the dashboard can be technical or long. Providing a dedicated "Copy" button in the error alert improves the user experience by making it effortless to capture these details for debugging or support.
+**Learning:** ダッシュボードのエラーメッセージは技術的で長くなる傾向がある。エラーアラートに専用の「コピー」ボタンを提供することで、デバッグやサポートのための情報取得が容易になり、ユーザー体験が向上する。
 
 **Action:**
-
-- Include "Copy" buttons for transient technical data like errors or logs.
-- Use `#1e7e34` for "Copied!" success state feedback.
-- Ensure buttons have clear ARIA labels (e.g., `aria-label={copied ? "Copied" : "Copy error message"}`).
+- エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
+- 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
+- ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。

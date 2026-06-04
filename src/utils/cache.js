@@ -55,7 +55,7 @@ const isSafeKey = (key) => {
 // ⚡ PERFORMANCE: モジュールレベルの変数で状態を追跡し、O(1) での容量チェックとエビクションを実現。
 // グローバルリセットに対応するため、オブジェクト参照チェックにより遅延同期。
 let _cacheSize = 0
-const _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
+let _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
 let _lastCacheRef = null
 
 // global.cache が未初期化の場合に初期化する
@@ -97,6 +97,29 @@ function _getValidEntry (cache, key) {
 
 function _canAddCacheEntry () {
   return _cacheSize < MAX_CACHE_ENTRIES
+}
+
+/**
+ * 期限切れキャッシュエントリをすべて削除する
+ * 定期的に呼び出してメモリリークを防ぐ
+ */
+function cleanup () {
+  const cache = ensureCache()
+  let removed = 0
+  const now = Game.time
+
+  // ⚡ PERFORMANCE: Object.keys() のオーバーヘッドなしで O(N) 反復を行うために追跡されたキーを使用
+  for (const key of _cacheOrder.keys()) {
+    // ⚡ PERFORMANCE: 冗長な isSafeKey を削除。キャッシュ内のすべてのキーは入力時に検証済み。
+    const entry = cache[key]
+    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+      delete cache[key]
+      _cacheOrder.delete(key)
+      _cacheSize--
+      removed++
+    }
+  }
+  return removed
 }
 
 /**
@@ -204,29 +227,6 @@ function invalidatePattern (pattern) {
   } catch (e) {
     // Silently fail if regex is invalid
   }
-}
-
-/**
- * 期限切れキャッシュエントリをすべて削除する
- * 定期的に呼び出してメモリリークを防ぐ
- */
-function cleanup () {
-  const cache = ensureCache()
-  let removed = 0
-  const now = Game.time
-
-  // ⚡ PERFORMANCE: Object.keys() のオーバーヘッドなしで O(N) 反復を行うために追跡されたキーを使用
-  for (const key of _cacheOrder.keys()) {
-    // ⚡ PERFORMANCE: 冗長な isSafeKey を削除。キャッシュ内のすべてのキーは入力時に検証済み。
-    const entry = cache[key]
-    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
-      delete cache[key]
-      _cacheOrder.delete(key)
-      _cacheSize--
-      removed++
-    }
-  }
-  return removed
 }
 
 /**

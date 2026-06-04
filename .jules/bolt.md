@@ -7,11 +7,9 @@
 **Action:** Created dedicated mock tests to target `room.find` with `FIND_STRUCTURES` and `opts.filter` for `getStructuresNeedingEnergy`, alongside a fallback test verifying no `find` logic is triggered when `_deliveryTargets` provides a cache hit.
 
 ## 2024-06-04 - [O(1) Cache Size Tracking & Redundant Check Removal]
-
 **Learning:** Tracking cache size in a module-level variable avoids expensive $O(N)$ `Object.keys().length` calls. However, to prevent counter drift, it is critical to verify if a key is truly new (e.g., `cache[key] === undefined`) before incrementing the size during a cache refresh or update. Additionally, if all entry points are validated via `isSafeKey`, redundant checks inside internal loops (`cleanup`, `getStats`) can be safely removed for further gains.
 **Action:** Implemented `_cacheSize` with existence checks and removed redundant `isSafeKey` calls in `src/utils/cache.js`.
 
 ## 2024-06-04 - [O(1) Cache Size Tracking & Eviction]
-
 **Learning:** Tracking cache size in a module-level variable avoids expensive $O(N)$ `Object.keys().length` calls. Using an internal `Map` to track insertion order enables $O(1)$ FIFO eviction via `_cacheOrder.keys().next().value`, whereas plain objects require $O(N)$ to find the first key in V8. Additionally, refactoring dependent modules like `pathfinder.js` to use a centralized `cache.get()` reduces code duplication and leverages these performance gains globally.
 **Action:** Implemented `_cacheSize` and `_cacheOrder` (Map) in `src/utils/cache.js`, and refactored `src/utils/pathfinder.js` to use it.

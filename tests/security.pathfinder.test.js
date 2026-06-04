@@ -49,6 +49,7 @@ global.PathFinder = {
     CostMatrix: MockCostMatrix,
 };
 
+const cacheUtils = require('../src/utils/cache');
 const pathfinder = require('../src/utils/pathfinder');
 
 describe('Security: Pathfinder Hardening', () => {
@@ -105,9 +106,9 @@ describe('Security: Pathfinder Hardening', () => {
         });
 
         test('buildCostMatrix should implement FIFO eviction when full', () => {
-            // Fill cache to limit (100)
+            // Fill cache to limit (100) using cacheUtils.get to keep internal state consistent
             for (let i = 0; i < 100; i++) {
-                global.cache[`key${i}`] = { data: {}, expires: Game.time + 10 };
+                cacheUtils.get(`key${i}`, () => ({}));
             }
             expect(Object.keys(global.cache).length).toBe(100);
 
@@ -125,10 +126,11 @@ describe('Security: Pathfinder Hardening', () => {
         });
 
         test('estimateDistance should implement FIFO eviction when full', () => {
-            // Fill cache to limit (100)
+            // Fill cache to limit (100) using cacheUtils.get to keep internal state consistent
             for (let i = 0; i < 100; i++) {
-                global.cache[`key${i}`] = { data: {}, expires: Game.time + 10 };
+                cacheUtils.get(`key${i}`, () => ({}));
             }
+            expect(Object.keys(global.cache).length).toBe(100);
 
             const origin = { x: 1, y: 1, roomName: 'W1N1' };
             const goal = { x: 5, y: 5, roomName: 'W1N1' };

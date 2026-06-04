@@ -55,7 +55,7 @@ const isSafeKey = (key) => {
 // ⚡ PERFORMANCE: モジュールレベルの変数で状態を追跡し、O(1) での容量チェックとエビクションを実現。
 // グローバルリセットに対応するため、オブジェクト参照チェックにより遅延同期。
 let _cacheSize = 0
-const _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
+let _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
 let _lastCacheRef = null
 
 // global.cache が未初期化の場合に初期化する
@@ -66,8 +66,15 @@ function ensureCache () {
     _cacheSize = 0
     _cacheOrder.clear()
     _lastCacheRef = global.cache
-  } else if (global.cache !== _lastCacheRef) {
-    // ⚡ PERFORMANCE: global.cache 参照が変更された場合のみ O(N) で再同期
+  } else if (global.cache !== _lastCacheRef || Object.getPrototypeOf(global.cache) !== null) {
+    // ⚡ PERFORMANCE: global.cache 参照が変更された場合や、プロトタイプが null でない場合（テスト環境等）に再同期
+    // Security: 強制的にプロトタイプを null に設定して、プロトタイプ汚染を根本から防ぐ
+    if (Object.getPrototypeOf(global.cache) !== null) {
+      const cleanCache = Object.create(null)
+      Object.assign(cleanCache, global.cache)
+      global.cache = cleanCache
+    }
+
     const keys = Object.keys(global.cache)
     _cacheSize = keys.length
     _cacheOrder.clear()
@@ -112,23 +119,32 @@ function get (key, fetcher, ttl) {
     return validEntry.data
   }
 
+  // データ取得を先に実行。
+  // 注意：fetcher内部で別の cache.get が呼ばれる可能性があるため、
+  // 容量チェックとエビクションはデータ取得の直前および直後に行う必要がある。
+  const data = fetcher()
+
+  // 取得後に再度キャッシュを確認（fetcher内部で設定された可能性を考慮）
+  const secondAttempt = _getValidEntry(cache, key)
+  if (secondAttempt) {
+    return secondAttempt.data
+  }
+
   // Security: Cap the number of cache entries to prevent Memory DoS.
-  // If full, attempt to cleanup expired entries.
+  // 容量がいっぱいの場合、期限切れエントリの削除と FIFO エビクションを行う。
   if (!_canAddCacheEntry()) {
     cleanup()
     // ⚡ PERFORMANCE: Map イテレータを使用した O(1) FIFO エビクション
-    if (!_canAddCacheEntry()) {
+    while (!_canAddCacheEntry()) {
       const oldestKey = _cacheOrder.keys().next().value
-      if (oldestKey !== undefined) {
-        delete cache[oldestKey]
-        _cacheOrder.delete(oldestKey)
-        _cacheSize--
-      }
+      if (oldestKey === undefined) break
+      delete cache[oldestKey]
+      _cacheOrder.delete(oldestKey)
+      _cacheSize--
     }
   }
 
   const isNew = cache[key] === undefined
-  const data = fetcher()
   cache[key] = {
     data,
     expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS)

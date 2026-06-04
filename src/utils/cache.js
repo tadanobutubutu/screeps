@@ -55,7 +55,7 @@ const isSafeKey = (key) => {
 // ⚡ PERFORMANCE: モジュールレベルの変数で状態を追跡し、O(1) での容量チェックとエビクションを実現。
 // グローバルリセットに対応するため、オブジェクト参照チェックにより遅延同期。
 let _cacheSize = 0
-let _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
+const _cacheOrder = new Map() // Maintains insertion order for O(1) FIFO eviction
 let _lastCacheRef = null
 
 // global.cache が未初期化の場合に初期化する

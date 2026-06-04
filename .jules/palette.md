@@ -1,11 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
-## 2025-05-14 - UX Patterns and Accessibility Standards
+## 2025-05-14 - Error Messaging Usability
 
-**Learning:** The dashboard uses dynamic emoji favicons and CSS animations to provide immediate visual feedback for game state changes (e.g., Level Up). It also prioritizes accessibility by using high-contrast colors and ARIA labels for interactive elements.
+**Learning:** Error messages in the dashboard can be technical or long. Providing a dedicated "Copy" button in the error alert improves the user experience by making it effortless to capture these details for debugging or support.
 
 **Action:**
-- Maintain dynamic favicon updates when adding new states.
-- Ensure all new interactive elements have associated ARIA labels and keyboard shortcuts.
-- Use `#1e7e34` for success states and `#004b73` for primary actions to maintain WCAG AAA contrast.
-- Use `interactive-hint` class for elements with tooltips/detailed info.
+- Include "Copy" buttons for transient technical data like errors or logs.
+- Use `#1e7e34` for "Copied!" success state feedback.
+- Ensure buttons have clear ARIA labels (e.g., `aria-label={copied ? "Copied" : "Copy error message"}`).

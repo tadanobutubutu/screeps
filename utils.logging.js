@@ -122,7 +122,19 @@ module.exports = {
     const _ak = ['a', 'p', 'i', '_', 'k', 'e', 'y'].join('')
     const _ak2 = ['a', 'p', 'i', 'k', 'e', 'y'].join('')
     const _ak3 = ['a', 'p', 'i', 'K', 'e', 'y'].join('')
-    const k = ['token', _p, _s, _ak3, 'auth', 'credentials', 'bearer', 'session', _ak, 'dsn', _ak2].join('|')
+    const k = [
+      'token',
+      _p,
+      _s,
+      _ak3,
+      'auth',
+      'credentials',
+      'bearer',
+      'session',
+      _ak,
+      'dsn',
+      _ak2
+    ].join('|')
     const r = new RegExp('\\b(' + k + ')\\b(["\' ]*[:= ]+["\' ]*)([^ \\n\\t"\' ]+)', 'gi')
     return pathRedacted.replace(r, '$1$2[REDACTED]')
   },

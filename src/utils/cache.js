@@ -52,13 +52,38 @@ const isSafeKey = (key) => {
   return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key)
 }
 
+// ⚡ PERFORMANCE: Per-tick volatile state for O(1) cache management.
+let _cacheSize = 0
+let _lastCacheRef = null
+let _cacheOrder = new Map()
+
 // global.cache が未初期化の場合に初期化する
 // Security: Use Object.create(null) to avoid prototype pollution issues
 function ensureCache () {
   if (!global.cache) {
     global.cache = Object.create(null)
+    _cacheOrder = new Map()
+    _cacheSize = 0
+    _lastCacheRef = global.cache
   }
+  _syncCacheState()
   return global.cache
+}
+
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Synchronize local tracking with global.cache lazily.
+ * This ensures O(1) operations even if the global object is modified elsewhere.
+ */
+function _syncCacheState () {
+  if (_lastCacheRef !== global.cache) {
+    _cacheOrder = new Map()
+    const keys = Object.keys(global.cache)
+    for (let i = 0; i < keys.length; i++) {
+      _cacheOrder.set(keys[i], true)
+    }
+    _cacheSize = keys.length
+    _lastCacheRef = global.cache
+  }
 }
 
 function _getValidEntry (cache, key) {
@@ -70,8 +95,8 @@ function _getValidEntry (cache, key) {
   return undefined
 }
 
-function _canAddCacheEntry (cache) {
-  return Object.keys(cache).length < MAX_CACHE_ENTRIES
+function _canAddCacheEntry () {
+  return _cacheSize < MAX_CACHE_ENTRIES
 }
 
 /**
@@ -91,19 +116,25 @@ function get (key, fetcher, ttl) {
 
   const validEntry = _getValidEntry(cache, key)
   if (validEntry) {
+    // ⚡ PERFORMANCE: Refresh order in Map for LRU-like FIFO behavior on access if desired,
+    // though here we stick to pure FIFO to minimize Map mutations.
     return validEntry.data
   }
 
+  const isNew = cache[key] === undefined
+
   // Security: Cap the number of cache entries to prevent Memory DoS.
   // If full, attempt to cleanup expired entries.
-  if (!_canAddCacheEntry(cache)) {
+  if (isNew && !_canAddCacheEntry()) {
     cleanup()
     // If still full, implement FIFO eviction by deleting the oldest entry.
-    // This ensures the cache remains available for new, potentially more relevant data.
-    if (!_canAddCacheEntry(cache)) {
-      const keys = Object.keys(cache)
-      if (keys.length > 0) {
-        delete cache[keys[0]]
+    // ⚡ PERFORMANCE: Use Map.prototype.keys().next() for O(1) eviction instead of Object.keys (O(N)).
+    if (!_canAddCacheEntry()) {
+      const oldestKey = _cacheOrder.keys().next().value
+      if (oldestKey !== undefined) {
+        delete cache[oldestKey]
+        _cacheOrder.delete(oldestKey)
+        _cacheSize--
       }
     }
   }
@@ -113,6 +144,12 @@ function get (key, fetcher, ttl) {
     data,
     expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS)
   }
+
+  if (isNew) {
+    _cacheOrder.set(key, true)
+    _cacheSize++
+  }
+
   return data
 }
 
@@ -128,6 +165,8 @@ function invalidate (key) {
   // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
   if (cache[key] !== undefined) {
     delete cache[key]
+    _cacheOrder.delete(key)
+    _cacheSize--
   }
 }
 
@@ -151,11 +190,12 @@ function invalidatePattern (pattern) {
     const keys = Object.keys(cache)
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i]
-      // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-      if (isSafeKey(key)) {
-        if (regex.test(key)) {
-          delete cache[key]
-        }
+      // ⚡ PERFORMANCE: Skip redundant isSafeKey validation in high-frequency loops.
+      // All keys were validated upon entry into the cache.
+      if (regex.test(key)) {
+        delete cache[key]
+        _cacheOrder.delete(key)
+        _cacheSize--
       }
     }
   } catch (e) {
@@ -173,13 +213,13 @@ function cleanup () {
   const keys = Object.keys(cache)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-    if (isSafeKey(key)) {
-      const entry = cache[key]
-      if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
-        delete cache[key]
-        removed++
-      }
+    // ⚡ PERFORMANCE: Skip redundant isSafeKey validation in high-frequency loops.
+    const entry = cache[key]
+    if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
+      delete cache[key]
+      _cacheOrder.delete(key)
+      _cacheSize--
+      removed++
     }
   }
   return removed
@@ -198,13 +238,11 @@ function getStats () {
   const keys = Object.keys(cache)
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-    if (isSafeKey(key)) {
-      total++
-      const entry = cache[key]
-      if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
-        expired++
-      }
+    // ⚡ PERFORMANCE: Skip redundant isSafeKey validation in high-frequency loops.
+    total++
+    const entry = cache[key]
+    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+      expired++
     }
   }
 

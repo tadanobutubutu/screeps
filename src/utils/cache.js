@@ -165,8 +165,9 @@ function invalidate (key) {
   // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
   if (cache[key] !== undefined) {
     delete cache[key]
-    _cacheOrder.delete(key)
-    _cacheSize--
+    if (_cacheOrder.delete(key)) {
+      _cacheSize--
+    }
   }
 }
 
@@ -194,8 +195,9 @@ function invalidatePattern (pattern) {
       // All keys were validated upon entry into the cache.
       if (regex.test(key)) {
         delete cache[key]
-        _cacheOrder.delete(key)
-        _cacheSize--
+        if (_cacheOrder.delete(key)) {
+          _cacheSize--
+        }
       }
     }
   } catch (e) {
@@ -217,8 +219,9 @@ function cleanup () {
     const entry = cache[key]
     if (entry && typeof entry.expires === 'number' && entry.expires <= Game.time) {
       delete cache[key]
-      _cacheOrder.delete(key)
-      _cacheSize--
+      if (_cacheOrder.delete(key)) {
+        _cacheSize--
+      }
       removed++
     }
   }

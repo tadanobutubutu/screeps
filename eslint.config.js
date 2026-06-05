@@ -9,6 +9,7 @@ module.exports = [
             'dist/**',
             '.circleci/**',
             '.github/**',
+            'dashboard/.next/**',
         ],
     },
     {

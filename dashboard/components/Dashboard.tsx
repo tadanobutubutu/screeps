@@ -273,8 +273,8 @@ export default function Dashboard() {
         };
 
         updateRelativeTime();
-        // 10秒ごとに相対時間を更新
-        const interval = setInterval(updateRelativeTime, 10000);
+        // 1秒ごとに相対時間を更新し、よりライブな感覚を提供する
+        const interval = setInterval(updateRelativeTime, 1000);
         return () => clearInterval(interval);
     }, [lastUpdated]);
 
@@ -457,8 +457,9 @@ export default function Dashboard() {
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease-in-out',
                                 animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
+                                // 🎨 Palette: アクセシビリティ向上のため、コントラスト比の高いブランドカラー (#004b73) を使用
                                 boxShadow: isSummaryFocused
-                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#004b73'}`
                                     : 'none',
                                 outline: 'none',
                             }}
@@ -492,7 +493,7 @@ export default function Dashboard() {
                                 transition: 'all 0.2s ease-in-out',
                                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                                 boxShadow: isRoomFocused
-                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#006699'}`
+                                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#004b73'}`
                                     : 'none',
                                 outline: 'none',
                             }}
@@ -662,7 +663,7 @@ export default function Dashboard() {
                             cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                             padding: '0.5rem 1rem',
                             // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                            background: updated ? '#1e7e34' : '#006699',
+                            background: updated ? '#1e7e34' : '#004b73',
                             color: '#fff',
                             border: 'none',
                             borderRadius: '4px',
@@ -670,7 +671,7 @@ export default function Dashboard() {
                             transition: 'all 0.2s',
                             userSelect: 'none',
                             boxShadow: isRefreshFocused
-                                ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                 : 'none',
                             outline: 'none',
                             animation: updated ? 'bounce 0.6s ease' : 'none',
@@ -1072,7 +1073,7 @@ export default function Dashboard() {
                                             color:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                     ? '#FFD700'
-                                                    : '#006699',
+                                                    : '#004b73',
                                             backgroundColor:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                     ? '#333'
@@ -1162,7 +1163,7 @@ export default function Dashboard() {
                                         background:
                                             stats.gcl.progress >= stats.gcl.progressTotal
                                                 ? '#FFD700'
-                                                : '#006699',
+                                                : '#004b73',
                                         transition: 'width 0.5s ease-in-out',
                                         position: 'relative',
                                         zIndex: 2,
@@ -1183,7 +1184,7 @@ export default function Dashboard() {
                                                 background:
                                                     stats.gcl.progress >= stats.gcl.progressTotal
                                                         ? '#FFD700'
-                                                        : '#006699',
+                                                        : '#004b73',
                                                 opacity: 0.3,
                                                 animation: 'pulse 2s infinite',
                                                 zIndex: 1,
@@ -1259,7 +1260,7 @@ export default function Dashboard() {
                                     userSelect: 'none',
                                     outline: 'none',
                                     boxShadow: isSummaryFocused
-                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                         : 'none',
                                     animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
                                 }}
@@ -1286,7 +1287,7 @@ export default function Dashboard() {
                                     userSelect: 'none',
                                     outline: 'none',
                                     boxShadow: isCopyFocused
-                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                                        ? '0 0 0 2px #ffffff, 0 0 0 4px #004b73'
                                         : 'none',
                                     animation: copied ? 'bounce 0.6s ease' : 'none',
                                 }}
@@ -1298,6 +1299,7 @@ export default function Dashboard() {
                         <pre
                             onClick={handleCopy}
                             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
+                            role="button"
                             aria-label={
                                 copied
                                     ? 'Stats copied!'
@@ -1317,6 +1319,7 @@ export default function Dashboard() {
                                 margin: 0,
                                 border: copied ? '1px solid #1e7e34' : '1px solid #eee',
                                 transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                             }}
                         >
                             {JSON.stringify(stats, null, 2)}
@@ -1364,7 +1367,7 @@ export default function Dashboard() {
                                     cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                                     padding: '0.5rem 1rem',
                                     // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                                    background: updated ? '#1e7e34' : '#006699',
+                                    background: updated ? '#1e7e34' : '#004b73',
                                     color: '#fff',
                                     border: 'none',
                                     borderRadius: '4px',
@@ -1469,7 +1472,7 @@ export default function Dashboard() {
                                 style={{
                                     background:
                                         item.state === 'a'
-                                            ? '#006699'
+                                            ? '#004b73'
                                             : item.state === 's'
                                               ? '#1e7e34'
                                               : item.state === 'w'

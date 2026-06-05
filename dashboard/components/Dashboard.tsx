@@ -168,9 +168,7 @@ export default function Dashboard() {
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
                 stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
-                timeToLevel
-                    ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`
-                    : '',
+                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}` : '',
             ]
                 .filter(Boolean)
                 .join(' | ');
@@ -275,7 +273,7 @@ export default function Dashboard() {
         };
 
         updateRelativeTime();
-        // 1秒ごとに相対時間を更新し、よりライブな感覚を提供する
+        // 10秒ごとに相対時間を更新
         const interval = setInterval(updateRelativeTime, 1000);
         return () => clearInterval(interval);
     }, [lastUpdated]);
@@ -458,8 +456,8 @@ export default function Dashboard() {
                                 gap: '0.25rem',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                                 animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
-                                // 🎨 Palette: アクセシビリティ向上のため、コントラスト比の高いブランドカラー (#004b73) を使用
                                 boxShadow: isSummaryFocused
                                     ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#004b73'}`
                                     : 'none',
@@ -493,6 +491,7 @@ export default function Dashboard() {
                                 gap: '0.25rem',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                                 boxShadow: isRoomFocused
                                     ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#004b73'}`
@@ -562,6 +561,7 @@ export default function Dashboard() {
                                 gap: '0.25rem',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                                 boxShadow: isSyncFocused
                                     ? `0 0 0 2px #ffffff, 0 0 0 4px ${getStalenessInfo().color}`
                                     : 'none',
@@ -937,6 +937,7 @@ export default function Dashboard() {
                                     : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                                 opacity: loading || isRefreshing ? 0.6 : 1,
                                 transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                             }}
                         >
                             <div
@@ -1031,11 +1032,7 @@ export default function Dashboard() {
                                             }}
                                             aria-label={`CPU Used: ${stats.cpuUsed.toLocaleString()}${cpuDelta !== 0 ? ` (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})` : ''}`}
                                         >
-                                            <span
-                                                role="img"
-                                                aria-label="CPU Used"
-                                                aria-hidden="true"
-                                            >
+                                            <span role="img" aria-label="CPU Used" aria-hidden="true">
                                                 📊
                                             </span>{' '}
                                             CPU: {stats.cpuUsed.toLocaleString()}
@@ -1211,9 +1208,7 @@ export default function Dashboard() {
                                 {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()}{' '}
                                 remaining
                                 {formattedXpPerHour && ` • ${formattedXpPerHour}`}
-                                {timeToLevel &&
-                                    ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`}
-                                )
+                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`})
                             </div>
                         </section>
                     );
@@ -1236,6 +1231,7 @@ export default function Dashboard() {
                                     ? '0 0 0 2px #1e7e34'
                                     : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                             transition: 'all 0.2s ease-in-out',
+                                cursor: 'pointer',
                             borderRadius: '4px',
                         }}
                     >
@@ -1304,10 +1300,9 @@ export default function Dashboard() {
                             </button>
                         </div>
                         {/* 🎨 Palette: JSONブロックをクリック可能にし、コピー体験を向上させる */}
-                        <pre
+                        <pre role="button"
                             onClick={handleCopy}
                             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
-                            role="button"
                             aria-label={
                                 copied
                                     ? 'Stats copied!'

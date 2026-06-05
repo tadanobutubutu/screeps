@@ -97,7 +97,7 @@ function _redactPaths (str) {
   const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
   // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
   return pathRedacted.replace(
-    /\b(token|password|secret|apiKey|auth|credentials|bearer|session)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
+    /\b(token|password|secret|apiKey|auth|credentials|bearer|session|api_key|dsn|apikey)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
     '$1$2[REDACTED]'
   )
 }

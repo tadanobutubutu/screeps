@@ -56,6 +56,9 @@ describe('Sentinel: Comprehensive Secrets Redaction Hardening', () => {
         { key: 'credentials', val: 'user:pass' },
         { key: 'bearer', val: 'eyJhbGciOiJIUzI1Ni...' },
         { key: 'session', val: 'sess:987654321' },
+        { key: 'api_key', val: 'ak_test_12345' },
+        { key: 'dsn', val: 'https://user@sentry.io/1' },
+        { key: 'apikey', val: 'simplekey' },
     ];
 
     describe('src/utils/logger.js secrets redaction', () => {

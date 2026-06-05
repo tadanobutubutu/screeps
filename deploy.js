@@ -71,9 +71,13 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    return str
-        .replace(/token/gi, '[REDACTED]')
-        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
+    const secretRedacted = str.replace(
+        /\b(token|password|secret|apiKey|auth|credentials|bearer|session|api_key|dsn|apikey)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
+        '$1$2[REDACTED]'
+    );
+    // Matches /abs/path or C:\abs\path
+    return secretRedacted.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {

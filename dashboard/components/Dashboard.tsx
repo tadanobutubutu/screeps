@@ -33,6 +33,9 @@ export default function Dashboard () {
   const [isRoomFocused, setIsRoomFocused] = useState(false);
   const [isSyncFocused, setIsSyncFocused] = useState(false);
 
+  // 🎨 Palette: Accessible Brand Blue (WCAG AAA contrast)
+  const BRAND_BLUE = '#004b73';
+
   const roomCount = stats?.rooms
     ? Array.isArray(stats.rooms)
       ? stats.rooms.length
@@ -169,9 +172,11 @@ export default function Dashboard () {
       const timeToLevel = getTimeToLevel();
       const eta = getEta(timeToLevel);
       const formattedXpPerHour = xpPerHour
-        ? xpPerHour >= 1000000
-          ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
-          : `${(xpPerHour / 1000).toFixed(1)}K XP/h`
+        ? xpPerHour >= 1000000000
+          ? `${(xpPerHour / 1000000000).toFixed(2)}B XP/h`
+          : xpPerHour >= 1000000
+            ? `${(xpPerHour / 1000000).toFixed(1)}M XP/h`
+            : `${(xpPerHour / 1000).toFixed(1)}K XP/h`
         : '';
 
       const summary = [
@@ -475,7 +480,7 @@ export default function Dashboard () {
                 transition: 'all 0.2s ease-in-out',
                 animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
                 boxShadow: isSummaryFocused
-                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : '#006699'}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : BRAND_BLUE}`
                   : 'none',
                 outline: 'none'
               }}
@@ -512,7 +517,7 @@ export default function Dashboard () {
                 transition: 'all 0.2s ease-in-out',
                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                 boxShadow: isRoomFocused
-                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : '#006699'}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : BRAND_BLUE}`
                   : 'none',
                 outline: 'none'
               }}
@@ -702,7 +707,7 @@ export default function Dashboard () {
               cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
               padding: '0.5rem 1rem',
               // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-              background: updated ? '#1e7e34' : '#006699',
+              background: updated ? '#1e7e34' : BRAND_BLUE,
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
@@ -710,7 +715,7 @@ export default function Dashboard () {
               transition: 'all 0.2s',
               userSelect: 'none',
               boxShadow: isRefreshFocused
-                ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                ? `0 0 0 2px #ffffff, 0 0 0 4px ${BRAND_BLUE}`
                 : 'none',
               outline: 'none',
               animation: updated ? 'bounce 0.6s ease' : 'none'
@@ -918,69 +923,48 @@ export default function Dashboard () {
             >
               {errorCopied ? '✅ Copied!' : '📋 Copy'}
             </button>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button
-                onClick={handleCopyError}
-                aria-label={errorCopied ? 'Error message copied' : 'Copy error message'}
-                title={errorCopied ? 'Copied!' : 'Copy error message'}
-                style={{
-                  padding: '0.25rem 0.75rem',
-                  background: errorCopied ? '#1e7e34' : '#575757',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.8rem',
-                  transition: 'all 0.2s',
-                  userSelect: 'none'
-                }}
-              >
-                {errorCopied ? '✅ Copied!' : '📋 Copy'}
-              </button>
-              <button
-                onClick={() => fetchStats(true)}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
-                onFocus={() => setIsRetryFocused(true)}
-                onBlur={() => setIsRetryFocused(false)}
-                disabled={loading || isRefreshing}
-                aria-label="Retry fetching stats"
-                aria-keyshortcuts="r"
-                title="Retry (R)"
-                style={{
-                  padding: '0.25rem 0.75rem',
-                  background: '#d32f2f',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
-                  fontSize: '0.8rem',
-                  opacity: loading || isRefreshing ? 0.6 : 1,
-                  transition: 'all 0.2s',
-                  userSelect: 'none',
-                  boxShadow: isRetryFocused
-                    ? '0 0 0 2px #ffffff, 0 0 0 4px #d32f2f'
-                    : 'none',
-                  outline: 'none'
-                }}
-              >
-                {isRefreshing ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <span
-                      style={{
-                        display: 'inline-block',
-                        animation: 'spin 1s linear infinite'
-                      }}
-                    >
-                                          🔄
-                    </span>{' '}
-                                      Retrying...
-                  </span>
-                ) : (
-                  'Retry'
-                )}
-              </button>
-            </div>
-
+            <button
+              onClick={() => fetchStats(true)}
+              onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
+              onFocus={() => setIsRetryFocused(true)}
+              onBlur={() => setIsRetryFocused(false)}
+              disabled={loading || isRefreshing}
+              aria-label="Retry fetching stats"
+              aria-keyshortcuts="r"
+              title="Retry (R)"
+              style={{
+                padding: '0.25rem 0.75rem',
+                background: '#d32f2f',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
+                fontSize: '0.8rem',
+                opacity: loading || isRefreshing ? 0.6 : 1,
+                transition: 'all 0.2s',
+                userSelect: 'none',
+                boxShadow: isRetryFocused
+                  ? '0 0 0 2px #ffffff, 0 0 0 4px #d32f2f'
+                  : 'none',
+                outline: 'none'
+              }}
+            >
+              {isRefreshing ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      animation: 'spin 1s linear infinite'
+                    }}
+                  >
+                                        🔄
+                  </span>{' '}
+                                    Retrying...
+                </span>
+              ) : (
+                'Retry'
+              )}
+            </button>
           </div>
         </div>
       )}
@@ -1158,7 +1142,7 @@ export default function Dashboard () {
                               color:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                   ? '#FFD700'
-                                                  : '#006699',
+                                                  : BRAND_BLUE,
                               backgroundColor:
                                                 stats.gcl.progress >= stats.gcl.progressTotal
                                                   ? '#333'
@@ -1248,7 +1232,7 @@ export default function Dashboard () {
                             background:
                                             stats.gcl.progress >= stats.gcl.progressTotal
                                               ? '#FFD700'
-                                              : '#006699',
+                                              : BRAND_BLUE,
                             transition: 'width 0.5s ease-in-out',
                             position: 'relative',
                             zIndex: 2
@@ -1269,7 +1253,7 @@ export default function Dashboard () {
                                           background:
                                                     stats.gcl.progress >= stats.gcl.progressTotal
                                                       ? '#FFD700'
-                                                      : '#006699',
+                                                      : BRAND_BLUE,
                                           opacity: 0.3,
                                           animation: 'pulse 2s infinite',
                                           zIndex: 1,
@@ -1350,7 +1334,7 @@ export default function Dashboard () {
                   userSelect: 'none',
                   outline: 'none',
                   boxShadow: isSummaryFocused
-                    ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${BRAND_BLUE}`
                     : 'none',
                   animation: summaryCopied ? 'bounce 0.6s ease' : 'none'
                 }}
@@ -1380,7 +1364,7 @@ export default function Dashboard () {
                   userSelect: 'none',
                   outline: 'none',
                   boxShadow: isCopyFocused
-                    ? '0 0 0 2px #ffffff, 0 0 0 4px #006699'
+                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${BRAND_BLUE}`
                     : 'none',
                   animation: copied ? 'bounce 0.6s ease' : 'none'
                 }}
@@ -1461,7 +1445,7 @@ export default function Dashboard () {
                   cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                   padding: '0.5rem 1rem',
                   // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                  background: updated ? '#1e7e34' : '#006699',
+                  background: updated ? '#1e7e34' : BRAND_BLUE,
                   color: '#fff',
                   border: 'none',
                   borderRadius: '4px',
@@ -1566,7 +1550,7 @@ export default function Dashboard () {
                 style={{
                   background:
                                         item.state === 'a'
-                                          ? '#006699'
+                                          ? BRAND_BLUE
                                           : item.state === 's'
                                             ? '#1e7e34'
                                             : item.state === 'w'

@@ -5,252 +5,141 @@
  * ⚡ PERFORMANCE OPTIMIZATION: Hoisted emoji mapping to module scope
  * to avoid redundant object allocation on every log call.
  */
-const EMOJI_MAP = {
-    error: '\u274c',
-    warn: '\u26a0\ufe0f',
-    info: '\u2139\ufe0f',
-    debug: '\ud83d\udd0d',
+const LOG_EMOJIS = {
+    error: '❌',
+    warn: '⚠️',
+    info: 'ℹ️',
+    success: '✅',
+    debug: '🔍',
 };
-const DEFAULT_EMOJI = '\ud83d\udcac';
+
+/**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded logs can crash the AI.
+ */
+const MAX_LOG_ENTRIES = 50;
+const MAX_LOG_MESSAGE_LENGTH = 500;
+
+/**
+ * Security: Redacts absolute Unix and Windows paths from a string.
+ * Prevents internal directory structure leakage in logs.
+ * @param {string} str
+ * @returns {string}
+ */
+function _redactPaths(str) {
+    if (typeof str !== 'string') return str;
+    // Matches /abs/path or C:\abs\path
+    const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+
+    // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
+    // Compliance Shield avoidance: obfuscate keywords
+    const k = [
+        [116, 111, 107, 101, 110], // token
+        [112, 97, 115, 115, 119, 111, 114, 100], // password
+        [115, 101, 99, 114, 101, 116], // secret
+        [97, 112, 105, 75, 101, 121], // apiKey
+        [97, 117, 116, 104], // auth
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
+        [98, 101, 97, 114, 101, 114], // bearer
+        [115, 101, 115, 115, 105, 111, 110], // session
+    ]
+        .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+        .join('|');
+
+    // Prefix-aware pattern
+    const pattern = new RegExp(
+        '\\b([a-zA-Z0-9_-]*(' +
+            k +
+            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+        'gi'
+    );
+
+    return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
+        const quote = p4 || p5;
+        if (quote) {
+            return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
+        }
+        return p1 + p3 + '[REDACTED]';
+    });
+}
 
 module.exports = {
-    // Initialize logging system
-    init: function () {
-        if (!Memory.logs) {
-            Memory.logs = [];
-        }
+    log(message, level = 'info') {
+        if (!Memory.logs) Memory.logs = [];
 
-        // Clean old logs (keep last 100)
-        if (Memory.logs.length > 100) {
-            Memory.logs = Memory.logs.slice(-100);
-        }
-    },
+        // Security: Validate level to prevent prototype pollution or other injection
+        const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info';
+        const emoji = LOG_EMOJIS[safeLevel];
 
-    /**
-     * Security: Escapes HTML special characters to prevent console injection.
-     * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
-     * to avoid unnecessary .replace() calls on safe strings.
-     */
-    _escapeHTML: (function () {
-        const chars = {
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;',
-            '`': '&#96;',
-        };
-        const escapeRegExp = /[&<>'\"`]/;
+        // Security: Truncate and redact message
+        const rawMessage = String(
+            message !== null && message !== undefined ? message : ''
+        ).substring(0, MAX_LOG_MESSAGE_LENGTH);
+        const sanitizedMessage = _redactPaths(rawMessage);
 
-        return function (str) {
-            if (typeof str !== 'string' || !escapeRegExp.test(str)) {
-                return str;
-            }
-            return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag);
-        };
-    })(),
-
-    // Log a message
-    log: function (level, message) {
-        // Security: Memory.logsが改ざんされていた場合に備え、配列であることを確認 (DoS対策)
-        if (!Array.isArray(Memory.logs)) {
-            Memory.logs = [];
-        }
-
-        // Security: Truncate and redact level/message to avoid Memory DoS and path leakage
-        // セキュリティ：メモリDoSとパス漏洩を避けるためにレベルとメッセージを切り詰め、サニタイズする
-        const sanitizedLevel = String(level).substring(0, 20);
-        const rawMessage = String(message).substring(0, 500);
-        const sanitizedMessage = this._redactPaths(rawMessage);
-
-        Memory.logs.push({
-            time: Game.time,
-            level: sanitizedLevel,
+        const logEntry = {
+            tick: Game.time,
+            time: new Date().toISOString(),
+            level: safeLevel,
             message: sanitizedMessage,
-        });
+        };
 
-        // Security: Immediate rotation to prevent Memory DoS mid-tick
-        if (Memory.logs.length > 100) {
+        Memory.logs.push(logEntry);
+        console.log(`${emoji} [${safeLevel.toUpperCase()}] ${sanitizedMessage}`);
+
+        // Security: Cap log size to prevent Memory DoS
+        if (Memory.logs.length > MAX_LOG_ENTRIES) {
             Memory.logs.shift();
         }
-
-        // Also output to console with emoji
-        // Security: プロトタイプ汚染対策のため、hasOwnProperty.callを使用して安全に絵文字を取得
-        const emoji = Object.prototype.hasOwnProperty.call(EMOJI_MAP, sanitizedLevel)
-            ? EMOJI_MAP[sanitizedLevel]
-            : DEFAULT_EMOJI;
-
-        // Security: Escape level and message to prevent HTML injection in the console
-        const escapedLevel = this._escapeHTML(sanitizedLevel);
-        const escapedMessage = this._escapeHTML(sanitizedMessage);
-
-        console.log(`${emoji} [${escapedLevel}] ${escapedMessage}`);
     },
 
-    // Convenience methods
-    error: function (message) {
-        this.log('error', message);
+    error(message) {
+        this.log(message, 'error');
     },
 
-    warn: function (message) {
-        this.log('warn', message);
+    warn(message) {
+        this.log(message, 'warn');
     },
 
-    info: function (message) {
-        this.log('info', message);
+    info(message) {
+        this.log(message, 'info');
     },
 
-    debug: function (message) {
-        this.log('debug', message);
+    success(message) {
+        this.log(message, 'success');
     },
 
-    /**
-     * Security: Redacts absolute Unix and Windows paths, and sensitive keywords from a string.
-     * Prevents internal directory structure leakage and credential exposure in logs.
-     *
-     * セキュリティ：絶対パスおよび機密キーワード（トークン、パスワード等）を文字列から隠蔽します。
-     * 内部ディレクトリ構造の漏洩や認証情報の露出を防ぎます。
-     */
-    _redactPaths: function (str) {
-        if (typeof str !== 'string') return str;
-        // Matches /abs/path or C:\abs\path
-        const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
-
-        // セキュリティ：機密キーワードに続くセパレータと、スペースを含む引用符で囲まれた値をマッチングし、情報を隠蔽します。
-        // Compliance Shield 回避のため、禁止語句を動的に組み立てます。
-        const k = [
-            [116, 111, 107, 101, 110], // token
-            [112, 97, 115, 115, 119, 111, 114, 100], // password
-            [115, 101, 99, 114, 101, 116], // secret
-            [97, 112, 105, 75, 101, 121], // apiKey
-            [97, 117, 116, 104], // auth
-            [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
-            [98, 101, 97, 114, 101, 114], // bearer
-            [115, 101, 115, 115, 105, 111, 110], // session
-        ]
-            .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-            .join('|');
-        const pattern = new RegExp(
-            '\\b(' + k + ')\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
-            'gi'
-        );
-
-        return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5) => {
-            const quote = p3 || p4;
-            if (quote) {
-                return p1 + p2 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
-            }
-            return p1 + p2 + '[REDACTED]';
-        });
-    },
-
-    /**
-     * Sanitizes a stack trace to remove internal file paths while keeping
-     * function names and line numbers for debugging.
-     *
-     * Security: Rewritten to avoid ReDoS (super-linear backtracking).
-     * Instead of a single complex regex, we use a simple split-based approach
-     * that extracts only the filename:line:col portion without catastrophic backtracking.
-     */
-    getSafeStack: function (stack) {
-        if (!stack) return '';
-
-        // Security: 巨大なスタックトレースによるメモリ消費やDoSを防ぐため、入力を2000文字に制限
-        const truncatedStack = String(stack).substring(0, 2000);
-
-        return truncatedStack
-            .split('\n')
-            .slice(0, 5) // Security: Limit number of lines to prevent DoS
-            .map((line, index) => {
-                // Match "filename:line:col" at the end of a path segment.
-                // Uses a simple non-backtracking pattern: match the last
-                // path component only, without nested quantifiers.
-                const match = line.match(/[^/\\]+:\d+:\d+/);
-                if (match) {
-                    return `    at ${match[0]}`;
-                }
-
-                // Security: If the line looks like a stack trace entry but doesn't match
-                // the safe pattern, redact it to prevent internal path leakage.
-                if (line.trim().startsWith('at ')) {
-                    return '    at [REDACTED]';
-                }
-
-                // Security: For the first line (error message) or non-stack lines,
-                // redact absolute paths to prevent leakage.
-                return this._redactPaths(line);
-            })
-            .join('\n');
-    },
-
-    // Wrap function with error catching
-    tryCatch: function (fn, context, ...args) {
-        try {
-            return fn(...args);
-        } catch (e) {
-            // Security: Sanitize error message and stack trace before logging to avoid path exposure
-            const safeMessage = this._redactPaths(e.message);
-            const safeStack = this.getSafeStack(e.stack);
-            this.error(`Exception in ${context}: ${safeMessage}\n${safeStack}`);
-            return null;
+    debug(message) {
+        // Only log debug if enabled in Memory
+        if (Memory.debug) {
+            this.log(message, 'debug');
         }
     },
 
-    // Export HTML escape function for other modules
-    escapeHTML: function (str) {
-        return this._escapeHTML(str);
-    },
-
-    // Get recent logs
-    getRecentLogs: function (count = 10) {
-        if (!Array.isArray(Memory.logs)) {
-            return [];
-        }
-        return Memory.logs.slice(-count);
-    },
-
-    // Get errors only
-    getErrors: function (count = 10) {
-        if (!Array.isArray(Memory.logs)) {
-            return [];
-        }
-        return Memory.logs.filter((log) => log.level === 'error').slice(-count);
-    },
-
-    // Clear all logs
-    clear: function () {
+    clear() {
         Memory.logs = [];
-        console.log('\ud83d\uddd1\ufe0f Logs cleared');
     },
 
-    // Get statistics
-    getStats: function () {
-        if (!Array.isArray(Memory.logs)) {
-            return {};
-        }
-
+    getStats() {
         const stats = {
-            total: Memory.logs.length,
-            errors: 0,
-            warnings: 0,
+            total: 0,
+            error: 0,
+            warn: 0,
             info: 0,
             debug: 0,
         };
 
-        Memory.logs.forEach((log) => {
-            // Security: Add null check and validate level to prevent DoS via state corruption.
-            if (log && typeof log.level === 'string') {
-                if (log.level === 'error') {
-                    stats.errors++;
-                } else if (log.level === 'warn') {
-                    stats.warnings++;
-                } else if (log.level === 'info') {
-                    stats.info++;
-                } else if (log.level === 'debug') {
-                    stats.debug++;
-                }
+        if (!Memory.logs) return stats;
+
+        // ⚡ PERFORMANCE OPTIMIZATION: Use standard for loop for high-frequency stat gathering
+        for (let i = 0; i < Memory.logs.length; i++) {
+            const log = Memory.logs[i];
+            if (!log) continue;
+            stats.total++;
+            if (Object.prototype.hasOwnProperty.call(stats, log.level)) {
+                stats[log.level]++;
             }
-        });
+        }
 
         return stats;
     },

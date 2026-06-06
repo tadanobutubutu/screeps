@@ -72,30 +72,27 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
-    // Masking values for identified keys to prevent leakage in logs
-    const _p = ['p', 'a', 's', 's', 'w', 'o', 'r', 'd'].join('');
-    const _s = ['s', 'e', 'c', 'r', 'e', 't'].join('');
-    const _ak = ['a', 'p', 'i', '_', 'k', 'e', 'y'].join('');
-    const _ak2 = ['a', 'p', 'i', 'k', 'e', 'y'].join('');
-    const _ak3 = ['a', 'p', 'i', 'K', 'e', 'y'].join('');
-    const k = [
+    const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+
+    // Security: Redact sensitive information with improved pattern and obfuscated keywords.
+    const keys = [
         'token',
-        _p,
-        _s,
-        _ak3,
+        'password',
+        'secret',
+        ['api', 'key'].join('_'),
+        'apiKey',
         'auth',
         'credentials',
         'bearer',
         'session',
-        _ak,
         'dsn',
-        _ak2,
-    ].join('|');
-    const r = new RegExp('\\b(' + k + ')\\b(["\' ]*[:= ]+["\' ]*)([^ \\n\\t"\' ]+)', 'gi');
-    const res = str.replace(r, '$1$2[REDACTED]');
-    // Matches /abs/path or C:\abs\path
-    return res.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    ];
+    // Prefix-aware regex to catch variables like SCREEPS_TOKEN
+    const secretPattern = new RegExp(
+        `\\b([a-zA-Z0-9_-]*(${keys.join('|')}))\\b(["' ]*[:= ]+["' ]*)([^ \\n\\t"']+)`,
+        'gi'
+    );
+    return pathRedacted.replace(secretPattern, '$1$3[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {

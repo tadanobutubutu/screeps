@@ -110,17 +110,21 @@ function _redactPaths(str) {
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
         .join('|');
+
+    // Prefix-aware pattern to catch variables like SCREEPS_TOKEN
     const pattern = new RegExp(
-        '\\b(' + k + ')\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+        '\\b([a-zA-Z0-9_-]*(' +
+            k +
+            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
         'gi'
     );
 
-    return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5) => {
-        const quote = p3 || p4;
+    return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
+        const quote = p4 || p5;
         if (quote) {
-            return p1 + p2 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
+            return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1];
         }
-        return p1 + p2 + '[REDACTED]';
+        return p1 + p3 + '[REDACTED]';
     });
 }
 

@@ -1,6 +1,6 @@
 # 🎮 Screeps AI - 完全自動化リポジトリ
 
-> Screeps AI code repository with **full automation** - no API keys required!
+> Screeps AI code repository with **full automation** - no API keys required! (Conflict fix me via AI)
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
 [![Workflows](https://img.shields.io/badge/Workflows-37-green)](.github/workflows)
@@ -19,6 +19,7 @@
 **現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
 
 毎時自動更新されるリアルタイムレポート：
+
 - 👤 プレイヤー情報 (GCL, CPU, Credits)
 - 🏰 所有部屋の状況
 - 🐛 クリープ統計
@@ -29,7 +30,7 @@
 ### 📋 稼働中のワークフロー (37個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
-- **AI Conflict Resolver (Ultimate Resilience)** (`ai-conflict-resolver.yml`) - イベント駆動
+- **AI Conflict Resolver (Ultimate)** (`ai-conflict-resolver.yml`) - イベント駆動
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
 - **Auto Merge PRs - GraphQL Ultimate** (`auto-merge-pr.yml`) - イベント駆動
@@ -88,7 +89,7 @@
 - 🔄 **ワークフロー数**: 37
 - 🎭 **ロール数**: 10
 
-*最終更新: 2026-06-06*
+_最終更新: 2026-06-06_
 
 ## 🔧 セットアップ
 
@@ -140,6 +141,7 @@ npm install
 ### 🎲 ランダム実験
 
 毎週以下のいずれかを自動追加：
+
 - 📊 パフォーマンスモニター
 - 🧭 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -162,4 +164,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:52:00.820Z*
+_このREADMEは自動更新されます - 最終更新: 2026-06-06T11:25:44.721Z_

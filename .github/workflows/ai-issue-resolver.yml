@@ -1,6 +1,8 @@
 name: AI Issue Resolver (Ultimate Resilience)
 
 on:
+  push:
+    branches: [main]
   issues:
     types: [opened, edited, labeled]
   issue_comment:
@@ -10,6 +12,7 @@ on:
       issue_number:
         description: 'Issue number to solve'
         required: true
+        default: '824'
 
 permissions:
   contents: write
@@ -18,11 +21,13 @@ permissions:
 
 jobs:
   solve:
+    # 実行条件: PRではないIssueであること、かつ (手動起動 または 特定のコメント または ラベル または PUSH)
     if: |
+      (github.event_name == 'push') || (
       github.event.issue.pull_request == null && 
       (github.event_name == 'workflow_dispatch' || 
        contains(github.event.issue.labels.*.name, 'ai-solve') ||
-       contains(github.event.comment.body, '@ai solve'))
+       contains(github.event.comment.body, '@ai solve')))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -43,7 +48,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number || '824' }}
         run: |
           echo "🤖 Starting AI Issue Resolution (DuckDuckGo AI)..."
           
@@ -55,32 +60,29 @@ jobs:
           FILES=$(find . -maxdepth 2 -not -path '*/.*' | head -n 20)
           
           # 2. Build Prompt
-          PROMPT="Solve this GitHub Issue in a JavaScript/TypeScript repo.
+          PROMPT="Solve this GitHub Issue.
           Title: $TITLE
           Body: $BODY
           Comments: $COMMENTS
           Existing Files: $FILES
           
           Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]
-          No markdown backticks. No talk. Just JSON."
+          No markdown. No talk. Just JSON."
 
-          # 3. DuckDuckGo AI Script (Free, No Key)
+          # 3. DuckDuckGo AI Script
           cat << 'EOF' > ddg_ai.py
 import sys, requests, json
 def solve():
     prompt = sys.stdin.read()
     s = requests.Session()
-    # Get VQD
     res = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
     vqd = res.headers.get("x-vqd-4")
     if not vqd: return None
-    # Chat
     payload = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}
     res = s.post("https://duckduckgo.com/duckchat/v1/chat", 
                  headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"},
                  json=payload)
     if res.status_code != 200: return None
-    # Parse stream
     full = ""
     for line in res.text.split('\n'):
         if line.startswith('data: '):
@@ -117,14 +119,15 @@ EOF
               mkdir -p "$(dirname "$P")"
               echo "$C" > "$P"
             done
+            
             git config user.name "AI Resolver"
             git config user.email "ai@screeps.local"
             git add .
             git commit -m "fix: AI auto-resolve #$ISSUE_NUMBER"
             git push origin "$BRANCH"
             gh pr create --title "AI Solution for #$ISSUE_NUMBER" --body "Automated fix for #$ISSUE_NUMBER. Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in linked PR using GPT-4o-mini (Free)."
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in new PR using GPT-4o-mini (Free)."
           else
             echo "❌ No fix generated."
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI analysis complete. No automated fix could be generated at this time."
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not generate an automated fix."
           fi

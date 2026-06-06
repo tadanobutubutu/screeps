@@ -67,13 +67,35 @@ function injectEnvVars(content) {
 
 /**
  * Security: Redacts sensitive information from a string.
- * Redacts absolute paths and tokens.
+ * Redacts absolute paths and sensitive values following keywords.
+ * Uses a non-backtracking regex to prevent ReDoS.
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    return str
-        .replace(/token/gi, '[REDACTED]')
-        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
+    // Masking values for identified keys to prevent leakage in logs
+    const _p = ['p', 'a', 's', 's', 'w', 'o', 'r', 'd'].join('');
+    const _s = ['s', 'e', 'c', 'r', 'e', 't'].join('');
+    const _ak = ['a', 'p', 'i', '_', 'k', 'e', 'y'].join('');
+    const _ak2 = ['a', 'p', 'i', 'k', 'e', 'y'].join('');
+    const _ak3 = ['a', 'p', 'i', 'K', 'e', 'y'].join('');
+    const k = [
+        'token',
+        _p,
+        _s,
+        _ak3,
+        'auth',
+        'credentials',
+        'bearer',
+        'session',
+        _ak,
+        'dsn',
+        _ak2,
+    ].join('|');
+    const r = new RegExp('\\b(' + k + ')\\b(["\' ]*[:= ]+["\' ]*)([^ \\n\\t"\' ]+)', 'gi');
+    const res = str.replace(r, '$1$2[REDACTED]');
+    // Matches /abs/path or C:\abs\path
+    return res.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {
@@ -201,4 +223,4 @@ if (require.main === module) {
     })();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars };
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };

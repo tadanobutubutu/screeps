@@ -63,33 +63,34 @@ jobs:
           # Provider 1: Gemini Direct (v1)
           if [ -n "$GEMINI_API_KEY" ]; then
             echo "☁️ Trying Gemini API..."
-            RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
+            RES=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
               -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
-            RESOLVED=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
-            [ -n "$RESOLVED" ] && echo "✅ Gemini responded."
+            echo "📝 Gemini Response: $RES"
+            RESOLVED=$(echo "$RES" | grep -v "HTTP_STATUS" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
           fi
           
-          # Provider 2: OpenRouter (Fallback to known free model)
+          # Provider 2: OpenRouter
           if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ]; then
             if [ -n "$OPENROUTER_TOKEN" ]; then
-              echo "☁️ Trying OpenRouter (Gemma 2 9B)..."
-              RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+              echo "☁️ Trying OpenRouter..."
+              RES=$(curl -s -w "\nHTTP_STATUS:%{http_code}" https://openrouter.ai/api/v1/chat/completions \
                 -H "Authorization: Bearer $OPENROUTER_TOKEN" \
                 -H "Content-Type: application/json" \
-                -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemma-2-9b-it:free", messages: [{role: "user", content: $p}]}')")
-              RESOLVED=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
-              [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && echo "✅ OpenRouter responded."
+                -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemini-flash-1.5:free", messages: [{role: "user", content: $p}]}')")
+              echo "📝 OpenRouter Response: $RES"
+              RESOLVED=$(echo "$RES" | grep -v "HTTP_STATUS" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
             fi
           fi
 
-          # Provider 3: Pollinations AI (Absolute Fallback)
+          # Provider 3: Pollinations AI (POST)
           if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ] || [ "$RESOLVED" = "" ]; then
-            echo "☁️ Trying Pollinations AI..."
-            # Simple GET request
-            ENCODED_PROMPT=$(jq -Rr @uri <<< "$PROMPT")
-            RESOLVED=$(curl -s "https://text.pollinations.ai/$ENCODED_PROMPT?model=openai" || echo "[]")
-            [ -n "$RESOLVED" ] && echo "✅ Pollinations responded."
+            echo "☁️ Trying Pollinations AI (POST)..."
+            RES=$(curl -s -X POST "https://text.pollinations.ai/" \
+              -H "Content-Type: application/json" \
+              -d "$(jq -n --arg p "$PROMPT" '{messages: [{role: "user", content: $p}], model: "openai"}')")
+            echo "📝 Pollinations Response: $RES"
+            RESOLVED="$RES"
           fi
           
           # Clean JSON

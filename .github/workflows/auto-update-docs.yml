@@ -34,13 +34,15 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-        run: python3 scripts/ai_update_readme.py
+        run: |
+          python3 scripts/ai_repo_intel.py
+          python3 scripts/ai_update_readme.py
       
       - name: Commit updated documentation
         run: |
           git config user.name 'AI Documentation Bot'
           git config user.email 'docs@screeps.local'
-          git add README.md
+          git add README.md CHANGELOG.md CONTRIBUTORS.md PERFORMANCE_REPORT.md META-CHANGELOG.md GAME_STATS.md WORKFLOW_HEALTH.md
           
           if ! git diff --staged --quiet; then
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')

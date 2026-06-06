@@ -43,9 +43,19 @@ jobs:
           }'
           OWNER=$(echo $REPO | cut -d/ -f1)
           NAME=$(echo $REPO | cut -d/ -f2)
+          echo "📊 Fetching PRs for $OWNER/$NAME..."
           PR_DATA=$(gh api graphql -f query="$QUERY" -f owner="$OWNER" -f repo="$NAME")
           
+          if [ -z "$PR_DATA" ]; then
+            echo "❌ Failed to fetch PR data."
+            exit 1
+          fi
+          
+          echo "✅ PR Data received."
+          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]'
+          
           # 2. CONFLICTING な PR に対して処理を実行
+          echo "🔍 Filtering for CONFLICTING PRs..."
           echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[] | select(.mergeable == "CONFLICTING")' | while read -r pr; do
             PR_NO=$(echo "$pr" | jq -r '.number')
             HEAD=$(echo "$pr" | jq -r '.headRefName')

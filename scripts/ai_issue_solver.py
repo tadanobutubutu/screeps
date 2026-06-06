@@ -1,48 +1,59 @@
-import os, sys, requests, json, subprocess
+import os, sys, requests, json, subprocess, time
 
 def comment(issue_no, body):
     subprocess.run(["gh", "issue", "comment", str(issue_no), "--body", f"🤖 AI Debug Info:\n{body}"])
 
 def get_issue_context(issue_no):
     res = subprocess.run(["gh", "issue", "view", str(issue_no), "--json", "title,body,comments"], capture_output=True, text=True)
-    if res.returncode != 0:
-        return None
+    if res.returncode != 0: return None
     return json.loads(res.stdout)
 
-def get_ddg_ai(prompt):
-    s = requests.Session()
-    try:
-        r = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
-        vqd = r.headers.get("x-vqd-4")
-        if not vqd: return "Error: No VQD"
-        res = s.post("https://duckduckgo.com/duckchat/v1/chat", headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}, json={"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]})
-        if res.status_code != 200: return f"Error: HTTP {res.status_code}"
-        full = ""
-        for line in res.text.split('\n'):
-            if line.startswith('data: '):
-                d = line[6:]
-                if d == '[DONE]': break
-                try: full += json.loads(d).get('message', '')
-                except: continue
-        return full
-    except Exception as e: return f"Error: {e}"
+def get_gemini_ai(prompt, key):
+    # Try multiple model names for resilience
+    for model in ["gemini-1.5-flash", "gemini-pro"]:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+        try:
+            res = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
+            if res.status_code == 200:
+                return res.json()['candidates'][0]['content']['parts'][0]['text']
+        except: continue
+    return "Error: Gemini failed"
+
+def get_pollinations_ai(prompt):
+    for _ in range(3):
+        try:
+            # Shorten prompt for Pollinations
+            p = prompt[:2000]
+            res = requests.post("https://text.pollinations.ai/", json={"messages": [{"role": "user", "content": p}], "model": "openai"}, timeout=30)
+            if res.status_code == 200 and "Queue full" not in res.text:
+                return res.text
+            time.sleep(5)
+        except: time.sleep(5)
+    return "Error: Pollinations failed"
 
 def main():
     issue_no = os.environ.get("ISSUE_NUMBER")
+    key = os.environ.get("GEMINI_API_KEY")
     if not issue_no: return
     
     ctx = get_issue_context(issue_no)
-    if not ctx:
-        comment(issue_no, "Failed to get issue context.")
-        return
+    if not ctx: return
     
     files = subprocess.run(["find", ".", "-maxdepth", "2", "-not", "-path", "*/.*"], capture_output=True, text=True).stdout
     
     prompt = f"Solve GitHub Issue #{issue_no}: {ctx['title']}\nBody: {ctx['body']}\nFiles: {files}\nRespond ONLY with a JSON array: [{{'path': 'file', 'content': 'content'}}]"
     
-    result = get_ddg_ai(prompt)
+    result = ""
+    if key:
+        print("☁️ Trying Gemini...")
+        result = get_gemini_ai(prompt, key)
+    
     if not result or result.startswith("Error:"):
-        comment(issue_no, f"AI Provider failed: {result}")
+        print("☁️ Trying Pollinations...")
+        result = get_pollinations_ai(prompt)
+
+    if not result or result.startswith("Error:"):
+        comment(issue_no, f"All AI providers failed. Gemini: {result}")
         return
 
     clean = result.strip()
@@ -52,11 +63,9 @@ def main():
     
     try:
         changes = json.loads(clean)
-        if not changes:
-            comment(issue_no, "AI returned empty changes.")
-            return
+        if not changes: return
         
-        branch = f"ai-solve-{issue_no}-{os.environ.get('GITHUB_RUN_ID', '0')}"
+        branch = f"ai-solve-{issue_no}-{int(time.time())}"
         subprocess.run(["git", "checkout", "-b", branch])
         
         for c in changes:
@@ -69,12 +78,12 @@ def main():
         subprocess.run(["git", "config", "user.email", "ai@screeps.local"])
         subprocess.run(["git", "add", "."])
         subprocess.run(["git", "commit", "-m", f"fix: AI resolve #{issue_no}"])
-        subprocess.run(["git", "push", "origin", branch, "--force"])
+        subprocess.run(["git", "push", "origin", branch])
         
         subprocess.run(["gh", "pr", "create", "--title", f"AI Fix for #{issue_no}", "--body", f"Closes #{issue_no}", "--head", branch, "--base", "main"])
-        subprocess.run(["gh", "issue", "close", str(issue_no), "--comment", "🤖 AI fix proposed and PR created. Issue closed automatically."])
+        subprocess.run(["gh", "issue", "close", str(issue_no), "--comment", "🤖 AI fix proposed and PR created."])
     except Exception as e:
-        comment(issue_no, f"Parsing/Git Error: {e}\nRaw Output: {result[:500]}")
+        comment(issue_no, f"Parsing Error: {e}\nRaw Output: {result[:500]}")
 
 if __name__ == "__main__":
     main()

@@ -1,4 +1,4 @@
-name: AI Issue Resolver (Ultimate Resilience)
+name: AI Issue Resolver (Final Resilience)
 on:
   issues:
     types: [opened, edited, labeled]
@@ -31,5 +31,6 @@ jobs:
       - name: Run AI Solver
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number || '824' }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
         run: python3 scripts/ai_issue_solver.py

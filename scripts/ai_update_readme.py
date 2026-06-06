@@ -1,6 +1,7 @@
 import os, sys, requests, json, subprocess, time, urllib.parse
 
 def get_repo_context():
+    # 1. Get stats
     workflows = len([f for f in os.listdir('.github/workflows') if f.endswith(('.yml', '.yaml'))])
     roles = len([f for f in os.listdir('.') if f.startswith('role.') and f.endswith('.js')])
     js_files = []
@@ -18,8 +19,11 @@ def get_repo_context():
                 total_lines += len(file.readlines())
         except: pass
 
+    # 2. Get recent activity
     commits = subprocess.run(["git", "log", "-n", "10", "--pretty=format:%s"], capture_output=True, text=True).stdout
-    ai_activity = subprocess.run(["git", "log", "-n", "20", "--grep=AI", "--pretty=format:%s"], capture_output=True, text=True).stdout
+    
+    # 3. Get contributor stats
+    contributors = subprocess.run(["git", "shortlog", "-sn", "HEAD"], capture_output=True, text=True).stdout
 
     return {
         "workflows": workflows,
@@ -27,75 +31,60 @@ def get_repo_context():
         "js_files_count": len(js_files),
         "total_lines": total_lines,
         "recent_commits": commits,
-        "ai_activity": ai_activity
+        "contributors": contributors
     }
 
 def main():
-    print("🚀 AI README Updater started (2026 Edition).")
-    gemini_key = os.environ.get("GEMINI_API_KEY")
-    openrouter_token = os.environ.get("OPENROUTER_TOKEN")
+    print("🚀 AI README Updater started (Professional Edition).")
+    key = os.environ.get("GEMINI_API_KEY")
     ctx = get_repo_context()
     
+    # Guidelines for high-quality README (Gitty-optimized structure)
     prompt = f"""
-    Create a highly professional and dynamic GitHub README in Japanese for a Screeps AI project.
+    Generate a high-quality, professional, and visually appealing GitHub README in Japanese for this Screeps AI project.
     
-    Stats: {ctx['workflows']} workflows, {ctx['roles']} roles, {ctx['js_files_count']} files.
-    Recent AI Success: {ctx['ai_activity'] if ctx['ai_activity'] else 'Full automation integrated.'}
-    Recent Activity: {ctx['recent_commits']}
+    Project Context:
+    - Fully Autonomous Screeps AI Colony.
+    - Features 'AI Sentinel' (self-monitoring) and 'AI Issue Resolver' (self-healing).
+    - Current Stats: {ctx['workflows']} automation workflows, {ctx['roles']} specialized roles, {ctx['total_lines']} LOC.
+    - Recent Activity: {ctx['recent_commits']}
     
-    Requirements:
-    - Use cool badges.
-    - Mention the 'Ultimate Automation' system (Issue/Conflict Resolver).
-    - Use Japanese.
-    - Return RAW markdown only.
+    Structure Requirements:
+    1. **Project Title & Catchy Badges**: Use badges for build status, license, coverage, and 'AI-powered'.
+    2. **Executive Summary**: 2-3 sentences explaining the "Autonomous Evolution" core concept.
+    3. **Core Features**: Highlight 'Self-Healing (Issue/Conflict resolution)' and 'Dynamic Role Generation'.
+    4. **System Architecture**: Brief explanation of how Sentinel, Resolver, and Game Logic interact.
+    5. **Getting Started**: Clear installation and execution commands.
+    6. **AI Evolution Log**: A dynamic section summarizing recent AI-driven improvements based on commit history.
+    7. **Contribution & License**: Professional placeholders.
+    
+    Tone: Sophisticated, innovative, reliable. 
+    Language: Japanese (Technical terms can remain in English).
+    Return ONLY RAW MARKDOWN. NO CODE BLOCKS.
     """
 
     result = ""
-    
-    # Strategy 1: Gemini Direct (2026 Model IDs)
-    if gemini_key and not result:
-        print("☁️ Trying Gemini Direct (v1beta)...")
-        models = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-flash"]
-        for model in models:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
-            try:
-                r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
-                if r.status_code == 200:
-                    result = r.json()['candidates'][0]['content']['parts'][0]['text']
-                    print(f"✅ Success with {model}!")
-                    break
-            except: pass
-
-    # Strategy 2: OpenRouter (Resilient Fallback)
-    if openrouter_token and not result:
-        print("☁️ Trying OpenRouter...")
-        models = ["anthropic/claude-3.5-sonnet", "google/gemini-flash-1.5:free"]
-        for model in models:
-            try:
-                r = requests.post("https://openrouter.ai/api/v1/chat/completions",
-                                  headers={"Authorization": f"Bearer {openrouter_token}"},
-                                  json={"model": model, "messages": [{"role": "user", "content": prompt}]})
-                if r.status_code == 200:
-                    result = r.json()['choices'][0]['message']['content']
-                    print(f"✅ Success with OpenRouter ({model})!")
-                    break
-            except: pass
-
-    # Strategy 3: Pollinations AI (Absolute Fallback)
-    if not result:
-        print("☁️ Trying Pollinations...")
+    if key:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
         try:
-            r = requests.post("https://text.pollinations.ai/", json={"messages": [{"role": "user", "content": prompt}], "model": "openai"})
+            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
             if r.status_code == 200:
-                result = r.text
-                print("✅ Success with Pollinations!")
+                result = r.json()['candidates'][0]['content']['parts'][0]['text']
         except: pass
 
     if not result:
-        print("❌ All AI failed.")
-        return
+        try:
+            encoded = urllib.parse.quote(prompt[:2000])
+            url = f"https://text.pollinations.ai/{encoded}?model=openai"
+            r = requests.get(url, timeout=60)
+            if r.status_code == 200:
+                result = r.text
+        except: pass
+
+    if not result: return
 
     clean = result.strip()
+    # Ensure no markdown wrapping
     if "```" in clean:
         parts = clean.split("```")
         for p in parts:
@@ -106,7 +95,8 @@ def main():
 
     with open("README.md", "w") as f:
         f.write(clean)
-    print("✅ README.md updated!")
+    
+    print("✅ README.md updated with professional AI content!")
 
 if __name__ == "__main__":
     main()

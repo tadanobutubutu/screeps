@@ -1,0 +1,145 @@
+name: AI Auto-Coder (Full Lifecycle Agent)
+
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Target Issue Number (for solve)'
+        required: false
+  schedule:
+    - cron: "*/15 * * * *" # 定期的なコンフリクト解消とマージの試行
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-label:
+    name: 🏷️ Auto Labeling
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add ai-solve label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh issue edit ${{ github.event.issue.number }} --add-label "ai-solve"
+
+  issue-resolver:
+    name: 🧠 Issue Solving
+    # 実行条件: PRではないIssueであること、かつラベルが付いたか特定のコメントがされた場合
+    if: |
+      (github.event.issue.pull_request == null) &&
+      (contains(github.event.issue.labels.*.name, 'ai-solve') || contains(github.event.comment.body, '@ai solve'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run AI Solver
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          if [ -z "$ISSUE_TITLE" ]; then
+            DATA=$(gh issue view "$ISSUE_NUMBER" --json title,body)
+            export ISSUE_TITLE=$(echo "$DATA" | jq -r '.title')
+            export ISSUE_BODY=$(echo "$DATA" | jq -r '.body')
+          fi
+          python3 scripts/ai_issue_solver.py
+
+  conflict-and-merge:
+    name: ⚡ Conflict Resolve & Merge
+    if: |
+      github.event_name == 'pull_request' || 
+      github.event_name == 'pull_request_review' || 
+      github.event_name == 'schedule' || 
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Resolve Conflicts (AI)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          # Pythonスクリプトではなくシェルスクリプトで実装された堅牢な解消ロジック
+          # (以前作成した Ultimate Resilience ロジック)
+          PR_DATA=$(gh api graphql -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){pullRequests(states:OPEN,first:20){nodes{number,headRefName,baseRefName}}}}' -f owner="${{ github.repository_owner }}" -f repo="${{ github.event.repository.name }}")
+          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            HEAD=$(echo "$pr" | jq -r '.headRefName')
+            BASE=$(echo "$pr" | jq -r '.baseRefName')
+            git checkout "$HEAD" || continue
+            git config user.name "AI Conflict Resolver"
+            git config user.email "ai@screeps.local"
+            git fetch origin "$BASE"
+            if ! git merge "origin/$BASE" --no-edit; then
+              FILES=$(git diff --name-only --diff-filter=U)
+              for FILE in $FILES; do
+                CONTENT=$(cat "$FILE")
+                PROMPT="Resolve merge conflicts in $FILE. Return ONLY resolved code. No markers, no backticks. Code:\n$CONTENT"
+                ENCODED=$(jq -Rr @uri <<< "$PROMPT")
+                RESOLVED=$(curl -s "https://text.pollinations.ai/$ENCODED?model=openai" || echo "")
+                if [ -n "$RESOLVED" ] && [[ "$RESOLVED" != *"<!DOCTYPE html>"* ]]; then
+                  echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d' > "$FILE"
+                  git add "$FILE"
+                else
+                  git checkout --ours "$FILE"
+                  git add "$FILE"
+                fi
+              done
+              git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD"
+            fi
+          done
+
+      - name: Auto Merge (GraphQL Ultimate)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+        run: |
+          echo "🚀 Starting Auto Merge..."
+          PR_LIST=$(gh api graphql -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){pullRequests(states:OPEN,first:100){nodes{id,number,isDraft,mergeable,headRefName}}}}' -f owner="$REPO_OWNER" -f repo="$REPO_NAME")
+          echo "$PR_LIST" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
+            PR_ID=$(echo "$pr" | jq -r '.id')
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            IS_DRAFT=$(echo "$pr" | jq -r '.isDraft')
+            MERGEABLE=$(echo "$pr" | jq -r '.mergeable')
+            HEAD_REF=$(echo "$pr" | jq -r '.headRefName')
+            
+            if [ "$IS_DRAFT" = "true" ]; then
+              gh api graphql -f query='mutation($id:ID!){markPullRequestReadyForReview(input:{pullRequestId:$id}){clientMutationId}}' -f id="$PR_ID"
+              sleep 2
+            fi
+            
+            if [ "$MERGEABLE" = "MERGEABLE" ]; then
+              if gh api graphql -f query='mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id,mergeMethod:SQUASH}){clientMutationId}}' -f id="$PR_ID"; then
+                echo "✅ Merged #$PR_NO"
+                gh api -X DELETE "/repos/$REPO_OWNER/$REPO_NAME/git/refs/heads/$HEAD_REF" || true
+              fi
+            fi
+          done

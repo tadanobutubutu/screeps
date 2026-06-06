@@ -1,0 +1,81 @@
+name: AI Repo Governance (Intel & Maintenance)
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sunday (Cleanup)
+    - cron: '0 0 * * 1' # Weekly on Monday (Role Gen)
+  workflow_dispatch:
+    inputs:
+      role_concept:
+        description: 'New role concept'
+        required: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  intelligence-and-docs:
+    name: 🧠 Repo Intelligence & README
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Update Docs via AI
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          python3 scripts/ai_repo_intel.py
+          python3 scripts/ai_update_readme.py
+      - name: Commit and Push
+        run: |
+          git config user.name 'AI Documentation Bot'
+          git config user.email 'docs@screeps.local'
+          git add .
+          if ! git diff --staged --quiet; then
+            git commit -m "docs: AI-driven dynamic intelligence update"
+            git push
+          fi
+
+  branch-cleanup:
+    name: 🧹 Branch Cleanup
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 0 * * 0') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run AI Branch Cleaner
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 scripts/ai_branch_cleaner.py
+
+  role-generator:
+    name: 🧬 Dynamic Role Generation
+    if: (github.event_name == 'schedule' && github.event.schedule == '0 0 * * 1') || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Propose Role via Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONCEPT: ${{ github.event.inputs.role_concept }}
+        run: |
+          ROLES=$(ls src/roles/ 2>/dev/null | tr '\n' ', ')
+          BODY="AI ACE requests a new innovative role. Current: $ROLES. Concept: ${CONCEPT:-Autonomous Efficiency}. Please implement."
+          gh issue create --title "🚨 AI Request: Dynamically Generate New Creep Role" --body "$BODY" --label "ai-solve,enhancement" || true

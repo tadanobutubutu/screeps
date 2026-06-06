@@ -30,7 +30,7 @@
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **AI Conflict Resolver (Ultimate Resilience)** (`ai-conflict-resolver.yml`) - イベント駆動
-- **AI Issue Resolver (Ultimate Resilience)** (`ai-issue-resolver.yml`) - イベント駆動
+- **AI Issue Resolver (Final Resilience)** (`ai-issue-resolver.yml`) - イベント駆動
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
 - **Auto Merge PRs - GraphQL Ultimate** (`auto-merge-pr.yml`) - イベント駆動
@@ -163,4 +163,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-06-06T19:30:18.948Z*
+*このREADMEは自動更新されます - 最終更新: 2026-06-06T19:39:39.793Z*

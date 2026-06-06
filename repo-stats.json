@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-06T19:30:18.949Z",
+  "updated": "2026-06-06T19:39:39.793Z",
   "workflows": 38,
   "roles": 10,
   "jsFiles": 38,
@@ -16,7 +16,7 @@
       "scheduled": false
     },
     {
-      "name": "AI Issue Resolver (Ultimate Resilience)",
+      "name": "AI Issue Resolver (Final Resilience)",
       "file": "ai-issue-resolver.yml",
       "scheduled": false
     },

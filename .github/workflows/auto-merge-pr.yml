@@ -40,6 +40,7 @@ jobs:
                   number
                   isDraft
                   mergeable
+                  headRefName
                   author {
                     login
                   }
@@ -63,6 +64,7 @@ jobs:
             PR_NO=$(echo "$pr" | jq -r '.number')
             IS_DRAFT=$(echo "$pr" | jq -r '.isDraft')
             MERGEABLE=$(echo "$pr" | jq -r '.mergeable')
+            HEAD_REF=$(echo "$pr" | jq -r '.headRefName')
             AUTHOR=$(echo "$pr" | jq -r '.author.login')
             
             echo "----------------------------------------"
@@ -93,8 +95,10 @@ jobs:
                 }' -f id="$PR_ID"; then
                 echo "✅ Successfully merged PR #$PR_NO!"
                 
-                # ブランチ削除
-                gh pr close "$PR_NO" --delete-branch || true
+                # 4. ブランチ直接削除 (REST API使用)
+                # フォークからのPRでない場合のみ削除
+                echo "🗑️ Deleting branch $HEAD_REF..."
+                gh api -X DELETE "/repos/$REPO_OWNER/$REPO_NAME/git/refs/heads/$HEAD_REF" || echo "⏭️ Could not delete branch (maybe from fork or already deleted)."
               else
                 echo "❌ Failed to merge PR #$PR_NO."
               fi

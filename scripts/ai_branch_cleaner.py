@@ -1,18 +1,35 @@
-import os, sys, json, subprocess, time, urllib.request
+import os, sys, json, subprocess, time, urllib.request, re
+
+def get_issue_status(issue_id):
+    if not issue_id: return None
+    try:
+        # Use gh api for issue check to be fast
+        res = subprocess.run(["gh", "issue", "view", issue_id, "--json", "state"], capture_output=True, text=True)
+        if res.returncode == 0:
+            return json.loads(res.stdout).get('state')
+    except: pass
+    return None
+
+def get_recent_runs(branch):
+    try:
+        res = subprocess.run(["gh", "run", "list", "--branch", branch, "--limit", "1", "--json", "status,conclusion"], capture_output=True, text=True)
+        if res.returncode == 0:
+            return json.loads(res.stdout)
+    except: pass
+    return []
 
 def main():
-    print("🚀 AI Conservative Branch Cleanup started.")
+    print("🚀 AI Hyper-Contextual Branch Cleanup started.")
     
-    # 1. 物理的な保護リスト（絶対に触らない）
-    PROTECTED_PATTERNS = ["main", "master", "prod", "production", "ptr", "gh-pages", "documentation"]
+    # 1. 物理的な絶対保護リスト
+    PROTECTED_PATTERNS = ["main", "master", "prod", "production", "ptr", "gh-pages", "documentation", "stable", "release", " ACE"]
     
     # 2. オープンなPRに関連するブランチを取得
     res_pr = subprocess.run(["gh", "pr", "list", "--state", "open", "--json", "headRefName"], capture_output=True, text=True)
     open_prs = [p['headRefName'] for p in json.loads(res_pr.stdout)]
     
-    # 3. 全ブランチの詳細情報を取得
-    # %(refname:short)|%(authordate:unix)|%(authorname)|%(subject)|%(upstream:track)
-    fmt = "%(refname:short)|%(authordate:unix)|%(authorname)|%(subject)|%(upstream:track)"
+    # 3. ブランチ詳細情報の収集
+    fmt = "%(refname:short)|%(authordate:unix)|%(authorname)|%(authoremail)|%(subject)|%(upstream:track)"
     res = subprocess.run(["git", "for-each-ref", "--format=" + fmt, "refs/remotes/origin"], capture_output=True, text=True)
     branches_raw = res.stdout.strip().split('\n')
     
@@ -25,61 +42,75 @@ def main():
         full_name = parts[0]
         name = full_name.replace('origin/', '')
         last_commit_time = int(parts[1])
-        author = parts[2]
-        subject = parts[3]
-        track = parts[4]
+        author_name = parts[2]
+        author_email = parts[3]
+        subject = parts[4]
+        track = parts[5]
         
-        # --- 強力な保護フィルター ---
+        # --- 基本的な保護フィルター ---
+        if any(p in name.lower() for p in PROTECTED_PATTERNS): continue
+        if name in open_prs: continue
         
-        # 1. 直接的な保護名
-        if any(p in name.lower() for p in PROTECTED_PATTERNS):
-            continue
-        
-        # 2. オープンなPRがある
-        if name in open_prs:
-            continue
-            
-        # 3. 最近活動があった（14日以内は無条件でキープ）
         age_days = (now - last_commit_time) // 86400
-        if age_days < 14:
-            continue
+        if age_days < 14: continue # 最近のものは絶対に消さない
 
-        # 4. 特定のシステムが使いそうな名前 (Kodiak, gitstream, renovate等)
-        if any(sys_name in name.lower() for sys_name in ["kodiak", "gitstream", "renovate", "dependabot", "mergify"]):
-            # システム系はマージ済み(gone)でない限り慎重に扱う
-            if "gone" not in track:
-                continue
+        # --- コンテキスト情報の収集 ---
+        
+        # main との差分 (Ahead/Behind)
+        dist_res = subprocess.run(["git", "rev-list", "--left-right", "--count", f"origin/main...{full_name}"], capture_output=True, text=True)
+        behind, ahead = (0, 0)
+        if dist_res.returncode == 0:
+            behind, ahead = map(int, dist_res.stdout.split())
+
+        # 変更されたファイルのサンプル
+        diff_res = subprocess.run(["git", "diff", "--name-only", "origin/main", full_name], capture_output=True, text=True)
+        files_changed = diff_res.stdout.strip().split('\n') if diff_res.returncode == 0 else []
+        files_sample = [f for f in files_changed if f][:5]
+        
+        # 関連するIssueの状態 (名前に数字が含まれる場合)
+        issue_match = re.search(r'(\d+)', name)
+        issue_status = get_issue_status(issue_match.group(1)) if issue_match else None
+        
+        # 最近のワークフロー実行
+        runs = get_recent_runs(name)
+        
+        # ボットかどうか
+        is_bot = "github.com" in author_email.lower() or author_name.lower() in ["github actions", "github-actions"]
 
         branch_data.append({
             "name": name,
-            "author": author,
+            "author": author_name,
+            "is_bot": is_bot,
             "subject": subject,
             "age_days": age_days,
-            "status": "merged/gone" if "gone" in track or not track else "unmerged/active"
+            "ahead": ahead,
+            "behind": behind,
+            "files_changed_count": len(files_changed),
+            "files_sample": files_sample,
+            "issue_status": issue_status,
+            "recent_runs": runs,
+            "is_merged": "gone" in track or (ahead == 0 and behind > 0)
         })
 
     if not branch_data:
-        print("✅ No redundant branches identified for analysis.")
+        print("✅ No stale branches found for analysis.")
         return
 
-    # 4. AIによる「意図」の解析
-    # ブランチ名とコミットメッセージから、それが「捨てていいゴミ」か「大事な作業の残骸」か判断させる
+    # 4. AIによる戦略的判断
     prompt = f"""
-    You are an expert Git administrator. Decide which of these STALE branches (no activity for 14+ days) are safe to DELETE.
-    
+    You are an expert repository janitor. Decide which of these STALE branches should be DELETED.
     Data: {json.dumps(branch_data)}
     
-    Policy:
-    - BE EXTREMELY CONSERVATIVE. If you are unsure, do NOT delete.
-    - DELETE if: 
-        1. It is clearly a temporary test (e.g., 'test-xyz', 'debug-123').
-        2. It is 'merged/gone' and the commit message indicates a completed task.
-    - KEEP if:
-        1. It is a 'fix/' or 'feat/' branch that might be a work-in-progress even if old.
-        2. It belongs to a human developer who might return to it.
-        3. The commit message looks like an important unmerged feature.
+    Deletion Rules:
+    - DELETE if 'is_merged' is true and 'ahead' is 0.
+    - DELETE if 'issue_status' is 'CLOSED' and 'ahead' is small (<3).
+    - DELETE if created by a bot and has been idle for 30+ days.
+    - KEEP if 'issue_status' is 'OPEN'.
+    - KEEP if 'ahead' is significant (>5) - someone worked hard on this!
+    - KEEP if it touches core engine files (like 'main.js') and is not merged.
+    - KEEP if unsure. 'ACE' related branches are precious.
     
-    Respond ONLY with a JSON array of branch names to delete: ["name1", "name2"]
+    Respond ONLY with a JSON array of names to delete: ["branch1", "branch2"]
     """
     
     result = ""
@@ -94,31 +125,24 @@ def main():
                 result = res_json['candidates'][0]['content']['parts'][0]['text']
         except: pass
 
-    if not result:
-        # Fallback: 消さない（安全第一）
-        print("⚠️ AI evaluation failed or skipped. Deleting nothing for safety.")
-        to_delete = []
-    else:
+    to_delete = []
+    if result:
         try:
             to_delete = json.loads(result)
-            # 念のため、to_deleteに含まれるものが本当にbranch_dataにあるか（AIの幻覚対策）
+            # Validation
             allowed_names = [b['name'] for b in branch_data]
             to_delete = [n for n in to_delete if n in allowed_names]
-        except:
-            to_delete = []
+        except: pass
 
     # 5. 実行
     deleted_count = 0
     for branch in to_delete:
-        # 最終的な防衛ライン（コード上でも絶対に消さないものを再定義）
-        if branch.lower() in ["main", "master", "prod", "ptr", "gh-pages"]:
-            continue
-            
-        print(f"🗑️ Deleting stale branch: {branch}")
+        if branch.lower() in ["main", "master", "prod", "gh-pages", "ptr"]: continue
+        print(f"🗑️ Purging stale branch: {branch}")
         subprocess.run(["git", "push", "origin", "--delete", branch])
         deleted_count += 1
 
-    print(f"🚀 Cleanup finished. Deleted {deleted_count} branches.")
+    print(f"🚀 Cleanup complete. {deleted_count} branches removed.")
 
 if __name__ == "__main__":
     main()

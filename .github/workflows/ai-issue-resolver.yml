@@ -30,6 +30,14 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: pip install requests
+
       - name: AI Solve Process
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,7 +45,7 @@ jobs:
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
         run: |
-          echo "🤖 Starting AI Issue Resolution..."
+          echo "🤖 Starting AI Issue Resolution (DuckDuckGo AI)..."
           
           # 1. Fetch Context
           ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,comments)
@@ -47,63 +55,59 @@ jobs:
           FILES=$(find . -maxdepth 2 -not -path '*/.*' | head -n 20)
           
           # 2. Build Prompt
-          PROMPT="Solve this GitHub Issue.
+          PROMPT="Solve this GitHub Issue in a JavaScript/TypeScript repo.
           Title: $TITLE
           Body: $BODY
           Comments: $COMMENTS
-          Files: $FILES
+          Existing Files: $FILES
           
           Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]
-          No markdown. No explanation."
+          No markdown backticks. No talk. Just JSON."
 
-          RESOLVED=""
+          # 3. DuckDuckGo AI Script (Free, No Key)
+          cat << 'EOF' > ddg_ai.py
+import sys, requests, json
+def solve():
+    prompt = sys.stdin.read()
+    s = requests.Session()
+    # Get VQD
+    res = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
+    vqd = res.headers.get("x-vqd-4")
+    if not vqd: return None
+    # Chat
+    payload = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}
+    res = s.post("https://duckduckgo.com/duckchat/v1/chat", 
+                 headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"},
+                 json=payload)
+    if res.status_code != 200: return None
+    # Parse stream
+    full = ""
+    for line in res.text.split('\n'):
+        if line.startswith('data: '):
+            d = line[6:]
+            if d == '[DONE]': break
+            try:
+                msg = json.loads(d).get('message', '')
+                full += msg
+            except: continue
+    return full
+if __name__ == "__main__":
+    result = solve()
+    if result: print(result)
+    else: sys.exit(1)
+EOF
+
+          RESOLVED=$(echo "$PROMPT" | python3 ddg_ai.py || echo "")
           
-          # Strategy 1: Gemini Direct (v1beta with corrected ID)
-          if [ -n "$GEMINI_API_KEY" ]; then
-            echo "☁️ Trying Gemini API (v1beta)..."
-            # Try multiple model IDs
-            for model in "gemini-1.5-flash" "gemini-pro"; do
-              RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$GEMINI_API_KEY" \
-                -H "Content-Type: application/json" \
-                -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
-              RESOLVED=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
-              [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && break
-            done
-          fi
-          
-          # Strategy 2: OpenRouter (Known Free Models)
-          if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ]; then
-            if [ -n "$OPENROUTER_TOKEN" ]; then
-              echo "☁️ Trying OpenRouter (Multi-model)..."
-              for model in "meta-llama/llama-3-8b-instruct:free" "mistralai/mistral-7b-instruct:free" "google/gemma-2-9b-it:free"; do
-                RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
-                  -H "Content-Type: application/json" \
-                  -d "$(jq -n --arg m "$model" --arg p "$PROMPT" '{model: $m, messages: [{role: "user", content: $p}]}')")
-                RESOLVED=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
-                [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && break
-              done
-            fi
+          if [ -z "$RESOLVED" ]; then
+             echo "⚠️ DDG AI failed. Trying Pollinations fallback..."
+             RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "[]")
           fi
 
-          # Strategy 3: Pollinations AI (Retry Mechanism)
-          if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ] || [ "$RESOLVED" = "" ]; then
-            echo "☁️ Trying Pollinations AI (with retries)..."
-            for i in {1..3}; do
-              RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "")
-              if [ -n "$RESOLVED" ] && [[ "$RESOLVED" != *"Queue full"* ]]; then
-                break
-              fi
-              echo "⏳ Queue full, retrying in 5s..."
-              sleep 5
-            done
-          fi
-          
-          # Clean JSON
+          echo "📝 RAW AI Response: $RESOLVED"
           CLEAN=$(echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d' | tr -d '\r')
-          echo "📝 FINAL JSON: $CLEAN"
-
-          # 3. Apply
+          
+          # 4. Apply
           if echo "$CLEAN" | jq -e '. | is_array and length > 0' > /dev/null 2>&1; then
             BRANCH="ai-fix-$ISSUE_NUMBER-$(date +%s)"
             git checkout -b "$BRANCH"
@@ -116,11 +120,11 @@ jobs:
             git config user.name "AI Resolver"
             git config user.email "ai@screeps.local"
             git add .
-            git commit -m "fix: AI resolution for #$ISSUE_NUMBER"
+            git commit -m "fix: AI auto-resolve #$ISSUE_NUMBER"
             git push origin "$BRANCH"
-            gh pr create --title "AI Solution for #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in new PR. Check above."
+            gh pr create --title "AI Solution for #$ISSUE_NUMBER" --body "Automated fix for #$ISSUE_NUMBER. Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in linked PR using GPT-4o-mini (Free)."
           else
-            echo "❌ Failed to generate fix."
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not solve this automatically. All providers failed or returned invalid data."
+            echo "❌ No fix generated."
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI analysis complete. No automated fix could be generated at this time."
           fi

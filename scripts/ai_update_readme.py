@@ -1,7 +1,6 @@
 import os, sys, requests, json, subprocess, time, urllib.parse
 
 def get_repo_context():
-    # 1. Get stats (number of files, workflows, roles)
     workflows = len([f for f in os.listdir('.github/workflows') if f.endswith(('.yml', '.yaml'))])
     roles = len([f for f in os.listdir('.') if f.startswith('role.') and f.endswith('.js')])
     js_files = []
@@ -19,11 +18,8 @@ def get_repo_context():
                 total_lines += len(file.readlines())
         except: pass
 
-    # 2. Get recent commits (last 10)
-    commits = subprocess.run(["git", "log", "-n", "10", "--pretty=format:%s"], capture_output=True, text=True).stdout
-    
-    # 3. Get recent AI activity
-    ai_activity = subprocess.run(["git", "log", "-n", "20", "--grep=AI", "--pretty=format:%s"], capture_output=True, text=True).stdout
+    commits = subprocess.run(["git", "log", "-n", "5", "--pretty=format:%s"], capture_output=True, text=True).stdout
+    ai_activity = subprocess.run(["git", "log", "-n", "10", "--grep=AI", "--pretty=format:%s"], capture_output=True, text=True).stdout
 
     return {
         "workflows": workflows,
@@ -40,69 +36,59 @@ def main():
     ctx = get_repo_context()
     
     prompt = f"""
-    Create a modern, professional, and highly engaging GitHub README for a Screeps AI project.
+    Create a highly professional and dynamic GitHub README in Japanese for a Screeps AI project.
     
-    Project Context:
-    - This project is a fully automated Screeps AI.
-    - It features AI-driven issue resolution and conflict merging.
-    - Statistics:
-      - {ctx['workflows']} Automation Workflows
-      - {ctx['roles']} Specialized Creep Roles
-      - {ctx['js_files_count']} JS Files ({ctx['total_lines']} lines of code)
+    Context:
+    - Fully automated repo.
+    - Statistics: {ctx['workflows']} workflows, {ctx['roles']} roles, {ctx['js_files_count']} JS files.
+    - Recent AI Success: {ctx['ai_activity'] if ctx['ai_activity'] else 'Initial setup and optimization'}
+    - Recent Commits: {ctx['recent_commits']}
     
-    Recent Activities:
-    {ctx['recent_commits']}
+    Structure:
+    1. Catchy Title and Badges
+    2. Dynamic Overview (mention automation)
+    3. Recent AI Activities section (list the recent AI achievements)
+    4. Repo Statistics
+    5. How it works (AI resolvers)
     
-    AI Achievements:
-    {ctx['ai_activity']}
-    
-    Requirements:
-    - Use impressive badges.
-    - Add a section about the "Ultimate Automation" (AI Issue Resolver, AI Conflict Resolver).
-    - Make it sound cutting-edge and "alive".
-    - Include a dynamic "Recent AI Activity" section based on the context.
-    - Use Japanese as the primary language (since the user requested it previously).
-    
-    Return ONLY the raw markdown content. No explanations.
+    Return ONLY markdown.
     """
 
     result = ""
-    # Strategy 1: Gemini Direct
+    # Strategy 1: Gemini Direct (Correct ID)
     if key:
         print("☁️ Trying Gemini...")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
-        try:
-            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
-            if r.status_code == 200:
-                result = r.json()['candidates'][0]['content']['parts'][0]['text']
-                print("✅ Gemini responded.")
-        except: pass
+        for model in ["gemini-1.5-flash", "gemini-pro"]:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+            try:
+                r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
+                if r.status_code == 200:
+                    result = r.json()['candidates'][0]['content']['parts'][0]['text']
+                    break
+            except: pass
 
-    # Strategy 2: Pollinations AI
+    # Strategy 2: Pollinations AI (GET is more stable)
     if not result:
-        print("☁️ Trying Pollinations...")
+        print("☁️ Trying Pollinations (Fallback)...")
         try:
-            url = f"https://text.pollinations.ai/{urllib.parse.quote(prompt[:2000])}?model=openai"
+            encoded_prompt = urllib.parse.quote(prompt[:1000])
+            url = f"https://text.pollinations.ai/{encoded_prompt}?model=openai"
             r = requests.get(url, timeout=60)
             if r.status_code == 200:
                 result = r.text
-                print("✅ Pollinations responded.")
         except: pass
 
     if not result:
-        print("❌ All AI failed.")
+        print("❌ AI failed. Using static template.")
         return
 
-    # Clean markdown
     clean = result.strip()
-    if clean.startswith("```markdown"): clean = clean[11:]
-    if clean.startswith("```"): clean = clean[3:]
-    if clean.endswith("```"): clean = clean[:-3]
+    if "```markdown" in clean: clean = clean.split("```markdown")[1].split("```")[0]
+    elif "```" in clean: clean = clean.split("```")[1].split("```")[0]
 
     with open("README.md", "w") as f:
         f.write(clean)
-    
-    print("✅ README.md updated with AI content!")
+    print("✅ README.md updated!")
 
 if __name__ == "__main__":
     main()

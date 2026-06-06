@@ -6,6 +6,10 @@ on:
   issue_comment:
     types: [created]
   workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to solve'
+        required: true
 
 permissions:
   contents: write
@@ -14,8 +18,12 @@ permissions:
 
 jobs:
   solve:
-    # 自分（ボット）のコメントや特定のラベルがない場合はスキップ
-    if: github.event.issue.pull_request == null && (github.event_name == 'workflow_dispatch' || contains(github.event.issue.labels.*.name, 'ai-solve'))
+    # 実行条件: PRではないIssueであること、かつ (手動起動 または 特定のコメント または ラベル)
+    if: |
+      github.event.issue.pull_request == null && 
+      (github.event_name == 'workflow_dispatch' || 
+       contains(github.event.issue.labels.*.name, 'ai-solve') ||
+       contains(github.event.comment.body, '@ai solve'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
           REPO: ${{ github.repository }}
         run: |
           echo "🤖 Starting AI Issue Resolution Process..."

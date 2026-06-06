@@ -68,20 +68,38 @@ function _planSourceContainers(room) {
     const existingContainers = cache.getContainers(room);
 
     // コンテナの建設サイトをループ外で一度だけ取得
-    const containerSites = cache
-        .getConstructionSites(room)
-        .filter((s) => s.structureType === STRUCTURE_CONTAINER);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop and push for filtered results to avoid closure allocation.
+    const allSites = cache.getConstructionSites(room);
+    const containerSites = [];
+    for (let i = 0; i < allSites.length; i++) {
+        const site = allSites[i];
+        if (site.structureType === STRUCTURE_CONTAINER) {
+            containerSites.push(site);
+        }
+    }
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
-        const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2);
-        if (nearby.length > 0) {
+        let hasNearbyContainer = false;
+        for (let i = 0; i < existingContainers.length; i++) {
+            if (source.pos.getRangeTo(existingContainers[i]) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) {
             continue;
         }
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = containerSites.filter((s) => source.pos.getRangeTo(s) <= 2);
-        if (existingSites.length > 0) {
+        let hasNearbySite = false;
+        for (let i = 0; i < containerSites.length; i++) {
+            if (source.pos.getRangeTo(containerSites[i]) <= 2) {
+                hasNearbySite = true;
+                break;
+            }
+        }
+        if (hasNearbySite) {
             continue;
         }
 
@@ -168,11 +186,16 @@ function _getNeededExtensionCount(room) {
     }
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
-    const sites = cache
-        .getConstructionSites(room)
-        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const allSites = cache.getConstructionSites(room);
+    let siteCount = 0;
+    for (let i = 0; i < allSites.length; i++) {
+        if (allSites[i].structureType === STRUCTURE_EXTENSION) {
+            siteCount++;
+        }
+    }
 
-    const currentCount = existing.length + sites.length;
+    const currentCount = existing.length + siteCount;
     if (currentCount >= maxExtensions) {
         return 0;
     }
@@ -213,7 +236,6 @@ function _getBlockedMap(room, spawn) {
  */
 function _placeExtensions(room, spawn, needed, blockedMap) {
     let placed = 0;
-
     // スポーン周囲のスパイラルパターンでエクステンションを配置
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
@@ -290,12 +312,18 @@ function _checkSafeMode(room) {
     const SAFE_MODE_TRIGGER_HOSTILES = 3;
 
     const enemies = cache.getEnemies(room);
-    const dangerousEnemies = enemies.filter(
-        (e) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const dangerousEnemies = [];
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (
             e.getActiveBodyparts(ATTACK) > 0 ||
             e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
-            e.getActiveBodyparts(WORK) > 0 // WORKでウォール破壊
-    );
+            e.getActiveBodyparts(WORK) > 0
+        ) {
+            dangerousEnemies.push(e);
+        }
+    }
 
     if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
         // 自室のディフェンダー数
@@ -343,21 +371,34 @@ function _manageLinkNetwork(room) {
     const LINK_TRANSFER_THRESHOLD = 0.8;
 
     // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
-    const sourceLinks = links.filter(
-        (l) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const sourceLinks = [];
+    for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        if (
             l.store[RESOURCE_ENERGY] >=
-                l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD && l.cooldown === 0
-    );
+                l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD &&
+            l.cooldown === 0
+        ) {
+            sourceLinks.push(l);
+        }
+    }
 
     // シンクリンク: コントローラー付近またはスポーン付近
     const spawns = cache.getSpawns(room);
     const spawnPos = spawns.length > 0 ? spawns[0].pos : null;
 
-    const sinkLinks = links.filter(
-        (l) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const sinkLinks = [];
+    for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        if (
             l.store[RESOURCE_ENERGY] < l.store.getCapacity(RESOURCE_ENERGY) * 0.5 &&
             (controller.pos.getRangeTo(l) <= 5 || (spawnPos && spawnPos.getRangeTo(l) <= 5))
-    );
+        ) {
+            sinkLinks.push(l);
+        }
+    }
 
     if (sourceLinks.length === 0 || sinkLinks.length === 0) {
         return;

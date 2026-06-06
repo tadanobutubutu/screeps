@@ -32,5 +32,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
-        run: python3 scripts/ai_issue_solver.py
+          ISSUE_NUMBER: ${{ github.event.issue.number || github.event.inputs.issue_number || '824' }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: |
+          # If dispatch, fetch title/body via gh
+          if [ -z "$ISSUE_TITLE" ]; then
+            DATA=$(gh issue view "$ISSUE_NUMBER" --json title,body)
+            export ISSUE_TITLE=$(echo "$DATA" | jq -r '.title')
+            export ISSUE_BODY=$(echo "$DATA" | jq -r '.body')
+          fi
+          python3 scripts/ai_issue_solver.py

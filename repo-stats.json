@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-06T11:25:44.722Z",
+  "updated": "2026-06-06T11:52:00.820Z",
   "workflows": 37,
   "roles": 10,
   "jsFiles": 38,
@@ -11,7 +11,7 @@
       "scheduled": true
     },
     {
-      "name": "AI Conflict Resolver (Ultimate)",
+      "name": "AI Conflict Resolver (Ultimate Resilience)",
       "file": "ai-conflict-resolver.yml",
       "scheduled": false
     },

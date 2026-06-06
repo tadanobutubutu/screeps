@@ -33,6 +33,7 @@ jobs:
       - name: Analyze repository and update README via AI
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
         run: python3 scripts/ai_update_readme.py
       
       - name: Commit updated documentation

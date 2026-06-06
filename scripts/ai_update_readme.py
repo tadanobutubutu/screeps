@@ -18,8 +18,8 @@ def get_repo_context():
                 total_lines += len(file.readlines())
         except: pass
 
-    commits = subprocess.run(["git", "log", "-n", "5", "--pretty=format:%s"], capture_output=True, text=True).stdout
-    ai_activity = subprocess.run(["git", "log", "-n", "10", "--grep=AI", "--pretty=format:%s"], capture_output=True, text=True).stdout
+    commits = subprocess.run(["git", "log", "-n", "10", "--pretty=format:%s"], capture_output=True, text=True).stdout
+    ai_activity = subprocess.run(["git", "log", "-n", "20", "--grep=AI", "--pretty=format:%s"], capture_output=True, text=True).stdout
 
     return {
         "workflows": workflows,
@@ -31,55 +31,68 @@ def get_repo_context():
     }
 
 def main():
-    print("🚀 AI README Updater started.")
-    key = os.environ.get("GEMINI_API_KEY")
+    print("🚀 AI README Updater started (2026 Edition).")
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    openrouter_token = os.environ.get("OPENROUTER_TOKEN")
     ctx = get_repo_context()
     
-    prompt = f"Create a professional dynamic GitHub README in Japanese for a Screeps AI project. Stats: {ctx['workflows']} workflows, {ctx['roles']} roles. Recent Activities: {ctx['recent_commits']}. Respond ONLY with raw markdown."
+    prompt = f"""
+    Create a highly professional and dynamic GitHub README in Japanese for a Screeps AI project.
+    
+    Stats: {ctx['workflows']} workflows, {ctx['roles']} roles, {ctx['js_files_count']} files.
+    Recent AI Success: {ctx['ai_activity'] if ctx['ai_activity'] else 'Full automation integrated.'}
+    Recent Activity: {ctx['recent_commits']}
+    
+    Requirements:
+    - Use cool badges.
+    - Mention the 'Ultimate Automation' system (Issue/Conflict Resolver).
+    - Use Japanese.
+    - Return RAW markdown only.
+    """
 
     result = ""
-    if key:
-        print(f"☁️ Trying Gemini...")
-        # Use v1 endpoint and latest model IDs
-        models = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro"]
+    
+    # Strategy 1: Gemini Direct (2026 Model IDs)
+    if gemini_key and not result:
+        print("☁️ Trying Gemini Direct (v1beta)...")
+        models = ["gemini-3.5-flash", "gemini-2.5-flash", "gemini-1.5-flash"]
         for model in models:
-            url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={key}"
-            print(f"   -> Testing model: {model}")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_key}"
             try:
                 r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
                 if r.status_code == 200:
                     result = r.json()['candidates'][0]['content']['parts'][0]['text']
                     print(f"✅ Success with {model}!")
                     break
-                else:
-                    print(f"⚠️ {model} failed (HTTP {r.status_code}): {r.text[:200]}")
-            except Exception as e:
-                print(f"⚠️ {model} error: {e}")
+            except: pass
 
-    if not result:
-        print("☁️ Trying Pollinations (Fallback)...")
-        # Try multiple retry for 429
-        for i in range(3):
+    # Strategy 2: OpenRouter (Resilient Fallback)
+    if openrouter_token and not result:
+        print("☁️ Trying OpenRouter...")
+        models = ["anthropic/claude-3.5-sonnet", "google/gemini-flash-1.5:free"]
+        for model in models:
             try:
-                url = "https://text.pollinations.ai/"
-                payload = {"messages": [{"role": "user", "content": prompt}], "model": "openai"}
-                r = requests.post(url, json=payload, timeout=60)
+                r = requests.post("https://openrouter.ai/api/v1/chat/completions",
+                                  headers={"Authorization": f"Bearer {openrouter_token}"},
+                                  json={"model": model, "messages": [{"role": "user", "content": prompt}]})
                 if r.status_code == 200:
-                    result = r.text
-                    print("✅ Pollinations responded.")
+                    result = r.json()['choices'][0]['message']['content']
+                    print(f"✅ Success with OpenRouter ({model})!")
                     break
-                elif r.status_code == 429:
-                    print(f"⏳ Rate limited, retrying ({i+1})...")
-                    time.sleep(5)
-                else:
-                    print(f"⚠️ Pollinations failed (HTTP {r.status_code})")
-                    break
-            except Exception as e:
-                print(f"⚠️ Pollinations error: {e}")
-                break
+            except: pass
+
+    # Strategy 3: Pollinations AI (Absolute Fallback)
+    if not result:
+        print("☁️ Trying Pollinations...")
+        try:
+            r = requests.post("https://text.pollinations.ai/", json={"messages": [{"role": "user", "content": prompt}], "model": "openai"})
+            if r.status_code == 200:
+                result = r.text
+                print("✅ Success with Pollinations!")
+        except: pass
 
     if not result:
-        print("❌ All AI failed. No update made.")
+        print("❌ All AI failed.")
         return
 
     clean = result.strip()

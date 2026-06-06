@@ -1,6 +1,6 @@
 {
-    "experiment": "optimize-pathfinding-cache",
-    "description": "経路探索キャッシュを最適化",
-    "timestamp": "2026-05-30T20:09:38.958Z",
-    "status": "applied"
+  "experiment": "improve-spawn-priority",
+  "description": "スポーン優先度ロジックを改善",
+  "timestamp": "2026-06-06T20:09:08.010Z",
+  "status": "applied"
 }

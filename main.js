@@ -670,6 +670,19 @@ function handleSocialInteractions(rooms) {
 }
 
 module.exports.loop = function () {
+    // Smart Spawn Priority (Auto-added)
+    if (!Memory.spawnPriority) {
+        Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
+    }
+    // Auto-adjust priority based on current needs
+    if (Game.time % 500 === 0) {
+        const counts = {};
+        Object.values(Game.creeps).forEach(c => {
+            counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
+        });
+        Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
+    }
+
     // Path Cache Cleanup (Auto-added)
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {

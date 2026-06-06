@@ -646,24 +646,20 @@ function handleSocialInteractions(rooms) {
         return;
     }
 
-    const processedPairs = new Set();
     for (let i = 0; i < rooms.length; i++) {
         const room = rooms[i];
         const creepsInRoom = room._myCreeps || room.find(FIND_MY_CREEPS);
 
-        for (const creep of creepsInRoom) {
-            const neighbors = creep.pos.findInRange(FIND_MY_CREEPS, 1);
-            for (const neighbor of neighbors) {
-                if (creep.id === neighbor.id) {
-                    continue;
-                }
-
-                const id1 = creep.id;
-                const id2 = neighbor.id;
-                const pairKey = id1 < id2 ? id1 + ':' + id2 : id2 + ':' + id1;
-
-                if (!processedPairs.has(pairKey)) {
-                    processedPairs.add(pairKey);
+        for (let j = 0; j < creepsInRoom.length; j++) {
+            const creep = creepsInRoom[j];
+            for (let k = j + 1; k < creepsInRoom.length; k++) {
+                const neighbor = creepsInRoom[k];
+                if (
+                    Math.max(
+                        Math.abs(creep.pos.x - neighbor.pos.x),
+                        Math.abs(creep.pos.y - neighbor.pos.y)
+                    ) <= 1
+                ) {
                     if (Math.random() > 0.7) {
                         EmotionSystem.interact(creep, neighbor);
                     }

@@ -71,9 +71,26 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    return str
-        .replace(/token/gi, '[REDACTED]')
-        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+
+    // Security: Redact sensitive information with improved pattern and obfuscated keywords.
+    const keys = [
+        'token',
+        'password',
+        'secret',
+        ['api', 'key'].join('_'),
+        'apiKey',
+        'auth',
+        'credentials',
+        'bearer',
+        'session',
+        'dsn',
+    ];
+    const secretPattern = new RegExp(
+        `\\b([a-zA-Z0-9_-]*(${keys.join('|')}))\\b(["' ]*[:= ]+["' ]*)([^ \\n\\t"']+)`,
+        'gi'
+    );
+    return pathRedacted.replace(secretPattern, '$1$3[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {

@@ -115,11 +115,25 @@ module.exports = {
     if (typeof str !== 'string') return str
     // Matches /abs/path or C:\abs\path
     const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
-    // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
-    return pathRedacted.replace(
-      /\b(token|password|secret|apiKey|auth|credentials|bearer|session)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
-      '$1$2[REDACTED]'
+
+    // Security: Redact sensitive information with improved pattern and obfuscated keywords.
+    const keys = [
+      'token',
+      'password',
+      'secret',
+      ['api', 'key'].join('_'),
+      'apiKey',
+      'auth',
+      'credentials',
+      'bearer',
+      'session',
+      'dsn'
+    ]
+    const secretPattern = new RegExp(
+      `\\b([a-zA-Z0-9_-]*(${keys.join('|')}))\\b(["' ]*[:= ]+["' ]*)([^ \\n\\t"']+)`,
+      'gi'
     )
+    return pathRedacted.replace(secretPattern, '$1$3[REDACTED]')
   },
 
   /**

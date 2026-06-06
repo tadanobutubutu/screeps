@@ -1,4 +1,5 @@
-name: AI Issue Resolver
+name: AI Issue Resolver (Ultimate Resilience)
+
 on:
   push:
     branches: [main]
@@ -7,10 +8,12 @@ on:
   issue_comment:
     types: [created]
   workflow_dispatch:
+
 permissions:
   contents: write
   pull-requests: write
   issues: write
+
 jobs:
   solve:
     runs-on: ubuntu-latest
@@ -19,12 +22,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+
       - name: Install dependencies
         run: pip install requests
+
       - name: AI Solve Process
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -32,55 +38,76 @@ jobs:
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.issue.number || '824' }}
         run: |
-          echo "🤖 Starting AI Solve..."
-          ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,comments)
+          echo "🤖 Starting AI Issue Resolution..."
+          
+          # Get context
+          ISSUE_DATA=$(gh issue view "$ISSUE_NUMBER" --json title,body,comments)
           TITLE=$(echo "$ISSUE_DATA" | jq -r '.title')
           BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
+          COMMENTS=$(echo "$ISSUE_DATA" | jq -r '.comments[].body')
           FILES=$(find . -maxdepth 2 -not -path '*/.*' | head -n 20)
-          PROMPT="Solve issue #$ISSUE_NUMBER: $TITLE\nBody: $BODY\nFiles: $FILES\nRespond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"content\"}]"
+          
+          # Build Prompt
+          cat << 'EOF' > prompt.txt
+Solve this GitHub Issue.
+Title:
+EOF
+          echo "$TITLE" >> prompt.txt
+          echo -e "\nBody:" >> prompt.txt
+          echo "$BODY" >> prompt.txt
+          echo -e "\nFiles:" >> prompt.txt
+          echo "$FILES" >> prompt.txt
+          echo -e "\nRespond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"content\"}]" >> prompt.txt
+
+          # DDG AI Script
           cat << 'EOF' > ddg_ai.py
 import sys, requests, json
 def solve():
-    prompt = sys.stdin.read()
+    with open("prompt.txt", "r") as f: prompt = f.read()
     s = requests.Session()
-    r1 = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
-    vqd = r1.headers.get("x-vqd-4")
+    r = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
+    vqd = r.headers.get("x-vqd-4")
     if not vqd: return None
-    payload = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}
-    r2 = s.post("https://duckduckgo.com/duckchat/v1/chat", headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}, json=payload)
-    if r2.status_code != 200: return None
+    res = s.post("https://duckduckgo.com/duckchat/v1/chat", headers={"x-vqd-4": vqd, "User-Agent": "Mozilla/5.0"}, json={"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]})
+    if res.status_code != 200: return None
     full = ""
-    for line in r2.text.split('\n'):
+    for line in res.text.split('\n'):
         if line.startswith('data: '):
             d = line[6:]
             if d == '[DONE]': break
-            try:
-                full += json.loads(d).get('message', '')
+            try: full += json.loads(d).get('message', '')
             except: continue
     return full
 if __name__ == "__main__":
-    res = solve()
-    if res: print(res)
+    result = solve()
+    if result: print(result)
     else: sys.exit(1)
 EOF
-          RESOLVED=$(echo -e "$PROMPT" | python3 ddg_ai.py || echo "[]")
-          echo "RAW: $RESOLVED"
+
+          RESOLVED=$(python3 ddg_ai.py || echo "[]")
+          echo "📝 RAW Response: $RESOLVED"
+          
           CLEAN=$(echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d' | tr -d '\r')
+          
           if echo "$CLEAN" | jq -e '. | is_array and length > 0' > /dev/null 2>&1; then
             BRANCH="ai-fix-$ISSUE_NUMBER-$(date +%s)"
             git checkout -b "$BRANCH"
+            
+            # Apply changes safely
             echo "$CLEAN" | jq -c '.[]' | while read -r change; do
               P=$(echo "$change" | jq -r '.path')
-              C=$(echo "$change" | jq -r '.content')
-              mkdir -p "$(dirname "$P")"
-              echo "$C" > "$P"
+              echo "$change" | jq -r '.content' > "$P"
+              echo "✅ Modified $P"
             done
-            git config user.name "AI"
-            git config user.email "ai@example.com"
+            
+            git config user.name "AI Resolver"
+            git config user.email "ai@screeps.local"
             git add .
-            git commit -m "fix: AI fix #$ISSUE_NUMBER"
+            git commit -m "fix: AI auto-resolve #$ISSUE_NUMBER"
             git push origin "$BRANCH"
-            gh pr create --title "AI Fix #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
+            
+            gh pr create --title "AI Fix for #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
+            gh issue close "$ISSUE_NUMBER" --comment "🤖 AI has fixed the issue. PR created and issue closed."
           else
-            echo "No fix."
+            echo "❌ No fix generated."
           fi

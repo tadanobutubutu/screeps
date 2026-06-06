@@ -1,4 +1,4 @@
-name: Auto Merge PRs - Force Penetration (Instant CI)
+name: Auto Merge PRs - GraphQL Ultimate
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     types: [submitted]
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
@@ -15,62 +15,90 @@ permissions:
   actions: write
 
 jobs:
-  force-merge:
+  graphql-auto-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: High-Speed Penetration Merge
+      - name: GraphQL Auto Merge Process
         env:
-          GITHUB_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+          # 個人のPATは一切使わず、標準の GITHUB_TOKEN のみを使用します
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
         run: |
-          # 全てのオープンなPRを取得
-          pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
+          echo "🚀 Starting GraphQL-based Auto Merge Process..."
           
-          echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
-            PR_NO=$(echo "$pr" | jq -r ".number")
-            PR_ID=$(echo "$pr" | jq -r ".id")
-            IS_DRAFT=$(echo "$pr" | jq -r ".isDraft")
-            AUTHOR=$(echo "$pr" | jq -r ".author.login")
-            MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
+          # 1. オープンなPR一覧を取得するGraphQLクエリ
+          PR_LIST_QUERY='
+          query($owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
+              pullRequests(states: OPEN, first: 100) {
+                nodes {
+                  id
+                  number
+                  isDraft
+                  mergeable
+                  author {
+                    login
+                  }
+                }
+              }
+            }
+          }'
+          
+          # 取得実行
+          PR_DATA=$(gh api graphql -f query="$PR_LIST_QUERY" -f owner="$REPO_OWNER" -f repo="$REPO_NAME")
+          
+          # PRがない場合は終了
+          NODE_COUNT=$(echo "$PR_DATA" | jq '.data.repository.pullRequests.nodes | length')
+          if [ "$NODE_COUNT" -eq 0 ]; then
+            echo "✨ No open PRs found."
+            exit 0
+          fi
+          
+          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
+            PR_ID=$(echo "$pr" | jq -r '.id')
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            IS_DRAFT=$(echo "$pr" | jq -r '.isDraft')
+            MERGEABLE=$(echo "$pr" | jq -r '.mergeable')
+            AUTHOR=$(echo "$pr" | jq -r '.author.login')
             
-            # ai-cooking-recipes 用のユーザー制限 (大文字小文字無視・正規表現)
-            if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
-              if [[ ! $(echo "$AUTHOR" | tr '[:upper:]' '[:lower:]') =~ (tadanobutubutu|jules|devin) ]]; then
-                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Authorized authors only)"
-                continue
-              fi
-            fi
-
-            echo "🚀 Processing PR #$PR_NO by $AUTHOR (Status: $MERGEABLE)..."
+            echo "----------------------------------------"
+            echo "🔍 Processing PR #$PR_NO by $AUTHOR (Mergeable: $MERGEABLE, Draft: $IS_DRAFT)"
             
-            # Draft解除
+            # 2. Draft状態ならGraphQLで解除(Ready For Review)する
             if [ "$IS_DRAFT" = "true" ]; then
-              echo "📝 PR #$PR_NO is draft, converting..."
-              gh pr ready "$PR_NO" || true
-            fi
-            
-            # コンフリクト自動更新
-            if [ "$MERGEABLE" = "CONFLICTING" ]; then
-              echo "⚠️ PR #$PR_NO has conflicts, attempting branch refresh..."
-              gh pr update-branch "$PR_NO" || true
+              echo "📝 Converting Draft PR #$PR_NO to Ready for Review..."
+              gh api graphql -f query='
+                mutation($id: ID!) {
+                  markPullRequestReadyForReview(input: {pullRequestId: $id}) {
+                    clientMutationId
+                  }
+                }' -f id="$PR_ID" || echo "⚠️ Failed to convert Draft."
               sleep 2
             fi
-
-            # 強制マージ実行 (管理者権限バイパス)
-            if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
-              echo "✅ Successfully merged PR #$PR_NO and deleted branch."
-            else
-              echo "⚠️ Merge failed, trying final GraphQL bypass..."
-              gh api graphql -f query='
+            
+            # 3. GraphQLで強制マージ (Squash)
+            # コンフリクトしていない場合のみ実行
+            if [ "$MERGEABLE" != "CONFLICTING" ]; then
+              echo "⚡ Attempting to Squash Merge PR #$PR_NO..."
+              if gh api graphql -f query='
                 mutation($id: ID!) {
                   mergePullRequest(input: {
                     pullRequestId: $id,
                     mergeMethod: SQUASH
                   }) { clientMutationId }
-                }' -f id="$PR_ID" || echo "❌ Failed to merge PR #$PR_NO"
+                }' -f id="$PR_ID"; then
+                echo "✅ Successfully merged PR #$PR_NO!"
+                
+                # ブランチ削除
+                gh pr close "$PR_NO" --delete-branch || true
+              else
+                echo "❌ Failed to merge PR #$PR_NO."
+              fi
+            else
+              echo "⚠️ PR #$PR_NO has conflicts. Skipping merge."
             fi
           done

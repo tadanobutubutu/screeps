@@ -12,32 +12,33 @@ def main():
     res = subprocess.run(["gh", "issue", "view", str(issue_no), "--json", "title,body"], capture_output=True, text=True)
     ctx = json.loads(res.stdout)
     
-    # 2. Minified Prompt for high reliability
-    prompt = f"Issue: {ctx['title']}. Task: Solve it. Respond ONLY as JSON array of path/content."
-    
+    prompt = f"Solve issue: {ctx['title']}. Content: {ctx['body']}. Respond ONLY with a JSON array of path/content objects."
+
+    # 2. Strategy: GEMINI V1 (Most Official)
     result = ""
-    # Strategy 1: Pollinations GET (Fast & Keyless)
-    try:
-        url = f"https://text.pollinations.ai/{urllib.parse.quote(prompt)}?model=openai"
-        r = requests.get(url, timeout=30)
-        if r.status_code == 200:
-            result = r.text
-    except: pass
-    
-    # Strategy 2: Gemini Direct (v1beta fallback)
-    if (not result or "[" not in result) and key:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+    if key:
+        print("☁️ Trying Gemini v1...")
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key={key}"
         try:
-            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
+            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
             if r.status_code == 200:
                 result = r.json()['candidates'][0]['content']['parts'][0]['text']
         except: pass
 
+    # 3. Strategy: Pollinations Reliable POST
     if not result or "[" not in result:
-        comment(issue_no, f"AI Resolution failed. Result: {result[:100]}")
+        print("☁️ Trying Pollinations POST...")
+        try:
+            r = requests.post("https://text.pollinations.ai/", json={"messages": [{"role": "user", "content": prompt}], "model": "openai"}, timeout=60)
+            if r.status_code == 200:
+                result = r.text
+        except: pass
+
+    if not result or "[" not in result:
+        comment(issue_no, "AI failed to respond with JSON. Please verify API keys.")
         return
 
-    # 3. Clean and Apply
+    # 4. Parse
     clean = result.strip()
     if "```" in clean:
         clean = clean.split("```")[1]
@@ -54,12 +55,12 @@ def main():
         subprocess.run(["git", "config", "user.name", "AI Solver"])
         subprocess.run(["git", "config", "user.email", "ai@screeps.local"])
         subprocess.run(["git", "add", "."])
-        subprocess.run(["git", "commit", "-m", f"fix: AI resolve #{issue_no}"])
+        subprocess.run(["git", "commit", "-m", f"fix: AI auto-solve #{issue_no}"])
         subprocess.run(["git", "push", "origin", branch])
         subprocess.run(["gh", "pr", "create", "--title", f"AI Fix for #{issue_no}", "--body", f"Closes #{issue_no}", "--head", branch, "--base", "main"])
         subprocess.run(["gh", "issue", "close", str(issue_no), "--comment", "🤖 AI fix proposed. PR created and issue closed."])
     except Exception as e:
-        comment(issue_no, f"Error: {e}\nRaw: {result[:200]}")
+        comment(issue_no, f"Parse Error: {e}\nRaw: {result[:200]}")
 
 if __name__ == "__main__":
     main()

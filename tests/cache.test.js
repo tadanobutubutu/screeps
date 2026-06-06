@@ -346,7 +346,7 @@ describe('cache', () => {
             global.Game.time = 100;
             global.Game.creeps = {
                 creep1: { name: 'creep1', my: true, memory: { sourceId: 'source1' } },
-                creep2: { name: 'creep2', my: true, memory: { sourceId: 'source1' } }
+                creep2: { name: 'creep2', my: true, memory: { sourceId: 'source1' } },
             };
             global.Game.getObjectById = jest.fn();
 
@@ -357,10 +357,8 @@ describe('cache', () => {
                 name: 'W1N2',
                 find: jest.fn().mockImplementation((type) => {
                     if (type === FIND_SOURCES) return [{ id: 'source1' }, { id: 'source2' }];
-                    if (type === FIND_MY_CREEPS) return [
-                        global.Game.creeps.creep1,
-                        global.Game.creeps.creep2
-                    ];
+                    if (type === FIND_MY_CREEPS)
+                        return [global.Game.creeps.creep1, global.Game.creeps.creep2];
                     return [];
                 }),
             };

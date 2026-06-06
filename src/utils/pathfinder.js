@@ -68,6 +68,51 @@ function ensureCache() {
     return global.cache;
 }
 
+/**
+ * キャッシュからエントリを取得する
+ * @param {Object} cache
+ * @param {string} key
+ * @returns {any|undefined}
+ */
+function _getCacheEntry(cache, key) {
+    if (!isSafeKey(key)) return undefined;
+    const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
+        return entry.data;
+    }
+    return undefined;
+}
+
+/**
+ * キャッシュにエントリを保存する
+ * @param {Object} cache
+ * @param {string} key
+ * @param {any} data
+ * @param {number} ttl
+ */
+function _setCacheEntry(cache, key, data, ttl) {
+    if (!isSafeKey(key)) return;
+
+    // Security: Cap the number of cache entries to prevent Memory DoS.
+    // If full, attempt to cleanup expired entries.
+    if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+        cacheUtils.cleanup();
+        // If still full, implement FIFO eviction by deleting the oldest entry.
+        // This ensures the cache remains available for new, potentially more relevant data.
+        if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
+            const keys = Object.keys(cache);
+            if (keys.length > 0) {
+                delete cache[keys[0]];
+            }
+        }
+    }
+
+    cache[key] = {
+        data: data,
+        expires: Game.time + ttl,
+    };
+}
+
 // ============================================================
 // コストマトリクス構築
 // ============================================================
@@ -175,13 +220,9 @@ function buildCostMatrix(roomName, options) {
 
     const cacheKey = `${COST_MATRIX_CACHE_PREFIX}${roomName}_${opts.avoidCreeps ? 1 : 0}`;
 
-    if (opts.useCache && isSafeKey(cacheKey)) {
-        const entry = Object.prototype.hasOwnProperty.call(cache, cacheKey)
-            ? cache[cacheKey]
-            : undefined;
-        if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-            return entry.data;
-        }
+    if (opts.useCache) {
+        const cached = _getCacheEntry(cache, cacheKey);
+        if (cached !== undefined) return cached;
     }
 
     const room = Game.rooms[roomName];
@@ -202,25 +243,8 @@ function buildCostMatrix(roomName, options) {
         _applyCreepCosts(costs, room);
     }
 
-    if (opts.useCache && isSafeKey(cacheKey)) {
-        // Security: Cap the number of cache entries to prevent Memory DoS.
-        // If full, attempt to cleanup expired entries.
-        if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-            cacheUtils.cleanup();
-            // If still full, implement FIFO eviction by deleting the oldest entry.
-            // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-                const keys = Object.keys(cache);
-                if (keys.length > 0) {
-                    delete cache[keys[0]];
-                }
-            }
-        }
-
-        cache[cacheKey] = {
-            data: costs,
-            expires: Game.time + CACHE_TTL.PATH,
-        };
+    if (opts.useCache) {
+        _setCacheEntry(cache, cacheKey, costs, CACHE_TTL.PATH);
     }
 
     return costs;
@@ -446,36 +470,13 @@ function estimateDistance(origin, goal) {
 
     const key = `${PATH_CACHE_PREFIX}${origin.roomName}_${origin.x}_${origin.y}_${goal.roomName}_${goal.x}_${goal.y}`;
 
-    if (isSafeKey(key)) {
-        const entry = Object.prototype.hasOwnProperty.call(cache, key) ? cache[key] : undefined;
-        if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
-            return entry.data;
-        }
-    }
+    const cached = _getCacheEntry(cache, key);
+    if (cached !== undefined) return cached;
 
     const result = findPath(origin, goal);
     const dist = result.incomplete ? Infinity : result.path.length;
 
-    if (isSafeKey(key)) {
-        // Security: Cap the number of cache entries to prevent Memory DoS.
-        // If full, attempt to cleanup expired entries.
-        if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-            cacheUtils.cleanup();
-            // If still full, implement FIFO eviction by deleting the oldest entry.
-            // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(cache).length >= MAX_CACHE_ENTRIES) {
-                const keys = Object.keys(cache);
-                if (keys.length > 0) {
-                    delete cache[keys[0]];
-                }
-            }
-        }
-
-        cache[key] = {
-            data: dist,
-            expires: Game.time + CACHE_TTL.PATH,
-        };
-    }
+    _setCacheEntry(cache, key, dist, CACHE_TTL.PATH);
 
     return dist;
 }

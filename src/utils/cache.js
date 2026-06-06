@@ -6,42 +6,42 @@
  * すべてのキャッシュは `global.cache` 配下に格納する。
  */
 
-'use strict'
+'use strict';
 
-const { CACHE_TTL } = require('../constants')
+const { CACHE_TTL } = require('../constants');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  */
-const MAX_KEY_LENGTH = 256
-const MAX_CACHE_ENTRIES = 100
+const MAX_KEY_LENGTH = 256;
+const MAX_CACHE_ENTRIES = 100;
 
 /**
  * ⚡ PERFORMANCE: Track cache size in a module-level variable to make the
  * capacity check O(1) instead of O(N).
  */
-let _cacheSize = -1
-let _lastCacheRef = null
+let _cacheSize = -1;
+let _lastCacheRef = null;
 
 /**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
 const DANGEROUS_KEYS = new Set([
-  '__proto__',
-  'constructor',
-  'prototype',
-  '__defineGetter__',
-  '__defineSetter__',
-  '__lookupGetter__',
-  '__lookupSetter__',
-  'toString',
-  'valueOf',
-  'hasOwnProperty',
-  'toLocaleString',
-  'isPrototypeOf',
-  'propertyIsEnumerable'
-])
+    '__proto__',
+    'constructor',
+    'prototype',
+    '__defineGetter__',
+    '__defineSetter__',
+    '__lookupGetter__',
+    '__lookupSetter__',
+    'toString',
+    'valueOf',
+    'hasOwnProperty',
+    'toLocaleString',
+    'isPrototypeOf',
+    'propertyIsEnumerable',
+]);
 
 /**
  * Security: Validates that a key is safe to use for object access.
@@ -49,31 +49,44 @@ const DANGEROUS_KEYS = new Set([
  * Also enforces length limits to prevent Memory DoS.
  */
 const isSafeKey = (key) => {
-  // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
-  // and avoid unnecessary string/Set checks.
-  if (typeof key === 'number') {
-    return true
-  }
-  // Security: Block dangerous properties that could lead to Prototype Pollution
-  // or property shadowing when using user-provided strings as object keys.
-  return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key)
-}
+    // ⚡ PERFORMANCE: Restore early return for numeric keys to maintain support
+    // and avoid unnecessary string/Set checks.
+    if (typeof key === 'number') {
+        return true;
+    }
+    // Security: Block dangerous properties that could lead to Prototype Pollution
+    // or property shadowing when using user-provided strings as object keys.
+    return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
+};
 
 // global.cache が未初期化の場合に初期化する
 // Security: Use Object.create(null) to avoid prototype pollution issues
-function ensureCache () {
-  // ⚡ PERFORMANCE: Detect external cache resets (e.g. in tests) using O(1) ref comparison.
-  if (global.cache !== _lastCacheRef) {
-    _lastCacheRef = global.cache
-    if (!_lastCacheRef) {
-      _lastCacheRef = global.cache = Object.create(null)
-      _cacheSize = 0
-    } else {
-      // ⚡ PERFORMANCE: Recalculate size only when reference changes or uninitialized.
-      _cacheSize = Object.keys(_lastCacheRef).length
+function ensureCache() {
+    // ⚡ PERFORMANCE: Detect external cache resets (e.g. in tests) using O(1) ref comparison.
+    if (global.cache !== _lastCacheRef) {
+        _lastCacheRef = global.cache;
+        if (!_lastCacheRef) {
+            _lastCacheRef = global.cache = Object.create(null);
+            _cacheSize = 0;
+        } else {
+            // ⚡ PERFORMANCE: Recalculate size only when reference changes or uninitialized.
+            _cacheSize = Object.keys(_lastCacheRef).length;
+        }
     }
-  }
-  return _lastCacheRef
+    return _lastCacheRef;
+}
+
+function _getValidEntry(cache, key) {
+    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free (Object.create(null))
+    const entry = cache[key];
+    if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
+        return entry;
+    }
+    return undefined;
+}
+
+function _canAddCacheEntry() {
+    return _cacheSize < MAX_CACHE_ENTRIES;
 }
 
 /**
@@ -83,59 +96,57 @@ function ensureCache () {
  * @param {number} ttl - キャッシュ有効期限（ティック数）
  * @returns {*} キャッシュされたデータ
  */
-function get (key, fetcher, ttl) {
-  // Security: Validate key
-  if (!isSafeKey(key)) {
-    return fetcher()
-  }
-
-  const cache = ensureCache()
-  const now = Game.time
-
-  // ⚡ PERFORMANCE: Inline validity check to reduce function call overhead.
-  const entry = cache[key]
-  if (entry && typeof entry.expires === 'number' && entry.expires > now) {
-    return entry.data
-  }
-
-  // Security: Cap the number of cache entries to prevent Memory DoS.
-  // If full, attempt to cleanup expired entries.
-  if (_cacheSize >= MAX_CACHE_ENTRIES) {
-    cleanup()
-    // If still full, implement FIFO eviction by deleting the oldest entry.
-    // This ensures the cache remains available for new, potentially more relevant data.
-    if (_cacheSize >= MAX_CACHE_ENTRIES) {
-      const keys = Object.keys(cache)
-      if (keys.length > 0) {
-        delete cache[keys[0]]
-        _cacheSize--
-      }
+function get(key, fetcher, ttl) {
+    // Security: Validate key
+    if (!isSafeKey(key)) {
+        return fetcher();
     }
-  }
 
-  const data = fetcher()
-  cache[key] = {
-    data,
-    expires: now + (ttl || CACHE_TTL.ROOM_OBJECTS)
-  }
-  _cacheSize++
-  return data
+    const cache = ensureCache();
+
+    const validEntry = _getValidEntry(cache, key);
+    if (validEntry) {
+        return validEntry.data;
+    }
+
+    // Security: Cap the number of cache entries to prevent Memory DoS.
+    // If full, attempt to cleanup expired entries.
+    if (!_canAddCacheEntry()) {
+        cleanup();
+        // If still full, implement FIFO eviction by deleting the oldest entry.
+        // This ensures the cache remains available for new, potentially more relevant data.
+        if (!_canAddCacheEntry()) {
+            const keys = Object.keys(cache);
+            if (keys.length > 0) {
+                delete cache[keys[0]];
+                _cacheSize--;
+            }
+        }
+    }
+
+    const data = fetcher();
+    cache[key] = {
+        data,
+        expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS),
+    };
+    _cacheSize++;
+    return data;
 }
 
 /**
  * キャッシュを明示的に無効化する
  * @param {string} key - 無効化するキャッシュキー
  */
-function invalidate (key) {
-  if (!isSafeKey(key)) {
-    return
-  }
-  const cache = ensureCache()
-  // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
-  if (cache[key] !== undefined) {
-    delete cache[key]
-    _cacheSize--
-  }
+function invalidate(key) {
+    if (!isSafeKey(key)) {
+        return;
+    }
+    const cache = ensureCache();
+    // ⚡ PERFORMANCE: Skip hasOwnProperty as cache is prototype-free
+    if (cache[key] !== undefined) {
+        delete cache[key];
+        _cacheSize--;
+    }
 }
 
 /**
@@ -146,79 +157,79 @@ function invalidate (key) {
  * invalid or malicious regex strings. Also limits pattern length to 100 chars
  * to mitigate potential ReDoS.
  */
-function invalidatePattern (pattern) {
-  try {
-    // Security: Limit pattern length to prevent ReDoS
-    if (typeof pattern === 'string' && pattern.length > 100) {
-      return
-    }
+function invalidatePattern(pattern) {
+    try {
+        // Security: Limit pattern length to prevent ReDoS
+        if (typeof pattern === 'string' && pattern.length > 100) {
+            return;
+        }
 
-    const cache = ensureCache()
-    const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern
-    const keys = Object.keys(cache)
-    let removed = 0
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i]
-      // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
-      if (regex.test(key)) {
-        delete cache[key]
-        removed++
-      }
+        const cache = ensureCache();
+        const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+        const keys = Object.keys(cache);
+        let removed = 0;
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
+            // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+            if (regex.test(key)) {
+                delete cache[key];
+                removed++;
+            }
+        }
+        _cacheSize -= removed;
+    } catch (e) {
+        // Silently fail if regex is invalid
     }
-    _cacheSize -= removed
-  } catch (e) {
-    // Silently fail if regex is invalid
-  }
 }
 
 /**
  * 期限切れキャッシュエントリをすべて削除する
  * 定期的に呼び出してメモリリークを防ぐ
  */
-function cleanup () {
-  const cache = ensureCache()
-  let removed = 0
-  const keys = Object.keys(cache)
-  const now = Game.time
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
-    const entry = cache[key]
-    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
-      delete cache[key]
-      removed++
+function cleanup() {
+    const cache = ensureCache();
+    let removed = 0;
+    const keys = Object.keys(cache);
+    const now = Game.time;
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+        const entry = cache[key];
+        if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+            delete cache[key];
+            removed++;
+        }
     }
-  }
-  _cacheSize -= removed
-  return removed
+    _cacheSize -= removed;
+    return removed;
 }
 
 /**
  * キャッシュ統計を返す
  * @returns {{ total: number, expired: number, active: number }}
  */
-function getStats () {
-  const cache = ensureCache()
-  const now = Game.time
-  let total = 0
-  let expired = 0
+function getStats() {
+    const cache = ensureCache();
+    const now = Game.time;
+    let total = 0;
+    let expired = 0;
 
-  const keys = Object.keys(cache)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
-    total++
-    const entry = cache[key]
-    if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
-      expired++
+    const keys = Object.keys(cache);
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        // ⚡ PERFORMANCE: Skip isSafeKey as keys in cache are already validated.
+        total++;
+        const entry = cache[key];
+        if (entry && typeof entry.expires === 'number' && entry.expires <= now) {
+            expired++;
+        }
     }
-  }
 
-  return {
-    total,
-    expired,
-    active: total - expired
-  }
+    return {
+        total,
+        expired,
+        active: total - expired,
+    };
 }
 
 // ============================================================
@@ -230,8 +241,8 @@ function getStats () {
  * @param {Room} room
  * @returns {Source[]}
  */
-function getSources (room) {
-  return get(`sources_${room.name}`, () => room.find(FIND_SOURCES), CACHE_TTL.SOURCES)
+function getSources(room) {
+    return get(`sources_${room.name}`, () => room.find(FIND_SOURCES), CACHE_TTL.SOURCES);
 }
 
 /**
@@ -239,12 +250,12 @@ function getSources (room) {
  * @param {Room} room
  * @returns {Structure[]}
  */
-function getStructures (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._allStructures && room._allStructuresTick === Game.time) {
-    return room._allStructures
-  }
-  return get(`structures_${room.name}`, () => room.find(FIND_STRUCTURES), CACHE_TTL.STRUCTURES)
+function getStructures(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._allStructures && room._allStructuresTick === Game.time) {
+        return room._allStructures;
+    }
+    return get(`structures_${room.name}`, () => room.find(FIND_STRUCTURES), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -253,51 +264,43 @@ function getStructures (room) {
  * @param {string} [structureType] - 特定の構造物タイプに絞り込む
  * @returns {OwnedStructure[]}
  */
-function getMyStructures (room, structureType) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._myStructures && room._myStructuresTick === Game.time) {
-    if (!structureType) {
-      return room._myStructures
+function getMyStructures(room, structureType) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myStructures && room._myStructuresTick === Game.time) {
+        if (!structureType) {
+            return room._myStructures;
+        }
+        // ⚡ PERFORMANCE: Use type-indexed cache for O(1) lookup if available.
+        if (room._myStructuresByType) {
+            return room._myStructuresByType[structureType] || [];
+        }
+        return room._myStructures.filter((s) => s.structureType === structureType);
     }
-    // ⚡ PERFORMANCE: Use type-indexed cache for O(1) lookup if available.
-    if (room._myStructuresByType) {
-      return room._myStructuresByType[structureType] || []
-    }
-    // ⚡ PERFORMANCE: Use standard for loop for better performance in V8.
-    const result = []
-    for (let i = 0; i < room._myStructures.length; i++) {
-      const s = room._myStructures[i]
-      if (s.structureType === structureType) {
-        result.push(s)
-      }
-    }
-    return result
-  }
 
-  const key = structureType
-    ? `my_structures_${room.name}_${structureType}`
-    : `my_structures_${room.name}`
+    const key = structureType
+        ? `my_structures_${room.name}_${structureType}`
+        : `my_structures_${room.name}`;
 
-  return get(
-    key,
-    () => {
-      const filter = structureType ? { structureType } : undefined
-      return room.find(FIND_MY_STRUCTURES, { filter })
-    },
-    CACHE_TTL.STRUCTURES
-  )
+    return get(
+        key,
+        () => {
+            const filter = structureType ? { structureType } : undefined;
+            return room.find(FIND_MY_STRUCTURES, { filter });
+        },
+        CACHE_TTL.STRUCTURES
+    );
 }
 /**
  * ルーム内の味方クリープをキャッシュ付きで取得する
  * @param {Room} room
  * @returns {Creep[]}
  */
-function getMyCreeps (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._myCreeps && room._myCreepsTick === Game.time) {
-    return room._myCreeps
-  }
-  return get(`my_creeps_${room.name}`, () => room.find(FIND_MY_CREEPS), CACHE_TTL.ROOM_OBJECTS)
+function getMyCreeps(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myCreeps && room._myCreepsTick === Game.time) {
+        return room._myCreeps;
+    }
+    return get(`my_creeps_${room.name}`, () => room.find(FIND_MY_CREEPS), CACHE_TTL.ROOM_OBJECTS);
 }
 
 /**
@@ -305,16 +308,16 @@ function getMyCreeps (room) {
  * @param {Room} room
  * @returns {ConstructionSite[]}
  */
-function getConstructionSites (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._myConstructionSites && room._myConstructionSitesTick === Game.time) {
-    return room._myConstructionSites
-  }
-  return get(
+function getConstructionSites(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time) {
+        return room._myConstructionSites;
+    }
+    return get(
         `construction_sites_${room.name}`,
         () => room.find(FIND_CONSTRUCTION_SITES),
         CACHE_TTL.CONSTRUCTION_SITES
-  )
+    );
 }
 
 /**
@@ -322,12 +325,12 @@ function getConstructionSites (room) {
  * @param {Room} room
  * @returns {Creep[]}
  */
-function getEnemies (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._hostileCreeps && room._hostileCreepsTick === Game.time) {
-    return room._hostileCreeps
-  }
-  return get(`enemies_${room.name}`, () => room.find(FIND_HOSTILE_CREEPS), CACHE_TTL.ENEMIES)
+function getEnemies(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._hostileCreeps && room._hostileCreepsTick === Game.time) {
+        return room._hostileCreeps;
+    }
+    return get(`enemies_${room.name}`, () => room.find(FIND_HOSTILE_CREEPS), CACHE_TTL.ENEMIES);
 }
 
 /**
@@ -335,12 +338,12 @@ function getEnemies (room) {
  * @param {Room} room
  * @returns {Resource[]}
  */
-function getDroppedResources (room) {
-  return get(
+function getDroppedResources(room) {
+    return get(
         `dropped_${room.name}`,
         () => room.find(FIND_DROPPED_RESOURCES),
         CACHE_TTL.DROPPED_RESOURCES
-  )
+    );
 }
 
 /**
@@ -348,12 +351,12 @@ function getDroppedResources (room) {
  * @param {Room} room
  * @returns {StructureSpawn[]}
  */
-function getSpawns (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._spawns && room._spawnsTick === Game.time) {
-    return room._spawns
-  }
-  return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES)
+function getSpawns(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._spawns && room._spawnsTick === Game.time) {
+        return room._spawns;
+    }
+    return get(`spawns_${room.name}`, () => room.find(FIND_MY_SPAWNS), CACHE_TTL.STRUCTURES);
 }
 
 /**
@@ -362,23 +365,23 @@ function getSpawns (room) {
  * @param {Room} room
  * @returns {Structure[]}
  */
-function getStructuresNeedingEnergy (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
-    return room._deliveryTargets
-  }
-  return get(
+function getStructuresNeedingEnergy(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
+        return room._deliveryTargets;
+    }
+    return get(
         `need_energy_${room.name}`,
         () =>
-          room.find(FIND_STRUCTURES, {
-            filter: (s) =>
-              (s.structureType === STRUCTURE_SPAWN ||
+            room.find(FIND_STRUCTURES, {
+                filter: (s) =>
+                    (s.structureType === STRUCTURE_SPAWN ||
                         s.structureType === STRUCTURE_EXTENSION ||
                         s.structureType === STRUCTURE_TOWER) &&
-                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-          }),
+                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+            }),
         5 // エネルギー変化が頻繁なので短いTTL
-  )
+    );
 }
 
 /**
@@ -386,19 +389,19 @@ function getStructuresNeedingEnergy (room) {
  * @param {Room} room
  * @returns {StructureContainer[]}
  */
-function getContainers (room) {
-  // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
-  if (room._containers && room._containersTick === Game.time) {
-    return room._containers
-  }
-  return get(
+function getContainers(room) {
+    // ⚡ PERFORMANCE: Prioritize fresh volatile room cache populated in main.js
+    if (room._containers && room._containersTick === Game.time) {
+        return room._containers;
+    }
+    return get(
         `containers_${room.name}`,
         () =>
-          room.find(FIND_STRUCTURES, {
-            filter: { structureType: STRUCTURE_CONTAINER }
-          }),
+            room.find(FIND_STRUCTURES, {
+                filter: { structureType: STRUCTURE_CONTAINER },
+            }),
         CACHE_TTL.STRUCTURES
-  )
+    );
 }
 
 /**
@@ -406,9 +409,9 @@ function getContainers (room) {
  * @param {Room} room
  * @returns {StructureLink[]}
  */
-function getLinks (room) {
-  // ⚡ PERFORMANCE: Leverage getMyStructures cache.
-  return getMyStructures(room, STRUCTURE_LINK)
+function getLinks(room) {
+    // ⚡ PERFORMANCE: Leverage getMyStructures cache.
+    return getMyStructures(room, STRUCTURE_LINK);
 }
 
 /**
@@ -416,8 +419,8 @@ function getLinks (room) {
  * @param {Room} room
  * @returns {StructureStorage|null}
  */
-function getStorage (room) {
-  return get(`storage_${room.name}`, () => room.storage || null, CACHE_TTL.STRUCTURES)
+function getStorage(room) {
+    return get(`storage_${room.name}`, () => room.storage || null, CACHE_TTL.STRUCTURES);
 }
 
 // ============================================================
@@ -426,22 +429,22 @@ function getStorage (room) {
 
 // ⚡ PERFORMANCE: Volatile per-tick cache for source assignments.
 // Security: Use Object.create(null) to avoid prototype pollution.
-let _sourceAssignments = Object.create(null)
-let _sourceAssignmentsTick = -1
+let _sourceAssignments = Object.create(null);
+let _sourceAssignmentsTick = -1;
 
 /**
  * 既存の割り当てられたソースを取得する
  * @param {Creep} creep
  * @returns {Source|null}
  */
-function getExistingSource (creep) {
-  if (creep.memory.sourceId) {
-    const src = Game.getObjectById(creep.memory.sourceId)
-    if (src) {
-      return src
+function getExistingSource(creep) {
+    if (creep.memory.sourceId) {
+        const src = Game.getObjectById(creep.memory.sourceId);
+        if (src) {
+            return src;
+        }
     }
-  }
-  return null
+    return null;
 }
 
 /**
@@ -449,26 +452,26 @@ function getExistingSource (creep) {
  * @param {Room} room
  * @returns {Object}
  */
-function getRoomSourceAssignments (room) {
-  // ⚡ PERFORMANCE: Use per-tick volatile cache to avoid redundant O(N) iterations.
-  if (_sourceAssignmentsTick !== Game.time) {
-    _sourceAssignments = Object.create(null)
-    _sourceAssignmentsTick = Game.time
-  }
-
-  if (!_sourceAssignments[room.name]) {
-    const assignments = Object.create(null)
-    const creeps = getMyCreeps(room)
-    for (let i = 0; i < creeps.length; i++) {
-      const c = creeps[i]
-      if (c.memory.sourceId) {
-        assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1
-      }
+function getRoomSourceAssignments(room) {
+    // ⚡ PERFORMANCE: Use per-tick volatile cache to avoid redundant O(N) iterations.
+    if (_sourceAssignmentsTick !== Game.time) {
+        _sourceAssignments = Object.create(null);
+        _sourceAssignmentsTick = Game.time;
     }
-    _sourceAssignments[room.name] = assignments
-  }
 
-  return _sourceAssignments[room.name]
+    if (!_sourceAssignments[room.name]) {
+        const assignments = Object.create(null);
+        const creeps = getMyCreeps(room);
+        for (let i = 0; i < creeps.length; i++) {
+            const c = creeps[i];
+            if (c.memory.sourceId) {
+                assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
+            }
+        }
+        _sourceAssignments[room.name] = assignments;
+    }
+
+    return _sourceAssignments[room.name];
 }
 
 /**
@@ -477,18 +480,18 @@ function getRoomSourceAssignments (room) {
  * @param {Object} assignments
  * @returns {Source|null}
  */
-function findLeastAssignedSource (sources, assignments) {
-  let bestSource = null
-  let minAssigned = Infinity
-  for (let i = 0; i < sources.length; i++) {
-    const src = sources[i]
-    const count = assignments[src.id] || 0
-    if (count < minAssigned) {
-      minAssigned = count
-      bestSource = src
+function findLeastAssignedSource(sources, assignments) {
+    let bestSource = null;
+    let minAssigned = Infinity;
+    for (let i = 0; i < sources.length; i++) {
+        const src = sources[i];
+        const count = assignments[src.id] || 0;
+        if (count < minAssigned) {
+            minAssigned = count;
+            bestSource = src;
+        }
     }
-  }
-  return bestSource
+    return bestSource;
 }
 
 /**
@@ -497,46 +500,46 @@ function findLeastAssignedSource (sources, assignments) {
  * @param {Room} room
  * @returns {Source|null}
  */
-function assignSource (creep, room) {
-  const existingSource = getExistingSource(creep)
-  if (existingSource) {
-    return existingSource
-  }
+function assignSource(creep, room) {
+    const existingSource = getExistingSource(creep);
+    if (existingSource) {
+        return existingSource;
+    }
 
-  const sources = getSources(room)
-  if (sources.length === 0) {
-    return null
-  }
+    const sources = getSources(room);
+    if (sources.length === 0) {
+        return null;
+    }
 
-  const assignments = getRoomSourceAssignments(room)
-  const bestSource = findLeastAssignedSource(sources, assignments)
+    const assignments = getRoomSourceAssignments(room);
+    const bestSource = findLeastAssignedSource(sources, assignments);
 
-  if (bestSource) {
-    creep.memory.sourceId = bestSource.id
-    // ⚡ PERFORMANCE: Update cache for immediate O(1) consistency in the same tick.
-    assignments[bestSource.id] = (assignments[bestSource.id] || 0) + 1
-  }
-  return bestSource
+    if (bestSource) {
+        creep.memory.sourceId = bestSource.id;
+        // ⚡ PERFORMANCE: Update cache for immediate O(1) consistency in the same tick.
+        assignments[bestSource.id] = (assignments[bestSource.id] || 0) + 1;
+    }
+    return bestSource;
 }
 
 module.exports = {
-  get,
-  invalidate,
-  invalidatePattern,
-  cleanup,
-  getStats,
-  isSafeKey,
-  getSources,
-  getStructures,
-  getMyStructures,
-  getMyCreeps,
-  getConstructionSites,
-  getEnemies,
-  getDroppedResources,
-  getSpawns,
-  getStructuresNeedingEnergy,
-  getContainers,
-  getLinks,
-  getStorage,
-  assignSource
-}
+    get,
+    invalidate,
+    invalidatePattern,
+    cleanup,
+    getStats,
+    isSafeKey,
+    getSources,
+    getStructures,
+    getMyStructures,
+    getMyCreeps,
+    getConstructionSites,
+    getEnemies,
+    getDroppedResources,
+    getSpawns,
+    getStructuresNeedingEnergy,
+    getContainers,
+    getLinks,
+    getStorage,
+    assignSource,
+};

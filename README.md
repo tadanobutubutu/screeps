@@ -3,7 +3,7 @@
 > Screeps AI code repository with **full automation** - no API keys required!
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-36-green)](.github/workflows)
+[![Workflows](https://img.shields.io/badge/Workflows-37-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-10-orange)](./)
 [![Lines](https://img.shields.io/badge/Lines-7175-purple)](./)
 
@@ -26,9 +26,10 @@
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (36個)
+### 📋 稼働中のワークフロー (37個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
+- **AI Conflict Resolver (Ultimate)** (`ai-conflict-resolver.yml`) - イベント駆動
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
 - **Auto Merge PRs - GraphQL Ultimate** (`auto-merge-pr.yml`) - イベント駆動
@@ -84,7 +85,7 @@
 
 - 📄 **JSファイル数**: 38
 - 📝 **総コード行数**: 7175
-- 🔄 **ワークフロー数**: 36
+- 🔄 **ワークフロー数**: 37
 - 🎭 **ロール数**: 10
 
 *最終更新: 2026-06-06*
@@ -110,7 +111,7 @@ npm install
 
 ```
 .
-├── .github/workflows/     # 自動化ワークフロー (36個)
+├── .github/workflows/     # 自動化ワークフロー (37個)
 ├── role.*.js              # クリープロール (10個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
@@ -161,4 +162,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:13:55.365Z*
+*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:25:44.721Z*

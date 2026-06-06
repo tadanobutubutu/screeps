@@ -14,7 +14,7 @@ const roleHealer = {
             }
         } else {
             // 傷ついたクリープがいない場合は防衛ポイントへ
-            const flag = Game.flags['HealPoint'];
+            const flag = Game.flags.HealPoint;
             if (flag) {
                 creep.moveTo(flag);
             } else {

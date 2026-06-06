@@ -22,19 +22,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: '24'
+          python-version: '3.10'
       
-      - name: Analyze repository and update README
-        run: node scripts/update-docs.js
+      - name: Install dependencies
+        run: pip install requests
+      
+      - name: Analyze repository and update README via AI
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 scripts/ai_update_readme.py
       
       - name: Commit updated documentation
         run: |
-          git config user.name 'Documentation Bot'
+          git config user.name 'AI Documentation Bot'
           git config user.email 'docs@screeps.local'
-          git add README.md WORKFLOWS.md repo-stats.json
+          git add README.md
           
           if ! git diff --staged --quiet; then
             TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')

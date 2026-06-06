@@ -217,7 +217,7 @@ describe('deploy.js', () => {
             // Should redact token
             expect(console.error).toHaveBeenCalledWith(
                 expect.stringContaining('[PTR] Deployment failed! Raw:'),
-                expect.stringContaining('not json error [REDACTED]=secret')
+                expect.stringContaining('not json error token=[REDACTED]')
             );
         });
 

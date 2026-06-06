@@ -1,0 +1,113 @@
+name: AI Conflict Resolver (Ultimate)
+
+on:
+  pull_request:
+    types: [synchronize, opened, reopened]
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # 次のワークフローを起動させるために BLUECAVE_TOKEN を使用
+          token: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: AI Conflict Resolution
+        env:
+          GITHUB_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "🤖 Starting AI Conflict Resolution Process..."
+          
+          # 1. コンフリクトしているPRの一覧を取得 (GraphQL)
+          QUERY='query($owner: String!, $repo: String!) {
+            repository(owner: $owner, name: $repo) {
+              pullRequests(states: OPEN, first: 20) {
+                nodes {
+                  number
+                  mergeable
+                  headRefName
+                  baseRefName
+                }
+              }
+            }
+          }'
+          OWNER=$(echo $REPO | cut -d/ -f1)
+          NAME=$(echo $REPO | cut -d/ -f2)
+          PR_DATA=$(gh api graphql -f query="$QUERY" -f owner="$OWNER" -f repo="$NAME")
+          
+          # 2. CONFLICTING な PR に対して処理を実行
+          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[] | select(.mergeable == "CONFLICTING")' | while read -r pr; do
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            HEAD=$(echo "$pr" | jq -r '.headRefName')
+            BASE=$(echo "$pr" | jq -r '.baseRefName')
+            
+            echo "----------------------------------------"
+            echo "🛠️ PR #$PR_NO ($HEAD -> $BASE) has conflicts. Resolving..."
+            
+            # ブランチをチェックアウト
+            git checkout "$HEAD"
+            git config user.name "AI Conflict Resolver"
+            git config user.email "ai-resolver@screeps.local"
+            
+            # main をマージしてコンフリクトマーカーを発生させる
+            git fetch origin "$BASE"
+            if git merge "origin/$BASE"; then
+              echo "✅ Auto-merge succeeded without AI."
+              git push origin "$HEAD"
+              continue
+            fi
+            
+            # コンフリクトしているファイルを取得
+            FILES=$(git diff --name-only --diff-filter=U)
+            for FILE in $FILES; do
+              echo "🤖 AI resolving conflicts in $FILE..."
+              CONTENT=$(cat "$FILE")
+              
+              # OpenRouter (Claude 3.5 Sonnet) に解決を依頼
+              RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+                -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "$(jq -n --arg content "$CONTENT" --arg file "$FILE" \
+                  '{
+                    model: "anthropic/claude-3.5-sonnet",
+                    messages: [
+                      {
+                        role: "system",
+                        content: "You are an expert developer. Resolve merge conflicts in the provided file. Remove all markers (<<<<<<<, =======, >>>>>>>) and integrate changes logically to maintain code integrity. Return ONLY the full file content without backticks or explanation."
+                      },
+                      {
+                        role: "user",
+                        content: ("File: " + $file + "\n\n" + $content)
+                      }
+                    ]
+                  }')")
+              
+              RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+              
+              if [ "$RESOLVED_CONTENT" != "null" ] && [ -n "$RESOLVED_CONTENT" ]; then
+                echo "$RESOLVED_CONTENT" > "$FILE"
+                git add "$FILE"
+                echo "✅ $FILE resolved."
+              else
+                echo "❌ AI failed to resolve $FILE. Response: $RESPONSE"
+                exit 1
+              fi
+            done
+            
+            # 解決した内容をコミットしてプッシュ
+            git commit -m "chore: Auto-resolve merge conflicts via AI (Claude 3.5)"
+            git push origin "$HEAD"
+            echo "🚀 Pushed resolution for PR #$PR_NO"
+          done

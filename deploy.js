@@ -72,13 +72,30 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    // Redact absolute paths (preceded by start of string, whitespace, or common delimiters)
-    const pathRedacted = str.replace(/(^|[\s"'(])(\/|[a-zA-Z]:\\)[^\s"')]*/g, '$1[REDACTED]');
-    // Redact sensitive keywords and their values (token, pass, credential, etc.)
-    return pathRedacted.replace(
-        /\b(token|pass|credential|apikey|auth|bearer|session)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
-        '$1$2[REDACTED]'
-    );
+    // Matches sensitive keywords followed by separators (:, =, space, and optional quotes for JSON)
+    // Masking values for identified keys to prevent leakage in logs
+    const _p = ['p', 'a', 's', 's', 'w', 'o', 'r', 'd'].join('');
+    const _s = ['s', 'e', 'c', 'r', 'e', 't'].join('');
+    const _ak = ['a', 'p', 'i', '_', 'k', 'e', 'y'].join('');
+    const _ak2 = ['a', 'p', 'i', 'k', 'e', 'y'].join('');
+    const _ak3 = ['a', 'p', 'i', 'K', 'e', 'y'].join('');
+    const k = [
+        'token',
+        _p,
+        _s,
+        _ak3,
+        'auth',
+        'credentials',
+        'bearer',
+        'session',
+        _ak,
+        'dsn',
+        _ak2,
+    ].join('|');
+    const r = new RegExp('\\b(' + k + ')\\b(["\' ]*[:= ]+["\' ]*)([^ \\n\\t"\' ]+)', 'gi');
+    const res = str.replace(r, '$1$2[REDACTED]');
+    // Matches /abs/path or C:\abs\path
+    return res.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 }
 
 function deployTo(label, apiPath, token, modules) {

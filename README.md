@@ -5,7 +5,7 @@
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
 [![Workflows](https://img.shields.io/badge/Workflows-36-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-10-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7289-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-7175-purple)](./)
 
 ## 🚀 特徴
 
@@ -19,7 +19,6 @@
 **現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
 
 毎時自動更新されるリアルタイムレポート：
-
 - 👤 プレイヤー情報 (GCL, CPU, Credits)
 - 🏰 所有部屋の状況
 - 🐛 クリープ統計
@@ -32,7 +31,7 @@
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
-- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - イベント駆動
+- **Auto Merge PRs - GraphQL Ultimate** (`auto-merge-pr.yml`) - イベント駆動
 - **📚 Auto Update Documentation** (`auto-update-docs.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
@@ -84,11 +83,11 @@
 ## 📈 統計情報
 
 - 📄 **JSファイル数**: 38
-- 📝 **総コード行数**: 7289
+- 📝 **総コード行数**: 7175
 - 🔄 **ワークフロー数**: 36
 - 🎭 **ロール数**: 10
 
-_最終更新: 2026-06-06_
+*最終更新: 2026-06-06*
 
 ## 🔧 セットアップ
 
@@ -140,7 +139,6 @@ npm install
 ### 🎲 ランダム実験
 
 毎週以下のいずれかを自動追加：
-
 - 📊 パフォーマンスモニター
 - 🧭 パスファインディングキャッシュ
 - 🎯 スマートスポーン優先度
@@ -163,4 +161,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-_このREADMEは自動更新されます - 最終更新: 2026-06-06T10:51:02.900Z_
+*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:11:21.419Z*

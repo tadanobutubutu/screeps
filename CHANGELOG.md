@@ -1,9 +1,11 @@
 ## [e711037] - 2026-05-30
+
 ### ⬆️(deps): Bump codecov/codecov-action from 5 to 6 (#645)
 
 Bumps
 [codecov/codecov-action](https://github.com/codecov/codecov-action) from
 5 to 6.
+
 <details>
 <summary>Release notes</summary>
 <p><em>Sourced from <a
@@ -238,7 +240,6 @@ view</a></li>
 </details>
 <br />
 
-
 [![Dependabot compatibility
 score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=codecov/codecov-action&package-manager=github_actions&previous-version=5&new-version=6)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
 
@@ -246,8 +247,8 @@ Dependabot will resolve any conflicts with this PR as long as you don't
 alter it yourself. You can also trigger a rebase manually by commenting
 `@dependabot rebase`.
 
-[//]: # (dependabot-automerge-start)
-[//]: # (dependabot-automerge-end)
+[//]: # 'dependabot-automerge-start'
+[//]: # 'dependabot-automerge-end'
 
 ---
 
@@ -256,30 +257,32 @@ alter it yourself. You can also trigger a rebase manually by commenting
 <br />
 
 You can trigger Dependabot actions by commenting on this PR:
+
 - `@dependabot rebase` will rebase this PR
 - `@dependabot recreate` will recreate this PR, overwriting any edits
-that have been made to it
+  that have been made to it
 - `@dependabot show <dependency name> ignore conditions` will show all
-of the ignore conditions of the specified dependency
+  of the ignore conditions of the specified dependency
 - `@dependabot ignore this major version` will close this PR and stop
-Dependabot creating any more for this major version (unless you reopen
-the PR or upgrade to it yourself)
+  Dependabot creating any more for this major version (unless you reopen
+  the PR or upgrade to it yourself)
 - `@dependabot ignore this minor version` will close this PR and stop
-Dependabot creating any more for this minor version (unless you reopen
-the PR or upgrade to it yourself)
+  Dependabot creating any more for this minor version (unless you reopen
+  the PR or upgrade to it yourself)
 - `@dependabot ignore this dependency` will close this PR and stop
-Dependabot creating any more for this dependency (unless you reopen the
-PR or upgrade to it yourself)
-
+  Dependabot creating any more for this dependency (unless you reopen the
+  PR or upgrade to it yourself)
 
 </details>
 Updated codecov/codecov-action GitHub Action from v5 to v6 in the CI workflow. This is a dependency update to a GitHub Action used in the testing pipeline to upload code coverage reports to Codecov. The upgrade brings support for Node.js 24 and includes security fixes, though it may require verification that the new version is compatible with the project's CI environment.
 
 ## [6400433] - 2026-05-30
+
 ### ⬆️(deps): Bump pnpm/action-setup from 4 to 6 (#642)
 
 Bumps [pnpm/action-setup](https://github.com/pnpm/action-setup) from 4
 to 6.
+
 <details>
 <summary>Release notes</summary>
 <p><em>Sourced from <a
@@ -401,7 +404,6 @@ view</a></li>
 </details>
 <br />
 
-
 [![Dependabot compatibility
 score](https://dependabot-badges.githubapp.com/badges/compatibility_score?dependency-name=pnpm/action-setup&package-manager=github_actions&previous-version=4&new-version=6)](https://docs.github.com/en/github/managing-security-vulnerabilities/about-dependabot-security-updates#about-compatibility-scores)
 
@@ -409,8 +411,8 @@ Dependabot will resolve any conflicts with this PR as long as you don't
 alter it yourself. You can also trigger a rebase manually by commenting
 `@dependabot rebase`.
 
-[//]: # (dependabot-automerge-start)
-[//]: # (dependabot-automerge-end)
+[//]: # 'dependabot-automerge-start'
+[//]: # 'dependabot-automerge-end'
 
 ---
 
@@ -419,27 +421,28 @@ alter it yourself. You can also trigger a rebase manually by commenting
 <br />
 
 You can trigger Dependabot actions by commenting on this PR:
+
 - `@dependabot rebase` will rebase this PR
 - `@dependabot recreate` will recreate this PR, overwriting any edits
-that have been made to it
+  that have been made to it
 - `@dependabot show <dependency name> ignore conditions` will show all
-of the ignore conditions of the specified dependency
+  of the ignore conditions of the specified dependency
 - `@dependabot ignore this major version` will close this PR and stop
-Dependabot creating any more for this major version (unless you reopen
-the PR or upgrade to it yourself)
+  Dependabot creating any more for this major version (unless you reopen
+  the PR or upgrade to it yourself)
 - `@dependabot ignore this minor version` will close this PR and stop
-Dependabot creating any more for this minor version (unless you reopen
-the PR or upgrade to it yourself)
+  Dependabot creating any more for this minor version (unless you reopen
+  the PR or upgrade to it yourself)
 - `@dependabot ignore this dependency` will close this PR and stop
-Dependabot creating any more for this dependency (unless you reopen the
-PR or upgrade to it yourself)
-
+  Dependabot creating any more for this dependency (unless you reopen the
+  PR or upgrade to it yourself)
 
 </details>
 
-<!-- This is an auto-generated description by cubic. -->
----
+## <!-- This is an auto-generated description by cubic. -->
+
 ## Summary by cubic
+
 Upgrade `pnpm/action-setup` from v4 to v6 in CI and weekly quality
 report workflows. Aligns the action with Node 24 and `pnpm` v11 used in
 our builds.
@@ -452,6 +455,7 @@ href="https://cubic.dev/pr/tadanobutubutu/screeps/pull/642?utm_source=github">Re
 in cubic</a>
 
 <!-- End of auto-generated description by cubic. -->
+
 Bumped pnpm/action-setup from v4 to v6 in GitHub Actions workflows (ci.yml and weekly-quality-report.yml). This is a dependency update for CI infrastructure that adds support for pnpm v11 and Node.js 24, with no changes to production code.
 
 # 📝 Changelog

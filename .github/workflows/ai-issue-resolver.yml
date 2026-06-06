@@ -2,7 +2,7 @@ name: AI Issue Resolver (Ultimate Resilience)
 
 on:
   issues:
-    types: [opened, edited]
+    types: [opened, edited, labeled]
   issue_comment:
     types: [created]
   workflow_dispatch:

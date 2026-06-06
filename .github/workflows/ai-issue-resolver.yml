@@ -18,7 +18,6 @@ permissions:
 
 jobs:
   solve:
-    # 実行条件: PRではないIssueであること、かつ (手動起動 または 特定のコメント または ラベル)
     if: |
       github.event.issue.pull_request == null && 
       (github.event_name == 'workflow_dispatch' || 
@@ -29,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0 # 全履歴を取得
 
       - name: AI Solve Process
         env:
@@ -37,7 +36,6 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
           ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number }}
-          REPO: ${{ github.repository }}
         run: |
           echo "🤖 Starting AI Issue Resolution Process..."
           
@@ -47,97 +45,95 @@ jobs:
           BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
           COMMENTS=$(echo "$ISSUE_DATA" | jq -r '.comments[].body')
           
-          # 2. コードベースの概要を取得（ファイル一覧）
-          FILE_TREE=$(find . -maxdepth 2 -not -path '*/.*')
+          echo "📌 Issue #$ISSUE_NUMBER: $TITLE"
+
+          # 2. 関連ファイルの検索 (Keyword Search)
+          KEYWORDS=$(echo "$TITLE $BODY" | tr -c '[:alnum:]' ' ' | tr '[:upper:]' '[:lower:]' | xargs -n1 | grep -vE '^(the|and|is|to|in|at|of|please|add|create)$' | sort -u | head -n 5)
+          echo "🔍 Searching for keywords: $KEYWORDS"
+          SEARCH_RESULTS=""
+          for kw in $KEYWORDS; do
+            [ ${#kw} -lt 3 ] && continue
+            FILES=$(grep -rl "$kw" . --exclude-dir=".git" --exclude-dir="node_modules" | head -n 3)
+            for f in $FILES; do
+              SEARCH_RESULTS="$SEARCH_RESULTS\n\n--- File: $f ---\n$(head -n 50 "$f")"
+            done
+          done
+
+          # 3. AIプロンプトの構築 (より詳細な文脈を付与)
+          PROMPT="You are a world-class AI developer. Solve this GitHub Issue.
           
-          # 3. AIプロンプトの構築
-          PROMPT="You are an expert AI software engineer. 
-          Solve the following GitHub Issue in the current repository.
+          Issue: #$ISSUE_NUMBER
+          Title: $TITLE
+          Body: $BODY
+          Comments: $COMMENTS
           
-          Issue Title: $TITLE
-          Issue Body: $BODY
-          Additional Comments: $COMMENTS
+          Context from Codebase (Sample):
+          $SEARCH_RESULTS
           
-          Current File Tree:
-          $FILE_TREE
-          
-          Task:
-          1. Analyze the issue.
-          2. Propose changes to solve it.
-          3. Return a JSON array of objects, each with 'path' (file path) and 'content' (FULL new content of the file).
-          
-          Example Output Format:
-          [
-            { \"path\": \"src/example.js\", \"content\": \"... full content ...\" }
-          ]
-          
-          Return ONLY the JSON array. No explanations, no backticks."
+          Instructions:
+          - Propose a fix by creating/modifying files.
+          - Respond ONLY with a valid JSON array of objects: [{\"path\": \"filepath\", \"content\": \"full_content\"}]
+          - Do not use markdown blocks.
+          - If you cannot solve it, return an empty array []."
 
           RESOLVED_JSON=""
           
-          # --- AI Providers (Resilient Fallback) ---
-          # Strategy 1: Gemini Direct
+          # AI Provider Strategy 1: Gemini Direct (Fixed Endpoint)
           if [ -n "$GEMINI_API_KEY" ]; then
-            echo "☁️ Calling Gemini Direct..."
+            echo "☁️ Calling Gemini API..."
             RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
               -H "Content-Type: application/json" \
               -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
             RESOLVED_JSON=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
           fi
           
-          # Strategy 2: OpenRouter (Claude 3.5 Sonnet)
-          if [ -z "$RESOLVED_JSON" ] || [ "$RESOLVED_JSON" = "null" ] && [ -n "$OPENROUTER_TOKEN" ]; then
-            echo "☁️ Calling OpenRouter..."
-            RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-              -H "Authorization: Bearer $OPENROUTER_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "$(jq -n --arg p "$PROMPT" '{model: "anthropic/claude-3.5-sonnet", messages: [{role: "user", content: $p}]}')")
-            RESOLVED_JSON=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
+          # AI Provider Strategy 2: OpenRouter (Gemma 2 9B FREE)
+          if [ -z "$RESOLVED_JSON" ] || [ "$RESOLVED_JSON" = "null" ] || [ "$RESOLVED_JSON" = "" ]; then
+             if [ -n "$OPENROUTER_TOKEN" ]; then
+                echo "☁️ Calling OpenRouter (Gemma 2 Free)..."
+                RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemma-2-9b-it:free", messages: [{role: "user", content: $p}]}')")
+                RESOLVED_JSON=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
+             fi
           fi
 
-          # Strategy 3: Pollinations AI (FREE)
-          if [ -z "$RESOLVED_JSON" ] || [ "$RESOLVED_JSON" = "null" ]; then
-            echo "☁️ Calling Pollinations AI (Free)..."
-            # Use reliable POST with model selection
-            RESOLVED_JSON=$(curl -s -X POST "https://text.pollinations.ai/" \
-              -H "Content-Type: application/json" \
-              -d "$(jq -n --arg p "$PROMPT" '{messages: [{role: "user", content: $p}], model: "openai"}')")
+          # AI Provider Strategy 3: Pollinations AI (POST / Simple)
+          if [ -z "$RESOLVED_JSON" ] || [ "$RESOLVED_JSON" = "null" ] || [ "$RESOLVED_JSON" = "" ]; then
+            echo "☁️ Calling Pollinations AI..."
+            RESOLVED_JSON=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "[]")
           fi
           
-          echo "📝 RAW AI Response: $RESOLVED_JSON"
+          echo "📝 RAW AI Response Length: ${#RESOLVED_JSON}"
           
-          # JSONのクリーンアップ
-          CLEAN_JSON=$(echo "$RESOLVED_JSON" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d')
-          echo "📝 CLEANED AI JSON: $CLEAN_JSON"
+          # クリーンアップ
+          CLEAN_JSON=$(echo "$RESOLVED_JSON" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d' | tr -d '\r')
           
-          # 4. 変更の適用
-          if echo "$CLEAN_JSON" | jq -e '. | is_array' > /dev/null 2>&1; then
-            BRANCH_NAME="ai-solve-issue-$ISSUE_NUMBER"
+          # 4. 実行
+          if echo "$CLEAN_JSON" | jq -e '. | is_array and length > 0' > /dev/null 2>&1; then
+            BRANCH_NAME="ai-fix-$ISSUE_NUMBER-$(date +%s)"
             git checkout -b "$BRANCH_NAME"
-            
             echo "$CLEAN_JSON" | jq -c '.[]' | while read -r change; do
-              PATH_TO_FILE=$(echo "$change" | jq -r '.path')
-              NEW_CONTENT=$(echo "$change" | jq -r '.content')
-              
-              mkdir -p "$(dirname "$PATH_TO_FILE")"
-              echo "$NEW_CONTENT" > "$PATH_TO_FILE"
-              echo "✅ Applied changes to $PATH_TO_FILE"
+              P=$(echo "$change" | jq -r '.path')
+              C=$(echo "$change" | jq -r '.content')
+              mkdir -p "$(dirname "$P")"
+              echo "$C" > "$P"
+              echo "✅ Modified $P"
             done
             
-            # 5. コミットとPR作成
-            git config user.name "AI Issue Resolver"
-            git config user.email "ai-resolver@screeps.local"
+            git config user.name "AI Resolver"
+            git config user.email "ai@screeps.local"
             git add .
-            git commit -m "fix: AI-generated solution for Issue #$ISSUE_NUMBER"
-            git push origin "$BRANCH_NAME" --force
+            git commit -m "fix: AI resolution for #$ISSUE_NUMBER"
+            git push origin "$BRANCH_NAME"
             
-            gh pr create --title "AI Solution for Issue #$ISSUE_NUMBER" \
-                         --body "This PR was automatically generated by AI to solve Issue #$ISSUE_NUMBER. 
-                         Closes #$ISSUE_NUMBER" \
-                         --base main --head "$BRANCH_NAME"
-            
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI has generated a solution and created a PR. This issue will be closed automatically when the PR is merged."
+            gh pr create --title "AI Solution for #$ISSUE_NUMBER" \
+                         --body "Automated fix for #$ISSUE_NUMBER. Closes #$ISSUE_NUMBER" \
+                         --head "$BRANCH_NAME" --base main
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI has proposed a fix in a new PR. Check the linked PR above."
           else
-            echo "❌ AI failed to provide a valid JSON solution."
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI analysis complete: Could not generate a valid code fix for this issue automatically. Please check the logs."
+            echo "⚠️ No valid fix generated."
+            # マージ済みのPRやクローズ済みのIssueでなければコメント
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not generate an automated fix for this issue. Manual intervention required."
           fi

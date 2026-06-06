@@ -7,6 +7,7 @@ const cache = require('../src/utils/cache');
 
 describe('Security: Cache Hardening', () => {
     beforeEach(() => {
+        cache.reset();
         global.Game = {
             time: 100,
         };

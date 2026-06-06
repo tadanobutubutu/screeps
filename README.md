@@ -29,7 +29,7 @@
 ### 📋 稼働中のワークフロー (37個)
 
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
-- **AI Conflict Resolver (Ultimate)** (`ai-conflict-resolver.yml`) - イベント駆動
+- **AI Conflict Resolver (Ultimate Resilience)** (`ai-conflict-resolver.yml`) - イベント駆動
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
 - **Auto Merge PRs - GraphQL Ultimate** (`auto-merge-pr.yml`) - イベント駆動
@@ -162,4 +162,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:46:38.591Z*
+*このREADMEは自動更新されます - 最終更新: 2026-06-06T11:52:00.820Z*

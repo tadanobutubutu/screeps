@@ -90,13 +90,17 @@ jobs:
           # Strategy 3: Pollinations AI (FREE)
           if [ -z "$RESOLVED_JSON" ] || [ "$RESOLVED_JSON" = "null" ]; then
             echo "☁️ Calling Pollinations AI (Free)..."
+            # Use reliable POST with model selection
             RESOLVED_JSON=$(curl -s -X POST "https://text.pollinations.ai/" \
               -H "Content-Type: application/json" \
               -d "$(jq -n --arg p "$PROMPT" '{messages: [{role: "user", content: $p}], model: "openai"}')")
           fi
           
-          # JSONのクリーンアップ（もしバックティックス等が含まれていれば削除）
-          CLEAN_JSON=$(echo "$RESOLVED_JSON" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d')
+          echo "📝 RAW AI Response: $RESOLVED_JSON"
+          
+          # JSONのクリーンアップ
+          CLEAN_JSON=$(echo "$RESOLVED_JSON" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d')
+          echo "📝 CLEANED AI JSON: $CLEAN_JSON"
           
           # 4. 変更の適用
           if echo "$CLEAN_JSON" | jq -e '. | is_array' > /dev/null 2>&1; then

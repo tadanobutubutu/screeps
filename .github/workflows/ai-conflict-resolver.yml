@@ -23,10 +23,10 @@ jobs:
       - name: AI Conflict Resolution
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           REPO: ${{ github.repository }}
         run: |
-          echo "🤖 Starting AI Conflict Resolution Process..."
+          echo "🤖 Starting AI Conflict Resolution Process (Gemini)..."
           
           # 1. コンフリクトしているPRの一覧を取得 (GraphQL)
           QUERY='query($owner: String!, $repo: String!) {
@@ -50,9 +50,6 @@ jobs:
             echo "❌ Failed to fetch PR data."
             exit 1
           fi
-          
-          echo "✅ PR Data received."
-          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]'
           
           # 2. CONFLICTING な PR に対して処理を実行
           echo "🔍 Filtering for CONFLICTING PRs..."
@@ -83,29 +80,27 @@ jobs:
               echo "🤖 AI resolving conflicts in $FILE..."
               CONTENT=$(cat "$FILE")
               
-              # OpenRouter (Claude 3.5 Sonnet) に解決を依頼
-              RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-                -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+              # Gemini 1.5 Flash API 呼び出し
+              RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
                 -H "Content-Type: application/json" \
                 -d "$(jq -n --arg content "$CONTENT" --arg file "$FILE" \
                   '{
-                    model: "anthropic/claude-3.5-sonnet",
-                    messages: [
-                      {
-                        role: "system",
-                        content: "You are an expert developer. Resolve merge conflicts in the provided file. Remove all markers (<<<<<<<, =======, >>>>>>>) and integrate changes logically to maintain code integrity. Return ONLY the full file content without backticks or explanation."
-                      },
-                      {
-                        role: "user",
-                        content: ("File: " + $file + "\n\n" + $content)
-                      }
-                    ]
+                    contents: [{
+                      parts: [{
+                        text: ("You are an expert developer. Resolve merge conflicts in the provided file. Remove all markers (<<<<<<<, =======, >>>>>>>) and integrate changes logically. Return ONLY the full file content without backticks or markdown formatting.\n\nFile: " + $file + "\n\n" + $content)
+                      }]
+                    }],
+                    generationConfig: {
+                      temperature: 0.1
+                    }
                   }')")
               
-              RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+              RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
               
               if [ "$RESOLVED_CONTENT" != "null" ] && [ -n "$RESOLVED_CONTENT" ]; then
-                echo "$RESOLVED_CONTENT" > "$FILE"
+                # backticks を削除 (Geminiがつけてしまった場合用)
+                CLEAN_CONTENT=$(echo "$RESOLVED_CONTENT" | sed '1{/^```/d;};${/^```/d;}')
+                echo "$CLEAN_CONTENT" > "$FILE"
                 git add "$FILE"
                 echo "✅ $FILE resolved."
               else
@@ -115,7 +110,7 @@ jobs:
             done
             
             # 解決した内容をコミットしてプッシュ
-            git commit -m "chore: Auto-resolve merge conflicts via AI (Claude 3.5)"
+            git commit -m "chore: Auto-resolve merge conflicts via AI (Gemini 1.5)"
             git push origin "$HEAD"
             echo "🚀 Pushed resolution for PR #$PR_NO"
           done

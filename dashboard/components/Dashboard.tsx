@@ -168,7 +168,9 @@ export default function Dashboard() {
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
                 stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
-                timeToLevel ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}` : '',
+                timeToLevel
+                    ? `⏳ ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`
+                    : '',
             ]
                 .filter(Boolean)
                 .join(' | ');
@@ -439,6 +441,9 @@ export default function Dashboard() {
                     {stats && (
                         <button
                             onClick={handleCopySummary}
+                            onKeyDown={(e) =>
+                                (e.key === 'Enter' || e.key === ' ') && handleCopySummary()
+                            }
                             onFocus={() => setIsSummaryFocused(true)}
                             onBlur={() => {
                                 setIsSummaryFocused(false);
@@ -475,6 +480,9 @@ export default function Dashboard() {
                     {stats?.rooms && (
                         <button
                             onClick={handleCopyRooms}
+                            onKeyDown={(e) =>
+                                (e.key === 'Enter' || e.key === ' ') && handleCopyRooms()
+                            }
                             onFocus={() => setIsRoomFocused(true)}
                             onBlur={() => setIsRoomFocused(false)}
                             className="interactive-hint"
@@ -544,6 +552,9 @@ export default function Dashboard() {
                     {lastUpdated && (
                         <button
                             onClick={() => fetchStats(true)}
+                            onKeyDown={(e) =>
+                                (e.key === 'Enter' || e.key === ' ') && fetchStats(true)
+                            }
                             onFocus={() => setIsSyncFocused(true)}
                             onBlur={() => setIsSyncFocused(false)}
                             className="interactive-hint"
@@ -582,6 +593,9 @@ export default function Dashboard() {
                     )}
                     <button
                         onClick={handleResetSecret}
+                        onKeyDown={(e) =>
+                            (e.key === 'Enter' || e.key === ' ') && handleResetSecret()
+                        }
                         onFocus={() => setIsResetFocused(true)}
                         onBlur={() => {
                             setIsResetFocused(false);
@@ -646,6 +660,7 @@ export default function Dashboard() {
                     </button>
                     <button
                         onClick={() => fetchStats(true)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
                         onFocus={() => setIsRefreshFocused(true)}
                         onBlur={() => setIsRefreshFocused(false)}
                         disabled={loading || isRefreshing}
@@ -861,6 +876,7 @@ export default function Dashboard() {
                     </div>
                     <button
                         onClick={() => fetchStats(true)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && fetchStats(true)}
                         onFocus={() => setIsRetryFocused(true)}
                         onBlur={() => setIsRetryFocused(false)}
                         disabled={loading || isRefreshing}
@@ -1028,7 +1044,11 @@ export default function Dashboard() {
                                             }}
                                             aria-label={`CPU Used: ${stats.cpuUsed.toLocaleString()}${cpuDelta !== 0 ? ` (${cpuDelta > 0 ? 'Increased' : 'Decreased'} by ${Math.abs(cpuDelta).toLocaleString()})` : ''}`}
                                         >
-                                            <span role="img" aria-label="CPU Used" aria-hidden="true">
+                                            <span
+                                                role="img"
+                                                aria-label="CPU Used"
+                                                aria-hidden="true"
+                                            >
                                                 📊
                                             </span>{' '}
                                             CPU: {stats.cpuUsed.toLocaleString()}
@@ -1204,7 +1224,9 @@ export default function Dashboard() {
                                 {(stats.gcl.progressTotal - stats.gcl.progress).toLocaleString()}{' '}
                                 remaining
                                 {formattedXpPerHour && ` • ${formattedXpPerHour}`}
-                                {timeToLevel && ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`})
+                                {timeToLevel &&
+                                    ` • est. ${formatDuration(timeToLevel)} to level${eta ? ` (ETA: ${eta})` : ''}`}
+                                )
                             </div>
                         </section>
                     );
@@ -1242,6 +1264,9 @@ export default function Dashboard() {
                         >
                             <button
                                 onClick={handleCopySummary}
+                                onKeyDown={(e) =>
+                                    (e.key === 'Enter' || e.key === ' ') && handleCopySummary()
+                                }
                                 onFocus={() => setIsSummaryFocused(true)}
                                 onBlur={() => setIsSummaryFocused(false)}
                                 aria-label={summaryCopied ? 'Summary copied' : 'Copy summary'}
@@ -1268,6 +1293,9 @@ export default function Dashboard() {
                             </button>
                             <button
                                 onClick={handleCopy}
+                                onKeyDown={(e) =>
+                                    (e.key === 'Enter' || e.key === ' ') && handleCopy()
+                                }
                                 onFocus={() => setIsCopyFocused(true)}
                                 onBlur={() => setIsCopyFocused(false)}
                                 aria-label={copied ? 'Stats copied' : 'Copy stats as JSON'}
@@ -1297,6 +1325,7 @@ export default function Dashboard() {
                         {/* 🎨 Palette: JSONブロックをクリック可能にし、コピー体験を向上させる */}
                         <pre
                             onClick={handleCopy}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
                             onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleCopy()}
                             aria-label={
                                 copied
@@ -1350,6 +1379,9 @@ export default function Dashboard() {
                             </p>
                             <button
                                 onClick={() => fetchStats(true)}
+                                onKeyDown={(e) =>
+                                    (e.key === 'Enter' || e.key === ' ') && fetchStats(true)
+                                }
                                 disabled={loading || isRefreshing}
                                 aria-label={
                                     updated

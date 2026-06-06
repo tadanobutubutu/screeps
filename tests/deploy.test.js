@@ -200,7 +200,7 @@ describe('deploy.js', () => {
             const mockRes = {
                 statusCode: 500,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data') callback('not json error token=secret');
+                    if (event === 'data') callback('not json error token=value');
                     if (event === 'end') callback();
                 }),
             };
@@ -217,7 +217,7 @@ describe('deploy.js', () => {
             // Should redact token
             expect(console.error).toHaveBeenCalledWith(
                 expect.stringContaining('[PTR] Deployment failed! Raw:'),
-                expect.stringContaining('not json error [REDACTED]=secret')
+                expect.stringContaining('not json error token=[REDACTED]')
             );
         });
 

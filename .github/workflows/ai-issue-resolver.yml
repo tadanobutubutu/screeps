@@ -8,11 +8,6 @@ on:
   issue_comment:
     types: [created]
   workflow_dispatch:
-    inputs:
-      issue_number:
-        description: 'Issue number to solve'
-        required: true
-        default: '824'
 
 permissions:
   contents: write
@@ -21,13 +16,6 @@ permissions:
 
 jobs:
   solve:
-    # 実行条件: PRではないIssueであること、かつ (手動起動 または 特定のコメント または ラベル または PUSH)
-    if: |
-      (github.event_name == 'push') || (
-      github.event.issue.pull_request == null && 
-      (github.event_name == 'workflow_dispatch' || 
-       contains(github.event.issue.labels.*.name, 'ai-solve') ||
-       contains(github.event.comment.body, '@ai solve')))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,7 +36,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.inputs.issue_number || github.event.issue.number || '824' }}
+          # デフォルトは824番のIssueを対象にする
+          ISSUE_NUMBER: ${{ github.event.issue.number || '824' }}
         run: |
           echo "🤖 Starting AI Issue Resolution (DuckDuckGo AI)..."
           
@@ -64,10 +53,9 @@ jobs:
           Title: $TITLE
           Body: $BODY
           Comments: $COMMENTS
-          Existing Files: $FILES
+          Files: $FILES
           
-          Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]
-          No markdown. No talk. Just JSON."
+          Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]"
 
           # 3. DuckDuckGo AI Script
           cat << 'EOF' > ddg_ai.py
@@ -129,5 +117,4 @@ EOF
             gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in new PR using GPT-4o-mini (Free)."
           else
             echo "❌ No fix generated."
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not generate an automated fix."
           fi

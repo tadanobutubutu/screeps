@@ -72,38 +72,50 @@ jobs:
             for FILE in $FILES; do
               echo "🤖 AI resolving $FILE..."
               CONTENT=$(cat "$FILE")
-              PROMPT="Resolve merge conflicts in this JavaScript/TypeScript file. Return ONLY the resolved content. No backticks. File: $FILE\n\n$CONTENT"
+              # 文字列をエスケープ
+              ESCAPED_CONTENT=$(jq -Rs . <<< "$CONTENT")
               
-              # Fallback 形式で AI を呼び出し
+              PROMPT="Resolve merge conflicts in this JavaScript/TypeScript file. Return ONLY the resolved content. No backticks or explanations. Integrate changes logically.\n\nFile: $FILE\n\nContent:\n$CONTENT"
+              
               RESOLVED_CONTENT="null"
               
-              # Try OpenRouter first (Google Gemini Flash - cheap and reliable)
-              if [ -n "$OPENROUTER_TOKEN" ]; then
-                echo "☁️ Calling OpenRouter (Gemini Flash)..."
+              # 1. Try Gemini Direct (v1beta/gemini-1.5-flash) - もし404なら別モデル
+              if [ -n "$GEMINI_API_KEY" ]; then
+                echo "☁️ Trying Gemini API (1.5 Flash)..."
+                RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
+                  -H "Content-Type: application/json" \
+                  -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
+                
+                RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "null")
+                
+                if [ "$RESOLVED_CONTENT" = "null" ]; then
+                   echo "☁️ Trying Gemini API (gemini-pro fallback)..."
+                   RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$GEMINI_API_KEY" \
+                     -H "Content-Type: application/json" \
+                     -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
+                   RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "null")
+                fi
+              fi
+              
+              # 2. Try OpenRouter as fallback
+              if [ "$RESOLVED_CONTENT" = "null" ] && [ -n "$OPENROUTER_TOKEN" ]; then
+                echo "☁️ Trying OpenRouter (Auto fallback)..."
+                # 特定のモデルに固執せず、動作する可能性が高いものを選択
                 RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
                   -H "Authorization: Bearer $OPENROUTER_TOKEN" \
                   -H "Content-Type: application/json" \
                   -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemini-flash-1.5", messages: [{role: "user", content: $p}]}')")
-                RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
-              fi
-              
-              # Try Gemini Direct as second option
-              if [ "$RESOLVED_CONTENT" = "null" ] && [ -n "$GEMINI_API_KEY" ]; then
-                echo "☁️ Calling Gemini API Direct..."
-                # v1 エンドポイントを使用
-                RESPONSE=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
-                  -H "Content-Type: application/json" \
-                  -d "{ \"contents\": [{\"parts\": [{\"text\": \"$PROMPT\"}]}] }")
-                RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+                RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content' 2>/dev/null || echo "null")
               fi
               
               if [ "$RESOLVED_CONTENT" != "null" ] && [ -n "$RESOLVED_CONTENT" ]; then
+                # Clean markdown
                 CLEAN=$(echo "$RESOLVED_CONTENT" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d')
                 echo "$CLEAN" > "$FILE"
                 git add "$FILE"
                 echo "✅ $FILE resolved."
               else
-                echo "❌ All AI providers failed for $FILE."
+                echo "❌ All AI providers failed for $FILE. Full last response for debug: $RESPONSE"
                 git merge --abort
                 continue 2
               fi

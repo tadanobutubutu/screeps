@@ -1,4 +1,4 @@
-import os, sys, requests, json, subprocess, time
+import os, sys, json, subprocess, time, urllib.request, urllib.parse
 
 def comment(issue_no, body):
     subprocess.run(["gh", "issue", "comment", str(issue_no), "--body", f"🤖 AI Debug Info:\n{body}"])
@@ -10,70 +10,46 @@ def main():
     body = os.environ.get("ISSUE_BODY")
     key = os.environ.get("GEMINI_API_KEY")
     
-    print(f"DEBUG: ISSUE_NUMBER={issue_no}, TITLE_PRESENT={'Yes' if title else 'No'}")
-    
-    if not issue_no:
-        print("❌ No ISSUE_NUMBER.")
-        return
+    if not issue_no: return
 
-    if not title or not body:
-        print("🔍 Fetching context via gh...")
-        try:
-            res = subprocess.run(["gh", "issue", "view", str(issue_no), "--json", "title,body,comments"], capture_output=True, text=True)
-            if res.returncode == 0:
-                ctx = json.loads(res.stdout)
-                title = ctx['title']
-                body = ctx['body']
-                print("✅ Context fetched.")
-            else:
-                print(f"❌ gh error: {res.stderr}")
-        except Exception as e:
-            print(f"❌ Error: {e}")
+    prompt = f"Solve issue: {title}. Body: {body}. Respond ONLY with JSON array: [{{'path': 'file', 'content': 'content'}}]"
 
-    if not title:
-        comment(issue_no, "Failed to get issue title/body.")
-        return
-
-    # 1. Build Prompt (Simplified)
-    prompt = f"Solve GitHub Issue #{issue_no}: {title}\nBody: {body}\nRespond ONLY with a JSON array: [{{'path': 'file', 'content': 'content'}}]"
-
-    # 2. Strategy: Pollinations AI (Reliable)
+    # Strategy: Pollinations via URLLIB (GET)
     result = ""
-    for model in ["openai", "mistral"]:
-        print(f"☁️ Trying Pollinations ({model})...")
-        try:
-            r = requests.post("https://text.pollinations.ai/", json={"messages": [{"role": "user", "content": prompt}], "model": model}, timeout=60)
-            if r.status_code == 200 and "[" in r.text:
-                result = r.text
-                print(f"✅ AI responded using {model}.")
-                break
-        except: continue
+    try:
+        print("☁️ Trying Pollinations (GET)...")
+        encoded = urllib.parse.quote(prompt)
+        url = f"https://text.pollinations.ai/{encoded}?model=openai"
+        with urllib.request.urlopen(url, timeout=30) as f:
+            result = f.read().decode('utf-8')
+            print("✅ Received Response.")
+    except Exception as e:
+        print(f"⚠️ GET Failed: {e}")
 
     if not result or "[" not in result:
-        # Fallback to Gemini Direct if available
+        # Try Gemini Direct
         if key:
-            print("☁️ Trying Gemini v1beta...")
+            print("☁️ Trying Gemini...")
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+            payload = json.dumps({"contents": [{"parts": [{"text": prompt}]}]}).encode('utf-8')
             try:
-                r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
-                if r.status_code == 200:
-                    result = r.json()['candidates'][0]['content']['parts'][0]['text']
-                    print("✅ Gemini responded.")
-            except: pass
+                req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req, timeout=30) as f:
+                    res_json = json.loads(f.read().decode('utf-8'))
+                    result = res_json['candidates'][0]['content']['parts'][0]['text']
+                    print("✅ Received Gemini Response.")
+            except Exception as e:
+                print(f"⚠️ Gemini Failed: {e}")
 
     if not result or "[" not in result:
-        comment(issue_no, "AI failed to generate a valid JSON solution.")
+        comment(issue_no, f"AI providers failed. RAW: {result[:50]}")
         return
 
-    # 3. Parse and Apply
+    # Clean
     clean = result.strip()
     if "```" in clean:
-        parts = clean.split("```")
-        for p in parts:
-            if "[" in p and "]" in p:
-                clean = p
-                if clean.startswith("json"): clean = clean[4:]
-                break
+        clean = clean.split("```")[1]
+        if clean.startswith("json"): clean = clean[4:]
     
     try:
         changes = json.loads(clean)
@@ -82,18 +58,15 @@ def main():
         for c in changes:
             os.makedirs(os.path.dirname(c['path']) or '.', exist_ok=True)
             with open(c['path'], "w") as f: f.write(c['content'])
-            print(f"✅ Applied change to {c['path']}")
-        
         subprocess.run(["git", "config", "user.name", "AI Solver"])
         subprocess.run(["git", "config", "user.email", "ai@screeps.local"])
         subprocess.run(["git", "add", "."])
         subprocess.run(["git", "commit", "-m", f"fix: AI resolve #{issue_no}"])
         subprocess.run(["git", "push", "origin", branch])
-        subprocess.run(["gh", "pr", "create", "--title", f"AI Fix for #{issue_no}", "--body", f"Closes #{issue_no}", "--head", branch, "--base", "main"])
-        subprocess.run(["gh", "issue", "close", str(issue_no), "--comment", "🤖 AI fix proposed. PR created and issue closed."])
-        print("🚀 Success!")
+        subprocess.run(["gh", "pr", "create", "--title", f"AI Fix #{issue_no}", "--body", f"Closes #{issue_no}", "--head", branch, "--base", "main"])
+        subprocess.run(["gh", "issue", "close", str(issue_no), "--comment", "✅ AI fixed it! PR created."])
     except Exception as e:
-        comment(issue_no, f"Error during parsing/applying: {e}\nRaw output start: {result[:200]}")
+        comment(issue_no, f"Final Error: {e}\nOutput: {result[:200]}")
 
 if __name__ == "__main__":
     main()

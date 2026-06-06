@@ -88,7 +88,7 @@ describe('Sentinel: Comprehensive Log Redaction Hardening', () => {
     describe('utils.logging.js hardening', () => {
         test('log() should redact absolute paths for all levels', () => {
             const levels = ['debug', 'info', 'warn', 'error'];
-            levels.forEach(level => {
+            levels.forEach((level) => {
                 utilsLogging.log(level, `Path: ${unixPath}`);
                 const lastLog = Memory.logs[Memory.logs.length - 1];
                 expect(lastLog.message).not.toContain(unixPath);

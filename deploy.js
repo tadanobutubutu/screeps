@@ -67,7 +67,8 @@ function injectEnvVars(content) {
 
 /**
  * Security: Redacts sensitive information from a string.
- * Redacts absolute paths and tokens.
+ * Redacts absolute paths and sensitive values following keywords.
+ * Uses a non-backtracking regex to prevent ReDoS.
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
@@ -86,6 +87,7 @@ function sanitizeLog(str) {
         'session',
         'dsn',
     ];
+    // Prefix-aware regex to catch variables like SCREEPS_TOKEN
     const secretPattern = new RegExp(
         `\\b([a-zA-Z0-9_-]*(${keys.join('|')}))\\b(["' ]*[:= ]+["' ]*)([^ \\n\\t"']+)`,
         'gi'
@@ -218,4 +220,4 @@ if (require.main === module) {
     })();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars };
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };

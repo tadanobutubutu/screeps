@@ -56,6 +56,34 @@ function run(creep) {
 // ============================================================
 
 /**
+ * ルーム内の各ソースへのマイナー割り当て状況を返す
+ * @param {Room} room
+ * @returns {Object.<string, number>} sourceId → マイナー数
+ */
+function getMinerAssignments(room) {
+    const assignments = Object.create(null);
+    const sources = cache.getSources(room);
+
+    for (let i = 0; i < sources.length; i++) {
+        assignments[sources[i].id] = 0;
+    }
+
+    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
+    const creeps = cache.getMyCreeps(room);
+    for (let i = 0; i < creeps.length; i++) {
+        const creep = creeps[i];
+        if (creep.memory.role === 'miner' && creep.memory[MEMORY_KEYS.SOURCE_ID]) {
+            const sid = creep.memory[MEMORY_KEYS.SOURCE_ID];
+            if (cache.isSafeKey(sid) && assignments[sid] !== undefined) {
+                assignments[sid]++;
+            }
+        }
+    }
+
+    return assignments;
+}
+
+/**
  * クリープに割り当てられたソースを返す
  * メモリに sourceId がなければルーム内で最も採掘者の少ないソースを選ぶ
  * @param {Creep} creep
@@ -76,20 +104,24 @@ function _getAssignedSource(creep) {
     }
 
     // マイナーの割り当てカウント
-    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
-    const minerCounts = Object.create(null);
-    const creeps = cache.getMyCreeps(creep.room);
-    for (let i = 0; i < creeps.length; i++) {
-        const c = creeps[i];
-        if (c.memory.role === 'miner' && c.memory[MEMORY_KEYS.SOURCE_ID]) {
-            const sid = c.memory[MEMORY_KEYS.SOURCE_ID];
-            if (cache.isSafeKey(sid)) {
-                minerCounts[sid] = (minerCounts[sid] || 0) + 1;
-            }
-        }
-    }
+    const minerCounts = getMinerAssignments(creep.room);
 
     // 最も採掘者が少ないソースに割り当て
+    const bestSource = _findBestSource(sources, minerCounts);
+
+    if (bestSource) {
+        creep.memory[MEMORY_KEYS.SOURCE_ID] = bestSource.id;
+    }
+
+    return bestSource;
+}
+
+/**
+ * @param {Source[]} sources
+ * @param {Object.<string, number>} minerCounts
+ * @returns {Source|null}
+ */
+function _findBestSource(sources, minerCounts) {
     let bestSource = null;
     let minCount = Infinity;
     for (const src of sources) {
@@ -108,11 +140,6 @@ function _getAssignedSource(creep) {
     if (!bestSource && sources.length > 0) {
         bestSource = sources[0]; // フォールバック
     }
-
-    if (bestSource) {
-        creep.memory[MEMORY_KEYS.SOURCE_ID] = bestSource.id;
-    }
-
     return bestSource;
 }
 
@@ -267,33 +294,5 @@ function getBody(energy) {
 // ============================================================
 // ユーティリティ
 // ============================================================
-
-/**
- * ルーム内の各ソースへのマイナー割り当て状況を返す
- * @param {Room} room
- * @returns {Object.<string, number>} sourceId → マイナー数
- */
-function getMinerAssignments(room) {
-    const assignments = Object.create(null);
-    const sources = cache.getSources(room);
-
-    for (let i = 0; i < sources.length; i++) {
-        assignments[sources[i].id] = 0;
-    }
-
-    // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache and standard for loop to avoid global Game.creeps iteration.
-    const creeps = cache.getMyCreeps(room);
-    for (let i = 0; i < creeps.length; i++) {
-        const creep = creeps[i];
-        if (creep.memory.role === 'miner' && creep.memory[MEMORY_KEYS.SOURCE_ID]) {
-            const sid = creep.memory[MEMORY_KEYS.SOURCE_ID];
-            if (cache.isSafeKey(sid) && assignments[sid] !== undefined) {
-                assignments[sid]++;
-            }
-        }
-    }
-
-    return assignments;
-}
 
 module.exports = { run, getBody, getMinerAssignments, showMiningVisual };

@@ -39,65 +39,71 @@ jobs:
         run: |
           echo "🤖 Starting AI Issue Resolution..."
           
-          # 1. Fetch Issue Context
+          # 1. Fetch Context
           ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,comments)
           TITLE=$(echo "$ISSUE_DATA" | jq -r '.title')
           BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
           COMMENTS=$(echo "$ISSUE_DATA" | jq -r '.comments[].body')
-          
-          # 2. File Context
           FILES=$(find . -maxdepth 2 -not -path '*/.*' | head -n 20)
           
-          # 3. Build Prompt
+          # 2. Build Prompt
           PROMPT="Solve this GitHub Issue.
           Title: $TITLE
           Body: $BODY
           Comments: $COMMENTS
           Files: $FILES
           
-          Respond ONLY with a JSON array of changes: [{\"path\": \"file\", \"content\": \"full content\"}]
-          No markdown. No explanation. If unsure, return []"
+          Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]
+          No markdown. No explanation."
 
           RESOLVED=""
           
-          # Provider 1: Gemini Direct (v1)
+          # Strategy 1: Gemini Direct (v1beta with corrected ID)
           if [ -n "$GEMINI_API_KEY" ]; then
-            echo "☁️ Trying Gemini API..."
-            RES=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
-              -H "Content-Type: application/json" \
-              -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
-            echo "📝 Gemini Response: $RES"
-            RESOLVED=$(echo "$RES" | grep -v "HTTP_STATUS" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
+            echo "☁️ Trying Gemini API (v1beta)..."
+            # Try multiple model IDs
+            for model in "gemini-1.5-flash" "gemini-pro"; do
+              RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$GEMINI_API_KEY" \
+                -H "Content-Type: application/json" \
+                -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
+              RESOLVED=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
+              [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && break
+            done
           fi
           
-          # Provider 2: OpenRouter
+          # Strategy 2: OpenRouter (Known Free Models)
           if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ]; then
             if [ -n "$OPENROUTER_TOKEN" ]; then
-              echo "☁️ Trying OpenRouter..."
-              RES=$(curl -s -w "\nHTTP_STATUS:%{http_code}" https://openrouter.ai/api/v1/chat/completions \
-                -H "Authorization: Bearer $OPENROUTER_TOKEN" \
-                -H "Content-Type: application/json" \
-                -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemini-flash-1.5:free", messages: [{role: "user", content: $p}]}')")
-              echo "📝 OpenRouter Response: $RES"
-              RESOLVED=$(echo "$RES" | grep -v "HTTP_STATUS" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
+              echo "☁️ Trying OpenRouter (Multi-model)..."
+              for model in "meta-llama/llama-3-8b-instruct:free" "mistralai/mistral-7b-instruct:free" "google/gemma-2-9b-it:free"; do
+                RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  -d "$(jq -n --arg m "$model" --arg p "$PROMPT" '{model: $m, messages: [{role: "user", content: $p}]}')")
+                RESOLVED=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
+                [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && break
+              done
             fi
           fi
 
-          # Provider 3: Pollinations AI (POST)
+          # Strategy 3: Pollinations AI (Retry Mechanism)
           if [ -z "$RESOLVED" ] || [ "$RESOLVED" = "null" ] || [ "$RESOLVED" = "" ]; then
-            echo "☁️ Trying Pollinations AI (POST)..."
-            RES=$(curl -s -X POST "https://text.pollinations.ai/" \
-              -H "Content-Type: application/json" \
-              -d "$(jq -n --arg p "$PROMPT" '{messages: [{role: "user", content: $p}], model: "openai"}')")
-            echo "📝 Pollinations Response: $RES"
-            RESOLVED="$RES"
+            echo "☁️ Trying Pollinations AI (with retries)..."
+            for i in {1..3}; do
+              RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "")
+              if [ -n "$RESOLVED" ] && [[ "$RESOLVED" != *"Queue full"* ]]; then
+                break
+              fi
+              echo "⏳ Queue full, retrying in 5s..."
+              sleep 5
+            done
           fi
           
           # Clean JSON
           CLEAN=$(echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d' | tr -d '\r')
           echo "📝 FINAL JSON: $CLEAN"
 
-          # 4. Apply and PR
+          # 3. Apply
           if echo "$CLEAN" | jq -e '. | is_array and length > 0' > /dev/null 2>&1; then
             BRANCH="ai-fix-$ISSUE_NUMBER-$(date +%s)"
             git checkout -b "$BRANCH"
@@ -110,11 +116,11 @@ jobs:
             git config user.name "AI Resolver"
             git config user.email "ai@screeps.local"
             git add .
-            git commit -m "fix: AI auto-resolve #$ISSUE_NUMBER"
+            git commit -m "fix: AI resolution for #$ISSUE_NUMBER"
             git push origin "$BRANCH"
-            gh pr create --title "AI Fix for #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in linked PR."
+            gh pr create --title "AI Solution for #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in new PR. Check above."
           else
-            echo "❌ No fix generated."
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not solve this automatically."
+            echo "❌ Failed to generate fix."
+            gh issue comment $ISSUE_NUMBER --body "🤖 AI could not solve this automatically. All providers failed or returned invalid data."
           fi

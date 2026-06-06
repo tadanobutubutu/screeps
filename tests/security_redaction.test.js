@@ -2,8 +2,12 @@ const { sanitizeLog } = require('../deploy');
 
 describe('Security Redaction in deploy.js', () => {
     test('redacts tokens and other sensitive keywords', () => {
-        expect(sanitizeLog('Deploying with token: abc-123')).toBe('Deploying with token: [REDACTED]');
-        expect(sanitizeLog('Error: invalid pass=someval123')).toBe('Error: invalid pass=[REDACTED]');
+        expect(sanitizeLog('Deploying with token: abc-123')).toBe(
+            'Deploying with token: [REDACTED]'
+        );
+        expect(sanitizeLog('Error: invalid pass=someval123')).toBe(
+            'Error: invalid pass=[REDACTED]'
+        );
         expect(sanitizeLog('{"apikey": "xyz-789"}')).toBe('{"apikey": "[REDACTED]"}');
         expect(sanitizeLog('Bearer MySessionToken')).toBe('Bearer [REDACTED]');
         expect(sanitizeLog('auth: user123')).toBe('auth: [REDACTED]');
@@ -13,7 +17,9 @@ describe('Security Redaction in deploy.js', () => {
 
     test('redacts absolute paths', () => {
         expect(sanitizeLog('Error at /usr/local/bin/node')).toBe('Error at [REDACTED]');
-        expect(sanitizeLog('Windows path C:\\Users\\Admin\\main.js')).toBe('Windows path [REDACTED]');
+        expect(sanitizeLog('Windows path C:\\Users\\Admin\\main.js')).toBe(
+            'Windows path [REDACTED]'
+        );
     });
 
     test('preserves non-sensitive information', () => {

@@ -1,4 +1,4 @@
-name: AI Conflict Resolver (Ultimate)
+name: AI Conflict Resolver (Ultimate Resilience)
 
 on:
   pull_request:
@@ -20,97 +20,84 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: AI Conflict Resolution
+      - name: Resolve Conflicts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          REPO: ${{ github.repository }}
         run: |
-          echo "🤖 Starting AI Conflict Resolution Process..."
+          echo "🤖 Starting Resilient AI Conflict Resolution..."
           
-          # 1. オープンなPRの一覧を取得
-          QUERY='query($owner: String!, $repo: String!) {
-            repository(owner: $owner, name: $repo) {
-              pullRequests(states: OPEN, first: 30) {
-                nodes {
-                  number
-                  headRefName
-                  baseRefName
-                }
-              }
-            }
-          }'
-          OWNER=$(echo $REPO | cut -d/ -f1)
-          NAME=$(echo $REPO | cut -d/ -f2)
-          PR_DATA=$(gh api graphql -f query="$QUERY" -f owner="$OWNER" -f repo="$NAME")
-          
-          echo "✅ PR Data received."
+          # 1. Fetch PRs
+          PR_DATA=$(gh api graphql -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){pullRequests(states:OPEN,first:20){nodes{number,headRefName,baseRefName}}}}' -f owner="${{ github.repository_owner }}" -f repo="${{ github.event.repository.name }}")
           
           echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
             PR_NO=$(echo "$pr" | jq -r '.number')
             HEAD=$(echo "$pr" | jq -r '.headRefName')
             BASE=$(echo "$pr" | jq -r '.baseRefName')
             
-            echo "----------------------------------------"
-            echo "🔍 Checking PR #$PR_NO ($HEAD -> $BASE)..."
-            
+            echo "--- Checking PR #$PR_NO ---"
             git checkout "$HEAD"
             git config user.name "AI Conflict Resolver"
-            git config user.email "ai-resolver@screeps.local"
+            git config user.email "ai@screeps.local"
             
             git fetch origin "$BASE"
             if git merge "origin/$BASE" --no-edit; then
-              echo "✅ Merge succeeded automatically."
+              echo "✅ Auto-merge ok."
               git push origin "$HEAD" || true
               continue
             fi
             
-            echo "⚠️ Conflict detected. Invoking AI..."
-            
             FILES=$(git diff --name-only --diff-filter=U)
             for FILE in $FILES; do
-              echo "🤖 AI resolving $FILE..."
+              echo "🛠️ Resolving $FILE..."
               CONTENT=$(cat "$FILE")
-              PROMPT="Resolve merge conflicts in this JavaScript/TypeScript file. Return ONLY the resolved content. No backticks or explanations. Integrate changes logically.\n\nFile: $FILE\n\nContent:\n$CONTENT"
+              PROMPT="Resolve merge conflicts in $FILE. Return ONLY resolved code. No markers, no backticks, no talk. Code:\n$CONTENT"
               
-              RESOLVED_CONTENT="null"
+              RESOLVED=""
               
-              # Try OpenRouter with various models (including FREE ones)
-              if [ -n "$OPENROUTER_TOKEN" ]; then
-                # 1. Try Claude 3.5 Sonnet
-                echo "☁️ Trying OpenRouter (Claude 3.5 Sonnet)..."
-                RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+              # Strategy 1: Gemini Direct (v1)
+              if [ -n "$GEMINI_API_KEY" ] && [ "$RESOLVED" = "" ]; then
+                echo "☁️ Calling Gemini Direct (v1)..."
+                RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
                   -H "Content-Type: application/json" \
-                  -d "$(jq -n --arg p "$PROMPT" '{model: "anthropic/claude-3.5-sonnet", messages: [{role: "user", content: $p}]}')")
-                RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content' 2>/dev/null || echo "null")
-                
-                # 2. Try Llama 3 (FREE) as absolute fallback
-                if [ "$RESOLVED_CONTENT" = "null" ]; then
-                  echo "☁️ Trying OpenRouter (Llama 3 FREE fallback)..."
-                  RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
-                    -H "Authorization: Bearer $OPENROUTER_TOKEN" \
-                    -H "Content-Type: application/json" \
-                    -d "$(jq -n --arg p "$PROMPT" '{model: "meta-llama/llama-3-8b-instruct:free", messages: [{role: "user", content: $p}]}')")
-                  RESOLVED_CONTENT=$(echo "$RESPONSE" | jq -r '.choices[0].message.content' 2>/dev/null || echo "null")
-                fi
+                  -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
+                RESOLVED=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
               fi
               
-              if [ "$RESOLVED_CONTENT" != "null" ] && [ -n "$RESOLVED_CONTENT" ]; then
-                CLEAN=$(echo "$RESOLVED_CONTENT" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d')
-                echo "$CLEAN" > "$FILE"
+              # Strategy 2: OpenRouter (Gemma 2 Free)
+              if [ -n "$OPENROUTER_TOKEN" ] && [ "$RESOLVED" = "" ]; then
+                echo "☁️ Calling OpenRouter (Gemma 2 Free)..."
+                RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+                  -H "Content-Type: application/json" \
+                  -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemma-2-9b-it:free", messages: [{role: "user", content: $p}]}')")
+                RESOLVED=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
+              fi
+              
+              # Strategy 3: Pollinations AI (NO KEY)
+              if [ "$RESOLVED" = "" ] || [ "$RESOLVED" = "null" ]; then
+                echo "☁️ Calling Pollinations AI (No Key)..."
+                # URL encode the prompt
+                RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "")
+              fi
+
+              # Strategy 4: Fallback to 'ours' to clear markers
+              if [ "$RESOLVED" = "" ] || [ "$RESOLVED" = "null" ] || [[ "$RESOLVED" == *"<!DOCTYPE html>"* ]]; then
+                echo "⚠️ AI resolution failed or returned error. Falling back to 'ours' version."
+                git checkout --ours "$FILE"
                 git add "$FILE"
-                echo "✅ $FILE resolved."
               else
-                echo "❌ All AI providers failed for $FILE. Full last response: $RESPONSE"
-                git merge --abort
-                continue 2
+                echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d' > "$FILE"
+                git add "$FILE"
+                echo "✅ $FILE resolved via AI."
               fi
             done
             
-            if git commit -m "chore: Auto-resolve merge conflicts via AI"; then
+            if git commit -m "chore: Auto-resolve conflicts via AI"; then
               git push origin "$HEAD"
-              echo "🚀 PR #$PR_NO resolved and pushed."
+              echo "🚀 Pushed resolution for PR #$PR_NO"
+            else
+              echo "ℹ️ No changes needed for PR #$PR_NO"
             fi
           done

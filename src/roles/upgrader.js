@@ -70,22 +70,43 @@ function _updateWorkingState(creep) {
 
 /**
  * 最適なエネルギー源からエネルギーを取得する
- * 優先順位: ストレージ → コンテナ → リンク → 落下リソース → ソース
+ * 優先順位: ストレージ → リンク → コンテナ → 落下リソース → ソース
  * @param {Creep} creep
  */
 function _getEnergy(creep) {
     const room = creep.room;
 
-    // ストレージから取得
+    if (_getEnergyFromStorage(creep, room)) return;
+    if (_getEnergyFromLink(creep, room)) return;
+    if (_getEnergyFromContainer(creep, room)) return;
+    if (_getEnergyFromDropped(creep, room)) return;
+    _getEnergyFromSource(creep, room);
+}
+
+/**
+ * ストレージから取得
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromStorage(creep, room) {
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 1000) {
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // リンクから取得
+/**
+ * リンクから取得
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromLink(creep, room) {
     const links = cache.getLinks(room);
     const readyLinks = links.filter((l) => l.store[RESOURCE_ENERGY] >= 200);
     if (readyLinks.length > 0) {
@@ -93,10 +114,18 @@ function _getEnergy(creep) {
         if (creep.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, link, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // コントローラー付近のコンテナから取得
+/**
+ * コントローラー付近のコンテナから取得
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     const controller = room.controller;
     if (controller) {
@@ -108,11 +137,19 @@ function _getEnergy(creep) {
             if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 pathfinder.moveTo(creep, container, { range: 1 });
             }
-            return;
+            return true;
         }
     }
+    return false;
+}
 
-    // 落下リソースを回収
+/**
+ * 落下リソースを回収
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
     const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 50);
     if (energyDrops.length > 0) {
@@ -120,16 +157,26 @@ function _getEnergy(creep) {
         if (creep.pickup(res) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, res, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // 直接ソースから採掘
+/**
+ * 直接ソースから採掘
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }
+        return true;
     }
+    return false;
 }
 
 // ============================================================

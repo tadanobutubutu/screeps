@@ -19,12 +19,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # 次のワークフローを起動させるために BLUECAVE_TOKEN を使用
-          token: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: AI Conflict Resolution
         env:
-          GITHUB_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
           REPO: ${{ github.repository }}
         run: |

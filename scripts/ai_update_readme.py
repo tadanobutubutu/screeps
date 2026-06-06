@@ -35,15 +35,15 @@ def main():
     key = os.environ.get("GEMINI_API_KEY")
     ctx = get_repo_context()
     
-    prompt = f"Create a short dynamic GitHub README in Japanese for a Screeps AI project. Stats: {ctx['workflows']} workflows, {ctx['roles']} roles. Recent: {ctx['recent_commits']}. Respond ONLY with raw markdown."
+    prompt = f"Create a professional dynamic GitHub README in Japanese for a Screeps AI project. Stats: {ctx['workflows']} workflows, {ctx['roles']} roles. Recent Activities: {ctx['recent_commits']}. Respond ONLY with raw markdown."
 
     result = ""
     if key:
-        print(f"☁️ Trying Gemini (Key length: {len(key)})...")
-        # Try multiple endpoints/models
-        models = ["gemini-1.5-flash", "gemini-1.5-pro"]
+        print(f"☁️ Trying Gemini...")
+        # Use v1 endpoint and latest model IDs
+        models = ["gemini-1.5-flash-latest", "gemini-1.5-pro-latest", "gemini-pro"]
         for model in models:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+            url = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent?key={key}"
             print(f"   -> Testing model: {model}")
             try:
                 r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=30)
@@ -58,28 +58,35 @@ def main():
 
     if not result:
         print("☁️ Trying Pollinations (Fallback)...")
-        try:
-            url = "https://text.pollinations.ai/"
-            payload = {"messages": [{"role": "user", "content": prompt}], "model": "openai"}
-            r = requests.post(url, json=payload, timeout=60)
-            if r.status_code == 200:
-                result = r.text
-                print("✅ Pollinations responded.")
-            else:
-                print(f"⚠️ Pollinations failed (HTTP {r.status_code}): {r.text[:200]}")
-        except Exception as e:
-            print(f"⚠️ Pollinations error: {e}")
+        # Try multiple retry for 429
+        for i in range(3):
+            try:
+                url = "https://text.pollinations.ai/"
+                payload = {"messages": [{"role": "user", "content": prompt}], "model": "openai"}
+                r = requests.post(url, json=payload, timeout=60)
+                if r.status_code == 200:
+                    result = r.text
+                    print("✅ Pollinations responded.")
+                    break
+                elif r.status_code == 429:
+                    print(f"⏳ Rate limited, retrying ({i+1})...")
+                    time.sleep(5)
+                else:
+                    print(f"⚠️ Pollinations failed (HTTP {r.status_code})")
+                    break
+            except Exception as e:
+                print(f"⚠️ Pollinations error: {e}")
+                break
 
     if not result:
         print("❌ All AI failed. No update made.")
         return
 
     clean = result.strip()
-    # Remove markdown blocks if present
     if "```" in clean:
         parts = clean.split("```")
         for p in parts:
-            if "# " in p: # Look for something that looks like markdown content
+            if "# " in p:
                 clean = p
                 if clean.startswith("markdown"): clean = clean[8:]
                 break

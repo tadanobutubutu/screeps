@@ -1,3 +1,5 @@
+'use strict';
+
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
 const logger = require('../utils/logger');
@@ -66,20 +68,38 @@ function _planSourceContainers(room) {
     const existingContainers = cache.getContainers(room);
 
     // コンテナの建設サイトをループ外で一度だけ取得
-    const containerSites = cache
-        .getConstructionSites(room)
-        .filter((s) => s.structureType === STRUCTURE_CONTAINER);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const allSites = cache.getConstructionSites(room);
+    const containerSites = [];
+    for (let i = 0; i < allSites.length; i++) {
+        const site = allSites[i];
+        if (site.structureType === STRUCTURE_CONTAINER) {
+            containerSites.push(site);
+        }
+    }
 
     for (const source of sources) {
         // すでに近くにコンテナがあれば skip
-        const nearby = existingContainers.filter((c) => source.pos.getRangeTo(c) <= 2);
-        if (nearby.length > 0) {
+        let hasNearbyContainer = false;
+        for (let i = 0; i < existingContainers.length; i++) {
+            if (source.pos.getRangeTo(existingContainers[i]) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) {
             continue;
         }
 
         // コンテナの建設サイトがすでにあれば skip
-        const existingSites = containerSites.filter((s) => source.pos.getRangeTo(s) <= 2);
-        if (existingSites.length > 0) {
+        let hasNearbySite = false;
+        for (let i = 0; i < containerSites.length; i++) {
+            if (source.pos.getRangeTo(containerSites[i]) <= 2) {
+                hasNearbySite = true;
+                break;
+            }
+        }
+        if (hasNearbySite) {
             continue;
         }
 
@@ -96,6 +116,56 @@ function _planSourceContainers(room) {
 }
 
 /**
+ * 指定したルームの占有されているタイルをセットとして取得する
+ * @param {Room} room
+ * @returns {Set<number>}
+ */
+function _getOccupiedTiles(room) {
+    const occupiedTiles = new Set();
+    const structures = cache.getStructures(room);
+    const sites = cache.getConstructionSites(room);
+
+    for (let i = 0; i < structures.length; i++) {
+        const s = structures[i];
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    for (let i = 0; i < sites.length; i++) {
+        const s = sites[i];
+        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
+    }
+    return occupiedTiles;
+}
+
+/**
+ * 与えられたパスに沿って道路の建設サイトを配置する
+ * @param {Room} room
+ * @param {Array} path
+ * @param {Set<number>} occupiedTiles
+ * @param {number} maxPlacements
+ * @returns {number} 計画された道路の数
+ */
+function _createRoadSitesForPath(room, path, occupiedTiles, maxPlacements) {
+    let planned = 0;
+    for (let i = 0; i < path.length; i++) {
+        const pos = path[i];
+        // 既存の構造物や建設サイトがない場所にのみ道路を計画
+        const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
+
+        if (!isOccupied) {
+            const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
+            if (r === OK) {
+                planned++;
+                occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
+                if (planned >= maxPlacements) {
+                    break;
+                } // 一度に最大数まで計画
+            }
+        }
+    }
+    return planned;
+}
+
+/**
  * スポーンからソース・コントローラーへの道路を計画する
  * @param {Room} room
  */
@@ -106,44 +176,26 @@ function _planRoads(room) {
     }
 
     const spawn = spawns[0];
-    const targets = [...cache.getSources(room), room.controller].filter(Boolean);
+    const sources = cache.getSources(room);
+    const targets = [...sources, room.controller].filter(Boolean);
 
     // 既存の構造物と建設サイトを一度に取得し、Setにキャッシュして高速に判定する
-    const occupiedTiles = new Set();
-    const structures = cache.getStructures(room);
-    const sites = cache.getConstructionSites(room);
-
-    for (const s of structures) {
-        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
-    }
-    for (const s of sites) {
-        occupiedTiles.add(s.pos.x | (s.pos.y << 6));
-    }
-
+    const occupiedTiles = _getOccupiedTiles(room);
     const MAX_ROADS_PER_CYCLE = 5;
 
-    for (const target of targets) {
+    for (let i = 0; i < targets.length; i++) {
+        const target = targets[i];
         const result = pathfinder.findPath(spawn.pos, target);
         if (result.incomplete) {
             continue;
         }
 
-        let planned = 0;
-        for (const pos of result.path) {
-            // 既存の構造物や建設サイトがない場所にのみ道路を計画
-            const isOccupied = occupiedTiles.has(pos.x | (pos.y << 6));
-
-            if (!isOccupied) {
-                const r = room.createConstructionSite(pos.x, pos.y, STRUCTURE_ROAD);
-                if (r === OK) {
-                    planned++;
-                    occupiedTiles.add(pos.x | (pos.y << 6)); // 新しく計画した場所も追加
-                    if (planned >= MAX_ROADS_PER_CYCLE) {
-                        break;
-                    } // 一度に最大 MAX_ROADS_PER_CYCLE か所まで計画
-                }
-            }
-        }
+        const planned = _createRoadSitesForPath(
+            room,
+            result.path,
+            occupiedTiles,
+            MAX_ROADS_PER_CYCLE
+        );
 
         if (planned > 0) {
             logger.debug(`[RoomManager] 道路 ${planned} か所を計画`);
@@ -153,36 +205,43 @@ function _planRoads(room) {
 }
 
 /**
- * スポーン周囲にエクステンションを配置する計画を立てる
+ * 必要なエクステンションの数を計算する
  * @param {Room} room
+ * @returns {number}
  */
-function _planExtensions(room) {
+function _getNeededExtensionCount(room) {
     const rcl = room.controller.level;
     const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][rcl] || 0;
 
     if (maxExtensions === 0) {
-        return;
+        return 0;
     }
 
     const existing = cache.getMyStructures(room, STRUCTURE_EXTENSION);
-    const sites = cache
-        .getConstructionSites(room)
-        .filter((s) => s.structureType === STRUCTURE_EXTENSION);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const allSites = cache.getConstructionSites(room);
+    let siteCount = 0;
+    for (let i = 0; i < allSites.length; i++) {
+        if (allSites[i].structureType === STRUCTURE_EXTENSION) {
+            siteCount++;
+        }
+    }
 
-    const currentCount = existing.length + sites.length;
+    const currentCount = existing.length + siteCount;
     if (currentCount >= maxExtensions) {
-        return;
+        return 0;
     }
 
-    const spawns = cache.getSpawns(room);
-    if (spawns.length === 0) {
-        return;
-    }
+    return Math.min(5, maxExtensions - currentCount);
+}
 
-    const spawn = spawns[0];
-    const needed = Math.min(5, maxExtensions - currentCount);
-    let placed = 0;
-
+/**
+ * スポーン周辺の障害物マップを作成する
+ * @param {Room} room
+ * @param {StructureSpawn} spawn
+ * @returns {Set<string>}
+ */
+function _getBlockedMap(room, spawn) {
     const top = Math.max(2, spawn.pos.y - 6);
     const left = Math.max(2, spawn.pos.x - 6);
     const bottom = Math.min(47, spawn.pos.y + 6);
@@ -196,7 +255,19 @@ function _planExtensions(room) {
             blockedMap.add(`${item.x},${item.y}`);
         }
     }
+    return blockedMap;
+}
 
+/**
+ * スパイラルパターンでエクステンションを配置する
+ * @param {Room} room
+ * @param {StructureSpawn} spawn
+ * @param {number} needed
+ * @param {Set<string>} blockedMap
+ * @returns {number} 配置された数
+ */
+function _placeExtensions(room, spawn, needed, blockedMap) {
+    let placed = 0;
     // スポーン周囲のスパイラルパターンでエクステンションを配置
     for (let radius = 2; radius <= 6 && placed < needed; radius++) {
         for (let dx = -radius; dx <= radius && placed < needed; dx++) {
@@ -228,6 +299,27 @@ function _planExtensions(room) {
             }
         }
     }
+    return placed;
+}
+
+/**
+ * スポーン周囲にエクステンションを配置する計画を立てる
+ * @param {Room} room
+ */
+function _planExtensions(room) {
+    const needed = _getNeededExtensionCount(room);
+    if (needed === 0) {
+        return;
+    }
+
+    const spawns = cache.getSpawns(room);
+    if (spawns.length === 0) {
+        return;
+    }
+
+    const spawn = spawns[0];
+    const blockedMap = _getBlockedMap(room, spawn);
+    const placed = _placeExtensions(room, spawn, needed, blockedMap);
 
     if (placed > 0) {
         logger.info(`[RoomManager] エクステンション ${placed} か所を計画`);
@@ -252,12 +344,18 @@ function _checkSafeMode(room) {
     const SAFE_MODE_TRIGGER_HOSTILES = 3;
 
     const enemies = cache.getEnemies(room);
-    const dangerousEnemies = enemies.filter(
-        (e) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const dangerousEnemies = [];
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (
             e.getActiveBodyparts(ATTACK) > 0 ||
             e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
-            e.getActiveBodyparts(WORK) > 0 // WORKでウォール破壊
-    );
+            e.getActiveBodyparts(WORK) > 0
+        ) {
+            dangerousEnemies.push(e);
+        }
+    }
 
     if (dangerousEnemies.length >= SAFE_MODE_TRIGGER_HOSTILES) {
         // 自室のディフェンダー数
@@ -305,27 +403,41 @@ function _manageLinkNetwork(room) {
     const LINK_TRANSFER_THRESHOLD = 0.8;
 
     // ソースリンク: ソース付近のリンク（エネルギーが溜まる）
-    const sourceLinks = links.filter(
-        (l) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const sourceLinks = [];
+    for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        if (
             l.store[RESOURCE_ENERGY] >=
-                l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD && l.cooldown === 0
-    );
+                l.store.getCapacity(RESOURCE_ENERGY) * LINK_TRANSFER_THRESHOLD &&
+            l.cooldown === 0
+        ) {
+            sourceLinks.push(l);
+        }
+    }
 
     // シンクリンク: コントローラー付近またはスポーン付近
     const spawns = cache.getSpawns(room);
     const spawnPos = spawns.length > 0 ? spawns[0].pos : null;
 
-    const sinkLinks = links.filter(
-        (l) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use for loop to avoid filter closure.
+    const sinkLinks = [];
+    for (let i = 0; i < links.length; i++) {
+        const l = links[i];
+        if (
             l.store[RESOURCE_ENERGY] < l.store.getCapacity(RESOURCE_ENERGY) * 0.5 &&
             (controller.pos.getRangeTo(l) <= 5 || (spawnPos && spawnPos.getRangeTo(l) <= 5))
-    );
+        ) {
+            sinkLinks.push(l);
+        }
+    }
 
     if (sourceLinks.length === 0 || sinkLinks.length === 0) {
         return;
     }
 
-    for (const sourceLink of sourceLinks) {
+    for (let i = 0; i < sourceLinks.length; i++) {
+        const sourceLink = sourceLinks[i];
         const sink = pathfinder.closest(sourceLink.pos, sinkLinks);
         if (!sink) {
             continue;
@@ -343,32 +455,16 @@ function _manageLinkNetwork(room) {
 // ============================================================
 
 /**
- * ルームの詳細統計を返す
+ * クリープの統計を取得するヘルパー関数
  * @param {Room} room
- * @returns {Object}
+ * @returns {Object} { creepCounts, totalCreeps }
  */
-function getStats(room) {
-    const storage = cache.getStorage(room);
-    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    const enemies = cache.getEnemies(room);
-
+function _getCreepStats(room) {
     // ⚡ PERFORMANCE OPTIMIZATION: Prioritize fresh volatile room cache populated in main.js
     if (room._roleCounts && room._myCreepsTick === Game.time) {
         return {
-            name: room.name,
-            rcl: room.controller ? room.controller.level : 0,
-            controllerProgress: room.controller
-                ? (room.controller.progress / (room.controller.progressTotal || 1)) * 100
-                : 0,
-            energy: room.energyAvailable,
-            energyCapacity: room.energyCapacityAvailable,
-            storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
             creepCounts: room._roleCounts,
             totalCreeps: room._myCreeps.length,
-            constructionSites: cache.getConstructionSites(room).length,
-            towers: towers.length,
-            enemies: enemies.length,
-            safeMode: room.controller ? !!room.controller.safeMode : false,
         };
     }
 
@@ -383,6 +479,23 @@ function getStats(room) {
             creepCounts[role] = (creepCounts[role] || 0) + 1;
         }
     }
+    return {
+        creepCounts,
+        totalCreeps: myCreeps.length,
+    };
+}
+
+/**
+ * ルームの詳細統計を返す
+ * @param {Room} room
+ * @returns {Object}
+ */
+function getStats(room) {
+    const storage = cache.getStorage(room);
+    const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
+    const enemies = cache.getEnemies(room);
+
+    const { creepCounts, totalCreeps } = _getCreepStats(room);
 
     return {
         name: room.name,
@@ -394,7 +507,7 @@ function getStats(room) {
         energyCapacity: room.energyCapacityAvailable,
         storageEnergy: storage ? storage.store[RESOURCE_ENERGY] : 0,
         creepCounts,
-        totalCreeps: myCreeps.length,
+        totalCreeps,
         constructionSites: cache.getConstructionSites(room).length,
         towers: towers.length,
         enemies: enemies.length,

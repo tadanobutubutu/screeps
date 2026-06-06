@@ -32,7 +32,7 @@ jobs:
         name: ⬢ Lint & Check Code
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
               uses: actions/setup-node@v6
@@ -77,7 +77,7 @@ jobs:
             github.actor != 'google-labs-jules[bot]'
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
               run: pnpm install
 
             - name: Run Jest tests & collect coverage
-              run: npx jest --coverage --coverageReporters=lcov --passWithNoTests
+              run: pnpm exec jest --coverage --coverageReporters=lcov --passWithNoTests
 
             - name: Upload test results to Kleore
               if: always()
@@ -120,10 +120,11 @@ jobs:
 
             - name: Upload test results to Codecov
               if: ${{ !cancelled() }}
-              uses: codecov/test-results-action@v1
+              uses: codecov/codecov-action@v5
               with:
                   token: ${{ secrets.CODECOV_TOKEN }}
                   files: ./test-results/junit.xml
+                  report_type: test_results
 
             - name: SonarCloud Scan
               uses: SonarSource/sonarcloud-github-action@master
@@ -280,7 +281,7 @@ jobs:
         name: 🧹 Auto-Format (Prettier/ESLint Fix)
         steps:
             - name: Checkout
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
               uses: actions/setup-node@v6

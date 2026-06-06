@@ -1,5 +1,4 @@
-name: AI Issue Resolver (Ultimate Resilience)
-
+name: AI Issue Resolver
 on:
   push:
     branches: [main]
@@ -8,12 +7,10 @@ on:
   issue_comment:
     types: [created]
   workflow_dispatch:
-
 permissions:
   contents: write
   pull-requests: write
   issues: write
-
 jobs:
   solve:
     runs-on: ubuntu-latest
@@ -22,82 +19,53 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - name: Install dependencies
         run: pip install requests
-
       - name: AI Solve Process
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
-          # デフォルトは824番のIssueを対象にする
           ISSUE_NUMBER: ${{ github.event.issue.number || '824' }}
         run: |
-          echo "🤖 Starting AI Issue Resolution (DuckDuckGo AI)..."
-          
-          # 1. Fetch Context
+          echo "🤖 Starting AI Solve..."
           ISSUE_DATA=$(gh issue view $ISSUE_NUMBER --json title,body,comments)
           TITLE=$(echo "$ISSUE_DATA" | jq -r '.title')
           BODY=$(echo "$ISSUE_DATA" | jq -r '.body')
-          COMMENTS=$(echo "$ISSUE_DATA" | jq -r '.comments[].body')
           FILES=$(find . -maxdepth 2 -not -path '*/.*' | head -n 20)
-          
-          # 2. Build Prompt
-          PROMPT="Solve this GitHub Issue.
-          Title: $TITLE
-          Body: $BODY
-          Comments: $COMMENTS
-          Files: $FILES
-          
-          Respond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"full content\"}]"
-
-          # 3. DuckDuckGo AI Script
+          PROMPT="Solve issue #$ISSUE_NUMBER: $TITLE\nBody: $BODY\nFiles: $FILES\nRespond ONLY with a JSON array: [{\"path\": \"file\", \"content\": \"content\"}]"
           cat << 'EOF' > ddg_ai.py
 import sys, requests, json
 def solve():
     prompt = sys.stdin.read()
     s = requests.Session()
-    res = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
-    vqd = res.headers.get("x-vqd-4")
+    r1 = s.get("https://duckduckgo.com/duckchat/v1/status", headers={"x-vqd-4": "1", "User-Agent": "Mozilla/5.0"})
+    vqd = r1.headers.get("x-vqd-4")
     if not vqd: return None
     payload = {"model": "gpt-4o-mini", "messages": [{"role": "user", "content": prompt}]}
-    res = s.post("https://duckduckgo.com/duckchat/v1/chat", 
-                 headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"},
-                 json=payload)
-    if res.status_code != 200: return None
+    r2 = s.post("https://duckduckgo.com/duckchat/v1/chat", headers={"x-vqd-4": vqd, "Content-Type": "application/json", "User-Agent": "Mozilla/5.0"}, json=payload)
+    if r2.status_code != 200: return None
     full = ""
-    for line in res.text.split('\n'):
+    for line in r2.text.split('\n'):
         if line.startswith('data: '):
             d = line[6:]
             if d == '[DONE]': break
             try:
-                msg = json.loads(d).get('message', '')
-                full += msg
+                full += json.loads(d).get('message', '')
             except: continue
     return full
 if __name__ == "__main__":
-    result = solve()
-    if result: print(result)
+    res = solve()
+    if res: print(res)
     else: sys.exit(1)
 EOF
-
-          RESOLVED=$(echo "$PROMPT" | python3 ddg_ai.py || echo "")
-          
-          if [ -z "$RESOLVED" ]; then
-             echo "⚠️ DDG AI failed. Trying Pollinations fallback..."
-             RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "[]")
-          fi
-
-          echo "📝 RAW AI Response: $RESOLVED"
+          RESOLVED=$(echo -e "$PROMPT" | python3 ddg_ai.py || echo "[]")
+          echo "RAW: $RESOLVED"
           CLEAN=$(echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```json/d' | sed '/^```/d' | tr -d '\r')
-          
-          # 4. Apply
           if echo "$CLEAN" | jq -e '. | is_array and length > 0' > /dev/null 2>&1; then
             BRANCH="ai-fix-$ISSUE_NUMBER-$(date +%s)"
             git checkout -b "$BRANCH"
@@ -107,14 +75,12 @@ EOF
               mkdir -p "$(dirname "$P")"
               echo "$C" > "$P"
             done
-            
-            git config user.name "AI Resolver"
-            git config user.email "ai@screeps.local"
+            git config user.name "AI"
+            git config user.email "ai@example.com"
             git add .
-            git commit -m "fix: AI auto-resolve #$ISSUE_NUMBER"
+            git commit -m "fix: AI fix #$ISSUE_NUMBER"
             git push origin "$BRANCH"
-            gh pr create --title "AI Solution for #$ISSUE_NUMBER" --body "Automated fix for #$ISSUE_NUMBER. Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
-            gh issue comment $ISSUE_NUMBER --body "🤖 AI fix proposed in new PR using GPT-4o-mini (Free)."
+            gh pr create --title "AI Fix #$ISSUE_NUMBER" --body "Closes #$ISSUE_NUMBER" --head "$BRANCH" --base main
           else
-            echo "❌ No fix generated."
+            echo "No fix."
           fi

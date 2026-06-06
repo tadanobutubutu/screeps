@@ -1,0 +1,119 @@
+name: AI Sentinel (Unified Monitor & Healer)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install -g pnpm && pnpm install
+
+      - name: Run Linters
+        id: lint
+        run: pnpm lint > lint_output.txt 2>&1
+        continue-on-error: true
+
+      - name: Report Lint Errors
+        if: steps.lint.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ERROR_DETAILS=$(cat lint_output.txt | tail -n 50)
+          # Ensure we don't spam issues
+          EXISTING=$(gh issue list --search "🚨 Sentinel: Linting Errors Detected in:title" --state open --json number | jq length)
+          if [ "$EXISTING" -eq 0 ]; then
+            gh issue create --title "🚨 Sentinel: Linting Errors Detected" --body "AI Sentinel detected linting errors. Please fix them.
+            
+            <details>
+            <summary>Logs</summary>
+            
+            \`\`\`
+            $ERROR_DETAILS
+            \`\`\`
+            </details>
+            " --label "ai-solve,bug" || true
+          fi
+
+      - name: Run Tests & Coverage
+        id: test
+        run: |
+          pnpm exec jest --coverage > test_output.txt 2>&1
+        continue-on-error: true
+
+      - name: Report Test/Coverage Failures
+        if: steps.test.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ERROR_DETAILS=$(cat test_output.txt | tail -n 50)
+          EXISTING=$(gh issue list --search "🚨 Sentinel: Test Failures Detected in:title" --state open --json number | jq length)
+          if [ "$EXISTING" -eq 0 ]; then
+            gh issue create --title "🚨 Sentinel: Test Failures Detected" --body "AI Sentinel detected test failures or coverage issues. We aim for 100% coverage.
+            
+            <details>
+            <summary>Logs</summary>
+            
+            \`\`\`
+            $ERROR_DETAILS
+            \`\`\`
+            </details>
+            " --label "ai-solve,bug" || true
+          fi
+
+      - name: Gitleaks Scan
+        uses: gitleaks/gitleaks-action@v2
+        id: gitleaks
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Report Secret Leaks
+        if: steps.gitleaks.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --search "🚨 Sentinel: Hardcoded Secrets Detected by Gitleaks in:title" --state open --json number | jq length)
+          if [ "$EXISTING" -eq 0 ]; then
+            gh issue create --title "🚨 Sentinel: Hardcoded Secrets Detected by Gitleaks" --body "AI Sentinel detected potential secret leaks in the repository. Please redact them immediately." --label "ai-solve,security" || true
+          fi
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        id: sonar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      - name: Report SonarCloud Issues
+        if: steps.sonar.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          EXISTING=$(gh issue list --search "🚨 Sentinel: SonarCloud Quality Gate Failed in:title" --state open --json number | jq length)
+          if [ "$EXISTING" -eq 0 ]; then
+            gh issue create --title "🚨 Sentinel: SonarCloud Quality Gate Failed" --body "AI Sentinel detected code quality issues via SonarCloud. Please resolve the technical debt." --label "ai-solve,enhancement" || true
+          fi

@@ -1,37 +1,50 @@
+# 🪐 Screeps AI: Autonomous Colony Engine (ACE)
 
-# 🪐 Screeps AI: Autonomous Colony Swarm
+[![Screeps League](https://img.shields.io/badge/Screeps-World%20Ranked-ff6b6b.svg?style=for-the-badge&logo=screeps&logoColor=white)](https://screeps.com/)
+[![Workflows](https://img.shields.io/badge/Workflows-32%20Active-00b894.svg?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/)
+[![Roles](https://img.shields.io/badge/Creep%20Roles-10%20Dynamic-0984e3.svg?style=for-the-badge)](https://github.com/)
+[![Files](https://img.shields.io/badge/Source%20Files-133%20Modules-6c5ce7.svg?style=for-the-badge)](https://github.com/)
+[![License](https://img.shields.io/badge/License-MIT-dfe6e9.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[![Screeps AI](https://img.shields.io/badge/Screeps-Autonomous%20AI-F1C40F?style=for-the-badge&logo=screeps&logoColor=white)](https://screeps.com/)
-[![Files](https://img.shields.io/badge/Architecture-133%20Files-3498DB?style=for-the-badge&logo=visual-studio-code)](./)
-[![Workflows](https://img.shields.io/badge/CI%2FCD-38%20Workflows-2ECC71?style=for-the-badge&logo=github-actions&logoColor=white)](./.github/workflows)
-[![Roles](https://img.shields.io/badge/Creep%20Roles-10%20Active-9B59B6?style=for-the-badge)](./src/roles)
-[![Engine](https://img.shields.io/badge/AI--Fallback-2026%20Models-E74C3C?style=for-the-badge&logo=openai)](./)
-
-> **完全自律型、自己修復、そして超最適化。**  
-> 本プロジェクトは、Screepsワールドを完全に支配するために設計された、最先端の自律型マルチエージェントAIシステムです。
-
----
-
-## 🚀 最新のAIマイルストーン (Recent Success)
-
-### 🤖 `feat: Enhanced AI README updater with 2026 models and multi-provider fallback`
-本プロジェクトは、コードベースだけでなくドキュメンテーションやリポジトリのメタデータ管理にもAIを統合しています。2026年世代の最新大規模言語モデル（LLM）に対応した、マルチプロバイダー・フォールバック機能付きの自動READMEアップデートシステムを搭載。API障害やレートリミットを自動検知し、瞬時に別プロバイダー（OpenAI, Anthropic, DeepSeek等）へ切り替えることで、常に正確で最新のシステムステータスをドキュメントに反映し続けます。
+> **完全自律型。自己修復機能搭載。** 
+> `Screeps AI: ACE` は、限られたリソースと過酷な環境下で、人間の介入を一切必要とせずに帝国を拡大・防衛するために設計された、次世代のScreeps自律制御AIです。
 
 ---
 
-## 🛠️ システム統計 (System Statistics)
+## 🚀 プロジェクト概要
 
-プロジェクトの規模と複雑性を体現する、厳格に管理されたコードベースメトリクスです。
+本プロジェクトは、32の高度な自動化ワークフローと10の特化型動的ロール、そして133に及ぶ洗練されたモジュール群から構成される、完全非同期・イベント駆動型のScreeps AIエンジンです。
 
-| メトリクス | 数量 | 役割 / 概要 |
-| :--- | :---: | :--- |
-| **自動化ワークフロー (Workflows)** | `38` | CI/CD、自動シミュレーション、最適化テスト、LLM同期 |
-| **エージェント役割 (Roles)** | `10` | 経済、防御、拡張、外交を司る10の特化型Creepクラス |
-| **ソースファイル数 (Files)** | `133` | モジュール化されたクリーンで保守性の高いアーキテクチャ |
+静的な定数や単純な優先度キューによる意思決定を排し、リアルタイムの環境分析に基づいた「能動的な自己適応」を実現しています。
 
 ---
 
-## ⚡ 「Ultimate Automation」システム (Issue/Conflict Resolver)
+## ⚡ 主要システムとコアテクノロジー
 
-本プロジェクトの核心となるのが、自律的な意志決定を可能にする **Ultimate Automation（究極の自動化：競合・問題解決システム）** です。
+### 🧠 Ultimate Automation (イシュー・コンフリクト・リゾルバー)
+ACEの心臓部には、室内のボトルネック、敵対的な侵入、リソースの枯渇、さらにはクリープ間の経路衝突をリアルタイムに検知・解消する **「Ultimate Automation」** システムが組み込まれています。
+
+*   **自律的競合解決:** ルーム内のマイニング効率や物流グリッドを監視し、デッドロック（立ち往生）が発生した場合は即座に移動優先度を動的に再配分します。
+*   **自律復旧ポリシー:** スポーンの機能停止や完全全滅（Wipeout）シナリオを検知すると、AIは自動的に最優先の「ブートストラップ・ワークフロー」を起動し、最小限のリソースから瞬時に帝国を再建します。
+
+### 🛡️ 最新アップデート: AI Sentinel & Dynamic Role Generation
+従来の静的な監視ループを廃止し、自律的な意志決定モデルへと進化を遂げました。
+
+*   **AI Sentinel (AI センチネル):** ルーム全体の状況（脅威レベル、経済指数、エネルギー変換効率）をミリ秒単位でプロファイリングする高度な監視レイヤー。
+*   **動的ロール生成 (Dynamic Role Generation):** 静的に定義されたCreepの役割を廃止。AI Sentinelが現在のボトルネックを分析し、**10の基本ロール**からその瞬間に最も必要とされる性質を組み合わせた最適ハイブリッド・クリープを動的に生成・タスクアサインします。
+
+---
+
+## 📊 システム統計 (System Metrics)
+
+| メトリクス | ステータス / 数量 | 役割と影響 |
+| :--- | :--- | :--- |
+| **自動化ワークフロー** | `32 Workflows` | 資源調達、防衛、建設、市場取引、リモートマイニング等の自律制御ループ |
+| **クリープロール** | `10 Dynamic Roles` | AI Sentinelによってリアルタイムに挙動がチューニングされる動的エージェント群 |
+| **ソースファイル数** | `133 Files` | モジュール化されたクリーンなTypeScript/JavaScriptアーキテクチャ |
+| **意思決定エンジン** | `Ultimate Automation` | スレッド間の競合・デッドロックをミリ秒以下で解決する自律型調停器 |
+
+---
+
+## 🛠️ システムアーキテクチャ
 

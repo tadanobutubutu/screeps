@@ -52,52 +52,52 @@ jobs:
             for FILE in $FILES; do
               echo "🛠️ Resolving $FILE..."
               CONTENT=$(cat "$FILE")
-              PROMPT="Resolve merge conflicts in $FILE. Return ONLY resolved code. No markers, no backticks, no talk. Code:\n$CONTENT"
+              PROMPT="Resolve merge conflicts in this code. Return ONLY the resolved content without conflict markers. No markdown backticks. File: $FILE\n\nCode:\n$CONTENT"
               
               RESOLVED=""
               
-              # Strategy 1: Gemini Direct (v1)
+              # Strategy 1: Gemini Direct (if key available)
               if [ -n "$GEMINI_API_KEY" ] && [ "$RESOLVED" = "" ]; then
-                echo "☁️ Calling Gemini Direct (v1)..."
+                echo "☁️ Calling Gemini Direct..."
                 RES=$(curl -s -X POST "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$GEMINI_API_KEY" \
                   -H "Content-Type: application/json" \
                   -d "{ \"contents\": [{\"parts\": [{\"text\": $(jq -Rs . <<< "$PROMPT")}]}] }")
                 RESOLVED=$(echo "$RES" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null || echo "")
               fi
               
-              # Strategy 2: OpenRouter (Gemma 2 Free)
+              # Strategy 2: OpenRouter (Auto-model)
               if [ -n "$OPENROUTER_TOKEN" ] && [ "$RESOLVED" = "" ]; then
-                echo "☁️ Calling OpenRouter (Gemma 2 Free)..."
+                echo "☁️ Calling OpenRouter..."
+                # Use a very common free model
                 RES=$(curl -s https://openrouter.ai/api/v1/chat/completions \
                   -H "Authorization: Bearer $OPENROUTER_TOKEN" \
                   -H "Content-Type: application/json" \
-                  -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemma-2-9b-it:free", messages: [{role: "user", content: $p}]}')")
+                  -d "$(jq -n --arg p "$PROMPT" '{model: "google/gemini-flash-1.5-exp", messages: [{role: "user", content: $p}]}')")
                 RESOLVED=$(echo "$RES" | jq -r '.choices[0].message.content' 2>/dev/null || echo "")
               fi
               
-              # Strategy 3: Pollinations AI (NO KEY)
+              # Strategy 3: Pollinations AI (NO KEY, reliable POST)
               if [ "$RESOLVED" = "" ] || [ "$RESOLVED" = "null" ]; then
-                echo "☁️ Calling Pollinations AI (No Key)..."
-                # URL encode the prompt
-                RESOLVED=$(curl -s "https://text.pollinations.ai/$(jq -Rr @uri <<< "$PROMPT")?model=openai" || echo "")
+                echo "☁️ Calling Pollinations AI (Free)..."
+                RESOLVED=$(curl -s -X POST "https://text.pollinations.ai/" \
+                  -H "Content-Type: application/json" \
+                  -d "$(jq -n --arg p "$PROMPT" '{messages: [{role: "user", content: $p}], model: "openai"}')")
               fi
 
-              # Strategy 4: Fallback to 'ours' to clear markers
-              if [ "$RESOLVED" = "" ] || [ "$RESOLVED" = "null" ] || [[ "$RESOLVED" == *"<!DOCTYPE html>"* ]]; then
-                echo "⚠️ AI resolution failed or returned error. Falling back to 'ours' version."
-                git checkout --ours "$FILE"
-                git add "$FILE"
-              else
+              # Final Clean and Save
+              if [ -n "$RESOLVED" ] && [ "$RESOLVED" != "null" ] && [[ "$RESOLVED" != *"<!DOCTYPE html>"* ]]; then
                 echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d' > "$FILE"
                 git add "$FILE"
                 echo "✅ $FILE resolved via AI."
+              else
+                echo "⚠️ All AI providers failed. Falling back to 'ours' to clear markers."
+                git checkout --ours "$FILE"
+                git add "$FILE"
               fi
             done
             
             if git commit -m "chore: Auto-resolve conflicts via AI"; then
               git push origin "$HEAD"
-              echo "🚀 Pushed resolution for PR #$PR_NO"
-            else
-              echo "ℹ️ No changes needed for PR #$PR_NO"
+              echo "🚀 Resolved PR #$PR_NO"
             fi
           done

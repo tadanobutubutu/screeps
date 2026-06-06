@@ -1,7 +1,7 @@
 {
-  "role": "healer",
-  "description": "傷ついたクリープを回復する",
-  "filename": "role.healer.js",
-  "timestamp": "2026-05-31T19:18:39.211Z",
-  "remaining": 5
+    "role": "healer",
+    "description": "傷ついたクリープを回復する",
+    "filename": "role.healer.js",
+    "timestamp": "2026-05-31T19:18:39.211Z",
+    "remaining": 5
 }

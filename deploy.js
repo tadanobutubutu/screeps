@@ -67,13 +67,18 @@ function injectEnvVars(content) {
 
 /**
  * Security: Redacts sensitive information from a string.
- * Redacts absolute paths and tokens.
+ * Redacts absolute paths and sensitive values following keywords.
+ * Uses a non-backtracking regex to prevent ReDoS.
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    return str
-        .replace(/token/gi, '[REDACTED]')
-        .replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    // Redact absolute paths (preceded by start of string, whitespace, or common delimiters)
+    const pathRedacted = str.replace(/(^|[\s"'(])(\/|[a-zA-Z]:\\)[^\s"')]*/g, '$1[REDACTED]');
+    // Redact sensitive keywords and their values (token, pass, credential, etc.)
+    return pathRedacted.replace(
+        /\b(token|pass|credential|apikey|auth|bearer|session)\b(["' ]*[:= ]+["' ]*)([^ \n\t"']+)/gi,
+        '$1$2[REDACTED]'
+    );
 }
 
 function deployTo(label, apiPath, token, modules) {
@@ -201,4 +206,4 @@ if (require.main === module) {
     })();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars };
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };

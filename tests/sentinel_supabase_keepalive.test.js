@@ -3,26 +3,30 @@ process.env.SUPABASE_URL = 'http://localhost';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'dummy_key';
 
 // Mock the supabase client
-jest.mock('@supabase/supabase-js', () => {
-    return {
-        createClient: jest.fn(() => ({
-            from: jest.fn(() => ({
-                upsert: jest.fn().mockResolvedValue({
-                    data: [
-                        {
-                            id: 1,
-                            pinged_at: '2023-01-01T00:00:00.000Z',
-                            source: 'github-actions',
-                            sensitive_token: 'secret123',
-                            password_hash: 'hash456',
-                        },
-                    ],
-                    error: null,
-                }),
+jest.mock(
+    '@supabase/supabase-js',
+    () => {
+        return {
+            createClient: jest.fn(() => ({
+                from: jest.fn(() => ({
+                    upsert: jest.fn().mockResolvedValue({
+                        data: [
+                            {
+                                id: 1,
+                                pinged_at: '2023-01-01T00:00:00.000Z',
+                                source: 'github-actions',
+                                sensitive_token: 'secret123',
+                                password_hash: 'hash456',
+                            },
+                        ],
+                        error: null,
+                    }),
+                })),
             })),
-        })),
-    };
-}, { virtual: true });
+        };
+    },
+    { virtual: true }
+);
 
 describe('Supabase Keepalive Security Tests', () => {
     let originalConsoleLog;

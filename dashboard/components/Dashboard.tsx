@@ -181,7 +181,7 @@ export default function Dashboard () {
 
       const summary = [
                 `${leveledUp ? '🦋' : '🐛'} GCL ${stats.gcl.level} (${gclPercent.toFixed(2)}%)`,
-                roomCount > 0 ? `🏘️ ${roomCount} Rooms` : '',
+                roomCount > 0 ? `${roomCount === 1 ? '🏠' : '🏘️'} ${roomCount} Room${roomCount === 1 ? '' : 's'}` : '',
                 stats.power !== undefined ? `⚡ ${stats.power.toLocaleString()} Power` : '',
                 stats.cpuUsed !== undefined ? `📊 ${stats.cpuUsed.toLocaleString()} CPU` : '',
                 formattedXpPerHour ? `📈 ${formattedXpPerHour}` : '',
@@ -292,8 +292,8 @@ export default function Dashboard () {
     };
 
     updateRelativeTime();
-    // 10秒ごとに相対時間を更新
-    const interval = setInterval(updateRelativeTime, 10000);
+    // 1秒ごとに相対時間を更新
+    const interval = setInterval(updateRelativeTime, 1000);
     return () => clearInterval(interval);
   }, [lastUpdated]);
 
@@ -551,13 +551,13 @@ export default function Dashboard () {
                   }}
                   aria-label={
                     roomDelta > 0
-                      ? `Gained ${roomDelta} room`
-                      : `Lost ${Math.abs(roomDelta)} room`
+                      ? `Gained ${roomDelta} room${roomDelta === 1 ? '' : 's'}`
+                      : `Lost ${Math.abs(roomDelta)} room${Math.abs(roomDelta) === 1 ? '' : 's'}`
                   }
                   title={
                     roomDelta > 0
-                      ? `Gained ${roomDelta} room`
-                      : `Lost ${Math.abs(roomDelta)} room`
+                      ? `Gained ${roomDelta} room${roomDelta === 1 ? '' : 's'}`
+                      : `Lost ${Math.abs(roomDelta)} room${Math.abs(roomDelta) === 1 ? '' : 's'}`
                   }
                 >
                                     ({roomDelta > 0 ? '+' : ''}

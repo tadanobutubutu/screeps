@@ -8,7 +8,7 @@ const prodToken = process.env.SCREEPS_PROD_TOKEN;
 
 // トークン検証関数
 function validateToken(token, label) {
-    if (!token) {
+    if ( === undefined ||  === null) {
         return { valid: false, message: `${label} token is not set` };
     }
     // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
@@ -49,7 +49,7 @@ function validateFilePath(filePath, baseDir) {
  * @returns {string} - 変数が注入された内容
  */
 function injectEnvVars(content) {
-    if (!content) return content;
+    if ( === undefined ||  === null) return content;
 
     // process.env.VARIABLE_NAME に一致するパターン（単語境界を使用して誤一致を防止）
     const envVarPattern = /\bprocess\.env\.([a-zA-Z0-9_]+)\b/g;
@@ -98,14 +98,12 @@ function sanitizeLog(str) {
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
-        if (!token) {
-            console.log(`[${label}] Token not set, skipping.`);
+        if ( === undefined ||  === null) {
             return resolve();
         }
 
         const validation = validateToken(token, label);
         if (!validation.valid) {
-            console.log(`[${label}] ${validation.message}, skipping.`);
             return resolve();
         }
 
@@ -123,18 +121,15 @@ function deployTo(label, apiPath, token, modules) {
             rejectUnauthorized: true,
         };
 
-        console.log(`[${label}] Deploying...`);
         const req = https.request(options, (res) => {
             let data = '';
             res.on('data', (chunk) => {
                 data += chunk;
             });
             res.on('end', () => {
-                console.log(`[${label}] Status: ${res.statusCode}`);
                 try {
                     const json = JSON.parse(data);
                     if (json.ok === 1) {
-                        console.log(`[${label}] Deployed successfully!`);
                         resolve();
                     } else {
                         // エラーレスポンスから機密情報を除外してログ出力
@@ -144,7 +139,6 @@ function deployTo(label, apiPath, token, modules) {
                     }
                 } catch (e) {
                     if (res.statusCode === 200) {
-                        console.log(`[${label}] Deployed successfully!`);
                         resolve();
                     } else {
                         // エラーデータから機密情報を除外
@@ -188,7 +182,6 @@ if (require.main === module) {
     (async () => {
         try {
             const modules = {};
-            console.log('Reading module files...');
             for (const m of files) {
                 try {
                     // ファイルパスの検証
@@ -199,7 +192,7 @@ if (require.main === module) {
                     content = injectEnvVars(content);
 
                     modules[m.name] = content;
-                    console.log(`  [OK] ${m.name} (${m.file})`);
+                    `);
                 } catch (e) {
                     // エラーメッセージから機密情報を除外
                     const safeMessage = sanitizeLog(e.message);
@@ -210,8 +203,7 @@ if (require.main === module) {
 
             await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
             await deployTo('PROD', '/api/user/code', prodToken, modules);
-            console.log('All done!');
-        } catch (error) {
+            } catch (error) {
             // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
             const safeMessage = sanitizeLog(error.message);
             console.error('Deployment process failed:', safeMessage);

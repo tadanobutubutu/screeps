@@ -88,10 +88,8 @@ const defenseManager = {
 
         // 警告表示
         if (threatLevel > 5) {
-            console.log(`🚨 HIGH THREAT in ${room.name}: Level ${threatLevel}`);
-        } else if (threatLevel > 0) {
-            console.log(`⚠️ Threat detected in ${room.name}: Level ${threatLevel}`);
-        }
+            } else if (threatLevel > 0) {
+            }
 
         return threatLevel;
     },
@@ -166,8 +164,7 @@ const defenseManager = {
         });
 
         if (result === OK) {
-            console.log(`🛡️ Spawning defender: ${name}`);
-        }
+            }
 
         return result;
     },
@@ -219,9 +216,7 @@ const defenseManager = {
 
         const threatLevel = room._threatLevel || 0;
 
-        console.log(`🛡️ Defense Status [${room.name}]:`);
-        console.log(`   Towers: ${towers} | Defenders: ${defenders} | Threat: ${threatLevel}`);
-    },
+        },
 };
 
 module.exports = defenseManager;

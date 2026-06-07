@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (!exists) {
+        if ( === undefined ||  === null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            console.log('🤖 Evolution queued: ' + need.type + ' (Priority: ' + need.priority + ')');
+            ');
         }
     },
 
@@ -417,9 +417,8 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        console.log('✨ Code suggestion generated: ' + this.getFilename(item.action));
-        console.log('📝 Check Memory.evolution.suggestions for details');
-    },
+        );
+        },
 
     /**
      * RCL機能生成
@@ -481,38 +480,28 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        console.log('\n🤖 === AUTO EVOLUTION DASHBOARD === 🤖');
-        console.log('Total Evolutions: ' + evo.stats.totalEvolutions);
-        console.log('Success Rate: ' + evo.stats.successRate * 100 + '%');
-        console.log('Queue Length: ' + evo.queue.length);
-        console.log('Current Phase: ' + evo.analysisPhase);
-        console.log('Last Full Analysis: ' + (Game.time - evo.lastFullAnalysis) + ' ticks ago');
+        + ' ticks ago');
 
         if (evo.history.length > 0) {
-            console.log('\n📜 Recent Evolution History:');
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                console.log('  [' + h.time + '] ' + h.type + ': ' + h.action);
-            }
+                }
         }
 
         if (evo.queue.length > 0) {
-            console.log('\n⏳ Pending Evolutions:');
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                console.log('  Priority ' + q.priority + ': ' + q.type + ' (' + q.action + ')');
+                ');
             }
         }
 
         if (evo.suggestions.length > 0) {
-            console.log('\n💡 Code Suggestions:');
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                console.log('  [' + s.time + '] ' + s.filename);
-                console.log('  ' + s.code.split('\n')[0]);
+                [0]);
             }
         }
     },
@@ -522,8 +511,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-        console.log('🔄 Evolution system reset!');
-    },
+        },
 };
 
 module.exports = autoEvolution;

@@ -120,7 +120,7 @@ module.exports = {
         const sources = cache.getSources(room);
         const controller = room.controller;
 
-        if (!spawn) {
+        if ( === undefined ||  === null) {
             return [];
         }
 
@@ -150,12 +150,10 @@ module.exports = {
         const openSpaces = this.findOpenSpaces(room, 3);
         const bestSpawnPos = this.findBestSpawnPosition(room);
 
-        console.log(`\n🏗️ Room Planning [${room.name}]:`);
-        console.log(`     Open spaces (5x5+): ${openSpaces.length}`);
+        : ${openSpaces.length}`);
 
         if (bestSpawnPos) {
-            console.log(`     Best spawn position: ${bestSpawnPos}`);
-        }
+            }
 
         return { openSpaces, bestSpawnPos };
     },

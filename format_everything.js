@@ -7,8 +7,7 @@ try {
         stdio: 'inherit',
     });
 } catch (e) {
-    console.log('Prettier failed');
-}
+    }
 
 // Run standard eslint --fix
 try {
@@ -16,5 +15,4 @@ try {
         stdio: 'inherit',
     });
 } catch (e) {
-    console.log('ESLint failed');
-}
+    }

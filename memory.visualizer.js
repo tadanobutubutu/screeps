@@ -28,13 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        console.log('📊 Memory Stats:');
-        console.log(`  Total Size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
-        console.log(`  Creeps: ${stats.creeps}`);
-        console.log(`  Rooms: ${stats.rooms}`);
-        console.log(`  Flags: ${stats.flags}`);
-        console.log(`  Spawns: ${stats.spawns}`);
-
+        .toFixed(2)} KB`);
         return stats;
     },
 
@@ -72,10 +66,8 @@ const memoryVisualizer = {
 
         sizes.sort((a, b) => b.size - a.size);
 
-        console.log(`📈 Top ${limit} Memory Users:`);
         sizes.slice(0, limit).forEach((item, index) => {
-            console.log(`  ${index + 1}. [${item.type}] ${item.name}: ${item.size} bytes`);
-        });
+            });
 
         return sizes;
     },
@@ -123,10 +115,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        console.log(`⏰ History (Last ${ticks} snapshots):`);
+        :`);
         snapshots.forEach((snap) => {
-            console.log(
-                `  Tick ${snap.time}: Creeps=${snap.creeps}, CPU=${snap.cpu.toFixed(2)}, Energy=${snap.energy}`
+            }, Energy=${snap.energy}`
             );
         });
 
@@ -199,11 +190,10 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        console.log(`🏆 Leaderboard - ${type} (Top ${limit}):`);
+        :`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            console.log(`  ${medal} ${index + 1}. ${entry[0]}: ${entry[1]}`);
-        });
+            });
 
         return sorted;
     },
@@ -256,15 +246,12 @@ const memoryVisualizer = {
     readDiary: function (creepName) {
         // Security: Validate creepName to prevent prototype pollution
         if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName]?.diary) {
-            console.log(`📝 No diary for ${creepName}`);
             return [];
         }
 
         const diary = Memory.creeps[creepName].diary;
-        console.log(`📝 Diary of ${creepName}:`);
         diary.entries.forEach((entry) => {
-            console.log(`  [Tick ${entry.time}] ${entry.message}`);
-        });
+            });
 
         return diary.entries;
     },
@@ -290,7 +277,7 @@ const memoryVisualizer = {
         this.initMemoryMap();
 
         const room = Game.rooms[roomName];
-        if (!room) {
+        if ( === undefined ||  === null) {
             return;
         }
 
@@ -329,9 +316,6 @@ const memoryVisualizer = {
     showMap: function () {
         this.initMemoryMap();
 
-        console.log('🗺️ Memory Map:');
-        console.log(`  Explored Rooms: ${Memory.map.explored.length}`);
-
         for (const roomName in Memory.map.rooms) {
             if (
                 utilsMemory.isSafeKey(roomName) &&
@@ -339,10 +323,7 @@ const memoryVisualizer = {
             ) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                console.log(
-                    `  ${roomName}: Owner=${owner}, Sources=${info.sources}, Hostiles=${info.hostiles}`
-                );
-            }
+                }
         }
     },
 
@@ -382,7 +363,6 @@ const memoryVisualizer = {
             }
         }
 
-        console.log(`🧹 Cleaned ${cleaned} memory entries`);
         return cleaned;
     },
 
@@ -408,18 +388,15 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        console.log(`💾 Backup created at tick ${Game.time}`);
-    },
+        },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {
-            console.log('❌ No backups found');
             return false;
         }
 
         const backup = Memory.backups[index];
-        if (!backup) {
-            console.log(`❌ Backup ${index} not found`);
+        if ( === undefined ||  === null) {
             return false;
         }
 
@@ -436,7 +413,6 @@ const memoryVisualizer = {
         }
         Memory.backups = backups;
 
-        console.log(`✅ Restored backup from tick ${backup.time}`);
         return true;
     },
 };

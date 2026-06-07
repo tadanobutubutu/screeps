@@ -379,7 +379,7 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
         const memory = creep.memory;
         let role = memory.role;
 
-        if (!role) {
+        if ( === undefined ||  === null) {
             role = memory.role = 'harvester';
             if (isLoggingEnabled) {
                 logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
@@ -514,23 +514,17 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    console.log(
-        '\n⚡ Tick: ' +
-            Game.time +
-            ', Mode: ' +
-            adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase()
+    ).toUpperCase()
     );
-    console.log('👥 Creeps: ' + (creeps ? creeps.length : Object.keys(Game.creeps).length));
-    console.log(
-        '💡 CPU: ' +
-            Game.cpu.getUsed().toFixed(2) +
+    .length));
+    .toFixed(2) +
             '/' +
             Game.cpu.limit +
             ' (Bucket: ' +
             Game.cpu.bucket +
             ')'
     );
-    console.log('💾 Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
+    .length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -542,9 +536,7 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    console.log(
-        '😊 Happy: ' +
-            (emotionStats.veryHappy + emotionStats.happy) +
+    +
             ', Neutral: ' +
             emotionStats.neutral
     );
@@ -553,8 +545,7 @@ function _displayEmotionStats() {
 function _displayGamificationStats() {
     const gm = Memory.gamification;
     if (gm) {
-        console.log('🎮 Level: ' + gm.level + ', XP: ' + gm.xp + '/' + gm.xpToNext);
-    }
+        }
 }
 
 function displayStats(creeps) {
@@ -669,7 +660,13 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-module.exports.loop = function () {
+\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+        }
+        Memory.lastCleanup = Game.time;
+    }
+
     // Smart Spawn Priority (Auto-added)
     if (!Memory.spawnPriority) {
         Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
@@ -691,8 +688,7 @@ module.exports.loop = function () {
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
-            console.log(`🧼 Cleaned ${oldPaths.length} old cached paths`);
-        }
+            }
     }
 
     try {
@@ -808,22 +804,16 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    console.log('\n✨ === Quick Commands === ✨');
-    console.log('\n⚡ Adaptive System:');
-    console.log('  adaptive() - system dashboard');
-    console.log('  mode(0-3)  - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
-    console.log('\n😊 Emotions:');
-    console.log('  e()        - emotion stats');
-    console.log('  ec(name)   - check creep');
-    console.log('\n💾 Memory:');
-    console.log('  m()        - memory stats');
-    console.log('  mh()       - history');
-    console.log('  ml()       - leaderboard');
-    console.log('  mc()       - cleanup');
-    console.log('\n🎮 Gamification:');
-    console.log('  g()        - dashboard');
-    console.log('\n🤖 Auto Evolution:');
-    console.log('  evo()      - dashboard');
+    - system dashboard');
+    - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    - emotion stats');
+    - check creep');
+    - memory stats');
+    - history');
+    - leaderboard');
+    - cleanup');
+    - dashboard');
+    - dashboard');
 };
 
 if (!Memory.helpShown) {

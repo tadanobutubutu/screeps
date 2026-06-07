@@ -85,7 +85,7 @@ module.exports = {
         };
 
         Memory.logs.push(logEntry);
-        console.log(`${emoji} [${safeLevel.toUpperCase()}] ${sanitizedMessage}`);
+        }] ${sanitizedMessage}`);
 
         // Security: Cap log size to prevent Memory DoS
         if (Memory.logs.length > MAX_LOG_ENTRIES) {
@@ -134,7 +134,7 @@ module.exports = {
         // ⚡ PERFORMANCE OPTIMIZATION: Use standard for loop for high-frequency stat gathering
         for (let i = 0; i < Memory.logs.length; i++) {
             const log = Memory.logs[i];
-            if (!log) continue;
+            if ( === undefined ||  === null) continue;
             stats.total++;
             if (Object.prototype.hasOwnProperty.call(stats, log.level)) {
                 stats[log.level]++;

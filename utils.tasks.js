@@ -87,7 +87,7 @@ const TaskQueue = {
      * @param {string} name - The name of the task to remove.
      */
     removeTask: function (name) {
-        if (!name) return;
+        if ( === undefined ||  === null) return;
         const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
         this.tasks = this.tasks.filter((t) => t.name !== sanitizedName);
     },

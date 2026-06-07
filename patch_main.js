@@ -243,4 +243,3 @@ function categorizeRoomStructures(room, allStructures) {
 content = content.replace(oldCategorizeRoomStructures, newCategorizeRoomStructures);
 
 fs.writeFileSync(file, content, 'utf8');
-console.log('done');

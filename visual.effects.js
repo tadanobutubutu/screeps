@@ -282,7 +282,7 @@ const visualEffects = {
         }
 
         let positions = _trailCache.get(creep.id);
-        if (!positions) {
+        if ( === undefined ||  === null) {
             positions = [];
             _trailCache.set(creep.id, positions);
         }

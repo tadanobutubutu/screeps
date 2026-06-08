@@ -43,6 +43,7 @@ def main():
                 result = res_json['candidates'][0]['content']['parts'][0]['text']
         except: pass
 
+    print(f"DEBUG: result={result[:100]}")
     # 4. JSON Extraction
     # もっと広範囲にJSONをマッチングする
     json_match = re.search(r'\[.*\]', result, re.DOTALL)
@@ -54,7 +55,8 @@ def main():
         # グループ1がある場合（ブロックマッチ）はそれを使う
         clean = json_match.group(1) if len(json_match.groups()) > 0 else json_match.group(0)
     else:
-        comment(issue_no, f"AI failed to generate a valid JSON solution. Response: {result[:500]}")
+        # ★デバッグ追加：何が返ってきているか不明なので詳細に
+        comment(issue_no, f"AI failed to generate a valid JSON solution. Raw Response: {result[:500]}")
         return
     
     try:

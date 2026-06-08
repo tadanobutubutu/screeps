@@ -29,7 +29,7 @@ def main():
         code_context = grep_res.stdout[:2000]
     except: pass
 
-    prompt = f'Solve issue #{issue_no}: {title}. Body: {body}. Context: {code_context}. Respond ONLY with a JSON array: [{"path": "file", "content": "content"}]'
+    prompt = 'Solve issue #' + str(issue_no) + ': ' + title + '. Body: ' + body + '. Context: ' + code_context + '. Respond ONLY with a JSON array: [{"path": "file", "content": "content"}]'
 
     # 3. AI Strategy
     result = ""

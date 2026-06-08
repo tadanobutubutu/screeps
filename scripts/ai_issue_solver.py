@@ -37,11 +37,14 @@ def main():
     if key:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
         try:
-            # responseMimeTypeを追加してJSON出力を保証
+            # 簡潔かつ強力なプロンプトへの変更
+            # プレースホルダーとして最低限の有効なJSON構造を明示する
+            prompt_enhanced = prompt + "\n\nCRITICAL: You MUST respond ONLY with the JSON array. Do not include markdown code blocks, do not explain, do not add prefixes or suffixes. Example: [{\"path\": \"main.js\", \"content\": \"// content\"}]"
+            
             payload = {
-                "contents": [{"parts": [{"text": prompt}]}],
+                "contents": [{"parts": [{"text": prompt_enhanced}]}],
                 "generationConfig": {
-                    "temperature": 0.1,
+                    "temperature": 0.0,
                     "responseMimeType": "application/json"
                 }
             }
@@ -51,6 +54,7 @@ def main():
                 result = res_json['candidates'][0]['content']['parts'][0]['text']
         except Exception as e:
             print(f"DEBUG: Gemini call failed: {e}")
+
 
 
     print(f"DEBUG: result={result[:100]}")

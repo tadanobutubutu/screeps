@@ -33,15 +33,25 @@ def main():
 
     # 3. AI Strategy
     result = ""
+    # Geminiモデルの呼び出しを強化
     if key:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
         try:
-            payload = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"temperature": 0.1}}
+            # responseMimeTypeを追加してJSON出力を保証
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {
+                    "temperature": 0.1,
+                    "responseMimeType": "application/json"
+                }
+            }
             req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
             with urllib.request.urlopen(req, timeout=60) as f:
                 res_json = json.loads(f.read().decode('utf-8'))
                 result = res_json['candidates'][0]['content']['parts'][0]['text']
-        except: pass
+        except Exception as e:
+            print(f"DEBUG: Gemini call failed: {e}")
+
 
     print(f"DEBUG: result={result[:100]}")
     # 4. JSON Extraction

@@ -44,16 +44,25 @@ def main():
         except: pass
 
     # 4. JSON Extraction
+    # もっと広範囲にJSONをマッチングする
     json_match = re.search(r'\[.*\]', result, re.DOTALL)
+    if not json_match:
+        # Markdownのブロック内を優先的に探す
+        json_match = re.search(r'```(?:json)?\s*(\[.*\])\s*```', result, re.DOTALL)
+        
     if json_match:
-        clean = json_match.group(0)
+        # グループ1がある場合（ブロックマッチ）はそれを使う
+        clean = json_match.group(1) if len(json_match.groups()) > 0 else json_match.group(0)
     else:
-        comment(issue_no, "AI failed to generate a valid JSON solution.")
+        comment(issue_no, f"AI failed to generate a valid JSON solution. Response: {result[:500]}")
         return
     
     try:
+        # 文字列として不完全な部分をクリーンアップ
+        clean = clean.replace("'", '"')
         changes = json.loads(clean)
         if not changes: return
+
 
         branch = f"fix/issue-{issue_no}-{int(time.time())}"
         subprocess.run(["git", "checkout", "-b", branch])

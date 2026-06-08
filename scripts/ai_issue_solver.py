@@ -31,25 +31,45 @@ def main():
 
     prompt = 'Solve issue #' + str(issue_no) + ': ' + title + '. Body: ' + body + '. Context: ' + code_context + '. Respond ONLY with a JSON array: [{"path": "file", "content": "content"}]'
 
-    # 3. AI Strategy
+    # 3. AI Strategy: 複数のAIに問い合わせてベストな回答を採用する
     result = ""
-    # Geminiモデルの呼び出しを強化 - よりシンプルな対話形式に変更
-    if key:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+    models = [
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent"
+    ]
+    
+    responses = []
+    for model_url in models:
         try:
-            # プロンプトを強制せず、AIにコードを書かせる
-            prompt_simple = f"Solve issue #{issue_no}: {title}. Body: {body}. Context: {code_context}. Return the solution in JSON format: [{{\"path\": \"file.js\", \"content\": \"...\"}}]"
-            
+            url = f"{model_url}?key={key}"
             payload = {
-                "contents": [{"parts": [{"text": prompt_simple}]}],
-                "generationConfig": {"temperature": 0.0}
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"temperature": 0.2}
             }
             req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
             with urllib.request.urlopen(req, timeout=60) as f:
                 res_json = json.loads(f.read().decode('utf-8'))
-                result = res_json['candidates'][0]['content']['parts'][0]['text']
-        except Exception as e:
-            print(f"DEBUG: Gemini call failed: {e}")
+                text = res_json['candidates'][0]['content']['parts'][0]['text']
+                # コードブロックを含む回答をスコア化（コードがちゃんとあるか）
+                score = len(re.findall(r'```', text))
+                responses.append((score, text))
+        except: continue
+
+    if responses:
+        # スコアが高い（コードブロックが多い）回答を採用
+        responses.sort(key=lambda x: x[0], reverse=True)
+        result = responses[0][1]
+    
+    # 4. パースロジック
+    def parse_natural_language(text):
+        # マークダウンのコードブロック抽出を優先
+        code_blocks = re.findall(r'```(?:javascript|js|json)?\s*(.*?)\s*```', text, re.DOTALL)
+        if code_blocks:
+            return [{"path": "main.js", "content": code_blocks[0]}]
+        return None
+        
+    changes = parse_natural_language(result)
+
 
 
 

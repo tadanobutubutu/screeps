@@ -54,6 +54,12 @@
 - Gitleaks v3 requires Node 24 runtime.
 - No changes to inputs, outputs, or behavior with the Gitleaks action.
 
+### Supabase Packages Update
+
+- Updated @supabase/supabase-js from version 2.107.0 to 2.108.0.
+- Updated @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js to version 2.108.0.
+- Updated package integrity hashes for all affected packages.
+
 <!-- TZYLO:DEP_END -->
 
 ---

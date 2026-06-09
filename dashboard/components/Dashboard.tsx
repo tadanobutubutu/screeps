@@ -384,7 +384,9 @@ export default function Dashboard () {
         100,
         (stats.gcl.progress / stats.gcl.progressTotal) * 100
       ).toFixed(2);
-      title = `Screeps (${percent}%)`;
+      const timeToLevel = getTimeToLevel();
+      const etaStr = timeToLevel ? ` • ${formatDuration(timeToLevel)}` : '';
+      title = `Screeps (${percent}%${etaStr})`;
     }
 
     if (!loading && !isRefreshing && timeAgo !== 'just now') {

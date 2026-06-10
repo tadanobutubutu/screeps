@@ -32,6 +32,8 @@ export default function Dashboard () {
   const [isSummaryFocused, setIsSummaryFocused] = useState(false);
   const [isRoomFocused, setIsRoomFocused] = useState(false);
   const [isSyncFocused, setIsSyncFocused] = useState(false);
+  const [isErrorCopyFocused, setIsErrorCopyFocused] = useState(false);
+  const [isEmptyRefreshFocused, setIsEmptyRefreshFocused] = useState(false);
 
   // 🎨 Palette: Accessible Brand Blue (WCAG AAA contrast)
   const BRAND_BLUE = '#004b73';
@@ -907,6 +909,8 @@ export default function Dashboard () {
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
               onClick={handleCopyError}
+              onFocus={() => setIsErrorCopyFocused(true)}
+              onBlur={() => setIsErrorCopyFocused(false)}
               aria-label={errorCopied ? 'Error message copied' : 'Copy error message'}
               title={errorCopied ? 'Copied!' : 'Copy error message'}
               style={{
@@ -918,7 +922,11 @@ export default function Dashboard () {
                 cursor: 'pointer',
                 fontSize: '0.8rem',
                 transition: 'all 0.2s',
-                userSelect: 'none'
+                userSelect: 'none',
+                boxShadow: isErrorCopyFocused
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${errorCopied ? '#1e7e34' : BRAND_BLUE}`
+                  : 'none',
+                outline: 'none'
               }}
             >
               {errorCopied ? '✅ Copied!' : '📋 Copy'}
@@ -1431,6 +1439,8 @@ export default function Dashboard () {
                 onKeyDown={(e) =>
                   (e.key === 'Enter' || e.key === ' ') && fetchStats(true)
                 }
+                onFocus={() => setIsEmptyRefreshFocused(true)}
+                onBlur={() => setIsEmptyRefreshFocused(false)}
                 disabled={loading || isRefreshing}
                 aria-label={
                   updated
@@ -1451,7 +1461,11 @@ export default function Dashboard () {
                   borderRadius: '4px',
                   fontSize: '0.9rem',
                   opacity: loading || isRefreshing ? 0.6 : 1,
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  boxShadow: isEmptyRefreshFocused
+                    ? `0 0 0 2px #ffffff, 0 0 0 4px ${BRAND_BLUE}`
+                    : 'none',
+                  outline: 'none'
                 }}
               >
                 {updated ? (

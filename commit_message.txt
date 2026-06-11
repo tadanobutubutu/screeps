@@ -1,7 +1,5 @@
-🔒 [security fix] Fix predictable PRNG and syntax errors in utils.emotions.js
+🧪 Add edge case tests for getStructuresNeedingEnergy in cache.js
 
-Fixes #101
-
-🎯 What: Fixed a predictable PRNG vulnerability in utils.emotions.js and fixed syntax errors that were breaking EmotionSystem.checkCreep.
-⚠️ Risk: Using Math.random() provides a predictable sequence of numbers which can be exploited by an attacker to guess future "random" personality traits or state, potentially leading to game logic manipulation. CodeQL also warns that crypto.randomBytes() % n or / n is biased.
-🛡️ Solution: Replaced Math.random() with crypto.randomInt(0, length) ensuring an unbiased cryptographically secure random number, falling back to Math.random() only if crypto is unavailable. Also, fixed severe syntax errors (if ( === undefined)) and string malformations in EmotionSystem.checkCreep so that its tests pass.
+🎯 **What:** Missing edge case test for getStructuresNeedingEnergy in cache.js. The logic involves filtering properties based on energy and structure type which required verifying filtering logic and cache behavior.
+📊 **Coverage:** Now validates `room.find` filtering logic against valid targets needing energy, full valid targets, and invalid target types. Added coverage for the volatile cache layer prioritizing `_deliveryTargets` when correctly populated.
+✨ **Result:** Test coverage gap has been resolved for energy demanding target fetching, strengthening reliability when modifying caching code.

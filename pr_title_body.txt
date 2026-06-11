@@ -1,0 +1,5 @@
+🧪 [testing improvement] Add tests for getBody function in miner role
+
+🎯 **What:** The `getBody` function in `src/roles/miner.js` lacked test coverage despite being a pure and deterministic function. The testing gap is now addressed.
+📊 **Coverage:** Added tests to cover all 5 boundaries/conditions based on `energy` amounts: 650+, 550+, 450+, 250+, and <250. This guarantees the correct body arrays are returned correctly.
+✨ **Result:** Test coverage for `getBody` function in `miner.js` is now at 100%.

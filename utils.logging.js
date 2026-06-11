@@ -85,8 +85,6 @@ module.exports = {
         };
 
         Memory.logs.push(logEntry);
-        console.log(`[${safeLevel}] ${sanitizedMessage}`);
-
         // Security: Cap log size to prevent Memory DoS
         if (Memory.logs.length > MAX_LOG_ENTRIES) {
             Memory.logs.shift();

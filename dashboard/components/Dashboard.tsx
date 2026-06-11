@@ -121,12 +121,12 @@ export default function Dashboard () {
   );
 
   const getStalenessInfo = useCallback(() => {
-    if (updated) return { icon: '✅', color: '#1e7e34', label: 'Just updated' };
+    if (updated) return { icon: '✅', color: '#155d27', label: 'Just updated' };
     if (!lastUpdated) return { icon: '🕒', color: '#575757', label: 'Not synced' };
     const diff = (new Date().getTime() - lastUpdated.getTime()) / 60000;
-    if (diff > 15) return { icon: '🚨', color: '#d32f2f', label: 'Critical staleness' };
-    if (diff > 5) return { icon: '⚠️', color: '#a5532d', label: 'Stale' };
-    return { icon: '🟢', color: '#1e7e34', label: 'Fresh' };
+    if (diff > 15) return { icon: '🚨', color: '#b71c1c', label: 'Critical staleness' };
+    if (diff > 5) return { icon: '⚠️', color: '#8c4623', label: 'Stale' };
+    return { icon: '🟢', color: '#155d27', label: 'Fresh' };
   }, [updated, lastUpdated]);
 
   const handleCopy = useCallback(async () => {
@@ -305,11 +305,12 @@ export default function Dashboard () {
       const isS = key === 's';
       const isL = key === 'l';
       const isK = key === 'k';
+      const isE = key === 'e';
       const isEsc = key === 'escape' || e.key === 'Escape';
       const hasModifier = e.ctrlKey || e.metaKey || e.altKey || e.shiftKey;
 
       if (
-        (isR || isC || isS || isL || isK || isEsc) &&
+        (isR || isC || isS || isL || isK || isE || isEsc) &&
                 !hasModifier &&
                 !loading &&
                 !isRefreshing
@@ -328,13 +329,14 @@ export default function Dashboard () {
             return;
           }
 
-          if (isR || isC || isS || isL || isK) {
+          if (isR || isC || isS || isL || isK || isE) {
             e.preventDefault();
             if (isR) fetchStats(true);
             if (isC) handleCopy();
             if (isS) handleCopySummary();
             if (isL) handleResetSecret();
             if (isK) handleCopyRooms();
+            if (isE && error) handleCopyError();
           }
         }
       }
@@ -346,6 +348,8 @@ export default function Dashboard () {
     handleCopy,
     handleCopySummary,
     handleCopyRooms,
+    handleCopyError,
+    error,
     loading,
     isRefreshing,
     stats,
@@ -469,7 +473,7 @@ export default function Dashboard () {
               style={{
                 fontSize: '0.9rem',
                 color: summaryCopied ? '#fff' : '#575757',
-                background: summaryCopied ? '#1e7e34' : 'transparent',
+                background: summaryCopied ? '#155d27' : 'transparent',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '0.2rem 0.4rem',
@@ -480,7 +484,7 @@ export default function Dashboard () {
                 transition: 'all 0.2s ease-in-out',
                 animation: summaryCopied ? 'bounce 0.6s ease' : 'none',
                 boxShadow: isSummaryFocused
-                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#1e7e34' : BRAND_BLUE}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${summaryCopied ? '#155d27' : BRAND_BLUE}`
                   : 'none',
                 outline: 'none'
               }}
@@ -506,7 +510,7 @@ export default function Dashboard () {
               style={{
                 fontSize: '0.9rem',
                 color: roomCopied ? '#fff' : '#575757',
-                background: roomCopied ? '#1e7e34' : 'transparent',
+                background: roomCopied ? '#155d27' : 'transparent',
                 border: 'none',
                 borderRadius: '4px',
                 padding: '0.2rem 0.4rem',
@@ -517,7 +521,7 @@ export default function Dashboard () {
                 transition: 'all 0.2s ease-in-out',
                 animation: roomCopied ? 'bounce 0.6s ease' : 'none',
                 boxShadow: isRoomFocused
-                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#1e7e34' : BRAND_BLUE}`
+                  ? `0 0 0 2px #ffffff, 0 0 0 4px ${roomCopied ? '#155d27' : BRAND_BLUE}`
                   : 'none',
                 outline: 'none'
               }}
@@ -543,7 +547,7 @@ export default function Dashboard () {
                 <span
                   style={{
                     fontSize: '0.8rem',
-                    color: roomDelta > 0 ? '#1e7e34' : '#d32f2f',
+                    color: roomDelta > 0 ? '#155d27' : '#b71c1c',
                     marginLeft: '0.25rem',
                     fontWeight: 'bold',
                     animation:
@@ -652,9 +656,9 @@ export default function Dashboard () {
               cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
               padding: '0.5rem',
               background: resetSuccess
-                ? '#1e7e34'
+                ? '#155d27'
                 : isResetConfirming
-                  ? '#d32f2f'
+                  ? '#b71c1c'
                   : '#575757',
               color: '#fff',
               border: 'none',
@@ -666,9 +670,9 @@ export default function Dashboard () {
               boxShadow: isResetFocused
                 ? `0 0 0 2px #ffffff, 0 0 0 4px ${
                                       resetSuccess
-                                          ? '#1e7e34'
+                                          ? '#155d27'
                                           : isResetConfirming
-                                            ? '#d32f2f'
+                                            ? '#b71c1c'
                                             : '#575757'
                                   }`
                 : 'none',
@@ -706,8 +710,8 @@ export default function Dashboard () {
             style={{
               cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
               padding: '0.5rem 1rem',
-              // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-              background: updated ? '#1e7e34' : BRAND_BLUE,
+              // コントラスト比向上のため濃い緑に変更 (#28a745 -> #155d27)
+              background: updated ? '#155d27' : BRAND_BLUE,
               color: '#fff',
               border: 'none',
               borderRadius: '4px',
@@ -887,9 +891,9 @@ export default function Dashboard () {
           role="alert"
           aria-live="assertive"
           style={{
-            color: '#d32f2f',
+            color: '#b71c1c',
             padding: '1rem',
-            border: '1px solid #d32f2f',
+            border: '1px solid #b71c1c',
             borderRadius: '4px',
             marginBottom: '1rem',
             display: 'flex',
@@ -911,7 +915,7 @@ export default function Dashboard () {
               title={errorCopied ? 'Copied!' : 'Copy error message'}
               style={{
                 padding: '0.25rem 0.75rem',
-                background: errorCopied ? '#1e7e34' : '#575757',
+                background: errorCopied ? '#155d27' : '#575757',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
@@ -934,7 +938,7 @@ export default function Dashboard () {
               title="Retry (R)"
               style={{
                 padding: '0.25rem 0.75rem',
-                background: '#d32f2f',
+                background: '#b71c1c',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
@@ -944,7 +948,7 @@ export default function Dashboard () {
                 transition: 'all 0.2s',
                 userSelect: 'none',
                 boxShadow: isRetryFocused
-                  ? '0 0 0 2px #ffffff, 0 0 0 4px #d32f2f'
+                  ? '0 0 0 2px #ffffff, 0 0 0 4px #b71c1c'
                   : 'none',
                 outline: 'none'
               }}
@@ -993,10 +997,10 @@ export default function Dashboard () {
                       style={{
                         marginBottom: '1.5rem',
                         padding: '1rem',
-                        border: updated ? '1px solid #1e7e34' : '1px solid #eee',
+                        border: updated ? '1px solid #155d27' : '1px solid #eee',
                         borderRadius: '4px',
                         boxShadow: updated
-                          ? '0 0 0 2px #1e7e34'
+                          ? '0 0 0 2px #155d27'
                           : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
                         opacity: loading || isRefreshing ? 0.6 : 1,
                         transition: 'all 0.2s ease-in-out'
@@ -1067,7 +1071,7 @@ export default function Dashboard () {
                                   style={{
                                     fontSize: '0.8rem',
                                     color:
-                                                            powerDelta > 0 ? '#1e7e34' : '#d32f2f',
+                                                            powerDelta > 0 ? '#155d27' : '#b71c1c',
                                     marginLeft: '0.25rem',
                                     fontWeight: 'bold',
                                     animation:
@@ -1107,7 +1111,7 @@ export default function Dashboard () {
                                   aria-hidden="true"
                                   style={{
                                     fontSize: '0.8rem',
-                                    color: cpuDelta > 0 ? '#d32f2f' : '#1e7e34',
+                                    color: cpuDelta > 0 ? '#b71c1c' : '#155d27',
                                     marginLeft: '0.25rem',
                                     fontWeight: 'bold',
                                     animation:
@@ -1161,7 +1165,7 @@ export default function Dashboard () {
                             <span
                               style={{
                                 fontSize: '0.8rem',
-                                color: gclDelta > 0 ? '#1e7e34' : '#d32f2f',
+                                color: gclDelta > 0 ? '#155d27' : '#b71c1c',
                                 fontWeight: 'bold',
                                 animation:
                                                     gclDelta > 0
@@ -1292,11 +1296,11 @@ export default function Dashboard () {
           <div
             style={{
               position: 'relative',
-              // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-              border: updated ? '1px solid #1e7e34' : 'none',
+              // コントラスト比向上のため濃い緑に変更 (#28a745 -> #155d27)
+              border: updated ? '1px solid #155d27' : 'none',
               boxShadow:
                                 updated || copied
-                                  ? '0 0 0 2px #1e7e34'
+                                  ? '0 0 0 2px #155d27'
                                   : '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
               transition: 'all 0.2s ease-in-out',
               borderRadius: '4px'
@@ -1325,7 +1329,7 @@ export default function Dashboard () {
                 style={{
                   padding: '0.25rem 0.5rem',
                   fontSize: '0.75rem',
-                  background: summaryCopied ? '#1e7e34' : '#575757',
+                  background: summaryCopied ? '#155d27' : '#575757',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '4px',
@@ -1354,8 +1358,8 @@ export default function Dashboard () {
                 style={{
                   padding: '0.25rem 0.5rem',
                   fontSize: '0.75rem',
-                  // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                  background: copied ? '#1e7e34' : '#575757',
+                  // コントラスト比向上のため濃い緑に変更 (#28a745 -> #155d27)
+                  background: copied ? '#155d27' : '#575757',
                   color: '#fff',
                   border: 'none',
                   borderRadius: '4px',
@@ -1393,7 +1397,7 @@ export default function Dashboard () {
                 overflow: 'auto',
                 maxHeight: '500px',
                 margin: 0,
-                border: copied ? '1px solid #1e7e34' : '1px solid #eee',
+                border: copied ? '1px solid #155d27' : '1px solid #eee',
                 transition: 'all 0.2s ease-in-out'
               }}
             >
@@ -1444,8 +1448,8 @@ export default function Dashboard () {
                 style={{
                   cursor: loading || isRefreshing ? 'not-allowed' : 'pointer',
                   padding: '0.5rem 1rem',
-                  // コントラスト比向上のため濃い緑に変更 (#28a745 -> #1e7e34)
-                  background: updated ? '#1e7e34' : BRAND_BLUE,
+                  // コントラスト比向上のため濃い緑に変更 (#28a745 -> #155d27)
+                  background: updated ? '#155d27' : BRAND_BLUE,
                   color: '#fff',
                   border: 'none',
                   borderRadius: '4px',
@@ -1527,6 +1531,17 @@ export default function Dashboard () {
               onClick: () => handleCopyRooms(),
               icon: roomCopied ? '✓' : 'K'
             },
+            ...(error
+              ? [
+                  {
+                    k: 'E',
+                    a: 'Copy error message',
+                    state: errorCopied ? 's' : '',
+                    onClick: () => handleCopyError(),
+                    icon: errorCopied ? '✓' : 'E'
+                  }
+                ]
+              : []),
             {
               k: 'L',
               a: isResetConfirming ? 'Esc to cancel' : 'Reset Secret',
@@ -1552,9 +1567,9 @@ export default function Dashboard () {
                                         item.state === 'a'
                                           ? BRAND_BLUE
                                           : item.state === 's'
-                                            ? '#1e7e34'
+                                            ? '#155d27'
                                             : item.state === 'w'
-                                              ? '#d32f2f'
+                                              ? '#b71c1c'
                                               : '#eee',
                   color: item.state ? '#fff' : '#333',
                   padding: '0.1rem 0.3rem',

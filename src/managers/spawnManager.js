@@ -82,6 +82,7 @@ function run(spawn) {
 // ============================================================
 
 // ⚡ PERFORMANCE OPTIMIZATION: Pre-sort SPAWN_PRIORITY keys once globally to avoid per-tick sorting and full iterations.
+let spawnCounter = 0;
 const SORTED_ROLES = Object.keys(SPAWN_PRIORITY).sort(
     (a, b) => SPAWN_PRIORITY[a] - SPAWN_PRIORITY[b]
 );
@@ -116,7 +117,7 @@ function _buildSpawnQueue(room) {
         queue.push({
             role,
             body,
-            name: `${role}_${Game.time}_${Math.floor(Math.random() * 100)}`,
+            name: `${role}_${Game.time}_${spawnCounter++}`,
             priority: SPAWN_PRIORITY[role] || 99,
             cost,
         });

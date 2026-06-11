@@ -8,7 +8,7 @@ const prodToken = process.env.SCREEPS_PROD_TOKEN;
 
 // トークン検証関数
 function validateToken(token, label) {
-    if ( === undefined ||  === null) {
+    if (!token) {
         return { valid: false, message: `${label} token is not set` };
     }
     // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
@@ -49,7 +49,7 @@ function validateFilePath(filePath, baseDir) {
  * @returns {string} - 変数が注入された内容
  */
 function injectEnvVars(content) {
-    if ( === undefined ||  === null) return content;
+    if (content === undefined || content === null) return content;
 
     // process.env.VARIABLE_NAME に一致するパターン（単語境界を使用して誤一致を防止）
     const envVarPattern = /\bprocess\.env\.([a-zA-Z0-9_]+)\b/g;
@@ -98,7 +98,7 @@ function sanitizeLog(str) {
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
-        if ( === undefined ||  === null) {
+        if (!token) {
             return resolve();
         }
 
@@ -117,8 +117,6 @@ function deployTo(label, apiPath, token, modules) {
                 'Content-Length': Buffer.byteLength(body),
                 'X-Token': token,
             },
-            // SSL証明書の検証を明示的に有効化
-            rejectUnauthorized: true,
         };
 
         const req = https.request(options, (res) => {
@@ -192,7 +190,6 @@ if (require.main === module) {
                     content = injectEnvVars(content);
 
                     modules[m.name] = content;
-                    `);
                 } catch (e) {
                     // エラーメッセージから機密情報を除外
                     const safeMessage = sanitizeLog(e.message);

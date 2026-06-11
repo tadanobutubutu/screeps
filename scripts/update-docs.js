@@ -1,7 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-console.log('📊 Analyzing repository...');
+const logger = {
+    info: (msg) => console.info(`[INFO] ${msg}`),
+    success: (msg) => console.info(`[SUCCESS] ${msg}`),
+    error: (msg) => console.error(`[ERROR] ${msg}`),
+    summary: (msg) => console.info(`[SUMMARY] ${msg}`)
+};
+
+logger.info('📊 Analyzing repository...');
 
 // ワークフローファイルを取得
 const workflowDir = '.github/workflows';
@@ -29,7 +36,7 @@ const workflowFiles = fs
         }
     });
 
-console.log(`✅ Found ${workflowFiles.length} workflows`);
+logger.success(`✅ Found ${workflowFiles.length} workflows`);
 
 // ロールファイルを取得
 const roleFiles = fs
@@ -37,7 +44,7 @@ const roleFiles = fs
     .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
     .map((f) => f.replace('role.', '').replace('.js', ''));
 
-console.log(`✅ Found ${roleFiles.length} role files`);
+logger.success(`✅ Found ${roleFiles.length} role files`);
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
@@ -49,7 +56,7 @@ const totalLines = jsFiles.reduce((sum, file) => {
     return sum + content.split('\n').length;
 }, 0);
 
-console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
+logger.success(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
 
 // README.md を更新
 const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
@@ -175,7 +182,7 @@ MIT License
 `;
 
 fs.writeFileSync('README.md', readme);
-console.log('✅ README.md updated!');
+logger.success('✅ README.md updated!');
 
 // WORKFLOWS.mdのヘッダーを更新
 if (fs.existsSync('WORKFLOWS.md')) {
@@ -187,7 +194,7 @@ if (fs.existsSync('WORKFLOWS.md')) {
     if (!workflows.includes('📊 **統計**')) {
         workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`);
         fs.writeFileSync('WORKFLOWS.md', workflows);
-        console.log('✅ WORKFLOWS.md updated!');
+        logger.success('✅ WORKFLOWS.md updated!');
     }
 }
 
@@ -207,10 +214,10 @@ const stats = {
 };
 
 fs.writeFileSync('repo-stats.json', JSON.stringify(stats, null, 2));
-console.log('✅ repo-stats.json created!');
+logger.success('✅ repo-stats.json created!');
 
-console.log('\n📈 Summary:');
-console.log(`  Workflows: ${workflowFiles.length}`);
-console.log(`  Roles: ${roleFiles.length}`);
-console.log(`  JS Files: ${jsFiles.length}`);
-console.log(`  Total Lines: ${totalLines}`);
+logger.summary('\n📈 Summary:');
+logger.summary(`  Workflows: ${workflowFiles.length}`);
+logger.summary(`  Roles: ${roleFiles.length}`);
+logger.summary(`  JS Files: ${jsFiles.length}`);
+logger.summary(`  Total Lines: ${totalLines}`);

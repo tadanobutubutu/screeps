@@ -521,9 +521,14 @@ function getStats(room) {
  */
 function showStats(room) {
     const stats = getStats(room);
-    logger.info(
-        `[Room: ${stats.name}] RCL${stats.rcl} | Energy: ${stats.energy}/${stats.energyCapacity} | Creeps: ${stats.totalCreeps} | Sites: ${stats.constructionSites} | Enemies: ${stats.enemies}`
-    );
+    const statParts = [
+        `[Room: ${stats.name}] RCL${stats.rcl}`,
+        `Energy: ${stats.energy}/${stats.energyCapacity}`,
+        `Creeps: ${stats.totalCreeps}`,
+        `Sites: ${stats.constructionSites}`,
+        `Enemies: ${stats.enemies}`
+    ];
+    logger.info(statParts.join(' | '));
 
     if (stats.storageEnergy > 0) {
         logger.info(`  Storage: ${stats.storageEnergy.toLocaleString()} energy`);

@@ -20,14 +20,36 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function keepAlive() {
-    console.log(`[${new Date().toISOString()}] Supabase KeepAlive ping 開始...`);
+function extractSafeData(data) {
+    if (!data) return null;
 
-    const { data, error } = await supabase.from('keepalive_log').upsert({
+    if (Array.isArray(data)) {
+        return data.map((item) => ({
+            id: item.id,
+            pinged_at: item.pinged_at,
+            source: item.source,
+        }));
+    }
+
+    return {
+        id: data.id,
+        pinged_at: data.pinged_at,
+        source: data.source,
+    };
+}
+
+async function performPing() {
+    return await supabase.from('keepalive_log').upsert({
         id: 1,
         pinged_at: new Date().toISOString(),
         source: 'github-actions',
     });
+}
+
+async function keepAlive() {
+    console.log(`[${new Date().toISOString()}] Supabase KeepAlive ping 開始...`);
+
+    const { data, error } = await performPing();
 
     if (error) {
         console.error('ERROR: Supabase への ping に失敗しました:', error.message);
@@ -36,20 +58,7 @@ async function keepAlive() {
 
     console.log('SUCCESS: Supabase への ping が成功しました');
 
-    // 安全なフィールドのみを抽出してログに出力
-    const safeData = Array.isArray(data)
-        ? data.map((item) => ({
-              id: item.id,
-              pinged_at: item.pinged_at,
-              source: item.source,
-          }))
-        : data
-          ? {
-                id: data.id,
-                pinged_at: data.pinged_at,
-                source: data.source,
-            }
-          : null;
+    const safeData = extractSafeData(data);
     console.log('データ:', JSON.stringify(safeData));
 }
 

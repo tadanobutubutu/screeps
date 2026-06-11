@@ -1,5 +1,5 @@
 💡 **What:**
-Pre-populated room-level caches for `FIND_SOURCES`, `FIND_CONSTRUCTION_SITES`, and `FIND_HOSTILE_CREEPS` by iterating over `Game.rooms` _before_ the inner loops over `Game.creeps`. Also fixed an unbound variable bug in `step1_createHarvester`.
+Pre-populated room-level caches for `FIND_SOURCES`, `FIND_CONSTRUCTION_SITES`, and `FIND_HOSTILE_CREEPS` by iterating over `Game.rooms` *before* the inner loops over `Game.creeps`. Also fixed an unbound variable bug in `step1_createHarvester`.
 
 🎯 **Why:**
 The previous code executed `creep.room.find` inline (with lazy OR assignment `||`) inside a loop over `Game.creeps`. Although it cached per room name, the `||` operator and the inline evaluation caused unnecessary CPU branching logic inside a tight loop that scales with O(Creeps). By hoisting the initialization logic, we explicitly loop over O(Rooms) to pre-populate the caches, drastically reducing the operation complexity within the hot loop.

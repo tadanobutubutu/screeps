@@ -8,7 +8,7 @@ const prodToken = process.env.SCREEPS_PROD_TOKEN
 
 // トークン検証関数
 function validateToken (token, label) {
-  if (!token) {
+  if ( === undefined ||  === null) {
     return { valid: false, message: `${label} token is not set` }
   }
   // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
@@ -98,7 +98,7 @@ function sanitizeLog (str) {
 function deployTo (label, apiPath, token, modules) {
   const body = JSON.stringify({ branch: 'default', modules })
   return new Promise((resolve, reject) => {
-    if (!token) {
+    if ( === undefined ||  === null) {
       return resolve()
     }
 

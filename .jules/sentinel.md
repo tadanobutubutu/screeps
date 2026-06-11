@@ -21,3 +21,8 @@
 **Vulnerability:** The deployment script (`deploy.js`) was logging un-redacted token values in raw error responses. Its previous `sanitizeLog` function only redacted the word "token" but left the actual token value exposed if it followed the keyword (e.g., "token: value-here").
 **Learning:** Simple keyword-based redaction is insufficient when dealing with raw response payloads or complex strings. Redaction logic must account for the value following the keyword and use robust regex patterns that consider various delimiters (quotes, colons, equals).
 **Prevention:** Use a centralized redaction utility that handles multiple sensitive keywords and correctly identifies their associated values using non-backtracking regexes to avoid ReDoS. Always verify redaction logic with dedicated security tests.
+
+### Arbitrary Code Execution via execSync
+
+- **Vulnerability:** Using `execSync` with strings instead of argument arrays exposes applications to command injection if any part of the string contains untrusted input.
+- **Fix Pattern:** Always replace `execSync` with `spawnSync` utilizing its array form for arguments (`spawnSync('command', ['arg1', 'arg2'])`). This avoids spawning a shell, inherently neutralizing injection attempts via shell metacharacters.

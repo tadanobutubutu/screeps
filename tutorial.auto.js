@@ -54,7 +54,7 @@ const autoTutorial = {
      */
     step1_createHarvester: function () {
         const spawn = Game.spawns['Spawn1'];
-        if ( === undefined ||  === null) {
+        if (spawn === undefined || spawn === null) {
             return;
         }
 
@@ -74,12 +74,13 @@ const autoTutorial = {
      */
     step2_harvestEnergy: function () {
         const sourcesCache = {};
+        for (const roomName in Game.rooms) {
+            sourcesCache[roomName] = Game.rooms[roomName].find(FIND_SOURCES);
+        }
         for (const creep of Object.values(Game.creeps)) {
-            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             if (creep.store.getFreeCapacity() > 0) {
-                sourcesCache[roomName] = sourcesCache[roomName] || creep.room.find(FIND_SOURCES);
                 const sources = sourcesCache[roomName];
                 if (sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -100,12 +101,13 @@ const autoTutorial = {
      */
     step3_upgradeController: function () {
         const sourcesCache = {};
+        for (const roomName in Game.rooms) {
+            sourcesCache[roomName] = Game.rooms[roomName].find(FIND_SOURCES);
+        }
         for (const creep of Object.values(Game.creeps)) {
-            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             if (creep.store[RESOURCE_ENERGY] === 0) {
-                sourcesCache[roomName] = sourcesCache[roomName] || creep.room.find(FIND_SOURCES);
                 const sources = sourcesCache[roomName];
                 if (sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -128,18 +130,19 @@ const autoTutorial = {
     step4_buildExtension: function () {
         const sitesCache = {};
         const sourcesCache = {};
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            sitesCache[roomName] = room.find(FIND_CONSTRUCTION_SITES);
+            sourcesCache[roomName] = room.find(FIND_SOURCES);
+        }
 
         for (const creep of Object.values(Game.creeps)) {
-            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
-            sitesCache[roomName] = sitesCache[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
             const targets = sitesCache[roomName];
 
-            if (targets.length > 0) {
+            if (targets && targets.length > 0) {
                 if (creep.store[RESOURCE_ENERGY] === 0) {
-                    sourcesCache[roomName] =
-                        sourcesCache[roomName] || creep.room.find(FIND_SOURCES);
                     const sources = sourcesCache[roomName];
 
                     if (sources.length > 0) {
@@ -181,14 +184,19 @@ const autoTutorial = {
         const sitesCache = {};
         const hostilesCache = {};
 
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            sourcesCache[roomName] = room.find(FIND_SOURCES);
+            sitesCache[roomName] = room.find(FIND_CONSTRUCTION_SITES);
+            hostilesCache[roomName] = room.find(FIND_HOSTILE_CREEPS);
+        }
+
         // 基本的なCreep動作
         for (const creep of Object.values(Game.creeps)) {
-            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             // エネルギーが空
             if (creep.store[RESOURCE_ENERGY] === 0) {
-                sourcesCache[roomName] = sourcesCache[roomName] || creep.room.find(FIND_SOURCES);
                 const sources = sourcesCache[roomName];
                 if (sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
@@ -197,8 +205,6 @@ const autoTutorial = {
                 }
             } else {
                 // 建設サイト優先
-                sitesCache[roomName] =
-                    sitesCache[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
                 const targets = sitesCache[roomName];
                 if (targets.length > 0) {
                     if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
@@ -223,8 +229,6 @@ const autoTutorial = {
         const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
         for (const tower of towers) {
             const roomName = tower.room.name;
-            hostilesCache[roomName] =
-                hostilesCache[roomName] || tower.room.find(FIND_HOSTILE_CREEPS);
             const hostiles = hostilesCache[roomName];
             if (hostiles.length > 0) {
                 tower.attack(hostiles[0]);

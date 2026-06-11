@@ -1,62 +1,55 @@
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
-const logger = {
-  info: (msg) => console.info(`[INFO] ${msg}`),
-  success: (msg) => console.info(`[SUCCESS] ${msg}`),
-  error: (msg) => console.error(`[ERROR] ${msg}`),
-  summary: (msg) => console.info(`[SUMMARY] ${msg}`)
-}
-
-logger.info('📊 Analyzing repository...')
+console.log('📊 Analyzing repository...');
 
 // ワークフローファイルを取得
-const workflowDir = '.github/workflows'
+const workflowDir = '.github/workflows';
 const workflowFiles = fs
-  .readdirSync(workflowDir)
-  .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
-  .map((f) => {
-    try {
-      const content = fs.readFileSync(path.join(workflowDir, f), 'utf8')
-      const nameMatch = content.match(/name:\s*(.+)/)
-      const scheduleMatch = content.match(/cron:\s*'([^']+)'/)
-      return {
-        file: f,
-        name: nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : f,
-        hasSchedule: !!scheduleMatch,
-        schedule: scheduleMatch ? scheduleMatch[1] : null
-      }
-    } catch (e) {
-      return {
-        file: f,
-        name: f,
-        hasSchedule: false,
-        schedule: null
-      }
-    }
-  })
+    .readdirSync(workflowDir)
+    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+    .map((f) => {
+        try {
+            const content = fs.readFileSync(path.join(workflowDir, f), 'utf8');
+            const nameMatch = content.match(/name:\s*(.+)/);
+            const scheduleMatch = content.match(/cron:\s*'([^']+)'/);
+            return {
+                file: f,
+                name: nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : f,
+                hasSchedule: !!scheduleMatch,
+                schedule: scheduleMatch ? scheduleMatch[1] : null,
+            };
+        } catch (e) {
+            return {
+                file: f,
+                name: f,
+                hasSchedule: false,
+                schedule: null,
+            };
+        }
+    });
 
-logger.success(`✅ Found ${workflowFiles.length} workflows`)
+console.log(`✅ Found ${workflowFiles.length} workflows`);
 
 // ロールファイルを取得
 const roleFiles = fs
-  .readdirSync('.')
-  .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
-  .map((f) => f.replace('role.', '').replace('.js', ''))
+    .readdirSync('.')
+    .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
+    .map((f) => f.replace('role.', '').replace('.js', ''));
 
-logger.success(`✅ Found ${roleFiles.length} role files`)
+console.log(`✅ Found ${roleFiles.length} role files`);
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
-  .readdirSync('.')
-  .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'))
+    .readdirSync('.')
+    .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'));
 
 const totalLines = jsFiles.reduce((sum, file) => {
-  const content = fs.readFileSync(file, 'utf8')
-  return sum + content.split('\n').length
-}, 0)
+    const content = fs.readFileSync(file, 'utf8');
+    return sum + content.split('\n').length;
+}, 0);
 
-logger.success(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`)
+console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
 
 // README.md を更新
 const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
@@ -89,7 +82,7 @@ const readme = `# 🎮 Screeps AI - 完全自動化リポジトリ
 
 ### 📋 稼働中のワークフロー (${workflowFiles.length}個)
 
-${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ' - 定期実行' : ' - イベント駆動'}`).join('\n')}
+${workflowFiles.map((wf) => `- **${wf.name}** (\`${wf.file}\`)${wf.hasSchedule ? ` - 定期実行` : ` - イベント駆動`}`).join('\n')}
 
 詳しくは [\`WORKFLOWS.md\`](./WORKFLOWS.md) を参照してください。
 
@@ -179,45 +172,45 @@ MIT License
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
 *このREADMEは自動更新されます - 最終更新: ${new Date().toISOString()}*
-`
+`;
 
-fs.writeFileSync('README.md', readme)
-logger.success('✅ README.md updated!')
+fs.writeFileSync('README.md', readme);
+console.log('✅ README.md updated!');
 
 // WORKFLOWS.mdのヘッダーを更新
 if (fs.existsSync('WORKFLOWS.md')) {
-  let workflows = fs.readFileSync('WORKFLOWS.md', 'utf8')
+    let workflows = fs.readFileSync('WORKFLOWS.md', 'utf8');
 
-  // 統計情報を挿入
-  const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${new Date().toISOString().split('T')[0]}\n\n`
+    // 統計情報を挿入
+    const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${new Date().toISOString().split('T')[0]}\n\n`;
 
-  if (!workflows.includes('📊 **統計**')) {
-    workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`)
-    fs.writeFileSync('WORKFLOWS.md', workflows)
-    logger.success('✅ WORKFLOWS.md updated!')
-  }
+    if (!workflows.includes('📊 **統計**')) {
+        workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`);
+        fs.writeFileSync('WORKFLOWS.md', workflows);
+        console.log('✅ WORKFLOWS.md updated!');
+    }
 }
 
 // 統計ファイル作成
 const stats = {
-  updated: new Date().toISOString(),
-  workflows: workflowFiles.length,
-  roles: roleFiles.length,
-  jsFiles: jsFiles.length,
-  totalLines,
-  workflowList: workflowFiles.map((wf) => ({
-    name: wf.name,
-    file: wf.file,
-    scheduled: wf.hasSchedule
-  })),
-  roleList: roleFiles
-}
+    updated: new Date().toISOString(),
+    workflows: workflowFiles.length,
+    roles: roleFiles.length,
+    jsFiles: jsFiles.length,
+    totalLines: totalLines,
+    workflowList: workflowFiles.map((wf) => ({
+        name: wf.name,
+        file: wf.file,
+        scheduled: wf.hasSchedule,
+    })),
+    roleList: roleFiles,
+};
 
-fs.writeFileSync('repo-stats.json', JSON.stringify(stats, null, 2))
-logger.success('✅ repo-stats.json created!')
+fs.writeFileSync('repo-stats.json', JSON.stringify(stats, null, 2));
+console.log('✅ repo-stats.json created!');
 
-logger.summary('\n📈 Summary:')
-logger.summary(`  Workflows: ${workflowFiles.length}`)
-logger.summary(`  Roles: ${roleFiles.length}`)
-logger.summary(`  JS Files: ${jsFiles.length}`)
-logger.summary(`  Total Lines: ${totalLines}`)
+console.log('\n📈 Summary:');
+console.log(`  Workflows: ${workflowFiles.length}`);
+console.log(`  Roles: ${roleFiles.length}`);
+console.log(`  JS Files: ${jsFiles.length}`);
+console.log(`  Total Lines: ${totalLines}`);

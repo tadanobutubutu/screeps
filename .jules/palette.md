@@ -10,11 +10,6 @@
 **Learning:** Adding visual feedback (like icons and animations) to an interactive element during an async operation is only half the battle. To ensure full accessibility, the parent element's `aria-label` and `title` must also be updated to reflect the transient state, as screen readers often prioritize the parent's label over its children.
 **Action:** Always verify that state-driven UI changes are reflected in parent container ARIA attributes and title tags, especially for buttons and other interactive elements.
 
-## 2025-06-12 - [WCAG AAA Color Unification]
-
-**Learning:** Using a unified palette of WCAG AAA compliant colors (#004b73 for brand blue, #155d27 for success green, #b71c1c for error red) across both CSS and component logic ensures consistent accessibility and brand identity.
-**Action:** Always check color contrast against AAA standards and prefer these unified hex codes for all UI feedback elements.
-
 ## 2025-05-14 - エラーメッセージの利便性向上
 
 **Learning:** ダッシュボードのエラーメッセージは技術的で長くなる傾向がある。エラーアラートに専用の「コピー」ボタンを提供することで、デバッグやサポートのための情報取得が容易になり、ユーザー体験が向上する。

@@ -1,1 +1,1 @@
-conflict source
+{"error":"Queue full for IP: 2a06:98c0:3600::103: 1 requests already queued (max: 1). Get unlimited access at https://enter.pollinations.ai","status":429,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected."}

@@ -379,7 +379,7 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
         const memory = creep.memory;
         let role = memory.role;
 
-        if ( === undefined ||  === null) {
+        if (role === undefined || role === null) {
             role = memory.role = 'harvester';
             if (isLoggingEnabled) {
                 logger.warn('Creep ' + creep.name + ' had no role, set to harvester');

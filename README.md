@@ -1,5 +1,12 @@
 # 🪐 Screeps AI: Autonomous Colony Engine (ACE)
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 [![Screeps League](https://img.shields.io/badge/Screeps-World%20Ranked-ff6b6b.svg?style=for-the-badge&logo=screeps&logoColor=white)](https://screeps.com/)
 [![Workflows](https://img.shields.io/badge/Workflows-32%20Active-00b894.svg?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/)
 [![Roles](https://img.shields.io/badge/Creep%20Roles-10%20Dynamic-0984e3.svg?style=for-the-badge)](https://github.com/)

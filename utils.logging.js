@@ -182,8 +182,12 @@ module.exports = {
       info: 0,
       debug: 0,
       // Compatibility with some tests
-      get errors () { return this.error },
-      get warnings () { return this.warn }
+      get errors () {
+        return this.error
+      },
+      get warnings () {
+        return this.warn
+      }
     }
 
     if (!Memory.logs) return {}

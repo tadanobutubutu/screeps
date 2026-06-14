@@ -1,9 +1,3 @@
-## 2026-06-03 - [Infinite Recursion in Log Utilities]
-
-**Vulnerability:** Implementing flexible API signatures (e.g., swapping `message` and `level` arguments) without strict validation can cause infinite recursion if the fallback logic triggers itself (e.g., `log('info')` where `'info'` is both a valid level and a potential message).
-**Learning:** Always use explicit, non-overlapping validation when handling multiple function signatures. Ensure that any recursive or fallback calls move towards a terminal state or a strictly validated core implementation.
-**Prevention:** Use boolean flags to check for argument types and valid values before swapping. Avoid generic fallbacks that could match the same criteria in the next call.
-
 ## 2026-06-02 - [Enhanced Secret Redaction]
 
 **Vulnerability:** Weak log redaction logic that failed to catch prefixed environment variables (e.g., `SCREEPS_TOKEN`) and lacked comprehensive keywords (e.g., `dsn`).

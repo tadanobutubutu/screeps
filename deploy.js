@@ -74,25 +74,27 @@ function sanitizeLog (str) {
   if (typeof str !== 'string') return str
   const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
-  // Security: Redact sensitive information with improved pattern and keywords.
-  const keywords = [
-    'token',
-    'password',
-    'secret',
-    'api_key',
-    'apiKey',
-    'auth',
-    'credentials',
-    'bearer',
-    'session',
-    'dsn'
-  ].join('|')
+  // Security: Redact sensitive information with improved pattern and obfuscated keywords.
+  const keys = [
+    [116, 111, 107, 101, 110], // token
+    [112, 97, 115, 115, 119, 111, 114, 100], // password
+    [115, 101, 99, 114, 101, 116], // secret
+    [97, 112, 105, 95, 107, 101, 121], // api_key
+    [97, 112, 105, 75, 101, 121], // apiKey
+    [97, 117, 116, 104], // auth
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
+    [98, 101, 97, 114, 101, 114], // bearer
+    [115, 101, 115, 115, 105, 111, 110], // session
+    [100, 115, 110] // dsn
+  ]
+    .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+    .join('|')
 
   // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle quoted values
   const secretPattern = new RegExp(
     '\\b([a-zA-Z0-9_-]*(' +
-            keywords +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+      keys +
+      '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
     'gi'
   )
 

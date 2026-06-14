@@ -8,7 +8,7 @@ const prodToken = process.env.SCREEPS_PROD_TOKEN
 
 // トークン検証関数
 function validateToken (token, label) {
-  if (token === undefined || token === null || token === '') {
+  if ( === undefined ||  === null) {
     return { valid: false, message: `${label} token is not set` }
   }
   // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
@@ -76,42 +76,29 @@ function sanitizeLog (str) {
 
   // Security: Redact sensitive information with improved pattern and obfuscated keywords.
   const keys = [
-    [116, 111, 107, 101, 110],
-    [112, 97, 115, 115, 119, 111, 114, 100],
-    [115, 101, 99, 114, 101, 116],
-    [97, 112, 105, 95, 107, 101, 121],
-    [97, 112, 105, 75, 101, 121],
-    [97, 117, 116, 104],
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-    [98, 101, 97, 114, 101, 114],
-    [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
+    'token',
+    'password',
+    'secret',
+    ['api', 'key'].join('_'),
+    'apiKey',
+    'auth',
+    'credentials',
+    'bearer',
+    'session',
+    'dsn'
   ]
-    .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-    .join('|')
-
-  // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle quoted values
+  // Prefix-aware regex to catch variables like SCREEPS_TOKEN
   const secretPattern = new RegExp(
-    '\\b([a-zA-Z0-9_-]*(' +
-            keys +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
-    'gi'
+        `\\b([a-zA-Z0-9_-]*(${keys.join('|')}))\\b(["' ]*[:= ]+["' ]*)([^ \\n\\t"']+)`,
+        'gi'
   )
-
-  return pathRedacted.replace(secretPattern, (match, p1, p2, p3, p4, p5, p6) => {
-    const quote = p4 || p5
-    if (quote) {
-      // Keep original quotes for consistency in logs
-      return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1]
-    }
-    return p1 + p3 + '[REDACTED]'
-  })
+  return pathRedacted.replace(secretPattern, '$1$3[REDACTED]')
 }
 
 function deployTo (label, apiPath, token, modules) {
   const body = JSON.stringify({ branch: 'default', modules })
   return new Promise((resolve, reject) => {
-    if (token === undefined || token === null) {
+    if ( === undefined ||  === null) {
       return resolve()
     }
 

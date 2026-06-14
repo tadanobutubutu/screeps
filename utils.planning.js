@@ -120,7 +120,7 @@ module.exports = {
         const sources = cache.getSources(room);
         const controller = room.controller;
 
-        if (controller === undefined || controller === null) {
+        if ( === undefined ||  === null) {
             return [];
         }
 

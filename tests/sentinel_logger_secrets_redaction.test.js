@@ -101,15 +101,18 @@ describe('Sentinel: Comprehensive Secrets Redaction Hardening', () => {
     describe('utils.logging.js creds redaction', () => {
         test('log() should redact sensitive keywords for all levels', () => {
             sensitiveData.forEach(({ key, val }) => {
-                utilsLogging.log(`${key}=${val}`, 'info');
+                utilsLogging.log('info', `${key}=${val}`);
                 const lastLog = Memory.logs[Memory.logs.length - 1];
                 expect(lastLog.message).not.toContain(val);
                 expect(lastLog.message).toContain(`${key}=[REDACTED]`);
             });
         });
 
-        test('error() should redact creds from error messages', () => {
-            utilsLogging.error('Authentication failed for token: abcdefg');
+        test('tryCatch should redact creds from error messages', () => {
+            const fn = () => {
+                throw new Error('Authentication failed for token: abcdefg');
+            };
+            utilsLogging.tryCatch(fn, 'test');
 
             const lastLog = Memory.logs[Memory.logs.length - 1];
             expect(lastLog.message).toContain('token: [REDACTED]');

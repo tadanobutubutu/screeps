@@ -277,7 +277,7 @@ const memoryVisualizer = {
         this.initMemoryMap();
 
         const room = Game.rooms[roomName];
-        if (room === undefined || room === null) {
+        if ( === undefined ||  === null) {
             return;
         }
 
@@ -396,7 +396,7 @@ const memoryVisualizer = {
         }
 
         const backup = Memory.backups[index];
-        if (backup === undefined || backup === null) {
+        if ( === undefined ||  === null) {
             return false;
         }
 

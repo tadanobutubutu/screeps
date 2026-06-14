@@ -34,16 +34,14 @@ function _redactPaths (str) {
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
-    [116, 111, 107, 101, 110],
-    [112, 97, 115, 115, 119, 111, 114, 100],
-    [115, 101, 99, 114, 101, 116],
-    [97, 112, 105, 95, 107, 101, 121],
-    [97, 112, 105, 75, 101, 121],
-    [97, 117, 116, 104],
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-    [98, 101, 97, 114, 101, 114],
-    [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
+    [116, 111, 107, 101, 110], // token
+    [112, 97, 115, 115, 119, 111, 114, 100], // password
+    [115, 101, 99, 114, 101, 116], // secret
+    [97, 112, 105, 75, 101, 121], // apiKey
+    [97, 117, 116, 104], // auth
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
+    [98, 101, 97, 114, 101, 114], // bearer
+    [115, 101, 115, 115, 105, 111, 110] // session
   ]
     .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
     .join('|')
@@ -66,51 +64,6 @@ function _redactPaths (str) {
 }
 
 module.exports = {
-  getSafeStack (stack, maxLines = 5) {
-    if (!stack) return ''
-    const truncatedStack = String(stack).substring(0, 2000)
-    const lines = truncatedStack.split('\n')
-    return lines
-      .slice(0, maxLines)
-      .map((line) => {
-        const match = line.match(/[^/\\]+:\d+:\d+/)
-        if (match) {
-          return `    at ${match[0]}`
-        }
-        if (line.trim().startsWith('at ')) {
-          return '    at [REDACTED]'
-        }
-        return _redactPaths(line)
-      })
-      .join('\n')
-  },
-
-  tryCatch (fn, context, ...args) {
-    try {
-      return fn(...args)
-    } catch (e) {
-      this.error(`[${context}] ${e.message}`)
-      return null
-    }
-  },
-
-  getRecentLogs (count = 10) {
-    if (!Memory.logs) return []
-    return Memory.logs.slice(-count)
-  },
-
-  getErrors () {
-    if (!Memory.logs) return []
-    return Memory.logs.filter((l) => l.level === 'error')
-  },
-
-  init () {
-    if (!Memory.logs) Memory.logs = []
-    if (Memory.logs.length > 100) {
-      Memory.logs = Memory.logs.slice(-100)
-    }
-  },
-
   log (message, level = 'info') {
     if (!Memory.logs) Memory.logs = []
 
@@ -123,12 +76,6 @@ module.exports = {
       message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH)
     const sanitizedMessage = _redactPaths(rawMessage)
-
-    // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
-      this.log(level, message)
-      return
-    }
 
     const logEntry = {
       tick: Game.time,
@@ -161,13 +108,10 @@ module.exports = {
   },
 
   debug (message) {
-    // Ensure Memory.logs exists
-    if (!Memory.logs) Memory.logs = []
-    // Support test behavior where Memory.debug is set during call
-    const wasDebug = Memory.debug
-    Memory.debug = true
-    this.log(message, 'debug')
-    Memory.debug = wasDebug
+    // Only log debug if enabled in Memory
+    if (Memory.debug) {
+      this.log(message, 'debug')
+    }
   },
 
   clear () {
@@ -180,17 +124,10 @@ module.exports = {
       error: 0,
       warn: 0,
       info: 0,
-      debug: 0,
-      // Compatibility with some tests
-      get errors () {
-        return this.error
-      },
-      get warnings () {
-        return this.warn
-      }
+      debug: 0
     }
 
-    if (!Memory.logs) return {}
+    if (!Memory.logs) return stats
 
     // ⚡ PERFORMANCE OPTIMIZATION: Use standard for loop for high-frequency stat gathering
     for (let i = 0; i < Memory.logs.length; i++) {

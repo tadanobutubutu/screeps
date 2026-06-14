@@ -1,6 +1,6 @@
 {
   "experiment": "improve-spawn-priority",
   "description": "スポーン優先度ロジックを改善",
-  "timestamp": "2026-06-13T20:16:35.082Z",
-  "status": "skipped"
+  "timestamp": "2026-06-06T20:09:08.010Z",
+  "status": "applied"
 }

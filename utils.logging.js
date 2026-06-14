@@ -48,8 +48,8 @@ function _redactPaths (str) {
   // Prefix-aware pattern
   const pattern = new RegExp(
     '\\b([a-zA-Z0-9_-]*(' +
-      keywords +
-      '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+            keywords +
+            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
     'gi'
   )
 
@@ -125,7 +125,9 @@ module.exports = {
     }
 
     // Security: Validate level to prevent prototype pollution or other injection
-    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, actualLevel) ? actualLevel : 'info'
+    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, actualLevel)
+      ? actualLevel
+      : 'info'
 
     // Security: Truncate and redact message
     const rawMessage = String(
@@ -182,8 +184,12 @@ module.exports = {
       info: 0,
       debug: 0,
       // Compatibility with some tests
-      get errors () { return this.error },
-      get warnings () { return this.warn }
+      get errors () {
+        return this.error
+      },
+      get warnings () {
+        return this.warn
+      }
     }
 
     if (!Memory.logs) return stats

@@ -91,8 +91,8 @@ function sanitizeLog (str) {
   // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle quoted values
   const secretPattern = new RegExp(
     '\\b([a-zA-Z0-9_-]*(' +
-      keywords +
-      '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+            keywords +
+            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
     'gi'
   )
 

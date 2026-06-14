@@ -97,24 +97,23 @@ function _redactPaths(str) {
     const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 
     // セキュリティ：機密キーワードに続くセパレータと、スペースを含む引用符で囲まれた値をマッチングし、情報を隠蔽します。
-    // Compliance Shield 回避のため、禁止語句を動的に組み立てます。
-    const k = [
-        [116, 111, 107, 101, 110], // token
-        [112, 97, 115, 115, 119, 111, 114, 100], // password
-        [115, 101, 99, 114, 101, 116], // secret
-        [97, 112, 105, 75, 101, 121], // apiKey
-        [97, 117, 116, 104], // auth
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
-        [98, 101, 97, 114, 101, 114], // bearer
-        [115, 101, 115, 115, 105, 111, 110], // session
-    ]
-        .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-        .join('|');
+    const keywords = [
+        'token',
+        'password',
+        'secret',
+        'api_key',
+        'apiKey',
+        'auth',
+        'credentials',
+        'bearer',
+        'session',
+        'dsn',
+    ].join('|');
 
     // Prefix-aware pattern to catch variables like SCREEPS_TOKEN
     const pattern = new RegExp(
         '\\b([a-zA-Z0-9_-]*(' +
-            k +
+            keywords +
             '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
         'gi'
     );

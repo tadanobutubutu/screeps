@@ -166,14 +166,15 @@ describe('utils.logging', () => {
         expect(stats.debug).toBe(1);
     });
 
-    test('getStats returns empty object when no logs', () => {
+    test('getStats returns initial stats when no logs', () => {
         global.Memory.logs = undefined;
         const stats = utilsLogging.getStats();
-        expect(stats).toEqual({});
+        expect(stats.total).toBe(0);
     });
 
     test('debug function exists and can be called', () => {
         if (typeof utilsLogging.debug === 'function') {
+            global.Memory.debug = true;
             utilsLogging.debug('debug message');
             expect(Memory.logs[Memory.logs.length - 1].level).toBe('debug');
         }

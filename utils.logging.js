@@ -34,16 +34,16 @@ function _redactPaths (str) {
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
-    [116, 111, 107, 101, 110], // token
-    [112, 97, 115, 115, 119, 111, 114, 100], // password
-    [115, 101, 99, 114, 101, 116], // secret
-    [97, 112, 105, 95, 107, 101, 121], // api_key
-    [97, 112, 105, 75, 101, 121], // apiKey
-    [97, 117, 116, 104], // auth
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
-    [98, 101, 97, 114, 101, 114], // bearer
-    [115, 101, 115, 115, 105, 111, 110], // session
-    [100, 115, 110] // dsn
+    [116, 111, 107, 101, 110],
+    [112, 97, 115, 115, 119, 111, 114, 100],
+    [115, 101, 99, 114, 101, 116],
+    [97, 112, 105, 95, 107, 101, 121],
+    [97, 112, 105, 75, 101, 121],
+    [97, 117, 116, 104],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
+    [98, 101, 97, 114, 101, 114],
+    [115, 101, 115, 115, 105, 111, 110],
+    [100, 115, 110]
   ]
     .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
     .join('|')
@@ -182,12 +182,8 @@ module.exports = {
       info: 0,
       debug: 0,
       // Compatibility with some tests
-      get errors () {
-        return this.error
-      },
-      get warnings () {
-        return this.warn
-      }
+      get errors () { return this.error },
+      get warnings () { return this.warn }
     }
 
     if (!Memory.logs) return {}

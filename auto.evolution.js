@@ -342,7 +342,7 @@ const autoEvolution = {
             }
         }
 
-        if ( === undefined ||  === null) {
+        if (need === undefined || need === null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
             ');

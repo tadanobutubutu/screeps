@@ -47,7 +47,7 @@ const roleBuilder = {
 
         // If target is invalid or no longer exists in construction sites, find a new one
         // ⚡ PERFORMANCE: O(1) check for construction site validity instead of O(N) .some()
-        if ( === undefined ||  === null) {
+        if (target === undefined || target === null) {
             // ⚡ PERFORMANCE: Use findClosestByRange (O(N)) instead of findClosestByPath (O(N*Pathfinding))
             target = creep.pos.findClosestByRange(targets);
             if (target) {

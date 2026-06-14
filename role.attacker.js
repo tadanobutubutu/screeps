@@ -71,7 +71,7 @@ const roleAttacker = {
         // ⚡ PERFORMANCE: Implement target ID caching for structures
         let hostileStructure = Game.getObjectById(creep.memory.structureTargetId);
 
-        if ( === undefined ||  === null) {
+        if (hostileStructure === undefined || hostileStructure === null) {
             let hostileStructures;
             if (creep.room._allStructures) {
                 hostileStructures = creep.room._allStructures.filter(

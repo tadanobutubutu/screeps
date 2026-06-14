@@ -54,7 +54,7 @@ const autoTutorial = {
      */
     step1_createHarvester: function () {
         const spawn = Game.spawns['Spawn1'];
-        if ( === undefined ||  === null) {
+        if (spawn === undefined || spawn === null) {
             return;
         }
 

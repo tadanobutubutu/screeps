@@ -45,5 +45,6 @@
 **Action:** Replaced `findInRange` and `processedPairs` Set with an optimized `j`/`k` nested array loop in `handleSocialInteractions`.
 
 ## 2025-05-15 - [Efficient Memory Size Monitoring & Configuration Access]
+
 **Learning:** In Screeps, monitoring memory usage via `JSON.stringify(Memory).length` is extremely expensive as it serializes the entire 2MB heap every time it's called. `RawMemory.get().length` provides the same byte count at near-zero cost. Additionally, using `Object.entries()` on static config objects inside the main loop creates unnecessary array allocations every tick.
 **Action:** Replaced `JSON.stringify` with `RawMemory.get()` in `displayStats` and pre-calculated `Object.entries` for spawn configurations at the module level.

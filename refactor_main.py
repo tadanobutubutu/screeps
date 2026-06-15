@@ -1,6 +1,6 @@
 import sys
 
-with open('main.js', 'r') as f:
+with open("main.js", "r") as f:
     content = f.read()
 
 # Refactor processCreeps (around line 362)
@@ -347,5 +347,5 @@ if old_loop in content:
 else:
     print("loop not found")
 
-with open('main.js', 'w') as f:
+with open("main.js", "w") as f:
     f.write(content)

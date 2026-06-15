@@ -43,7 +43,11 @@ function _redactPaths (str) {
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
+    [100, 115, 110],
+    [112, 114, 105, 118, 97, 116, 101],
+    [115, 101, 115, 115, 105, 111, 110, 105, 100],
+    [107, 101, 121],
+    [112, 97, 115, 115]
   ]
     .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
     .join('|')
@@ -67,7 +71,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines

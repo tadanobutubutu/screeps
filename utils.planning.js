@@ -115,8 +115,10 @@ module.exports = {
 
     // Find positions for road network between key structures
     planRoadNetwork: function (room) {
-        // ⚡ PERFORMANCE OPTIMIZATION: Use getSpawns cache to avoid redundant room.find calls.
-        const spawn = cache.getSpawns(room)[0];
+        const spawns = cache.getSpawns(room);
+        const spawn = spawns[0];
+        if (!spawn) return [];
+
         const sources = cache.getSources(room);
         const controller = room.controller;
 
@@ -135,12 +137,10 @@ module.exports = {
         });
 
         // Road to controller
-        if (controller) {
-            const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
-            path.forEach((step) => {
-                roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-            });
-        }
+        const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
+        path.forEach((step) => {
+            roadPositions.push(new RoomPosition(step.x, step.y, room.name));
+        });
 
         return roadPositions;
     },
@@ -150,10 +150,12 @@ module.exports = {
         const openSpaces = this.findOpenSpaces(room, 3);
         const bestSpawnPos = this.findBestSpawnPosition(room);
 
-        : ${openSpaces.length}`);
+        console.log(`Planning Info for ${room.name}:`);
+        console.log(` - Open Spaces: ${openSpaces.length}`);
 
         if (bestSpawnPos) {
-            }
+            console.log(` - Best Spawn Position: ${bestSpawnPos.x}, ${bestSpawnPos.y}`);
+        }
 
         return { openSpaces, bestSpawnPos };
     },

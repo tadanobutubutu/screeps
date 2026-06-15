@@ -75,7 +75,7 @@ const autoTutorial = {
   step2_harvestEnergy: function () {
     const sourcesCache = {}
     for (const creep of Object.values(Game.creeps)) {
-      const creep = Game.creeps[name]
+      const name = creep.name
       const roomName = creep.room.name
 
       if (creep.store.getFreeCapacity() > 0) {
@@ -101,7 +101,7 @@ const autoTutorial = {
   step3_upgradeController: function () {
     const sourcesCache = {}
     for (const creep of Object.values(Game.creeps)) {
-      const creep = Game.creeps[name]
+      const name = creep.name
       const roomName = creep.room.name
 
       if (creep.store[RESOURCE_ENERGY] === 0) {
@@ -130,7 +130,7 @@ const autoTutorial = {
     const sourcesCache = {}
 
     for (const creep of Object.values(Game.creeps)) {
-      const creep = Game.creeps[name]
+      const name = creep.name
       const roomName = creep.room.name
 
       sitesCache[roomName] = sitesCache[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES)
@@ -183,7 +183,7 @@ const autoTutorial = {
 
     // 基本的なCreep動作
     for (const creep of Object.values(Game.creeps)) {
-      const creep = Game.creeps[name]
+      const name = creep.name
       const roomName = creep.room.name
 
       // エネルギーが空

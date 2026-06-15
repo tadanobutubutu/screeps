@@ -17,7 +17,7 @@ const LOG_EMOJIS = {
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
  * Screeps memory is limited to 2MB; unbounded logs can crash the AI.
  */
-const MAX_LOG_ENTRIES = 50
+const MAX_LOG_ENTRIES = 100
 const MAX_LOG_MESSAGE_LENGTH = 500
 
 /**
@@ -66,6 +66,20 @@ function _redactPaths (str) {
 }
 
 module.exports = {
+  escapeHTML (str) {
+    if (typeof str !== 'string') return str
+    return str.replace(/[&<>"']/g, function (m) {
+      switch (m) {
+        case '&': return '&amp;'
+        case '<': return '&lt;'
+        case '>': return '&gt;'
+        case '"': return '&quot;'
+        case "'": return '&#039;'
+        default: return m
+      }
+    })
+  },
+
   getSafeStack (stack, maxLines = 5) {
     if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
@@ -114,27 +128,21 @@ module.exports = {
   log (message, level = 'info') {
     if (!Array.isArray(Memory.logs)) Memory.logs = []
 
-    let actualLevel = level
-    let actualMessage = message
+    let actualLevel = level;
+    let actualMessage = message;
 
     // Check if the FIRST argument is a known level
-    const firstIsLevel =
-            Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) ||
-            (typeof message === 'string' && (message === 'toString' || message === 'constructor'))
+    const firstIsLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) || (typeof message === 'string' && (message === 'toString' || message === 'constructor'));
 
     if (firstIsLevel) {
-      actualLevel = message
-      actualMessage = level
+        actualLevel = message;
+        actualMessage = level;
     }
 
     // Security: Validate level
-    const isKnownLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, actualLevel)
-    const safeLevel = isKnownLevel
-      ? actualLevel
-      : typeof actualLevel === 'string'
-        ? actualLevel
-        : 'info'
-    const emoji = isKnownLevel ? LOG_EMOJIS[safeLevel] : '\ud83d\udcac'
+    const isKnownLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, actualLevel);
+    const safeLevel = isKnownLevel ? actualLevel : (typeof actualLevel === 'string' ? actualLevel : 'info');
+    const emoji = isKnownLevel ? LOG_EMOJIS[safeLevel] : '\ud83d\udcac';
 
     // Security: Truncate and redact message
     const rawMessage = String(

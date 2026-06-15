@@ -20,15 +20,16 @@ const memoryVisualizer = {
      * メモリ全体の統計を表示
      */
     showStats: function () {
+        const memorySize = typeof RawMemory !== 'undefined' ? RawMemory.get().length : JSON.stringify(Memory).length;
         const stats = {
-            totalSize: JSON.stringify(Memory).length,
+            totalSize: memorySize,
             creeps: Object.keys(Memory.creeps || {}).length,
             rooms: Object.keys(Memory.rooms || {}).length,
             flags: Object.keys(Memory.flags || {}).length,
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Memory Usage: ${(memorySize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -66,8 +67,9 @@ const memoryVisualizer = {
 
         sizes.sort((a, b) => b.size - a.size);
 
-        sizes.slice(0, limit).forEach((item, index) => {
-            });
+                sizes.slice(0, limit).forEach((item, index) => {
+            console.log(`[${index + 1}] ${item.type}:${item.name} - ${(item.size / 1024).toFixed(2)} KB`);
+        });
 
         return sizes;
     },
@@ -94,6 +96,7 @@ const memoryVisualizer = {
 
         const snapshot = {
             time: Game.time,
+            size: typeof RawMemory !== 'undefined' ? RawMemory.get().length : JSON.stringify(Memory).length,
             gcl: Game.gcl.level,
             cpu: Game.cpu.getUsed(),
             bucket: Game.cpu.bucket,
@@ -115,10 +118,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`Memory History (last ${ticks} ticks):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`
-            );
+            console.log(`[T:${snap.time}] Size: ${((snap.size || 0) / 1024).toFixed(2)} KB, Energy: ${snap.energy}`);
         });
 
         return snapshots;
@@ -190,10 +192,11 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        :`);
+        console.log(`Memory Leaderboard (${type}, top ${limit}):`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -244,14 +247,15 @@ const memoryVisualizer = {
     },
 
     readDiary: function (creepName) {
-        // Security: Validate creepName to prevent prototype pollution
         if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName]?.diary) {
             return [];
         }
 
         const diary = Memory.creeps[creepName].diary;
+        console.log(`Diary for ${creepName}:`);
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[T:${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -315,17 +319,16 @@ const memoryVisualizer = {
 
     showMap: function () {
         this.initMemoryMap();
-
+        console.log('Memory Map:');
         for (const roomName in Memory.map.rooms) {
-            if (
-                utilsMemory.isSafeKey(roomName) &&
-                Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
-            ) {
+            if (utilsMemory.isSafeKey(roomName) && Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                }
+                console.log(` - ${roomName}: Owner=${owner}, Level=${info.controller?.level ?? 0}, Sources=${info.sources}`);
+            }
         }
     },
+
 
     /**
      * メモリクリーナー
@@ -388,7 +391,8 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        },
+        console.log(`Memory backup created at T:${Game.time}`);
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

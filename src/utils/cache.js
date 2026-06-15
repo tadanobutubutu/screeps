@@ -368,7 +368,15 @@ function assignSource(creep, room) {
     return bestSource;
 }
 
+function reset() {
+    _cacheSize = -1;
+    _lastCacheRef = null;
+    _cacheOrder.clear();
+    global.cache = Object.create(null);
+}
+
 module.exports = {
+    reset,
     get,
     invalidate,
     invalidatePattern,

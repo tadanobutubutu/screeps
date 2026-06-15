@@ -8,6 +8,9 @@ global.console = { log: jest.fn() };
 const dailyChallenge = require('../daily-challenge');
 
 describe('daily-challenge', () => {
+    beforeAll(() => {
+        global.Game = { time: 100 };
+    });
     beforeEach(() => {
         global.Memory = {};
         jest.clearAllMocks();

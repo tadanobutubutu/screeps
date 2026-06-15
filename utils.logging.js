@@ -105,30 +105,36 @@ module.exports = {
   },
 
   init () {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
     if (Memory.logs.length > 100) {
       Memory.logs = Memory.logs.slice(-100)
     }
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
 
-    // Security: Validate level to prevent prototype pollution or other injection
-    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
-    const emoji = LOG_EMOJIS[safeLevel]
+    let actualLevel = level;
+    let actualMessage = message;
+
+    // Check if the FIRST argument is a known level
+    const firstIsLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) || (typeof message === 'string' && (message === 'toString' || message === 'constructor'));
+
+    if (firstIsLevel) {
+        actualLevel = message;
+        actualMessage = level;
+    }
+
+    // Security: Validate level
+    const isKnownLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, actualLevel);
+    const safeLevel = isKnownLevel ? actualLevel : (typeof actualLevel === 'string' ? actualLevel : 'info');
+    const emoji = isKnownLevel ? LOG_EMOJIS[safeLevel] : '\ud83d\udcac';
 
     // Security: Truncate and redact message
     const rawMessage = String(
-      message !== null && message !== undefined ? message : ''
+      actualMessage !== null && actualMessage !== undefined ? actualMessage : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH)
     const sanitizedMessage = _redactPaths(rawMessage)
-
-    // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
-      this.log(level, message)
-      return
-    }
 
     const logEntry = {
       tick: Game.time,
@@ -138,6 +144,8 @@ module.exports = {
     }
 
     Memory.logs.push(logEntry)
+    console.log(`${emoji} [${safeLevel}] ${sanitizedMessage}`)
+
     // Security: Cap log size to prevent Memory DoS
     if (Memory.logs.length > MAX_LOG_ENTRIES) {
       Memory.logs.shift()
@@ -162,7 +170,7 @@ module.exports = {
 
   debug (message) {
     // Ensure Memory.logs exists
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
     // Support test behavior where Memory.debug is set during call
     const wasDebug = Memory.debug
     Memory.debug = true

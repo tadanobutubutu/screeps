@@ -1,3 +1,4 @@
+const logger = require('./utils.logging');
 /**
  * Auto Evolution System - 自動進化AI
  * ゲーム状況に応じて自動的に新コードを生成・更新
@@ -342,10 +343,10 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (need) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
+            logger.info('Evolution need queued: ' + need.type);
         }
     },
 
@@ -417,7 +418,6 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        );
         },
 
     /**
@@ -480,20 +480,22 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
+        logger.info('Auto Evolution Dashboard');
+        logger.info('Last run: ' + (Game.time - evo.lastRun) + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                }
+                logger.info(`[${h.tick}] ${h.type}: ${h.action}`);
+            }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                logger.info(`QUEUE: ${q.type} - ${q.action}`);
             }
         }
 
@@ -501,7 +503,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                logger.info(`SUGGESTION: ${s.type} for ${s.filename}`);
             }
         }
     },

@@ -5,33 +5,24 @@ export default function Dashboard() {
     const [stats, setStats] = useState<any>(null),
         [error, setError] = useState<string | null>(null),
         [loading, setLoading] = useState(true),
-        [refreshing, setRefreshing] = useState(false),
-        [lastUpdated, setLastUpdated] = useState<string | null>(null),
         [copied, setCopied] = useState(false),
         [focused, setFocused] = useState(false);
-
-    const loadData = (init = false) => {
+    const [upd, setUpd] = useState(false);
+    const [last, setLast] = useState<string>();
+    const load = (init = false) => {
         if (init) setLoading(true);
-        else setRefreshing(true);
-        fetch('/api/screeps?endpoint=overview')
-            .then(async (r) => {
-                const d = await r.json();
-                if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
-                return d;
-            })
-            .then((d) => {
-                setStats(d);
-                setLastUpdated(new Date().toLocaleTimeString('ja-JP'));
-                setError(null);
-            })
-            .catch((e) => setError(e.message || String(e)))
-            .finally(() => {
-                setLoading(false);
-                setRefreshing(false);
-            });
+        else setUpd(true);
+        fetch('/api/screeps?endpoint=overview').then(r => r.json().then(d => {
+            if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
+            setStats(d);
+            setLast(new Date().toLocaleTimeString('ja-JP'));
+            setError(null);
+        })).catch(e => setError(e.message || String(e))).finally(() => {
+            setLoading(false);
+            setUpd(false);
+        });
     };
-
-    useEffect(() => loadData(true), []);
+    useEffect(() => load(true), []);
     const copyErr = () =>
         error &&
         navigator.clipboard.writeText(error).then(() => {
@@ -83,25 +74,9 @@ export default function Dashboard() {
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
-                <button
-                    onClick={() => loadData()}
-                    disabled={refreshing}
-                    aria-label={refreshing ? '更新中' : 'データを更新'}
-                    className="interactive-hint"
-                    style={{
-                        backgroundColor: 'transparent',
-                        border: '1px solid #004b73',
-                        color: '#004b73',
-                        padding: '0.4rem 0.8rem',
-                        borderRadius: '4px',
-                        cursor: refreshing ? 'wait' : 'pointer',
-                    }}
-                >
-                    <span style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>
-                        🔄
-                    </span>
-                    {refreshing ? '更新中' : '更新'}
+                <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
+                <button onClick={() => load()} disabled={upd} aria-label={upd ? '更新中' : '更新'} className="interactive-hint" style={{ background: 'none', border: '1px solid #004b73', color: '#004b73', padding: '0.4rem 0.8rem', borderRadius: '4px' }}>
+                    <span style={{ animation: upd ? 'spin 1s linear infinite' : 'none', display: 'inline-block' }}>🔄</span> {upd ? '...' : '更新'}
                 </button>
             </div>
             <div
@@ -120,10 +95,8 @@ export default function Dashboard() {
                     %)
                 </p>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
-                <p>
-                    🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
-                </p>
-                {lastUpdated && <small style={{ color: '#718096' }}>最終更新: {lastUpdated}</small>}
+                <p>🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}</p>
+                {last && <small style={{ color: '#718096' }}>最終更新: {last}</small>}
             </div>
             <details style={{ cursor: 'pointer' }}>
                 <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>

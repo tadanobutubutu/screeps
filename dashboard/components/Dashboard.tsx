@@ -123,9 +123,7 @@ export default function Dashboard() {
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
-                {lastUpdated && (
-                    <small style={{ color: '#718096' }}>最終更新: {lastUpdated}</small>
-                )}
+                {lastUpdated && <small style={{ color: '#718096' }}>最終更新: {lastUpdated}</small>}
             </div>
             <details style={{ cursor: 'pointer' }}>
                 <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>

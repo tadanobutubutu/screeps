@@ -5,9 +5,14 @@ export default function Dashboard() {
     const [stats, setStats] = useState<any>(null),
         [error, setError] = useState<string | null>(null),
         [loading, setLoading] = useState(true),
+        [refreshing, setRefreshing] = useState(false),
+        [lastUpdated, setLastUpdated] = useState<string | null>(null),
         [copied, setCopied] = useState(false),
         [focused, setFocused] = useState(false);
-    useEffect(() => {
+
+    const loadData = (init = false) => {
+        if (init) setLoading(true);
+        else setRefreshing(true);
         fetch('/api/screeps?endpoint=overview')
             .then(async (r) => {
                 const d = await r.json();
@@ -16,13 +21,17 @@ export default function Dashboard() {
             })
             .then((d) => {
                 setStats(d);
-                setLoading(false);
+                setLastUpdated(new Date().toLocaleTimeString('ja-JP'));
+                setError(null);
             })
-            .catch((e) => {
-                setError(e.message || String(e));
+            .catch((e) => setError(e.message || String(e)))
+            .finally(() => {
                 setLoading(false);
+                setRefreshing(false);
             });
-    }, []);
+    };
+
+    useEffect(() => loadData(true), []);
     const copyErr = () =>
         error &&
         navigator.clipboard.writeText(error).then(() => {
@@ -73,7 +82,28 @@ export default function Dashboard() {
         );
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
+                <button
+                    onClick={() => loadData()}
+                    disabled={refreshing}
+                    aria-label={refreshing ? '更新中' : 'データを更新'}
+                    className="interactive-hint"
+                    style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid #004b73',
+                        color: '#004b73',
+                        padding: '0.4rem 0.8rem',
+                        borderRadius: '4px',
+                        cursor: refreshing ? 'wait' : 'pointer',
+                    }}
+                >
+                    <span style={{ animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>
+                        🔄
+                    </span>
+                    {refreshing ? '更新中' : '更新'}
+                </button>
+            </div>
             <div
                 style={{
                     marginBottom: '1rem',
@@ -93,6 +123,9 @@ export default function Dashboard() {
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
+                {lastUpdated && (
+                    <small style={{ color: '#718096' }}>最終更新: {lastUpdated}</small>
+                )}
             </div>
             <details style={{ cursor: 'pointer' }}>
                 <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>

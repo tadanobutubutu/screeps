@@ -515,8 +515,18 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     console.log('--- Core Stats ---');
-    console.log('Mode: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase());
-    console.log('CPU: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit + ' (Bucket: ' + Game.cpu.bucket + ')');
+    console.log(
+        'Mode: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase()
+    );
+    console.log(
+        'CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
+            '/' +
+            Game.cpu.limit +
+            ' (Bucket: ' +
+            Game.cpu.bucket +
+            ')'
+    );
     console.log('Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
@@ -529,7 +539,14 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    console.log('Emotions: Very Happy: ' + emotionStats.veryHappy + ', Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
+    console.log(
+        'Emotions: Very Happy: ' +
+            emotionStats.veryHappy +
+            ', Happy: ' +
+            emotionStats.happy +
+            ', Neutral: ' +
+            emotionStats.neutral
+    );
 }
 
 function _displayGamificationStats() {
@@ -654,7 +671,9 @@ function handleSocialInteractions(rooms) {
 module.exports.loop = function () {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -666,7 +685,7 @@ module.exports.loop = function () {
     // Auto-adjust priority based on current needs
     if (Game.time % 500 === 0) {
         const counts = {};
-        Object.values(Game.creeps).forEach(c => {
+        Object.values(Game.creeps).forEach((c) => {
             counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
         });
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));

@@ -56,8 +56,8 @@
 
 ### Supabase Packages Update
 
-- Updated @supabase/supabase-js from version 2.107.0 to 2.108.0.
-- Updated @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js to version 2.108.0.
+- Updated @supabase/supabase-js from version 2.107.0 to 2.108.2.
+- Indirectly updated dependencies: @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js all to version 2.108.2.
 - Updated package integrity hashes for all affected packages.
 
 <!-- TZYLO:DEP_END -->
@@ -74,6 +74,20 @@
 ## 🐛 Bug Fixes
 
 <!-- TZYLO:FIX_START -->
+
+### Authentication and Session Management
+
+- Preserve valid session on refresh failure and cooldown repeat failures.
+
+### Realtime Communication
+
+- Clarified httpSend() 404 error handling and server migration notes.
+
+### JSR Publishing
+
+- Pinned Deno version and bound JSR publish to prevent stranded-task hangs.
+- Restored JSR publish flags and enabled for beta.
+
 <!-- TZYLO:FIX_END -->
 
 ---

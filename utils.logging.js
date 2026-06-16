@@ -67,7 +67,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines
@@ -125,7 +125,11 @@ module.exports = {
     const sanitizedMessage = _redactPaths(rawMessage)
 
     // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
+    // Security: Only swap if the level argument is NOT already a valid level to prevent infinite recursion
+    if (
+      Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) &&
+      !Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+    ) {
       this.log(level, message)
       return
     }

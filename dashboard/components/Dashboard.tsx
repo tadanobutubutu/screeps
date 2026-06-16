@@ -5,23 +5,30 @@ export default function Dashboard() {
     const [stats, setStats] = useState<any>(null),
         [error, setError] = useState<string | null>(null),
         [loading, setLoading] = useState(true),
+        [refreshing, setRefreshing] = useState(false),
         [copied, setCopied] = useState(false),
-        [focused, setFocused] = useState(false);
+        [focused, setFocused] = useState(false),
+        [refreshFocused, setRefreshFocused] = useState(false);
+
+    const fetchData = async (isRefresh = false) => {
+        if (isRefresh) setRefreshing(true);
+        else setLoading(true);
+        setError(null);
+        try {
+            const r = await fetch('/api/screeps?endpoint=overview');
+            const d = await r.json();
+            if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
+            setStats(d);
+        } catch (e: any) {
+            setError(e.message || String(e));
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    };
+
     useEffect(() => {
-        fetch('/api/screeps?endpoint=overview')
-            .then(async (r) => {
-                const d = await r.json();
-                if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
-                return d;
-            })
-            .then((d) => {
-                setStats(d);
-                setLoading(false);
-            })
-            .catch((e) => {
-                setError(e.message || String(e));
-                setLoading(false);
-            });
+        fetchData();
     }, []);
     const copyErr = () =>
         error &&
@@ -39,7 +46,48 @@ export default function Dashboard() {
     if (error)
         return (
             <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        marginBottom: '1rem',
+                    }}
+                >
+                    <h1 style={{ color: '#b71c1c', margin: 0 }}>⚠️ エラー</h1>
+                    <button
+                        onClick={() => fetchData(true)}
+                        onFocus={() => setRefreshFocused(true)}
+                        onBlur={() => setRefreshFocused(false)}
+                        disabled={refreshing}
+                        title={refreshing ? '更新中...' : '再試行'}
+                        aria-label={refreshing ? '更新中...' : '再試行'}
+                        style={{
+                            backgroundColor: 'transparent',
+                            border: '1px solid #b71c1c',
+                            color: '#b71c1c',
+                            borderRadius: '4px',
+                            padding: '0.4rem',
+                            cursor: refreshing ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            outline: 'none',
+                            boxShadow: refreshFocused ? '0 0 0 3px rgba(183, 28, 28, 0.4)' : 'none',
+                            transition: 'all 0.2s ease',
+                        }}
+                    >
+                        <span
+                            style={{
+                                display: 'inline-block',
+                                animation: refreshing ? 'spin 1s linear infinite' : 'none',
+                                fontSize: '1.2rem',
+                            }}
+                        >
+                            🔄
+                        </span>
+                    </button>
+                </div>
                 <pre
                     style={{
                         color: '#c53030',
@@ -73,7 +121,48 @@ export default function Dashboard() {
         );
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    marginBottom: '1rem',
+                }}
+            >
+                <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
+                <button
+                    onClick={() => fetchData(true)}
+                    onFocus={() => setRefreshFocused(true)}
+                    onBlur={() => setRefreshFocused(false)}
+                    disabled={refreshing}
+                    title={refreshing ? '更新中...' : 'データを更新'}
+                    aria-label={refreshing ? '更新中...' : 'データを更新'}
+                    style={{
+                        backgroundColor: 'transparent',
+                        border: '1px solid #004b73',
+                        color: '#004b73',
+                        borderRadius: '4px',
+                        padding: '0.4rem',
+                        cursor: refreshing ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        outline: 'none',
+                        boxShadow: refreshFocused ? '0 0 0 3px rgba(0, 75, 115, 0.4)' : 'none',
+                        transition: 'all 0.2s ease',
+                    }}
+                >
+                    <span
+                        style={{
+                            display: 'inline-block',
+                            animation: refreshing ? 'spin 1s linear infinite' : 'none',
+                            fontSize: '1.2rem',
+                        }}
+                    >
+                        🔄
+                    </span>
+                </button>
+            </div>
             <div
                 style={{
                     marginBottom: '1rem',

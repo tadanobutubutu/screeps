@@ -15,7 +15,8 @@ export default function Dashboard() {
         else setLoading(true);
         setError(null);
         try {
-            const token = typeof window !== 'undefined' ? sessionStorage.getItem('dashboard_token') : null;
+            const token =
+                typeof window !== 'undefined' ? sessionStorage.getItem('dashboard_token') : null;
             const res = await fetch('/api/screeps?endpoint=overview', {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
@@ -85,7 +86,14 @@ export default function Dashboard() {
     if (error)
         return (
             <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        marginBottom: '1rem',
+                    }}
+                >
                     <h1 style={{ color: '#b71c1c', margin: 0 }}>⚠️ エラー</h1>
                     <RefreshBtn label="再試行" small />
                 </div>

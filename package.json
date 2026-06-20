@@ -52,7 +52,7 @@
         "jest-junit": "^17.0.0",
         "lint-staged": "^17.0.5",
         "prettier": "^3.8.4",
-        "rollup": "^4.62.0"
+        "rollup": "^4.62.2"
     },
     "overrides": {
         "undici": ">=6.24.0",

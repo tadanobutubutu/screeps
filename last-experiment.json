@@ -1,6 +1,6 @@
 {
-  "experiment": "improve-spawn-priority",
-  "description": "スポーン優先度ロジックを改善",
-  "timestamp": "2026-06-13T20:16:35.082Z",
-  "status": "skipped"
+  "experiment": "add-energy-efficiency",
+  "description": "エネルギー効率トラッキング",
+  "timestamp": "2026-06-20T20:15:08.436Z",
+  "status": "applied"
 }

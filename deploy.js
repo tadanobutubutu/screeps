@@ -72,20 +72,26 @@ function injectEnvVars (content) {
  */
 function sanitizeLog (str) {
   if (typeof str !== 'string') return str
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // 🛡️ SECURITY: Prevent false positive redaction of divisions (e.g., 1.5/10.0)
+  // by requiring at least one letter after the leading slash.
+  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[a-zA-Z][^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive information with improved pattern and obfuscated keywords.
   const keys = [
-    [116, 111, 107, 101, 110],
-    [112, 97, 115, 115, 119, 111, 114, 100],
-    [115, 101, 99, 114, 101, 116],
-    [97, 112, 105, 95, 107, 101, 121],
-    [97, 112, 105, 75, 101, 121],
-    [97, 117, 116, 104],
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-    [98, 101, 97, 114, 101, 114],
-    [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
+    [116, 111, 107, 101, 110], // token
+    [112, 97, 115, 115, 119, 111, 114, 100], // password
+    [115, 101, 99, 114, 101, 116], // secret
+    [97, 112, 105, 95, 107, 101, 121], // api_key
+    [97, 112, 105, 75, 101, 121], // apiKey
+    [97, 117, 116, 104], // auth
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108], // credential
+    [98, 101, 97, 114, 101, 114], // bearer
+    [115, 101, 115, 115, 105, 111, 110], // session
+    [100, 115, 110], // dsn
+    [112, 97, 115, 115], // pass
+    [107, 101, 121], // key
+    [112, 114, 105, 118, 97, 116, 101], // private
+    [115, 101, 115, 115, 105, 111, 110, 105, 100] // sessionid
   ]
     .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
     .join('|')

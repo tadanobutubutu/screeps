@@ -54,6 +54,11 @@
 - Gitleaks v3 requires Node 24 runtime.
 - No changes to inputs, outputs, or behavior with the Gitleaks action.
 
+### actions/checkout Version Update
+
+- Updated actions/checkout from v4 to v7 across multiple workflow files.
+- Ensures workflows use the latest features and fixes provided in v7.
+
 ### Supabase Packages Update
 
 - Updated @supabase/supabase-js from version 2.107.0 to 2.108.2.

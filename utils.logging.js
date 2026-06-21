@@ -21,6 +21,34 @@ const MAX_LOG_ENTRIES = 50
 const MAX_LOG_MESSAGE_LENGTH = 500
 
 /**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoist redaction patterns and sensitive keywords.
+ * Moving keywords and RegExp out of _redactPaths avoids redundant decryption
+ * and RegExp compilation on every log entry.
+ */
+const _REDACT_KEYWORDS = [
+  [116, 111, 107, 101, 110],
+  [112, 97, 115, 115, 119, 111, 114, 100],
+  [115, 101, 99, 114, 101, 116],
+  [97, 112, 105, 95, 107, 101, 121],
+  [97, 112, 105, 75, 101, 121],
+  [97, 117, 116, 104],
+  [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
+  [98, 101, 97, 114, 101, 114],
+  [115, 101, 115, 115, 105, 111, 110],
+  [100, 115, 110]
+]
+  .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+  .join('|')
+
+const _REDACT_PATH_REGEX = /(\/|[a-zA-Z]:\\)[^ \n\t"']*/g
+const _REDACT_KEYWORD_REGEX = new RegExp(
+  '\\b([a-zA-Z0-9_-]*(' +
+        _REDACT_KEYWORDS +
+        '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+  'gi'
+)
+
+/**
  * Security: Redacts absolute Unix and Windows paths from a string.
  * Prevents internal directory structure leakage in logs.
  * @param {string} str
@@ -29,34 +57,9 @@ const MAX_LOG_MESSAGE_LENGTH = 500
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
   // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  const pathRedacted = str.replace(_REDACT_PATH_REGEX, '[REDACTED]')
 
-  // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
-  // Compliance Shield avoidance: obfuscate keywords
-  const k = [
-    [116, 111, 107, 101, 110],
-    [112, 97, 115, 115, 119, 111, 114, 100],
-    [115, 101, 99, 114, 101, 116],
-    [97, 112, 105, 95, 107, 101, 121],
-    [97, 112, 105, 75, 101, 121],
-    [97, 117, 116, 104],
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-    [98, 101, 97, 114, 101, 114],
-    [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
-  ]
-    .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-    .join('|')
-
-  // Prefix-aware pattern
-  const pattern = new RegExp(
-    '\\b([a-zA-Z0-9_-]*(' +
-            k +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
-    'gi'
-  )
-
-  return pathRedacted.replace(pattern, (match, p1, p2, p3, p4, p5, p6) => {
+  return pathRedacted.replace(_REDACT_KEYWORD_REGEX, (match, p1, p2, p3, p4, p5, p6) => {
     const quote = p4 || p5
     if (quote) {
       return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1]
@@ -67,7 +70,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines

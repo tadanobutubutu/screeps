@@ -524,7 +524,9 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     const mode = adaptiveSystem.getModeName(Memory.adaptive.currentMode);
-    logger.info('--- TICK: ' + Game.time + ' | MODE: ' + (mode || 'unknown').toUpperCase() + ' ---');
+    logger.info(
+        '--- TICK: ' + Game.time + ' | MODE: ' + (mode || 'unknown').toUpperCase() + ' ---'
+    );
     logger.info('Creeps: ' + creeps.length);
     logger.info(
         'CPU: ' +
@@ -680,7 +682,9 @@ function handleSocialInteractions(rooms) {
 module.exports.loop = function () {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -711,7 +715,7 @@ module.exports.loop = function () {
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
-            }
+        }
     }
 
     try {

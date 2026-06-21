@@ -29,7 +29,7 @@
     },
     "homepage": "https://github.com/tadanobutubutu/screeps#readme",
     "dependencies": {
-        "@sentry/browser": "10.57.0",
+        "@sentry/browser": "10.59.0",
         "@supabase/supabase-js": "^2.108.2",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",

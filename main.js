@@ -391,8 +391,14 @@ function handleSpawning(spawn, creepCounts, targetCreepsEntries, isLoggingEnable
 
         const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
         if (isVisualEffectsEnabled) {
-            const progress = (spawn.spawning.needTime - spawn.spawning.remainingTime) / spawn.spawning.needTime;
-            vfx.progressBar({ x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name }, progress, 1, 'SPAWNING');
+            const progress =
+                (spawn.spawning.needTime - spawn.spawning.remainingTime) / spawn.spawning.needTime;
+            vfx.progressBar(
+                { x: spawn.pos.x, y: spawn.pos.y + 1, roomName: spawn.room.name },
+                progress,
+                1,
+                'SPAWNING'
+            );
         }
 
         if (isVisualEffectsEnabled && Game.time % 5 === 0) {
@@ -470,7 +476,9 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     const mode = adaptiveSystem.getModeName(Memory.adaptive.currentMode);
-    logger.info('--- TICK: ' + Game.time + ' | MODE: ' + (mode || 'unknown').toUpperCase() + ' ---');
+    logger.info(
+        '--- TICK: ' + Game.time + ' | MODE: ' + (mode || 'unknown').toUpperCase() + ' ---'
+    );
     logger.info('Creeps: ' + creeps.length);
     logger.info(
         'CPU: ' +
@@ -626,7 +634,9 @@ function handleSocialInteractions(rooms) {
 function handleMaintenance() {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -690,7 +700,9 @@ module.exports.loop = function () {
         const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
         const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
 
-        const targetCreepsEntries = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED_ENTRIES : TARGET_CREEPS_NORMAL_ENTRIES;
+        const targetCreepsEntries = isAdvancedRolesEnabled
+            ? TARGET_CREEPS_ADVANCED_ENTRIES
+            : TARGET_CREEPS_NORMAL_ENTRIES;
 
         const creepCounts = processCreeps(
             rooms,

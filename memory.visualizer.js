@@ -66,8 +66,7 @@ const memoryVisualizer = {
 
         sizes.sort((a, b) => b.size - a.size);
 
-        sizes.slice(0, limit).forEach((item, index) => {
-            });
+        sizes.slice(0, limit).forEach((item, index) => {});
 
         return sizes;
     },
@@ -117,7 +116,9 @@ const memoryVisualizer = {
 
         logger.info('Memory History:');
         snapshots.forEach((snap) => {
-            logger.info(`Tick: ${snap.tick}, Size: ${(snap.size / 1024).toFixed(2)} KB, Energy: ${snap.energy}`);
+            logger.info(
+                `Tick: ${snap.tick}, Size: ${(snap.size / 1024).toFixed(2)} KB, Energy: ${snap.energy}`
+            );
         });
 
         return snapshots;
@@ -250,8 +251,7 @@ const memoryVisualizer = {
         }
 
         const diary = Memory.creeps[creepName].diary;
-        diary.entries.forEach((entry) => {
-            });
+        diary.entries.forEach((entry) => {});
 
         return diary.entries;
     },
@@ -323,7 +323,7 @@ const memoryVisualizer = {
             ) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                }
+            }
         }
     },
 
@@ -387,8 +387,7 @@ const memoryVisualizer = {
         if (Memory.backups.length > 5) {
             Memory.backups.shift();
         }
-
-        },
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

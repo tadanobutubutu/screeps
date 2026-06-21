@@ -361,10 +361,10 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        );
+        logger.info('Emotions for ' + creepName + ': Current=' + emotions.current + ', Score=' + emotions.score);
         if (emotions.achievements.length > 0) {
             emotions.achievements.forEach((a) => {
-                ');
+                logger.info('Achievement: ' + a);
             });
         }
     }

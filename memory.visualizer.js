@@ -21,14 +21,14 @@ const memoryVisualizer = {
      */
     showStats: function () {
         const stats = {
-            totalSize: JSON.stringify(Memory).length,
+            totalSize: RawMemory.get().length,
             creeps: Object.keys(Memory.creeps || {}).length,
             rooms: Object.keys(Memory.rooms || {}).length,
             flags: Object.keys(Memory.flags || {}).length,
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        logger.info(`Memory Usage: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -115,10 +115,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        logger.info('Memory History:');
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`
-            );
+            logger.info(`Tick: ${snap.tick}, Size: ${(snap.size / 1024).toFixed(2)} KB, Energy: ${snap.energy}`);
         });
 
         return snapshots;
@@ -190,10 +189,11 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        :`);
+        logger.info(`Leaderboard (${type}):`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            logger.info(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },

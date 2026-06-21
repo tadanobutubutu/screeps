@@ -150,10 +150,11 @@ module.exports = {
         const openSpaces = this.findOpenSpaces(room, 3);
         const bestSpawnPos = this.findBestSpawnPosition(room);
 
-        : ${openSpaces.length}`);
+        logger.info('Open Spaces: ' + openSpaces.length);
 
         if (bestSpawnPos) {
-            }
+            logger.info('Best Spawn Position: ' + bestSpawnPos.x + ',' + bestSpawnPos.y);
+        }
 
         return { openSpaces, bestSpawnPos };
     },

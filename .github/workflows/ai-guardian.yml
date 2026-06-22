@@ -99,12 +99,12 @@ jobs:
 
       # 5. CodeQL: GitHub Native Security Analysis
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           languages: javascript
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         id: codeql
         continue-on-error: true
 

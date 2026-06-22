@@ -7,6 +7,18 @@
 
 const utilsMemory = require('./utils.memory');
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted require('crypto') to module scope.
+ * While crypto might not be available in all environments, attempting the require
+ * once at startup is more efficient than repeated try/catch blocks in hot paths.
+ */
+let crypto;
+try {
+    crypto = require('crypto');
+} catch (e) {
+    // crypto not available
+}
+
 const EMOTIONS = {
     HAPPY: '😊',
     EXCITED: '🤩',
@@ -92,13 +104,12 @@ class EmotionSystem {
     }
 
     static generatePersonality() {
-        try {
-            const crypto = require('crypto');
-            if (crypto && crypto.randomInt) {
+        if (crypto && crypto.randomInt) {
+            try {
                 return PERSONALITY_TRAITS[crypto.randomInt(0, PERSONALITY_TRAITS.length)];
+            } catch (e) {
+                // Fallback if randomInt fails for some reason
             }
-        } catch (e) {
-            // Fallback
         }
         // Fallback to Math.random() if crypto.randomInt is not available
         return PERSONALITY_TRAITS[Math.floor(Math.random() * PERSONALITY_TRAITS.length)];
@@ -348,11 +359,13 @@ class EmotionSystem {
     static checkCreep(creepName) {
         // Security: プロトタイプ汚染対策のため、名前を検証
         if (!utilsMemory.isSafeKey(creepName)) {
+            console.log('❌ Invalid creep name');
             return;
         }
 
         const creep = Game.creeps[creepName];
         if (creep === undefined || creep === null) {
+            console.log('❌ Creep not found');
             return;
         }
 
@@ -361,10 +374,16 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        );
+        console.log('\n🤖 Creep Emotion Report');
+        console.log('Name:', creepName);
+        console.log('Mood:', this.getMoodDescription(creep));
+        console.log('XP:', emotions.experiencePoints);
+        console.log('Personality:', emotions.personalityTraits);
+
         if (emotions.achievements.length > 0) {
+            console.log('\n🏆 Achievements:');
             emotions.achievements.forEach((a) => {
-                ');
+                console.log('-', a.name, '(tick', a.tick, ')');
             });
         }
     }

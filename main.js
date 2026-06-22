@@ -517,7 +517,9 @@ function _displayCoreStats(creeps) {
             ).toUpperCase() +
             ' ---'
     );
-    logger.info('Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')');
+    logger.info(
+        'Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')'
+    );
     logger.info(
         'CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -539,12 +541,7 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    logger.info(
-        'Emotions - Happy: ' +
-            emotionStats.happy +
-            ', Neutral: ' +
-            emotionStats.neutral
-    );
+    logger.info('Emotions - Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
 }
 
 function _displayGamificationStats() {

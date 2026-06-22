@@ -355,37 +355,43 @@ function warmRoomCache(room) {
     categorizeRoomStructures(room, allStructures);
 }
 
+function _processCreepRole(creep, creepCounts, isLoggingEnabled) {
+    const memory = creep.memory;
+    let role = memory.role;
+    if (role === undefined || role === null) {
+        role = memory.role = 'harvester';
+        if (isLoggingEnabled) {
+            logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
+        }
+    }
+    creep._role = role;
+    creepCounts[role] = (creepCounts[role] || 0) + 1;
+    return role;
+}
+
+function _processCreepRoomStats(creep, role) {
+    const room = creep.room;
+    if (!room) return;
+    room._myCreeps.push(creep);
+    if (room._roleCounts[role] !== undefined) {
+        room._roleCounts[role]++;
+    }
+    if (creep.hits < creep.hitsMax) {
+        room._injuredCreeps.push(creep);
+        if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
+            room._criticalCreep = creep;
+        }
+    }
+    if (role === 'defender') {
+        room._defenders.push(creep);
+    }
+}
+
 function _collectCreepData(creeps, creepCounts, isLoggingEnabled) {
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
-        const memory = creep.memory;
-        let role = memory.role;
-
-        if (role === undefined || role === null) {
-            role = memory.role = 'harvester';
-            if (isLoggingEnabled) {
-                logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
-            }
-        }
-        creep._role = role;
-        creepCounts[role] = (creepCounts[role] || 0) + 1;
-
-        const room = creep.room;
-        if (room) {
-            room._myCreeps.push(creep);
-            if (room._roleCounts[role] !== undefined) {
-                room._roleCounts[role]++;
-            }
-            if (creep.hits < creep.hitsMax) {
-                room._injuredCreeps.push(creep);
-                if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
-                    room._criticalCreep = creep;
-                }
-            }
-            if (role === 'defender') {
-                room._defenders.push(creep);
-            }
-        }
+        const role = _processCreepRole(creep, creepCounts, isLoggingEnabled);
+        _processCreepRoomStats(creep, role);
     }
 }
 
@@ -517,9 +523,7 @@ function _displayCoreStats(creeps) {
             ).toUpperCase() +
             ' ---'
     );
-    logger.info(
-        'Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')'
-    );
+    logger.info('Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')');
     logger.info(
         'CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -541,7 +545,12 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    logger.info('Emotions - Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
+    logger.info(
+        'Emotions - Happy: ' +
+            emotionStats.happy +
+            ', Neutral: ' +
+            emotionStats.neutral
+    );
 }
 
 function _displayGamificationStats() {
@@ -721,6 +730,12 @@ function _initGlobalState() {
     }
 }
 
+function _manageSpawning(creepCounts, targetCreeps, isLoggingEnabled) {
+    for (let i = 0; i < global._spawns.length; i++) {
+        handleSpawning(global._spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
+    }
+}
+
 function _runAILogic() {
     const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
     const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
@@ -741,10 +756,7 @@ function _runAILogic() {
         autoEvolution.run();
     }
 
-    for (let i = 0; i < global._spawns.length; i++) {
-        handleSpawning(global._spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
-    }
-
+    _manageSpawning(creepCounts, targetCreeps, isLoggingEnabled);
     handleSocialInteractions(global._rooms);
     handleDefenseAndDashboard(global._rooms, isLoggingEnabled, isVisualEffectsEnabled);
 

@@ -355,25 +355,7 @@ function warmRoomCache(room) {
     categorizeRoomStructures(room, allStructures);
 }
 
-function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
-    const creepCounts = Object.create(null);
-
-    // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
-    for (let i = 0; i < rooms.length; i++) {
-        warmRoomCache(rooms[i]);
-    }
-
-    // ⚡ PERFORMANCE: 建設サイトの処理
-    for (let i = 0; i < sites.length; i++) {
-        const site = sites[i];
-        if (site.my && site.room) {
-            site.room._myConstructionSites.push(site);
-        }
-    }
-
-    // Pass 1: データ収集
-    // ⚡ PERFORMANCE: 以前の creepsToProcess 配列の作成を回避し、
-    // 中間オブジェクトの割り当てをなくす。
+function _collectCreepData(creeps, creepCounts, isLoggingEnabled) {
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
         const memory = creep.memory;
@@ -385,7 +367,6 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
                 logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
             }
         }
-        // ⚡ PERFORMANCE: Cache role as a volatile property to avoid second Proxy lookup in Pass 2.
         creep._role = role;
         creepCounts[role] = (creepCounts[role] || 0) + 1;
 
@@ -397,9 +378,6 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
             }
             if (creep.hits < creep.hitsMax) {
                 room._injuredCreeps.push(creep);
-
-                // ⚡ PERFORMANCE: Hoist critical creep detection (hits < 50%)
-                // This avoids redundant per-tower searches in defense.manager.js.
                 if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
                     room._criticalCreep = creep;
                 }
@@ -409,16 +387,33 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
             }
         }
     }
+}
 
-    // Pass 2: ロジック実行
-    // ⚡ PERFORMANCE: 収集完了後（部屋の統計が揃った状態）でロジックを実行。
+function _warmCaches(rooms, sites) {
+    for (let i = 0; i < rooms.length; i++) {
+        warmRoomCache(rooms[i]);
+    }
+    for (let i = 0; i < sites.length; i++) {
+        const site = sites[i];
+        if (site.my && site.room) {
+            site.room._myConstructionSites.push(site);
+        }
+    }
+}
+
+function _executeCreepLogic(creeps, isLoggingEnabled, isEmotionsEnabled) {
     const processFn = isLoggingEnabled ? runCreepWithLogging : runCreepMinimal;
-
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
         processFn(creep, creep._role, creep.name, isEmotionsEnabled);
     }
+}
 
+function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
+    const creepCounts = Object.create(null);
+    _warmCaches(rooms, sites);
+    _collectCreepData(creeps, creepCounts, isLoggingEnabled);
+    _executeCreepLogic(creeps, isLoggingEnabled, isEmotionsEnabled);
     return creepCounts;
 }
 
@@ -522,9 +517,7 @@ function _displayCoreStats(creeps) {
             ).toUpperCase() +
             ' ---'
     );
-    logger.info(
-        'Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')'
-    );
+    logger.info('Creeps: ' + creeps.length + ' (Mem: ' + Object.keys(Memory.creeps || {}).length + ')');
     logger.info(
         'CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -546,7 +539,12 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    logger.info('Emotions - Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
+    logger.info(
+        'Emotions - Happy: ' +
+            emotionStats.happy +
+            ', Neutral: ' +
+            emotionStats.neutral
+    );
 }
 
 function _displayGamificationStats() {
@@ -668,7 +666,7 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-module.exports.loop = function () {
+function _cleanDeadCreeps() {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) {
@@ -677,85 +675,106 @@ module.exports.loop = function () {
         }
         Memory.lastCleanup = Game.time;
     }
+}
 
-    // Smart Spawn Priority (Auto-added)
+function _updateSpawnPriority() {
     if (!Memory.spawnPriority) {
         Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
     }
-    // Auto-adjust priority based on current needs
     if (Game.time % 500 === 0) {
         const counts = {};
-        Object.values(Game.creeps).forEach((c) => {
-            counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
-        });
+        for (const name in Game.creeps) {
+            const role = Game.creeps[name].memory.role;
+            counts[role] = (counts[role] || 0) + 1;
+        }
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
     }
+}
 
-    // Path Cache Cleanup (Auto-added)
+function _cleanPathCache() {
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {
-        const oldPaths = Object.keys(Memory.pathCache).filter(
-            (key) => Memory.pathCache[key].tick < Game.time - 1000
-        );
-        oldPaths.forEach((key) => delete Memory.pathCache[key]);
+        for (const key in Memory.pathCache) {
+            if (Memory.pathCache[key].tick < Game.time - 1000) {
+                delete Memory.pathCache[key];
+            }
+        }
+    }
+}
+
+function _performMaintenance() {
+    _cleanDeadCreeps();
+    _updateSpawnPriority();
+    _cleanPathCache();
+
+    if (Game.time % 100 === 0) {
+        utilsMemory.cleanMemory();
+    }
+}
+
+function _initGlobalState() {
+    global._rooms = Object.values(Game.rooms || {});
+    global._creeps = Object.values(Game.creeps || {});
+    global._spawns = Object.values(Game.spawns || {});
+    global._constructionSites = Object.values(Game.constructionSites || {});
+
+    if (global._spawns.length > 0) {
+        global._primarySpawn = global._spawns[0];
+        global._primarySpawnTick = Game.time;
+    }
+}
+
+function _runAILogic() {
+    const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
+    const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
+    const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
+    const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
+
+    const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL;
+
+    const creepCounts = processCreeps(
+        global._rooms,
+        global._creeps,
+        global._constructionSites,
+        isLoggingEnabled,
+        isEmotionsEnabled
+    );
+
+    if (Game.time % 1000 === 0 && adaptiveSystem.isEnabled('autoEvolution')) {
+        autoEvolution.run();
     }
 
+    for (let i = 0; i < global._spawns.length; i++) {
+        handleSpawning(global._spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
+    }
+
+    handleSocialInteractions(global._rooms);
+    handleDefenseAndDashboard(global._rooms, isLoggingEnabled, isVisualEffectsEnabled);
+
+    if (Game.time % 100 === 0) {
+        displayStats(global._creeps);
+    }
+}
+
+function _runCoreLoop() {
+    _initGlobalState();
+    adaptiveSystem.evaluate();
+
+    if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
+        autoTutorial.run();
+        autoTutorial.showProgress();
+        return;
+    }
+
+    TaskQueue.run();
+    _runAILogic();
+}
+
+module.exports.loop = function () {
+    _performMaintenance();
+
     try {
-        const rooms = (global._rooms = Object.values(Game.rooms || {}));
-        const creeps = (global._creeps = Object.values(Game.creeps || {}));
-        const spawns = (global._spawns = Object.values(Game.spawns || {}));
-        const constructionSites = (global._constructionSites = Object.values(
-            Game.constructionSites || {}
-        ));
-
-        if (spawns.length > 0) {
-            global._primarySpawn = spawns[0];
-            global._primarySpawnTick = Game.time;
-        }
-
-        adaptiveSystem.evaluate();
-
-        if (Game.time % 100 === 0) {
-            utilsMemory.cleanMemory();
-        }
-
-        if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
-            autoTutorial.run();
-            autoTutorial.showProgress();
-            return;
-        }
-
-        TaskQueue.run();
-
-        const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
-        const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
-        const isAdvancedRolesEnabled = adaptiveSystem.isEnabled('advancedRoles');
-        const isEmotionsEnabled = adaptiveSystem.isEnabled('emotions');
-
-        const targetCreeps = isAdvancedRolesEnabled ? TARGET_CREEPS_ADVANCED : TARGET_CREEPS_NORMAL;
-
-        const creepCounts = processCreeps(
-            rooms,
-            creeps,
-            constructionSites,
-            isLoggingEnabled,
-            isEmotionsEnabled
-        );
-
-        if (Game.time % 1000 === 0 && adaptiveSystem.isEnabled('autoEvolution')) {
-            autoEvolution.run();
-        }
-
-        for (let i = 0; i < spawns.length; i++) {
-            handleSpawning(spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
-        }
-
-        handleSocialInteractions(rooms);
-        handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabled);
-
-        if (Game.time % 100 === 0) {
-            displayStats(creeps);
-        }
+        _runCoreLoop();
     } catch (e) {
         Sentry.captureException(e);
         const safeStack = logger.getSafeStack(e.stack);

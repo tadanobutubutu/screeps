@@ -66,42 +66,49 @@ function injectEnvVars (content) {
 }
 
 /**
+ * ⚡ PERFORMANCE OPTIMIZATION: Hoisted sensitive keywords and regex to module scope.
+ */
+const SENSITIVE_KEYWORDS = [
+  [116, 111, 107, 101, 110], // TOKEN_STR
+  [112, 97, 115, 115, 119, 111, 114, 100], // PASS_STR
+  [115, 101, 99, 114, 101, 116], // SEC_STR
+  [97, 112, 105, 95, 107, 101, 121], // AK_STR
+  [97, 112, 105, 75, 101, 121], // AK2_STR
+  [97, 117, 116, 104], // AUTH_STR
+  [99, 114, 101, 100, 101, 110, 116, 105, 97, 108], // CRED_STR
+  [110, 116, 105, 97, 108, 115], // CRED2_STR
+  [98, 101, 97, 114, 101, 114], // BEAR_STR
+  [115, 101, 115, 115, 105, 111, 110], // SESS_STR
+  [115, 101, 115, 115, 105, 111, 110, 105, 100], // SESSID_STR
+  [100, 115, 110], // DSN_STR
+  [112, 97, 115, 115], // P_STR
+  [107, 101, 121], // K_STR
+  [112, 114, 105, 118, 97, 116, 101], // PRIV_STR
+  [103, 104, 112, 95], // GHP_STR
+  [115, 107, 95] // SK_STR
+]
+  .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+  .join('|')
+
+const REDACTION_PATTERN = new RegExp(
+  '\\b([a-zA-Z0-9_-]*(' +
+    SENSITIVE_KEYWORDS +
+    '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+  'gi'
+)
+
+const PATH_PATTERN = /(\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+[/\.a-zA-Z0-9_-]*|[a-zA-Z]:\\[^ \n\t"']+)/g
+
+/**
  * Security: Redacts sensitive information from a string.
- * Redacts absolute paths and sensitive values following keywords.
- * Uses a non-backtracking regex to prevent ReDoS.
  */
 function sanitizeLog (str) {
   if (typeof str !== 'string') return str
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  const pathRedacted = str.replace(PATH_PATTERN, '[REDACTED]')
 
-  // Security: Redact sensitive information with improved pattern and obfuscated keywords.
-  const keys = [
-    [116, 111, 107, 101, 110],
-    [112, 97, 115, 115, 119, 111, 114, 100],
-    [115, 101, 99, 114, 101, 116],
-    [97, 112, 105, 95, 107, 101, 121],
-    [97, 112, 105, 75, 101, 121],
-    [97, 117, 116, 104],
-    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
-    [98, 101, 97, 114, 101, 114],
-    [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
-  ]
-    .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
-    .join('|')
-
-  // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle quoted values
-  const secretPattern = new RegExp(
-    '\\b([a-zA-Z0-9_-]*(' +
-            keys +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
-    'gi'
-  )
-
-  return pathRedacted.replace(secretPattern, (match, p1, p2, p3, p4, p5, p6) => {
+  return pathRedacted.replace(REDACTION_PATTERN, (match, p1, p2, p3, p4, p5, p6) => {
     const quote = p4 || p5
     if (quote) {
-      // Keep original quotes for consistency in logs
       return p1 + p3 + quote[0] + '[REDACTED]' + quote[quote.length - 1]
     }
     return p1 + p3 + '[REDACTED]'

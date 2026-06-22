@@ -388,4 +388,9 @@ module.exports = {
     getLinks,
     getStorage,
     assignSource,
+    reset: function () {
+        _cacheSize = -1;
+        _lastCacheRef = null;
+        _cacheOrder.clear();
+    },
 };

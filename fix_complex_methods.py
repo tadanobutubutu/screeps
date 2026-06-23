@@ -42,7 +42,6 @@ def split_process_creeps(content):
 
     # We also need to split categorization logic from categorizeRoomStructures
 
-    return content  # Placeholder for now
-
+    return content # Placeholder for now
 
 # Actually it's easier to just do it manually with a full file rewrite since I have the content

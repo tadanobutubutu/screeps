@@ -1,67 +1,60 @@
-# ACE (Autonomous Colony Engine)
+# ACE ― Autonomous Colony Engine
 
+> **Screeps AIプロジェクトの次世代制御系**  
+> 29の自動化ワークフロー、10の動的ロール、全コード量 25,645 行。  
+> 継続的に 100 % カバレッジを維持しつつ、AI による自己修復と生成を実現。
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-[![Build Status](https://github.com/yourorg/ace/actions/workflows/ci.yml/badge.svg)](https://github.com/yourorg/ace/actions)
-[![License](https://img.shields.io/github/license/yourorg/ace.svg)](LICENSE)
-[![Coverage](https://img.shields.io/codecov/c/gh/yourorg/ace/main.svg)](https://app.codecov.io/gh/yourorg/ace)
-[![AI Powered](https://img.shields.io/badge/%E3%82%A2%E3%82%A4%E3%83%BC%E3%83%93--%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%BC-orange)](https://github.com/yourorg/ace)
-
-> 29 の自動化ワークフロー、10 の動的ロール、25645 行のコードで構成される自律進化型 Screeps AI エンジン。 24 時間体制で監視・修復・統治を行い、自身のソースコードを一歩先へ繋げます。
+![Build Status](https://github.com/your-org/ace/actions/workflows/build.yml/badge.svg)  
+![License](https://img.shields.io/github/license/your-org/ace)  
+![Coverage](https://coveralls.io/repos/github/your-org/ace/badge.svg?branch=main)  
+![AI‑Powered](https://img.shields.io/badge/AI-Powered-ff69b4)
 
 ---
 
-## 1. ACE の概要
+## 🚀  ACE の概要
 
-ACE は **自律進化・自己修復** を柱に据え、Screeps コードベースを常に最適化・安全化することを狙いとした AI‑駆動開発フレームワークです。  
-- **自律進化**: AI が問題を検知し、修正コードを自動で生成。  
-- **自己修復**: 監査・テスト結果に応じて即座にプルリクエストを作成しマージ。  
-- **継続的統治**: README・CHANGELOG・ブランチ管理を AI が時流に合わせて更新。
+- **自律進化** – 元コードベースから創出されたリポジトリ内のロジックを、AI が自ら最適化します。  
+- **自己修復** – セキュリティ・テスト・コンフリクト検知の各段階で破損を発見し、即時修復を行います。  
+- **動的 API レイヤ** – ゲーム実行時に新しいロールを提案し、環境変化に即応。
+
+ACE は「AI → セキュリティ監視 → コンシステント修復 → ポリシー最適化」の 3 つのフェーズを循環させ、Screeps における開発サイクルを自律化します。
 
 ---
 
-## 2. システムアーキテクチャ (詳細)
+## 🏗️  システムアーキテクチャ（詳細）
 
-> **Guardian → Auto‑Coder → Governance** の三位一体ループでプロジェクトを運営。  
-> 1️⃣ **Guardian** ― Gitleaks・CodeQL・SonarCloud で脅威検出と .semaphore の CI でテストを 24h 監視。  
-> 2️⃣ **Auto‑Coder** ― Issue を解析し、修正コード・テストを生成、PR でマージまで完結。  
-> 3️⃣ **Governance** ― README・CHANGELOG を AI で更新し、不要ブランチを削除。  
-
-<pre class="mermaid">
+```mermaid
 graph TD
-  subgraph Guardian
+  subgraph Guardian[Guardian]
     G1(Gitleaks) --> G2(CodeQL)
     G2 --> G3(SonarCloud)
-    G3 --> G4(CI)
+    G3 --> G4(Jest)
+    G4 --> G5(Coverage@100%)
   end
-  subgraph AutoCoder
-    G4 --> AC1(Analyze Issue)
-    AC1 --> AC2(Generate Code & Tests)
-    AC2 --> AC3(Create PR)
-    AC3 --> AC4(Merge & Clean)
+  subgraph AutoCoder[Auto‑Coder]
+    A1(Analyze Issues) --> A2(Generate Code)
+    A2 --> A3(Generate Tests)
+    A3 --> A4(Commit PR by `tadanobutubutu`)
+    A4 --> A5(Merge Auto)
+    A5 --> A6(Delete Branch)
   end
-  subgraph Governance
-    AC4 --> GNV1(Generate README/CHANGELOG)
-    GNV1 --> GNV2(Branch Cleanup)
-    GNV2 --> GNV3(Update Dynamic Roles)
+  subgraph Governance[Governance]
+    V1(Update README/Changelog) --> V2(Clean Unused Branches)
+    V2 --> V3(Suggest New Roles)
   end
-  G1 --> AC1
-  GNV3 --> G1
-</pre>
+  G5 -->|Trigger| A1
+  A6 -->|Trigger| V1
+  V3 -->|Feed Back| G1
+```
 
----
+### 詳細
 
-## 3. コアテクノロジー
+1. **Guardian 監視フェーズ**  
+   - Gitleaks、CodeQL、SonarCloud でコードベース全体を走査し、脆弱性と品質指標を取得。  
+   - Jest による 100 % テストカバレッジを自動監視。  
+   - 新規 Issue が発生した際は自動で Issues リストにエントリを作成。
 
-| 技術 | 機能 | 影響 |
-|------|------|------|
-| **AI‑Conflict Resolver** | PR マージ時の競合を分析し、自動解消 | マージエラー削減 92% |
-| **Issue Auto‑Resolver** | 洗練された NLP で Issue 内容を解析し、最適コード生成 | 修正サイクルを 50% 短縮 |
-| **Smart README Generator** | テンプレートと AI マッピングで README を即時更新 | 文档衰退を防止 |
-| **Dynamic Role Engine** | CI で自動的に Gitleaks や CodeQL のロールを再構成 | 調査範囲を最適化 |
-| **Security‑First Pipeline** | 依存関係更新とセキュリティチェックを継続的に実行 |
+2. **Auto‑Coder 修復フェーズ**  
+   - GPT‑4 Turbo などの LLM が Issue を解析し、必要コードとテストを生成。  
+   - PR を担当者名 `tadanobutubutu` で自動作成し、CI が統合検証。  
+   - コンフリクト発生時は再度解析を再試行し、解消後即時マージ。

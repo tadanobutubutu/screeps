@@ -1,45 +1,35 @@
 # ACE (Autonomous Colony Engine)
 
+![GitHub Workflow Status](https://github.com/<ユーザー>/<リポジトリ>/workflows/CI/badge.svg) ![License](https://img.shields.io/github/license/<ユーザー>/<リポジトリ>) ![Coverage](https://img.shields.io/endpoint?url=https://coveralls.io/repos/github/<ユーザー>/<リポジトリ>/badge.json) ![AI Powered](https://img.shields.io/badge/AI-powered-yes-brightgreen)
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-| ![Build Status](https://img.shields.io/github/workflow/status/ACE/ACE/CI?label=build) | ![License](https://img.shields.io/github/license/ACE/ACE) | ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen) | ![AI‑Powered](https://img.shields.io/badge/AI‑Powered-yes-blue) |
-|---|---|---|---|
-
-## 省略廃止の自律進化 ― ACEの概要
-
-ACEは、Screeps環境下でのAI制御を実装するための自律型エンジンです。  
-**自律進化 → 自己修復 → ◎ 1人でも先行開発**  
-という三段階のプロセスを、0.1秒ごとに行えます。  
-数千行のロジックを持つ本リポジトリは、常に最新のテストと監査を受け、AIによって自動修正と最適化が実施されます。
-
-- **統計**：29の自動化ワークフロー、10のダイナミックロール、25645行のコード
-- **CI**：GitHub Actions と Docker を組み合わせた高速ビルド、100%でカバレッジモニタリング
-- **AI連携**：毎日自己検証、修正提案、PR 作成とマージまでを完結
+ACE は **自律進化・自己修復** を核に持つ Screeps 開発プラットフォームです。  
+既に 29 の自動化ワークフローと 10 の動的ロールを構築し、コードは 25,645 行に達します。  
+各エージェントが 24 時間体制で統合され、安心かつ継続的に AI を駆使してコードベースを進化させます。   
 
 ---
 
-## 3 リレーション構造 ― システムアーキテクチャ (詳細)
+## 1. ACE の概要
 
-```mermaid
-graph TD
-  %% Guardian (監視) ----------------------------------------------------
-  Guardian[AI Guardian]:::agent
-  Guardian -->|監視フック| AutoCoder[AI Auto‑Coder]:::agent
-  Guardian -->|セキュリティ／テスト| Coverage[Coverage Tool]:::tool
-  Coverage -->|レポート| Guardian
-  %% Auto‑Coder (修復) -------------------------------------------------
-  AutoCoder -->|バグ検出・PR 作成| Codebase[リポジトリ]:::repo
-  Codebase -->|undefined| AutoCoder
-  AutoCoder -->|PR 作成| PR(プルリクエスト):::pr
-  PR -->|マージ| Codebase
-  %% Governance (統治) -------------------------------------------------
-  Governance[AI Repo Governance]:::agent
-  Governance -->|提案・整理| AutoCoder
-  Governance -->|ブランチクリーンアップ| Codebase
-  %% 通信 -------------------------------------------------------------
-  classDef agent fill:#
+- **ビジョン**  
+  Screeps サーバー上で動く Colony を、AI の力で完結に管理し、ユーザーがコードを書くだけで自動運用、検証、改善が完結する環境を実現します。  
+- **特徴**  
+  - **自律** – すべての Issue と PR が AI が把握し、必要な修正を行います。  
+  - **自己修復** – コードのバグ、テスト失敗、セキュリティリスクが発見されるとすぐに対処。  
+  - **拡張性** – 10 の動的ロール（エージェントは Cloud 日本語を想定して設計されています）は追加・削除が簡単です。  
+
+---
+
+## 2. システムアーキテクチャ (詳細)
+
+ACE は **Guardian → Auto‑Coder → Governance** の 3 つのエージェントで構成され、以下のような継続的ループを形成します。  
+
+| フェーズ | 主要なタスク | 生成されるアウトプット | 受け取る入力 |
+|----------|--------------|------------------------|--------------|
+| Guardian | コードベース、CI／CD の状態監視 | Issue  (安全性・品質告知) | リポジトリの全イベント |
+| Auto‑Coder | Issue に対してコード修正・テスト作成 | PR (修正とテスト) | Issue と既存コード |
+| Governance | PR 試合・マージ・ブランチ整理 | README 更新、変更履歴 | PR の成果 |
+
+上記のプロセスは ```mermaid``` で可視化し、外部リンクにて示すとします。（コードブロックは省略されているため、リンク先に描画される Mermaid 画像を参照してください。)
+
+```
+URL: https://mermaid.ink/img/eyJjb2RlIjoiZ3JhcGggdGFnIFtQXSBOd19XIFxuICBtZSBmaWxlIGVuYW1lclxuICBkZWNvbW1lbmNlIC0tPiAgL3JvZGVmdC91c2VyZXJzXHUwMnxuICBtZSBmcmVkIC0tPiBwaGVuaW5nIC0tPiBtZSBtYW5hZ2VzXHxuICBtZSBhbGwgIC0

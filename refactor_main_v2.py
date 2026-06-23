@@ -1,8 +1,7 @@
 import sys
 
-
 def refactor():
-    with open("main.js", "r") as f:
+    with open('main.js', 'r') as f:
         content = f.read()
 
     old_process_creeps = """function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
@@ -132,9 +131,8 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
 
     content = content.replace(old_process_creeps, new_helpers)
 
-    with open("main.js", "w") as f:
+    with open('main.js', 'w') as f:
         f.write(content)
-
 
 if __name__ == "__main__":
     refactor()

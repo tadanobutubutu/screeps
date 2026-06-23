@@ -121,7 +121,7 @@ module.exports = {
         const c = challenge.challenge;
         const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
 
-        `);
+        console.log('Progress: ' + percent + '%');
 
         if (challenge.completed) {
             }

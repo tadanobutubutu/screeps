@@ -112,7 +112,7 @@ module.exports = {
 
             if (challenge.progress >= challenge.challenge.target) {
                 challenge.completed = true;
-                }
+            }
         }
     },
 
@@ -124,6 +124,6 @@ module.exports = {
         console.log('Progress: ' + percent + '%');
 
         if (challenge.completed) {
-            }
+        }
     },
 };

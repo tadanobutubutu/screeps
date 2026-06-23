@@ -1,7 +1,8 @@
 import sys
 
+
 def refactor():
-    with open('main.js', 'r') as f:
+    with open("main.js", "r") as f:
         content = f.read()
 
     # 1. Refactor categorizeRoomStructures to reduce complexity
@@ -218,8 +219,9 @@ module.exports.loop = function () {
 
     content = content.replace(old_loop_start, new_loop_helpers)
 
-    with open('main.js', 'w') as f:
+    with open("main.js", "w") as f:
         f.write(content)
+
 
 if __name__ == "__main__":
     refactor()

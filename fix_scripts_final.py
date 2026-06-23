@@ -1,7 +1,8 @@
 import sys
 
+
 def fix_auto_evolution():
-    with open('auto.evolution.js', 'r') as f:
+    with open("auto.evolution.js", "r") as f:
         lines = f.readlines()
 
     # Locate the broken log (approx line 348)
@@ -16,14 +17,17 @@ def fix_auto_evolution():
         if "if (need === undefined || need === null) {" in lines[i]:
             # This logic is also broken because it tries to set property on null
             lines[i] = "        if (need) {\n"
-            if i+3 < len(lines) and "');" in lines[i+3]:
-                lines[i+3] = "            console.log('Added to evolution queue');\n"
+            if i + 3 < len(lines) and "');" in lines[i + 3]:
+                lines[
+                    i +
+                    3] = "            console.log('Added to evolution queue');\n"
 
-    with open('auto.evolution.js', 'w') as f:
+    with open("auto.evolution.js", "w") as f:
         f.writelines(lines)
 
+
 def fix_daily_challenge():
-    with open('daily-challenge.js', 'r') as f:
+    with open("daily-challenge.js", "r") as f:
         lines = f.readlines()
 
     # Locate broken template literal
@@ -31,8 +35,9 @@ def fix_daily_challenge():
         if "`);" in lines[i]:
             lines[i] = "        console.log('Progress: ' + percent + '%');\n"
 
-    with open('daily-challenge.js', 'w') as f:
+    with open("daily-challenge.js", "w") as f:
         f.writelines(lines)
+
 
 fix_auto_evolution()
 fix_daily_challenge()

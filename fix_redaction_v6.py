@@ -1,5 +1,5 @@
 def fix_file(filepath):
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         content = f.read()
 
     # Improved path regex: match /a/b (Unix) or C:\a\b (Windows)
@@ -9,10 +9,14 @@ def fix_file(filepath):
 
     better_regex = r"/(?:\/|[a-zA-Z]:\\)(?:[a-zA-Z0-9._-]|[^\x00-\x7F])+(?:[\/\\](?:[a-zA-Z0-9._-]|[^\x00-\x7F])+)+[\/\\]?[^ \n\t\"' ]*/g"
 
-    content = content.replace("/(?:\\/|[a-zA-Z]:\\\\)[a-zA-Z0-9_-]+\\/[a-zA-Z0-9_-]+\\/[^ \\n\\t\"' ]*/g", better_regex)
+    content = content.replace(
+        "/(?:\\/|[a-zA-Z]:\\\\)[a-zA-Z0-9_-]+\\/[a-zA-Z0-9_-]+\\/[^ \\n\\t\"' ]*/g",
+        better_regex,
+    )
 
-    with open(filepath, 'w') as f:
+    with open(filepath, "w") as f:
         f.write(content)
 
-fix_file('deploy.js')
-fix_file('utils.logging.js')
+
+fix_file("deploy.js")
+fix_file("utils.logging.js")

@@ -1,5 +1,12 @@
 # ACE (Autonomous Colony Engine)
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 ![GitHub Workflow Status](https://github.com/<ユーザー>/<リポジトリ>/workflows/CI/badge.svg) ![License](https://img.shields.io/github/license/<ユーザー>/<リポジトリ>) ![Coverage](https://img.shields.io/endpoint?url=https://coveralls.io/repos/github/<ユーザー>/<リポジトリ>/badge.json) ![AI Powered](https://img.shields.io/badge/AI-powered-yes-brightgreen)
 
 ACE は **自律進化・自己修復** を核に持つ Screeps 開発プラットフォームです。  

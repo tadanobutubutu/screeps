@@ -515,9 +515,19 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     console.log('--- CORE STATS ---');
-    console.log('Mode: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase());
+    console.log(
+        'Mode: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase()
+    );
     console.log('Creeps: ' + creeps.length);
-    console.log('CPU: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit + ' (Bucket: ' + Game.cpu.bucket + ')');
+    console.log(
+        'CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
+            '/' +
+            Game.cpu.limit +
+            ' (Bucket: ' +
+            Game.cpu.bucket +
+            ')'
+    );
     console.log('Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
@@ -530,7 +540,9 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const stats = EmotionSystem.getStats();
-    console.log('Emotions - Happy: ' + stats.happy + ', Neutral: ' + stats.neutral + ', Sad: ' + stats.sad);
+    console.log(
+        'Emotions - Happy: ' + stats.happy + ', Neutral: ' + stats.neutral + ', Sad: ' + stats.sad
+    );
 }
 
 function _displayGamificationStats() {
@@ -653,7 +665,9 @@ function handleSocialInteractions(rooms) {
 module.exports.loop = function () {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -665,7 +679,7 @@ module.exports.loop = function () {
     // Auto-adjust priority based on current needs
     if (Game.time % 500 === 0) {
         const counts = {};
-        Object.values(Game.creeps).forEach(c => {
+        Object.values(Game.creeps).forEach((c) => {
             counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
         });
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
@@ -679,7 +693,7 @@ module.exports.loop = function () {
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
-            }
+        }
     }
 
     try {
@@ -801,7 +815,7 @@ global.help = function () {
     console.log('e() - emotion stats');
     console.log('ec(name) - check creep');
     console.log('m() - memory stats');
-}
+};
 
 if (!Memory.helpShown) {
     Memory.helpShown = true;

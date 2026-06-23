@@ -170,7 +170,7 @@ const autoEvolution = {
 
         return {
             energy: totalEnergy,
-            capacity,
+            capacity: capacity,
             storage: storageEnergy,
             ratio: capacity > 0 ? totalEnergy / capacity : 0,
         };
@@ -469,7 +469,7 @@ const autoEvolution = {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-            }
+                }
         }
 
         if (evo.queue.length > 0) {
@@ -494,7 +494,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-    },
+        },
 };
 
 module.exports = autoEvolution;

@@ -85,9 +85,8 @@ class EmotionSystem {
             if (emotions.lastEmotion === undefined) emotions.lastEmotion = EMOTIONS.HAPPY;
             if (emotions.experiencePoints === undefined) emotions.experiencePoints = 0;
             if (emotions.achievements === undefined) emotions.achievements = [];
-            if (emotions.personalityTraits === undefined) {
+            if (emotions.personalityTraits === undefined)
                 emotions.personalityTraits = this.generatePersonality();
-            }
             if (emotions.birthTick === undefined) emotions.birthTick = Game.time;
         }
     }
@@ -358,11 +357,9 @@ class EmotionSystem {
         console.log('Personality: ' + emotions.personalityTraits);
         if (emotions.achievements.length > 0) {
             console.log('Achievements:');
-            emotions.achievements.forEach((a) =>
-                console.log(' - ' + a.name + ' (Tick: ' + a.tick + ')')
-            );
+            emotions.achievements.forEach(a => console.log(' - ' + a.name + ' (Tick: ' + a.tick + ')'));
         }
     }
-}
+    }
 
 module.exports = EmotionSystem;

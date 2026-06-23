@@ -346,28 +346,20 @@ class EmotionSystem {
     }
 
     static checkCreep(creepName) {
-        // Security: プロトタイプ汚染対策のため、名前を検証
-        if (!utilsMemory.isSafeKey(creepName)) {
-            return;
-        }
-
+        if (!utilsMemory.isSafeKey(creepName)) return;
         const creep = Game.creeps[creepName];
-        if (creep === undefined || creep === null) {
-            return;
-        }
-
-        if (!creep.memory.emotions || creep.memory.emotions.birthTick === undefined) {
-            this.initialize(creep);
-        }
+        if (!creep) return;
+        this.initialize(creep);
         const emotions = creep.memory.emotions;
-
-        );
+        console.log('--- EMOTION CHECK: ' + creepName + ' ---');
+        console.log('Mood: ' + this.getMoodDescription(creep));
+        console.log('Experience: ' + emotions.experiencePoints);
+        console.log('Personality: ' + emotions.personalityTraits);
         if (emotions.achievements.length > 0) {
-            emotions.achievements.forEach((a) => {
-                ');
-            });
+            console.log('Achievements:');
+            emotions.achievements.forEach(a => console.log(' - ' + a.name + ' (Tick: ' + a.tick + ')'));
         }
     }
-}
+    }
 
 module.exports = EmotionSystem;

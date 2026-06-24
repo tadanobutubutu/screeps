@@ -170,7 +170,7 @@ const autoEvolution = {
 
         return {
             energy: totalEnergy,
-            capacity: capacity,
+            capacity,
             storage: storageEnergy,
             ratio: capacity > 0 ? totalEnergy / capacity : 0,
         };
@@ -418,7 +418,7 @@ const autoEvolution = {
         }
 
         logger.info('Evolution: Generated new feature suggestion for ' + item.type);
-        },
+    },
 
     /**
      * RCL機能生成
@@ -495,7 +495,13 @@ const autoEvolution = {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                logger.info(' - Pending: ' + q.type + ' (Requested: ' + (Game.time - q.timestamp) + ' ticks ago)');
+                logger.info(
+                    ' - Pending: ' +
+                        q.type +
+                        ' (Requested: ' +
+                        (Game.time - q.timestamp) +
+                        ' ticks ago)'
+                );
             }
         }
 
@@ -513,7 +519,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-        },
+    },
 };
 
 module.exports = autoEvolution;

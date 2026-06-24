@@ -188,9 +188,9 @@ const adaptiveSystem = {
      */
     _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
         this.logModeChange(Memory.adaptive.currentMode, newMode, {
-            cpuUsagePercent: cpuUsagePercent,
-            cpuBucket: cpuBucket,
-            memoryUsagePercent: memoryUsagePercent,
+            cpuUsagePercent,
+            cpuBucket,
+            memoryUsagePercent,
         });
 
         // モード履歴に追加
@@ -347,8 +347,7 @@ const adaptiveSystem = {
         // Delete any other suspected heavy structures
         delete Memory.emotions; // Root-level emotions (if any)
         delete Memory.diary; // Root-level diary
-
-        },
+    },
 
     /**
      * ダッシュボード表示
@@ -369,7 +368,9 @@ const adaptiveSystem = {
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
         );
-        logger.info('Bucket: ' + Game.cpu.bucket + ' (' + (Game.cpu.bucket / 100).toFixed(1) + '%)');
+        logger.info(
+            'Bucket: ' + Game.cpu.bucket + ' (' + (Game.cpu.bucket / 100).toFixed(1) + '%)'
+        );
         logger.info(
             'Memory: ' +
                 (memorySize / 1024).toFixed(1) +
@@ -401,7 +402,7 @@ const adaptiveSystem = {
                 enabledCount++;
             }
         }
-        },
+    },
 
     _printModeStatistics: function () {
         const stats = Memory.adaptive.stats;
@@ -480,7 +481,7 @@ const adaptiveSystem = {
         // ⚡ PERFORMANCE: Reset cache when system is reset
         _currentConfig = null;
         _configTick = -1;
-        },
+    },
 };
 
 module.exports = adaptiveSystem;

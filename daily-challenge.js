@@ -112,7 +112,7 @@ module.exports = {
 
             if (challenge.progress >= challenge.challenge.target) {
                 challenge.completed = true;
-                }
+            }
         }
     },
 

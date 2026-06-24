@@ -248,8 +248,9 @@ function getMyCreeps(room) {
 }
 
 function getConstructionSites(room) {
-    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time)
+    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time) {
         return room._myConstructionSites;
+    }
     return get(
         `construction_sites_${room.name}`,
         () => room.find(FIND_CONSTRUCTION_SITES),
@@ -276,8 +277,9 @@ function getSpawns(room) {
 }
 
 function getStructuresNeedingEnergy(room) {
-    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0))
+    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
         return room._deliveryTargets;
+    }
     return get(
         `need_energy_${room.name}`,
         () =>

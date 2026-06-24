@@ -520,7 +520,9 @@ function _displayCoreStats(creeps) {
             ' | Mode: ' +
             adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase()
     );
-    logger.info('Creeps: ' + Object.keys(creeps).length + ' | Rooms: ' + Object.keys(Game.rooms).length);
+    logger.info(
+        'Creeps: ' + Object.keys(creeps).length + ' | Rooms: ' + Object.keys(Game.rooms).length
+    );
     logger.info(
         'CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -674,7 +676,9 @@ function handleSocialInteractions(rooms) {
 module.exports.loop = function () {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -686,7 +690,7 @@ module.exports.loop = function () {
     // Auto-adjust priority based on current needs
     if (Game.time % 500 === 0) {
         const counts = {};
-        Object.values(Game.creeps).forEach(c => {
+        Object.values(Game.creeps).forEach((c) => {
             counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
         });
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));

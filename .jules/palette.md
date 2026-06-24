@@ -19,3 +19,8 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2025-06-24 - [Consistent Interactivity and Recovery]
+
+**Learning:** When adding manual refresh or retry capabilities, consistent focus states and clear visual feedback (like spinning icons) are essential for a polished UX. Furthermore, triggering a full loading state during a "Retry" from a hard error prevents the user from seeing an empty or partially rendered UI, providing a more stable-feeling recovery flow.
+**Action:** Ensure all interactive elements have defined focus styles (e.g., `boxShadow`). Use global loading states for error recovery instead of partial refresh states when the current data context is null or invalid.

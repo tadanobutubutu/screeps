@@ -514,17 +514,23 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    ).toUpperCase()
+    logger.info(
+        '--- Tick: ' +
+            Game.time +
+            ' | Mode: ' +
+            adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase()
     );
-    .length));
-    .toFixed(2) +
+    logger.info('Creeps: ' + Object.keys(creeps).length + ' | Rooms: ' + Object.keys(Game.rooms).length);
+    logger.info(
+        'CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
             '/' +
             Game.cpu.limit +
             ' (Bucket: ' +
             Game.cpu.bucket +
             ')'
     );
-    .length / 1024).toFixed(1) + ' KB');
+    logger.info('Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -536,7 +542,11 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    +
+    logger.info(
+        'Emotions - Very Happy: ' +
+            emotionStats.veryHappy +
+            ', Happy: ' +
+            emotionStats.happy +
             ', Neutral: ' +
             emotionStats.neutral
     );
@@ -545,7 +555,8 @@ function _displayEmotionStats() {
 function _displayGamificationStats() {
     const gm = Memory.gamification;
     if (gm) {
-        }
+        logger.info('Gamification - Level: ' + gm.level + ' | XP: ' + gm.xp + '/' + gm.nextLevelXP);
+    }
 }
 
 function displayStats(creeps) {
@@ -660,7 +671,8 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports.loop = function () {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
@@ -688,7 +700,8 @@ function handleSocialInteractions(rooms) {
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
-            }
+            logger.info('Cleaned ' + oldPaths.length + ' paths from cache');
+        }
     }
 
     try {
@@ -804,16 +817,17 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    - system dashboard');
-    - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
-    - emotion stats');
-    - check creep');
-    - memory stats');
-    - history');
-    - leaderboard');
-    - cleanup');
-    - dashboard');
-    - dashboard');
+    console.log('--- Screeps AI Help ---');
+    console.log('global.adaptive() - system dashboard');
+    console.log('global.mode(m) - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    console.log('global.e() - emotion stats');
+    console.log('global.ec(name) - check creep');
+    console.log('global.m() - memory stats');
+    console.log('global.mh() - history');
+    console.log('global.ml() - leaderboard');
+    console.log('global.mc() - cleanup');
+    console.log('global.g() - dashboard');
+    console.log('global.evo() - dashboard');
 };
 
 if (!Memory.helpShown) {

@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (need !== undefined && need !== null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
+            logger.info('Evolution: Added new need to queue: ' + need.type);
         }
     },
 
@@ -417,7 +417,7 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        );
+        logger.info('Evolution: Generated new feature suggestion for ' + item.type);
         },
 
     /**
@@ -480,20 +480,22 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
+        logger.info('Evolution Dashboard - Generation: ' + evo.generation);
+        logger.info('Last evolved: ' + (Game.time - evo.lastEvolved) + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                }
+                logger.info(' - Tick: ' + h.tick + ' | Type: ' + h.type);
+            }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                logger.info(' - Pending: ' + q.type + ' (Requested: ' + (Game.time - q.timestamp) + ' ticks ago)');
             }
         }
 
@@ -501,7 +503,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                logger.info(' - Suggestion: ' + s.type + ' -> ' + s.filename);
             }
         }
     },

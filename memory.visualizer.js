@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        logger.info(`Memory Usage: ${(RawMemory.get().length / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -115,9 +115,10 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        logger.info(`--- Memory History (Last ${ticks} snapshots) ---`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`
+            logger.info(
+                `Tick: ${snap.tick}, Mode: ${snap.mode}, CPU: ${snap.cpu.toFixed(2)}, Energy=${snap.energy}`
             );
         });
 
@@ -190,10 +191,11 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        :`);
+        logger.info(`--- Memory Leaderboard (Top ${limit} keys) ---`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            logger.info(`${medal} ${entry[0]}: ${(entry[1] / 1024).toFixed(1)} KB`);
+        });
 
         return sorted;
     },

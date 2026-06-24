@@ -361,10 +361,13 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
+        creep.say(
+            emotions.emoji + ' ' + (emotions.current !== 'neutral' ? emotions.current : ''),
+            true
         );
         if (emotions.achievements.length > 0) {
             emotions.achievements.forEach((a) => {
-                ');
+                creep.say('🏆 ' + a);
             });
         }
     }

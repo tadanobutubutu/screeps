@@ -696,6 +696,7 @@ function handleSocialInteractions(rooms) {
     }
 }
 
+
 module.exports.loop = function () {
     _cleanDeadCreeps();
     _updateSpawnPriority();

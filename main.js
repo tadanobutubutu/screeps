@@ -514,17 +514,19 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    ).toUpperCase()
-    );
-    .length));
-    .toFixed(2) +
+    logger.info('--- TICK: ' + Game.time + ' ---');
+    logger.info('SHARD: ' + (Game.shard ? Game.shard.name : 'unknown').toUpperCase());
+    logger.info('CREEPS: ' + creeps.length);
+    logger.info(
+        'CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
             '/' +
             Game.cpu.limit +
             ' (Bucket: ' +
             Game.cpu.bucket +
             ')'
     );
-    .length / 1024).toFixed(1) + ' KB');
+    logger.info('MEM: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -536,7 +538,9 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    +
+    logger.info(
+        'EMOTIONS: Happy: ' +
+            (emotionStats.happy + emotionStats.veryHappy) +
             ', Neutral: ' +
             emotionStats.neutral
     );
@@ -545,7 +549,8 @@ function _displayEmotionStats() {
 function _displayGamificationStats() {
     const gm = Memory.gamification;
     if (gm) {
-        }
+        logger.info('GAMIFICATION: Level ' + gm.level + ' (' + gm.xp + ' XP)');
+    }
 }
 
 function displayStats(creeps) {
@@ -660,7 +665,8 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports.loop = function () {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
@@ -804,16 +810,16 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    - system dashboard');
-    - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
-    - emotion stats');
-    - check creep');
-    - memory stats');
-    - history');
-    - leaderboard');
-    - cleanup');
-    - dashboard');
-    - dashboard');
+    console.log('adaptive() - system dashboard');
+    console.log('mode(n) - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    console.log('e() - emotion stats');
+    console.log('ec(name) - check creep');
+    console.log('m() - memory stats');
+    console.log('mh() - history');
+    console.log('ml() - leaderboard');
+    console.log('mc() - cleanup');
+    console.log('g() - dashboard');
+    console.log('evo() - dashboard');
 };
 
 if (!Memory.helpShown) {

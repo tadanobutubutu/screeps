@@ -151,13 +151,12 @@ export default function Dashboard() {
                     </p>
                     <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                     <p>
-                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}:{' '}
-                        {stats?.rooms?.length || 0}
+                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                     </p>
                 </div>
             )}
             <details style={{ cursor: 'pointer', marginTop: '1rem' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary style={{ color: '#4a5568' }}>生データを確認</summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

@@ -19,3 +19,13 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2026-06-25 - [Interactive State Patterns]
+
+**Learning:** When using inline styles for dashboard components, accessibility for keyboard users must be explicitly managed using React focus states (`focused`, `refreshFocused`) combined with `boxShadow` and `outline: 'none'`. This ensures a visible focus indicator that matches the application's monochromatic theme.
+**Action:** Always implement `onFocus` and `onBlur` handlers for custom-styled buttons to maintain accessibility parity with native elements.
+
+## 2026-06-25 - [Loading vs Refreshing UX]
+
+**Learning:** Distinguishing between 'Initial Loading' (global) and 'Refreshing' (partial) states prevents UI flicker and improves perceived performance. Using a spinning animation (`↻`) for manual refreshes provides immediate feedback without disrupting the existing view.
+**Action:** Refactor fetch logic into a `fetchData(isRefresh)` pattern to toggle appropriate UI states based on the user's intent.

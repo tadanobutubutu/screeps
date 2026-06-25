@@ -151,8 +151,7 @@ export default function Dashboard() {
                     </p>
                     <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                     <p>
-                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}:{' '}
-                        {stats?.rooms?.length || 0}
+                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                     </p>
                 </div>
             )}

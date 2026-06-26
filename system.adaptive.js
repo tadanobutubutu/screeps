@@ -188,9 +188,9 @@ const adaptiveSystem = {
      */
     _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
         this.logModeChange(Memory.adaptive.currentMode, newMode, {
-            cpuUsagePercent: cpuUsagePercent,
-            cpuBucket: cpuBucket,
-            memoryUsagePercent: memoryUsagePercent,
+            cpuUsagePercent,
+            cpuBucket,
+            memoryUsagePercent,
         });
 
         // モード履歴に追加
@@ -351,8 +351,7 @@ const adaptiveSystem = {
         // Delete any other suspected heavy structures
         delete Memory.emotions; // Root-level emotions (if any)
         delete Memory.diary; // Root-level diary
-
-        },
+    },
 
     /**
      * ダッシュボード表示
@@ -398,7 +397,7 @@ const adaptiveSystem = {
                 enabledCount++;
             }
         }
-        },
+    },
 
     _printModeStatistics: function () {
         const stats = Memory.adaptive.stats;
@@ -406,10 +405,9 @@ const adaptiveSystem = {
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
             logger.log(
-                `Adaptive Stats: EMERGENCY ${(
-                    (stats.emergencyCount / total) *
-                    100
-                ).toFixed(1)}% | MINIMAL ${((stats.minimalCount / total) * 100).toFixed(
+                `Adaptive Stats: EMERGENCY ${((stats.emergencyCount / total) * 100).toFixed(
+                    1
+                )}% | MINIMAL ${((stats.minimalCount / total) * 100).toFixed(
                     1
                 )}% | NORMAL ${((stats.normalCount / total) * 100).toFixed(1)}% | FULL ${(
                     (stats.fullCount / total) *
@@ -475,7 +473,10 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        logger.log(`Adaptive: Manually set mode to ${this.getModeName(numericMode).toUpperCase()}`, 'info');
+        logger.log(
+            `Adaptive: Manually set mode to ${this.getModeName(numericMode).toUpperCase()}`,
+            'info'
+        );
     },
 
     /**

@@ -29,11 +29,11 @@ describe('Sentinel: Logging Security Hardening', () => {
     test('log should use safe emoji lookup and prevent prototype pollution', () => {
         // Attempt prototype pollution
         const maliciousLevel = 'toString';
-        logger.log(maliciousLevel, 'test message');
+        logger.log('test message', maliciousLevel);
 
         // Should use default emoji '\ud83d\udcac' (💬)
         expect(console.log).toHaveBeenCalledWith(
-            expect.stringContaining('\ud83d\udcac [toString]')
+            expect.stringContaining('\ud83d\udcac [info] test message')
         );
     });
 

@@ -10,7 +10,8 @@ const LOG_EMOJIS = {
   warn: '⚠️',
   info: 'ℹ️',
   success: '✅',
-  debug: '🔍'
+  debug: '🔍',
+  default: '💬'
 }
 
 /**
@@ -67,7 +68,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines
@@ -112,11 +113,15 @@ module.exports = {
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Memory.logs || !Array.isArray(Memory.logs)) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
-    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
-    const emoji = LOG_EMOJIS[safeLevel]
+    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+      ? level
+      : 'info'
+    const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+      ? LOG_EMOJIS[level]
+      : LOG_EMOJIS.default
 
     // Security: Truncate and redact message
     const rawMessage = String(
@@ -125,10 +130,20 @@ module.exports = {
     const sanitizedMessage = _redactPaths(rawMessage)
 
     // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
+    // Security: Only swap if message is a level AND level is NOT a level to prevent infinite recursion.
+    if (
+      Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) &&
+      !Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+    ) {
       this.log(level, message)
       return
     }
+
+    // Handle (maliciousLevel, message) where maliciousLevel is not in LOG_EMOJIS
+    // If it's a known dangerous property, we should not use it as a level in the console output.
+    const displayLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+      ? level
+      : 'info'
 
     const logEntry = {
       tick: Game.time,
@@ -136,6 +151,9 @@ module.exports = {
       level: safeLevel,
       message: sanitizedMessage
     }
+
+    const consoleMessage = `${emoji} [${displayLevel}] ${sanitizedMessage}`
+    console.log(consoleMessage)
 
     Memory.logs.push(logEntry)
     // Security: Cap log size to prevent Memory DoS

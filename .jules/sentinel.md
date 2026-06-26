@@ -1,3 +1,9 @@
+## 2026-03-07 - [Logging Hardening: Infinite Recursion & Prototype Pollution]
+
+**Vulnerability:** Infinite recursion in `log()` when both arguments were valid log levels, causing process-level DoS. Additionally, potential prototype pollution via unsafe property access for log levels/emojis.
+**Learning:** Backward-compatibility "signature swapping" must be mutually exclusive to avoid cycles. Relying on direct object indexing for dynamic keys from external sources (like Memory) exposes the system to prototype pollution.
+**Prevention:** Strictly validate that only the first argument is a level before swapping. Use `Object.prototype.hasOwnProperty.call()` for all property lookups and implement a safe `default` fallback.
+
 ## 2026-06-02 - [Enhanced Secret Redaction]
 
 **Vulnerability:** Weak log redaction logic that failed to catch prefixed environment variables (e.g., `SCREEPS_TOKEN`) and lacked comprehensive keywords (e.g., `dsn`).

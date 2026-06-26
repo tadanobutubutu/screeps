@@ -1,112 +1,65 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export default function Dashboard() {
     const [stats, setStats] = useState<any>(null),
         [error, setError] = useState<string | null>(null),
         [loading, setLoading] = useState(true),
-        [copied, setCopied] = useState(false),
-        [focused, setFocused] = useState(false);
-    useEffect(() => {
-        fetch('/api/screeps?endpoint=overview')
-            .then(async (r) => {
-                const d = await r.json();
-                if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
-                return d;
-            })
-            .then((d) => {
-                setStats(d);
-                setLoading(false);
-            })
-            .catch((e) => {
-                setError(e.message || String(e));
-                setLoading(false);
-            });
-    }, []);
-    const copyErr = () =>
-        error &&
-        navigator.clipboard.writeText(error).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        });
+        [refreshing, setRefreshing] = useState(false),
+        [copied, setCopied] = useState(false);
 
-    if (loading)
-        return (
-            <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                読み込み中...
-            </p>
-        );
-    if (error)
-        return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    style={{
-                        color: '#c53030',
-                        backgroundColor: '#fff5f5',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        overflow: 'auto',
-                    }}
-                >
-                    {error}
-                </pre>
-                <button
-                    onClick={copyErr}
-                    onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
-                    aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-                    style={{
-                        backgroundColor: copied ? '#155d27' : '#004b73',
-                        color: 'white',
-                        padding: '0.5rem 1rem',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        boxShadow: focused ? '0 0 0 3px rgba(0, 75, 115, 0.4)' : 'none',
-                    }}
-                >
-                    {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
-                </button>
-            </main>
-        );
+    const fetchData = useCallback(async (isManual = false) => {
+        isManual ? setRefreshing(true) : setLoading(true);
+        setError(null);
+        try {
+            const r = await fetch('/api/screeps?endpoint=overview');
+            const d = await r.json();
+            if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
+            setStats(d);
+        } catch (e: any) {
+            setError(e.message || String(e));
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
+
+    const copyErr = () => error && navigator.clipboard.writeText(error).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    });
+
+    if (loading) return <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>読み込み中...</p>;
+
+    if (error) return (
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <pre tabIndex={0} aria-label="Error details" style={{ color: '#c53030', backgroundColor: '#fff5f5', padding: '1rem', borderRadius: '4px', overflow: 'auto' }}>{error}</pre>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+                <button onClick={copyErr} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>{copied ? '✅ コピー済み' : '📋 エラーをコピー'}</button>
+                <button onClick={() => fetchData(true)} style={{ backgroundColor: '#4a5568', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>🔄 再試行</button>
+            </div>
+        </main>
+    );
+
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
-            <div
-                style={{
-                    marginBottom: '1rem',
-                    border: '1px solid #e2e8f0',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                }}
-            >
-                <p>
-                    🌐 GCL: {stats?.gcl?.level} (
-                    {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
-                    %)
-                </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+                <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
+                <button onClick={() => fetchData(true)} disabled={refreshing} aria-label={refreshing ? '更新中...' : '更新'} style={{ background: 'none', border: 'none', cursor: refreshing ? 'not-allowed' : 'pointer', fontSize: '1.5rem', display: 'flex', alignItems: 'center' }}>
+                    <span style={{ display: 'inline-block', animation: refreshing ? 'spin 1s linear infinite' : 'none' }}>🔄</span>
+                </button>
+            </div>
+            <div style={{ marginBottom: '1rem', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '8px' }}>
+                <p>🌐 GCL: {stats?.gcl?.level} ({stats?.gcl?.progressTotal ? ((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100).toFixed(2) : '0.00'}%)</p>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
-                <p>
-                    🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
-                </p>
+                <p>🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}</p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
-                <pre
-                    style={{
-                        backgroundColor: '#f7fafc',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        marginTop: '0.5rem',
-                        overflow: 'auto',
-                    }}
-                >
-                    {JSON.stringify(stats, null, 2)}
-                </pre>
+                <summary style={{ color: '#4a5568', padding: '2px 4px' }}>生データを確認</summary>
+                <pre tabIndex={0} aria-label="Raw data" style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px', marginTop: '0.5rem', overflow: 'auto' }}>{JSON.stringify(stats, null, 2)}</pre>
             </details>
         </main>
     );

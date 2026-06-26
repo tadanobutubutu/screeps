@@ -1,0 +1,13 @@
+    /**
+     * モード変更ログ
+     */
+    logModeChange: function (oldMode, newMode, stats) {
+        // Security: Escape mode names to prevent console injection
+        const oldName = logger.escapeHTML(this.getModeName(oldMode));
+        const newName = logger.escapeHTML(this.getModeName(newMode));
+
+        logger.log(`Adaptive: Mode changed from ${oldName.toUpperCase()} to ${newName.toUpperCase()}`, 'info');
+        if (stats) {
+            logger.log(`Stats - CPU: ${stats.cpu}%, Memory: ${stats.memory}%`, 'info');
+        }
+    },

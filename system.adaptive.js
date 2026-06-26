@@ -287,9 +287,13 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
-        + '%');
+        console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
+        console.log(`From: ${oldName.toUpperCase()} → To: ${newName.toUpperCase()}`);
+        if (stats) {
+            console.log(`CPU Usage: ${stats.cpuUsagePercent}%`);
+            console.log(`CPU Bucket: ${stats.cpuBucket}/10000`);
+            console.log(`Memory Usage: ${stats.memoryUsagePercent}%`);
+        }
     },
 
     /**
@@ -360,20 +364,17 @@ const adaptiveSystem = {
         const memorySize = RawMemory.get().length;
         const memoryLimit = 2048 * 1024;
 
-        +
-                '/' +
-                cpuLimit +
-                ' (' +
-                ((cpuUsed / cpuLimit) * 100).toFixed(1) +
-                '%)'
+        logger.log(
+            `Resource Usage [${modeName}]: CPU ${cpuUsed.toFixed(1)}/${cpuLimit} (${(
+                (cpuUsed / cpuLimit) *
+                100
+            ).toFixed(1)}%) | Bucket ${cpuBucket} | Memory ${(memorySize / 1024).toFixed(1)}KB (${(
+                (memorySize / memoryLimit) *
+                100
+            ).toFixed(1)}%)`,
+            'info'
         );
-        .toFixed(1) + '%)');
-        .toFixed(1) +
-                ' KB / 2048 KB (' +
-                ((memorySize / memoryLimit) * 100).toFixed(1) +
-                '%)'
-        );
-        },
+    },
 
     _printEnabledFeatures: function () {
         const allFeatures = [
@@ -404,10 +405,18 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            logger.log(
+                `Adaptive Stats: EMERGENCY ${(
+                    (stats.emergencyCount / total) *
+                    100
+                ).toFixed(1)}% | MINIMAL ${((stats.minimalCount / total) * 100).toFixed(
+                    1
+                )}% | NORMAL ${((stats.normalCount / total) * 100).toFixed(1)}% | FULL ${(
+                    (stats.fullCount / total) *
+                    100
+                ).toFixed(1)}%`,
+                'info'
+            );
         }
     },
 
@@ -420,7 +429,9 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                '
+                logger.log(
+                    `Adaptive History: Tick ${h.time} | ${fromName.toUpperCase()} -> ${toName.toUpperCase()} | Reason: ${reason}`,
+                    'info'
                 );
             }
         }
@@ -454,7 +465,7 @@ const adaptiveSystem = {
             numericMode < this.MODE.EMERGENCY ||
             numericMode > this.MODE.FULL
         ) {
-            .');
+            logger.log('Adaptive: Invalid mode provided.', 'warn');
             return;
         }
 
@@ -464,7 +475,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        .toUpperCase());
+        logger.log(`Adaptive: Manually set mode to ${this.getModeName(numericMode).toUpperCase()}`, 'info');
     },
 
     /**
@@ -475,7 +486,7 @@ const adaptiveSystem = {
         // ⚡ PERFORMANCE: Reset cache when system is reset
         _currentConfig = null;
         _configTick = -1;
-        },
+    },
 };
 
 module.exports = adaptiveSystem;

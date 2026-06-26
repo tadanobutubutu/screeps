@@ -207,6 +207,15 @@ function getStats() {
     };
 }
 
+/**
+ * キャッシュの内部状態をリセットする（テスト用）
+ */
+function reset() {
+    _cacheSize = -1;
+    _lastCacheRef = null;
+    _cacheOrder.clear();
+}
+
 // ============================================================
 // ルーム特化キャッシュ
 // ============================================================
@@ -374,6 +383,7 @@ module.exports = {
     invalidatePattern,
     cleanup,
     getStats,
+    reset,
     isSafeKey,
     getSources,
     getStructures,

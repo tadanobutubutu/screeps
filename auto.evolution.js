@@ -342,10 +342,9 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (!exists) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
         }
     },
 
@@ -416,9 +415,7 @@ const autoEvolution = {
         if (Memory.evolution.suggestions.length > MAX_SUGGESTIONS) {
             Memory.evolution.suggestions.shift();
         }
-
-        );
-        },
+    },
 
     /**
      * RCL機能生成
@@ -480,20 +477,19 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
-
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                }
+                console.log(`- [${h.time}] ${h.type}: ${h.action}`);
+            }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                console.log(`- PENDING: ${q.type} (${q.priority})`);
             }
         }
 
@@ -501,7 +497,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                console.log(`- SUGGESTION: ${s.filename}`);
             }
         }
     },
@@ -511,7 +507,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-        },
+    },
 };
 
 module.exports = autoEvolution;

@@ -131,7 +131,7 @@ module.exports = {
     // Security: Only swap if message is a level and level is NOT a level to avoid infinite recursion
     if (
       Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) &&
-      !Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+            !Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
     ) {
       this.log(level, message)
       return

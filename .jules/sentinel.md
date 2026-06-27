@@ -10,6 +10,11 @@
 **Learning:** Redaction regexes must explicitly handle quoted strings to prevent partial leakage of multi-word values.
 **Prevention:** Use a regex pattern that recognizes single and double-quoted blocks as a single value when following a sensitive keyword. Note: keywords in regex and documentation should be obfuscated or dynamically constructed (e.g. by using character codes) to avoid triggering repository-wide compliance scanners while still providing protection.
 
+## 2025-05-16 - [Hardening Log Redaction and Fixing Critical Logger Vulnerabilities]
+**Vulnerability:** A critical syntax error in `getSafeStack` completely disabled security logging for stack traces. Additionally, the `log` method was susceptible to infinite recursion when called with swapped arguments (level, message), and the path redaction regex caused over-redaction (e.g., masking version numbers like `/10.0`).
+**Learning:** Overly aggressive redaction patterns (like matching any string starting with `/`) create noise and reduce log utility. Requiring at least one subdirectory level (e.g., `/dir/`) significantly reduces false positives while maintaining protection. Infinite recursion in logging utilities is a high-risk failure mode that must be explicitly guarded against when supporting multiple call signatures.
+**Prevention:** Implement strict path redaction that requires structural delimiters. Use explicit guards in recursive logging functions to verify argument types before re-dispatching. Ensure core security utilities are covered by syntax verification in CI.
+
 ## 2025-05-15 - [Hardened Redaction Logic]
 
 **Vulnerability:** Weak redaction of sensitive credentials in logs and deployment scripts. Previous logic only masked labels or used limited keywords, potentially leaving values or non-standard identifiers (like `dsn` or `a` + `p` + `i` + `_` + `k` + `e` + `y`) exposed in plain text.

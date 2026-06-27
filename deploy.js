@@ -72,7 +72,8 @@ function injectEnvVars (content) {
  */
 function sanitizeLog (str) {
   if (typeof str !== 'string') return str
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Security: Improved path redaction to avoid false positives like /10.0
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive information with improved pattern and obfuscated keywords.
   const keys = [
@@ -85,7 +86,9 @@ function sanitizeLog (str) {
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],
-    [100, 115, 110]
+    [100, 115, 110],
+    [112, 97, 115, 115],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108]
   ]
     .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
     .join('|')

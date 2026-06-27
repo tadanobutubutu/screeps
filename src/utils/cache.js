@@ -169,11 +169,13 @@ function invalidatePattern(pattern) {
 
 /**
  * 期限切れキャッシュエントリをすべて削除する
+ * @returns {number} 削除されたエントリ数
  */
 function cleanup() {
     const cache = ensureCache();
     const keys = Object.keys(cache);
     const now = Game.time;
+    let deletedCount = 0;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         const entry = cache[key];
@@ -181,8 +183,20 @@ function cleanup() {
             delete cache[key];
             _cacheOrder.delete(key);
             _cacheSize--;
+            deletedCount++;
         }
     }
+    return deletedCount;
+}
+
+/**
+ * キャッシュを完全にリセットする（テスト用）
+ */
+function reset() {
+    global.cache = Object.create(null);
+    _cacheSize = 0;
+    _lastCacheRef = global.cache;
+    _cacheOrder.clear();
 }
 
 /**
@@ -373,6 +387,7 @@ module.exports = {
     invalidate,
     invalidatePattern,
     cleanup,
+    reset,
     getStats,
     isSafeKey,
     getSources,

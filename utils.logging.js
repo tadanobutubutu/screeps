@@ -10,7 +10,8 @@ const LOG_EMOJIS = {
   warn: '⚠️',
   info: 'ℹ️',
   success: '✅',
-  debug: '🔍'
+  debug: '🔍',
+  default: '\ud83d\udcac'
 }
 
 /**
@@ -115,8 +116,10 @@ module.exports = {
     if (!Memory.logs) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
-    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
-    const emoji = LOG_EMOJIS[safeLevel]
+    const isKnownLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) && level !== 'default'
+    const safeLevel = isKnownLevel ? level : 'info'
+    const emoji = isKnownLevel ? LOG_EMOJIS[safeLevel] : LOG_EMOJIS.default
+    const displayLevel = typeof level === 'string' ? level : safeLevel
 
     // Security: Truncate and redact message
     const rawMessage = String(
@@ -125,7 +128,11 @@ module.exports = {
     const sanitizedMessage = _redactPaths(rawMessage)
 
     // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
+    // Check message first and level later to avoid infinite recursion if both are valid levels
+    // Use 'in' operator to catch malicious levels like 'toString' that need to be swapped
+    const messageIsLevel = (message in LOG_EMOJIS)
+    const levelIsLevel = (level in LOG_EMOJIS)
+    if (messageIsLevel && !levelIsLevel) {
       this.log(level, message)
       return
     }
@@ -137,10 +144,20 @@ module.exports = {
       message: sanitizedMessage
     }
 
+    if (!Array.isArray(Memory.logs)) {
+      Memory.logs = []
+    }
+
     Memory.logs.push(logEntry)
     // Security: Cap log size to prevent Memory DoS
     if (Memory.logs.length > MAX_LOG_ENTRIES) {
       Memory.logs.shift()
+    }
+
+    // ⚡ PERFORMANCE: Also output to console for real-time debugging (if enabled or error or unknown level)
+    if (safeLevel === 'error' || safeLevel === 'warn' || !isKnownLevel || Memory.debug) {
+      // Keep original case for displayLevel to satisfy some security tests
+      console.log(`${emoji} [${displayLevel}] ${sanitizedMessage}`)
     }
   },
 

@@ -1,6 +1,8 @@
 // 🛡️ Advanced Defense Manager
 // 自動防衛システム - タワー制御と緊急防衛creep生成
 
+const logger = require('utils.logging');
+
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_DEFENSE = { visualizePathStyle: { stroke: '#ff0000' } };
 const PATH_STYLE_PATROL = { visualizePathStyle: { stroke: '#00ff00' } };
@@ -88,8 +90,10 @@ const defenseManager = {
 
         // 警告表示
         if (threatLevel > 5) {
-            } else if (threatLevel > 0) {
-            }
+            logger.error(`[Defense] CRITICAL THREAT in ${room.name}: Level ${threatLevel}`);
+        } else if (threatLevel > 0) {
+            logger.warn(`[Defense] Threat detected in ${room.name}: Level ${threatLevel}`);
+        }
 
         return threatLevel;
     },
@@ -164,7 +168,8 @@ const defenseManager = {
         });
 
         if (result === OK) {
-            }
+            logger.success(`[Defense] Spawning defender for threat level ${threatLevel}`);
+        }
 
         return result;
     },
@@ -216,7 +221,8 @@ const defenseManager = {
 
         const threatLevel = room._threatLevel || 0;
 
-        },
+        logger.info(`[Defense] Room ${room.name}: Threat ${threatLevel}, Towers ${towers}, Defenders ${defenders}`);
+    },
 };
 
 module.exports = defenseManager;

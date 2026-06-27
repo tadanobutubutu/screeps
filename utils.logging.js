@@ -116,7 +116,8 @@ module.exports = {
     if (!Memory.logs) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
-    const isKnownLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) && level !== 'default'
+    const isKnownLevel =
+            Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) && level !== 'default'
     const safeLevel = isKnownLevel ? level : 'info'
     const emoji = isKnownLevel ? LOG_EMOJIS[safeLevel] : LOG_EMOJIS.default
     const displayLevel = typeof level === 'string' ? level : safeLevel
@@ -130,8 +131,8 @@ module.exports = {
     // Handle (level, message) signature used in some tests
     // Check message first and level later to avoid infinite recursion if both are valid levels
     // Use 'in' operator to catch malicious levels like 'toString' that need to be swapped
-    const messageIsLevel = (message in LOG_EMOJIS)
-    const levelIsLevel = (level in LOG_EMOJIS)
+    const messageIsLevel = message in LOG_EMOJIS
+    const levelIsLevel = level in LOG_EMOJIS
     if (messageIsLevel && !levelIsLevel) {
       this.log(level, message)
       return

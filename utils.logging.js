@@ -106,6 +106,19 @@ module.exports = {
     return Memory.logs.filter((l) => l.level === 'error')
   },
 
+  escapeHTML (str) {
+    if (typeof str !== 'string') return str
+    const chars = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+      '`': '&#96;'
+    }
+    return str.replace(/[&<>'"`]/g, (tag) => chars[tag] || tag)
+  },
+
   init () {
     if (!Memory.logs) Memory.logs = []
     if (Memory.logs.length > 100) {

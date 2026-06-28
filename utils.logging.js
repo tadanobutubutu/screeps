@@ -67,7 +67,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines

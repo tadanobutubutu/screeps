@@ -522,7 +522,8 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     logger.info('--- TICK: ' + Game.time + ' ---');
-    logger.info('MODE: ' + adaptiveSystem.getModeName(Memory.adaptive.currentMode).toUpperCase());
+    // ⚡ PERFORMANCE: Use optional chaining for safe access to Memory.adaptive
+    logger.info('MODE: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode).toUpperCase());
     logger.info('CREEPS: ' + creeps.length);
     logger.info('CPU: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit + ' (Bucket: ' + Game.cpu.bucket + ')');
     logger.info('MEM: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');

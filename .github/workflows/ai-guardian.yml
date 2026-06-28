@@ -25,7 +25,7 @@ jobs:
 
       # 1. Gitleaks: Secret Scanning
       - name: Gitleaks Scan
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         id: gitleaks
         continue-on-error: true
         env:

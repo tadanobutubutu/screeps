@@ -1,53 +1,75 @@
 # ACE (Autonomous Colony Engine)
 
-
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build Status](https://github.com/yourorg/ace/workflows/CI/badge.svg)
-
-![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
-
-![Coverage](https://img.shields.io/codecov/c/github/yourorg/ace/master.svg)
-
-![AI‑Powered](https://img.shields.io/badge/AI-powered-%23ff69b4.svg)
+![Build Status](https://github.com/your-org/ace/actions/workflows/ci.yml/badge.svg)  
+![License](https://img.shields.io/github/license/your-org/ace)  
+![Coverage](https://img.shields.io/codecov/c/github/your-org/ace/main)  
+![AI Powered](https://img.shields.io/static/v1?label=AI&message=Powered&color=blue)
 
 ---
 
-## 概要
-
-ACE は 29 の自動化ワークフローと 10 の動的ロールを駆使し、25645 行に及ぶコードベースを自律的に進化させる AI 主導型開発フレームワークです。  
-「自律進化・自己修復」を核に、継続的インテグレーション・デリバリーと組み合わせて、バグが発生した瞬間に自動解決に移行できるエコシステムを実現します。
+## ACEの概要  
+ACEは「Autonomous Colony Engine」の略。  
+自律進化・自己修復を核に、Scr​e​eps上でリアルタイムに農業・防衛・拡張を行うAIエージェント群を統括します。  
+Screepsの限界を拡張し、開発者の手入力を最小化。AIが自律的にバグを検出し、修正し、最適化を続けることで、いつでも進化し続ける拠点を実現します。
 
 ---
 
 ## システムアーキテクチャ (詳細)
 
-ACE は **Guardian → Auto‑Coder → Governance** の三位一体ループで構成され、各フェーズは GitHub Actions とカスタムエージェントで協調運用します。
-
-```mermaid
-graph TD
-    A[Guardian] -->|Issue ↑| B[Auto‑Coder]
-    B -->|PR / Merge| C[Governance]
-    C -->|Docs / Clean] A
-    style A fill:#FFD700,stroke:#000,stroke-width:2px
-    style B fill:#00BFFF,stroke:#000,stroke-width:2px
-    style C fill:#32CD32,stroke:#000,stroke-width:2px
+``mermaid
+flowchart TD
+    A[Gitリポジトリ] -->|監視| B[AI Guardian]
+    B -->|インシデント| C[AI Auto‑Coder]
+    C -->|PR作成・マージ| D[GitHub]
+    D -->|コードベース更新| A
+    B -->|レポート・ガバナンス| E[AI Repo Governance]
+    E -->|ハイライト・README更新| D
 ```
 
 ### Guardian（監視）
-- **セキュリティ**：Gitleaks、CodeQL、SonarCloud を毎リビジョンで走らせ、脆弱性・不正コードを検知。
-- **品質**：Jest で毎コミットのユニットテスト実行。カバレッジは 100% を目指し、自動レポートを Issue として登録。
-- **監視フロー**：検知次第リアルタイムで Issue を発行。Issue には必ず CI ステータスと推奨修正提案が添付される。
+- **セキュリティ監査**：Gitleaks、CodeQL、SonarCloudを24時間実行。  
+- **品質指標**：Jestによるユニットテスト、-coverage 100%を目指す。  
+- **Issue発行**：検出した問題を自動でIssue化し、アノテーション付きでレポート。
 
 ### Auto‑Coder（修復）
-- **Issue 解析**：AI 生成モデル（OpenAI Codex 連携）で Issue 内容を理解。
-- **コード修正**：変更箇所を自動提案し、必要に応じてテストコードも生成。PR を作成し、コンフリクト解消からマージ、ブランチ削除まで完結。
-- **学習サイクル**：PR へのフィードバックを元にモデルを継続的にアップデート。適応度が上がるほど人手による干渉は減少。
+- **Issue解析**：AIがフロントエンドに刻まれたIssueを読み解き、影響範囲と優先度を算出。  
+- **コード修正・テスト作成**：自動リポジトリ操作でブランチ生成、変更量をコンテキスト化し、変更候補を提案。  
+- **競合解消 & マージ**：PRを生成し、CIの合格後に自動マージ。競合が発生した場合は自動解消、手動対応は最小化。
 
-### Governance（統治）
-- **ドキュメント自動更新**：README・CHANGELOG の生成・フォーマットを AI が管理。PR での変更を検知し、最新情報に保つ。
-- **ブランチ整理**：使用頻度・統合状態に応じて不要ブランチを自動削除。リポジトリクリーンアップは
+### Repo Governance（統治）
+- **メタデータ管理**：README、CHANGELOGのAI生成、不要ブランチの自動クリーン。  
+- **クリープロール提案**：毎週、動的ロールの最適化候補を提示し、リソース再分配を支援。  
+- **透明性維持**：進化ログとインデックスをGitHub Actionsで運用。
+
+---
+
+## コアテクノロジー
+
+| 技術 | 役割 | 実装ポイント |
+|------|------|--------------|
+| **コンフリクト自動解消** | AIの学習済みパターンでマージバグを即時修正 | GitHub API + OpenAI Codex |
+| **Issue自動解決** | 文字列解析 + AST活用でバグの根本原因特定 | ESLint + AST Module |
+| **README最適化** | 継続的インテリジェンスでドキュメントを最新化 | Natural Language Generation (Transformer) |
+
+---
+
+## 自律的成果ログ
+
+| 日付 | コミット | AIが実施した変更内容 |
+|------|----------|----------------------|
+| 2024‑06‑20 | chore: update npm badge for screeps‑ai | ビルドチャートを最新状態へ |
+| 2024‑06‑18 | docs: AI-driven dynamic intelligence update | AI の戦略ガイドラインを追加 |
+| 2024‑06‑17 | docs(tzylo): update from PR #981 | モジュール構成ファイルの自己最適化 |
+| 2024‑06‑16 | chore: update npm badge for screeps‑ai | ビルドビジュアルをベースに再構築 |
+| 2024‑06‑15 | chore(deps): update dependency pnpm to v11 (#981) | 依存ツールのバージョンを統一 |
+| 2024‑06‑14 | fix(deps): update dependency @sentry/browser to v10.62.0 (#980) | エラーハンドリング強化 |
+| 2024‑06‑13 | chore(deps): update node.js to v24.18.0 (#979) | JavaScriptエンジンを最新化 |
+
+---
+
+## セットアップ
+
+1. **レポジトリをクローン**
+
+```bash
+git clone https://github.com/your-org/ace

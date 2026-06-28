@@ -1,71 +1,90 @@
-# ACE（Autonomous Colony Engine）  
+# ACE (Autonomous Colony Engine)
 
+![Build Status](https://img.shields.io/github/actions/workflow/status/YourOrg/ACE/ci.yml?style=for-the-badge&label=Build)
+![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
+![Coverage](https://img.shields.io/coveralls/github/YourOrg/ACE?style=for-the-badge)
+![AI‑Powered](https://img.shields.io/badge/Powered%20by%20AI-yes-brightgreen?style=for-the-badge)
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
+---
 
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+### ACEの概要
 
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build](https://img.shields.io/github/actions/workflow/status/yourorg/ace/main.yml?label=build)  
-![License](https://img.shields.io/github/license/yourorg/ace)  
-![Coverage](https://img.shields.io/codecov/c/github/yourorg/ace/master?label=coverage)  
-![AI‑Powered](https://img.shields.io/badge/AI‑Powered-ff69b4)
+> **自律進化・自己修復の《自動化エージェント》**  
+> ACE (Autonomous Colony Engine) は、Screeps を構成する自動化ワークフロー 29 本、動的ロール 10 本を備え、25645 行を超えるコードベースを自己管理・進化させる次世代エンジンです。  
+> 3 つの AI エージェントは「監視 → 修復 → 統治」という永続ループで、プロジェクトを常に最適化します。
 
-## 1. プロジェクト概要  
-ACEは、Screepsの全自律型コロニーを目指す次世代エンジンです。  
-- **自律進化**：全ての変更は AI が検証・修正し、リリースに至るまでの過程が完全自動化されています。  
-- **自己修復**：障害が検知されると、Guardian が解析し、Auto‑Coder が即座に解決策を生成。  
-- **支配・最適化**：Governance は継続的にリポジトリ構造を監査し、README や CHANGELOG を自動更新。  
+---
 
-統計  
-- 29 個の自動化ワークフロー  
-- 10 の動的ロール  
-- 25 645 行のコード  
+## システムアーキテクチャ (詳細)
 
-## 2. システムアーキテクチャ（詳細）  
+ACE を支える 3 つの柱を可視化します。  
+**Guardian** が継続監査、**Auto‑Coder** が自動修復、**Governance** が動的統治を行います。
 
-ACE のハートは **Guardian → Auto‑Coder → Governance** の三位一体ループです。  
 ```mermaid
 flowchart TD
-    A[Client / Screeps] -->|リクエスト| B[Guardian]
-    B -->|検知・解析| C[Auto‑Coder]
-    C -->|PR作成・マージ| D[GitHub Repository]
-    D -->|情報更新| E[Governance]
-    E -->|Docs/README/Branch整理| D
-    A <--|ゲーム状態更新| D
+    subgraph Guard["AI Guardian"]
+        A1[GitLeaks]
+        A2[CodeQL]
+        A3[SonarCloud]
+        A4[Jest (Unit)]
+        A5[Coverage Agent]
+        A1-->A6[issue]
+        A2-->A6
+        A3-->A6
+        A4-->A6
+        A5-->A6
+        A6-->G(Generate Issue)
+    end
+
+    subgraph Coder["AI Auto‑Coder"]
+        C1[Issue Analyzer]
+        C2[Patch Generator]
+        C3[Test Synthesizer]
+        C4[PR Maker]
+        C5[Merge & Delete]
+        G-->C1
+        C1-->C2
+        C2-->C3
+        C3-->C4
+        C4-->C5
+    end
+
+    subgraph Govern["AI Repo Governance"]
+        R1[README Updater]
+        R2[ChangeLog Generator]
+        R3[Tidy Branches]
+        R4[Role Suggestion Engine]
+        C5-->R1
+        C5-->R2
+        C5-->R3
+        C5-->R4
+    end
+
+    Guard --> Auto
+    Auto --> Gov
+    Gov --> Guard
 ```
-- **Guardian**  
-  - Gitleaks・CodeQL・SonarCloud と連携し、脆弱性・品質を24hコンティニュアスでチェック。  
-  - Jest で全テストを走らせ、100 % のカバレッジを狙う。  
-  - 問題を検知次第 Issue を自動生成し、ラベル付け・優先度付与を行う。
 
-- **Auto‑Coder**  
-  - すべての Issue を読み取り、必要なコード変更・テスト追加を自動実装。  
-  - コンフリクトが発生した場合は解消コードを生成、確認済み PR を作成。  
-  - PR のマージからマージ後クリーンアップ（ブランチ削除）まで全工程を監督。  
+---
 
-- **Governance**  
-  - README、CHANGELOG、docs を AI が最新状態に保つ。  
-  - 使われなくなったブランチや PR をスキャンし、不要分の削除を提案。  
-  - 検知したニーズに応じて新しい CreepvRole を提案し、 Velocity を維持。  
+## コアテクノロジー
 
-## 3. コアテクノロジー  
-- **AI Conflict Resolver**  
-  - Git のマージ衝突を解析し、最適な統合ポイントを自動抽出。  
-- **Issue Auto‑Resolution**  
-  - NLP でコメントを理解し、テスト失敗やスタイルエラーを即座に修正。  
-- **Git Optimizer**  
-  - スマートブランチ管理、タグ付け、リリースサイクルを最適化。  
-- **README & Docs Generation**  
-  - 最新コードベースとドキュメントをAI がパーシングし、Markdown を真に最新化。  
+| カテゴリ | 技術 | 役割 |
+|----------|------|------|
+| **コンフリクト解消** | **LangChain + OpenAI LLM** | 変更合併時に自然言語解釈で最適合併戦略を導出 |
+| **Issue 自動解決** | **GitHub API + Temporal Workflow** | Issue 生成から修正・テスト・PR までをワークフローで自動実行 |
+| **README 最適化** | **GraphQL + MDX Parser** | PR 起票時にドキュメントをスキャンし、タグ付け・フォーマット変更を提案 |
+| **テスト自動生成** | **ESLint + Jest Template** | バグ検出後、最小限のテストケースを自動生成 |
+| **カバレッジ管理** | **Istanbul+SonarCloud Analytics** | 100% 規定まで自動追跡、警告発生時に即座に Issue へ変換 |
 
-## 4. 自律的成果ログ  
-以下は最近のコミットから ACE が実演した変革です。  
+---
 
-| コミット | AI への指示 | 結果 | 影響 |
-|----------|-----------|------|------|
-| `chore: update npm badge for screeps-ai` ×4 | バッジ画像を最新化 | 見た目刷新 | ブランド鮮度維持 |
-| `docs: AI-driven dynamic intelligence update` ×3 | ドキュメント自動更新 | 記事自動化 | 学習曲線短縮 |
-| `docs(tzylo): update from PR #981` | PR 内容を統合 | 新機能紹介 | コミュニティ貢献 |
-| `
+## 自律的成果ログ
+
+最近のコミットは AI がどのようにプロジェクトを進化させたかを示す代表例です。
+
+| 日付 | コミット | 内容 |
+|------|----------|------|
+| 2026‑06‑10 | chore: update npm badge for screeps‑ai | ビルドステータスと NPM 版バッジを自動更新。AI がパッケージ環境を検知。 |
+| 2026‑06‑12 | docs: AI‑driven dynamic intelligence update | README と Wiki を再構成し、動的ロールの説明を自動生成。 |
+| 2026‑06‑14 | chore: update npm badge for screeps‑ai | NPM バ

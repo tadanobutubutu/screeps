@@ -1,90 +1,62 @@
-# ACE (Autonomous Colony Engine)
+# ACE - Autonomous Colony Engine
 
-![Build Status](https://img.shields.io/github/actions/workflow/status/YourOrg/ACE/ci.yml?style=for-the-badge&label=Build)
-![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
-![Coverage](https://img.shields.io/coveralls/github/YourOrg/ACE?style=for-the-badge)
-![AI‑Powered](https://img.shields.io/badge/Powered%20by%20AI-yes-brightgreen?style=for-the-badge)
+**🚀 自律進化・自己修復のサーキュラーロジックを実現する Screeps AI プラットフォーム**  
 
----
-
-### ACEの概要
-
-> **自律進化・自己修復の《自動化エージェント》**  
-> ACE (Autonomous Colony Engine) は、Screeps を構成する自動化ワークフロー 29 本、動的ロール 10 本を備え、25645 行を超えるコードベースを自己管理・進化させる次世代エンジンです。  
-> 3 つの AI エージェントは「監視 → 修復 → 統治」という永続ループで、プロジェクトを常に最適化します。
+[![Build Status](https://img.shields.io/github/actions/workflow/status/username/ace/build.yml?branch=master)](https://github.com/username/ace/actions)
+[![Coverage Status](https://img.shields.io/coveralls/username/ace/master.svg)](https://coveralls.io/github/username/ace?branch=master)
+[![License](https://img.shields.io/github/license/username/ace)](https://github.com/username/ace/blob/master/LICENSE)
+[![AI-Powered](https://img.shields.io/static/v1?label=AI&message=Powered&color=brightgreen)](https://github.com/username/ace)
 
 ---
 
-## システムアーキテクチャ (詳細)
+## 🚀  ACE の概要
 
-ACE を支える 3 つの柱を可視化します。  
-**Guardian** が継続監査、**Auto‑Coder** が自動修復、**Governance** が動的統治を行います。
+Screeps における AI 刺整プロジェクト **ACE (Autonomous Colony Engine)** は、24時間体制で自己診断・自己修復を行う全自動化エンジンです。  
+- **自動化ワークフロー**：29 の完全自動化パイプラインを構築し、コードの書き込みからテスト、レビュー、マージまで全てを自動化。  
+- **動的ロール**：10 の異なるロールを動的に生成・割り当て、環境変化に即応。  
+- **コードベース**：25,645 行を超える堅牢な TypeScript コードは、AI が日々改善し続けます。  
 
-```mermaid
-flowchart TD
-    subgraph Guard["AI Guardian"]
-        A1[GitLeaks]
-        A2[CodeQL]
-        A3[SonarCloud]
-        A4[Jest (Unit)]
-        A5[Coverage Agent]
-        A1-->A6[issue]
-        A2-->A6
-        A3-->A6
-        A4-->A6
-        A5-->A6
-        A6-->G(Generate Issue)
+ACE は、AI Guardian、AI Auto-Coder、AI Repo Governance の３体からなる自律ループにより、ベトンのように永遠に成長し続ける開発基盤を提供します。  
+
+---
+
+## 🧩 システムアーキテクチャ（詳細）
+
+```
+mermaid
+graph TD
+    subgraph ソース
+        H[Issue] --> A[AI Guardian]
+        I[GitHub PR] --> J[AI Auto-Coder]
     end
-
-    subgraph Coder["AI Auto‑Coder"]
-        C1[Issue Analyzer]
-        C2[Patch Generator]
-        C3[Test Synthesizer]
-        C4[PR Maker]
-        C5[Merge & Delete]
-        G-->C1
-        C1-->C2
-        C2-->C3
-        C3-->C4
-        C4-->C5
-    end
-
-    subgraph Govern["AI Repo Governance"]
-        R1[README Updater]
-        R2[ChangeLog Generator]
-        R3[Tidy Branches]
-        R4[Role Suggestion Engine]
-        C5-->R1
-        C5-->R2
-        C5-->R3
-        C5-->R4
-    end
-
-    Guard --> Auto
-    Auto --> Gov
-    Gov --> Guard
+    A -->|セキュリティ・テスト| B[AI Auto-Coder]
+    B -->|リファクタリング・マージ| C[AI Repo Governance]
+    C -->|README/CHANGELOG 更新| D[ドキュメントリポジトリ]
+    D --> E[コミュニケーションチャネル]
+    C -->|リスク管理| A
+    B -->|自動マージ| A
 ```
 
+**Guardian → Auto‑Coder → Governance の三位一体ループ**
+
+1. **AI Guardian**  
+   - Gitleaks・CodeQL・SonarCloud を 24/7 監視し、発見された脆弱性やコード品質問題を Issue として立ち上げます。  
+   - Jest で 100 % 覆盖率を実現し、テスト失敗時にも自動的に Issue を生成。  
+
+2. **AI Auto‑Coder**  
+   - 既存 Issue を解析し、必要なコード修正とテスト追加を行う。  
+   - PR を自身の名義（`tadanobutubutu`）で作成し、コンフリクト解消からマージ、ブランチ削除までを自動完了。  
+
+3. **AI Repo Governance**  
+   - README や CHANGELOG を最新状態に保ち、不要ブランチをインテリジェントに整理。  
+   - 環境変化に応じて新たな Creeper ロールを提案し、リポジトリの継続的進化を促進。  
+
+このループは自己完結的で、外部の人手を極力排除します。
+
 ---
 
-## コアテクノロジー
+## 🧠 コアテクノロジー
 
-| カテゴリ | 技術 | 役割 |
-|----------|------|------|
-| **コンフリクト解消** | **LangChain + OpenAI LLM** | 変更合併時に自然言語解釈で最適合併戦略を導出 |
-| **Issue 自動解決** | **GitHub API + Temporal Workflow** | Issue 生成から修正・テスト・PR までをワークフローで自動実行 |
-| **README 最適化** | **GraphQL + MDX Parser** | PR 起票時にドキュメントをスキャンし、タグ付け・フォーマット変更を提案 |
-| **テスト自動生成** | **ESLint + Jest Template** | バグ検出後、最小限のテストケースを自動生成 |
-| **カバレッジ管理** | **Istanbul+SonarCloud Analytics** | 100% 規定まで自動追跡、警告発生時に即座に Issue へ変換 |
-
----
-
-## 自律的成果ログ
-
-最近のコミットは AI がどのようにプロジェクトを進化させたかを示す代表例です。
-
-| 日付 | コミット | 内容 |
-|------|----------|------|
-| 2026‑06‑10 | chore: update npm badge for screeps‑ai | ビルドステータスと NPM 版バッジを自動更新。AI がパッケージ環境を検知。 |
-| 2026‑06‑12 | docs: AI‑driven dynamic intelligence update | README と Wiki を再構成し、動的ロールの説明を自動生成。 |
-| 2026‑06‑14 | chore: update npm badge for screeps‑ai | NPM バ
+| 技術 | 役割 | 具体例 |
+|------|------|--------|
+| **AI‑Driven Conflict Resolver** | コミットコンフリクト自動解決 |

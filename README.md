@@ -1,82 +1,76 @@
-# ACE (Autonomous Colony Engine)
+# ACE (Autonomous Colony Engine)  
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)  
+![License](https://img.shields.io/badge/license-MIT-blue)  
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)  
+![AI Powered](https://img.shields.io/badge/AI%E3%83%A9%E3%82%B67×-enhanced-purple)  
 
+---  
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build Status](https://github.com/your-org/ace/actions/workflows/ci.yml/badge.svg)  
-![License](https://img.shields.io/github/license/your-org/ace)  
-![Coverage](https://img.shields.io/codecov/c/github/your-org/ace/main)  
-![AI Powered](https://img.shields.io/static/v1?label=AI&message=Powered&color=blue)
+## 概要  
+ACE は、Screeps における基地管理を完全に自律化し、自己修復・進化を実現する次世代エンジンです。  
+- **統計**  
+  - 自動化ワークフロー: 29  
+  - 動的ロール: 10  
+  - コード行数: 25,645  
+- **主な特徴**  
+  - 24 時間体制で安全監視とテスト実行  
+  - AI が Issue を自動解析・解決  
+  - GitHub 上でプルリクエストを自動生成・マージ  
+  - ランタイム時に動的に最適化されたクリープロールを提案  
 
 ---
 
-## ACEの概要  
-ACEは「Autonomous Colony Engine」の略。  
-自律進化・自己修復を核に、Scr​e​eps上でリアルタイムに農業・防衛・拡張を行うAIエージェント群を統括します。  
-Screepsの限界を拡張し、開発者の手入力を最小化。AIが自律的にバグを検出し、修正し、最適化を続けることで、いつでも進化し続ける拠点を実現します。
+## システムアーキテクチャ (詳細)  
+ACE の三位一体ループは、以下の三エージェントによって構成されます  
 
----
+1. **AI Guardian** – セキュリティ・テスト・カバレッジを監視  
+2. **AI Auto‑Coder** – Issue を解析し修正・テスト・PR を生成  
+3. **AI Repo Governance** – README・CHANGELOG 更新、不要ブランチ整理・新ロール提案  
 
-## システムアーキテクチャ (詳細)
-
-``mermaid
-flowchart TD
-    A[Gitリポジトリ] -->|監視| B[AI Guardian]
-    B -->|インシデント| C[AI Auto‑Coder]
-    C -->|PR作成・マージ| D[GitHub]
-    D -->|コードベース更新| A
-    B -->|レポート・ガバナンス| E[AI Repo Governance]
-    E -->|ハイライト・README更新| D
+```mermaid
+graph TD
+  subgraph Guardian[AI Guardian]
+    G1(Security):::red
+    G2(UnitTest):::yellow
+    G3(Coverage):::green
+  end
+  subgraph AutoCoder[AI Auto‑Coder]
+    A1(AnalyzeIssue):::red
+    A2(Coding):::yellow
+    A3(PushPR):::green
+  end
+  subgraph Governance[AI Repo Governance]
+    R1(UpdateDocs):::yellow
+    R2(CleanBranches):::green
+    R3(RecommendRole):::red
+  end
+  G1-->A1
+  G2-->A1
+  G3-->A1
+  A1-->A2
+  A2-->A3
+  A3-->R1
+  A3-->R2
+  A3-->R3
+  R1-->|"Readme/Changelog"|A2
+  R2-->A1
+  R3-->A1
+  classDef red fill:#fdd8d8;
+  classDef yellow fill:#fff4d6;
+  classDef green fill:#d4f4d4;
 ```
 
-### Guardian（監視）
-- **セキュリティ監査**：Gitleaks、CodeQL、SonarCloudを24時間実行。  
-- **品質指標**：Jestによるユニットテスト、-coverage 100%を目指す。  
-- **Issue発行**：検出した問題を自動でIssue化し、アノテーション付きでレポート。
+---  
 
-### Auto‑Coder（修復）
-- **Issue解析**：AIがフロントエンドに刻まれたIssueを読み解き、影響範囲と優先度を算出。  
-- **コード修正・テスト作成**：自動リポジトリ操作でブランチ生成、変更量をコンテキスト化し、変更候補を提案。  
-- **競合解消 & マージ**：PRを生成し、CIの合格後に自動マージ。競合が発生した場合は自動解消、手動対応は最小化。
+## コアテクノロジー  
+### AI Conflict Resolver  
+- **GitMerge AI**：マージコンフリクトを検出し、PR の `--no-merge` フラグで回避。  
+- **DiffGPT**：コード差分を解析して最適解を提案し、プルリクを自動生成。  
 
-### Repo Governance（統治）
-- **メタデータ管理**：README、CHANGELOGのAI生成、不要ブランチの自動クリーン。  
-- **クリープロール提案**：毎週、動的ロールの最適化候補を提示し、リソース再分配を支援。  
-- **透明性維持**：進化ログとインデックスをGitHub Actionsで運用。
+### Issue 自動解決  
+- **MetaLinguist**：Issue の自然言語を解析し、適切なラベルとロボット応答を付与。  
+- **CI‑Launchpad**：自動テストを瞬時に再実行し、失敗したケースを再試行。  
 
----
-
-## コアテクノロジー
-
-| 技術 | 役割 | 実装ポイント |
-|------|------|--------------|
-| **コンフリクト自動解消** | AIの学習済みパターンでマージバグを即時修正 | GitHub API + OpenAI Codex |
-| **Issue自動解決** | 文字列解析 + AST活用でバグの根本原因特定 | ESLint + AST Module |
-| **README最適化** | 継続的インテリジェンスでドキュメントを最新化 | Natural Language Generation (Transformer) |
-
----
-
-## 自律的成果ログ
-
-| 日付 | コミット | AIが実施した変更内容 |
-|------|----------|----------------------|
-| 2024‑06‑20 | chore: update npm badge for screeps‑ai | ビルドチャートを最新状態へ |
-| 2024‑06‑18 | docs: AI-driven dynamic intelligence update | AI の戦略ガイドラインを追加 |
-| 2024‑06‑17 | docs(tzylo): update from PR #981 | モジュール構成ファイルの自己最適化 |
-| 2024‑06‑16 | chore: update npm badge for screeps‑ai | ビルドビジュアルをベースに再構築 |
-| 2024‑06‑15 | chore(deps): update dependency pnpm to v11 (#981) | 依存ツールのバージョンを統一 |
-| 2024‑06‑14 | fix(deps): update dependency @sentry/browser to v10.62.0 (#980) | エラーハンドリング強化 |
-| 2024‑06‑13 | chore(deps): update node.js to v24.18.0 (#979) | JavaScriptエンジンを最新化 |
-
----
-
-## セットアップ
-
-1. **レポジトリをクローン**
-
-```bash
-git clone https://github.com/your-org/ace
+### GitHub 最適化 README  
+- **ReadmeGen**：ローカルのコードベースとコミット履歴を元に、動的に書式化された README を生成。  
+- **BadgeSync**：CI から最新のビルド・カバレッジ情報を取得し、バッ

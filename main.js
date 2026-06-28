@@ -652,7 +652,8 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports.loop = function () {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
@@ -680,7 +681,8 @@ function handleSocialInteractions(rooms) {
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
         if (oldPaths.length > 0) {
-            }
+            logger.info('Cleaned ' + oldPaths.length + ' old paths');
+        }
     }
 
     try {

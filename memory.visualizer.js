@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Memory Size: ${(RawMemory.get().length / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -115,9 +115,10 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`History (last ${ticks} snapshots):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`
+            console.log(
+                ` - T:${snap.tick} | GCL:${snap.gcl}, Creeps:${snap.creeps}, Energy:${snap.energy}`
             );
         });
 
@@ -190,10 +191,11 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        :`);
+        console.log(`Top ${limit} Creeps:`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} #${index + 1}: ${entry[0]} (${entry[1]} ticks)`);
+        });
 
         return sorted;
     },

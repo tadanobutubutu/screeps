@@ -287,9 +287,9 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
-        + '%');
+        logger.info('MODE CHANGE: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
+        logger.info('CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%');
+        logger.info('Memory Usage: ' + stats.memoryUsagePercent.toFixed(1) + '%');
     },
 
     /**
@@ -360,15 +360,19 @@ const adaptiveSystem = {
         const memorySize = RawMemory.get().length;
         const memoryLimit = 2048 * 1024;
 
-        +
+        console.log(
+            'CPU: ' +
+                cpuUsed.toFixed(2) +
                 '/' +
                 cpuLimit +
                 ' (' +
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
         );
-        .toFixed(1) + '%)');
-        .toFixed(1) +
+        console.log('Bucket: ' + cpuBucket + ' (' + (cpuBucket / 100).toFixed(1) + '%)');
+        console.log(
+            'Memory: ' +
+                (memorySize / 1024).toFixed(1) +
                 ' KB / 2048 KB (' +
                 ((memorySize / memoryLimit) * 100).toFixed(1) +
                 '%)'
@@ -404,10 +408,10 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            console.log('EMERGENCY: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
+            console.log('MINIMAL: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
+            console.log('NORMAL: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
+            console.log('FULL: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
         }
     },
 
@@ -420,7 +424,8 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                '
+                console.log(
+                    ' - ' + h.time + ': ' + fromName.toUpperCase() + ' → ' + toName.toUpperCase() + ' (' + reason + ')'
                 );
             }
         }
@@ -454,7 +459,7 @@ const adaptiveSystem = {
             numericMode < this.MODE.EMERGENCY ||
             numericMode > this.MODE.FULL
         ) {
-            .');
+            console.log('Invalid mode. Please use 0-3.');
             return;
         }
 
@@ -464,7 +469,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        .toUpperCase());
+        console.log('System mode forced to: ' + this.getModeName(numericMode).toUpperCase());
     },
 
     /**

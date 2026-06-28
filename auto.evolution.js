@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (need !== undefined && need !== null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
+            logger.info('Added evolution need to queue: ' + need.type);
         }
     },
 
@@ -417,8 +417,8 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        );
-        },
+        logger.info('Generated code suggestion for ' + item.action);
+    },
 
     /**
      * RCL機能生成
@@ -480,28 +480,33 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
+        console.log('=== Evolution Dashboard ===');
+        console.log('Last full analysis: ' + (Game.time - evo.lastFullAnalysis) + ' ticks ago');
 
         if (evo.history.length > 0) {
+            console.log('Recent History:');
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                }
+                console.log(' - ' + h.time + ': ' + h.type + ' (' + h.action + ')');
+            }
         }
 
         if (evo.queue.length > 0) {
+            console.log('Pending Queue:');
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                console.log(' - ' + q.type + ' (Priority: ' + q.priority + ')');
             }
         }
 
         if (evo.suggestions.length > 0) {
+            console.log('Recent Suggestions:');
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                console.log(' - ' + s.filename + ' (' + s.type + ')');
             }
         }
     },

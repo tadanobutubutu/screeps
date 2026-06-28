@@ -65,6 +65,11 @@
 - Indirectly updated dependencies: @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js all to version 2.108.2.
 - Updated package integrity hashes for all affected packages.
 
+### Sentry SDK Update
+
+- @sentry/browser updated from 10.59.0 to 10.62.0 in package.json, package-lock.json, and pnpm-lock.yaml.
+- Related Sentry dependencies updated to version 10.62.0: @sentry/browser-utils, @sentry/core, @sentry/feedback, @sentry/replay, @sentry/replay-canvas.
+
 ### Dependency Updates
 
 - Updated undici to version 8.5.0 for security reasons.

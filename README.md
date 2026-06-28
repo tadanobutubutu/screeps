@@ -1,67 +1,72 @@
-# ACE ― Autonomous Colony Engine
-
-
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-> **Screeps AIプロジェクトの次世代制御系**  
-> 29の自動化ワークフロー、10の動的ロール、全コード量 25,645 行。  
-> 継続的に 100 % カバレッジを維持しつつ、AI による自己修復と生成を実現。
-
-![Build Status](https://github.com/your-org/ace/actions/workflows/build.yml/badge.svg)  
-![License](https://img.shields.io/github/license/your-org/ace)  
-![Coverage](https://coveralls.io/repos/github/your-org/ace/badge.svg?branch=main)  
-![AI‑Powered](https://img.shields.io/badge/AI-Powered-ff69b4)
+# ACE (Autonomous Colony Engine) – Screeps AI プロジェクト  
+![Build Status](https://github.com/screeps-ai/ace/actions/workflows/ci.yml/badge.svg)  
+![License](https://img.shields.io/github/license/screeps-ai/ace.svg)  
+![Coverage](https://img.shields.io/codecov/c/github/screeps-ai/ace.svg)  
+![NPM Version](https://img.shields.io/npm/v/screeps-ai.svg)  
+![AI‑Powered](https://img.shields.io/static/v1?label=Powered&message=AI&color=brightgreen)  
 
 ---
 
-## 🚀  ACE の概要
+## ACE の概要  
+ACE は、Screeps コミュニティの自律進化を実現する AI‑主導型エンジンです。  
+- 29 本の自動化ワークフロー  
+- 10 本の動的ロール  
+- 25 645 行のコード  
 
-- **自律進化** – 元コードベースから創出されたリポジトリ内のロジックを、AI が自ら最適化します。  
-- **自己修復** – セキュリティ・テスト・コンフリクト検知の各段階で破損を発見し、即時修復を行います。  
-- **動的 API レイヤ** – ゲーム実行時に新しいロールを提案し、環境変化に即応。
-
-ACE は「AI → セキュリティ監視 → コンシステント修復 → ポリシー最適化」の 3 つのフェーズを循環させ、Screeps における開発サイクルを自律化します。
+24 時間をかけて自己修復と学習を繰り返し、コードベースを常に最適化します。  
 
 ---
 
-## 🏗️  システムアーキテクチャ（詳細）
+## システムアーキテクチャ (詳細)  
 
-```mermaid
+``mermaid
 graph TD
-  subgraph Guardian[Guardian]
-    G1(Gitleaks) --> G2(CodeQL)
-    G2 --> G3(SonarCloud)
-    G3 --> G4(Jest)
-    G4 --> G5(Coverage@100%)
+  subgraph Guardian
+    G1(Gitleaks) -->|検知| Co1(自動 Issue 作成)
+    G2(CodeQL) --> Co1
+    G3(SonarCloud) --> Co1
+    G4(Jest) --> Co2(テスト結果)
+    G5(Coverage) -.->|100% 目標達成| Co2
   end
-  subgraph AutoCoder[Auto‑Coder]
-    A1(Analyze Issues) --> A2(Generate Code)
-    A2 --> A3(Generate Tests)
-    A3 --> A4(Commit PR by `tadanobutubutu`)
-    A4 --> A5(Merge Auto)
-    A5 --> A6(Delete Branch)
+
+  subgraph Auto‑Coder
+    Co1 -->|分析| AC1(自動修正)
+    AC1 -->|PR 作成| AC2(自動マージ)
+    AC2 -->|ブランチ削除| AC3(クリーンアップ)
+    Co2 -->|レポート| AC2
   end
-  subgraph Governance[Governance]
-    V1(Update README/Changelog) --> V2(Clean Unused Branches)
-    V2 --> V3(Suggest New Roles)
+
+  subgraph Governance
+    AC2 -->|変更監視| Gov1(README 更新)
+    AC2 -->|データ収集| Gov2(動的ロール提案)
+    Gov1 -->|自動メンテナンス| G1
+    Gov2 -->|CI 設定| G2
   end
-  G5 -->|Trigger| A1
-  A6 -->|Trigger| V1
-  V3 -->|Feed Back| G1
+
+  G1 --> AC1
+  G5 --> AC2
 ```
 
-### 詳細
+Guardian がコードと CI を監視し、問題を検知すると自動で Issue を作成。  
+Auto‑Coder が Issue を解析し、コードを修正・PR を作成、マージ、ブランチ削除まで完結。  
+Governance が成果を総括し、README や自動ロールを更新、CI 設定を最適化します。  
+これにより、ペダルは止まらず自律的に開発のサイクルが履行されます。  
 
-1. **Guardian 監視フェーズ**  
-   - Gitleaks、CodeQL、SonarCloud でコードベース全体を走査し、脆弱性と品質指標を取得。  
-   - Jest による 100 % テストカバレッジを自動監視。  
-   - 新規 Issue が発生した際は自動で Issues リストにエントリを作成。
+---
 
-2. **Auto‑Coder 修復フェーズ**  
-   - GPT‑4 Turbo などの LLM が Issue を解析し、必要コードとテストを生成。  
-   - PR を担当者名 `tadanobutubutu` で自動作成し、CI が統合検証。  
-   - コンフリクト発生時は再度解析を再試行し、解消後即時マージ。
+## コアテクノロジー  
+
+- **AI Conflict Resolver**  
+  – Git のマージコンフリクトを学習ベースで解消  
+  – PR 生成時に最適なマージ戦略を提示  
+
+- **Issue Auto‑Solver**  
+  – Natural‑Language‑Processing を用いて Issue 内容を分類  
+  – 回避すべきバグ・セキュリティ脆弱性を判定し、パッチを自動生成  
+
+- **Dynamic Role Engine**  
+  – ワークフロー実行状況を分析し、最適なロールをリアルタイムで割り当て  
+  – 環境変化に応じて 10 本のロールを動的に再構成  
+
+- **Gitty Optimization & README Updater**  
+  – Commit メッセージと

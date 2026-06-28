@@ -1,51 +1,46 @@
-# ACE（Autonomous Colony Engine）
+# ACE (Autonomous Colony Engine)
 
+![Build Status](https://github.com/yourorg/ace/workflows/CI/badge.svg)
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
+![License](https://img.shields.io/badge/license-MIT-brightgreen.svg)
 
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+![Coverage](https://img.shields.io/codecov/c/github/yourorg/ace/master.svg)
 
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build](https://img.shields.io/github/actions/workflow/status/tadanobutubutu/screeps-ai/main.yml?label=Build)
-![License](https://img.shields.io/github/license/tadanobutubutu/screeps-ai)
-![Coverage](https://img.shields.io/codecov/c/github/tadanobutubutu/screeps-ai)
-![AI‑Powered](https://img.shields.io/badge/AI‑powered-brightgreen)
-
-> 29 自動化ワークフロー ― 10 動的ロール ― 25 645 行のコード  
-> 24時間動作する自律進化エンジン、完全自己修復を実現。
+![AI‑Powered](https://img.shields.io/badge/AI-powered-%23ff69b4.svg)
 
 ---
 
-## ACEとは
+## 概要
 
-ACEは、ScreepsのAIクラスタを完全に自律化し、自己診断、自己修復、そしてスマートガバナンスを一元化したフレームワークです。  
-「自律進化・自己修復」を核に、外部の変更（PR・Issue）を感知し、検証・修正・統合を自動で完結させます。プロジェクトが成長するたびに、最適化される自己改造エンジン ― それがACEの本質です。
+ACE は 29 の自動化ワークフローと 10 の動的ロールを駆使し、25645 行に及ぶコードベースを自律的に進化させる AI 主導型開発フレームワークです。  
+「自律進化・自己修復」を核に、継続的インテグレーション・デリバリーと組み合わせて、バグが発生した瞬間に自動解決に移行できるエコシステムを実現します。
 
 ---
 
-## システムアーキテクチャ（詳細）
+## システムアーキテクチャ (詳細)
 
-三位一体のループが、日々ACEを進化させます。
-
-1. **Guardian（監視）** – 継続的なセキュリティスキャン、ユニットテスト、カバレッジチェックを実行。問題が検知され次第Issueを自動生成します。  
-2. **Auto‑Coder（修復）** – 生成されたIssueを解析し、コード補完・テスト生成・自動マージを行います。コンフリクトはAIが解決、PRは自動で作成・レビュー。  
-3. **Governance（統治）** – README/CHANGELOGをリアルタイム更新し、不要ブランチをクリーンアップ、そして次期動的ロールを提案。プロジェクト構成を最適化します。  
-
-以下はそのフローをMermaidで表したものです。
+ACE は **Guardian → Auto‑Coder → Governance** の三位一体ループで構成され、各フェーズは GitHub Actions とカスタムエージェントで協調運用します。
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Guardian
-    Guardian --> AutoCoder : Issueを検知
-    AutoCoder --> Governance : PR・Issue生成
-    Governance --> Guardian : 更新情報のリリース
-    Governance --> AutoCoder : 次期動的ロール提案
+graph TD
+    A[Guardian] -->|Issue ↑| B[Auto‑Coder]
+    B -->|PR / Merge| C[Governance]
+    C -->|Docs / Clean] A
+    style A fill:#FFD700,stroke:#000,stroke-width:2px
+    style B fill:#00BFFF,stroke:#000,stroke-width:2px
+    style C fill:#32CD32,stroke:#000,stroke-width:2px
 ```
 
----
+### Guardian（監視）
+- **セキュリティ**：Gitleaks、CodeQL、SonarCloud を毎リビジョンで走らせ、脆弱性・不正コードを検知。
+- **品質**：Jest で毎コミットのユニットテスト実行。カバレッジは 100% を目指し、自動レポートを Issue として登録。
+- **監視フロー**：検知次第リアルタイムで Issue を発行。Issue には必ず CI ステータスと推奨修正提案が添付される。
 
-## コアテクノロジー
+### Auto‑Coder（修復）
+- **Issue 解析**：AI 生成モデル（OpenAI Codex 連携）で Issue 内容を理解。
+- **コード修正**：変更箇所を自動提案し、必要に応じてテストコードも生成。PR を作成し、コンフリクト解消からマージ、ブランチ削除まで完結。
+- **学習サイクル**：PR へのフィードバックを元にモデルを継続的にアップデート。適応度が上がるほど人手による干渉は減少。
 
-| コンポーネント | 主な機能 | 技術的要素 |
-|----------------|----------|------------|
+### Governance（統治）
+- **ドキュメント自動更新**：README・CHANGELOG の生成・フォーマットを AI が管理。PR での変更を検知し、最新情報に保つ。
+- **ブランチ整理**：使用頻度・統合状態に応じて不要ブランチを自動削除。リポジトリクリーンアップは

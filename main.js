@@ -514,17 +514,11 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    ).toUpperCase()
-    );
-    .length));
-    .toFixed(2) +
-            '/' +
-            Game.cpu.limit +
-            ' (Bucket: ' +
-            Game.cpu.bucket +
-            ')'
-    );
-    .length / 1024).toFixed(1) + ' KB');
+    logger.info('--- TICK: ' + Game.time + ' ---');
+    logger.info('MODE: ' + adaptiveSystem.getModeName(Memory.adaptive ? Memory.adaptive.currentMode : 2).toUpperCase());
+    logger.info('CREEPS: ' + creeps.length);
+    logger.info('CPU: ' + Game.cpu.getUsed().toFixed(2) + '/' + Game.cpu.limit + ' (Bucket: ' + Game.cpu.bucket + ')');
+    logger.info('MEMORY: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -536,16 +530,14 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    +
-            ', Neutral: ' +
-            emotionStats.neutral
-    );
+    logger.info('EMOTIONS - Very Happy: ' + emotionStats.veryHappy + ', Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
 }
 
 function _displayGamificationStats() {
     const gm = Memory.gamification;
     if (gm) {
-        }
+        logger.info('XP: ' + (gm.xp || 0) + ' | Level: ' + (gm.level || 0));
+    }
 }
 
 function displayStats(creeps) {
@@ -804,16 +796,16 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    - system dashboard');
-    - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
-    - emotion stats');
-    - check creep');
-    - memory stats');
-    - history');
-    - leaderboard');
-    - cleanup');
-    - dashboard');
-    - dashboard');
+    console.log('adaptive() - system dashboard');
+    console.log('mode(n) - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    console.log('e() - emotion stats');
+    console.log('ec(name) - check creep');
+    console.log('m() - memory stats');
+    console.log('mh() - history');
+    console.log('ml() - leaderboard');
+    console.log('mc() - cleanup');
+    console.log('g() - dashboard');
+    console.log('evo() - dashboard');
 };
 
 if (!Memory.helpShown) {

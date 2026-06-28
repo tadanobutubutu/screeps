@@ -1,44 +1,72 @@
 # ACE (Autonomous Colony Engine)
 
-
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-🏗️ **Screeps AIを自己進化・自己修復させる、最先端の自律型開発フレームワーク**  
-※ 99 % コードは自動生成、🤖 の判断で即修正を実行
-
-![Build](https://img.shields.io/github/actions/workflow/status/tadanobutubutu/ace/build.yml?label=build) ![License](https://img.shields.io/github/license/tadanobutubutu/ace) ![Coverage](https://img.shields.io/codecov/c/gh/tadanobutubutu/ace?label=coverage) ![AI‑Powered](https://img.shields.io/badge/AI-powered%20%F0%9F%A4%97-ff69b4)
+![build status](https://img.shields.io/github/actions/workflow/status/username/ace/ci.yml?label=build)  
+![License](https://img.shields.io/github/license/username/ace)  
+![Code Coverage](https://img.shields.io/codecov/c/github/username/ace)  
+![AI powered](https://img.shields.io/badge/AI-powered-brightgreen)  
 
 ---
 
-## 🚀 ACE の概要
+## ① ACE の概要
 
-ACE は「自律進化・自己修復（Self‑Evolving & Self‑Healing）」を本質に置いた Screeps AI プロジェクトです。  
-- **自動化された開発ライフサイクル**：30 の自動化ワークフローと 10 の動的ロールが、コードの品質からデプロイまで一括管理。  
-- **AI ガードロール**：Gitleaks, CodeQL, SonarCloud と 100 % カバレッジの Jest テストを常時監視し、問題が検知され次第即時 Issue 完成。  
-- **AI オートコーダ**：起票 Issue を解析し、一括でコード修正・テスト追加、PR 作成、マージまで完結。  
-- **AI 管理ロール**：README、CHANGELOG、不要ブランチの自動整理、状態に応じたクリープロールの提案を実行。  
-
-プロジェクトの全エンジンが 24 h で逆循環し、コードベースを自己最適化していきます。
+ACE は Screeps のエコサイエンスに革命をもたらす自律型 AI エンジンです。  
+29 の自動化ワークフローと 10 の動的ロールを組み合わせ、25,645 行にわたるコードベースを 24 時間体制で管理・進化させます。  
+AI Guardian、AI Auto‑Coder、AI Repo Governance の 3 つのエージェントが協調し、セキュリティ・実装・運用を一元管理。  
+「自己診断」「自動修復」「動的提案」を実装し、プロジェクトの成長と品質をシームレスに推進します。
 
 ---
 
-## 🏗️ システムアーキテクチャ (詳細)
+## ② システムアーキテクチャ（詳細）
 
-| フェーズ | 主なアクション | 触媒 | 目的 |
-|--------|----------------|------|------|
-| **Guardian** | 音響・脅威検知、静的解析・テスト | Gitleaks, CodeQL, SonarCloud, Jest | セキュリティリスク・欠陥を瞬時に発見 |
-| **Auto‑Coder** | Issue 分析 → リファクタリング・テスト生成 → PR / マージ自動 | GPT‑4, GitHub API | 人手不要で品質向上 |
-| **Governance** | README/CHANGELOG 自動更新、不要ブランチ整理、ロール提案 | GitHub Actions, `tadanobutubutu` データ | 透明性・運用効率を維持 |
+エージェント間の三位一体ループは次のように機能します。
 
-三層を連結した **Guardian → Auto‑Coder → Governance → Guardian…** ループが絶えず回転し、クリーン・安定・拡張を繰り返します。
+- **AI Guardian**  
+  - Gitleaks / CodeQL / SonarCloud でコードを継続的にスキャン  
+  - Jest で単体テストを実行し、100 % カバレッジを維持  
+  - 問題を検知した瞬間に Issue を自動作成（自動アノテーション付き）
+
+- **AI Auto‑Coder**  
+  - AI Guardian が起票した全 Issue を解析  
+  - 自動でコード修正/テスト追加を実施  
+  - PR を自動生成（tadanobutubutu の署名）、コンフリクト解消、CI 成功後自動マージ、ブランチ削除
+
+- **AI Repo Governance**  
+  - README・CHANGELOG の内容を最新に保ち、不要ブランチを削除  
+  - 新しいクリープロールを自動的に提案・ドキュメント化  
+  - リポジトリ全体の整合性を保護
+
+### Mermaid で可視化
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor':'#0057e7'}}}%%
-flowchart LR
-    subgraph G [Guardian]
-        G1(Audits) --> G2(Detect Issues)
-        G
+graph TD
+  subgraph Guardian[AI Guardian]
+    A1(Gitleaks) --> A2(CodeQL)
+    A2 --> A3(SonarCloud)
+    A3 --> A4(Jest)
+    A4 --> |Issue 発行| B1[AI Auto‑Coder]
+  end
+
+  subgraph AutoCoder[AI Auto‑Coder]
+    B1 --> B2(CP・PR生成)
+    B2 --> B3(コンフリクト解消)
+    B3 --> |マージ| B4(CI PASS)
+    B4 --> |削除| B5(不要ブランチ)
+  end
+
+  subgraph Governance[AI Repo Governance]
+    B4 --> G1(README 更新)
+    G1 --> G2(CHANGELOG 更新)
+    G2 --> G3(ロール提案)
+  end
+
+  Guardian --> Governance
+  Governance --> AutoCoder
+```
+
+---
+
+## ③ コアテクノロジー
+
+| テクノロジー | 役割 | 特色 |
+|--------------|------|------|
+| **AI Conflict Resolver** | PR コンフリクトの自動解消 | コミット履歴とロジックを理解し

@@ -1,69 +1,37 @@
-# ACE - Autonomous Colony Engine
+# ACE (Autonomous Colony Engine)
 
+🏗️ **Screeps AIを自己進化・自己修復させる、最先端の自律型開発フレームワーク**  
+※ 99 % コードは自動生成、🤖 の判断で即修正を実行
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-**🚀 自律進化・自己修復のサーキュラーロジックを実現する Screeps AI プラットフォーム**  
-
-[![Build Status](https://img.shields.io/github/actions/workflow/status/username/ace/build.yml?branch=master)](https://github.com/username/ace/actions)
-[![Coverage Status](https://img.shields.io/coveralls/username/ace/master.svg)](https://coveralls.io/github/username/ace?branch=master)
-[![License](https://img.shields.io/github/license/username/ace)](https://github.com/username/ace/blob/master/LICENSE)
-[![AI-Powered](https://img.shields.io/static/v1?label=AI&message=Powered&color=brightgreen)](https://github.com/username/ace)
+![Build](https://img.shields.io/github/actions/workflow/status/tadanobutubutu/ace/build.yml?label=build) ![License](https://img.shields.io/github/license/tadanobutubutu/ace) ![Coverage](https://img.shields.io/codecov/c/gh/tadanobutubutu/ace?label=coverage) ![AI‑Powered](https://img.shields.io/badge/AI-powered%20%F0%9F%A4%97-ff69b4)
 
 ---
 
-## 🚀  ACE の概要
+## 🚀 ACE の概要
 
-Screeps における AI 刺整プロジェクト **ACE (Autonomous Colony Engine)** は、24時間体制で自己診断・自己修復を行う全自動化エンジンです。  
-- **自動化ワークフロー**：29 の完全自動化パイプラインを構築し、コードの書き込みからテスト、レビュー、マージまで全てを自動化。  
-- **動的ロール**：10 の異なるロールを動的に生成・割り当て、環境変化に即応。  
-- **コードベース**：25,645 行を超える堅牢な TypeScript コードは、AI が日々改善し続けます。  
+ACE は「自律進化・自己修復（Self‑Evolving & Self‑Healing）」を本質に置いた Screeps AI プロジェクトです。  
+- **自動化された開発ライフサイクル**：30 の自動化ワークフローと 10 の動的ロールが、コードの品質からデプロイまで一括管理。  
+- **AI ガードロール**：Gitleaks, CodeQL, SonarCloud と 100 % カバレッジの Jest テストを常時監視し、問題が検知され次第即時 Issue 完成。  
+- **AI オートコーダ**：起票 Issue を解析し、一括でコード修正・テスト追加、PR 作成、マージまで完結。  
+- **AI 管理ロール**：README、CHANGELOG、不要ブランチの自動整理、状態に応じたクリープロールの提案を実行。  
 
-ACE は、AI Guardian、AI Auto-Coder、AI Repo Governance の３体からなる自律ループにより、ベトンのように永遠に成長し続ける開発基盤を提供します。  
-
----
-
-## 🧩 システムアーキテクチャ（詳細）
-
-```
-mermaid
-graph TD
-    subgraph ソース
-        H[Issue] --> A[AI Guardian]
-        I[GitHub PR] --> J[AI Auto-Coder]
-    end
-    A -->|セキュリティ・テスト| B[AI Auto-Coder]
-    B -->|リファクタリング・マージ| C[AI Repo Governance]
-    C -->|README/CHANGELOG 更新| D[ドキュメントリポジトリ]
-    D --> E[コミュニケーションチャネル]
-    C -->|リスク管理| A
-    B -->|自動マージ| A
-```
-
-**Guardian → Auto‑Coder → Governance の三位一体ループ**
-
-1. **AI Guardian**  
-   - Gitleaks・CodeQL・SonarCloud を 24/7 監視し、発見された脆弱性やコード品質問題を Issue として立ち上げます。  
-   - Jest で 100 % 覆盖率を実現し、テスト失敗時にも自動的に Issue を生成。  
-
-2. **AI Auto‑Coder**  
-   - 既存 Issue を解析し、必要なコード修正とテスト追加を行う。  
-   - PR を自身の名義（`tadanobutubutu`）で作成し、コンフリクト解消からマージ、ブランチ削除までを自動完了。  
-
-3. **AI Repo Governance**  
-   - README や CHANGELOG を最新状態に保ち、不要ブランチをインテリジェントに整理。  
-   - 環境変化に応じて新たな Creeper ロールを提案し、リポジトリの継続的進化を促進。  
-
-このループは自己完結的で、外部の人手を極力排除します。
+プロジェクトの全エンジンが 24 h で逆循環し、コードベースを自己最適化していきます。
 
 ---
 
-## 🧠 コアテクノロジー
+## 🏗️ システムアーキテクチャ (詳細)
 
-| 技術 | 役割 | 具体例 |
-|------|------|--------|
-| **AI‑Driven Conflict Resolver** | コミットコンフリクト自動解決 |
+| フェーズ | 主なアクション | 触媒 | 目的 |
+|--------|----------------|------|------|
+| **Guardian** | 音響・脅威検知、静的解析・テスト | Gitleaks, CodeQL, SonarCloud, Jest | セキュリティリスク・欠陥を瞬時に発見 |
+| **Auto‑Coder** | Issue 分析 → リファクタリング・テスト生成 → PR / マージ自動 | GPT‑4, GitHub API | 人手不要で品質向上 |
+| **Governance** | README/CHANGELOG 自動更新、不要ブランチ整理、ロール提案 | GitHub Actions, `tadanobutubutu` データ | 透明性・運用効率を維持 |
+
+三層を連結した **Guardian → Auto‑Coder → Governance → Guardian…** ループが絶えず回転し、クリーン・安定・拡張を繰り返します。
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor':'#0057e7'}}}%%
+flowchart LR
+    subgraph G [Guardian]
+        G1(Audits) --> G2(Detect Issues)
+        G

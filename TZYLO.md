@@ -65,6 +65,13 @@
 - Indirectly updated dependencies: @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js all to version 2.108.2.
 - Updated package integrity hashes for all affected packages.
 
+### Dependency Updates
+
+- Updated undici to version 8.5.0 for security reasons.
+- Bumped eslint from 10.5.0 to 10.6.0; updated eslint-config-prettier and eslint-plugin-prettier to align with eslint 10.6.0.
+- Added acorn package at version 8.17.0.
+- Updated brace-expansion package to versions 1.1.15 and 2.1.1.
+
 <!-- TZYLO:DEP_END -->
 
 ---

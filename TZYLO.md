@@ -51,7 +51,9 @@
 - The labeler configuration file path remains .github/labeler.yml.
 - Updated base image in .gitlab-ci.yml from node:20 to node:24.
 - Updated Gitleaks action from v2 to v3 in secret-scanning workflow.
+- Upgraded gitleaks/gitleaks-action from v2 to v3 in ai-guardian.yml workflow.
 - Gitleaks v3 requires Node 24 runtime.
+- Gitleaks scan behavior may change due to version upgrade.
 - No changes to inputs, outputs, or behavior with the Gitleaks action.
 
 ### actions/checkout Version Update

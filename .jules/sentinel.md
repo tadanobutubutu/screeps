@@ -21,3 +21,8 @@
 **Vulnerability:** The deployment script (`deploy.js`) was logging un-redacted token values in raw error responses. Its previous `sanitizeLog` function only redacted the word "token" but left the actual token value exposed if it followed the keyword (e.g., "token: value-here").
 **Learning:** Simple keyword-based redaction is insufficient when dealing with raw response payloads or complex strings. Redaction logic must account for the value following the keyword and use robust regex patterns that consider various delimiters (quotes, colons, equals).
 **Prevention:** Use a centralized redaction utility that handles multiple sensitive keywords and correctly identifies their associated values using non-backtracking regexes to avoid ReDoS. Always verify redaction logic with dedicated security tests.
+
+## 2026-06-28 - Robust Path Redaction in Logs
+**Vulnerability:** Broad path redaction patterns (e.g., matching any forward slash) causing excessive false positives in logs, redacting legitimate data like division operations or version strings.
+**Learning:** Security redaction must be precise to remain usable. Overly aggressive patterns lead to "security fatigue" where developers ignore or disable logs. Requiring at least one subdirectory level in Unix paths significantly reduces false positives while still capturing internal directory structure.
+**Prevention:** Use specific regex patterns that distinguish between absolute file paths and mathematical/versioning delimiters. Centralize and unit test redaction logic with both positive (sensitive data) and negative (legitimate data) test cases.

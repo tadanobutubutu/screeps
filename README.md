@@ -1,79 +1,46 @@
-# ACE (Autonomous Colony Engine) – Screeps AI プロジェクト  
+# ACE (Autonomous Colony Engine) – Screeps AI Project
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build Status](https://github.com/screeps-ai/ace/actions/workflows/ci.yml/badge.svg)  
-![License](https://img.shields.io/github/license/screeps-ai/ace.svg)  
-![Coverage](https://img.shields.io/codecov/c/github/screeps-ai/ace.svg)  
-![NPM Version](https://img.shields.io/npm/v/screeps-ai.svg)  
-![AI‑Powered](https://img.shields.io/static/v1?label=Powered&message=AI&color=brightgreen)  
+![Build Status](https://img.shields.io/badge/build-success-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![AI Powered](https://img.shields.io/badge/AI-powered-yes-brightgreen)
 
 ---
 
-## ACE の概要  
-ACE は、Screeps コミュニティの自律進化を実現する AI‑主導型エンジンです。  
-- 29 本の自動化ワークフロー  
-- 10 本の動的ロール  
-- 25 645 行のコード  
-
-24 時間をかけて自己修復と学習を繰り返し、コードベースを常に最適化します。  
+## 1. ACE の概要
+Screeps 向けに設計された **ACE (Autonomous Colony Engine)** は、プレイヤーのコードを自律的に検証・修正し、クラウド上で継続的に自己進化させるAI駆動型フレームワークです。  
+* **自律進化** – 変更を検知し、必要に応じてコードをアップデート。  
+* **自己修復** – CI での失敗を自動で検知。  
+* **データ可視化** – エネルギー効率や性能指標をリアルタイムで追跡。  
 
 ---
 
-## システムアーキテクチャ (詳細)  
+## 2. システムアーキテクチャ（詳細）
 
 ``mermaid
 graph TD
-  subgraph Guardian
-    G1(Gitleaks) -->|検知| Co1(自動 Issue 作成)
-    G2(CodeQL) --> Co1
-    G3(SonarCloud) --> Co1
-    G4(Jest) --> Co2(テスト結果)
-    G5(Coverage) -.->|100% 目標達成| Co2
-  end
-
-  subgraph Auto‑Coder
-    Co1 -->|分析| AC1(自動修正)
-    AC1 -->|PR 作成| AC2(自動マージ)
-    AC2 -->|ブランチ削除| AC3(クリーンアップ)
-    Co2 -->|レポート| AC2
-  end
-
-  subgraph Governance
-    AC2 -->|変更監視| Gov1(README 更新)
-    AC2 -->|データ収集| Gov2(動的ロール提案)
-    Gov1 -->|自動メンテナンス| G1
-    Gov2 -->|CI 設定| G2
-  end
-
-  G1 --> AC1
-  G5 --> AC2
-```
-
-Guardian がコードと CI を監視し、問題を検知すると自動で Issue を作成。  
-Auto‑Coder が Issue を解析し、コードを修正・PR を作成、マージ、ブランチ削除まで完結。  
-Governance が成果を総括し、README や自動ロールを更新、CI 設定を最適化します。  
-これにより、ペダルは止まらず自律的に開発のサイクルが履行されます。  
-
----
-
-## コアテクノロジー  
-
-- **AI Conflict Resolver**  
-  – Git のマージコンフリクトを学習ベースで解消  
-  – PR 生成時に最適なマージ戦略を提示  
-
-- **Issue Auto‑Solver**  
-  – Natural‑Language‑Processing を用いて Issue 内容を分類  
-  – 回避すべきバグ・セキュリティ脆弱性を判定し、パッチを自動生成  
-
-- **Dynamic Role Engine**  
-  – ワークフロー実行状況を分析し、最適なロールをリアルタイムで割り当て  
-  – 環境変化に応じて 10 本のロールを動的に再構成  
-
-- **Gitty Optimization & README Updater**  
-  – Commit メッセージと
+    subgraph Guardian[AI Guardian]
+        G1((Security: Gitleaks, CodeQL, SonarCloud))
+        G2((Unit Tests: Jest))
+        G3((Coverage: 100%))
+        G4((Issue Trigger))
+        G1-->G4
+        G2-->G4
+        G3-->G4
+    end
+    subgraph AutoCoder[AI Auto‑Coder]
+        A1((Analyze Issue))
+        A2((Fix Code))
+        A3((Generate Tests))
+        A4((PR Creation: @tadanobutubutu))
+        A5((Merge & Cleanup))
+        A1-->A2
+        A2-->A3
+        A3-->A4
+        A4-->A5
+    end
+    subgraph Governance[AI Repo Governance]
+        R1((README/CHANGELOG Update))
+        R2((Branch Cleanup))
+        R3((Dynamic Role Suggestion))
+        R1-->R

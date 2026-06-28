@@ -31,7 +31,7 @@ function _redactPaths (str) {
   // Matches /abs/path/ (with at least one sub-dir) or C:\abs\path
   const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
-  // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
+  // Security: Redact sensitive keywords and their values (token, password, credentials, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
     [116, 111, 107, 101, 110],

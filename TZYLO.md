@@ -77,6 +77,11 @@
 - Added acorn package at version 8.17.0.
 - Updated brace-expansion package to versions 1.1.15 and 2.1.1.
 
+### pnpm Update
+
+- Updated pnpm dependency from version 10 to 11 in GitHub workflows.
+- Changes applied in both 'ai-guardian.yml' and 'weekly-quality-report.yml' files.
+
 <!-- TZYLO:DEP_END -->
 
 ---

@@ -51,7 +51,7 @@
         "jest": "^30.4.2",
         "jest-junit": "^17.0.0",
         "lint-staged": "^17.0.8",
-        "prettier": "^3.8.4",
+        "prettier": "^3.9.1",
         "rollup": "^4.62.2"
     },
     "overrides": {

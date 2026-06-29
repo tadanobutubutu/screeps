@@ -81,6 +81,7 @@
 - Upgraded prettier from version 3.8.4 to 3.9.1 in package.json, package-lock.json, and pnpm-lock.yaml.
 - Updated integrity hash for prettier in package-lock.json and pnpm-lock.yaml.
 - Ensured compatibility with eslint-plugin-prettier by adjusting its dependency to prettier 3.9.1.
+- Updated eslint-plugin-jest version from 29.15.2 to 29.15.3 in package.json, package-lock.json, and pnpm-lock.yaml.
 
 ### pnpm Update
 

@@ -78,6 +78,9 @@
 - Bumped eslint from 10.5.0 to 10.6.0; updated eslint-config-prettier and eslint-plugin-prettier to align with eslint 10.6.0.
 - Added acorn package at version 8.17.0.
 - Updated brace-expansion package to versions 1.1.15 and 2.1.1.
+- Upgraded prettier from version 3.8.4 to 3.9.1 in package.json, package-lock.json, and pnpm-lock.yaml.
+- Updated integrity hash for prettier in package-lock.json and pnpm-lock.yaml.
+- Ensured compatibility with eslint-plugin-prettier by adjusting its dependency to prettier 3.9.1.
 
 ### pnpm Update
 

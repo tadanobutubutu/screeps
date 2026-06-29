@@ -85,17 +85,47 @@ export default function Dashboard() {
                 <p>
                     🌐 GCL: {stats?.gcl?.level} (
                     {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
+                        ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                        : '0.00'}
                     %)
                 </p>
+                <div
+                    style={{
+                        width: '100%',
+                        height: '8px',
+                        backgroundColor: '#edf2f7',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                        marginBottom: '1rem',
+                    }}
+                    role="progressbar"
+                    aria-valuenow={
+                        stats?.gcl?.progressTotal
+                            ? Math.round((stats.gcl.progress / stats.gcl.progressTotal) * 100)
+                            : 0
+                    }
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    aria-label="GCL Progress"
+                >
+                    <div
+                        style={{
+                            width: `${stats?.gcl?.progressTotal ? (stats.gcl.progress / stats.gcl.progressTotal) * 100 : 0}%`,
+                            height: '100%',
+                            backgroundColor: '#004b73',
+                            transition: 'width 0.3s ease-in-out',
+                        }}
+                    />
+                </div>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary className="interactive-hint" style={{ color: '#4a5568' }}>
+                    生データを確認
+                </summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

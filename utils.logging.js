@@ -175,10 +175,10 @@ module.exports = {
   },
 
   /**
-   * Security: Escapes HTML special characters to prevent console injection.
-   * @param {string} str
-   * @returns {string}
-   */
+     * Security: Escapes HTML special characters to prevent console injection.
+     * @param {string} str
+     * @returns {string}
+     */
   escapeHTML (str) {
     if (typeof str !== 'string' || !/[&<>'\"`]/.test(str)) {
       return str

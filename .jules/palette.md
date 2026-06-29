@@ -20,7 +20,7 @@
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
 
-## 2025-05-23 - [Consolidating Dashboard & Game Visuals]
+## 2025-05-23 - [Dashboard Data Precision and Visual Cues]
 
-**Learning:** Syncing decimal precision (e.g., `.toFixed(2)`) between the web dashboard and game-side visuals (utils.dashboard.js) creates a cohesive experience for power users who monitor progress across both interfaces. Visual progress bars provide an immediate "at-a-glance" status that text alone cannot convey.
-**Action:** When updating progress indicators, ensure precision matches game-side standards and include visual cues (bars/colors) that align with existing design tokens.
+**Learning:** Providing higher precision for slow-moving metrics (like GCL progress) and accompanying them with visual progress bars makes the dashboard feel more responsive and informative. Users can perceive progress that would otherwise be hidden by rounding.
+**Action:** Use at least two decimal places for GCL progress and always provide a visual indicator (like a progress bar) for percentage-based metrics.

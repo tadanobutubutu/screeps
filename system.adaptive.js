@@ -287,9 +287,11 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
-        + '%');
+        console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
+        console.log(`From: ${oldName.toUpperCase()} → To: ${newName.toUpperCase()}`);
+        console.log(`CPU Usage: ${stats.cpuUsagePercent.toFixed(1)}%`);
+        console.log(`CPU Bucket: ${stats.cpuBucket}/10000`);
+        console.log(`Memory Usage: ${stats.memoryUsagePercent.toFixed(1)}%`);
     },
 
     /**
@@ -360,20 +362,15 @@ const adaptiveSystem = {
         const memorySize = RawMemory.get().length;
         const memoryLimit = 2048 * 1024;
 
-        +
-                '/' +
-                cpuLimit +
-                ' (' +
-                ((cpuUsed / cpuLimit) * 100).toFixed(1) +
-                '%)'
+        console.log(`--- [ADAPTIVE SYSTEM: ${modeName}] ---`);
+        console.log(
+            `CPU: ${cpuUsed.toFixed(2)}/${cpuLimit} (${((cpuUsed / cpuLimit) * 100).toFixed(1)}%)`
         );
-        .toFixed(1) + '%)');
-        .toFixed(1) +
-                ' KB / 2048 KB (' +
-                ((memorySize / memoryLimit) * 100).toFixed(1) +
-                '%)'
+        console.log(`Bucket: ${cpuBucket} (${((cpuBucket / 10000) * 100).toFixed(1)}%)`);
+        console.log(
+            `Memory: ${(memorySize / 1024).toFixed(1)} KB / 2048 KB (${((memorySize / memoryLimit) * 100).toFixed(1)}%)`
         );
-        },
+    },
 
     _printEnabledFeatures: function () {
         const allFeatures = [
@@ -404,15 +401,15 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            console.log(
+                `Stats: E:${((stats.emergencyCount / total) * 100).toFixed(1)}% | M:${((stats.minimalCount / total) * 100).toFixed(1)}% | N:${((stats.normalCount / total) * 100).toFixed(1)}% | F:${((stats.fullCount / total) * 100).toFixed(1)}%`
+            );
         }
     },
 
     _printRecentHistory: function () {
         if (Memory.adaptive.modeHistory.length > 0) {
+            console.log('Recent History:');
             const recentHistory = Memory.adaptive.modeHistory.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
@@ -420,8 +417,7 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                '
-                );
+                console.log(`  - T:${h.time % 10000} | ${fromName} -> ${toName} | ${reason}`);
             }
         }
     },
@@ -454,17 +450,17 @@ const adaptiveSystem = {
             numericMode < this.MODE.EMERGENCY ||
             numericMode > this.MODE.FULL
         ) {
-            .');
+            console.log('❌ Invalid mode. Must be 0 (EMERGENCY) to 3 (FULL).');
             return;
         }
 
         Memory.adaptive.currentMode = numericMode;
 
         // ⚡ PERFORMANCE: Update cache immediately on manual mode change
-        _currentConfig = FEATURE_CONFIG[mode];
+        _currentConfig = FEATURE_CONFIG[numericMode];
         _configTick = Game.time;
 
-        .toUpperCase());
+        console.log(`✅ Mode manually set to: ${this.getModeName(numericMode).toUpperCase()}`);
     },
 
     /**
@@ -475,7 +471,8 @@ const adaptiveSystem = {
         // ⚡ PERFORMANCE: Reset cache when system is reset
         _currentConfig = null;
         _configTick = -1;
-        },
+        console.log('✅ Adaptive system memory reset.');
+    },
 };
 
 module.exports = adaptiveSystem;

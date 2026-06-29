@@ -67,7 +67,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines
@@ -172,6 +172,26 @@ module.exports = {
 
   clear () {
     Memory.logs = []
+  },
+
+  /**
+   * Security: Escapes HTML special characters to prevent console injection.
+   * @param {string} str
+   * @returns {string}
+   */
+  escapeHTML (str) {
+    if (typeof str !== 'string' || !/[&<>'\"`]/.test(str)) {
+      return str
+    }
+    const chars = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+      '`': '&#96;'
+    }
+    return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag)
   },
 
   getStats () {

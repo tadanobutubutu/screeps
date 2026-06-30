@@ -174,6 +174,7 @@ function cleanup() {
     const cache = ensureCache();
     const keys = Object.keys(cache);
     const now = Game.time;
+    let removed = 0;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         const entry = cache[key];
@@ -181,8 +182,10 @@ function cleanup() {
             delete cache[key];
             _cacheOrder.delete(key);
             _cacheSize--;
+            removed++;
         }
     }
+    return removed;
 }
 
 /**

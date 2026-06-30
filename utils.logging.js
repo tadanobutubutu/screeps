@@ -68,6 +68,16 @@ function _redactPaths (str) {
 }
 
 module.exports = {
+  escapeHTML (str) {
+    if (typeof str !== 'string') return str
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+  },
+
   getSafeStack (stack, maxLines = 5) {
     if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)

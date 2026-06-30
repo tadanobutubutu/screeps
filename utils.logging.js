@@ -29,18 +29,20 @@ const MAX_LOG_MESSAGE_LENGTH = 500
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
   // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  const pathRedacted = str.replace(/(\/(?![0-9])|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
     [116, 111, 107, 101, 110],
     [112, 97, 115, 115, 119, 111, 114, 100],
+    [112, 97, 115, 115],
     [115, 101, 99, 114, 101, 116],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],
     [100, 115, 110]

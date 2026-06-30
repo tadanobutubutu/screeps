@@ -3,100 +3,148 @@
  * システムの現状を分析し、改善案を生成・記録します。
  */
 
-const logger = require('utils.logging')
+const logger = require('utils.logging');
+
+const MAX_HISTORY = 50;
+const MAX_QUEUE = 10;
 
 const autoEvolution = {
-  /**
-     * システム分析の実行
+    /**
+     * 初期化
      */
-  analyze: function () {
-    if (!Memory.evolution) {
-      Memory.evolution = {
-        history: [],
-        suggestions: [],
-        lastAnalysis: 0
-      }
-    }
+    init: function () {
+        if (!Memory.evolution) {
+            Memory.evolution = {
+                history: [],
+                queue: [],
+                lastTick: Game.time,
+                version: '1.0.0',
+            };
+        }
+    },
 
-    const now = Game.time
-    if (now - Memory.evolution.lastAnalysis < 100) return
-
-    const stats = {
-      tick: now,
-      gcl: Game.gcl.level,
-      rooms: Object.keys(Game.rooms).length,
-      creeps: Object.keys(Game.creeps).length,
-      cpu: Game.cpu.getUsed(),
-      bucket: Game.cpu.bucket
-    }
-
-    Memory.evolution.history.push(stats)
-    if (Memory.evolution.history.length > 50) {
-      Memory.evolution.history.shift()
-    }
-
-    this._generateSuggestions(stats)
-    Memory.evolution.lastAnalysis = now
-  },
-
-  /**
-     * 改善案の生成
+    /**
+     * 実行
      */
-  _generateSuggestions: function (stats) {
-    const suggestions = []
+    run: function () {
+        this.init();
+        const state = this.analyzeBasicState();
+        this._recordHistory(state);
 
-    // CPU制限のチェック
-    if (stats.bucket < 5000) {
-      suggestions.push({
-        type: 'CPU',
-        priority: 'HIGH',
-        message: 'CPU bucket is low. Consider optimizing role logic.'
-      })
-    }
+        const needs = this.needsEvolution(state);
+        for (const need of needs) {
+            this.addToQueue(need);
+        }
+    },
 
-    // 拡張性のチェック
-    if (stats.creeps < stats.rooms * 5) {
-      suggestions.push({
-        type: 'EXPANSION',
-        priority: 'MEDIUM',
-        message: 'Creep count is low relative to room count.'
-      })
-    }
-
-    if (suggestions.length > 0) {
-      Memory.evolution.suggestions.push(...suggestions)
-      if (Memory.evolution.suggestions.length > 20) {
-        Memory.evolution.suggestions = Memory.evolution.suggestions.slice(-20)
-      }
-    }
-  },
-
-  /**
-     * 進化ステータスの表示
+    /**
+     * 基本状態の分析
      */
-  displayStatus: function () {
-    const evo = Memory.evolution
-    if (!evo) return
+    analyzeBasicState: function () {
+        const rooms = Object.values(Game.rooms);
+        const rcl = rooms.reduce(
+            (max, r) => Math.max(max, (r.controller && r.controller.level) || 0),
+            0
+        );
+        const structures = {
+            towers: rooms.reduce(
+                (count, r) =>
+                    count +
+                    r.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } })
+                        .length,
+                0
+            ),
+        };
 
-    console.log('--- AI Evolution Status ---')
-    console.log(`Last Analysis: ${evo.lastAnalysis}`)
-    console.log(`Suggestions: ${evo.suggestions.length}`)
+        return {
+            tick: Game.time,
+            rcl,
+            roomCount: rooms.length,
+            structures,
+            cpu: Game.cpu.getUsed(),
+        };
+    },
 
-    if (evo.suggestions.length > 0) {
-      const recentSuggestions = evo.suggestions.slice(-3)
-      for (let i = 0; i < recentSuggestions.length; i++) {
-        const s = recentSuggestions[i]
-        console.log(`[${s.priority}] ${s.type}: ${s.message}`)
-      }
-    }
-  },
+    /**
+     * 進化の必要性を判断
+     */
+    needsEvolution: function (state) {
+        const needs = [];
+        if (state.rcl >= 3 && state.structures.towers === 0) {
+            needs.push({
+                type: 'logic',
+                action: 'create_tower_logic',
+                priority: 10,
+            });
+        }
+        return needs;
+    },
 
-  /**
+    /**
+     * キューに追加
+     */
+    addToQueue: function (need) {
+        if (!Memory.evolution.queue) Memory.evolution.queue = [];
+        if (Memory.evolution.queue.length >= MAX_QUEUE) return;
+
+        const exists = Memory.evolution.queue.some((n) => n.action === need.action);
+        if (!exists) {
+            Memory.evolution.queue.push(need);
+            Memory.evolution.queue.sort((a, b) => b.priority - a.priority);
+        }
+    },
+
+    /**
+     * 履歴の記録
+     */
+    _recordHistory: function (state) {
+        Memory.evolution.history.push(state);
+        if (Memory.evolution.history.length > MAX_HISTORY) {
+            Memory.evolution.history.shift();
+        }
+    },
+
+    /**
+     * ファイル名の取得
+     */
+    getFilename: function (action) {
+        if (action === 'create_tower_logic') return 'structure.tower.js';
+        return 'evolution.code.js';
+    },
+
+    /**
+     * RCL機能の生成
+     */
+    generateRCLFeatures: function (params) {
+        return `// Generated RCL Features for RCL ${params.newRCL}\n// Includes: Tower, Storage, Terminal Logic`;
+    },
+
+    /**
+     * タワーロジックの生成
+     */
+    generateTowerLogic: function () {
+        return 'module.exports = { run: function(tower) { /* Tower logic */ } };';
+    },
+
+    /**
+     * リソースの軽量分析
+     */
+    analyzeResourcesLight: function (rooms) {
+        let energy = 0;
+        let capacity = 0;
+        for (const r of rooms) {
+            energy += r.energyAvailable || 0;
+            capacity += r.energyCapacityAvailable || 0;
+        }
+        return { energy, capacity };
+    },
+
+    /**
      * リセット
      */
-  reset: function () {
-    delete Memory.evolution
-  }
-}
+    reset: function () {
+        delete Memory.evolution;
+    },
+};
 
-module.exports = autoEvolution
+module.exports = autoEvolution;

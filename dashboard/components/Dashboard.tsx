@@ -102,10 +102,7 @@ export default function Dashboard() {
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary
-                    className="interactive-hint"
-                    style={{ color: '#4a5568' }}
-                >
+                <summary className="interactive-hint" style={{ color: '#4a5568' }}>
                     生データを確認
                 </summary>
                 <pre

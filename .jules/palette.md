@@ -19,3 +19,8 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2026-07-01 - [Interactive Elements and Native Accessibility]
+
+**Learning:** Using semantic HTML like `<summary>` for interactive elements provides native accessibility (like focusability and keyboard support) out of the box. Adding redundant `tabIndex={0}` or removing native focus indicators (`outline: none`) without an alternative can degrade the experience for keyboard users.
+**Action:** Leverage native accessible behaviors and avoid overriding them with `outline: none` unless a custom, accessible focus state is provided.

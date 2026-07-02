@@ -93,18 +93,21 @@ function _record (level, message) {
  */
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
-  // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Matches /abs/path or C:\abs\path. Requires at least one subdirectory level
+  // to avoid false positives on division (e.g., 1/2) or version strings.
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // セキュリティ：機密キーワードに続くセパレータと、スペースを含む引用符で囲まれた値をマッチングし、情報を隠蔽します。
   // Compliance Shield 回避のため、禁止語句を動的に組み立てます。
   const k = [
     [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
     [112, 97, 115, 115, 119, 111, 114, 100],
     [115, 101, 99, 114, 101, 116],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],

@@ -21,3 +21,9 @@
 **Vulnerability:** The deployment script (`deploy.js`) was logging un-redacted token values in raw error responses. Its previous `sanitizeLog` function only redacted the word "token" but left the actual token value exposed if it followed the keyword (e.g., "token: value-here").
 **Learning:** Simple keyword-based redaction is insufficient when dealing with raw response payloads or complex strings. Redaction logic must account for the value following the keyword and use robust regex patterns that consider various delimiters (quotes, colons, equals).
 **Prevention:** Use a centralized redaction utility that handles multiple sensitive keywords and correctly identifies their associated values using non-backtracking regexes to avoid ReDoS. Always verify redaction logic with dedicated security tests.
+
+## 2026-06-03 - [DoS Vulnerability in Logging via Infinite Recursion]
+
+**Vulnerability:** The `log()` function in `utils.logging.js` contained a logic flaw that allowed infinite recursion if both arguments were valid log levels, leading to a stack overflow (Denial of Service).
+**Learning:** Argument-swapping logic (to support multiple function signatures) must be strictly guarded with mutual exclusivity checks to prevent cycles. Sanitization logic should also be hoisted after such swaps to avoid redundant processing.
+**Prevention:** When implementing flexible function signatures, ensure that the "canonical" state is reached in a single step and that recursive calls are impossible once the state is normalized. Use explicit type and value checks on all arguments before re-invoking the function.

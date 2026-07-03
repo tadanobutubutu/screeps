@@ -29,10 +29,7 @@ const MAX_LOG_MESSAGE_LENGTH = 500
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
   // Matches /abs/path or C:\abs\path. Requires at least one level to avoid false positives on / or 1/2.
-  const pathRedacted = str.replace(
-    /(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g,
-    '[REDACTED]'
-  )
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
@@ -128,9 +125,12 @@ module.exports = {
     // Handle (level, message) signature used in some tests.
     // Also detect and handle potential prototype pollution attempts where a malicious
     // level name is passed as the first argument.
-    const isFirstArgLevel = typeof message === 'string' &&
-      (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) || (message !== 'info' && message in LOG_EMOJIS))
-    const isSecondArgLevel = typeof level === 'string' && Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+    const isFirstArgLevel =
+            typeof message === 'string' &&
+            (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) ||
+                (message !== 'info' && message in LOG_EMOJIS))
+    const isSecondArgLevel =
+            typeof level === 'string' && Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
 
     if (isFirstArgLevel && !isSecondArgLevel) {
       safeLevel = message

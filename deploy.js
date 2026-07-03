@@ -73,10 +73,7 @@ function injectEnvVars (content) {
 function sanitizeLog (str) {
   if (typeof str !== 'string') return str
   // Matches /abs/path or C:\abs\path. Requires at least one level to avoid false positives on / or 1/2.
-  const pathRedacted = str.replace(
-    /(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g,
-    '[REDACTED]'
-  )
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive information with improved pattern and obfuscated keywords.
   const keys = [

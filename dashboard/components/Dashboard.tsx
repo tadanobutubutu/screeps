@@ -32,7 +32,15 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <p
+                aria-live="polite"
+                aria-busy="true"
+                style={{
+                    padding: '2rem',
+                    fontFamily: 'monospace',
+                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                }}
+            >
                 読み込み中...
             </p>
         );
@@ -85,8 +93,8 @@ export default function Dashboard() {
                 <p>
                     🌐 GCL: {stats?.gcl?.level} (
                     {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
+                        ? ((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100).toFixed(2)
+                        : '0.00'}
                     %)
                 </p>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
@@ -95,7 +103,9 @@ export default function Dashboard() {
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary className="interactive-hint" style={{ color: '#4a5568', outline: 'none' }}>
+                    生データを確認
+                </summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

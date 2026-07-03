@@ -28,8 +28,11 @@ const MAX_LOG_MESSAGE_LENGTH = 500
  */
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
-  // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Matches /abs/path or C:\abs\path. Requires at least one level to avoid false positives on / or 1/2.
+  const pathRedacted = str.replace(
+    /(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g,
+    '[REDACTED]'
+  )
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
@@ -67,22 +70,27 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
-    const truncatedStack = String(stack).substring(0, 2000)
-    const lines = truncatedStack.split('\n')
-    return lines
-      .slice(0, maxLines)
-      .map((line) => {
-        const match = line.match(/[^/\\]+:\d+:\d+/)
-        if (match) {
-          return `    at ${match[0]}`
-        }
-        if (line.trim().startsWith('at ')) {
-          return '    at [REDACTED]'
-        }
-        return _redactPaths(line)
-      })
-      .join('\n')
+    try {
+      if (stack === undefined || stack === null) return ''
+      const truncatedStack = String(stack).substring(0, 2000)
+      const lines = truncatedStack.split('\n')
+      return lines
+        .slice(0, maxLines)
+        .map((line) => {
+          const match = line.match(/[^/\\]+:\d+:\d+/)
+          if (match) {
+            return `    at ${match[0]}`
+          }
+          if (line.trim().startsWith('at ')) {
+            return '    at [REDACTED]'
+          }
+          return _redactPaths(line)
+        })
+        .join('\n')
+    } catch (e) {
+      // Fail-secure: return a generic error message if sanitization fails
+      return '    at [ERROR_SANITIZING_STACK_TRACE]'
+    }
   },
 
   tryCatch (fn, context, ...args) {
@@ -112,30 +120,42 @@ module.exports = {
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
 
-    // Security: Validate level to prevent prototype pollution or other injection
-    const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
-    const emoji = LOG_EMOJIS[safeLevel]
+    let safeLevel = level
+    let safeMessage = message
+
+    // Handle (level, message) signature used in some tests.
+    // Also detect and handle potential prototype pollution attempts where a malicious
+    // level name is passed as the first argument.
+    const isFirstArgLevel = typeof message === 'string' &&
+      (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) || (message !== 'info' && message in LOG_EMOJIS))
+    const isSecondArgLevel = typeof level === 'string' && Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+
+    if (isFirstArgLevel && !isSecondArgLevel) {
+      safeLevel = message
+      safeMessage = level
+    }
+
+    // Security: Validate level for log entry to prevent prototype pollution during lookup
+    const isValidLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, safeLevel)
+    const logEntryLevel = isValidLevel ? safeLevel : 'info'
+    const emoji = isValidLevel ? LOG_EMOJIS[safeLevel] : '💬'
 
     // Security: Truncate and redact message
     const rawMessage = String(
-      message !== null && message !== undefined ? message : ''
+      safeMessage !== null && safeMessage !== undefined ? safeMessage : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH)
     const sanitizedMessage = _redactPaths(rawMessage)
-
-    // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
-      this.log(level, message)
-      return
-    }
 
     const logEntry = {
       tick: Game.time,
       time: new Date().toISOString(),
-      level: safeLevel,
+      level: logEntryLevel,
       message: sanitizedMessage
     }
+
+    console.log(`${emoji} [${isValidLevel ? logEntryLevel : safeLevel}] ${sanitizedMessage}`)
 
     Memory.logs.push(logEntry)
     // Security: Cap log size to prevent Memory DoS

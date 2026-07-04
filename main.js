@@ -45,6 +45,20 @@ const adaptiveSystem = require('system.adaptive');
 const dashboard = require('utils.dashboard');
 const TaskQueue = require('utils.tasks');
 
+/**
+ * ⚡ PERFORMANCE OPTIMIZATION: Lazy cache for Object.entries() to avoid redundant
+ * array allocations in high-frequency loops (e.g., handleSpawning).
+ */
+const _entriesCache = new WeakMap();
+function getEntries(obj) {
+    let entries = _entriesCache.get(obj);
+    if (!entries) {
+        entries = Object.entries(obj);
+        _entriesCache.set(obj, entries);
+    }
+    return entries;
+}
+
 // ⚡ PERFORMANCE OPTIMIZATION: Hoisted constant styles to reduce per-tick object allocation.
 const STYLE_SPAWN_TEXT = {
     align: 'left',
@@ -450,7 +464,9 @@ function handleSpawning(spawn, creepCounts, targetCreeps, isLoggingEnabled) {
     // ⚡ PERFORMANCE: Hoist energyAvailable to avoid redundant Proxy lookups in the role loop.
     const energyAvailable = spawn.room.energyAvailable;
 
-    for (const [role, target] of Object.entries(targetCreeps)) {
+    const targetEntries = getEntries(targetCreeps);
+    for (let i = 0; i < targetEntries.length; i++) {
+        const [role, target] = targetEntries[i];
         const current = creepCounts[role] || 0;
 
         if (current < target) {
@@ -514,17 +530,21 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    ).toUpperCase()
+    logger.info('--- TICK: ' + Game.time + ' ---');
+    logger.info(
+        'MODE: ' + adaptiveSystem.getModeName(Memory.adaptive.currentMode).toUpperCase()
     );
-    .length));
-    .toFixed(2) +
+    logger.info('CREEPS: ' + creeps.length);
+    logger.info(
+        'CPU: ' +
+            Game.cpu.getUsed().toFixed(2) +
             '/' +
             Game.cpu.limit +
             ' (Bucket: ' +
             Game.cpu.bucket +
             ')'
     );
-    .length / 1024).toFixed(1) + ' KB');
+    logger.info('MEM: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -536,16 +556,16 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    +
-            ', Neutral: ' +
-            emotionStats.neutral
+    logger.info(
+        'EMOTIONS: Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral
     );
 }
 
 function _displayGamificationStats() {
     const gm = Memory.gamification;
     if (gm) {
-        }
+        logger.info('GAMIFICATION: Level ' + gm.level + ', XP: ' + gm.xp);
+    }
 }
 
 function displayStats(creeps) {
@@ -660,35 +680,31 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports.loop = function () {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
 
-    // Smart Spawn Priority (Auto-added)
+    // Smart Spawn Priority (Auto-added) initialization
     if (!Memory.spawnPriority) {
         Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
-    }
-    // Auto-adjust priority based on current needs
-    if (Game.time % 500 === 0) {
-        const counts = {};
-        Object.values(Game.creeps).forEach(c => {
-            counts[c.memory.role] = (counts[c.memory.role] || 0) + 1;
-        });
-        Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
     }
 
     // Path Cache Cleanup (Auto-added)
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {
-        const oldPaths = Object.keys(Memory.pathCache).filter(
-            (key) => Memory.pathCache[key].tick < Game.time - 1000
-        );
-        oldPaths.forEach((key) => delete Memory.pathCache[key]);
-        if (oldPaths.length > 0) {
+        // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop instead of Object.keys().filter()
+        // to avoid multiple intermediate array allocations.
+        for (const key in Memory.pathCache) {
+            if (Memory.pathCache[key].tick < Game.time - 1000) {
+                delete Memory.pathCache[key];
             }
+        }
     }
 
     try {
@@ -732,6 +748,12 @@ function handleSocialInteractions(rooms) {
             isLoggingEnabled,
             isEmotionsEnabled
         );
+
+        // ⚡ PERFORMANCE OPTIMIZATION: Re-use pre-calculated creepCounts for priority sorting.
+        // This avoids redundant Object.values(Game.creeps) iterations every 500 ticks.
+        if (Game.time % 500 === 0) {
+            Memory.spawnPriority.sort((a, b) => (creepCounts[a] || 0) - (creepCounts[b] || 0));
+        }
 
         if (Game.time % 1000 === 0 && adaptiveSystem.isEnabled('autoEvolution')) {
             autoEvolution.run();
@@ -804,16 +826,16 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    - system dashboard');
-    - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
-    - emotion stats');
-    - check creep');
-    - memory stats');
-    - history');
-    - leaderboard');
-    - cleanup');
-    - dashboard');
-    - dashboard');
+    console.log('adaptive() - system dashboard');
+    console.log('mode(n) - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
+    console.log('e() - emotion stats');
+    console.log('ec(name) - check creep');
+    console.log('m() - memory stats');
+    console.log('mh() - history');
+    console.log('ml() - leaderboard');
+    console.log('mc() - cleanup');
+    console.log('g() - dashboard');
+    console.log('evo() - dashboard');
 };
 
 if (!Memory.helpShown) {

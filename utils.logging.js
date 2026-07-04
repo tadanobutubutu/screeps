@@ -67,7 +67,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines
@@ -168,6 +168,30 @@ module.exports = {
     Memory.debug = true
     this.log(message, 'debug')
     Memory.debug = wasDebug
+  },
+
+  /**
+   * Security: Escapes HTML special characters to prevent console injection.
+   * ⚡ PERFORMANCE: Hoisted the escape character map and added a fast-path regex check
+   * to avoid unnecessary .replace() calls on safe strings.
+   * @param {string} str
+   * @returns {string}
+   */
+  escapeHTML (str) {
+    const chars = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+      '`': '&#96;'
+    }
+    const escapeRegExp = /[&<>'\"`]/
+
+    if (typeof str !== 'string' || !escapeRegExp.test(str)) {
+      return str
+    }
+    return str.replace(/[&<>'\"`]/g, (tag) => chars[tag] || tag)
   },
 
   clear () {

@@ -32,9 +32,32 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                読み込み中...
-            </p>
+            <main
+                aria-live="polite"
+                style={{ padding: '2rem', fontFamily: 'monospace' }}
+            >
+                <h1 style={{ color: '#004b73', animation: 'pulse 2s infinite' }}>
+                    読み込み中...
+                </h1>
+                <div
+                    style={{
+                        height: '4px',
+                        width: '100%',
+                        backgroundColor: '#e2e8f0',
+                        borderRadius: '2px',
+                        overflow: 'hidden',
+                    }}
+                >
+                    <div
+                        style={{
+                            height: '100%',
+                            width: '30%',
+                            backgroundColor: '#004b73',
+                            animation: 'pulse 1.5s infinite ease-in-out',
+                        }}
+                    />
+                </div>
+            </main>
         );
     if (error)
         return (
@@ -71,6 +94,10 @@ export default function Dashboard() {
                 </button>
             </main>
         );
+    const gclPercent = stats?.gcl?.progressTotal
+        ? (stats.gcl.progress / stats.gcl.progressTotal) * 100
+        : 0;
+
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
@@ -82,20 +109,43 @@ export default function Dashboard() {
                     borderRadius: '8px',
                 }}
             >
-                <p>
-                    🌐 GCL: {stats?.gcl?.level} (
-                    {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
-                    %)
-                </p>
+                <div style={{ marginBottom: '1rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0' }}>
+                        🌐 GCL: {stats?.gcl?.level} ({gclPercent.toFixed(2)}%)
+                    </p>
+                    <div
+                        role="progressbar"
+                        aria-valuenow={Math.round(gclPercent)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label="GCL Progress"
+                        style={{
+                            height: '8px',
+                            width: '100%',
+                            backgroundColor: '#edf2f7',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div
+                            style={{
+                                height: '100%',
+                                width: `${gclPercent}%`,
+                                backgroundColor: '#00aaff',
+                                transition: 'width 0.5s ease-out',
+                            }}
+                        />
+                    </div>
+                </div>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary className="interactive-hint" style={{ color: '#4a5568' }}>
+                    生データを確認
+                </summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

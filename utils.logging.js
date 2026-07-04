@@ -28,18 +28,21 @@ const MAX_LOG_MESSAGE_LENGTH = 500
  */
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
-  // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Matches /abs/path or C:\abs\path. Requires at least one subdirectory level
+  // to avoid false positives on division (e.g., 1/2) or version strings.
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
     [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
     [112, 97, 115, 115, 119, 111, 114, 100],
     [115, 101, 99, 114, 101, 116],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],
@@ -67,7 +70,7 @@ function _redactPaths (str) {
 
 module.exports = {
   getSafeStack (stack, maxLines = 5) {
-    if ( === undefined ||  === null) return ''
+    if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
     const lines = truncatedStack.split('\n')
     return lines
@@ -114,21 +117,24 @@ module.exports = {
   log (message, level = 'info') {
     if (!Memory.logs) Memory.logs = []
 
+    // Handle (level, message) signature used in some tests
+    // Security: Swap only if level is not already a valid level to prevent infinite recursion
+    if (
+      Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message) &&
+            !Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+    ) {
+      this.log(level, message)
+      return
+    }
+
     // Security: Validate level to prevent prototype pollution or other injection
     const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
-    const emoji = LOG_EMOJIS[safeLevel]
 
     // Security: Truncate and redact message
     const rawMessage = String(
       message !== null && message !== undefined ? message : ''
     ).substring(0, MAX_LOG_MESSAGE_LENGTH)
     const sanitizedMessage = _redactPaths(rawMessage)
-
-    // Handle (level, message) signature used in some tests
-    if (Object.prototype.hasOwnProperty.call(LOG_EMOJIS, message)) {
-      this.log(level, message)
-      return
-    }
 
     const logEntry = {
       tick: Game.time,

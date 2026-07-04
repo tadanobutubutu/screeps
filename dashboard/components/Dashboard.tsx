@@ -32,13 +32,8 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <main
-                aria-live="polite"
-                style={{ padding: '2rem', fontFamily: 'monospace' }}
-            >
-                <h1 style={{ color: '#004b73', animation: 'pulse 2s infinite' }}>
-                    読み込み中...
-                </h1>
+            <main aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+                <h1 style={{ color: '#004b73', animation: 'pulse 2s infinite' }}>読み込み中...</h1>
                 <div
                     style={{
                         height: '4px',

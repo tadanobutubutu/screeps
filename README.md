@@ -1,5 +1,12 @@
 # ACE（Autonomous Colony Engine）
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 ![Build](https://github.com/<org>/ace/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/github/license/<org>/ace)
 ![Coverage](https://img.shields.io/codecov/c/github/<org>/ace)

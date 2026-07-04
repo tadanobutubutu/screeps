@@ -188,9 +188,9 @@ const adaptiveSystem = {
      */
     _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
         this.logModeChange(Memory.adaptive.currentMode, newMode, {
-            cpuUsagePercent: cpuUsagePercent,
-            cpuBucket: cpuBucket,
-            memoryUsagePercent: memoryUsagePercent,
+            cpuUsagePercent,
+            cpuBucket,
+            memoryUsagePercent,
         });
 
         // モード履歴に追加
@@ -414,7 +414,9 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            console.log('Stats: EMERGENCY: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
+            console.log(
+                'Stats: EMERGENCY: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%'
+            );
             console.log('Stats: MINIMAL: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
             console.log('Stats: NORMAL: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
             console.log('Stats: FULL: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');

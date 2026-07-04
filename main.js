@@ -547,9 +547,7 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     logger.info('--- TICK: ' + Game.time + ' ---');
-    logger.info(
-        'MODE: ' + adaptiveSystem.getModeName(Memory.adaptive.currentMode).toUpperCase()
-    );
+    logger.info('MODE: ' + adaptiveSystem.getModeName(Memory.adaptive.currentMode).toUpperCase());
     logger.info('CREEPS: ' + creeps.length);
     logger.info(
         'CPU: ' +
@@ -572,9 +570,7 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    logger.info(
-        'EMOTIONS: Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral
-    );
+    logger.info('EMOTIONS: Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
 }
 
 function _displayGamificationStats() {

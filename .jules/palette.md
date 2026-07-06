@@ -25,6 +25,7 @@
 **Learning:** Enhancing raw data metrics (like GCL) with visual progress bars and increased decimal precision (2-decimal points) significantly improves the user's ability to track incremental progress. Restoring native focus indicators by removing `outline: none` is a critical accessibility win that outweighs aesthetic minimalism.
 
 **Action:**
+
 - Use `role="progressbar"` with full ARIA attributes for linear progress.
 - Match number formatting precision across all interface levels (game visuals vs. web dashboard).
 - Never use `outline: none` without providing a high-visibility alternative; preferably, rely on the global `.interactive-hint` style.

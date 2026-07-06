@@ -81,7 +81,7 @@ module.exports = {
     },
 
     // Exported version of isSafeKey
-    isSafeKey: isSafeKey,
+    isSafeKey,
 
     // Safe memory access with default values
     getRoomMemory: function (roomName, key, defaultValue) {

@@ -19,3 +19,12 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2025-07-06 - [Interactive Feedback & Progress Clarity]
+
+**Learning:** Enhancing raw data metrics (like GCL) with visual progress bars and increased decimal precision (2-decimal points) significantly improves the user's ability to track incremental progress. Restoring native focus indicators by removing `outline: none` is a critical accessibility win that outweighs aesthetic minimalism.
+
+**Action:**
+- Use `role="progressbar"` with full ARIA attributes for linear progress.
+- Match number formatting precision across all interface levels (game visuals vs. web dashboard).
+- Never use `outline: none` without providing a high-visibility alternative; preferably, rely on the global `.interactive-hint` style.

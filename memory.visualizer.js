@@ -67,7 +67,9 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            console.log(`[${index + 1}] ${item.type}: ${item.name} (${(item.size / 1024).toFixed(2)} KB)`);
+            console.log(
+                `[${index + 1}] ${item.type}: ${item.name} (${(item.size / 1024).toFixed(2)} KB)`
+            );
         });
 
         return sizes;
@@ -325,7 +327,9 @@ const memoryVisualizer = {
             ) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                console.log(`Room ${roomName}: Owner=${owner}, Level=${info.controller?.level || 0}`);
+                console.log(
+                    `Room ${roomName}: Owner=${owner}, Level=${info.controller?.level || 0}`
+                );
             }
         }
     },

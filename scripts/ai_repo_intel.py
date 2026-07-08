@@ -30,16 +30,18 @@ def get_repo_stats():
 def ask_ai(prompt):
     key = os.environ.get("GEMINI_API_KEY")
     if key:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
         try:
-            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60)
+            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=60, params={"key": key})
             if r.status_code == 200:
                 return r.json()['candidates'][0]['content']['parts'][0]['text']
         except: pass
-    
-    # Fallback to Pollinations
+
+    # Fallback to Pollinations (sanitized URL)
     try:
-        url = f"https://text.pollinations.ai/{urllib.parse.quote(prompt[:2000])}?model=openai"
+        safe_prompt = prompt[:2000]
+        encoded = urllib.parse.quote(safe_prompt)
+        url = f"https://text.pollinations.ai/{encoded}?model=openai"
         r = requests.get(url, timeout=60)
         if r.status_code == 200:
             return r.text

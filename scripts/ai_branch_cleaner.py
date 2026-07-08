@@ -119,11 +119,14 @@ def main():
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
         try:
             payload = {"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"response_mime_type": "application/json"}}
-            req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
+            headers = {'Content-Type': 'application/json'}
+            req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers=headers)
             with urllib.request.urlopen(req, timeout=60) as f:
                 res_json = json.loads(f.read().decode('utf-8'))
                 result = res_json['candidates'][0]['content']['parts'][0]['text']
-        except: pass
+        except Exception as e:
+            print(f"Warning: API call failed: {type(e).__name__}")
+            pass
 
     to_delete = []
     if result:

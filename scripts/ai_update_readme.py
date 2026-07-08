@@ -77,9 +77,10 @@ def main():
     result = ""
     if key:
         print("☁️ Calling Gemini 1.5 Flash...")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent"
+        headers = {"x-api-key": key}
         try:
-            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=90)
+            r = requests.post(url, json={"contents": [{"parts": [{"text": prompt}]}]}, headers=headers, timeout=90, params={"key": key})
             if r.status_code == 200:
                 result = r.json()['candidates'][0]['content']['parts'][0]['text']
         except: pass

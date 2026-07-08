@@ -170,7 +170,7 @@ const autoEvolution = {
 
         return {
             energy: totalEnergy,
-            capacity,
+            capacity: capacity,
             storage: storageEnergy,
             ratio: capacity > 0 ? totalEnergy / capacity : 0,
         };
@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (need && !exists) {
+        if (need === undefined || need === null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            console.log('Added to evolution queue');
+            ');
         }
     },
 
@@ -416,7 +416,13 @@ const autoEvolution = {
         if (Memory.evolution.suggestions.length > MAX_SUGGESTIONS) {
             Memory.evolution.suggestions.shift();
         }
-    },
+
+        );
+        },
+
+    /**
+     * RCL機能生成
+     */
     generateRCLFeatures: function (data) {
         const rcl = data.newRCL;
 
@@ -432,8 +438,19 @@ const autoEvolution = {
      * 生産最適化コード生成
      */
     generateProductionOptimization: function (data) {
-        return 'Optimization code for ' + data.type;
+        return (
+            '// Optimize ' +
+            data.type +
+            '\n// Current: ' +
+            (data.current ?? 'N/A') +
+            ', Needed: ' +
+            (data.needed ?? 'N/A')
+        );
     },
+
+    /**
+     * Towerロジック生成
+     */
     generateTowerLogic: function () {
         return 'module.exports = {\n  run: function(tower) {\n    // Attack hostiles\n    // Repair structures\n  }\n};';
     },
@@ -463,20 +480,20 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        console.log('Last action: ' + (Game.time - evo.lastActionTick) + ' ticks ago');
+        + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-            }
+                }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                console.log(' - ' + recentHistory[i].action);
+                ');
             }
         }
 
@@ -484,7 +501,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                console.log(' - ' + s.type + ' (' + s.filename + ')');
+                [0]);
             }
         }
     },
@@ -494,7 +511,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-    },
+        },
 };
 
 module.exports = autoEvolution;

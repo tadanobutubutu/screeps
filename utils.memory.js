@@ -9,6 +9,13 @@ const MAX_KEY_LENGTH = 256;
 const MAX_CACHE_ENTRIES = 50;
 
 /**
+ * ⚡ PERFORMANCE: Track cache size in module-level variables
+ * to make capacity check O(1).
+ */
+let _cacheSize = -1;
+let _lastCacheRef = null;
+
+/**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
@@ -42,6 +49,20 @@ const isSafeKey = (key) => {
     return typeof key === 'string' && key.length <= MAX_KEY_LENGTH && !DANGEROUS_KEYS.has(key);
 };
 
+/**
+ * ⚡ PERFORMANCE: Re-calculates _cacheSize if the Memory.cache reference has changed.
+ */
+const _syncCacheSize = () => {
+    if (Memory.cache !== _lastCacheRef) {
+        _lastCacheRef = Memory.cache;
+        if (!_lastCacheRef) {
+            _cacheSize = 0;
+        } else {
+            _cacheSize = Object.keys(_lastCacheRef).length;
+        }
+    }
+};
+
 module.exports = {
     // Clean up memory of dead creeps
     cleanMemory: function () {
@@ -60,7 +81,7 @@ module.exports = {
     },
 
     // Exported version of isSafeKey
-    isSafeKey: isSafeKey,
+    isSafeKey,
 
     // Safe memory access with default values
     getRoomMemory: function (roomName, key, defaultValue) {
@@ -126,27 +147,36 @@ module.exports = {
             Memory.cache = {};
         }
 
+        // ⚡ PERFORMANCE: Ensure O(1) tracker is synchronized.
+        _syncCacheSize();
+
         const cached = Memory.cache[cacheKey];
         if (cached && Game.time - cached.timestamp < ttl) {
             return cached.value;
         }
 
         // Security: Cap the number of cache entries to prevent Memory DoS
-        if (!cached && Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
+        // ⚡ PERFORMANCE: Use tracked _cacheSize instead of O(N) Object.keys().length
+        if (!cached && _cacheSize >= MAX_CACHE_ENTRIES) {
             // Attempt to cleanup expired entries first
             this.cleanCache();
 
             // If still full, implement FIFO eviction by deleting the oldest entry.
             // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
+            if (_cacheSize >= MAX_CACHE_ENTRIES) {
                 const keys = Object.keys(Memory.cache);
                 if (keys.length > 0) {
                     delete Memory.cache[keys[0]];
+                    _cacheSize--;
                 }
             }
         }
 
         const result = fn();
+        // ⚡ PERFORMANCE: Increment tracker only for new entries.
+        if (!cached) {
+            _cacheSize++;
+        }
         Memory.cache[cacheKey] = {
             value: result,
             timestamp: Game.time,
@@ -161,6 +191,9 @@ module.exports = {
             return;
         }
 
+        // ⚡ PERFORMANCE: Ensure tracker is synchronized before mass deletion.
+        _syncCacheSize();
+
         const keys = Object.keys(Memory.cache);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
@@ -171,10 +204,12 @@ module.exports = {
                 if (entry && typeof entry.timestamp === 'number') {
                     if (Game.time - entry.timestamp > maxAge) {
                         delete Memory.cache[key];
+                        _cacheSize--;
                     }
                 } else {
                     // Security: If the entry is corrupted, delete it to restore consistency.
                     delete Memory.cache[key];
+                    _cacheSize--;
                 }
             }
         }

@@ -8,7 +8,12 @@ const logger = require('utils.logging');
 const CHALLENGES = [
     { id: 'harvest_energy', text: 'エネルギーを 5000 収穫する', target: 5000, metric: 'harvest' },
     { id: 'build_structures', text: '建造物を 5 個完成させる', target: 5, metric: 'build' },
-    { id: 'upgrade_controller', text: 'コントローラーを 2000 回アップグレードする', target: 2000, metric: 'upgrade' },
+    {
+        id: 'upgrade_controller',
+        text: 'コントローラーを 2000 回アップグレードする',
+        target: 2000,
+        metric: 'upgrade',
+    },
 ];
 
 const dailyChallenge = {

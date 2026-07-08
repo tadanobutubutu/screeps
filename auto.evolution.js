@@ -42,9 +42,18 @@ const autoEvolution = {
      */
     analyzeBasicState: function () {
         const rooms = Object.values(Game.rooms);
-        const rcl = rooms.reduce((max, r) => Math.max(max, (r.controller && r.controller.level) || 0), 0);
+        const rcl = rooms.reduce(
+            (max, r) => Math.max(max, (r.controller && r.controller.level) || 0),
+            0
+        );
         const structures = {
-            towers: rooms.reduce((count, r) => count + r.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } }).length, 0),
+            towers: rooms.reduce(
+                (count, r) =>
+                    count +
+                    r.find(FIND_MY_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } })
+                        .length,
+                0
+            ),
         };
 
         return {
@@ -78,7 +87,7 @@ const autoEvolution = {
         if (!Memory.evolution.queue) Memory.evolution.queue = [];
         if (Memory.evolution.queue.length >= MAX_QUEUE) return;
 
-        const exists = Memory.evolution.queue.some(n => n.action === need.action);
+        const exists = Memory.evolution.queue.some((n) => n.action === need.action);
         if (!exists) {
             Memory.evolution.queue.push(need);
             Memory.evolution.queue.sort((a, b) => b.priority - a.priority);

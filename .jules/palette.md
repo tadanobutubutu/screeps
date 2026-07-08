@@ -21,5 +21,6 @@
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
 
 ## 2026-07-08 - [Visual Progress & Precision]
+
 **Learning:** For slow-moving metrics like GCL, providing high-precision numerical feedback (2 decimal places) combined with a visual progress bar significantly reduces user frustration and makes system progress feel more "active."
 **Action:** Use `.toFixed(2)` for percentages in dashboard metrics and always accompany them with a semantic `<div role="progressbar">` for accessibility.

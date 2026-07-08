@@ -188,12 +188,26 @@ function getStructures(room) {
 
 function getMyStructures(room, structureType) {
     if (room._myStructures && !structureType) return room._myStructures;
-    const key = structureType ? `my_structures_${room.name}_${structureType}` : `my_structures_${room.name}`;
-    return get(key, () => room.find(FIND_MY_STRUCTURES, structureType ? { filter: { structureType } } : undefined), CACHE_TTL.STRUCTURES);
+    const key = structureType
+        ? `my_structures_${room.name}_${structureType}`
+        : `my_structures_${room.name}`;
+    return get(
+        key,
+        () =>
+            room.find(
+                FIND_MY_STRUCTURES,
+                structureType ? { filter: { structureType } } : undefined
+            ),
+        CACHE_TTL.STRUCTURES
+    );
 }
 
 function getConstructionSites(room) {
-    return get(`construction_sites_${room.name}`, () => room.find(FIND_CONSTRUCTION_SITES), CACHE_TTL.CONSTRUCTION_SITES);
+    return get(
+        `construction_sites_${room.name}`,
+        () => room.find(FIND_CONSTRUCTION_SITES),
+        CACHE_TTL.CONSTRUCTION_SITES
+    );
 }
 
 function getEnemies(room) {
@@ -202,9 +216,18 @@ function getEnemies(room) {
 
 function getStructuresNeedingEnergy(room) {
     if (room._deliveryTargets) return room._deliveryTargets;
-    return get(`need_energy_${room.name}`, () => room.find(FIND_STRUCTURES, {
-        filter: (s) => (s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
-    }), 5);
+    return get(
+        `need_energy_${room.name}`,
+        () =>
+            room.find(FIND_STRUCTURES, {
+                filter: (s) =>
+                    (s.structureType === STRUCTURE_SPAWN ||
+                        s.structureType === STRUCTURE_EXTENSION ||
+                        s.structureType === STRUCTURE_TOWER) &&
+                    s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+            }),
+        5
+    );
 }
 
 function assignSource(creep, room) {
@@ -217,9 +240,14 @@ function assignSource(creep, room) {
     const assignments = Object.create(null);
     const creeps = Object.values(Game.creeps);
     for (const c of creeps) {
-        if (c.memory.sourceId) assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
+        if (c.memory.sourceId) {
+            assignments[c.memory.sourceId] = (assignments[c.memory.sourceId] || 0) + 1;
+        }
     }
-    const bestSource = sources.reduce((best, s) => (!best || (assignments[s.id] || 0) < (assignments[best.id] || 0)) ? s : best, null);
+    const bestSource = sources.reduce(
+        (best, s) => (!best || (assignments[s.id] || 0) < (assignments[best.id] || 0) ? s : best),
+        null
+    );
     if (bestSource) {
         creep.memory.sourceId = bestSource.id;
         const mockName = creep.name || Math.random().toString();
@@ -229,7 +257,18 @@ function assignSource(creep, room) {
 }
 
 module.exports = {
-    get, invalidate, invalidatePattern, cleanup, getStats, isSafeKey, reset,
-    getSources, getStructures, getMyStructures, getConstructionSites, getEnemies,
-    getStructuresNeedingEnergy, assignSource
+    get,
+    invalidate,
+    invalidatePattern,
+    cleanup,
+    getStats,
+    isSafeKey,
+    reset,
+    getSources,
+    getStructures,
+    getMyStructures,
+    getConstructionSites,
+    getEnemies,
+    getStructuresNeedingEnergy,
+    assignSource,
 };

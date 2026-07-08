@@ -1,12 +1,12 @@
 # ACE (Autonomous Colony Engine)
 
+
 <!-- AUTO-PACKAGE-BADGES:START -->
 <!-- Auto-generated package badges -->
 
 ![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
 
 <!-- AUTO-PACKAGE-BADGES:END -->
-
 ![Build Status](https://img.shields.io/github/actions/workflow/status/YourOrg/ACE/ci.yml?style=for-the-badge&label=Build)
 ![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![Coverage](https://img.shields.io/coveralls/github/YourOrg/ACE?style=for-the-badge)
@@ -76,13 +76,13 @@ flowchart TD
 
 ## コアテクノロジー
 
-| カテゴリ             | 技術                               | 役割                                                                  |
-| -------------------- | ---------------------------------- | --------------------------------------------------------------------- |
-| **コンフリクト解消** | **LangChain + OpenAI LLM**         | 変更合併時に自然言語解釈で最適合併戦略を導出                          |
-| **Issue 自動解決**   | **GitHub API + Temporal Workflow** | Issue 生成から修正・テスト・PR までをワークフローで自動実行           |
-| **README 最適化**    | **GraphQL + MDX Parser**           | PR 起票時にドキュメントをスキャンし、タグ付け・フォーマット変更を提案 |
-| **テスト自動生成**   | **ESLint + Jest Template**         | バグ検出後、最小限のテストケースを自動生成                            |
-| **カバレッジ管理**   | **Istanbul+SonarCloud Analytics**  | 100% 規定まで自動追跡、警告発生時に即座に Issue へ変換                |
+| カテゴリ | 技術 | 役割 |
+|----------|------|------|
+| **コンフリクト解消** | **LangChain + OpenAI LLM** | 変更合併時に自然言語解釈で最適合併戦略を導出 |
+| **Issue 自動解決** | **GitHub API + Temporal Workflow** | Issue 生成から修正・テスト・PR までをワークフローで自動実行 |
+| **README 最適化** | **GraphQL + MDX Parser** | PR 起票時にドキュメントをスキャンし、タグ付け・フォーマット変更を提案 |
+| **テスト自動生成** | **ESLint + Jest Template** | バグ検出後、最小限のテストケースを自動生成 |
+| **カバレッジ管理** | **Istanbul+SonarCloud Analytics** | 100% 規定まで自動追跡、警告発生時に即座に Issue へ変換 |
 
 ---
 
@@ -90,8 +90,8 @@ flowchart TD
 
 最近のコミットは AI がどのようにプロジェクトを進化させたかを示す代表例です。
 
-| 日付       | コミット                                    | 内容                                                                   |
-| ---------- | ------------------------------------------- | ---------------------------------------------------------------------- |
-| 2026‑06‑10 | chore: update npm badge for screeps‑ai      | ビルドステータスと NPM 版バッジを自動更新。AI がパッケージ環境を検知。 |
-| 2026‑06‑12 | docs: AI‑driven dynamic intelligence update | README と Wiki を再構成し、動的ロールの説明を自動生成。                |
-| 2026‑06‑14 | chore: update npm badge for screeps‑ai      | NPM バ                                                                 |
+| 日付 | コミット | 内容 |
+|------|----------|------|
+| 2026‑06‑10 | chore: update npm badge for screeps‑ai | ビルドステータスと NPM 版バッジを自動更新。AI がパッケージ環境を検知。 |
+| 2026‑06‑12 | docs: AI‑driven dynamic intelligence update | README と Wiki を再構成し、動的ロールの説明を自動生成。 |
+| 2026‑06‑14 | chore: update npm badge for screeps‑ai | NPM バ

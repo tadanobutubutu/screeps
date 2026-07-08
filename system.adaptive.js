@@ -188,9 +188,9 @@ const adaptiveSystem = {
      */
     _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
         this.logModeChange(Memory.adaptive.currentMode, newMode, {
-            cpuUsagePercent,
-            cpuBucket,
-            memoryUsagePercent,
+            cpuUsagePercent: cpuUsagePercent,
+            cpuBucket: cpuBucket,
+            memoryUsagePercent: memoryUsagePercent,
         });
 
         // モード履歴に追加
@@ -375,9 +375,7 @@ const adaptiveSystem = {
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
         );
-        console.log(
-            ' CPU Bucket: ' + cpuBucket + ' (' + ((cpuBucket / 10000) * 100).toFixed(1) + '%)'
-        );
+        console.log(' CPU Bucket: ' + cpuBucket + ' (' + ((cpuBucket / 10000) * 100).toFixed(1) + '%)');
         console.log(
             ' Memory: ' +
                 (memorySize / 1024).toFixed(1) +
@@ -478,9 +476,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        console.log(
-            '🔄 Adaptive System: Manually set to ' + this.getModeName(numericMode).toUpperCase()
-        );
+        console.log('🔄 Adaptive System: Manually set to ' + this.getModeName(numericMode).toUpperCase());
     },
 
     /**

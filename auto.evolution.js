@@ -170,7 +170,7 @@ const autoEvolution = {
 
         return {
             energy: totalEnergy,
-            capacity,
+            capacity: capacity,
             storage: storageEnergy,
             ratio: capacity > 0 ? totalEnergy / capacity : 0,
         };

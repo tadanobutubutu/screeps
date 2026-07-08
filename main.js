@@ -515,7 +515,10 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 
 function _displayCoreStats(creeps) {
     console.log('--- TICK: ' + Game.time + ' ---');
-    console.log('MODE: ' + adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase());
+    console.log(
+        'MODE: ' +
+            adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase()
+    );
     console.log('CREEPS: ' + creeps.length);
     console.log(
         'CPU: ' +
@@ -538,7 +541,12 @@ function _displayLogStats() {
 
 function _displayEmotionStats() {
     const emotionStats = EmotionSystem.getStats();
-    console.log('EMOTIONS: Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
+    console.log(
+        'EMOTIONS: Happy: ' +
+            emotionStats.happy +
+            ', Neutral: ' +
+            emotionStats.neutral
+    );
 }
 
 function _displayGamificationStats() {

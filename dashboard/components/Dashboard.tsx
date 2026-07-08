@@ -1,148 +1,70 @@
-'use client';
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ActivityIndicator } from 'react-native';
+import { AnimatedCard, EmptyMessage } from '../../components';
+import { fetchData } from '../../services/api';
 
-export default function Dashboard() {
-    const [stats, setStats] = useState<any>(null),
-        [error, setError] = useState<string | null>(null),
-        [loading, setLoading] = useState(true),
-        [copied, setCopied] = useState(false),
-        [focused, setFocused] = useState(false);
-    useEffect(() => {
-        fetch('/api/screeps?endpoint=overview')
-            .then(async (r) => {
-                const d = await r.json();
-                if (!r.ok || d.error) throw new Error(d.error || `エラー: ${r.status}`);
-                return d;
-            })
-            .then((d) => {
-                setStats(d);
-                setLoading(false);
-            })
-            .catch((e) => {
-                setError(e.message || String(e));
-                setLoading(false);
-            });
-    }, []);
-    const copyErr = () =>
-        error &&
-        navigator.clipboard.writeText(error).then(() => {
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        });
+type DashboardProps = {
+  userId: string;
+};
 
-    if (loading)
-        return (
-            <p
-                aria-live="polite"
-                style={{
-                    padding: '2rem',
-                    fontFamily: 'monospace',
-                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                }}
-            >
-                読み込み中...
-            </p>
-        );
-    if (error)
-        return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    style={{
-                        color: '#c53030',
-                        backgroundColor: '#fff5f5',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        overflow: 'auto',
-                    }}
-                >
-                    {error}
-                </pre>
-                <button
-                    onClick={copyErr}
-                    onFocus={() => setFocused(true)}
-                    onBlur={() => setFocused(false)}
-                    aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-                    style={{
-                        backgroundColor: copied ? '#155d27' : '#004b73',
-                        color: 'white',
-                        padding: '0.5rem 1rem',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                        outline: 'none',
-                        boxShadow: focused ? '0 0 0 3px rgba(0, 75, 115, 0.4)' : 'none',
-                    }}
-                >
-                    {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
-                </button>
-            </main>
-        );
+const Dashboard: React.FC<DashboardProps> = ({ userId }) => {
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const result = await fetchData(userId);
+        setData(result);
+      } catch (err: any) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [userId]);
+
+  if (loading) {
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>🐛 Screeps ダッシュボード</h1>
-            <div
-                style={{
-                    marginBottom: '1rem',
-                    border: '1px solid #e2e8f0',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                }}
-            >
-                <div>
-                    <p style={{ marginBottom: '0.5rem' }}>
-                        🌐 GCL: {stats?.gcl?.level} (
-                        {stats?.gcl?.progressTotal
-                            ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
-                            : '0.00'}
-                        %)
-                    </p>
-                    <div
-                        role="progressbar"
-                        aria-valuenow={stats?.gcl?.progress || 0}
-                        aria-valuemin={0}
-                        aria-valuemax={stats?.gcl?.progressTotal || 100}
-                        aria-label="GCL Progress"
-                        style={{
-                            width: '100%',
-                            backgroundColor: '#edf2f7',
-                            borderRadius: '9999px',
-                            height: '0.5rem',
-                            overflow: 'hidden',
-                            marginBottom: '1rem',
-                        }}
-                    >
-                        <div
-                            style={{
-                                width: `${stats?.gcl?.progressTotal ? Math.min((stats.gcl.progress / stats.gcl.progressTotal) * 100, 100) : 0}%`,
-                                backgroundColor: '#004b73',
-                                height: '100%',
-                                transition: 'width 0.5s ease-out',
-                            }}
-                        />
-                    </div>
-                </div>
-                <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
-                <p>
-                    🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
-                </p>
-            </div>
-            <details style={{ cursor: 'pointer' }}>
-                <summary className="interactive-hint" style={{ color: '#4a5568', outline: 'none' }}>
-                    生データを確認
-                </summary>
-                <pre
-                    style={{
-                        backgroundColor: '#f7fafc',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        marginTop: '0.5rem',
-                        overflow: 'auto',
-                    }}
-                >
-                    {JSON.stringify(stats, null, 2)}
-                </pre>
-            </details>
-        </main>
+      <ActivityIndicator
+        testID="dashboard-loading"
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        color="#2e86de"
+      />
     );
-}
+  }
+
+  if (error) {
+    return <EmptyMessage message={`Error: ${error}`} />;
+  }
+
+  if (!data.length) {
+    return <EmptyMessage message="No data available." />;
+  }
+
+  return (
+    <AnimatedCard
+      testID="dashboard-card"
+      style={{
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        padding: 15,
+      }}
+    >
+      {data.map((item, index) => (
+        <React.Fragment key={index}>
+          <h3 style={{ margin: 0 }}>{item.title}</h3>
+          <p style={{ margin: '5px 0 0 0' }}>{item.description}</p>
+        </React.Fragment>
+      ))}
+    </AnimatedCard>
+  );
+};
+
+export default Dashboard;

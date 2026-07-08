@@ -10,11 +10,9 @@ const path = require('path');
  * @returns {string[]} An array of input lines.
  */
 function readInput(day) {
-  const dayStr = String(day).padStart(2, '0');
-  const filePath = path.join(__dirname, `input/day${dayStr}.txt`);
-  return fs.existsSync(filePath)
-    ? fs.readFileSync(filePath, 'utf-8').trim().split('\n')
-    : [];
+    const dayStr = String(day).padStart(2, '0');
+    const filePath = path.join(__dirname, `input/day${dayStr}.txt`);
+    return fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf-8').trim().split('\n') : [];
 }
 
 /**
@@ -25,7 +23,7 @@ function readInput(day) {
  * @returns {number}
  */
 function solvePart1(lines) {
-  return lines.reduce((sum, line) => sum + Number(line), 0);
+    return lines.reduce((sum, line) => sum + Number(line), 0);
 }
 
 /**
@@ -36,30 +34,30 @@ function solvePart1(lines) {
  * @returns {number}
  */
 function solvePart2(lines) {
-  return lines.reduce((product, line) => product * Number(line), 1);
+    return lines.reduce((product, line) => product * Number(line), 1);
 }
 
 /**
  * Main entry point. Expects a day number as the first command line argument.
  */
 function main() {
-  const day = process.argv[2] || '01';
-  const lines = readInput(day);
+    const day = process.argv[2] || '01';
+    const lines = readInput(day);
 
-  if (!lines.length) {
-    console.error(`No input found for day ${day}.`);
-    process.exit(1);
-  }
+    if (!lines.length) {
+        console.error(`No input found for day ${day}.`);
+        process.exit(1);
+    }
 
-  const part1 = solvePart1(lines);
-  const part2 = solvePart2(lines);
+    const part1 = solvePart1(lines);
+    const part2 = solvePart2(lines);
 
-  console.log(`Day ${day} Part 1: ${part1}`);
-  console.log(`Day ${day} Part 2: ${part2}`);
+    console.log(`Day ${day} Part 1: ${part1}`);
+    console.log(`Day ${day} Part 2: ${part2}`);
 }
 
 if (require.main === module) {
-  main();
+    main();
 }
 
 module.exports = { readInput, solvePart1, solvePart2 };

@@ -19,3 +19,9 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2025-07-08 - [Visual Progression & Responsive States]
+
+**Learning:** Adding a visual `role="progressbar"` for long-term metrics like GCL improves user perception of progress. Subtle animations (like `pulse`) during loading states reduce perceived wait time and signal system activity effectively.
+
+**Action:** Utilize ARIA-compliant progress bars for major metrics and ensure interactive elements utilize the design system's focus/hover classes (e.g., `.interactive-hint`) for accessibility.

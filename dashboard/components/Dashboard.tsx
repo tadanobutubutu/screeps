@@ -32,7 +32,14 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <p
+                aria-live="polite"
+                style={{
+                    padding: '2rem',
+                    fontFamily: 'monospace',
+                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                }}
+            >
                 読み込み中...
             </p>
         );
@@ -82,20 +89,51 @@ export default function Dashboard() {
                     borderRadius: '8px',
                 }}
             >
-                <p>
-                    🌐 GCL: {stats?.gcl?.level} (
-                    {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
-                    %)
-                </p>
+                <div>
+                    <p style={{ marginBottom: '0.5rem' }}>
+                        🌐 GCL: {stats?.gcl?.level} (
+                        {stats?.gcl?.progressTotal
+                            ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                            : '0.00'}
+                        %)
+                    </p>
+                    <div
+                        role="progressbar"
+                        aria-valuenow={stats?.gcl?.progress || 0}
+                        aria-valuemin={0}
+                        aria-valuemax={stats?.gcl?.progressTotal || 100}
+                        aria-label="GCL Progress"
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#edf2f7',
+                            borderRadius: '9999px',
+                            height: '0.5rem',
+                            overflow: 'hidden',
+                            marginBottom: '1rem',
+                        }}
+                    >
+                        <div
+                            style={{
+                                width: `${stats?.gcl?.progressTotal ? Math.min((stats.gcl.progress / stats.gcl.progressTotal) * 100, 100) : 0}%`,
+                                backgroundColor: '#004b73',
+                                height: '100%',
+                                transition: 'width 0.5s ease-out',
+                            }}
+                        />
+                    </div>
+                </div>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary
+                    className="interactive-hint"
+                    style={{ color: '#4a5568', outline: 'none' }}
+                >
+                    生データを確認
+                </summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

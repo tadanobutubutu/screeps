@@ -20,7 +20,6 @@
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
 
-## 2026-06-30 - [Visual Feedback & Accessibility]
-
-**Learning:** Adding a visual progress bar for critical metrics (like GCL) significantly improves the at-a-glance readability of the dashboard. Coupling this with ARIA attributes (role="progressbar") ensures that the same information is accessible to screen readers, maintaining parity between visual and non-visual experiences.
-**Action:** Always complement numerical progress indicators with visual progress bars and relevant ARIA roles to enhance both UX and accessibility.
+## 2026-07-08 - [Visual Progress & Precision]
+**Learning:** For slow-moving metrics like GCL, providing high-precision numerical feedback (2 decimal places) combined with a visual progress bar significantly reduces user frustration and makes system progress feel more "active."
+**Action:** Use `.toFixed(2)` for percentages in dashboard metrics and always accompany them with a semantic `<div role="progressbar">` for accessibility.

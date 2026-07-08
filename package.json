@@ -29,12 +29,12 @@
     },
     "homepage": "https://github.com/tadanobutubutu/screeps#readme",
     "dependencies": {
-        "@sentry/browser": "10.62.0",
-        "@supabase/supabase-js": "^2.110.0",
+        "@sentry/browser": "10.63.0",
+        "@supabase/supabase-js": "^2.110.1",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-prettier": "^5.5.5",
         "lodash": "^4.18.1",
-        "posthog-js": "1.395.0"
+        "posthog-js": "1.398.6"
     },
     "devDependencies": {
         "@codecov/rollup-plugin": "^2.0.1",

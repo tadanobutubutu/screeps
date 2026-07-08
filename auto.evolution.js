@@ -170,7 +170,7 @@ const autoEvolution = {
 
         return {
             energy: totalEnergy,
-            capacity,
+            capacity: capacity,
             storage: storageEnergy,
             ratio: capacity > 0 ? totalEnergy / capacity : 0,
         };
@@ -342,9 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (!exists && need) {
+        if (need === undefined || need === null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
+            ');
         }
     },
 
@@ -415,7 +416,9 @@ const autoEvolution = {
         if (Memory.evolution.suggestions.length > MAX_SUGGESTIONS) {
             Memory.evolution.suggestions.shift();
         }
-    },
+
+        );
+        },
 
     /**
      * RCL機能生成
@@ -477,21 +480,20 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        console.log('Last check: ' + (Game.time - evo.lastCheck) + ' ticks ago');
+        + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                console.log(' - ' + h.type + ': ' + h.action);
-            }
+                }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                console.log(' [Q] ' + q.type + ': ' + q.action);
+                ');
             }
         }
 
@@ -499,7 +501,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                console.log(' [S] ' + s.filename + ' (' + s.type + ')');
+                [0]);
             }
         }
     },
@@ -509,7 +511,7 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-    },
+        },
 };
 
 module.exports = autoEvolution;

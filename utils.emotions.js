@@ -85,9 +85,8 @@ class EmotionSystem {
             if (emotions.lastEmotion === undefined) emotions.lastEmotion = EMOTIONS.HAPPY;
             if (emotions.experiencePoints === undefined) emotions.experiencePoints = 0;
             if (emotions.achievements === undefined) emotions.achievements = [];
-            if (emotions.personalityTraits === undefined) {
+            if (emotions.personalityTraits === undefined)
                 emotions.personalityTraits = this.generatePersonality();
-            }
             if (emotions.birthTick === undefined) emotions.birthTick = Game.time;
         }
     }
@@ -349,13 +348,11 @@ class EmotionSystem {
     static checkCreep(creepName) {
         // Security: プロトタイプ汚染対策のため、名前を検証
         if (!utilsMemory.isSafeKey(creepName)) {
-            console.log('❌ Invalid creep name');
             return;
         }
 
         const creep = Game.creeps[creepName];
         if (creep === undefined || creep === null) {
-            console.log('❌ Creep not found');
             return;
         }
 
@@ -364,15 +361,10 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        console.log('\n🤖 Creep Emotion Report');
-        console.log('Name:', creepName);
-        console.log(
-            `[${creepName}] Mood: ${this.getMoodDescription(creep)}, Traits: ${emotions.personalityTraits}`
         );
         if (emotions.achievements.length > 0) {
-            console.log('\n🏆 Achievements:');
             emotions.achievements.forEach((a) => {
-                console.log('-', a.name, '(tick', a.tick, ')');
+                ');
             });
         }
     }

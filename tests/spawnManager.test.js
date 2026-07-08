@@ -85,6 +85,22 @@ jest.mock(
             2: { harvester: 2, upgrader: 2, builder: 1 },
             3: { harvester: 2, upgrader: 2, builder: 2 },
         },
+        CACHE_TTL: {
+            SOURCES: 100,
+            STRUCTURES: 50,
+            ENEMIES: 5,
+            CONSTRUCTION_SITES: 20,
+            DROPPED_RESOURCES: 3,
+            ROOM_OBJECTS: 30,
+            PATH: 20,
+            SPAWN_QUEUE: 10,
+        },
+        MEMORY_KEYS: {
+            ROLE: 'role',
+            SOURCE_ID: 'sourceId',
+            TARGET_ID: 'targetId',
+            WORKING: 'working',
+        },
     }),
     { virtual: true }
 );

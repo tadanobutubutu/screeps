@@ -72,18 +72,13 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    const pathRedacted = str.replace(
-        /(?:\/|[a-zA-Z]:\\)(?:[a-zA-Z0-9._-]|[^\x00-\x7F])+(?:[\/\\](?:[a-zA-Z0-9._-]|[^\x00-\x7F])+)+[\/\\]?[^ \n\t\"' ]*/g,
-        '[REDACTED]'
-    );
+    // Matches /abs/path or C:\abs\path. Requires at least one level to avoid false positives on / or 1/2.
+    const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 
     // Security: Redact sensitive information with improved pattern and obfuscated keywords.
     const keys = [
         [116, 111, 107, 101, 110],
         [112, 97, 115, 115, 119, 111, 114, 100],
-        [112, 97, 115, 115],
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
-        [112, 97, 115, 115],
         [115, 101, 99, 114, 101, 116],
         [97, 112, 105, 95, 107, 101, 121],
         [97, 112, 105, 75, 101, 121],
@@ -92,6 +87,8 @@ function sanitizeLog(str) {
         [98, 101, 97, 114, 101, 114],
         [115, 101, 115, 115, 105, 111, 110],
         [100, 115, 110],
+        [112, 97, 115, 115],
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
         .join('|');

@@ -66,7 +66,9 @@ function ensureCache() {
             const keys = Object.keys(_lastCacheRef);
             _cacheSize = keys.length;
             for (let i = 0; i < keys.length; i++) {
-                _cacheOrder.set(keys[i], true);
+                if (Object.prototype.hasOwnProperty.call(_lastCacheRef, keys[i])) {
+                    _cacheOrder.set(keys[i], true);
+                }
             }
         }
     }
@@ -74,6 +76,7 @@ function ensureCache() {
 }
 
 function _getValidEntry(cache, key) {
+    if (!Object.prototype.hasOwnProperty.call(cache, key)) return undefined;
     const entry = cache[key];
     if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
         return entry;
@@ -99,34 +102,40 @@ function get(key, fetcher, ttl) {
     const validEntry = _getValidEntry(cache, key);
     if (validEntry) return validEntry.data;
 
-    if (!_canAddCacheEntry()) {
-        cleanup();
+    // Security & Stability: Execute fetcher first.
+    // This allows nested get calls to populate their own cache entries.
+    const data = fetcher();
+
+    // Re-verify cache and key status after fetcher potentially modified global state
+    ensureCache();
+    const isUpdate = Object.prototype.hasOwnProperty.call(cache, key);
+
+    if (!isUpdate) {
+        // Capacity check before adding a new entry
         if (!_canAddCacheEntry()) {
-            // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
-            const oldestKey = _cacheOrder.keys().next().value;
-            if (oldestKey !== undefined) {
-                delete cache[oldestKey];
-                _cacheOrder.delete(oldestKey);
-                _cacheSize--;
+            cleanup();
+            if (!_canAddCacheEntry()) {
+                // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
+                const oldestKey = _cacheOrder.keys().next().value;
+                if (oldestKey !== undefined) {
+                    delete cache[oldestKey];
+                    _cacheOrder.delete(oldestKey);
+                    _cacheSize--;
+                }
             }
         }
+        _cacheSize++;
     }
 
-    const data = fetcher();
-    const isUpdate = cache[key] !== undefined;
     cache[key] = {
         data,
         expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS),
     };
 
-    if (!isUpdate) {
-        _cacheSize++;
-        _cacheOrder.set(key, true);
-    } else {
-        // Move to end of order (optional for FIFO, but good for LRU-ish behavior)
-        _cacheOrder.delete(key);
-        _cacheOrder.set(key, true);
-    }
+    // Update eviction order (Move to end)
+    _cacheOrder.delete(key);
+    _cacheOrder.set(key, true);
+
     return data;
 }
 
@@ -174,6 +183,7 @@ function cleanup() {
     const cache = ensureCache();
     const keys = Object.keys(cache);
     const now = Game.time;
+    let removed = 0;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         const entry = cache[key];
@@ -181,8 +191,20 @@ function cleanup() {
             delete cache[key];
             _cacheOrder.delete(key);
             _cacheSize--;
+            removed++;
         }
     }
+    return removed;
+}
+
+/**
+ * キャッシュを完全にリセットする
+ */
+function reset() {
+    global.cache = Object.create(null);
+    _lastCacheRef = global.cache;
+    _cacheSize = 0;
+    _cacheOrder.clear();
 }
 
 /**
@@ -245,8 +267,9 @@ function getMyCreeps(room) {
 }
 
 function getConstructionSites(room) {
-    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time)
+    if (room._myConstructionSites && room._myConstructionSitesTick === Game.time) {
         return room._myConstructionSites;
+    }
     return get(
         `construction_sites_${room.name}`,
         () => room.find(FIND_CONSTRUCTION_SITES),
@@ -273,8 +296,9 @@ function getSpawns(room) {
 }
 
 function getStructuresNeedingEnergy(room) {
-    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0))
+    if (room._deliveryTargets && Game.time === (room._myStructuresTick || 0)) {
         return room._deliveryTargets;
+    }
     return get(
         `need_energy_${room.name}`,
         () =>
@@ -373,6 +397,7 @@ module.exports = {
     invalidate,
     invalidatePattern,
     cleanup,
+    reset,
     getStats,
     isSafeKey,
     getSources,

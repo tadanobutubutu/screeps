@@ -272,29 +272,8 @@ function _categorizeRepairTarget(s, type, hits, hitsMax, room, state) {
     }
 }
 
-function _processStructure(s, room, state) {
-    const type = s.structureType;
-    if (type === STRUCTURE_WALL) return;
-
-    const isRoad = type === STRUCTURE_ROAD;
-    const hits = s.hits;
-    const hitsMax = s.hitsMax;
-    const isDamaged = hits < hitsMax;
-
-    if (isRoad) {
-        // Road needs no special categorization
-    } else if (type === STRUCTURE_CONTAINER) {
-        _categorizeContainer(s, state);
-    } else if (s.my) {
-        _categorizeMyStructure(s, type, state);
-    }
-
-    if (isDamaged) {
-        _categorizeRepairTarget(s, type, hits, hitsMax, room, state);
-    }
-}
-
 function categorizeRoomStructures(room, allStructures) {
+    // 3. 構造物の分類（1パスで実行）
     const state = {
         myStructures: [],
         myStructuresByType: Object.create(null),
@@ -312,9 +291,40 @@ function categorizeRoomStructures(room, allStructures) {
     };
 
     for (let i = 0; i < allStructures.length; i++) {
-        _processStructure(allStructures[i], room, state);
+        const s = allStructures[i];
+        const type = s.structureType;
+
+        // ⚡ PERFORMANCE: Skip walls and roads (most numerous) early to reduce redundant checks and Proxy lookups.
+        // Wall is most numerous in fortified rooms, Road is most numerous in developed rooms.
+        // s.my incurs a cross-boundary Proxy lookup, so we check non-owned types first.
+        if (type === STRUCTURE_WALL) {
+            continue;
+        }
+
+        const isRoad = type === STRUCTURE_ROAD;
+
+        // ⚡ PERFORMANCE: Hoist hits and hitsMax to minimize Proxy lookups.
+        const hits = s.hits;
+        const hitsMax = s.hitsMax;
+        const isDamaged = hits < hitsMax;
+
+        // ⚡ PERFORMANCE: if-else if構造を使用して不要なチェックを回避。
+        // 一般的な非所有構造物（Road, Container）を先にチェックし、高コストな s.my Proxy ルックアップを回避。
+        if (isRoad) {
+            // Roadは所有物ではないため、個別の分類は不要（修理チェックのみ後に実行）
+        } else if (type === STRUCTURE_CONTAINER) {
+            _categorizeContainer(s, state);
+        } else if (s.my) {
+            _categorizeMyStructure(s, type, state);
+        }
+
+        // ⚡ PERFORMANCE: Consolidate repair logic to avoid redundant checks across branches.
+        if (isDamaged) {
+            _categorizeRepairTarget(s, type, hits, hitsMax, room, state);
+        }
     }
 
+    // ストレージを引出元に追加
     if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
         state.withdrawalSources.push(room.storage);
     }
@@ -345,44 +355,15 @@ function warmRoomCache(room) {
     categorizeRoomStructures(room, allStructures);
 }
 
-function _collectCreepData(creep, creepCounts, isLoggingEnabled) {
-    const memory = creep.memory;
-    let role = memory.role;
-
-    if (role === undefined || role === null) {
-        role = memory.role = 'harvester';
-        if (isLoggingEnabled) {
-            logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
-        }
-    }
-    creep._role = role;
-    creepCounts[role] = (creepCounts[role] || 0) + 1;
-
-    const room = creep.room;
-    if (room) {
-        room._myCreeps.push(creep);
-        if (room._roleCounts[role] !== undefined) {
-            room._roleCounts[role]++;
-        }
-        if (creep.hits < creep.hitsMax) {
-            room._injuredCreeps.push(creep);
-            if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
-                room._criticalCreep = creep;
-            }
-        }
-        if (role === 'defender') {
-            room._defenders.push(creep);
-        }
-    }
-}
-
 function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled) {
     const creepCounts = Object.create(null);
 
+    // ⚡ PERFORMANCE: 部屋ごとのキャッシュ初期化と構造物のスキャンを一括で行う
     for (let i = 0; i < rooms.length; i++) {
         warmRoomCache(rooms[i]);
     }
 
+    // ⚡ PERFORMANCE: 建設サイトの処理
     for (let i = 0; i < sites.length; i++) {
         const site = sites[i];
         if (site.my && site.room) {
@@ -390,11 +371,49 @@ function processCreeps(rooms, creeps, sites, isLoggingEnabled, isEmotionsEnabled
         }
     }
 
+    // Pass 1: データ収集
+    // ⚡ PERFORMANCE: 以前の creepsToProcess 配列の作成を回避し、
+    // 中間オブジェクトの割り当てをなくす。
     for (let i = 0; i < creeps.length; i++) {
-        _collectCreepData(creeps[i], creepCounts, isLoggingEnabled);
+        const creep = creeps[i];
+        const memory = creep.memory;
+        let role = memory.role;
+
+        if (role === undefined || role === null) {
+            role = memory.role = 'harvester';
+            if (isLoggingEnabled) {
+                logger.warn('Creep ' + creep.name + ' had no role, set to harvester');
+            }
+        }
+        // ⚡ PERFORMANCE: Cache role as a volatile property to avoid second Proxy lookup in Pass 2.
+        creep._role = role;
+        creepCounts[role] = (creepCounts[role] || 0) + 1;
+
+        const room = creep.room;
+        if (room) {
+            room._myCreeps.push(creep);
+            if (room._roleCounts[role] !== undefined) {
+                room._roleCounts[role]++;
+            }
+            if (creep.hits < creep.hitsMax) {
+                room._injuredCreeps.push(creep);
+
+                // ⚡ PERFORMANCE: Hoist critical creep detection (hits < 50%)
+                // This avoids redundant per-tower searches in defense.manager.js.
+                if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
+                    room._criticalCreep = creep;
+                }
+            }
+            if (role === 'defender') {
+                room._defenders.push(creep);
+            }
+        }
     }
 
+    // Pass 2: ロジック実行
+    // ⚡ PERFORMANCE: 収集完了後（部屋の統計が揃った状態）でロジックを実行。
     const processFn = isLoggingEnabled ? runCreepWithLogging : runCreepMinimal;
+
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
         processFn(creep, creep._role, creep.name, isEmotionsEnabled);
@@ -495,11 +514,9 @@ function handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabl
 }
 
 function _displayCoreStats(creeps) {
-    console.log('--- CORE STATS ---');
-    console.log(
-        'Mode: ' + adaptiveSystem.getModeName(Memory.adaptive?.currentMode ?? 2).toUpperCase()
-    );
-    console.log('Creeps: ' + creeps.length);
+    console.log('--- TICK: ' + Game.time + ' ---');
+    console.log('MODE: ' + adaptiveSystem.getModeName(adaptiveSystem.evaluate()).toUpperCase());
+    console.log('CREEPS: ' + creeps.length);
     console.log(
         'CPU: ' +
             Game.cpu.getUsed().toFixed(2) +
@@ -509,7 +526,7 @@ function _displayCoreStats(creeps) {
             Game.cpu.bucket +
             ')'
     );
-    console.log('Memory: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
+    console.log('MEMORY: ' + (RawMemory.get().length / 1024).toFixed(1) + ' KB');
 }
 
 function _displayLogStats() {
@@ -520,15 +537,15 @@ function _displayLogStats() {
 }
 
 function _displayEmotionStats() {
-    const stats = EmotionSystem.getStats();
-    console.log(
-        'Emotions - Happy: ' + stats.happy + ', Neutral: ' + stats.neutral + ', Sad: ' + stats.sad
-    );
+    const emotionStats = EmotionSystem.getStats();
+    console.log('EMOTIONS: Happy: ' + emotionStats.happy + ', Neutral: ' + emotionStats.neutral);
 }
 
 function _displayGamificationStats() {
     const gm = Memory.gamification;
-    if (gm) console.log('Gamification - Level: ' + (gm.level || 1) + ', XP: ' + (gm.xp || 0));
+    if (gm) {
+        console.log('XP: ' + gm.xp + ' (Level ' + gm.level + ')');
+    }
 }
 
 function displayStats(creeps) {
@@ -643,7 +660,7 @@ function handleSocialInteractions(rooms) {
     }
 }
 
-function _cleanDeadCreeps() {
+module.exports.loop = function () {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) {
@@ -652,12 +669,12 @@ function _cleanDeadCreeps() {
         }
         Memory.lastCleanup = Game.time;
     }
-}
 
-function _updateSpawnPriority() {
+    // Smart Spawn Priority (Auto-added)
     if (!Memory.spawnPriority) {
         Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
     }
+    // Auto-adjust priority based on current needs
     if (Game.time % 500 === 0) {
         const counts = {};
         Object.values(Game.creeps).forEach((c) => {
@@ -665,22 +682,18 @@ function _updateSpawnPriority() {
         });
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
     }
-}
 
-function _cleanupPathCache() {
+    // Path Cache Cleanup (Auto-added)
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {
         const oldPaths = Object.keys(Memory.pathCache).filter(
             (key) => Memory.pathCache[key].tick < Game.time - 1000
         );
         oldPaths.forEach((key) => delete Memory.pathCache[key]);
+        if (oldPaths.length > 0) {
+            console.log('Path cache cleaned: ' + oldPaths.length + ' entries removed');
+        }
     }
-}
-
-module.exports.loop = function () {
-    _cleanDeadCreeps();
-    _updateSpawnPriority();
-    _cleanupPathCache();
 
     try {
         const rooms = (global._rooms = Object.values(Game.rooms || {}));
@@ -795,12 +808,16 @@ global.evor = autoEvolution.reset.bind(autoEvolution);
 
 // Helper function
 global.help = function () {
-    console.log('--- COMMANDS ---');
     console.log('adaptive() - system dashboard');
-    console.log('mode(val) - force mode');
+    console.log('mode(n) - force mode (0=EMERGENCY, 1=MINIMAL, 2=NORMAL, 3=FULL)');
     console.log('e() - emotion stats');
     console.log('ec(name) - check creep');
     console.log('m() - memory stats');
+    console.log('mh() - history');
+    console.log('ml() - leaderboard');
+    console.log('mc() - cleanup');
+    console.log('g() - dashboard');
+    console.log('evo() - dashboard');
 };
 
 if (!Memory.helpShown) {

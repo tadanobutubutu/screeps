@@ -342,10 +342,9 @@ const autoEvolution = {
             }
         }
 
-        if (need && !exists) {
+        if (!exists && need) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            console.log('Added to evolution queue');
         }
     },
 
@@ -417,6 +416,10 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
     },
+
+    /**
+     * RCL機能生成
+     */
     generateRCLFeatures: function (data) {
         const rcl = data.newRCL;
 
@@ -432,8 +435,19 @@ const autoEvolution = {
      * 生産最適化コード生成
      */
     generateProductionOptimization: function (data) {
-        return 'Optimization code for ' + data.type;
+        return (
+            '// Optimize ' +
+            data.type +
+            '\n// Current: ' +
+            (data.current ?? 'N/A') +
+            ', Needed: ' +
+            (data.needed ?? 'N/A')
+        );
     },
+
+    /**
+     * Towerロジック生成
+     */
     generateTowerLogic: function () {
         return 'module.exports = {\n  run: function(tower) {\n    // Attack hostiles\n    // Repair structures\n  }\n};';
     },
@@ -463,12 +477,13 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        console.log('Last action: ' + (Game.time - evo.lastActionTick) + ' ticks ago');
+        console.log('Last check: ' + (Game.time - evo.lastCheck) + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
+                console.log(' - ' + h.type + ': ' + h.action);
             }
         }
 
@@ -476,7 +491,7 @@ const autoEvolution = {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                console.log(' - ' + recentHistory[i].action);
+                console.log(' [Q] ' + q.type + ': ' + q.action);
             }
         }
 
@@ -484,7 +499,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                console.log(' - ' + s.type + ' (' + s.filename + ')');
+                console.log(' [S] ' + s.filename + ' (' + s.type + ')');
             }
         }
     },

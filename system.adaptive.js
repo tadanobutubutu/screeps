@@ -287,9 +287,13 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
-        + '%');
+        console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
+        console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
+        console.log('CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%');
+        if (stats.cpuBucket !== undefined) {
+            console.log('CPU Bucket: ' + stats.cpuBucket + '/10000');
+        }
+        console.log('Memory Usage: ' + stats.memoryUsagePercent.toFixed(1) + '%');
     },
 
     /**
@@ -348,7 +352,8 @@ const adaptiveSystem = {
         delete Memory.emotions; // Root-level emotions (if any)
         delete Memory.diary; // Root-level diary
 
-        },
+        console.log('🚨 Emergency memory cleanup completed');
+    },
 
     /**
      * ダッシュボード表示
@@ -360,20 +365,25 @@ const adaptiveSystem = {
         const memorySize = RawMemory.get().length;
         const memoryLimit = 2048 * 1024;
 
-        +
+        console.log(`[Adaptive System] Mode: ${modeName}`);
+        console.log(
+            ' CPU: ' +
+                cpuUsed.toFixed(2) +
                 '/' +
                 cpuLimit +
                 ' (' +
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
         );
-        .toFixed(1) + '%)');
-        .toFixed(1) +
+        console.log(' CPU Bucket: ' + cpuBucket + ' (' + ((cpuBucket / 10000) * 100).toFixed(1) + '%)');
+        console.log(
+            ' Memory: ' +
+                (memorySize / 1024).toFixed(1) +
                 ' KB / 2048 KB (' +
                 ((memorySize / memoryLimit) * 100).toFixed(1) +
                 '%)'
         );
-        },
+    },
 
     _printEnabledFeatures: function () {
         const allFeatures = [
@@ -397,17 +407,18 @@ const adaptiveSystem = {
                 enabledCount++;
             }
         }
-        },
+        console.log(` Features: ${enabledCount}/${allFeatures.length} enabled`);
+    },
 
     _printModeStatistics: function () {
         const stats = Memory.adaptive.stats;
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            console.log(' Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
+            console.log(' Minimal: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
+            console.log(' Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
+            console.log(' Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
         }
     },
 
@@ -420,7 +431,8 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                '
+                console.log(
+                    ` [${h.time}] From: ${fromName.toUpperCase()} to ${toName.toUpperCase()} - Reason: ${reason}`
                 );
             }
         }
@@ -454,7 +466,7 @@ const adaptiveSystem = {
             numericMode < this.MODE.EMERGENCY ||
             numericMode > this.MODE.FULL
         ) {
-            .');
+            console.log('🔄 Adaptive System: Invalid mode ' + mode + '.');
             return;
         }
 
@@ -464,7 +476,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        .toUpperCase());
+        console.log('🔄 Adaptive System: Manually set to ' + this.getModeName(numericMode).toUpperCase());
     },
 
     /**
@@ -475,7 +487,8 @@ const adaptiveSystem = {
         // ⚡ PERFORMANCE: Reset cache when system is reset
         _currentConfig = null;
         _configTick = -1;
-        },
+        console.log('🔄 Adaptive System: Reset');
+    },
 };
 
 module.exports = adaptiveSystem;

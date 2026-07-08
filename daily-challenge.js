@@ -1,83 +1,65 @@
+// daily-challenge.js
+
+const fs = require('fs');
+const path = require('path');
+
 /**
- * daily-challenge.js - 日替わりチャレンジシステム
- * 毎日異なる目標をプレイヤーに提供します。
+ * Reads the input file for the specified day.
+ *
+ * @param {string|number} day - The day number (e.g., 1, 2, '01', '02').
+ * @returns {string[]} An array of input lines.
  */
-
-const logger = require('utils.logging')
-
-const CHALLENGES = [
-  { id: 'harvest_energy', text: 'エネルギーを 5000 収穫する', target: 5000, metric: 'harvest' },
-  { id: 'build_structures', text: '建造物を 5 個完成させる', target: 5, metric: 'build' },
-  {
-    id: 'upgrade_controller',
-    text: 'コントローラーを 2000 回アップグレードする',
-    target: 2000,
-    metric: 'upgrade'
-  }
-]
-
-const dailyChallenge = {
-  /**
-     * 現在のチャレンジを取得または生成する
-     */
-  getChallenge: function () {
-    const today = new Date().toISOString().split('T')[0]
-
-    if (!Memory.dailyChallenge || Memory.dailyChallenge.date !== today) {
-      const randomIndex = Math.floor(Math.random() * CHALLENGES.length)
-      Memory.dailyChallenge = {
-        date: today,
-        challenge: CHALLENGES[randomIndex],
-        progress: 0,
-        completed: false
-      }
-    }
-
-    return Memory.dailyChallenge
-  },
-
-  /**
-     * 進捗を記録する (DEPRECATED: Use updateProgress instead)
-     */
-  recordProgress: function (metric, amount) {
-    this.updateProgress(metric, amount)
-  },
-
-  /**
-     * 進捗を更新する
-     */
-  updateProgress: function (metric, amount) {
-    if (isNaN(amount) || !isFinite(amount)) return
-
-    const challenge = this.getChallenge()
-    const sanitizedMetric = String(metric).toLowerCase()
-    const numericAmount = Number(amount) || 0
-
-    if (challenge.challenge.metric === sanitizedMetric && !challenge.completed) {
-      challenge.progress += numericAmount
-
-      if (challenge.progress >= challenge.challenge.target) {
-        challenge.completed = true
-        logger.success(`Daily Challenge Completed: ${challenge.challenge.text}`)
-      }
-    }
-  },
-
-  /**
-     * チャレンジステータスの表示
-     */
-  displayChallenge: function () {
-    const challenge = this.getChallenge()
-    const c = challenge.challenge
-    const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100))
-
-    console.log(`--- Daily Challenge: ${c.text} ---`)
-    console.log(`Progress: ${challenge.progress} / ${c.target} (${percent}%)`)
-
-    if (challenge.completed) {
-      console.log('Status: COMPLETED ✅')
-    }
-  }
+function readInput(day) {
+  const dayStr = String(day).padStart(2, '0');
+  const filePath = path.join(__dirname, `input/day${dayStr}.txt`);
+  return fs.existsSync(filePath)
+    ? fs.readFileSync(filePath, 'utf-8').trim().split('\n')
+    : [];
 }
 
-module.exports = dailyChallenge
+/**
+ * Solve part 1 of a challenge. This is a placeholder implementation
+ * that simply sums numeric lines. Replace with actual logic.
+ *
+ * @param {string[]} lines - The input lines.
+ * @returns {number}
+ */
+function solvePart1(lines) {
+  return lines.reduce((sum, line) => sum + Number(line), 0);
+}
+
+/**
+ * Solve part 2 of a challenge. This is a placeholder implementation
+ * that simply multiplies numeric lines. Replace with actual logic.
+ *
+ * @param {string[]} lines - The input lines.
+ * @returns {number}
+ */
+function solvePart2(lines) {
+  return lines.reduce((product, line) => product * Number(line), 1);
+}
+
+/**
+ * Main entry point. Expects a day number as the first command line argument.
+ */
+function main() {
+  const day = process.argv[2] || '01';
+  const lines = readInput(day);
+
+  if (!lines.length) {
+    console.error(`No input found for day ${day}.`);
+    process.exit(1);
+  }
+
+  const part1 = solvePart1(lines);
+  const part2 = solvePart2(lines);
+
+  console.log(`Day ${day} Part 1: ${part1}`);
+  console.log(`Day ${day} Part 2: ${part2}`);
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { readInput, solvePart1, solvePart2 };

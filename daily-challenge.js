@@ -112,7 +112,7 @@ module.exports = {
 
             if (challenge.progress >= challenge.challenge.target) {
                 challenge.completed = true;
-            }
+                }
         }
     },
 
@@ -121,9 +121,14 @@ module.exports = {
         const c = challenge.challenge;
         const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
 
-        console.log('Progress: ' + percent + '%');
+        console.log(`
+            [DAILY CHALLENGE] ${c.emoji} ${c.name}
+            Description: ${c.desc}
+            Progress: ${challenge.progress}/${c.target} (${percent}%)
+        `);
 
         if (challenge.completed) {
+            console.log(`[DAILY CHALLENGE] ${c.emoji} Challenge Completed! Congratulations!`);
         }
     },
 };

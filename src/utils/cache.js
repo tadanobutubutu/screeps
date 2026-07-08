@@ -74,6 +74,7 @@ function ensureCache() {
 }
 
 function _getValidEntry(cache, key) {
+    if (!Object.prototype.hasOwnProperty.call(cache, key)) return undefined;
     const entry = cache[key];
     if (entry && typeof entry.expires === 'number' && entry.expires > Game.time) {
         return entry;
@@ -113,7 +114,7 @@ function get(key, fetcher, ttl) {
     }
 
     const data = fetcher();
-    const isUpdate = cache[key] !== undefined;
+    const isUpdate = Object.prototype.hasOwnProperty.call(cache, key);
     cache[key] = {
         data,
         expires: Game.time + (ttl || CACHE_TTL.ROOM_OBJECTS),
@@ -137,7 +138,7 @@ function get(key, fetcher, ttl) {
 function invalidate(key) {
     if (!isSafeKey(key)) return;
     const cache = ensureCache();
-    if (cache[key] !== undefined) {
+    if (Object.prototype.hasOwnProperty.call(cache, key)) {
         delete cache[key];
         _cacheOrder.delete(key);
         _cacheSize--;
@@ -174,6 +175,7 @@ function cleanup() {
     const cache = ensureCache();
     const keys = Object.keys(cache);
     const now = Game.time;
+    let removed = 0;
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         const entry = cache[key];
@@ -181,8 +183,10 @@ function cleanup() {
             delete cache[key];
             _cacheOrder.delete(key);
             _cacheSize--;
+            removed++;
         }
     }
+    return removed;
 }
 
 /**
@@ -388,4 +392,10 @@ module.exports = {
     getLinks,
     getStorage,
     assignSource,
+    reset: function () {
+        _cacheSize = -1;
+        _lastCacheRef = null;
+        _cacheOrder.clear();
+        global.cache = Object.create(null);
+    },
 };

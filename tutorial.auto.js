@@ -74,7 +74,7 @@ const autoTutorial = {
      */
   step2_harvestEnergy: function () {
     const sourcesCache = {}
-    for (const creep of Object.values(Game.creeps)) {
+    for (const name in Game.creeps) {
       const creep = Game.creeps[name]
       const roomName = creep.room.name
 
@@ -100,7 +100,7 @@ const autoTutorial = {
      */
   step3_upgradeController: function () {
     const sourcesCache = {}
-    for (const creep of Object.values(Game.creeps)) {
+    for (const name in Game.creeps) {
       const creep = Game.creeps[name]
       const roomName = creep.room.name
 
@@ -129,7 +129,7 @@ const autoTutorial = {
     const sitesCache = {}
     const sourcesCache = {}
 
-    for (const creep of Object.values(Game.creeps)) {
+    for (const name in Game.creeps) {
       const creep = Game.creeps[name]
       const roomName = creep.room.name
 
@@ -182,7 +182,7 @@ const autoTutorial = {
     const hostilesCache = {}
 
     // 基本的なCreep動作
-    for (const creep of Object.values(Game.creeps)) {
+    for (const name in Game.creeps) {
       const creep = Game.creeps[name]
       const roomName = creep.room.name
 

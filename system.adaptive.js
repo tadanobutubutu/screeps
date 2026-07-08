@@ -188,9 +188,9 @@ const adaptiveSystem = {
      */
     _applyModeChange: function (newMode, cpuUsagePercent, cpuBucket, memoryUsagePercent) {
         this.logModeChange(Memory.adaptive.currentMode, newMode, {
-            cpuUsagePercent,
-            cpuBucket,
-            memoryUsagePercent,
+            cpuUsagePercent: cpuUsagePercent,
+            cpuBucket: cpuBucket,
+            memoryUsagePercent: memoryUsagePercent,
         });
 
         // モード履歴に追加
@@ -287,9 +287,7 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        logger.info(
-            'SYSTEM MODE CHANGE: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase()
-        );
+        logger.info('SYSTEM MODE CHANGE: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
         logger.info('  Reason: ' + stats.cpuUsagePercent.toFixed(1) + '%');
         logger.info('  Memory: ' + stats.memoryUsagePercent.toFixed(1) + '%');
     },
@@ -349,7 +347,8 @@ const adaptiveSystem = {
         // Delete any other suspected heavy structures
         delete Memory.emotions; // Root-level emotions (if any)
         delete Memory.diary; // Root-level diary
-    },
+
+        },
 
     /**
      * ダッシュボード表示
@@ -404,7 +403,7 @@ const adaptiveSystem = {
                 enabledCount++;
             }
         }
-    },
+        },
 
     _printModeStatistics: function () {
         const stats = Memory.adaptive.stats;
@@ -428,15 +427,7 @@ const adaptiveSystem = {
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
                 console.log(
-                    '  [T:' +
-                        h.time +
-                        '] ' +
-                        fromName.toUpperCase() +
-                        ' → ' +
-                        toName.toUpperCase() +
-                        ' (' +
-                        reason +
-                        ')'
+                    '  [T:' + h.time + '] ' + fromName.toUpperCase() + ' → ' + toName.toUpperCase() + ' (' + reason + ')'
                 );
             }
         }

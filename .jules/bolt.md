@@ -43,8 +43,3 @@
 **Title:** Optimizing Creep Pair Distance Checking in main loop
 **Learning:** `pos.findInRange` calls inside nested loops (`O(N^2)`) over `rooms` create massive overhead. Because the full list of creeps is already fetched for the room (`_myCreeps`), iterating over unique pairs locally (`k = j + 1`) and computing Chebyshev distance (`Math.max(Math.abs(dx), Math.abs(dy)) <= 1`) completely avoids engine-level calls, `Set` allocations, and string operations.
 **Action:** Replaced `findInRange` and `processedPairs` Set with an optimized `j`/`k` nested array loop in `handleSocialInteractions`.
-
-## 2026-07-06 - O(1) Cache Size Tracking in utils.memory.js
-
-**Learning:** Calling `Object.keys(Memory.cache).length` multiple times during cache misses and eviction logic in `memoize` creates (N)$ CPU overhead. In Screeps, where scripts often reset and Memory is volatile, tracking this size in a module-level variable with a reference-check synchronization helper (`_syncCacheSize`) provides (1)$ capacity checks while remaining robust against environment resets.
-**Action:** Use module-level `_cacheSize` and `_lastCacheRef` to track object sizes across ticks, reducing GC pressure and CPU usage in high-frequency utility functions.

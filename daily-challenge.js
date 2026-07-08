@@ -112,7 +112,8 @@ module.exports = {
 
             if (challenge.progress >= challenge.challenge.target) {
                 challenge.completed = true;
-                }
+                console.log(`🏆 Daily Challenge Completed: ${challenge.challenge.name}!`);
+            }
         }
     },
 
@@ -121,9 +122,10 @@ module.exports = {
         const c = challenge.challenge;
         const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
 
-        `);
+        console.log(`[Daily Challenge] ${c.emoji} ${c.name}: ${challenge.progress}/${c.target} (${percent}%)`);
 
         if (challenge.completed) {
-            }
+            console.log(' ✨ STATUS: COMPLETED ✨');
+        }
     },
 };

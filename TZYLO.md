@@ -51,7 +51,9 @@
 - The labeler configuration file path remains .github/labeler.yml.
 - Updated base image in .gitlab-ci.yml from node:20 to node:24.
 - Updated Gitleaks action from v2 to v3 in secret-scanning workflow.
+- Upgraded gitleaks/gitleaks-action from v2 to v3 in ai-guardian.yml workflow.
 - Gitleaks v3 requires Node 24 runtime.
+- Gitleaks scan behavior may change due to version upgrade.
 - No changes to inputs, outputs, or behavior with the Gitleaks action.
 
 ### actions/checkout Version Update
@@ -64,6 +66,27 @@
 - Updated @supabase/supabase-js from version 2.107.0 to 2.108.2.
 - Indirectly updated dependencies: @supabase/auth-js, @supabase/functions-js, @supabase/postgrest-js, @supabase/realtime-js, and @supabase/storage-js all to version 2.108.2.
 - Updated package integrity hashes for all affected packages.
+
+### Sentry SDK Update
+
+- @sentry/browser updated from 10.59.0 to 10.62.0 in package.json, package-lock.json, and pnpm-lock.yaml.
+- Related Sentry dependencies updated to version 10.62.0: @sentry/browser-utils, @sentry/core, @sentry/feedback, @sentry/replay, @sentry/replay-canvas.
+
+### Dependency Updates
+
+- Updated undici to version 8.5.0 for security reasons.
+- Bumped eslint from 10.5.0 to 10.6.0; updated eslint-config-prettier and eslint-plugin-prettier to align with eslint 10.6.0.
+- Added acorn package at version 8.17.0.
+- Updated brace-expansion package to versions 1.1.15 and 2.1.1.
+- Upgraded prettier from version 3.8.4 to 3.9.1 in package.json, package-lock.json, and pnpm-lock.yaml.
+- Updated integrity hash for prettier in package-lock.json and pnpm-lock.yaml.
+- Ensured compatibility with eslint-plugin-prettier by adjusting its dependency to prettier 3.9.1.
+- Updated eslint-plugin-jest version from 29.15.2 to 29.15.3 in package.json, package-lock.json, and pnpm-lock.yaml.
+
+### pnpm Update
+
+- Updated pnpm dependency from version 10 to 11 in GitHub workflows.
+- Changes applied in both 'ai-guardian.yml' and 'weekly-quality-report.yml' files.
 
 <!-- TZYLO:DEP_END -->
 

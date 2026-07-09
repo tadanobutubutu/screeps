@@ -162,6 +162,21 @@ module.exports = {
     this.log(message, 'success')
   },
 
+  /**
+   * Escapes HTML characters to prevent console injection.
+   * @param {string} str
+   * @returns {string}
+   */
+  escapeHTML (str) {
+    if (typeof str !== 'string') return str
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+  },
+
   debug (message) {
     // Ensure Memory.logs exists
     if (!Memory.logs) Memory.logs = []

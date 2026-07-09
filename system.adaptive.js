@@ -429,7 +429,9 @@ const adaptiveSystem = {
             console.log(
                 '[ADAPTIVE] Stats - N: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%'
             );
-            console.log('[ADAPTIVE] Stats - F: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
+            console.log(
+                '[ADAPTIVE] Stats - F: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%'
+            );
         }
     },
 

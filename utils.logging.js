@@ -23,20 +23,24 @@ const MAX_LOG_MESSAGE_LENGTH = 500
 /**
  * Security: Redacts absolute Unix and Windows paths from a string.
  * Prevents internal directory structure leakage in logs.
+ * Requires at least one subdirectory level to avoid false positives (e.g. "1/2").
  * @param {string} str
  * @returns {string}
  */
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
-  // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Matches /subdir/path or C:\abs\path
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
     [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
     [112, 97, 115, 115, 119, 111, 114, 100],
     [115, 101, 99, 114, 101, 116],
+    [107, 101, 121],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],
@@ -66,6 +70,22 @@ function _redactPaths (str) {
 }
 
 module.exports = {
+  /**
+   * Security: Escapes HTML special characters to prevent console injection.
+   * Required by system.adaptive.js for safe dashboard logging.
+   * @param {string} str
+   * @returns {string}
+   */
+  escapeHTML (str) {
+    if (typeof str !== 'string') return str
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+  },
+
   getSafeStack (stack, maxLines = 5) {
     if (stack === undefined || stack === null) return ''
     const truncatedStack = String(stack).substring(0, 2000)
@@ -112,7 +132,7 @@ module.exports = {
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
     const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'

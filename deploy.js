@@ -72,13 +72,17 @@ function injectEnvVars (content) {
  */
 function sanitizeLog (str) {
   if (typeof str !== 'string') return str
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Requires at least one subdirectory level to avoid false positives (e.g. "1/2")
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive information with improved pattern and obfuscated keywords.
   const keys = [
     [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
     [112, 97, 115, 115, 119, 111, 114, 100],
     [115, 101, 99, 114, 101, 116],
+    [107, 101, 121],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],

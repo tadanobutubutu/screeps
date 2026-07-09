@@ -27,3 +27,9 @@
 **Vulnerability:** The deployment script (`deploy.js`) was logging un-redacted token values in raw error responses. Its previous `sanitizeLog` function only redacted the word "token" but left the actual token value exposed if it followed the keyword (e.g., "token: value-here").
 **Learning:** Simple keyword-based redaction is insufficient when dealing with raw response payloads or complex strings. Redaction logic must account for the value following the keyword and use robust regex patterns that consider various delimiters (quotes, colons, equals).
 **Prevention:** Use a centralized redaction utility that handles multiple sensitive keywords and correctly identifies their associated values using non-backtracking regexes to avoid ReDoS. Always verify redaction logic with dedicated security tests.
+
+## 2026-07-09 - [Path Redaction Regex Optimization & Log Robustness]
+
+**Vulnerability:** Overly aggressive path redaction regex (matching any leading slash) caused false positives in logs, redacting mathematical division (e.g., "1/2") and version strings. Additionally, a missing `escapeHTML` utility in `utils.logging.js` caused potential crashes in `system.adaptive.js` when trying to log mode changes safely.
+**Learning:** Security regexes must be balanced to avoid breaking data utility. Requiring at least one subdirectory level (`/[a-zA-Z0-9_-]+/`) for Unix paths effectively filters out common non-path slashes. Centralized security utilities like log initialization must use robust checks like `Array.isArray()` to survive memory corruption or prototype-based attacks.
+**Prevention:** Use multi-layered regexes that validate path structures beyond just a starting slash. Ensure all security dependencies between modules (like `escapeHTML`) are fully implemented and exported before use in critical paths.

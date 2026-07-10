@@ -3,4 +3,6 @@
 // User Safety: safe
 
 /* ------------------------------------------------------------------
- *  Helper – safely require optional modules
+ *  Mock globals for testing environments (e.g., Jest)
+ * ------------------------------------------------------------------ */
+if (typeof global.Game ===

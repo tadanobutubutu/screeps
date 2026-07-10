@@ -4,6 +4,11 @@
   - Pollinations GET/POST, Kilo Gateway
 
 オプションキー（GitHub Secrets）:
+  - CEREBRAS_API_KEY — https://cloud.cerebras.ai/
+  - MISTRAL_API_KEY — https://console.mistral.ai/api-keys
+  - CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID — https://dash.cloudflare.com/
+  - ZHIPU_API_KEY — https://open.bigmodel.cn/
+  - COHERE_API_KEY — https://dashboard.cohere.com/api-keys
   - PUTER_AUTH_TOKEN — https://puter.com/dashboard#account
   - HF_TOKEN — https://huggingface.co/settings/tokens
   - LLM7_API_KEY — https://token.llm7.io
@@ -68,6 +73,20 @@ LLM7_BASE = "https://api.llm7.io/v1/chat/completions"
 LLM7_MODELS = ["gpt-5.4-mini", "minimax-m2.7", "deepseek-v4-flash"]
 
 AI_HORDE_ANON_KEY = "00000000000000000000000000000000"
+
+CEREBRAS_BASE = "https://api.cerebras.ai/v1/chat/completions"
+CEREBRAS_MODELS = ["gpt-oss-120b", "llama-3.3-70b"]
+
+MISTRAL_BASE = "https://api.mistral.ai/v1/chat/completions"
+MISTRAL_MODELS = ["codestral-latest", "mistral-small-latest"]
+
+CLOUDFLARE_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast"
+
+ZHIPU_BASE = "https://open.bigmodel.cn/api/paas/v4/chat/completions"
+ZHIPU_MODELS = ["glm-4-flash", "glm-4.7-flash"]
+
+COHERE_BASE = "https://api.cohere.com/v2/chat"
+COHERE_MODELS = ["command-r7b-12-2024", "command-r-plus-08-2024"]
 
 INVALID_RESPONSE_MARKERS = (
     "fix pending due to api errors",
@@ -422,6 +441,126 @@ def call_aihorde(prompt):
     return None
 
 
+def call_cerebras(prompt):
+    key = normalize_token(os.environ.get("CEREBRAS_API_KEY"))
+    if not key:
+        print("Cerebras: CEREBRAS_API_KEY not set")
+        return None
+    headers = {"Authorization": f"Bearer {key}"}
+    for model in CEREBRAS_MODELS:
+        try:
+            print(f"Trying Cerebras ({model})...")
+            result = _openai_chat(CEREBRAS_BASE, model, prompt, headers=headers, timeout=90)
+            if result:
+                return result
+        except Exception as exc:
+            print(f"Cerebras ({model}) failed: {exc}")
+    return None
+
+
+def call_mistral(prompt):
+    key = normalize_token(os.environ.get("MISTRAL_API_KEY"))
+    if not key:
+        print("Mistral: MISTRAL_API_KEY not set")
+        return None
+    headers = {"Authorization": f"Bearer {key}"}
+    for model in MISTRAL_MODELS:
+        try:
+            print(f"Trying Mistral ({model})...")
+            result = _openai_chat(MISTRAL_BASE, model, prompt, headers=headers, timeout=90)
+            if result:
+                return result
+        except Exception as exc:
+            print(f"Mistral ({model}) failed: {exc}")
+    return None
+
+
+def call_cloudflare(prompt):
+    token = normalize_token(os.environ.get("CLOUDFLARE_API_TOKEN"))
+    account_id = normalize_token(os.environ.get("CLOUDFLARE_ACCOUNT_ID"))
+    if not token or not account_id:
+        print("Cloudflare: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID required")
+        return None
+    url = (
+        f"https://api.cloudflare.com/client/v4/accounts/{account_id}"
+        f"/ai/run/{CLOUDFLARE_MODEL}"
+    )
+    try:
+        print(f"Trying Cloudflare Workers AI ({CLOUDFLARE_MODEL})...")
+        payload = {"messages": [{"role": "user", "content": prompt}]}
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=90) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            result = data.get("result", {})
+            text = result.get("response") or result.get("result")
+            if isinstance(text, str) and text.strip():
+                return text.strip()
+    except Exception as exc:
+        print(f"Cloudflare failed: {exc}")
+    return None
+
+
+def call_zhipu(prompt):
+    key = normalize_token(os.environ.get("ZHIPU_API_KEY"))
+    if not key:
+        print("Zhipu: ZHIPU_API_KEY not set")
+        return None
+    headers = {"Authorization": f"Bearer {key}"}
+    for model in ZHIPU_MODELS:
+        try:
+            print(f"Trying Zhipu GLM ({model})...")
+            result = _openai_chat(ZHIPU_BASE, model, prompt, headers=headers, timeout=90)
+            if result:
+                return result
+        except Exception as exc:
+            print(f"Zhipu ({model}) failed: {exc}")
+    return None
+
+
+def call_cohere(prompt):
+    key = normalize_token(os.environ.get("COHERE_API_KEY"))
+    if not key:
+        print("Cohere: COHERE_API_KEY not set")
+        return None
+    for model in COHERE_MODELS:
+        try:
+            print(f"Trying Cohere ({model})...")
+            payload = {
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            req = urllib.request.Request(
+                COHERE_BASE,
+                data=json.dumps(payload).encode("utf-8"),
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            with urllib.request.urlopen(req, timeout=90) as response:
+                data = json.loads(response.read().decode("utf-8"))
+                message = data.get("message", {})
+                content = message.get("content", [])
+                if content and isinstance(content, list):
+                    parts = [p.get("text", "") for p in content if p.get("type") == "text"]
+                    text = "".join(parts).strip()
+                    if text:
+                        return text
+                text = data.get("text", "")
+                if text:
+                    return text.strip()
+        except Exception as exc:
+            print(f"Cohere ({model}) failed: {exc}")
+    return None
+
+
 def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     """全プロバイダーを同時並行で呼び出し、生成された全結果をリストで返す。"""
     provider_calls = []
@@ -441,6 +580,11 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     provider_calls.append(
         ("ovh-mistral-7b", lambda: call_ovh_anonymous(prompt, OVH_MODELS[0]))
     )
+    provider_calls.append(("cerebras", lambda: call_cerebras(prompt)))
+    provider_calls.append(("mistral", lambda: call_mistral(prompt)))
+    provider_calls.append(("cloudflare", lambda: call_cloudflare(prompt)))
+    provider_calls.append(("zhipu-glm", lambda: call_zhipu(prompt)))
+    provider_calls.append(("cohere", lambda: call_cohere(prompt)))
     provider_calls.append(("puter-js", lambda: call_puter(prompt)))
     provider_calls.append(("huggingface", lambda: call_huggingface(prompt)))
     provider_calls.append(("aihorde", lambda: call_aihorde(prompt)))

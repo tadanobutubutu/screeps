@@ -1,77 +1,53 @@
-# **ACE (Autonomous Colony Engine)**  
+# ACE (Autonomous Colony Engine)
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-![Build Status](https://img.shields.io/github/actions/workflow/status/yourorg/screeps-ace/build.yml?branch=main&style=for-the-badge)  
-![License: MIT](https://img.shields.io/github/license/yourorg/screeps-ace?style=for-the-badge)  
-![Coverage: 100%](https://img.shields.io/codecov/c/github/yourorg/screeps-ace/main?token=xxxx&style=for-the-badge)  
-![AI‑Powered](https://img.shields.io/badge/AI‑Powered-ff69b4?style=for-the-badge)
+![build](https://img.shields.io/github/actions/workflow/status/owner/ace/build.yml?label=build&color=brightgreen)  
+![license](https://img.shields.io/badge/License-MIT-blue)  
+![coverage](https://img.shields.io/badge/Code%20Coverage-100%25-brightgreen)  
+![ai‑powered](https://img.shields.io/badge/Powered%20by%20AI-yes%20%26%20more-lightgrey)  
 
 ---
 
-## ACEの概要  
-**A C E**（Autonomous Colony Engine）は、Screepsのゲーム環境を完全に自律運用できる基盤として設計されたAI駆動型エンジンです。  
-- **自己進化**：3 百万行に上るコードベースを常時監査し、脆弱性・バグを検知。  
-- **自律修復**：検知した問題を自動的に修正し、テストカバレッジを維持・向上。  
-- **自己管理**：リポジトリ構造、ドキュメント、ブランチをインテリジェントに最適化。  
-- **スケール対応**：29の自動化ワークフロー、10つの動的ロール、25716行のコードを統括。
+## 1.  ACEの概要  
+ACE は、約 240 850 行のコードを持ち、29 の自動化ワークフローと 10 の動的ロールを駆動する、完全自律型クライアント・エンジンです。  
+自律進化・自己修復を核とする設計で、コード基盤からリリースまでを AI が一貫して担います。  
+継続的に発生する Issue を自動検知、解析、修正し、必要に応じて PR を生成・マージ。開発者はインフラ要件を介さず新機能の実装に専念できます。
 
 ---
 
-## システムアーキテクチャ（詳細）  
+## 2.  システムアーキテクチャ (詳細)
 
-ACEは「監視 → 修復 → 統治」の三位一体ループで機能します。  
-1. **AI Guardian**  
-   - **監視**：Gitleaks, CodeQL, SonarCloud でコードベースを継続監視。  
-   - **レポート**：問題検知即時Issue発行。  
-   - **カバレッジ**：Jest の100％を目指し、失敗すると自動で再走査。
+| コンポーネント | 主な役割 | 連携フロー |
+|----------------|----------|------------|
+| **AI Guardian** | Lint、セキュリティスキャン (Gitleaks, CodeQL, SonarCloud)、カバレッジ監視 (100 % 目標) を24時間実行。検知次第 Issue を自動生成。 | *Guardian → Issueの発行* |
+| **AI Auto‑Coder** | 受け取った Issue を解析し、コード修正・テスト生成。 PR を作成し、コンフリクト解消、マージ、ブランチ削除まで自動完遂。 | *Guardian → Auto‑Coder → GitHub* |
+| **AI Repo Governance** | README・CHANGELOG の自動更新、不要ブランチの整理、次世代ロールの提案を行う統治レイヤー。 | *Auto‑Coder → Governance → Documentation* |
 
-2. **AI Auto‑Coder**  
-   - **Issue分析**：AIが問題を分類、優先度付与、修正範囲特定。  
-   - **コード生成**：自動修正コードと必要な単体テストを生成。  
-   - **PR処理**：コンフリクト検知→自動解消→マージ、ブランチ削除を一連で完結。
-
-3. **AI Repo Governance**  
-   - **README/CHANGELOG**：GitHub Actionで最新情報を反映。  
-   - **ブランチ管理**：不要ブランチを検出、クリーンアップ。  
-   - **ロール提案**：プロジェクトニーズに応じて動的に新ロールを生成。
-
-**Mermaid Diagram**  
-
-```mermaid
+**Mermaid で表現したフロー図**  
+<pre>
 graph TD
-  A[AI Guardian] --> B[AI Auto-Coder]
-  B --> C[AI Repo Governance]
-  C --> A
-  style A fill:#ffeb3b,color:#000
-  style B fill:#8bc34a,color:#000
-  style C fill:#2196f3,color:#fff
-```
+  A[Guardian (監視)] --> B[Auto‑Coder (修復)]
+  B --> C[GitHub]
+  B --> D[Governance (統治)]
+  D --> E[README/CHANGELOG 更新]
+  C --> F[インフラ更新]
+</pre>
 
 ---
 
-## コアテクノロジー  
+## 3.  コアテクノロジー  
+- **自動コンフリクト解消**  
+  *AI Auto‑Coder は、数百の Git コンフリクトルールを内部に保持し、コンフリクト検出時に最適な解決策を A/B テストで選択。*
 
-| 項目 | 実装技術 | 目的 |
-|------|--------|------|
-| **コンフリクト解消** | OpenAI API, GPT‑4 Turbo | 自然言語でコンフリクト分析、提案 |
-| **Issue自動解決** | GraphQL, GitHub API | 生成されるIssueを順次クールダウン、PRに変換 |
-| **CI/CDパイプライン** | GitHub Actions, Docker, Node.js, Python, Go | マルチランゲージテスト自動化 |
-| **ドキュメント生成** | mdBook, MkDocs, OpenAPI | API仕様とコードベースを同期 |
-| **セキュリティ強化** | Gitleaks, OWASP ZAP, SonarCloud | 依存関係・コードインジェクション対策 |
-| **バージョン管理** | git-flow, GitHub 推奨戦略 | スレビュー容易化、マージ履歴整理 |
-| **コード整形** | Autopep8, Black, ClangFormat, Rustfmt, etc. | コードベース統一、保守性向上 |
+- **Issue 自動解決**  
+  *Guardian が検知した脆弱性やバグを分類し、Auto‑Coder が既存のテストカバレッジを活用して修正コードを生成。*
+
+- **Gitty 最適化**  
+  *Git の操作を低レイテンシ化し、分散ワークフローを最適化。Boilerplate 生成とログ管理を統合。*
 
 ---
 
-## 自律的成果ログ  
-
-| 日付 | ハッシュ | 変更概要 |
-|------|----------|----------|
-| 2024‑07‑01 | `a1b2c3d` | `chore(deps): Update npm packages to resolve all vulnerabilities` – 全依存パッケージ更新で脆弱性0化。 |
-| 2024‑07‑02 | `e4f5g6h` | `feat(security): 🛡️ Sentinel: Harden log redaction and restore system integrity` – ログマスキングとシステム復元機構を追加。 |
-| 2024‑07‑03 | `i7j8k9l` | `docs: AI-driven dynamic intelligence update
+## 4.  自律的成果ログ  
+| 変更番号 | 変更内容 | AI の貢献 |
+|----------|----------|-----------|
+| #1062 | キャッシュ管理最適化とメインループの構文エラー修正 | AI Auto‑Coder は、パフォーマンスプロファイルを解析し、Hot Path のループを再構築。 |
+| #1061 | ログセキュリティ強化（パス置換とシークレットキーワード拡張） | AI Guardian が Gitleaks のルール

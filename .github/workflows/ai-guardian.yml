@@ -62,9 +62,13 @@ jobs:
 
       # 3. OSV-Scanner: Dependency Vulnerabilities (Google)
       - name: OSV-Scanner
-        uses: google/osv-scanner-action/osv-with-bash@main
+        uses: google/osv-scanner-action@v1
         id: osv
         continue-on-error: true
+        with:
+          scan-args: |-
+            --recursive
+            ./
 
       - name: Report Dependency Vulnerabilities
         if: steps.osv.outcome == 'failure'

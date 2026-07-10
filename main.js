@@ -1,14 +1,12 @@
 'use strict';
 
-// User Safety: safe
-
-/* ------------------------------------------------------------------
- *  Helper – safely require optional modules
- * ------------------------------------------------------------------ */
-function safeRequire(name) {
+// Helper to safely require modules. If the module cannot be loaded,
+// the returned value is undefined and can be checked before use.
+function safeRequire(moduleName) {
     try {
-        return require(name);
+        return require(moduleName);
     } catch (_) {
+        // Module does not exist or failed to load – just return undefined
         return undefined;
     }
 }

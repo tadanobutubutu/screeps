@@ -1,1 +1,2 @@
-test
+Line 1: Original text
+Line 2: Initial content

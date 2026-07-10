@@ -1,0 +1,172 @@
+name: Security Autofix (Dependabot & npm audit)
+
+on:
+  schedule:
+    # 毎日 12:00 JST
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  security-events: read
+
+concurrency:
+  group: security-autofix-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependabot-pr-check:
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests after Dependabot update
+        run: npm test -- --passWithNoTests
+
+      - name: Comment on Dependabot PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STATUS="${{ job.status }}"
+          gh pr comment "${{ github.event.pull_request.number }}" --body \
+            "🤖 **Security Autofix bot**: tests \`${STATUS}\` after dependency update. See [\`security-autofix.yml\`](.github/workflows/security-autofix.yml)."
+
+  audit-and-fix:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Fetch open Dependabot alerts (read-only)
+        id: alerts
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          gh api "repos/${{ github.repository }}/dependabot/alerts?state=open&per_page=100" \
+            --jq '[.[] | {number, severity, package: .security_vulnerability.package.name, ghsa: .security_advisory.ghsa_id}]' \
+            > dependabot-alerts.json 2>/dev/null || echo '[]' > dependabot-alerts.json
+          COUNT=$(jq 'length' dependabot-alerts.json)
+          echo "count=${COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Open Dependabot alerts: ${COUNT}"
+
+      - name: Run security autofix script
+        id: autofix
+        run: node scripts/security-autofix.mjs
+        continue-on-error: true
+
+      - name: Run tests
+        if: steps.autofix.outcome != 'skipped'
+        run: npm test -- --passWithNoTests
+
+      - name: Check for file changes
+        id: changes
+        run: |
+          if git diff --quiet package.json package-lock.json pnpm-lock.yaml 2>/dev/null; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create fix PR
+        if: |
+          (steps.changes.outputs.changed == 'true' || steps.autofix.outcome == 'failure') &&
+          (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="security-autofix/$(date +%Y%m%d-%H%M%S)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add package.json package-lock.json pnpm-lock.yaml security-autofix-report.json dependabot-alerts.json 2>/dev/null || true
+          git commit -m "fix(security): automated npm audit remediation
+
+          - npm audit fix (+ lockfile refresh)
+          - Open Dependabot alerts: ${{ steps.alerts.outputs.count }}
+          - Report: security-autofix-report.json"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "fix(security): automated dependency vulnerability remediation" \
+            --body "$(cat <<'EOF'
+          ## Security Autofix (Grok / Task 5)
+
+          Automated remediation from [\`security-autofix.yml\`](.github/workflows/security-autofix.yml).
+
+          - \`npm audit fix\` + lockfile regeneration
+          - Tests executed before PR creation
+          - Open Dependabot alerts snapshot attached
+
+          **Reviewers**: please verify breaking changes from \`npm audit fix --force\` before merge.
+          EOF
+          )" \
+            --label "security" \
+            --label "automated" \
+            --label "dependencies"
+
+      - name: Open Issue for unresolved vulnerabilities
+        if: steps.autofix.outcome == 'failure' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="[Security] Unresolved vulnerabilities after autofix ($(date +%Y-%m-%d))"
+          BODY=$(cat <<EOF
+          ## Security Autofix — manual follow-up required
+
+          Scheduled \`security-autofix\` could not clear all npm audit findings.
+
+          - Open Dependabot alerts: **${{ steps.alerts.outputs.count }}**
+          - Report artifact: \`security-autofix-report.json\` (see latest workflow run)
+
+          ### Next steps
+          1. Review \`npm audit\` output in Actions logs
+          2. Consider \`package.json\` \`overrides\` (see existing \`undici\`, \`tmp\` patterns)
+          3. Assign to **@tadanobutubutu** or open a fix PR manually
+
+          /label security, automated
+          EOF
+          )
+          EXISTING=$(gh issue list --search "$TITLE in:title" --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -z "$EXISTING" ] || [ "$EXISTING" = "null" ]; then
+            gh issue create --title "$TITLE" --body "$BODY" --label "security" --label "automated"
+          else
+            gh issue comment "$EXISTING" --body "Recurring alert on $(date -u +%Y-%m-%d). See workflow run ${{ github.run_id }}."
+          fi
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-autofix-report
+          path: |
+            security-autofix-report.json
+            dependabot-alerts.json
+          if-no-files-found: ignore

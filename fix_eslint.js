@@ -9,4 +9,3 @@ content = content.replace(
 );
 
 fs.writeFileSync(file, content, 'utf8');
-console.log('done');

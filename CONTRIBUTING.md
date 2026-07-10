@@ -1,41 +1,35 @@
-# 🤝 Contributing to Screeps AI
+# 貢献ガイドライン (CONTRIBUTING.md)
 
-ご貢献いただきありがとうございます！
+本プロジェクトは **「AI と人間の共創」** をテーマにした、完全自律型の Screeps AI エンジンです。
 
-## 🚀 開発の流れ
+## 🤖 AI 駆動の貢献プロセス
 
-1. リポジトリをフォーク
-2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
-3. 変更をコミット (`git commit -m '✨ feat: add amazing feature'`)
-4. ブランチをプッシュ (`git push origin feature/amazing-feature`)
-5. Pull Requestを作成
+本リポジトリでは、開発の大部分を AI が自律的に行っています。あなたが貢献する場合も、AI システムと連携する形になります。
 
-## 📏 コーディング規約
+### 1. Issue による提案
 
-- **コミットメッセージ**: [Conventional Commits](https://www.conventionalcommits.org/) に従う
-    - `✨ feat:` 新機能
-    - `🐛 fix:` バグ修正
-    - `📚 docs:` ドキュメント
-    - `🔧 chore:` メンテナンス
-    - `♻️ refactor:` リファクタリング
-    - `🧪 test:` テスト
-- **JavaScript**: CommonJS (`require`/`module.exports`)
-- **テスト**: Jest を使用
+- 改善案やバグ報告がある場合は、Issue を作成してください。
+- AI に直接解決させたい場合は、ラベルに **`ai-solve`** を追加するか、コメントで **`@ai solve`** と入力してください。
+- 解決策は AI によって PR として自動生成され、あなたの貢献としてマージされる場合があります。
 
-## 🧪 テスト
+### 2. プルリクエスト (PR) の提出
 
-```bash
-npm test           # テスト実行
-npm run test:coverage  # カバレッジ付き
-```
+- 自身でコードを書く場合は、最新の `main` からブランチを切ってください。
+- マージコンフリクトが発生しても心配いりません。**AI Conflict Resolver** が自動的に修正を試みます。
+- 全ての PR は **Auto Merge PRs** システムによって、テスト通過後に自動で統合されます。
 
-## 📁 ファイル構成
+## 🧪 品質基準
 
-- `role.*.js` - クリープロール定義
-- `utils.*.js` - ユーティリティ関数
-- `main.js` - メインゲームループ
-- `tests/` - テストファイル
+私たちは、以下の基準を「絶対」としています。
 
-## ❓ 質問
+- **テストカバレッジ 100%**: 新しい機能を追加する場合、必ずテストコードを同梱してください。AI Sentinel が厳格にチェックします。
+- **セキュリティ・ファースト**: シークレットの直書きは厳禁です。Gitleaks と CodeQL が常に監視しています。
+- **プロフェッショナル・スタイル**: ESLint と Prettier による自動整形に従ってください。
 
-Discussionsで質問してください！
+## 🏆 あなたの功績 (Credits)
+
+AI が生成したコードであっても、あなたの提案や Issue に基づくものであれば、あなたがコミットの作者として記録されます。GitHub の Activity を積み上げながら、リポジトリの進化を楽しんでください。
+
+---
+
+**Happy Autonomous Coding!** 🪐

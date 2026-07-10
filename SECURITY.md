@@ -1,22 +1,32 @@
-# Security Policy
+# セキュリティポリシー (SECURITY.md)
 
-## Supported Versions
+## 🛡️ 自律的防御システム：AI Sentinel
 
-| Version | Supported |
-| ------- | --------- |
-| 1.0.x   | ✅        |
+本プロジェクトでは、人間の介入を最小限に抑えつつ、最高レベルのセキュリティを維持するために **「AI Sentinel (統合監視シールド)」** を導入しています。
 
-## Reporting a Vulnerability
+### 1. 24時間体制の自動スキャン
 
-セキュリティ脆弱性を発見した場合:
+以下の業界標準ツールが、すべてのプッシュおよび定期実行（毎日午前0時）において、多角的にリポジトリを監視しています。
 
-1. **公開しないでください** - Issue にセキュリティ脆弱性を投稿しないでください
-2. GitHub の [Security Advisory](https://github.com/tadanobutubutu/screeps/security/advisories/new) を使用してください
-3. 48時間以内に対応します
+- **Gitleaks**: コミット履歴全体からのシークレット（パスワード、トークン、APIキー）の漏洩を検知。
+- **CodeQL**: セマンティック解析による脆弱性パターンの検出。
+- **SonarCloud**: 静的解析によるセキュリティホットスポットとバグの検出。
+- **Trivy**: ファイルシステムと構成ファイルの脆弱性診断。
+- **OSV-Scanner**: 依存関係にあるライブラリの既知の脆弱性（CVE）をチェック。
 
-## セキュリティ対策
+### 2. 自己修復ループ (Self-Healing)
 
-- ✅ Dependabot によるセキュリティアラート
-- ✅ CodeQL による静的解析
-- ✅ Secret scanning 有効
-- ✅ SonarCloud コード品質チェック
+脆弱性が検知された場合、システムは以下の手順で自動的に対処します。
+
+1. `AI Sentinel` が詳細なログを含む Issue を自動起票。
+2. `AI Issue Resolver` が即座に修正コードを作成し、プルリクエスト (PR) を提出。
+3. セキュリティテストが通過次第、自動的にマージされ、システムが復旧。
+
+## 🛡️ 脆弱性の報告
+
+もし、自動システムが検知できていない重大な脆弱性を発見した場合は、Issue ではなく以下の方法で秘密裏に報告してください。
+
+- **GitHub Security Advisory**: リポジトリの [Security] タブからプライベートに報告。
+- **緊急対応**: 緊急時は `🚨 Emergency: Restore API Mode` ワークフローを起動してください。
+
+私たちは、AI と人間の協力によって、常に安全で堅牢な Screeps AI エンジンを提供することにコミットしています。

@@ -1,5 +1,5 @@
 # Dependabot configuration for automated dependency updates
-# This will add dependabot[bot] as a contributor
+# Paired with .github/workflows/security-autofix.yml (Grok / feature/security-autofix)
 
 version: 2
 updates:
@@ -19,9 +19,22 @@ updates:
       labels:
           - 'dependencies'
           - 'automated'
+          - 'security'
       commit-message:
-          prefix: '⬆️'
+          prefix: 'fix(security)'
           include: 'scope'
+      groups:
+          security-patches:
+              applies-to: security-updates
+              patterns:
+                  - '*'
+              update-types:
+                  - 'patch'
+                  - 'minor'
+      ignore:
+          # Re-evaluate intentionally pinned majors here
+          - dependency-name: 'eslint'
+            update-types: ['version-update:semver-major']
 
     # Enable version updates for GitHub Actions
     - package-ecosystem: 'github-actions'

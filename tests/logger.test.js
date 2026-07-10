@@ -110,4 +110,54 @@ describe('logger', () => {
             expect(logger.getSafeStack(null)).toBe('');
         });
     });
+
+    describe('_redactPaths', () => {
+        test('文字列以外の入力はそのまま返す', () => {
+            expect(logger._redactPaths(null)).toBeNull();
+            expect(logger._redactPaths(undefined)).toBeUndefined();
+            expect(logger._redactPaths(123)).toBe(123);
+            const obj = { key: 'value' };
+            expect(logger._redactPaths(obj)).toBe(obj);
+        });
+
+        test('パスや秘密情報が含まれない通常の文字列はそのまま返す', () => {
+            const normalStr = 'これは通常のメッセージです。';
+            expect(logger._redactPaths(normalStr)).toBe(normalStr);
+            const singleWord = 'word';
+            expect(logger._redactPaths(singleWord)).toBe(singleWord);
+        });
+
+        test('Unixスタイルの絶対パスをサニタイズする', () => {
+            const str1 = 'エラー: /var/log/app.log で問題が発生しました';
+            expect(logger._redactPaths(str1)).toBe('エラー: [REDACTED] で問題が発生しました');
+            const str2 = '/usr/local/bin/node の実行に失敗しました';
+            expect(logger._redactPaths(str2)).toBe('[REDACTED] の実行に失敗しました');
+        });
+
+        test('Windowsスタイルの絶対パスをサニタイズする', () => {
+            const str1 = 'C:\\Users\\Admin\\config.json が見つかりません';
+            expect(logger._redactPaths(str1)).toBe('[REDACTED] が見つかりません');
+            const str2 = 'エラー: D:\\Project\\src\\main.js';
+            expect(logger._redactPaths(str2)).toBe('エラー: [REDACTED]');
+        });
+
+        test('秘密情報（token, passwordなど）をサニタイズする', () => {
+            const str1 = 'token: dummy_token_123';
+            expect(logger._redactPaths(str1)).toBe('token: [REDACTED]');
+            const str2 = 'PASSWORD = "super_secret_password"';
+            expect(logger._redactPaths(str2)).toBe('PASSWORD = "[REDACTED]"');
+            const str3 = 'apiKey  12345-67890';
+            expect(logger._redactPaths(str3)).toBe('apiKey  [REDACTED]');
+            const str4 = '{"secret": "my-secret-key"}';
+            expect(logger._redactPaths(str4)).toBe('{"secret": "[REDACTED]"}');
+        });
+
+        test('複数のパスや秘密情報が含まれる文字列をサニタイズする', () => {
+            const mixedStr =
+                'ユーザー設定を /home/user/.config に保存しました。password: 12345, token=abcd';
+            const expectedStr =
+                'ユーザー設定を [REDACTED] に保存しました。password: [REDACTED] token=[REDACTED]';
+            expect(logger._redactPaths(mixedStr)).toBe(expectedStr);
+        });
+    });
 });

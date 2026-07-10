@@ -3,9 +3,9 @@
 > Screeps AI code repository with **full automation** - no API keys required!
 
 [![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-36-green)](.github/workflows)
+[![Workflows](https://img.shields.io/badge/Workflows-33-green)](.github/workflows)
 [![Roles](https://img.shields.io/badge/Roles-10-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-7243-purple)](./)
+[![Lines](https://img.shields.io/badge/Lines-5556-purple)](./)
 
 ## 🚀 特徴
 
@@ -26,22 +26,21 @@
 
 ## 🤖 自動化システム
 
-### 📋 稼働中のワークフロー (36個)
+### 📋 稼働中のワークフロー (33個)
 
+- **AI Auto-Coder (Full Lifecycle Agent)** (`ai-autocoder.yml`) - 定期実行
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
+- **AI Repo Governance (Intel & Maintenance)** (`ai-governance.yml`) - 定期実行
+- **AI Sentinel (Ultimate Security & Quality Shield)** (`ai-guardian.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
-- **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
 - **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - 定期実行
-- **📚 Auto Update Documentation** (`auto-update-docs.yml`) - イベント駆動
+- **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
-- **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
 - **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
 - **Deploy GitHub Pages Dashboard** (`deploy-pages.yml`) - イベント駆動
-- **Deploy to Screeps PTR** (`deploy-ptr.yml`) - イベント駆動
 - **Deploy to Screeps PTR** (`deploy.yml`) - イベント駆動
 - **✨ Discussion Auto-Implement** (`discussion-auto-implement.yml`) - イベント駆動
 - **🚨 Emergency: Restore API Mode** (`emergency-api-restore.yml`) - 定期実行
-- **🚨 Error Threshold Monitor** (`error-threshold-monitor.yml`) - 定期実行
 - **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
 - **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
 - **gitStream** (`gitstream.yml`) - イベント駆動
@@ -54,16 +53,14 @@
 - **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
 - **Release Agent** (`release-agent.yml`) - イベント駆動
 - **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
-- **Gitleaks** (`secret-scanning.yml`) - イベント駆動
-- **Sentinel Tests** (`sentinel-tests.yml`) - イベント駆動
+- **Security Autofix (Dependabot & npm audit)** (`security-autofix.yml`) - 定期実行
 - **🗑️ Stale Issue and PR Management** (`stale.yml`) - 定期実行
 - **Supabase KeepAlive** (`supabase-keepalive.yml`) - 定期実行
-- **Test Minimal Workflow** (`test-minimal.yml`) - イベント駆動
+- **🧪 Test Auto PR System** (`test-auto-pr.yml`) - イベント駆動
 - **📚 Update Wiki** (`update-wiki.yml`) - イベント駆動
 - **Validate Versions** (`validate-versions.yml`) - イベント駆動
 - **📊 Weekly Quality Report** (`weekly-quality-report.yml`) - 定期実行
 - **👋 Welcome Bot** (`welcome.yml`) - イベント駆動
-- **🔧 Workflow Health Monitor** (`workflow-health-monitor.yml`) - 定期実行
 
 詳しくは [`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
 
@@ -83,8 +80,8 @@
 ## 📈 統計情報
 
 - 📄 **JSファイル数**: 38
-- 📝 **総コード行数**: 7243
-- 🔄 **ワークフロー数**: 36
+- 📝 **総コード行数**: 5556
+- 🔄 **ワークフロー数**: 33
 - 🎭 **ロール数**: 10
 
 *最終更新: 2026-07-10*
@@ -110,7 +107,7 @@ npm install
 
 ```
 .
-├── .github/workflows/     # 自動化ワークフロー (36個)
+├── .github/workflows/     # 自動化ワークフロー (33個)
 ├── role.*.js              # クリープロール (10個)
 ├── utils.*.js             # ユーティリティ関数
 ├── main.js                # メインループ
@@ -161,4 +158,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-07-10T12:57:10.285Z*
+*このREADMEは自動更新されます - 最終更新: 2026-07-10T12:57:49.077Z*

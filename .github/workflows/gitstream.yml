@@ -4,6 +4,8 @@ on:
     types: [opened, reopened, synchronize]
 jobs:
   gitStream:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     setup:
       extra_params:

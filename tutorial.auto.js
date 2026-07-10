@@ -53,8 +53,8 @@ const autoTutorial = {
      * Step 1: Create harvester
      */
     step1_createHarvester: function () {
-        const spawn = Game.spawns['Spawn1'];
-        if (!spawn) {
+        const spawn = Game.spawns.Spawn1;
+        if (spawn === undefined || spawn === null) {
             return;
         }
 
@@ -74,8 +74,7 @@ const autoTutorial = {
      */
     step2_harvestEnergy: function () {
         const sourcesCache = {};
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
+        for (const creep of Object.values(Game.creeps)) {
             const roomName = creep.room.name;
 
             if (creep.store.getFreeCapacity() > 0) {
@@ -87,7 +86,7 @@ const autoTutorial = {
                     }
                 }
             } else {
-                const spawn = Game.spawns['Spawn1'];
+                const spawn = Game.spawns.Spawn1;
                 if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(spawn);
                 }
@@ -100,8 +99,7 @@ const autoTutorial = {
      */
     step3_upgradeController: function () {
         const sourcesCache = {};
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
+        for (const creep of Object.values(Game.creeps)) {
             const roomName = creep.room.name;
 
             if (creep.store[RESOURCE_ENERGY] === 0) {
@@ -129,8 +127,7 @@ const autoTutorial = {
         const sitesCache = {};
         const sourcesCache = {};
 
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
+        for (const creep of Object.values(Game.creeps)) {
             const roomName = creep.room.name;
 
             sitesCache[roomName] = sitesCache[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
@@ -182,8 +179,7 @@ const autoTutorial = {
         const hostilesCache = {};
 
         // 基本的なCreep動作
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
+        for (const creep of Object.values(Game.creeps)) {
             const roomName = creep.room.name;
 
             // エネルギーが空
@@ -211,7 +207,7 @@ const autoTutorial = {
                     }
                 } else {
                     // Spawnに配達
-                    const spawn = Game.spawns['Spawn1'];
+                    const spawn = Game.spawns.Spawn1;
                     if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(spawn);
                     }
@@ -232,7 +228,7 @@ const autoTutorial = {
         }
 
         // 自動Spawn
-        const spawn = Game.spawns['Spawn1'];
+        const spawn = Game.spawns.Spawn1;
         if (spawn && !spawn.spawning && Object.keys(Game.creeps).length < 3) {
             spawn.spawnCreep([WORK, CARRY, MOVE], 'Worker' + Game.time, {
                 memory: { role: 'worker' },
@@ -265,8 +261,7 @@ const autoTutorial = {
         logger.info('  Current Step: ' + Game.tutorial.currentStep);
         logger.info('  Creeps: ' + Object.keys(Game.creeps).length);
         logger.info(
-            '  Energy: ' +
-                (Game.spawns['Spawn1'] ? Game.spawns['Spawn1'].store[RESOURCE_ENERGY] : 0)
+            '  Energy: ' + (Game.spawns.Spawn1 ? Game.spawns.Spawn1.store[RESOURCE_ENERGY] : 0)
         );
     },
 };

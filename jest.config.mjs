@@ -21,7 +21,7 @@ export default {
         [
             'jest-junit',
             {
-                outputDirectory: '.',
+                outputDirectory: 'test-results',
                 outputName: 'junit.xml',
                 classNameTemplate: '{filepath}',
             },

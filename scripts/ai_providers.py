@@ -17,8 +17,8 @@
 import json
 import os
 import re
-import time
 import threading
+import time
 import urllib.parse
 import urllib.request
 
@@ -381,7 +381,11 @@ def call_aihorde(prompt):
         print("Trying AI Horde...")
         payload = {
             "prompt": prompt[:4000],
-            "params": {"max_context_length": 2048, "max_length": 1024, "temperature": 0.4},
+            "params": {
+                "max_context_length": 2048,
+                "max_length": 1024,
+                "temperature": 0.4,
+            },
             "models": ["Llama 3 8B Instruct"],
         }
         req = urllib.request.Request(
@@ -423,14 +427,20 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     provider_calls = []
 
     for m in POLLINATIONS_GET_MODELS:
-        provider_calls.append((f"pollinations-get:{m}", lambda m=m: call_pollinations_get(prompt, m)))
+        provider_calls.append(
+            (f"pollinations-get:{m}", lambda m=m: call_pollinations_get(prompt, m))
+        )
     for m in POLLINATIONS_POST_MODELS:
-        provider_calls.append((f"pollinations-post:{m}", lambda m=m: call_pollinations_post(prompt, m)))
+        provider_calls.append(
+            (f"pollinations-post:{m}", lambda m=m: call_pollinations_post(prompt, m))
+        )
     provider_calls.append(("kilo-gateway", lambda: call_kilo_gateway(prompt)))
     for m in MLVOCA_MODELS:
         provider_calls.append((f"mlvoca-{m}", lambda m=m: call_mlvoca(prompt, m)))
     provider_calls.append(("llm7", lambda: call_llm7(prompt)))
-    provider_calls.append(("ovh-mistral-7b", lambda: call_ovh_anonymous(prompt, OVH_MODELS[0])))
+    provider_calls.append(
+        ("ovh-mistral-7b", lambda: call_ovh_anonymous(prompt, OVH_MODELS[0]))
+    )
     provider_calls.append(("puter-js", lambda: call_puter(prompt)))
     provider_calls.append(("huggingface", lambda: call_huggingface(prompt)))
     provider_calls.append(("aihorde", lambda: call_aihorde(prompt)))
@@ -459,7 +469,9 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
         except Exception as exc:
             print(f"[{name}] error: {exc}")
 
-    threads = [threading.Thread(target=_run, args=(name, fn)) for name, fn in provider_calls]
+    threads = [
+        threading.Thread(target=_run, args=(name, fn)) for name, fn in provider_calls
+    ]
     for t in threads:
         t.start()
     for t in threads:

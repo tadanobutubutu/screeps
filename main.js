@@ -1,7 +1,5 @@
 'use strict';
 
-// User Safety: safe
-
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
@@ -36,4 +34,5 @@ function ensureJestForTests() {
 
 // If this file is the entry point (e.g., run directly or via jest), bootstrap jest
 if (require.main === module) {
-  ensureJest
+  ensureJestForTests();
+}

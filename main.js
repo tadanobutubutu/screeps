@@ -1,10 +1,9 @@
 'use strict';
 
-// User Safety: safe
-
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
+
 function safeRequire(moduleName) {
     try {
         return require(moduleName);
@@ -20,6 +19,7 @@ if (typeof global.Flags === 'undefined') global.Flags = {};
 /* ------------------------------------------------------------------
  *  Ensure Jest is available for CI test runs; install if missing
  * ------------------------------------------------------------------ */
+
 function ensureJestForTests() {
   try {
     // Attempt to load jest; if it resolves, we are good
@@ -36,4 +36,5 @@ function ensureJestForTests() {
 
 // If this file is the entry point (e.g., run directly or via jest), bootstrap jest
 if (require.main === module) {
-  ensureJest
+  ensureJestForTests();
+}

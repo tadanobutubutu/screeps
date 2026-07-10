@@ -28,7 +28,43 @@ if (typeof global.evor === 'undefined') global.evor = function () {}; // Functio
  Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
 */
 
-// Role modules (hypothetical paths)
+/* ------------------------------------------------------------------
+ * Role modules (hypothetical paths)
+ * ------------------------------------------------------------------ */
 const roleHarvester = safeRequire('./role.harvester');
 const roleUpgrader   = safeRequire('./role.upgrader');
 const roleBuilder    = safeRequire('./role.builder');
+
+/* ------------------------------------------------------------------
+ * Test Helpers
+ * ------------------------------------------------------------------ */
+function createMockEmotionSystem() {
+    return {
+        interact: jest.fn(),
+        // Add other methods that might be called in tests
+        update: jest.fn(),
+        getEmotion: jest.fn().mockReturnValue('neutral')
+    };
+}
+
+function createMockGame() {
+    return {
+        creeps: {},
+        spawns: {},
+        rooms: {},
+        time: 0,
+        cpu: {
+            getUsed: jest.fn().mockReturnValue(0),
+            limit: 100
+        },
+        // Add other Game properties that might be used in tests
+        getObjectById: jest.fn()
+    };
+}
+
+/* ------------------------------------------------------------------
+ * Optional modules
+ * ------------------------------------------------------------------ */
+function multiply(a, b) {
+    return a * b;
+}

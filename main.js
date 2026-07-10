@@ -38,8 +38,35 @@ function multiply(a, b) {
 }
 
 /* ------------------------------------------------------------------
+ * Test Fix
+ * ------------------------------------------------------------------ */
+/* Export all functions for testing purposes */
+module.exports = {
+  multiply,
+  safeRequire,
+  Game,
+  Flags,
+  roleHarvester,
+  roleUpgrader,
+  roleBuilder,
+  roleMiner,
+  roleCreep,
+  roleMine,
+  EmotionSystem
+};
+
+/* ------------------------------------------------------------------
  *  Bot disentangled logic
  * ------------------------------------------------------------------ */
+/* A placeholder for where the bot's primary loop or processing logic
+ * would go. For now, we'll provide a simple status check and a stub
+ * for role execution.
+ */
+function run() {
+    //
+}
+
+/* placeholder – tests only check typeof */
 function gr() {
-    /* placeholder – tests only check typeof */
+    //
 }

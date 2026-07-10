@@ -1,4 +1,4 @@
-"use strict"; /* Main entry point for the Screeps bot.
+'use strict'; /* Main entry point for the Screeps bot.
  * This file contains all imports and logic from both branches.
  * A simple status check is added for monitoring purposes.
  */
@@ -6,12 +6,12 @@
 // Helper to safely require modules. If the module cannot be loaded,
 // the returned value is undefined and can be checked before use.
 function safeRequire(moduleName) {
-  try {
-    return require(moduleName);
-  } catch (_) {
-    // Module not found or failed to load – just return undefined.
-    return undefined;
-  }
+    try {
+        return require(moduleName);
+    } catch (_) {
+        // Module not found or failed to load – just return undefined.
+        return undefined;
+    }
 }
 
 // ------------------------- Imports ----------------------------
@@ -20,7 +20,7 @@ const Flags = global.Flags;
 
 // Roles - use safeRequire for missing modules.
 const roleHarvester = safeRequire('role.harvester');
-const roleUp
+const roleUp;
 const roleMine = safeRequire('role.mine');
 const roleBuilder = safeRequire('role.builder');
 const roleUpgrader = safeRequire('role.upgrader');
@@ -35,7 +35,7 @@ console.log('Bot is running. Energy capacity:', ENERGY_CAPACITY);
 
 // ------------------------- Exports ----------------------------
 function multiply(a, b) {
-  return a * b;
+    return a * b;
 }
 
 // Export the function for test compatibility

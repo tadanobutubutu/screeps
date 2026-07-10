@@ -41,6 +41,23 @@ try {
     // If mocking fails, likely running in production; ignore
 }
 
+// Ensure jest is installed and available in the environment
+const jestPath = safeRequire('jest');
+
+if (!jestPath) {
+    throw new Error('Jest is not installed. Please install Jest in your project.');
+}
+
 /**
  * Main loop called by the Screeps engine once per tick.
  * Placeholder for further implementation. */
+module.exports.loop = function() {
+    // ... existing code ...
+
+    // Example of a simple status check
+    if (Game.time % 10 === 0) {
+        console.log('Status:', Game.time, 'ticks passed.');
+    }
+
+    // ... existing code ...
+};

@@ -47,10 +47,55 @@ def call_openrouter(prompt, token):
                 res = json.loads(f.read().decode('utf-8'))
                 if 'choices' in res and len(res['choices']) > 0:
                     return res['choices'][0]['message']['content']
-                elif 'error' in res:
-                    print(f"OpenRouter returned error for {model}: {res['error']}")
         except Exception as e:
             print(f"OpenRouter model {model} failed: {e}")
+    return None
+
+def call_pollinations_ai(prompt):
+    try:
+        print("Trying Pollinations AI (openai-fast)...")
+        payload = {
+            "messages": [{"role": "user", "content": prompt}],
+            "model": "openai"
+        }
+        req = urllib.request.Request(
+            "https://text.pollinations.ai/",
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=60) as f:
+            return f.read().decode('utf-8')
+    except Exception as e:
+        print(f"Pollinations AI failed: {e}")
+    return None
+
+def call_huggingface_anonymous(prompt):
+    try:
+        print("Trying Hugging Face Serverless Anonymous (Qwen2.5-Coder)...")
+        url = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-7B-Instruct"
+        payload = {
+            "inputs": prompt,
+            "parameters": {"max_new_tokens": 1000}
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "Mozilla/5.0"
+            }
+        )
+        with urllib.request.urlopen(req, timeout=60) as f:
+            res = json.loads(f.read().decode('utf-8'))
+            if isinstance(res, list) and len(res) > 0 and 'generated_text' in res[0]:
+                return res[0]['generated_text']
+            elif isinstance(res, dict) and 'generated_text' in res:
+                return res['generated_text']
+    except Exception as e:
+        print(f"Hugging Face anonymous failed: {e}")
     return None
 
 def main():
@@ -73,10 +118,19 @@ def main():
     prompt = f"Fix this JS code error for the file main.js.\nIssue Title: {ctx['title']}\nIssue Body: {ctx['body']}\nProvide ONLY the complete updated file content of main.js inside a javascript code block."
     
     result = None
+    # Cascading Fallback Layers:
+    # 1. Direct Gemini API Key (Stable Free Tier)
     if gemini_api_key:
         result = call_gemini_api(prompt, gemini_api_key)
+    # 2. OpenRouter Token (Free Router Slug)
     if not result and openrouter_token:
         result = call_openrouter(prompt, openrouter_token)
+    # 3. Pollinations AI (Anonymous, Keyless, 100% Free)
+    if not result:
+        result = call_pollinations_ai(prompt)
+    # 4. Hugging Face Serverless Anonymous (Keyless Coder LLM)
+    if not result:
+        result = call_huggingface_anonymous(prompt)
         
     if not result:
         result = "// Fix pending due to API errors"

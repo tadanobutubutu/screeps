@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (!exists) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
+            console.log(`Evolution need registered: ${need.type}`);
         }
     },
 
@@ -417,8 +417,8 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        );
-        },
+        console.log(`Suggestion generated: ${item.type}`);
+    },
 
     /**
      * RCL機能生成
@@ -480,7 +480,7 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
+        console.log(`[EVOLUTION] Last update: ${Game.time - evo.lastUpdate} ticks ago`);
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
@@ -493,7 +493,7 @@ const autoEvolution = {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                console.log(`[EVOLUTION] Queue: ${q.type} - ${q.action}`);
             }
         }
 
@@ -501,7 +501,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                console.log(`[EVOLUTION] Suggestion: ${s.type} - ${s.filename}`);
             }
         }
     },

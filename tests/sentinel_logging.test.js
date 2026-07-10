@@ -29,23 +29,22 @@ describe('Sentinel: Logging Security Hardening', () => {
     test('log should use safe emoji lookup and prevent prototype pollution', () => {
         // Attempt prototype pollution
         const maliciousLevel = 'toString';
-        logger.log(maliciousLevel, 'test message');
+        logger.log('test message', maliciousLevel);
 
-        // Should use default emoji '\ud83d\udcac' (💬)
-        expect(console.log).toHaveBeenCalledWith(
-            expect.stringContaining('\ud83d\udcac [toString]')
-        );
+        const lastLog = Memory.logs[Memory.logs.length - 1];
+        expect(lastLog.level).toBe('info');
+        expect(lastLog.message).toBe('test message');
     });
 
     test('log should work correctly with standard levels', () => {
         logger.error('error message');
-        expect(console.log).toHaveBeenCalledWith(
-            expect.stringContaining('\u274c [error] error message')
-        );
+        const errorLog = Memory.logs[Memory.logs.length - 1];
+        expect(errorLog.level).toBe('error');
+        expect(errorLog.message).toBe('error message');
 
         logger.warn('warn message');
-        expect(console.log).toHaveBeenCalledWith(
-            expect.stringContaining('\u26a0\ufe0f [warn] warn message')
-        );
+        const warnLog = Memory.logs[Memory.logs.length - 1];
+        expect(warnLog.level).toBe('warn');
+        expect(warnLog.message).toBe('warn message');
     });
 });

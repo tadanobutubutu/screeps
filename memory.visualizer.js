@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Memory usage: ${(JSON.stringify(Memory).length / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -67,8 +67,7 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
+            console.log(`${index + 1}. ${item.type}:${item.name} - ${(item.size / 1024).toFixed(2)} KB`);
         });
 
         return sizes;
@@ -117,9 +116,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`Memory History (last ${ticks} ticks):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`T:${snap.tick} - Size: ${(snap.size / 1024).toFixed(2)} KB, Energy: ${snap.energy}`);
         });
 
         return snapshots;

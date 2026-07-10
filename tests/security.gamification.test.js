@@ -156,13 +156,14 @@ describe('Security: Gamification Combo System', () => {
         const longReason = 'a'.repeat(200);
         const expectedReason = 'a'.repeat(100);
 
-        // Mock console.log to check the output
-        const logSpy = jest.spyOn(console, 'log');
+        // Mock Memory.logs as it is used by logger.info
+        global.Memory.logs = [];
 
         gamification.addXP(10, longReason);
 
-        expect(logSpy).toHaveBeenCalledWith(expect.stringContaining(`(${expectedReason})`));
-        logSpy.mockRestore();
+        const lastLog = global.Memory.logs[global.Memory.logs.length - 1];
+        expect(lastLog.message).toContain(`(${expectedReason})`);
+        expect(lastLog.message).not.toContain(longReason);
     });
 
     test('unlockAchievement should sanitize and truncate inputs', () => {

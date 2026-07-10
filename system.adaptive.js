@@ -287,11 +287,11 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
-        if (stats.cpuBucket !== undefined) {
-            }
-        + '%');
+        console.log('\n🔄 === ADAPTIVE SYSTEM MODE CHANGE === 🔄');
+        console.log('From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
+        console.log('CPU Usage: ' + (stats.cpuUsagePercent || 0).toFixed(1) + '%');
+        console.log('CPU Bucket: ' + (stats.cpuBucket || 0) + '/10000');
+        console.log('Memory Usage: ' + (stats.memoryUsagePercent || 0).toFixed(1) + '%');
     },
 
     /**
@@ -359,23 +359,12 @@ const adaptiveSystem = {
         const cpuUsed = Game.cpu.getUsed();
         const cpuLimit = Game.cpu.limit;
         const cpuBucket = Game.cpu.bucket;
-        const memorySize = RawMemory.get().length;
+        const memorySize = RawMemory.get() ? RawMemory.get().length : 0;
         const memoryLimit = 2048 * 1024;
 
-        +
-                '/' +
-                cpuLimit +
-                ' (' +
-                ((cpuUsed / cpuLimit) * 100).toFixed(1) +
-                '%)'
-        );
-        * 100).toFixed(1) + '%)'
-        );
-        .toFixed(1) +
-                ' KB / 2048 KB (' +
-                ((memorySize / memoryLimit) * 100).toFixed(1) +
-                '%)'
-        );
+        console.log(`[ADAPTIVE] CPU: ${cpuUsed.toFixed(2)}/${cpuLimit} (${((cpuUsed / cpuLimit) * 100).toFixed(1)}%)`);
+        console.log(`[ADAPTIVE] Memory: ${(memorySize / 1024).toFixed(1)} KB / 2048 KB (${((memorySize / memoryLimit) * 100).toFixed(1)}%)`);
+        console.log(`[ADAPTIVE] Bucket: ${cpuBucket}`);
     },
 
     _printEnabledFeatures: function () {
@@ -407,10 +396,10 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            console.log(`[ADAPTIVE] Stats - Emergency: ${((stats.emergencyCount / total) * 100).toFixed(1)}%`);
+            console.log(`[ADAPTIVE] Stats - Minimal: ${((stats.minimalCount / total) * 100).toFixed(1)}%`);
+            console.log(`[ADAPTIVE] Stats - Normal: ${((stats.normalCount / total) * 100).toFixed(1)}%`);
+            console.log(`[ADAPTIVE] Stats - Full: ${((stats.fullCount / total) * 100).toFixed(1)}%`);
         }
     },
 
@@ -423,8 +412,7 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                } to ${toName.toUpperCase()} - Reason: ${reason}`
-                );
+                console.log(`[ADAPTIVE] History: ${fromName.toUpperCase()} to ${toName.toUpperCase()} - Reason: ${reason}`);
             }
         }
     },
@@ -466,8 +454,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        .toUpperCase()
-        );
+        console.log(`[ADAPTIVE] Manual mode set to: ${this.getModeName(numericMode).toUpperCase()}`);
     },
 
     /**

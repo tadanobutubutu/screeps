@@ -1,31 +1,35 @@
-"use strict";
-/* Main entry point for the Screeps bot.
- * This file contains all imports and logic from both branches.
- * A simple status check is added for monitoring purposes. */
-/* global describe, test, expect */
+'use strict';
 
-/* ------------------------------------------------------------------
- *  Helper – safely require optional modules
- * ------------------------------------------------------------------ */
-function safeRequire(name) {
+/* Main entry point for Screeps bot.
+ * This file contains all imports and logic from both branches.
+ * A simple status check is added for monitoring purposes and acts as a placeholder status check.
+ */
+
+/* Helper to safely require modules. If the module cannot be loaded,
+ * the returned value is undefined and can be checked before use.
+ */
+function safeRequire(moduleName) {
   try {
-    return require(name);
+    return require(moduleName);
   } catch (_) {
-    return undefined; // module missing / failed to load
+    // Module exists or failed to load – just return undefined.
+    return undefined;
   }
 }
 
-// ----------------- Imports ----------------------------
+/* Mock globals for testing environments (e.g., Jest) */
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
+
 const Game = global.Game || {};
 const Flags = global.Flags || {};
 
-// Roles
-const roleHarvester = require('role.harvester');
-const roleUpgrader   = require('role.upgrader');
-const roleBuilder    = require('role.builder');
-const awayHarvester = require('role.awayHarvester'); // New import
-const spawner = require('role.spawner'); // New import
-const controllerDefault = require('role.controllerDefault'); // New import
+const roleHarvester = safeRequire('role.harvester');
+const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 
 // Optional modules
 const Controller = safeRequire("./controller");
@@ -40,13 +44,4 @@ try {
     global.jest = jest;
     try {
         jest.mock('screeps');
-    } catch (e) {
-        // If mocking fails, likely running in production; ignore
     }
-} catch (e) {
-    // Jest not available, likely running in production; ignore
-}
-
-/**
- * Main loop called by the Screeps engine once per tick.
- * Placeholder for further implementation. */

@@ -82,13 +82,49 @@ export default function Dashboard() {
                     borderRadius: '8px',
                 }}
             >
-                <p>
-                    🌐 GCL: {stats?.gcl?.level} (
-                    {stats?.gcl?.progressTotal
-                        ? Math.floor((stats?.gcl?.progress / stats?.gcl?.progressTotal) * 100)
-                        : 0}
-                    %)
-                </p>
+                <div style={{ marginBottom: '1rem' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '0.25rem',
+                        }}
+                    >
+                        <span>🌐 GCL: {stats?.gcl?.level}</span>
+                        <span>
+                            {stats?.gcl?.progressTotal
+                                ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                                : '0.00'}
+                            %
+                        </span>
+                    </div>
+                    <div
+                        role="progressbar"
+                        aria-label="GCL Progress"
+                        aria-valuenow={stats?.gcl?.progress || 0}
+                        aria-valuemin={0}
+                        aria-valuemax={stats?.gcl?.progressTotal || 100}
+                        style={{
+                            height: '0.5rem',
+                            backgroundColor: '#edf2f7',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div
+                            style={{
+                                height: '100%',
+                                backgroundColor: '#004b73',
+                                width: `${
+                                    stats?.gcl?.progressTotal
+                                        ? (stats.gcl.progress / stats.gcl.progressTotal) * 100
+                                        : 0
+                                }%`,
+                                transition: 'width 0.3s ease-in-out',
+                            }}
+                        />
+                    </div>
+                </div>
                 <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}

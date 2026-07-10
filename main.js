@@ -1,69 +1,130 @@
-'use strict';
-
-// User Safety: safe
-
-/* ------------------------------------------------------------------
- *  Helper – safely require optional modules
- * ------------------------------------------------------------------ */
-function safeRequire(name) {
-    try {
-        return require(name);
-    } catch (_) {
-        return undefined;
+function run() { // gr() function run() { // gr() 
+    
+    if (__DEV__) { 
+        const gr = ... ; 
     }
-}
-
-/* ------------------------------------------------------------------
- *  Mock globals for testing environments (e.g., Jest)
- * ------------------------------------------------------------------ */
-if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
-if (typeof global.Flags === 'undefined') global.Flags = {};
-
-const Game  = global.Game || {};
-const Flags = global.Flags || {};
-
-/* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
- * ------------------------------------------------------------------ */
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
-const roleBuilder    = safeRequire('role.builder');
-const roleMiner      = safeRequire('role.miner');
-const roleCreep      = safeRequire('role.creep');
-const roleMine       = safeRequire('role.mine');
-
-/* ------------------------------------------------------------------
- *  Helper API – multiply
- * ------------------------------------------------------------------ */
-function multiply(a, b) {
-    return a * b;
-}
-
-/* ------------------------------------------------------------------
- * Test Fix
- * ------------------------------------------------------------------ */
-/* Export all functions for testing purposes */
-module.exports = {
-  multiply,
-  safeRequire,
-  Game,
-  Flags,
-  roleHarvester,
-  roleUpgrader,
-  roleBuilder,
-  roleMiner,
-  roleCreep,
-  roleMine,
-  EmotionSystem
-};
-
-/* ------------------------------------------------------------------
- *  Bot disentangled logic
- * ------------------------------------------------------------------ */
-/* A placeholder for where the bot's primary loop or processing logic
- * would go. For now, we'll provide a simple status check and a stub
- * for role execution.
- */
-function run() {
-    //
+    
+    const currentGame = new Game(); 
+    const creeps = currentGame.creeps; 
+    
+    for (const name in creeps) { 
+        const creep = creeps[name]; 
+        const role = creep.memory.role; 
+        
+        switch(role) { 
+            case 'harvester': 
+                if (roleHarvester) { 
+                    roleHarvester.run(creep); 
+                } 
+                break; 
+            case 'upgrader': 
+                if (roleUpgrader) { 
+                    roleUpgrader.run(creep); 
+                } 
+                break; 
+            case 'builder': 
+                if (roleBuilder) { 
+                    roleBuilder.run(creep); 
+                } 
+                break; 
+            case 'miner': 
+                if (roleMiner) { 
+                    roleMiner.run(creep); 
+                } 
+                break; 
+            case 'mine': 
+                if (roleMine) { 
+                    roleMine.run(creep); 
+                } 
+                break; 
+            case 'creep': 
+                if (roleCreep) { 
+                    roleCreep.run(creep); 
+                } 
+                break; 
+            default: 
+                if (role && role !== 'undefined') { 
+                    if (role[0] === role[0][0]) { 
+                        role.name.run(creep); 
+                    } else { 
+                        console.log(`Unknown role: ${creep.name}`); 
+                    } 
+                } 
+                break; 
+        } 
+    } 
+    
+    if (currentGame.level === 'emotion') { 
+        const emotionSystem = safeRequire('emotion.system'); 
+        if (emotionSystem) { 
+            emotionSystem.run(currentGame); 
+        } 
+    } 
+    
+    if (currentGame.level === 'mining') { 
+        const miningSystem = safeRequire('mining.system'); 
+        if (miningSystem) { 
+            miningSystem.run(currentGame); 
+        } 
+    } 
+    
+    Object.keys(Game.constructionSites).forEach(site => { 
+        const siteObj = Game.constructionSites[site]; 
+        if (siteObj.getConstruction() !== 'inprog') { 
+            const costs = new ConstructionCosts(siteObj.getSite()); 
+            if (costs.costs.energy > 2500) { 
+                const target = Game.rooms[siteObj.room][site]; 
+                const builderName = _.find({ 
+                    role: 'builder', 
+                    memory: { targetSite: target.id } 
+                }, creep => !creep.spawning); 
+                if (builderName) { 
+                    const builder = Game.creeps[builderName]; 
+                    if (builder.pos.getRangeTo(target.pos) < 3) { 
+                        builder.build(target); 
+                    } 
+                } 
+            } 
+        } 
+    }); 
+    
+    Object.keys(Flags).forEach(flagName => { 
+        const flag = Game.flags[flagName]; 
+        if (!flag.memory || flag.memory.visited) { 
+            const finder = 'miner'; 
+            new Finder(finder).look(flag.pos, flag.room); 
+            for (const i in finder.room.find(FIND_MINERALS)) { 
+                const mineralPos = finder.room.find(FIND_MINERALS)[i]; 
+                const distance = mineralPos.getRange(flag); 
+                if (distance < 3) { 
+                    const minerName = _.find({ 
+                        role: 'miner', 
+                        memory: { targetMineral: mineralPos.id } 
+                    }, creep => !creep.spawning); 
+                    if (minerName) { 
+                        const creep = Game.creeps[minerName]; 
+                        if (creep.pos.getRangeTo(mineralPos) < 1) { 
+                            creep.harvest(mineralPos); 
+                        } 
+                    } 
+                } 
+            } 
+            flag.memory.visited = true; 
+        } 
+    }); 
+    
+    if (currentGame.level === 'outerspace') { 
+        const universeFinder = safeRequire('universe.finder'); 
+        if (universeFinder) { 
+            universeFinder.run(currentGame); 
+        } 
+    } 
+    
+    const noddedCreepName = new Memory().getNodeByCreep(); 
+    if (noddedCreepName) { 
+        const noddedCreep = Game.creeps[noddedCreepName]; 
+        if (noddedCreep) { 
+            noddedCreep.say('Thanks!', true); 
+        } 
+    } 
 }

@@ -10,12 +10,12 @@
  * the returned value is undefined and can be checked before use.
  * ------------------------------------------------------------------ */
 function safeRequire(moduleName) {
-  try {
-    return require(moduleName);
-  } catch (_) {
-    // Module could not be loaded – just return undefined.
-    return undefined;
-  }
+    try {
+        return require(moduleName);
+    } catch (_) {
+        // Module exists or failed to load – just return undefined.
+        return undefined;
+    }
 }
 
 /* Mock globals for testing environments (e.g., Jest) */
@@ -30,4 +30,13 @@ const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
 const roleBuilder = safeRequire('role.builder');
 const roleMiner = safeRequire('role.miner');
-const role
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
+const awayHarvester = safeRequire('role.awayHarvester');
+const spawner = safeRequire('role.spawner');
+const controllerDefault = safeRequire('role.controllerDefault');
+
+// Optional modules
+const Controller = safeRequire('./controller');
+const Defender = safeRequire('./defender');
+const Builder = safeRequire('./builder');

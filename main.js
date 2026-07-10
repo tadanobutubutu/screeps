@@ -20,9 +20,9 @@ function safeRequire(moduleName) {
 }
 
 /* --------------------- Imports --------------------- */
-const Game  = global.Game || {};
+const Game = global.Game || {};
 const Flags = global.Flags || {};
 
 const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
-const roleBuilder    = safeRequire
+const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire;

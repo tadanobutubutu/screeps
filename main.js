@@ -34,8 +34,9 @@ const Builder    = safeRequire("./builder");
 
 /* ----------------- Jest for Testing ------------------ */
 // Add jest to the environment globals for test mocking
-global.jest = require('jest');
+let jest;
 try {
+    jest = require('jest');
     jest.mock('screeps');
 } catch (e) {
     // If mocking fails, likely running in production; ignore

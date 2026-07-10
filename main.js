@@ -69,3 +69,11 @@ function mainLoop() {
         if (target) {
           creep.heal(target);
         }
+      }
+    }
+  } catch (err) {
+    console.error("[Creep handler] error:", err);
+  }
+}
+
+module.exports.loop = mainLoop;

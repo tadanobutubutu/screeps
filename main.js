@@ -57,14 +57,4 @@ function createMockGame() {
             getUsed: jest.fn().mockReturnValue(0),
             limit: 100
         },
-        // Add other Game properties that might be used in tests
-        getObjectById: jest.fn()
-    };
-}
-
-/* ------------------------------------------------------------------
- * Optional modules
- * ------------------------------------------------------------------ */
-function multiply(a, b) {
-    return a * b;
-}
+        // Add other Game properties that might

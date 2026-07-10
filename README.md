@@ -1,5 +1,12 @@
 # ACE (Autonomous Colony Engine)
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/my-project?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/my-project?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/my-project?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/my-project)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 [![Build Status](https://github.com/tadanobutubutu/ace/workflows/CI/badge.svg)](https://github.com/tadanobutubutu/ace/actions)  
 [![Coverage](https://coveralls.io/repos/github/tadanobutubutu/ace/badge.svg?branch=main)](https://coveralls.io/github/tadanobutubutu/ace?branch=main)  
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)  

@@ -5,6 +5,7 @@ import sys
 
 from ai_providers import clean_plain_response, generate_with_fallback, normalize_token
 
+
 def run_cmd(args, check=True):
     print(f"Executing: {' '.join(args)}")
     res = subprocess.run(args, capture_output=True, text=True)
@@ -16,6 +17,7 @@ def run_cmd(args, check=True):
             res.returncode, args, res.stdout, res.stderr
         )
     return res
+
 
 def call_conflict_resolver_ai(file_content, filename):
     token = normalize_token(os.environ.get("OPENROUTER_TOKEN"))
@@ -44,6 +46,7 @@ Here is the conflicting file:
         print(f"Conflict resolution succeeded via {provider}")
         return clean_plain_response(result)
     return None
+
 
 def main():
     if len(sys.argv) < 2:
@@ -143,6 +146,7 @@ def main():
     # Push to origin
     run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
     print(f"Successfully resolved conflicts and pushed to {head_branch}.")
+
 
 if __name__ == "__main__":
     main()

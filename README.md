@@ -31,7 +31,7 @@
 - **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
 - **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
 - **🆕 Auto Create New Roles** (`auto-create-roles.yml`) - 定期実行
-- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - イベント駆動
+- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - 定期実行
 - **📚 Auto Update Documentation** (`auto-update-docs.yml`) - イベント駆動
 - **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
 - **🚀 Unified CI (Lint, Test, Coverage & Analysis)** (`ci.yml`) - 定期実行
@@ -87,7 +87,7 @@
 - 🔄 **ワークフロー数**: 36
 - 🎭 **ロール数**: 10
 
-*最終更新: 2026-06-02*
+*最終更新: 2026-07-10*
 
 ## 🔧 セットアップ
 
@@ -161,4 +161,4 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: 2026-06-02T17:34:42.081Z*
+*このREADMEは自動更新されます - 最終更新: 2026-07-10T12:57:10.285Z*

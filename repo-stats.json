@@ -1,5 +1,5 @@
 {
-  "updated": "2026-06-02T17:34:42.082Z",
+  "updated": "2026-07-10T12:57:10.301Z",
   "workflows": 36,
   "roles": 10,
   "jsFiles": 38,
@@ -23,7 +23,7 @@
     {
       "name": "Auto Merge PRs - Force Penetration (Instant CI)",
       "file": "auto-merge-pr.yml",
-      "scheduled": false
+      "scheduled": true
     },
     {
       "name": "📚 Auto Update Documentation",

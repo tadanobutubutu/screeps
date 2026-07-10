@@ -20,6 +20,8 @@ function safeRequire(moduleName) {
 /* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
+if (typeof global.gr === 'undefined') global.gr = function() {};
+if (typeof global.evor === 'undefined') global.evor = function() {};
 
 const Game  = global.Game || {};
 const Flags = global.Flags || {};
@@ -56,10 +58,40 @@ try {
 
 /**
  * Main loop called by the Screeps engine once per tick.
- * Placeholder for further implementation.
+ * Iterates over creeps and assigns roles based on creep.memory.role.
  */
 function main() {
-  // TODO: iterate over creeps, assign roles, etc.
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    const role = creep.memory.role;
+    let roleModule = null;
+    switch (role) {
+      case 'harvester':
+        roleModule = roleHarvester;
+        break;
+      case 'upgrader':
+        roleModule = roleUpgrader;
+        break;
+      case 'builder':
+        roleModule = roleBuilder;
+        break;
+      case 'miner':
+        roleModule = roleMiner;
+        break;
+      case 'creep':
+        roleModule = roleCreep;
+        break;
+      case 'mine':
+        roleModule = roleMine;
+        break;
+      default:
+        // Skip if role is not recognized
+        continue;
+    }
+    if (roleModule && typeof roleModule.run === 'function') {
+      roleModule.run(creep);
+    }
+  }
 }
 
 /* ------------------------------------------------------------------

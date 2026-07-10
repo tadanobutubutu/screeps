@@ -6,8 +6,6 @@
  * Includes global helpers, EmotionSystem stub, and a placeholder status check.
  */
 
-/* global describe, test, expect */
-
 /* Helper to safely require modules. If the module cannot be loaded,
  * the returned value is undefined and can be checked before use.
  */
@@ -39,19 +37,41 @@ const roleMiner      = safeRequire('role.miner');
 const roleCreep      = safeRequire('role.creep');
 const roleMine       = safeRequire('role.mine');
 
-/* --------------------- Utility Functions --------------------- */
-// Energy logic
-// (Any energy related utilities would be placed here.)
-
-/* --------------------- Main Logic ---------------------*/
-// Add multiply function here
+/* ----------------- New Function ----------------------------
+ * Add multiply function to main.js that takes two numbers and returns their product
+ */
 function multiply(a, b) {
   return a * b;
 }
 
-// Export the multiply function
-module.exports.multiply = multiply;
+/* ----------------- Bot Logic ----------------------------
+ * A placeholder for where the bot's primary loop or processing logic would go.
+ * For now, we'll provide a simple status check and role execution example.
+ */
+function run() {
+  // Simple status check
+  const status = {
+    creeps: Object.keys(Game.creeps || {}).length,
+    flags: Object.keys(Flags || {}).length
+  };
+  console.log('Bot status:', status);
 
-// Rest of the main.js code...
-// (Any additional logic for controlling creeps, handling flags, etc.,
- // would follow here.)
+  // Example role execution if roles are defined
+  Object.values(Game.creeps || {}).forEach(creep => {
+    if (creep.role === 'harvester' && roleHarvester) {
+      roleHarvester.run(creep);
+    } else if (creep.role === 'upgrader' && roleUpgrader) {
+      roleUpgrader.run(creep);
+    } else if (creep.role === 'builder' && roleBuilder) {
+      roleBuilder.run(creep);
+    } else if (creep.role === 'miner' && roleMiner) {
+      roleMiner.run(creep);
+    } else if (creep.role === 'creep' && roleCreep) {
+      roleCreep.run(creep);
+    } else if (creep.role === 'mine' && roleMine) {
+      roleMine.run(creep);
+    }
+  });
+}
+
+module.exports = { run, multiply };

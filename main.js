@@ -38,12 +38,11 @@ const upgrade = require('role.upgrade');
 // Status check
 console.log('Bot is running. Energy capacity:', ENERGY_CAPACITY);
 
-// ------------------------- Exports ----------------------------
+/* ------------------------- Exports ---------------------------- */
 function multiply(a, b) {
     return a * b;
 }
 
-// Export the function for test compatibility
-exports.multiply = multiply;
-
-// Ensure any existing exports are preserved (no overwriting)
+module.exports = {
+    multiply
+};

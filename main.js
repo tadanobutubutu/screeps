@@ -29,10 +29,10 @@ const Flags = global.Flags || {}; // global Flags reference
 
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder   = safeRequire('role.builder');
-const roleMiner     = safeRequire('role.miner');
-const roleCreep     = safeRequire('role.creep');
-const roleMine      = safeRequire('role.mine');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------

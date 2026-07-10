@@ -21,13 +21,9 @@ if (typeof global.Flags === 'undefined') global.Flags = {};
 if (typeof global.gr === 'undefined') global.gr = function () {}; // Function placeholder
 if (typeof global.evor === 'undefined') global.evor = function () {}; // Function placeholder
 
+/*
+ **Support Pollinations.AI:
 
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+ 🌸 **Ad 🌸
+ Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+*/

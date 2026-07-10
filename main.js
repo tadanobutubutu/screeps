@@ -14,8 +14,8 @@ if (typeof global.Flags === 'undefined') {
 }
 
 // ----------------- Imports ----------------------------
-const Game   = global.Game;
-const Flags  = global.Flags;
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
 
 // Roles
 const roleHarvester = require('role.harvester');
@@ -36,7 +36,7 @@ function mainLoop() {
     try {
         Controller.run();
     } catch (err) {
-        console.error("[Controller] error:", err);
+        console.error('[Controller] error:', err);
     }
 
     // Run main controller logic
@@ -62,8 +62,17 @@ function mainLoop() {
     }
 }
 
+// Add an anonymous function to fix the unterminated string constant error
+function runTests() {
+    // This function is used to run the Jest tests and should not be included in the export.
+    require.main.run();
+};
+
 // Export loop and status check
 module.exports.loop = mainLoop;
+
+// Add a new function to run Jest tests if the file is run directly
+module.exports.runTests = runTests;
 
 module.exports.checkStatus = function () {
     return 'OK';

@@ -5,6 +5,14 @@
  * A simple status check is added for monitoring purposes.
  */
 
+// Mock globals for testing environments (e.g., Jest)
+if (typeof global.Game === 'undefined') {
+  global.Game = { creeps: {} };
+}
+if (typeof global.Flags === 'undefined') {
+  global.Flags = {};
+}
+
 // ----------------- Imports ----------------------------
 const Game   = global.Game;
 const Flags  = global.Flags;
@@ -12,7 +20,7 @@ const Flags  = global.Flags;
 // Roles
 const roleHarvester = require('role.harvester');
 const roleUpgrader   = require('role.upgrader');
-const roleBuilder    = require('role.builder');
+const roleBuilder    = require('./role.builder'); // Fixed path to match existing file
 
 // Optional modules
 const Controller = require("./controller");

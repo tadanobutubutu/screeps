@@ -1,16 +1,20 @@
 'use strict';
 
 /* Main entry point for Screeps bot.
- * A simple status check is added for monitoring purposes.
- * Includes global helpers, EmotionSystem stub, and a placeholder status check.
+ * This file contains all imports and logic from both branches.
+ * A simple status check is added for monitoring purposes and acts as a placeholder status check.
  */
 
+/* Helper to safely require modules. If the module cannot be loaded,
+ * the returned value is undefined and can be checked before use.
+ */
 function safeRequire(moduleName) {
-    try {
-        return require(moduleName);
-    } catch (_) {
-        return undefined;
-    }
+  try {
+    return require(moduleName);
+  } catch (_) {
+    // Module exists or failed to load – just return undefined.
+    return undefined;
+  }
 }
 
 /* Mock globals for testing environments (e.g., Jest) */
@@ -50,26 +54,14 @@ function run() {
         creeps: Object.keys(global.Game.creeps).length,
         resources: {
             energy: Game.energyAvailable,
-            minerals: Game.mineralHarvesters.length,
-            metals: Game.metalHarvesters.length,
+            minerals: Game.mineralHarvesters?.length || 0,
+            metals: Game.metalHarvesters?.length || 0,
         },
         roles: {
-            harvester: roleHarvester.count,
-            upgrader: roleUpgrader.count,
-            builder: roleBuilder.count,
-            miner: roleMiner.count,
-            creep: roleCreep.count,
-            mine: roleMine.count,
+            harvester: roleHarvester?.count || 0,
+            upgrader: roleUpgrader?.count || 0,
+            builder: roleBuilder?.count || 0,
+            miner: roleMiner?.count || 0,
+            creep: roleCreep?.count || 0,
+            mine: roleMine?.count || 0,
         },
-    };
-
-    console.log('Status:', status);
-
-    // Example role execution
-    roleHarvester.execute();
-    roleUpgrader.execute();
-    roleBuilder.execute();
-    roleMiner.execute();
-    roleCreep.execute();
-    roleMine.execute();
-}

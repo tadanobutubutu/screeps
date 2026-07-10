@@ -42,9 +42,6 @@ function multiply(a, b) {
 /* ------------------------------------------------------------------
  *  Bot disentangled logic
  * ------------------------------------------------------------------ */
-/* A placeholder for where the bot's primary loop or processing logic
- * would go. For now, we'll provide a simple status check and a stub
- * for role execution.
- */
-function run() {
-    //
+function mainLoop() {
+    // Simple status check and stub for role execution.
+    console.log

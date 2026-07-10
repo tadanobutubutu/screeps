@@ -9,6 +9,14 @@ const MAX_KEY_LENGTH = 256;
 const MAX_CACHE_ENTRIES = 50;
 
 /**
+ * ⚡ PERFORMANCE: Track cache size and order in module-level variables
+ * to make capacity check and FIFO eviction O(1).
+ */
+let _cacheSize = -1;
+let _lastCacheRef = null;
+const _cacheOrder = new Map();
+
+/**
  * ⚡ PERFORMANCE OPTIMIZATION: Hoist dangerous keys list to a Set to avoid per-call
  * array allocation and to enable O(1) lookups in the high-frequency isSafeKey function.
  */
@@ -115,6 +123,26 @@ module.exports = {
         }
     },
 
+    /**
+     * ⚡ PERFORMANCE: Sync local tracking with global.cache reference.
+     */
+    _syncCacheState: function () {
+        if (Memory.cache !== _lastCacheRef) {
+            _lastCacheRef = Memory.cache;
+            _cacheOrder.clear();
+            if (!_lastCacheRef) {
+                _lastCacheRef = Memory.cache = {};
+                _cacheSize = 0;
+            } else {
+                const keys = Object.keys(_lastCacheRef);
+                _cacheSize = keys.length;
+                for (let i = 0; i < keys.length; i++) {
+                    _cacheOrder.set(keys[i], true);
+                }
+            }
+        }
+    },
+
     // Memoization helper for expensive calculations
     memoize: function (fn, cacheKey, ttl = 100) {
         // Security: Validate cacheKey to prevent prototype pollution
@@ -122,28 +150,31 @@ module.exports = {
             return fn();
         }
 
-        if (!Memory.cache) {
-            Memory.cache = {};
-        }
+        this._syncCacheState();
 
         const cached = Memory.cache[cacheKey];
         if (cached && Game.time - cached.timestamp < ttl) {
+            // Update eviction order (Move to end)
+            _cacheOrder.delete(cacheKey);
+            _cacheOrder.set(cacheKey, true);
             return cached.value;
         }
 
-        // Security: Cap the number of cache entries to prevent Memory DoS
-        if (!cached && Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
-            // Attempt to cleanup expired entries first
-            this.cleanCache();
-
-            // If still full, implement FIFO eviction by deleting the oldest entry.
-            // This ensures the cache remains available for new, potentially more relevant data.
-            if (Object.keys(Memory.cache).length >= MAX_CACHE_ENTRIES) {
-                const keys = Object.keys(Memory.cache);
-                if (keys.length > 0) {
-                    delete Memory.cache[keys[0]];
+        if (!cached) {
+            // Capacity check before adding a new entry
+            if (_cacheSize >= MAX_CACHE_ENTRIES) {
+                this.cleanCache();
+                if (_cacheSize >= MAX_CACHE_ENTRIES) {
+                    // ⚡ PERFORMANCE: O(1) FIFO eviction using Map insertion order.
+                    const oldestKey = _cacheOrder.keys().next().value;
+                    if (oldestKey !== undefined) {
+                        delete Memory.cache[oldestKey];
+                        _cacheOrder.delete(oldestKey);
+                        _cacheSize--;
+                    }
                 }
             }
+            _cacheSize++;
         }
 
         const result = fn();
@@ -152,11 +183,16 @@ module.exports = {
             timestamp: Game.time,
         };
 
+        // Update eviction order
+        _cacheOrder.delete(cacheKey);
+        _cacheOrder.set(cacheKey, true);
+
         return result;
     },
 
     // Clean up old cache entries
     cleanCache: function (maxAge = 500) {
+        this._syncCacheState();
         if (!Memory.cache) {
             return;
         }
@@ -164,18 +200,17 @@ module.exports = {
         const keys = Object.keys(Memory.cache);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
-            // Security: isSafeKey checks are still required, but hasOwnProperty is handled by Object.keys()
-            if (isSafeKey(key)) {
-                const entry = Memory.cache[key];
-                // Security: Add null check and ensure timestamp is a valid number to prevent DoS via state corruption.
-                if (entry && typeof entry.timestamp === 'number') {
-                    if (Game.time - entry.timestamp > maxAge) {
-                        delete Memory.cache[key];
-                    }
-                } else {
-                    // Security: If the entry is corrupted, delete it to restore consistency.
+            const entry = Memory.cache[key];
+            if (entry && typeof entry.timestamp === 'number') {
+                if (Game.time - entry.timestamp > maxAge) {
                     delete Memory.cache[key];
+                    _cacheOrder.delete(key);
+                    _cacheSize--;
                 }
+            } else {
+                delete Memory.cache[key];
+                _cacheOrder.delete(key);
+                _cacheSize--;
             }
         }
     },

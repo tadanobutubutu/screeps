@@ -287,11 +287,12 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        + ' → To: ' + newName.toUpperCase());
-        + '%');
+        logger.info('ADAPTIVE: Mode Change - From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
+        logger.info('  Stats - CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%');
         if (stats.cpuBucket !== undefined) {
-            }
-        + '%');
+            logger.info('  Stats - CPU Bucket: ' + stats.cpuBucket);
+        }
+        logger.info('  Stats - Mem Usage: ' + stats.memoryUsagePercent.toFixed(1) + '%');
     },
 
     /**
@@ -350,7 +351,8 @@ const adaptiveSystem = {
         delete Memory.emotions; // Root-level emotions (if any)
         delete Memory.diary; // Root-level diary
 
-        },
+        logger.info('ADAPTIVE: Emergency Cleanup Performed');
+    },
 
     /**
      * ダッシュボード表示
@@ -362,16 +364,21 @@ const adaptiveSystem = {
         const memorySize = RawMemory.get().length;
         const memoryLimit = 2048 * 1024;
 
-        +
+        logger.info('=== ADAPTIVE SYSTEM DASHBOARD ===');
+        logger.info('Status: ' + modeName);
+        logger.info(
+            'CPU: ' +
+                cpuUsed.toFixed(2) +
                 '/' +
                 cpuLimit +
                 ' (' +
                 ((cpuUsed / cpuLimit) * 100).toFixed(1) +
                 '%)'
         );
-        * 100).toFixed(1) + '%)'
-        );
-        .toFixed(1) +
+        logger.info('Bucket: ' + cpuBucket + ' (' + ((cpuBucket / 10000) * 100).toFixed(1) + '%)');
+        logger.info(
+            'Memory: ' +
+                (memorySize / 1024).toFixed(1) +
                 ' KB / 2048 KB (' +
                 ((memorySize / memoryLimit) * 100).toFixed(1) +
                 '%)'
@@ -400,17 +407,18 @@ const adaptiveSystem = {
                 enabledCount++;
             }
         }
-        },
+        logger.info('Enabled Features: ' + enabledCount + '/' + allFeatures.length);
+    },
 
     _printModeStatistics: function () {
         const stats = Memory.adaptive.stats;
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
-            * 100).toFixed(1) + '%');
+            logger.info('  - Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
+            logger.info('  - Minimal: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
+            logger.info('  - Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
+            logger.info('  - Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');
         }
     },
 
@@ -423,7 +431,8 @@ const adaptiveSystem = {
                 const fromName = logger.escapeHTML(this.getModeName(h.from));
                 const toName = logger.escapeHTML(this.getModeName(h.to));
                 const reason = logger.escapeHTML(h.reason);
-                } to ${toName.toUpperCase()} - Reason: ${reason}`
+                logger.info(
+                    `  [T:${h.time}] From: ${fromName.toUpperCase()} to ${toName.toUpperCase()} - Reason: ${reason}`
                 );
             }
         }
@@ -466,8 +475,7 @@ const adaptiveSystem = {
         _currentConfig = FEATURE_CONFIG[mode];
         _configTick = Game.time;
 
-        .toUpperCase()
-        );
+        logger.info('ADAPTIVE: Manual Mode Set - ' + this.getModeName(numericMode).toUpperCase());
     },
 
     /**
@@ -478,7 +486,8 @@ const adaptiveSystem = {
         // ⚡ PERFORMANCE: Reset cache when system is reset
         _currentConfig = null;
         _configTick = -1;
-        },
+        logger.info('ADAPTIVE: System Reset');
+    },
 };
 
 module.exports = adaptiveSystem;

@@ -1,19 +1,20 @@
 'use strict';
 
 /* Main entry point for Screeps bot.
- * A simple status check is added for monitoring purposes.
- * Includes global helpers, EmotionSystem stub, and a placeholder status check.
+ * This file contains all imports and logic from both branches.
+ * A simple status check is added for monitoring purposes and acts as a placeholder status check.
  */
 
-/* ------------------------------------------------------------------
- *  Helper – safely require optional modules
- * ------------------------------------------------------------------ */
-function safeRequire(name) {
-    try {
-        return require(name);
-    } catch (_) {
-        return undefined;
-    }
+/* Helper to safely require modules. If the module cannot be loaded,
+ * the returned value is undefined and can be checked before use.
+ */
+function safeRequire(moduleName) {
+  try {
+    return require(moduleName);
+  } catch (_) {
+    // Module exists or failed to load – just return undefined.
+    return undefined;
+  }
 }
 
 /* Mock globals for testing environments (e.g., Jest) */
@@ -24,11 +25,12 @@ const Game  = global.Game || {};
 const Flags = global.Flags || {};
 
 const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader  = safeRequire('role.upgrader');
-const roleBuilder   = safeRequire('role.builder');
-const roleMiner     = safeRequire('role.miner');
-const roleCreep     = safeRequire('role.creep');
-const roleMine      = safeRequire('role.mine');
+const roleUpgrader   = safeRequire('role.upgrader');
+const roleBuilder    = safeRequire('role.builder');
+const roleMiner      = safeRequire('role.miner');
+const roleCreep      = safeRequire('role.creep');
+const roleMine       = safeRequire('role.mine');
+const EmotionSystem  = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
  * New Function
@@ -37,13 +39,5 @@ const roleMine      = safeRequire('role.mine');
  * their product.
  */
 function multiply(a, b) {
-    return a * b;
+  return a * b;
 }
-
-/* ------------------------------------------------------------------
- * Bot Logic
- * ------------------------------------------------------------------ */
-function gr() {
-    /* placeholder – tests only check typeof */
-}
-function ev

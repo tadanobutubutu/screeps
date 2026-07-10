@@ -73,7 +73,9 @@ def parse_test_counts(output):
 
 
 def syntax_check():
-    return subprocess.run(["node", "--check", "main.js"], capture_output=True, text=True)
+    return subprocess.run(
+        ["node", "--check", "main.js"], capture_output=True, text=True
+    )
 
 
 def main():
@@ -220,10 +222,14 @@ def main():
     print(f"\n🏆 Selected winner: {MODEL_NAMES[winner_idx]} ({winner_passes} tests)")
 
     subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
-    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
+    subprocess.run(
+        ["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"]
+    )
 
     branch = f"fix/ai-{issue_no}"
-    checkout = subprocess.run(["git", "checkout", "-b", branch], capture_output=True, text=True)
+    checkout = subprocess.run(
+        ["git", "checkout", "-b", branch], capture_output=True, text=True
+    )
     if checkout.returncode != 0:
         subprocess.run(["git", "checkout", branch], check=True)
 

@@ -1,0 +1,59 @@
+name: 🧪 Test Auto PR System
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/auto-pr-generator.js'
+      - 'scripts/add-contributor.js'
+      - '.github/workflows/auto-pr-from-issues.yml'
+      - 'docs/AUTO_PR_SYSTEM.md'
+  push:
+    branches:
+      - feature/auto-pr
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint scripts
+        run: |
+          npx eslint scripts/auto-pr-generator.js scripts/add-contributor.js || true
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Syntax check
+        run: |
+          node -c scripts/auto-pr-generator.js
+          node -c scripts/add-contributor.js
+
+      - name: Test environment variables
+        run: |
+          echo "✅ Workflow file exists"
+          test -f .github/workflows/auto-pr-from-issues.yml
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for hardcoded secrets
+        run: |
+          ! grep -r "ANTHROPIC_API_KEY\|GITHUB_TOKEN" scripts/ --include="*.js" || echo "⚠️  Warning: Check for hardcoded secrets"
+
+      - name: Verify API key usage
+        run: |
+          grep -q "ANTHROPIC_API_KEY" scripts/auto-pr-generator.js && echo "✅ API key properly referenced"

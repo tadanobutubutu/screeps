@@ -28,6 +28,10 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install Node.js dependencies
+        run: |
+          npm ci || npm install
+
       - name: Analyze issue and create PR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

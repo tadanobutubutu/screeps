@@ -24,23 +24,24 @@ if (typeof global.Flags === 'undefined') global.Flags = {};
 const Game  = global.Game || {};
 const Flags = global.Flags || {};
 
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
-const roleBuilder    = safeRequire('role.builder');
-const roleMiner      = safeRequire('role.miner');
-const roleCreep      = safeRequire('role.creep');
-const roleMine       = safeRequire('role.mine');
-const EmotionSystem  = safeRequire('emotion.system');
+/* Roles */
+const roleHarvester      = safeRequire('role.harvester');
+const roleUpgrader       = safeRequire('role.upgrader');
+const roleBuilder        = safeRequire('role.builder');
+const roleMiner          = safeRequire('role.miner');
+const roleCreep          = safeRequire('role.creep');
+const roleMine           = safeRequire('role.mine');
+const roleAwayHarvester  = safeRequire('role.awayHarvester');
+const spawner            = safeRequire('role.spawner');
+const controllerDefault  = safeRequire('role.controllerDefault');
+const EmotionSystem      = safeRequire('emotion.system');
 
-/* ------------------------------------------------------------------
- * Optional modules
- * ------------------------------------------------------------------ */
+/* Optional modules */
 const Controller = safeRequire("./controller");
 const Defender   = safeRequire("./defender");
 const Builder    = safeRequire("./builder");
 
-/* ----------------- Jest for Testing ------------------ */
-// Add jest to the environment globals for test mocking
+/* Jest for Testing */
 let jest;
 try {
     jest = require('jest');
@@ -51,23 +52,4 @@ try {
         // If mocking fails, likely running in production; ignore
     }
 } catch (e) {
-    // Jest not available, likely running in production; ignore
-}
-
-/**
- * Main loop called by the Screeps engine once per tick.
- * Placeholder for further implementation.
- */
-function main() {
-  // TODO: iterate over creeps, assign roles, etc.
-}
-
-/* ------------------------------------------------------------------
- * New Function
- * ------------------------------------------------------------------ */
-/* Add multiply function to main.js that takes two numbers and returns
- * their product.
- */
-function multiply(a, b) {
-  return a * b;
-}
+    // Jest not available, likely running

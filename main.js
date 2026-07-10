@@ -27,3 +27,8 @@ if (typeof global.evor === 'undefined') global.evor = function () {}; // Functio
  🌸 **Ad 🌸
  Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
 */
+
+// Role modules (hypothetical paths)
+const roleHarvester = safeRequire('./role.harvester');
+const roleUpgrader   = safeRequire('./role.upgrader');
+const roleBuilder    = safeRequire('./role.builder');

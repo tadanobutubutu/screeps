@@ -4,32 +4,29 @@
  * A simple status check is added for monitoring purposes.
  */
 
-// Helper to safely require modules. If the module cannot be loaded,
-// the returned value is undefined and can be checked before use.
-function safeRequire(moduleName) {
-  try {
-    return require(moduleName);
-  } catch (_) {
-    // Module not found or failed to load – just return undefined.
-    return undefined;
-  }
-}
+ // Helper to safely require modules. If the module cannot be loaded,
+ // the returned value is undefined and can be checked before use.
+ function safeRequire(moduleName) {
+   try {
+     return require(moduleName);
+   } catch (_) {
+     // Module not found or failed to load – just return undefined.
+     return undefined;
+   }
+ }
 
-// ------------------------- Imports ----------------------------
-const Game = global.Game;
-const Flags = global.Flags;
+ // Mock globals for testing environments (e.g., Jest)
+ if (typeof global.Game === 'undefined') {
+   global.Game = { creeps: {} };
+ }
+ if (typeof global.Flags === 'undefined') {
+   global.Flags = {};
+ }
 
-// Roles - use safeRequire for missing modules.
-const roleHarvester = safeRequire('role.harvester');
-const roleUp
+ // ----------------- Imports ----------------------------
+ const Game   = global.Game || {};
+ const Flags  = global.Flags || {};
 
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+ // Roles
+ const roleHarvester = require('role.harvester');
+ const roleUpgrader

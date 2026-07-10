@@ -5,9 +5,9 @@
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
-function safeRequire(name) {
+function safeRequire(moduleName) {
     try {
-        return require(name);
+        return require(moduleName);
     } catch (_) {
         return undefined;
     }
@@ -24,15 +24,19 @@ if (typeof global.evor === 'undefined') global.evor = function () {}; // Functio
 /* ------------------------------------------------------------------
  *  Core imports (if they exist in the test environment)
  * ------------------------------------------------------------------ */
-const Game = global.Game; // global Game reference (may be mocked)
-const Flags = global.Flags; // global Flags reference
+const Game = global.Game || {}; // global Game reference (may be mocked)
+const Flags = global.Flags || {}; // global Flags reference
 
-/* Example of optional role modules – ignored if missing */
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder   = safeRequire('role.builder');
+const roleMiner     = safeRequire('role.miner');
+const roleCreep     = safeRequire('role.creep');
+const roleMine      = safeRequire('role.mine');
+const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
- *  Helper API – multiply
+ * Optional modules
  * ------------------------------------------------------------------ */
 function multiply(a, b) {
     return a * b;
@@ -46,7 +50,6 @@ function multiply(a, b) {
 /* ------------------------------------------------------------------
  *  TODO: Implement creep role assignment logic here (line 62)
  * ------------------------------------------------------------------ */
-// TODO: iterate over creeps, assign roles, etc.
 Object.keys(Game.creeps).forEach(function (name) {
     const creep = Game.creeps[name];
     // Example: Assign a role based on creep type or other criteria

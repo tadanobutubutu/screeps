@@ -56,6 +56,12 @@ if (typeof jest !== 'undefined') {
   global.Flags = {
     // Add any necessary mock properties here
   };
+
+  // Ensure Jest is properly set up
+  jest.mock('jest', () => ({
+    __esModule: true,
+    default: jest.fn(),
+  }), { virtual: true });
 }
 
 /* ------------------------------------------------------------------

@@ -287,12 +287,7 @@ const adaptiveSystem = {
         const oldName = logger.escapeHTML(this.getModeName(oldMode));
         const newName = logger.escapeHTML(this.getModeName(newMode));
 
-        logger.info(
-            'ADAPTIVE: Mode Change - From: ' +
-                oldName.toUpperCase() +
-                ' → To: ' +
-                newName.toUpperCase()
-        );
+        logger.info('ADAPTIVE: Mode Change - From: ' + oldName.toUpperCase() + ' → To: ' + newName.toUpperCase());
         logger.info('  Stats - CPU Usage: ' + stats.cpuUsagePercent.toFixed(1) + '%');
         if (stats.cpuBucket !== undefined) {
             logger.info('  Stats - CPU Bucket: ' + stats.cpuBucket);
@@ -420,9 +415,7 @@ const adaptiveSystem = {
         const total =
             stats.emergencyCount + stats.minimalCount + stats.normalCount + stats.fullCount;
         if (total > 0) {
-            logger.info(
-                '  - Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%'
-            );
+            logger.info('  - Emergency: ' + ((stats.emergencyCount / total) * 100).toFixed(1) + '%');
             logger.info('  - Minimal: ' + ((stats.minimalCount / total) * 100).toFixed(1) + '%');
             logger.info('  - Normal: ' + ((stats.normalCount / total) * 100).toFixed(1) + '%');
             logger.info('  - Full: ' + ((stats.fullCount / total) * 100).toFixed(1) + '%');

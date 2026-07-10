@@ -38,6 +38,12 @@ const roleBuilder    = safeRequire('./role.builder');
 /* ------------------------------------------------------------------
  * Test Helpers
  * ------------------------------------------------------------------ */
+function mockEmotionSystem() {
+    if (typeof EmotionSystem !== 'undefined' && EmotionSystem) {
+        EmotionSystem.interact = jest.fn();
+    }
+}
+
 function createMockEmotionSystem() {
     return {
         interact: jest.fn(),
@@ -49,12 +55,11 @@ function createMockEmotionSystem() {
 
 function createMockGame() {
     return {
-        creeps: {},
-        spawns: {},
-        rooms: {},
-        time: 0,
-        cpu: {
-            getUsed: jest.fn().mockReturnValue(0),
-            limit: 100
-        },
-        // Add other Game properties that might
+        creeps: {}
+    };
+}
+
+/* Initialize test helpers if in test environment */
+if (typeof jest !== 'undefined') {
+    mockEmotionSystem();
+}

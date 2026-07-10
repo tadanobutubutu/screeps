@@ -37,18 +37,31 @@ const spawner = safeRequire('role.spawner');
 const controllerDefault = safeRequire('role.controllerDefault');
 
 // Optional modules
-const Controller = safeRequire("./controller");
-const Defender   = safeRequire("./defender");
-const Builder    = safeRequire("./builder");
+const Controller = safeRequire('./controller');
+const Defender = safeRequire('./defender');
+const Builder = safeRequire('./builder');
 
 /* ----------------- Jest for Testing ------------------ */
 // Add jest to the environment globals for test mocking
-global.jest = require('jest');
+let jest;
 try {
-    jest.mock('screeps');
+    jest = require('jest');
+    global.jest = jest;
+} catch (e) {
+    // If jest is not available, ignore
+    jest = undefined;
+}
+
+try {
+    if (jest) jest.mock('screeps');
 } catch (e) {
     // If mocking fails, likely running in production; ignore
 }
 
-/**
- * Main loop called
+// Main loop placeholder
+module.exports.loop = function () {
+    // Example status check
+    console.log('Screeps bot is running at tick', Game.time);
+
+    // ... rest of main loop logic ...
+};

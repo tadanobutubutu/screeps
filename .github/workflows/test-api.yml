@@ -1,0 +1,108 @@
+name: 🧪 Test Auto PR System
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-apis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test API Connections
+        env:
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          node -e '
+          const https = require("https");
+          
+          async function testGemini() {
+            console.log("Testing direct Gemini API...");
+            const key = process.env.GEMINI_API_KEY;
+            if (!key) { console.log("Missing GEMINI_API_KEY"); return; }
+            
+            const data = JSON.stringify({
+              contents: [{ parts: [{ text: "Hello" }] }]
+            });
+            
+            const options = {
+              hostname: "generativelanguage.googleapis.com",
+              path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`,
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Content-Length": data.length
+              }
+            };
+            
+            return new Promise((resolve) => {
+              const req = https.request(options, (res) => {
+                console.log("Gemini Status:", res.statusCode);
+                console.log("Gemini Headers:", JSON.stringify(res.headers));
+                let body = "";
+                res.on("data", (chunk) => body += chunk);
+                res.on("end", () => {
+                  console.log("Gemini Body:", body);
+                  resolve();
+                });
+              });
+              req.on("error", (e) => {
+                console.log("Gemini Error:", e.message);
+                resolve();
+              });
+              req.write(data);
+              req.end();
+            });
+          }
+          
+          async function testOpenRouter() {
+            console.log("\nTesting OpenRouter...");
+            const token = process.env.OPENROUTER_TOKEN;
+            if (!token) { console.log("Missing OPENROUTER_TOKEN"); return; }
+            
+            const data = JSON.stringify({
+              model: "google/gemini-2.5-flash:free",
+              messages: [{ role: "user", content: "Hello" }]
+            });
+            
+            const options = {
+              hostname: "openrouter.ai",
+              path: "/api/v1/chat/completions",
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+                "Content-Length": data.length,
+                "X-Title": "screeps-test",
+                "HTTP-Referer": "https://github.com/tadanobutubutu/screeps"
+              }
+            };
+            
+            return new Promise((resolve) => {
+              const req = https.request(options, (res) => {
+                console.log("OpenRouter Status:", res.statusCode);
+                console.log("OpenRouter Headers:", JSON.stringify(res.headers));
+                let body = "";
+                res.on("data", (chunk) => body += chunk);
+                res.on("end", () => {
+                  console.log("OpenRouter Body:", body);
+                  resolve();
+                });
+              });
+              req.on("error", (e) => {
+                console.log("OpenRouter Error:", e.message);
+                resolve();
+              });
+              req.write(data);
+              req.end();
+            });
+          }
+          
+          async function run() {
+            await testGemini();
+            await testOpenRouter();
+          }
+          run();
+          '

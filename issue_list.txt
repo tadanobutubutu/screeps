@@ -1,11 +1,1 @@
-# issue_list.txt
-
-# Resolved list of open issues
-
-- Issue #001: [<description>]
-- Issue #002: [<description>]
-- Issue #003: [<description>]
-- Issue #004: [<description>]
-- Issue #005: [<description>]
-
-# The conflict markers have been removed and the list has been merged.
+1088

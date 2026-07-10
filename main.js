@@ -54,6 +54,9 @@ if (typeof jest !== 'undefined') {
         // creeps: {},
         // rooms: {},
         // time: 0
+        creeps: [],
+        rooms: [],
+        time: 0
     };
 
     // Mock the global Flags object for tests
@@ -87,6 +90,26 @@ function loop() {
     const EmotionSystem = global.EmotionSystem;
     if (EmotionSystem && typeof EmotionSystem.interact === 'function') {
         EmotionSystem.interact();
+    }
+
+    // Iterate over creeps and assign roles
+    if (Game.creeps && Array.isArray(Game.creeps)) {
+        Game.creeps.forEach(creep => {
+            if (creep.memory && creep.memory.role) {
+                // Assign roles based on creep type and memory
+                if (creep.memory.role === 'harvester') {
+                    // Example role assignment
+                    if (roleHarvester) {
+                        roleHarvester(creep);
+                    }
+                } else if (creep.memory.role === 'upgrader') {
+                    // Example role assignment
+                    if (roleUpgrader) {
+                        roleUpgrader(creep);
+                    }
+                }
+            }
+        });
     }
 
     /* Optional logic – iterate over flags or rooms would go here */

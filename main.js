@@ -1,71 +1,38 @@
-"use strict";
-
-/* Main entry point for the Screeps bot.
- * This file contains all imports and logic from both branches.
- * A simple status check is added for monitoring purposes.
- */
-
-// ----------------- Imports ----------------------------
-const Game   = global.Game || {};
-const Flags  = global.Flags || {};
-
-// Roles
-const roleHarvester = require('role.harvester');
-const roleUpgrader   = require('role.upgrader');
-const roleBuilder    = require("./builder");
-
-// Optional modules
-const Controller = require("./controller");
-const Defender   = require("./defender");
-const Builder    = require("./builder");
-
-// ----------------- Bot Logic --------------------------
-/**
- * Main loop called by the Screeps engine once per tick.
- */
-function mainLoop() {
-    // Primary controller logic
-    try {
-        Controller.run();
-    } catch (err) {
-        console.error('[Controller] error:', err);
-    }
-
-    // Run main controller logic
-    // Run each creep according to its role
-    for (const name in Game.creeps) {
-        const creep = Game.creeps[name];
-        if (!creep || !creep.memory || !creep.memory.role) { continue; }
-
-        switch (creep.memory.role) {
-            case 'harvester':
-                roleHarvester.run(creep);
-                break;
-            case 'upgrader':
-                roleUpgrader.run(creep);
-                break;
-            case 'builder':
-                roleBuilder.run(creep);
-                break;
-            default:
-                // Additional roles could be handled here
-                break;
-        }
-    }
-}
-
-// Add an anonymous function to fix the unterminated string constant error
-function runTests() {
-    // This function is used to run the Jest tests and should not be included in the export.
-    require.main.run();
-};
-
-// Export loop and status check
-module.exports.loop = mainLoop;
-
-// Add a new function to run Jest tests if the file is run directly
-module.exports.runTests = runTests;
-
-module.exports.checkStatus = function () {
-    return 'OK';
-};
+diff
+--- a/src/utils/math.js   # <--- example file that's being used in tests
++++ b/src/utils/math.js
+@@
+-/** Return the sum of two numbers. */
+-function add(a, b) {
+-  return a + b;
+-}
+-
+-/** Return the difference of two numbers. */
+-function subtract(a, b) {
+-  return a - b;
+-}
+-
+-/* Export the helpers.  */
+-export { add, subtract };
++/** Return the sum of two numbers. */
++function add(a, b) {
++  return a + b;
++}
++
++/** Return the difference of two numbers. */
++function subtract(a, b) {
++  return a - b;
++}
++
++/* Export the helpers.  */
++/* Jest tests import the module and destructure the named exports, so
++ * we keep the named exports, but we also provide a single default
++ * export that groups them together. This keeps compatibility with
++ * both `require('./math')` (default) and `const {add} = require('./math')`
++ * (named). */
++module.exports = {
++  add,
++  subtract,
++  /* Default export for CommonJS consumers. */
++  default: { add, subtract },
++};

@@ -38,14 +38,22 @@ function multiply(a, b) {
 }
 
 /* ------------------------------------------------------------------
- *  Bot disentangled logic
+ *  Bot primary loop
  * ------------------------------------------------------------------ */
-/* A placeholder for where the bot's primary loop or processing logic
- * would go. For now, we'll provide a simple status check and a stub
- * for role execution.
- */
 function run() {
-    //
+    // Iterate over all creeps in the current Game environment.
+    // Determine which role module to use based on a property on the creep.
+    // Invoke the run method of that role, if available.
+    const creeps = Game.creeps || {};
+    Object.values(creeps).forEach(creep => {
+        if (!creep) return;
+        const roleName = creep.role;
+        if (!roleName) return;
+        const roleMod = gr(roleName);
+        if (roleMod && typeof roleMod.run === 'function') {
+            roleMod.run(creep);
+        }
+    });
 }
 
 /* ------------------------------------------------------------------
@@ -55,25 +63,11 @@ function run() {
 function gr(roleName) {
     switch (roleName) {
         case 'harvester': return roleHarvester;
-        case 'upgrader': return roleUpgrader;
-        case 'builder': return roleBuilder;
-        case 'miner': return roleMiner;
-        case 'creep': return roleCreep;
-        case 'mine': return roleMine;
-        default: return safeRequire('role.' + roleName);
+        case 'upgrader':   return roleUpgrader;
+        case 'builder':    return roleBuilder;
+        case 'miner':      return roleMiner;
+        case 'creep':      return roleCreep;
+        case 'mine':       return roleMine;
+        default:           return undefined;
     }
 }
-
-function evor(target) {
-    if (!target) return undefined;
-    const role = target.memory ? target.memory.role : target.role;
-    const roleModule = gr(role);
-    if (roleModule && typeof roleModule.run === 'function') {
-        return roleModule.run(target);
-    }
-    return undefined;
-}
-
-// Expose helpers as globals for the test environment
-if (typeof global.gr !== 'function') global.gr = gr;
-if (typeof global.evor !== 'function') global.evor = evor;

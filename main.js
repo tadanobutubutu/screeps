@@ -59,7 +59,47 @@ try {
  * Placeholder for further implementation.
  */
 function main() {
-  // TODO: iterate over creeps, assign roles, etc.
+  // Get all creeps
+  const creeps = Object.values(Game.creeps);
+
+  // Assign roles to creeps
+  creeps.forEach(creep => {
+    if (creep.body.length > 0 && creep.carry.energy > 0) {
+      if (creep.memory.role === undefined) {
+        if (creep.pos.isNearTo(Game.spawn.pos, 1)) {
+          creep.memory.role = 'harvester';
+          creep.memory.target = Game.spawn;
+        } else if (creep.pos.isNearTo(Game.spawning.pos, 1)) {
+          creep.memory.role = 'upgrader';
+          creep.memory.target = Game.spawning;
+        } else if (creep.pos.isNearTo(Game.resource.pos, 1)) {
+          creep.memory.role = 'miner';
+          creep.memory.target = Game.resource;
+        } else {
+          creep.memory.role = 'builder';
+          creep.memory.target = Game.constructionSite;
+        }
+      }
+
+      // Perform tasks based on role
+      switch (creep.memory.role) {
+        case 'harvester':
+          roleHarvester(creep);
+          break;
+        case 'upgrader':
+          roleUpgrader(creep);
+          break;
+        case 'miner':
+          roleMiner(creep);
+          break;
+        case 'builder':
+          roleBuilder(creep);
+          break;
+        default:
+          console.log(`Unknown role: ${creep.memory.role}`);
+      }
+    }
+  });
 }
 
 /* ------------------------------------------------------------------

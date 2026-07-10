@@ -3,7 +3,6 @@
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
-
 function safeRequire(moduleName) {
     try {
         return require(moduleName);
@@ -19,7 +18,6 @@ if (typeof global.Flags === 'undefined') global.Flags = {};
 /* ------------------------------------------------------------------
  *  Ensure Jest is available for CI test runs; install if missing
  * ------------------------------------------------------------------ */
-
 function ensureJestForTests() {
   try {
     // Attempt to load jest; if it resolves, we are good

@@ -6,18 +6,52 @@
  */
 
 // ----------------- Imports ----------------------------
-const Game   = global.Game;
-const Flags  = global.Flags;
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
 
 // Roles
-const roleHarvester = require('role.harvester');
-const roleUpgrader   = require('role.upgrader');
-const roleBuilder    = require('role.builder');
+let roleHarvester;
+try {
+    roleHarvester = require('role.harvester');
+} catch (e) {
+    roleHarvester = { run: () => {} };
+}
+
+let roleUpgrader;
+try {
+    roleUpgrader = require('role.upgrader');
+} catch (e) {
+    roleUpgrader = { run: () => {} };
+}
+
+let roleBuilder;
+try {
+    roleBuilder = require('role.builder');
+} catch (e) {
+    roleBuilder = { run: () => {} };
+}
 
 // Optional modules
-const Controller = require("./controller");
-const Defender   = require("./defender");
-const Builder    = require("./builder");
+let Controller;
+try {
+    Controller = require("./controller");
+} catch (e) {
+    Controller = { run: () => {} };
+}
+
+let Defender;
+try {
+    Defender = require("./defender");
+} catch (e) {
+    Defender = { run: () => {} };
+}
+
+let Builder;
+try {
+    Builder = require("./builder");
+} catch (e) {
+    Builder = { run: () => {} };
+}
 
 // ----------------- Bot Logic --------------------------
 /**
@@ -33,7 +67,7 @@ function mainLoop() {
 
     // Run main controller logic
     // Run each creep according to its role
-    for (const name in Game.creeps) {
+    for (const name in Game.creeps || {}) {
         const creep = Game.creeps[name];
         if (!creep || !creep.memory || !creep.memory.role) { continue; }
 

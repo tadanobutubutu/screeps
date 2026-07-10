@@ -14,55 +14,39 @@ function safeRequire(name) {
 }
 
 /* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
+ *  Mock globals for testing environments (e.g., Jest)
  * ------------------------------------------------------------------ */
-const Game     = global.Game;          // global Game reference (may be mocked)
-const Flags    = global.Flags;         // global Flags reference
-
-// Example of optional role modules – ignored if missing
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
 
 /* ------------------------------------------------------------------
- *  Helper API – multiply
+ *  Ensure Jest is available for CI test runs; install if missing
  * ------------------------------------------------------------------ */
-function multiply(a, b) {
-  return a * b;
-}
-
-/* ------------------------------------------------------------------
- *  Global helpers for tests
- * ------------------------------------------------------------------ */
-function gr() { /* placeholder – tests only check typeof */ }
-function evor() { /* placeholder – tests only check typeof */ }
-
-global.gr = gr;
-global.evor = evor;
-
-/* ------------------------------------------------------------------
- *  Jest test environment setup
- * ------------------------------------------------------------------ */
-if (typeof jest !== 'undefined') {
-  // Mock the global Game object for tests if it's not already defined
-  global.Game = global.Game || {
-    // Mock properties can be added here if needed
-    // e.g., creeps: {}, rooms: {}, time: 0
-  };
-
-  // Mock the global Flags object for tests if it's not already defined
-  global.Flags = global.Flags || {
-    // Mock properties can be added here if needed
-  };
-
-  // No need to override jest itself; it will be available in the test environment
-}
-
-/* ------------------------------------------------------------------
- *  Test Helpers
- * ------------------------------------------------------------------ */
-function mockEmotionSystem() {
-  // Provide a minimal mock for an Emotion system if tests rely on it
-  if (typeof global.Emo === 'undefined') {
-    global.Emo = {}; // Stub object; extend with needed properties in tests
+function ensureJestForTests() {
+  try {
+    // Attempt to load jest; if it resolves, we are good
+    require('jest');
+  } catch (_) {
+    // If jest is not installed, install it locally as a dev dependency
+    const { execSync } = require('child_process');
+    // Use npm to install jest; --save-dev marks it as a devDependency
+    execSync('npm install jest --save-dev', { stdio: 'inherit' });
+    // After installation, try to require jest again
+    require('jest');
   }
 }
+
+// If this file is the entry point (e.g., run directly or via jest), bootstrap jest
+if (require.main === module) {
+ 
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

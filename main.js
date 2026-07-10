@@ -37,6 +37,20 @@ const spawner = safeRequire('role.spawner');
 const controllerDefault = safeRequire('role.controllerDefault');
 
 // Optional modules
-const Controller = safeRequire('./controller');
-const Defender = safeRequire('./defender');
-const Builder = safeRequire('./builder');
+const Controller = safeRequire("./controller");
+const Defender   = safeRequire("./defender");
+const Builder    = safeRequire("./builder");
+
+/* ----------------- Jest for Testing ------------------ */
+// Add jest to the environment globals for test mocking
+let jest;
+try {
+    jest = require('jest');
+    jest.mock('screeps');
+} catch (e) {
+    // If mocking fails, likely running in production; ignore
+}
+
+/**
+ * Main loop called by the Screeps engine once per tick.
+ * Placeholder for further implementation. */

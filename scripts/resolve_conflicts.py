@@ -2,8 +2,8 @@ import json
 import os
 import subprocess
 import sys
-import urllib.request
-import re
+
+from ai_providers import clean_plain_response, generate_with_fallback, normalize_token
 
 def run_cmd(args, check=True):
     print(f"Executing: {' '.join(args)}")
@@ -17,29 +17,10 @@ def run_cmd(args, check=True):
         )
     return res
 
-def call_gemini_api(prompt, key):
-    try:
-        print("Trying direct Google Gemini API (gemini-1.5-flash-latest)...")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
-        payload = {
-            "contents": [{"parts": [{"text": prompt}]}]
-        }
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode('utf-8'),
-            headers={"Content-Type": "application/json"}
-        )
-        with urllib.request.urlopen(req, timeout=60) as f:
-            res = json.loads(f.read().decode('utf-8'))
-            return res['candidates'][0]['content']['parts'][0]['text']
-    except Exception as e:
-        print(f"Direct Gemini API failed: {e}")
-        return None
+def call_conflict_resolver_ai(file_content, filename):
+    token = normalize_token(os.environ.get("OPENROUTER_TOKEN"))
+    gemini_key = normalize_token(os.environ.get("GEMINI_API_KEY"))
 
-def call_openrouter_ai(file_content, filename):
-    token = os.environ.get("OPENROUTER_TOKEN")
-    gemini_key = os.environ.get("GEMINI_API_KEY")
-    
     prompt = f"""You are a Senior JavaScript/Node.js Developer resolving a Git merge conflict in a Screeps bot repository.
 Below is the content of the file '{filename}' with Git conflict markers.
 Please resolve the conflict in a meaningful, logical manner. Make sure to keep and integrate both changes if they both add features, or choose the correct logic that compiles and satisfies both needs. Do not discard functionality unless they are clearly redundant.
@@ -53,56 +34,16 @@ Here is the conflicting file:
 =========================================
 """
 
-    # 1. Try Direct Google Gemini API first
-    if gemini_key:
-        res = call_gemini_api(prompt, gemini_key)
-        if res:
-            return clean_response(res)
-            
-    # 2. Try OpenRouter free models
-    if token:
-        models = [
-            "openrouter/free",
-            "google/gemini-2.5-flash:free",
-            "google/gemini-2.0-flash-exp:free",
-        ]
-        for model in models:
-            try:
-                print(f"Trying OpenRouter model {model}...")
-                payload = {
-                    "model": model,
-                    "messages": [{"role": "user", "content": prompt}],
-                }
-                req = urllib.request.Request(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers={
-                        "Authorization": f"Bearer {token}",
-                        "Content-Type": "application/json",
-                        "X-Title": "screeps-conflict-resolver",
-                        "HTTP-Referer": "https://github.com/tadanobutubutu/screeps"
-                    },
-                )
-                with urllib.request.urlopen(req, timeout=90) as response:
-                    res_data = json.loads(response.read().decode("utf-8"))
-                    if 'choices' in res_data and len(res_data['choices']) > 0:
-                        content = res_data['choices'][0]['message']['content'].strip()
-                        if content:
-                            return clean_response(content)
-            except Exception as e:
-                print(f"OpenRouter model {model} failed: {e}")
-                
+    result, provider = generate_with_fallback(
+        prompt,
+        gemini_key=gemini_key,
+        openrouter_token=token,
+        min_length=50,
+    )
+    if result:
+        print(f"Conflict resolution succeeded via {provider}")
+        return clean_plain_response(result)
     return None
-
-def clean_response(content):
-    if content.startswith("```"):
-        lines = content.splitlines()
-        if lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        content = "\n".join(lines).strip()
-    return content
 
 def main():
     if len(sys.argv) < 2:
@@ -175,7 +116,7 @@ def main():
         with open(filename, "r", encoding="utf-8", errors="ignore") as f:
             content = f.read()
 
-        resolved_content = call_openrouter_ai(content, filename)
+        resolved_content = call_conflict_resolver_ai(content, filename)
         if resolved_content:
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(resolved_content)

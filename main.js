@@ -38,6 +38,20 @@ const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
+ *  Additional test helpers
+ * ------------------------------------------------------------------ */
+function mockEmotionSystem() {
+    if (EmotionSystem) {
+        EmotionSystem.interact = jest.fn();
+    }
+}
+
+/* Initialize test helpers if in test environment */
+if (typeof jest !== 'undefined') {
+    mockEmotionSystem();
+}
+
+/* ------------------------------------------------------------------
  * Optional modules
  * ------------------------------------------------------------------ */
 function multiply(a, b) {

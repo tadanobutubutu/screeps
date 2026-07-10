@@ -5,120 +5,36 @@
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
-function safeRequire(name) {
+function safeRequire(moduleName) {
     try {
-        return require(name);
+        return require(moduleName);
     } catch (_) {
         return undefined;
     }
 }
 
+/* Mock globals for testing environments (e.g., Jest) */
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
+
+/* expose mock globals in local scope for easier access */
+const Game = global.Game || {};
+const Flags = global.Flags || {};
+
+/* Initialize global commands as functions (empty placeholders) */
+if (typeof global.gr === 'undefined') global.gr = function () {};
+if (typeof global.evor === 'undefined') global.evor = function () {};
+
 /* ------------------------------------------------------------------
  *  Core imports (if they exist in the test environment)
  * ------------------------------------------------------------------ */
-const Game = global.Game; // global Game reference (may be mocked)
-const Flags = global.Flags; // global Flags reference
-
-// Example of optional role modules – ignored if missing
+// Optional role modules – imported if available
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
+const EmotionSystem = safeRequire('emotion.system');
 
-/* ------------------------------------------------------------------
- *  Helper API – multiply
- * ------------------------------------------------------------------ */
-function multiply(a, b) {
-    return a * b;
-}
-
-/* ------------------------------------------------------------------
- *  Global helpers for tests
- * ------------------------------------------------------------------ */
-function gr() {
-    /* placeholder – tests only check typeof */
-}
-function evor() {
-    /* placeholder – tests only check typeof */
-}
-
-global.gr = gr;
-global.evor = evor;
-
-/* ------------------------------------------------------------------
- *  Jest test environment setup
- * ------------------------------------------------------------------ */
-if (typeof jest !== 'undefined') {
-    // Mock the global Game object for tests
-    global.Game = {
-        // Add any necessary mock properties here
-        // For example:
-        // creeps: {},
-        // rooms: {},
-        // time: 0
-        creeps: [],
-        rooms: [],
-        time: 0
-    };
-
-    // Mock the global Flags object for tests
-    global.Flags = {
-        // Add any necessary mock properties here
-    };
-
-    // Mock Jest utilities to avoid “jest not found” errors
-    const actualJest = jest;
-    global.jest = {
-        ...actualJest,
-        // Preserve essential Jest functions that tests may call
-        mock: actualJest.fn,
-        fn: actualJest.fn,
-        spyOn: actualJest.spyOn,
-        mockModule: actualJest.mock,
-        clearAllMocks: actualJest.clearAllMocks,
-    };
-
-    // Ensure the real jest mocking behaviour works if the test runner provides it
-    if (actualJest && typeof actualJest.mock === 'function') {
-        global.jest.mock = actualJest.mock;
-    }
-}
-
-/* ------------------------------------------------------------------
- *  Main loop – minimal implementation for tests
- * ------------------------------------------------------------------ */
-function loop() {
-    // If EmotionSystem is available, call its interact method.
-    const EmotionSystem = global.EmotionSystem;
-    if (EmotionSystem && typeof EmotionSystem.interact === 'function') {
-        EmotionSystem.interact();
-    }
-
-    // Iterate over creeps and assign roles
-    if (Game.creeps && Array.isArray(Game.creeps)) {
-        Game.creeps.forEach(creep => {
-            if (creep.memory && creep.memory.role) {
-                // Assign roles based on creep type and memory
-                if (creep.memory.role === 'harvester') {
-                    // Example role assignment
-                    if (roleHarvester) {
-                        roleHarvester(creep);
-                    }
-                } else if (creep.memory.role === 'upgrader') {
-                    // Example role assignment
-                    if (roleUpgrader) {
-                        roleUpgrader(creep);
-                    }
-                }
-            }
-        });
-    }
-
-    /* Optional logic – iterate over flags or rooms would go here */
-}
-
-/* ------------------------------------------------------------------
- *  Exported API
- * ------------------------------------------------------------------ */
-module.exports = {
-    multiply,
-    loop,
-};
+/* ----------------------------------------------------------------

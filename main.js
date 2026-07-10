@@ -57,16 +57,22 @@ if (typeof jest !== 'undefined') {
     // Add any necessary mock properties here
   };
 
-  // Ensure Jest is properly set up
-  jest.mock('jest', () => ({
-    __esModule: true,
-    default: jest.fn(),
-  }), { virtual: true });
+  // Mock Jest utilities to avoid “jest not found” errors
+  const actualJest = jest;
+  global.jest = {
+    ...actualJest,
+    // Preserve essential Jest functions that tests may call
+    mock: actualJest.fn,
+    fn: actualJest.fn,
+    spyOn: actualJest.spyOn,
+    mockModule: actualJest.mock,
+    clearAllMocks: actualJest.clearAllMocks,
+  };
 
-  // Fixing the issue with jest not found by ensuring jest is installed and properly set up
-  const { clearAllMocks, mockModule } = require('jest');
-  global.clearAllMocks = clearAllMocks;
-  global.mockModule = mockModule;
+  // Ensure the real jest mocking behaviour works if the test runner provides it
+  if (actualJest && typeof actualJest.mock === 'function') {
+    global.jest.mock = actualJest.mock;
+  }
 }
 
 /* ------------------------------------------------------------------

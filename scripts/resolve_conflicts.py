@@ -1,8 +1,9 @@
-import os
-import sys
 import json
+import os
 import subprocess
+import sys
 import urllib.request
+
 
 def run_cmd(args, check=True):
     print(f"Executing: {' '.join(args)}")
@@ -11,8 +12,11 @@ def run_cmd(args, check=True):
         print(f"Error executing command: {' '.join(args)}")
         print(f"Stdout: {res.stdout}")
         print(f"Stderr: {res.stderr}")
-        raise subprocess.CalledProcessError(res.returncode, args, res.stdout, res.stderr)
+        raise subprocess.CalledProcessError(
+            res.returncode, args, res.stdout, res.stderr
+        )
     return res
+
 
 def call_openrouter_ai(file_content, filename):
     token = os.environ.get("OPENROUTER_TOKEN")
@@ -24,7 +28,7 @@ def call_openrouter_ai(file_content, filename):
     models = [
         "google/gemini-2.5-flash:free",
         "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3-8b-instruct:free"
+        "meta-llama/llama-3-8b-instruct:free",
     ]
 
     prompt = f"""You are a Senior JavaScript/Node.js Developer resolving a Git merge conflict in a Screeps bot repository.
@@ -42,15 +46,12 @@ Here is the conflicting file:
 
     for model in models:
         try:
-            print(f"Trying to resolve conflicts in '{filename}' using model '{model}'...")
+            print(
+                f"Trying to resolve conflicts in '{filename}' using model '{model}'..."
+            )
             payload = {
                 "model": model,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
+                "messages": [{"role": "user", "content": prompt}],
             }
             req = urllib.request.Request(
                 "https://openrouter.ai/api/v1/chat/completions",
@@ -58,8 +59,8 @@ Here is the conflicting file:
                 headers={
                     "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",
-                    "X-Title": "screeps-conflict-resolver"
-                }
+                    "X-Title": "screeps-conflict-resolver",
+                },
             )
             with urllib.request.urlopen(req, timeout=90) as response:
                 res_data = json.loads(response.read().decode("utf-8"))
@@ -80,6 +81,7 @@ Here is the conflicting file:
 
     return None
 
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: python resolve_conflicts.py <PR_NUMBER>")
@@ -96,19 +98,33 @@ def main():
     run_cmd(["gh", "pr", "checkout", pr_no])
 
     # Get branch information
-    pr_info_res = run_cmd(["gh", "pr", "view", pr_no, "--json", "headRefName,headRepositoryOwner,baseRefName"], check=True)
+    pr_info_res = run_cmd(
+        [
+            "gh",
+            "pr",
+            "view",
+            pr_no,
+            "--json",
+            "headRefName,headRepositoryOwner,baseRefName",
+        ],
+        check=True,
+    )
     pr_info = json.loads(pr_info_res.stdout)
     head_branch = pr_info.get("headRefName")
     base_branch = pr_info.get("baseRefName", "main")
     head_owner = pr_info.get("headRepositoryOwner", {}).get("login")
 
-    print(f"Head branch: {head_branch}, Base branch: {base_branch}, Head owner: {head_owner}")
+    print(
+        f"Head branch: {head_branch}, Base branch: {base_branch}, Head owner: {head_owner}"
+    )
 
     # Fetch main/base branch
     run_cmd(["git", "fetch", "origin", base_branch])
 
     # Try to merge base branch into the head branch
-    merge_res = subprocess.run(["git", "merge", f"origin/{base_branch}"], capture_output=True, text=True)
+    merge_res = subprocess.run(
+        ["git", "merge", f"origin/{base_branch}"], capture_output=True, text=True
+    )
     if merge_res.returncode == 0:
         print("Merge completed cleanly without conflicts. Pushing updates...")
         run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
@@ -116,8 +132,12 @@ def main():
         return
 
     # Check for conflicts
-    conflicts_res = run_cmd(["git", "diff", "--name-only", "--diff-filter=U"], check=True)
-    conflicting_files = [f.strip() for f in conflicts_res.stdout.splitlines() if f.strip()]
+    conflicts_res = run_cmd(
+        ["git", "diff", "--name-only", "--diff-filter=U"], check=True
+    )
+    conflicting_files = [
+        f.strip() for f in conflicts_res.stdout.splitlines() if f.strip()
+    ]
 
     if not conflicting_files:
         print("No conflicting files found despite non-zero merge return code.")
@@ -140,18 +160,28 @@ def main():
             run_cmd(["git", "add", filename])
             print(f"Successfully resolved conflicts in '{filename}' using AI.")
         else:
-            print(f"Failed to resolve conflicts in '{filename}' using AI. Falling back to basic resolution (using HEAD content).")
+            print(
+                f"Failed to resolve conflicts in '{filename}' using AI. Falling back to basic resolution (using HEAD content)."
+            )
             # Fallback to keeping HEAD changes
             run_cmd(["git", "checkout", "--ours", filename])
             run_cmd(["git", "add", filename])
 
     # Commit the merge resolution
-    run_cmd(["git", "commit", "-m", f"chore: AI resolved merge conflicts from {base_branch}"])
+    run_cmd(
+        [
+            "git",
+            "commit",
+            "-m",
+            f"chore: AI resolved merge conflicts from {base_branch}",
+        ]
+    )
 
     # Push to origin
     # Since gh token has write access, we push to origin with HEAD:head_branch
     run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
     print(f"Successfully resolved conflicts and pushed to {head_branch}.")
+
 
 if __name__ == "__main__":
     main()

@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function sum(a, b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new TypeError('Both arguments must be numbers');
+  }
+  return a + b;
+}
+
+module.exports = sum;

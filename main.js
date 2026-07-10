@@ -21,35 +21,47 @@ function safeRequire(moduleName) {
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
-const Game  = global.Game || {};
+const Game = global.Game || {};
 const Flags = global.Flags || {};
 
-/* Roles */
-const roleHarvester      = safeRequire('role.harvester');
-const roleUpgrader       = safeRequire('role.upgrader');
-const roleBuilder        = safeRequire('role.builder');
-const roleMiner          = safeRequire('role.miner');
-const roleCreep          = safeRequire('role.creep');
-const roleMine           = safeRequire('role.mine');
-const roleAwayHarvester  = safeRequire('role.awayHarvester');
-const spawner            = safeRequire('role.spawner');
-const controllerDefault  = safeRequire('role.controllerDefault');
-const EmotionSystem      = safeRequire('emotion.system');
+const roleHarvester = safeRequire('role.harvester');
+const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 
-/* Optional modules */
-const Controller = safeRequire("./controller");
-const Defender   = safeRequire("./defender");
-const Builder    = safeRequire("./builder");
+/* ------------------------------------------------------------------
+ * New Function
+ * ------------------------------------------------------------------ */
+/* Add multiply function to main.js that takes two numbers and returns
+ * their product.
+ */
+function multiply(a, b) {
+    return a * b;
+}
 
-/* Jest for Testing */
-let jest;
-try {
-    jest = require('jest');
-    global.jest = jest;
-    try {
-        jest.mock('screeps');
-    } catch (e) {
-        // If mocking fails, likely running in production; ignore
-    }
-} catch (e) {
-    // Jest not available, likely running
+/* ------------------------------------------------------------------
+ * Bot Logic
+ * ------------------------------------------------------------------ */
+/* A placeholder for where the bot's primary loop or processing logic
+ * would go. For now, we'll provide a simple status check and
+ * role execution example.
+ */
+function run() {
+    // Simple status check
+    const status = {
+        creeps: Object.keys(global.Game.creeps).length,
+        resources: {
+            energy: Game.energyAvailable,
+            minerals: Game.mineralHarvesters?.length || 0,
+            metals: Game.metalHarvesters?.length || 0,
+        },
+        roles: {
+            harvester: roleHarvester?.count || 0,
+            upgrader: roleUpgrader?.count || 0,
+            builder: roleBuilder?.count || 0,
+            miner: roleMiner?.count || 0,
+            creep: roleCreep?.count || 0,
+            mine: roleMine?.count || 0,
+        },

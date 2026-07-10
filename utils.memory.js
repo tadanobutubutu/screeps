@@ -68,7 +68,7 @@ module.exports = {
     },
 
     // Exported version of isSafeKey
-    isSafeKey,
+    isSafeKey: isSafeKey,
 
     // Safe memory access with default values
     getRoomMemory: function (roomName, key, defaultValue) {
@@ -200,6 +200,14 @@ module.exports = {
         const keys = Object.keys(Memory.cache);
         for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
+            // Security: isSafeKey checks are required for robustness
+            if (!isSafeKey(key)) {
+                delete Memory.cache[key];
+                _cacheOrder.delete(key);
+                _cacheSize--;
+                continue;
+            }
+
             const entry = Memory.cache[key];
             if (entry && typeof entry.timestamp === 'number') {
                 if (Game.time - entry.timestamp > maxAge) {

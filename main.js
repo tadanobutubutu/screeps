@@ -355,6 +355,22 @@ function warmRoomCache(room) {
     categorizeRoomStructures(room, allStructures);
 }
 
+function _recordCreepInRoom(creep, role, room) {
+    room._myCreeps.push(creep);
+    if (room._roleCounts[role] !== undefined) {
+        room._roleCounts[role]++;
+    }
+    if (creep.hits < creep.hitsMax) {
+        room._injuredCreeps.push(creep);
+        if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
+            room._criticalCreep = creep;
+        }
+    }
+    if (role === 'defender') {
+        room._defenders.push(creep);
+    }
+}
+
 function _collectCreepData(creeps, creepCounts, isLoggingEnabled) {
     for (let i = 0; i < creeps.length; i++) {
         const creep = creeps[i];
@@ -372,19 +388,7 @@ function _collectCreepData(creeps, creepCounts, isLoggingEnabled) {
 
         const room = creep.room;
         if (room) {
-            room._myCreeps.push(creep);
-            if (room._roleCounts[role] !== undefined) {
-                room._roleCounts[role]++;
-            }
-            if (creep.hits < creep.hitsMax) {
-                room._injuredCreeps.push(creep);
-                if (!room._criticalCreep && creep.hits < creep.hitsMax * 0.5) {
-                    room._criticalCreep = creep;
-                }
-            }
-            if (role === 'defender') {
-                room._defenders.push(creep);
-            }
+            _recordCreepInRoom(creep, role, room);
         }
     }
 }
@@ -694,7 +698,7 @@ function _handleMaintenance() {
     }
 }
 
-function _runMainLogic() {
+function _initGlobalData() {
     const rooms = (global._rooms = Object.values(Game.rooms || {}));
     const creeps = (global._creeps = Object.values(Game.creeps || {}));
     const spawns = (global._spawns = Object.values(Game.spawns || {}));
@@ -706,7 +710,10 @@ function _runMainLogic() {
         global._primarySpawn = spawns[0];
         global._primarySpawnTick = Game.time;
     }
+    return { rooms, creeps, spawns, constructionSites };
+}
 
+function _runPeriodicTasks() {
     adaptiveSystem.evaluate();
 
     if (Game.time % 100 === 0) {
@@ -716,10 +723,23 @@ function _runMainLogic() {
     if (adaptiveSystem.isEnabled('tutorial') && autoTutorial.isTutorial()) {
         autoTutorial.run();
         autoTutorial.showProgress();
-        return;
+        return true;
     }
 
     TaskQueue.run();
+    return false;
+}
+
+function _executeSpawning(spawns, creepCounts, targetCreeps, isLoggingEnabled) {
+    for (let i = 0; i < spawns.length; i++) {
+        handleSpawning(spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
+    }
+}
+
+function _runMainLogic() {
+    const { rooms, creeps, spawns, constructionSites } = _initGlobalData();
+
+    if (_runPeriodicTasks()) return;
 
     const isLoggingEnabled = adaptiveSystem.isEnabled('logging');
     const isVisualEffectsEnabled = adaptiveSystem.isEnabled('visualEffects');
@@ -740,9 +760,7 @@ function _runMainLogic() {
         autoEvolution.run();
     }
 
-    for (let i = 0; i < spawns.length; i++) {
-        handleSpawning(spawns[i], creepCounts, targetCreeps, isLoggingEnabled);
-    }
+    _executeSpawning(spawns, creepCounts, targetCreeps, isLoggingEnabled);
 
     handleSocialInteractions(rooms);
     handleDefenseAndDashboard(rooms, isLoggingEnabled, isVisualEffectsEnabled);
@@ -753,9 +771,8 @@ function _runMainLogic() {
 }
 
 module.exports.loop = function () {
-    _handleMaintenance();
-
     try {
+        _handleMaintenance();
         _runMainLogic();
     } catch (e) {
         Sentry.captureException(e);

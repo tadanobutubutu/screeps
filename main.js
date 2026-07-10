@@ -6,8 +6,8 @@
  */
 
 // ----------------- Imports ----------------------------
-const Game   = global.Game;
-const Flags  = global.Flags;
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
 
 // Roles
 const roleHarvester = require('role.harvester');

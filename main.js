@@ -21,4 +21,20 @@ function safeRequire(moduleName) {
 /* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
-if (typeof global.gr === 'undefined') global.gr
+
+/* Initialize global commands as functions */
+if (typeof global.gr === 'undefined') global.gr = function() {}; // Function placeholder
+if (typeof global.evor === 'undefined') global.evor = function() {}; // Function placeholder
+
+/* ------------------------------------------------------------------
+ * TODO: Implement creep role assignment logic here (line 62)
+ * ------------------------------------------------------------------ */
+// TODO: iterate over creeps, assign roles, etc.
+Object.keys(Game.creeps).forEach(function(name) {
+    const creep = Game.creeps[name];
+    // Example: Assign a role based on creep type or other criteria
+    // gr.assignRole(creep); // Uncomment if gr has such a method
+    // evor.assign(creep);    // Uncomment if evor has such a method
+});
+
+/* Rest of the file continues as before... */

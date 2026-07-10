@@ -15,35 +15,53 @@ def main():
         print(f"Failed to fetch issue details: {e}")
         return
     
-    # 2. Call OpenRouter with free model
-    model = "google/gemini-2.5-flash:free"
+    # 2. Call OpenRouter with free models list
+    models = [
+        "google/gemini-2.5-flash:free",
+        "google/gemini-2.0-flash-exp:free",
+        "meta-llama/llama-3-8b-instruct:free",
+    ]
+    
     prompt = f"Fix this JS code error for the file main.js.\nIssue Title: {ctx['title']}\nIssue Body: {ctx['body']}\nProvide ONLY the complete updated file content of main.js inside a javascript code block."
     
-    payload = {
-        "model": model,
-        "messages": [{"role": "user", "content": prompt}]
-    }
-    headers = {
-        "Authorization": f"Bearer {openrouter_token}",
-        "Content-Type": "application/json"
-    }
-    
-    try:
-        req = urllib.request.Request(
-            "https://openrouter.ai/api/v1/chat/completions",
-            data=json.dumps(payload).encode('utf-8'),
-            headers=headers
-        )
-        with urllib.request.urlopen(req, timeout=60) as f:
-            res = json.loads(f.read().decode('utf-8'))
-            result = res['choices'][0]['message']['content']
-    except Exception as e:
-        print(f"OpenRouter API call failed: {e}")
-        result = "// Fix pending"
+    result = None
+    for model in models:
+        try:
+            print(f"Trying model {model}...")
+            payload = {
+                "model": model,
+                "messages": [{"role": "user", "content": prompt}]
+            }
+            headers = {
+                "Authorization": f"Bearer {openrouter_token}",
+                "Content-Type": "application/json",
+                "X-Title": "screeps-issue-solver",
+                "HTTP-Referer": "https://github.com/tadanobutubutu/screeps"
+            }
+            req = urllib.request.Request(
+                "https://openrouter.ai/api/v1/chat/completions",
+                data=json.dumps(payload).encode('utf-8'),
+                headers=headers
+            )
+            with urllib.request.urlopen(req, timeout=60) as f:
+                res = json.loads(f.read().decode('utf-8'))
+                result = res['choices'][0]['message']['content']
+                if result:
+                    print(f"Successfully obtained response using {model}")
+                    break
+        except Exception as e:
+            print(f"Error calling model {model}: {e}")
+            
+    if not result:
+        result = "// Fix pending due to API errors"
     
     # 3. Apply the fix
     code_match = re.search(r"```(?:javascript|js)?\s*(.*?)\s*```", result, re.DOTALL)
     code = code_match.group(1) if code_match else result
+    
+    # Configure Git identity for the runner
+    subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
+    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
     
     branch = f"fix/ai-{issue_no}"
     subprocess.run(["git", "checkout", "-b", branch])

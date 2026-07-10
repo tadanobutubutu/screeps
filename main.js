@@ -1,27 +1,36 @@
 'use strict';
 
-// User Safety: safe
+/* Main entry point for the Screeps bot.
+ * This file contains all imports and logic from both branches.
+ * A simple status check is added for monitoring purposes and acts as a placeholder status check.
+ */
 
 /* ------------------------------------------------------------------
- *  Helper – safely require optional modules
+ *  Safe module require helper
  * ------------------------------------------------------------------ */
 function safeRequire(name) {
     try {
         return require(name);
     } catch (_) {
+        // Module could not be loaded – just return undefined.
         return undefined;
     }
 }
 
-/* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
- * ------------------------------------------------------------------ */
-const Game = global.Game; // global Game reference (may be mocked)
-const Flags = global.Flags; // global Flags reference
+/* Mock globals for testing environments (e.g., Jest) */
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
 
-// Example of optional role modules – ignored if missing
+/* ------------------------------------------------------------------
+ * Core imports (if they exist in the test environment)
+ * ------------------------------------------------------------------ */
+const Game = global.Game || {};
+const Flags = global.Flags || {};
+
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
 
 /* ------------------------------------------------------------------
  *  Helper API – multiply

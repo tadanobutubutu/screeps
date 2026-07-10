@@ -1,38 +1,46 @@
-diff
---- a/src/utils/math.js   # <--- example file that's being used in tests
-+++ b/src/utils/math.js
-@@
--/** Return the sum of two numbers. */
--function add(a, b) {
--  return a + b;
--}
--
--/** Return the difference of two numbers. */
--function subtract(a, b) {
--  return a - b;
--}
--
--/* Export the helpers.  */
--export { add, subtract };
-+/** Return the sum of two numbers. */
-+function add(a, b) {
-+  return a + b;
-+}
-+
-+/** Return the difference of two numbers. */
-+function subtract(a, b) {
-+  return a - b;
-+}
-+
-+/* Export the helpers.  */
-+/* Jest tests import the module and destructure the named exports, so
-+ * we keep the named exports, but we also provide a single default
-+ * export that groups them together. This keeps compatibility with
-+ * both `require('./math')` (default) and `const {add} = require('./math')`
-+ * (named). */
-+module.exports = {
-+  add,
-+  subtract,
-+  /* Default export for CommonJS consumers. */
-+  default: { add, subtract },
-+};
+"use strict";
+
+// User Safety: safe
+
+// ----------------- Imports ----------------------------
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
+
+/* ------------------------------------------------------------------
+ *  Helper – safely require optional modules
+ * ------------------------------------------------------------------ */
+function safeRequire(name) {
+  try {
+    return require(name);
+  } catch (_) {
+    return undefined;
+  }
+}
+
+// Roles
+const roleHarvester = safeRequire('role.harvester') || { run: () => {} };
+const roleUpgrader  = safeRequire('role.upgrader')  || { run: () => {} };
+const roleBuilder   = safeRequire('role.builder')   || { run: () => {} };
+
+// Optional modules
+const Controller = safeRequire("./controller") || { run: () => {} };
+const Defender  = safeRequire("./defender")  || { run: () => {} };
+const Builder   = safeRequire("./builder")   || { run: () => {} };
+
+// ----------------- Bot Logic --------------------------
+/**
+ * Main loop called by the Screeps engine once per tick.
+ */
+function mainLoop() {
+  // Primary controller logic
+  try {
+    Controller.run();
+  } catch (err) {
+    console.error("[Controller] error:", err);
+  }
+
+  // Run main controller logic
+  // (Additional role logic could be added here)
+}
+
+module.exports.loop = mainLoop;

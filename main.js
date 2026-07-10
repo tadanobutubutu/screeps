@@ -1,10 +1,12 @@
-"use strict";
-/* Main entry point for the Screeps bot.
+# User Safety: safe
+"use strict"; /* Main entry point for the Screeps bot. */
+
+/*
  * This file contains all imports and logic from both branches.
  * A simple status check is added for monitoring purposes.
  */
 
-// Helper to safely require modules. If the module cannot be loaded, the returned value is undefined and can be checked before use.
+/* Helper to safely require modules. If the module cannot be loaded, the returned value is undefined and can be checked before use. */
 function safeRequire(moduleName) {
     try {
         return require(moduleName);
@@ -12,6 +14,14 @@ function safeRequire(moduleName) {
         // Module not found or failed to load – just return undefined.
         return undefined;
     }
+}
+
+// Mock globals for testing environments (e.g., Jest)
+if (typeof global.Game === 'undefined') {
+    global.Game = { creeps: {} };
+}
+if (typeof global.Flags === 'undefined') {
+    global.Flags = {};
 }
 
 // ------------------------- Imports ----------------------------
@@ -38,15 +48,24 @@ function mainLoop() {
             Controller.run();
         } catch (err) {
             console.error("[Controller] error:", err);
+        }
+    }
 
+    // Optional defender logic
+    if (Defender && typeof Defender.run === "function") {
+        try {
+            Defender.run();
+        } catch (err) {
+            console.error("[Defender] error:", err);
+        }
+    }
 
+    // Call each role's loop if present
+    if (roleHarvester && typeof roleHarvester.run === "function") roleHarvester.run();
+    if (roleUpgrader && typeof roleUpgrader.run === "function") roleUpgrader.run();
+    if (roleBuilder && typeof roleBuilder.run === "function") roleBuilder.run();
+}
 
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+module.exports = {
+    mainLoop
+};

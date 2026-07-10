@@ -1,4 +1,5 @@
 """共有AIプロバイダー・フォールバック層（キー不要優先）。"""
+
 import json
 import re
 import urllib.parse
@@ -193,21 +194,35 @@ def call_gemini(prompt, key):
     return None
 
 
-def generate_with_fallback(prompt, gemini_key=None, openrouter_token=None, min_length=50):
+def generate_with_fallback(
+    prompt, gemini_key=None, openrouter_token=None, min_length=50
+):
     """キー不要プロバイダーを優先し、順次フォールバックする。"""
     providers = []
 
     for model in POLLINATIONS_GET_MODELS:
-        providers.append((f"pollinations-get:{model}", lambda m=model: call_pollinations_get(prompt, m)))
+        providers.append(
+            (
+                f"pollinations-get:{model}",
+                lambda m=model: call_pollinations_get(prompt, m),
+            )
+        )
     for model in POLLINATIONS_POST_MODELS:
-        providers.append((f"pollinations-post:{model}", lambda m=model: call_pollinations_post(prompt, m)))
+        providers.append(
+            (
+                f"pollinations-post:{model}",
+                lambda m=model: call_pollinations_post(prompt, m),
+            )
+        )
     providers.append(("kilo-gateway", lambda: call_kilo_gateway(prompt)))
     providers.append(("ovh-anonymous", lambda: call_ovh_anonymous(prompt)))
 
     if gemini_key:
         providers.append(("gemini", lambda: call_gemini(prompt, gemini_key)))
     if openrouter_token:
-        providers.append(("openrouter", lambda: call_openrouter(prompt, openrouter_token)))
+        providers.append(
+            ("openrouter", lambda: call_openrouter(prompt, openrouter_token))
+        )
 
     for name, caller in providers:
         result = caller()

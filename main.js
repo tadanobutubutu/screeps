@@ -2,7 +2,7 @@
 
 /* Main entry point for Screeps bot.
  * A simple status check is added for monitoring purposes.
- * Includes global helpers, and a placeholder status check.
+ * Includes global helpers, EmotionSystem stub, and a placeholder status check.
  */
 
 function safeRequire(moduleName) {
@@ -47,15 +47,3 @@ function multiply(a, b) {
 function run() {
   // Simple status check
   const status = {
-    creeps: Object.keys(Game.creeps || {}).length,
-    flags: Object.keys(Flags || {}).length
-  };
-  console.log('Bot status:', status);
-
-  // Example role execution if roles are defined
-  Object.values(Game.creeps || {}).forEach(creep => {
-    if (!creep || !creep.memory || !creep.memory.role) {
-      return;
-    }
-
-    const roleName = creep.memory.role

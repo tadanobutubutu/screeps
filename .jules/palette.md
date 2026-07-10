@@ -19,3 +19,9 @@
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
 - 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
+
+## 2025-05-23 - [Accessible Progress Indicators]
+
+**Learning:** Replacing static text percentages with visual progress bars using `role="progressbar"` and ARIA attributes (`aria-valuenow`, `aria-valuemax`) significantly improves accessibility for screen readers while providing a more "delightful" and responsive feel for all users. Using 2-decimal precision for slow-moving metrics like GCL makes progress feel more tangible.
+
+**Action:** Whenever displaying progress or levels, prefer semantic progress bars with high-precision percentages and smooth CSS transitions.

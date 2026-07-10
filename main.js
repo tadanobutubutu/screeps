@@ -54,8 +54,17 @@ function mainLoop() {
     }
 }
 
+// Add an anonymous function to fix the unterminated string constant error
+function runTests() {
+    // This function is used to run the Jest tests and should not be included in the export.
+    require.main.run();
+};
+
 // Export loop and status check
 module.exports.loop = mainLoop;
+
+// Add a new function to run Jest tests if the file is run directly
+module.exports.runTests = runTests;
 
 module.exports.checkStatus = function () {
     return 'OK';

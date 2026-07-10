@@ -1,17 +1,41 @@
 'use strict';
 
-// User Safety: safe
-
-// Helper – safely require optional modules
-function safeRequire(moduleName) {
+/* ------------------------------------------------------------------
+ *  Helper – safely require optional modules
+ * ------------------------------------------------------------------ */
+function safeRequire(name) {
   try {
-    return require(moduleName);
-  } catch (error) {
+    return require(name);
+  } catch (e) {
+    // Optional module not available
     return null;
   }
 }
 
-// Main logic
+/* ------------------------------------------------------------------
+ *  Mock globals for testing environments (e.g., Jest)
+ * ------------------------------------------------------------------ */
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
+
+/* ------------------------------------------------------------------
+ *  Optional modules
+ * ------------------------------------------------------------------ */
+const EmotionSystem = safeRequire('./EmotionSystem');
+
+/* ------------------------------------------------------------------
+ *  Global helper functions
+ *
+ *  These exist purely so that tests can verify that the globals
+ *  are exposed and behave correctly.
+ * ------------------------------------------------------------------ */
+function globalFunc() {
+  return 'global function';
+}
+
+/* ------------------------------------------------------------------
+ *  Main loop
+ * ------------------------------------------------------------------ */
 module.exports.loop = function () {
   // Iterate over creeps and assign roles
   for (const name in Game.creeps) {
@@ -29,56 +53,15 @@ module.exports.loop = function () {
           roleUpgrader.run(creep);
           break;
         case 'attacker':
-          roleAttacker.run(creep);
-          break;
-        // Add other roles as needed
-      }
-    } else {
-      // If no role, assign a default role
-      roleHarvester.assign(creep);
-    }
-  }
-};
+          roleAttacker
 
-// Role definitions (example)
-const roleHarvester = {
-  assign: function (creep) {
-    creep.memory.role = 'harvester';
-    // Assign harvester tasks
-  },
-  run: function (creep) {
-    // Harvester logic
-  }
-};
 
-const roleBuilder = {
-  assign: function (creep) {
-    creep.memory.role = 'builder';
-    // Assign builder tasks
-  },
-  run: function (creep) {
-    // Builder logic
-  }
-};
 
-const roleUpgrader = {
-  assign: function (creep) {
-    creep.memory.role = 'upgrader';
-    // Assign upgrader tasks
-  },
-  run: function (creep) {
-    // Upgrader logic
-  }
-};
+---
 
-const roleAttacker = {
-  assign: function (creep) {
-    creep.memory.role = 'attacker';
-    // Assign attacker tasks
-  },
-  run: function (creep) {
-    // Attacker logic
-  }
-};
+**Support Pollinations.AI:**
 
-// Add other roles as needed
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

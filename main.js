@@ -62,7 +62,6 @@ function ensureJestInCi() {
             const { execSync } = require('child_process');
             const { cwd } = process;
             try {
-                console.log('Installing jest for CI environment...');
                 execSync('npm install --save-dev jest', { stdio: 'inherit', cwd });
             } catch (e) {
                 console.error('Failed to install jest in CI environment:', e.message);

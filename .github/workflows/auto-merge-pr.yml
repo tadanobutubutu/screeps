@@ -35,6 +35,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           # Get list of all open PRs
           pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)

@@ -1,116 +1,116 @@
 # Mergify configuration for automatic PR merging
 
 queue_rules:
-  - name: default
-    merge_conditions: []
+    - name: default
+      merge_conditions: []
 
 pull_request_rules:
     # Auto-merge Dependabot PRs (all types)
-  - name: ⬆️ Auto-merge Dependabot PRs
-    conditions:
-      - author=dependabot[bot]
-      - -conflict
-      - or:
-          - check-success=CodeQL
-          - check-neutral=CodeQL
-          - check-skipped=CodeQL
-    actions:
-      merge:
-        method: squash
-      label:
-        add:
-          - auto-merged
-      comment:
-        message: '✅ Automatically merged by Mergify Bot'
+    - name: ⬆️ Auto-merge Dependabot PRs
+      conditions:
+          - author=dependabot[bot]
+          - -conflict
+          - or:
+                - check-success=CodeQL
+                - check-neutral=CodeQL
+                - check-skipped=CodeQL
+      actions:
+          merge:
+              method: squash
+          label:
+              add:
+                  - auto-merged
+          comment:
+              message: '✅ Automatically merged by Mergify Bot'
 
-    # Auto-merge Renovate PRs (no approval needed)
-  - name: 🤖 Auto-merge Renovate PRs
-    conditions:
-      - author=renovate[bot]
-      - -conflict
-      - or:
-          - check-success=CodeQL
-          - check-neutral=CodeQL
-          - check-skipped=CodeQL
-    actions:
-      merge:
-        method: squash
-      label:
-        add:
-          - auto-merged
-      comment:
-        message: '✅ Automatically merged by Mergify Bot'
+      # Auto-merge Renovate PRs (no approval needed)
+    - name: 🤖 Auto-merge Renovate PRs
+      conditions:
+          - author=renovate[bot]
+          - -conflict
+          - or:
+                - check-success=CodeQL
+                - check-neutral=CodeQL
+                - check-skipped=CodeQL
+      actions:
+          merge:
+              method: squash
+          label:
+              add:
+                  - auto-merged
+          comment:
+              message: '✅ Automatically merged by Mergify Bot'
 
-    # Auto-merge other automated PRs (github-actions[bot] etc)
-  - name: 🤖 Auto-merge other automated PRs
-    conditions:
-      - author=github-actions[bot]
-      - label=automated
-      - -conflict
-    actions:
-      merge:
-        method: squash
-      label:
-        add:
-          - auto-merged
+      # Auto-merge other automated PRs (github-actions[bot] etc)
+    - name: 🤖 Auto-merge other automated PRs
+      conditions:
+          - author=github-actions[bot]
+          - label=automated
+          - -conflict
+      actions:
+          merge:
+              method: squash
+          label:
+              add:
+                  - auto-merged
 
-    # Auto-approve and merge documentation updates
-  - name: 📝 Auto-merge documentation updates
-    conditions:
-      - or:
-          - files~=^.*\.md$
-          - files~=^wiki/
-      - author=tadanobutubutu
-      - label=documentation
-      - -conflict
-    actions:
-      review:
-        type: APPROVE
-        message: 'Automatically approved documentation update'
-      merge:
-        method: squash
+      # Auto-approve and merge documentation updates
+    - name: 📝 Auto-merge documentation updates
+      conditions:
+          - or:
+                - files~=^.*\.md$
+                - files~=^wiki/
+          - author=tadanobutubutu
+          - label=documentation
+          - -conflict
+      actions:
+          review:
+              type: APPROVE
+              message: 'Automatically approved documentation update'
+          merge:
+              method: squash
 
-    # Add labels based on file changes
-  - name: Auto-label-Documentation
-    conditions:
-      - or:
-          - files~=^.*\.md$
-          - files~=^wiki/
-    actions:
-      label:
-        add:
-          - documentation
+      # Add labels based on file changes
+    - name: Auto-label-Documentation
+      conditions:
+          - or:
+                - files~=^.*\.md$
+                - files~=^wiki/
+      actions:
+          label:
+              add:
+                  - documentation
 
-  - name: Auto-label-GitHub Actions
-    conditions:
-      - files~=^\.github/workflows/
-    actions:
-      label:
-        add:
-          - github-actions
+    - name: Auto-label-GitHub Actions
+      conditions:
+          - files~=^\.github/workflows/
+      actions:
+          label:
+              add:
+                  - github-actions
 
-  - name: Auto-label-JavaScript
-    conditions:
-      - files~=^.*\.js$
-    actions:
-      label:
-        add:
-          - javascript
+    - name: Auto-label-JavaScript
+      conditions:
+          - files~=^.*\.js$
+      actions:
+          label:
+              add:
+                  - javascript
 
-    # Auto-request reviews for large PRs
-  - name: 👀 Request review for large PRs
-    conditions:
-      - '#files>10'
-      - author!=dependabot[bot]
-      - author!=renovate[bot]
-      - author!=github-actions[bot]
-    actions:
-      request_reviews:
-        users:
-          - tadanobutubutu
-      label:
-        add:
-          - needs-review
-          - large-pr
+      # Auto-request reviews for large PRs
+    - name: 👀 Request review for large PRs
+      conditions:
+          - '#files>10'
+          - author!=dependabot[bot]
+          - author!=renovate[bot]
+          - author!=github-actions[bot]
+      actions:
+          request_reviews:
+              users:
+                  - tadanobutubutu
+          label:
+              add:
+                  - needs-review
+                  - large-pr
 
-    # Delete head branch after merge
+      # Delete head branch after merge

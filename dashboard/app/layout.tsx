@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }
           }
           kbd:focus-visible {
-            outline: 2px solid #0077aa;
+            outline: 2px solid #004b73;
             outline-offset: 2px;
           }
           kbd:hover {
@@ -63,9 +63,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             outline: none;
           }
           .interactive-hint:hover, .interactive-hint:focus-visible {
-            background-color: rgba(0, 119, 170, 0.1);
-            border-bottom: 1px solid #0077aa;
-            box-shadow: 0 0 0 2px rgba(0, 119, 170, 0.2);
+            background-color: rgba(0, 75, 115, 0.1);
+            border-bottom: 1px solid #004b73;
+            box-shadow: 0 0 0 2px rgba(0, 75, 115, 0.2);
           }
         `}</style>
             </head>

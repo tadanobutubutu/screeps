@@ -40,6 +40,25 @@ global.gr = gr;
 global.evor = evor;
 
 /* ------------------------------------------------------------------
+ *  Jest test environment setup
+ * ------------------------------------------------------------------ */
+if (typeof jest !== 'undefined') {
+  // Mock the global Game object for tests
+  global.Game = {
+    // Add any necessary mock properties here
+    // For example:
+    // creeps: {},
+    // rooms: {},
+    // time: 0
+  };
+
+  // Mock the global Flags object for tests
+  global.Flags = {
+    // Add any necessary mock properties here
+  };
+}
+
+/* ------------------------------------------------------------------
  *  Main loop – minimal implementation for tests
  * ------------------------------------------------------------------ */
 function loop() {

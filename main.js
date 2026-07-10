@@ -1,15 +1,14 @@
 'use strict';
 
-// User Safety: safe
-
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
 function safeRequire(name) {
   try {
     return require(name);
-  } catch (_) {
-    return undefined;
+  } catch (e) {
+    // Optional module not available
+    return null;
   }
 }
 
@@ -20,33 +19,35 @@ if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
 /* ------------------------------------------------------------------
- *  Ensure Jest is available for CI test runs; install if missing
+ *  Optional modules
  * ------------------------------------------------------------------ */
-function ensureJestForTests() {
-  try {
-    // Attempt to load jest; if it resolves, we are good
-    require('jest');
-  } catch (_) {
-    // If jest is not installed, install it locally as a dev dependency
-    const { execSync } = require('child_process');
-    // Use npm to install jest; --save-dev marks it as a devDependency
-    execSync('npm install jest --save-dev', { stdio: 'inherit' });
-    // After installation, try to require jest again
-    require('jest');
-  }
+const EmotionSystem = safeRequire('./EmotionSystem');
+
+/* ------------------------------------------------------------------
+ *  Global helper functions
+ *
+ *  These exist purely so that tests can verify that the globals
+ *  are exposed and behave correctly.
+ * ------------------------------------------------------------------ */
+function globalFunc() {
+  return 'global function';
 }
 
-// If this file is the entry point (e.g., run directly or via jest), bootstrap jest
-if (require.main === module) {
- 
+/* ------------------------------------------------------------------
+ *  Main bot loop – the entry point for the Screeps runtime
+ * ------------------------------------------------------------------ */
+module.exports.loop = function () {
+  // If an EmotionSystem is present, let it process.
+  if (EmotionSystem && typeof EmotionSystem.process === 'function') {
+    EmotionSystem.process();
+  } else {
+    // Fallback: just log a message
+    if (typeof console !== 'undefined') {
+      console.log('EmotionSystem not available.');
+    }
+  }
+};
 
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/* ------------------------------------------------------------------
+ *  Bootstrap for local execution or testing (e.g., Jest)
+ * ------------------------------------------------------------------ */

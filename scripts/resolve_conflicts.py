@@ -3,7 +3,7 @@ import os
 import subprocess
 import sys
 import urllib.request
-
+import re
 
 def run_cmd(args, check=True):
     print(f"Executing: {' '.join(args)}")
@@ -17,20 +17,29 @@ def run_cmd(args, check=True):
         )
     return res
 
+def call_gemini_api(prompt, key):
+    try:
+        print("Trying direct Google Gemini API (gemini-1.5-flash-latest)...")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=60) as f:
+            res = json.loads(f.read().decode('utf-8'))
+            return res['candidates'][0]['content']['parts'][0]['text']
+    except Exception as e:
+        print(f"Direct Gemini API failed: {e}")
+        return None
 
 def call_openrouter_ai(file_content, filename):
     token = os.environ.get("OPENROUTER_TOKEN")
-    if not token:
-        print("Warning: OPENROUTER_TOKEN not set, fallback to basic resolution.")
-        return None
-
-    # Free models list on OpenRouter
-    models = [
-        "google/gemini-2.5-flash:free",
-        "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3-8b-instruct:free",
-    ]
-
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    
     prompt = f"""You are a Senior JavaScript/Node.js Developer resolving a Git merge conflict in a Screeps bot repository.
 Below is the content of the file '{filename}' with Git conflict markers.
 Please resolve the conflict in a meaningful, logical manner. Make sure to keep and integrate both changes if they both add features, or choose the correct logic that compiles and satisfies both needs. Do not discard functionality unless they are clearly redundant.
@@ -44,43 +53,56 @@ Here is the conflicting file:
 =========================================
 """
 
-    for model in models:
-        try:
-            print(
-                f"Trying to resolve conflicts in '{filename}' using model '{model}'..."
-            )
-            payload = {
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-            }
-            req = urllib.request.Request(
-                "https://openrouter.ai/api/v1/chat/completions",
-                data=json.dumps(payload).encode("utf-8"),
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json",
-                    "X-Title": "screeps-conflict-resolver",
-                },
-            )
-            with urllib.request.urlopen(req, timeout=90) as response:
-                res_data = json.loads(response.read().decode("utf-8"))
-                choice = res_data.get("choices", [{}])[0]
-                content = choice.get("message", {}).get("content", "").strip()
-                if content:
-                    # Clean markdown code blocks if the AI ignored the negative constraint
-                    if content.startswith("```"):
-                        lines = content.splitlines()
-                        if lines[0].startswith("```"):
-                            lines = lines[1:]
-                        if lines and lines[-1].strip() == "```":
-                            lines = lines[:-1]
-                        content = "\n".join(lines).strip()
-                    return content
-        except Exception as e:
-            print(f"Error calling model {model}: {e}")
-
+    # 1. Try Direct Google Gemini API first
+    if gemini_key:
+        res = call_gemini_api(prompt, gemini_key)
+        if res:
+            return clean_response(res)
+            
+    # 2. Try OpenRouter free models
+    if token:
+        models = [
+            "openrouter/free",
+            "google/gemini-2.5-flash:free",
+            "google/gemini-2.0-flash-exp:free",
+        ]
+        for model in models:
+            try:
+                print(f"Trying OpenRouter model {model}...")
+                payload = {
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                }
+                req = urllib.request.Request(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    data=json.dumps(payload).encode("utf-8"),
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/json",
+                        "X-Title": "screeps-conflict-resolver",
+                        "HTTP-Referer": "https://github.com/tadanobutubutu/screeps"
+                    },
+                )
+                with urllib.request.urlopen(req, timeout=90) as response:
+                    res_data = json.loads(response.read().decode("utf-8"))
+                    if 'choices' in res_data and len(res_data['choices']) > 0:
+                        content = res_data['choices'][0]['message']['content'].strip()
+                        if content:
+                            return clean_response(content)
+            except Exception as e:
+                print(f"OpenRouter model {model} failed: {e}")
+                
     return None
 
+def clean_response(content):
+    if content.startswith("```"):
+        lines = content.splitlines()
+        if lines[0].startswith("```"):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        content = "\n".join(lines).strip()
+    return content
 
 def main():
     if len(sys.argv) < 2:
@@ -178,10 +200,8 @@ def main():
     )
 
     # Push to origin
-    # Since gh token has write access, we push to origin with HEAD:head_branch
     run_cmd(["git", "push", "origin", f"HEAD:{head_branch}"])
     print(f"Successfully resolved conflicts and pushed to {head_branch}.")
-
 
 if __name__ == "__main__":
     main()

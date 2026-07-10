@@ -8,18 +8,27 @@
 
 /* global describe, test, expect */
 
-// Helper to safely require modules. If the module cannot be loaded,
-// the returned value is undefined and can be checked before use.
+/* Helper to safely require modules. If the module cannot be loaded,
+ * the returned value is undefined and can be checked before use.
+ */
 function safeRequire(moduleName) {
-    try {
-        return require(moduleName);
-    } catch (_) {
-        // Module not found or failed to load – just return undefined.
-        return undefined;
-    }
+  try {
+    return require(moduleName);
+  } catch (_) {
+    // Module not found or failed to load – just return undefined.
+    return undefined;
+  }
 }
 
-/* --------------------- Imports --------------------- */
+// Mock globals for testing environments (e.g., Jest)
+if (typeof global.Game === 'undefined') {
+  global.Game = { creeps: {} };
+}
+if (typeof global.Flags === 'undefined') {
+  global.Flags = {};
+}
+
+/* --------------------- Imports ---------------------*/
 const Game  = global.Game || {};
 const Flags = global.Flags || {};
 
@@ -31,14 +40,18 @@ const roleCreep      = safeRequire('role.creep');
 const roleMine       = safeRequire('role.mine');
 
 /* --------------------- Utility Functions --------------------- */
-
 // Energy logic
-const ENERGY_CAPACITY = 300;
-const harvest = safeRequire('role.harvest');
-const upgrade = safeRequire('role.upgrade');
+// (Any energy related utilities would be placed here.)
 
-// Status check
-console.log('Bot is running. Energy capacity:', ENERGY_CAPACITY);
+/* --------------------- Main Logic ---------------------*/
+// Add multiply function here
+function multiply(a, b) {
+  return a * b;
+}
 
-/* ------------------------- Exports ---------------------------- */
-function multiply
+// Export the multiply function
+module.exports.multiply = multiply;
+
+// Rest of the main.js code...
+// (Any additional logic for controlling creeps, handling flags, etc.,
+ // would follow here.)

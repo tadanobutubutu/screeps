@@ -1,5 +1,12 @@
 # ACE - Autonomous Colony Engine（自律コロニーエンジン）
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 > **「自律進化」** ― AIがコードを分析し、修正、統合、デプロイまで自動で完結させる次世代スクリプトエンジン  
 > 34 の自動化ワークフロー、10 の動的ロール、24,658 行のコードが凝縮されたプロジェクトです。  
 

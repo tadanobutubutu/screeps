@@ -26,8 +26,7 @@ const EmotionSystem = {
     interact: function () {
         // Placeholder for emotion-based AI interactions
         // This function should be expanded to include actual AI logic
-        return;
-    }
+    },
 };
 
 /* ------------------------------------------------------------------

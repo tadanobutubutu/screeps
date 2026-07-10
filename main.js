@@ -59,7 +59,38 @@ try {
  * Placeholder for further implementation.
  */
 function main() {
-  // TODO: iterate over creeps, assign roles, etc.
+  // Iterate over all creeps and assign roles based on their memory
+  for (const creepName in Game.creeps) {
+    const creep = Game.creeps[creepName];
+
+    // Skip if creep is not valid
+    if (!creep) continue;
+
+    // Assign role based on creep's memory
+    if (creep.memory.role === 'harvester' && roleHarvester) {
+      roleHarvester.run(creep);
+    } else if (creep.memory.role === 'upgrader' && roleUpgrader) {
+      roleUpgrader.run(creep);
+    } else if (creep.memory.role === 'builder' && roleBuilder) {
+      roleBuilder.run(creep);
+    } else if (creep.memory.role === 'miner' && roleMiner) {
+      roleMiner.run(creep);
+    } else if (creep.memory.role === 'creep' && roleCreep) {
+      roleCreep.run(creep);
+    } else if (creep.memory.role === 'mine' && roleMine) {
+      roleMine.run(creep);
+    }
+  }
+
+  // Run emotion system if available
+  if (EmotionSystem) {
+    EmotionSystem.run();
+  }
+
+  // Run optional modules if available
+  if (Controller) Controller.run();
+  if (Defender) Defender.run();
+  if (Builder) Builder.run();
 }
 
 /* ------------------------------------------------------------------

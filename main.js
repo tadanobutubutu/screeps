@@ -29,10 +29,10 @@ const Flags = global.Flags || {}; // global Flags reference
 
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder   = safeRequire('role.builder');
-const roleMiner     = safeRequire('role.miner');
-const roleCreep     = safeRequire('role.creep');
-const roleMine      = safeRequire('role.mine');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
@@ -45,16 +45,36 @@ function multiply(a, b) {
 /* ------------------------------------------------------------------
  *  Global helpers for tests
  * ------------------------------------------------------------------ */
-/* TODO: Add additional test helpers if necessary */
+
+// Helper to assign roles to creeps
+function assignRole(creep) {
+    if (creep.memory.role === 'harvester') {
+        return roleHarvester;
+    } else if (creep.memory.role === 'upgrader') {
+        return roleUpgrader;
+    } else if (creep.memory.role === 'builder') {
+        return roleBuilder;
+    } else if (creep.memory.role === 'miner') {
+        return roleMiner;
+    } else if (creep.memory.role === 'creep') {
+        return roleCreep;
+    } else if (creep.memory.role === 'mine') {
+        return roleMine;
+    }
+    return undefined;
+}
 
 /* ------------------------------------------------------------------
  *  TODO: Implement creep role assignment logic here (line 62)
  * ------------------------------------------------------------------ */
 Object.keys(Game.creeps).forEach(function (name) {
     const creep = Game.creeps[name];
-    // Example: Assign a role based on creep type or other criteria
-    // gr.assignRole?.(creep); // Uncomment if gr has such a method
-    // evor.assign?.(creep);    // Uncomment if evor has such a method
+    const role = assignRole(creep);
+    if (role) {
+        // Assign the role to the creep
+        creep.memory.role = role.name; // Example: Assign the role name to the creep's memory
+        // ... rest of the role assignment logic ...
+    }
 });
 
 /* Rest of the file continues as before... */

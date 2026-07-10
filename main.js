@@ -28,7 +28,7 @@ function mainLoop() {
     try {
         Controller.run();
     } catch (err) {
-        console.error("[Controller] error:", err);
+        console.error('[Controller] error:', err);
     }
 
     // Run main controller logic

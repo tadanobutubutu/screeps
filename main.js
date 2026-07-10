@@ -37,4 +37,4 @@ const roleCreep = safeRequire('role.creep');
 const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
-/* ----------------------------------------------------------------
+/* ---------------------------------------------------------------- */

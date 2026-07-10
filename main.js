@@ -62,6 +62,11 @@ if (typeof jest !== 'undefined') {
     __esModule: true,
     default: jest.fn(),
   }), { virtual: true });
+
+  // Fixing the issue with jest not found by ensuring jest is installed and properly set up
+  const { clearAllMocks, mockModule } = require('jest');
+  global.clearAllMocks = clearAllMocks;
+  global.mockModule = mockModule;
 }
 
 /* ------------------------------------------------------------------

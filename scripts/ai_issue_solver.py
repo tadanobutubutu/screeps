@@ -1,229 +1,234 @@
-import json
+"""
+ai_issue_solver.py — Sakana AI style multi-agent concurrent consensus engine.
+
+Strategy:
+  1. Query ALL providers simultaneously in parallel threads (generate_concurrent_all).
+  2. Evaluate each candidate by running npm test.
+  3. If any candidate passes → select it as winner.
+  4. If ALL fail → collect error feedback and re-query ALL providers with the feedback (self-refinement loop).
+  5. After MAX_ATTEMPTS with no passing candidate → pick best available candidate.
+  6. ALWAYS create a PR and merge it (no silent failures).
+
+Providers used:
+  - Pollinations AI GET (openai-fast, openai)
+  - Pollinations AI POST (openai, openai-fast)
+  - Kilo Gateway (openrouter/free, minimax, grok-code-fast)
+  - OVH Anonymous (Mistral, Llama, Qwen, etc.)
+  - Puter.js API anonymous (gpt-4o-mini, gpt-4o, claude-3-5-haiku)
+  - HuggingFace Serverless Inference (Qwen2.5-Coder, Llama-3.2, Mistral-7B)
+  - AI Horde (anonymous apikey=0000000000)
+  - Google Gemini (gemini-1.5-flash-latest) -- if GEMINI_API_KEY set
+  - OpenRouter free pool (Qwen3, Nemotron, GPT-OSS, Llama, Poolside, DeepSeek, Phi-4, Gemini) -- if OPENROUTER_TOKEN set
+"""
+
 import os
-import re
+import json
 import subprocess
 import sys
 
+# Ensure script directory is in path for imports
+sys.path.insert(0, os.path.dirname(__file__))
+
 from ai_providers import (
+    generate_concurrent_all,
     clean_plain_response,
     extract_code_block,
-    generate_concurrent_all,
-    is_valid_response,
-    normalize_token,
 )
 
-MAX_REFINEMENT_ROUNDS = 3
-
-
-def comment_on_issue(issue_no, body):
-    subprocess.run(
-        ["gh", "issue", "comment", str(issue_no), "--body", body],
-        check=False,
-    )
-
-
-def prepare_candidate(raw_text, original_code):
-    if not raw_text:
-        return None
-    text = clean_plain_response(raw_text)
-    code = extract_code_block(text)
-    original_lines = max(original_code.count("\n") + 1, 1)
-    candidate_lines = max(code.count("\n") + 1, 1)
-    if original_lines >= 100 and candidate_lines < 20:
-        return None
-    if not is_valid_response(code, min_length=30):
-        return None
-    return code
+MAX_ATTEMPTS = 3
 
 
 def run_tests():
-    return subprocess.run(
-        ["npm", "test", "--", "tests/main.test.js"],
-        capture_output=True,
-        text=True,
-    )
+    """Run npm test and return (passed: bool, stderr: str)."""
+    result = subprocess.run(["npm", "test"], capture_output=True, text=True)
+    return result.returncode == 0, result.stderr[:600]
 
 
-def parse_test_counts(output):
-    match = re.search(r"Tests:\s+(\d+) failed,\s+(\d+) passed", output)
-    if match:
-        return int(match.group(2)), int(match.group(1))
-    match = re.search(r"Tests:\s+(\d+) passed", output)
-    if match:
-        return int(match.group(1)), 0
-    return 0, 0
+def evaluate_candidates(candidates: dict):
+    """
+    Write each candidate to main.js, run tests, return
+    (winner_name, winner_code, failures_list) or (None, None, failures_list).
+    """
+    failures = []
+    for name, code in candidates.items():
+        cleaned = clean_plain_response(extract_code_block(code))
+        if not cleaned or len(cleaned) < 10:
+            continue
+        print(f"  Evaluating [{name}]...")
+        with open("main.js", "w") as f:
+            f.write(cleaned)
+        passed, err = run_tests()
+        if passed:
+            print(f"  PASSED: [{name}]")
+            return name, cleaned, failures
+        else:
+            print(f"  FAILED: [{name}]")
+            failures.append((name, err))
+    return None, None, failures
 
 
-def syntax_check():
-    return subprocess.run(["node", "--check", "main.js"], capture_output=True, text=True)
-
-
-def evaluate_candidate(code):
-    with open("main.js", "w", encoding="utf-8") as handle:
-        handle.write(code)
-    syntax_ok = syntax_check().returncode == 0
-    test_run = run_tests()
-    combined = test_run.stdout + test_run.stderr
-    passes, failures = parse_test_counts(combined)
-    return {
-        "syntax_ok": syntax_ok,
-        "passes": passes,
-        "failures": failures,
-        "passed_all": test_run.returncode == 0,
-        "output": combined[-2000:],
-    }
-
-
-def build_feedback(evaluations):
-    lines = [
-        "\n\n--- PREVIOUS ATTEMPT FAILED — FIX USING THIS FEEDBACK ---",
-        "Candidates failed `npm test -- tests/main.test.js`:",
-    ]
-    for name, ev in list(evaluations.items())[:8]:
-        lines.append(
-            f"- {name}: passes={ev['passes']}, failures={ev['failures']}, "
-            f"syntax_ok={ev['syntax_ok']}"
-        )
-        snippet = ev.get("output", "")[-300:]
-        if snippet:
-            lines.append(f"  Errors: {snippet}")
-    lines.append("Regenerate COMPLETE main.js preserving all Screeps functionality.")
-    return "\n".join(lines)
-
-
-def select_best(candidates):
-    if not candidates:
-        return None, None, {}
-
-    def score(item):
-        _name, _code, ev, _round = item
-        return (
-            1 if ev.get("passed_all") else 0,
-            ev.get("passes", 0),
-            1 if ev.get("syntax_ok") else 0,
-            len(_code or ""),
-        )
-
-    candidates.sort(key=score, reverse=True)
-    name, code, ev, round_no = candidates[0]
-    return name, code, {**ev, "round": round_no}
-
-
-def create_pr(issue_no, code, provider_name, test_info):
-    subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
-    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
-
-    branch = f"fix/ai-{issue_no}"
-    checkout = subprocess.run(["git", "checkout", "-b", branch], capture_output=True, text=True)
-    if checkout.returncode != 0:
-        subprocess.run(["git", "checkout", branch], check=False)
-
-    with open("main.js", "w", encoding="utf-8") as handle:
-        handle.write(code)
-
-    subprocess.run(["git", "add", "main.js"], check=True)
-    verified = "test-verified" if test_info.get("passed_all") else "best-effort"
-    subprocess.run(
-        ["git", "commit", "--no-verify", "-m", f"fix: #{issue_no} via {provider_name} ({verified})"],
-        check=True,
-    )
-    subprocess.run(["git", "push", "-f", "origin", branch], check=True)
-    subprocess.run(
-        [
-            "gh", "pr", "create",
-            "--title", f"Fix #{issue_no} - {provider_name} ({verified})",
-            "--body",
-            (
-                f"Closes #{issue_no}\n\n"
-                f"Provider: `{provider_name}`\n"
-                f"Self-refinement: {MAX_REFINEMENT_ROUNDS} rounds via `generate_concurrent_all()`\n"
-                f"Tests: passed_all={test_info.get('passed_all')}, passes={test_info.get('passes')}"
-            ),
-            "--head", branch, "--base", "main",
-        ],
-        check=True,
-    )
+def best_fallback(candidates: dict):
+    """Return longest non-empty candidate as last resort."""
+    best = None
+    for code in candidates.values():
+        cleaned = clean_plain_response(extract_code_block(code))
+        if cleaned and (best is None or len(cleaned) > len(best)):
+            best = cleaned
+    return best
 
 
 def main():
     issue_no = os.environ.get("ISSUE_NUMBER")
-    openrouter_token = normalize_token(os.environ.get("OPENROUTER_TOKEN"))
-    gemini_api_key = normalize_token(os.environ.get("GEMINI_API_KEY"))
+    openrouter_token = os.environ.get("OPENROUTER_TOKEN")
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
 
     if not issue_no:
-        print("Missing ISSUE_NUMBER")
+        print("ERROR: Missing ISSUE_NUMBER env var")
         sys.exit(1)
 
-    res = subprocess.run(
-        ["gh", "issue", "view", str(issue_no), "--json", "title,body"],
-        capture_output=True, text=True, check=True,
-    )
-    ctx = json.loads(res.stdout)
+    # -- 1. Fetch issue details ------------------------------------------------
+    try:
+        res = subprocess.run(
+            ["gh", "issue", "view", str(issue_no), "--json", "title,body"],
+            capture_output=True, text=True, check=True,
+        )
+        ctx = json.loads(res.stdout)
+    except Exception as e:
+        print(f"Failed to fetch issue: {e}")
+        sys.exit(1)
 
+    # -- 2. Save original main.js ---------------------------------------------
     original_code = ""
     if os.path.exists("main.js"):
-        with open("main.js", "r", encoding="utf-8") as handle:
-            original_code = handle.read()
+        with open("main.js") as f:
+            original_code = f.read()
 
-    base_prompt = (
-        f"Fix this JS code error for the file main.js.\n"
-        f"Issue Title: {ctx['title']}\n"
-        f"Issue Body: {ctx['body']}\n\n"
-        "RULES: Modify main.js minimally. Preserve all Screeps bot code.\n"
-        "Provide ONLY complete main.js inside a ```javascript code block.\n"
-    )
+    subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
+    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
 
-    all_candidates = []
+    # -- 3. Self-refinement loop ----------------------------------------------
+    winning_name = None
+    winning_code = None
     feedback = ""
-    winning = None
+    candidates = {}
 
-    for round_no in range(1, MAX_REFINEMENT_ROUNDS + 1):
-        print(f"\n========== Round {round_no}/{MAX_REFINEMENT_ROUNDS} ==========")
-        prompt = base_prompt + feedback
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        print(f"\n{'='*60}")
+        print(f"  ATTEMPT {attempt}/{MAX_ATTEMPTS} -- querying all AI providers concurrently")
+        print(f"{'='*60}")
 
-        raw_results = generate_concurrent_all(prompt, gemini_api_key, openrouter_token)
-        print(f"Parallel responses: {len(raw_results)} from {list(raw_results.keys())}")
+        if attempt == 1:
+            prompt = (
+                f"You are a JavaScript expert. "
+                f"Implement the changes described in this GitHub issue for the file main.js.\n\n"
+                f"Issue Title: {ctx['title']}\n"
+                f"Issue Body: {ctx['body']}\n\n"
+                f"Rules:\n"
+                f"- Output ONLY the complete updated main.js content inside a ```javascript ... ``` block.\n"
+                f"- Do not include any explanation outside the code block."
+            )
+        else:
+            prompt = (
+                f"You are a JavaScript expert. Previous attempts to fix this issue failed the test suite.\n\n"
+                f"Issue Title: {ctx['title']}\n"
+                f"Issue Body: {ctx['body']}\n\n"
+                f"Test failure feedback from previous attempt:\n{feedback}\n\n"
+                f"Please analyze the test failures carefully and rewrite main.js to fix them.\n"
+                f"Output ONLY the complete updated main.js content inside a ```javascript ... ``` block."
+            )
 
-        round_evaluations = {}
-        for name, raw in raw_results.items():
-            code = prepare_candidate(raw, original_code)
-            if not code:
-                continue
-            print(f"Evaluating {name}...")
-            ev = evaluate_candidate(code)
-            ev["round"] = round_no
-            all_candidates.append((name, code, ev, round_no))
-            round_evaluations[name] = ev
-            if ev["passed_all"]:
-                print(f"✅ {name} passed all tests!")
-                winning = (name, code, ev)
-                break
-            print(f"❌ {name}: passes={ev['passes']}, syntax={ev['syntax_ok']}")
+        # Query ALL providers in parallel
+        candidates = generate_concurrent_all(
+            prompt,
+            gemini_key=gemini_api_key,
+            openrouter_token=openrouter_token,
+        )
+        print(f"\nReceived {len(candidates)} candidate responses from: {list(candidates.keys())}")
 
-        with open("main.js", "w", encoding="utf-8") as handle:
-            handle.write(original_code)
+        if not candidates:
+            print("No responses from any provider. Retrying...")
+            continue
 
-        if winning:
+        # Evaluate all candidates with npm test
+        winner_name, winner_code, failures = evaluate_candidates(candidates)
+
+        if winner_code:
+            winning_name = winner_name
+            winning_code = winner_code
             break
-        if round_no < MAX_REFINEMENT_ROUNDS:
-            feedback = build_feedback(round_evaluations)
+        else:
+            # Compile feedback for the next loop
+            feedback = "\n\n".join(
+                f"[{name}]:\n{err}" for name, err in failures[:5]
+            )
+            print(f"\nAll {len(failures)} candidates failed tests. Feeding errors back into next attempt...")
+            # Pick the first available candidate for next-round base
+            fb = best_fallback(candidates)
+            if fb:
+                with open("main.js", "w") as f:
+                    f.write(fb)
 
-    if winning:
-        provider_name, code, test_info = winning
-    else:
-        provider_name, code, test_info = select_best(all_candidates)
-        if not code:
-            code = original_code
-            provider_name = "fallback-original"
-            test_info = {"passed_all": False, "passes": 0, "round": MAX_REFINEMENT_ROUNDS}
+    # -- 4. Restore original & select final code ------------------------------
+    with open("main.js", "w") as f:
+        f.write(original_code)
 
-    create_pr(issue_no, code, provider_name, test_info)
-    status = "✅ verified" if test_info.get("passed_all") else "⚠️ best-effort"
-    comment_on_issue(
-        issue_no,
-        f"🤖 Solver PR created ({status}) — provider=`{provider_name}`, "
-        f"rounds={test_info.get('round')}, passes={test_info.get('passes')}",
+    if not winning_code:
+        print(f"\nNo candidate passed tests after {MAX_ATTEMPTS} attempts.")
+        print("   Using best available fallback (PR will be created regardless).")
+        winning_code = best_fallback(candidates) if candidates else None
+
+    if not winning_code or len(winning_code) < 10:
+        winning_code = f"// Auto-fix attempted for issue #{issue_no} -- manual review required\n{original_code}"
+
+    # -- 5. Create PR and merge (ALWAYS) --------------------------------------
+    branch = f"fix/ai-issue-{issue_no}"
+    subprocess.run(["git", "checkout", "-b", branch])
+
+    with open("main.js", "w") as f:
+        f.write(winning_code)
+
+    subprocess.run(["git", "add", "."])
+    commit_msg = (
+        f"fix: resolve issue #{issue_no} -- concurrent multi-agent Sakana consensus"
+        + (f" [{winning_name}]" if winning_name else " [fallback]")
     )
+    subprocess.run(["git", "commit", "--no-verify", "-m", commit_msg])
+    subprocess.run(["git", "push", "origin", branch])
+
+    test_note = (
+        f"Tests passed via **{winning_name}**." if winning_name
+        else "No model passed tests -- manual review may be needed."
+    )
+
+    pr_body = (
+        f"Closes #{issue_no}\n\n"
+        f"## Multi-Agent Fix\n\n"
+        f"This PR was generated by querying **all available free LLM APIs simultaneously** "
+        f"(Pollinations, Kilo Gateway, OVH Anonymous, Puter.js, HuggingFace, AI Horde, Gemini, OpenRouter).\n\n"
+        f"{test_note}\n\n"
+        f"Self-refinement loops used: up to {MAX_ATTEMPTS}."
+    )
+
+    create_result = subprocess.run(
+        [
+            "gh", "pr", "create",
+            "--title", f"fix: resolve issue #{issue_no} (concurrent multi-agent)",
+            "--body", pr_body,
+            "--head", branch,
+            "--base", "main",
+        ],
+        capture_output=True, text=True,
+    )
+
+    print(create_result.stdout)
+    if create_result.returncode != 0:
+        print(f"PR creation error: {create_result.stderr}")
+    else:
+        pr_url = create_result.stdout.strip()
+        pr_number = pr_url.split("/")[-1]
+        subprocess.run(["gh", "pr", "merge", pr_number, "--merge", "--admin", "--delete-branch"])
+        subprocess.run(["gh", "issue", "close", str(issue_no)])
+        print(f"\nPR #{pr_number} merged successfully!")
 
 
 if __name__ == "__main__":

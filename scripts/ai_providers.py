@@ -1,4 +1,5 @@
 """共有AIプロバイダー層 — 8〜12モデル並行実行対応。"""
+
 import json
 import os
 import re
@@ -324,9 +325,7 @@ def build_parallel_providers(gemini_key=None, openrouter_token=None):
     providers = []
 
     if gemini_key:
-        providers.append(
-            ("Gemini-Direct", lambda p: call_gemini(p, gemini_key))
-        )
+        providers.append(("Gemini-Direct", lambda p: call_gemini(p, gemini_key)))
 
     token = normalize_token(openrouter_token)
     if token:
@@ -349,9 +348,7 @@ def build_parallel_providers(gemini_key=None, openrouter_token=None):
     providers.append(("OVH-Anonymous", call_ovh_anonymous))
 
     for model in PUTER_MODELS:
-        providers.append(
-            (f"Puter-{model}", lambda p, m=model: call_puter(p, m))
-        )
+        providers.append((f"Puter-{model}", lambda p, m=model: call_puter(p, m)))
 
     for model in HF_INFERENCE_MODELS:
         slug = model.split("/")[-1]
@@ -380,7 +377,9 @@ def clean_plain_response(content):
     return content
 
 
-def generate_with_fallback(prompt, gemini_key=None, openrouter_token=None, min_length=50):
+def generate_with_fallback(
+    prompt, gemini_key=None, openrouter_token=None, min_length=50
+):
     """順次フォールバック（resolve_conflicts 等向け）。"""
     for name, caller in build_parallel_providers(gemini_key, openrouter_token):
         result = caller(prompt)

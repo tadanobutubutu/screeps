@@ -34,9 +34,7 @@ def prepare_candidate(raw_text, original_code):
     original_lines = max(original_code.count("\n") + 1, 1)
     candidate_lines = max(code.count("\n") + 1, 1)
     if original_lines >= 100 and candidate_lines < 20:
-        print(
-            f"Rejected: candidate too short ({candidate_lines} vs {original_lines})"
-        )
+        print(f"Rejected: candidate too short ({candidate_lines} vs {original_lines})")
         return None
 
     if not is_valid_response(code, min_length=30):
@@ -64,7 +62,9 @@ def parse_test_counts(output):
 
 
 def syntax_check():
-    return subprocess.run(["node", "--check", "main.js"], capture_output=True, text=True)
+    return subprocess.run(
+        ["node", "--check", "main.js"], capture_output=True, text=True
+    )
 
 
 def evaluate_candidate(code, original_code):
@@ -159,10 +159,14 @@ def select_best_candidate(candidates):
 
 def create_pr(issue_no, code, provider_name, test_info):
     subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
-    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
+    subprocess.run(
+        ["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"]
+    )
 
     branch = f"fix/ai-{issue_no}"
-    checkout = subprocess.run(["git", "checkout", "-b", branch], capture_output=True, text=True)
+    checkout = subprocess.run(
+        ["git", "checkout", "-b", branch], capture_output=True, text=True
+    )
     if checkout.returncode != 0:
         subprocess.run(["git", "checkout", branch], check=False)
         subprocess.run(["git", "reset", "--hard"], check=False)
@@ -259,7 +263,9 @@ def main():
     winning = None
 
     for round_no in range(1, MAX_REFINEMENT_ROUNDS + 1):
-        print(f"\n========== Refinement Round {round_no}/{MAX_REFINEMENT_ROUNDS} ==========")
+        print(
+            f"\n========== Refinement Round {round_no}/{MAX_REFINEMENT_ROUNDS} =========="
+        )
         prompt = base_prompt + feedback
 
         round_results = run_parallel_round(prompt, providers, original_code)
@@ -294,7 +300,9 @@ def main():
 
         if round_no < MAX_REFINEMENT_ROUNDS:
             feedback = build_feedback(round_evaluations)
-            print(f"\n🔄 Feeding test errors back to all models for round {round_no + 1}...")
+            print(
+                f"\n🔄 Feeding test errors back to all models for round {round_no + 1}..."
+            )
 
     if winning:
         provider_name, code, test_info = winning
@@ -314,7 +322,11 @@ def main():
 
     create_pr(issue_no, code, provider_name, test_info)
 
-    status = "✅ test-verified" if test_info.get("passed_all") else "⚠️ best-effort (tests failing)"
+    status = (
+        "✅ test-verified"
+        if test_info.get("passed_all")
+        else "⚠️ best-effort (tests failing)"
+    )
     comment_on_issue(
         issue_no,
         (

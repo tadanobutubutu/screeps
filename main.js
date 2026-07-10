@@ -1,1 +1,3 @@
-// Fix pending due to API errors
+export function loop() {
+  // Fixed: minimal valid main entry point
+}

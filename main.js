@@ -21,4 +21,18 @@ const controllerDefault = require('role.controllerDefault'); // New import
  * ------------------------------------------------------------------ */
 function safeRequire(name) {
   try {
-    return require
+    return require(name);
+  } catch (_) {
+    return undefined; // module missing / failed to load
+  }
+}
+
+// Optional modules
+const Controller = safeRequire("./controller") || require("./controller");
+const Defender   = safeRequire("./defender")   || require("./defender");
+const Builder    = safeRequire("./builder")    || require("./builder");
+
+// ----------------- Jest for Testing ------------------
+// Ensure Jest is available in case tests require it
+try {
+    require('

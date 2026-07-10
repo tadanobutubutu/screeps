@@ -30,19 +30,15 @@ const roleMiner      = safeRequire('role.miner');
 const roleCreep      = safeRequire('role.creep');
 const roleMine       = safeRequire('role.mine');
 
+/* --------------------- Utility Functions --------------------- */
+
 // Energy logic
 const ENERGY_CAPACITY = 300;
-const harvest = require('role.harvest');
-const upgrade = require('role.upgrade');
+const harvest = safeRequire('role.harvest');
+const upgrade = safeRequire('role.upgrade');
 
 // Status check
 console.log('Bot is running. Energy capacity:', ENERGY_CAPACITY);
 
 /* ------------------------- Exports ---------------------------- */
-function multiply(a, b) {
-    return a * b;
-}
-
-module.exports = {
-    multiply
-};
+function multiply

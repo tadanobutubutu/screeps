@@ -1,39 +1,39 @@
 import os, sys, json, subprocess, urllib.request, re
 
-def main():
-    issue_no = os.environ.get("ISSUE_NUMBER")
-    openrouter_token = os.environ.get("OPENROUTER_TOKEN")
-    if not issue_no or not openrouter_token:
-        print("Missing ISSUE_NUMBER or OPENROUTER_TOKEN")
-        return
-    
-    # 1. Fetch Issue Details
+def call_gemini_api(prompt, key):
     try:
-        res = subprocess.run(["gh", "issue", "view", str(issue_no), "--json", "title,body"], capture_output=True, text=True)
-        ctx = json.loads(res.stdout)
+        print("Trying direct Google Gemini API (gemini-1.5-flash-latest)...")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}]
+        }
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={"Content-Type": "application/json"}
+        )
+        with urllib.request.urlopen(req, timeout=60) as f:
+            res = json.loads(f.read().decode('utf-8'))
+            return res['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
-        print(f"Failed to fetch issue details: {e}")
-        return
-    
-    # 2. Call OpenRouter with free models list
+        print(f"Direct Gemini API failed: {e}")
+        return None
+
+def call_openrouter(prompt, token):
     models = [
+        "openrouter/free",
         "google/gemini-2.5-flash:free",
         "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3-8b-instruct:free",
     ]
-    
-    prompt = f"Fix this JS code error for the file main.js.\nIssue Title: {ctx['title']}\nIssue Body: {ctx['body']}\nProvide ONLY the complete updated file content of main.js inside a javascript code block."
-    
-    result = None
     for model in models:
         try:
-            print(f"Trying model {model}...")
+            print(f"Trying OpenRouter model {model}...")
             payload = {
                 "model": model,
                 "messages": [{"role": "user", "content": prompt}]
             }
             headers = {
-                "Authorization": f"Bearer {openrouter_token}",
+                "Authorization": f"Bearer {token}",
                 "Content-Type": "application/json",
                 "X-Title": "screeps-issue-solver",
                 "HTTP-Referer": "https://github.com/tadanobutubutu/screeps"
@@ -45,13 +45,39 @@ def main():
             )
             with urllib.request.urlopen(req, timeout=60) as f:
                 res = json.loads(f.read().decode('utf-8'))
-                result = res['choices'][0]['message']['content']
-                if result:
-                    print(f"Successfully obtained response using {model}")
-                    break
+                if 'choices' in res and len(res['choices']) > 0:
+                    return res['choices'][0]['message']['content']
+                elif 'error' in res:
+                    print(f"OpenRouter returned error for {model}: {res['error']}")
         except Exception as e:
-            print(f"Error calling model {model}: {e}")
-            
+            print(f"OpenRouter model {model} failed: {e}")
+    return None
+
+def main():
+    issue_no = os.environ.get("ISSUE_NUMBER")
+    openrouter_token = os.environ.get("OPENROUTER_TOKEN")
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    
+    if not issue_no:
+        print("Missing ISSUE_NUMBER")
+        return
+    
+    # 1. Fetch Issue Details
+    try:
+        res = subprocess.run(["gh", "issue", "view", str(issue_no), "--json", "title,body"], capture_output=True, text=True)
+        ctx = json.loads(res.stdout)
+    except Exception as e:
+        print(f"Failed to fetch issue details: {e}")
+        return
+    
+    prompt = f"Fix this JS code error for the file main.js.\nIssue Title: {ctx['title']}\nIssue Body: {ctx['body']}\nProvide ONLY the complete updated file content of main.js inside a javascript code block."
+    
+    result = None
+    if gemini_api_key:
+        result = call_gemini_api(prompt, gemini_api_key)
+    if not result and openrouter_token:
+        result = call_openrouter(prompt, openrouter_token)
+        
     if not result:
         result = "// Fix pending due to API errors"
     

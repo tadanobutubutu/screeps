@@ -78,6 +78,11 @@ if (typeof jest !== 'undefined') {
   if (typeof require !== 'undefined') {
     global.require = require;
   }
+
+  // Add a mock for the EmotionSystem if needed
+  global.EmotionSystem = global.EmotionSystem || {
+    interact: jest.fn()
+  };
 }
 
 /* ------------------------------------------------------------------

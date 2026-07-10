@@ -23,7 +23,15 @@ const Flags = global.Flags;
 const roleHarvester = safeRequire('role.harvester');
 const roleUp
 
+// Add the multiply function as requested
+function multiply(a, b) {
+  return a * b;
+}
 
+// Export the multiply function
+module.exports = {
+  multiply
+};
 
 ---
 

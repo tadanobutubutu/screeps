@@ -1,5 +1,12 @@
 # ACE (Autonomous Colony Engine)
 
+
+<!-- AUTO-PACKAGE-BADGES:START -->
+<!-- Auto-generated package badges -->
+
+![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
+
+<!-- AUTO-PACKAGE-BADGES:END -->
 ![build](https://github.com/screeps-ai/ace/actions/workflows/ci.yml/badge.svg) ![license](https://img.shields.io/github/license/screeps-ai/ace) ![coverage](https://img.shields.io/codecov/c/github/screeps-ai/ace) ![AI](https://img.shields.io/badge/AI-powered-yes-brightgreen)
 
 ACEは、Screepsというゲーム内で動作するJavaScriptベースのAI駆動型クラウドエンジンです。統計では34の自動化ワークフローと10の動的ロール、コード行数は24,658行に達しており、プロジェクト全体を24時間にわたって自己修復・進化させることを実現しています。読みやすさと高い保守性を重視し、AIが自律的にコードベースを最適化・改善する独自の仕組みを備えています。

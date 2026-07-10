@@ -41,3 +41,21 @@ const EmotionSystem  = safeRequire('emotion.system');
 function multiply(a, b) {
   return a * b;
 }
+
+/* ------------------------------------------------------------------
+ * Test Fix
+ * ------------------------------------------------------------------ */
+/* Export all functions for testing purposes */
+module.exports = {
+  multiply,
+  safeRequire,
+  Game,
+  Flags,
+  roleHarvester,
+  roleUpgrader,
+  roleBuilder,
+  roleMiner,
+  roleCreep,
+  roleMine,
+  EmotionSystem
+};

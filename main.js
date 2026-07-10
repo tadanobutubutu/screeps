@@ -2,11 +2,10 @@
 
 /* Main entry point for the Screeps bot.
  * This file contains all imports and logic from both branches.
- * A simple status check is added for monitoring purposes and acts as a placeholder status check.
- */
+ * A simple status check is added for monitoring purposes. */
+/* global describe, test, expect */
 
-/* ------------------------------------------------------------------
- * Helper to safely require modules. If the module cannot be loaded,
+/* Helper to safely require modules. If the module cannot be loaded,
  * the returned value is undefined and can be checked before use.
  * ------------------------------------------------------------------ */
 function safeRequire(moduleName) {
@@ -36,7 +35,7 @@ const awayHarvester = safeRequire('role.awayHarvester');
 const spawner = safeRequire('role.spawner');
 const controllerDefault = safeRequire('role.controllerDefault');
 
-// Optional modules
+/* Optional modules */
 const Controller = safeRequire('./controller');
 const Defender = safeRequire('./defender');
 const Builder = safeRequire('./builder');

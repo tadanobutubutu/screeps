@@ -342,10 +342,10 @@ const autoEvolution = {
             }
         }
 
-        if (need === undefined || need === null) {
+        if (need !== undefined && need !== null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
-            ');
+            logger.info('Added ' + need.type + ' to evolution queue');
         }
     },
 

@@ -39,25 +39,33 @@ function mainLoop() {
     console.error("[Controller] error:", err);
   }
 
-  // Run main controller logic
-  // Run each creep according to its role
-  for (const name in Game.creeps || {}) {
-    const creep = Game.creeps[name];
-    if (!creep || !creep.memory || !creep.memory.role) { continue; }
-
-    switch (creep.memory.role) {
-      case 'harvester':
-        roleHarvester.run(creep);
-        break;
-      case 'upgrader':
-        roleUpgrader.run(creep);
-        break;
-      case 'builder':
-        roleBuilder.run(creep);
-        break;
-      default:
-        // Additional roles could be handled here
-        break;
-    }
+  // Run defender logic
+  try {
+    Defender.run();
+  } catch (err) {
+    console.error("[Defender] error:", err);
   }
-}
+
+  // Run builder logic
+  try {
+    Builder.run();
+  } catch (err) {
+    console.error("[Builder] error:", err);
+  }
+
+  // Iterate over all creeps and delegate to roles
+  try {
+    for (const name in Game.creeps) {
+      const creep = Game.creeps[name];
+      if (creep.memory.role === 'harvester') {
+        roleHarvester.run(creep);
+      } else if (creep.memory.role === 'upgrader') {
+        roleUpgrader.run(creep);
+      } else if (creep.memory.role === 'builder') {
+        roleBuilder.run(creep);
+      } else {
+        // Default fallback: heal or idle
+        const target = creep.pos.findClosestByRange(Game.creeps);
+        if (target) {
+          creep.heal(target);
+        }

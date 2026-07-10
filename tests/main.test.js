@@ -386,7 +386,7 @@ describe('main.js', () => {
             id: 'c1',
             name: 'creep1',
             memory: {},
-            pos: { inRangeTo: jest.fn().mockReturnValue(true) },
+            pos: { x: 10, y: 10, inRangeTo: jest.fn().mockReturnValue(true) },
             hits: 100,
             hitsMax: 100,
             say: jest.fn(),
@@ -397,15 +397,13 @@ describe('main.js', () => {
             id: 'c2',
             name: 'creep2',
             memory: {},
-            pos: { inRangeTo: jest.fn().mockReturnValue(true) },
+            pos: { x: 11, y: 10, inRangeTo: jest.fn().mockReturnValue(true) },
             hits: 100,
             hitsMax: 100,
             say: jest.fn(),
             upgradeController: jest.fn(),
             store: { getUsedCapacity: () => 0, getFreeCapacity: () => 10, getCapacity: () => 10 },
         };
-        creep1.pos.findInRange = jest.fn().mockReturnValue([creep1, creep2]);
-        creep2.pos.findInRange = jest.fn().mockReturnValue([creep2, creep1]);
 
         const room = {
             name: 'W1N1',

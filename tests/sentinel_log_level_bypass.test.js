@@ -53,7 +53,7 @@ describe('src/utils/logger security: log-level bypass', () => {
     });
 
     test('init() should default to INFO on invalid string Memory.logLevel', () => {
-        global.Memory.logLevel = 'HACK';
+        global.Memory.logLevel = 'INVALID_STRING';
 
         logger.init();
 

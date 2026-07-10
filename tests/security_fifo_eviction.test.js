@@ -2,6 +2,7 @@ const cache = require('../src/utils/cache');
 
 describe('Security: Cache FIFO Eviction', () => {
     beforeEach(() => {
+        require('../src/utils/cache').reset();
         global.cache = {};
         global.Game = { time: 100 };
         global.FIND_SOURCES = 105;

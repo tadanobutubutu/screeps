@@ -296,5 +296,185 @@ describe('cache', () => {
             expect(source).toBe(mockSource);
             expect(mockRoom.find).not.toHaveBeenCalled();
         });
+
+        test('ソースが存在しない場合はnullを返す', () => {
+            global.Game.creeps = {};
+            global.Game.getObjectById = jest.fn();
+
+            const mockCreep = {
+                memory: {},
+            };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockImplementation((type) => {
+                    if (type === FIND_SOURCES) return [];
+                    if (type === FIND_MY_CREEPS) return [];
+                    return [];
+                }),
+            };
+
+            const source = cache.assignSource(mockCreep, mockRoom);
+
+            expect(source).toBeNull();
+        });
+
+        test('無効なソースIDが保存されている場合、新しいソースを再割り当てする', () => {
+            global.Game.creeps = {};
+            // getObjectById returns null for the invalid source
+            global.Game.getObjectById = jest.fn().mockReturnValue(null);
+
+            const mockCreep = {
+                memory: { sourceId: 'invalidSource' },
+            };
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockImplementation((type) => {
+                    if (type === FIND_SOURCES) return [{ id: 'source1' }];
+                    if (type === FIND_MY_CREEPS) return [];
+                    return [];
+                }),
+            };
+
+            const source = cache.assignSource(mockCreep, mockRoom);
+
+            expect(source).toEqual({ id: 'source1' });
+            expect(mockCreep.memory.sourceId).toBe('source1');
+        });
+
+        test('複数のソースがある場合、割り当てが最も少ないソースを選択する', () => {
+            // There are two sources. source1 is assigned to 2 creeps. source2 is assigned to 0 creeps.
+            global.Game.time = 100;
+            global.Game.creeps = {
+                creep1: { name: 'creep1', my: true, memory: { sourceId: 'source1' } },
+                creep2: { name: 'creep2', my: true, memory: { sourceId: 'source1' } },
+            };
+            global.Game.getObjectById = jest.fn();
+
+            const mockCreep = {
+                memory: {},
+            };
+            const mockRoom = {
+                name: 'W1N2',
+                find: jest.fn().mockImplementation((type) => {
+                    if (type === FIND_SOURCES) return [{ id: 'source1' }, { id: 'source2' }];
+                    if (type === FIND_MY_CREEPS)
+                        return [global.Game.creeps.creep1, global.Game.creeps.creep2];
+                    return [];
+                }),
+            };
+
+            const source = cache.assignSource(mockCreep, mockRoom);
+
+            expect(source).toEqual({ id: 'source2' });
+            expect(mockCreep.memory.sourceId).toBe('source2');
+        });
+
+        test('同一ティック内での連続呼び出し時にキャッシュが適切に更新される', () => {
+            global.Game.time = 200;
+            global.Game.creeps = {};
+            global.Game.getObjectById = jest.fn();
+
+            const mockRoom = {
+                name: 'W1N3',
+                find: jest.fn().mockImplementation((type) => {
+                    if (type === FIND_SOURCES) return [{ id: 'source1' }, { id: 'source2' }];
+                    if (type === FIND_MY_CREEPS) return [];
+                    return [];
+                }),
+            };
+
+            const mockCreep1 = { memory: {} };
+            const mockCreep2 = { memory: {} };
+            const mockCreep3 = { memory: {} };
+
+            // 1st assignment goes to source1
+            const sourceA = cache.assignSource(mockCreep1, mockRoom);
+            // 2nd assignment goes to source2 (because source1 has 1)
+            const sourceB = cache.assignSource(mockCreep2, mockRoom);
+            // 3rd assignment goes to source1 (both have 1)
+            const sourceC = cache.assignSource(mockCreep3, mockRoom);
+
+            expect(sourceA.id).toBe('source1');
+            expect(sourceB.id).toBe('source2');
+            expect(sourceC.id).toBe('source1');
+
+            expect(mockCreep1.memory.sourceId).toBe('source1');
+            expect(mockCreep2.memory.sourceId).toBe('source2');
+            expect(mockCreep3.memory.sourceId).toBe('source1');
+        });
+    });
+
+    describe('getStructuresNeedingEnergy', () => {
+        test('エネルギー補充が必要な構造物を取得する', () => {
+            const mockSpawnNeedEnergy = {
+                structureType: global.STRUCTURE_SPAWN,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(10) },
+            };
+            const mockExtensionFull = {
+                structureType: global.STRUCTURE_EXTENSION,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(0) },
+            };
+            const mockTowerNeedEnergy = {
+                structureType: global.STRUCTURE_TOWER,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(100) },
+            };
+            const mockContainerNeedEnergy = {
+                structureType: global.STRUCTURE_CONTAINER,
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            const mockStructures = [
+                mockSpawnNeedEnergy,
+                mockExtensionFull,
+                mockTowerNeedEnergy,
+                mockContainerNeedEnergy,
+            ];
+
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn((type, opts) => {
+                    if (type === FIND_STRUCTURES && opts && opts.filter) {
+                        return mockStructures.filter(opts.filter);
+                    }
+                    return [];
+                }),
+            };
+
+            const structures = cache.getStructuresNeedingEnergy(mockRoom);
+
+            expect(structures.length).toBe(2);
+            expect(structures).toContain(mockSpawnNeedEnergy);
+            expect(structures).toContain(mockTowerNeedEnergy);
+            expect(structures).not.toContain(mockExtensionFull);
+            expect(structures).not.toContain(mockContainerNeedEnergy);
+
+            expect(mockSpawnNeedEnergy.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            expect(mockTowerNeedEnergy.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            // mockExtensionFull will be checked, mockContainerNeedEnergy will NOT be checked because condition fails earlier
+            expect(mockExtensionFull.store.getFreeCapacity).toHaveBeenCalledWith(
+                global.RESOURCE_ENERGY
+            );
+            expect(mockContainerNeedEnergy.store.getFreeCapacity).not.toHaveBeenCalled();
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockStructures = [
+                { structureType: global.STRUCTURE_SPAWN, store: { getFreeCapacity: () => 10 } },
+            ];
+            const mockRoom = {
+                name: 'W1N1',
+                _deliveryTargets: mockStructures,
+                _myStructuresTick: global.Game.time,
+                find: jest.fn(),
+            };
+
+            const structures = cache.getStructuresNeedingEnergy(mockRoom);
+            expect(structures).toBe(mockStructures);
+            expect(mockRoom.find).not.toHaveBeenCalled();
+        });
     });
 });

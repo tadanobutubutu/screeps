@@ -7,27 +7,36 @@ on:
     types: [submitted]
   workflow_dispatch:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/15 * * * *"
 
 permissions:
   contents: write
   pull-requests: write
   actions: write
+  issues: write
 
 jobs:
   force-merge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
 
       - name: High-Speed Penetration Merge
         env:
+          GH_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.BLUECAVE_TOKEN || secrets.GITHUB_TOKEN }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
         run: |
-          # 全てのオープンなPRを取得
+          # Get list of all open PRs
           pull_requests=$(gh pr list --json number,isDraft,id,author,mergeable --limit 100)
           
           echo "$pull_requests" | jq -c ".[]" | while read -r pr; do
@@ -37,40 +46,71 @@ jobs:
             AUTHOR=$(echo "$pr" | jq -r ".author.login")
             MERGEABLE=$(echo "$pr" | jq -r ".mergeable")
             
-            # ai-cooking-recipes 用のユーザー制限 (大文字小文字無視・正規表現)
+            # Skip restrictions for non-screeps AI repos if needed, but in this repo we process all
             if [[ "${{ github.repository }}" == *"ai-cooking-recipes"* ]]; then
               if [[ ! $(echo "$AUTHOR" | tr '[:upper:]' '[:lower:]') =~ (tadanobutubutu|jules|devin) ]]; then
-                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR (Authorized authors only)"
+                echo "⏭️ Skipping PR #$PR_NO by $AUTHOR"
                 continue
               fi
             fi
 
             echo "🚀 Processing PR #$PR_NO by $AUTHOR (Status: $MERGEABLE)..."
             
-            # Draft解除
+            # 1. Convert Draft to Ready
             if [ "$IS_DRAFT" = "true" ]; then
-              echo "📝 PR #$PR_NO is draft, converting..."
+              echo "📝 PR #$PR_NO is draft, converting to ready..."
               gh pr ready "$PR_NO" || true
-            fi
-            
-            # コンフリクト自動更新
-            if [ "$MERGEABLE" = "CONFLICTING" ]; then
-              echo "⚠️ PR #$PR_NO has conflicts, attempting branch refresh..."
-              gh pr update-branch "$PR_NO" || true
+              gh api graphql -f query='
+                mutation($id: ID!) {
+                  markPullRequestReadyForReview(input: {pullRequestId: $id}) {
+                    clientMutationId
+                  }
+                }' -f id="$PR_ID" || true
               sleep 2
             fi
+            
+            # 2. Handle Conflict Resolution if conflicting
+            if [ "$MERGEABLE" = "CONFLICTING" ]; then
+              echo "⚠️ PR #$PR_NO has conflicts, launching AI conflict resolver..."
+              python3 scripts/resolve_conflicts.py "$PR_NO" || echo "❌ AI conflict resolution failed for PR #$PR_NO"
+              sleep 5
+              # Re-fetch PR details to see if mergeable status updated
+              pr_details=$(gh pr view "$PR_NO" --json mergeable)
+              MERGEABLE=$(echo "$pr_details" | jq -r ".mergeable")
+              echo "Updated mergeable status: $MERGEABLE"
+            fi
 
-            # 強制マージ実行 (管理者権限バイパス)
+            # 3. Force Merge PR
+            echo "Attempting to merge PR #$PR_NO..."
+            MERGE_SUCCESS=false
             if gh pr merge "$PR_NO" --admin --squash --delete-branch; then
               echo "✅ Successfully merged PR #$PR_NO and deleted branch."
+              MERGE_SUCCESS=true
             else
-              echo "⚠️ Merge failed, trying final GraphQL bypass..."
-              gh api graphql -f query='
+              echo "⚠️ Standard merge failed, trying GraphQL bypass..."
+              if gh api graphql -f query='
                 mutation($id: ID!) {
                   mergePullRequest(input: {
                     pullRequestId: $id,
                     mergeMethod: SQUASH
                   }) { clientMutationId }
-                }' -f id="$PR_ID" || echo "❌ Failed to merge PR #$PR_NO"
+                }' -f id="$PR_ID"; then
+                echo "✅ Successfully merged PR #$PR_NO via GraphQL."
+                MERGE_SUCCESS=true
+              else
+                echo "❌ Failed to merge PR #$PR_NO"
+              fi
+            fi
+
+            # 4. Auto close linked issues if merged
+            if [ "$MERGE_SUCCESS" = "true" ]; then
+              echo "Checking for linked issues to close..."
+              BODY=$(gh pr view "$PR_NO" --json body -q '.body')
+              # Find issue references in the body (e.g. closes #12, fixes #34, resolves #56)
+              ISSUES=$(echo "$BODY" | grep -o -i -E '(closes|fixes|resolves)\s+(https://github.com/[^/]+/[^/]+/issues/|#)([0-9]+)' | grep -o -E '[0-9]+' | sort -u || true)
+              for ISSUE in $ISSUES; do
+                echo "Closing linked issue #$ISSUE..."
+                gh issue close "$ISSUE" || true
+              done
             fi
           done

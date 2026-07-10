@@ -74,10 +74,7 @@ const roleScout = {
                         };
                         creep.memory.visitedCount = (creep.memory.visitedCount || 0) + 1;
 
-                        console.log(
-                            `🗺️ Scout visited ${roomName}: hostiles=${hostiles.length}, resources=${resources.length}, structures=${structures.length}`
-                        );
-                    }
+                        }
                 }
 
                 // Reset target to find new room

@@ -1,9 +1,5 @@
-🧹 [Refactor] Categorize room structures in main.js
+🧪 Add edge case tests for getStructuresNeedingEnergy in cache.js
 
-🎯 **What:** The `categorizeRoomStructures` function in `main.js` was too long and complex. It was refactored by breaking down the loop contents into smaller, distinct helper functions: `_categorizeMyStructure`, `_categorizeContainer`, and `_categorizeRepairTarget`.
-
-💡 **Why:** This improves maintainability and readability by keeping the core loop clean and moving specific logic into clearly named functions.
-
-✅ **Verification:** Verified changes visually with `git diff` and ran the full test suite via `pnpm test` and formatting via `npx prettier --write main.js`. Pre-commit checks (including ESLint) all pass.
-
-✨ **Result:** The `categorizeRoomStructures` function is now cleaner, smaller, and easier to understand, without introducing any changes in behavior.
+🎯 **What:** Missing edge case test for getStructuresNeedingEnergy in cache.js. The logic involves filtering properties based on energy and structure type which required verifying filtering logic and cache behavior.
+📊 **Coverage:** Now validates `room.find` filtering logic against valid targets needing energy, full valid targets, and invalid target types. Added coverage for the volatile cache layer prioritizing `_deliveryTargets` when correctly populated.
+✨ **Result:** Test coverage gap has been resolved for energy demanding target fetching, strengthening reliability when modifying caching code.

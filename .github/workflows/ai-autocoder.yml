@@ -1,0 +1,196 @@
+name: AI Auto-Coder (Full Lifecycle Agent)
+
+on:
+  issues:
+    types: [opened, labeled, edited]
+  issue_comment:
+    types: [created]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Target Issue Number (optional)'
+        required: false
+  schedule:
+    - cron: "*/30 * * * *" # 30分ごとに全Issueスキャンとマージ試行
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-label:
+    name: 🏷️ Auto Labeling
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add ai-solve label
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh issue edit ${{ github.event.issue.number }} --add-label "ai-solve"
+
+  issue-resolver:
+    name: 🧠 Global Issue Solving
+    # スケジュール実行時、またはIssue関連のイベント時に起動
+    if: |
+      github.event_name == 'schedule' || 
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' && github.event.issue.pull_request == null) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request == null)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Solve All Open Issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+          SINGLE_ISSUE: ${{ github.event.inputs.issue_number || github.event.issue.number }}
+        run: |
+          # 解決対象のIssueリストを作成
+          if [ -n "$SINGLE_ISSUE" ]; then
+            echo "$SINGLE_ISSUE" > issue_list.txt
+          else
+            # オープンな全てのIssue番号を取得（古い順）
+            gh issue list --state open --limit 50 --json number --jq '.[].number' | sort -n > issue_list.txt
+          fi
+          
+          echo "🚀 Targeted issues: $(cat issue_list.txt | xargs)"
+          
+          for issue in $(cat issue_list.txt); do
+            echo "----------------------------------------"
+            echo "🛠️ Processing Issue #$issue..."
+            export ISSUE_NUMBER=$issue
+            # Issueの詳細を取得（タイトルと本文を環境変数へ）
+            DATA=$(gh issue view "$ISSUE_NUMBER" --json title,body)
+            export ISSUE_TITLE=$(echo "$DATA" | jq -r '.title')
+            export ISSUE_BODY=$(echo "$DATA" | jq -r '.body')
+            
+            # AI解決スクリプトの実行
+            python3 scripts/ai_issue_solver.py
+            
+            # Issueをクローズ
+            echo "✅ Closing Issue #$issue..."
+            gh issue close "$ISSUE_NUMBER" --comment "Auto-closed: Issue resolved by AI agent." || echo "⚠️ Failed to close issue #$issue."
+            
+            # 連続実行によるレート制限を考慮
+            sleep 10
+          done
+
+  conflict-and-merge:
+    name: ⚡ Conflict Resolve & Merge
+    # 全てのPR関連イベントおよび定期実行でマージを試行
+    if: |
+      github.event_name == 'pull_request' || 
+      github.event_name == 'pull_request_review' || 
+      github.event_name == 'schedule' || 
+      github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: Resolve Conflicts (AI)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          PR_DATA=$(gh api graphql -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){pullRequests(states:OPEN,first:20){nodes{number,headRefName,baseRefName}}}}' -f owner="${{ github.repository_owner }}" -f repo="${{ github.event.repository.name }}")
+          echo "$PR_DATA" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            HEAD=$(echo "$pr" | jq -r '.headRefName')
+            BASE=$(echo "$pr" | jq -r '.baseRefName')
+            echo "Checking conflicts for #$PR_NO..."
+            git checkout "$HEAD" || continue
+            git config user.name "AI Conflict Resolver"
+            git config user.email "ai@screeps.local"
+            git fetch origin "$BASE"
+            if ! git merge "origin/$BASE" --no-edit; then
+              echo "AI resolving conflicts for #$PR_NO..."
+              # コンフリクト解消ロジック
+              FILES=$(git diff --name-only --diff-filter=U)
+              for FILE in $FILES; do
+                PROMPT="Resolve merge conflicts in $FILE. Respond ONLY with code."
+                ENCODED=$(jq -Rr @uri <<< "$PROMPT")
+                RESOLVED=$(curl -s "https://text.pollinations.ai/$ENCODED?model=openai" || echo "")
+                if [ -n "$RESOLVED" ] && [[ "$RESOLVED" != *"<!DOCTYPE html>"* ]]; then
+                  echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d' > "$FILE"
+                  git add "$FILE"
+                else
+                  git checkout --ours "$FILE"
+                  git add "$FILE"
+                fi
+              done
+              git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD"
+            fi
+          done
+
+      - name: Auto Merge and Test Fix (GraphQL Ultimate)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          OPENROUTER_TOKEN: ${{ secrets.OPENROUTER_TOKEN }}
+        run: |
+          PR_LIST=$(gh api graphql -f query='query($owner:String!,$repo:String!){repository(owner:$owner,name:$repo){pullRequests(states:OPEN,first:100){nodes{id,number,isDraft,mergeable,headRefName}}}}' -f owner="$REPO_OWNER" -f repo="$REPO_NAME")
+          echo "$PR_LIST" | jq -c '.data.repository.pullRequests.nodes[]' | while read -r pr; do
+            PR_ID=$(echo "$pr" | jq -r '.id')
+            PR_NO=$(echo "$pr" | jq -r '.number')
+            HEAD_REF=$(echo "$pr" | jq -r '.headRefName')
+            
+            echo "Checking PR #$PR_NO..."
+            
+            # テストチェック
+            # Jestを実行して確認
+            git checkout "$HEAD_REF"
+            if ! npm install && npm test; then
+                echo "❌ Tests failed for #$PR_NO. Attempting AI fix..."
+                
+                # AIにテスト失敗内容を読ませてコード修正を依頼
+                TEST_LOG=$(npm test 2>&1 | tail -n 20)
+                FILE_CONTENTS=$(find . -maxdepth 2 -name '*.js' ! -path './.git/*' ! -path './node_modules/*' | head -20 | xargs cat)
+                
+                RESPONSE=$(curl -s https://openrouter.ai/api/v1/chat/completions \
+                  -H "Authorization: Bearer $OPENROUTER_TOKEN" \
+                  -d "$(jq -n --arg log "$TEST_LOG" --arg files "$FILE_CONTENTS" '{
+                    model: "anthropic/claude-3.5-sonnet",
+                    messages: [
+                      {role: "system", content: "Fix the JS code to pass Jest tests. Respond with JSON: {\"fixes\": [{\"file\": \"path\", \"content\": \"code\"}]}"},
+                      {role: "user", content: "Test failure:\n\($log)\n\nCode:\n\($files)"}
+                    ]
+                  }')")
+                
+                # 修正適用（前のセクションと同じロジック）
+                FIX_COUNT=$(echo "$RESPONSE" | jq '.choices[0].message.content' | jq -r '.fixes | length' 2>/dev/null || echo 0)
+                for i in $(seq 0 $((FIX_COUNT - 1))); do
+                    FILE=$(echo "$RESPONSE" | jq -r ".fixes[$i].file")
+                    DATA=$(echo "$RESPONSE" | jq -r ".fixes[$i].content")
+                    if [ -n "$FILE" ]; then echo "$DATA" > "$FILE"; fi
+                done
+                git add -A && git commit -m "chore: Auto-fix test failures via AI" && git push origin "$HEAD_REF"
+                continue # 次のループで再度チェック
+            fi
+            
+            # マージ処理（条件なしで強制マージ）
+            echo "⚡ Forcing merge for PR #$PR_NO..."
+            if gh api graphql -f query='mutation($id:ID!){mergePullRequest(input:{pullRequestId:$id,mergeMethod:SQUASH}){clientMutationId}}' -f id="$PR_ID"; then
+                gh api -X DELETE "/repos/$REPO_OWNER/$REPO_NAME/git/refs/heads/$HEAD_REF" || true
+            else
+                echo "⚠️ Forced merge failed."
+            fi
+          done

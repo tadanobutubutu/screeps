@@ -1,0 +1,11 @@
+{
+  "files": [
+    "memory.visualizer.js",
+    "system.adaptive.js",
+    "utils.planning.js"
+  ],
+  "rules": [
+    "Remove console.log"
+  ],
+  "timestamp": "2026-07-09T01:27:27.457Z"
+}

@@ -2,6 +2,10 @@
 
 // User Safety: safe
 
+// ----------------- Imports ----------------------------
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
+
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
@@ -13,49 +17,47 @@ function safeRequire(name) {
   }
 }
 
-/* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
- * ------------------------------------------------------------------ */
-const Game     = global.Game;          // global Game reference (may be mocked)
-const Flags    = global.Flags;         // global Flags reference
+// Roles
+const roleHarvester = safeRequire('role.harvester') || { run: () => {} };
+const roleUpgrader  = safeRequire('role.upgrader')  || { run: () => {} };
+const roleBuilder   = safeRequire('role.builder')   || { run: () => {} };
 
-// Example of optional role modules – ignored if missing
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
+// Optional modules
+const Controller = safeRequire("./controller") || { run: () => {} };
+const Defender  = safeRequire("./defender")  || { run: () => {} };
+const Builder   = safeRequire("./builder")   || { run: () => {} };
 
-/* ------------------------------------------------------------------
- *  Helper API – multiply
- * ------------------------------------------------------------------ */
-function multiply(a, b) {
-  return a * b;
-}
-
-/* ------------------------------------------------------------------
- *  Global helpers for tests
- * ------------------------------------------------------------------ */
-function gr() { /* placeholder – tests only check typeof */ }
-function evor() { /* placeholder – tests only check typeof */ }
-
-global.gr = gr;
-global.evor = evor;
-
-/* ------------------------------------------------------------------
- *  Main loop – minimal implementation for tests
- * ------------------------------------------------------------------ */
-function loop() {
-  // If EmotionSystem is available, call its interact method.
-  const EmotionSystem = global.EmotionSystem;
-  if (EmotionSystem && typeof EmotionSystem.interact === 'function') {
-    EmotionSystem.interact();
+// ----------------- Bot Logic --------------------------
+/**
+ * Main loop called by the Screeps engine once per tick.
+ */
+function mainLoop() {
+  // Primary controller logic
+  try {
+    Controller.run();
+  } catch (err) {
+    console.error("[Controller] error:", err);
   }
 
-  /* Optional logic – iterate over flags or rooms would go here */
-}
+  // Run main controller logic
+  // Run each creep according to its role
+  for (const name in Game.creeps || {}) {
+    const creep = Game.creeps[name];
+    if (!creep || !creep.memory || !creep.memory.role) { continue; }
 
-/* ------------------------------------------------------------------
- *  Exported API
- * ------------------------------------------------------------------ */
-module.exports = {
-  multiply,
-  loop
-};
+    switch (creep.memory.role) {
+      case 'harvester':
+        roleHarvester.run(creep);
+        break;
+      case 'upgrader':
+        roleUpgrader.run(creep);
+        break;
+      case 'builder':
+        roleBuilder.run(creep);
+        break;
+      default:
+        // Additional roles could be handled here
+        break;
+    }
+  }
+}

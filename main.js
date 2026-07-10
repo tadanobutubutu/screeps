@@ -4,29 +4,43 @@
  * A simple status check is added for monitoring purposes.
  */
 
- // Helper to safely require modules. If the module cannot be loaded,
- // the returned value is undefined and can be checked before use.
- function safeRequire(moduleName) {
-   try {
-     return require(moduleName);
-   } catch (_) {
-     // Module not found or failed to load – just return undefined.
-     return undefined;
-   }
- }
+// Helper to safely require modules. If the module cannot be loaded,
+// the returned value is undefined and can be checked before use.
+function safeRequire(moduleName) {
+  try {
+    return require(moduleName);
+  } catch (_) {
+    // Module not found or failed to load – just return undefined.
+    return undefined;
+  }
+}
 
- // Mock globals for testing environments (e.g., Jest)
- if (typeof global.Game === 'undefined') {
-   global.Game = { creeps: {} };
- }
- if (typeof global.Flags === 'undefined') {
-   global.Flags = {};
- }
+// Mock globals for testing environments (e.g., Jest)
+if (typeof global.Game === 'undefined') {
+  global.Game = { creeps: {} };
+}
+if (typeof global.Flags === 'undefined') {
+  global.Flags = {};
+}
 
- // ----------------- Imports ----------------------------
- const Game   = global.Game || {};
- const Flags  = global.Flags || {};
+// ----------------- Imports ----------------------------
+const Game   = global.Game || {};
+const Flags  = global.Flags || {};
 
- // Roles
- const roleHarvester = require('role.harvester');
- const roleUpgrader
+// Roles
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader'); // Assuming 'role.upgrader' is also imported
+
+// ----------------- New Function ----------------------------
+// Add multiply function to main.js that takes two numbers and returns their product
+function multiply(a, b) {
+  return a * b;
+}
+
+// Export the new function
+module.exports = {
+  multiply: multiply,
+  // ... Preserve existing exports
+  roleHarvester: roleHarvester,
+  roleUpgrader: roleUpgrader
+};

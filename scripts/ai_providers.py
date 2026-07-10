@@ -164,7 +164,7 @@ def call_ovh_anonymous(prompt):
     return None
 
 
-def call_openrouter(prompt, token):
+def call_openrouter_model(prompt, token, model):
     token = normalize_token(token)
     if not token:
         return None
@@ -173,20 +173,25 @@ def call_openrouter(prompt, token):
         "X-Title": "screeps-ai-fallback",
         "HTTP-Referer": "https://github.com/tadanobutubutu/screeps",
     }
+    try:
+        print(f"Trying OpenRouter ({model})...")
+        return _openai_chat(
+            "https://openrouter.ai/api/v1/chat/completions",
+            model,
+            prompt,
+            headers=headers,
+            timeout=90,
+        )
+    except Exception as exc:
+        print(f"OpenRouter ({model}) failed: {exc}")
+    return None
+
+
+def call_openrouter(prompt, token):
     for model in OPENROUTER_MODELS:
-        try:
-            print(f"Trying OpenRouter ({model})...")
-            result = _openai_chat(
-                "https://openrouter.ai/api/v1/chat/completions",
-                model,
-                prompt,
-                headers=headers,
-                timeout=90,
-            )
-            if result:
-                return result
-        except Exception as exc:
-            print(f"OpenRouter ({model}) failed: {exc}")
+        result = call_openrouter_model(prompt, token, model)
+        if result:
+            return result
     return None
 
 
@@ -354,7 +359,15 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     if gemini_key:
         provider_calls.append(("gemini", lambda: call_gemini(prompt, gemini_key)))
     if openrouter_token:
-        provider_calls.append(("openrouter", lambda: call_openrouter(prompt, openrouter_token)))
+        token = normalize_token(openrouter_token)
+        for model in OPENROUTER_MODELS:
+            slug = model.replace("/", "-").replace(":", "-")
+            provider_calls.append(
+                (
+                    f"openrouter-{slug}",
+                    lambda m=model, t=token: call_openrouter_model(prompt, t, m),
+                )
+            )
 
     results = {}
     lock = threading.Lock()

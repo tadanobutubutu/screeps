@@ -47,3 +47,29 @@ function multiply(a, b) {
 function run() {
   // Simple status check
   const status = {
+    creeps: Object.keys(global.Game.creeps).length,
+    resources: {
+      energy: Game.energyAvailable,
+      minerals: Game.mineralHarvesters.length,
+      metals: Game.metalHarvesters.length
+    },
+    roles: {
+      harvester: roleHarvester.count,
+      upgrader: roleUpgrader.count,
+      builder: roleBuilder.count,
+      miner: roleMiner.count,
+      creep: roleCreep.count,
+      mine: roleMine.count
+    }
+  };
+
+  console.log('Status:', status);
+
+  // Example role execution
+  roleHarvester.execute();
+  roleUpgrader.execute();
+  roleBuilder.execute();
+  roleMiner.execute();
+  roleCreep.execute();
+  roleMine.execute();
+}

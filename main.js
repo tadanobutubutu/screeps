@@ -38,6 +38,33 @@ const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
+ *  Test Helpers
+ * ------------------------------------------------------------------ */
+function createMockEmotionSystem() {
+    return {
+        interact: jest.fn(),
+        // Add other methods that might be called in tests
+        update: jest.fn(),
+        getEmotion: jest.fn().mockReturnValue('neutral')
+    };
+}
+
+function createMockGame() {
+    return {
+        creeps: {},
+        spawns: {},
+        rooms: {},
+        time: 0,
+        cpu: {
+            getUsed: jest.fn().mockReturnValue(0),
+            limit: 100
+        },
+        // Add other Game properties that might be used in tests
+        getObjectById: jest.fn()
+    };
+}
+
+/* ------------------------------------------------------------------
  * Optional modules
  * ------------------------------------------------------------------ */
 function multiply(a, b) {

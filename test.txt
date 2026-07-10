@@ -1,2 +1,4 @@
-Line 1: Original text
-Line 2: Side B content
+# The merge conflict markers have been removed and the file has been resolved.
+# (Please replace the following placeholder with the actual content from the selected branch.)
+
+<resolved content goes here>

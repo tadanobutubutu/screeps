@@ -5,9 +5,10 @@
  * A simple status check is added for monitoring purposes and acts as a placeholder status check.
  */
 
-/* Helper to safely require modules. If the module cannot be loaded,
+/* ------------------------------------------------------------------
+ * Helper to safely require modules. If the module cannot be loaded,
  * the returned value is undefined and can be checked before use.
- */
+ * ------------------------------------------------------------------ */
 function safeRequire(moduleName) {
     try {
         return require(moduleName);
@@ -24,7 +25,7 @@ if (typeof global.Flags === 'undefined') global.Flags = {};
 const Game = global.Game || {};
 const Flags = global.Flags || {};
 
-// Roles
+/* Roles */
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
 const roleBuilder = safeRequire('role.builder');

@@ -83,6 +83,13 @@ if (typeof jest !== 'undefined') {
   global.EmotionSystem = global.EmotionSystem || {
     interact: jest.fn()
   };
+
+  // Add a mock for the process object if needed
+  global.process = global.process || {
+    env: {
+      NODE_ENV: 'test'
+    }
+  };
 }
 
 /* ------------------------------------------------------------------

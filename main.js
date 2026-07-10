@@ -6,26 +6,26 @@
  */
 
 function safeRequire(moduleName) {
-  try {
-    return require(moduleName);
-  } catch (_) {
-    return undefined;
-  }
+    try {
+        return require(moduleName);
+    } catch (_) {
+        return undefined;
+    }
 }
 
 /* Mock globals for testing environments (e.g., Jest) */
-if (typeof global.Game    === 'undefined') global.Game    = { creeps: {} };
-if (typeof global.Flags   === 'undefined') global.Flags   = {};
+if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
+if (typeof global.Flags === 'undefined') global.Flags = {};
 
-const Game  = global.Game || {};
+const Game = global.Game || {};
 const Flags = global.Flags || {};
 
 const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader   = safeRequire('role.upgrader');
-const roleBuilder    = safeRequire('role.builder');
-const roleMiner      = safeRequire('role.miner');
-const roleCreep      = safeRequire('role.creep');
-const roleMine       = safeRequire('role.mine');
+const roleUpgrader = safeRequire('role.upgrader');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 
 /* ------------------------------------------------------------------
  * New Function
@@ -34,7 +34,7 @@ const roleMine       = safeRequire('role.mine');
  * their product.
  */
 function multiply(a, b) {
-  return a * b;
+    return a * b;
 }
 
 /* ------------------------------------------------------------------
@@ -45,31 +45,31 @@ function multiply(a, b) {
  * role execution example.
  */
 function run() {
-  // Simple status check
-  const status = {
-    creeps: Object.keys(global.Game.creeps).length,
-    resources: {
-      energy: Game.energyAvailable,
-      minerals: Game.mineralHarvesters.length,
-      metals: Game.metalHarvesters.length
-    },
-    roles: {
-      harvester: roleHarvester.count,
-      upgrader: roleUpgrader.count,
-      builder: roleBuilder.count,
-      miner: roleMiner.count,
-      creep: roleCreep.count,
-      mine: roleMine.count
-    }
-  };
+    // Simple status check
+    const status = {
+        creeps: Object.keys(global.Game.creeps).length,
+        resources: {
+            energy: Game.energyAvailable,
+            minerals: Game.mineralHarvesters.length,
+            metals: Game.metalHarvesters.length,
+        },
+        roles: {
+            harvester: roleHarvester.count,
+            upgrader: roleUpgrader.count,
+            builder: roleBuilder.count,
+            miner: roleMiner.count,
+            creep: roleCreep.count,
+            mine: roleMine.count,
+        },
+    };
 
-  console.log('Status:', status);
+    console.log('Status:', status);
 
-  // Example role execution
-  roleHarvester.execute();
-  roleUpgrader.execute();
-  roleBuilder.execute();
-  roleMiner.execute();
-  roleCreep.execute();
-  roleMine.execute();
+    // Example role execution
+    roleHarvester.execute();
+    roleUpgrader.execute();
+    roleBuilder.execute();
+    roleMiner.execute();
+    roleCreep.execute();
+    roleMine.execute();
 }

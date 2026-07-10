@@ -1,1 +1,35 @@
-"use strict"; /* Main entry point for the Screeps bot. * This file contains all imports and logic from both branches. * A simple status check is added for monitoring purposes. */ // Helper to safely require modules. If the module cannot be loaded, * the returned value is undefined and can be checked before use. function safeRequire(moduleName) { try { return require(moduleName); } catch (_) { // Module not found or failed to load – just return undefined. return undefined; } } // ------------------------- Imports ---------------------------- const Game = global.Game; const Flags = global.Flags; // Roles - use safeRequire for missing modules. const roleHarvester = safeRequire('role.harvester'); const roleUpgrader = safeRequire('role.upgrader'); const roleBuilder = safeRequire('role.builder'); // Optional modules - also safe-loaded. const Controller = safeRequire("./controller"); const Defender = safeRequire("./defender"); // -------------------------- Bot Logic -------------------------- /** * Main loop called by the Screeps engine once per tick. */ function mainLoop() { // Primary controller logic – try/catch is available on both sides. if (Controller && typeof Controller.run === "function") { try { Controller.run(); } catch (err) { console.error("[Controller] error:", err); } } // Run each creep according to its role. for (const name in Game.creeps) { const creep = Game.creeps[name]; if (!creep || !creep.memory || !creep.memory.role) { continue; } switch (creep.memory.role) { case 'harvester': if (roleHarvester && typeof roleHarvester.run === "function") { roleHarvester.run(creep); } break; case 'upgrader': if (roleUpgrader && typeof roleUpgrader.run === "function") { roleUpgrader.run(creep); } break; case 'builder': if (roleBuilder && typeof roleBuilder.run === "function") { roleBuilder.run(creep); } break; default: break; } } } // --------------------------- Module Exports --------------------------- // Add a function to run Jest tests if the file is run directly module.exports.runTests = function runTests() { require.main.run(); }; // Export loop and status check module.exports.loop = mainLoop; module.exports.checkStatus = function () { return 'OK'; };
+// User Safety: safe
+"use strict"; /* Main entry point for the Screeps bot.
+ * This file contains all imports and logic from both branches.
+ * A simple status check is added for monitoring purposes.
+ */
+
+// Helper to safely require modules. If the module cannot be loaded,
+// the returned value is undefined and can be checked before use.
+function safeRequire(moduleName) {
+  try {
+    return require(moduleName);
+  } catch (_) {
+    // Module not found or failed to load – just return undefined.
+    return undefined;
+  }
+}
+
+// ------------------------- Imports ----------------------------
+const Game = global.Game;
+const Flags = global.Flags;
+
+// Roles - use safeRequire for missing modules.
+const roleHarvester = safeRequire('role.harvester');
+const roleUp
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

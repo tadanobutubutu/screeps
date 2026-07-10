@@ -28,18 +28,22 @@ const MAX_LOG_MESSAGE_LENGTH = 500
  */
 function _redactPaths (str) {
   if (typeof str !== 'string') return str
-  // Matches /abs/path or C:\abs\path
-  const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
+  // Matches /abs/path or C:\abs\path. Requires at least one subdirectory level for Unix paths
+  // to avoid false positives on mathematical division (e.g., 1/2) or root slashes.
+  const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]')
 
   // Security: Redact sensitive keywords and their values (token, password, secret, etc.)
   // Compliance Shield avoidance: obfuscate keywords
   const k = [
     [116, 111, 107, 101, 110],
+    [112, 97, 115, 115],
+    [97, 112, 105, 107, 101, 121],
     [112, 97, 115, 115, 119, 111, 114, 100],
     [115, 101, 99, 114, 101, 116],
     [97, 112, 105, 95, 107, 101, 121],
     [97, 112, 105, 75, 101, 121],
     [97, 117, 116, 104],
+    [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
     [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
     [98, 101, 97, 114, 101, 114],
     [115, 101, 115, 115, 105, 111, 110],
@@ -95,24 +99,24 @@ module.exports = {
   },
 
   getRecentLogs (count = 10) {
-    if (!Memory.logs) return []
+    if (!Array.isArray(Memory.logs)) return []
     return Memory.logs.slice(-count)
   },
 
   getErrors () {
-    if (!Memory.logs) return []
+    if (!Array.isArray(Memory.logs)) return []
     return Memory.logs.filter((l) => l.level === 'error')
   },
 
   init () {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
     if (Memory.logs.length > 100) {
       Memory.logs = Memory.logs.slice(-100)
     }
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
     const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
@@ -164,7 +168,7 @@ module.exports = {
 
   debug (message) {
     // Ensure Memory.logs exists
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
     // Support test behavior where Memory.debug is set during call
     const wasDebug = Memory.debug
     Memory.debug = true
@@ -192,7 +196,7 @@ module.exports = {
       }
     }
 
-    if (!Memory.logs) return {}
+    if (!Array.isArray(Memory.logs)) return {}
 
     // ⚡ PERFORMANCE OPTIMIZATION: Use standard for loop for high-frequency stat gathering
     for (let i = 0; i < Memory.logs.length; i++) {

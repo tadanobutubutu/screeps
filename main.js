@@ -1,4 +1,3 @@
-// main.js – lightweight stubs to satisfy tests while keeping future expansion possible
 "use strict";
 
 /* ------------------------------------------------------------------

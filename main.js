@@ -17,116 +17,101 @@ function safeRequire(moduleName) {
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
-/* expose mock globals in local scope for easier access */
-const Game = global.Game || {};
-const Flags = global.Flags || {};
+/* ------------------------------------------------------------------
+ *  Ensure Jest is available for CI test runs; install if missing
+ * ------------------------------------------------------------------ */
+function ensureJestForTests() {
+  try {
+    // Attempt to load jest; if it resolves, we are good
+    require('jest');
+  } catch (_) {
+    // If jest is not installed, install it locally as a dev dependency
+    const { execSync } = require('child_process');
+    // Use npm to install jest; --save-dev marks it as a devDependency
+    execSync('npm install jest --save-dev', { stdio: 'inherit' });
+    // After installation, try to require jest again
+    require('jest');
+  }
+}
 
-/* Initialize global commands as functions (empty placeholders) */
-if (typeof global.gr === 'undefined') global.gr = function () {};
-if (typeof global.evor === 'undefined') global.evor = function () {};
+// If this file is the entry point (e.g., run directly or via jest), bootstrap jest
+if (require.main === module) {
+  ensureJestForTests();
+}
 
 /* ------------------------------------------------------------------
  *  Core imports (if they exist in the test environment)
  * ------------------------------------------------------------------ */
-// Optional role modules – imported if available
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder = safeRequire('role.builder');
-const roleMiner = safeRequire('role.miner');
-const roleCreep = safeRequire('role.creep');
-const roleMine = safeRequire('role.mine');
-const EmotionSystem = safeRequire('emotion.system');
+const Game     = global.Game;          // global Game reference (may be mocked)
+const Flags    = global.Flags;         // global Flags reference
 
-/* ------------------------------------------------------------------
- * Optional modules
- * ------------------------------------------------------------------ */
-function multiply(a, b) {
-    return a * b;
-}
+/* Initialize global commands as functions */
+if (typeof global.gr === 'undefined') global.gr = function () {}; // Function placeholder
+if (typeof global.evor === 'undefined') global.evor = function () {}; // Function placeholder
 
 /* ------------------------------------------------------------------
  * Test helpers for Jest testing environment
  * ------------------------------------------------------------------ */
 function createMockCreep(overrides = {}) {
     return {
-        id: 'mock-creeps-' + Math.random().toString(36).substr(2, 9),
+        id: `mockCreep-${Date.now()}`,
         name: 'MockCreep',
-        body: [{ type: 'WORK', weight: 100 }, { type: 'MOVE', weight: 50 }, { type: 'CARRY', weight: 50 }],
-        memory: { role: 'harvester', controller: 1 },
-        hits: 200,
-        hitsMax: 200,
-        carry: { energy: 0, capacity: 100 },
-        carryCapacity: 100,
-        pos: { x: 25, y: 25, roomName: 'W1N1' },
-        room: { name: 'W1N1', memory: {} },
-        store: { energy: 0, capacity: 100 },
-        storeCapacity: 100,
-        ...overrides
-    };
-}
-
-function createMockRoom(overrides = {}) {
-    return {
-        name: 'W1N1',
         memory: {},
-        find: function(type) {
-            return [];
+        room: {
+            controller: { level: 1 },
+            name: 'MockRoom',
         },
-        createConstructionSite: function(pos, structureType) {
-            return 0;
-        },
-        remove: function() {
-            return true;
-        },
-        ...overrides
+        getActiveBodyparts: () => 0,
+        getRangeTo: () => 1,
+        ...overrides,
     };
 }
 
-function createMockFlag(overrides = {}) {
-    return {
-        name: 'MockFlag',
-        color: [1, 1],
-        secondaryColor: 1,
-        position: { x: 25, y: 25, roomName: 'W1N1' },
-        ...overrides
-    };
-}
-
-function resetGlobalState() {
-    global.Game = { creeps: {} };
-    global.Flags = {};
-    for (let key in global) {
-        if (typeof global[key] === 'function' && key.length === 0) {
-            global[key]();
-        }
+function provideSimulatedCreep(_creep, mock) {
+    if (!mock) {
+        return;
     }
+    const mockCreep = createMockCreep();
+    for (let key in mock) {
+        mockCreep[key] = mock[key];
+    }
+    // @ts-ignore
+    Game.creeps[mockCreep.id] = mockCreep;
 }
 
-function setupTestEnvironment(options = {}) {
-    const { creeps = [], flags = [], rooms = [] } = options;
-    
-    global.Game = { creeps: {} };
-    global.Flags = {};
-    
-    creeps.forEach(creep => {
-        global.Game.creeps[creep.name || creep.id] = createMockCreep(creep);
-    });
-    
-    flags.forEach(flag => {
-        global.Flags[flag.name || 'flag'] = createMockFlag(flag);
-    });
-    
-    return { Game: global.Game, Flags: global.Flags };
+function mockCreep(body, name) {
+    return {
+        body,
+        name: name || `${Math.random().toString(36).slice(2, 12)}`,
+    };
 }
 
-/* Export test helpers for use in tests */
-module.exports = {
-    multiply,
-    createMockCreep,
-    createMockRoom,
-    createMockFlag,
-    resetGlobalState,
-    setupTestEnvironment
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/* ------------------------------------------------------------------
+ *  BOT logic
+ * ------------------------------------------------------------------ */
+module.exports = function() {
+    const botGame = global.Game;
+    const botFlags = global.Flags;
+    const botGr    = global.gr;
+    const botEvor  = global.evor;
+
+    // Placeholder for real bot logic
+    console.log('Bot running with Game:', typeof botGame, 'Flags:', typeof botFlags);
+
+    /* Example flag handling */
+    Object.values(botFlags)
+        .filter(f => f)
+        .forEach(flag => {
+            console.log(`Handling flag: ${flag.name}`);
+        });
+
+    /* Example of interacting with global commands */
+    botGr('example command');
+    botEvor('example data');
+
+    return true;
 };
-
-/* ------------------------------------------------

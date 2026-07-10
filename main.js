@@ -19,6 +19,14 @@ const Controller = require("./controller");
 const Defender   = require("./defender");
 const Builder    = require("./builder");
 
+// ----------------- Jest for Testing ------------------
+// Ensure Jest is available in case tests require it
+try {
+    require('jest'); // This line ensures Jest is installed and accessible
+} catch (e) {
+    console.warn("Jest not found. Please install Jest via npm/pnpm for testing.");
+}
+
 // ----------------- Bot Logic --------------------------
 /**
  * Main loop called by the Screeps engine once per tick.

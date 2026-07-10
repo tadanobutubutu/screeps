@@ -3,28 +3,37 @@ const path = require('path');
 
 console.log('📊 Analyzing repository...');
 
+const rootDir = process.cwd();
+const workflowDir = path.join(rootDir, '.github', 'workflows');
+const readFile = (filePath) => fs.readFileSync(path.join(rootDir, filePath), 'utf8');
+const writeFile = (filePath, content) => fs.writeFileSync(path.join(rootDir, filePath), content);
+const today = new Date().toISOString().split('T')[0];
+const now = new Date().toISOString();
+
+const countLines = (content) => content.split('\n').length;
+const extractWorkflowName = (content, fallback) => {
+    const nameMatch = content.match(/^name:\s*(.+)$/m);
+    return nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : fallback;
+};
+const hasScheduledTrigger = (content) => /(^|\n)\s*schedule:\s*$/m.test(content);
+
 // ワークフローファイルを取得
-const workflowDir = '.github/workflows';
 const workflowFiles = fs
     .readdirSync(workflowDir)
     .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
     .map((f) => {
         try {
-            const content = fs.readFileSync(path.join(workflowDir, f), 'utf8');
-            const nameMatch = content.match(/name:\s*(.+)/);
-            const scheduleMatch = content.match(/cron:\s*'([^']+)'/);
+            const content = readFile(path.join('.github', 'workflows', f));
             return {
                 file: f,
-                name: nameMatch ? nameMatch[1].trim().replace(/^['"]|['"]$/g, '') : f,
-                hasSchedule: !!scheduleMatch,
-                schedule: scheduleMatch ? scheduleMatch[1] : null,
+                name: extractWorkflowName(content, f),
+                hasSchedule: hasScheduledTrigger(content),
             };
         } catch (e) {
             return {
                 file: f,
                 name: f,
                 hasSchedule: false,
-                schedule: null,
             };
         }
     });
@@ -33,7 +42,7 @@ console.log(`✅ Found ${workflowFiles.length} workflows`);
 
 // ロールファイルを取得
 const roleFiles = fs
-    .readdirSync('.')
+    .readdirSync(rootDir)
     .filter((f) => f.startsWith('role.') && f.endsWith('.js'))
     .map((f) => f.replace('role.', '').replace('.js', ''));
 
@@ -41,12 +50,12 @@ console.log(`✅ Found ${roleFiles.length} role files`);
 
 // JSファイルを取得（統計用）
 const jsFiles = fs
-    .readdirSync('.')
+    .readdirSync(rootDir)
     .filter((f) => f.endsWith('.js') && !f.startsWith('node_modules'));
 
 const totalLines = jsFiles.reduce((sum, file) => {
-    const content = fs.readFileSync(file, 'utf8');
-    return sum + content.split('\n').length;
+    const content = readFile(file);
+    return sum + countLines(content);
 }, 0);
 
 console.log(`✅ Total ${jsFiles.length} JS files with ${totalLines} lines`);
@@ -97,7 +106,7 @@ ${roleFiles.map((role, i) => `${i + 1}. **${role}** - \`role.${role}.js\``).join
 - 🔄 **ワークフロー数**: ${workflowFiles.length}
 - 🎭 **ロール数**: ${roleFiles.length}
 
-*最終更新: ${new Date().toISOString().split('T')[0]}*
+*最終更新: ${today}*
 
 ## 🔧 セットアップ
 
@@ -171,22 +180,22 @@ MIT License
 
 **Enjoy your fully automated Screeps experience!** 🎮🤖
 
-*このREADMEは自動更新されます - 最終更新: ${new Date().toISOString()}*
+*このREADMEは自動更新されます - 最終更新: ${now}*
 `;
 
-fs.writeFileSync('README.md', readme);
+writeFile('README.md', readme);
 console.log('✅ README.md updated!');
 
 // WORKFLOWS.mdのヘッダーを更新
-if (fs.existsSync('WORKFLOWS.md')) {
-    let workflows = fs.readFileSync('WORKFLOWS.md', 'utf8');
+if (fs.existsSync(path.join(rootDir, 'WORKFLOWS.md'))) {
+    let workflows = readFile('WORKFLOWS.md');
 
     // 統計情報を挿入
-    const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${new Date().toISOString().split('T')[0]}\n\n`;
+    const statsSection = `\n> 📊 **統計**: ${workflowFiles.length}個 of workflows | 最終更新: ${today}\n\n`;
 
     if (!workflows.includes('📊 **統計**')) {
         workflows = workflows.replace('# 🤖', `# 🤖${statsSection}`);
-        fs.writeFileSync('WORKFLOWS.md', workflows);
+        writeFile('WORKFLOWS.md', workflows);
         console.log('✅ WORKFLOWS.md updated!');
     }
 }
@@ -206,7 +215,7 @@ const stats = {
     roleList: roleFiles,
 };
 
-fs.writeFileSync('repo-stats.json', JSON.stringify(stats, null, 2));
+writeFile('repo-stats.json', JSON.stringify(stats, null, 2));
 console.log('✅ repo-stats.json created!');
 
 console.log('\n📈 Summary:');

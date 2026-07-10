@@ -1,24 +1,29 @@
 {
-  "updated": "2026-06-06T20:21:23.502Z",
-  "workflows": 38,
+  "updated": "2026-07-10T12:57:49.086Z",
+  "workflows": 33,
   "roles": 10,
   "jsFiles": 38,
-  "totalLines": 7188,
+  "totalLines": 5556,
   "workflowList": [
+    {
+      "name": "AI Auto-Coder (Full Lifecycle Agent)",
+      "file": "ai-autocoder.yml",
+      "scheduled": true
+    },
     {
       "name": "AI Code Maintenance",
       "file": "ai-code-maintenance.yml",
       "scheduled": true
     },
     {
-      "name": "AI Conflict Resolver (Ultimate Resilience)",
-      "file": "ai-conflict-resolver.yml",
-      "scheduled": false
+      "name": "AI Repo Governance (Intel & Maintenance)",
+      "file": "ai-governance.yml",
+      "scheduled": true
     },
     {
-      "name": "AI Issue Resolver (Final Resilience)",
-      "file": "ai-issue-resolver.yml",
-      "scheduled": false
+      "name": "AI Sentinel (Ultimate Security & Quality Shield)",
+      "file": "ai-guardian.yml",
+      "scheduled": true
     },
     {
       "name": "👤 Auto Assign Issues and PRs",
@@ -26,28 +31,18 @@
       "scheduled": false
     },
     {
-      "name": "🆕 Auto Create New Roles",
-      "file": "auto-create-roles.yml",
+      "name": "Auto Merge PRs - Force Penetration (Instant CI)",
+      "file": "auto-merge-pr.yml",
       "scheduled": true
     },
     {
-      "name": "Auto Merge PRs - GraphQL Ultimate",
-      "file": "auto-merge-pr.yml",
-      "scheduled": false
-    },
-    {
-      "name": "📚 Auto Update Documentation",
-      "file": "auto-update-docs.yml",
+      "name": "🤖 Auto PR from Issues",
+      "file": "auto-pr-from-issues.yml",
       "scheduled": false
     },
     {
       "name": "🔖 Auto Zenodo DOI Release",
       "file": "auto-zenodo-release.yml",
-      "scheduled": true
-    },
-    {
-      "name": "🚀 Unified CI (Lint, Test, Coverage & Analysis)",
-      "file": "ci.yml",
       "scheduled": true
     },
     {
@@ -58,11 +53,6 @@
     {
       "name": "Deploy GitHub Pages Dashboard",
       "file": "deploy-pages.yml",
-      "scheduled": false
-    },
-    {
-      "name": "Deploy to Screeps PTR",
-      "file": "deploy-ptr.yml",
       "scheduled": false
     },
     {
@@ -78,11 +68,6 @@
     {
       "name": "🚨 Emergency: Restore API Mode",
       "file": "emergency-api-restore.yml",
-      "scheduled": true
-    },
-    {
-      "name": "🚨 Error Threshold Monitor",
-      "file": "error-threshold-monitor.yml",
       "scheduled": true
     },
     {
@@ -146,14 +131,9 @@
       "scheduled": false
     },
     {
-      "name": "Gitleaks",
-      "file": "secret-scanning.yml",
-      "scheduled": false
-    },
-    {
-      "name": "Sentinel Tests",
-      "file": "sentinel-tests.yml",
-      "scheduled": false
+      "name": "Security Autofix (Dependabot & npm audit)",
+      "file": "security-autofix.yml",
+      "scheduled": true
     },
     {
       "name": "🗑️ Stale Issue and PR Management",
@@ -166,8 +146,8 @@
       "scheduled": true
     },
     {
-      "name": "Test Minimal Workflow",
-      "file": "test-minimal.yml",
+      "name": "🧪 Test Auto PR System",
+      "file": "test-auto-pr.yml",
       "scheduled": false
     },
     {
@@ -189,11 +169,6 @@
       "name": "👋 Welcome Bot",
       "file": "welcome.yml",
       "scheduled": false
-    },
-    {
-      "name": "🔧 Workflow Health Monitor",
-      "file": "workflow-health-monitor.yml",
-      "scheduled": true
     }
   ],
   "roleList": [

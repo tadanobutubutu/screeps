@@ -1,8 +1,10 @@
-// main.js
-// Entry point of the project. It imports and runs the memory visualizer.
-
 import { visualizeMemory } from './memory.visualizer.js';
 
+/**
+ * Start the application by visualizing memory.
+ *
+ * @returns {void}
+ */
 function startApp() {
   try {
     visualizeMemory();
@@ -13,5 +15,14 @@ function startApp() {
 }
 
 startApp();
+
+/**
+ * Returns a simple status string.
+ *
+ * @returns {string} The status of the application.
+ */
+export function checkStatus() {
+  return 'OK';
+}
 
 export { startApp };

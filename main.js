@@ -44,3 +44,6 @@ try {
 /**
  * Main loop called by the Screeps engine once per tick.
  * Placeholder for further implementation. */
+module.exports.loop = function() {
+  // Your bot logic here
+};

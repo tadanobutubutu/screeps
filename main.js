@@ -71,12 +71,16 @@ function ensureJestInCi() {
     }
 }
 
-/* Optionally call ensureJestForTests if this file is required by test setup */
-try {
-    ensureJestForTests();
-    ensureJestInCi();
-} catch (_) {
-    // Ignore errors; jest may be provided by the test runner
+/* ------------------------------------------------------------------
+ *  Helper function to check if Jest is available
+ * ------------------------------------------------------------------ */
+function isJestAvailable() {
+    try {
+        require.resolve('jest');
+        return true;
+    } catch (_) {
+        return false;
+    }
 }
 
 /* ------------------------------------------------------------------
@@ -96,9 +100,20 @@ function loop() {
 module.exports = {
     loop,
     EmotionSystem,
+    isJestAvailable, // Added new export for test availability check
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */
 if (require.main === module) {
     loop();
+}
+
+/* Optionally call ensureJestForTests if this file is required by test setup */
+try {
+    if (!isJestAvailable()) {
+        ensureJestForTests();
+        ensureJestInCi();
+    }
+} catch (_) {
+    // Ignore errors; jest may be provided by the test runner
 }

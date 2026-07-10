@@ -1,0 +1,49 @@
+name: 🤖 Auto PR from Issues
+
+on:
+  issues:
+    types: [opened, reopened]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to process'
+        required: false
+
+permissions:
+  issues: write
+  pull-requests: write
+  contents: write
+
+jobs:
+  analyze-and-create-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Analyze issue and create PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+        run: |
+          node scripts/auto-pr-generator.js
+
+      - name: Add issue author as contributor
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number || inputs.issue_number }}
+          ISSUE_AUTHOR: ${{ github.event.issue.user.login }}
+        run: |
+          node scripts/add-contributor.js

@@ -14,10 +14,21 @@ const roleHarvester = require('role.harvester');
 const roleUpgrader   = require('role.upgrader');
 const roleBuilder    = require('role.builder');
 
+/* ------------------------------------------------------------------
+ *  Helper – safely require optional modules
+ * ------------------------------------------------------------------ */
+function safeRequire(name) {
+  try {
+    return require(name);
+  } catch (_) {
+    return undefined; // module missing / failed to load
+  }
+}
+
 // Optional modules
-const Controller = require("./controller");
-const Defender   = require("./defender");
-const Builder    = require("./builder");
+const Controller = safeRequire("./controller") || require("./controller");
+const Defender   = safeRequire("./defender")   || require("./defender");
+const Builder    = safeRequire("./builder")    || require("./builder");
 
 // ----------------- Jest for Testing ------------------
 // Ensure Jest is available in case tests require it
@@ -39,7 +50,6 @@ function mainLoop() {
         console.error("[Controller] error:", err);
     }
 
-    // Run main controller logic
     // Run each creep according to its role
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
@@ -51,20 +61,3 @@ function mainLoop() {
                 break;
             case 'upgrader':
                 roleUpgrader.run(creep);
-                break;
-            case 'builder':
-                roleBuilder.run(creep);
-                break;
-            default:
-                // Additional roles could be handled here
-                break;
-        }
-    }
-}
-
-// Export loop and status check
-module.exports.loop = mainLoop;
-
-module.exports.checkStatus = function () {
-    return 'OK';
-};

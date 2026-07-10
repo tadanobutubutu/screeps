@@ -1,22 +1,10 @@
 {
-  "name": "my-app",
+  "name": "my-project",
   "version": "1.0.0",
-  "description": "A sample application",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "test": "jest"
+    "start": "node index.js"
   },
-  "dependencies": {
-    "express": "^4.17.1",
-    "react": "^18.2.0",
-    "lodash": "^4.17.21"
-  },
-  "devDependencies": {
-    "jest": "^29.6.1",
-    "eslint": "^8.47.0",
-    "babel-jest": "^29.6.1"
-  },
-  "author": "Your Name",
-  "license": "MIT"
+  "dependencies": {},
+  "devDependencies": {}
 }

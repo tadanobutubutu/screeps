@@ -5,6 +5,15 @@
  * A simple status check is added for monitoring purposes.
  */
 
+// ----------------- Imports ----------------------------
+const Game   = global.Game;
+const Flags  = global.Flags;
+
+// Roles
+const roleHarvester = require('role.harvester');
+const roleUpgrader   = require('role.upgrader');
+const roleBuilder    = require('role.builder');
+
 /* ------------------------------------------------------------------
  *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
@@ -16,48 +25,39 @@ function safeRequire(name) {
   }
 }
 
-/* --------------------- Imports --------------------- */
-const Game = global.Game || {};
-const Flags = global.Flags || {};
+// Optional modules
+const Controller = safeRequire("./controller") || require("./controller");
+const Defender   = safeRequire("./defender")   || require("./defender");
+const Builder    = safeRequire("./builder")    || require("./builder");
 
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder  = safeRequire('role.builder');
-const roleMiner    = safeRequire('role.miner');
-const roleCreep    = safeRequire('role.creep');
-
-// Just some placeholder logic so that the rest of the file compiles.
-// The real bot logic is omitted – this file is only required for the test suite.
-function spawnCreeps() {
-  /* ... */
+// ----------------- Jest for Testing ------------------
+// Ensure Jest is available in case tests require it
+try {
+    require('jest'); // This line ensures Jest is installed and accessible
+} catch (e) {
+    console.warn("Jest not found. Please install Jest via npm/pnpm for testing.");
 }
 
-/* --------------------- Exported API --------------------- */
-
+// ----------------- Bot Logic --------------------------
 /**
- * Return the product of two numbers.
- *
- * @param {number} a – First operand
- * @param {number} b – Second operand
- * @returns {number} – a * b
+ * Main loop called by the Screeps engine once per tick.
  */
-function multiply(a, b) {
-  return a * b;
-}
+function mainLoop() {
+    // Primary controller logic
+    try {
+        Controller.run();
+    } catch (err) {
+        console.error("[Controller] error:", err);
+    }
 
-/* Export the multiply function. Users of this module can do:
- * const { multiply } = require('./main');
- * multiply(3, 4); // 12
- */
-exports.multiply = multiply;
+    // Run each creep according to its role
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        if (!creep || !creep.memory || !creep.memory.role) { continue; }
 
-/* --------------------- Global helpers for tests --------------------- */
-
-/**
- * Stub for the `gr` command used in the legacy test suite.
- * The original bot did something more useful here, but a simple
- * no‑op is sufficient for the current Jest expectations.
- */
-global.gr = function () {
-  // no operation
-};
+        switch (creep.memory.role) {
+            case 'harvester':
+                roleHarvester.run(creep);
+                break;
+            case 'upgrader':
+                roleUpgrader.run(creep);

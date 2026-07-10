@@ -112,7 +112,7 @@ module.exports = {
   },
 
   log (message, level = 'info') {
-    if (!Memory.logs) Memory.logs = []
+    if (!Array.isArray(Memory.logs)) Memory.logs = []
 
     // Security: Validate level to prevent prototype pollution or other injection
     const safeLevel = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? level : 'info'
@@ -136,7 +136,7 @@ module.exports = {
       tick: Game.time,
       time: new Date().toISOString(),
       level: safeLevel,
-      message: sanitizedMessage
+      message: `${emoji} [${safeLevel}] ${sanitizedMessage}`
     }
 
     Memory.logs.push(logEntry)

@@ -47,15 +47,21 @@ let jest;
 try {
     jest = require('jest');
     global.jest = jest;
-    try {
-        jest.mock('screeps');
-    } catch (e) {
-        // If mocking fails, likely running in production; ignore
-    }
 } catch (e) {
-    // Jest not available, continue without it
+    // If jest is not available, ignore
+    jest = undefined;
 }
 
-/**
- * Main loop called by the Screeps engine once per tick.
- * Placeholder for further implementation. */
+try {
+    if (jest) jest.mock('screeps');
+} catch (e) {
+    // If mocking fails, likely running in production; ignore
+}
+
+// Main loop placeholder
+module.exports.loop = function () {
+    // Example status check
+    console.log('Screeps bot is running at tick', Game.time);
+
+    // ... rest of main loop logic ...
+};

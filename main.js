@@ -18,11 +18,11 @@ const Game = typeof global !== 'trend' && global.Game ? global.Game : {};
  */
 
 global.gr = function (roomName) {
-  return Game.rooms && Game.rooms[roomName];
+    return Game.rooms && Game.rooms[roomName];
 };
 
 global.evor = function (creepName) {
-  return Game.creeps && Game.creeps[creepName];
+    return Game.creeps && Game.creeps[creepName];
 };
 
 /* ------------------------------------------------------------------
@@ -40,21 +40,21 @@ global.evor = function (creepName) {
  */
 
 function loop() {
-  if (!Game.creeps) return;
+    if (!Game.creeps) return;
 
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (!creep) continue;
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        if (!creep) continue;
 
-    // Role assignment can be performed here – omitted for brevity.
-    // Example (placeholder):
-    // if (!creep.memory.role) creep.memory.role = 'harvester';
+        // Role assignment can be performed here – omitted for brevity.
+        // Example (placeholder):
+        // if (!creep.memory.role) creep.memory.role = 'harvester';
 
-    // Give every creep a chance to interact with the EmotionSystem
-    if (typeof EmotionSystem.interact === 'function') {
-      EmotionSystem.interact(creep);
+        // Give every creep a chance to interact with the EmotionSystem
+        if (typeof EmotionSystem.interact === 'function') {
+            EmotionSystem.interact(creep);
+        }
     }
-  }
 }
 
 /* ------------------------------------------------------------------
@@ -62,5 +62,5 @@ function loop() {
  */
 
 module.exports = {
-  loop
+    loop,
 };

@@ -1,35 +1,68 @@
-# ACE - Autonomous Colony Engine（自律コロニーエンジン）
+# ACE (Autonomous Colony Engine)
 
-
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-> **「自律進化」** ― AIがコードを分析し、修正、統合、デプロイまで自動で完結させる次世代スクリプトエンジン  
-> 34 の自動化ワークフロー、10 の動的ロール、24,658 行のコードが凝縮されたプロジェクトです。  
+Screepsの高度なAI自律派遣プログラム。  
+一人の開発者の力だけで「自己修復・自律進化」が連続で実行されるエンジンです。
 
 ---
 
-## 🔔 バッジ
+## 📊 プロジェクト統計
 
-[![Build Status](https://github.com/example/ace/actions/workflows/ci.yml/badge.svg)](https://github.com/example/ace/actions/workflows/ci.yml)  
-[![Coverage](https://coveralls.io/repos/github/example/ace/badge.svg?branch=main)](https://coveralls.io/github/example/ace?branch=main)  
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)  
-[![AI Powered](https://img.shields.io/badge/AI-Powered%20%23Screeps-ff69b4.svg)]()  
-
----
-
-## 🚀 ACE の概要
-
-ACE は「自律進化・自己修復」を核に設計された Screeps AI プロジェクトです。  
-- **総合統合**：CodeQL・SonarCloud・Gitleaks による継続的セキュリティ監査、Jest で網羅的ユニットテスト、カバレッジ 100% を目指す監視体制。  
-- **自動修復**：AI が Issue を生成し、コード修正・テスト追加、PR の作成・マージ、ブランチ削除までを自動で実行。  
-- **動的管理**：ロールやワークフローを動的に提案・調整し、プロジェクトが継続的に最適化される仕組み。
+| パラメータ | 値 |
+|------------|-----|
+| 自動化ワークフロー | 34  |
+| 動的ロール | 10 |
+| コード行数 | 24 658 |
+| 主要言語 | JavaScript (ES2024), TypeScript |
+| CI/Cd | GitHub Actions × 3 ワークフロー |
+| 監視 | Gitleaks, CodeQL, SonarCloud  |
+| テスト | Jest (100 % 目標) |
 
 ---
 
-## 🏛️ システムアーキテクチャ（詳細）
+## 🚀 アイデンティティ
 
-Guardian → Auto‑Coder → Governance の三位一体ループは、以下のように連携します。
+- **AI Guardian** – セキュリティ、テスト、カバレッジを 24 時間監視。検知し次第 Issue を生成。  
+- **AI Auto‑Coder** – Issue を解析し、コード修正とテスト作成を自動で実施。  
+- **AI Repo Governance** – README/CHANGELOG の自動更新、不要ブランチのクリーンアップ、次期ロール提示。
+
+---
+
+## 🧩 システムアーキテクチャ (詳細)
+
+Guardian → Auto‑Coder → Governance の三位一体ループは、リアルタイムでプロジェクトを自己修復。
+
+```mermaid
+%% Mermaid diagram
+flowchart LR
+    subgraph PROG[プロジェクトステージ]
+        G(("Guardian"))
+        AC(("Auto‑Coder"))
+        GR(("AI Repo Governance"))
+    end
+    G -->|Issue発行| AC
+    AC -->|PR作成・マージ| G
+    G -->|レポート自動生成| GR
+    GR -->|枝分かれ整理・README更新| G
+```
+
+- **Guardian**  
+  - Gitleaks & CodeQL でセキュリティ漏れを検知。  
+  - Jest により単体テストを走らせ、VS Code 連携でフィードバック。  
+  - カバレッジは 100 % を常に目指し、追加テストの自動提案まで行う。  
+
+- **Auto‑Coder**  
+  - 生成された Issue を解析し、必要に応じて型推論・自動補完でコードを修正。  
+  - PR にテストケースを同梱し、コンフリクトを AI で自動解消。  
+  - 標準ブランチへマージ後、不要ブランチを自動削除。  
+
+- **Governance**  
+  - README, CHANGELOG, バージョンタグを自動生成・更新。  
+  - 動的ロール提案を行い、スケールアップ時の開発ガイドを提供。  
+
+---
+
+## 💡 コアテクノロジー
+
+- **AI コンフリクト解消**  
+  - Git Merge Bot は変更履歴を理解し、最適な解決策を提案。  
+  - マージ時に衝突箇所をハイライトし、修正フロー

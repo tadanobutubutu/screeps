@@ -1,7 +1,17 @@
-'use strict';
+// main.js
+// Entry point of the project. It imports and runs the memory visualizer.
 
-module.exports.loop = function () {
-    // Fixed: Removed incompatible browser-only dependencies (e.g., @sentry/browser, posthog-js)
-    // that caused runtime errors in this environment.
-    // Add your main logic here.
-};
+import { visualizeMemory } from './memory.visualizer.js';
+
+function startApp() {
+  try {
+    visualizeMemory();
+    console.log('Memory visualizer started successfully.');
+  } catch (error) {
+    console.error('Failed to start memory visualizer:', error);
+  }
+}
+
+startApp();
+
+export { startApp };

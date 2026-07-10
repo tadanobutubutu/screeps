@@ -18,7 +18,7 @@ function safeRequire(moduleName) {
   }
 }
 
-// Mock globals for testing environments (e.g., Jest)
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Game === 'undefined') {
   global.Game = { creeps: {} };
 }
@@ -26,8 +26,8 @@ if (typeof global.Flags === 'undefined') {
   global.Flags = {};
 }
 
-/* --------------------- Imports ---------------------*/
-const Game  = global.Game || {};
+/* --------------------- Imports --------------------- */
+const Game = global.Game || {};
 const Flags = global.Flags || {};
 
 const roleHarvester = safeRequire('role.harvester');
@@ -58,20 +58,4 @@ function run() {
 
   // Example role execution if roles are defined
   Object.values(Game.creeps || {}).forEach(creep => {
-    if (creep.role === 'harvester' && roleHarvester) {
-      roleHarvester.run(creep);
-    } else if (creep.role === 'upgrader' && roleUpgrader) {
-      roleUpgrader.run(creep);
-    } else if (creep.role === 'builder' && roleBuilder) {
-      roleBuilder.run(creep);
-    } else if (creep.role === 'miner' && roleMiner) {
-      roleMiner.run(creep);
-    } else if (creep.role === 'creep' && roleCreep) {
-      roleCreep.run(creep);
-    } else if (creep.role === 'mine' && roleMine) {
-      roleMine.run(creep);
-    }
-  });
-}
-
-module.exports = { run, multiply };
+    if (!creep || !creep

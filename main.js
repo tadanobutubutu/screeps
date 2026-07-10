@@ -20,6 +20,15 @@ if (typeof global.gr === 'undefined') global.gr = function () {};
 if (typeof global.evor === 'undefined') global.evor = function () {};
 
 /* ------------------------------------------------------------------
+ *  EmotionSystem for AI interactions
+ * ------------------------------------------------------------------ */
+const EmotionSystem = {
+    interact: function () {
+        // Placeholder for emotion-based AI interactions
+    }
+};
+
+/* ------------------------------------------------------------------
  *  Ensure Jest is available for CI test runs; install if missing
  * ------------------------------------------------------------------ */
 function ensureJestForTests() {
@@ -50,11 +59,13 @@ try {
  * ------------------------------------------------------------------ */
 function loop() {
     // Existing game loop logic would be placed here
+    EmotionSystem.interact();
 }
 
 /* Export for external use if needed */
 module.exports = {
     loop,
+    EmotionSystem,
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

@@ -143,22 +143,30 @@ def main():
 
         if attempt == 1:
             prompt = (
-                f"You are a JavaScript expert. "
-                f"Implement the changes described in this GitHub issue for the file main.js.\n\n"
+                f"You are a JavaScript expert fixing a GitHub issue.\n"
+                f"The repository uses Jest for testing. Existing tests in /tests/ must continue to pass.\n\n"
                 f"Issue Title: {ctx['title']}\n"
                 f"Issue Body: {ctx['body']}\n\n"
+                f"Current main.js content:\n```javascript\n{original_code}\n```\n\n"
                 f"Rules:\n"
-                f"- Output ONLY the complete updated main.js content inside a ```javascript ... ``` block.\n"
-                f"- Do not include any explanation outside the code block."
+                f"- PRESERVE all existing code, exports, and functions from current main.js.\n"
+                f"- ONLY ADD the new functions or changes requested in the issue.\n"
+                f"- Do NOT remove or rename any existing exports.\n"
+                f"- Output ONLY the complete updated main.js content inside a ```javascript ... ``` block."
             )
         else:
             prompt = (
-                f"You are a JavaScript expert. Previous attempts to fix this issue failed the test suite.\n\n"
+                f"You are a JavaScript expert. Previous attempts to fix this issue failed the test suite.\n"
+                f"The repository uses Jest. Existing tests must continue to pass.\n\n"
                 f"Issue Title: {ctx['title']}\n"
                 f"Issue Body: {ctx['body']}\n\n"
+                f"Current main.js content:\n```javascript\n{original_code}\n```\n\n"
                 f"Test failure feedback from previous attempt:\n{feedback}\n\n"
-                f"Please analyze the test failures carefully and rewrite main.js to fix them.\n"
-                f"Output ONLY the complete updated main.js content inside a ```javascript ... ``` block."
+                f"Rules:\n"
+                f"- PRESERVE all existing code, exports, and functions from current main.js.\n"
+                f"- ONLY ADD the new functions or changes requested in the issue.\n"
+                f"- Fix the test failures shown above.\n"
+                f"- Output ONLY the complete updated main.js content inside a ```javascript ... ``` block."
             )
 
         # Query ALL providers in parallel

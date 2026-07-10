@@ -1,38 +1,44 @@
 # 📈 開発・進化の記録 (Strategic Evolution Log)
 
-## CHANGELOG – 2026‑07‑10
+# CHANGELOG（2026‑07‑10）
 
-> 変更の背景と実際に得られる価値を中心にまとめています。  
-> すべてのコミットは 2026‑07‑10 に実施され、主にビルド・ドキュメント及び CI の自動化に関するものです。  
-
----
-
-### 💡 コア機能
-
-| コミット | 作者 | 変更 | 価値 |
-|---|---|---|---|
-| `62a77afd` | `tadanobutubutu` | **README を完全自動化** (#1067) | ドキュメントの取り込みが手動作業から解放され、最新情報を即座に反映。持続的デリバリーのペースが向上。 |
-| `389fbd47` | `tadanobutubutu` | **CI の自動課題生成** (#1068) | テスト・リント失敗やカバレッジギャップを検出し、即座に GitHub Issue を作成。品質管理の監査漏れが減少。 |
-| `ea3f75fa` | `tadanobutubutu` | **package.json の復元** (#1069) | OSV スキャナと連携した脆弱性調査の再開。CI ユーザーが再構築を手動で行う必要がなくなった。 |
-
----
-
-### ✨ ドキュメント・メタデータ
-
-| コミット | 作者 | 変更 | 価値 |
-|---|---|---|---|
-| `f1a96204, 187a6931, 57871a26, 486ea09a, 0330e473, 4c46fa3c, a169a2b8, 99ccc5c8` | `auto-package-badges[bot]` | **npm バッジを最新に更新** | パッケージの安定性を視覚化し、ユーザーに対してリアルタイムで依存関係の状態を示す。 |
-| `17be43b7, 8402e020, 1ee200fb, 87a55d06, 5a59e04e, 5c7d959b, 724cb5e8` | `AI Documentation Bot` | **AI で生成されたドキュメントの更新** (#1067) | 人工知能により最新の情報が提供され、開発者が読み込む手間が削減。 |
-
----
-
-### 🔧 チャーレ
-
-| コミット | 作者 | 変更 | 価値 |
-|---|---|---|---|
-| `d8879bd0, 187a6931, 57871a26, 486ea09a, 0330e473, 4c46fa3c, a169a2b8, 99ccc5c8` | `auto-package-badges[bot]` | **npm バッジ更新処理の自動化** | 継続的デリバリーのパイプラインに重複作業をなくし、CI 時間を短縮。 |
+| 種別 | 変更内容 | コミット | 担当者 |
+|------|----------|----------|--------|
+| **Docs** | AI Documentation Botによる「AI‐driven dynamic intelligence」ドキュメントのアップデート | `4c46fa3c` | AI Documentation Bot |
+| **Docs** | AI Documentation Botによる「AI‐driven dynamic intelligence」ドキュメントのアップデート | `5c7d959b` | AI Documentation Bot |
+| **Docs** | AI Documentation Botによる「AI‐driven dynamic intelligence」ドキュメントのアップデート | `724cb5e8` | AI Documentation Bot |
+| **Fixed** | CI環境での `package.json` 復元と `ai‑guardian` OSV スキャナ修正 (#1069) | `ea3f75fa` | takanobutubutu |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `49b25423` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `d8879bd0` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `f1a96204` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `187a6931` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `57871a26` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `486ea09a` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `0330e473` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `a169a2b8` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `99ccc5c8` | auto‑package‑badges[bot] |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `204cb081` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `17be43b7` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `1ee200fb` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `87a55d06` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `5a59e04e` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `e31ea466` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `73ba1234` | AI Documentation Bot |
+| **Chore** | npm バッジ（screeps‑ai）の更新 | `a96f3210` | AI Documentation Bot |  
 
 ---
 
-> **まとめ**  
-> 7 月 10 日の変更で、ビルド CI の自動化、ドキュメント管理の自動化、そしてデプロイパッケージの可視化が同時に実現しました。これらはチーム全体の作業負荷を低減し、品質への信頼性を高める一歩です。
+## 重要な価値向上ポイント
+
+- **CI 信頼性の向上**  
+  `package.json` の復元と OSV スキャナの修正により、CI パイプラインの安定性と脆弱性チェックの正確性が確保されました。  
+
+- **ドキュメントの統合性強化**  
+  「AI‐driven dynamic intelligence」関連の文書を定期的にアップデートし、開発者・運用者が最新の AI 技術をすばやく把握できるようにしました。  
+
+- **パッケージステータス可視化**  
+  npm バッジを更新することで、パッケージのビルド・テスト・デプロイ状況が直感的に確認でき、リパジトリの可読性が向上しました。  
+
+---
+
+> *このリリースは、CI パイプラインの安定化・セキュリティ検証の正確化、そして AI ドキュメントの一元化を実現しています。*

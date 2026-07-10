@@ -21,19 +21,19 @@ Providers used:
   - OpenRouter free pool (Qwen3, Nemotron, GPT-OSS, Llama, Poolside, DeepSeek, Phi-4, Gemini) -- if OPENROUTER_TOKEN set
 """
 
-import os
 import json
+import os
 import subprocess
 import sys
 
-# Ensure script directory is in path for imports
-sys.path.insert(0, os.path.dirname(__file__))
-
 from ai_providers import (
-    generate_concurrent_all,
     clean_plain_response,
     extract_code_block,
+    generate_concurrent_all,
 )
+
+# Ensure script directory is in path for imports
+sys.path.insert(0, os.path.dirname(__file__))
 
 MAX_ATTEMPTS = 3
 
@@ -108,7 +108,9 @@ def main():
     try:
         res = subprocess.run(
             ["gh", "issue", "view", str(issue_no), "--json", "title,body"],
-            capture_output=True, text=True, check=True,
+            capture_output=True,
+            text=True,
+            check=True,
         )
         ctx = json.loads(res.stdout)
     except Exception as e:
@@ -122,7 +124,9 @@ def main():
             original_code = f.read()
 
     subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
-    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
+    subprocess.run(
+        ["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"]
+    )
 
     # -- 3. Self-refinement loop ----------------------------------------------
     winning_name = None
@@ -131,9 +135,11 @@ def main():
     candidates = {}
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        print(f"\n{'='*60}")
-        print(f"  ATTEMPT {attempt}/{MAX_ATTEMPTS} -- querying all AI providers concurrently")
-        print(f"{'='*60}")
+        print(f"\n{'=' * 60}")
+        print(
+            f"  ATTEMPT {attempt}/{MAX_ATTEMPTS} -- querying all AI providers concurrently"
+        )
+        print(f"{'=' * 60}")
 
         if attempt == 1:
             prompt = (
@@ -161,14 +167,18 @@ def main():
             gemini_key=gemini_api_key,
             openrouter_token=openrouter_token,
         )
-        print(f"\nReceived {len(candidates)} candidate responses from: {list(candidates.keys())}")
+        print(
+            f"\nReceived {len(candidates)} candidate responses from: {list(candidates.keys())}"
+        )
 
         if not candidates:
             print("No responses from any provider. Retrying...")
             continue
 
         # Evaluate all candidates with npm test
-        winner_name, winner_code, failures = evaluate_candidates(candidates, original_code)
+        winner_name, winner_code, failures = evaluate_candidates(
+            candidates, original_code
+        )
 
         if winner_code:
             winning_name = winner_name
@@ -176,10 +186,10 @@ def main():
             break
         else:
             # Compile feedback for the next loop
-            feedback = "\n\n".join(
-                f"[{name}]:\n{err}" for name, err in failures[:5]
+            feedback = "\n\n".join(f"[{name}]:\n{err}" for name, err in failures[:5])
+            print(
+                f"\nAll {len(failures)} candidates failed tests. Feeding errors back into next attempt..."
             )
-            print(f"\nAll {len(failures)} candidates failed tests. Feeding errors back into next attempt...")
             # Pick the first available candidate for next-round base
             fb = best_fallback(candidates, original_code)
             if fb:
@@ -215,7 +225,8 @@ def main():
     subprocess.run(["git", "push", "origin", branch])
 
     test_note = (
-        f"Tests passed via **{winning_name}**." if winning_name
+        f"Tests passed via **{winning_name}**."
+        if winning_name
         else "No model passed tests -- manual review may be needed."
     )
 
@@ -230,13 +241,20 @@ def main():
 
     create_result = subprocess.run(
         [
-            "gh", "pr", "create",
-            "--title", f"fix: resolve issue #{issue_no} (concurrent multi-agent)",
-            "--body", pr_body,
-            "--head", branch,
-            "--base", "main",
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            f"fix: resolve issue #{issue_no} (concurrent multi-agent)",
+            "--body",
+            pr_body,
+            "--head",
+            branch,
+            "--base",
+            "main",
         ],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
 
     print(create_result.stdout)

@@ -19,7 +19,13 @@ const Controller = require("./controller");
 const Defender   = require("./defender");
 const Builder    = require("./builder");
 
-// ----------------- Bot Logic --------------------------
+// Ensure Jest is required if tests need it (though this is typically handled in package.json)
+try {
+    // No direct Jest usage in production code
+} catch (err) {
+    console.warn("Jest not available in production environment");
+}
+
 /**
  * Main loop called by the Screeps engine once per tick.
  */

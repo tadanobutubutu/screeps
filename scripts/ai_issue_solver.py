@@ -21,30 +21,46 @@ Providers used:
   - OpenRouter free pool (Qwen3, Nemotron, GPT-OSS, Llama, Poolside, DeepSeek, Phi-4, Gemini) -- if OPENROUTER_TOKEN set
 """
 
-import os
 import json
+import os
 import subprocess
 import sys
 
-# Ensure script directory is in path for imports
-sys.path.insert(0, os.path.dirname(__file__))
-
 from ai_providers import (
-    generate_concurrent_all,
     clean_plain_response,
     extract_code_block,
+    generate_concurrent_all,
 )
+
+# Ensure script directory is in path for imports
+sys.path.insert(0, os.path.dirname(__file__))
 
 MAX_ATTEMPTS = 3
 
 
 def run_tests():
-    """Run npm test and return (passed: bool, stderr: str)."""
-    result = subprocess.run(["npm", "test"], capture_output=True, text=True)
-    return result.returncode == 0, result.stderr[:600]
+    """Run targeted main.test.js gate."""
+    result = subprocess.run(
+        ["npm", "test", "--", "tests/main.test.js"],
+        capture_output=True,
+        text=True,
+    )
+    combined = result.stdout + result.stderr
+    return result.returncode == 0, combined[-800:]
 
 
-def evaluate_candidates(candidates: dict):
+def _acceptable_candidate(cleaned, original_code):
+    if not cleaned or len(cleaned) < 10:
+        return False
+    orig_lines = max(original_code.count("\n") + 1, 1)
+    cand_lines = max(cleaned.count("\n") + 1, 1)
+    if orig_lines >= 100 and cand_lines < orig_lines * 0.5:
+        print(f"  Rejected short replacement ({cand_lines} vs {orig_lines} lines)")
+        return False
+    return True
+
+
+def evaluate_candidates(candidates: dict, original_code: str):
     """
     Write each candidate to main.js, run tests, return
     (winner_name, winner_code, failures_list) or (None, None, failures_list).
@@ -52,7 +68,7 @@ def evaluate_candidates(candidates: dict):
     failures = []
     for name, code in candidates.items():
         cleaned = clean_plain_response(extract_code_block(code))
-        if not cleaned or len(cleaned) < 10:
+        if not _acceptable_candidate(cleaned, original_code):
             continue
         print(f"  Evaluating [{name}]...")
         with open("main.js", "w") as f:
@@ -67,12 +83,14 @@ def evaluate_candidates(candidates: dict):
     return None, None, failures
 
 
-def best_fallback(candidates: dict):
-    """Return longest non-empty candidate as last resort."""
+def best_fallback(candidates: dict, original_code: str):
+    """Return longest acceptable candidate."""
     best = None
     for code in candidates.values():
         cleaned = clean_plain_response(extract_code_block(code))
-        if cleaned and (best is None or len(cleaned) > len(best)):
+        if not _acceptable_candidate(cleaned, original_code):
+            continue
+        if best is None or len(cleaned) > len(best):
             best = cleaned
     return best
 
@@ -90,7 +108,9 @@ def main():
     try:
         res = subprocess.run(
             ["gh", "issue", "view", str(issue_no), "--json", "title,body"],
-            capture_output=True, text=True, check=True,
+            capture_output=True,
+            text=True,
+            check=True,
         )
         ctx = json.loads(res.stdout)
     except Exception as e:
@@ -104,7 +124,9 @@ def main():
             original_code = f.read()
 
     subprocess.run(["git", "config", "--global", "user.name", "AI Issue Solver"])
-    subprocess.run(["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"])
+    subprocess.run(
+        ["git", "config", "--global", "user.email", "ai-issue-solver@screeps.local"]
+    )
 
     # -- 3. Self-refinement loop ----------------------------------------------
     winning_name = None
@@ -113,9 +135,11 @@ def main():
     candidates = {}
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        print(f"\n{'='*60}")
-        print(f"  ATTEMPT {attempt}/{MAX_ATTEMPTS} -- querying all AI providers concurrently")
-        print(f"{'='*60}")
+        print(f"\n{'=' * 60}")
+        print(
+            f"  ATTEMPT {attempt}/{MAX_ATTEMPTS} -- querying all AI providers concurrently"
+        )
+        print(f"{'=' * 60}")
 
         if attempt == 1:
             prompt = (
@@ -143,14 +167,18 @@ def main():
             gemini_key=gemini_api_key,
             openrouter_token=openrouter_token,
         )
-        print(f"\nReceived {len(candidates)} candidate responses from: {list(candidates.keys())}")
+        print(
+            f"\nReceived {len(candidates)} candidate responses from: {list(candidates.keys())}"
+        )
 
         if not candidates:
             print("No responses from any provider. Retrying...")
             continue
 
         # Evaluate all candidates with npm test
-        winner_name, winner_code, failures = evaluate_candidates(candidates)
+        winner_name, winner_code, failures = evaluate_candidates(
+            candidates, original_code
+        )
 
         if winner_code:
             winning_name = winner_name
@@ -158,12 +186,12 @@ def main():
             break
         else:
             # Compile feedback for the next loop
-            feedback = "\n\n".join(
-                f"[{name}]:\n{err}" for name, err in failures[:5]
+            feedback = "\n\n".join(f"[{name}]:\n{err}" for name, err in failures[:5])
+            print(
+                f"\nAll {len(failures)} candidates failed tests. Feeding errors back into next attempt..."
             )
-            print(f"\nAll {len(failures)} candidates failed tests. Feeding errors back into next attempt...")
             # Pick the first available candidate for next-round base
-            fb = best_fallback(candidates)
+            fb = best_fallback(candidates, original_code)
             if fb:
                 with open("main.js", "w") as f:
                     f.write(fb)
@@ -175,10 +203,11 @@ def main():
     if not winning_code:
         print(f"\nNo candidate passed tests after {MAX_ATTEMPTS} attempts.")
         print("   Using best available fallback (PR will be created regardless).")
-        winning_code = best_fallback(candidates) if candidates else None
+        winning_code = best_fallback(candidates, original_code) if candidates else None
 
-    if not winning_code or len(winning_code) < 10:
-        winning_code = f"// Auto-fix attempted for issue #{issue_no} -- manual review required\n{original_code}"
+    if not winning_code or not _acceptable_candidate(winning_code, original_code):
+        print("No acceptable candidate — keeping original main.js")
+        winning_code = original_code
 
     # -- 5. Create PR and merge (ALWAYS) --------------------------------------
     branch = f"fix/ai-issue-{issue_no}"
@@ -187,7 +216,7 @@ def main():
     with open("main.js", "w") as f:
         f.write(winning_code)
 
-    subprocess.run(["git", "add", "."])
+    subprocess.run(["git", "add", "main.js"])
     commit_msg = (
         f"fix: resolve issue #{issue_no} -- concurrent multi-agent Sakana consensus"
         + (f" [{winning_name}]" if winning_name else " [fallback]")
@@ -196,7 +225,8 @@ def main():
     subprocess.run(["git", "push", "origin", branch])
 
     test_note = (
-        f"Tests passed via **{winning_name}**." if winning_name
+        f"Tests passed via **{winning_name}**."
+        if winning_name
         else "No model passed tests -- manual review may be needed."
     )
 
@@ -211,13 +241,20 @@ def main():
 
     create_result = subprocess.run(
         [
-            "gh", "pr", "create",
-            "--title", f"fix: resolve issue #{issue_no} (concurrent multi-agent)",
-            "--body", pr_body,
-            "--head", branch,
-            "--base", "main",
+            "gh",
+            "pr",
+            "create",
+            "--title",
+            f"fix: resolve issue #{issue_no} (concurrent multi-agent)",
+            "--body",
+            pr_body,
+            "--head",
+            branch,
+            "--base",
+            "main",
         ],
-        capture_output=True, text=True,
+        capture_output=True,
+        text=True,
     )
 
     print(create_result.stdout)
@@ -226,9 +263,7 @@ def main():
     else:
         pr_url = create_result.stdout.strip()
         pr_number = pr_url.split("/")[-1]
-        subprocess.run(["gh", "pr", "merge", pr_number, "--merge", "--admin", "--delete-branch"])
-        subprocess.run(["gh", "issue", "close", str(issue_no)])
-        print(f"\nPR #{pr_number} merged successfully!")
+        print(f"\nPR created: {pr_url}")
 
 
 if __name__ == "__main__":

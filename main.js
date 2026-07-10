@@ -5,3 +5,7 @@ module.exports.loop = function () {
     // that caused runtime errors in this environment.
     // Add your main logic here.
 };
+
+module.exports.checkStatus = function checkStatus() {
+    return 'OK';
+};

@@ -6,12 +6,12 @@ import { visualizeMemory } from './memory.visualizer.js';
  * @returns {void}
  */
 function startApp() {
-  try {
-    visualizeMemory();
-    console.log('Memory visualizer started successfully.');
-  } catch (error) {
-    console.error('Failed to start memory visualizer:', error);
-  }
+    try {
+        visualizeMemory();
+        console.log('Memory visualizer started successfully.');
+    } catch (error) {
+        console.error('Failed to start memory visualizer:', error);
+    }
 }
 
 startApp();
@@ -22,7 +22,7 @@ startApp();
  * @returns {string} The status of the application.
  */
 export function checkStatus() {
-  return 'OK';
+    return 'OK';
 }
 
 export { startApp };

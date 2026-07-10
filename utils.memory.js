@@ -130,7 +130,7 @@ module.exports = {
         if (Memory.cache !== _lastCacheRef) {
             _lastCacheRef = Memory.cache;
             _cacheOrder.clear();
-            if ( === undefined ||  === null) {
+            if (!_lastCacheRef) {
                 _lastCacheRef = Memory.cache = {};
                 _cacheSize = 0;
             } else {
@@ -160,7 +160,7 @@ module.exports = {
             return cached.value;
         }
 
-        if ( === undefined ||  === null) {
+        if (!cached) {
             // Capacity check before adding a new entry
             if (_cacheSize >= MAX_CACHE_ENTRIES) {
                 this.cleanCache();

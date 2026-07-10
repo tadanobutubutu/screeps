@@ -17,28 +17,26 @@ function safeRequire(moduleName) {
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
-/* expose mock globals in local scope for easier access */
-const Game = global.Game || {};
-const Flags = global.Flags || {};
+/* Initialize global commands as functions */
+if (typeof global.gr === 'undefined') global.gr = function () {}; // Function placeholder
+if (typeof global.evor === 'undefined') global.evor = function () {}; // Function placeholder
 
-/* Initialize global commands as functions (empty placeholders) */
-if (typeof global.gr === 'undefined') global.gr = function () {};
-if (typeof global.evor === 'undefined') global.evor = function () {};
+/*
+ **Support Pollinations.AI:
+
+ 🌸 **Ad 🌸
+ Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+*/
 
 /* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
+ * Role modules (hypothetical paths)
  * ------------------------------------------------------------------ */
-// Optional role modules – imported if available
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder = safeRequire('role.builder');
-const roleMiner = safeRequire('role.miner');
-const roleCreep = safeRequire('role.creep');
-const roleMine = safeRequire('role.mine');
-const EmotionSystem = safeRequire('emotion.system');
+const roleHarvester = safeRequire('./role.harvester');
+const roleUpgrader   = safeRequire('./role.upgrader');
+const roleBuilder    = safeRequire('./role.builder');
 
 /* ------------------------------------------------------------------
- *  Test Helpers
+ * Test Helpers
  * ------------------------------------------------------------------ */
 function createMockEmotionSystem() {
     return {
@@ -70,5 +68,3 @@ function createMockGame() {
 function multiply(a, b) {
     return a * b;
 }
-
-/* ------------------------------------------------

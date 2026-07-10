@@ -1,12 +1,21 @@
-"""共有AIプロバイダー・フォールバック層（キー不要優先）。
+"""共有AIプロバイダー層 — 並行実行 + フォールバック。
 
-追加プロバイダー（2026-07）:
-  - Puter.js AI REST API (anonymous, keyless)
-  - HuggingFace Serverless Inference API (anonymous)
-  - AI Horde (anonymous apikey=0000000000)
+キー不要（動作確認済み）:
+  - Pollinations GET/POST, Kilo Gateway
+
+オプションキー（GitHub Secrets）:
+  - PUTER_AUTH_TOKEN — https://puter.com/dashboard#account
+  - HF_TOKEN — https://huggingface.co/settings/tokens
+  - LLM7_API_KEY — https://token.llm7.io
+  - AI_HORDE_API_KEY — https://stablehorde.net/register
+
+低優先（レート制限あり）:
+  - OVH Anonymous (2 RPM/IP) — 単一モデルのみ呼び出し
+  - MLVoca (mlvoca.com) — キー不要、不安定な場合あり
 """
 
 import json
+import os
 import re
 import time
 import threading
@@ -48,10 +57,17 @@ PUTER_BASE = "https://api.puter.com/puterai/openai/v1/chat/completions"
 PUTER_MODELS = ["gpt-4o-mini", "gpt-4o", "claude-3-5-haiku"]
 
 HF_MODELS = [
-    "Qwen/Qwen2.5-Coder-32B-Instruct",
-    "meta-llama/Llama-3.2-3B-Instruct",
-    "mistralai/Mistral-7B-Instruct-v0.3",
+    "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "meta-llama/Meta-Llama-3.1-8B-Instruct",
 ]
+
+MLVOCA_BASE = "https://mlvoca.com/api/generate"
+MLVOCA_MODELS = ["tinyllama", "deepseek-r1:1.5b"]
+
+LLM7_BASE = "https://api.llm7.io/v1/chat/completions"
+LLM7_MODELS = ["gpt-5.4-mini", "minimax-m2.7", "deepseek-v4-flash"]
+
+AI_HORDE_ANON_KEY = "00000000000000000000000000000000"
 
 INVALID_RESPONSE_MARKERS = (
     "fix pending due to api errors",
@@ -152,15 +168,17 @@ def call_kilo_gateway(prompt):
     return None
 
 
-def call_ovh_anonymous(prompt):
-    for model in OVH_MODELS:
+def call_ovh_anonymous(prompt, model=None):
+    """OVH 匿名 — 2 RPM/IP のためデフォルトは単一モデルのみ（429 回避）。"""
+    models = [model] if model else [OVH_MODELS[0]]
+    for m in models:
         try:
-            print(f"Trying OVH AI Endpoints ({model})...")
-            result = _openai_chat(OVH_BASE, model, prompt, timeout=90)
+            print(f"Trying OVH AI Endpoints ({m})...")
+            result = _openai_chat(OVH_BASE, m, prompt, timeout=90)
             if result:
                 return result
         except Exception as exc:
-            print(f"OVH ({model}) failed: {exc}")
+            print(f"OVH ({m}) failed: {exc}")
     return None
 
 
@@ -261,14 +279,20 @@ def generate_with_fallback(
 
 
 def call_puter(prompt):
-    """Puter.js REST API - anonymous / keyless endpoint."""
+    """Puter.js OpenAI互換 API — PUTER_AUTH_TOKEN 必須（匿名は不可）。"""
+    token = normalize_token(os.environ.get("PUTER_AUTH_TOKEN"))
+    if not token:
+        print("Puter: PUTER_AUTH_TOKEN not set (get from puter.com/dashboard)")
+        return None
     for model in PUTER_MODELS:
         try:
-            print(f"Trying Puter.js API ({model})...")
+            print(f"Trying Puter.js ({model})...")
             result = _openai_chat(
-                PUTER_BASE, model, prompt,
-                headers={"Authorization": "Bearer anonymous"},
-                timeout=60,
+                PUTER_BASE,
+                model,
+                prompt,
+                headers={"Authorization": f"Bearer {token}"},
+                timeout=90,
             )
             if result:
                 return result
@@ -278,66 +302,117 @@ def call_puter(prompt):
 
 
 def call_huggingface(prompt):
-    """HuggingFace Serverless Inference API - anonymous / keyless."""
+    """HuggingFace Router API — HF_TOKEN 必須（匿名アクセスは廃止）。"""
+    token = normalize_token(
+        os.environ.get("HF_TOKEN") or os.environ.get("HUGGINGFACE_TOKEN")
+    )
+    if not token:
+        print("HuggingFace: HF_TOKEN not set (huggingface.co/settings/tokens)")
+        return None
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
     for model in HF_MODELS:
         try:
-            print(f"Trying HuggingFace Serverless ({model})...")
-            url = f"https://api-inference.huggingface.co/models/{model}/v1/chat/completions"
-            payload = {
-                "model": model,
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 1024,
-            }
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
+            print(f"Trying HuggingFace Router ({model})...")
+            result = _openai_chat(
+                "https://router.huggingface.co/v1/chat/completions",
+                model,
+                prompt,
+                headers=headers,
+                timeout=90,
             )
-            with urllib.request.urlopen(req, timeout=60) as response:
-                data = json.loads(response.read().decode("utf-8"))
-                if "choices" in data and data["choices"]:
-                    content = data["choices"][0]["message"]["content"]
-                    if content and content.strip():
-                        return content.strip()
+            if result:
+                return result
         except Exception as exc:
             print(f"HuggingFace ({model}) failed: {exc}")
     return None
 
 
-def call_aihorde(prompt):
-    """AI Horde - anonymous text generation via apikey=0000000000."""
+def call_llm7(prompt):
+    """LLM7.io — 無料登録で API キー取得可能（https://token.llm7.io）。"""
+    token = normalize_token(os.environ.get("LLM7_API_KEY"))
+    headers = {"Content-Type": "application/json"}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    for model in LLM7_MODELS:
+        try:
+            print(f"Trying LLM7 ({model})...")
+            result = _openai_chat(LLM7_BASE, model, prompt, headers=headers, timeout=90)
+            if result:
+                return result
+        except Exception as exc:
+            print(f"LLM7 ({model}) failed: {exc}")
+    return None
+
+
+def call_mlvoca(prompt, model="tinyllama"):
+    """MLVoca — キー不要 Ollama 互換 API（商用利用不可）。"""
     try:
-        print("Trying AI Horde (anonymous)...")
+        print(f"Trying MLVoca ({model})...")
         payload = {
-            "prompt": prompt[:3000],
-            "params": {"max_context_length": 1024, "max_length": 512, "temperature": 0.5},
+            "model": model,
+            "prompt": prompt[:4000],
+            "stream": False,
+        }
+        req = urllib.request.Request(
+            MLVOCA_BASE,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=90) as response:
+            data = json.loads(response.read().decode("utf-8"))
+            text = data.get("response", "").strip()
+            if text:
+                return text
+    except Exception as exc:
+        print(f"MLVoca ({model}) failed: {exc}")
+    return None
+
+
+def call_aihorde(prompt):
+    """AI Horde — stablehorde.net 登録キー必須（匿名 000...00 は無効化済み）。"""
+    apikey = normalize_token(os.environ.get("AI_HORDE_API_KEY")) or AI_HORDE_ANON_KEY
+    client_agent = os.environ.get(
+        "AI_HORDE_CLIENT_AGENT", "screeps-ai:1.0:ai-issue-solver@github.com"
+    )
+    try:
+        print("Trying AI Horde...")
+        payload = {
+            "prompt": prompt[:4000],
+            "params": {"max_context_length": 2048, "max_length": 1024, "temperature": 0.4},
+            "models": ["Llama 3 8B Instruct"],
         }
         req = urllib.request.Request(
             "https://aihorde.net/api/v2/generate/text/async",
             data=json.dumps(payload).encode("utf-8"),
             headers={
                 "Content-Type": "application/json",
-                "apikey": "0000000000",
-                "Client-Agent": "screeps-bot:1.0",
-                "User-Agent": "Mozilla/5.0",
+                "apikey": apikey,
+                "Client-Agent": client_agent,
             },
         )
-        with urllib.request.urlopen(req, timeout=30) as f:
-            job_id = json.loads(f.read().decode("utf-8")).get("id")
+        with urllib.request.urlopen(req, timeout=30) as response:
+            job_id = json.loads(response.read().decode("utf-8")).get("id")
         if not job_id:
             return None
-        url_status = f"https://aihorde.net/api/v2/generate/text/status/{job_id}"
-        for _ in range(15):
-            time.sleep(4)
-            req_s = urllib.request.Request(
-                url_status,
-                headers={"Client-Agent": "screeps-bot:1.0", "User-Agent": "Mozilla/5.0"},
+        status_url = f"https://aihorde.net/api/v2/generate/text/status/{job_id}"
+        for _ in range(20):
+            time.sleep(3)
+            status_req = urllib.request.Request(
+                status_url, headers={"apikey": apikey, "Client-Agent": client_agent}
             )
-            with urllib.request.urlopen(req_s) as f:
-                status = json.loads(f.read().decode("utf-8"))
-                if status.get("done"):
-                    gens = status.get("generations", [])
-                    return gens[0].get("text") if gens else None
+            with urllib.request.urlopen(status_req, timeout=30) as response:
+                status = json.loads(response.read().decode("utf-8"))
+            if status.get("done"):
+                generations = status.get("generations") or []
+                if generations:
+                    return generations[0].get("text", "").strip()
+                return None
+            if status.get("faulted"):
+                print(f"AI Horde faulted: {status}")
+                return None
     except Exception as exc:
         print(f"AI Horde failed: {exc}")
     return None
@@ -352,7 +427,10 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     for m in POLLINATIONS_POST_MODELS:
         provider_calls.append((f"pollinations-post:{m}", lambda m=m: call_pollinations_post(prompt, m)))
     provider_calls.append(("kilo-gateway", lambda: call_kilo_gateway(prompt)))
-    provider_calls.append(("ovh-anonymous", lambda: call_ovh_anonymous(prompt)))
+    for m in MLVOCA_MODELS:
+        provider_calls.append((f"mlvoca-{m}", lambda m=m: call_mlvoca(prompt, m)))
+    provider_calls.append(("llm7", lambda: call_llm7(prompt)))
+    provider_calls.append(("ovh-mistral-7b", lambda: call_ovh_anonymous(prompt, OVH_MODELS[0])))
     provider_calls.append(("puter-js", lambda: call_puter(prompt)))
     provider_calls.append(("huggingface", lambda: call_huggingface(prompt)))
     provider_calls.append(("aihorde", lambda: call_aihorde(prompt)))

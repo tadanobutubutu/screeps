@@ -1,15 +1,6 @@
 'use strict';
 
-// Helper to safely require modules. If the module cannot be loaded,
-// the returned value is undefined and can be checked before use.
-function safeRequire(moduleName) {
-    try {
-        return require(moduleName);
-    } catch (_) {
-        // Module does not exist or failed to load – just return undefined
-        return undefined;
-    }
-}
+// User Safety: safe
 
 /* ------------------------------------------------------------------
  *  Mock globals for testing environments (e.g., Jest)
@@ -46,35 +37,4 @@ function run() {
     // Invoke the run method of that role, if available.
     const creeps = Game.creeps || {};
     Object.values(creeps).forEach((creep) => {
-        if (!creep) return;
-        const roleName = creep.role;
-        if (!roleName) return;
-        const roleMod = gr(roleName);
-        if (roleMod && typeof roleMod.run === 'function') {
-            roleMod.run(creep);
-        }
-    });
-}
-
-/* ------------------------------------------------------------------
- *  Additional test helpers
- * ------------------------------------------------------------------ */
-/* TODO: Add additional test helpers if necessary */
-function gr(roleName) {
-    switch (roleName) {
-        case 'harvester':
-            return roleHarvester;
-        case 'upgrader':
-            return roleUpgrader;
-        case 'builder':
-            return roleBuilder;
-        case 'miner':
-            return roleMiner;
-        case 'creep':
-            return roleCreep;
-        case 'mine':
-            return roleMine;
-        default:
-            return undefined;
-    }
-}
+        if (!creep

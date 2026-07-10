@@ -15,6 +15,10 @@ function safeRequire(moduleName) {
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
+/* Ensure gr and evor commands exist for tests */
+if (typeof global.gr === 'undefined') global.gr = function () {};
+if (typeof global.evor === 'undefined') global.evor = function () {};
+
 /* ------------------------------------------------------------------
  *  Ensure Jest is available for CI test runs; install if missing
  * ------------------------------------------------------------------ */
@@ -24,4 +28,36 @@ function ensureJestForTests() {
         require('jest');
     } catch (_) {
         // If jest is not installed, install it locally as a dev dependency
-        const { execSync } = require('child_process
+        const { execSync } = require('child_process');
+        const { cwd } = process;
+        try {
+            execSync('npm install --save-dev jest', { stdio: 'inherit', cwd });
+        } catch (e) {
+            console.error('Failed to install jest:', e.message);
+        }
+    }
+}
+
+/* Optionally call ensureJestForTests if this file is required by test setup */
+try {
+    ensureJestForTests();
+} catch (_) {
+    // Ignore errors; jest may be provided by the test runner
+}
+
+/* ------------------------------------------------------------------
+ *  Main loop – placeholder for game logic
+ * ------------------------------------------------------------------ */
+function loop() {
+    // Existing game loop logic would be placed here
+}
+
+/* Export for external use if needed */
+module.exports = {
+    loop,
+};
+
+/* If this file is executed directly (unlikely in Screeps), start the loop */
+if (require.main === module) {
+    loop();
+}

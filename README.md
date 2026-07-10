@@ -1,168 +1,66 @@
-# 🎮 Screeps AI - 完全自動化リポジトリ
+# ✨ ACE (Autonomous Colony Engine) – 自律型スクリープレイヤーAI
 
+> “自動化を設計し、コードを自ら改善するシステム。 未来は私たちの芽生えたAIに委ねられる。”  
 
-<!-- AUTO-PACKAGE-BADGES:START -->
-<!-- Auto-generated package badges -->
-
-![npm version](https://img.shields.io/npm/v/screeps-ai?style=flat-square&logo=npm&color=blue) ![npm downloads](https://img.shields.io/npm/dw/screeps-ai?style=flat-square&color=brightgreen) ![npm license](https://img.shields.io/npm/l/screeps-ai?style=flat-square) [![Deployed](https://img.shields.io/badge/deployed-1.0.0-blue?style=flat-square)](https://www.npmjs.com/package/screeps-ai)
-
-<!-- AUTO-PACKAGE-BADGES:END -->
-> Screeps AI code repository with **full automation** - no API keys required!
-
-[![GitHub Actions](https://img.shields.io/badge/Automation-GitHub%20Actions-blue)](https://github.com/tadanobutubutu/screeps/actions)
-[![Workflows](https://img.shields.io/badge/Workflows-33-green)](.github/workflows)
-[![Roles](https://img.shields.io/badge/Roles-10-orange)](./)
-[![Lines](https://img.shields.io/badge/Lines-5556-purple)](./)
-
-## 🚀 特徴
-
-- ✅ **API不要**: 外部APIキー不要で完全無料
-- 🤖 **完全自動化**: 放置で自動改善・拡張
-- 📊 **リアルタイム監視**: ゲーム状況をGitHubで確認
-- 🆕 **自動拡張**: 新しいロールが週次で追加
-
-## 📊 ゲーム状況
-
-**現在の状況を確認**: [`GAME_STATUS.md`](./GAME_STATUS.md)
-
-毎時自動更新されるリアルタイムレポート：
-- 👤 プレイヤー情報 (GCL, CPU, Credits)
-- 🏰 所有部屋の状況
-- 🐛 クリープ統計
-- 💾 メモリ使用率
-
-## 🤖 自動化システム
-
-### 📋 稼働中のワークフロー (33個)
-
-- **AI Auto-Coder (Full Lifecycle Agent)** (`ai-autocoder.yml`) - 定期実行
-- **AI Code Maintenance** (`ai-code-maintenance.yml`) - 定期実行
-- **AI Repo Governance (Intel & Maintenance)** (`ai-governance.yml`) - 定期実行
-- **AI Sentinel (Ultimate Security & Quality Shield)** (`ai-guardian.yml`) - 定期実行
-- **👤 Auto Assign Issues and PRs** (`auto-assign.yml`) - イベント駆動
-- **Auto Merge PRs - Force Penetration (Instant CI)** (`auto-merge-pr.yml`) - 定期実行
-- **🤖 Auto PR from Issues** (`auto-pr-from-issues.yml`) - イベント駆動
-- **🔖 Auto Zenodo DOI Release** (`auto-zenodo-release.yml`) - 定期実行
-- **🔍 Dependency Review** (`dependency-review.yml`) - イベント駆動
-- **Deploy GitHub Pages Dashboard** (`deploy-pages.yml`) - イベント駆動
-- **Deploy to Screeps PTR** (`deploy.yml`) - イベント駆動
-- **✨ Discussion Auto-Implement** (`discussion-auto-implement.yml`) - イベント駆動
-- **🚨 Emergency: Restore API Mode** (`emergency-api-restore.yml`) - 定期実行
-- **Fix undici - Regenerate package-lock.json** (`fix-undici-lockfile.yml`) - イベント駆動
-- **⏱️ Game Monitor (Hybrid Mode)** (`game-monitor-15min.yml`) - 定期実行
-- **gitStream** (`gitstream.yml`) - イベント駆動
-- **🎫 Issue Management** (`issue-management.yml`) - イベント駆動
-- **JAIPilot Generate** (`jaipilot-generate.yml`) - イベント駆動
-- **Junie** (`junie.yaml`) - イベント駆動
-- **Label Sync** (`label-sync.yml`) - イベント駆動
-- **OpenCode AI Agent** (`opencode.yml`) - イベント駆動
-- **🏷️ PR Auto Labeler** (`pr-labeler.yml`) - イベント駆動
-- **🎲 Random Experiment** (`random-experiment.yml`) - 定期実行
-- **Release Agent** (`release-agent.yml`) - イベント駆動
-- **📦 Release Drafter** (`release-drafter.yml`) - イベント駆動
-- **Security Autofix (Dependabot & npm audit)** (`security-autofix.yml`) - 定期実行
-- **🗑️ Stale Issue and PR Management** (`stale.yml`) - 定期実行
-- **Supabase KeepAlive** (`supabase-keepalive.yml`) - 定期実行
-- **🧪 Test Auto PR System** (`test-auto-pr.yml`) - イベント駆動
-- **📚 Update Wiki** (`update-wiki.yml`) - イベント駆動
-- **Validate Versions** (`validate-versions.yml`) - イベント駆動
-- **📊 Weekly Quality Report** (`weekly-quality-report.yml`) - 定期実行
-- **👋 Welcome Bot** (`welcome.yml`) - イベント駆動
-
-詳しくは [`WORKFLOWS.md`](./WORKFLOWS.md) を参照してください。
-
-## 🐛 実装済みロール (10個)
-
-1. **attacker** - `role.attacker.js`
-2. **builder** - `role.builder.js`
-3. **explorer** - `role.explorer.js`
-4. **harvester** - `role.harvester.js`
-5. **healer** - `role.healer.js`
-6. **medic** - `role.medic.js`
-7. **repairer** - `role.repairer.js`
-8. **scout** - `role.scout.js`
-9. **transporter** - `role.transporter.js`
-10. **upgrader** - `role.upgrader.js`
-
-## 📈 統計情報
-
-- 📄 **JSファイル数**: 38
-- 📝 **総コード行数**: 5556
-- 🔄 **ワークフロー数**: 33
-- 🎭 **ロール数**: 10
-
-*最終更新: 2026-07-10*
-
-## 🔧 セットアップ
-
-### 1. Steam版購入後
-
-1. Screeps公式サイトでログイン
-2. Account Settings → API Access でトークン生成
-3. GitHubリポジトリ Settings → Secrets で `SCREEPS_TOKEN` に設定
-4. mainブランチにpushすれば自動デプロイ開始
-
-### 2. ローカル開発 (オプション)
-
-```bash
-git clone https://github.com/tadanobutubutu/screeps.git
-cd screeps
-npm install
-```
-
-## 📁 ファイル構成
-
-```
-.
-├── .github/workflows/     # 自動化ワークフロー (33個)
-├── role.*.js              # クリープロール (10個)
-├── utils.*.js             # ユーティリティ関数
-├── main.js                # メインループ
-├── deploy.js              # デプロイスクリプト
-├── GAME_STATUS.md         # リアルタイムゲーム状況
-├── WORKFLOWS.md           # ワークフロー詳細説明
-└── game-history/          # 日付別履歴
-```
-
-## 📚 ドキュメント
-
-- [`WORKFLOWS.md`](./WORKFLOWS.md) - 自動化ワークフローの詳細
-- [`GAME_STATUS.md`](./GAME_STATUS.md) - リアルタイムゲーム状況
-- [`META-CHANGELOG.md`](./META-CHANGELOG.md) - システム変更履歴
-- [`SECURITY.md`](./SECURITY.md) - セキュリティポリシー
-
-## ✨ 主な機能
-
-### 🔧 ルールベース自動改善
-
-- `console.log` の削除
-- `var` を `const` に変更
-- 非効率なループの最適化
-- メモリクリーンアップの自動追加
-
-### 🎲 ランダム実験
-
-毎週以下のいずれかを自動追加：
-- 📊 パフォーマンスモニター
-- 🧭 パスファインディングキャッシュ
-- 🎯 スマートスポーン優先度
-- 🛡️ タワー最適化
-- ⚡ エネルギー効率トラッキング
-
-### 🆕 自動ロール作成
-
-毎週新しいロールを自動生成して `main.js` に統合します。
-
-## 👨‍💻 貢献
-
-改善提案やバグ報告はIssuesでお願いします。
-
-## 📝 ライセンス
-
-MIT License
+[![Build Status](https://github.com/your-org/ace/workflows/ci/badge.svg)](https://github.com/your-org/ace/actions)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Coverage](https://img.shields.io/coveralls/your-org/ace/master.svg)](https://coveralls.io/github/your-org/ace)
+[![AI Powered](https://img.shields.io/badge/AI-Powered-ff69b4.svg)](https://your-org.github.io/ace)
 
 ---
 
-**Enjoy your fully automated Screeps experience!** 🎮🤖
+## 🚀 ACE の概要
 
-*このREADMEは自動更新されます - 最終更新: 2026-07-10T12:57:49.077Z*
+ACE（Autonomous Colony Engine）は、スクリーپのオンラインバトルを自律的に強化するAIプロジェクトです。  
+- **34** 台の自動化ワークフローを駆使し、コードベースを 24 時間年間監視  
+- **10** 種類の動的ロール（Guardian、Auto‑Coder、Governance など）で機能を網羅  
+- **24,658 行** のコードで、単一リポジトリにて自己修復・自己進化を実現  
+
+コアは 3 つのエージェントにより構成され、インフラはすべて非同期に動作しながら自己完結的な振る舞いを行います。
+
+---
+
+## 🧩 システムアーキテクチャ (詳細)
+
+```
+graph TD
+    A[AI Guardian] -->|Issue Creation| B[AI Auto-Coder]
+    B -->|Pull Request| C[AI Repo Governance]
+    C -->|Doc Update| A
+    A -->|Security Scan| A
+    B -->|Test Run| B
+    C -->|Branch Cleanup| C
+```
+
+🔶 **Guardian(監視)**  
+- **Gitleaks + CodeQL + SonarCloud** を実行し、コード改ざんやセキュリティホールを検知。  
+- **Jest** でユニットテストを走らせ、カバレッジを 100% へ促進。  
+- 発見次第、GitHub Issue を自動生成し、ステータスを `security` とラベル付。
+
+🔶 **Auto‑Coder(修復)**  
+- 生成された Issue を解析し、**自動修正・テスト作成**を実施。  
+- コンフリクト解消は GPT‑系の LLM により行い、**PR を自動マージ**。  
+- マージ後は **ブランチをクリーンアップ**、CI/CD パイプラインを再実行。
+
+🔶 **Governance(統治)**  
+- README・CHANGELOG を **AI が動的に生成**し、変更履歴を即時反映。  
+- 不要ブランチの検出と削除、**新規クリープロールの提案**を行い、リポジトリを最適化。  
+
+リーン・リード・オフィス（LoC）からアジャイル栄華を繰り返す。各エージェントは独立しつつも、**トリガー・ループ**で継続的にリファクタリングを実行。
+
+---
+
+## ⚙️ コアテクノロジー
+
+| テクノロジー | 役割 | 実装ポイント |
+|--------------|------|--------------|
+| **LLM (Generative Language Model)** | コード生成、コンフリクト解決、ドキュメント更新 | `ai-coder-service` 内の `gen_code.py` |
+| **GitHub Actions** | CI/CD、Issue/PR 自動化 | `ci.yml`, `auto-coder.yml`, `governance.yml` |
+| **OpenAI API** | プロンプトエンジン | 外部接続パラメータは `secrets.GITHUB_TOKEN` と `OPENAI_API_KEY` |
+| **SonarCloud/CodeQL** | 静的解析 | `sonar-project.properties` でプロジェクト全体をカバー |
+| **Supabase** | フロントエンドに統計・ログを提供 | `supabase-js` v2.110.2 (現在) |
+| **Coveralls** | コードカバレッジ 100% 目標 | `.coveralls.yml` |
+| **Dependabot** | セキュリティ自動修正 | `dependabot.yml` で `security` & `version-update` |
+| **Docauto** | README・CHANGELOG 生成 | `docs/generate.py` |
+
+これらが連携し、`issue

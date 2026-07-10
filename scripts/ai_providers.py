@@ -421,7 +421,7 @@ def call_aihorde(prompt):
         if not job_id:
             return None
         status_url = f"https://aihorde.net/api/v2/generate/text/status/{job_id}"
-        for _ in range(20):
+        for _ in range(10):
             time.sleep(3)
             status_req = urllib.request.Request(
                 status_url, headers={"apikey": apikey, "Client-Agent": client_agent}
@@ -619,7 +619,7 @@ def generate_concurrent_all(prompt, gemini_key=None, openrouter_token=None):
     for t in threads:
         t.start()
     for t in threads:
-        t.join(timeout=70)
+        t.join(timeout=45)
 
     return results  # dict: {provider_name: response_text}
 

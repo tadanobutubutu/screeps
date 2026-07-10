@@ -1,7 +1,12 @@
-'use strict'; /* Main entry point for the Screeps bot.
+'use strict';
+
+/* Main entry point for Screeps bot.
  * This file contains all imports and logic from both branches.
  * A simple status check is added for monitoring purposes.
+ * Includes global helpers, EmotionSystem stub, and a placeholder status check.
  */
+
+/* global describe, test, expect */
 
 // Helper to safely require modules. If the module cannot be loaded,
 // the returned value is undefined and can be checked before use.
@@ -14,16 +19,16 @@ function safeRequire(moduleName) {
     }
 }
 
-// ------------------------- Imports ----------------------------
-const Game = global.Game;
-const Flags = global.Flags;
+/* --------------------- Imports --------------------- */
+const Game  = global.Game || {};
+const Flags = global.Flags || {};
 
-// Roles - use safeRequire for missing modules.
 const roleHarvester = safeRequire('role.harvester');
-const roleUp;
-const roleMine = safeRequire('role.mine');
-const roleBuilder = safeRequire('role.builder');
-const roleUpgrader = safeRequire('role.upgrader');
+const roleUpgrader   = safeRequire('role.upgrader');
+const roleBuilder    = safeRequire('role.builder');
+const roleMiner      = safeRequire('role.miner');
+const roleCreep      = safeRequire('role.creep');
+const roleMine       = safeRequire('role.mine');
 
 // Energy logic
 const ENERGY_CAPACITY = 300;

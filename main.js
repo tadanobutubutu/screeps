@@ -38,9 +38,34 @@ function ensureJestForTests() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Ensure Jest is available for tests in CI environment
+ * ------------------------------------------------------------------ */
+function ensureJestInCi() {
+    // Check if we're in a CI environment
+    if (process.env.CI) {
+        try {
+            // Try to require jest first
+            require('jest');
+        } catch (_) {
+            // If jest is not available, try to install it
+            const { execSync } = require('child_process');
+            const { cwd } = process;
+            try {
+                console.log('Installing jest for CI environment...');
+                execSync('npm install --save-dev jest', { stdio: 'inherit', cwd });
+            } catch (e) {
+                console.error('Failed to install jest in CI environment:', e.message);
+                process.exit(1);
+            }
+        }
+    }
+}
+
 /* Optionally call ensureJestForTests if this file is required by test setup */
 try {
     ensureJestForTests();
+    ensureJestInCi();
 } catch (_) {
     // Ignore errors; jest may be provided by the test runner
 }

@@ -56,3 +56,13 @@ if (typeof jest !== 'undefined') {
 
   // No need to override jest itself; it will be available in the test environment
 }
+
+/* ------------------------------------------------------------------
+ *  Test Helpers
+ * ------------------------------------------------------------------ */
+function mockEmotionSystem() {
+  // Provide a minimal mock for an Emotion system if tests rely on it
+  if (typeof global.Emo === 'undefined') {
+    global.Emo = {}; // Stub object; extend with needed properties in tests
+  }
+}

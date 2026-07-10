@@ -44,7 +44,7 @@ global.evor = evor;
  * ------------------------------------------------------------------ */
 if (typeof jest !== 'undefined') {
   // Mock the global Game object for tests
-  global.Game = {
+  global.Game = global.Game || {
     // Add any necessary mock properties here
     // For example:
     // creeps: {},
@@ -53,7 +53,7 @@ if (typeof jest !== 'undefined') {
   };
 
   // Mock the global Flags object for tests
-  global.Flags = {
+  global.Flags = global.Flags || {
     // Add any necessary mock properties here
   };
 
@@ -72,6 +72,11 @@ if (typeof jest !== 'undefined') {
   // Ensure the real jest mocking behaviour works if the test runner provides it
   if (actualJest && typeof actualJest.mock === 'function') {
     global.jest.mock = actualJest.mock;
+  }
+
+  // Add a simple mock for require if needed
+  if (typeof require !== 'undefined') {
+    global.require = require;
   }
 }
 

@@ -2,8 +2,8 @@ import os, sys, json, subprocess, urllib.request, re
 
 def call_gemini_api(prompt, key):
     try:
-        print("Trying direct Google Gemini API (gemini-1.5-flash)...")
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={key}"
+        print("Trying direct Google Gemini API (gemini-1.5-flash-latest)...")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={key}"
         payload = {
             "contents": [{"parts": [{"text": prompt}]}]
         }
@@ -21,9 +21,9 @@ def call_gemini_api(prompt, key):
 
 def call_openrouter(prompt, token):
     models = [
+        "openrouter/free",
         "google/gemini-2.5-flash:free",
         "google/gemini-2.0-flash-exp:free",
-        "meta-llama/llama-3-8b-instruct:free",
     ]
     for model in models:
         try:
@@ -45,7 +45,10 @@ def call_openrouter(prompt, token):
             )
             with urllib.request.urlopen(req, timeout=60) as f:
                 res = json.loads(f.read().decode('utf-8'))
-                return res['choices'][0]['message']['content']
+                if 'choices' in res and len(res['choices']) > 0:
+                    return res['choices'][0]['message']['content']
+                elif 'error' in res:
+                    print(f"OpenRouter returned error for {model}: {res['error']}")
         except Exception as e:
             print(f"OpenRouter model {model} failed: {e}")
     return None

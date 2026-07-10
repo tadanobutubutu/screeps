@@ -28,6 +28,26 @@
    Additional utility: `checkStatus`
 ------------------------------------------------------------------ */
 
+posthog.init(process.env.POSTHOG_API_KEY, {
+    api_host: 'https://us.i.posthog.com',
+    defaults: '2026-01-30',
+});
+
+Sentry.getCurrentScope().setTag('posthog_session_id', posthog.get_session_id());
+
+const roleHarvester = require('role.harvester');
+const roleHealer = require('role.healer');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
+const roleExplorer = require('role.explorer');
+const roleMedic = require('role.medic');
+const roleTransporter = require('role.transporter');
+const roleScout = require('role.scout');
+const defenseManager = require('defense.manager');
+const utilsMemory = require('utils.memory');
+const logger = require('utils.logging');
+
 function checkStatus() {
   return 'OK';
 }

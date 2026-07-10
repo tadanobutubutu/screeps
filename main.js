@@ -6,58 +6,36 @@
 const Game = global.Game || {};
 const Flags = global.Flags || {};
 
+/* ----------------- Jest for Testing ------------------ */
 // Add jest to the environment globals for test mocking
-global jest = require('jest');
-// Mock necessary Screeps modules for Jest
-jest.mock('screeps');
+global.jest = require('jest');
+try {
+    jest.mock('screeps');
+} catch (e) {
+    // If mocking fails, likely running in production; ignore
+}
 
-// Roles
-const roleHarvester = require('role.harvester');
-const roleUpgrader = require('role.upgrader');
-const roleBuilder = require("./builder");
-
-// Optional modules
-const Controller = require("./controller");
-const Defender = require("./defender");
-const Builder = require("./builder");
-
-// ----------------- Bot Logic --------------------------
-/**
- * Main loop called by the Screeps engine once per tick.
- */
-function mainLoop() {
-  // Primary controller logic
+/* ------------------------------------------------------------------
+ *  Helper – safely require optional modules
+ * ------------------------------------------------------------------ */
+function safeRequire(name) {
   try {
-    Controller.run();
-  } catch (err) {
-    console.error('[Controller] error:', err);
-  }
-  // Run main controller logic
-  // Run each creep according to its role
-  for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (!creep || !creep.memory || !creep.memory.role) {
-      continue;
-    }
-    switch (creep.memory.role) {
-      case 'harvester':
-        roleHarvester.run(creep);
-        break;
-      case 'upgrader':
-        roleUpgrader.run(creep);
-        break;
-      case 'builder':
-        roleBuilder.run(creep);
-        break;
-      default:
-        // Additional roles could be handled here
-        break;
-    }
+    return require(name);
+  } catch (_) {
+    return undefined; // module missing / failed to load
   }
 }
 
-// Export loop and status check
-module.exports.loop = mainLoop;
-module.exports.checkStatus = function () {
-  return 'OK';
-};
+// Roles
+const roleHarvester = require('role.harvester');
+const roleUpgrader   = require('role.upgrader');
+const roleBuilder    = require('role.builder');
+
+// Optional modules
+const Controller = safeRequire("./controller") || require("./controller");
+const Defender   = safeRequire("./defender")   || require("./defender");
+const Builder    = safeRequire("./builder")    || require("./builder");
+
+/**
+ * Main loop called by the Screeps engine once per tick.
+ * Placeholder for further implementation. */

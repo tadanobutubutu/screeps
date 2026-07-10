@@ -44,3 +44,10 @@ try {
 /**
  * Main loop called by the Screeps engine once per tick.
  * Placeholder for further implementation. */
+function mainLoop() {
+  // Placeholder logic
+  console.log("Main loop running");
+}
+
+// Call the main loop
+mainLoop();

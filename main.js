@@ -29,10 +29,10 @@ const Flags = global.Flags || {}; // global Flags reference
 
 const roleHarvester = safeRequire('role.harvester');
 const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder   = safeRequire('role.builder');
-const roleMiner     = safeRequire('role.miner');
-const roleCreep     = safeRequire('role.creep');
-const roleMine      = safeRequire('role.mine');
+const roleBuilder = safeRequire('role.builder');
+const roleMiner = safeRequire('role.miner');
+const roleCreep = safeRequire('role.creep');
+const roleMine = safeRequire('role.mine');
 const EmotionSystem = safeRequire('emotion.system');
 
 /* ------------------------------------------------------------------
@@ -45,16 +45,42 @@ function multiply(a, b) {
 /* ------------------------------------------------------------------
  *  Global helpers for tests
  * ------------------------------------------------------------------ */
-/* TODO: Add additional test helpers if necessary */
+function getCreepRole(creep) {
+    // Example helper function to determine the role of a creep
+    // This is a placeholder and should be replaced with actual logic
+    return creep.memory.role || 'undefined';
+}
+
+function isCreepIdle(creep) {
+    // Example helper function to check if a creep is idle
+    // This is a placeholder and should be replaced with actual logic
+    return creep.memory.idle || false;
+}
 
 /* ------------------------------------------------------------------
  *  TODO: Implement creep role assignment logic here (line 62)
  * ------------------------------------------------------------------ */
 Object.keys(Game.creeps).forEach(function (name) {
     const creep = Game.creeps[name];
+    const role = getCreepRole(creep);
     // Example: Assign a role based on creep type or other criteria
     // gr.assignRole?.(creep); // Uncomment if gr has such a method
     // evor.assign?.(creep);    // Uncomment if evor has such a method
+    if (role === 'harvester') {
+        // Assign harvester role
+    } else if (role === 'upgrader') {
+        // Assign upgrader role
+    } else if (role === 'builder') {
+        // Assign builder role
+    } else if (role === 'miner') {
+        // Assign miner role
+    } else if (role === 'creep') {
+        // Assign creep role
+    } else if (role === 'mine') {
+        // Assign mine role
+    } else if (isCreepIdle(creep)) {
+        // Assign idle role
+    }
 });
 
 /* Rest of the file continues as before... */

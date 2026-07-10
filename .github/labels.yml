@@ -131,3 +131,11 @@
 - name: verified
   color: '00ff00'
   description: Verified and approved
+
+- name: ai-solve
+  color: '7057ff'
+  description: AI が自動解決すべき Issue
+
+- name: coverage
+  color: '1d76db'
+  description: コードカバレッジ不足

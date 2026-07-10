@@ -56,3 +56,8 @@ junit.xml
 .cache/
 coverage/
 docs/plato-report/
+
+# AI solver artifacts
+scripts/__pycache__/
+issue_list.txt
+scratch/

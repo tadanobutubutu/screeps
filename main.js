@@ -17,45 +17,25 @@ function safeRequire(moduleName) {
 if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
 if (typeof global.Flags === 'undefined') global.Flags = {};
 
-/* expose mock globals in local scope for easier access */
-const Game = global.Game || {};
-const Flags = global.Flags || {};
+/* Initialize global commands as functions */
+if (typeof global.gr === 'undefined') global.gr = function () {}; // Function placeholder
+if (typeof global.evor === 'undefined') global.evor = function () {}; // Function placeholder
 
-/* Initialize global commands as functions (empty placeholders) */
-if (typeof global.gr === 'undefined') global.gr = function () {};
-if (typeof global.evor === 'undefined') global.evor = function () {};
+/*
+ **Support Pollinations.AI:
 
-/* ------------------------------------------------------------------
- *  Core imports (if they exist in the test environment)
- * ------------------------------------------------------------------ */
-// Optional role modules – imported if available
-const roleHarvester = safeRequire('role.harvester');
-const roleUpgrader = safeRequire('role.upgrader');
-const roleBuilder = safeRequire('role.builder');
-const roleMiner = safeRequire('role.miner');
-const roleCreep = safeRequire('role.creep');
-const roleMine = safeRequire('role.mine');
-const EmotionSystem = safeRequire('emotion.system');
+ 🌸 **Ad 🌸
+ Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+*/
 
 /* ------------------------------------------------------------------
- *  Additional test helpers
+ * Role modules (hypothetical paths)
  * ------------------------------------------------------------------ */
-function mockEmotionSystem() {
-    if (EmotionSystem) {
-        EmotionSystem.interact = jest.fn();
-    }
-}
-
-/* Initialize test helpers if in test environment */
-if (typeof jest !== 'undefined') {
-    mockEmotionSystem();
-}
+const roleHarvester = safeRequire('./role.harvester');
+const roleUpgrader   = safeRequire('./role.upgrader');
+const roleBuilder    = safeRequire('./role.builder');
 
 /* ------------------------------------------------------------------
- * Optional modules
+ * Test Helpers
  * ------------------------------------------------------------------ */
-function multiply(a, b) {
-    return a * b;
-}
-
-/* ------------------------------------------------
+// Mock an

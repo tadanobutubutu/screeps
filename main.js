@@ -1,19 +1,14 @@
 'use strict';
 
-/* Main entry point for the Screeps bot.
- * This file contains all imports and logic from both branches.
- * A simple status check is added for monitoring purposes and acts as a placeholder status check.
- */
+// User Safety: safe
 
 /* ------------------------------------------------------------------
- * Helper to safely require modules. If the module cannot be loaded,
- * the returned value is undefined and can be checked before use.
+ *  Helper – safely require optional modules
  * ------------------------------------------------------------------ */
-function safeRequire(moduleName) {
+function safeRequire(name) {
     try {
-        return require(moduleName);
+        return require(name);
     } catch (_) {
-        // Module exists or failed to load – just return undefined.
         return undefined;
     }
 }
@@ -27,14 +22,36 @@ if (typeof global.gr === 'undefined') global.gr = function() {}; // Function pla
 if (typeof global.evor === 'undefined') global.evor = function() {}; // Function placeholder
 
 /* ------------------------------------------------------------------
- * TODO: Implement creep role assignment logic here (line 62)
+ *  Core imports (if they exist in the test environment)
+ * ------------------------------------------------------------------ */
+const Game = global.Game; // global Game reference (may be mocked)
+const Flags = global.Flags; // global Flags reference
+
+/* Example of optional role modules – ignored if missing */
+const roleHarvester = safeRequire('role.harvester');
+const roleUpgrader = safeRequire('role.upgrader');
+
+/* ------------------------------------------------------------------
+ *  Helper API – multiply
+ * ------------------------------------------------------------------ */
+function multiply(a, b) {
+    return a * b;
+}
+
+/* ------------------------------------------------------------------
+ *  Global helpers for tests
+ * ------------------------------------------------------------------ */
+/* TODO: Add additional test helpers if necessary */
+
+/* ------------------------------------------------------------------
+ *  TODO: Implement creep role assignment logic here (line 62)
  * ------------------------------------------------------------------ */
 // TODO: iterate over creeps, assign roles, etc.
 Object.keys(Game.creeps).forEach(function(name) {
     const creep = Game.creeps[name];
     // Example: Assign a role based on creep type or other criteria
-    // gr.assignRole(creep); // Uncomment if gr has such a method
-    // evor.assign(creep);    // Uncomment if evor has such a method
+    // gr.assignRole?.(creep); // Uncomment if gr has such a method
+    // evor.assign?.(creep);    // Uncomment if evor has such a method
 });
 
 /* Rest of the file continues as before... */

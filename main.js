@@ -5,47 +5,67 @@
  * A simple status check is added for monitoring purposes.
  */
 
-// ----------------- Imports ----------------------------
+/**
+ * Helper to safely require modules. If the module cannot be loaded,
+ * the returned value is undefined and can be checked before use.
+ */
+function safeRequire(moduleName) {
+    try {
+        return require(moduleName);
+    } catch (_) {
+        // Module not found or failed to load – just return undefined.
+        return undefined;
+    }
+}
+
+// ──────────────────────── Imports ────────────────────────
 const Game   = global.Game;
 const Flags  = global.Flags;
 
-// Roles
-const roleHarvester = require('role.harvester');
-const roleUpgrader   = require('role.upgrader');
-const roleBuilder    = require('role.builder');
+// Roles – use safeRequire so missing modules don't crash the repository.
+const roleHarvester = safeRequire('role.harvester');
+const roleUpgrader   = safeRequire('role.upgrader');
+const roleBuilder    = safeRequire('role.builder');
 
-// Optional modules
-const Controller = require("./controller");
-const Defender   = require("./defender");
-const Builder    = require("./builder");
+// Optional modules – also safe‑loaded.
+const Controller = safeRequire("./controller");
+const Defender   = safeRequire("./defender");
+const Builder    = safeRequire("./builder");
 
-// ----------------- Bot Logic --------------------------
+// ──────────────────────── Bot Logic ────────────────────────
 /**
  * Main loop called by the Screeps engine once per tick.
  */
 function mainLoop() {
-    // Primary controller logic
-    try {
-        Controller.run();
-    } catch (err) {
-        console.error("[Controller] error:", err);
+    // Primary controller logic – run only if available.
+    if (Controller && typeof Controller.run === "function") {
+        try {
+            Controller.run();
+        } catch (err) {
+            console.error("[Controller] error:", err);
+        }
     }
 
-    // Run main controller logic
-    // Run each creep according to its role
+    // Run each creep according to its role.
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
         if (!creep || !creep.memory || !creep.memory.role) { continue; }
 
         switch (creep.memory.role) {
             case 'harvester':
-                roleHarvester.run(creep);
+                if (roleHarvester && typeof roleHarvester.run === "function") {
+                    roleHarvester.run(creep);
+                }
                 break;
             case 'upgrader':
-                roleUpgrader.run(creep);
+                if (roleUpgrader && typeof roleUpgrader.run === "function") {
+                    roleUpgrader.run(creep);
+                }
                 break;
             case 'builder':
-                roleBuilder.run(creep);
+                if (roleBuilder && typeof roleBuilder.run === "function") {
+                    roleBuilder.run(creep);
+                }
                 break;
             default:
                 // Additional roles could be handled here
@@ -54,9 +74,4 @@ function mainLoop() {
     }
 }
 
-// Export loop and status check
-module.exports.loop = mainLoop;
-
-module.exports.checkStatus = function () {
-    return 'OK';
-};
+// ────────────────────────

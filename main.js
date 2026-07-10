@@ -48,3 +48,34 @@ function multiply(a, b) {
  */
 function run() {
     //
+}
+
+/* ------------------------------------------------------------------
+ *  Additional test helpers
+ * ------------------------------------------------------------------ */
+/* TODO: Add additional test helpers if necessary */
+function gr(roleName) {
+    switch (roleName) {
+        case 'harvester': return roleHarvester;
+        case 'upgrader': return roleUpgrader;
+        case 'builder': return roleBuilder;
+        case 'miner': return roleMiner;
+        case 'creep': return roleCreep;
+        case 'mine': return roleMine;
+        default: return safeRequire('role.' + roleName);
+    }
+}
+
+function evor(target) {
+    if (!target) return undefined;
+    const role = target.memory ? target.memory.role : target.role;
+    const roleModule = gr(role);
+    if (roleModule && typeof roleModule.run === 'function') {
+        return roleModule.run(target);
+    }
+    return undefined;
+}
+
+// Expose helpers as globals for the test environment
+if (typeof global.gr !== 'function') global.gr = gr;
+if (typeof global.evor !== 'function') global.evor = evor;

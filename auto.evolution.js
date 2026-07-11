@@ -5,6 +5,7 @@
  */
 
 const utilsMemory = require('./utils.memory');
+const logger = require('./utils.logging');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.
@@ -342,7 +343,7 @@ const autoEvolution = {
             }
         }
 
-        if (need !== undefined && need !== null) {
+        if (!exists && need !== undefined && need !== null) {
             need.timestamp = Game.time;
             Memory.evolution.queue.push(need);
             logger.info('Added ' + need.type + ' to evolution queue');
@@ -417,8 +418,8 @@ const autoEvolution = {
             Memory.evolution.suggestions.shift();
         }
 
-        );
-        },
+        logger.info('Generated evolution suggestion: ' + suggestion.substring(0, 50) + '...');
+    },
 
     /**
      * RCL機能生成
@@ -480,20 +481,21 @@ const autoEvolution = {
         this.init();
         const evo = Memory.evolution;
 
-        + ' ticks ago');
+        logger.info('Last analysis: ' + (Game.time - evo.lastFullAnalysis) + ' ticks ago');
 
         if (evo.history.length > 0) {
             const recentHistory = evo.history.slice(-5);
             for (let i = 0; i < recentHistory.length; i++) {
                 const h = recentHistory[i];
-                }
+                logger.info('History: ' + h.type + ' (' + h.action + ')');
+            }
         }
 
         if (evo.queue.length > 0) {
             const pendingQueue = evo.queue.slice(0, 5);
             for (let i = 0; i < pendingQueue.length; i++) {
                 const q = pendingQueue[i];
-                ');
+                logger.info('Queue: ' + q.type + ' priority ' + q.priority);
             }
         }
 
@@ -501,7 +503,7 @@ const autoEvolution = {
             const recentSuggestions = evo.suggestions.slice(-3);
             for (let i = 0; i < recentSuggestions.length; i++) {
                 const s = recentSuggestions[i];
-                [0]);
+                logger.info('Suggestion: ' + s.filename + ' (' + s.type + ')');
             }
         }
     },
@@ -511,7 +513,8 @@ const autoEvolution = {
      */
     reset: function () {
         delete Memory.evolution;
-        },
+        logger.info('Evolution system reset');
+    },
 };
 
 module.exports = autoEvolution;

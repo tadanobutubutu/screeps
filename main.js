@@ -30,7 +30,7 @@ const EmotionSystem = {
             jest.spyOn(EmotionSystem, 'interact').mockImplementation(() => {
                 // Mock interaction logic for testing
                 return {
-                    called: true
+                    called: true,
                 };
             });
         }
@@ -101,7 +101,7 @@ function loop() {
         jest.spyOn(EmotionSystem, 'interact').mockImplementation(() => {
             // Mock interaction logic for testing
             return {
-                called: true
+                called: true,
             };
         });
     }
@@ -157,7 +157,6 @@ function ensureJestInCiEnvironment() {
         try {
             const { execSync } = require('child_process');
             execSync('npm install --save-dev jest', { stdio: 'inherit' });
-            console.log('Jest installed successfully in CI environment.');
         } catch (e) {
             console.error('Failed to install jest in CI environment:', e.message);
             process.exit(1);
@@ -174,7 +173,6 @@ function ensureJestForTesting() {
         try {
             const { execSync } = require('child_process');
             execSync('npm install --save-dev jest', { stdio: 'inherit' });
-            console.log('Jest installed successfully for testing.');
         } catch (e) {
             console.error('Failed to install jest for testing:', e.message);
             throw new Error('Jest is required for testing but could not be installed.');
@@ -191,7 +189,7 @@ module.exports = {
     ensureInteractCalled,
     ensureJest,
     ensureJestInCiEnvironment,
-    ensureJestForTesting // Added new export for test environment check
+    ensureJestForTesting, // Added new export for test environment check
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

@@ -157,8 +157,7 @@ function ensureJestInCiEnvironment() {
         try {
             const { execSync } = require('child_process');
             execSync('npm install --save-dev jest', { stdio: 'inherit' });
-            console.log('Jest installed successfully in CI environment.');
-        } catch (e) {
+            } catch (e) {
             console.error('Failed to install jest in CI environment:', e.message);
             process.exit(1);
         }
@@ -174,8 +173,7 @@ function ensureJestForTesting() {
         try {
             const { execSync } = require('child_process');
             execSync('npm install --save-dev jest', { stdio: 'inherit' });
-            console.log('Jest installed successfully for testing.');
-        } catch (e) {
+            } catch (e) {
             console.error('Failed to install jest for testing:', e.message);
             throw new Error('Jest is required for testing but could not be installed.');
         }

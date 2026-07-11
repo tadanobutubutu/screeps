@@ -224,6 +224,86 @@ function ensureJestInCiEnvironment() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available for tests
+ * ------------------------------------------------------------------ */
+function ensureJestForTesting() {
+    if (!isJestAvailable()) {
+        console.warn('Jest is not available. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+        } catch (e) {
+            console.error('Failed to install jest for testing:', e.message);
+            throw new Error('Jest is required for testing but could not be installed.');
+        }
+    }
+}
+
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available in CI environment
+ * ------------------------------------------------------------------ */
+function ensureJestInCiEnvironment() {
+    if (process.env.CI && !isJestAvailable()) {
+        console.warn('Jest is not available in CI environment. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+        } catch (e) {
+            console.error('Failed to install jest in CI environment:', e.message);
+            process.exit(1);
+        }
+    }
+}
+
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available in test environment
+ * ------------------------------------------------------------------ */
+function ensureJestForTestingEnvironment() {
+    if (typeof jest === 'undefined') {
+        console.warn('Jest is not available in test environment. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+        } catch (e) {
+            console.error('Failed to install jest for testing:', e.message);
+            throw new Error('Jest is required for testing but could not be installed.');
+        }
+    }
+}
+
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available for tests
+ * ------------------------------------------------------------------ */
+function ensureJestForTests() {
+    if (!isJestAvailable()) {
+        console.warn('Jest is not available. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+        } catch (e) {
+            console.error('Failed to install jest for testing:', e.message);
+            throw new Error('Jest is required for testing but could not be installed.');
+        }
+    }
+}
+
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available in CI environment
+ * ------------------------------------------------------------------ */
+function ensureJestInCiEnvironment() {
+    if (process.env.CI && !isJestAvailable()) {
+        console.warn('Jest is not available in CI environment. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+        } catch (e) {
+            console.error('Failed to install jest in CI environment:', e.message);
+            process.exit(1);
+        }
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
@@ -235,7 +315,8 @@ module.exports = {
     ensureJestInCiEnvironment,
     ensureJestForTesting,
     ensureGlobalCommands,
-    ensureJestForTestingEnvironment, // Added new export for testing environment check
+    ensureJestForTestingEnvironment,
+    ensureJestForTests,
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */
@@ -247,7 +328,7 @@ if (require.main === module) {
 try {
     if (!isJestAvailable()) {
         ensureJestForTests();
-        ensureJestInCi();
+        ensureJestInCiEnvironment();
     }
     // Ensure global commands exist for tests
     ensureGlobalCommands();

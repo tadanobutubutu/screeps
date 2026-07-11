@@ -113,11 +113,22 @@ function loop() {
     // (Spy is already active, so the call above is counted)
 }
 
+/* ------------------------------------------------------------------
+ *  Test setup function to ensure Jest is available
+ * ------------------------------------------------------------------ */
+function setupTests() {
+    if (!isJestAvailable()) {
+        ensureJestForTests();
+        ensureJestInCi();
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
     EmotionSystem,
     isJestAvailable, // Added new export for test availability check
+    setupTests,     // Added new export for test setup
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

@@ -32,7 +32,14 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <p aria-live="polite" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <p
+                aria-live="polite"
+                style={{
+                    padding: '2rem',
+                    fontFamily: 'monospace',
+                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                }}
+            >
                 読み込み中...
             </p>
         );
@@ -125,13 +132,25 @@ export default function Dashboard() {
                         />
                     </div>
                 </div>
-                <p>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}</p>
+                <p
+                    className="interactive-hint"
+                    title="現在のサーバー時間における AI の CPU 使用量です"
+                    tabIndex={0}
+                >
+                    📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}
+                </p>
                 <p>
                     🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}: {stats?.rooms?.length || 0}
                 </p>
             </div>
             <details style={{ cursor: 'pointer' }}>
-                <summary style={{ color: '#4a5568', outline: 'none' }}>生データを確認</summary>
+                <summary
+                    className="interactive-hint"
+                    title="生データを JSON 形式で表示/非表示にします"
+                    style={{ color: '#4a5568' }}
+                >
+                    生データを確認
+                </summary>
                 <pre
                     style={{
                         backgroundColor: '#f7fafc',

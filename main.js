@@ -141,7 +141,7 @@ function ensureJest() {
         try {
             const { execSync } = require('child_process');
             execSync('npm install --save-dev jest', { stdio: 'inherit' });
-            } catch (e) {
+        } catch (e) {
             console.error('Failed to install jest:', e.message);
             throw new Error('Jest is required for testing but could not be installed.');
         }
@@ -165,6 +165,23 @@ function ensureJestInCiEnvironment() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available in test environment
+ * ------------------------------------------------------------------ */
+function ensureJestForTesting() {
+    if (typeof jest === 'undefined') {
+        console.warn('Jest is not available in test environment. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+            console.log('Jest installed successfully for testing.');
+        } catch (e) {
+            console.error('Failed to install jest for testing:', e.message);
+            throw new Error('Jest is required for testing but could not be installed.');
+        }
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
@@ -173,7 +190,8 @@ module.exports = {
     setupTests,
     ensureInteractCalled,
     ensureJest,
-    ensureJestInCiEnvironment // Added new export for CI environment check
+    ensureJestInCiEnvironment,
+    ensureJestForTesting // Added new export for test environment check
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

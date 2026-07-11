@@ -132,13 +132,31 @@ function ensureInteractCalled() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Helper function to ensure jest is available for tests
+ * ------------------------------------------------------------------ */
+function ensureJest() {
+    if (!isJestAvailable()) {
+        console.warn('Jest is not available. Attempting to install...');
+        try {
+            const { execSync } = require('child_process');
+            execSync('npm install --save-dev jest', { stdio: 'inherit' });
+            console.log('Jest installed successfully.');
+        } catch (e) {
+            console.error('Failed to install jest:', e.message);
+            throw new Error('Jest is required for testing but could not be installed.');
+        }
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
     EmotionSystem,
-    isJestAvailable, // Added new export for test availability check
-    setupTests,     // Added new export for test setup
-    ensureInteractCalled // Added new export for test verification
+    isJestAvailable,
+    setupTests,
+    ensureInteractCalled,
+    ensureJest // Added new export for jest availability
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

@@ -180,6 +180,18 @@ function ensureJestForTesting() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Helper function to ensure global gr and evor commands exist
+ * ------------------------------------------------------------------ */
+function ensureGlobalCommands() {
+    if (typeof global.gr === 'undefined') {
+        global.gr = function() {};
+    }
+    if (typeof global.evor === 'undefined') {
+        global.evor = function() {};
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
@@ -189,7 +201,8 @@ module.exports = {
     ensureInteractCalled,
     ensureJest,
     ensureJestInCiEnvironment,
-    ensureJestForTesting, // Added new export for test environment check
+    ensureJestForTesting,
+    ensureGlobalCommands, // Added new export for global command check
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */
@@ -203,6 +216,8 @@ try {
         ensureJestForTests();
         ensureJestInCi();
     }
+    // Ensure global commands exist for tests
+    ensureGlobalCommands();
 } catch (_) {
     // Ignore errors; jest may be provided by the test runner
 }

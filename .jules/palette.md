@@ -25,3 +25,9 @@
 **Learning:** Replacing static text percentages with visual progress bars using `role="progressbar"` and ARIA attributes (`aria-valuenow`, `aria-valuemax`) significantly improves accessibility for screen readers while providing a more "delightful" and responsive feel for all users. Using 2-decimal precision for slow-moving metrics like GCL makes progress feel more tangible.
 
 **Action:** Whenever displaying progress or levels, prefer semantic progress bars with high-precision percentages and smooth CSS transitions.
+
+## 2026-07-11 - [Contextual Accessibility for UX Hints]
+
+**Learning:** When adding `title` attributes (tooltips) to non-interactive elements like `<p>` tags for UX hints, it is crucial to include `tabIndex={0}`. This ensures the hint is discoverable and readable by keyboard and screen reader users who would otherwise skip over the element.
+
+**Action:** Always pair `title` or UX hints on static elements with `tabIndex={0}` and appropriate semantic classes (e.g., `.interactive-hint`) to maintain accessibility standards.

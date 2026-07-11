@@ -55,11 +55,14 @@ module.exports = {
     cleanMemory: function () {
         if (!Memory.creeps) return 0;
         let cleaned = 0;
-        const keys = Object.keys(Memory.creeps);
-        for (let i = 0; i < keys.length; i++) {
-            const name = keys[i];
-            // Security: isSafeKey checks are still required, but hasOwnProperty is handled by Object.keys()
-            if (isSafeKey(name) && !Game.creeps[name]) {
+        // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
+        for (const name in Memory.creeps) {
+            // Security: isSafeKey checks are still required, and we use hasOwnProperty for for...in safety.
+            if (
+                Object.prototype.hasOwnProperty.call(Memory.creeps, name) &&
+                isSafeKey(name) &&
+                !Game.creeps[name]
+            ) {
                 delete Memory.creeps[name];
                 cleaned++;
             }
@@ -130,7 +133,7 @@ module.exports = {
         if (Memory.cache !== _lastCacheRef) {
             _lastCacheRef = Memory.cache;
             _cacheOrder.clear();
-            if ( === undefined ||  === null) {
+            if (Memory.cache === undefined || Memory.cache === null) {
                 _lastCacheRef = Memory.cache = {};
                 _cacheSize = 0;
             } else {
@@ -160,7 +163,7 @@ module.exports = {
             return cached.value;
         }
 
-        if ( === undefined ||  === null) {
+        if (Memory.cache[cacheKey] === undefined || Memory.cache[cacheKey] === null) {
             // Capacity check before adding a new entry
             if (_cacheSize >= MAX_CACHE_ENTRIES) {
                 this.cleanCache();
@@ -197,9 +200,10 @@ module.exports = {
             return;
         }
 
-        const keys = Object.keys(Memory.cache);
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
+        // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
+        for (const key in Memory.cache) {
+            if (!Object.prototype.hasOwnProperty.call(Memory.cache, key)) continue;
+
             // Security: isSafeKey checks are required for robustness
             if (!isSafeKey(key)) {
                 delete Memory.cache[key];

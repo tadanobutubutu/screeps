@@ -224,6 +224,18 @@ function ensureJestInCiEnvironment() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Helper function to ensure global commands are properly set up
+ * ------------------------------------------------------------------ */
+function setupGlobalCommands() {
+    if (typeof global.gr === 'undefined') {
+        global.gr = function() {};
+    }
+    if (typeof global.evor === 'undefined') {
+        global.evor = function() {};
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
@@ -235,7 +247,8 @@ module.exports = {
     ensureJestInCiEnvironment,
     ensureJestForTesting,
     ensureGlobalCommands,
-    ensureJestForTestingEnvironment, // Added new export for testing environment check
+    ensureJestForTestingEnvironment,
+    setupGlobalCommands, // Added new export for global command setup
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

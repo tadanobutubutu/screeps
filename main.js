@@ -123,12 +123,22 @@ function setupTests() {
     }
 }
 
+/* ------------------------------------------------------------------
+ *  Test helper function to verify EmotionSystem.interact was called
+ * ------------------------------------------------------------------ */
+function ensureInteractCalled() {
+    if (typeof jest !== 'undefined') {
+        expect(EmotionSystem.interact).toHaveBeenCalled();
+    }
+}
+
 /* Export for external use if needed */
 module.exports = {
     loop,
     EmotionSystem,
     isJestAvailable, // Added new export for test availability check
     setupTests,     // Added new export for test setup
+    ensureInteractCalled // Added new export for test verification
 };
 
 /* If this file is executed directly (unlikely in Screeps), start the loop */

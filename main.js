@@ -72,6 +72,33 @@ function loop() {
 }
 
 /* ------------------------------------------------------------------
+ *  Test Helper – Ensure Jest is available before tests run
+ * ------------------------------------------------------------------ */
+function ensureJestAvailable() {
+    // Check if we're in a test environment
+    if (process.env.NODE_ENV === 'test') {
+        try {
+            // Try to require jest
+            require('jest');
+        } catch (e) {
+            // If jest is not available, install it
+            console.log('Jest not found. Installing jest for testing...');
+            const { execSync } = require('child_process');
+            try {
+                execSync('npm install --save-dev jest', { stdio: 'inherit' });
+                console.log('Jest installed successfully.');
+            } catch (installError) {
+                console.error('Failed to install jest:', installError.message);
+                process.exit(1);
+            }
+        }
+    }
+}
+
+// Run the Jest availability check when the module is loaded
+ensureJestAvailable();
+
+/* ------------------------------------------------------------------
  *  (Remaining bot logic would go here)
  * ------------------------------------------------------------------ */
 
@@ -81,4 +108,5 @@ module.exports = {
     ensureJestForTests,
     loop,
     maybeRunLoopWithDelay,
+    ensureJestAvailable, // Added new export
 };

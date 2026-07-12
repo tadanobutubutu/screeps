@@ -42,7 +42,15 @@ function run(room) {
         const enemies = cache.getEnemies(room);
         // ⚡ PERFORMANCE OPTIMIZATION: Use getMyCreeps cache to avoid redundant room.find calls.
         const myCreeps = cache.getMyCreeps(room);
-        const injuredCreeps = myCreeps.filter((c) => c.hits < c.hitsMax * TOWER_HEAL_THRESHOLD);
+        // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
+        const injuredCreeps = [];
+        const healThreshold = TOWER_HEAL_THRESHOLD;
+        for (let i = 0; i < myCreeps.length; i++) {
+            const c = myCreeps[i];
+            if (c.hits < c.hitsMax * healThreshold) {
+                injuredCreeps.push(c);
+            }
+        }
 
         for (const tower of towers) {
             if (tower.store[RESOURCE_ENERGY] < 10) {
@@ -151,32 +159,59 @@ function _selectAttackTarget(tower, enemies) {
         return null;
     }
 
-    // HPが閾値以下の敵を最優先
-    const criticalEnemies = enemies.filter((e) => e.hits <= TOWER_ATTACK_PRIORITY_HP);
-    if (criticalEnemies.length > 0) {
-        return pathfinder.closest(tower.pos, criticalEnemies);
-    }
+    // ⚡ PERFORMANCE: Use single-pass for loop to identify candidates for all priorities.
+    // Estimated impact: Reduces array allocations and iterates enemies only once.
+    let criticalTarget = null;
+    let minCriticalDist = Infinity;
 
-    // コントローラーに最も近い敵（占領脅威）を優先
+    let claimerTarget = null;
+    let minClaimerDist = Infinity;
     const controller = tower.room.controller;
-    if (controller) {
-        const claimers = enemies.filter((e) => e.getActiveBodyparts(CLAIM) > 0);
-        if (claimers.length > 0) {
-            return pathfinder.closest(controller.pos, claimers);
+
+    let bestAttacker = null;
+    let minAttackerHits = Infinity;
+
+    let weakestEnemy = null;
+    let minEnemyHits = Infinity;
+
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        const hits = e.hits;
+
+        // 1. Critical HP Priority
+        if (hits <= TOWER_ATTACK_PRIORITY_HP) {
+            const dist = tower.pos.getRangeTo(e);
+            if (dist < minCriticalDist) {
+                minCriticalDist = dist;
+                criticalTarget = e;
+            }
+        }
+
+        // 2. Claimer Priority (nearest to controller)
+        if (controller && e.getActiveBodyparts(CLAIM) > 0) {
+            const dist = controller.pos.getRangeTo(e);
+            if (dist < minClaimerDist) {
+                minClaimerDist = dist;
+                claimerTarget = e;
+            }
+        }
+
+        // 3. Attacker Priority (lowest HP)
+        if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
+            if (hits < minAttackerHits) {
+                minAttackerHits = hits;
+                bestAttacker = e;
+            }
+        }
+
+        // 4. General Weakest Priority
+        if (hits < minEnemyHits) {
+            minEnemyHits = hits;
+            weakestEnemy = e;
         }
     }
 
-    // 攻撃系パーツを持つ敵を優先
-    const attackers = enemies.filter(
-        (e) => e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0
-    );
-    if (attackers.length > 0) {
-        // HPが最も低い攻撃者
-        return attackers.reduce((a, b) => (a.hits < b.hits ? a : b));
-    }
-
-    // 一般的な敵はHPが最も低いものを選択
-    return enemies.reduce((a, b) => (a.hits < b.hits ? a : b));
+    return criticalTarget || claimerTarget || bestAttacker || weakestEnemy;
 }
 
 // ============================================================
@@ -194,7 +229,18 @@ function _selectHealTarget(tower, injured) {
     if (injured.length === 0) {
         return null;
     }
-    return injured.reduce((a, b) => (a.hits / a.hitsMax < b.hits / b.hitsMax ? a : b));
+    // ⚡ PERFORMANCE: Use standard for loop instead of reduce for better performance in Screeps/V8.
+    let bestTarget = null;
+    let minRatio = Infinity;
+    for (let i = 0; i < injured.length; i++) {
+        const creep = injured[i];
+        const ratio = creep.hits / creep.hitsMax;
+        if (ratio < minRatio) {
+            minRatio = ratio;
+            bestTarget = creep;
+        }
+    }
+    return bestTarget;
 }
 
 // ============================================================
@@ -209,39 +255,59 @@ function _selectHealTarget(tower, injured) {
  * @returns {Structure|null}
  */
 function _selectRepairTarget(tower, room) {
-    // ランパートの緊急修復
+    // ⚡ PERFORMANCE: Use single-pass for loop to identify candidates for all repair priorities.
+    // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
+    const urgentRampartThreshold = Math.min(wallTarget * 0.1, 5000);
 
-    const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART);
-    const urgentRamparts = ramparts.filter((s) => s.hits < Math.min(wallTarget * 0.1, 5000));
-    if (urgentRamparts.length > 0) {
-        return urgentRamparts.reduce((a, b) => (a.hits < b.hits ? a : b));
-    }
+    let urgentRampart = null;
+    let minRampartHits = Infinity;
 
-    // 道路・コンテナの修復
-    // ⚡ PERFORMANCE OPTIMIZATION: Use getStructures cache to avoid redundant room.find(FIND_STRUCTURES) calls.
-    const damaged = cache.getStructures(room).filter((s) => {
-        if (s.structureType === STRUCTURE_WALL) {
-            return false;
-        }
+    let mostDamagedStructure = null;
+    let minHitsRatio = Infinity;
+
+    const myStructures = cache.getMyStructures(room);
+    const allStructures = cache.getStructures(room);
+
+    // 1. Identify Urgent Ramparts
+    // ⚡ PERFORMANCE: Filter for ramparts manually to avoid multiple array passes.
+    for (let i = 0; i < myStructures.length; i++) {
+        const s = myStructures[i];
         if (s.structureType === STRUCTURE_RAMPART) {
-            return false;
+            if (s.hits < urgentRampartThreshold) {
+                if (s.hits < minRampartHits) {
+                    minRampartHits = s.hits;
+                    urgentRampart = s;
+                }
+            }
         }
-        const threshold = REPAIR_THRESHOLD[s.structureType] || REPAIR_THRESHOLD.OTHER;
-        return s.hits < s.hitsMax * threshold;
-    });
-
-    if (damaged.length === 0) {
-        return null;
     }
 
-    // 最も損傷率が高い構造物
-    return damaged.reduce((a, b) => {
-        const ra = a.hits / a.hitsMax;
-        const rb = b.hits / b.hitsMax;
-        return ra < rb ? a : b;
-    });
+    if (urgentRampart) return urgentRampart;
+
+    // 2. Identify Damaged Structures (Roads, Containers, etc.)
+    for (let i = 0; i < allStructures.length; i++) {
+        const s = allStructures[i];
+        const type = s.structureType;
+
+        // Skip walls and ramparts (ramparts handled above or at different thresholds)
+        if (type === STRUCTURE_WALL || type === STRUCTURE_RAMPART) {
+            continue;
+        }
+
+        const threshold = REPAIR_THRESHOLD[type] || REPAIR_THRESHOLD.OTHER;
+        const ratio = s.hits / s.hitsMax;
+
+        if (ratio < threshold) {
+            if (ratio < minHitsRatio) {
+                minHitsRatio = ratio;
+                mostDamagedStructure = s;
+            }
+        }
+    }
+
+    return mostDamagedStructure;
 }
 
 // ============================================================
@@ -312,10 +378,16 @@ function _showRepairVisual(tower, target) {
  */
 function getTowersNeedingEnergy(room) {
     const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
-    return towers.filter(
-        (t) =>
-            t.store[RESOURCE_ENERGY] / t.store.getCapacity(RESOURCE_ENERGY) < TOWER_ENERGY_PRIORITY
-    );
+    // ⚡ PERFORMANCE: Use for loop to avoid filter closure and array allocation.
+    const needing = [];
+    const threshold = TOWER_ENERGY_PRIORITY;
+    for (let i = 0; i < towers.length; i++) {
+        const t = towers[i];
+        if (t.store[RESOURCE_ENERGY] / t.store.getCapacity(RESOURCE_ENERGY) < threshold) {
+            needing.push(t);
+        }
+    }
+    return needing;
 }
 
 // ============================================================

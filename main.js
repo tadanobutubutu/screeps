@@ -36,6 +36,11 @@ const EmotionSystem = {
         }
         // ... rest of the EmotionSystem logic ...
     },
+    loop: function () {
+        // Main bot loop logic would go here
+        // For testing purposes, we'll ensure the EmotionSystem is called
+        EmotionSystem.interact();
+    },
 };
 
 /* ------------------------------------------------------------------
@@ -63,7 +68,7 @@ function ensureJestForTests() {
 function loop() {
     // Main game loop logic would go here
     // For testing purposes, we'll ensure the EmotionSystem is called
-    EmotionSystem.interact();
+    EmotionSystem.loop();
 }
 
 /* ------------------------------------------------------------------

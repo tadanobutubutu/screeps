@@ -50,5 +50,6 @@
 **Action:** Implemented module-level $O(1)$ cache size tracking and Map-based FIFO eviction in `utils.memory.js`. Refactored `main.js` maintenance tasks to use `for...in` loops, eliminating redundant array allocations.
 
 ## 2025-05-15 - Single-Pass Multi-Priority Selection
+
 **Learning:** Using chained `.filter().reduce()` or multiple separate `for` loops for prioritized target selection (e.g., in `towerManager`) leads to (P \times N)$ complexity and multiple array allocations. In Screeps, this constant factor overhead is significant.
 **Action:** Consolidate multiple priority tiers into a single-pass `for` loop that tracks best candidates for each tier simultaneously. Use a prioritized return statement (`candidateA || candidateB`) to maintain logic while achieving (N)$ with zero overhead.

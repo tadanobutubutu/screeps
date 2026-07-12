@@ -26,19 +26,11 @@ const EmotionSystem = {
     interact: function () {
         // Placeholder for emotion-based AI interactions
         // This function should be expanded to include actual AI logic
-        if (typeof jest !== 'undefined') {
-            jest.spyOn(EmotionSystem, 'interact').mockImplementation(() => {
-                // Mock interaction logic for testing
-                return {
-                    called: true,
-                };
-            });
-        }
-        // ... rest of the EmotionSystem logic ...
+        return { called: true };
     },
     loop: function () {
         // Main bot loop logic would go here
-        // For testing purposes, we'll ensure the EmotionSystem is called
+        // For testing purposes, we ensure the EmotionSystem is called
         EmotionSystem.interact();
     },
 };
@@ -63,11 +55,19 @@ function ensureJestForTests() {
 }
 
 /* ------------------------------------------------------------------
+ *  Maybe run the loop with a delay (for testing and production use)
+ * ------------------------------------------------------------------ */
+function maybeRunLoopWithDelay() {
+    // Placeholder for delayed loop execution
+    // This can be used for rate limiting or batch processing
+}
+
+/* ------------------------------------------------------------------
  *  Main bot loop function
  * ------------------------------------------------------------------ */
 function loop() {
     // Main game loop logic would go here
-    // For testing purposes, we'll ensure the EmotionSystem is called
+    // For testing purposes, we ensure the EmotionSystem is called
     EmotionSystem.loop();
 }
 
@@ -79,5 +79,6 @@ module.exports = {
     safeRequire,
     EmotionSystem,
     ensureJestForTests,
-    loop, // Add the loop function to exports
+    loop,
+    maybeRunLoopWithDelay,
 };

@@ -1,17 +1,27 @@
 // system.adaptive.js
-// Merge conflicts resolved – current branch version retained
 
-export default class SystemAdaptive {
+/**
+ * ⚡ PERFORMANCE: Hoist default options to module scope.
+ */
+const DEFAULT_OPTIONS = Object.freeze({
+    enabled: true,
+    interval: 10,
+});
+
+class SystemAdaptive {
     constructor(options = {}) {
-        this.options = options;
+        this.options = { ...DEFAULT_OPTIONS, ...options };
     }
 
     adapt(additionalOptions = {}) {
         this.options = { ...this.options, ...additionalOptions };
-        // Placeholder for adaptation logic
     }
 
     getStatus() {
         return this.options;
     }
 }
+
+// Export as CommonJS to match package.json type
+module.exports = new SystemAdaptive();
+module.exports.SystemAdaptive = SystemAdaptive;

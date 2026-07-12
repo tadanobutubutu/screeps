@@ -11,9 +11,41 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e.g., Jest) */
-if (typeof global.Game === 'undefined') global.Game = { creeps: {} };
-if (typeof global.Flags === 'undefined') global.Flags = {};
+/* Mock globals for testing environments (e. g., Jest) */
+if (typeof global.Animats === 'undefined') global.Animats = {};
+if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
+if (typeof global.Creep === 'undefined') global.Creep = function() {};
+if (typeof global.Flag === 'undefined') global.Flag = function() {};
+if (typeof global.Game === 'undefined') global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
+if (typeof global.Map === 'undefined') global.Map = {};
+if (typeof global.Memory === 'undefined') global.Memory = {};
+if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
+if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
+if (typeof global.Room === 'undefined') global.Room = function() {};
+if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function() {};
+if (typeof global.Structure === 'undefined') global.Structure = function() {};
+if (typeof global.StructureContainer === 'undefined') global.StructureContainer = function() {};
+if (typeof global.StructureController === 'undefined') global.StructureController = function() {};
+if (typeof global.StructureExtension === 'undefined') global.StructureExtension = function() {};
+if (typeof global.StructureRampart === 'undefined') global.StructureRampart = function() {};
+if (typeof global.StructureRoad === 'undefined') global.StructureRoad = function() {};
+if (typeof global.StructureSpawn === 'undefined') global.StructureSpawn = function() {};
+if (typeof global.StructureTower === 'undefined') global.StructureTower = function() {};
+if (typeof global.StructureWall === 'undefined') global.StructureWall = function() {};
+if (typeof global.OK === 'undefined') global.OK = 0;
+if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
+if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -2;
+if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = -3;
+if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -4;
+if (typeof global.ERR_NOT_FOUND === 'undefined') global.ERR_NOT_FOUND = -5;
+if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -6;
+if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET = -7;
+if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -8;
+if (typeof global.ERR_NOT_IN_RANGE === 'undefined') global.ERR_NOT_IN_RANGE = -9;
+if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -10;
+if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -11;
+if (typeof global.ERR_NO_BODYPART === 'undefined') global.ERR_NO_BODYPART = -12;
+if (typeof global.ERR_GCL_NOT_ENOUGH === 'undefined') global.ERR_GCL_NOT_ENOUGH = -13;
 
 /* Ensure gr and evor commands exist for tests */
 if (typeof global.gr === 'undefined') global.gr = function () {};
@@ -36,25 +68,6 @@ const EmotionSystem = {
         return { called: true };
     },
 };
-
-/* ------------------------------------------------------------------
- *  Ensure Jest is available for CI test runs; install if missing
- * ------------------------------------------------------------------ */
-function ensureJestForTests() {
-    try {
-        // Attempt to load jest; if it resolves, we are good
-        require('jest');
-    } catch (_) {
-        // If jest is not installed, install it locally as a dev dependency
-        const { execSync } = require('child_process');
-        const { cwd } = process;
-        try {
-            execSync('npm install --save-dev jest', { stdio: 'inherit', cwd });
-        } catch (e) {
-            console.error('Failed to install jest:', e.message);
-        }
-    }
-}
 
 /* ------------------------------------------------------------------
  *  Maybe run the loop with a delay (for testing and production use)
@@ -86,14 +99,11 @@ function ensureJestAvailable() {
             // Try to require jest
             require('jest');
         } catch (e) {
-            // If jest is not available, install it
-            console.log('Jest not found. Installing jest for testing...');
-            const { execSync } = require('child_process');
+            // If jest is not available, try to require it from node_modules
             try {
-                execSync('npm install --save-dev jest', { stdio: 'inherit' });
-                console.log('Jest installed successfully.');
-            } catch (installError) {
-                console.error('Failed to install jest:', installError.message);
+                require('../node_modules/jest');
+            } catch (e2) {
+                console.error('Jest is not available. Please run "npm install" first.');
                 process.exit(1);
             }
         }
@@ -110,8 +120,7 @@ ensureJestAvailable();
 module.exports = {
     safeRequire,
     EmotionSystem,
-    ensureJestForTests,
     loop,
     maybeRunLoopWithDelay,
-    ensureJestAvailable, // Added new export
+    ensureJestAvailable,
 };

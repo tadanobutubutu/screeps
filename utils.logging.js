@@ -1,67 +1,66 @@
 // utils.logging.js
 
-const util = require('util');
+const { LOG_LEVEL } = require('./src/constants');
 
-// Define log levels and their numeric values
-const LEVELS = {
-  error: 0,
-  warn: 1,
-  info: 2,
-  debug: 3,
-  trace: 4
+const LOG_EMOJIS = {
+    debug: '\ud83d\udc1b',
+    info: '\ud83d\udcd8',
+    warn: '\u26a0\ufe0f',
+    error: '\u274c',
+    critical: '\ud83d\udea8',
 };
 
-// Current log level (default to 'info')
-let currentLevel = LEVELS.info;
+function getSafeStack(stack) {
+    if (typeof stack !== 'string') return '';
+    return stack.substring(0, 2000);
+}
 
-// Helper to get current timestamp
-const timestamp = () => new Date().toISOString();
-
-// Helper to format a message
-const format = (label, msg, meta) => {
-  const metaPart = meta && typeof meta === 'object' ? ` ${JSON.stringify(meta)}` : '';
-  return `[${label.toUpperCase()}] ${timestamp()} ${msg}${metaPart}`;
-};
-
-// Public logger API
 const logger = {
-  // Set the current log level
-  setLevel(level) {
-    if (typeof level === 'string' && LEVELS.hasOwnProperty(level)) {
-      currentLevel = LEVELS[level];
-    }
-  },
+    log: function (level, message, meta) {
+        if (!Array.isArray(global.Memory.logs)) {
+            global.Memory.logs = [];
+        }
 
-  // Logging methods
-  error(msg, meta) {
-    if (currentLevel >= LEVELS.error) {
-      console.error(format('error', msg, meta));
-    }
-  },
+        const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+            ? LOG_EMOJIS[level]
+            : '\ud83d\udcac';
 
-  warn(msg, meta) {
-    if (currentLevel >= LEVELS.warn) {
-      console.warn(format('warn', msg, meta));
-    }
-  },
+        const logEntry = `${emoji} [${level}] ${message}`;
+        console.log(logEntry);
+        global.Memory.logs.push({
+            tick: global.Game ? global.Game.time : 0,
+            level: level,
+            message: message,
+            meta: meta,
+        });
+    },
 
-  info(msg, meta) {
-    if (currentLevel >= LEVELS.info) {
-      console.info(format('info', msg, meta));
-    }
-  },
+    info: function (message, meta) {
+        this.log('info', message, meta);
+    },
 
-  debug(msg, meta) {
-    if (currentLevel >= LEVELS.debug) {
-      console.debug(format('debug', msg, meta));
-    }
-  },
+    warn: function (message, meta) {
+        this.log('warn', message, meta);
+    },
 
-  trace(msg, meta) {
-    if (currentLevel >= LEVELS.trace) {
-      console.trace(format('trace', msg, meta));
-    }
-  }
+    error: function (message, meta) {
+        this.log('error', message, meta);
+    },
+
+    getSafeStack: getSafeStack,
+
+    getStats: function () {
+        if (!Array.isArray(global.Memory.logs)) return { total: 0, errors: 0, info: 0 };
+        return global.Memory.logs.reduce(
+            (acc, log) => {
+                acc.total++;
+                if (log && log.level === 'error') acc.errors++;
+                if (log && log.level === 'info') acc.info++;
+                return acc;
+            },
+            { total: 0, errors: 0, info: 0 }
+        );
+    },
 };
 
 module.exports = logger;

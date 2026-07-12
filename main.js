@@ -100,8 +100,52 @@ function ensureJestAvailable() {
     }
 }
 
-// Run the Jest availability check when the module is loaded
+/* ------------------------------------------------------------------
+ *  Test Helper – Ensure Jest is properly configured for the project
+ * ------------------------------------------------------------------ */
+function ensureJestConfiguration() {
+    // Check if we're in a test environment
+    if (process.env.NODE_ENV === 'test') {
+        // Ensure the test environment is properly set up
+        process.env.NODE_ENV = 'test';
+
+        // Check if Jest is properly configured
+        try {
+            const jestConfig = require('./jest.config.js');
+            if (!jestConfig) {
+                console.log('Jest configuration not found. Creating default configuration...');
+                const fs = require('fs');
+                const defaultConfig = `module.exports = {
+                    testEnvironment: 'node',
+                    testMatch: ['**/tests/**/*.test.js'],
+                    collectCoverage: true,
+                    coverageDirectory: 'coverage',
+                    coverageReporters: ['text', 'lcov']
+                };`;
+
+                fs.writeFileSync('./jest.config.js', defaultConfig);
+                console.log('Jest configuration created successfully.');
+            }
+        } catch (e) {
+            console.log('Jest configuration not found. Creating default configuration...');
+            const fs = require('fs');
+            const defaultConfig = `module.exports = {
+                testEnvironment: 'node',
+                testMatch: ['**/tests/**/*.test.js'],
+                collectCoverage: true,
+                coverageDirectory: 'coverage',
+                coverageReporters: ['text', 'lcov']
+            };`;
+
+            fs.writeFileSync('./jest.config.js', defaultConfig);
+            console.log('Jest configuration created successfully.');
+        }
+    }
+}
+
+// Run the Jest availability and configuration checks when the module is loaded
 ensureJestAvailable();
+ensureJestConfiguration();
 
 /* ------------------------------------------------------------------
  *  (Remaining bot logic would go here)
@@ -113,5 +157,6 @@ module.exports = {
     ensureJestForTests,
     loop,
     maybeRunLoopWithDelay,
-    ensureJestAvailable, // Added new export
+    ensureJestAvailable,
+    ensureJestConfiguration, // Added new export
 };

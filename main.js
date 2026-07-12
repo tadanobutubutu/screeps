@@ -35,3 +35,34 @@ if (typeof global.StructureWall === 'undefined') global.StructureWall = function
 if (typeof global.OK === 'undefined') global.OK = 0;
 if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
 if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -2;
+
+/* ------------------------------------------------------------------
+ *  Helper – safely require Jest for testing
+ * ------------------------------------------------------------------ */
+function safeRequireJest() {
+    try {
+        // Try to require Jest directly
+        return require('jest');
+    } catch (e) {
+        try {
+            // Try to require Jest from node_modules
+            return require('./node_modules/jest');
+        } catch (e) {
+            // If Jest isn't available, return a mock object
+            return {
+                run: function() {
+                    console.log('Jest is not available in this environment');
+                    return Promise.resolve({ success: false });
+                }
+            };
+        }
+    }
+}
+
+// Export the safeRequireJest function for testing purposes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        safeRequire,
+        safeRequireJest
+    };
+}

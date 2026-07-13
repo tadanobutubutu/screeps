@@ -1,9 +1,11 @@
 {
   "files": [
-    "main.js"
+    "main.js",
+    "utils.logging.js"
   ],
   "rules": [
-    "Remove console.log"
+    "Remove console.log",
+    "Strict undefined check"
   ],
-  "timestamp": "2026-07-13T01:21:24.129Z"
+  "timestamp": "2026-07-13T08:40:16.324Z"
 }

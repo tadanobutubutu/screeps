@@ -39,7 +39,7 @@ if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
 if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -2;
 
 /* ------------------------------------------------------------------
- *  Helper – safely require Jest for testing
+ *  New helper function for testing
  * ------------------------------------------------------------------ */
 function safeRequireJest() {
     try {
@@ -69,7 +69,129 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 /* ------------------------------------------------------------------
- *  New helper function for testing
+ *  New creep role: Autonomous Efficiency
+ *  Concept: A versatile creep that autonomously switches tasks based on
+ *  priority and availability, maximizing efficiency without explicit role assignment
+ * ------------------------------------------------------------------ */
+
+/**
+ * Autonomous Efficiency creep role
+ * This creep autonomously manages its tasks based on current game state,
+ * prioritizing critical actions and adapting to changing conditions
+ * @param {Creep} creep - The creep object to manage
+ */
+function runAutonomousEfficiency(creep) {
+    // Priority 1: Upgrade controller if near and no other creeps are upgrading
+    if (creep.store[RESOURCE_ENERGY] > 0) {
+        const controller = creep.room.controller;
+        if (controller && creep.pos.isNearTo(controller)) {
+            const upgradingCreeps = _.filter(Game.creeps, (c) => 
+                c.memory.role === 'upgrader' && c.store[RESOURCE_ENERGY] > 0
+            );
+            if (upgradingCreeps.length === 0) {
+                if (creep.upgradeController(controller) === ERR_NOT_OWNER) {
+                    // Try to claim if not owner
+                    creep.claimController(controller);
+                }
+                return;
+            }
+        }
+    }
+
+    // Priority 2: Build or repair structures
+    if (creep.store[RESOURCE_ENERGY] > 0) {
+        // First, look for construction sites
+        const constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        if (constructionSite) {
+            if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(constructionSite, { visualizePath: true });
+            }
+            return;
+        }
+
+        // If no construction sites, look for damaged structures
+        const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+        });
+        if (damagedStructure) {
+            if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(damagedStructure, { visualizePath: true });
+            }
+            return;
+        }
+    }
+
+    // Priority 3: Harvest energy from nearest source
+    const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+    if (source) {
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(source, { visualizePath: true });
+        }
+        return;
+    }
+
+    // Priority 4: Transfer energy to nearest structure needing it
+    if (creep.store[RESOURCE_ENERGY] > 0) {
+        const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (s) => 
+                s.structureType !== STRUCTURE_SPAWN &&
+                s.structureType !== STRUCTURE_CONTROLLER &&
+                s.store &&
+                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        });
+        if (target) {
+            if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, { visualizePath: true });
+            }
+            return;
+        }
+    }
+}
+
+/**
+ * Autonomous Efficiency creep behavior pattern
+ * Adapts dynamically to room needs without explicit role assignment
+ */
+const autonomousEfficiencyRole = {
+    run: runAutonomousEfficiency,
+    
+    /**
+     * Determine if this creep should be assigned to autonomous efficiency
+     * @param {Object} memory - The creep's memory object
+     * @returns {boolean} - Whether this creep should be autonomous
+     */
+    shouldAssign: function(memory) {
+        return memory.role === 'autonomous';
+    },
+    
+    /**
+     * Create a new autonomous efficiency creep
+     * @param {string} name - The creep's name
+     * @param {Spawn} spawn - The spawn to create the creep at
+     * @param {Object} body - The body composition (default: [WORK, CARRY, MOVE])
+     * @returns {string|undefined} - The result code or undefined if successful
+     */
+    create: function(name, spawn, body = [WORK, CARRY, MOVE]) {
+        if (spawn.spawning) {
+            return;
+        }
+        const result = spawn.spawnCreep(body, name, {
+            memory: { role: 'autonomous', state: 'harvesting' }
+        });
+        return result;
+    }
+};
+
+/* ------------------------------------------------------------------
+ *  Export the new role
+ * ------------------------------------------------------------------ */
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.autonomousEfficiency = autonomousEfficiencyRole;
+    module.exports.runAutonomousEfficiency = runAutonomousEfficiency;
+}
+
+/* ------------------------------------------------------------------
+ *  Test helper function
  * ------------------------------------------------------------------ */
 function testGlobalFunctions() {
     // Ensure global functions are defined

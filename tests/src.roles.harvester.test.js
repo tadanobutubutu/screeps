@@ -92,7 +92,7 @@ describe('src/roles/harvester', () => {
             say: jest.fn(),
             transfer: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: {},
-            pos: { x: 0, y: 0 },
+            pos: { x: 0, y: 0, getRangeTo: jest.fn().mockReturnValue(5) },
         };
         pathfinder.closest.mockReturnValue(target);
 

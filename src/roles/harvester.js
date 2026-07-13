@@ -199,35 +199,56 @@ function _deliver(creep) {
 function _findEnergyTarget(creep) {
     const room = creep.room;
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Use getStructuresNeedingEnergy cache to avoid redundant room.find calls.
-    // This combines spawns, extensions, and towers into a single cached search.
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
+    // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
     const needingEnergy = cache.getStructuresNeedingEnergy(room);
 
-    // 1. スポーン・エクステンション
-    const spawnsAndExtensions = needingEnergy.filter(
-        (s) => s.structureType === STRUCTURE_SPAWN || s.structureType === STRUCTURE_EXTENSION
-    );
+    let closestSpawnExt = null;
+    let minSpawnExtDist = Infinity;
+    let closestTower = null;
+    let minTowerDist = Infinity;
 
-    if (spawnsAndExtensions.length > 0) {
-        return pathfinder.closest(creep.pos, spawnsAndExtensions);
+    for (let i = 0; i < needingEnergy.length; i++) {
+        const s = needingEnergy[i];
+        const type = s.structureType;
+        const dist = creep.pos.getRangeTo(s);
+
+        // 1. スポーン・エクステンションの優先探索
+        if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {
+            if (dist < minSpawnExtDist) {
+                minSpawnExtDist = dist;
+                closestSpawnExt = s;
+            }
+        }
+        // 2. タワーの探索 (200以上の空き容量があるものを優先)
+        else if (type === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
+            if (dist < minTowerDist) {
+                minTowerDist = dist;
+                closestTower = s;
+            }
+        }
     }
 
-    // 2. タワー (200以上の空き容量があるものを優先)
-    const towers = needingEnergy.filter(
-        (s) => s.structureType === STRUCTURE_TOWER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 200
-    );
-    if (towers.length > 0) {
-        return pathfinder.closest(creep.pos, towers);
-    }
+    if (closestSpawnExt) return closestSpawnExt;
+    if (closestTower) return closestTower;
 
     // 3. コンテナ（空き容量がある場合）
     const containers = cache.getContainers(room);
-    const emptyContainers = containers.filter(
-        (c) => c.store.getFreeCapacity(RESOURCE_ENERGY) > 200
-    );
-    if (emptyContainers.length > 0) {
-        return pathfinder.closest(creep.pos, emptyContainers);
+    let closestContainer = null;
+    let minContainerDist = Infinity;
+
+    for (let i = 0; i < containers.length; i++) {
+        const c = containers[i];
+        if (c.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
+            const dist = creep.pos.getRangeTo(c);
+            if (dist < minContainerDist) {
+                minContainerDist = dist;
+                closestContainer = c;
+            }
+        }
     }
+
+    if (closestContainer) return closestContainer;
 
     // 4. ストレージ
     const storage = cache.getStorage(room);

@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e.g., Jest) */
+/* Mock globals for testing environments (e. g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
@@ -87,4 +87,189 @@ function testGlobalFunctions() {
 /* Export the test function for running in tests */
 if (typeof module !== 'undefined' && module.exports) {
     module.exports.testGlobalFunctions = testGlobalFunctions;
+}
+
+/* ------------------------------------------------------------------
+ *  Carrier Role – Autonomous Efficiency
+ *  Handles efficient resource transport between sources and consumers
+ * ------------------------------------------------------------------ */
+
+/**
+ * Carrier role module for autonomous resource transportation
+ * Dynamically generates efficient routes between resource providers and consumers
+ */
+const carrier = {
+    name: 'carrier',
+
+    /**
+     * Run the carrier role logic for a creep
+     * @param {Creep} creep - The creep to run the role for
+     */
+    run: function (creep) {
+        if (creep.memory.transportTarget && creep.carry[RESOURCE_ENERGY] > 0) {
+            // Deliver resources to target
+            const target = Game.getObjectById(creep.memory.transportTarget);
+            if (target) {
+                const result = creep.transfer(target, RESOURCE_ENERGY);
+                if (result === ERR_NOT_IN_RANGE) {
+                    creep.moveTo(target, { visualizePathStyle: { stroke: '#ffaa00' } });
+                } else if (result === OK) {
+                    delete creep.memory.transportTarget;
+                    delete creep.memory.pickupTarget;
+                }
+            } else {
+                delete creep.memory.transportTarget;
+            }
+        } else if (creep.carry[RESOURCE_ENERGY] < creep.carryCapacity) {
+            // Pick up resources
+            const pickupTarget = Game.getObjectById(creep.memory.pickupTarget);
+            if (pickupTarget) {
+                if (pickupTarget.amount !== undefined) {
+                    // It's a dropped resource
+                    const result = creep.pickup(pickupTarget);
+                    if (result === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(pickupTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    } else if (result === OK || result === ERR_FULL) {
+                        delete creep.memory.pickupTarget;
+                    }
+                } else if (pickupTarget.store !== undefined) {
+                    // It's a structure with store
+                    const result = creep.withdraw(pickupTarget, RESOURCE_ENERGY);
+                    if (result === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(pickupTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
+                    } else if (result === OK) {
+                        delete creep.memory.pickupTarget;
+                    }
+                }
+            } else {
+                delete creep.memory.pickupTarget;
+            }
+        }
+
+        // Idle state if nothing to do
+        if (!creep.memory.pickupTarget && !creep.memory.transportTarget) {
+            // Find efficient pickup target
+            this.findPickupTarget(creep);
+        }
+    },
+
+    /**
+     * Find the most efficient pickup target for the carrier
+     * @param {Creep} creep - The carrier creep
+     * @returns {boolean} - Whether a target was found
+     */
+    findPickupTarget: function (creep) {
+        // Look for dropped resources near the creep
+        const droppedResources = creep.room.find(FIND_DROPPED_RESOURCES, {
+            filter: (resource) => resource.amount > 50,
+        });
+
+        if (droppedResources.length > 0) {
+            // Find the closest one
+            const closest = creep.pos.findClosestByRange(droppedResources);
+            if (closest) {
+                creep.memory.pickupTarget = closest.id;
+                return true;
+            }
+        }
+
+        // Look for containers with energy
+        const containers = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) =>
+                (structure.structureType === STRUCTURE_CONTAINER ||
+                 structure.structureType === STRUCTURE_STORAGE) &&
+                structure.store[RESOURCE_ENERGY] > 100,
+        });
+
+        if (containers.length > 0) {
+            const closest = creep.pos.findClosestByRange(containers);
+            if (closest) {
+                creep.memory.pickupTarget = closest.id;
+                return true;
+            }
+        }
+
+        return false;
+    },
+
+    /**
+     * Assign a transport target for the carrier
+     * @param {Creep} creep - The carrier creep
+     * @param {string} targetId - The ID of the target structure
+     */
+    assignTransportTarget: function (creep, targetId) {
+        creep.memory.transportTarget = targetId;
+    },
+};
+
+// Export the carrier role
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = carrier;
+}
+
+/* ------------------------------------------------------------------
+ *  Dynamic Role Registry
+ *  Allows for dynamic registration and management of creep roles
+ * ------------------------------------------------------------------ */
+
+/**
+ * Role registry for dynamic role management
+ */
+const roleRegistry = {
+    roles: {},
+
+    /**
+     * Register a new role dynamically
+     * @param {string} name - The role name
+     * @param {object} roleModule - The role module with run function
+     */
+    register: function (name, roleModule) {
+        this.roles[name] = roleModule;
+    },
+
+    /**
+     * Get a role by name
+     * @param {string} name - The role name
+     * @returns {object|null} - The role module or null
+     */
+    get: function (name) {
+        return this.roles[name] || null;
+    },
+
+    /**
+     * Get all registered role names
+     * @returns {string[]} - Array of role names
+     */
+    getRoleNames: function () {
+        return Object.keys(this.roles);
+    },
+
+    /**
+     * Initialize default roles
+     */
+    initDefaultRoles: function () {
+        // Register carrier role
+        this.register('carrier', carrier);
+
+        // Placeholder for other roles (can be loaded dynamically)
+        const defaultRoles = ['builder', 'defender', 'harvester', 'miner', 'repairer', 'upgrader'];
+        defaultRoles.forEach((roleName) => {
+            if (!this.roles[roleName]) {
+                try {
+                    const roleModule = require(`./${roleName}.js`);
+                    this.register(roleName, roleModule);
+                } catch (e) {
+                    // Role file doesn't exist yet, skip
+                }
+            }
+        });
+    },
+};
+
+// Initialize default roles on load
+roleRegistry.initDefaultRoles();
+
+// Export the role registry
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.roleRegistry = roleRegistry;
 }

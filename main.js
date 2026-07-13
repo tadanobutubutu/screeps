@@ -85,8 +85,9 @@ function runAutonomousEfficiency(creep) {
     if (creep.store[RESOURCE_ENERGY] > 0) {
         const controller = creep.room.controller;
         if (controller && creep.pos.isNearTo(controller)) {
-            const upgradingCreeps = _.filter(Game.creeps, (c) =>
-                c.memory.role === 'upgrader' && c.store[RESOURCE_ENERGY] > 0
+            const upgradingCreeps = _.filter(
+                Game.creeps,
+                (c) => c.memory.role === 'upgrader' && c.store[RESOURCE_ENERGY] > 0
             );
             if (upgradingCreeps.length === 0) {
                 if (creep.upgradeController(controller) === ERR_NOT_OWNER) {
@@ -111,7 +112,7 @@ function runAutonomousEfficiency(creep) {
 
         // If no construction sites, look for damaged structures
         const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-            filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
+            filter: (s) => s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL,
         });
         if (damagedStructure) {
             if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
@@ -137,13 +138,12 @@ function runAutonomousEfficiency(creep) {
                 s.structureType !== STRUCTURE_SPAWN &&
                 s.structureType !== STRUCTURE_CONTROLLER &&
                 s.store &&
-                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
         });
         if (target) {
             if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(target, { visualizePath: true });
             }
-            return;
         }
     }
 }
@@ -160,7 +160,7 @@ const autonomousEfficiencyRole = {
      * @param {Object} memory - The creep's memory object
      * @returns {boolean} - Whether this creep should be autonomous
      */
-    shouldAssign: function(memory) {
+    shouldAssign: function (memory) {
         return memory.role === 'autonomous';
     },
 
@@ -171,15 +171,15 @@ const autonomousEfficiencyRole = {
      * @param {Object} body - The body composition (default: [WORK, CARRY, MOVE])
      * @returns {string|undefined} - The result code or undefined if successful
      */
-    create: function(name, spawn, body = [WORK, CARRY, MOVE]) {
+    create: function (name, spawn, body = [WORK, CARRY, MOVE]) {
         if (spawn.spawning) {
             return;
         }
         const result = spawn.spawnCreep(body, name, {
-            memory: { role: 'autonomous', state: 'harvesting' }
+            memory: { role: 'autonomous', state: 'harvesting' },
         });
         return result;
-    }
+    },
 };
 
 /* ------------------------------------------------------------------
@@ -299,7 +299,7 @@ const carrier = {
         const containers = creep.room.find(FIND_STRUCTURES, {
             filter: (structure) =>
                 (structure.structureType === STRUCTURE_CONTAINER ||
-                 structure.structureType === STRUCTURE_STORAGE) &&
+                    structure.structureType === STRUCTURE_STORAGE) &&
                 structure.store[RESOURCE_ENERGY] > 100,
         });
 
@@ -398,10 +398,10 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Add test functions for global commands
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports.testGlobalCommands = function() {
+    module.exports.testGlobalCommands = function () {
         // Mock global commands for testing
-        global.gr = function() {};
-        global.evor = function() {};
+        global.gr = function () {};
+        global.evor = function () {};
 
         // Test that the functions exist
         expect(typeof global.gr).toBe('function');

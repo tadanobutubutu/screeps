@@ -51,7 +51,6 @@ function safeRequireJest() {
             // If Jest isn't available, return a mock object
             return {
                 run: function() {
-                    console.log('Jest is not available in this environment');
                     return Promise.resolve({ success: false });
                 }
             };

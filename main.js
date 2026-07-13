@@ -98,8 +98,41 @@ if (typeof global.evor === 'undefined') {
     };
 }
 
-/* Export for potential external usage (e.g., other modules) */
+/* ------------------------------------------------------------------
+ *  Main Game Loop
+ * ------------------------------------------------------------------ */
+
+/**
+ * Main loop function that processes all game entities each tick.
+ * This function is called repeatedly during game execution.
+ */
+function loop() {
+    // Process each creep in the game
+    for (const creepName in global.Game.creeps) {
+        const creep = global.Game.creeps[creepName];
+        
+        // Call EmotionSystem.interact for each creep
+        if (typeof EmotionSystem !== 'undefined' && typeof EmotionSystem.interact === 'function') {
+            EmotionSystem.interact(creep);
+        }
+        
+        // Execute movement logic for the creep
+        moveAgent(creep);
+    }
+}
+
+/**
+ * Main module export containing the loop function and utilities.
+ */
+const main = {
+    loop: loop,
+    moveAgent: moveAgent,
+    safeRequire: safeRequire,
+};
+
+/* Export for potential external usage (e. g., other modules) */
 module.exports = {
+    main,
     safeRequire,
     moveAgent,
     // Export stubs to keep API surface visible

@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e. g., Jest) */
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
@@ -66,4 +66,25 @@ if (typeof module !== 'undefined' && module.exports) {
         safeRequire,
         safeRequireJest,
     };
+}
+
+/* ------------------------------------------------------------------
+ *  New helper function for testing
+ * ------------------------------------------------------------------ */
+function testGlobalFunctions() {
+    // Ensure global functions are defined
+    expect(typeof global.Creep).toBe('function');
+    expect(typeof global.Flag).toBe('function');
+    expect(typeof global.PathFinder).toBe('function');
+    expect(typeof global.RawMemory).toBe('object');
+    expect(typeof global.RoomPosition).toBe('function');
+    expect(typeof global.Structure).toBe('function');
+    expect(typeof global.OK).toBe('number');
+    expect(typeof global.ERR_NOT_OWNER).toBe('number');
+    expect(typeof global.ERR_NO_PATH).toBe('number');
+}
+
+/* Export the test function for running in tests */
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.testGlobalFunctions = testGlobalFunctions;
 }

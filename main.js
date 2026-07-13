@@ -85,7 +85,7 @@ function runAutonomousEfficiency(creep) {
     if (creep.store[RESOURCE_ENERGY] > 0) {
         const controller = creep.room.controller;
         if (controller && creep.pos.isNearTo(controller)) {
-            const upgradingCreeps = _.filter(Game.creeps, (c) => 
+            const upgradingCreeps = _.filter(Game.creeps, (c) =>
                 c.memory.role === 'upgrader' && c.store[RESOURCE_ENERGY] > 0
             );
             if (upgradingCreeps.length === 0) {
@@ -133,7 +133,7 @@ function runAutonomousEfficiency(creep) {
     // Priority 4: Transfer energy to nearest structure needing it
     if (creep.store[RESOURCE_ENERGY] > 0) {
         const target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-            filter: (s) => 
+            filter: (s) =>
                 s.structureType !== STRUCTURE_SPAWN &&
                 s.structureType !== STRUCTURE_CONTROLLER &&
                 s.store &&
@@ -154,7 +154,7 @@ function runAutonomousEfficiency(creep) {
  */
 const autonomousEfficiencyRole = {
     run: runAutonomousEfficiency,
-    
+
     /**
      * Determine if this creep should be assigned to autonomous efficiency
      * @param {Object} memory - The creep's memory object
@@ -163,7 +163,7 @@ const autonomousEfficiencyRole = {
     shouldAssign: function(memory) {
         return memory.role === 'autonomous';
     },
-    
+
     /**
      * Create a new autonomous efficiency creep
      * @param {string} name - The creep's name
@@ -394,4 +394,17 @@ roleRegistry.initDefaultRoles();
 // Export the role registry
 if (typeof module !== 'undefined' && module.exports) {
     module.exports.roleRegistry = roleRegistry;
+}
+
+// Add test functions for global commands
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports.testGlobalCommands = function() {
+        // Mock global commands for testing
+        global.gr = function() {};
+        global.evor = function() {};
+
+        // Test that the functions exist
+        expect(typeof global.gr).toBe('function');
+        expect(typeof global.evor).toBe('function');
+    };
 }

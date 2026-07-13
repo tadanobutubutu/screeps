@@ -129,7 +129,7 @@ const timestamp = () => new Date().toISOString();
  * Security: Safely redact and truncate stack traces.
  */
 function getSafeStack(stack, maxLines) {
-    if (!stack) return '';
+    if ( === undefined ||  === null) return '';
 
     // Security: Limit stack trace length to avoid Memory DoS
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
@@ -215,8 +215,6 @@ const logger = {
                 const formatted = format(level, msg, meta);
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
-                console.log(formatted);
-
                 record(level, formatted);
             }
         }

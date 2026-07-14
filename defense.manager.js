@@ -170,8 +170,6 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        // ⚡ PERFORMANCE: Use pre-cached primary hostile target for focus fire.
-        // (集中砲火のため、キャッシュされた優先ターゲットを使用)
         const hostile = creep.room._primaryHostile;
 
         if (hostile) {

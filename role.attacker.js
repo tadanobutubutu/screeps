@@ -11,7 +11,6 @@ const PATH_STYLE_STRUCTURE = { visualizePathStyle: { stroke: '#ff4400' }, reuseP
 const PATH_STYLE_PATROL = { visualizePathStyle: { stroke: '#ffaa00' } };
 const PATH_STYLE_PATROL_CONTROLLER = { visualizePathStyle: { stroke: '#ffaa00' }, range: 5 };
 
-// ⚡ PERFORMANCE: Hoisted filter function to reduce per-tick closure creation.
 const STRUCTURE_FILTER = (s) =>
     s.structureType === STRUCTURE_INVADER_CORE ||
     s.structureType === STRUCTURE_TOWER ||
@@ -44,7 +43,6 @@ const roleAttacker = {
         // Priority 1: Attack hostile creeps in range
         // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
         const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
-
         if (hostiles.length > 0) {
             // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
             let hostileCreep = Game.getObjectById(creep.memory.targetId);

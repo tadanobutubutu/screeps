@@ -54,7 +54,6 @@ const defenseManager = {
 
     // 脅威レベル評価
     checkThreats: function (room) {
-        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps pre-warmed in main.js. (main.jsで準備された敵クリープのキャッシュを使用)
         const hostiles = room._hostileCreeps || [];
 
         if (hostiles.length === 0) {
@@ -82,7 +81,6 @@ const defenseManager = {
         // ティックごとの計算値はMemoryではなくRoomオブジェクトに保持することで高速化。
         room._threatLevel = threatLevel;
 
-        // ⚡ PERFORMANCE: Hoist primary hostile target selection for focus fire.
         // Identify a primary target once per tick to avoid redundant O(N) searches in tower/defender loops.
         room._primaryHostile = hostiles[0];
 
@@ -171,8 +169,6 @@ const defenseManager = {
 
     // Defender creepの行動制御
     runDefender: function (creep) {
-        // ⚡ PERFORMANCE: Use pre-cached primary hostile target for focus fire.
-        // (集中砲火のため、キャッシュされた優先ターゲットを使用)
         const hostile = creep.room._primaryHostile;
 
         if (hostile) {

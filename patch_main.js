@@ -157,7 +157,6 @@ function _categorizeContainer(s, state) {
 
 function _categorizeRepairTarget(s, type, hits, hitsMax, room, state) {
     state.repairTargets.push(s);
-    // ⚡ PERFORMANCE: Track target with min hits for O(1) lookup.
     if (hits < state.minHits) {
         state.minHits = hits;
         state.minHitsRepairTarget = s;

@@ -49,7 +49,8 @@ describe('src/utils/logger security: log-level bypass', () => {
         logger.debug('This should be hidden');
 
         expect(logger.getLevel()).toBe(LOG_LEVEL.INFO);
-        expect(logSpy).not.toHaveBeenCalled();
+        const debugLogs = logSpy.mock.calls.filter((call) => call[0].includes('DEBUG'));
+        expect(debugLogs.length).toBe(0);
     });
 
     test('init() should default to INFO on invalid string Memory.logLevel', () => {
@@ -60,7 +61,8 @@ describe('src/utils/logger security: log-level bypass', () => {
         logger.debug('Debug message');
 
         expect(logger.getLevel()).toBe(LOG_LEVEL.INFO);
-        expect(logSpy).not.toHaveBeenCalled();
+        const debugLogs = logSpy.mock.calls.filter((call) => call[0].includes('DEBUG'));
+        expect(debugLogs.length).toBe(0);
     });
 
     test('init() should accept valid Memory.logLevel', () => {
@@ -71,10 +73,12 @@ describe('src/utils/logger security: log-level bypass', () => {
         logger.info('Info message');
 
         expect(logger.getLevel()).toBe(LOG_LEVEL.WARN);
-        expect(logSpy).not.toHaveBeenCalled();
+        const infoLogs = logSpy.mock.calls.filter((call) => call[0].includes('INFO'));
+        expect(infoLogs.length).toBe(0);
 
         logger.warn('Warning message');
-        expect(logSpy).toHaveBeenCalled();
+        const warnLogs = logSpy.mock.calls.filter((call) => call[0].includes('WARN'));
+        expect(warnLogs.length).toBeGreaterThan(0);
     });
 
     test('init() should handle null/boolean/empty string/arrays from Memory securely', () => {

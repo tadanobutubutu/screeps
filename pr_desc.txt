@@ -1,10 +1,7 @@
 💡 **What:** Modified `src/utils/pathfinder.js` to ensure the `_allCreeps` and `_allCreepsTick` properties are explicitly assigned to the `room` object if they are missing or outdated before accessing them.
 
-🎯 **Why:** The previous implementation checked for the existence of `room._allCreeps` to perform pathfinding cost calculations, but fell back to calling `room.find(FIND_CREEPS)` repeatedly if it was not pre-populated. This bypassed the intended caching completely and caused heavy `FIND_CREEPS` calls for every `buildCostMatrix` call in an un-cached room context within the same tick.
+🎯 **Why:** The previous implementation checked for the existence of `room._allCreeps` to perform pathfinding cost calculations, but fell back to calling `room.find(FIND_CREEPS)` repeatedly if it was not pre-populated. This bypassed the intended caching completely and caused heavy `FIND_CREEPS` calls for every `buildCostMatrix` call in an un‑cached room context within the same tick.
 
-📊 **Impact:** This single optimization ensures `room.find(FIND_CREEPS)` is run at most once per tick per room, effectively mitigating $O(N)$ high-cost operations into an $O(1)$ lookup for subsequent evaluations.
+⚙️ **Fix:** The new logic explicitly assigns `room._allCreeps` and keeps a tick counter (`room._allCreepsTick`) to invalidate the cache each game tick. When the cache is stale or missing, a single `room.find(FIND_CREEPS)` call populates the array; otherwise the cached data is reused.
 
-🔬 **Measurement:** A simulated test benchmark was written executing `buildCostMatrix` 10,000 times for a room.
-- Baseline: 10,000 FIND_CREEPS calls executed in ~139ms.
-- Optimized: 1 FIND_CREEPS call executed in ~12ms.
-This represents a >10x raw throughput increase for consecutive cost matrix calculations in creep avoidance scenarios.
+📊 **Impact:** This single optimization ensures `room.find(FIND_CREEPS)` is run at most once per tick per room, effectively mitigating $O(N)$ high-cost operations into an $O(1)$ lookup for subsequent evaluations. In a simulated benchmark, the cost of building the cost matrix 10,000 times dropped from ~139 ms (10,000 `FIND_CREEPS` calls) to ~12 ms (single call), a >10× speed‑up.

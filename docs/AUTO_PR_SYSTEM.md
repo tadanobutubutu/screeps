@@ -16,7 +16,7 @@
 ## アーキテクチャ
 
 ```
-GitHub Issue (opened) 
+GitHub Issue (opened)
     ↓
 [GitHub Actions Workflow]
     ↓
@@ -49,6 +49,7 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ワークフロー: `.github/workflows/auto-pr-from-issues.yml`
 
 **トリガー条件:**
+
 - Issue が新規作成された時 (`issues.opened`)
 - Issue が再オープンされた時 (`issues.reopened`)
 - 手動実行時（`workflow_dispatch` で issue_number を指定）
@@ -58,14 +59,15 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 スクリプト: `scripts/auto-pr-generator.js`
 
 **処理フロー:**
+
 1. Issue の詳細情報を GitHub API から取得
 2. Claude API に Issue を送信し、分析を要求
 3. Claude が以下を生成：
-   - 根本原因分析
-   - 重要度評価（critical/high/medium/low）
-   - 影響を受けるファイルの特定
-   - 修正コード
-   - テスト方法の提案
+    - 根本原因分析
+    - 重要度評価（critical/high/medium/low）
+    - 影響を受けるファイルの特定
+    - 修正コード
+    - テスト方法の提案
 4. 修正をファイルに適用
 5. Fix ブランチを作成（`fix/issue-{number}-{slug}`）
 6. コミット作成
@@ -76,6 +78,7 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 スクリプト: `scripts/add-contributor.js`
 
 **処理フロー:**
+
 1. Issue 作成者の情報を GitHub API から取得
 2. `.all-contributorsrc` に Contributor として登録
 3. README を更新（all-contributors CLI を使用）
@@ -87,20 +90,20 @@ GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 ```json
 {
-  "rootCause": "根本原因の分析",
-  "severity": "critical|high|medium|low",
-  "affectedFiles": ["path/to/file1.js", "path/to/file2.js"],
-  "suggestedFix": {
-    "description": "修正の簡潔な説明",
-    "changes": [
-      {
-        "file": "path/to/file.js",
-        "change": "変更内容の説明",
-        "code": "実際のコード"
-      }
-    ]
-  },
-  "testSuggestion": "修正後のテスト方法"
+    "rootCause": "根本原因の分析",
+    "severity": "critical|high|medium|low",
+    "affectedFiles": ["path/to/file1.js", "path/to/file2.js"],
+    "suggestedFix": {
+        "description": "修正の簡潔な説明",
+        "changes": [
+            {
+                "file": "path/to/file.js",
+                "change": "変更内容の説明",
+                "code": "実際のコード"
+            }
+        ]
+    },
+    "testSuggestion": "修正後のテスト方法"
 }
 ```
 

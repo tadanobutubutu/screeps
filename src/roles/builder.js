@@ -127,17 +127,30 @@ function _getTargetSite(creep) {
         return null;
     }
 
-    // 優先度でソートし、同優先度なら近い方を優先
-    const sorted = sites.slice().sort((a, b) => {
-        const pa = BUILD_PRIORITY[a.structureType] || 10;
-        const pb = BUILD_PRIORITY[b.structureType] || 10;
-        if (pa !== pb) {
-            return pa - pb;
-        }
-        return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
-    });
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to find the best site.
+    // Estimated impact: Reduces complexity from O(N log N) to O(N) and avoids array allocation.
+    let bestSite = null;
+    let minPriority = Infinity;
+    let minDistance = Infinity;
 
-    const target = sorted[0];
+    for (let i = 0; i < sites.length; i++) {
+        const site = sites[i];
+        const priority = BUILD_PRIORITY[site.structureType] || 10;
+        const distance = creep.pos.getRangeTo(site);
+
+        if (priority < minPriority) {
+            minPriority = priority;
+            minDistance = distance;
+            bestSite = site;
+        } else if (priority === minPriority) {
+            if (distance < minDistance) {
+                minDistance = distance;
+                bestSite = site;
+            }
+        }
+    }
+
+    const target = bestSite;
     creep.memory[MEMORY_KEYS.TARGET_ID] = target.id;
     return target;
 }
@@ -147,17 +160,29 @@ function _getTargetSite(creep) {
  * @param {Creep} creep
  */
 function _repairAsBackup(creep) {
-    const damaged = cache
-        .getStructures(creep.room)
-        .filter(
-            (s) =>
-                s.hits < s.hitsMax * 0.8 &&
-                s.structureType !== STRUCTURE_WALL &&
-                s.structureType !== STRUCTURE_RAMPART
-        );
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to find the closest damaged structure.
+    // Estimated impact: Avoids O(N) array allocation from .filter().
+    const structures = cache.getStructures(creep.room);
+    let closestDamaged = null;
+    let minDistance = Infinity;
 
-    if (damaged.length > 0) {
-        const target = pathfinder.closest(creep.pos, damaged);
+    for (let i = 0; i < structures.length; i++) {
+        const s = structures[i];
+        if (
+            s.hits < s.hitsMax * 0.8 &&
+            s.structureType !== STRUCTURE_WALL &&
+            s.structureType !== STRUCTURE_RAMPART
+        ) {
+            const dist = creep.pos.getRangeTo(s);
+            if (dist < minDistance) {
+                minDistance = dist;
+                closestDamaged = s;
+            }
+        }
+    }
+
+    if (closestDamaged) {
+        const target = closestDamaged;
         const result = creep.repair(target);
         if (result === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, target, { range: 3 });
@@ -187,24 +212,51 @@ function _repairAsBackup(creep) {
 function _getEnergy(creep) {
     const room = creep.room;
 
-    // 落下リソースを優先回収
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations.
+    // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
+
+    // 1. 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 50);
-    if (energyDrops.length > 0) {
-        const res = pathfinder.closest(creep.pos, energyDrops);
-        if (creep.pickup(res) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, res, { range: 1 });
+    let bestDrop = null;
+    let minDropDist = Infinity;
+
+    for (let i = 0; i < dropped.length; i++) {
+        const r = dropped[i];
+        if (r.resourceType === RESOURCE_ENERGY && r.amount >= 50) {
+            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            if (dist < minDropDist) {
+                minDropDist = dist;
+                bestDrop = r;
+            }
+        }
+    }
+
+    if (bestDrop) {
+        if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
         return;
     }
 
-    // コンテナから取得
+    // 2. コンテナから取得
     const containers = cache.getContainers(room);
-    const available = containers.filter((c) => c.store[RESOURCE_ENERGY] >= 100);
-    if (available.length > 0) {
-        const container = pathfinder.closest(creep.pos, available);
-        if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, container, { range: 1 });
+    let bestContainer = null;
+    let minContainerDist = Infinity;
+
+    for (let i = 0; i < containers.length; i++) {
+        const c = containers[i];
+        if (c.store[RESOURCE_ENERGY] >= 100) {
+            const dist = creep.pos ? creep.pos.getRangeTo(c) : 0;
+            if (dist < minContainerDist) {
+                minContainerDist = dist;
+                bestContainer = c;
+            }
+        }
+    }
+
+    if (bestContainer) {
+        if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
         return;
     }

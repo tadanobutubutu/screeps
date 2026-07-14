@@ -41,13 +41,13 @@ if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -9;
 /* ------------------------------------------------------------------
  *  Global commands
  * ------------------------------------------------------------------ */
-if (typeof global.gr === 'undefined') {
+if (typeof global.creep === 'undefined') {
     /**
      * Global report command - outputs game status information
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        .toISOString(), ...args);
+        console.log(new Date().toISOString(), ...args);
     };
 }
 
@@ -79,6 +79,7 @@ if (typeof global.evor === 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         gr: global.gr,
-        evor: global.evor
+        evor: global.evor,
+        ...(typeof main !== 'undefined' ? { main } : {})
     };
 }

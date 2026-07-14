@@ -158,7 +158,6 @@ const gamification = {
                 vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
 
-            // XP bonus for achievement
             const gm = Memory.gamification;
             gm.xp += 50;
             gm.totalScore += 50;

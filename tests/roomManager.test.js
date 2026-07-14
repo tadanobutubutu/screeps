@@ -453,6 +453,81 @@ describe('roomManager', () => {
         });
     });
 
+
+    describe('_planRoads', () => {
+        beforeEach(() => {
+            global.Game.time = 50; // trigger _planConstruction
+            mockRoom.controller.level = 1; // triggers _planSourceContainers and _planRoads
+            mockRoom.lookAtArea = jest.fn().mockReturnValue([]);
+            mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 });
+            cache.getContainers.mockReturnValue([]);
+            cache.getStructures.mockReturnValue([]);
+            cache.getConstructionSites.mockReturnValue([]);
+            pathfinder.findNearestOpenTile.mockReturnValue(null); // prevent _planSourceContainers from creating sites for isolation
+        });
+
+        test('does nothing if there are no spawns', () => {
+            cache.getSpawns.mockReturnValue([]);
+            roomManager.run(mockRoom);
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('skips if path to target is incomplete', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 10, y: 10 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+            pathfinder.findPath.mockReturnValue({ incomplete: true });
+
+            roomManager.run(mockRoom);
+
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('does not place construction site if tile is already occupied', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 10, y: 10 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+
+            const existingStructure = { pos: { x: 6, y: 5 } };
+            cache.getStructures.mockReturnValue([existingStructure]);
+
+            pathfinder.findPath.mockReturnValue({
+                incomplete: false,
+                path: [{ x: 6, y: 5 }],
+            });
+
+            roomManager.run(mockRoom);
+
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('places construction sites up to MAX_ROADS_PER_CYCLE (5)', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 20, y: 5 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+            cache.getStructures.mockReturnValue([]);
+
+            const longPath = [];
+            for (let i = 1; i <= 10; i++) {
+                longPath.push({ x: 5 + i, y: 5 });
+            }
+
+            pathfinder.findPath.mockReturnValue({
+                incomplete: false,
+                path: longPath,
+            });
+
+            roomManager.run(mockRoom);
+
+
+            expect(mockRoom.createConstructionSite).toHaveBeenCalledTimes(10); // 5 for source, 5 for controller
+            expect(cache.invalidate).toHaveBeenCalledWith(`construction_sites_${mockRoom.name}`);
+        });
+    });
+
     describe('Security: Prototype Pollution & DoS Protection', () => {
         test('getStats should not crash when Object.prototype is polluted', () => {
             // Pollute Object.prototype

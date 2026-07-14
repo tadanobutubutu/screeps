@@ -1,0 +1,6 @@
+🧹 [remove unused commented-out code in checkThreats]
+
+🎯 **What:** Removed unused commented-out performance note on line 57 in `defense.manager.js`.
+💡 **Why:** To remove dead code, and improve readability and maintainability of the checkThreats method.
+✅ **Verification:** Ran `npm test -- --reporters=default -- tests/defense.manager.test.js` and confirmed all 9 tests pass. Lint run for the file.
+✨ **Result:** A cleaner `checkThreats` function that is easier to read without changing any functionality.

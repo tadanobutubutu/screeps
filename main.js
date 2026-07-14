@@ -47,7 +47,7 @@ if (typeof global.creep === 'undefined') {
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        .toISOString(), ...args);
+        console.log(new Date().toISOString(), ...args);
     };
 }
 
@@ -75,11 +75,23 @@ if (typeof global.evor === 'undefined') {
     };
 }
 
+// Add a simple test function to verify the environment
+if (typeof global.testEnvironment === 'undefined') {
+    global.testEnvironment = function() {
+        return {
+            hasJest: typeof jest !== 'undefined',
+            hasConsole: typeof console !== 'undefined',
+            hasGame: typeof Game !== 'undefined'
+        };
+    };
+}
+
 // Export the functions for testing purposes
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         gr: global.gr,
         evor: global.evor,
+        testEnvironment: global.testEnvironment,
         ...(typeof main !== 'undefined' ? { main } : {})
     };
 }

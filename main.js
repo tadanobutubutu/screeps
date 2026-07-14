@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e.g., Jest) */
+/* Mock globals for testing environments (e. g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
@@ -37,3 +37,40 @@ if (typeof global.StructureWall === 'undefined') global.StructureWall = function
 if (typeof global.OK === 'undefined') global.OK = 0;
 if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
 if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -9;
+
+/* ------------------------------------------------------------------
+ *  Global commands
+ * ------------------------------------------------------------------ */
+if (typeof global.gr === 'undefined') {
+    /**
+     * Global report command - outputs game status information
+     * @param {...any} args - Arguments to include in the report
+     */
+    global.gr = function (...args) {
+        console.log('[GR]', new Date().toISOString(), ...args);
+    };
+}
+
+if (typeof global.evor === 'undefined') {
+    /**
+     * Evaluate room command - evaluates and returns room statistics
+     * @param {string|Object} room - Room name or room object to evaluate
+     * @returns {Object|null} Room evaluation results or null if invalid
+     */
+    global.evor = function (room) {
+        if (!room) return null;
+        const roomName = typeof room === 'string' ? room : room.name;
+        if (!roomName) return null;
+        
+        const roomObj = Game.rooms[roomName];
+        if (!roomObj) return null;
+        
+        return {
+            name: roomName,
+            controller: roomObj.controller ? { level: roomObj.controller.level } : null,
+            energyAvailable: roomObj.energyAvailable,
+            energyCapacityAvailable: roomObj.energyCapacityAvailable,
+            my: roomObj.controller ? roomObj.controller.my : false
+        };
+    };
+}

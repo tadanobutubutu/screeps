@@ -87,7 +87,6 @@ const gamification = {
         Memory.gamification.xp += numericAmount;
         Memory.gamification.totalScore += numericAmount;
 
-        // ⚡ PERFORMANCE: Throttle console logging for high-frequency low-value XP gains
         if (numericAmount >= 5) {
             // Security: Use logging system to prevent console injection
             logger.info(
@@ -158,7 +157,6 @@ const gamification = {
                 vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
 
-            // XP bonus for achievement
             const gm = Memory.gamification;
             gm.xp += 50;
             gm.totalScore += 50;
@@ -298,7 +296,6 @@ const gamification = {
      * ビジュアルダッシュボード
      */
     renderDashboard: function () {
-        // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
         if (!adaptiveSystem.isEnabled('visualEffects')) {
             return;
         }
@@ -398,7 +395,6 @@ const gamification = {
      * Creepアクション追跡
      */
     trackAction: function (creep, action) {
-        // ⚡ PERFORMANCE: Early return if gamification is disabled to save CPU in low-power modes
         if (!adaptiveSystem.isEnabled('gamification')) {
             return;
         }

@@ -189,7 +189,7 @@ const defenseManager = {
         } else {
             // パトロールモード
             if (!creep.memory.patrolTarget) {
-                const flag = Game.flags['Patrol'];
+                const flag = Game.flags.Patrol;
                 if (flag) {
                     creep.memory.patrolTarget = flag.pos;
                 } else {

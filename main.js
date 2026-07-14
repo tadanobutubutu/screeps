@@ -86,6 +86,15 @@ if (typeof global.testEnvironment === 'undefined') {
     };
 }
 
+// Add a mock console.log for testing environments
+if (typeof console === 'undefined') {
+    global.console = {
+        log: function() {},
+        error: function() {},
+        warn: function() {}
+    };
+}
+
 // Export the functions for testing purposes
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {

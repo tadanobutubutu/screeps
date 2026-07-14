@@ -120,9 +120,10 @@ module.exports = {
         const c = challenge.challenge;
         const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
 
-        `);
+        console.log(`Daily Challenge: ${c.emoji} ${c.name} - ${percent}%`);
 
         if (challenge.completed) {
-            }
+            console.log('Challenge completed!');
+        }
     },
 };

@@ -74,7 +74,9 @@ const autoTutorial = {
      */
     step2_harvestEnergy: function () {
         const sourcesCache = {};
-        for (const creep of Object.values(Game.creeps)) {
+        for (const name in Game.creeps) {
+            if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
+            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             if (creep.store.getFreeCapacity() > 0) {
@@ -99,7 +101,9 @@ const autoTutorial = {
      */
     step3_upgradeController: function () {
         const sourcesCache = {};
-        for (const creep of Object.values(Game.creeps)) {
+        for (const name in Game.creeps) {
+            if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
+            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             if (creep.store[RESOURCE_ENERGY] === 0) {
@@ -127,7 +131,9 @@ const autoTutorial = {
         const sitesCache = {};
         const sourcesCache = {};
 
-        for (const creep of Object.values(Game.creeps)) {
+        for (const name in Game.creeps) {
+            if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
+            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             sitesCache[roomName] = sitesCache[roomName] || creep.room.find(FIND_CONSTRUCTION_SITES);
@@ -179,7 +185,9 @@ const autoTutorial = {
         const hostilesCache = {};
 
         // 基本的なCreep動作
-        for (const creep of Object.values(Game.creeps)) {
+        for (const name in Game.creeps) {
+            if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
+            const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
             // エネルギーが空

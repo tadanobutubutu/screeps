@@ -55,7 +55,7 @@ if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUG
 
 // Add missing global functions to satisfy tests
 if (typeof global.gr === 'undefined') {
-    global.gr = function() {
+    global.gr = function () {
         // Mock implementation
         return {
             // Add any necessary properties or methods
@@ -64,7 +64,7 @@ if (typeof global.gr === 'undefined') {
 }
 
 if (typeof global.evor === 'undefined') {
-    global.evor = function() {
+    global.evor = function () {
         // Mock implementation
         return {
             // Add any necessary properties or methods
@@ -74,7 +74,7 @@ if (typeof global.evor === 'undefined') {
 
 // Mock EmotionSystem for testing
 const EmotionSystem = {
-    interact: jest.fn()
+    interact: jest.fn(),
 };
 
 function createRoom() {
@@ -87,7 +87,7 @@ function createRoom() {
 
 createRoom();
 
-let creeps = global.Game.creeps;
+const creeps = global.Game.creeps;
 
 // define a simple movement logic
 function moveAgent(ag) {
@@ -114,7 +114,7 @@ function main() {
 }
 
 // Export the loop function for testing
-main.loop = function() {
+main.loop = function () {
     // Mock implementation for testing
     EmotionSystem.interact();
 };

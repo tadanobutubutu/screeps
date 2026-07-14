@@ -68,8 +68,7 @@ let creeps = global.Game.creeps;
 // define a simple movement logic
 function moveAgent(ag) {
     // just a log
-    console.log(`${ag.name} moving`);
-}
+    }
 
 function navToTarget(targetPos) {
     // Check if the creep has a move function and a room position
@@ -77,8 +76,7 @@ function navToTarget(targetPos) {
         // Perform the movement
         creeps.move(targetPos);
     } else {
-        console.log(`Unable to move to ${targetPos}`);
-    }
+        }
 }
 
 function main() {

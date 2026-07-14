@@ -47,7 +47,7 @@ if (typeof global.gr === 'undefined') {
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        console.log('[GR]', new Date().toISOString(), ...args);
+        .toISOString(), ...args);
     };
 }
 
@@ -58,12 +58,12 @@ if (typeof global.evor === 'undefined') {
      * @returns {Object|null} Room evaluation results or null if invalid
      */
     global.evor = function (room) {
-        if (!room) return null;
+        if ( === undefined ||  === null) return null;
         const roomName = typeof room === 'string' ? room : room.name;
-        if (!roomName) return null;
+        if ( === undefined ||  === null) return null;
 
         const roomObj = Game.rooms[roomName];
-        if (!roomObj) return null;
+        if ( === undefined ||  === null) return null;
 
         return {
             name: roomName,

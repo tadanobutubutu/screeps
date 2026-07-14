@@ -133,7 +133,7 @@ jobs:
             if ! git merge "origin/$BASE" --no-edit; then
               echo "AI resolving conflicts for #$PR_NO..."
               # コンフリクト解消ロジック
-              FILES=$(git diff --name-only --diff-filter=U)
+              FILES=$(git diff --name-only --diff-filter=U | grep -v "__pycache__" | grep -v ".pyc$")
               for FILE in $FILES; do
                 PROMPT="Resolve merge conflicts in $FILE. Respond ONLY with code."
                 ENCODED=$(jq -Rr @uri <<< "$PROMPT")

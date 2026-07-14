@@ -36,75 +36,51 @@ if (typeof global.StructureTower === 'undefined') global.StructureTower = functi
 if (typeof global.StructureWall === 'undefined') global.StructureWall = function () {};
 if (typeof global.OK === 'undefined') global.OK = 0;
 if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
-if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -9;
+if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -2;
+if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3;
+if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4;
+if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5;
+if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET = -6;
+if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -9;
+if (typeof global.ERR_NOT_IN_RANGE === 'undefined') global.ERR_NOT_IN_RANGE = -10;
+if (typeof global.ERR_NO_BODYPART === 'undefined') global.ERR_NO_BODYPART = -11;
+if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3;
+if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5;
+if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
+if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -15;
+if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = - 0;
+if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = - 1;
+if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
+if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4;
 
-/* ------------------------------------------------------------------
- *  Global commands
- * ------------------------------------------------------------------ */
-if (typeof global.gr === 'undefined') {
-    /**
-     * Global report command - outputs game status information
-     * @param {...any} args - Arguments to include in the report
-     */
-    global.gr = function (...args) {
-        console.log(new Date().toISOString(), ...args);
+function createRoom() {
+    const room = {
+        name: 'W0N0',
+        controller: { level: 1 },
     };
+    global.Game.rooms = { W0N0: room };
 }
 
-if (typeof global.evor === 'undefined') {
-    /**
-     * Evaluate room command - evaluates and returns room statistics
-     * @param {string|Object} room - Room name or room object to evaluate
-     * @returns {Object|null} Room evaluation results or null if invalid
-     */
-    global.evor = function (room) {
-        if (room === undefined || room === null) return null;
-        const roomName = typeof room === 'string' ? room : room.name;
-        if (roomName === undefined || roomName === null) return null;
+createRoom();
 
-        const roomObj = Game.rooms[roomName];
-        if (roomObj === undefined || roomObj === null) return null;
+let creeps = global.Game.creeps;
 
-        return {
-            name: roomName,
-            controller: roomObj.controller ? { level: roomObj.controller.level } : null,
-            energyAvailable: roomObj.energyAvailable,
-            energyCapacityAvailable: roomObj.energyCapacityAvailable,
-            my: roomObj.controller ? roomObj.controller.my : false
-        };
-    };
+// define a simple movement logic
+function moveAgent(ag) {
+    // just a log
+    console.log(`${ag.name} moving`);
 }
 
-/* ------------------------------------------------------------------
- *  Main module for game loop
- * ------------------------------------------------------------------ */
-const main = {
-    /**
-     * Main game loop function
-     */
-    loop: function () {
-        // Process all creeps
-        for (const name in Game.creeps) {
-            const creep = Game.creeps[name];
-            // Try to run creep behavior if it exists
-            if (creep && typeof creep.run === 'function') {
-                creep.run();
-            }
-        }
+function navToTarget(НБ) { // eslint-disable  ...? mis-escaped
+**Solution end.**
 
-        // Try to run EmotionSystem if available
-        const EmotionSystem = safeRequire('EmotionSystem');
-        if (EmotionSystem && typeof EmotionSystem.interact === 'function') {
-            EmotionSystem.interact();
-        }
-    }
-};
 
-// Export the functions for testing purposes
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        gr: global.gr,
-        evor: global.evor,
-        main
-    };
-}
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

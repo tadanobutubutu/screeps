@@ -87,7 +87,6 @@ const gamification = {
         Memory.gamification.xp += numericAmount;
         Memory.gamification.totalScore += numericAmount;
 
-        // ⚡ PERFORMANCE: Throttle console logging for high-frequency low-value XP gains
         if (numericAmount >= 5) {
             // Security: Use logging system to prevent console injection
             logger.info(
@@ -396,7 +395,6 @@ const gamification = {
      * Creepアクション追跡
      */
     trackAction: function (creep, action) {
-        // ⚡ PERFORMANCE: Early return if gamification is disabled to save CPU in low-power modes
         if (!adaptiveSystem.isEnabled('gamification')) {
             return;
         }

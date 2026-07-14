@@ -235,6 +235,72 @@ describe('roomManager', () => {
         });
     });
 
+
+    describe('_getNeededExtensionCount', () => {
+        beforeEach(() => {
+            mockRoom.controller.level = 2; // Default mock RCL
+            global.CONTROLLER_STRUCTURES = {
+                extension: { 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 }
+            };
+            global.STRUCTURE_EXTENSION = 'extension';
+        });
+
+        test('returns 0 if maxExtensions for current RCL is 0', () => {
+            mockRoom.controller.level = 1;
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+
+        test('returns remaining needed extensions (capped at 5) if there are none', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            cache.getConstructionSites.mockReturnValue([]);
+            // At RCL2, max Extensions is 5. So it needs 5.
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(5);
+        });
+
+        test('returns 0 if existing + sites >= maxExtensions', () => {
+            // max Extensions is 5 at RCL2
+            cache.getMyStructures.mockReturnValue([{}, {}, {}]); // 3 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' },
+                { structureType: 'extension' }
+            ]); // 2 sites
+
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+
+        test('returns correct count when existing + sites < maxExtensions', () => {
+            mockRoom.controller.level = 3; // max is 10
+            cache.getMyStructures.mockReturnValue([{}, {}]); // 2 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' },
+                { structureType: 'container' } // ignore non-extension sites
+            ]); // 1 valid site
+            // total = 3. needed = 10 - 3 = 7. Capped at 5 -> 5
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(5);
+        });
+
+        test('returns exact remaining if needed is less than 5', () => {
+            mockRoom.controller.level = 3; // max is 10
+            cache.getMyStructures.mockReturnValue([{}, {}, {}, {}, {}, {}, {}]); // 7 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' }
+            ]); // 1 site
+            // total = 8. needed = 10 - 8 = 2. Capped at 5 -> 2
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(2);
+        });
+
+        test('handles missing CONTROLLER_STRUCTURES data gracefully', () => {
+            mockRoom.controller.level = 99; // non-existent RCL
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+    });
+
     describe('_planSourceContainers', () => {
         beforeEach(() => {
             global.Game.time = 500;

@@ -23,6 +23,5 @@
 
 ## ⚡ Bolt Learning: `Array.prototype.filter` inside loops
 
-**Date:** 2024-06-02  
-**Title:** Optimizing Array.filter calls inside loops  
-**Learning:** Repeatedly calling `Array.prototype.filter
+**Date:** 2024-06-02
+**Title:** Optimizing

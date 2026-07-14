@@ -76,7 +76,6 @@ const oldCategorizeRoomStructures = `function categorizeRoomStructures(room, all
         // ⚡ PERFORMANCE: Consolidate repair logic to avoid redundant checks across branches.
         if (isDamaged) {
             repairTargets.push(s);
-            // ⚡ PERFORMANCE: Track target with min hits for O(1) lookup.
             if (hits < minHits) {
                 minHits = hits;
                 minHitsRepairTarget = s;

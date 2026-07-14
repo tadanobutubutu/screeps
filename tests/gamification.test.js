@@ -20,7 +20,7 @@ jest.mock('utils.memory', () => ({
 jest.mock('daily-challenge', () => ({
     getChallenge: jest.fn(() => ({
         progress: 10,
-        challenge: { target: 100, name: 'Test Challenge' }
+        challenge: { target: 100, name: 'Test Challenge' },
     })),
 }));
 
@@ -34,12 +34,15 @@ describe('Gamification System', () => {
         global.Game = {
             time: 100,
             spawns: {
-                Spawn1: { pos: { x: 25, y: 25, roomName: 'W1N1' }, room: { name: 'W1N1', visual: { rect: jest.fn(), text: jest.fn() } } }
+                Spawn1: {
+                    pos: { x: 25, y: 25, roomName: 'W1N1' },
+                    room: { name: 'W1N1', visual: { rect: jest.fn(), text: jest.fn() } },
+                },
             },
             creeps: {},
-            gcl: { level: 1 }
+            gcl: { level: 1 },
         };
-        global._primarySpawn = global.Game.spawns['Spawn1'];
+        global._primarySpawn = global.Game.spawns.Spawn1;
         global._primarySpawnTick = 100;
         global.Memory = {};
         jest.clearAllMocks();
@@ -90,15 +93,15 @@ describe('Gamification System', () => {
 
         // 1st time
         gamification.addCombo('harvest');
-        expect(Memory.gamification.combos['harvest'].count).toBe(1);
+        expect(Memory.gamification.combos.harvest.count).toBe(1);
 
         // 2nd time
         gamification.addCombo('harvest');
-        expect(Memory.gamification.combos['harvest'].count).toBe(2);
+        expect(Memory.gamification.combos.harvest.count).toBe(2);
 
         // 3rd time (threshold)
         gamification.addCombo('harvest');
-        expect(Memory.gamification.combos['harvest'].count).toBe(3);
+        expect(Memory.gamification.combos.harvest.count).toBe(3);
         expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('3x harvest combo!'));
         expect(Memory.gamification.xp).toBe(6); // bonus xp = count * 2
     });
@@ -106,12 +109,12 @@ describe('Gamification System', () => {
     test('addCombo should reset count if timeout exceeded', () => {
         gamification.init();
         gamification.addCombo('harvest');
-        expect(Memory.gamification.combos['harvest'].count).toBe(1);
+        expect(Memory.gamification.combos.harvest.count).toBe(1);
 
         global.Game.time = 120; // +20 ticks (> 10)
 
         gamification.addCombo('harvest');
-        expect(Memory.gamification.combos['harvest'].count).toBe(1);
+        expect(Memory.gamification.combos.harvest.count).toBe(1);
     });
 
     test('updateStreak should increment streak correctly', () => {

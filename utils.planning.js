@@ -157,7 +157,7 @@ module.exports = {
         const bestSpawnPos = this.findBestSpawnPosition(room);
 
         if (bestSpawnPos) {
-            }
+        }
 
         return { openSpaces, bestSpawnPos };
     },

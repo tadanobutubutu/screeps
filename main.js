@@ -44,14 +44,14 @@ if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET 
 if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -9;
 if (typeof global.ERR_NOT_IN_RANGE === 'undefined') global.ERR_NOT_IN_RANGE = -10;
 if (typeof global.ERR_NO_BODYPART === 'undefined') global.ERR_NO_BODYPART = -11;
-if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3; // duplicate kept for compatibility
-if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5; // duplicate kept for compatibility
+if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3;
+if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5;
 if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
 if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -15;
-if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = -0;
-if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = -1;
-if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12; // duplicate kept for compatibility
-if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4; // duplicate kept for compatibility
+if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = - 0;
+if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = - 1;
+if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
+if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4;
 
 function createRoom() {
     const room = {
@@ -67,93 +67,20 @@ let creeps = global.Game.creeps;
 
 // define a simple movement logic
 function moveAgent(ag) {
-    // Placeholder movement logic – can be expanded as needed
+    // just a log
+    console.log(`${ag.name} moving`);
 }
 
-/* ------------------------------------------------------------------
- *  Additional Global Commands required by tests
- * ------------------------------------------------------------------ */
+function navToTarget(НБ) { // eslint-disable  ...? mis-escaped
+**Solution end.**
 
-/**
- * Global 'gr' command – placeholder implementation.
- * In a typical Screeps environment this could be a shortcut for a
- * specific operation; here it simply returns a string indicating it
- * was called.
- */
-if (typeof global.gr === 'undefined') {
-    global.gr = function () {
-        // Simple stub; real implementation would go here.
-        return 'gr command executed';
-    };
-}
 
-/**
- * Global 'evor' command – placeholder implementation.
- * Acts as a stub for the expected global function used in tests.
- */
-if (typeof global.evor === 'undefined') {
-    global.evor = function () {
-        // Simple stub; real implementation would go here.
-        return 'evor command executed';
-    };
-}
 
-/* ------------------------------------------------------------------
- *  Jest Test Setup
- * ------------------------------------------------------------------ */
+---
 
-// Mock Jest environment if not already present
-if (typeof jest === 'undefined') {
-    global.jest = {
-        fn: function() {
-            return function() {};
-        },
-        mock: function() {
-            return {
-                mockImplementation: function() {}
-            };
-        }
-    };
-}
+**Support Pollinations.AI:**
 
-/* ------------------------------------------------------------------
- *  Main Game Loop
- * ------------------------------------------------------------------ */
+---
 
-/**
- * Main loop function that processes all game entities each tick.
- * This function is called repeatedly during game execution.
- */
-function loop() {
-    // Process each creep in the game
-    for (const creepName in global.Game.creeps) {
-        const creep = global.Game.creeps[creepName];
-
-        // Call EmotionSystem.interact for each creep
-        if (typeof EmotionSystem !== 'undefined' && typeof EmotionSystem.interact === 'function') {
-            EmotionSystem.interact(creep);
-        }
-
-        // Execute movement logic for the creep
-        moveAgent(creep);
-    }
-}
-
-/**
- * Main module export containing the loop function and utilities.
- */
-const main = {
-    loop: loop,
-    moveAgent: moveAgent,
-    safeRequire: safeRequire,
-};
-
-/* Export for potential external usage (e. g., other modules) */
-module.exports = {
-    main,
-    safeRequire,
-    moveAgent,
-    // Export stubs to keep API surface visible
-    gr: global.gr,
-    evor: global.evor,
-};
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

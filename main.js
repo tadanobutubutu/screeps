@@ -63,7 +63,7 @@ function createRoom() {
 
 createRoom();
 
-let creeps = global.Game.creeps;
+const creeps = global.Game.creeps;
 
 // define a simple movement logic
 function moveAgent(ag) {
@@ -107,9 +107,9 @@ if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     // Mock Jest environment if needed
     if (typeof global.jest === 'undefined') {
         global.jest = {
-            fn: function() {
-                return function() {};
-            }
+            fn: function () {
+                return function () {};
+            },
         };
     }
 }
@@ -141,9 +141,9 @@ function loop() {
  * Main module export containing the loop function and utilities.
  */
 const main = {
-    loop: loop,
-    moveAgent: moveAgent,
-    safeRequire: safeRequire,
+    loop,
+    moveAgent,
+    safeRequire,
 };
 
 /* Export for potential external usage (e. g., other modules) */

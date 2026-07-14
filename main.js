@@ -36,4 +36,4 @@ if (typeof global.StructureTower === 'undefined') global.StructureTower = functi
 if (typeof global.StructureWall === 'undefined') global.StructureWall = function () {};
 if (typeof global.OK === 'undefined') global.OK = 0;
 if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
-if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -6;
+if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -9;

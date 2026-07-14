@@ -14,7 +14,11 @@ function safeRun(cmd) {
     try {
         return { ok: true, out: run(cmd) };
     } catch (err) {
-        return { ok: false, out: err.stdout?.toString() ?? '', err: err.stderr?.toString() ?? String(err) };
+        return {
+            ok: false,
+            out: err.stdout?.toString() ?? '',
+            err: err.stderr?.toString() ?? String(err),
+        };
     }
 }
 

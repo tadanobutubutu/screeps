@@ -86,8 +86,8 @@ const defenseManager = {
 
         // 警告表示
         if (threatLevel > 5) {
-            } else if (threatLevel > 0) {
-            }
+        } else if (threatLevel > 0) {
+        }
 
         return threatLevel;
     },
@@ -162,7 +162,7 @@ const defenseManager = {
         });
 
         if (result === OK) {
-            }
+        }
 
         return result;
     },
@@ -211,8 +211,7 @@ const defenseManager = {
         const defenders = (room._defenders || []).length;
 
         const threatLevel = room._threatLevel || 0;
-
-        },
+    },
 };
 
 module.exports = defenseManager;

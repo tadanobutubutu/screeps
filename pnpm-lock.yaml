@@ -1,26 +1,25 @@
 lockfileVersion: '9.0'
 
 settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
+    autoInstallPeers: true
+    excludeLinksFromLockfile: false
 
 overrides:
-  undici: '>=6.24.0'
-  tmp: '>=0.2.4'
-  lodash: '>=4.18.1'
+    undici: '>=6.24.0'
+    tmp: '>=0.2.4'
+    lodash: '>=4.18.1'
 
 importers:
-
-  .:
-    dependencies:
-      '@sentry/browser':
-        specifier: 10.65.0
-        version: 10.65.0
-      '@supabase/supabase-js':
-        specifier: ^2.110.2
-        version: 2.110.2
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@10.7.0(jiti@2.6.1))
-      eslint-plugin-prettier:
-        specifier: ^5.
+    .:
+        dependencies:
+            '@sentry/browser':
+                specifier: 10.65.0
+                version: 10.65.0
+            '@supabase/supabase-js':
+                specifier: ^2.110.2
+                version: 2.110.2
+            eslint-config-prettier:
+                specifier: ^10.1.8
+                version: 10.1.8(eslint@10.7.0(jiti@2.6.1))
+            eslint-plugin-prettier:
+                specifier: ^5.

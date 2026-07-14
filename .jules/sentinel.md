@@ -33,3 +33,9 @@
 **Vulnerability:** Overly aggressive path redaction regex (matching any leading slash) caused false positives in logs, redacting mathematical division (e.g., "1/2") and version strings. Additionally, a missing `escapeHTML` utility in `utils.logging.js` caused potential crashes in `system.adaptive.js` when trying to log mode changes safely.
 **Learning:** Security regexes must be balanced to avoid breaking data utility. Requiring at least one subdirectory level (`/[a-zA-Z0-9_-]+/`) for Unix paths effectively filters out common non-path slashes. Centralized security utilities like log initialization must use robust checks like `Array.isArray()` to survive memory corruption or prototype-based attacks.
 **Prevention:** Use multi-layered regexes that validate path structures beyond just a starting slash. Ensure all security dependencies between modules (like `escapeHTML`) are fully implemented and exported before use in critical paths.
+
+## 2026-07-28 - [Insecure Randomness in Spawn Names]
+
+**Vulnerability:** Use of `Math.random()` to generate unique names for new creeps in `spawnManager.js`.
+**Learning:** `Math.random()` is not cryptographically secure. While creep names might not seem highly sensitive, using predictable random numbers can sometimes be exploited in edge cases or form part of a broader attack surface (e.g., predicting internal state). It's best practice to replace it with a sequential counter or a robust UUID generator to guarantee uniqueness and eliminate reliance on weak PRNGs.
+**Prevention:** Avoid `Math.random()` for anything requiring uniqueness or security. Use simple module-level counters for temporary unique IDs or cryptographic random generators for sensitive data.

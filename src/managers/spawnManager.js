@@ -19,6 +19,8 @@ const {
     TARGET_CREEPS_BY_RCL,
 } = require('../constants');
 
+let _spawnCounter = 0;
+
 // ============================================================
 // スポーンキュー
 // ============================================================
@@ -116,7 +118,7 @@ function _buildSpawnQueue(room) {
         queue.push({
             role,
             body,
-            name: `${role}_${Game.time}_${Math.floor(Math.random() * 100)}`,
+            name: `${role}_${Game.time}_${_spawnCounter++}`,
             priority: SPAWN_PRIORITY[role] || 99,
             cost,
         });

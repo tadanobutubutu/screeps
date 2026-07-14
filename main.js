@@ -61,10 +61,10 @@ if (typeof global.evor === 'undefined') {
         if (!room) return null;
         const roomName = typeof room === 'string' ? room : room.name;
         if (!roomName) return null;
-        
+
         const roomObj = Game.rooms[roomName];
         if (!roomObj) return null;
-        
+
         return {
             name: roomName,
             controller: roomObj.controller ? { level: roomObj.controller.level } : null,
@@ -72,5 +72,13 @@ if (typeof global.evor === 'undefined') {
             energyCapacityAvailable: roomObj.energyCapacityAvailable,
             my: roomObj.controller ? roomObj.controller.my : false
         };
+    };
+}
+
+// Export the functions for testing purposes
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        gr: global.gr,
+        evor: global.evor
     };
 }

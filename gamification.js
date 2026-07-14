@@ -87,7 +87,6 @@ const gamification = {
         Memory.gamification.xp += numericAmount;
         Memory.gamification.totalScore += numericAmount;
 
-        // ⚡ PERFORMANCE: Throttle console logging for high-frequency low-value XP gains
         if (numericAmount >= 5) {
             // Security: Use logging system to prevent console injection
             logger.info(

@@ -93,7 +93,6 @@ module.exports = {
     updateProgress: function (metric, amount) {
         const challenge = this.getChallenge();
 
-        // ⚡ PERFORMANCE: Early return if challenge is already completed to save CPU.
         if (challenge.completed) {
             return;
         }

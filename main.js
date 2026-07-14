@@ -41,13 +41,13 @@ if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -9;
 /* ------------------------------------------------------------------
  *  Global commands
  * ------------------------------------------------------------------ */
-if (typeof global.creep === 'undefined') {
+if (typeof global.gr === 'undefined') {
     /**
      * Global report command - outputs game status information
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        .toISOString(), ...args);
+        console.log(new Date().toISOString(), ...args);
     };
 }
 
@@ -75,11 +75,36 @@ if (typeof global.evor === 'undefined') {
     };
 }
 
+/* ------------------------------------------------------------------
+ *  Main module for game loop
+ * ------------------------------------------------------------------ */
+const main = {
+    /**
+     * Main game loop function
+     */
+    loop: function () {
+        // Process all creeps
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            // Try to run creep behavior if it exists
+            if (creep && typeof creep.run === 'function') {
+                creep.run();
+            }
+        }
+
+        // Try to run EmotionSystem if available
+        const EmotionSystem = safeRequire('EmotionSystem');
+        if (EmotionSystem && typeof EmotionSystem.interact === 'function') {
+            EmotionSystem.interact();
+        }
+    }
+};
+
 // Export the functions for testing purposes
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         gr: global.gr,
         evor: global.evor,
-        ...(typeof main !== 'undefined' ? { main } : {})
+        main
     };
 }

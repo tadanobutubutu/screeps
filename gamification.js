@@ -297,7 +297,6 @@ const gamification = {
      * ビジュアルダッシュボード
      */
     renderDashboard: function () {
-        // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
         if (!adaptiveSystem.isEnabled('visualEffects')) {
             return;
         }

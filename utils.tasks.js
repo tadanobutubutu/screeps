@@ -9,7 +9,7 @@ const MAX_TASK_NAME_LENGTH = 100
 const MAX_TASK_FAILURES = 5
 
 const TaskQueue = {
-  tasks: [],
+  tasks: new Map(),
 
   /**
      * Registers a new task to be executed periodically.
@@ -24,7 +24,7 @@ const TaskQueue = {
     const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH)
 
     // Check for duplicates to prevent queue bloating
-    const existingTask = this.tasks.find((t) => t.name === sanitizedName)
+    const existingTask = this.tasks.get(sanitizedName)
     if (existingTask) {
       existingTask.interval = interval
       existingTask.action = action
@@ -35,13 +35,13 @@ const TaskQueue = {
     }
 
     // Check queue capacity
-    if (this.tasks.length >= MAX_TASKS) {
+    if (this.tasks.size >= MAX_TASKS) {
       // Security: Use safe logging to prevent console injection
       logger.warn(`TaskQueue: Maximum task limit reached. Skipping ${sanitizedName}`)
       return
     }
 
-    this.tasks.push({ name: sanitizedName, interval, action, condition, failures: 0 })
+    this.tasks.set(sanitizedName, { name: sanitizedName, interval, action, condition, failures: 0 })
   },
 
   /**
@@ -49,9 +49,7 @@ const TaskQueue = {
      */
   run: function () {
     // ⚡ PERFORMANCE: Store tasks length and avoid resolving condition on each iteration if possible.
-    const tasksLen = this.tasks.length
-    for (let i = 0; i < tasksLen; i++) {
-      const task = this.tasks[i]
+    for (const task of this.tasks.values()) {
 
       // Security: Failure Circuit Breaker
       // If a task fails repeatedly, disable it to prevent log spam and CPU DoS.
@@ -89,7 +87,7 @@ const TaskQueue = {
   removeTask: function (name) {
     if (name === undefined || name === null) return
     const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH)
-    this.tasks = this.tasks.filter((t) => t.name !== sanitizedName)
+    this.tasks.delete(sanitizedName)
   }
 }
 

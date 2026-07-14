@@ -53,3 +53,8 @@
 
 **Learning:** Using chained `.filter().reduce()` or multiple separate `for` loops for prioritized target selection (e.g., in `towerManager`) leads to (P \times N)$ complexity and multiple array allocations. In Screeps, this constant factor overhead is significant.
 **Action:** Consolidate multiple priority tiers into a single-pass `for` loop that tracks best candidates for each tier simultaneously. Use a prioritized return statement (`candidateA || candidateB`) to maintain logic while achieving (N)$ with zero overhead.
+
+## 2025-05-18 - Replacing Array Find with Map Get in Hot Paths
+
+**Learning:** Using `Array.prototype.find()` on every periodic registration creates $O(N)$ CPU overhead due to linear traversal and closure evaluation. Since tasks are primarily indexed by their name, switching to a `Map` provides $O(1)$ lookup via `.get()` and $O(1)$ deletion via `.delete()`, while maintaining iteration capabilities.
+**Action:** Refactored `TaskQueue.tasks` from an Array to a Map in `utils.tasks.js`, updating insertion, retrieval, and deletion to utilize map primitives. Loop iteration was updated to `for (const task of this.tasks.values())`.

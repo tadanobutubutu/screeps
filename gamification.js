@@ -395,7 +395,6 @@ const gamification = {
      * Creepアクション追跡
      */
     trackAction: function (creep, action) {
-        // ⚡ PERFORMANCE: Early return if gamification is disabled to save CPU in low-power modes
         if (!adaptiveSystem.isEnabled('gamification')) {
             return;
         }

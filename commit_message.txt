@@ -1,5 +1,0 @@
-🧪 Add edge case tests for getStructuresNeedingEnergy in cache.js
-
-🎯 **What:** Missing edge case test for getStructuresNeedingEnergy in cache.js. The logic involves filtering properties based on energy and structure type which required verifying filtering logic and cache behavior.
-📊 **Coverage:** Now validates `room.find` filtering logic against valid targets needing energy, full valid targets, and invalid target types. Added coverage for the volatile cache layer prioritizing `_deliveryTargets` when correctly populated.
-✨ **Result:** Test coverage gap has been resolved for energy demanding target fetching, strengthening reliability when modifying caching code.

@@ -54,7 +54,6 @@ const defenseManager = {
 
     // 脅威レベル評価
     checkThreats: function (room) {
-        // ⚡ PERFORMANCE: Use centralized room cache for hostile creeps pre-warmed in main.js. (main.jsで準備された敵クリープのキャッシュを使用)
         const hostiles = room._hostileCreeps || [];
 
         if (hostiles.length === 0) {

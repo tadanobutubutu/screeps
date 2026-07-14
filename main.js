@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e. g., Jest) */
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
@@ -48,8 +48,8 @@ if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3;
 if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5;
 if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
 if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -15;
-if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = - 0;
-if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = - 1;
+if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = -0;
+if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = -1;
 if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
 if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4;
 
@@ -71,16 +71,22 @@ function moveAgent(ag) {
     console.log(`${ag.name} moving`);
 }
 
-function navToTarget(НБ) { // eslint-disable  ...? mis-escaped
-**Solution end.**
+function navToTarget(targetPos) {
+    // Check if the creep has a move function and a room position
+    if (typeof creeps.move === 'function' && targetPos instanceof global.RoomPosition) {
+        // Perform the movement
+        creeps.move(targetPos);
+    } else {
+        console.log(`Unable to move to ${targetPos}`);
+    }
+}
 
+function main() {
+    // Initialization code would go here
 
+    // Example usage of navToTarget
+    const targetPosition = new global.RoomPosition(25, 25, 'W0N0');
+    navToTarget(targetPosition);
+}
 
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+main();

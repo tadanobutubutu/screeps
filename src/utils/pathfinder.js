@@ -82,17 +82,13 @@ function _applyConstructionSiteCosts(costs, room) {
  * @param {Room} room
  */
 function _applyCreepCosts(costs, room) {
-    if (room._allCreeps && room._allCreepsTick === Game.time) {
-        for (let i = 0; i < room._allCreeps.length; i++) {
-            const creep = room._allCreeps[i];
-            costs.set(creep.pos.x, creep.pos.y, 255);
-        }
-        return;
+    if (!room._allCreeps || room._allCreepsTick !== Game.time) {
+        room._allCreeps = room.find(FIND_CREEPS);
+        room._allCreepsTick = Game.time;
     }
 
-    const creeps = room.find(FIND_CREEPS);
-    for (let i = 0; i < creeps.length; i++) {
-        const creep = creeps[i];
+    for (let i = 0; i < room._allCreeps.length; i++) {
+        const creep = room._allCreeps[i];
         costs.set(creep.pos.x, creep.pos.y, 255);
     }
 }

@@ -1,0 +1,32 @@
+{
+    "generatedAt": "2026-07-14T19:34:02.217Z",
+    "before": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 0,
+        "low": 0,
+        "info": 0,
+        "total": 0
+    },
+    "after": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 0,
+        "low": 0,
+        "info": 0,
+        "total": 0
+    },
+    "fixed": {
+        "critical": 0,
+        "high": 0,
+        "moderate": 0,
+        "low": 0
+    },
+    "actionable": [],
+    "steps": {
+        "auditFix": true,
+        "auditFixForce": true,
+        "lockfileRegenerated": true
+    },
+    "needsIssue": false
+}

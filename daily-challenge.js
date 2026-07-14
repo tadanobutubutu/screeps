@@ -47,7 +47,6 @@ const CHALLENGES = [
     },
 ];
 
-// ⚡ PERFORMANCE: Per-tick cache for challenge info.
 let _cachedChallenge = null;
 let _cachedTick = -1;
 
@@ -93,7 +92,6 @@ module.exports = {
     updateProgress: function (metric, amount) {
         const challenge = this.getChallenge();
 
-        // ⚡ PERFORMANCE: Early return if challenge is already completed to save CPU.
         if (challenge.completed) {
             return;
         }
@@ -121,9 +119,10 @@ module.exports = {
         const c = challenge.challenge;
         const percent = Math.min(100, Math.floor((challenge.progress / c.target) * 100));
 
-        `);
+        // Redacted due to AI maintenance console.log removal.
 
         if (challenge.completed) {
-            }
+            // Add completed display logic here if needed.
+        }
     },
 };

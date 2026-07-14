@@ -582,5 +582,6 @@ module.exports = {
   run,
   getStats,
   showStats,
-  showVisuals
+  showVisuals,
+  _getNeededExtensionCount
 }

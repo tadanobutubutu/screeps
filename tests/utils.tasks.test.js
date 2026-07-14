@@ -8,12 +8,19 @@ const logger = require('../utils.logging');
 describe('utils.tasks', () => {
     beforeEach(() => {
         global.Memory = { logs: [] };
-        TaskQueue.tasks.clear();
+        TaskQueue.tasks = [];
         global.Game = { time: 100 };
         // Use spyOn instead of jest.mock for logger to avoid issues with mock application
         jest.spyOn(logger, 'error').mockImplementation(() => {});
         jest.spyOn(logger, 'warn').mockImplementation(() => {});
         jest.spyOn(logger, 'log').mockImplementation(() => {});
+        jest.spyOn(logger, 'tryCatch').mockImplementation((fn, context, ...args) => {
+            try {
+                return fn(...args);
+            } catch (e) {
+                return null;
+            }
+        });
         utilsMemory.isSafeKey.mockReturnValue(true);
     });
 
@@ -23,38 +30,38 @@ describe('utils.tasks', () => {
 
     test('registerTask correctly adds a task', () => {
         TaskQueue.registerTask('testTask', 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(1);
-        expect(Array.from(TaskQueue.tasks.values())[0].name).toBe('testTask');
-        expect(Array.from(TaskQueue.tasks.values())[0].interval).toBe(10);
+        expect(TaskQueue.tasks.length).toBe(1);
+        expect(TaskQueue.tasks[0].name).toBe('testTask');
+        expect(TaskQueue.tasks[0].interval).toBe(10);
     });
 
     test('registerTask detects and updates duplicates', () => {
         const action1 = () => {};
         const action2 = () => {};
         TaskQueue.registerTask('task1', 10, action1);
-        expect(TaskQueue.tasks.size).toBe(1);
-        expect(Array.from(TaskQueue.tasks.values())[0].interval).toBe(10);
+        expect(TaskQueue.tasks.length).toBe(1);
+        expect(TaskQueue.tasks[0].interval).toBe(10);
 
         TaskQueue.registerTask('task1', 20, action2);
-        expect(TaskQueue.tasks.size).toBe(1);
-        expect(Array.from(TaskQueue.tasks.values())[0].interval).toBe(20);
-        expect(Array.from(TaskQueue.tasks.values())[0].action).toBe(action2);
+        expect(TaskQueue.tasks.length).toBe(1);
+        expect(TaskQueue.tasks[0].interval).toBe(20);
+        expect(TaskQueue.tasks[0].action).toBe(action2);
     });
 
     test('registerTask rejects unsafe keys', () => {
         utilsMemory.isSafeKey.mockReturnValue(false);
         TaskQueue.registerTask('__proto__', 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(0);
+        expect(TaskQueue.tasks.length).toBe(0);
     });
 
     test('registerTask enforces task limit', () => {
         for (let i = 0; i < 50; i++) {
             TaskQueue.registerTask(`task${i}`, 1, () => {});
         }
-        expect(TaskQueue.tasks.size).toBe(50);
+        expect(TaskQueue.tasks.length).toBe(50);
 
         TaskQueue.registerTask('overflow', 1, () => {});
-        expect(TaskQueue.tasks.size).toBe(50);
+        expect(TaskQueue.tasks.length).toBe(50);
         expect(logger.warn).toHaveBeenCalledWith(
             expect.stringContaining('Maximum task limit reached')
         );
@@ -131,11 +138,11 @@ describe('utils.tasks', () => {
         for (let i = 0; i < 5; i++) {
             TaskQueue.run();
         }
-        expect(Array.from(TaskQueue.tasks.values())[0].failures).toBe(5);
+        expect(TaskQueue.tasks[0].failures).toBe(5);
 
         // 再登録
         TaskQueue.registerTask('broken', 1, errorAction);
-        expect(Array.from(TaskQueue.tasks.values())[0].failures).toBe(0);
+        expect(TaskQueue.tasks[0].failures).toBe(0);
 
         // 再度実行されるようになる
         errorAction.mockClear();
@@ -149,7 +156,7 @@ describe('utils.tasks', () => {
         };
         TaskQueue.registerTask('failTask', 1, errorAction);
 
-        const task = TaskQueue.tasks.get('failTask');
+        const task = TaskQueue.tasks.find((t) => t.name === 'failTask');
 
         // Initial failures should be 0 (as initialized in registerTask)
         expect(task.failures).toBe(0);
@@ -167,34 +174,34 @@ describe('utils.tasks', () => {
 
     test('removeTask removes an existing task', () => {
         TaskQueue.registerTask('taskToRemove', 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
         TaskQueue.removeTask('taskToRemove');
-        expect(TaskQueue.tasks.size).toBe(0);
+        expect(TaskQueue.tasks.length).toBe(0);
     });
 
     test('removeTask does not throw when removing a non-existent task', () => {
         TaskQueue.registerTask('existingTask', 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
         TaskQueue.removeTask('nonExistentTask');
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
     });
 
     test('removeTask does nothing when given an empty name or null', () => {
         TaskQueue.registerTask('task1', 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
         TaskQueue.removeTask('');
         TaskQueue.removeTask(null);
         TaskQueue.removeTask(undefined);
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
     });
 
     test('removeTask correctly sanitizes and removes a long task name', () => {
         const longName = 'a'.repeat(200);
 
         TaskQueue.registerTask(longName, 10, () => {});
-        expect(TaskQueue.tasks.size).toBe(1);
+        expect(TaskQueue.tasks.length).toBe(1);
 
         TaskQueue.removeTask(longName);
-        expect(TaskQueue.tasks.size).toBe(0);
+        expect(TaskQueue.tasks.length).toBe(0);
     });
 });

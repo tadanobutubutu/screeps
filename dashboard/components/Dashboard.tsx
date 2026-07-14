@@ -96,7 +96,7 @@ export default function Dashboard() {
                     {error}
                 </pre>
                 <button
-                    onClick={copyErr}
+                    onClick={copyErr} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") copyErr(); }}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
                         backgroundColor: copied ? '#155d27' : '#004b73',
@@ -111,7 +111,7 @@ export default function Dashboard() {
                     {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
                 </button>
                 <button
-                    onClick={() => fetchStats(true)}
+                    onClick={() => fetchStats(true)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fetchStats(true); }}
                     disabled={refreshing}
                     aria-label="データを再読み込み"
                     title="データを再読み込み"
@@ -169,7 +169,7 @@ export default function Dashboard() {
                             Alt + R
                         </kbd>
                         <button
-                            onClick={() => fetchStats(true)}
+                            onClick={() => fetchStats(true)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fetchStats(true); }}
                             disabled={refreshing}
                             aria-label="更新 (Alt + R)"
                             title="データを更新 (Alt + R)"
@@ -275,7 +275,7 @@ export default function Dashboard() {
                         stats.rooms.map((room: string) => (
                             <button
                                 key={room}
-                                onClick={() => copyRoom(room)}
+                                onClick={() => copyRoom(room)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") copyRoom(room); }}
                                 aria-label={`部屋名 ${room} をコピー`}
                                 title={`部屋名 ${room} をコピー`}
                                 style={{

@@ -163,7 +163,7 @@ Fixes #${issue.number}
 
 ${analysis.rootCause}`;
 
-    execSync('git add -A', { stdio: 'inherit' });
+    execSync(`git add -A`, { stdio: 'inherit' });
     execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, { stdio: 'inherit' });
     execSync(`git push origin ${fullBranchName}`, { stdio: 'inherit' });
 

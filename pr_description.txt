@@ -1,0 +1,5 @@
+🎯 **What:** The `deployTo` function handles HTTP responses and attempts to parse the payload as JSON. It includes a `catch` block for cases where JSON parsing fails (e.g., when a server returns an error response string rather than a formatted JSON object). However, there was no test coverage for the scenario where the HTTP request returns a non-200 status code *and* the response body isn't valid JSON, which ensures that token redaction works properly on raw payload data.
+
+📊 **Coverage:** This PR adds a test case in `tests/deploy.test.js` covering the `catch` block within `deployTo` for non-200 HTTP responses. It specifically mocks an HTTP 500 response yielding raw text, verifying that the function correctly rejects with a deployment failure error and that `console.error` logs the redacted raw response instead of leaking the unparsed payload containing sensitive tokens.
+
+✨ **Result:** Test coverage for `deploy.js` error handling is improved. The application's redaction mechanisms during deployment failure loops are properly validated, preventing regressions where sensitive deployment tokens could be logged.

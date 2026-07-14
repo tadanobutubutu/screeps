@@ -23,7 +23,6 @@ const roleAttacker = {
      * @param {Creep} creep
      */
   run (creep) {
-    // Heal self if damaged and healer not available
     if (creep.hits < creep.hitsMax * 0.5) {
       // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
       const myCreeps = creep.room._myCreeps || creep.room.find(FIND_MY_CREEPS)

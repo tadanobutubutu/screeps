@@ -158,7 +158,6 @@ const gamification = {
                 vfx.achievement(spawn.pos, sanitizedTitle, sanitizedIcon);
             }
 
-            // XP bonus for achievement
             const gm = Memory.gamification;
             gm.xp += 50;
             gm.totalScore += 50;
@@ -298,7 +297,6 @@ const gamification = {
      * ビジュアルダッシュボード
      */
     renderDashboard: function () {
-        // ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU
         if (!adaptiveSystem.isEnabled('visualEffects')) {
             return;
         }

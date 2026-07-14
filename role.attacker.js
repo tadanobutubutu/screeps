@@ -41,7 +41,6 @@ const roleAttacker = {
     }
 
     // Priority 1: Attack hostile creeps in range
-    // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
     const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS)
 
     if (hostiles.length > 0) {

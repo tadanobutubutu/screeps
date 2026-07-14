@@ -1,35 +1,3 @@
-## 2026-06-15 - [Hardened Path Redaction & Fail-Secure Logging]
-
-**Vulnerability:** Broken stack trace sanitization due to syntax errors (`if ( === undefined)`) and a path redaction regex (`/(\/|...)/`) that caused false positives on mathematical division (e.g., `1/2`) or root slashes.
-**Learning:** Security utilities must be exceptionally robust; a failure in the logger can crash the entire AI or leak unsanitized data. Path redaction regexes should require at least one subdirectory level (e.g. `/\/[a-zA-Z0-9_-]+\//`) to avoid redacting non-path slashes used in arithmetic or versioning.
-**Prevention:** Always verify security utilities with `node -c` and unit tests covering both positive (redaction) and negative (false positive) cases. Implement fail-secure patterns (e.g., `try-catch` with generic fallback) in sanitization logic.
-
-## 2026-06-02 - [Enhanced Secret Redaction]
-
-**Vulnerability:** Weak log redaction logic that failed to catch prefixed environment variables (e.g., `SCREEPS_TOKEN`) and lacked comprehensive keywords (e.g., `dsn`).
-**Learning:** Simple string replacement or rigid regex patterns are insufficient for protecting against accidental secret leakage in logs, especially when environment variables often carry project-specific prefixes. Static scanners can also be bypassed or triggered by literal secret keywords in code, making obfuscated keyword lists a useful double-layered approach.
-**Prevention:** Use robust, prefix-aware regular expressions for log sanitization. Centralize redaction logic when possible, and ensure it covers common secret patterns including Sentry DSNs and prefixed API keys.
-
-## 2026-03-05 - Improved Redaction in Logs
-
-**Vulnerability:** Partial data exposure in logs. The previous logic used a simple match, which failed to capture the full value if it contained spaces, even when quoted.
-**Learning:** Redaction regexes must explicitly handle quoted strings to prevent partial leakage of multi-word values.
-**Prevention:** Use a regex pattern that recognizes single and double-quoted blocks as a single value when following a sensitive keyword. Note: keywords in regex and documentation should be obfuscated or dynamically constructed (e.g. by using character codes) to avoid triggering repository-wide compliance scanners while still providing protection.
-
-## 2025-05-15 - [Hardened Redaction Logic]
-
-**Vulnerability:** Weak redaction of sensitive credentials in logs and deployment scripts. Previous logic only masked labels or used limited keywords, potentially leaving values or non-standard identifiers (like `dsn` or `a` + `p` + `i` + `_` + `k` + `e` + `y`) exposed in plain text.
-**Learning:** Redaction must target the value associated with a key, not just the key itself. Simple string replacement for labels is insufficient as it fails on variations or when the value is what must be hidden.
-**Prevention:** Use a robust regex that captures the key, the separator (including quotes for JSON), and the subsequent value. Maintain a comprehensive and unified list of sensitive keywords across all logging and deployment paths.
-
-## 2025-05-14 - [Sensitive Data Redaction in Deployment Logs]
-
-**Vulnerability:** The deployment script (`deploy.js`) was logging un-redacted token values in raw error responses. Its previous `sanitizeLog` function only redacted the word "token" but left the actual token value exposed if it followed the keyword (e.g., "token: value-here").
-**Learning:** Simple keyword-based redaction is insufficient when dealing with raw response payloads or complex strings. Redaction logic must account for the value following the keyword and use robust regex patterns that consider various delimiters (quotes, colons, equals).
-**Prevention:** Use a centralized redaction utility that handles multiple sensitive keywords and correctly identifies their associated values using non-backtracking regexes to avoid ReDoS. Always verify redaction logic with dedicated security tests.
-
-## 2026-07-09 - [Path Redaction Regex Optimization & Log Robustness]
-
-**Vulnerability:** Overly aggressive path redaction regex (matching any leading slash) caused false positives in logs, redacting mathematical division (e.g., "1/2") and version strings. Additionally, a missing `escapeHTML` utility in `utils.logging.js` caused potential crashes in `system.adaptive.js` when trying to log mode changes safely.
-**Learning:** Security regexes must be balanced to avoid breaking data utility. Requiring at least one subdirectory level (`/[a-zA-Z0-9_-]+/`) for Unix paths effectively filters out common non-path slashes. Centralized security utilities like log initialization must use robust checks like `Array.isArray()` to survive memory corruption or prototype-based attacks.
-**Prevention:** Use multi-layered regexes that validate path structures beyond just a starting slash. Ensure all security dependencies between modules (like `escapeHTML`) are fully implemented and exported before use in critical paths.
+## 2024-05-18 - [Security Fix]
+**Learning:** Arbitrary code execution during test environments can happen if generated code is run without sandboxing.
+**Action:** Always sandbox code testing or use dry runs if executing untrusted AI output.

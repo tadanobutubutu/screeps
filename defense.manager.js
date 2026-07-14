@@ -82,7 +82,6 @@ const defenseManager = {
         // ティックごとの計算値はMemoryではなくRoomオブジェクトに保持することで高速化。
         room._threatLevel = threatLevel;
 
-        // ⚡ PERFORMANCE: Hoist primary hostile target selection for focus fire.
         // Identify a primary target once per tick to avoid redundant O(N) searches in tower/defender loops.
         room._primaryHostile = hostiles[0];
 

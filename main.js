@@ -47,7 +47,7 @@ if (typeof global.creep === 'undefined') {
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        .toISOString(), ...args);
+        console.log(new Date().toISOString(), ...args);
     };
 }
 

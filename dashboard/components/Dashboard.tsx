@@ -256,7 +256,14 @@ export default function Dashboard() {
                 >
                     📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        flexWrap: 'wrap',
+                    }}
+                >
                     <span
                         className="interactive-hint"
                         tabIndex={0}

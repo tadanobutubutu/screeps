@@ -7,7 +7,8 @@ export default function Dashboard() {
         [loading, setLoading] = useState(true),
         [refreshing, setRefreshing] = useState(false),
         [lastUpdated, setLastUpdated] = useState<Date | null>(null),
-        [copied, setCopied] = useState(false);
+        [copied, setCopied] = useState(false),
+        [copiedRoom, setCopiedRoom] = useState<string | null>(null);
 
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
@@ -30,12 +31,41 @@ export default function Dashboard() {
         fetchStats();
     }, [fetchStats]);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Only trigger if no input/textarea is focused and Alt+R is pressed
+            // Using Alt+R to comply with WCAG 2.1.4 (avoiding single-key shortcuts)
+            if (
+                e.altKey &&
+                e.key.toLowerCase() === 'r' &&
+                !refreshing &&
+                !(
+                    e.target instanceof HTMLInputElement ||
+                    e.target instanceof HTMLTextAreaElement ||
+                    (e.target as HTMLElement).isContentEditable
+                )
+            ) {
+                e.preventDefault();
+                fetchStats(true);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [fetchStats, refreshing]);
+
     const copyErr = () =>
         error &&
         navigator.clipboard.writeText(error).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         });
+
+    const copyRoom = (room: string) => {
+        navigator.clipboard.writeText(room).then(() => {
+            setCopiedRoom(room);
+            setTimeout(() => setCopiedRoom(null), 2000);
+        });
+    };
 
     if (loading)
         return (
@@ -83,6 +113,8 @@ export default function Dashboard() {
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
+                    aria-label="データを再読み込み"
+                    title="データを再読み込み"
                     style={{
                         marginLeft: '1rem',
                         padding: '0.5rem 1rem',
@@ -120,33 +152,50 @@ export default function Dashboard() {
                             🕒 {lastUpdated.toLocaleTimeString()}
                         </span>
                     )}
-                    <button
-                        onClick={() => fetchStats(true)}
-                        disabled={refreshing}
-                        aria-label="更新"
-                        title="データを更新"
-                        style={{
-                            padding: '0.5rem',
-                            borderRadius: '50%',
-                            border: 'none',
-                            backgroundColor: refreshing ? '#edf2f7' : '#004b73',
-                            color: refreshing ? '#a0aec0' : 'white',
-                            cursor: refreshing ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s',
-                        }}
-                    >
-                        <span
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <kbd
+                            title="Alt + R キーで更新できます"
                             style={{
-                                display: 'inline-block',
-                                animation: refreshing ? 'spin 1s linear infinite' : 'none',
+                                backgroundColor: '#f7fafc',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                padding: '0.1rem 0.4rem',
+                                fontSize: '0.7rem',
+                                color: '#4a5568',
+                                boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                cursor: 'help',
                             }}
                         >
-                            🔄
-                        </span>
-                    </button>
+                            Alt + R
+                        </kbd>
+                        <button
+                            onClick={() => fetchStats(true)}
+                            disabled={refreshing}
+                            aria-label="更新 (Alt + R)"
+                            title="データを更新 (Alt + R)"
+                            style={{
+                                padding: '0.5rem',
+                                borderRadius: '50%',
+                                border: 'none',
+                                backgroundColor: refreshing ? '#edf2f7' : '#004b73',
+                                color: refreshing ? '#a0aec0' : 'white',
+                                cursor: refreshing ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                transition: 'all 0.2s',
+                            }}
+                        >
+                            <span
+                                style={{
+                                    display: 'inline-block',
+                                    animation: refreshing ? 'spin 1s linear infinite' : 'none',
+                                }}
+                            >
+                                🔄
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div
@@ -217,19 +266,24 @@ export default function Dashboard() {
                     </span>
                     {stats?.rooms?.length > 0 ? (
                         stats.rooms.map((room: string) => (
-                            <span
+                            <button
                                 key={room}
+                                onClick={() => copyRoom(room)}
+                                aria-label={`部屋名 ${room} をコピー`}
+                                title={`部屋名 ${room} をコピー`}
                                 style={{
                                     fontSize: '0.75rem',
-                                    backgroundColor: '#edf2f7',
+                                    backgroundColor: copiedRoom === room ? '#c6f6d5' : '#edf2f7',
                                     padding: '0.1rem 0.4rem',
                                     borderRadius: '4px',
                                     border: '1px solid #cbd5e0',
-                                    color: '#2d3748',
+                                    color: copiedRoom === room ? '#22543d' : '#2d3748',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
                                 }}
                             >
-                                {room}
-                            </span>
+                                {copiedRoom === room ? `✅ ${room}` : room}
+                            </button>
                         ))
                     ) : (
                         <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>なし</span>

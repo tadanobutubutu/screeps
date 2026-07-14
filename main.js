@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e. g., Jest) */
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
@@ -71,16 +71,37 @@ function moveAgent(ag) {
     console.log(`${ag.name} moving`);
 }
 
-function navToTarget(НБ) { // eslint-disable  ...? mis-escaped
-**Solution end.**
+// New function to navigate to a target
+function navToTarget(targetPos) {
+    // Ensure that the creep has a move body part
+    if (!ag.hasMove) {
+        console.log(`${ag.name} is missing the move body part`);
+        return;
+    }
 
+    // Ensure the target is within range
+    if (ag.pos.inRangeTo(targetPos, 1)) {
+        // Move towards the target
+        ag.move(targetPos);
+    } else {
+        // Pathfind to the target if not in range
+        const path = PathFinder.findPath(ag.pos, targetPos, {
+            roomCallback: (roomName) => {
+                if (!Game.rooms[roomName]) return 0;
+                return Game.map.getRoomLinearIndex(roomName);
+            }
+        });
 
+        if (path.length > 0) {
+            ag.move(path[0]);
+        } else {
+            console.log(`${ag.name} failed to find path to ${targetPos}`);
+        }
+    }
+}
 
----
+// Example usage of navToTarget
+const targetPosition = new RoomPosition(25, 25, 'W0N0');
+navToTarget(targetPosition);
 
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+// Solution end.

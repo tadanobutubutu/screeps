@@ -47,7 +47,7 @@ if (typeof global.gr === 'undefined') {
      * @param {...any} args - Arguments to include in the report
      */
     global.gr = function (...args) {
-        console.log(new Date().toISOString(), ...args);
+        .toISOString(), ...args);
     };
 }
 

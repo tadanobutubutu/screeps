@@ -235,6 +235,72 @@ describe('roomManager', () => {
         });
     });
 
+
+    describe('_getNeededExtensionCount', () => {
+        beforeEach(() => {
+            mockRoom.controller.level = 2; // Default mock RCL
+            global.CONTROLLER_STRUCTURES = {
+                extension: { 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 }
+            };
+            global.STRUCTURE_EXTENSION = 'extension';
+        });
+
+        test('returns 0 if maxExtensions for current RCL is 0', () => {
+            mockRoom.controller.level = 1;
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+
+        test('returns remaining needed extensions (capped at 5) if there are none', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            cache.getConstructionSites.mockReturnValue([]);
+            // At RCL2, max Extensions is 5. So it needs 5.
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(5);
+        });
+
+        test('returns 0 if existing + sites >= maxExtensions', () => {
+            // max Extensions is 5 at RCL2
+            cache.getMyStructures.mockReturnValue([{}, {}, {}]); // 3 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' },
+                { structureType: 'extension' }
+            ]); // 2 sites
+
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+
+        test('returns correct count when existing + sites < maxExtensions', () => {
+            mockRoom.controller.level = 3; // max is 10
+            cache.getMyStructures.mockReturnValue([{}, {}]); // 2 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' },
+                { structureType: 'container' } // ignore non-extension sites
+            ]); // 1 valid site
+            // total = 3. needed = 10 - 3 = 7. Capped at 5 -> 5
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(5);
+        });
+
+        test('returns exact remaining if needed is less than 5', () => {
+            mockRoom.controller.level = 3; // max is 10
+            cache.getMyStructures.mockReturnValue([{}, {}, {}, {}, {}, {}, {}]); // 7 existing
+            cache.getConstructionSites.mockReturnValue([
+                { structureType: 'extension' }
+            ]); // 1 site
+            // total = 8. needed = 10 - 8 = 2. Capped at 5 -> 2
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(2);
+        });
+
+        test('handles missing CONTROLLER_STRUCTURES data gracefully', () => {
+            mockRoom.controller.level = 99; // non-existent RCL
+            const count = roomManager._getNeededExtensionCount(mockRoom);
+            expect(count).toBe(0);
+        });
+    });
+
     describe('_planSourceContainers', () => {
         beforeEach(() => {
             global.Game.time = 500;
@@ -384,6 +450,81 @@ describe('roomManager', () => {
             roomManager.run(mockRoom);
 
             expect(mockRoom.controller.activateSafeMode).toHaveBeenCalled();
+        });
+    });
+
+
+    describe('_planRoads', () => {
+        beforeEach(() => {
+            global.Game.time = 50; // trigger _planConstruction
+            mockRoom.controller.level = 1; // triggers _planSourceContainers and _planRoads
+            mockRoom.lookAtArea = jest.fn().mockReturnValue([]);
+            mockRoom.getTerrain = jest.fn().mockReturnValue({ get: () => 0 });
+            cache.getContainers.mockReturnValue([]);
+            cache.getStructures.mockReturnValue([]);
+            cache.getConstructionSites.mockReturnValue([]);
+            pathfinder.findNearestOpenTile.mockReturnValue(null); // prevent _planSourceContainers from creating sites for isolation
+        });
+
+        test('does nothing if there are no spawns', () => {
+            cache.getSpawns.mockReturnValue([]);
+            roomManager.run(mockRoom);
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('skips if path to target is incomplete', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 10, y: 10 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+            pathfinder.findPath.mockReturnValue({ incomplete: true });
+
+            roomManager.run(mockRoom);
+
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('does not place construction site if tile is already occupied', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 10, y: 10 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+
+            const existingStructure = { pos: { x: 6, y: 5 } };
+            cache.getStructures.mockReturnValue([existingStructure]);
+
+            pathfinder.findPath.mockReturnValue({
+                incomplete: false,
+                path: [{ x: 6, y: 5 }],
+            });
+
+            roomManager.run(mockRoom);
+
+            expect(mockRoom.createConstructionSite).not.toHaveBeenCalled();
+        });
+
+        test('places construction sites up to MAX_ROADS_PER_CYCLE (5)', () => {
+            const spawn = { pos: { x: 5, y: 5 } };
+            const source = { id: 'src1', pos: { x: 20, y: 5 } };
+            cache.getSpawns.mockReturnValue([spawn]);
+            cache.getSources.mockReturnValue([source]);
+            cache.getStructures.mockReturnValue([]);
+
+            const longPath = [];
+            for (let i = 1; i <= 10; i++) {
+                longPath.push({ x: 5 + i, y: 5 });
+            }
+
+            pathfinder.findPath.mockReturnValue({
+                incomplete: false,
+                path: longPath,
+            });
+
+            roomManager.run(mockRoom);
+
+
+            expect(mockRoom.createConstructionSite).toHaveBeenCalledTimes(10); // 5 for source, 5 for controller
+            expect(cache.invalidate).toHaveBeenCalledWith(`construction_sites_${mockRoom.name}`);
         });
     });
 

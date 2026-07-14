@@ -73,8 +73,7 @@ const roleScout = {
                             structures: structures.length,
                         };
                         creep.memory.visitedCount = (creep.memory.visitedCount || 0) + 1;
-
-                        }
+                    }
                 }
 
                 // Reset target to find new room

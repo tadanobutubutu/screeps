@@ -99,6 +99,22 @@ if (typeof global.evor === 'undefined') {
 }
 
 /* ------------------------------------------------------------------
+ *  Jest Test Environment Setup
+ * ------------------------------------------------------------------ */
+
+// Add Jest-specific setup to ensure tests can run
+if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    // Mock Jest environment if needed
+    if (typeof global.jest === 'undefined') {
+        global.jest = {
+            fn: function() {
+                return function() {};
+            }
+        };
+    }
+}
+
+/* ------------------------------------------------------------------
  *  Main Game Loop
  * ------------------------------------------------------------------ */
 
@@ -110,12 +126,12 @@ function loop() {
     // Process each creep in the game
     for (const creepName in global.Game.creeps) {
         const creep = global.Game.creeps[creepName];
-        
+
         // Call EmotionSystem.interact for each creep
         if (typeof EmotionSystem !== 'undefined' && typeof EmotionSystem.interact === 'function') {
             EmotionSystem.interact(creep);
         }
-        
+
         // Execute movement logic for the creep
         moveAgent(creep);
     }

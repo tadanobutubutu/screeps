@@ -1,6 +1,7 @@
 /* utils.emotions.js – line 365 */
-hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-('use strict');
+/* Safely invoke hotKidCounts if it is defined.  Previously this line had a stray '('. */
+if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
+'use strict';
 
 /**
  * Utility to generate a readable daily challenge message.

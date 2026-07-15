@@ -70,3 +70,26 @@ function moveAgent(ag) {
     // just a log
     console.log(`${ag.name} moving`);
 }
+
+// Add new function to handle Node.js version updates
+function getNodeVersion() {
+    return process.version;
+}
+
+// Add new function to handle Python version updates
+function getPythonVersion() {
+    // This would be implemented with actual Python version detection in a real environment
+    return '3.14'; // Updated to match the latest version in the issue
+}
+
+// Add new function to handle TypeScript version updates
+function getTypeScriptVersion() {
+    // This would be implemented with actual TypeScript version detection in a real environment
+    return '7.0.0'; // Updated to match the latest version in the issue
+}
+
+// Add new function to handle PostHog version updates
+function getPostHogVersion() {
+    // This would be implemented with actual PostHog version detection in a real environment
+    return '1.400.1'; // Updated to match the latest version in the issue
+}

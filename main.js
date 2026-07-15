@@ -11,7 +11,7 @@ function safeRequire(moduleName) {
     }
 }
 
-/* Mock globals for testing environments (e. g., Jest) */
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};

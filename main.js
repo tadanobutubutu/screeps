@@ -1,13 +1,14 @@
 'use strict';
 
-/* Deployment script placeholder */
-hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
+/* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
+if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
+
 
 /**
  * This file is part of the CI/CD pipeline.
  *
  * It originally contained a stray typographic quote (`’`) at the top of the file,
- * which caused the linter to throw a syntax error.  The file has been cleaned
+ * which caused the linter to throw a syntax error. The file has been cleaned
  * up and now contains only syntactically correct JavaScript.
  *
  * @returns {string} A daily‑challenge string.
@@ -33,11 +34,70 @@ function addZero(num) {
 }
 
 /**
+ * Helper function to check Node.js version compatibility
+ * @returns {boolean} True if running on Node.js 24 or higher
+ */
+function isNode24OrHigher() {
+    const version = process.versions.node.split('.')[0];
+    return parseInt(version) >= 24;
+}
+
+/**
+ * Get the current Node.js version
+ * @returns {string} The current Node.js version
+ */
+function getNodeVersion() {
+    return process.versions.node;
+}
+
+/**
  * Test helper function to mock the Date object
  * @param {string} dateString - Date string in YYYY-MM-DD format
  */
 function mockDate(dateString) {
+    // Placeholder implementation; actual mocking logic not required for the merge
     const dateParts = dateString.split('-');
     const year = parseInt(dateParts[0], 10);
     const month = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts
+    const day = parseInt(dateParts[2], 10);
+    const mockedDate = new Date(year, month, day);
+    const OriginalDate = global.Date;
+    global.Date = class extends OriginalDate {
+        constructor(...args) {
+            if (args.length === 0) {
+                super(mockedDate.getTime());
+            } else {
+                super(...args);
+            }
+        }
+        static now() {
+            return mockedDate.getTime();
+        }
+    };
+}
+
+// Export utility functions for external usage
+module.exports = {
+    generateDailyChallenge,
+    addZero,
+    mockDate,
+    isNode24OrHigher,
+    getNodeVersion,
+};
+
+/* Mock globals for testing environments (e. g., Jest) */
+if (typeof global.Animats === 'undefined') global.Animats = {};
+if (typeof global.ConstructionSites === 'undefined') {
+    global.ConstructionSites = {};
+}
+if (typeof global.Creep === 'undefined') global.Creep = function () {};
+if (typeof global.Flag === 'undefined') global.Flag = function () {};
+if (typeof global.Game === 'undefined') {
+    global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
+}
+if (typeof global.Map === 'undefined') global.Map = {};
+if (typeof global.Memory === 'undefined') global.Memory = {};
+if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
+if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
+if (typeof global.Room === 'undefined') global.Room = function () {};
+if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};

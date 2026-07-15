@@ -1,6 +1,9 @@
-/* utils.emotions.js – line 365 */
-hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
+// deploy.js
+/* Deployment script placeholder */
+
 'use strict';
+
+hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
 /**
  * Utility to generate a readable daily challenge message.
@@ -47,14 +50,3 @@ if (typeof global.Game === 'undefined') {
 }
 if (typeof global.Map === 'undefined') global.Map = {};
 if (typeof global.Memory === 'undefined') global.Memory = {};
-if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
-if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
-if (typeof global.Room === 'undefined') global.Room = function () {};
-if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};
-if (typeof global.Structure === 'undefined') global.Structure = function () {};
-if (typeof global.StructureContainer === 'undefined') {
-    global.StructureContainer = function () {};
-}
-if (typeof global.StructureController === 'undefined') {
-    global.StructureController = function () {};
-}

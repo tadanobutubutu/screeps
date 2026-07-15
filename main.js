@@ -101,5 +101,5 @@ module.exports = {
     getNodeVersion,
     getTypeScriptVersion,
     getPostHogVersion,
-    getSupabaseVersion
+    getSupabaseVersion,
 };

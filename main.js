@@ -1,6 +1,7 @@
 'use strict';
 
 /* utils.emotions.js – line 365 */
+/* daily-challenge.js – line 124 */
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
 /**
@@ -10,7 +11,7 @@ hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
  * For the purposes of the test harness we simply construct a friendly
  * string that guarantees a template literal is correctly balanced.
  *
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily-challenge string.
  */
 function generateDailyChallenge() {
     // Use a standard Date formatting for consistency in tests.
@@ -19,7 +20,7 @@ function generateDailyChallenge() {
         today.getDate()
     )}`;
 
-    // A deterministic, easy‑to‑assert message that contains a template literal.
+    // A deterministic, easy-to-assert message that contains a template literal.
     return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -53,9 +54,3 @@ if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
 if (typeof global.Room === 'undefined') global.Room = function () {};
 if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
-if (typeof global.StructureContainer === 'undefined') {
-    global.StructureContainer = function () {};
-}
-if (typeof global.StructureController === 'undefined') {
-    global.StructureController = function () {};
-}

@@ -1,6 +1,6 @@
 /* daily-challenge.js – line 124 */
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-('use strict');
+'use strict';
 
 /**
  * Utility to generate a readable daily challenge message.
@@ -55,6 +55,5 @@ if (typeof global.Structure === 'undefined') global.Structure = function () {};
 if (typeof global.StructureContainer === 'undefined') {
     global.StructureContainer = function () {};
 }
-if (typeof global.StructureController === 'undefined') {
-    global.StructureController = function () {};
-}
+if (typeof global.StructureController === 'undefined')
+```

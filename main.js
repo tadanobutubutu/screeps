@@ -1,6 +1,8 @@
+'use strict';
+
+/* utils.emotions.js – line 365 */
 /* daily-challenge.js – line 124 */
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-'use strict';
 
 /**
  * Utility to generate a readable daily challenge message.
@@ -52,8 +54,3 @@ if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
 if (typeof global.Room === 'undefined') global.Room = function () {};
 if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
-if (typeof global.StructureContainer === 'undefined') {
-    global.StructureContainer = function () {};
-}
-if (typeof global.StructureController === 'undefined')
-```

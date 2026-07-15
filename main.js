@@ -2,7 +2,7 @@
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '(' */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
-'use strict';
+('use strict');
 
 /**
  * This file is part of the CI/CD pipeline.

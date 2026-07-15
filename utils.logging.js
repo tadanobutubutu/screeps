@@ -74,6 +74,9 @@ function _redactPaths(str) {
         [97, 112, 105, 75, 101, 121], // apiKey
         [97, 117, 116, 104], // auth
         [99, 114, 101, 100, 101, 110, 116, 105, 97, 108], // credential
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
+        [98, 101, 97, 114, 101, 114], // bearer
+        [115, 101, 115, 115, 105, 111, 110], // session
         [100, 115, 110], // dsn
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
@@ -138,14 +141,17 @@ function getSafeStack(stack, maxLines) {
     return lines
         .slice(0, maxLines || 5)
         .map((line) => {
+            let processed;
             const match = line.match(/[^/\\]+:\d+:\d+/);
             if (match) {
-                return `    at ${match[0]}`;
+                processed = `    at ${match[0]}`;
+            } else if (line.trim().startsWith('at ')) {
+                processed = '    at [REDACTED]';
+            } else {
+                processed = _redactPaths(line);
             }
-            if (line.trim().startsWith('at ')) {
-                return '    at [REDACTED]';
-            }
-            return _redactPaths(line);
+            // Security: Escape each line to prevent HTML injection in console
+            return _escapeHTML(processed);
         })
         .join('\n');
 }
@@ -171,7 +177,10 @@ const format = (label, msg, meta) => {
         ? LOG_EMOJIS[label]
         : DEFAULT_EMOJI;
 
-    return `${emoji} [${label}] ${escapedMsg}${metaPart}`;
+    // Security: Escape the label to prevent console injection
+    const escapedLabel = _escapeHTML(label);
+
+    return `${emoji} [${escapedLabel}] ${escapedMsg}${metaPart}`;
 };
 
 /**

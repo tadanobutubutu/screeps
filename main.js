@@ -31,8 +31,27 @@ function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
+/**
+ * Helper function to check Node.js version compatibility
+ * @returns {boolean} True if running on Node.js 24 or higher
+ */
+function isNode24OrHigher() {
+    const version = process.versions.node.split('.')[0];
+    return parseInt(version) >= 24;
+}
+
+/**
+ * Get the current Node.js version
+ * @returns {string} The current Node.js version
+ */
+function getNodeVersion() {
+    return process.versions.node;
+}
+
 module.exports = {
     generateDailyChallenge,
+    isNode24OrHigher,
+    getNodeVersion
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

@@ -14,19 +14,15 @@ function generateDailyChallenge() {
     const today = new Date();
     const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
 
-    // A deterministic, easy‑to‑assert message that contains a template literal.
-    return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
-}
+    // A deterministic, easy‑to‑assert message
 
-/**
- * Pad single digit numbers with a leading zero.
- * @param {number} num
- * @returns {string}
- */
-function addZero(num) {
-    return num < 10 ? `0${num}` : `${num}`;
-}
 
-module.exports = {
-    generateDailyChallenge,
-};
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

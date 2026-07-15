@@ -67,12 +67,54 @@ function getPythonVersion() {
     }
 }
 
+/**
+ * Get the current pnpm version
+ * @returns {string} pnpm version
+ */
+function getPnpmVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('pnpm --version').toString().trim();
+    } catch (e) {
+        return 'pnpm not installed';
+    }
+}
+
+/**
+ * Get the current PostHog version
+ * @returns {string} PostHog version
+ */
+function getPostHogVersion() {
+    try {
+        const posthog = require('posthog-js');
+        return posthog.version;
+    } catch (e) {
+        return 'PostHog not installed';
+    }
+}
+
+/**
+ * Get the current Lodash version
+ * @returns {string} Lodash version
+ */
+function getLodashVersion() {
+    try {
+        const _ = require('lodash');
+        return _.VERSION;
+    } catch (e) {
+        return 'Lodash not installed';
+    }
+}
+
 // Export functions for use elsewhere
 module.exports = {
     generateDailyChallenge,
     getNodeVersion,
     getTypeScriptVersion,
     getPythonVersion,
+    getPnpmVersion,
+    getPostHogVersion,
+    getLodashVersion,
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

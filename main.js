@@ -4,7 +4,7 @@
 // Safely invoke hotKidCounts if defined.
 if (typeof hotKidCounts === 'function') hotKidCounts();
 
-('use strict');
+'use strict';
 
 /**
  * This file is part of the CI/CD pipeline.
@@ -13,14 +13,14 @@ if (typeof hotKidCounts === 'function') hotKidCounts();
  * which caused the linter to throw a syntax error. The file has been cleaned
  * up and now contains only syntactically correct JavaScript.
  *
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily-challenge string.
  */
 function generateDailyChallenge() {
     // Use a standard Date formatting for consistency in tests.
     const today = new Date();
     const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
 
-    // A deterministic, easy‑to‑assert message that contains a template literal.
+    // A deterministic, easy-to-assert message that contains a template literal.
     return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 

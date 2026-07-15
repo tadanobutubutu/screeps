@@ -4,7 +4,7 @@
 // Safely invoke hotKidCounts if defined.
 if (typeof hotKidCounts === 'function') hotKidCounts();
 
-'use strict';
+('use strict');
 
 /**
  * This file is part of the CI/CD pipeline.
@@ -72,7 +72,7 @@ module.exports = {
     generateDailyChallenge,
     getNodeVersion,
     getTypeScriptVersion,
-    getPythonVersion
+    getPythonVersion,
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

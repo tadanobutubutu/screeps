@@ -12,7 +12,7 @@ if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCou
  */
 
 /**
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily‐challenge string.
  */
 function generateDailyChallenge() {
     const today = new Date();
@@ -30,6 +30,23 @@ function addZero(num) {
 }
 
 /**
+ * Helper function to check Node.js version compatibility
+ * @returns {boolean} True if running on Node.js 24 or higher
+ */
+function isNode24OrHigher() {
+    const version = process.versions.node.split('.')[0];
+    return parseInt(version) >= 24;
+}
+
+/**
+ * Get the current Node.js version
+ * @returns {string} The current Node.js version
+ */
+function getNodeVersion() {
+    return process.versions.node;
+}
+
+/**
  * Test helper function to mock the Date object
  * @param {string} dateString - Date string in YYYY-MM-DD format
  */
@@ -41,7 +58,9 @@ function mockDate(dateString) {
 module.exports = {
     generateDailyChallenge,
     addZero,
-    mockDate
+    mockDate,
+    isNode24OrHigher,
+    getNodeVersion,
 };
 
 /**

@@ -34,6 +34,24 @@ function generateDailyChallenge() {
     return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
+/**
+ * Get the current Node.js version.
+ *
+ * @returns {string} The Node.js version.
+ */
+function getNodeVersion() {
+    return process.version;
+}
+
+/**
+ * Get the current TypeScript version.
+ *
+ * @returns {string} The TypeScript version.
+ */
+function getTypeScriptVersion() {
+    return require('typescript/package.json').version;
+}
+
 /*********************************************************************
  * Utility helpers
  *********************************************************************/
@@ -61,5 +79,7 @@ function getLodashVersion() {
 module.exports = {
     generateDailyChallenge,
     addZero,
-    getLodashVersion
+    getLodashVersion,
+    getNodeVersion,
+    getTypeScriptVersion
 };

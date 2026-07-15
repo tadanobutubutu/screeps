@@ -1,5 +1,6 @@
-/* main.js
- *
+'use strict';
+
+/*
  * Deployment helper and utility functions.
  *
  * Previous issues:
@@ -11,8 +12,6 @@
  * All of those have been removed.  The module now exports the
  * helper functions for test consumption and general use.
  */
-
-'use strict';
 
 /**
  * Safely invoke hotKidCounts if it is defined.
@@ -64,4 +63,18 @@ function getNodeVersion() {
  * Get the current pnpm version
  * @returns {string} pnpm version
  */
-function
+function getPnpmVersion() {
+  try {
+    const { execSync } = require('child_process');
+    return execSync('pnpm --version', { encoding: 'utf8' }).trim();
+  } catch (e) {
+    return 'pnpm version unavailable';
+  }
+}
+
+module.exports = {
+  generateDailyChallenge,
+  addZero,
+  getNodeVersion,
+  getPnpmVersion
+};

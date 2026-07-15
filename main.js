@@ -31,8 +31,26 @@ function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
+/**
+ * Test helper function to mock the Date object
+ * @param {string} dateString - Date string in YYYY-MM-DD format
+ */
+function mockDate(dateString) {
+    const dateParts = dateString.split('-');
+    const year = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1;
+    const day = parseInt(dateParts[2], 10);
+
+    global.Date = class extends Date {
+        constructor() {
+            super(year, month, day);
+        }
+    };
+}
+
 module.exports = {
     generateDailyChallenge,
+    mockDate, // Add the new export
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

@@ -110,20 +110,6 @@ function getPnpmVersion() {
   }
 }
 
-/**
- * Get the current Cypress version.
- *
- * @returns {string} Cypress version
- */
-function getCypressVersion() {
-  try {
-    const cypress = require('cypress');
-    return cypress.version;
-  } catch (e) {
-    return 'Cypress not installed';
-  }
-}
-
 module.exports = {
   generateDailyChallenge,
   addZero,
@@ -132,4 +118,4 @@ module.exports = {
   getPythonVersion,
   getLodashVersion,
   getPnpmVersion,
-  getC
+};

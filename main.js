@@ -1,6 +1,7 @@
 /* utils.emotions.js – line 365 */
+'use strict';
+
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-('use strict');
 
 /**
  * Utility to generate a readable daily challenge message.

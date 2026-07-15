@@ -1,9 +1,11 @@
+// deploy.js
+/* Deployment script placeholder */
+
 'use strict';
 
 /* utils.emotions.js – line 365 */
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-
 
 /**
  * This file is part of the CI/CD pipeline.
@@ -38,7 +40,7 @@ module.exports = {
     generateDailyChallenge,
 };
 
-/* Mock globals for testing environments (e. g., Jest) */
+/* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') {
     global.ConstructionSites = {};

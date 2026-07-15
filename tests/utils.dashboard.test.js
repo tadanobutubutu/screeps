@@ -1,3 +1,10 @@
+jest.mock('system.adaptive', () => ({
+    getModeName: jest.fn((mode) => {
+        const modes = { 0: 'EMERGENCY', 1: 'MINIMAL', 2: 'NORMAL', 3: 'FULL' };
+        return modes[mode] || 'NORMAL';
+    }),
+}));
+
 const DashboardRenderer = require('../utils.dashboard');
 
 describe('DashboardRenderer', () => {

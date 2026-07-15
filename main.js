@@ -12,6 +12,7 @@
  * helper functions for test consumption and general use.
  */
 
+/* Use strict mode to catch silent errors. */
 'use strict';
 
 /**
@@ -25,59 +26,37 @@ if (typeof hotKidCounts === 'function') {
 /**
  * Generate a deterministic daily challenge string.
  *
- * @returns {string} A daily-challenge string.
+ * @returns {string} A daily‑challenge string.
  */
 function generateDailyChallenge() {
   const today = new Date();
   const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-
-  // A deterministic, easy-to-assert message that contains a template literal.
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
+/*********************************************************************
+ * Utility helpers
+ *********************************************************************/
+
 /**
- * Pad single‑digit numbers with a leading zero.
+ * Pad a number with a leading zero if it's less than 10.
  *
- * @param {number} num
- * @returns {string}
+ * @param {number} num - A number.
+ * @returns {string} The number padded with a leading zero, or as‑is.
  */
 function addZero(num) {
   return num < 10 ? `0${num}` : `${num}`;
 }
 
 /**
- * Get the current Node.js version.
- *
+ * Get the current Node.js version
  * @returns {string} Node.js version
  */
 function getNodeVersion() {
-  return process.version;
-}
-
-/**
- * Get the current TypeScript version.
- *
- * @returns {string} TypeScript version
- */
-function getTypeScriptVersion() {
   try {
-    const ts = require('typescript');
-    return ts.version;
+    return process.version;
   } catch (e) {
-    return 'TypeScript not installed';
-  }
-}
-
-/**
- * Get the current Python version
- * @returns {string} Python version
- */
-function getPythonVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('python --version').toString().trim();
-  } catch (e) {
-    return 'Python not installed';
+    return 'Node.js version unavailable';
   }
 }
 
@@ -119,24 +98,9 @@ function getLodashVersion() {
     return 'Lodash not installed';
   }
 }
-
-/**
- * Get the current GitHub Actions version
- * @returns {string} GitHub Actions version
- */
-function getGitHubActionsVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('gh --version').toString().trim();
-  } catch (e) {
-    return 'GitHub CLI not installed';
-  }
-}
-
-/**
- * Get the current CircleCI version
- * @returns {string} CircleCI version
- */
-function getCircleCIVersion() {
-  try {
-    const { execSync } = require('child_process');
+exports.getNodeVersion = getNodeVersion;
+exports.getPnpmVersion = getPnpmVersion;
+exports.getPostHogVersion = getPostHogVersion;
+exports.getLodashVersion = getLodashVersion;
+exports.generateDailyChallenge = generateDailyChallenge;
+exports.addZero = addZero;

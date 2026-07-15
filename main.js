@@ -26,7 +26,7 @@ if (typeof hotKidCounts === 'function') {
 /**
  * Generate a deterministic daily challenge string.
  *
- * @returns {string} A daily-challenge string.
+ * @returns {string} A daily‑challenge string.
  */
 function generateDailyChallenge() {
   const d = new Date();
@@ -46,7 +46,7 @@ function generateDailyChallenge() {
  * Pad a number with a leading zero if it's less than 10.
  *
  * @param {number} num - A number.
- * @returns {string} The number padded with a leading zero, or as-is.
+ * @returns {string} The number padded with a leading zero, or as‑is.
  */
 function addZero(num) {
   return num < 10 ? `0${num}` : `${num}`;
@@ -56,64 +56,4 @@ function addZero(num) {
  * Get the current Node.js version
  * @returns {string} Node.js version
  */
-function getNodeVersion() {
-  return process.version;
-}
-
-/**
- * Get the current TypeScript version
- * @returns {string} TypeScript version
- */
-function getTypeScriptVersion() {
-  try {
-    const ts = require('typescript');
-    return ts.version;
-  } catch (e) {
-    return 'TypeScript not installed';
-  }
-}
-
-/**
- * Get the current Python version
- * @returns {string} Python version
- */
-function getPythonVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('python --version').toString().trim();
-  } catch (e) {
-    return 'Python not installed';
-  }
-}
-
-/**
- * Get the current pnpm version
- * @returns {string} pnpm version
- */
-function getPnpmVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('pnpm --version').toString().trim();
-  } catch (e) {
-    return 'pnpm not installed';
-  }
-}
-
-/**
- * Get the current PostHog version
- * @returns {string} PostHog version
- */
-function getPostHogVersion() {
-  try {
-    const posthog = require('posthog-js');
-    return posthog.version;
-  } catch (e) {
-    return 'PostHog not installed';
-  }
-}
-
-/**
- * Get the current Lodash version
- * @returns {string} Lodash version
- */
-function getLodashVersion
+function getNodeVersion

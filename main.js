@@ -58,3 +58,15 @@ if (typeof global.StructureContainer === 'undefined') {
 if (typeof global.StructureController === 'undefined') {
     global.StructureController = function () {};
 }
+
+/* Fix for memory.visualizer.js lint error */
+function visualizeMemory() {
+    if (!Memory.visualizer) {
+        Memory.visualizer = {};
+    }
+    // Add visualization logic here
+    // This is a placeholder to ensure the function exists
+    return Memory.visualizer;
+}
+
+module.exports.visualizeMemory = visualizeMemory;

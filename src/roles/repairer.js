@@ -122,27 +122,49 @@ function _getRepairTarget(creep) {
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
 
-    // 修復が必要な構造物を収集
-    const damaged = cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget));
+    // ⚡ PERFORMANCE: Use single-pass for loop to find best repair target.
+    // Complexity reduces from O(N log N) to O(N) and avoids array allocations.
+    const structures = cache.getStructures(room);
+    let bestTarget = null;
+    let minPriority = Infinity;
+    let minHitsRatio = Infinity;
+    let minDistance = Infinity;
 
-    if (damaged.length === 0) return null;
+    for (let i = 0; i < structures.length; i++) {
+        const s = structures[i];
+        if (!_needsRepair(s, room, wallTarget)) continue;
 
-    // 優先度 → HP率 → 距離でソート
-    const sorted = damaged.slice().sort((a, b) => {
-        const pa = REPAIR_PRIORITY[a.structureType] || 9;
-        const pb = REPAIR_PRIORITY[b.structureType] || 9;
-        if (pa !== pb) return pa - pb;
+        const priority = REPAIR_PRIORITY[s.structureType] || 9;
+        const hitsRatio = s.hits / s.hitsMax;
+        const distance = creep.pos ? creep.pos.getRangeTo(s) : 0;
 
-        const ra = a.hits / a.hitsMax;
-        const rb = b.hits / b.hitsMax;
-        if (Math.abs(ra - rb) > 0.1) return ra - rb;
+        let isBetter = false;
+        if (!bestTarget) {
+            isBetter = true;
+        } else if (priority < minPriority) {
+            isBetter = true;
+        } else if (priority === minPriority) {
+            if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
+                if (hitsRatio < minHitsRatio) {
+                    isBetter = true;
+                }
+            } else if (distance < minDistance) {
+                isBetter = true;
+            }
+        }
 
-        return creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b);
-    });
+        if (isBetter) {
+            bestTarget = s;
+            minPriority = priority;
+            minHitsRatio = hitsRatio;
+            minDistance = distance;
+        }
+    }
 
-    const target = sorted[0];
-    creep.memory[MEMORY_KEYS.TARGET_ID] = target.id;
-    return target;
+    if (!bestTarget) return null;
+
+    creep.memory[MEMORY_KEYS.TARGET_ID] = bestTarget.id;
+    return bestTarget;
 }
 
 /**

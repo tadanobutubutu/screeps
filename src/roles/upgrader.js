@@ -108,11 +108,22 @@ function _getEnergyFromStorage(creep, room) {
  */
 function _getEnergyFromLink(creep, room) {
     const links = cache.getLinks(room);
-    const readyLinks = links.filter((l) => l.store[RESOURCE_ENERGY] >= 200);
-    if (readyLinks.length > 0) {
-        const link = pathfinder.closest(creep.pos, readyLinks);
-        if (creep.withdraw(link, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, link, { range: 1 });
+    // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
+    let bestLink = null;
+    let minDistance = Infinity;
+    for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if (link.store[RESOURCE_ENERGY] >= 200) {
+            const dist = creep.pos ? creep.pos.getRangeTo(link) : 0;
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestLink = link;
+            }
+        }
+    }
+    if (bestLink) {
+        if (creep.withdraw(bestLink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestLink, { range: 1 });
         }
         return true;
     }
@@ -129,13 +140,25 @@ function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     const controller = room.controller;
     if (controller) {
-        const nearController = containers.filter(
-            (c) => c.store[RESOURCE_ENERGY] >= 100 && c.pos.getRangeTo(controller) <= 5
-        );
-        if (nearController.length > 0) {
-            const container = pathfinder.closest(creep.pos, nearController);
-            if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                pathfinder.moveTo(creep, container, { range: 1 });
+        // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
+        let bestContainer = null;
+        let minDistance = Infinity;
+        for (let i = 0; i < containers.length; i++) {
+            const container = containers[i];
+            if (
+                container.store[RESOURCE_ENERGY] >= 100 &&
+                container.pos.getRangeTo(controller) <= 5
+            ) {
+                const dist = creep.pos ? creep.pos.getRangeTo(container) : 0;
+                if (dist < minDistance) {
+                    minDistance = dist;
+                    bestContainer = container;
+                }
+            }
+        }
+        if (bestContainer) {
+            if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                pathfinder.moveTo(creep, bestContainer, { range: 1 });
             }
             return true;
         }
@@ -151,11 +174,22 @@ function _getEnergyFromContainer(creep, room) {
  */
 function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 50);
-    if (energyDrops.length > 0) {
-        const res = pathfinder.closest(creep.pos, energyDrops);
-        if (creep.pickup(res) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, res, { range: 1 });
+    // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
+    let bestDrop = null;
+    let minDistance = Infinity;
+    for (let i = 0; i < dropped.length; i++) {
+        const res = dropped[i];
+        if (res.resourceType === RESOURCE_ENERGY && res.amount >= 50) {
+            const dist = creep.pos ? creep.pos.getRangeTo(res) : 0;
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestDrop = res;
+            }
+        }
+    }
+    if (bestDrop) {
+        if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
         return true;
     }

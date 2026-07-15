@@ -44,7 +44,7 @@ function generateDailyChallenge() {
  * Pad a number with a leading zero if it's less than 10.
  *
  * @param {number} num - A number.
- * @returns {string} The number padded with a leading zero, or as-is.
+ * @returns {string} The number padded with a leading zero, or as‑is.
  */
 function addZero(num) {
   return num < 10 ? `0${num}` : `${num}`;
@@ -90,10 +90,12 @@ function getPostHogVersion() {
  */
 function getLodashVersion() {
   try {
-    const _ = require('lodash');
-    return _.VERSION;
+    const lodash = require('lodash');
+    if (lodash.VERSION) return lodash.VERSION;
+    const packageJson = require('lodash/package.json');
+    return packageJson.version || 'unknown';
   } catch (e) {
-    return 'Lodash not installed';
+    return 'lodash not installed';
   }
 }
 

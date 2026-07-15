@@ -1,13 +1,13 @@
-/* utils.emotions.js – line 365 */
-/* Safely invoke hotKidCounts if it is defined.  Previously this line had a stray '('. */
-if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 'use strict';
+
+/* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
+if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
 /**
  * This file is part of the CI/CD pipeline.
  *
  * It originally contained a stray typographic quote (`’`) at the top of the file,
- * which caused the linter to throw a syntax error.  The file has been cleaned
+ * which caused the linter to throw a syntax error. The file has been cleaned
  * up and now contains only syntactically correct JavaScript.
  */
 
@@ -33,15 +33,19 @@ function addZero(num) {
  * Test helper function to mock the Date object
  * @param {string} dateString - Date string in YYYY-MM-DD format
  */
-function
+function mockDate(dateString) {
+    // Placeholder implementation; actual mocking logic not required for the merge
+}
 
+// Export utility functions for external usage
+module.exports = {
+    generateDailyChallenge,
+    addZero,
+    mockDate
+};
 
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/**
+ * Support Pollinations.AI:
+ *
+ * 🌸 **Ad** 🌸
+ * Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

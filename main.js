@@ -38,7 +38,7 @@ function addZero(num) {
  */
 function isNode24OrHigher() {
     const version = process.versions.node.split('.')[0];
-    return parseInt(version) >= 24;
+    return parseInt(version, 10) >= 24;
 }
 
 /**
@@ -66,9 +66,19 @@ function mockDate(dateString) {
         return args.length === 0 ? mockedDate : new OriginalDate(...args);
     };
     global.Date.now = () => mockedDate.getTime();
-    global.Date.parse = OriginalDate.parse;
-    global.Date.UTC = OriginalDate.UTC;
 }
+
+// Export functions for external use and for test suites
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        generateDailyChallenge,
+        addZero,
+        isNode24OrHigher,
+        getNodeVersion,
+        mockDate
+    };
+}
+
 
 
 

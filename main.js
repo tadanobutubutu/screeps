@@ -53,4 +53,5 @@ if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function (
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
 if (typeof global.StructureContainer === 'undefined')
     global.StructureContainer = function () {};
-if (typeof global.StructureController === 'und'
+if (typeof global.StructureController === 'undefined')
+    global.StructureController = function () {};

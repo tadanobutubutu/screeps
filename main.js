@@ -3,6 +3,7 @@
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
+
 /**
  * This file is part of the CI/CD pipeline.
  *
@@ -63,8 +64,19 @@ module.exports = {
     getNodeVersion,
 };
 
-/**
- * Support Pollinations.AI:
- *
- * 🌸 **Ad** 🌸
- * Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/* Mock globals for testing environments (e. g., Jest) */
+if (typeof global.Animats === 'undefined') global.Animats = {};
+if (typeof global.ConstructionSites === 'undefined') {
+    global.ConstructionSites = {};
+}
+if (typeof global.Creep === 'undefined') global.Creep = function () {};
+if (typeof global.Flag === 'undefined') global.Flag = function () {};
+if (typeof global.Game === 'undefined') {
+    global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
+}
+if (typeof global.Map === 'undefined') global.Map = {};
+if (typeof global.Memory === 'undefined') global.Memory = {};
+if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
+if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
+if (typeof global.Room === 'undefined') global.Room = function () {};
+if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};

@@ -25,12 +25,13 @@ if (typeof hotKidCounts === 'function') {
 /**
  * Generate a deterministic daily challenge string.
  *
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily-challenge string.
  */
 function generateDailyChallenge() {
   const today = new Date();
   const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
 
+  // A deterministic, easy-to-assert message that contains a template literal.
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -82,6 +83,20 @@ function getPythonVersion() {
 }
 
 /**
+ * Get the current lodash version.
+ *
+ * @returns {string} lodash version
+ */
+function getLodashVersion() {
+  try {
+    const _ = require('lodash');
+    return _.VERSION;
+  } catch (e) {
+    return 'lodash not installed';
+  }
+}
+
+/**
  * Get the current pnpm version.
  *
  * @returns {string} pnpm version
@@ -96,30 +111,16 @@ function getPnpmVersion() {
 }
 
 /**
- * Get the current PostHog version.
+ * Get the current Cypress version.
  *
- * @returns {string} PostHog version
+ * @returns {string} Cypress version
  */
-function getPostHogVersion() {
+function getCypressVersion() {
   try {
-    const posthog = require('posthog-js');
-    return posthog.version;
+    const cypress = require('cypress');
+    return cypress.version;
   } catch (e) {
-    return 'PostHog not installed';
-  }
-}
-
-/**
- * Get the current Lodash version.
- *
- * @returns {string} Lodash version
- */
-function getLodashVersion() {
-  try {
-    const _ = require('lodash');
-    return _.VERSION;
-  } catch (e) {
-    return 'Lodash not installed';
+    return 'Cypress not installed';
   }
 }
 
@@ -129,7 +130,6 @@ module.exports = {
   getNodeVersion,
   getTypeScriptVersion,
   getPythonVersion,
-  getPnpmVersion,
-  getPostHogVersion,
   getLodashVersion,
-};
+  getPnpmVersion,
+  getC

@@ -1,7 +1,5 @@
 'use strict';
 
-/* utils.emotions.js – line 365 */
-
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
 /**
@@ -48,7 +46,4 @@ if (typeof global.Game === 'undefined') {
     global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
 }
 if (typeof global.Map === 'undefined') global.Map = {};
-if (typeof global.Memory === 'undefined') global.Memory = {};
-if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
-if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
-if (typeof global.Room
+if (typeof global.Memory

@@ -4,6 +4,7 @@
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
+
 /**
  * This file is part of the CI/CD pipeline.
  *
@@ -33,6 +34,18 @@ function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
-/**
- * Helper function to check Node.js version compatibility
- * @returns {boolean} True if running on
+module.exports = {
+    generateDailyChallenge,
+};
+
+/* Mock globals for testing environments (e. g., Jest) */
+if (typeof global.Animats === 'undefined') global.Animats = {};
+if (typeof global.ConstructionSites === 'undefined') {
+    global.ConstructionSites = {};
+}
+if (typeof global.Creep === 'undefined') global.Creep = function () {};
+if (typeof global.Flag === 'undefined') global.Flag = function () {};
+if (typeof global.Game === 'undefined') {
+    global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
+}
+if (typeof global.Map === 'undefined') global.Map = {};

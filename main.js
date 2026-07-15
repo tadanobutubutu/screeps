@@ -1,6 +1,6 @@
 /* utils.emotions.js – line 365 */
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-'use strict';
+('use strict');
 
 /**
  * Utility to generate a readable daily challenge message.
@@ -37,8 +37,9 @@ module.exports = {
 
 /* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
-if (typeof global.ConstructionSites === 'undefined')
+if (typeof global.ConstructionSites === 'undefined') {
     global.ConstructionSites = {};
+}
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
 if (typeof global.Flag === 'undefined') global.Flag = function () {};
 if (typeof global.Game === 'undefined') {
@@ -51,7 +52,9 @@ if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
 if (typeof global.Room === 'undefined') global.Room = function () {};
 if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
-if (typeof global.StructureContainer === 'undefined')
+if (typeof global.StructureContainer === 'undefined') {
     global.StructureContainer = function () {};
-if (typeof global.StructureController === 'undefined')
+}
+if (typeof global.StructureController === 'undefined') {
     global.StructureController = function () {};
+}

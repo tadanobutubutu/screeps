@@ -68,8 +68,7 @@ let creeps = global.Game.creeps;
 // define a simple movement logic
 function moveAgent(ag) {
     // just a log
-    console.log(`${ag.name} moving`);
-}
+    }
 
 // Add new function to handle Node.js version updates
 function getNodeVersion() {

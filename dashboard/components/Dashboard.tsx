@@ -8,7 +8,8 @@ export default function Dashboard() {
         [refreshing, setRefreshing] = useState(false),
         [lastUpdated, setLastUpdated] = useState<Date | null>(null),
         [copied, setCopied] = useState(false),
-        [copiedRoom, setCopiedRoom] = useState<string | null>(null);
+        [copiedRoom, setCopiedRoom] = useState<string | null>(null),
+        [copiedJson, setCopiedJson] = useState(false);
 
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
@@ -64,6 +65,13 @@ export default function Dashboard() {
         navigator.clipboard.writeText(room).then(() => {
             setCopiedRoom(room);
             setTimeout(() => setCopiedRoom(null), 2000);
+        });
+    };
+
+    const copyRawData = () => {
+        navigator.clipboard.writeText(JSON.stringify(stats, null, 2)).then(() => {
+            setCopiedJson(true);
+            setTimeout(() => setCopiedJson(false), 2000);
         });
     };
 
@@ -301,9 +309,30 @@ export default function Dashboard() {
                 <summary
                     className="interactive-hint"
                     title="生データを JSON 形式で表示/非表示にします"
-                    style={{ color: '#4a5568' }}
+                    style={{ color: '#4a5568', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                 >
-                    生データを確認
+                    <span>生データを確認</span>
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            copyRawData();
+                        }}
+                        aria-label="生データをJSONとしてコピー"
+                        title="JSONをコピー"
+                        style={{
+                            fontSize: '0.7rem',
+                            padding: '0.1rem 0.4rem',
+                            backgroundColor: copiedJson ? '#155d27' : '#f7fafc',
+                            border: '1px solid #cbd5e0',
+                            borderRadius: '4px',
+                            color: copiedJson ? 'white' : '#4a5568',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                        }}
+                    >
+                        {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
+                    </button>
                 </summary>
                 <pre
                     style={{

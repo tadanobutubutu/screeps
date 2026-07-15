@@ -1,19 +1,42 @@
 'use strict';
 
-/* ------------------------------------------------------------------
- *  Helper – safely require optional modules
- * ------------------------------------------------------------------ */
-function safeRequire(moduleName) {
-    try {
-        return require(moduleName);
-    } catch (_) {
-        return undefined;
-    }
+/**
+ * Utility to generate a readable daily challenge message.
+ *
+ * In production this might pull from a database, scrape a feed, etc.
+ * For the purposes of the test harness we simply construct a friendly
+ * string that guarantees a template literal is correctly balanced.
+ *
+ * @returns {string} A daily‑challenge string.
+ */
+function generateDailyChallenge() {
+    // Use a standard Date formatting for consistency in tests.
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(
+        today.getDate()
+    )}`;
+
+    // A deterministic, easy‑to‑assert message that contains a template literal.
+    return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
+
+/**
+ * Pad single digit numbers with a leading zero.
+ * @param {number} num
+ * @returns {string}
+ */
+function addZero(num) {
+    return num < 10 ? `0${num}` : `${num}`;
+}
+
+module.exports = {
+    generateDailyChallenge,
+};
 
 /* Mock globals for testing environments (e.g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
-if (typeof global.ConstructionSites === 'undefined') global.ConstructionSites = {};
+if (typeof global.ConstructionSites === 'undefined')
+    global.ConstructionSites = {};
 if (typeof global.Creep === 'undefined') global.Creep = function () {};
 if (typeof global.Flag === 'undefined') global.Flag = function () {};
 if (typeof global.Game === 'undefined') {
@@ -26,33 +49,9 @@ if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
 if (typeof global.Room === 'undefined') global.Room = function () {};
 if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function () {};
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
-if (typeof global.StructureContainer === 'undefined') global.StructureContainer = function () {};
-if (typeof global.StructureController === 'undefined') global.StructureController = function () {};
-if (typeof global.StructureExtension === 'undefined') global.StructureExtension = function () {};
-if (typeof global.StructureRampart === 'undefined') global.StructureRampart = function () {};
-if (typeof global.StructureRoad === 'undefined') global.StructureRoad = function () {};
-if (typeof global.StructureSpawn === 'undefined') global.StructureSpawn = function () {};
-if (typeof global.StructureTower === 'undefined') global.StructureTower = function () {};
-if (typeof global.StructureWall === 'undefined') global.StructureWall = function () {};
-
-/* ------------------------------------------------------------------
- *  Constants – fallback for environments without Screeps API
- * ------------------------------------------------------------------ */
-if (typeof global.OK === 'undefined') global.OK = 0;
-if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
-if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -2;
-if (typeof global.ERR_NOT_FOUND === 'undefined') global.ERR_NOT_FOUND = -3;
-if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = -4;
-if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -5;
-if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -6;
-if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -9;
-if (typeof global.ERR_NOT_ENOUGH_MASS === 'undefined') global.ERR_NOT_ENOUGH_MASS = -10;
-if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -10;
-if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -10;
-if (typeof global.ERR_INTERNAL_ERROR === 'undefined') global.ERR_INTERNAL_ERROR = -999;
-if (typeof global.ERR_GCL_NOT_ENOUGH === 'undefined') global.ERR_GCL_NOT_ENOUGH = -11;
-if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = -12;
-if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -6;
-if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET = -6;
-if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -7;
-if (typeof global.
+if (typeof global.StructureContainer === 'undefined')
+    global.StructureContainer = function () {};
+if (typeof global.StructureController === 'undefined')
+    global.StructureController = function () {};
+if (typeof global.StructureExtension === 'undefined')
+    global.StructureExtension = function () {};

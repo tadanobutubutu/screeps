@@ -19,7 +19,7 @@
  * (This is kept for backward compatibility with older scripts.)
  */
 if (typeof hotKidCounts === 'function') {
-  hotKidCounts();
+    hotKidCounts();
 }
 
 /**
@@ -28,10 +28,10 @@ if (typeof hotKidCounts === 'function') {
  * @returns {string} A daily‑challenge string.
  */
 function generateDailyChallenge() {
-  const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+    const today = new Date();
+    const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
 
-  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+    return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
 /**
@@ -41,7 +41,7 @@ function generateDailyChallenge() {
  * @returns {string}
  */
 function addZero(num) {
-  return num < 10 ? `0${num}` : `${num}`;
+    return num < 10 ? `0${num}` : `${num}`;
 }
 
 /**
@@ -50,7 +50,7 @@ function addZero(num) {
  * @returns {string} Node.js version
  */
 function getNodeVersion() {
-  return process.version;
+    return process.version;
 }
 
 /**
@@ -59,12 +59,12 @@ function getNodeVersion() {
  * @returns {string} TypeScript version
  */
 function getTypeScriptVersion() {
-  try {
-    const ts = require('typescript');
-    return ts.version;
-  } catch (e) {
-    return 'TypeScript not installed';
-  }
+    try {
+        const ts = require('typescript');
+        return ts.version;
+    } catch (e) {
+        return 'TypeScript not installed';
+    }
 }
 
 /**
@@ -73,12 +73,12 @@ function getTypeScriptVersion() {
  * @returns {string} Python version
  */
 function getPythonVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('python --version').toString().trim();
-  } catch (e) {
-    return 'Python not installed';
-  }
+    try {
+        const { execSync } = require('child_process');
+        return execSync('python --version').toString().trim();
+    } catch (e) {
+        return 'Python not installed';
+    }
 }
 
 /**
@@ -87,12 +87,12 @@ function getPythonVersion() {
  * @returns {string} pnpm version
  */
 function getPnpmVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('pnpm --version').toString().trim();
-  } catch (e) {
-    return 'pnpm not installed';
-  }
+    try {
+        const { execSync } = require('child_process');
+        return execSync('pnpm --version').toString().trim();
+    } catch (e) {
+        return 'pnpm not installed';
+    }
 }
 
 /**
@@ -101,12 +101,12 @@ function getPnpmVersion() {
  * @returns {string} PostHog version
  */
 function getPostHogVersion() {
-  try {
-    const posthog = require('posthog-js');
-    return posthog.version;
-  } catch (e) {
-    return 'PostHog not installed';
-  }
+    try {
+        const posthog = require('posthog-js');
+        return posthog.version;
+    } catch (e) {
+        return 'PostHog not installed';
+    }
 }
 
 /**
@@ -115,21 +115,21 @@ function getPostHogVersion() {
  * @returns {string} Lodash version
  */
 function getLodashVersion() {
-  try {
-    const _ = require('lodash');
-    return _.VERSION;
-  } catch (e) {
-    return 'Lodash not installed';
-  }
+    try {
+        const _ = require('lodash');
+        return _.VERSION;
+    } catch (e) {
+        return 'Lodash not installed';
+    }
 }
 
 module.exports = {
-  generateDailyChallenge,
-  addZero,
-  getNodeVersion,
-  getTypeScriptVersion,
-  getPythonVersion,
-  getPnpmVersion,
-  getPostHogVersion,
-  getLodashVersion,
+    generateDailyChallenge,
+    addZero,
+    getNodeVersion,
+    getTypeScriptVersion,
+    getPythonVersion,
+    getPnpmVersion,
+    getPostHogVersion,
+    getLodashVersion,
 };

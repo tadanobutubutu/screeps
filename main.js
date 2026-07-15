@@ -27,4 +27,12 @@ if (typeof hotKidCounts === 'function') {
  *
  * @returns {string} A daily-challenge string.
  */
-function generateDaily
+function generateDailyChallenge() {
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${addZero(
+    today.getMonth() + 1,
+  )}-${addZero(today.getDate())}`;
+  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+}
+
+/

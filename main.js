@@ -52,6 +52,24 @@ function getTypeScriptVersion() {
     return require('typescript/package.json').version;
 }
 
+/**
+ * Get the current PostHog version.
+ *
+ * @returns {string} The PostHog version.
+ */
+function getPostHogVersion() {
+    return require('posthog-js/package.json').version;
+}
+
+/**
+ * Get the current Supabase version.
+ *
+ * @returns {string} The Supabase version.
+ */
+function getSupabaseVersion() {
+    return require('@supabase/supabase-js/package.json').version;
+}
+
 /*********************************************************************
  * Utility helpers
  *********************************************************************/
@@ -81,5 +99,7 @@ module.exports = {
     addZero,
     getLodashVersion,
     getNodeVersion,
-    getTypeScriptVersion
+    getTypeScriptVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
 };

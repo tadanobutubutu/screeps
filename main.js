@@ -3,7 +3,7 @@
 /* Deployment script placeholder */
 
 /* utils.emotions.js – line 365 */
-/* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
+/* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '(' */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
 /**
@@ -50,3 +50,7 @@ if (typeof global.Game === 'undefined') {
     global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
 }
 if (typeof global.Map === 'undefined') global.Map = {};
+if (typeof global.Memory === 'undefined') global.Memory = {};
+if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
+if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
+if (typeof global.Room === 'undefined') global.Room = function () {};

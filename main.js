@@ -1,4 +1,4 @@
-/* utils.emotions.js – line 365 */
+/* daily-challenge.js – line 124 */
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 ('use strict');
 

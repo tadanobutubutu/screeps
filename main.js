@@ -69,5 +69,20 @@ function getTypeScriptVersion() {
 }
 
 /**
- * Get the current Python version.
- *
+ * Get the current Python version
+ * @returns {string} Python version
+ */
+function getPythonVersion() {
+  try {
+    const { execSync } = require('child_process');
+    return execSync('python --version').toString().trim();
+  } catch (e) {
+    return 'Python not installed';
+  }
+}
+
+/**
+ * Get the current pnpm version
+ * @returns {string} pnpm version
+ */
+function getPnpmVersion() {

@@ -12,7 +12,6 @@
  * helper functions for test consumption and general use.
  */
 
-/* Use strict mode to catch silent errors. */
 'use strict';
 
 /**
@@ -69,32 +68,15 @@ function getNodeVersion() {
 function getPnpmVersion() {
   try {
     const { execSync } = require('child_process');
-    return execSync('pnpm --version').toString().trim();
+    return execSync('pnpm --version', { encoding: 'utf8' }).trim();
   } catch (e) {
-    return 'pnpm not installed';
+    return 'pnpm version unavailable';
   }
 }
 
-/**
- * Get the current PostHog version
- * @returns {string} PostHog version
- */
-function getPostHogVersion() {
-  try {
-    const posthog = require('posthog-js');
-    return posthog.version;
-  } catch (e) {
-    return 'PostHog not installed';
-  }
-}
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+module.exports = {
+  generateDailyChallenge,
+  addZero,
+  getNodeVersion,
+  getPnpmVersion
+};

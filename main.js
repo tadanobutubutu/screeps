@@ -158,6 +158,72 @@ function getTravisCIVersion() {
     }
 }
 
+/**
+ * Get the current GitStream GitHub Action version
+ * @returns {string} GitStream version
+ */
+function getGitStreamVersion() {
+    try {
+        const { execSync } = require('child_process');
+        // This assumes the action is installed and available in PATH
+        return execSync('gitstream --version').toString().trim();
+    } catch (e) {
+        return 'GitStream not installed';
+    }
+}
+
+/**
+ * Get the current Supabase version
+ * @returns {string} Supabase version
+ */
+function getSupabaseVersion() {
+    try {
+        const { createClient } = require('@supabase/supabase-js');
+        return createClient.version;
+    } catch (e) {
+        return 'Supabase not installed';
+    }
+}
+
+/**
+ * Get the current Next.js version
+ * @returns {string} Next.js version
+ */
+function getNextJsVersion() {
+    try {
+        const next = require('next/package.json');
+        return next.version;
+    } catch (e) {
+        return 'Next.js not installed';
+    }
+}
+
+/**
+ * Get the current React version
+ * @returns {string} React version
+ */
+function getReactVersion() {
+    try {
+        const react = require('react/package.json');
+        return react.version;
+    } catch (e) {
+        return 'React not installed';
+    }
+}
+
+/**
+ * Get the current React DOM version
+ * @returns {string} React DOM version
+ */
+function getReactDomVersion() {
+    try {
+        const reactDom = require('react-dom/package.json');
+        return reactDom.version;
+    } catch (e) {
+        return 'React DOM not installed';
+    }
+}
+
 // Export functions for use elsewhere
 module.exports = {
     generateDailyChallenge,
@@ -171,6 +237,11 @@ module.exports = {
     getCircleCIVersion,
     getGitLabCIVersion,
     getTravisCIVersion,
+    getGitStreamVersion,
+    getSupabaseVersion,
+    getNextJsVersion,
+    getReactVersion,
+    getReactDomVersion,
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

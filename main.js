@@ -51,7 +51,7 @@ function getNodeVersion() {
 module.exports = {
     generateDailyChallenge,
     isNode24OrHigher,
-    getNodeVersion
+    getNodeVersion,
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

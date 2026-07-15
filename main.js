@@ -30,7 +30,9 @@ if (typeof hotKidCounts === 'function') {
  */
 function generateDailyChallenge() {
   const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(
+    today.getDate()
+  )}`;
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -52,15 +54,54 @@ function addZero(num) {
  * Get the current Node.js version
  * @returns {string} Node.js version
  */
-function getNodeVersion
+function getNodeVersion() {
+  return process.version;
+}
 
+/**
+ * Get the current pnpm version
+ * @returns {string} pnpm version
+ */
+function getPnpmVersion() {
+  try {
+    const { execSync } = require('child_process');
+    return execSync('pnpm --version').toString().trim();
+  } catch (e) {
+    return 'pnpm not installed';
+  }
+}
 
+/**
+ * Get the current PostHog version
+ * @returns {string} PostHog version
+ */
+function getPostHogVersion() {
+  try {
+    const posthog = require('posthog-js');
+    return posthog.version;
+  } catch (e) {
+    return 'PostHog not installed';
+  }
+}
 
----
+/**
+ * Get the current Lodash version
+ * @returns {string} Lodash version
+ */
+function getLodashVersion() {
+  try {
+    const _ = require('lodash');
+    return _.VERSION;
+  } catch (e) {
+    return 'Lodash not installed';
+  }
+}
 
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+module.exports = {
+  generateDailyChallenge,
+  addZero,
+  getNodeVersion,
+  getPnpmVersion,
+  getPostHogVersion,
+  getLodashVersion,
+};

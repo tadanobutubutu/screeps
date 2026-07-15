@@ -55,7 +55,11 @@ function addZero(num) {
  * @returns {string} Node.js version
  */
 function getNodeVersion() {
-  return process.version;
+  try {
+    return process.version;
+  } catch (e) {
+    return 'Node.js version unavailable';
+  }
 }
 
 /**
@@ -84,26 +88,13 @@ function getPostHogVersion() {
   }
 }
 
-/**
- * Get the current Lodash version
- * @returns {string} Lodash version
- */
-function getLodashVersion() {
-  try {
-    const lodash = require('lodash');
-    if (lodash.VERSION) return lodash.VERSION;
-    const packageJson = require('lodash/package.json');
-    return packageJson.version || 'unknown';
-  } catch (e) {
-    return 'lodash not installed';
-  }
-}
 
-module.exports = {
-  generateDailyChallenge,
-  addZero,
-  getNodeVersion,
-  getPnpmVersion,
-  getPostHogVersion,
-  getLodashVersion,
-};
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

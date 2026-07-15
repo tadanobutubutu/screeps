@@ -30,7 +30,9 @@ if (typeof hotKidCounts === 'function') {
  */
 function generateDailyChallenge() {
   const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(
+    today.getDate()
+  )}`;
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -86,21 +88,4 @@ function getPostHogVersion() {
   }
 }
 
-/**
- * Get the current Lodash version
- * @returns {string} Lodash version
- */
-function getLodashVersion() {
-  try {
-    const _ = require('lodash');
-    return _.VERSION;
-  } catch (e) {
-    return 'Lodash not installed';
-  }
-}
-exports.getNodeVersion = getNodeVersion;
-exports.getPnpmVersion = getPnpmVersion;
-exports.getPostHogVersion = getPostHogVersion;
-exports.getLodashVersion = getLodashVersion;
-exports.generateDailyChallenge = generateDailyChallenge;
-exports.addZero = addZero;
+/** Ge

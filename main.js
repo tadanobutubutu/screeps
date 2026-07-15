@@ -25,12 +25,11 @@ if (typeof hotKidCounts === 'function') {
 /**
  * Generate a deterministic daily challenge string.
  *
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily-challenge string.
  */
 function generateDailyChallenge() {
   const today = new Date();
   const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -62,74 +61,3 @@ function getTypeScriptVersion() {
   try {
     const ts = require('typescript');
     return ts.version;
-  } catch (e) {
-    return 'TypeScript not installed';
-  }
-}
-
-/**
- * Get the current Python version.
- *
- * @returns {string} Python version
- */
-function getPythonVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('python --version').toString().trim();
-  } catch (e) {
-    return 'Python not installed';
-  }
-}
-
-/**
- * Get the current pnpm version.
- *
- * @returns {string} pnpm version
- */
-function getPnpmVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('pnpm --version').toString().trim();
-  } catch (e) {
-    return 'pnpm not installed';
-  }
-}
-
-/**
- * Get the current PostHog version.
- *
- * @returns {string} PostHog version
- */
-function getPostHogVersion() {
-  try {
-    const posthog = require('posthog-js');
-    return posthog.version;
-  } catch (e) {
-    return 'PostHog not installed';
-  }
-}
-
-/**
- * Get the current Lodash version.
- *
- * @returns {string} Lodash version
- */
-function getLodashVersion() {
-  try {
-    const _ = require('lodash');
-    return _.VERSION;
-  } catch (e) {
-    return 'Lodash not installed';
-  }
-}
-
-module.exports = {
-  generateDailyChallenge,
-  addZero,
-  getNodeVersion,
-  getTypeScriptVersion,
-  getPythonVersion,
-  getPnpmVersion,
-  getPostHogVersion,
-  getLodashVersion,
-};

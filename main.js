@@ -34,17 +34,6 @@ if (typeof global.StructureRoad === 'undefined') global.StructureRoad = function
 if (typeof global.StructureSpawn === 'undefined') global.StructureSpawn = function () {};
 if (typeof global.StructureTower === 'undefined') global.StructureTower = function () {};
 if (typeof global.StructureWall === 'undefined') global.StructureWall = function () {};
-if (typeof global.OK === 'undefined') global.OK = 0;
-if (typeof global.ERR_NOT_OWNER === 'undefined') global.ERR_NOT_OWNER = -1;
-if (typeof global.ERR_NO_PATH === 'undefined') global.ERR_NO_PATH = -6;
-if (typeof global.ERR_NOT_IN_RANGE === 'undefined') global.ERR_NOT_IN_RANGE = -9;
-if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET = -14;
-if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -15;
-if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -6; // Placeholder, adjust as needed
-if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -9; // Placeholder, adjust as needed
-if (typeof global.OK === 'undefined') global.OK = 0;
+if (typeof global.OK === 'undefined') global.O === undefined ? global.O = {} : null;
 
-// Export safeRequire for test suites if needed
-module.exports = { safeRequire };
-
-// The rest of the Screeps bot logic would follow here, but is omitted for brevity.
+hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed

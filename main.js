@@ -70,6 +70,42 @@ function getSupabaseVersion() {
     return require('@supabase/supabase-js/package.json').version;
 }
 
+/**
+ * Get the current CircleCI Node version.
+ *
+ * @returns {string} The CircleCI Node version.
+ */
+function getCircleCINodeVersion() {
+    return '24.18.0';
+}
+
+/**
+ * Get the current DevContainer Python version.
+ *
+ * @returns {string} The DevContainer Python version.
+ */
+function getDevContainerPythonVersion() {
+    return '3.14';
+}
+
+/**
+ * Get the current DevContainer Node version.
+ *
+ * @returns {string} The DevContainer Node version.
+ */
+function getDevContainerNodeVersion() {
+    return '24';
+}
+
+/**
+ * Get the current Travis Node version.
+ *
+ * @returns {string} The Travis Node version.
+ */
+function getTravisNodeVersion() {
+    return '24';
+}
+
 /*********************************************************************
  * Utility helpers
  *********************************************************************/
@@ -102,4 +138,8 @@ module.exports = {
     getTypeScriptVersion,
     getPostHogVersion,
     getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion
 };

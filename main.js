@@ -1,6 +1,5 @@
-/* utils.emotions.js – line 365 */
+'use strict';
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
-('use strict');
 
 /**
  * Utility to generate a readable daily challenge message.
@@ -9,7 +8,7 @@ hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
  * For the purposes of the test harness we simply construct a friendly
  * string that guarantees a template literal is correctly balanced.
  *
- * @returns {string} A daily‑challenge string.
+ * @returns {string} A daily-challenge string.
  */
 function generateDailyChallenge() {
     // Use a standard Date formatting for consistency in tests.
@@ -18,7 +17,7 @@ function generateDailyChallenge() {
         today.getDate()
     )}`;
 
-    // A deterministic, easy‑to‑assert message that contains a template literal.
+    // A deterministic, easy-to-assert message that contains a template literal.
     return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
@@ -58,15 +57,3 @@ if (typeof global.StructureContainer === 'undefined') {
 if (typeof global.StructureController === 'undefined') {
     global.StructureController = function () {};
 }
-
-/* Fix for memory.visualizer.js lint error */
-function visualizeMemory() {
-    if (!Memory.visualizer) {
-        Memory.visualizer = {};
-    }
-    // Add visualization logic here
-    // This is a placeholder to ensure the function exists
-    return Memory.visualizer;
-}
-
-module.exports.visualizeMemory = visualizeMemory;

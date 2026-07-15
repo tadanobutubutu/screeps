@@ -1,8 +1,9 @@
-'use strict';
+/* utils.emotions.js – line 365 */
 
-/* Deployment script placeholder */
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '(' */
-if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
+if (typeof hotKidCounts === 'function') hotKidCounts();
+
+'use strict';
 
 /**
  * This file is part of the CI/CD pipeline.

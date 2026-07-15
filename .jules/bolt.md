@@ -25,3 +25,6 @@
 
 **Date:** 2024-06-02
 **Title:** Optimizing
+## 2025-05-14 - Single-pass loop for multi-criteria target selection
+**Learning:** Chaining `.filter().sort()` or `.filter().closest()` in high-frequency roles (like Repairers or Upgraders) leads to (N \log N)$ complexity and multiple array allocations per tick.
+**Action:** Replace functional chains with a single `for` loop that tracks multiple minima (priority, hit ratio, distance) to achieve (N)$ complexity and zero intermediate array allocations.

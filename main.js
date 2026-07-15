@@ -110,6 +110,62 @@ function getPnpmVersion() {
   }
 }
 
+/**
+ * Get the current PostHog version.
+ *
+ * @returns {string} PostHog version
+ */
+function getPostHogVersion() {
+  try {
+    const posthog = require('posthog-js');
+    return posthog.version;
+  } catch (e) {
+    return 'PostHog not installed';
+  }
+}
+
+/**
+ * Get the current Next.js version.
+ *
+ * @returns {string} Next.js version
+ */
+function getNextJsVersion() {
+  try {
+    const next = require('next/package.json');
+    return next.version;
+  } catch (e) {
+    return 'Next.js not installed';
+  }
+}
+
+/**
+ * Get the current React version.
+ *
+ * @returns {string} React version
+ */
+function getReactVersion() {
+  try {
+    const react = require('react/package.json');
+    return react.version;
+  } catch (e) {
+    return 'React not installed';
+  }
+}
+
+/**
+ * Get the current React DOM version.
+ *
+ * @returns {string} React DOM version
+ */
+function getReactDomVersion() {
+  try {
+    const reactDom = require('react-dom/package.json');
+    return reactDom.version;
+  } catch (e) {
+    return 'React DOM not installed';
+  }
+}
+
 module.exports = {
   generateDailyChallenge,
   addZero,
@@ -118,4 +174,8 @@ module.exports = {
   getPythonVersion,
   getLodashVersion,
   getPnpmVersion,
+  getPostHogVersion,
+  getNextJsVersion,
+  getReactVersion,
+  getReactDomVersion,
 };

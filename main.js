@@ -49,4 +49,17 @@ function addZero(num) {
 }
 
 /**
- * Get the
+ * Get the version of Lodash being used.
+ *
+ * @returns {string} The Lodash version.
+ */
+function getLodashVersion() {
+    return require('lodash/package.json').version;
+}
+
+// Export all functions for testing and general use
+module.exports = {
+    generateDailyChallenge,
+    addZero,
+    getLodashVersion
+};

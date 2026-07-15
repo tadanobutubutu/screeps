@@ -5,6 +5,7 @@
 
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
+
 /**
  * Utility to generate a readable daily challenge message.
  *
@@ -39,7 +40,7 @@ module.exports = {
     generateDailyChallenge,
 };
 
-/* Mock globals for testing environments (e.g., Jest) */
+/* Mock globals for testing environments (e. g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') {
     global.ConstructionSites = {};

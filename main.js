@@ -188,3 +188,25 @@ if (typeof global.Memory === 'undefined') global.Memory = {};
 if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
 if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
 if (typeof global.Room === 'undefined') global.Room = function () {};
+
+/* Test utilities for Jest */
+if (process.env.NODE_ENV === 'test') {
+    // Add test utilities here if needed
+    // For example:
+    module.exports.testUtils = {
+        mockDate: (dateString) => {
+            const originalDate = global.Date;
+            global.Date = class extends Date {
+                constructor() {
+                    if (arguments.length === 0) {
+                        return new originalDate(dateString);
+                    }
+                    return new originalDate(...arguments);
+                }
+            };
+            return () => {
+                global.Date = originalDate;
+            };
+        }
+    };
+}

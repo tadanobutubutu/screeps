@@ -106,6 +106,58 @@ function getLodashVersion() {
     }
 }
 
+/**
+ * Get the current GitHub Actions version
+ * @returns {string} GitHub Actions version
+ */
+function getGitHubActionsVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('gh --version').toString().trim();
+    } catch (e) {
+        return 'GitHub CLI not installed';
+    }
+}
+
+/**
+ * Get the current CircleCI version
+ * @returns {string} CircleCI version
+ */
+function getCircleCIVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('circleci version').toString().trim();
+    } catch (e) {
+        return 'CircleCI CLI not installed';
+    }
+}
+
+/**
+ * Get the current GitLab CI version
+ * @returns {string} GitLab CI version
+ */
+function getGitLabCIVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('gitlab-runner --version').toString().trim();
+    } catch (e) {
+        return 'GitLab Runner not installed';
+    }
+}
+
+/**
+ * Get the current Travis CI version
+ * @returns {string} Travis CI version
+ */
+function getTravisCIVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('travis --version').toString().trim();
+    } catch (e) {
+        return 'Travis CLI not installed';
+    }
+}
+
 // Export functions for use elsewhere
 module.exports = {
     generateDailyChallenge,
@@ -115,6 +167,10 @@ module.exports = {
     getPnpmVersion,
     getPostHogVersion,
     getLodashVersion,
+    getGitHubActionsVersion,
+    getCircleCIVersion,
+    getGitLabCIVersion,
+    getTravisCIVersion,
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

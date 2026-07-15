@@ -1,3 +1,6 @@
+// deploy.js
+/* Deployment script placeholder */
+
 'use strict';
 
 hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
@@ -31,6 +34,7 @@ function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
+// Export functionality
 module.exports = {
     generateDailyChallenge,
 };
@@ -46,4 +50,4 @@ if (typeof global.Game === 'undefined') {
     global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
 }
 if (typeof global.Map === 'undefined') global.Map = {};
-if (typeof global.Memory
+if (typeof global.Memory === 'undefined') global.Memory = {};

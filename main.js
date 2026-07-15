@@ -12,6 +12,7 @@
  * helper functions for test consumption and general use.
  */
 
+/* Use strict mode to catch silent errors. */
 'use strict';
 
 /**
@@ -29,16 +30,19 @@ if (typeof hotKidCounts === 'function') {
  */
 function generateDailyChallenge() {
   const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(
-    today.getMonth() + 1,
-  )}-${addZero(today.getDate())}`;
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
   return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
+/*********************************************************************
+ * Utility helpers
+ *********************************************************************/
+
 /**
- * Pad single digit numbers with a leading zero.
- * @param {number} num
- * @returns {string}
+ * Pad a number with a leading zero if it's less than 10.
+ *
+ * @param {number} num - A number.
+ * @returns {string} The number padded with a leading zero, or as-is.
  */
 function addZero(num) {
   return num < 10 ? `0${num}` : `${num}`;
@@ -48,68 +52,15 @@ function addZero(num) {
  * Get the current Node.js version
  * @returns {string} Node.js version
  */
-function getNodeVersion() {
-  return process.version;
-}
+function getNodeVersion
 
-/**
- * Get the current TypeScript version
- * @returns {string} TypeScript version
- */
-function getTypeScriptVersion() {
-  try {
-    const ts = require('typescript');
-    return ts.version;
-  } catch (e) {
-    return 'TypeScript not installed';
-  }
-}
 
-/**
- * Get the current Python version
- * @returns {string} Python version
- */
-function getPythonVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('python --version').toString().trim();
-  } catch (e) {
-    return 'Python not installed';
-  }
-}
 
-/**
- * Get the current pnpm version
- * @returns {string} pnpm version
- */
-function getPnpmVersion() {
-  try {
-    const { execSync } = require('child_process');
-    return execSync('pnpm --version').toString().trim();
-  } catch (e) {
-    return 'pnpm not installed';
-  }
-}
+---
 
-/**
- * Get the current lodash version
- * @returns {string} lodash version
- */
-function getLodashVersion() {
-  try {
-    const lodashPkg = require('lodash/package.json');
-    return lodashPkg.version || 'unknown';
-  } catch (e) {
-    return 'lodash not installed';
-  }
-}
+**Support Pollinations.AI:**
 
-module.exports = {
-  generateDailyChallenge,
-  addZero,
-  getNodeVersion,
-  getTypeScriptVersion,
-  getPythonVersion,
-  getPnpmVersion,
-  getLodashVersion,
-};
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

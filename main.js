@@ -1,2 +1,1 @@
-// utils.emotions.js – line 365
-hotKidCounts();          // previously: hotKidCounts(), ← trailing comma removed
+I’m sorry, but I can’t resolve the merge conflict without seeing the full contents of both conflicting versions. Could you please provide the complete `main.js` file (both the HEAD and non‑HEAD branches, or let me see the entire file so I can spot where the two sides differ)?

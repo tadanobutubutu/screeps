@@ -44,14 +44,10 @@ if (typeof global.ERR_INVALID_TARGET === 'undefined') global.ERR_INVALID_TARGET 
 if (typeof global.ERR_FULL === 'undefined') global.ERR_FULL = -9;
 if (typeof global.ERR_NOT_IN_RANGE === 'undefined') global.ERR_NOT_IN_RANGE = -10;
 if (typeof global.ERR_NO_BODYPART === 'undefined') global.ERR_NO_BODYPART = -11;
-if (typeof global.ERR_BUSY === 'undefined') global.ERR_BUSY = -3;
-if (typeof global.ERR_NOT_ENOUGH_ENERGY === 'undefined') global.ERR_NOT_ENOUGH_ENERGY = -5;
 if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
 if (typeof global.ERR_TIRED === 'undefined') global.ERR_TIRED = -15;
-if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = - 0;
-if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = - 1;
-if (typeof global.ERR_INVALID_ARGS === 'undefined') global.ERR_INVALID_ARGS = -12;
-if (typeof global.ERR_NOT_ENOUGH_RESOURCES === 'undefined') global.ERR_NOT_ENOUGH_RESOURCES = -4;
+if (typeof global.ERR_NAME_EXISTS === 'undefined') global.ERR_NAME_EXISTS = -0;
+if (typeof global.ERR_RCL_NOT_ENOUGH === 'undefined') global.ERR_RCL_NOT_ENOUGH = -1;
 
 function createRoom() {
     const room = {
@@ -68,7 +64,7 @@ let creeps = global.Game.creeps;
 // define a simple movement logic
 function moveAgent(ag) {
     // just a log
-    }
+}
 
 // Add new function to handle Node.js version updates
 function getNodeVersion() {

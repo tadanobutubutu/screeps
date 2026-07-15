@@ -1,3 +1,5 @@
+/* utils.emotions.js – line 365 */
+hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 'use strict';
 
 /**
@@ -51,7 +53,4 @@ if (typeof global.RoomPosition === 'undefined') global.RoomPosition = function (
 if (typeof global.Structure === 'undefined') global.Structure = function () {};
 if (typeof global.StructureContainer === 'undefined')
     global.StructureContainer = function () {};
-if (typeof global.StructureController === 'undefined')
-    global.StructureController = function () {};
-if (typeof global.StructureExtension === 'undefined')
-    global.StructureExtension = function () {};
+if (typeof global.StructureController === 'und'

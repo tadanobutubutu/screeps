@@ -1,5 +1,6 @@
 'use strict';
 
+/* utils.emotions.js – line 365 */
 /* Safely invoke hotKidCounts if it is defined. Previously this line had a stray '('. */
 if (typeof hotKidCounts === 'function') hotKidCounts(); // previously: hotKidCounts(), ← trailing comma removed
 
@@ -34,59 +35,4 @@ function addZero(num) {
 
 /**
  * Helper function to check Node.js version compatibility
- * @returns {boolean} True if running on Node.js 24 or higher
- */
-function isNode24OrHigher() {
-    const version = process.versions.node.split('.')[0];
-    return parseInt(version, 10) >= 24;
-}
-
-/**
- * Get the current Node.js version.
- * @returns {string} The current Node.js version
- */
-function getNodeVersion() {
-    return process.versions.node;
-}
-
-/**
- * Test helper function to mock the Date object.
- * @param {string} dateString - Date string in YYYY-MM-DD format
- */
-function mockDate(dateString) {
-    const dateParts = dateString.split('-');
-    const year = parseInt(dateParts[0], 10);
-    const month = parseInt(dateParts[1], 10) - 1;
-    const day = parseInt(dateParts[2], 10);
-
-    const mockedDate = new Date(year, month, day);
-    // Override the Date constructor to return the mocked date
-    const OriginalDate = Date;
-    global.Date = function (...args) {
-        return args.length === 0 ? mockedDate : new OriginalDate(...args);
-    };
-    global.Date.now = () => mockedDate.getTime();
-}
-
-// Export functions for external use and for test suites
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        generateDailyChallenge,
-        addZero,
-        isNode24OrHigher,
-        getNodeVersion,
-        mockDate
-    };
-}
-
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+ * @returns {boolean} True if running on

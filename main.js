@@ -4,12 +4,12 @@
 // Safely invoke hotKidCounts if defined.
 if (typeof hotKidCounts === 'function') hotKidCounts();
 
-('use strict');
+'use strict';
 
 /**
  * This file is part of the CI/CD pipeline.
  *
- * It originally contained a stray typographic quote (`’`) at the top of the file,
+ * It originally contained a stray typographic quote (`'`) at the top of the file,
  * which caused the linter to throw a syntax error. The file has been cleaned
  * up and now contains only syntactically correct JavaScript.
  *
@@ -173,7 +173,7 @@ module.exports = {
     getTravisCIVersion,
 };
 
-/* Mock globals for testing environments (e.g., Jest) */
+/* Mock globals for testing environments (e. g., Jest) */
 if (typeof global.Animats === 'undefined') global.Animats = {};
 if (typeof global.ConstructionSites === 'undefined') {
     global.ConstructionSites = {};

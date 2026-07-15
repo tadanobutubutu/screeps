@@ -4,7 +4,7 @@
 // Safely invoke hotKidCounts if defined.
 if (typeof hotKidCounts === 'function') hotKidCounts();
 
-'use strict';
+('use strict');
 
 /**
  * This file is part of the CI/CD pipeline.

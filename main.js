@@ -33,9 +33,46 @@ function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
 }
 
+/**
+ * Get the current Node.js version
+ * @returns {string} Node.js version
+ */
+function getNodeVersion() {
+    return process.version;
+}
+
+/**
+ * Get the current TypeScript version
+ * @returns {string} TypeScript version
+ */
+function getTypeScriptVersion() {
+    try {
+        const ts = require('typescript');
+        return ts.version;
+    } catch (e) {
+        return 'TypeScript not installed';
+    }
+}
+
+/**
+ * Get the current Python version
+ * @returns {string} Python version
+ */
+function getPythonVersion() {
+    try {
+        const { execSync } = require('child_process');
+        return execSync('python --version').toString().trim();
+    } catch (e) {
+        return 'Python not installed';
+    }
+}
+
 // Export functions for use elsewhere
 module.exports = {
     generateDailyChallenge,
+    getNodeVersion,
+    getTypeScriptVersion,
+    getPythonVersion
 };
 
 /* Mock globals for testing environments (e.g., Jest) */

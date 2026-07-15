@@ -1,7 +1,5 @@
-// deploy.js
 /* Deployment script placeholder */
 
-// Safely invoke hotKidCounts if defined.
 if (typeof hotKidCounts === 'function') hotKidCounts();
 
 'use strict';
@@ -86,105 +84,19 @@ function getPnpmVersion() {
  */
 function getPostHogVersion() {
     try {
-        const posthog = require('posthog-js');
-        return posthog.version;
+        const posthog = require('posthog-node');
+        return typeof posthog.version === 'function' ? posthog.version() : (posthog.version || 'PostHog version unknown');
     } catch (e) {
         return 'PostHog not installed';
     }
 }
 
-/**
- * Get the current Lodash version
- * @returns {string} Lodash version
- */
-function getLodashVersion() {
-    try {
-        const _ = require('lodash');
-        return _.VERSION;
-    } catch (e) {
-        return 'Lodash not installed';
-    }
-}
-
-/**
- * Get the current GitHub Actions version
- * @returns {string} GitHub Actions version
- */
-function getGitHubActionsVersion() {
-    try {
-        const { execSync } = require('child_process');
-        return execSync('gh --version').toString().trim();
-    } catch (e) {
-        return 'GitHub CLI not installed';
-    }
-}
-
-/**
- * Get the current CircleCI version
- * @returns {string} CircleCI version
- */
-function getCircleCIVersion() {
-    try {
-        const { execSync } = require('child_process');
-        return execSync('circleci version').toString().trim();
-    } catch (e) {
-        return 'CircleCI CLI not installed';
-    }
-}
-
-/**
- * Get the current GitLab CI version
- * @returns {string} GitLab CI version
- */
-function getGitLabCIVersion() {
-    try {
-        const { execSync } = require('child_process');
-        return execSync('gitlab-runner --version').toString().trim();
-    } catch (e) {
-        return 'GitLab Runner not installed';
-    }
-}
-
-/**
- * Get the current Travis CI version
- * @returns {string} Travis CI version
- */
-function getTravisCIVersion() {
-    try {
-        const { execSync } = require('child_process');
-        return execSync('travis --version').toString().trim();
-    } catch (e) {
-        return 'Travis CLI not installed';
-    }
-}
-
-// Export functions for use elsewhere
 module.exports = {
     generateDailyChallenge,
+    addZero,
     getNodeVersion,
     getTypeScriptVersion,
     getPythonVersion,
     getPnpmVersion,
-    getPostHogVersion,
-    getLodashVersion,
-    getGitHubActionsVersion,
-    getCircleCIVersion,
-    getGitLabCIVersion,
-    getTravisCIVersion,
+    getPostHogVersion
 };
-
-/* Mock globals for testing environments (e.g., Jest) */
-if (typeof global.Animats === 'undefined') global.Animats = {};
-if (typeof global.ConstructionSites === 'undefined') {
-    global.ConstructionSites = {};
-}
-if (typeof global.Creep === 'undefined') global.Creep = function () {};
-if (typeof global.Flag === 'undefined') global.Flag = function () {};
-if (typeof global.Game === 'undefined') {
-    global.Game = { creeps: {}, flags: {}, rooms: {}, spawns: {} };
-}
-if (typeof global.Map === 'undefined') global.Map = {};
-if (typeof global.Memory === 'undefined') global.Memory = {};
-if (typeof global.PathFinder === 'undefined') global.PathFinder = {};
-if (typeof global.RawMemory === 'undefined') global.RawMemory = {};
-if (typeof global.Room === 'undefined') global.Room = function () {};

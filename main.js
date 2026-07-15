@@ -26,5 +26,5 @@ module.exports = {
      */
     deploy() {
         // Placeholder: no operation performed during tests.
-    }
+    },
 };

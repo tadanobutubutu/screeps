@@ -30,15 +30,18 @@ if (typeof hotKidCounts === 'function') {
 function generateDailyChallenge() {
     const today = new Date();
     const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-
     return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
+/*********************************************************************
+ * Utility helpers
+ *********************************************************************/
+
 /**
- * Pad single‑digit numbers with a leading zero.
+ * Pad a number with a leading zero if it's less than 10.
  *
- * @param {number} num
- * @returns {string}
+ * @param {number} num - A number.
+ * @returns {string} The number padded with a leading zero, or as‑is.
  */
 function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;
@@ -50,7 +53,11 @@ function addZero(num) {
  * @returns {string} Node.js version
  */
 function getNodeVersion() {
-    return process.version;
+    try {
+        return process.version;
+    } catch (e) {
+        return 'Node.js version unavailable';
+    }
 }
 
 /**
@@ -89,9 +96,9 @@ function getPythonVersion() {
 function getPnpmVersion() {
     try {
         const { execSync } = require('child_process');
-        return execSync('pnpm --version').toString().trim();
+        return execSync('pnpm --version', { encoding: 'utf8' }).trim();
     } catch (e) {
-        return 'pnpm not installed';
+        return 'pnpm version unavailable';
     }
 }
 

@@ -214,6 +214,22 @@ const logger = {
     },
 
     /**
+     * 関数をtry-catchでラップして実行し、エラー時にログを出力する
+     * @param {Function} fn - 実行する関数
+     * @param {string} context - エラーメッセージに含めるコンテキスト名
+     * @param {...*} args - 関数に渡す引数
+     * @returns {*} 関数の戻り値、エラー時は undefined
+     */
+    tryCatch(fn, context, ...args) {
+        try {
+            return fn(...args);
+        } catch (e) {
+            this.error(`[${context}] ${e.message}`, e);
+            return undefined;
+        }
+    },
+
+    /**
      * Generic log method expected by some tests
      */
     log(level, msg, meta) {

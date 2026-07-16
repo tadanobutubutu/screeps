@@ -1,11 +1,13 @@
-/*  Deployment helpers
+'use strict';
+
+/* Deployment helpers
  *
  * Deployment helper and utility functions.
  *
  * Previous issues:
  *   • stray typographic quote
  *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised `'use strict'` statement
+ *   • confusing parenthesised 'use strict' statement
  *   • dangling `r` character at the end
  *
  * The module now exports the helper functions for test consumption and
@@ -21,11 +23,10 @@
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
  *
- * This module also re‑exports the version‑query functions defined in main.js
+ * This module also re-exports the version-query functions defined in main.js
  * so test files (or other modules) can import them straight from
- * `deploy.js`. The original file had a stray typographic quote at the
- * very first character (U+2019) which caused a parsing error. It’s been
- * removed and the file is now a simple, clean wrapper.
+ * `deploy.js`. The original typographic quote at the first character (U+2019)
+ * was removed and the file is now a clean wrapper.
  *
  * All code style issues have been resolved:
  *   • No stray typographic quotes
@@ -33,11 +34,7 @@
  *   • Proper `module.exports` is supplied for test consumption
  *   • The code now compiles without syntax errors.
  */
-'use strict';
 
-/** Import package versions from the various dependencies.
- *  If a dependency is missing, we fallback to an empty string.
- */
 let lodashVersion = '';
 let posthogVersion = '';
 let supabaseVersion = '';
@@ -47,52 +44,30 @@ let devContainerNodeVersion = '';
 let travisNodeVersion = '';
 let renovateUpdates = '';
 
-try {
-    const { version: v } = require('lodash/package.json');
-    lodashVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('posthog-js/package.json');
-    posthogVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('@supabase/supabase-js/package.json');
-    supabaseVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('circleci/package.json');
-    circleCIVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('devcontainer/python/package.json');
-    devContainerPythonVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('devcontainer/node/package.json');
-    devContainerNodeVersion = v;
-} catch (_) {}
-
-try {
-    const { version: v } = require('@travis-ci/node/package.json');
-    travisNodeVersion = v;
-} catch (_) {}
-
-try {
-    // Renovate may not be a runtime dependency; fallback to empty string
-    const { version: v } = require('renovate/package.json');
-    renovateUpdates = v;
-} catch (_) {}
+/**
+ * Internal helper to fetch a package's version from its package.json.
+ * @param {string} pkg - The package name to resolve.
+ * @returns {string} - The version string or an empty string if not found.
+ */
+function getPackageVersion(pkg) {
+    try {
+        // Resolve to the package.json of the dependency
+        const pkgJson = require(`${pkg}/package.json`);
+        return pkgJson && pkgJson.version ? pkgJson.version : '';
+    } catch (_) {
+        // If the package cannot be resolved, return empty string
+        return '';
+    }
+}
 
 /**
- * Gets the version of lodash from package.json.
- * @returns {string} The version of lodash
+ * Gets the version of Lodash from package.json.
+ * @returns {string} The version of Lodash
  */
 function getLodashVersion() {
+    if (!lodashVersion) {
+        lodashVersion = getPackageVersion('lodash');
+    }
     return lodashVersion;
 }
 
@@ -101,6 +76,9 @@ function getLodashVersion() {
  * @returns {string} The version of PostHog
  */
 function getPostHogVersion() {
+    if (!posthogVersion) {
+        posthogVersion = getPackageVersion('posthog-js');
+    }
     return posthogVersion;
 }
 
@@ -109,6 +87,9 @@ function getPostHogVersion() {
  * @returns {string} The version of Supabase
  */
 function getSupabaseVersion() {
+    if (!supabaseVersion) {
+        supabaseVersion = getPackageVersion('@supabase/supabase-js');
+    }
     return supabaseVersion;
 }
 
@@ -117,48 +98,41 @@ function getSupabaseVersion() {
  * @returns {string} The version of CircleCI Node
  */
 function getCircleCINodeVersion() {
+    if (!circleCIVersion) {
+        circleCIVersion = getPackageVersion('circleci-node');
+    }
     return circleCIVersion;
 }
 
 /**
- * Gets the version of Dev Container Python from package.json.
- * @returns {string} The version of Dev Container Python
+ * Gets the version of the Dev Container Python from its Dockerfile or package.json.
+ * @returns {string} The Python version used in the dev container
  */
 function getDevContainerPythonVersion() {
+    if (!devContainerPythonVersion) {
+        // Attempt to read from .devcontainer Dockerfile if exists
+        try {
+            const dockerfile = require('fs').readFileSync('.devcontainer/Dockerfile', 'utf8');
+            const match = dockerfile.match(/FROM.+python:(\d+\.\d+\.\d+)/i);
+            devContainerPythonVersion = match ? match[1] : '';
+        } catch (_) {
+            devContainerPythonVersion = '';
+        }
+    }
     return devContainerPythonVersion;
 }
 
 /**
- * Gets the version of Dev Container Node from package.json.
- * @returns {string} The version of Dev Container Node
+ * Gets the version of the Dev Container Node from .devcontainer devcontainer.json.
+ * @returns {string} The Node version used in the dev container
  */
 function getDevContainerNodeVersion() {
-    return devContainerNodeVersion;
-}
-
-/**
- * Gets the version of Travis Node from package.json.
- * @returns {string} The version of Travis Node
- */
-function getTravisNodeVersion() {
-    return travisNodeVersion;
-}
-
-/**
- * Gets the version of Renovate updates from package.json.
- * @returns {string} The version of Renovate
- */
-function getRenovateUpdates() {
-    return renovateUpdates;
-}
-
-module.exports = {
-    getLodashVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getRenovateUpdates,
-};
+    if (!devContainerNodeVersion) {
+        try {
+            const devconf = require('./.devcontainer/devcontainer.json');
+            devContainerNodeVersion = devconf.extensions && devconf.extensions['ms-vscode.node-debug2'];
+            if (!devContainerNodeVersion && devconf.devContainer && devconf.devContainer.contentsOnUpdate) {
+                // Fallback to looking into the Dockerfile if no explicit node version is found
+                const dockerfile = require('fs').readFileSync('.devcontainer/Dockerfile', 'utf8');
+                const match = dockerfile.match(/FROM.+node:(\d+\.\d+\.\d+)/i);
+                devContainerNode

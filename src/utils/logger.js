@@ -117,11 +117,11 @@ function _redactPaths(str) {
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
         .join('|');
 
-    // Prefix-aware pattern to catch variables like SCREEPS_TOKEN
+    // Prefix-aware pattern to catch variables like SCREEPS_TOKEN and handle suffixes/Bearer tokens
     const pattern = new RegExp(
         '\\b([a-zA-Z0-9_-]*(' +
             k +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+            ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
         'gi'
     );
 

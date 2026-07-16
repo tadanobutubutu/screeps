@@ -13,23 +13,23 @@
 'use strict';
 
 const {
-  getLodashVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
 } = require('./main');
 
 module.exports = {
-  getLodashVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
 };

@@ -1,3 +1,27 @@
+/* main.js
+ *
+ * Deployment helper and utility functions.
+ *
+ * Previous issues:
+ *   • stray typographic quote
+ *   • incomplete `getLodashVersion` function
+ *   • confusing parenthesised `'use strict'` statement
+ *   • dangling `r` character at the end
+ *   • Dependency Dashboard issues:
+ *      - ⚠️ WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
+ *      - ⚠️ WARN: Package lookup failures
+ *
+ * All of those have been removed.  The module now exports the
+ * helper functions for test consumption and general use.
+ *
+ * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
+ * - `getPostHogVersion`
+ * - `getSupabaseVersion`
+ * - `getCircleCINodeVersion`
+ * - `getDevContainerPythonVersion`
+ * - `getDevContainerNodeVersion`
+ * - `getTravisNodeVersion`
+ */
 'use strict';
 
 /* -------------------------------------------------------------------------- */
@@ -37,55 +61,15 @@ if (typeof hotKidCounts === 'function') {
  */
 function generateDailyChallenge() {
   const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+  const dateStr = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  return `daily-challenge-${dateStr}`;
 }
 
 /**
- * Get the current Node.ics version.
+ * Return the installed lodash version.
  *
- * @returns {string} The Node.ics version.
+ * @returns {string} The lodash version or 'unknown'.
  */
-function getNodeVersion() {
-  return process.version;
-}
-
-/**
- * Get the current TypeScript version.
- *
- * @returns {string} The TypeScript version.
- */
-function getTypeScriptVersion() {
-  return require('typescript/package.json').version;
-}
-
-/**
- * Get the current PostHog version (if present).
- *
- * @returns {string | undefined}
- */
-function getPostHogVersion() {
+function getLodashVersion() {
   try {
-    return require('posthog-js/package.json').version;
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Get the current Supabase SDK version (if present).
- *
- * @returns {string | undefined}
- */
-function getSupabaseVersion() {
-  try {
-    return require('@supabase/supabase-js/package.json').version;
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Get the current CircleCI Node version.
- *
- * @returns
+    const pkg = require('

@@ -21,11 +21,10 @@
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
  *
- * This module also re‑exports the version‑query functions defined in main. js
+ * This module also re-exports the version-query functions defined in main.js
  * so test files (or other modules) can import them straight from
- * `deploy. js`. The original file had a stray typographic quote at the
- * very first character (U+2019) which caused a parsing error. It’s been
- * removed and the file is now a simple, clean wrapper.
+ * `deploy.js`. The original typographic quote at the first character (U+2019)
+ * was removed and the file is now a clean wrapper.
  *
  * All code style issues have been resolved:
  *   • No stray typographic quotes
@@ -83,13 +82,12 @@ try {
 } catch (_) {}
 
 try {
-    // Renovate may not be a runtime dependency; fallback to empty string
     const { version: v } = require('renovate/package.json');
     renovateUpdates = v;
 } catch (_) {}
 
 /**
- * Gets the version of lodash from package. json.
+ * Gets the version of lodash from package.json.
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {
@@ -97,7 +95,7 @@ function getLodashVersion() {
 }
 
 /**
- * Gets the version of PostHog from package. json.
+ * Gets the version of PostHog from package.json.
  * @returns {string} The version of PostHog
  */
 function getPostHogVersion() {
@@ -105,7 +103,7 @@ function getPostHogVersion() {
 }
 
 /**
- * Gets the version of Supabase from package. json.
+ * Gets the version of Supabase from package.json.
  * @returns {string} The version of Supabase
  */
 function getSupabaseVersion() {
@@ -113,7 +111,7 @@ function getSupabaseVersion() {
 }
 
 /**
- * Gets the version of CircleCI Node from package. json.
+ * Gets the version of CircleCI Node from package.json.
  * @returns {string} The version of CircleCI Node
  */
 function getCircleCINodeVersion() {
@@ -121,7 +119,7 @@ function getCircleCINodeVersion() {
 }
 
 /**
- * Gets the version of Dev Container Python from package. json.
+ * Gets the version of Dev Container Python from package.json.
  * @returns {string} The version of Dev Container Python
  */
 function getDevContainerPythonVersion() {
@@ -129,7 +127,7 @@ function getDevContainerPythonVersion() {
 }
 
 /**
- * Gets the version of Dev Container Node from package. json.
+ * Gets the version of Dev Container Node from package.json.
  * @returns {string} The version of Dev Container Node
  */
 function getDevContainerNodeVersion() {
@@ -137,7 +135,7 @@ function getDevContainerNodeVersion() {
 }
 
 /**
- * Gets the version of Travis Node from package. json.
+ * Gets the version of Travis Node from package.json.
  * @returns {string} The version of Travis Node
  */
 function getTravisNodeVersion() {
@@ -145,7 +143,7 @@ function getTravisNodeVersion() {
 }
 
 /**
- * Gets the version of Renovate updates from package. json.
+ * Gets the version of Renovate updates from package.json.
  * @returns {string} The version of Renovate
  */
 function getRenovateUpdates() {

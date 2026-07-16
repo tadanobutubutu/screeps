@@ -156,16 +156,21 @@ function _selectTarget(creep, enemies) {
         return null;
     }
 
-    return enemies.reduce((best, enemy) => {
-        if (!best) {
-            return enemy;
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop and cache bestScore to reduce engine calls.
+    // Estimated impact: Reduces _calcThreatScore calls from 2N to N.
+    let best = null;
+    let bestScore = -Infinity;
+
+    for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i];
+        const score = _calcThreatScore(creep, enemy);
+        if (score > bestScore) {
+            bestScore = score;
+            best = enemy;
         }
+    }
 
-        const bestScore = _calcThreatScore(creep, best);
-        const enemyScore = _calcThreatScore(creep, enemy);
-
-        return enemyScore > bestScore ? enemy : best;
-    }, null);
+    return best;
 }
 
 /**

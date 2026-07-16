@@ -53,7 +53,7 @@ try {
 } catch (_) {}
 
 try {
-    const { version: v } = require('posthog-js/package.json');
+    const { version: v } = require('posthog-node/package.json');
     posthogVersion = v;
 } catch (_) {}
 
@@ -63,22 +63,22 @@ try {
 } catch (_) {}
 
 try {
-    const { version: v } = require('circleci/package.json');
+    const { version: v } = require('@circleci/circleci-cli/package.json');
     circleCIVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('devcontainer/python/package.json');
+    const { version: v } = require('devcontainer/package.json');
     devContainerPythonVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('devcontainer/node/package.json');
+    const { version: v } = require('devcontainer/package.json');
     devContainerNodeVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('@travis-ci/node/package.json');
+    const { version: v } = require('travis-ci/package.json');
     travisNodeVersion = v;
 } catch (_) {}
 

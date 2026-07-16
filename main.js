@@ -7,7 +7,6 @@
  * which caused a parsing error; it’s been removed. The file is now a simple,
  * clean, and fully typed wrapper with proper module.exports for test consumption.
  */
-
 'use strict';
 
 const {

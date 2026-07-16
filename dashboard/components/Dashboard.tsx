@@ -11,6 +11,13 @@ export default function Dashboard() {
         [copiedRoom, setCopiedRoom] = useState<string | null>(null),
         [copiedJson, setCopiedJson] = useState(false);
 
+    const formatNumber = (num: number) => {
+        if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    };
+
     const fetchStats = useCallback(async (isManual = false) => {
         if (isManual) setRefreshing(true);
         try {
@@ -162,6 +169,8 @@ export default function Dashboard() {
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <kbd
+                            className="interactive-hint"
+                            tabIndex={0}
                             title="Alt + R キーで更新できます"
                             style={{
                                 backgroundColor: '#f7fafc',
@@ -179,8 +188,8 @@ export default function Dashboard() {
                         <button
                             onClick={() => fetchStats(true)}
                             disabled={refreshing}
-                            aria-label="更新 (Alt + R)"
-                            title="データを更新 (Alt + R)"
+                            aria-label={refreshing ? '更新中...' : '更新 (Alt + R)'}
+                            title={refreshing ? '更新中...' : 'データを更新 (Alt + R)'}
                             style={{
                                 padding: '0.5rem',
                                 borderRadius: '50%',
@@ -214,7 +223,12 @@ export default function Dashboard() {
                     borderRadius: '8px',
                 }}
             >
-                <div style={{ marginBottom: '1rem' }}>
+                <div
+                    style={{ marginBottom: '1rem' }}
+                    className="interactive-hint"
+                    tabIndex={0}
+                    title={`GCL ${stats?.gcl?.level || 0} 進捗: ${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0}`}
+                >
                     <div
                         style={{
                             display: 'flex',
@@ -223,11 +237,14 @@ export default function Dashboard() {
                         }}
                     >
                         <span>🌐 GCL: {stats?.gcl?.level}</span>
-                        <span>
+                        <span style={{ fontSize: '0.85rem' }}>
+                            {stats?.gcl?.progress && stats?.gcl?.progressTotal ? (
+                                `${formatNumber(stats.gcl.progress)} / ${formatNumber(stats.gcl.progressTotal)} (`
+                            ) : ''}
                             {stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'}
-                            %
+                            %{stats?.gcl?.progress && stats?.gcl?.progressTotal ? ')' : ''}
                         </span>
                     </div>
                     <div
@@ -236,6 +253,11 @@ export default function Dashboard() {
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
                         aria-valuemax={stats?.gcl?.progressTotal || 100}
+                        aria-valuetext={`${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0} (${
+                            stats?.gcl?.progressTotal
+                                ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
+                                : '0.00'
+                        }%)`}
                         style={{
                             height: '0.5rem',
                             backgroundColor: '#edf2f7',
@@ -257,13 +279,26 @@ export default function Dashboard() {
                         />
                     </div>
                 </div>
-                <p
-                    className="interactive-hint"
-                    title="現在のサーバー時間における AI の CPU 使用量です"
-                    tabIndex={0}
-                >
-                    📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}
-                </p>
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
+                    <p
+                        className="interactive-hint"
+                        title="現在のサーバー時間における AI の CPU 使用量です"
+                        tabIndex={0}
+                        style={{ margin: 0 }}
+                    >
+                        📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}
+                    </p>
+                    {stats?.power !== undefined && (
+                        <p
+                            className="interactive-hint"
+                            title="グローバルパワーレベル (GPL) です"
+                            tabIndex={0}
+                            style={{ margin: 0 }}
+                        >
+                            💪 GPL: {stats.power}
+                        </p>
+                    )}
+                </div>
                 <div
                     style={{
                         display: 'flex',
@@ -318,7 +353,7 @@ export default function Dashboard() {
                             e.stopPropagation();
                             copyRawData();
                         }}
-                        aria-label="生データをJSONとしてコピー"
+                        aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
                         title="JSONをコピー"
                         style={{
                             fontSize: '0.7rem',

@@ -28,3 +28,8 @@
 ## 2025-05-14 - Single-pass loop for multi-criteria target selection
 **Learning:** Chaining `.filter().sort()` or `.filter().closest()` in high-frequency roles (like Repairers or Upgraders) leads to (N \log N)$ complexity and multiple array allocations per tick.
 **Action:** Replace functional chains with a single `for` loop that tracks multiple minima (priority, hit ratio, distance) to achieve (N)$ complexity and zero intermediate array allocations.
+
+## 2024-06-05 - Caching Scores in Target Selection Loops
+
+**Learning:** Using `enemies.reduce` for target selection in Screeps roles (like Defenders) often leads to recalculating the score of the current "best" candidate in every iteration. In the worst case, this results in N$ calls to the scoring function.
+**Action:** Refactor selection logic to use a single-pass `for` loop and local variable to cache the `bestScore`. This ensures exactly $ scoring calls and avoids the minor overhead of the `reduce` callback.

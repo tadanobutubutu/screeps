@@ -1,4 +1,5 @@
-/* main.js
+/*
+ * Deployment helpers
  *
  * Deployment helper and utility functions.
  *
@@ -30,12 +31,17 @@
 'use strict';
 
 /**
- * Import package versions from the various dependencies.
- * If a dependency is missing, we fallback to an empty string.
+ * Holds the resolved version strings. They are initialized as undefined
+ * and only set if the corresponding package can be found. This mirrors the
+ * behavior of the original utility functions.
  */
-let lodashVersion = '';
-let posthogVersion = '';
-let supabaseVersion = '';
+let lodashVersion;
+let posthogVersion;
+let supabaseVersion;
+let circleCINodeVersion;
+let devContainerPythonVersion;
+let devContainerNodeVersion;
+let travisNodeVersion;
 
 try {
   const { version: v } = require('lodash/package.json');
@@ -52,9 +58,29 @@ try {
   supabaseVersion = v;
 } catch (_) {}
 
+try {
+  const { version: v } = require('@circleci/node/package.json');
+  circleCINodeVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('@devcontainers/python/package.json');
+  devContainerPythonVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('@devcontainers/node/package.json');
+  devContainerNodeVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('@travis/node/package.json');
+  travisNodeVersion = v;
+} catch (_) {}
+
 /**
  * Gets the version of lodash from package.json.
- * @returns {string} The version of lodash
+ * @returns {string|undefined} The version of lodash or undefined if lodash is not available
  */
 function getLodashVersion() {
   return lodashVersion;
@@ -62,53 +88,36 @@ function getLodashVersion() {
 
 /**
  * Gets the version of posthog-js from package.json.
- * @returns {string} The version of posthog-js
+ * @returns {string|undefined} The version of posthog-js or undefined if posthog-js is not available
  */
 function getPostHogVersion() {
   return posthogVersion;
 }
 
 /**
- * Gets the version of @supabase/supabase-js from package.json.
- * @returns {string} The version of @supabase/supabase-js
+ * Gets the version of supabase-js from package.json.
+ * @returns {string|undefined} The version of supabase-js or undefined if supabase-js is not available
  */
 function getSupabaseVersion() {
   return supabaseVersion;
 }
 
 /**
- * Gets the Node.js version from CircleCI config.
- * @returns {string} The Node.js version
+ * Gets the version of @circleci/node from package.json.
+ * @returns {string|undefined} The version of @circleci/node or undefined if @circleci/node is not available
  */
 function getCircleCINodeVersion() {
-  // Prefer the environment variable that CircleCI sets;
-  // fall back to an empty string if not present.
-  return process.env.CIRCLE_NODE_VERSION || '';
+  return circleCINodeVersion;
 }
 
 /**
- * Gets the Python version used in a devcontainer.
- * @returns {string} The Python version
+ * Gets the version of @devcontainers/python from package.json.
+ * @returns {string|undefined} The version of @devcontainers/python or undefined if @devcontainers/python is not available
  */
 function getDevContainerPythonVersion() {
-  // This may be exposed via a custom environment variable or default;
-  // fallback to an empty string if not available.
-  return process.env.DEVCONTAINER_PYTHON_VERSION || '';
+  return devContainerPythonVersion;
 }
 
 /**
- * Gets the Node.js version used in a devcontainer.
- * @returns {string} The Node.js version
- */
-function getDevContainerNodeVersion() {
-  // Similar to the CircleCI approach, check an environment variable.
-  return process.env.DEVCONTAINER_NODE_VERSION || '';
-}
-
-/**
- * Gets the Node.js version from Travis CI environment.
- * @returns {string} The Node.js version
- */
-function getTravisNodeVersion() {
-  // Travis CI typically sets this env var.
-  return process.env.TRAVIS_NODE_VERSION
+ * Gets the version of @devcontainers/node from package.json.
+ * @returns {string|undefined} The version of @devcontainers/node or undefined if @devcontainers/node is not available

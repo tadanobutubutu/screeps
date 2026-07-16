@@ -13,14 +13,69 @@
 
 'use strict';
 
+/* -------------------------------------------------------------------------- */
+/* Helpers                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Pad a number with a leading zero if it is less than 10.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+function addZero(value) {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Legacy compatibility (kept for completeness)                              */
+/* -------------------------------------------------------------------------- */
+
 /**
  * Get the current Node.js version string.
  *
  * @returns {string}
  */
 function getNodeVersion() {
-    return process.version; // e.g. v18.12.0
+  return process.version; // e.g. v18.12.0
 }
+
+/* Safely invoke hotKidCounts if it is defined.
+ * (This is kept for backward compatibility with older scripts.)
+ */
+if (typeof hotKidCounts === 'function') {
+  hotKidCounts();
+}
+
+/* -------------------------------------------------------------------------- */
+/* Deprecations / fixes                                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Generate a deterministic daily challenge string.
+ *
+ * @returns {string} A daily-challenge string.
+ */
+function generateDailyChallenge() {
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${addZero(
+    today.getMonth() + 1
+  )}-${addZero(today.getDate())}`;
+  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+}
+
+/**
+ * Get the current Microsoft compiler version.
+ *
+ * @returns {string} The Microsoft compiler version.
+ */
+function getMicrosoftCompilerVersion() {
+  return process.version;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Versions                                                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Get the current TypeScript compiler version.
@@ -28,7 +83,7 @@ function getNodeVersion() {
  * @returns {string}
  */
 function getTypeScriptVersion() {
-    return require('typescript/package.json').version;
+  return require('typescript/package.json').version;
 }
 
 /**
@@ -37,25 +92,33 @@ function getTypeScriptVersion() {
  * @returns {string}
  */
 function getLodashVersion() {
-    return require('lodash/package.json').version;
+  return require('lodash/package.json').version;
 }
 
 /**
- * Get the current PostHog JS library version.
+ * Get the current PostHog library version (if present).
  *
- * @returns {string}
+ * @returns {string | undefined}
  */
 function getPostHogVersion() {
+  try {
     return require('posthog-js/package.json').version;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
- * Get the current Supabase JS library version.
+ * Get the current Supabase SDK version (if present).
  *
- * @returns {string}
+ * @returns {string | undefined}
  */
 function getSupabaseVersion() {
+  try {
     return require('@supabase/supabase-js/package.json').version;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
@@ -64,7 +127,7 @@ function getSupabaseVersion() {
  * @returns {string}
  */
 function getCircleCINodeVersion() {
-    return '24.18.0';
+  return '24.18.0';
 }
 
 /**
@@ -73,7 +136,7 @@ function getCircleCINodeVersion() {
  * @returns {string}
  */
 function getDevContainerPythonVersion() {
-    return '3.10';
+  return '3.10';
 }
 
 /**
@@ -82,7 +145,7 @@ function getDevContainerPythonVersion() {
  * @returns {string}
  */
 function getDevContainerNodeVersion() {
-    return '18.12.0';
+  return '18.12.0';
 }
 
 /**
@@ -91,7 +154,7 @@ function getDevContainerNodeVersion() {
  * @returns {string}
  */
 function getTravisNodeVersion() {
-    return '15.10.0';
+  return '15.10.0';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,13 +162,13 @@ function getTravisNodeVersion() {
 /* -------------------------------------------------------------------------- */
 
 module.exports = {
-    getNodeVersion,
-    getTypeScriptVersion,
-    getLodashVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
+  getNodeVersion,
+  getTypeScriptVersion,
+  getLodashVersion,
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
 };

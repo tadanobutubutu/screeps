@@ -4,17 +4,12 @@
  *
  * Deployment helper and utility functions.
  *
- * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised 'use strict' statement
- *   • dangling `r` character at the end
- *
  * The module now exports the helper functions for test consumption and
- * general use.
+ * general use. Previous issues such as stray typographic quotes, missing
+ * functions, and dangling characters have been resolved.
  *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
+ * The following functions are available:
+ * - `getLodashVersion`
  * - `getPostHogVersion`
  * - `getSupabaseVersion`
  * - `getCircleCINodeVersion`
@@ -22,17 +17,6 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
- *
- * This module also re-exports the version-query functions defined in main.js
- * so test files (or other modules) can import them straight from
- * `deploy.js`. The original typographic quote at the first character (U+2019)
- * was removed and the file is now a clean wrapper.
- *
- * All code style issues have been resolved:
- *   • No stray typographic quotes
- *   • All functions are fully typed & documented
- *   • Proper `module.exports` is supplied for test consumption
- *   • The code now compiles without syntax errors.
  */
 
 const fs = require('fs');
@@ -52,6 +36,72 @@ function _getPackageVersion(packageName) {
     }
 }
 
+/** Cache for resolved package versions */
+const versionCache = {};
+
 /**
- * Retrieves the version of lodash.
- * @returns {string}
+ * Read a package's version, using a cache to minimize disk I/O.
+ * @param {string} pkgName The package name to resolve.
+ * @returns {string} The resolved version or an empty string if not found.
+ */
+function readPackageVersion(pkgName) {
+    if (pkgName in versionCache) {
+        return versionCache[pkgName];
+    }
+    const version = _getPackageVersion(pkgName);
+    versionCache[pkgName] = version;
+    return version;
+}
+
+/** -------------------------------------------------------------------------- */
+/** Public functions exported
+ * These wrappers provide a very small API for getting specific versions.
+ * -------------------------------------------------------------------------- */
+
+function getLodashVersion() {
+    return readPackageVersion('lodash');
+}
+
+function getPostHogVersion() {
+    return readPackageVersion('@posthog/plugin-scoped');
+}
+
+function getSupabaseVersion() {
+    return readPackageVersion('@supabase/supabase-js');
+}
+
+function getCircleCINodeVersion() {
+    return readPackageVersion('@circleci/node');
+}
+
+function getDevContainerPythonVersion() {
+    return readPackageVersion('python');
+}
+
+function getDevContainerNodeVersion() {
+    return readPackageVersion('devcontainer');
+}
+
+function getTravisNodeVersion() {
+    return readPackageVersion('travis');
+}
+
+function getRenovateUpdates() {
+    return readPackageVersion('renovate');
+}
+
+/** -------------------------------------------------------------------------- */
+/** Exported objects
+ * Export the functions so other modules can import them directly.
+ * -------------------------------------------------------------------------- */
+
+module.exports = {
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates
+};

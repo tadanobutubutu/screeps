@@ -1,109 +1,132 @@
-/* deploy.js
- *
- * Deployment helper module.
- *
- * All of those have been removed.  The module now exports the
- * helper functions for test consumption and general use.
- *
- * Additionally, the following new functions have been added to address the
- * Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- */
 'use strict';
+
+/* -------------------------------------------------------------------------- */
+/* Helpers                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Pad a number with a leading zero if it is less than 10.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+function addZero(value) {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Legacy compatibility (kept for completeness)                              */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Safely invoke hotKidCounts if it is defined.
  * (This is kept for backward compatibility with older scripts.)
  */
 if (typeof hotKidCounts === 'function') {
-    hotKidCounts();
+  hotKidCounts();
 }
 
+/* -------------------------------------------------------------------------- */
+/* Deprecations / fixes                                                      */
+/* -------------------------------------------------------------------------- */
+
 /**
- * Generate a deterministic daily challenge string.
+ * Get the current Lodash version (if present).
  *
- * @returns {string} A daily-challenge string.
+ * @returns {string | undefined}
  */
-function generateDailyChallenge() {
-    const today = new Date();
-    const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-    // A deterministic, easy-to-assert message that contains a template literal.
-    return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+function getLodashVersion() {
+  try {
+    return require('lodash/package.json').version;
+  } catch (e) {
+    // Lodash may not be installed – expose that fact to the caller.
+    return undefined;
+  }
 }
 
 /**
- * Get the current Node.ics version.
+ * Get the current PostHog version (if present).
  *
- * @returns {string} The Node.ics version.
- */
-function getNodeVersion() {
-    return process.version;
-}
-
-/**
- * Get the current TypeScript version.
- *
- * @returns {string} The TypeScript version.
- */
-function getTypeScriptVersion() {
-    return require('typescript/package.json').version;
-}
-
-/**
- * Get the current PostHog version.
- *
- * @returns {string} The PostHog version.
+ * @returns {string | undefined}
  */
 function getPostHogVersion() {
-    return require('posthog-js/package.json').version;
+  try {
+    return require('posthog/package.json').version;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
- * Get the current Supabase version.
+ * Get the current Supabase SDK version (if present).
  *
- * @returns {string} The Supabase version.
+ * @returns {string | undefined}
  */
 function getSupabaseVersion() {
+  try {
     return require('@supabase/supabase-js/package.json').version;
+  } catch (e) {
+    return undefined;
+  }
 }
 
-/** 
- * Get the current CircleCI Node.js version.
+/**
+ * Get the Node version used by CircleCI (if present).
  *
- * @returns {string} The CircleCI Node.js version.
+ * @returns {string | undefined}
  */
 function getCircleCINodeVersion() {
-    return require('circleci-nodejs/package.json').version;
+  try {
+    // CircleCI ships with a 'circleci' package that exposes the node version
+    return require('circleci/package.json').engines.node;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
- * Get the current Dev Container Python version.
+ * Get the Python version used in a VS Code dev container (if present).
  *
- * @returns {string} The Python version in the dev container.
+ * @returns {string | undefined}
  */
 function getDevContainerPythonVersion() {
-    // Implementation placeholder; replace with actual logic.
-    return process.env.PYTHON_VERSION || 'unknown';
+  try {
+    const devContainer = require('./devcontainer.json');
+    return devContainer.python?.version || undefined;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
- * Get the current Dev Container Node.js version.
+ * Get the Node version used in a VS Code dev container (if present).
  *
- * @returns {string} The Node.js version in the dev container.
+ * @returns {string | undefined}
  */
 function getDevContainerNodeVersion() {
-    // Implementation placeholder; replace with actual logic.
-    return process.env.NODE_VERSION || 'unknown';
+  try {
+    const devContainer = require('./devcontainer.json');
+    return devContainer.node?.version || undefined;
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**
- * Get the current Travis Node.js version.
+ * Get the Node version reported by Travis CI (if present).
  *
- * @returns {string} The Node.js version used by Travis CI.
+ * @returns {string | undefined}
  */
-function get
+function getTravisNodeVersion() {
+  try {
+    return require('travis-ci/sdk/package.json').engines.node;
+  } catch (e) {
+    return undefined;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Public API                                                                */
+/* -------------------------------------------------------------------------- */
+
+/

@@ -46,31 +46,5 @@ let renovateUpdates = '';
 
 try {
     const packageInfo = require('lodash/package.json');
-    lodashVersion = packageInfo.version || '';
-} catch (_) {}
-
-try {
-    // primary: try the newer posthog-js package
-    const packageInfo = require('posthog-js/package.json');
-    posthogVersion = packageInfo.version || '';
-} catch (_) {
-    // fallback to posthog-node if posthog-js is unavailable
-    try {
-        const pkg = require('posthog-node/package.json');
-        posthogVersion = pkg.version || '';
-    } catch (_) {}
-}
-
-try {
-    const
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+    const { version: v } = packageInfo;
+    lodash

@@ -145,4 +145,20 @@ function getTravisNodeVersion() {
 }
 
 /**
- * Gets the version of Renovate updates from package
+ * Gets the version of Renovate updates from package.json.
+ * @returns {string} The version of Renovate
+ */
+function getRenovateUpdates() {
+  return renovateUpdates;
+}
+
+module.exports = {
+  getLodashVersion,
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
+  getRenovateUpdates,
+};

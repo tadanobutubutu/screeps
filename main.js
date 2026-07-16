@@ -3,13 +3,13 @@
  * Deployment helper and utility functions.
  *
  * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised `'use strict'` statement
- *   • dangling `r` character at the end
- *   • Dependency Dashboard issues:
- *      - ⚠️ WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
- *      - ⚠️ WARN: Package lookup failures
+ *   - stray typographic quote
+ *   - incomplete `getLodashVersion` function
+ *   - confusing parenthesised 'use strict' statement
+ *   - dangling `r` character at the end
+ *   - Dependency Dashboard issues:
+ *     - WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
+ *     - WARN: Package lookup failures
  *
  * All of those have been removed.  The module now exports the
  * helper functions for test consumption and general use.
@@ -22,7 +22,6 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  */
-
 'use strict';
 
 /**
@@ -46,9 +45,9 @@ function generateDailyChallenge() {
 }
 
 /**
- * Get the current Node.js version.
+ * Get the current Node.ics version.
  *
- * @returns {string} The Node.js version.
+ * @returns {string} The Node.ics version.
  */
 function getNodeVersion() {
     return process.version;
@@ -121,7 +120,7 @@ function getTravisNodeVersion() {
  * Pad a number with a leading zero if it's less than 10.
  *
  * @param {number} num - A number.
- * @returns {string} The number padded with a leading zero, or as-is.
+ * @returns {string} The number padded with a leading zero, or as- is.
  */
 function addZero(num) {
     return num < 10 ? `0${num}` : `${num}`;

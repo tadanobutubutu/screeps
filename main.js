@@ -54,35 +54,3 @@ function getPackageVersion(pkg) {
     const packageInfo = require(`${pkg}/package.json`);
     return packageInfo?.version ?? '';
   } catch {
-    return '';
-  }
-}
-
-/**
- * Retrieve the lodash package version.
- * @returns {string}
- */
-function getLodashVersion() {
-  try {
-    lodashVersion = getPackageVersion('lodash');
-    return lodashVersion;
-  } catch (e) {
-    return '';
-  }
-}
-
-/**
- * Retrieve the PostHog package version.
- * @returns {string}
- */
-function getPostHogVersion() {
-  try {
-    posthogVersion = getPackageVersion('posthog');
-    return posthogVersion;
-  } catch (e) {
-    return '';
-  }
-}
-
-/**
- * Retrieve the Supabase package version

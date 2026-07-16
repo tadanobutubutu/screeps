@@ -1,11 +1,13 @@
-/*  Deployment helpers
+'use strict';
+
+/* Deployment helpers
  *
  * Deployment helper and utility functions.
  *
  * Previous issues:
  *   • stray typographic quote
  *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised `'use strict'` statement
+ *   • confusing parenthesised 'use strict' statement
  *   • dangling `r` character at the end
  *
  * The module now exports the helper functions for test consumption and
@@ -21,11 +23,10 @@
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
  *
- * This module also re‑exports the version‑query functions defined in main.js
+ * This module also re-exports the version-query functions defined in main.js
  * so test files (or other modules) can import them straight from
- * `deploy.js`. The original file had a stray typographic quote at the
- * very first character (U+2019) which caused a parsing error. It’s been
- * removed and the file is now a simple, clean wrapper.
+ * `deploy.js`. The original typographic quote at the first character (U+2019)
+ * was removed and the file is now a clean wrapper.
  *
  * All code style issues have been resolved:
  *   • No stray typographic quotes
@@ -33,11 +34,7 @@
  *   • Proper `module.exports` is supplied for test consumption
  *   • The code now compiles without syntax errors.
  */
-'use strict';
 
-/** Import package versions from the various dependencies.
- *  If a dependency is missing, we fallback to an empty string.
- */
 let lodashVersion = '';
 let posthogVersion = '';
 let supabaseVersion = '';
@@ -47,58 +44,32 @@ let devContainerNodeVersion = '';
 let travisNodeVersion = '';
 let renovateUpdates = '';
 
-try {
-    const packageInfo = require('lodash/package.json');
-    const { version: v } = packageInfo;
-    lodashVersion = v;
-} catch (_) {}
+/**
+ * Internal helper to fetch a package's version from its package.json.
+ * @param {string} pkg - The package name to resolve.
+ * @returns {string} - The version string or an empty string if not found.
+ */
+function getPackageVersion(pkg) {
+    try {
+        const packageInfo = require(`${pkg}/package.json`);
+        return packageInfo?.version ?? '';
+    } catch {
+        return '';
+    }
+}
 
-try {
-    const packageInfo = require('posthog-js/package.json');
-    const { version: v } = packageInfo;
-    posthogVersion = v;
-} catch (_) {}
-
-try {
-    const packageInfo = require('@supabase/supabase-js/package.json');
-    const { version: v } = packageInfo;
-    supabaseVersion = v;
-} catch (_) {}
-
-try {
-    const packageInfo = require('@circleci/public-api-node-sdk/package.json');
-    const { version: v } = packageInfo;
-    circleCIVersion = v;
-} catch (_) {}
-
-try {
-    const packageInfo = require('@devcontainers/images/package.json');
-    const { version: v } = packageInfo;
-    devContainerPythonVersion = v;
-} catch (_) {}
-
-try {
-    const packageInfo = require('@devcontainers/images/package.json');
-    const { version: v } = packageInfo;
-    devContainerNodeVersion = v;
-} catch (_) {}
-
-try {
-    const packageInfo = require('travis-merge-deploy/package.json');
-    const { version: v } = packageInfo;
-    travisNodeVersion = v;
-} catch (_) {}
-
-try {
-    // Renovate may not be a runtime dependency; fallback to empty string
-    const packageInfo = require('renovate/package.json');
-    const { version: v } = packageInfo;
-    renovateUpdates = v;
-} catch (_) {}
+lodashVersion = getPackageVersion('lodash');
+posthogVersion = getPackageVersion('posthog-js');
+supabaseVersion = getPackageVersion('@supabase/supabase-js');
+circleCIVersion = getPackageVersion('@circleci/public-api-node-sdk');
+devContainerPythonVersion = getPackageVersion('@devcontainers/images');
+devContainerNodeVersion = getPackageVersion('@devcontainers/images');
+travisNodeVersion = getPackageVersion('travis-merge-deploy');
+renovateUpdates = getPackageVersion('renovate');
 
 /**
- * Gets the version of lodash from package.json.
- * @returns {string} The version of lodash
+ * Gets the version of Lodash from package.json.
+ * @returns {string} The version of Lodash
  */
 function getLodashVersion() {
     return lodashVersion;

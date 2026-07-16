@@ -44,6 +44,20 @@ let devContainerNodeVersion = '';
 let travisNodeVersion = '';
 let renovateUpdates = '';
 
+/**
+ * Internal helper to fetch a package's version from its package.json.
+ * @param {string} pkg - The package name to resolve.
+ * @returns {string} - The version string or an empty string if not found.
+ */
+function getPackageVersion(pkg) {
+  try {
+    const packageInfo = require(`${pkg}/package.json`);
+    return packageInfo?.version ?? '';
+  } catch {
+    return '';
+  }
+}
+
 // Resolve individual dependency versions
 try {
     const packageInfo = require('lodash/package.json');
@@ -76,4 +90,7 @@ try {
 } catch (_) {}
 
 try {
-    const
+    const packageInfo = require('@devcontainers/images/package.json');
+    const { version: v } = packageInfo;
+    devContainerNodeVersion = v;
+} catch (_) {}

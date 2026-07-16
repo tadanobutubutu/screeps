@@ -1,6 +1,6 @@
-/* main.js
+/* deploy.js
  *
- * Deployment helper and utility functions.
+ * Deployment helper module.
  *
  * Previous issues:
  *   - stray typographic quote
@@ -21,6 +21,11 @@
  * - `getDevContainerPythonVersion`
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
+ *
+ * The original file suffered from several syntax problems:
+ *   • a typographic quote (`’`) that broke the parser
+ *   • incomplete `getLodashVersion` implementation
+ *   • an accidental dangling
  */
 'use strict';
 

@@ -72,7 +72,9 @@ function injectEnvVars(content) {
  */
 function sanitizeLog(str) {
     if (typeof str !== 'string') return str;
-    const pathRedacted = str.replace(/(\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
+    // Matches /abs/path or C:\abs\path. Requires at least one subdirectory level for Unix paths
+    // to avoid false positives on mathematical division (e.g., 1/2) or root slashes.
+    const pathRedacted = str.replace(/(\/[a-zA-Z0-9_-]+\/|[a-zA-Z]:\\)[^ \n\t"']*/g, '[REDACTED]');
 
     // Security: Redact sensitive information with improved pattern and obfuscated keywords.
     const keys = [
@@ -90,11 +92,11 @@ function sanitizeLog(str) {
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
         .join('|');
 
-    // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle quoted values
+    // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle suffixes/Bearer tokens
     const secretPattern = new RegExp(
         '\\b([a-zA-Z0-9_-]*(' +
             keys +
-            '))\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|([^ \\n\\t"\' ]+))',
+            ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
         'gi'
     );
 

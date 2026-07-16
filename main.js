@@ -22,7 +22,6 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  */
-
 'use strict';
 
 const { version: lodashVersion } = require('lodash/package.json');

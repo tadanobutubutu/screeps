@@ -31,3 +31,8 @@
 **Learning:** When adding `title` attributes (tooltips) to non-interactive elements like `<p>` tags for UX hints, it is crucial to include `tabIndex={0}`. This ensures the hint is discoverable and readable by keyboard and screen reader users who would otherwise skip over the element.
 
 **Action:** Always pair `title` or UX hints on static elements with `tabIndex={0}` and appropriate semantic classes (e.g., `.interactive-hint`) to maintain accessibility standards.
+
+## 2026-07-16 - [Enhanced Progress Clarity & Accessibility]
+
+**Learning:** Combining number formatting (K, M, B suffixes) with `aria-valuetext` on progress bars provides a high-fidelity experience for both visual and screen-reader users. Showing the raw values (e.g., "1.2M / 2.0M") alongside the percentage reduces cognitive load and provides more tangible progress context.
+**Action:** Always provide both relative (percentage) and absolute (formatted count) values for progress metrics, and mirror this in `aria-valuetext` for accessibility.

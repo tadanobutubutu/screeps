@@ -7,7 +7,6 @@
  * very first character (U+2019) which caused a parsing error.  It’s
  * been removed and the file is now a simple, clean wrapper.
  */
-
 'use strict';
 
 const {

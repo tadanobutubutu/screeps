@@ -86,12 +86,12 @@ function getSupabaseVersion() {
  * Return the version string of CircleCI.
  * @returns {string}
  */
-function getCircleCIversion() {
+function getCircleCI() {
     return circleCIVersion;
 }
 
 /**
- * Return the version string of DevContainer Python.
+ * Return the version string of the Dev Container Python extension.
  * @returns {string}
  */
 function getDevContainerPythonVersion() {
@@ -99,7 +99,7 @@ function getDevContainerPythonVersion() {
 }
 
 /**
- * Return the version string of DevContainer Node.
+ * Return the version string of the Dev Container Node extension.
  * @returns {string}
  */
 function getDevContainerNodeVersion() {
@@ -107,7 +107,7 @@ function getDevContainerNodeVersion() {
 }
 
 /**
- * Return the version string of Travis CI Node.
+ * Return the version string of Travis CI Node package.
  * @returns {string}
  */
 function getTravisNodeVersion() {
@@ -115,7 +115,7 @@ function getTravisNodeVersion() {
 }
 
 /**
- * Return the version string of Renovate updates.
+ * Return the version string of the Renovate package.
  * @returns {string}
  */
 function getRenovateUpdates() {
@@ -126,19 +126,9 @@ module.exports = {
     getLodashVersion,
     getPosthogVersion,
     getSupabaseVersion,
-    getCircleCIversion,
+    getCircleCI,
     getDevContainerPythonVersion,
     getDevContainerNodeVersion,
     getTravisNodeVersion,
-    getRenovate
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+    getRenovateUpdates
+};

@@ -78,4 +78,67 @@ function getPosthogVersion() {
  * Return the version string of the Supabase JavaScript client.
  * @returns {string}
  */
-function getSupabaseVersion()
+function getSupabaseVersion() {
+    return supabaseVersion;
+}
+
+/**
+ * Return the version string of CircleCI.
+ * @returns {string}
+ */
+function getCircleCIversion() {
+    return circleCIVersion;
+}
+
+/**
+ * Return the version string of DevContainer Python.
+ * @returns {string}
+ */
+function getDevContainerPythonVersion() {
+    return devContainerPythonVersion;
+}
+
+/**
+ * Return the version string of DevContainer Node.
+ * @returns {string}
+ */
+function getDevContainerNodeVersion() {
+    return devContainerNodeVersion;
+}
+
+/**
+ * Return the version string of Travis CI Node.
+ * @returns {string}
+ */
+function getTravisNodeVersion() {
+    return travisNodeVersion;
+}
+
+/**
+ * Return the version string of Renovate updates.
+ * @returns {string}
+ */
+function getRenovateUpdates() {
+    return renovateUpdates;
+}
+
+module.exports = {
+    getLodashVersion,
+    getPosthogVersion,
+    getSupabaseVersion,
+    getCircleCIversion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovate
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

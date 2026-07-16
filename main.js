@@ -92,3 +92,5 @@ module.exports = {
     getCircleCINodeVersion,
     getDevContainerPythonVersion,
     getDevContainerNodeVersion,
+    getTravisNodeVersion
+};

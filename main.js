@@ -53,7 +53,7 @@ try {
 } catch (_) {}
 
 try {
-    const { version: v } = require('posthog-js/package.json');
+    const { version: v } = require('posthog-node/package.json');
     posthogVersion = v;
 } catch (_) {}
 
@@ -89,7 +89,7 @@ try {
 } catch (_) {}
 
 /**
- * Gets the version of lodash from package. json.
+ * Gets the version of lodash from package.json.
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {
@@ -97,7 +97,7 @@ function getLodashVersion() {
 }
 
 /**
- * Gets the version of PostHog from package. json.
+ * Gets the version of PostHog from package.json.
  * @returns {string} The version of PostHog
  */
 function getPostHogVersion() {
@@ -105,7 +105,7 @@ function getPostHogVersion() {
 }
 
 /**
- * Gets the version of Supabase from package. json.
+ * Gets the version of Supabase from package.json.
  * @returns {string} The version of Supabase
  */
 function getSupabaseVersion() {
@@ -113,7 +113,7 @@ function getSupabaseVersion() {
 }
 
 /**
- * Gets the version of CircleCI Node from package. json.
+ * Gets the version of CircleCI Node from package.json.
  * @returns {string} The version of CircleCI Node
  */
 function getCircleCINodeVersion() {
@@ -121,7 +121,7 @@ function getCircleCINodeVersion() {
 }
 
 /**
- * Gets the version of Dev Container Python from package. json.
+ * Gets the version of Dev Container Python from package.json.
  * @returns {string} The version of Dev Container Python
  */
 function getDevContainerPythonVersion() {
@@ -129,7 +129,7 @@ function getDevContainerPythonVersion() {
 }
 
 /**
- * Gets the version of Dev Container Node from package. json.
+ * Gets the version of Dev Container Node from package.json.
  * @returns {string} The version of Dev Container Node
  */
 function getDevContainerNodeVersion() {
@@ -137,7 +137,7 @@ function getDevContainerNodeVersion() {
 }
 
 /**
- * Gets the version of Travis Node from package. json.
+ * Gets the version of Travis Node from package.json.
  * @returns {string} The version of Travis Node
  */
 function getTravisNodeVersion() {
@@ -145,7 +145,7 @@ function getTravisNodeVersion() {
 }
 
 /**
- * Gets the version of Renovate updates from package. json.
+ * Gets the version of Renovate updates from package.json.
  * @returns {string} The version of Renovate
  */
 function getRenovateUpdates() {

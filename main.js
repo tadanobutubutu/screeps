@@ -22,6 +22,7 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  */
+
 'use strict';
 
 const { version: lodashVersion } = require('lodash/package.json');
@@ -33,7 +34,7 @@ const { version: supabaseVersion } = require('@supabase/supabase-js/package.json
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {
-  return lodashVersion;
+    return lodashVersion;
 }
 
 /**
@@ -41,7 +42,7 @@ function getLodashVersion() {
  * @returns {string} The version of posthog-js
  */
 function getPostHogVersion() {
-  return posthogVersion;
+    return posthogVersion;
 }
 
 /**
@@ -49,7 +50,7 @@ function getPostHogVersion() {
  * @returns {string} The version of @supabase/supabase-js
  */
 function getSupabaseVersion() {
-  return supabaseVersion;
+    return supabaseVersion;
 }
 
 /**
@@ -57,7 +58,7 @@ function getSupabaseVersion() {
  * @returns {string} The Node.js version
  */
 function getCircleCINodeVersion() {
-  return '24.18.0';
+    return '24.18.0';
 }
 
 /**
@@ -65,7 +66,7 @@ function getCircleCINodeVersion() {
  * @returns {string} The Python version
  */
 function getDevContainerPythonVersion() {
-  return '3.14';
+    return '3.14';
 }
 
 /**
@@ -73,23 +74,21 @@ function getDevContainerPythonVersion() {
  * @returns {string} The Node.js version
  */
 function getDevContainerNodeVersion() {
-  return '24';
+    return '16.20.0';
 }
 
 /**
- * Gets the Node.js version from Travis config
+ * Gets the Node.js version from Travis CI config
  * @returns {string} The Node.js version
  */
 function getTravisNodeVersion() {
-  return '24';
+    return '12.22.1';
 }
 
 module.exports = {
-  getLodashVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion
-};
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,

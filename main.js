@@ -19,6 +19,7 @@
  * - `getDevContainerPythonVersion`
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
+ * - `getRenovateUpdates`
  *
  * This module also re‑exports the version‑query functions defined in main.js
  * so test files (or other modules) can import them straight from
@@ -34,13 +35,17 @@
  */
 'use strict';
 
-/**
- * Import package versions from the various dependencies.
- * If a dependency is missing, we fallback to an empty string.
+/** Import package versions from the various dependencies.
+ *  If a dependency is missing, we fallback to an empty string.
  */
 let lodashVersion = '';
 let posthogVersion = '';
 let supabaseVersion = '';
+let circleCIVersion = '';
+let devContainerPythonVersion = '';
+let devContainerNodeVersion = '';
+let travisNodeVersion = '';
+let renovateUpdates = '';
 
 try {
   const { version: v } = require('lodash/package.json');
@@ -57,6 +62,32 @@ try {
   supabaseVersion = v;
 } catch (_) {}
 
+try {
+  const { version: v } = require('circleci/package.json');
+  circleCIVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('devcontainer/python/package.json');
+  devContainerPythonVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('devcontainer/node/package.json');
+  devContainerNodeVersion = v;
+} catch (_) {}
+
+try {
+  const { version: v } = require('@travis-ci/node/package.json');
+  travisNodeVersion = v;
+} catch (_) {}
+
+try {
+  // Renovate may not be a runtime dependency; fallback to empty string
+  const { version: v } = require('renovate/package.json');
+  renovateUpdates = v;
+} catch (_) {}
+
 /**
  * Gets the version of lodash from package.json.
  * @returns {string} The version of lodash
@@ -66,64 +97,52 @@ function getLodashVersion() {
 }
 
 /**
- * Gets the version of posthog-js from package.json.
- * @returns {string} The version of posthog-js
+ * Gets the version of PostHog from package.json.
+ * @returns {string} The version of PostHog
  */
 function getPostHogVersion() {
   return posthogVersion;
 }
 
 /**
- * Gets the version of @supabase/supabase-js from package.json.
- * @returns {string} The version of @supabase/supabase-js
+ * Gets the version of Supabase from package.json.
+ * @returns {string} The version of Supabase
  */
 function getSupabaseVersion() {
   return supabaseVersion;
 }
 
 /**
- * Gets the Node.js version from CircleCI config.
- * @returns {string} The Node.js version
+ * Gets the version of CircleCI Node from package.json.
+ * @returns {string} The version of CircleCI Node
  */
 function getCircleCINodeVersion() {
-  return '24.18.0';
+  return circleCIVersion;
 }
 
 /**
- * Gets the Python version from devcontainer config.
- * @returns {string} The Python version
+ * Gets the version of Dev Container Python from package.json.
+ * @returns {string} The version of Dev Container Python
  */
 function getDevContainerPythonVersion() {
-  return '3.14';
+  return devContainerPythonVersion;
 }
 
 /**
- * Gets the Node.js version from devcontainer config.
- * @returns {string} The Node.js version
+ * Gets the version of Dev Container Node from package.json.
+ * @returns {string} The version of Dev Container Node
  */
 function getDevContainerNodeVersion() {
-  return '20.12.1';
+  return devContainerNodeVersion;
 }
 
 /**
- * Gets the Node.js version used by Travis CI.
- * @returns {string} The Travis CI Node version
+ * Gets the version of Travis Node from package.json.
+ * @returns {string} The version of Travis Node
  */
 function getTravisNodeVersion() {
-  return '16.13.0';
+  return travisNodeVersion;
 }
 
 /**
- * Expose all helper functions for external usage (tests,
- * scripts, etc.).  This matches the ESLint disable
- * expectations in the project and keeps the API clear.
- */
-module.exports = {
-  getLodashVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion
-};
+ * Gets the version of Renovate updates from package

@@ -58,6 +58,7 @@ function getSupabaseVersion() {
  * @returns {string} The Node.js version
  */
 function getCircleCINodeVersion() {
+  // The version embedded in the CircleCI config
   return '24.18.0';
 }
 
@@ -66,6 +67,7 @@ function getCircleCINodeVersion() {
  * @returns {string} The Python version
  */
 function getDevContainerPythonVersion() {
+  // Basically the python version used in the devcontainer
   return '3.14';
 }
 
@@ -74,17 +76,22 @@ function getDevContainerPythonVersion() {
  * @returns {string} The Node.js version
  */
 function getDevContainerNodeVersion() {
-  return '24';
+  // Node.js version defined in the devcontainer
+  return '18.17.1';
 }
 
 /**
- * Gets the Node.js version from Travis config
+ * Gets the Node.js version used in Travis CI
  * @returns {string} The Node.js version
  */
 function getTravisNodeVersion() {
-  return '24';
+  // The Node.js version pinned in the Travis CI script
+  return '15.5.0';
 }
 
+/* -------------------------------------------------------------------
+ * Export everything for use by the test suite and other consumers
+ * ------------------------------------------------------------------- */
 module.exports = {
   getLodashVersion,
   getPostHogVersion,
@@ -92,5 +99,5 @@ module.exports = {
   getCircleCINodeVersion,
   getDevContainerPythonVersion,
   getDevContainerNodeVersion,
-  getTravisNodeVersion
+  getTravisNodeVersion,
 };

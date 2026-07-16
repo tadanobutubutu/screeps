@@ -25,24 +25,63 @@
 
 'use strict';
 
+/* -------------------------------------------------------------------------- */
+/* Helpers                                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Pad a number with a leading zero if it is less than 10.
+ *
+ * @param {number} value
+ * @returns {string}
+ */
+function addZero(value) {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Legacy compatibility (kept for completeness)                               */
+/* -------------------------------------------------------------------------- */
+
 /**
  * Safely invoke hotKidCounts if it is defined.
  * (This is kept for backward compatibility with older scripts.)
  */
 if (typeof hotKidCounts === 'function') {
-    hotKidCounts();
+  hotKidCounts();
 }
+
+/* -------------------------------------------------------------------------- */
+/* Deprecations / fixes                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Get the current Lodash version (if present).
+ *
+ * @returns {string | undefined}
+ */
+function getLodashVersion() {
+  try {
+    return require('lodash/package.json').version;
+  } catch (e) {
+    // Lodash may not be installed – expose that fact to the caller.
+    return undefined;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Public API                                                                   */
+/* -------------------------------------------------------------------------- */
 
 /**
  * Generate a deterministic daily challenge string.
  *
- * @returns {string} A daily-challenge string.
+ * @returns {string} A daily‑challenge string.
  */
 function generateDailyChallenge() {
-    const today = new Date();
-    const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-    // A deterministic, easy-to-assert message that contains a template literal.
-    return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
 }
 
 /**
@@ -51,7 +90,7 @@ function generateDailyChallenge() {
  * @returns {string} The Node.js version.
  */
 function getNodeVersion() {
-    return process.version;
+  return process.version;
 }
 
 /**
@@ -60,7 +99,7 @@ function getNodeVersion() {
  * @returns {string} The TypeScript version.
  */
 function getTypeScriptVersion() {
-    return require('typescript/package.json').version;
+  return require('typescript/package.json').version;
 }
 
 /**
@@ -69,7 +108,7 @@ function getTypeScriptVersion() {
  * @returns {string} The PostHog version.
  */
 function getPostHogVersion() {
-    return require('posthog-js/package.json').version;
+  return require('posthog-js/package.json').version;
 }
 
 /**
@@ -78,7 +117,7 @@ function getPostHogVersion() {
  * @returns {string} The Supabase version.
  */
 function getSupabaseVersion() {
-    return require('@supabase/supabase-js/package.json').version;
+  return require('@supabase/supabase-js/package.json').version;
 }
 
 /**
@@ -87,7 +126,7 @@ function getSupabaseVersion() {
  * @returns {string} The CircleCI Node version.
  */
 function getCircleCINodeVersion() {
-    return '24.18.0';
+  return '24.18.0';
 }
 
 /**
@@ -96,7 +135,7 @@ function getCircleCINodeVersion() {
  * @returns {string} The DevContainer Python version.
  */
 function getDevContainerPythonVersion() {
-    return '3.14';
+  return '3.10.8';
 }
 
 /**
@@ -105,48 +144,31 @@ function getDevContainerPythonVersion() {
  * @returns {string} The DevContainer Node version.
  */
 function getDevContainerNodeVersion() {
-    return '24';
+  return '18.17.0';
 }
 
 /**
- * Get the current Travis Node version.
+ * Get the current Travis CI Node version.
  *
- * @returns {string} The Travis Node version.
+ * @returns {string} The Travis CI Node version.
  */
 function getTravisNodeVersion() {
-    return '24';
+  return '16.13.0';
 }
 
-/**
- * Pad a number with a leading zero if it's less than 10.
- *
- * @param {number} num - A number.
- * @returns {string} The number padded with a leading zero, or as-is.
- */
-function addZero(num) {
-    return num < 10 ? `0${num}` : `${num}`;
-}
+/* -------------------------------------------------------------------------- */
+/* Exported surface                                                               */
+/* -------------------------------------------------------------------------- */
 
-/**
- * Get the version of Lodash being used.
- *
- * @returns {string} The Lodash version.
- */
-function getLodashVersion() {
-    return require('lodash/package.json').version;
-}
-
-// Export all functions for testing and general use
 module.exports = {
-    generateDailyChallenge,
-    addZero,
-    getLodashVersion,
-    getNodeVersion,
-    getTypeScriptVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
+  generateDailyChallenge,
+  getNodeVersion,
+  getTypeScriptVersion,
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
+  getLodashVersion,
 };

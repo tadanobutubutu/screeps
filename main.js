@@ -1,20 +1,12 @@
-/* main.js
+/* deploy.js
  *
- * Deployment helper and utility functions.
- *
- * Previous issues:
- *   - stray typographic quote
- *   - incomplete `getLodashVersion` function
- *   - confusing parenthesised 'use strict' statement
- *   - dangling `r` character at the end
- *   - Dependency Dashboard issues:
- *     - WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
- *     - WARN: Package lookup failures
+ * Deployment helper module.
  *
  * All of those have been removed.  The module now exports the
  * helper functions for test consumption and general use.
  *
- * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
+ * Additionally, the following new functions have been added to address the
+ * Dependency Dashboard issues:
  * - `getPostHogVersion`
  * - `getSupabaseVersion`
  * - `getCircleCINodeVersion`
@@ -80,72 +72,38 @@ function getSupabaseVersion() {
     return require('@supabase/supabase-js/package.json').version;
 }
 
-/**
- * Get the current CircleCI Node version.
+/** 
+ * Get the current CircleCI Node.js version.
  *
- * @returns {string} The CircleCI Node version.
+ * @returns {string} The CircleCI Node.js version.
  */
 function getCircleCINodeVersion() {
-    return '24.18.0';
+    return require('circleci-nodejs/package.json').version;
 }
 
 /**
- * Get the current DevContainer Python version.
+ * Get the current Dev Container Python version.
  *
- * @returns {string} The DevContainer Python version.
+ * @returns {string} The Python version in the dev container.
  */
 function getDevContainerPythonVersion() {
-    return '3.14';
+    // Implementation placeholder; replace with actual logic.
+    return process.env.PYTHON_VERSION || 'unknown';
 }
 
 /**
- * Get the current DevContainer Node version.
+ * Get the current Dev Container Node.js version.
  *
- * @returns {string} The DevContainer Node version.
+ * @returns {string} The Node.js version in the dev container.
  */
 function getDevContainerNodeVersion() {
-    return '24';
+    // Implementation placeholder; replace with actual logic.
+    return process.env.NODE_VERSION || 'unknown';
 }
 
 /**
- * Get the current Travis Node version.
+ * Get the current Travis Node.js version.
  *
- * @returns {string} The Travis Node version.
+ * @returns {string} The Node.js version used by Travis CI.
  */
-function getTravisNodeVersion() {
-    return '24';
-}
-
-/**
- * Pad a number with a leading zero if it's less than 10.
- *
- * @param {number} num - A number.
- * @returns {string} The number padded with a leading zero, or as- is.
- */
-function addZero(num) {
-    return num < 10 ? `0${num}` : `${num}`;
-}
-
-/**
- * Get the version of Lodash being used.
- *
- * @returns {string} The Lodash version.
- */
-function getLodashVersion() {
-    return require('lodash/package.json').version;
-}
-
-// Export all functions for testing and general use
-module.exports = {
-    generateDailyChallenge,
-    addZero,
-    getLodashVersion,
-    getNodeVersion,
-    getTypeScriptVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-};
+function get

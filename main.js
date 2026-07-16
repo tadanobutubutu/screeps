@@ -54,3 +54,43 @@ function getPackageVersion(pkg) {
     const packageInfo = require(`${pkg}/package.json`);
     return packageInfo?.version ?? '';
   } catch {
+    return '';
+  }
+}
+
+// Resolve individual dependency versions
+try {
+    const packageInfo = require('lodash/package.json');
+    const { version: v } = packageInfo;
+    lodashVersion = v;
+} catch (_) {}
+
+try {
+    const packageInfo = require('posthog-js/package.json');
+    const { version: v } = packageInfo;
+    posthogVersion = v;
+} catch (_) {}
+
+try {
+    const packageInfo = require('@supabase/supabase-js/package.json');
+    const { version: v } = packageInfo;
+    supabaseVersion = v;
+} catch (_) {}
+
+try {
+    const packageInfo = require('@circleci/public-api-node-sdk/package.json');
+    const { version: v } = packageInfo;
+    circleCIVersion = v;
+} catch (_) {}
+
+try {
+    const packageInfo = require('@devcontainers/images/package.json');
+    const { version: v } = packageInfo;
+    devContainerPythonVersion = v;
+} catch (_) {}
+
+try {
+    const packageInfo = require('@devcontainers/images/package.json');
+    const { version: v } = packageInfo;
+    devContainerNodeVersion = v;
+} catch (_) {}

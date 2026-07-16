@@ -31,17 +31,32 @@ if (typeof hotKidCounts === 'function') {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Get the current Lodash version (if present).
+ * Generate a deterministic daily challenge string.
  *
- * @returns {string | undefined}
+ * @returns {string} A daily-challenge string.
  */
-function getLodashVersion() {
-  try {
-    return require('lodash/package.json').version;
-  } catch (e) {
-    // Lodash may not be installed – expose that fact to the caller.
-    return undefined;
-  }
+function generateDailyChallenge() {
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+}
+
+/**
+ * Get the current Node.ics version.
+ *
+ * @returns {string} The Node.ics version.
+ */
+function getNodeVersion() {
+  return process.version;
+}
+
+/**
+ * Get the current TypeScript version.
+ *
+ * @returns {string} The TypeScript version.
+ */
+function getTypeScriptVersion() {
+  return require('typescript/package.json').version;
 }
 
 /**
@@ -51,7 +66,7 @@ function getLodashVersion() {
  */
 function getPostHogVersion() {
   try {
-    return require('posthog/package.json').version;
+    return require('posthog-js/package.json').version;
   } catch (e) {
     return undefined;
   }
@@ -70,22 +85,7 @@ function getSupabaseVersion() {
   }
 }
 
-/* -------------------------------------------------------------------------- */
-/* Main script                                                               */
-/* -------------------------------------------------------------------------- */
-
-// main.js
-
-// ... (existing code)
-
-// New function to handle Renovate updates
-function handleRenovateUpdates() {
-  console.log('Handling Renovate updates...');
-  // Add your logic here to handle Renovate updates
-  // For example, you can check for specific updates and perform actions
-}
-
-// ... (existing code)
-
-// Export the new function if needed
-// export { handleRenovateUpdates };
+/**
+ * Get the current CircleCI Node version.
+ *
+ * @returns

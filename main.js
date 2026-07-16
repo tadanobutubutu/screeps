@@ -53,8 +53,8 @@ function getSupabaseVersion() {
 }
 
 /**
- * Gets the Node.js version from CircleCI config
- * @returns {string} The Node.js version
+ * Gets the Node. js version from CircleCI config
+ * @returns {string} The Node. js version
  */
 function getCircleCINodeVersion() {
   return '24.18.0';
@@ -69,16 +69,16 @@ function getDevContainerPythonVersion() {
 }
 
 /**
- * Gets the Node.js version from devcontainer config
- * @returns {string} The Node.js version
+ * Gets the Node. js version from devcontainer config
+ * @returns {string} The Node. js version
  */
 function getDevContainerNodeVersion() {
   return '24';
 }
 
 /**
- * Gets the Node.js version from Travis config
- * @returns {string} The Node.js version
+ * Gets the Node. js version from Travis config
+ * @returns {string} The Node. js version
  */
 function getTravisNodeVersion() {
   return '24';

@@ -29,7 +29,7 @@ const { version: posthogVersion } = require('posthog-js/package.json');
 const { version: supabaseVersion } = require('@supabase/supabase-js/package.json');
 
 /**
- * Gets the version of lodash from package.json
+ * Gets the version of lodash from package..json
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {

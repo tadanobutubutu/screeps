@@ -35,16 +35,23 @@
  *   • The code now compiles without syntax errors.
  */
 
-let lodashVersion = '';
-let posthogVersion = '';
-let supabaseVersion = '';
-let circleCIVersion = '';
-let devContainerPythonVersion = '';
-let devContainerNodeVersion = '';
-let travisNodeVersion = '';
-let renovateUpdates = '';
+const fs = require('fs');
+const path = require('path');
 
-try {
-    const packageInfo = require('lodash/package.json');
-    const { version: v } = packageInfo;
-    lodash
+/**
+ * Generic helper to retrieve a package's version from its package.json.
+ * @param {string} packageName Fully qualified npm package name.
+ * @returns {string} The version string, or an empty string if unavailable.
+ */
+function _getPackageVersion(packageName) {
+    try {
+        const pkg = require(`${packageName}/package.json`);
+        return pkg.version || '';
+    } catch {
+        return '';
+    }
+}
+
+/**
+ * Retrieves the version of lodash.
+ * @returns {string}

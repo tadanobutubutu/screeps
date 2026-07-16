@@ -224,6 +224,7 @@ const logger = {
                 const formatted = format(level, msg, meta);
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
+                console.log(formatted);
                 record(level, formatted);
             }
         }

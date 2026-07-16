@@ -15,3 +15,7 @@
 **Vulnerability:** Partial data exposure in logs. The previous logic used a simple match, which failed to capture the full value if it contained spaces, even when quoted.  
 **Learning:** Redaction regexes must explicitly handle quoted strings to prevent partial leakage of multi‑word values.  
 **Prevention:** Use a regex pattern that recognizes single and double‑quoted blocks as a single value when following a sensitive keyword. Note: keywords in regex and documentation should be obfuscated or dynamically constructed (e.g., using a regex builder that escapes special characters).
+## 2026-07-16 - [Advanced Secret Redaction & Log Consistency]
+**Vulnerability:** Partial secret exposure when sensitive keywords were used as suffixes (e.g., `APP_SECRET_KEY`) or when tokens were prefixed with `Bearer ` in unquoted log entries.
+**Learning:** Security keywords should be matched as part of larger identifiers to catch variant naming conventions (e.g., `db_password`, `auth_token`). Additionally, specific token formats like `Bearer [token]` must be explicitly accounted for in unquoted value captures to ensure the full sensitive string is redacted.
+**Prevention:** Use regex patterns that allow for identifier suffixes and prefixes around keywords. Ensure unquoted value capture groups are greedy enough to include common token prefixes like `Bearer ` while still respecting word boundaries and delimiters.

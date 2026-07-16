@@ -44,7 +44,45 @@ let devContainerNodeVersion = '';
 let travisNodeVersion = '';
 let renovateUpdates = '';
 
-try {
-    const packageInfo = require('lodash/package.json');
-    const { version: v } = packageInfo;
-    lodash
+/**
+ * Internal helper to fetch a package's version from its package.json.
+ * @param {string} pkg - The package name to resolve.
+ * @returns {string} - The version string or an empty string if not found.
+ */
+function getPackageVersion(pkg) {
+  try {
+    const packageInfo = require(`${pkg}/package.json`);
+    return packageInfo?.version ?? '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Retrieve the lodash package version.
+ * @returns {string}
+ */
+function getLodashVersion() {
+  try {
+    lodashVersion = getPackageVersion('lodash');
+    return lodashVersion;
+  } catch (e) {
+    return '';
+  }
+}
+
+/**
+ * Retrieve the PostHog package version.
+ * @returns {string}
+ */
+function getPostHogVersion() {
+  try {
+    posthogVersion = getPackageVersion('posthog');
+    return posthogVersion;
+  } catch (e) {
+    return '';
+  }
+}
+
+/**
+ * Retrieve the Supabase package version

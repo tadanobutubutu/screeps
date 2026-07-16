@@ -20,6 +20,7 @@ const {
   getDevContainerPythonVersion,
   getDevContainerNodeVersion,
   getTravisNodeVersion,
+  getRenovateUpdates,
 } = require('./main');
 
 module.exports = {
@@ -30,4 +31,5 @@ module.exports = {
   getDevContainerPythonVersion,
   getDevContainerNodeVersion,
   getTravisNodeVersion,
+  getRenovateUpdates,
 };

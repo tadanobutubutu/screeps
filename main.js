@@ -73,18 +73,18 @@ function getLodashVersion() {
 
 /**
  * Gets the version of PostHog from package.json.
- * @returns {string} The version of PostHog
+ * @returns {string}
  */
 function getPostHogVersion() {
     if (!posthogVersion) {
-        posthogVersion = getPackageVersion('posthog-js');
+        posthogVersion = getPackageVersion('@posthog/plugin-scaffold');
     }
     return posthogVersion;
 }
 
 /**
  * Gets the version of Supabase from package.json.
- * @returns {string} The version of Supabase
+ * @returns {string}
  */
 function getSupabaseVersion() {
     if (!supabaseVersion) {
@@ -94,45 +94,67 @@ function getSupabaseVersion() {
 }
 
 /**
- * Gets the version of CircleCI Node from package.json.
- * @returns {string} The version of CircleCI Node
+ * Gets the version of CircleCI node from package.json.
+ * @returns {string}
  */
 function getCircleCINodeVersion() {
     if (!circleCIVersion) {
-        circleCIVersion = getPackageVersion('circleci-node');
+        circleCIVersion = getPackageVersion('@circleci/node');
     }
     return circleCIVersion;
 }
 
 /**
- * Gets the version of the Dev Container Python from its Dockerfile or package.json.
- * @returns {string} The Python version used in the dev container
+ * Gets the Python version used in the dev container.
+ * @returns {string}
  */
 function getDevContainerPythonVersion() {
     if (!devContainerPythonVersion) {
-        // Attempt to read from .devcontainer Dockerfile if exists
-        try {
-            const dockerfile = require('fs').readFileSync('.devcontainer/Dockerfile', 'utf8');
-            const match = dockerfile.match(/FROM.+python:(\d+\.\d+\.\d+)/i);
-            devContainerPythonVersion = match ? match[1] : '';
-        } catch (_) {
-            devContainerPythonVersion = '';
-        }
+        devContainerPythonVersion = getPackageVersion('@devcontainer/python');
     }
     return devContainerPythonVersion;
 }
 
 /**
- * Gets the version of the Dev Container Node from .devcontainer devcontainer.json.
- * @returns {string} The Node version used in the dev container
+ * Gets the Node.js version used in the dev container.
+ * @returns {string}
  */
 function getDevContainerNodeVersion() {
     if (!devContainerNodeVersion) {
-        try {
-            const devconf = require('./.devcontainer/devcontainer.json');
-            devContainerNodeVersion = devconf.extensions && devconf.extensions['ms-vscode.node-debug2'];
-            if (!devContainerNodeVersion && devconf.devContainer && devconf.devContainer.contentsOnUpdate) {
-                // Fallback to looking into the Dockerfile if no explicit node version is found
-                const dockerfile = require('fs').readFileSync('.devcontainer/Dockerfile', 'utf8');
-                const match = dockerfile.match(/FROM.+node:(\d+\.\d+\.\d+)/i);
-                devContainerNode
+        devContainerNodeVersion = getPackageVersion('@devcontainer/node');
+    }
+    return devContainerNodeVersion;
+}
+
+/**
+ * Gets the Node.js version used in Travis CI.
+ * @returns {string}
+ */
+function getTravisNodeVersion() {
+    if (!travisNodeVersion) {
+        travisNodeVersion = getPackageVersion('@travis/node');
+    }
+    return travisNodeVersion;
+}
+
+/**
+ * Retrieves renovate updates string from the environment or a default.
+ * @returns {string}
+ */
+function getRenovateUpdates() {
+    if (!renovateUpdates) {
+        renovateUpdates = process.env.RENOVATE_UPDATES ?? '';
+    }
+    return renovateUpdates;
+}
+
+module.exports = {
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates
+};

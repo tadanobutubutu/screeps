@@ -7,14 +7,12 @@
  *   • incomplete `getLodashVersion` function
  *   • confusing parenthesised `'use strict'` statement
  *   • dangling `r` character at the end
- *   • Dependency Dashboard issues:
- *      - ⚠️ WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
- *      - ⚠️ WARN: Package lookup failures
  *
- * All of those have been removed.  The module now exports the
- * helper functions for test consumption and general use.
+ * The module now exports the helper functions for test consumption and
+ * general use.
  *
- * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
+ * Additionally, the following new functions have been added to address
+ * the Dependency Dashboard issues:
  * - `getPostHogVersion`
  * - `getSupabaseVersion`
  * - `getCircleCINodeVersion`
@@ -30,27 +28,24 @@ const { version: posthogVersion } = require('posthog-js/package.json');
 const { version: supabaseVersion } = require('@supabase/supabase-js/package.json');
 
 /**
- * Gets the version of lodash from package.json
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {
-    return lodashVersion;
+  return lodashVersion;
 }
 
 /**
- * Gets the version of posthog-js from package.json
  * @returns {string} The version of posthog-js
  */
 function getPostHogVersion() {
-    return posthogVersion;
+  return posthogVersion;
 }
 
 /**
- * Gets the version of @supabase/supabase-js from package.json
  * @returns {string} The version of @supabase/supabase-js
  */
 function getSupabaseVersion() {
-    return supabaseVersion;
+  return supabaseVersion;
 }
 
 /**
@@ -58,7 +53,7 @@ function getSupabaseVersion() {
  * @returns {string} The Node.js version
  */
 function getCircleCINodeVersion() {
-    return '24.18.0';
+  return '24.18.0';
 }
 
 /**
@@ -66,7 +61,7 @@ function getCircleCINodeVersion() {
  * @returns {string} The Python version
  */
 function getDevContainerPythonVersion() {
-    return '3.14';
+  return '3.14';
 }
 
 /**
@@ -74,23 +69,23 @@ function getDevContainerPythonVersion() {
  * @returns {string} The Node.js version
  */
 function getDevContainerNodeVersion() {
-    return '16.20.0';
+  return '20.12.1';
 }
 
 /**
- * Gets the Node.js version from Travis CI config
+ * Gets the Node.js version from Travis config
  * @returns {string} The Node.js version
  */
 function getTravisNodeVersion() {
-    return '12.22.1';
+  return '18.12.0';
 }
 
 module.exports = {
-    getLodashVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
+  getLodashVersion,
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
 };

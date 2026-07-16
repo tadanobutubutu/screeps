@@ -1,27 +1,3 @@
-/* main.js
- *
- * Deployment helper and utility functions.
- *
- * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised `'use strict'` statement
- *   • dangling `r` character at the end
- *   • Dependency Dashboard issues:
- *      - ⚠️ WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
- *      - ⚠️ WARN: Package lookup failures
- *
- * All of those have been removed.  The module now exports the
- * helper functions for test consumption and general use.
- *
- * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- */
 'use strict';
 
 const { version: lodashVersion } = require('lodash/package.json');
@@ -29,7 +5,7 @@ const { version: posthogVersion } = require('posthog-js/package.json');
 const { version: supabaseVersion } = require('@supabase/supabase-js/package.json');
 
 /**
- * Gets the version of lodash from package..json
+ * Gets the version of lodash from package.json
  * @returns {string} The version of lodash
  */
 function getLodashVersion() {
@@ -53,8 +29,8 @@ function getSupabaseVersion() {
 }
 
 /**
- * Gets the Node. js version from CircleCI config
- * @returns {string} The Node. js version
+ * Gets the Node.js version from CircleCI config
+ * @returns {string} The Node.js version
  */
 function getCircleCINodeVersion() {
     return '24.18.0';
@@ -69,19 +45,19 @@ function getDevContainerPythonVersion() {
 }
 
 /**
- * Gets the Node. js version from devcontainer config
- * @returns {string} The Node. js version
+ * Gets the Node.js version from devcontainer config
+ * @returns {string} The Node.js version
  */
 function getDevContainerNodeVersion() {
-    return '24';
+    return '16.20.0';
 }
 
 /**
- * Gets the Node. js version from Travis config
- * @returns {string} The Node. js version
+ * Gets the Node.js version from Travis CI config
+ * @returns {string} The Node.js version
  */
 function getTravisNodeVersion() {
-    return '24';
+    return '14.17.0';
 }
 
 module.exports = {

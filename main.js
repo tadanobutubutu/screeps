@@ -1,3 +1,27 @@
+/* main.js
+ *
+ * Deployment helper and utility functions.
+ *
+ * Previous issues:
+ *   • stray typographic quote
+ *   • incomplete `getLodashVersion` function
+ *   • confusing parenthesised `'use strict'` statement
+ *   • dangling `r` character at the end
+ *   • Dependency Dashboard issues:
+ *      - ⚠️ WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
+ *      - ⚠️ WARN: Package lookup failures
+ *
+ * All of those have been removed.  The module now exports the
+ * helper functions for test consumption and general use.
+ *
+ * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
+ * - `getPostHogVersion`
+ * - `getSupabaseVersion`
+ * - `getCircleCINodeVersion`
+ * - `getDevContainerPythonVersion`
+ * - `getDevContainerNodeVersion`
+ * - `getTravisNodeVersion`
+ */
 'use strict';
 
 /* -------------------------------------------------------------------------- */
@@ -31,32 +55,20 @@ if (typeof hotKidCounts === 'function') {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Get the current Lodash version (if present).
+ * Generate a deterministic daily challenge string.
  *
- * Previous issues:
- *   - stray typographic quote
- *   - incomplete `getLodashVersion` function
- *   - confusing parenthesised 'use strict' statement
- *   - dangling `r` character at the end
- *   - Dependency Dashboard issues:
- *     - WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.
- *     - WARN: Package lookup failures
+ * @returns {string} A daily-challenge string.
+ */
+function generateDailyChallenge() {
+  const today = new Date();
+  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
+  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
+}
+
+/**
+ * Return the installed lodash version.
  *
- * All of those have been removed.  The module now exports the
- * helper functions for test consumption and general use.
- *
- * Additionally, the following new functions have been added to address the Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- *
- * The original file suffered from several syntax problems:
- *   • a typographic quote (`’`) that broke the parser
- *   • incomplete `getLodashVersion` implementation
- *   • an accidental dangling
+ * @returns {string} The lodash version or 'unknown'.
  */
 function getLodashVersion() {
   try {
@@ -98,12 +110,6 @@ function getTravisNodeVersion() {
   return '24';
 }
 
-function generateDailyChallenge() {
-  const today = new Date();
-  const dateString = `${today.getFullYear()}-${addZero(today.getMonth() + 1)}-${addZero(today.getDate())}`;
-  return `Today's challenge (${dateString}): Practice coding in JavaScript!`;
-}
-
 function getNodeVersion() {
   return process.version;
 }
@@ -116,18 +122,12 @@ function getTypeScriptVersion() {
 /* Main script                                                               */
 /* -------------------------------------------------------------------------- */
 
-// main.js
-
-// ... (existing code)
-
 // New function to handle Renovate updates
 function handleRenovateUpdates() {
   console.log('Handling Renovate updates...');
   // Add your logic here to handle Renovate updates
   // For example, you can check for specific updates and perform actions
 }
-
-// ... (existing code)
 
 // Export all functions for testing and general use
 module.exports = {
@@ -136,11 +136,3 @@ module.exports = {
   getLodashVersion,
   getNodeVersion,
   getTypeScriptVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  handleRenovateUpdates,
-};

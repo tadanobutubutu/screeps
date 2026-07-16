@@ -48,43 +48,51 @@ let travisNodeVersion = '';
 let renovateUpdates = '';
 
 try {
-    const { version: v } = require('lodash/package.json');
+    const packageInfo = require('lodash/package.json');
+    const { version: v } = packageInfo;
     lodashVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('posthog-js/package.json');
+    const packageInfo = require('posthog-js/package.json');
+    const { version: v } = packageInfo;
     posthogVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('@supabase/supabase-js/package.json');
+    const packageInfo = require('@supabase/supabase-js/package.json');
+    const { version: v } = packageInfo;
     supabaseVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('circleci/package.json');
+    const packageInfo = require('@circleci/public-api-node-sdk/package.json');
+    const { version: v } = packageInfo;
     circleCIVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('devcontainer/python/package.json');
+    const packageInfo = require('@devcontainers/images/package.json');
+    const { version: v } = packageInfo;
     devContainerPythonVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('devcontainer/node/package.json');
+    const packageInfo = require('@devcontainers/images/package.json');
+    const { version: v } = packageInfo;
     devContainerNodeVersion = v;
 } catch (_) {}
 
 try {
-    const { version: v } = require('@travis-ci/node/package.json');
+    const packageInfo = require('travis-merge-deploy/package.json');
+    const { version: v } = packageInfo;
     travisNodeVersion = v;
 } catch (_) {}
 
 try {
     // Renovate may not be a runtime dependency; fallback to empty string
-    const { version: v } = require('renovate/package.json');
+    const packageInfo = require('renovate/package.json');
+    const { version: v } = packageInfo;
     renovateUpdates = v;
 } catch (_) {}
 

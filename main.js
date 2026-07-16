@@ -19,7 +19,7 @@
  * @returns {string}
  */
 function getNodeVersion() {
-  return process.version; // e.g. v18.12.0
+    return process.version; // e.g. v18.12.0
 }
 
 /**
@@ -28,7 +28,7 @@ function getNodeVersion() {
  * @returns {string}
  */
 function getTypeScriptVersion() {
-  return require('typescript/package.json').version;
+    return require('typescript/package.json').version;
 }
 
 /**
@@ -37,7 +37,7 @@ function getTypeScriptVersion() {
  * @returns {string}
  */
 function getLodashVersion() {
-  return require('lodash/package.json').version;
+    return require('lodash/package.json').version;
 }
 
 /**
@@ -46,7 +46,7 @@ function getLodashVersion() {
  * @returns {string}
  */
 function getPostHogVersion() {
-  return require('posthog-js/package.json').version;
+    return require('posthog-js/package.json').version;
 }
 
 /**
@@ -55,7 +55,7 @@ function getPostHogVersion() {
  * @returns {string}
  */
 function getSupabaseVersion() {
-  return require('@supabase/supabase-js/package.json').version;
+    return require('@supabase/supabase-js/package.json').version;
 }
 
 /**
@@ -64,7 +64,7 @@ function getSupabaseVersion() {
  * @returns {string}
  */
 function getCircleCINodeVersion() {
-  return '24.18.0';
+    return '24.18.0';
 }
 
 /**
@@ -73,7 +73,7 @@ function getCircleCINodeVersion() {
  * @returns {string}
  */
 function getDevContainerPythonVersion() {
-  return '3.10';
+    return '3.10';
 }
 
 /**
@@ -82,7 +82,7 @@ function getDevContainerPythonVersion() {
  * @returns {string}
  */
 function getDevContainerNodeVersion() {
-  return '18.12.0';
+    return '18.12.0';
 }
 
 /**
@@ -91,7 +91,7 @@ function getDevContainerNodeVersion() {
  * @returns {string}
  */
 function getTravisNodeVersion() {
-  return '15.10.0';
+    return '15.10.0';
 }
 
 /* -------------------------------------------------------------------------- */
@@ -99,13 +99,13 @@ function getTravisNodeVersion() {
 /* -------------------------------------------------------------------------- */
 
 module.exports = {
-  getNodeVersion,
-  getTypeScriptVersion,
-  getLodashVersion,
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
+    getNodeVersion,
+    getTypeScriptVersion,
+    getLodashVersion,
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
 };

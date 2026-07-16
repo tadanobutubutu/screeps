@@ -56,6 +56,7 @@ global.Game = { creeps: {}, time: 1, getObjectById: jest.fn() };
 global.Memory = {};
 global.OK = 0;
 global.FIND_HOSTILE_CREEPS = 103;
+global.FIND_MY_STRUCTURES = 11;
 global.ATTACK = 'attack';
 global.RANGED_ATTACK = 'ranged_attack';
 global.HEAL = 'heal';

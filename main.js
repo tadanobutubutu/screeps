@@ -22,7 +22,6 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  */
-
 'use strict';
 
 /**

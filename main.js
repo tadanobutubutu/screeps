@@ -20,7 +20,7 @@
  * - getRenovateUpdates
  * - getSentryVersion
  *
- * This module also re-exports the version-query functions so test
+ * This module also re-exports the version‑query functions so test
  * files can access them.
  */
 
@@ -37,4 +37,30 @@ const { spawnSync } = require('child_process');
 function getPackageVersion(pkg, depName = pkg) {
     try {
         const pkgPath = path.join(process.cwd(), 'node_modules', pkg, 'package.json');
-        const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf
+        const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        return pkgJson.version || '';
+    } catch (e) {
+        return '';
+    }
+}
+
+/**
+ * Fetch the PostHog package version.
+ */
+function getPostHogVersion() {
+    return getPackageVersion('posthog');
+}
+
+/**
+ * Fetch the Supabase package version.
+ */
+function getSupabaseVersion() {
+    return getPackageVersion('@supabase/supabase-js');
+}
+
+/**
+ * Fetch the CircleCI Node.js version from the .circleci/config.yml if it exists.
+ */
+function getCircleCINodeVersion() {
+    try {
+        const configPath = path.join(process.cwd(), '.circleci',

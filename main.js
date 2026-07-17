@@ -1,31 +1,9 @@
 'use strict';
 
-/* Deployment helpers
- *
- * Deployment helper and utility functions.
- *
- * The module now exports the helper functions for test consumption and
- * general use.
- *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- * - `getRenovateUpdates`
- *
- * This module also re-exports the version‑query functions defined in main.js
- * so test files can access them.
- */
-
-/* Helper to safely fetch a package version from package.json or an empty string */
-function _fetchPackageVersion(pkg, depName) {
+/* Helper to safely fetch a package version from package.json or return an empty string */
+function _fetchPackageVersion(pkg, depName = pkg) {
     try {
-        // Resolve the package's package.json
-        const pkgPath = require.resolve(`${pkg}/package.json`);
+        const pkgPath = require.resolve(`${depName}/package.json`);
         const { version } = require(pkgPath);
         return typeof version === 'string' ? version : '';
     } catch (e) {
@@ -34,7 +12,7 @@ function _fetchPackageVersion(pkg, depName) {
     }
 }
 
-/* Existing helper: fetch Lodash version */
+/** Get the Lodash package semantic version or the empty string if unknown. */
 function getLodashVersion() {
     return _fetchPackageVersion('lodash');
 }
@@ -61,12 +39,12 @@ function getDevContainerNodeVersion() {
 
 /** Get the Travis Node package semantic version or the empty string if unknown. */
 function getTravisNodeVersion() {
-    return _fetchPackageVersion('node');
+    return _fetchPackageVersion('travis-ci');
 }
 
-/** Get the PostHog package semantic version or the empty string if unknown. */
+/** Get the PostHog Node package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
-    return _fetchPackageVersion('posthog-js');
+    return _fetchPackageVersion('@posthog/posthog-node');
 }
 
 /** Get the Renovate updates information or the empty string if unknown. */
@@ -81,15 +59,9 @@ function getSentryVersion() {
     return _fetchPackageVersion('@sentry/browser');
 }
 
-/* Export all helper functions for external use */
+/* Export all helper functions */
 module.exports = {
     getLodashVersion,
     getSupabaseVersion,
     getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getPostHogVersion,
-    getRenovateUpdates,
-    getSentryVersion,
-};
+    getDevContainerPython

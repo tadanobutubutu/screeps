@@ -69,71 +69,64 @@ function getSupabaseVersion() {
  * @returns {string} The CircleCI Node.js image version or an empty string if not found.
  */
 function getCircleCINodeVersion() {
-  const configPath = path.join(__dirname, '.circleci/config.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/cimg\/node (\d+\.\d+\.\d+)/);
-  return match ? match[1] : '';
+  const configPath = path.join(__dirname, '.circleci', 'config.yml');
+  try {
+    const content = fs.readFileSync(configPath, 'utf8');
+    const match = content.match(/docker\.image:\s*\"?([^\"\\s]+)\"?/i);
+    if (match && match[1]) {
+      // Extract just the Node.js version part from a Docker image name like
+      //   circleci/node:14.17.0
+      const parts = match[1].split(':');
+      return parts.length > 1 ? parts[1] : '';
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Python image used in the .devcontainer/devcontainer.json.
- * @returns {string} The Python image version or an empty string if not found.
+ * Returns the Python version used in the devcontainer.
+ * @returns {string} The Python version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  const pythonMatch = config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/);
-  return pythonMatch ? pythonMatch[1] : '';
+  const devcontainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  try {
+    const content = fs.readFileSync(devcontainerPath, 'utf8');
+    const match = content.match(/pythonVersion\s*:\s*\"?([^\"\\s]+)\"?/i);
+    if (match && match[1]) {
+      return match[1];
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Node.js image used in the .devcontainer/devcontainer.json.
- * @returns {string} The Node.js image version or an empty string if not found.
+ * Returns the Node version used in the devcontainer.
+ * @returns {string} The Node version or an empty string if not found.
  */
 function getDevContainerNodeVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  const nodeMatch = config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/);
-  return nodeMatch ? nodeMatch[1] : '';
+  const devcontainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  try {
+    const content = fs.readFileSync(devcontainerPath, 'utf8');
+    const match = content.match(/nodeVersion\s*:\s*\"?([^\"\\s]+)\"?/i);
+    if (match && match[1]) {
+      return match[1];
+    }
+    return '';
+  } catch (e) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Node.js used in the .travis.yml.
- * @returns {string} The Node.js version or an empty string if not found.
+ * Returns the Node version used in Travis CI from .travis.yml.
+ * @returns {string} The Node version or an empty string if not found.
  */
 function getTravisNodeVersion() {
-  const configPath = path.join(__dirname, '.travis.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node (\d+)/);
-  return match ? match[1] : '';
-}
-
-/**
- * Returns the list of Renovate updates awaiting their schedule.
- * @returns {string} The Renovate updates or an empty string if not found.
- */
-function getRenovateUpdates() {
-  // This is a placeholder function as Renovate updates are not directly accessible via a simple file.
-  // The actual implementation would require interaction with the Renovate API or dashboard.
-  return 'awaiting updates...';
-}
-
-/**
- * Returns the version of the Sentry package.
- * @returns {string} The Sentry version or an empty string if not found.
- */
-function getSentryVersion() {
-  return getPackageVersion('@sentry/browser');
-}
-
-// Re-exporting functions for easier use in tests
-module.exports = {
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-  getSentryVersion
-};
+  const travisPath = path.join(__dirname, '.travis.yml');
+  try {
+    const content = fs.readFileSync(travisPath, 'utf8');
+    const match = content

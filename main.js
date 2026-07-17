@@ -28,3 +28,4 @@ const { spawnSync } = require('child_process');
 /**
  * Helper to safely fetch a package version from node_modules or return an
  * empty string if
+ */

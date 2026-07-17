@@ -25,35 +25,4 @@
 function _fetchPackageVersion(pkg, depName) {
     try {
         // Resolve the package's package.json
-        const pkgPath = require.resolve(`${pkg}/package.json`);
-        const { version } = require(pkgPath);
-        return typeof version === 'string' ? version : '';
-    } catch (e) {
-        // Package not found or unparsable: return empty string
-        return '';
-    }
-}
-
-/* Existing helper: fetch Lodash version */
-function getLodashVersion() {
-    return _fetchPackageVersion('lodash');
-}
-
-/** Get the Supabase package semantic version or the empty string if unknown. */
-function getSupabaseVersion() {
-    return _fetchPackageVersion('@supabase/supabase-js');
-}
-
-/** Get the CircleCI Node package semantic version or the empty string if unknown. */
-function getCircleCINodeVersion() {
-    return _fetchPackageVersion('cimg/node');
-}
-
-/** Get the DevContainer Python package semantic version or the empty string if unknown. */
-function getDevContainerPythonVersion() {
-    return _fetchPackageVersion('mcr.microsoft.com/devcontainers/python');
-}
-
-/** Get the DevContainer Node package semantic version or the empty string if unknown. */
-function getDevContainerNodeVersion() {
-    return _fetchPackageVersion('ghcr.io/devcontainers/features/node');
+        const pkgPath

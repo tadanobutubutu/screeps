@@ -57,4 +57,99 @@ function getPostHogVersion() {
 }
 
 /**
- * Returns the version of
+ * Returns the version of the Supabase package.
+ * @returns {string} The Supabase version or an empty string if not found.
+ */
+function getSupabaseVersion() {
+  return getPackageVersion('@supabase/supabase-js');
+}
+
+/**
+ * Returns the version of the CircleCI Node.js image used in the .circleci/config.yml.
+ * @returns {string} The CircleCI Node.js image version or an empty string if not found.
+ */
+function getCircleCINodeVersion() {
+  const configPath = path.join(__dirname, '.circleci', 'config.yml');
+  try {
+    const content = fs.readFileSync(configPath, 'utf8');
+    // Attempt to capture the image tag after "cimg/node:"
+    const match = content.match(/cimg\/node:([^\s]+)/);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Returns the version of the Python runtime in the devcontainer.
+ * @returns {string} The Python version or an empty string if not found.
+ */
+function getDevContainerPythonVersion() {
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
+  try {
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM python:([^\s]+)/im);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Returns the Node.js version used in the devcontainer.
+ * @returns {string} The Node.js version or an empty string if not found.
+ */
+function getDevContainerNodeVersion() {
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
+  try {
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM node:([^\s]+)/i);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Returns the version of the Travis Node.js version used in the .travis.yml.
+ * @returns {string} The Travis Node.js version or an empty string if not found.
+ */
+function getTravisNodeVersion() {
+  const configPath = path.join(__dirname, '.travis.yml');
+  try {
+    const content = fs.readFileSync(configPath, 'utf8');
+    // Attempt to capture the node_js version after "node_js:"
+    const match = content.match(/node_js\s*:\s*['"]?([^'">\s]+)['"]?/);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Returns the version of the Renovate package.
+ * @returns {string} The Renovate version or an empty string if not found.
+ */
+function getRenovateUpdates() {
+  return getPackageVersion('renovate');
+}
+
+/**
+ * Returns the version of the Sentry package.
+ * @returns {string} The Sentry version or an empty string if not found.
+ */
+function getSentryVersion() {
+  return getPackageVersion('sentry');
+}
+
+// Export all functions for easier use in tests.
+module.exports = {
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
+  getRenovateUpdates,
+  getSentryVersion,
+};

@@ -31,41 +31,41 @@
 
 // Example of how the new functions might look (implementation would depend on actual requirements)
 function getPostHogVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getSupabaseVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getCircleCINodeVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getDevContainerPythonVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getDevContainerNodeVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getTravisNodeVersion() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 function getRenovateUpdates() {
-  // Implementation would go here
+    // Implementation would go here
 }
 
 // Export all functions
 module.exports = {
-  // Existing exports...
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates
+    // Existing exports...
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
 };

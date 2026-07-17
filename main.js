@@ -20,7 +20,7 @@
  * - getRenovateUpdates
  * - getSentryVersion
  *
- * This module also re-exports the version-query functions so test
+ * This module also re-exports the version‑query functions so test
  * files can access them.
  */
 
@@ -64,108 +64,31 @@ function getCircleCINodeVersion() {
     return getPackageVersion('cimg/node');
 }
 
-/** Get the Dev Container Python version or the empty string if unknown. */
+/** Get the Dev Container Python package semantic version or the empty string if unknown. */
 function getDevContainerPythonVersion() {
-    try {
-        const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        if (fs.existsSync(devcontainerPath)) {
-            const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"python"\s*:\s*"([^"]+)"/);
-            return match ? match[1] : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
+    return getPackageVersion('devcontainers/python');
 }
 
-/** Get the Dev Container Node version or the empty string if unknown. */
+/** Get the Dev Container Node package semantic version or the empty string if unknown. */
 function getDevContainerNodeVersion() {
-    try {
-        const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        if (fs.existsSync(devcontainerPath)) {
-            const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"node"\s*:\s*"([^"]+)"/);
-            return match ? match[1] : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
+    return getPackageVersion('devcontainers/node');
 }
 
-/** Get the Travis Node version or the empty string if unknown. */
+/** Get the Travis CI Node package semantic version or the empty string if unknown. */
 function getTravisNodeVersion() {
-    try {
-        const travisPath = path.join(process.cwd(), '.travis.yml');
-        if (fs.existsSync(travisPath)) {
-            const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?(\d+)/);
-            return match ? `v${match[1]}` : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
+    return getPackageVersion('travis-ci/node');
 }
 
-/** Get the Sentry Browser version or the empty string if unknown. */
-function getSentryVersion() {
-    return getPackageVersion('@sentry/browser');
-}
-
-/** Get the Renovate updates summary as a formatted string. */
+/** Get the Renovate updates package version or the empty string if unknown. */
 function getRenovateUpdates() {
-    const updates = [];
-
-    // CircleCI updates
-    const circleciNode = getCircleCINodeVersion();
-    if (circleciNode) {
-        updates.push(`CircleCI Node: ${circleciNode}`);
-    }
-
-    // Dev Container updates
-    const devcontainerPython = getDevContainerPythonVersion();
-    if (devcontainerPython) {
-        updates.push(`Dev Container Python: ${devcontainerPython}`);
-    }
-
-    const devcontainerNode = getDevContainerNodeVersion();
-    if (devcontainerNode) {
-        updates.push(`Dev Container Node: ${devcontainerNode}`);
-    }
-
-    // Travis updates
-    const travisNode = getTravisNodeVersion();
-    if (travisNode) {
-        updates.push(`Travis Node: ${travisNode}`);
-    }
-
-    // npm package updates
-    const lodashVer = getLodashVersion();
-    if (lodashVer) {
-        updates.push(`lodash: ${lodashVer}`);
-    }
-
-    const posthogVer = getPostHogVersion();
-    if (posthogVer) {
-        updates.push(`posthog-js: ${posthogVer}`);
-    }
-
-    const supabaseVer = getSupabaseVersion();
-    if (supabaseVer) {
-        updates.push(`@supabase/supabase-js: ${supabaseVer}`);
-    }
-
-    const sentryVer = getSentryVersion();
-    if (sentryVer) {
-        updates.push(`@sentry/browser: ${sentryVer}`);
-    }
-
-    return updates.length > 0 ? updates.join('\n') : 'No updates detected';
+    return getPackageVersion('renovate');
 }
 
-// Export all helper functions
+/** Get the Sentry SDK package semantic version or the empty string if unknown. */
+function getSentryVersion() {
+    return getPackageVersion('sentry-sdk');
+}
+
 module.exports = {
     getPackageVersion,
     getLodashVersion,
@@ -175,6 +98,6 @@ module.exports = {
     getDevContainerPythonVersion,
     getDevContainerNodeVersion,
     getTravisNodeVersion,
-    getSentryVersion,
     getRenovateUpdates,
+    getSentryVersion
 };

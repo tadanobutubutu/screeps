@@ -72,36 +72,19 @@ function getCircleCINodeVersion() {
   const configPath = path.join(__dirname, '.circleci', 'config.yml');
   try {
     const content = fs.readFileSync(configPath, 'utf8');
-    // Look for a line like: image: cimg/node:16.13.1
-    const match = content.match(/image:\s*cimg\/node:([\d\.]+)/);
-    if (match) {
-      return match[1];
-    }
-    return '';
+    // Look for the first occurrence of something like: image: cimg/node:XX.YZ
+    const match = content.match(/image:\s*cimg\/node:([^\s]+)/i);
+    return match ? match[1].trim() : '';
   } catch (error) {
     return '';
   }
 }
 
 /**
- * Returns the Python version used in the devcontainer.json.
+ * Returns the Python version specified in the devcontainer.json.
  * @returns {string} The Python version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const devcontainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
   try {
-    const json = JSON.parse(fs.readFileSync(devcontainerPath, 'utf8'));
-    // In many setups, python is specified under 'containerEnv' or directly as 'python'
-    if (json.python) return json.python;
-    if (json.containerEnv && json.containerEnv.PYTHON_VERSION) {
-      return json.containerEnv.PYTHON_VERSION;
-    }
-    return '';
-  } catch (error) {
-    return '';
-  }
-}
-
-/**
- * Returns the Node version used in the devcontainer.json.
- * @returns {string} The Node version or an empty string if not found
+    const json = JSON.parse(fs

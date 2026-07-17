@@ -24,10 +24,10 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in
- * main.js so test files can access them
+ * main.js so test files can access them.
  */
 
- // Helper to safely fetch a package version from package.json or empty string
+/* Helper to safely fetch a package version from package.json or an empty string */
 function _fetchPackageVersion(pkg, depName) {
     if (!pkg) return '';
     const deps = pkg.dependencies || {};
@@ -74,56 +74,33 @@ function getCircleCINodeVersion() {
 }
 
 /**
- * Get the Dev Container Python version or empty string if not defined.
+ * Get the DevContainer Python package semantic version or the empty string if unknown.
  */
 function getDevContainerPythonVersion() {
-    try {
-        const dc = require('./.devcontainer/devcontainer.json');
-        return dc.python?.version || '';
-    } catch (_) {
-        return '';
-    }
+    return _fetchPackageVersion(pkg, 'devcontainer-python');
 }
 
 /**
- * Get the Dev Container Node version or empty string if not defined.
+ * Get the DevContainer Node package semantic version or the empty string if unknown.
  */
 function getDevContainerNodeVersion() {
-    try {
-        const dc = require('./.devcontainer/devcontainer.json');
-        return dc.node?.version || '';
-    } catch (_) {
-        return '';
-    }
+    return _fetchPackageVersion(pkg, 'devcontainer-node');
 }
 
 /**
- * Get the Travis CI Node version from .travis.yml if present, otherwise empty string.
+ * Get the Travis CI Node package semantic version or the empty string if unknown.
  */
 function getTravisNodeVersion() {
-    try {
-        const travisYml = require('./.travis.yml');
-        // travisYml may be parsed by require if valid JSON, but typical .yml is YAML.
-        // For simplicity, try require and fallback to empty.
-        return travisYml.node_js ? (Array.isArray(travisYml.node_js) ? travisYml.node_js[0] : travisYml.node_js) : '';
-    } catch (_) {
-        return '';
-    }
+    return _fetchPackageVersion(pkg, 'travis-ci-node');
 }
 
 /**
- * Return information about Renovate updates configuration if present.
+ * Get the Renovate update package semantic version or the empty string if unknown.
  */
 function getRenovateUpdates() {
-    try {
-        const r = require('./renovate.json');
-        return JSON.stringify(r);
-    } catch (_) {
-        return '';
-    }
+    return _fetchPackageVersion(pkg, 'renovate');
 }
 
-// Export all helper functions
 module.exports = {
     getLodashVersion,
     getPostHogVersion,

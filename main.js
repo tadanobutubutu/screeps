@@ -35,14 +35,14 @@ let _cachedPkg = null;
 
 /** @returns {{[key:string]:any}} */
 const getPackageJson = () => {
-  if (!_cachedPkg) {
-    const pkgPath = path.resolve(__dirname, 'package.json');
-    if (!fs.existsSync(pkgPath)) {
-      throw new Error(`package.json not found at ${pkgPath}`);
+    if (!_cachedPkg) {
+        const pkgPath = path.resolve(__dirname, 'package.json');
+        if (!fs.existsSync(pkgPath)) {
+            throw new Error(`package.json not found at ${pkgPath}`);
+        }
+        _cachedPkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
     }
-    _cachedPkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-  }
-  return _cachedPkg;
+    return _cachedPkg;
 };
 
 /**
@@ -50,4 +50,4 @@ const getPackageJson = () => {
  * @param {string} name
  * @returns {string|null}
  */
-const getDependencyVersion
+const getDependencyVersion;

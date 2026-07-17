@@ -1,3 +1,5 @@
+'use strict';
+
 /* deploy.js – Deployment helper utilities
  *
  * The original file contained typographic quotation marks (smart
@@ -22,11 +24,43 @@
  * main.js so test files can access them.
  */
 
-'use strict';
-
-/* Helper to safely fetch a package version from package.json or return an empty string */
-function _fetchPackageVersion(pkg, depName) {
+/**
+ * Helper to safely fetch a package version from package.json or return an empty string.
+ * @param {string} pkg - The package name to look up.
+ * @param {string} [depName] - Optional dependency name to resolve against; defaults to pkg.
+ * @returns {string} The semantic version string or an empty string if unresolved.
+ */
+function _fetchPackageVersion(pkg, depName = pkg) {
     try {
-        const pkgPath = require.resolve(`${pkg}/package.json`);
+        const pkgPath = require.resolve(`${depName}/package.json`);
         const { version } = require(pkgPath);
-        return
+        return typeof version === 'string' ? version : '';
+    } catch (e) {
+        // Package not found or unparsable: return empty string
+        return '';
+    }
+}
+
+/** Get the Lodash package semantic version or the empty string if unknown. */
+export function getLodashVersion() {
+    return _fetchPackageVersion('lodash');
+}
+
+/** Get the Supabase package semantic version or the empty string if unknown. */
+export function getSupabaseVersion() {
+    return _fetchPackageVersion('@supabase/supabase-js');
+}
+
+/** Get the CircleCI Node package semantic version or the empty string if unknown. */
+export function getCircleCINode
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

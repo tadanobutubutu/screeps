@@ -26,22 +26,24 @@ const fs = require('fs');
 const { spawnSync } = require('child_process');
 
 /**
- * Helper to safely fetch a package version from package.json (via node_modules) or return an empty string.
- * @param {string} pkg - The package name to look up.
- * @param {string} [depName=pkg] - Optional dependency name to resolve against.
- * @returns {string} The semantic version string or an empty string if unresolved.
+ * Helper to safely fetch a package version from node_modules or return an
+ * empty string if the package cannot be resolved.
+ *
+ * @param {string} pkg   - The package name to look up.
+ * @param {string} [depName= pkg] - Optional dependency name to resolve against.
+ * @returns {string} The resolved version or an empty string if not found.
  */
 function getPackageVersion(pkg, depName = pkg) {
-    try {
-        const pkgPath = path
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+  try {
+    const packageJsonPath = path.join(
+      __dirname,
+      'node_modules',
+      depName,
+      'package.json'
+    );
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    return packageJson.version || '';
+  } catch (e) {
+    return '';
+  }
+}

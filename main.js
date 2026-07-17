@@ -56,13 +56,5 @@ export function getCircleCINodeVersion() {
     return _fetchPackageVersion('@circleci/node');
 }
 
-/**
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/** Get the Travis Node package semantic version or the empty string if unknown. */
+export function getTr

@@ -109,5 +109,5 @@ module.exports = {
     getDevContainerPythonVersion,
     getDevContainerNodeVersion,
     getTravisNodeVersion,
-    getRenovateUpdates
+    getRenovateUpdates,
 };

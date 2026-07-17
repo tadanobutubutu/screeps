@@ -1,32 +1,9 @@
-/* deploy.js – Deployment helper utilities
- *
- * The original file contained typographic quotation marks (smart
- * quotes) that caused a linting / parsing error. Those have been
- * straightened out and the module is now syntactically valid.
- *
- * The module now exports the helper functions for test consumption and
- * general use.
- *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- * - `getRenovateUpdates`
- * - `getSentryVersion`
- *
- * This module also re-exports the version‑query functions defined in main.js so test files can access them.
- */
-
 'use strict';
 
 /* Helper to safely fetch a package version from package.json or return an empty string */
-function _fetchPackageVersion(pkg, depName) {
+function _fetchPackageVersion(pkg, depName = pkg) {
     try {
-        const pkgPath = require.resolve(`${pkg}/package.json`);
+        const pkgPath = require.resolve(`${depName}/package.json`);
         const { version } = require(pkgPath);
         return typeof version === 'string' ? version : '';
     } catch (e) {
@@ -35,7 +12,7 @@ function _fetchPackageVersion(pkg, depName) {
     }
 }
 
-/* Existing helper: fetch Lodash version */
+/** Get the Lodash package semantic version or the empty string if unknown. */
 function getLodashVersion() {
     return _fetchPackageVersion('lodash');
 }
@@ -65,8 +42,11 @@ function getTravisNodeVersion() {
     return _fetchPackageVersion('node');
 }
 
-/** Get the PostHog package semantic version or the empty string if unknown. */
+/** Get the PostHog Node package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
+    // Prefer the dedicated PostHog Node library, but fall back to the legacy browser SDK if unavailable
+    const nodeVersion = _fetchPackageVersion('@posthog/posthog-node');
+    if (nodeVersion) return nodeVersion;
     return _fetchPackageVersion('posthog-js');
 }
 
@@ -90,6 +70,11 @@ function getRenovateUpdates() {
     };
 }
 
+/** Get the Renovate tool semantic version or the empty string if unknown. */
+function getRenovateVersion() {
+    return _fetchPackageVersion('@renovate/renovate');
+}
+
 // Re-export all version-query functions for test consumption
 module.exports = {
     getLodashVersion,
@@ -100,4 +85,5 @@ module.exports = {
     getTravisNodeVersion,
     getPostHogVersion,
     getRenovateUpdates,
+    getRenovateVersion,
 };

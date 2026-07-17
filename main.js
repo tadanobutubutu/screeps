@@ -18,7 +18,7 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *
- * The exported functions are also re‑exported for easier use in tests.
+ * The exported functions are also re-exported for easier use in tests.
  */
 
 const path = require('path');

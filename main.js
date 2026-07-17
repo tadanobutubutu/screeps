@@ -31,48 +31,48 @@
 
 // New functions added to address Dependency Dashboard issues
 function getPostHogVersion() {
-  // Implementation to get PostHog version
-  return 'posthog-version';
+    // Implementation to get PostHog version
+    return 'posthog-version';
 }
 
 function getSupabaseVersion() {
-  // Implementation to get Supabase version
-  return 'supabase-version';
+    // Implementation to get Supabase version
+    return 'supabase-version';
 }
 
 function getCircleCINodeVersion() {
-  // Implementation to get CircleCI Node version
-  return 'circleci-node-version';
+    // Implementation to get CircleCI Node version
+    return 'circleci-node-version';
 }
 
 function getDevContainerPythonVersion() {
-  // Implementation to get Dev Container Python version
-  return 'dev-container-python-version';
+    // Implementation to get Dev Container Python version
+    return 'dev-container-python-version';
 }
 
 function getDevContainerNodeVersion() {
-  // Implementation to get Dev Container Node version
-  return 'dev-container-node-version';
+    // Implementation to get Dev Container Node version
+    return 'dev-container-node-version';
 }
 
 function getTravisNodeVersion() {
-  // Implementation to get Travis Node version
-  return 'travis-node-version';
+    // Implementation to get Travis Node version
+    return 'travis-node-version';
 }
 
 function getRenovateUpdates() {
-  // Implementation to get Renovate updates
-  return 'renovate-updates';
+    // Implementation to get Renovate updates
+    return 'renovate-updates';
 }
 
 // Export all existing and new functions
 module.exports = {
-  // Existing exports remain unchanged
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates
+    // Existing exports remain unchanged
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
 };

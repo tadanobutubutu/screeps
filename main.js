@@ -31,3 +31,4 @@ const fs = require('fs');
  * Helper to safely fetch a package version from package.json or return an empty string.
  * @param {string} pkg - The package name to look up.
  * @param {string} [depName] - Optional dependency name to resolve against
+ */

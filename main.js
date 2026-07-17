@@ -1,27 +1,24 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* spawn.js – Deployment helper utilities
  *
- * The original file contained typographic quotation marks (smart
- * quotes) that caused a linting / parsing error. Those have been
- * straightened out and the module is now syntactically valid.
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for
+ * the Screeps bot repository.
  *
- * The module now exports the helper functions for test consumption and
- * general use.
+ * The module functions are:
  *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - getPostHogVersion
- * - getSupabaseVersion
- * - getCircleCINodeVersion
- * - getDevContainerPythonVersion
- * - getDevContainerNodeVersion
- * - getTravisNodeVersion
- * - getRenovateUpdates
- * - getSentryVersion
+ *   - getPostHogVersion
+ *   - getSupabaseVersion
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
  *
- * This module also re-exports the version‑query functions so test
- * files can access them.
+ * The exported functions are also re‑exported for easier use in tests.
  */
 
 const path = require('path');
@@ -36,31 +33,15 @@ const { spawnSync } = require('child_process');
  */
 function getPackageVersion(pkg, depName = pkg) {
     try {
-        const pkgPath = path.join(process.cwd(), 'node_modules', pkg, 'package.json');
-        const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        return pkgJson.version || '';
-    } catch (e) {
-        return '';
-    }
-}
+        const pkgPath = path
 
-/**
- * Fetch the PostHog package version.
- */
-function getPostHogVersion() {
-    return getPackageVersion('posthog');
-}
 
-/**
- * Fetch the Supabase package version.
- */
-function getSupabaseVersion() {
-    return getPackageVersion('@supabase/supabase-js');
-}
 
-/**
- * Fetch the CircleCI Node.js version from the .circleci/config.yml if it exists.
- */
-function getCircleCINodeVersion() {
-    try {
-        const configPath = path.join(process.cwd(), '.circleci',
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

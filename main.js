@@ -80,3 +80,16 @@ function getRenovateUpdates() {
 function getSentryVersion() {
     return _fetchPackageVersion('@sentry/browser');
 }
+
+/* Export all public helpers so test files can import them directly. */
+module.exports = {
+    getLodashVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getPostHogVersion,
+    getRenovateUpdates,
+    getSentryVersion
+};

@@ -30,3 +30,4 @@ const { spawnSync } = require('child_process');
  * Helper to safely fetch a package version from package.json (via node_modules) or return an empty string.
  * @param {string} pkg - The package name to look up.
  * @param {string
+ */

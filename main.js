@@ -37,4 +37,4 @@ function _fetchPackageVersion(pkg, depName) {
 
 /* Existing helper: fetch Lodash version */
 function getLodashVersion() {
-    return _fetchPackageVersion
+    return _fetch

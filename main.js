@@ -4,12 +4,6 @@
  *
  * Deployment helper and utility functions.
  *
- * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised 'use strict' statement
- *   • dangling `r` character at the end
- *
  * The module now exports the helper functions for test consumption and
  * general use.
  *
@@ -24,5 +18,22 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files (
- */
+ * so test files */
+
+/* Helper to safely fetch a package version from package.json or an empty string */
+function _fetchPackageVersion(pkg) {
+    try {
+        // Resolve the package's package.json
+        const pkgPath = require.resolve(`${pkg}/package.json`);
+        const { version } = require(pkgPath);
+        return typeof version === 'string' ? version : '';
+    } catch (e) {
+        // Package not found or unparsable: return empty string
+        return '';
+    }
+}
+
+/* Existing helper: fetch Lodash version */
+function getLodashVersion() {
+    return _fetchPackageVersion('lodash');
+}

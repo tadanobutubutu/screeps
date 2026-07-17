@@ -46,4 +46,37 @@ function getSupabaseVersion() {
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
 function getCircleCINodeVersion() {
-    return _fetchPackageVersion
+    return _fetchPackageVersion('cimg/node');
+}
+
+/** Get the DevContainer Python package semantic version or the empty string if unknown. */
+function getDevContainerPythonVersion() {
+    return _fetchPackageVersion('mcr.microsoft.com/devcontainers/python');
+}
+
+/** Get the DevContainer Node package semantic version or the empty string if unknown. */
+function getDevContainerNodeVersion() {
+    return _fetchPackageVersion('ghcr.io/devcontainers/features/node');
+}
+
+/** Get the Travis Node package semantic version or the empty string if unknown. */
+function getTravisNodeVersion() {
+    return _fetchPackageVersion('node');
+}
+
+/** Get the PostHog package semantic version or the empty string if unknown. */
+function getPostHogVersion() {
+    return _fetchPackageVersion('posthog-js');
+}
+
+/** Get the Renovate updates information or the empty string if unknown. */
+function getRenovateUpdates() {
+    // This would typically be fetched from a configuration file or API
+    // For now, we'll return a placeholder string
+    return 'Renovate updates information would be returned here';
+}
+
+/** Get the Sentry package semantic version or the empty string if unknown. */
+function getSentryVersion() {
+    return _fetchPackageVersion('@sentry/browser');
+}

@@ -82,7 +82,8 @@ function getCircleCINodeVersion() {
 function getDevContainerPythonVersion() {
   const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)? config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)[1] : '';
+  const pythonMatch = config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/);
+  return pythonMatch ? pythonMatch[1] : '';
 }
 
 /**
@@ -92,7 +93,8 @@ function getDevContainerPythonVersion() {
 function getDevContainerNodeVersion() {
   const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)? config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)[1] : '';
+  const nodeMatch = config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/);
+  return nodeMatch ? nodeMatch[1] : '';
 }
 
 /**

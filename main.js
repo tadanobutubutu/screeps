@@ -16,9 +16,9 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
+ * - `getSentryVersion`
  *
- * This module also re-exports the version‑query functions defined in
- * main.js so test files can access them.
+ * This module also re-exports the version‑query functions defined in main.js so test files can access them.
  */
 
 /* Helper to safely fetch a package version from package.json or return an empty string */
@@ -50,38 +50,4 @@ function getCircleCINodeVersion() {
 
 /** Get the DevContainer Python package semantic version or an empty string if unknown. */
 function getDevContainerPythonVersion() {
-    return _fetchPackageVersion('mcr.microsoft.com/devcontainers/python');
-}
-
-/** Get the DevContainer Node package semantic version or an empty string if unknown. */
-function getDevContainerNodeVersion() {
-    return _fetchPackageVersion('ghcr.io/devcontainers/features/node');
-}
-
-/** Get the Travis Node package semantic version or an empty string if unknown. */
-function getTravisNodeVersion() {
-    return _fetchPackageVersion('node');
-}
-
-/** Get the PostHog package semantic version or an empty string if unknown. */
-function getPostHogVersion() {
-    return _fetchPackageVersion('posthog-js');
-}
-
-/** Get the Renovate updates information or an empty string if unknown. */
-function getRenovateUpdates() {
-    // Normally this would read a config or call an API; here we return a stub.
-    return 'placeholder';
-}
-
-/* Export all public helpers so tests can import them */
-module.exports = {
-    getLodashVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getPostHogVersion,
-    getRenovateUpdates
-};
+    return _fetchPackageVersion('

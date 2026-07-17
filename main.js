@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -18,7 +18,7 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *
- * The exported functions are also re‑exported for easier use in tests.
+ * The exported functions are also re-exported for easier use in tests.
  */
 
 const path = require('path');

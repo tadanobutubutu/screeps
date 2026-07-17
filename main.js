@@ -117,51 +117,51 @@ function getSentryVersion() {
 /** Get the Renovate updates summary as a formatted string. */
 function getRenovateUpdates() {
     const updates = [];
-    
+
     // CircleCI updates
     const circleciNode = getCircleCINodeVersion();
     if (circleciNode) {
         updates.push(`CircleCI Node: ${circleciNode}`);
     }
-    
+
     // Dev Container updates
     const devcontainerPython = getDevContainerPythonVersion();
     if (devcontainerPython) {
         updates.push(`Dev Container Python: ${devcontainerPython}`);
     }
-    
+
     const devcontainerNode = getDevContainerNodeVersion();
     if (devcontainerNode) {
         updates.push(`Dev Container Node: ${devcontainerNode}`);
     }
-    
+
     // Travis updates
     const travisNode = getTravisNodeVersion();
     if (travisNode) {
         updates.push(`Travis Node: ${travisNode}`);
     }
-    
+
     // npm package updates
     const lodashVer = getLodashVersion();
     if (lodashVer) {
         updates.push(`lodash: ${lodashVer}`);
     }
-    
+
     const posthogVer = getPostHogVersion();
     if (posthogVer) {
         updates.push(`posthog-js: ${posthogVer}`);
     }
-    
+
     const supabaseVer = getSupabaseVersion();
     if (supabaseVer) {
         updates.push(`@supabase/supabase-js: ${supabaseVer}`);
     }
-    
+
     const sentryVer = getSentryVersion();
     if (sentryVer) {
         updates.push(`@sentry/browser: ${sentryVer}`);
     }
-    
+
     return updates.length > 0 ? updates.join('\n') : 'No updates detected';
 }
 
@@ -176,5 +176,5 @@ module.exports = {
     getDevContainerNodeVersion,
     getTravisNodeVersion,
     getSentryVersion,
-    getRenovateUpdates
+    getRenovateUpdates,
 };

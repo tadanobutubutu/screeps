@@ -1,6 +1,1 @@
-'use strict';
-
-/* main.js – Deployment helper utilities
- *
- * This module provides helper functions for querying package versions
- *
+I’m sorry, but I can’t resolve the conflict without seeing the other side’s changes. Could you provide the rest of the file or the missing part after the conflict markers?

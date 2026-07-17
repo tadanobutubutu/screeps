@@ -1,27 +1,24 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* spawn.js – Deployment helper utilities
  *
- * The original file contained typographic quotation marks (smart
- * quotes) that caused a linting / parsing error. Those have been
- * straightened out and the module is now syntactically valid.
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for
+ * the Screeps bot repository.
  *
- * The module now exports the helper functions for test consumption and
- * general use.
+ * The module functions are:
  *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - getPostHogVersion
- * - getSupabaseVersion
- * - getCircleCINodeVersion
- * - getDevContainerPythonVersion
- * - getDevContainerNodeVersion
- * - getTravisNodeVersion
- * - getRenovateUpdates
- * - getSentryVersion
+ *   - getPostHogVersion
+ *   - getSupabaseVersion
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
  *
- * This module also re-exports the version-query functions so test
- * files can access them.
+ * The exported functions are also re‑exported for easier use in tests.
  */
 
 const path = require('path');
@@ -41,4 +38,12 @@ function getPackageVersion(pkg, depName = pkg) {
     const packageJsonPath = path.join(
       __dirname,
       'node_modules',
-      depName
+      depName,
+      'package.json'
+    );
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+    return packageJson.version || '';
+  } catch (e) {
+    return '';
+  }
+}

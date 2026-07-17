@@ -24,6 +24,7 @@
  *   - getGitHubActionsSetupPythonVersion
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
  *
  * The exported functions are also
  */
@@ -129,6 +130,13 @@ function getGitHubActionsPnpmVersion() {
   return match ? match[1] : null;
 }
 
+function getGitHubActionsGitStreamVersion() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'gitstream.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/linear-bots\/gitstream-github-action v(\d+)/);
+  return match ? match[1] : null;
+}
+
 module.exports = {
   getPostHogVersion,
   getSupabaseVersion,
@@ -144,5 +152,6 @@ module.exports = {
   getGitHubActionsUploadArtifactVersion,
   getGitHubActionsSetupPythonVersion,
   getGitHubActionsCodeQLVersion,
-  getGitHubActionsPnpmVersion
+  getGitHubActionsPnpmVersion,
+  getGitHubActionsGitStreamVersion
 };

@@ -78,14 +78,14 @@ function getRenovateUpdates() {
         awaitingSchedule: [
             { package: 'actions/setup-python', version: 'v6' },
             { package: 'actions/upload-artifact', version: 'v7' },
-            { package: 'node', version: 'v24' }
+            { package: 'node', version: 'v24' },
         ],
         rateLimited: [
             { package: 'posthog-js', version: 'v1.404.0' },
             { package: 'actions/setup-node', version: 'v7' },
             { package: 'typescript', version: 'v7' },
-            { package: 'pnpm/action-setup', version: 'v6' }
-        ]
+            { package: 'pnpm/action-setup', version: 'v6' },
+        ],
     };
 }
 
@@ -98,5 +98,5 @@ module.exports = {
     getDevContainerNodeVersion,
     getTravisNodeVersion,
     getPostHogVersion,
-    getRenovateUpdates
+    getRenovateUpdates,
 };

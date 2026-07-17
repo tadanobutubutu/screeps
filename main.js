@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 /* Deployment helpers
  *
@@ -24,52 +24,18 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files can use them.
+ * so test files can access them.
  */
 
-// Existing code and exports from main.js
-// ... (Preserve existing code here)
-
-// New functions added to address Dependency Dashboard issues
-function getPostHogVersion() {
-  // Implementation for getting PostHog version
+/* Helper to safely fetch a package version from package.json or an empty string */
+function _fetchPackageVersion(pkg, depName) {
+    if (!pkg) return '';
+    const deps = pkg.dependencies || {};
+    const devDeps = pkg.devDependencies || {};
+    if (deps[depName]) return deps[depName];
+    if (devDeps[depName]) return devDeps[depName];
+    return '';
 }
 
-function getSupabaseVersion() {
-  // Implementation for getting Supabase version
-}
-
-function getCircleCINodeVersion() {
-  // Implementation for getting CircleCI Node version
-}
-
-function getDevContainerPythonVersion() {
-  // Implementation for getting Dev Container Python version
-}
-
-function getDevContainerNodeVersion() {
-  // Implementation for getting Dev Container Node version
-}
-
-function getTravisNodeVersion() {
-  // Implementation for getting Travis Node version
-}
-
-function getRenovateUpdates() {
-  // Implementation for getting Renovate updates
-}
-
-// Re-export existing version-query functions (if any)
-// ... (Preserve existing re-exports here)
-
-// Export new and existing functions
-module.exports = {
-  // ... (Preserve existing exports here)
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-};
+const pkg = (() => {
+    try

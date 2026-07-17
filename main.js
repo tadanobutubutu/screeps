@@ -4,12 +4,6 @@
  *
  * Deployment helper and utility functions.
  *
- * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised 'use strict' statement
- *   • dangling `r` character at the end
- *
  * The module now exports the helper functions for test consumption and
  * general use.
  *
@@ -91,16 +85,22 @@ function getDevContainerNodeVersion() {
  * Get the Travis CI Node package semantic version or the empty string if unknown.
  */
 function getTravisNodeVersion() {
-    return _fetchPackageVersion(pkg, 'travis-ci-node');
+    return _fetchPackageVersion(pkg, 'travis');
 }
 
 /**
- * Get the Renovate update package semantic version or the empty string if unknown.
+ * Return a string representing the Renovate configuration status.
+ * The logic here is intentionally minimal – it simply returns the value
+ * of the "renovate" field in package.json if present, otherwise an empty
+ * string. This keeps the function lightweight while still exposing useful
+ * information for tests and debugging.
  */
 function getRenovateUpdates() {
-    return _fetchPackageVersion(pkg, 'renovate');
+    if (!pkg) return '';
+    return pkg.renovate || '';
 }
 
+// Export all functions for external consumption
 module.exports = {
     getLodashVersion,
     getPostHogVersion,
@@ -110,4 +110,7 @@ module.exports = {
     getDevContainerNodeVersion,
     getTravisNodeVersion,
     getRenovateUpdates,
+    // Re-exported for convenience in test environments
+    _fetchPackageVersion,
+    pkg
 };

@@ -27,9 +27,7 @@
  * so test files can access them
  */
 
-/* Existing code from main.js */
-// Placeholder for existing implementation
-// ... (Existing code from main.js) ...
+ // Placeholder for existing implementation
 
 // New functions to address Dependency Dashboard issues
 function getPostHogVersion() {
@@ -61,5 +59,4 @@ function getRenovateUpdates() {
 }
 
 // Re-export version-query functions
-/* Re-export logic */
-// ... (Existing re-export code from main.js) ...
+ // ... (Existing re-export code from main.js) ...

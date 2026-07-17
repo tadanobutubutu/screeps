@@ -24,12 +24,9 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files (
+ * so test files can access them.
  */
 
-// [Existing code continues...]
-
-// Example of how the new functions might look (implementation would depend on actual requirements)
 function getPostHogVersion() {
     // Implementation would go here
 }
@@ -58,9 +55,7 @@ function getRenovateUpdates() {
     // Implementation would go here
 }
 
-// Export all functions
 module.exports = {
-    // Existing exports...
     getPostHogVersion,
     getSupabaseVersion,
     getCircleCINodeVersion,
@@ -68,4 +63,5 @@ module.exports = {
     getDevContainerNodeVersion,
     getTravisNodeVersion,
     getRenovateUpdates,
+    // Other exports (existing functions) would be listed here
 };

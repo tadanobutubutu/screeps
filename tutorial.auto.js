@@ -75,7 +75,7 @@ const autoTutorial = {
     step2_harvestEnergy: function () {
         const sourcesCache = {};
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
-        for (const name in Game.creeps) {
+        for (const creep of Object.values(Game.creeps)) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
             const creep = Game.creeps[name];
             const roomName = creep.room.name;
@@ -106,7 +106,7 @@ const autoTutorial = {
     step3_upgradeController: function () {
         const sourcesCache = {};
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
-        for (const name in Game.creeps) {
+        for (const creep of Object.values(Game.creeps)) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
             const creep = Game.creeps[name];
             const roomName = creep.room.name;
@@ -140,7 +140,7 @@ const autoTutorial = {
         const sourcesCache = {};
 
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
-        for (const name in Game.creeps) {
+        for (const creep of Object.values(Game.creeps)) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
             const creep = Game.creeps[name];
             const roomName = creep.room.name;
@@ -200,7 +200,7 @@ const autoTutorial = {
 
         // 基本的なCreep動作
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
-        for (const name in Game.creeps) {
+        for (const creep of Object.values(Game.creeps)) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
             const creep = Game.creeps[name];
             const roomName = creep.room.name;

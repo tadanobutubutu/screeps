@@ -24,4 +24,7 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files (
+ * so test files can access them.
+ */
+
+// ... rest of the existing code remains unchanged ...

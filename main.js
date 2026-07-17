@@ -38,4 +38,37 @@ function _fetchPackageVersion(pkg, depName) {
 }
 
 const pkg = (() => {
-    try
+    try {
+        return require('./package.json');
+    } catch (_) {
+        return null;
+    }
+})();
+
+/**
+ * Get the lodash package semantic version or the empty string if unknown.
+ */
+function getLodashVersion() {
+    return _fetchPackageVersion(pkg, 'lodash');
+}
+
+/**
+ * Get the PostHog package semantic version or the empty string if unknown.
+ */
+function getPostHogVersion() {
+    return _fetchPackageVersion(pkg, 'posthog');
+}
+
+/**
+ * Get the Supabase package semantic version or the empty string if unknown.
+ */
+function getSupabaseVersion() {
+    return _fetchPackageVersion(pkg, '@supabase/supabase-js');
+}
+
+/**
+ * Get the CircleCI Node library semantic version or the empty string if unknown.
+ */
+function getCircleCINodeVersion() {
+    return _fetchPackageVersion(pkg, 'circleci-node');
+}

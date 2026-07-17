@@ -24,7 +24,7 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files can access them.
+ * so test files can access them
  */
 
 function getPostHogVersion() {

@@ -11,4 +11,13 @@
  *   • dangling `r` character at the end
  *
  * The module now exports the helper functions for test consumption and
- * general
+ * general use.
+ *
+ * Additionally, the following new functions have been added to address
+ * the Dependency Dashboard issues:
+ * - `getPostHogVersion`
+ * - `getSupabaseVersion`
+ * - `getCircleCINodeVersion`
+ * - `getDevContainerPythonVersion`
+ * - `getDevContainerNodeVersion`
+ * - `

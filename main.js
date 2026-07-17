@@ -28,7 +28,7 @@ const path = require('path');
 const fs = require('fs');
 
 /**
- * Helper to safely fetch a package version from package.json or return an empty string.
+ * Helper to safely fetch a package version from package. json or return an empty string.
  * @param {string} pkg - The package name to look up.
  * @param {string} [depName] - Optional dependency name to resolve against; defaults to pkg.
  * @returns {string} The semantic version string or an empty string if unresolved.
@@ -61,7 +61,7 @@ function getSupabaseVersion() {
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
 function getCircleCINodeVersion() {
-    return getPackageVersion('cimg/node');
+    return getPackageVersion('circleci-node');
 }
 
 /** Get the Dev Container Python version or the empty string if unknown. */
@@ -100,7 +100,7 @@ function getTravisNodeVersion() {
         const travisPath = path.join(process.cwd(), '.travis.yml');
         if (fs.existsSync(travisPath)) {
             const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?(\d+)/);
+            const match = content.match(/node_js['"]?\s*:\s*['"]?v?(\d+\.\d+\.\d+)/);
             return match ? `v${match[1]}` : '';
         }
     } catch (e) {

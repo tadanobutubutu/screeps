@@ -24,10 +24,10 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files can access them
+ * so test files can access them.
  */
 
-// Helper to safely fetch a package version from package.json or empty string
+/* Helper to safely fetch a package version from package.json or an empty string */
 function _fetchPackageVersion(pkg, depName) {
     if (!pkg) return '';
     const deps = pkg.dependencies || {};
@@ -38,31 +38,4 @@ function _fetchPackageVersion(pkg, depName) {
 }
 
 const pkg = (() => {
-    try {
-        return require('./package.json');
-    } catch (_) {
-        return null;
-    }
-})();
-
-/** Get the PostHog package semantic version or the empty string if unknown. */
-function getPostHogVersion() {
-    return _fetchPackageVersion(pkg, 'posthog');
-}
-
-/** Get the Supabase package semantic version or the empty string if unknown. */
-function getSupabaseVersion() {
-    return _fetchPackageVersion(pkg, '@supabase/supabase-js');
-}
-
-/** Get the CircleCI Node package semantic version or the empty string if unknown. */
-function getCircleCINodeVersion() {
-    return _fetchPackageVersion(pkg, '@circleci/node');
-}
-
-/** Get the Dev Container Python version or the empty string if unknown. */
-function getDevContainerPythonVersion() {
-    return _fetchPackageVersion(pkg, 'python');
-}
-
-/** Get the Dev Container Node version or the empty string if unknown
+    try

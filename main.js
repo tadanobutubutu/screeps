@@ -51,7 +51,7 @@ function getLodashVersion() {
 
 /** Get the PostHog package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
-    return getPackageVersion('posthog-js');
+    return getPackageVersion('@posthog/js');
 }
 
 /** Get the Supabase package semantic version or the empty string if unknown. */
@@ -61,7 +61,7 @@ function getSupabaseVersion() {
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
 function getCircleCINodeVersion() {
-    return getPackageVersion('cimg/node');
+    return getPackageVersion('circleci-node');
 }
 
 /** Get the Dev Container Python version or the empty string if unknown. */
@@ -100,7 +100,7 @@ function getTravisNodeVersion() {
         const travisPath = path.join(process.cwd(), '.travis.yml');
         if (fs.existsSync(travisPath)) {
             const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?(\d+)/);
+            const match = content.match(/node_js:\s*["']?v?(\d+\.\d+\.\d+)["']?/);
             return match ? `v${match[1]}` : '';
         }
     } catch (e) {
@@ -159,7 +159,7 @@ function getRenovateUpdates() {
 
     const sentryVer = getSentryVersion();
     if (sentryVer) {
-        updates.push(`@sentry/browser: ${sentryVer}`);
+        updates.push(`sentry: ${sentryVer}`);
     }
 
     return updates.length > 0 ? updates.join('\n') : 'No updates detected';

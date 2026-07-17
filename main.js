@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -18,7 +18,7 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *
- * The exported functions are also re‑exported for easier use in tests.
+ * The exported functions are also re-exported for easier use in tests.
  */
 
 const path = require('path');
@@ -39,41 +39,3 @@ function getPackageVersion(pkg, fallback = '') {
             process.cwd(),
             'node_modules',
             pkg,
-            'package.json'
-        );
-        const pkgJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-        return pkgJson.version || fallback;
-    } catch (_) {
-        return fallback;
-    }
-}
-
-/**
- * Retrieve the installed PostHog SDK version.
- * @returns {string}
- */
-function getPostHogVersion() {
-    return getPackageVersion('posthog-js');
-}
-
-/**
- * Retrieve the installed Supabase client version.
- * @returns {string}
- */
-function getSupabaseVersion() {
-    return getPackageVersion('@supabase/supabase-js');
-}
-
-/**
- * Retrieve the Node.js version used by CircleCI.
- * Falls back to the standard Node version if the CircleCI environment variable is not set.
- * @returns {string}
- */
-function getCircleCINodeVersion() {
-    const circleNodeVersion = process.env.CIRCLE_NODE_VERSION;
-    if (circleNodeVersion) return circleNodeVersion;
-    return process.version;
-}
-
-/**
- * Retrieve the Python version used within the

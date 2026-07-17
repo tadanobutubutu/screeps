@@ -46,22 +46,22 @@ function getPackageVersion(pkg, depName = pkg) {
 
 /** Get the Lodash package semantic version or the empty string if unknown. */
 function getLodashVersion() {
-    return getPackageVersion('lodash');
+    return getPackageVersion('lodash', 'lodash');
 }
 
 /** Get the PostHog package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
-    return getPackageVersion('posthog-js');
+    return getPackageVersion('posthog-js', 'posthog-js');
 }
 
 /** Get the Supabase package semantic version or the empty string if unknown. */
 function getSupabaseVersion() {
-    return getPackageVersion('@supabase/supabase-js');
+    return getPackageVersion('@supabase/supabase-js', '@supabase/supabase-js');
 }
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
 function getCircleCINodeVersion() {
-    return getPackageVersion('cimg/node');
+    return getPackageVersion('circleci-node-js', 'circleci-node-js');
 }
 
 /** Get the Dev Container Python version or the empty string if unknown. */
@@ -70,7 +70,7 @@ function getDevContainerPythonVersion() {
         const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
         if (fs.existsSync(devcontainerPath)) {
             const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"python"\s*:\s*"([^"]+)"/);
+            const match = content.match(/"python"\s*:\s*"(\d+\.\d+\.\d+)"/);
             return match ? match[1] : '';
         }
     } catch (e) {
@@ -85,7 +85,7 @@ function getDevContainerNodeVersion() {
         const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
         if (fs.existsSync(devcontainerPath)) {
             const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"node"\s*:\s*"([^"]+)"/);
+            const match = content.match(/"node"\s*:\s*"(\d+\.\d+\.\d+)"/);
             return match ? match[1] : '';
         }
     } catch (e) {
@@ -100,7 +100,7 @@ function getTravisNodeVersion() {
         const travisPath = path.join(process.cwd(), '.travis.yml');
         if (fs.existsSync(travisPath)) {
             const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?(\d+)/);
+            const match = content.match(/node_js:\s*"?(\d+\.\d+\.\d+)"?/);
             return match ? `v${match[1]}` : '';
         }
     } catch (e) {
@@ -111,7 +111,7 @@ function getTravisNodeVersion() {
 
 /** Get the Sentry Browser version or the empty string if unknown. */
 function getSentryVersion() {
-    return getPackageVersion('@sentry/browser');
+    return getPackageVersion('@sentry/browser', '@sentry/browser');
 }
 
 /** Get the Renovate updates summary as a formatted string. */

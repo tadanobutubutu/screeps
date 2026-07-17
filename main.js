@@ -27,35 +27,6 @@
  * so test files can access them
  */
 
-function getPostHogVersion() {
-    // Return the detected PostHog version, if available.
-    // Placeholder implementation; replace with actual logic.
-    return undefined;
-}
-
-function getSupabaseVersion() {
-    // Return the detected Supabase version, if available.
-    return undefined;
-}
-
-function getCircleCINodeVersion() {
-    // Return the detected CircleCI Node version, if available.
-    return undefined;
-}
-
-function getDevContainerPythonVersion() {
-    // Return the detected Dev Container Python version, if available.
-    return undefined;
-}
-
-function getDevContainerNodeVersion() {
-    // Return the detected Dev Container Node version, if available.
-    return undefined;
-}
-
-function getTravisNodeVersion() {
-    // Return the detected Travis Node version, if available.
-    return undefined;
-}
-
-function getRen
+// Helper to safely fetch a package version from package.json or empty string
+function _fetchPackageVersion(pkg, depName) {
+    if (!pkg)

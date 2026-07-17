@@ -16,6 +16,7 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
+ * - `getSentryVersion`
  *
  * This module also re-exports the version-query functions defined in main.js
  * so test files can access them.

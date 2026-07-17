@@ -100,7 +100,7 @@ function getTravisNodeVersion() {
         const travisPath = path.join(process.cwd(), '.travis.yml');
         if (fs.existsSync(travisPath)) {
             const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*"?(\d+\.\d+\.\d+)"?/);
+            const match = content.match(/node_js:\s*\[?["']?(\d+\.\d+(?:\.\d+)?)/);
             return match ? `v${match[1]}` : '';
         }
     } catch (e) {
@@ -152,29 +152,4 @@ function getRenovateUpdates() {
         updates.push(`posthog-js: ${posthogVer}`);
     }
 
-    const supabaseVer = getSupabaseVersion();
-    if (supabaseVer) {
-        updates.push(`@supabase/supabase-js: ${supabaseVer}`);
-    }
-
-    const sentryVer = getSentryVersion();
-    if (sentryVer) {
-        updates.push(`@sentry/browser: ${sentryVer}`);
-    }
-
-    return updates.length > 0 ? updates.join('\n') : 'No updates detected';
-}
-
-// Export all helper functions
-module.exports = {
-    getPackageVersion,
-    getLodashVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getSentryVersion,
-    getRenovateUpdates,
-};
+    const supabaseVer = getSupabase

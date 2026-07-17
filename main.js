@@ -29,34 +29,93 @@
 
 // ... (Existing code from main.js) ...
 
-// New functions to address Dependency Dashboard issues
+// Helper to safely fetch a package version from package.json or empty string
+function _fetchPackageVersion(pkg, depName) {
+    if (!pkg) return '';
+    const deps = pkg.dependencies || {};
+    const devDe = pkg.devDependencies || {};
+    if (deps[depName]) return deps[depName];
+    if (devDe[depName]) return devDe[depName];
+    return '';
+}
+
+const pkg = (() => {
+    try {
+        return require('./package.json');
+    } catch (_) {
+        return null;
+    }
+})();
+
+/**
+ * Get the PostHog package semantic version or the empty string if unknown.
+ */
 function getPostHogVersion() {
-    // ... implementation ...
+    return _fetchPackageVersion(pkg, 'posthog');
 }
 
+/**
+ * Get the Supabase package semantic version or the empty string if unknown.
+ */
 function getSupabaseVersion() {
-    // ... implementation ...
+    return _fetchPackageVersion(pkg, '@supabase/supabase-js');
 }
 
+/**
+ * Get the CircleCI Node library semantic version or the empty string if unknown.
+ */
 function getCircleCINodeVersion() {
-    // ... implementation ...
+    return _fetchPackageVersion(pkg, '@circleci/node');
 }
 
+/**
+ * Get the Dev Container Python version or empty string if not defined.
+ */
 function getDevContainerPythonVersion() {
-    // ... implementation ...
+    // Might be stored in devcontainer.json or similar; fallback to empty
+    try {
+        const dc = require('./.devcontainer/devcontainer.json');
+        return dc.python?.version || '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Dev Container Node version or empty string if not defined.
+ */
 function getDevContainerNodeVersion() {
-    // ... implementation ...
+    try {
+        const dc = require('./.devcontainer/devcontainer.json');
+        return dc.node?.version || '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Travis Node version or empty string if not defined.
+ */
 function getTravisNodeVersion() {
-    // ... implementation ...
+    try {
+        const travis = require('./.travis.yml');
+        return travis.language === 'node_js' ? travis.node_js : '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Renovate updates version or empty string if not defined.
+ */
 function getRenovateUpdates() {
-    // ... implementation ...
+    try {
+        const renovate = require('./renovate.json');
+        return renovate.branch || '';
+    } catch (_) {
+        return '';
+    }
 }
 
-// Re-export version-query functions
-// ... (Existing re-export code from main.js) ...
+/**
+ * Gets the current version of S

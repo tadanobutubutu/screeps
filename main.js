@@ -67,7 +67,7 @@ function getRenovateUpdates() {
 // Re-export existing version-query functions (if any)
 // ... (Preserve existing re-exports here)
 
-// Export new functions
+// Export all functions
 module.exports = {
     // ... (Preserve existing exports here)
     getPostHogVersion,

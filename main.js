@@ -32,37 +32,37 @@
 
 // New function to get PostHog version
 function getPostHogVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get Supabase version
 function getSupabaseVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get CircleCI Node.js version
 function getCircleCINodeVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get Dev Container Python version
 function getDevContainerPythonVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get Dev Container Node.js version
 function getDevContainerNodeVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get Travis CI Node.js version
 function getTravisNodeVersion() {
-  // Implementation here
+    // Implementation here
 }
 
 // New function to get Renovate updates
 function getRenovateUpdates() {
-  // Implementation here
+    // Implementation here
 }
 
 // Re-export existing version-query functions (if any)
@@ -70,12 +70,12 @@ function getRenovateUpdates() {
 
 // Export new functions
 module.exports = {
-  // ... (Preserve existing exports here)
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates
+    // ... (Preserve existing exports here)
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
 };

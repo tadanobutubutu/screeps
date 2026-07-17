@@ -33,3 +33,8 @@
 
 **Learning:** Using `enemies.reduce` for target selection in Screeps roles (like Defenders) often leads to recalculating the score of the current "best" candidate in every iteration. In the worst case, this results in N$ calls to the scoring function.
 **Action:** Refactor selection logic to use a single-pass `for` loop and local variable to cache the `bestScore`. This ensures exactly $ scoring calls and avoids the minor overhead of the `reduce` callback.
+
+## 2025-05-15 - High-Performance Creep Iteration in Game Loops
+
+**Learning:** Using `Object.values(Game.creeps)` in per-tick hot paths (e.g., tutorial auto execution steps) creates significant CPU overhead in V8 and causes garbage collection spikes due to continuous allocation of intermediate creep arrays.
+**Action:** Always replace `Object.values(Game.creeps)` with `for...in` loops over `Game.creeps` containing a `hasOwnProperty` check, reducing array creation overhead to zero.

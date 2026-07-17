@@ -61,7 +61,7 @@ function getSupabaseVersion() {
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
 function getCircleCINodeVersion() {
-    return getPackageVersion('cimg/node');
+    return getPackageVersion('circleci-node');
 }
 
 /** Get the Dev Container Python version or the empty string if unknown. */
@@ -70,7 +70,7 @@ function getDevContainerPythonVersion() {
         const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
         if (fs.existsSync(devcontainerPath)) {
             const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"python"\s*:\s*"([^"]+)"/);
+            const match = content.match(/"python"[,\s]*"(\d+\.\d+\.\d+)"/);
             return match ? match[1] : '';
         }
     } catch (e) {
@@ -85,7 +85,7 @@ function getDevContainerNodeVersion() {
         const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
         if (fs.existsSync(devcontainerPath)) {
             const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"node"\s*:\s*"([^"]+)"/);
+            const match = content.match(/"node"[,\s]*"(\d+\.\d+\.\d+)"/);
             return match ? match[1] : '';
         }
     } catch (e) {
@@ -100,7 +100,7 @@ function getTravisNodeVersion() {
         const travisPath = path.join(process.cwd(), '.travis.yml');
         if (fs.existsSync(travisPath)) {
             const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?(\d+)/);
+            const match = content.match(/nodejs:\s*(\d+\.\d+\.\d+)/);
             return match ? `v${match[1]}` : '';
         }
     } catch (e) {

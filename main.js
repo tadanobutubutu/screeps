@@ -17,23 +17,18 @@
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
  *
- * This module also re-exports the version-query functions defined in main.js
- * so test files */
+ * This module also re-exports the version-query functions defined in
+ * main.js so test files can access them.
+ */
 
 /* Helper to safely fetch a package version from package.json or an empty string */
-function _fetchPackageVersion(pkg) {
-    try {
-        // Resolve the package's package.json
-        const pkgPath = require.resolve(`${pkg}/package.json`);
-        const { version } = require(pkgPath);
-        return typeof version === 'string' ? version : '';
-    } catch (e) {
-        // Package not found or unparsable: return empty string
-        return '';
-    }
+function _fetchPackageVersion(pkg, depName) {
+    if (!pkg) return '';
+    const deps = pkg.dependencies || {};
+    const devDeps = pkg.devDependencies || {};
+    if (deps[depName]) return deps[depName];
+    if (devDeps[depName]) return devDeps[depName];
+    return '';
 }
 
-/* Existing helper: fetch Lodash version */
-function getLodashVersion() {
-    return _fetchPackageVersion('lodash');
-}
+const pkg = (() => {

@@ -10,21 +10,4 @@
  * The module functions are:
  *
  *   - getPostHogVersion
- *   - getSupabaseVersion
- *   - getCircleCINodeVersion
- *   - getDevContainerPythonVersion
- *   - getDevContainerNodeVersion
- *   - getTravisNodeVersion
- *   - getRenovateUpdates
- *   - getSentryVersion
- *
- * The exported functions are also re‑exported for easier use in tests.
- */
-
-const path = require('path');
-const fs = require('fs');
-const { spawnSync } = require('child_process');
-
-/**
- * Helper to safely fetch a package version from node_modules or return an
- * empty string if
+ *   -

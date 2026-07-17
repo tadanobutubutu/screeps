@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 /* Deployment helpers
  *
@@ -24,7 +24,7 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files (
+ * so test files can use them.
  */
 
 // Existing code and exports from main.js

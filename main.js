@@ -1,1 +1,7 @@
-I’m sorry, but I need the rest of the file (including the conflict markers) to accurately resolve the merge conflict. Could you please share the full content of `main.js`?
+'use strict';
+
+/* spawn.js – Deployment helper utilities
+ *
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for

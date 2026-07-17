@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* spawn. js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -65,42 +65,46 @@ function getSupabaseVersion() {
 }
 
 /**
- * Returns the version of the CircleCI Node.js image used in the .circleci/config.yml.
+ * Returns the version of the CircleCI Node.js image used in the .circleci/config. yml.
  * @returns {string} The CircleCI Node.js image version or an empty string if not found.
  */
 function getCircleCINodeVersion() {
-  const configPath = path.join(__dirname, '.circleci/config.yml');
+  const configPath = path.join(__dirname, '.circleci/config. yml');
   const config = fs.readFileSync(configPath, 'utf8');
   const match = config.match(/cimg\/node (\d+\.\d+\.\d+)/);
   return match ? match[1] : '';
 }
 
 /**
- * Returns the version of the Python image used in the .devcontainer/devcontainer.json.
+ * Returns the version of the Python image used in the .devcontainer/devcontainer. json.
  * @returns {string} The Python image version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
+  const configPath = path.join(__dirname, '.devcontainer/devcontainer. json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)? config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)[1] : '';
+  const image = config.image || '';
+  const match = image.match(/python (\d+\.\d+\.\d+)/);
+  return match ? match[1] : '';
 }
 
 /**
- * Returns the version of the Node.js image used in the .devcontainer/devcontainer.json.
+ * Returns the version of the Node.js image used in the .devcontainer/devcontainer. json.
  * @returns {string} The Node.js image version or an empty string if not found.
  */
 function getDevContainerNodeVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
+  const configPath = path.join(__dirname, '.devcontainer/devcontainer. json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)? config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)[1] : '';
+  const image = config.image || '';
+  const match = image.match(/node (\d+)/);
+  return match ? match[1] : '';
 }
 
 /**
- * Returns the version of the Node.js used in the .travis.yml.
+ * Returns the version of the Node.js used in the .travis. yml.
  * @returns {string} The Node.js version or an empty string if not found.
  */
 function getTravisNodeVersion() {
-  const configPath = path.join(__dirname, '.travis.yml');
+  const configPath = path.join(__dirname, '.travis. yml');
   const config = fs.readFileSync(configPath, 'utf8');
   const match = config.match(/node (\d+)/);
   return match ? match[1] : '';

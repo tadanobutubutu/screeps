@@ -29,9 +29,12 @@ const fs = require('fs');
 const { spawnSync } = require('child_process');
 
 /**
- * Helper to safely fetch a package version from node_modules or return an
- * empty string if the package cannot be resolved.
- *
- * @param {string} pkg   - The package name to look up.
- * @param {string} [depName= pkg] - Optional dependency name to resolve against.
- * @returns {string
+ * Helper to safely fetch a package version from package.json (via node_modules) or return an empty string.
+ * @param {string} pkg - The package name to look up.
+ * @param {string} [depName=pkg] - Optional dependency name to resolve against.
+ * @returns {string} The semantic version string or an empty string if unresolved.
+ */
+function getPackageVersion(pkg, depName = pkg) {
+    try {
+        const pkgPath = path.join(process.cwd(), 'node_modules', pkg, 'package.json');
+        const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf

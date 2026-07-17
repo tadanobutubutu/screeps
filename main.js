@@ -72,19 +72,35 @@ function getCircleCINodeVersion() {
   const configPath = path.join(__dirname, '.circleci', 'config.yml');
   try {
     const content = fs.readFileSync(configPath, 'utf8');
-    // Look for the first occurrence of something like: image: cimg/node:XX.YZ
-    const match = content.match(/image:\s*cimg\/node:([^\s]+)/i);
-    return match ? match[1].trim() : '';
+    // Attempt to capture the image tag after "cimg/node:"
+    const match = content.match(/cimg\/node:([^\s]+)/);
+    return match ? match[1] : '';
   } catch (error) {
     return '';
   }
 }
 
 /**
- * Returns the Python version specified in the devcontainer.json.
+ * Returns the version of the Python runtime in the devcontainer.
  * @returns {string} The Python version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
   try {
-    const json = JSON.parse(fs
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM python:([^\s]+)/im);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
+}
+
+/**
+ * Returns the Node.js version used in the devcontainer.
+ * @returns {string} The Node.js version or an empty string if not found.
+ */
+function getDevContainerNodeVersion() {
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
+  try {
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM node:([^\s

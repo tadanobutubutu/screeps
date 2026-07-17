@@ -1,23 +1,32 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* spawn.js – Deployment helper utilities
  *
- * The original file contained typographic quotation marks (smart
- * quotes) that caused a linting / parsing error. Those have been
- * straightened out and the module is now syntactically valid.
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for
+ * the Screeps bot repository.
  *
- * The module now exports the helper functions for test consumption and
- * general use.
+ * The module functions are:
  *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - getPostHogVersion
- * - getSupabaseVersion
- * - getCircleCINodeVersion
- * - getDevContainerPythonVersion
- * - getDevContainerNodeVersion
- * - getTravisNodeVersion
- * - getRenovateUpdates
- * - getSentryVersion
+ *   - getPostHogVersion
+ *   - getSupabaseVersion
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
  *
  * This module
+ * The exported functions are also re‑exported for easier use in tests.
+ */
+
+const path = require('path');
+const fs = require('fs');
+const { spawnSync } = require('child_process');
+
+/**
+ * Helper to safely fetch a package version from package.json (via node_modules) or return an empty string.
+ * @param {string} pkg - The package name to look up.
+ * @param {string

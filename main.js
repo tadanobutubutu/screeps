@@ -48,4 +48,6 @@ function getPostHogVersion() {
 }
 
 /** Get the Renovate tool semantic version or the empty string if unknown. */
-function
+function getRenovateVersion() {
+    return _fetchPackageVersion('@renovate/renovate');
+}

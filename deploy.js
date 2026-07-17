@@ -79,17 +79,21 @@ function sanitizeLog(str) {
     // Security: Redact sensitive information with improved pattern and obfuscated keywords.
     const keys = [
         [116, 111, 107, 101, 110],
+        [112, 97, 115, 115],
+        [97, 112, 105, 107, 101, 121],
         [112, 97, 115, 115, 119, 111, 114, 100],
         [115, 101, 99, 114, 101, 116],
         [97, 112, 105, 95, 107, 101, 121],
         [97, 112, 105, 75, 101, 121],
         [97, 117, 116, 104],
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
         [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
         [98, 101, 97, 114, 101, 114],
         [115, 101, 115, 115, 105, 111, 110],
         [100, 115, 110],
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+        .sort((a, b) => b.length - a.length)
         .join('|');
 
     // Prefix-aware regex to catch variables like SCREEPS_TOKEN and handle suffixes/Bearer tokens

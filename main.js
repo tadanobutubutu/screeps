@@ -51,7 +51,7 @@ function getLodashVersion() {
 
 /** Get the PostHog package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
-    return getPackageVersion('posthog-js', 'posthog-js');
+    return getPackageVersion('@posthog/js');
 }
 
 /** Get the Supabase package semantic version or the empty string if unknown. */
@@ -59,43 +59,4 @@ function getSupabaseVersion() {
     return getPackageVersion('@supabase/supabase-js', '@supabase/supabase-js');
 }
 
-/** Get the CircleCI Node package semantic version or the empty string if unknown. */
-function getCircleCINodeVersion() {
-    return getPackageVersion('@circleci/node', '@circleci/node');
-}
-
-/** Get the DevContainer Python version or the empty string if unknown. */
-function getDevContainerPythonVersion() {
-    // Attempt to read a python version defined in the devcontainer config,
-    // falling back to an empty string if not present.
-    try {
-        const defPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        const config = JSON.parse(fs.readFileSync(defPath, 'utf8'));
-        return config.python?.version || '';
-    } catch {
-        return '';
-    }
-}
-
-/** Get the DevContainer Node version or the empty string if unknown. */
-function getDevContainerNodeVersion() {
-    try {
-        const defPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        const config = JSON.parse(fs.readFileSync(defPath, 'utf8'));
-        return config.node?.version || '';
-    } catch {
-        return '';
-    }
-}
-
-/** Get the Travis Node package semantic version or the empty string if unknown. */
-function getTravisNodeVersion() {
-    return getPackageVersion('@travis-ci/node', '@travis-ci/node');
-}
-
-/** Read the Renovate JSON config if present. */
-function getRenovateUpdates() {
-    const renovatePath = path.join(process.cwd(), 'renovate.json');
-    try {
-        return fs.readFileSync(renovatePath, 'utf8');
-    } catch
+/** Get the CircleCI Node package semantic version or the empty string if unkn

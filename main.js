@@ -65,7 +65,7 @@ function getSupabaseVersion() {
 }
 
 /**
- * Returns the version of the CircleCI Node.js image used in the .circleci/config.yml.
+ * Returns the version of the CircleCI Node. js image used in the .circleci/config.yml.
  * @returns {string} The CircleCI Node.js image version or an empty string if not found.
  */
 function getCircleCINodeVersion() {
@@ -81,18 +81,20 @@ function getCircleCINodeVersion() {
  */
 function getDevContainerPythonVersion() {
   const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)? config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)[1] : '';
+  const config = fs.readFileSync(configPath, 'utf8');
+  const match = config.match(/"python":\s*"(\d+\.\d+\.\d+)"/);
+  return match ? match[1] : '';
 }
 
 /**
  * Returns the version of the Node.js image used in the .devcontainer/devcontainer.json.
- * @returns {string} The Node.js image version or an empty string if not found.
+ * @returns {string} The Node.js version or an empty string if not found.
  */
 function getDevContainerNodeVersion() {
   const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)? config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)[1] : '';
+  const config = fs.readFileSync(configPath, 'utf8');
+  const match = config.match(/"node":\s*"(\d+)"/);
+  return match ? match[1] : '';
 }
 
 /**
@@ -121,7 +123,7 @@ function getRenovateUpdates() {
  * @returns {string} The Sentry version or an empty string if not found.
  */
 function getSentryVersion() {
-  return getPackageVersion('@sentry/browser');
+  return getPackageVersion('@sentry/sentry-javascript');
 }
 
 // Re-exporting functions for easier use in tests

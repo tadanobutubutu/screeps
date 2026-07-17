@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -69,69 +69,38 @@ function getSupabaseVersion() {
  * @returns {string} The CircleCI Node.js image version or an empty string if not found.
  */
 function getCircleCINodeVersion() {
-  const configPath = path.join(__dirname, '.circleci/config.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/cimg\/node (\d+\.\d+\.\d+)/);
-  return match ? match[1] : '';
+  const configPath = path.join(__dirname, '.circleci', 'config.yml');
+  try {
+    const content = fs.readFileSync(configPath, 'utf8');
+    // Attempt to capture the image tag after "cimg/node:"
+    const match = content.match(/cimg\/node:([^\s]+)/);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Python image used in the .devcontainer/devcontainer.json.
- * @returns {string} The Python image version or an empty string if not found.
+ * Returns the version of the Python runtime in the devcontainer.
+ * @returns {string} The Python version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)? config.image.match(/mcr\.microsoft\.com\/devcontainers\/python (\d+\.\d+\.\d+)/)[1] : '';
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
+  try {
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM python:([^\s]+)/im);
+    return match ? match[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Node.js image used in the .devcontainer/devcontainer.json.
- * @returns {string} The Node.js image version or an empty string if not found.
- */
-function getDevContainerNodeVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)? config.image.match(/ghcr\.io\/devcontainers\/features\/node (\d+)/)[1] : '';
-}
-
-/**
- * Returns the version of the Node.js used in the .travis.yml.
+ * Returns the Node.js version used in the devcontainer.
  * @returns {string} The Node.js version or an empty string if not found.
  */
-function getTravisNodeVersion() {
-  const configPath = path.join(__dirname, '.travis.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node (\d+)/);
-  return match ? match[1] : '';
-}
-
-/**
- * Returns the list of Renovate updates awaiting their schedule.
- * @returns {string} The Renovate updates or an empty string if not found.
- */
-function getRenovateUpdates() {
-  // This is a placeholder function as Renovate updates are not directly accessible via a simple file.
-  // The actual implementation would require interaction with the Renovate API or dashboard.
-  return 'awaiting updates...';
-}
-
-/**
- * Returns the version of the Sentry package.
- * @returns {string} The Sentry version or an empty string if not found.
- */
-function getSentryVersion() {
-  return getPackageVersion('@sentry/browser');
-}
-
-// Re-exporting functions for easier use in tests
-module.exports = {
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-  getSentryVersion
-};
+function getDevContainerNodeVersion() {
+  const dockerfilePath = path.join(__dirname, '.devcontainer', 'Dockerfile');
+  try {
+    const content = fs.readFileSync(dockerfilePath, 'utf8');
+    const match = content.match(/FROM node:([^\s

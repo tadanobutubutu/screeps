@@ -38,3 +38,12 @@ function _fetchPackageVersion(pkg, depName) {
 function getLodashVersion() {
     return _fetchPackageVersion('lodash');
 }
+
+/** Get the Supabase package semantic version or the empty string if unknown. */
+function getSupabaseVersion() {
+    return _fetchPackageVersion('@supabase/supabase-js');
+}
+
+/** Get the CircleCI Node package semantic version or the empty string if unknown. */
+function getCircleCINodeVersion() {
+    return _fetchPackageVersion

@@ -46,135 +46,20 @@ function getPackageVersion(pkg, depName = pkg) {
 
 /** Get the Lodash package semantic version or the empty string if unknown. */
 function getLodashVersion() {
-    return getPackageVersion('lodash');
+    return getPackageVersion('lodash', 'lodash');
 }
 
 /** Get the PostHog package semantic version or the empty string if unknown. */
 function getPostHogVersion() {
-    return getPackageVersion('@posthog/js');
+    // Some projects use the scoped name @posthog/js (modern), older ones may use posthog-js (unscoped).
+    const scoped = getPackageVersion('@posthog/js');
+    if (scoped) return scoped;
+    return getPackageVersion('posthog-js', 'posthog-js');
 }
 
 /** Get the Supabase package semantic version or the empty string if unknown. */
 function getSupabaseVersion() {
-    return getPackageVersion('@supabase/supabase-js');
+    return getPackageVersion('@supabase/supabase-js', '@supabase/supabase-js');
 }
 
-/** Get the CircleCI Node package semantic version or the empty string if unknown. */
-function getCircleCINodeVersion() {
-    return getPackageVersion('circleci-node');
-}
-
-/** Get the Dev Container Python version or the empty string if unknown. */
-function getDevContainerPythonVersion() {
-    try {
-        const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        if (fs.existsSync(devcontainerPath)) {
-            const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"python"\s*:\s*"([^"]+)"/);
-            return match ? match[1] : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
-}
-
-/** Get the Dev Container Node version or the empty string if unknown. */
-function getDevContainerNodeVersion() {
-    try {
-        const devcontainerPath = path.join(process.cwd(), '.devcontainer', 'devcontainer.json');
-        if (fs.existsSync(devcontainerPath)) {
-            const content = fs.readFileSync(devcontainerPath, 'utf8');
-            const match = content.match(/"node"\s*:\s*"([^"]+)"/);
-            return match ? match[1] : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
-}
-
-/** Get the Travis Node version or the empty string if unknown. */
-function getTravisNodeVersion() {
-    try {
-        const travisPath = path.join(process.cwd(), '.travis.yml');
-        if (fs.existsSync(travisPath)) {
-            const content = fs.readFileSync(travisPath, 'utf8');
-            const match = content.match(/node_js:\s*["']?v?(\d+\.\d+\.\d+)["']?/);
-            return match ? `v${match[1]}` : '';
-        }
-    } catch (e) {
-        // File not found or unparsable
-    }
-    return '';
-}
-
-/** Get the Sentry Browser version or the empty string if unknown. */
-function getSentryVersion() {
-    return getPackageVersion('@sentry/browser');
-}
-
-/** Get the Renovate updates summary as a formatted string. */
-function getRenovateUpdates() {
-    const updates = [];
-
-    // CircleCI updates
-    const circleciNode = getCircleCINodeVersion();
-    if (circleciNode) {
-        updates.push(`CircleCI Node: ${circleciNode}`);
-    }
-
-    // Dev Container updates
-    const devcontainerPython = getDevContainerPythonVersion();
-    if (devcontainerPython) {
-        updates.push(`Dev Container Python: ${devcontainerPython}`);
-    }
-
-    const devcontainerNode = getDevContainerNodeVersion();
-    if (devcontainerNode) {
-        updates.push(`Dev Container Node: ${devcontainerNode}`);
-    }
-
-    // Travis updates
-    const travisNode = getTravisNodeVersion();
-    if (travisNode) {
-        updates.push(`Travis Node: ${travisNode}`);
-    }
-
-    // npm package updates
-    const lodashVer = getLodashVersion();
-    if (lodashVer) {
-        updates.push(`lodash: ${lodashVer}`);
-    }
-
-    const posthogVer = getPostHogVersion();
-    if (posthogVer) {
-        updates.push(`posthog-js: ${posthogVer}`);
-    }
-
-    const supabaseVer = getSupabaseVersion();
-    if (supabaseVer) {
-        updates.push(`@supabase/supabase-js: ${supabaseVer}`);
-    }
-
-    const sentryVer = getSentryVersion();
-    if (sentryVer) {
-        updates.push(`sentry: ${sentryVer}`);
-    }
-
-    return updates.length > 0 ? updates.join('\n') : 'No updates detected';
-}
-
-// Export all helper functions
-module.exports = {
-    getPackageVersion,
-    getLodashVersion,
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getSentryVersion,
-    getRenovateUpdates,
-};
+/** Get the CircleCI Node package semantic version or the empty string if unknown

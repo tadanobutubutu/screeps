@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn. js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -18,7 +18,7 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *
- * The exported functions are also re‑exported for easier use in tests.
+ * The exported functions are also re-exported for easier use in tests.
  */
 
 const path = require('path');
@@ -65,77 +65,100 @@ function getSupabaseVersion() {
 }
 
 /**
- * Returns the version of the CircleCI Node.js image used in the .circleci/config. yml.
+ * Returns the version of the CircleCI Node.js image used in the .circleci/config.yml.
  * @returns {string} The CircleCI Node.js image version or an empty string if not found.
  */
 function getCircleCINodeVersion() {
-  const configPath = path.join(__dirname, '.circleci/config. yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/cimg\/node (\d+\.\d+\.\d+)/);
-  return match ? match[1] : '';
+  const configPath = path.join(__dirname, '.circleci', 'config.yml');
+  try {
+    const configContent = fs.readFileSync(configPath, 'utf8');
+    const matches = configContent.match(/image:\s*circleci\/node:(\d+\.\d+)/);
+    return matches ? matches[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Python image used in the .devcontainer/devcontainer. json.
- * @returns {string} The Python image version or an empty string if not found.
+ * Returns the Python version used inside the development container.
+ * @returns {string} The Python version or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer. json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  const image = config.image || '';
-  const match = image.match(/python (\d+\.\d+\.\d+)/);
-  return match ? match[1] : '';
+  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  try {
+    const devContainerContent = fs.readFileSync(devContainerPath, 'utf8');
+    const matches = devContainerContent.match(/"pythonVersion"\s*:\s*"([^"]+)"/);
+    return matches ? matches[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Node.js image used in the .devcontainer/devcontainer. json.
- * @returns {string} The Node.js image version or an empty string if not found.
+ * Returns the Node.js version used inside the development container.
+ * @returns {string} The Node.js version or an empty string if not found.
  */
 function getDevContainerNodeVersion() {
-  const configPath = path.join(__dirname, '.devcontainer/devcontainer. json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  const image = config.image || '';
-  const match = image.match(/node (\d+)/);
-  return match ? match[1] : '';
+  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  try {
+    const devContainerContent = fs.readFileSync(devContainerPath, 'utf8');
+    const matches = devContainerContent.match(/"nodeVersion"\s*:\s*"([^"]+)"/);
+    return matches ? matches[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the version of the Node.js used in the .travis. yml.
+ * Returns the Node.js version used in Travis CI.
  * @returns {string} The Node.js version or an empty string if not found.
  */
 function getTravisNodeVersion() {
-  const configPath = path.join(__dirname, '.travis. yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node (\d+)/);
-  return match ? match[1] : '';
+  const travisPath = path.join(__dirname, '.travis.yml');
+  try {
+    const travisContent = fs.readFileSync(travisPath, 'utf8');
+    const matches = travisContent.match(/node_js:\s*["']?(\d+\.\d+)["']?/);
+    return matches ? matches[1] : '';
+  } catch (error) {
+    return '';
+  }
 }
 
 /**
- * Returns the list of Renovate updates awaiting their schedule.
- * @returns {string} The Renovate updates or an empty string if not found.
+ * Returns information about Renovate updates from package-lock.json.
+ * @returns {object} A summary of dependencies that have updates.
  */
 function getRenovateUpdates() {
-  // This is a placeholder function as Renovate updates are not directly accessible via a simple file.
-  // The actual implementation would require interaction with the Renovate API or dashboard.
-  return 'awaiting updates...';
+  const lockPath = path.join(__dirname, 'package-lock.json');
+  try {
+    const lockContent = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
+    const updates = [];
+    if (lockContent && lockContent.packages) {
+      Object.keys(lockContent.packages).forEach((pkgPath) => {
+        const dep = lockContent.packages[pkgPath];
+        if (dep && dep.latest && dep.version !== dep.latest) {
+          updates.push({
+            name: pkgPath,
+            current: dep.version,
+            latest: dep.latest,
+          });
+        }
+      });
+    }
+    return updates;
+  } catch (error) {
+    return [];
+  }
 }
 
 /**
- * Returns the version of the Sentry package.
+ * Returns the Sentry package version.
  * @returns {string} The Sentry version or an empty string if not found.
  */
 function getSentryVersion() {
-  return getPackageVersion('@sentry/browser');
+  return getPackageVersion('@sentry/node');
 }
 
-// Re-exporting functions for easier use in tests
 module.exports = {
   getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-  getSentryVersion
-};
+  getSupabaseVersion

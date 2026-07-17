@@ -26,6 +26,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { spawnSync } = require('child_process');
 
 /**
  * Helper to safely fetch a package version from package.json or return an empty string.
@@ -51,23 +52,4 @@ function getPostHogVersion() {
 }
 
 /**
- * Fetch the Supabase JS client package version.
- */
-function getSupabaseVersion() {
-    return getPackageVersion('@supabase/supabase-js');
-}
-
-/**
- * Fetch CircleCI Node.js version used in builds.
- * (Implementation would normally read from environment or config)
- */
-function getCircleCINodeVersion() {
-    // Prefer an explicit environment variable; fall back to npm package version if available.
-    return process.env.CIRCLE_NODE_VERSION || getPackageVersion('circleci-node') || '';
-}
-
-/**
- * Fetch the Python version used in a development container.
- */
-function getDevContainerPythonVersion() {
-    // Attempt to read a dedicated env variable. If not present, return empty string.
+ * Fetch

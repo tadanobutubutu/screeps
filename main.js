@@ -19,6 +19,3 @@
  * - getTravisNodeVersion
  * - getRenovateUpdates
  * - getSentryVersion
- *
- * This module also re-exports the version-query functions so test
- * files can access

@@ -60,3 +60,13 @@ function getSupabaseVersion() {
 /**
  * Placeholder: Fetch CircleCI Node.js version used in builds.
  * (Implementation would normally read from environment or config)
+ */
+function getCircleCINodeVersion() {
+    // Dummy implementation; replace with actual logic as needed.
+    return '';
+}
+
+/**
+ * Fetch the Sentry package version.
+ */
+function getSentryVersion()

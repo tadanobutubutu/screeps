@@ -26,11 +26,14 @@
 
 const path = require('path');
 const fs = require('fs');
+const { spawnSync } = require('child_process');
 
 /**
- * Helper to safely fetch a package version from package.json or return an empty string.
- * @param {string} pkg - The package name to look up.
- * @param {string} [depName] - Optional dependency name to resolve against; defaults to pkg.
+ * Helper to safely fetch a package version from node_modules or return an
+ * empty string if the package cannot be resolved.
+ *
+ * @param {string} pkg   - The package name to look up.
+ * @param {string} [depName= pkg] - Optional dependency name to resolve against.
  * @returns {string} The semantic version string or an empty string if unresolved.
  */
 function getPackageVersion(pkg, depName = pkg) {
@@ -47,4 +50,7 @@ function getPackageVersion(pkg, depName = pkg) {
  * Fetch the PostHog package version.
  */
 function getPostHogVersion() {
-    return getPackageVersion('posthog
+    return getPackageVersion('posthog', 'dist/posthog.min.js');
+}
+
+// Add the functions for other packages as they were committed.

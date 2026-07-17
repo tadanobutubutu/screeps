@@ -1,13 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
- * and environment configuration. It is intentionally minimal to avoid
- * extra dependencies, while still offering useful functionality for
- * the Screeps bot repository.
  *
- * The module functions are:
- *
- *   - getPostHogVersion
- *   -

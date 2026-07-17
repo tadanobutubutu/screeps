@@ -1,31 +1,9 @@
 'use strict';
 
-/* Deployment helpers
- *
- * Deployment helper and utility functions.
- *
- * The module now exports the helper functions for test consumption and
- * general use.
- *
- * Additionally, the following new functions have been added to address
- * the Dependency Dashboard issues:
- * - `getPostHogVersion`
- * - `getSupabaseVersion`
- * - `getCircleCINodeVersion`
- * - `getDevContainerPythonVersion`
- * - `getDevContainerNodeVersion`
- * - `getTravisNodeVersion`
- * - `getRenovateUpdates`
- *
- * This module also re-exports the version-query functions defined in main.js
- * so test files can access them.
- */
-
-/* Helper to safely fetch a package version from package.json or an empty string */
-function _fetchPackageVersion(pkg, depName) {
+/* Helper to safely fetch a package version from package.json or return an empty string */
+function _fetchPackageVersion(pkg, depName = pkg) {
     try {
-        // Resolve the package's package.json
-        const pkgPath = require.resolve(`${pkg}/package.json`);
+        const pkgPath = require.resolve(`${depName}/package.json`);
         const { version } = require(pkgPath);
         return typeof version === 'string' ? version : '';
     } catch (e) {
@@ -34,7 +12,7 @@ function _fetchPackageVersion(pkg, depName) {
     }
 }
 
-/* Existing helper: fetch Lodash version */
+/** Get the Lodash package semantic version or the empty string if unknown. */
 function getLodashVersion() {
     return _fetchPackageVersion('lodash');
 }
@@ -59,4 +37,17 @@ function getDevContainerNodeVersion() {
     return _fetchPackageVersion('ghcr.io/devcontainers/features/node');
 }
 
-/** Get the Travis Node package semantic version or the empty string if unknown.
+/** Get the Travis Node package semantic version or the empty string if unknown. */
+function getTravisNodeVersion() {
+    return _fetchPackageVersion('travis-ci');
+}
+
+/** Get the PostHog Node package semantic version or the empty string if unknown. */
+function getPostHogVersion() {
+    return _fetchPackageVersion('@posthog/posthog-node');
+}
+
+/** Get the Renovate tool semantic version or the empty string if unknown. */
+function getRenovateVersion() {
+    return _fetchPackageVersion('@renovate/renovate');
+}

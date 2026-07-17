@@ -49,8 +49,21 @@ function getPostHogVersion() {
   if (process.env.POSTHOG_VERSION) {
     return process.env.POSTHOG_VERSION;
   }
-  return getPackageVersion('posthog');
+  return getPackageVersion('posthog-js');
 }
 
 /**
  * Return the installed Supabase JS client version or an empty string.
+ */
+function getSupabaseVersion() {
+  if (process.env.SUPABASE_VERSION) {
+    return process.env.SUPABASE_VERSION;
+  }
+  return getPackageVersion('@supabase/supabase-js');
+}
+
+/**
+ * Return the Node.js version used by CircleCI or an empty string.
+ */
+function getCircleCINodeVersion() {
+  // CircleCI sets CIRCLE_NODE_VERSION

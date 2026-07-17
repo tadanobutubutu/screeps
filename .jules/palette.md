@@ -36,3 +36,8 @@
 
 **Learning:** Combining number formatting (K, M, B suffixes) with `aria-valuetext` on progress bars provides a high-fidelity experience for both visual and screen-reader users. Showing the raw values (e.g., "1.2M / 2.0M") alongside the percentage reduces cognitive load and provides more tangible progress context.
 **Action:** Always provide both relative (percentage) and absolute (formatted count) values for progress metrics, and mirror this in `aria-valuetext` for accessibility.
+
+## 2026-07-22 - [Dynamic Feedback Coordination for Copy Actions]
+
+**Learning:** When implementing "click to copy" interactions, it is crucial to keep the `title` and `aria-label` attributes fully coordinated with the interactive/visual state changes. Dynamically switching both to a success state message (e.g., "コピー済み") prevents mismatch bugs where screen readers and native tooltips hover-stale descriptions of "Copy" on an already copied item.
+**Action:** Always dynamically bind and update both `title` and `aria-label` attributes in sync with any transient UI states (such as success copy confirmations).

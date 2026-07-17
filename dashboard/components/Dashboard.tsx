@@ -113,6 +113,7 @@ export default function Dashboard() {
                 <button
                     onClick={copyErr}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+                    title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
                         backgroundColor: copied ? '#155d27' : '#004b73',
                         color: 'white',
@@ -238,9 +239,9 @@ export default function Dashboard() {
                     >
                         <span>🌐 GCL: {stats?.gcl?.level}</span>
                         <span style={{ fontSize: '0.85rem' }}>
-                            {stats?.gcl?.progress && stats?.gcl?.progressTotal ? (
-                                `${formatNumber(stats.gcl.progress)} / ${formatNumber(stats.gcl.progressTotal)} (`
-                            ) : ''}
+                            {stats?.gcl?.progress && stats?.gcl?.progressTotal
+                                ? `${formatNumber(stats.gcl.progress)} / ${formatNumber(stats.gcl.progressTotal)} (`
+                                : ''}
                             {stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'}
@@ -319,8 +320,12 @@ export default function Dashboard() {
                             <button
                                 key={room}
                                 onClick={() => copyRoom(room)}
-                                aria-label={`部屋名 ${room} をコピー`}
-                                title={`部屋名 ${room} をコピー`}
+                                aria-label={
+                                    copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                }
+                                title={
+                                    copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                }
                                 style={{
                                     fontSize: '0.75rem',
                                     backgroundColor: copiedRoom === room ? '#c6f6d5' : '#edf2f7',
@@ -344,7 +349,12 @@ export default function Dashboard() {
                 <summary
                     className="interactive-hint"
                     title="生データを JSON 形式で表示/非表示にします"
-                    style={{ color: '#4a5568', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    style={{
+                        color: '#4a5568',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                    }}
                 >
                     <span>生データを確認</span>
                     <button
@@ -354,7 +364,7 @@ export default function Dashboard() {
                             copyRawData();
                         }}
                         aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
-                        title="JSONをコピー"
+                        title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
                         style={{
                             fontSize: '0.7rem',
                             padding: '0.1rem 0.4rem',

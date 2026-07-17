@@ -31,31 +31,31 @@
 // New functions will be added below
 
 function getPostHogVersion() {
-  // Implementation for getting PostHog version
+    // Implementation for getting PostHog version
 }
 
 function getSupabaseVersion() {
-  // Implementation for getting Supabase version
+    // Implementation for getting Supabase version
 }
 
 function getCircleCINodeVersion() {
-  // Implementation for getting CircleCI Node version
+    // Implementation for getting CircleCI Node version
 }
 
 function getDevContainerPythonVersion() {
-  // Implementation for getting Dev Container Python version
+    // Implementation for getting Dev Container Python version
 }
 
 function getDevContainerNodeVersion() {
-  // Implementation for getting Dev Container Node version
+    // Implementation for getting Dev Container Node version
 }
 
 function getTravisNodeVersion() {
-  // Implementation for getting Travis Node version
+    // Implementation for getting Travis Node version
 }
 
 function getRenovateUpdates() {
-  // Implementation for getting Renovate updates
+    // Implementation for getting Renovate updates
 }
 
 /**
@@ -63,7 +63,7 @@ function getRenovateUpdates() {
  * @returns {string} The Sentry version
  */
 function getSentryVersion() {
-  return '10.66.0';
+    return '10.66.0';
 }
 
 /**
@@ -71,7 +71,7 @@ function getSentryVersion() {
  * @returns {string} The GitHub CodeQL action version
  */
 function getCodeQLActionVersion() {
-  return 'v4';
+    return 'v4';
 }
 
 /**
@@ -79,7 +79,7 @@ function getCodeQLActionVersion() {
  * @returns {string} The pnpm version
  */
 function getPnpmVersion() {
-  return '11';
+    return '11';
 }
 
 /**
@@ -87,21 +87,21 @@ function getPnpmVersion() {
  * @returns {string} The Python version
  */
 function getPythonVersion() {
-  return '3.14';
+    return '3.14';
 }
 
 // Re-export version-query functions
 module.exports = {
-  // Existing exports remain here
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-  getSentryVersion,
-  getCodeQLActionVersion,
-  getPnpmVersion,
-  getPythonVersion
+    // Existing exports remain here
+    getPostHogVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getRenovateUpdates,
+    getSentryVersion,
+    getCodeQLActionVersion,
+    getPnpmVersion,
+    getPythonVersion,
 };

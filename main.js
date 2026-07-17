@@ -58,15 +58,16 @@ function getSupabaseVersion() {
 }
 
 /**
- * Placeholder: Fetch CircleCI Node.js version used in builds.
+ * Fetch CircleCI Node.js version used in builds.
  * (Implementation would normally read from environment or config)
  */
 function getCircleCINodeVersion() {
-    // Dummy implementation; replace with actual logic as needed.
-    return '';
+    // Prefer an explicit environment variable; fall back to npm package version if available.
+    return process.env.CIRCLE_NODE_VERSION || getPackageVersion('circleci-node') || '';
 }
 
 /**
- * Fetch the Sentry package version.
+ * Fetch the Python version used in a development container.
  */
-function getSentryVersion()
+function getDevContainerPythonVersion() {
+    // Attempt to read a dedicated env variable. If not present, return empty string.

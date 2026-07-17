@@ -19,3 +19,8 @@
 **Vulnerability:** Partial secret exposure when sensitive keywords were used as suffixes (e.g., `APP_SECRET_KEY`) or when tokens were prefixed with `Bearer ` in unquoted log entries.
 **Learning:** Security keywords should be matched as part of larger identifiers to catch variant naming conventions (e.g., `db_password`, `auth_token`). Additionally, specific token formats like `Bearer [token]` must be explicitly accounted for in unquoted value captures to ensure the full sensitive string is redacted.
 **Prevention:** Use regex patterns that allow for identifier suffixes and prefixes around keywords. Ensure unquoted value capture groups are greedy enough to include common token prefixes like `Bearer ` while still respecting word boundaries and delimiters.
+
+## 2026-07-17 - [Regex Alternation Ordering & Descending Length Sorting]
+**Vulnerability:** Partial redaction / leak of sensitive words (e.g. `password` becoming `[REDACTED]word`) in regular expression log sanitizers when shorter keywords (`pass`) precede longer keywords (`password`) in the alternation list (`pass|password`).
+**Learning:** In JavaScript regex, alternations (`|`) evaluate left-to-right. A shorter prefix matched first will short-circuit, leaving the rest of the sensitive word unredacted.
+**Prevention:** Always dynamically sort matching keywords by descending length (`.sort((a, b) => b.length - a.length)`) before constructing the regular expression alternation.

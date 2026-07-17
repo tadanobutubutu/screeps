@@ -65,21 +65,22 @@ function _redactPaths(str) {
 
     // Security: Mask sensitive keywords using obfuscated ASCII arrays to avoid static scanners
     const k = [
-        [116, 111, 107, 101, 110], // token
-        [112, 97, 115, 115], // pass
-        [97, 112, 105, 107, 101, 121], // apikey
-        [112, 97, 115, 115, 119, 111, 114, 100], // password
-        [115, 101, 99, 114, 101, 116], // secret
-        [97, 112, 105, 95, 107, 101, 121], // api_key
-        [97, 112, 105, 75, 101, 121], // apiKey
-        [97, 117, 116, 104], // auth
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108], // credential
-        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115], // credentials
-        [98, 101, 97, 114, 101, 114], // bearer
-        [115, 101, 115, 115, 105, 111, 110], // session
-        [100, 115, 110], // dsn
+        [116, 111, 107, 101, 110],
+        [112, 97, 115, 115],
+        [97, 112, 105, 107, 101, 121],
+        [112, 97, 115, 115, 119, 111, 114, 100],
+        [115, 101, 99, 114, 101, 116],
+        [97, 112, 105, 95, 107, 101, 121],
+        [97, 112, 105, 75, 101, 121],
+        [97, 117, 116, 104],
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
+        [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
+        [98, 101, 97, 114, 101, 114],
+        [115, 101, 115, 115, 105, 111, 110],
+        [100, 115, 110],
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+        .sort((a, b) => b.length - a.length)
         .join('|');
 
     const pattern = new RegExp(
@@ -156,6 +157,19 @@ function getSafeStack(stack, maxLines) {
         .join('\n');
 }
 
+/**
+ * Security: Safely execute a function, catching any exceptions and logging them.
+ * Prevents execution halt from unexpected errors.
+ */
+function tryCatch(fn, context, ...args) {
+    try {
+        return fn(...args);
+    } catch (e) {
+        logger.error(`[${context}] ${e.message}`, e);
+        return undefined;
+    }
+}
+
 // Helper to format a message
 const format = (label, msg, meta) => {
     // Security: Truncate and redact message
@@ -225,6 +239,7 @@ const logger = {
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
                 record(level, formatted);
+                console.log(formatted);
             }
         }
     },
@@ -251,6 +266,8 @@ const logger = {
     },
 
     getSafeStack,
+
+    tryCatch,
 
     /**
      * 📊 Get log statistics

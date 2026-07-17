@@ -58,23 +58,16 @@ function getSupabaseVersion() {
 }
 
 /**
- * Placeholder: Fetch CircleCI Node.js version used in builds.
+ * Fetch CircleCI Node.js version used in builds.
  * (Implementation would normally read from environment or config)
  */
+function getCircleCINodeVersion() {
+    // Prefer an explicit environment variable; fall back to npm package version if available.
+    return process.env.CIRCLE_NODE_VERSION || getPackageVersion('circleci-node') || '';
+}
 
-module.exports = {
-    getPackageVersion,
-    getPostHogVersion,
-    getSupabaseVersion
-};
-
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/**
+ * Fetch the Python version used in a development container.
+ */
+function getDevContainerPythonVersion() {
+    // Attempt to read a dedicated env variable. If not present, return empty string.

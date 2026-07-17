@@ -19,3 +19,54 @@
  * - getTravisNodeVersion
  * - getRenovateUpdates
  * - getSentryVersion
+ *
+ * This module also re-exports the version-query functions so test
+ * files can access them.
+ */
+
+const path = require('path');
+const fs = require('fs');
+
+/**
+ * Helper to safely fetch a package version from package.json or return an empty string.
+ * @param {string} pkg - The package name to look up.
+ * @param {string} [depName] - Optional dependency name to resolve against; defaults to pkg.
+ * @returns {string} The semantic version string or an empty string if unresolved.
+ */
+function getPackageVersion(pkg, depName = pkg) {
+    try {
+        const pkgPath = path.join(process.cwd(), 'node_modules', pkg, 'package.json');
+        const pkgJson = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        return pkgJson.version || '';
+    } catch (e) {
+        return '';
+    }
+}
+
+/**
+ * Fetch the PostHog package version.
+ */
+function getPostHogVersion() {
+    return getPackageVersion('posthog');
+}
+
+/**
+ * Fetch the Supabase JS client package version.
+ */
+function getSupabaseVersion() {
+    return getPackageVersion('@supabase/supabase-js');
+}
+
+/**
+ * Placeholder: Fetch CircleCI Node.js version used in builds.
+ * (Implementation would normally read from environment or config)
+ */
+function getCircleCINodeVersion() {
+    // Dummy implementation; replace with actual logic as needed.
+    return '';
+}
+
+/**
+ * Fetch the Sentry package version.
+ */
+function getSentryVersion()

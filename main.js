@@ -4,12 +4,6 @@
  *
  * Deployment helper and utility functions.
  *
- * Previous issues:
- *   • stray typographic quote
- *   • incomplete `getLodashVersion` function
- *   • confusing parenthesised 'use strict' statement
- *   • dangling `r` character at the end
- *
  * The module now exports the helper functions for test consumption and
  * general use.
  *
@@ -22,57 +16,78 @@
  * - `getDevContainerNodeVersion`
  * - `getTravisNodeVersion`
  * - `getRenovateUpdates`
- *
- * This module also re-exports the version-query functions defined in main.js
- * so test files can use them.
  */
 
-// Existing code and exports remain unchanged
+ // Helper to safely fetch a package version from package.json or an empty string
+ function _fetchPackageVersion(pkg) {
+     try {
+         // Resolve the package's package.json
+         const pkgPath = require.resolve(`${pkg}/package.json`);
+         const { version } = require(pkgPath);
+         return typeof version === 'string' ? version : '';
+     } catch (e) {
+         // Package not found or unparsable: return empty string
+         return '';
+     }
+ }
 
-// New functions added to address Dependency Dashboard issues
-function getPostHogVersion() {
-    // Implementation to get PostHog version
-    return 'posthog-version';
-}
+ // Existing helper: fetch Lodash version
+ function getLodashVersion() {
+     return _fetchPackageVersion('lodash');
+ }
 
-function getSupabaseVersion() {
-    // Implementation to get Supabase version
-    return 'supabase-version';
-}
+ // Existing helper: fetch Node.js version used by the CLI (if any)
+ function getNodeVersion() {
+     try {
+         const pkg = require('./package.json');
+         return pkg.engines && pkg.engines.node ? pkg.engines.node : '';
+     } catch (e) {
+         return '';
+     }
+ }
 
-function getCircleCINodeVersion() {
-    // Implementation to get CircleCI Node version
-    return 'circleci-node-version';
-}
+ // New functions added to address Dependency Dashboard issues
+ function getPostHogVersion() {
+     return _fetchPackageVersion('posthog');
+ }
 
-function getDevContainerPythonVersion() {
-    // Implementation to get Dev Container Python version
-    return 'dev-container-python-version';
-}
+ function getSupabaseVersion() {
+     return _fetchPackageVersion('supabase');
+ }
 
-function getDevContainerNodeVersion() {
-    // Implementation to get Dev Container Node version
-    return 'dev-container-node-version';
-}
+ function getCircleCINodeVersion() {
+     return _fetchPackageVersion('@circleci/node'); // or appropriate package name
+ }
 
-function getTravisNodeVersion() {
-    // Implementation to get Travis Node version
-    return 'travis-node-version';
-}
+ function getDevContainerPythonVersion() {
+     // Often from container config, not from package.json – placeholder
+     return 'dev-container-python-version';
+ }
 
-function getRenovateUpdates() {
-    // Implementation to get Renovate updates
-    return 'renovate-updates';
-}
+ function getDevContainerNodeVersion() {
+     // Often from container config, not from package.json – placeholder
+     return 'dev-container-node-version';
+ }
 
-// Export all existing and new functions
-module.exports = {
-    // Existing exports remain unchanged
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getRenovateUpdates,
-};
+ function getTravisNodeVersion() {
+     // Often from Travis environment, placeholder
+     return 'travis-node-version';
+ }
+
+ function getRenovateUpdates() {
+     // Simplified placeholder – could read renovate.json
+     return 'renovate-updates';
+ }
+
+ // Export all existing and new functions
+ module.exports = {
+     getLodashVersion,
+     getNodeVersion,
+     getPostHogVersion,
+     getSupabaseVersion,
+     getCircleCINodeVersion,
+     getDevContainerPythonVersion,
+     getDevContainerNodeVersion,
+     getTravisNodeVersion,
+     getRenovateUpdates,
+ };

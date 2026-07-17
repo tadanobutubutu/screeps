@@ -78,3 +78,6 @@ function getTravisNodeVersion() {
 function getRenovateUpdates() {
     // Placeholder for Renovate update logic
     return '';
+}
+
+module.exports

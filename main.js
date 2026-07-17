@@ -112,6 +112,38 @@ function getRenovateUpdates() {
   ];
 }
 
+/**
+ * Gets the current version of Sentry
+ * @returns {string} The Sentry version
+ */
+function getSentryVersion() {
+  return '10.66.0';
+}
+
+/**
+ * Gets the current version of GitHub CodeQL action
+ * @returns {string} The GitHub CodeQL action version
+ */
+function getCodeQLActionVersion() {
+  return 'v4';
+}
+
+/**
+ * Gets the current version of pnpm
+ * @returns {string} The pnpm version
+ */
+function getPnpmVersion() {
+  return '11';
+}
+
+/**
+ * Gets the current version of Python
+ * @returns {string} The Python version
+ */
+function getPythonVersion() {
+  return '3.14';
+}
+
 module.exports = {
   getLodashVersion,
   getPostHogVersion,
@@ -120,5 +152,9 @@ module.exports = {
   getDevContainerPythonVersion,
   getDevContainerNodeVersion,
   getTravisNodeVersion,
-  getRenovateUpdates
+  getRenovateUpdates,
+  getSentryVersion,
+  getCodeQLActionVersion,
+  getPnpmVersion,
+  getPythonVersion
 };

@@ -80,3 +80,17 @@ function getRenovateUpdates() {
 function getSentryVersion() {
     return _fetchPackageVersion('@sentry/browser');
 }
+
+// Export all functions for use in other modules
+module.exports = {
+    _fetchPackageVersion,
+    getLodashVersion,
+    getSupabaseVersion,
+    getCircleCINodeVersion,
+    getDevContainerPythonVersion,
+    getDevContainerNodeVersion,
+    getTravisNodeVersion,
+    getPostHogVersion,
+    getRenovateUpdates,
+    getSentryVersion
+};

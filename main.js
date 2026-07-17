@@ -39,3 +39,86 @@ let lodashVersion = '';
 let posthogVersion = '';
 let supabaseVersion = '';
 let circleCIVersion = '';
+
+/**
+ * Gets the current version of lodash
+ * @returns {string} The lodash version
+ */
+function getLodashVersion() {
+  return lodashVersion;
+}
+
+/**
+ * Gets the current version of PostHog
+ * @returns {string} The PostHog version
+ */
+function getPostHogVersion() {
+  return posthogVersion;
+}
+
+/**
+ * Gets the current version of Supabase
+ * @returns {string} The Supabase version
+ */
+function getSupabaseVersion() {
+  return supabaseVersion;
+}
+
+/**
+ * Gets the Node version used in CircleCI
+ * @returns {string} The CircleCI Node version
+ */
+function getCircleCINodeVersion() {
+  return circleCIVersion;
+}
+
+/**
+ * Gets the Python version used in devcontainer
+ * @returns {string} The devcontainer Python version
+ */
+function getDevContainerPythonVersion() {
+  return '3.14';
+}
+
+/**
+ * Gets the Node version used in devcontainer
+ * @returns {string} The devcontainer Node version
+ */
+function getDevContainerNodeVersion() {
+  return '24';
+}
+
+/**
+ * Gets the Node version used in Travis CI
+ * @returns {string} The Travis Node version
+ */
+function getTravisNodeVersion() {
+  return '24';
+}
+
+/**
+ * Gets the pending Renovate updates
+ * @returns {Array} Array of pending updates
+ */
+function getRenovateUpdates() {
+  return [
+    'actions/setup-python to v6',
+    'actions/upload-artifact to v7',
+    'node to v24',
+    'posthog-js to v1.404.0',
+    'actions/setup-node to v7',
+    'typescript to v7',
+    'pnpm/action-setup to v6'
+  ];
+}
+
+module.exports = {
+  getLodashVersion,
+  getPostHogVersion,
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
+  getRenovateUpdates
+};

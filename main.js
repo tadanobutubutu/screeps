@@ -35,12 +35,7 @@ const { spawnSync } = require('child_process');
  */
 function getPackageVersion(pkg, depName = pkg) {
   try {
-    const packageJsonPath = path.join(
-      __dirname,
-      'node_modules',
-      depName,
-      'package.json'
-    );
+    const packageJsonPath = path.join(__dirname, 'node_modules', depName, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
     return packageJson.version || '';
   } catch (error) {
@@ -72,88 +67,87 @@ function getCircleCINodeVersion() {
   const configPath = path.join(__dirname, '.circleci', 'config.yml');
   try {
     const configContent = fs.readFileSync(configPath, 'utf8');
-    const matches = configContent.match(/image:\s*circleci\/node:(\d+\.\d+)/);
-    return matches ? matches[1] : '';
+    const match = configContent.match(/image:\s*node:(\d+\.\d+\.\d+)/);
+    return match ? match[1] : '';
   } catch (error) {
-    return '';
+    // Fall back to reading the Dockerfile if config not present
+    const dockerfile = path.join(__dirname, 'Dockerfile');
+    try {
+      const dockerContent = fs.readFileSync(dockerfile, 'utf8');
+      const dockerMatch = dockerContent.match(/FROM node:(\d+\.\d+\.\d+)/);
+      return dockerMatch ? dockerMatch[1] : '';
+    } catch {
+      return '';
+    }
   }
 }
 
 /**
- * Returns the Python version used inside the development container.
- * @returns {string} The Python version or an empty string if not found.
+ * Returns the Python version in the devcontainer setup.
+ * @returns {string} The Python version string or an empty string if not found.
  */
 function getDevContainerPythonVersion() {
-  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  const dockerComposePath = path.join(__dirname, 'devcontainer', 'docker-compose.yml');
   try {
-    const devContainerContent = fs.readFileSync(devContainerPath, 'utf8');
-    const matches = devContainerContent.match(/"pythonVersion"\s*:\s*"([^"]+)"/);
-    return matches ? matches[1] : '';
-  } catch (error) {
+    const content = fs.readFileSync(dockerComposePath, 'utf8');
+    const match = content.match(/Python-(\d+\.\d+)(?:\.\d+)?/);
+    return match ? match[1] : '';
+  } catch (err) {
     return '';
   }
 }
 
 /**
- * Returns the Node.js version used inside the development container.
- * @returns {string} The Node.js version or an empty string if not found.
+ * Returns the Node.js version in the devcontainer setup.
+ * @returns {string} The Node.js version string or an empty string if not found.
  */
 function getDevContainerNodeVersion() {
-  const devContainerPath = path.join(__dirname, '.devcontainer', 'devcontainer.json');
+  const devContainerPath = path.join(__dirname, 'devcontainer', 'devcontainer.json');
   try {
-    const devContainerContent = fs.readFileSync(devContainerPath, 'utf8');
-    const matches = devContainerContent.match(/"nodeVersion"\s*:\s*"([^"]+)"/);
-    return matches ? matches[1] : '';
-  } catch (error) {
+    const json = JSON.parse(fs.readFileSync(devContainerPath, 'utf8'));
+    const baseImage = json.runArgs?.find(arg => arg.includes('node:')).split(':')[1];
+    const [major, minor] = baseImage.split('.').map(Number);
+    return `${major}.${minor}.0`;
+  } catch (err) {
     return '';
   }
 }
 
 /**
- * Returns the Node.js version used in Travis CI.
- * @returns {string} The Node.js version or an empty string if not found.
+ * Returns the Travis CI Node.js version used in .travis.yml.
+ * @returns {string} The Travis Node.js version string or empty if missing.
  */
 function getTravisNodeVersion() {
   const travisPath = path.join(__dirname, '.travis.yml');
   try {
-    const travisContent = fs.readFileSync(travisPath, 'utf8');
-    const matches = travisContent.match(/node_js:\s*["']?(\d+\.\d+)["']?/);
-    return matches ? matches[1] : '';
+    const content = fs.readFileSync(travisPath, 'utf8');
+    const match = content.match(/node_js:\s*["']?(\d+\.\d+)(?:\.\d+)?["']?/);
+    return match ? match[1] : '';
   } catch (error) {
     return '';
   }
 }
 
 /**
- * Returns information about Renovate updates from package-lock.json.
- * @returns {object} A summary of dependencies that have updates.
+ * Returns the Renovate configuration updates for package updates.
+ * @returns {string} JSON string of updates or empty if none.
  */
 function getRenovateUpdates() {
-  const lockPath = path.join(__dirname, 'package-lock.json');
+  const renovatePath = path.join(__dirname, 'renovate.json');
   try {
-    const lockContent = JSON.parse(fs.readFileSync(lockPath, 'utf8'));
-    const updates = [];
-    if (lockContent && lockContent.packages) {
-      Object.keys(lockContent.packages).forEach((pkgPath) => {
-        const dep = lockContent.packages[pkgPath];
-        if (dep && dep.latest && dep.version !== dep.latest) {
-          updates.push({
-            name: pkgPath,
-            current: dep.version,
-            latest: dep.latest,
-          });
-        }
-      });
+    const json = JSON.parse(fs.readFileSync(renovatePath, 'utf8'));
+    if (Array.isArray(json.packageRules) && json.packageRules.length > 0) {
+      return JSON.stringify(json.packageRules);
     }
-    return updates;
+    return '';
   } catch (error) {
-    return [];
+    return '';
   }
 }
 
 /**
- * Returns the Sentry package version.
- * @returns {string} The Sentry version or an empty string if not found.
+ * Returns the Sentry SDK version.
+ * @returns {string} The Sentry package version or an empty string if not found.
  */
 function getSentryVersion() {
   return getPackageVersion('@sentry/node');
@@ -161,4 +155,23 @@ function getSentryVersion() {
 
 module.exports = {
   getPostHogVersion,
-  getSupabaseVersion
+  getSupabaseVersion,
+  getCircleCINodeVersion,
+  getDevContainerPythonVersion,
+  getDevContainerNodeVersion,
+  getTravisNodeVersion,
+  getRenovateUpdates,
+  getSentryVersion,
+};
+
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

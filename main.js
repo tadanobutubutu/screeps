@@ -176,5 +176,5 @@ module.exports = {
     getDevContainerNodeVersion,
     getTravisNodeVersion,
     getSentryVersion,
-    getRenovateUpdates
+    getRenovateUpdates,
 };

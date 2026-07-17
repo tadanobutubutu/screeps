@@ -24,84 +24,98 @@
  * - `getRenovateUpdates`
  *
  * This module also re-exports the version-query functions defined in main.js
- * so test files can use them.
+ * so test files can access them
  */
 
-// Existing exports and functions remain unchanged
-// New functions will be added below
+// ... (Existing code from main.js) ...
 
+// Helper to safely fetch a package version from package.json or empty string
+function _fetchPackageVersion(pkg, depName) {
+    if (!pkg) return '';
+    const deps = pkg.dependencies || {};
+    const devDe = pkg.devDependencies || {};
+    if (deps[depName]) return deps[depName];
+    if (devDe[depName]) return devDe[depName];
+    return '';
+}
+
+const pkg = (() => {
+    try {
+        return require('./package.json');
+    } catch (_) {
+        return null;
+    }
+})();
+
+/**
+ * Get the PostHog package semantic version or the empty string if unknown.
+ */
 function getPostHogVersion() {
-    // Implementation for getting PostHog version
+    return _fetchPackageVersion(pkg, 'posthog');
 }
 
+/**
+ * Get the Supabase package semantic version or the empty string if unknown.
+ */
 function getSupabaseVersion() {
-    // Implementation for getting Supabase version
+    return _fetchPackageVersion(pkg, '@supabase/supabase-js');
 }
 
+/**
+ * Get the CircleCI Node library semantic version or the empty string if unknown.
+ */
 function getCircleCINodeVersion() {
-    // Implementation for getting CircleCI Node version
+    return _fetchPackageVersion(pkg, '@circleci/node');
 }
 
+/**
+ * Get the Dev Container Python version or empty string if not defined.
+ */
 function getDevContainerPythonVersion() {
-    // Implementation for getting Dev Container Python version
+    // Might be stored in devcontainer.json or similar; fallback to empty
+    try {
+        const dc = require('./.devcontainer/devcontainer.json');
+        return dc.python?.version || '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Dev Container Node version or empty string if not defined.
+ */
 function getDevContainerNodeVersion() {
-    // Implementation for getting Dev Container Node version
+    try {
+        const dc = require('./.devcontainer/devcontainer.json');
+        return dc.node?.version || '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Travis Node version or empty string if not defined.
+ */
 function getTravisNodeVersion() {
-    // Implementation for getting Travis Node version
+    try {
+        const travis = require('./.travis.yml');
+        return travis.language === 'node_js' ? travis.node_js : '';
+    } catch (_) {
+        return '';
+    }
 }
 
+/**
+ * Get the Renovate updates version or empty string if not defined.
+ */
 function getRenovateUpdates() {
-    // Implementation for getting Renovate updates
+    try {
+        const renovate = require('./renovate.json');
+        return renovate.branch || '';
+    } catch (_) {
+        return '';
+    }
 }
 
 /**
- * Gets the current version of Sentry
- * @returns {string} The Sentry version
- */
-function getSentryVersion() {
-    return '10.66.0';
-}
-
-/**
- * Gets the current version of GitHub CodeQL action
- * @returns {string} The GitHub CodeQL action version
- */
-function getCodeQLActionVersion() {
-    return 'v4';
-}
-
-/**
- * Gets the current version of pnpm
- * @returns {string} The pnpm version
- */
-function getPnpmVersion() {
-    return '11';
-}
-
-/**
- * Gets the current version of Python
- * @returns {string} The Python version
- */
-function getPythonVersion() {
-    return '3.14';
-}
-
-// Re-export version-query functions
-module.exports = {
-    // Existing exports remain here
-    getPostHogVersion,
-    getSupabaseVersion,
-    getCircleCINodeVersion,
-    getDevContainerPythonVersion,
-    getDevContainerNodeVersion,
-    getTravisNodeVersion,
-    getRenovateUpdates,
-    getSentryVersion,
-    getCodeQLActionVersion,
-    getPnpmVersion,
-    getPythonVersion,
-};
+ * Gets the current version of S

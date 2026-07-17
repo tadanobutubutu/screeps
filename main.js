@@ -27,9 +27,9 @@
  * so test files can use them.
  */
 
-// Existing exports and functions remain unchanged
-// New functions will be added below
+ // Existing code and exports remain unchanged
 
+// New functions added to address Dependency Dashboard issues
 function getPostHogVersion() {
   // Implementation for getting PostHog version
 }

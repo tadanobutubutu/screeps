@@ -1,6 +1,6 @@
 'use strict';
 
-/* spawn.js – Deployment helper utilities
+/* main.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -57,26 +57,4 @@ function getPostHogVersion() {
 }
 
 /**
- * Returns the version of the Supabase package.
- * @returns {string} The Supabase version or an empty string if not found.
- */
-function getSupabaseVersion() {
-  return getPackageVersion('@supabase/supabase-js');
-}
-
-/**
- * Returns the version of the CircleCI Node.js image used in the .circleci/config.yml.
- * @returns {string} The CircleCI Node.js image version or an empty string if not found.
- */
-function getCircleCINodeVersion() {
-  const configPath = path.join(__dirname, '.circleci', 'config.yml');
-  try {
-    const content = fs.readFileSync(configPath, 'utf8');
-    // Look for a Docker image reference that contains 'node'
-    // e.g., image: cimg/node:16.20.2-browsers
-    const imageMatch = content.match(/image:\s*([^\s]+)/);
-    if (imageMatch) {
-      const fullImageRef = imageMatch[1];
-      const nodeMatch = fullImageRef.match(/node[:/-]([0-9.]+)(?:[^\s:]*)/);
-      if (nodeMatch) {
-        return nodeMatch
+ * Returns the version of

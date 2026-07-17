@@ -115,6 +115,7 @@ function _redactPaths(str) {
         [100, 115, 110],
     ]
         .map((codes) => codes.map((c) => String.fromCharCode(c)).join(''))
+        .sort((a, b) => b.length - a.length)
         .join('|');
 
     // Prefix-aware pattern to catch variables like SCREEPS_TOKEN and handle suffixes/Bearer tokens

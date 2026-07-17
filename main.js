@@ -52,9 +52,11 @@ export function getSupabaseVersion() {
 }
 
 /** Get the CircleCI Node package semantic version or the empty string if unknown. */
-export function getCircleCINode
+export function getCircleCINodeVersion() {
+    return _fetchPackageVersion('@circleci/node');
+}
 
-
+/**
 
 ---
 

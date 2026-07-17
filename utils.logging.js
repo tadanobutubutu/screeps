@@ -239,8 +239,7 @@ const logger = {
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
                 record(level, formatted);
-                console.log(formatted);
-            }
+                }
         }
     },
 

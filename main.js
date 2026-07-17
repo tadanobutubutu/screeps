@@ -42,8 +42,4 @@ function getPackageVersion(pkg, depName = pkg) {
       'package.json'
     );
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    return packageJson.version || '';
-  } catch (e) {
-    return '';
-  }
-}
+    return package

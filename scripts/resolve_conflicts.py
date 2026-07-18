@@ -123,7 +123,7 @@ def main():
         if resolved_content:
             with open(filename, "w", encoding="utf-8") as f:
                 f.write(resolved_content)
-            run_cmd(["git", "add", filename])
+            run_cmd(["git", "add", "-f", filename])
             print(f"Successfully resolved conflicts in '{filename}' using AI.")
         else:
             print(
@@ -131,7 +131,7 @@ def main():
             )
             # Fallback to keeping HEAD changes
             run_cmd(["git", "checkout", "--ours", filename])
-            run_cmd(["git", "add", filename])
+            run_cmd(["git", "add", "-f", filename])
 
     # Commit the merge resolution
     run_cmd(

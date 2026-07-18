@@ -274,29 +274,56 @@ function _buildAsBackup(creep) {
 function _getEnergy(creep) {
     const room = creep.room;
 
-    // 落下リソースを優先回収
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations and find the closest target directly.
+    // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
+
+    // 1. 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
-    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY && r.amount >= 30);
-    if (energyDrops.length > 0) {
-        const res = pathfinder.closest(creep.pos, energyDrops);
-        if (creep.pickup(res) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, res, { range: 1 });
+    let bestDrop = null;
+    let minDropDist = Infinity;
+
+    for (let i = 0; i < dropped.length; i++) {
+        const r = dropped[i];
+        if (r.resourceType === RESOURCE_ENERGY && r.amount >= 30) {
+            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            if (dist < minDropDist) {
+                minDropDist = dist;
+                bestDrop = r;
+            }
+        }
+    }
+
+    if (bestDrop) {
+        if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
         return;
     }
 
-    // コンテナから取得
+    // 2. コンテナから取得
     const containers = cache.getContainers(room);
-    const available = containers.filter((c) => c.store[RESOURCE_ENERGY] >= 100);
-    if (available.length > 0) {
-        const container = pathfinder.closest(creep.pos, available);
-        if (creep.withdraw(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, container, { range: 1 });
+    let bestContainer = null;
+    let minContainerDist = Infinity;
+
+    for (let i = 0; i < containers.length; i++) {
+        const c = containers[i];
+        if (c.store[RESOURCE_ENERGY] >= 100) {
+            const dist = creep.pos ? creep.pos.getRangeTo(c) : 0;
+            if (dist < minContainerDist) {
+                minContainerDist = dist;
+                bestContainer = c;
+            }
+        }
+    }
+
+    if (bestContainer) {
+        if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
         return;
     }
 
-    // ストレージから取得
+    // 3. ストレージから取得
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 200) {
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
@@ -305,7 +332,7 @@ function _getEnergy(creep) {
         return;
     }
 
-    // ソースから直接採掘
+    // 4. ソースから直接採掘
     const source = cache.assignSource(creep, room);
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {

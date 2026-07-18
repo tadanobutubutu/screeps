@@ -50,16 +50,14 @@ function getGitHubActionsGitStreamUpdate() {
   };
 }
 
-// Test file for verification
-// This should be in a separate file in the tests directory
-// but we'll include it here for demonstration purposes
-// In a real scenario, this would be in a file like tests/main.test.js
-
-// Example test for one of the functions
-test('getGitHubActionsGitStreamUpdate returns correct version', () => {
-  const result = getGitHubActionsGitStreamUpdate();
-  expect(result).toEqual({
-    current: 'v2',
-    update: 'v2'
-  });
-});
+/**
+ * Gets the list of test files that should be included in the test run
+ * @returns {Array} Array of test file patterns
+ */
+function getTestFiles() {
+  return [
+    '**/__tests__/**/*.js',
+    '**/*.test.js',
+    '**/*.spec.js'
+  ];
+}

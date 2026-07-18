@@ -17,64 +17,55 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - getGitHubActionsPythonVersion
- *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
  *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
+ *   - ...
+ *   - ...
  *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
+ *   - ...
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
  *   - getGitHubActionsSetupPyt
+ */
 
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+module.exports = {
+  getPostHogVersion: require('./src/getPostHogVersion'),
+  getSupabaseVersion: require('./src/getSupabaseVersion'),
+  getCircleCINodeVersion: require('./src/getCircleCINodeVersion'),
+  getDevContainerPythonVersion: require('./src/getDevContainerPythonVersion'),
+  getDevContainerNodeVersion: require('./src/getDevContainerNodeVersion'),
+  getTravisNodeVersion: require('./src/getTravisNodeVersion'),
+  getRenovateUpdates: require('./src/getRenovateUpdates'),
+  getSentryVersion: require('./src/getSentryVersion'),
+  getTestFiles: require('./src/getTestFiles'),
+  getNodeMajorVersionUpdate: require('./src/getNodeMajorVersionUpdate'),
+  getTypeScriptVersionUpdate: require('./src/getTypeScriptVersionUpdate'),
+  getPnpmActionSetupUpdate: require('./src/getPnpmActionSetupUpdate'),
+  getPostHogVersionUpdate: require('./src/getPostHogVersionUpdate'),
+  getGitHubActionsSetupPyt: require('./src/getGitHubActionsSetupPython'),
+};

@@ -30,35 +30,4 @@ function someFunction() {
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
  *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupPyt
- */
-
-/* All existing functions remain intact. The two conflicting sections
- * were identical comment headers; we keep a single, clean header
- * and expose the full set of utility functions below.
- */
-
-async function getPostHogVersion() {
-  // Placeholder implementation
-  return
+ *   - getGitHubActionsSetupPython

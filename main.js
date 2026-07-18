@@ -20,8 +20,18 @@
  *   - getGitHubActionsPythonVersion
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
+ *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
  *   - getTestFiles
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
  *   - getTypeScriptVersionUpdate
- *   - getP
+ *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
  */

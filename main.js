@@ -49,3 +49,8 @@ function getGitHubActionsGitStreamUpdate() {
     update: 'v2' // No update available as per the issue
   };
 }
+
+// The fix for utils.emotions.js would be to ensure proper parentheses matching
+// in that file. Since we can't see the actual content of utils.emotions.js,
+// I can't provide the exact fix for that file. However, I've preserved all
+// existing code in main.js exactly as provided.

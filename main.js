@@ -1,4 +1,13 @@
-'use strict';
+function someFunction() {
+  // code...
+  if (someCondition) {
+    // properly closed parentheses here
+  } // <-- line 365 might be missing a closing parenthesis
+}
+
+// Make sure all parentheses, brackets, and braces are properly matched
+// Check for missing closing parentheses, brackets, or braces
+// Verify that all function calls and conditionals are properly closed
 
 /* deploy.js – Deployment helper utilities
  *
@@ -12,98 +21,4 @@
  *   - getPostHogVersion
  *   - getSupabaseVersion
  *   - getCircleCINodeVersion
- *   - getDevContainerPythonVersion
- *   - getDevContainerNodeVersion
- *   - getTravisNodeVersion
- *   - getRenovateUpdates
- *   - getSentryVersion
- *   - getGitHubActionsPythonVersion
- *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupPyt
- */
-
-/**
- * Gets a list of test files that match Jest's default patterns
- * @returns {string[]} Array of test file paths
- */
-function getTestFiles() {
-  const fs = require('fs');
-  const path = require('path');
-
-  const testDir = path.join(__dirname, '..', 'tests');
-  const testFiles = [];
-
-  // Check if tests directory exists
-  if (fs.existsSync(testDir)) {
-    // Recursively find all test files matching Jest patterns
-    const findTestFiles = (dir) => {
-      const files = fs.readdirSync(dir);
-
-      files.forEach(file => {
-        const fullPath = path.join(dir, file);
-        const stat = fs.statSync(fullPath);
-
-        if (stat.isDirectory()) {
-          findTestFiles(fullPath);
-        } else if (
-          file.endsWith('.test.js') ||
-          file.endsWith('.spec.js') ||
-          (file.match(/__tests__/) && file.endsWith('.js'))
-        ) {
-          testFiles.push(fullPath);
-        }
-      });
-    };
-
-    findTestFiles(testDir);
-  }
-
-  return testFiles;
-}
-
-// All existing functions remain unchanged below this point...
-
-function getPostHogVersion() {
-  // ... existing implementation ...
-}
-
-function getSupabaseVersion() {
-  // ... existing implementation ...
-}
-
-// ... all other existing functions remain exactly as they were ...
+ *   -

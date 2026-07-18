@@ -32,6 +32,9 @@
  *   - getGitHubActionsSetupPythonUpdate
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmActionSetup
  *
  * The above list covers all the exported helper utilities available
  * in this module. The implementations of these functions are defined

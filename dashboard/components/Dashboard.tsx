@@ -11,6 +11,10 @@ export default function Dashboard() {
         [copiedRoom, setCopiedRoom] = useState<string | null>(null),
         [copiedJson, setCopiedJson] = useState(false);
 
+    const [refreshHover, setRefreshHover] = useState(false);
+    const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
+    const [jsonHover, setJsonHover] = useState(false);
+
     const formatNumber = (num: number) => {
         if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
         if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -189,6 +193,10 @@ export default function Dashboard() {
                         <button
                             onClick={() => fetchStats(true)}
                             disabled={refreshing}
+                            onMouseEnter={() => setRefreshHover(true)}
+                            onMouseLeave={() => setRefreshHover(false)}
+                            onFocus={() => setRefreshHover(true)}
+                            onBlur={() => setRefreshHover(false)}
                             aria-label={refreshing ? '更新中...' : '更新 (Alt + R)'}
                             title={refreshing ? '更新中...' : 'データを更新 (Alt + R)'}
                             style={{
@@ -201,7 +209,10 @@ export default function Dashboard() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                transition: 'all 0.2s',
+                                transition: 'all 0.2s ease-in-out',
+                                transform: refreshing ? 'none' : refreshHover ? 'scale(1.15)' : 'scale(1)',
+                                boxShadow: refreshHover && !refreshing ? '0 4px 10px rgba(0, 75, 115, 0.4)' : 'none',
+                                filter: refreshHover && !refreshing ? 'brightness(1.1)' : 'none',
                             }}
                         >
                             <span
@@ -320,6 +331,10 @@ export default function Dashboard() {
                             <button
                                 key={room}
                                 onClick={() => copyRoom(room)}
+                                onMouseEnter={() => setHoveredRoom(room)}
+                                onMouseLeave={() => setHoveredRoom(null)}
+                                onFocus={() => setHoveredRoom(room)}
+                                onBlur={() => setHoveredRoom(null)}
                                 aria-label={
                                     copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
                                 }
@@ -328,13 +343,15 @@ export default function Dashboard() {
                                 }
                                 style={{
                                     fontSize: '0.75rem',
-                                    backgroundColor: copiedRoom === room ? '#c6f6d5' : '#edf2f7',
+                                    backgroundColor: copiedRoom === room ? '#c6f6d5' : hoveredRoom === room ? '#e2e8f0' : '#edf2f7',
                                     padding: '0.1rem 0.4rem',
                                     borderRadius: '4px',
                                     border: '1px solid #cbd5e0',
                                     color: copiedRoom === room ? '#22543d' : '#2d3748',
                                     cursor: 'pointer',
-                                    transition: 'all 0.2s',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
+                                    boxShadow: hoveredRoom === room ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                                 }}
                             >
                                 {copiedRoom === room ? `✅ ${room}` : room}
@@ -363,17 +380,23 @@ export default function Dashboard() {
                             e.stopPropagation();
                             copyRawData();
                         }}
+                        onMouseEnter={() => setJsonHover(true)}
+                        onMouseLeave={() => setJsonHover(false)}
+                        onFocus={() => setJsonHover(true)}
+                        onBlur={() => setJsonHover(false)}
                         aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
                         title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
                         style={{
                             fontSize: '0.7rem',
                             padding: '0.1rem 0.4rem',
-                            backgroundColor: copiedJson ? '#155d27' : '#f7fafc',
+                            backgroundColor: copiedJson ? '#155d27' : jsonHover ? '#e2e8f0' : '#f7fafc',
                             border: '1px solid #cbd5e0',
                             borderRadius: '4px',
                             color: copiedJson ? 'white' : '#4a5568',
                             cursor: 'pointer',
-                            transition: 'all 0.2s',
+                            transition: 'all 0.2s ease-in-out',
+                            transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
+                            boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                         }}
                     >
                         {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}

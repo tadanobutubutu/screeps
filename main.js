@@ -1,5 +1,3 @@
-'use strict';
-
 /* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
@@ -19,23 +17,4 @@
  *   - getSentryVersion
  *   - getGitHubActionsPythonVersion
  *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmActionSetupUpdate
- *
- */
-
-// The rest of the file...
+ *   - getGitHubActions

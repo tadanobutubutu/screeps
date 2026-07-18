@@ -47,12 +47,22 @@ function someFunction() {
  * This is just a placeholder to maintain the structure.
  */
 
-// Example of how a function might be implemented (not shown in full for brevity)
-function getPostHogVersion() {
-  // Implementation would be here
-}
+/**
+ * Example of how a function might be implemented (not shown in full for brevity)
+ */
 
-// ... all other existing functions would be preserved exactly as they are
-
-// The issue appears to be in memory.visualizer.js, not this file
-// This file maintains all existing exports and functions as requested
+/* Jest configuration helper
+ * Provides configuration for Jest test runner
+ */
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: [
+    '**/__tests__/**/*.js',
+    '**/*.test.js',
+    '**/*.spec.js'
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/'
+  ],
+  collectCoverageFrom: [
+    '**/*.js',

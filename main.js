@@ -37,7 +37,20 @@
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmActionSetupUpdate
  *   - getGitHubActionsGitStreamUpdate
+ *   - getTestFiles
  */
+
+/**
+ * Gets the test files for the project
+ * @returns {Array} The list of test files
+ */
+function getTestFiles() {
+  return [
+    'tests/unit/main.test.js',
+    'tests/integration/api.test.js',
+    'tests/e2e/flow.test.js'
+  ];
+}
 
 /**
  * Gets the update information for GitHub Actions GitStream version

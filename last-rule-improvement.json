@@ -1,11 +1,9 @@
 {
   "files": [
-    "tutorial.auto.js",
     "utils.logging.js"
   ],
   "rules": [
-    "Optimize Game.creeps loop",
     "Remove console.log"
   ],
-  "timestamp": "2026-07-17T07:48:00.461Z"
+  "timestamp": "2026-07-18T07:22:50.619Z"
 }

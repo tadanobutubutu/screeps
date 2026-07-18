@@ -17,5 +17,8 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *
+ *   - getTestFiles
+ *   - getNodeMajorVersionUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getP
  */

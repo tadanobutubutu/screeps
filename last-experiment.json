@@ -1,6 +1,6 @@
 {
-    "experiment": "add-tower-optimization",
-    "description": "タワーのターゲット選択を最適化",
-    "timestamp": "2026-07-11T20:05:35.467Z",
-    "status": "applied"
+  "experiment": "add-tower-optimization",
+  "description": "タワーのターゲット選択を最適化",
+  "timestamp": "2026-07-18T20:03:40.464Z",
+  "status": "applied"
 }

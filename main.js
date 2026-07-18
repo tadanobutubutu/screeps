@@ -17,23 +17,4 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - getGitHubActionsPythonVersion
- *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- */
+ *

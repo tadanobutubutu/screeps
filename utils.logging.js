@@ -191,8 +191,9 @@ const format = (label, msg, meta) => {
         ? LOG_EMOJIS[label]
         : DEFAULT_EMOJI;
 
-    // Security: Escape the label to prevent console injection
-    const escapedLabel = _escapeHTML(label);
+    // Security: Escape and redact the label to prevent console injection and credential leaks
+    const sanitizedLabel = _redactPaths(label);
+    const escapedLabel = _escapeHTML(sanitizedLabel);
 
     return `${emoji} [${escapedLabel}] ${escapedMsg}${metaPart}`;
 };
@@ -239,6 +240,7 @@ const logger = {
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
                 record(level, formatted);
+                console.log(formatted);
                 }
         }
     },

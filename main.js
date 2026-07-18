@@ -52,10 +52,9 @@ function someFunction() {
  *   - getGitHubActionsPnpmVersionUpdate
  *   - getGitHubActionsGitStreamVersionUpdate
  *   - getCircleCINode
+ *   - getGitHubActionsSetupNodeVer
  *
  * Note: The function list above includes both version retrieval and update
  * helpers, ensuring that all environment components can be queried
  * and versioned consistently.
  */
-
-// [

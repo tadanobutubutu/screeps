@@ -25,6 +25,7 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
  *
  * The exported functions are also
  */
@@ -137,6 +138,22 @@ function getGitHubActionsGitStreamVersion() {
   return match ? match[1] : null;
 }
 
+/**
+ * Gets a list of test files in the project
+ * @returns {string[]} Array of test file paths
+ */
+function getTestFiles() {
+  const testDir = path.join(__dirname, '..', 'tests');
+  if (!fs.existsSync(testDir)) {
+    return [];
+  }
+
+  const files = fs.readdirSync(testDir);
+  return files.filter(file =>
+    file.endsWith('.test.js') || file.endsWith('.spec.js')
+  ).map(file => path.join(testDir, file));
+}
+
 module.exports = {
   getPostHogVersion,
   getSupabaseVersion,
@@ -153,5 +170,6 @@ module.exports = {
   getGitHubActionsSetupPythonVersion,
   getGitHubActionsCodeQLVersion,
   getGitHubActionsPnpmVersion,
-  getGitHubActionsGitStreamVersion
+  getGitHubActionsGitStreamVersion,
+  getTestFiles
 };

@@ -1,6 +1,6 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -18,11 +18,16 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *   - getTestFiles
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHub realidade GitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmUpdate
+ *   - getGitHubActionsGitStreamUpdate
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsSetupPythoVersion
  */
 
 module.exports = {
@@ -35,11 +40,16 @@ module.exports = {
   getRenovateUpdates,
   getSentryVersion,
   getTestFiles,
+  getPostHogVersionUpdate,
+  getGitHubActionsSetupPythonVersion,
+  getGitHubActionsCodeQLUpdate,
+  getGitHubActionsPnpmUpdate,
+  getGitHubActionsGitStreamUpdate,
+  getGitHubActionsSetupNodeUpdate,
+  getGitHubActionsUploadArtifactUpdate,
   getNodeMajorVersionUpdate,
   getTypeScriptVersionUpdate,
   getPnpmActionSetupUpdate,
-  getPostHogVersionUpdate,
-  getGitHubActionsSetupPythonVersion,
 };
 
 function getPostHogVersion() {
@@ -81,6 +91,82 @@ function getTestFiles() {
   return ['test/**/*.test.js', 'tests/**/*.test.js'];
 }
 
+function getPostHogVersionUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['posthog-node'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'PostHog updates',
+      },
+    ],
+  };
+}
+
+function getGitHubActionsSetupPythonVersion() {
+  return '3.11';
+}
+
+function getGitHubActionsCodeQLUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['github/codeql-action'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'CodeQL Action updates',
+      },
+    ],
+  };
+}
+
+function getGitHubActionsPnpmUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['pnpm-action'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'Pnpm Action updates',
+      },
+    ],
+  };
+}
+
+function getGitHubActionsGitStreamUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['actions/checkout'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'Git Stream updates',
+      },
+    ],
+  };
+}
+
+function getGitHubActionsSetupNodeUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['actions/setup-node'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'Setup Node Action updates',
+      },
+    ],
+  };
+}
+
+function getGitHubActionsUploadArtifactUpdate() {
+  return {
+    packageRules: [
+      {
+        matchPackageNames: ['actions/upload-artifact'],
+        matchUpdateTypes: ['major', 'minor', 'patch'],
+        groupName: 'Upload Artifact Action updates',
+      },
+    ],
+  };
+}
+
 function getNodeMajorVersionUpdate() {
   return {
     packageRules: [
@@ -93,7 +179,7 @@ function getNodeMajorVersionUpdate() {
   };
 }
 
-function getTypeScriptVersionUpdate() {
+λήςψειfunction getTypeScriptVersionUpdate() {
   return {
     packageRules: [
       {
@@ -115,20 +201,4 @@ function getPnpmActionSetupUpdate() {
       },
     ],
   };
-}
-
-function getPostHogVersionUpdate() {
-  return {
-    packageRules: [
-      {
-        matchPackageNames: ['posthog-node'],
-        matchUpdateTypes: ['major', 'minor', 'patch'],
-        groupName: 'PostHog updates',
-      },
-    ],
-  };
-}
-
-function getGitHubActionsSetupPythonVersion() {
-  return '3.11';
 }

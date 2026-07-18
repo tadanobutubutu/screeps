@@ -42,25 +42,7 @@
  *   - getGitHubActionsCodeQLVersionUpdate
  *   - getGitHubActionsPnpmVersionUpdate
  *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupPyt
+ *
+ * Note: Functions under the "Get…Update" namespace are intended for
+ * updating the respective configuration or dependency in CI environments.
  */
-
-// [Rest of the original main.js content would be here]

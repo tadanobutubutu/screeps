@@ -2,14 +2,14 @@ function someFunction() {
   // code...
   if (someCondition) {
     // properly closed parentheses here
-  } // <-- line 365 might be missing a closing parenthesis
+  }
 }
 
 // Make sure all parentheses, brackets, and braces are properly matched
 // Check for missing closing parentheses, brackets, or braces
 // Verify that all function calls and conditionals are properly closed
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -53,11 +53,9 @@ function someFunction() {
  *   - getGitHubActionsGitStreamVersionUpdate
  *   - getGitHubActionsSetupNodeVer
  *
----
-
-**Support Pollinations.AI:**
-
----
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
----
+ * Support Pollinations.AI:
+ *
+ * 🌸 **Ad** 🌸
+ * Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+ *
+ */

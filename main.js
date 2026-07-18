@@ -66,22 +66,25 @@ function getDevContainerPythonVersion() {
 function getDevContainerNodeVersion() {
   const configPath = path.join(__dirname, '..', '.devcontainer', 'devcontainer.json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.features.node.version;
+  // Dev Container node version can be defined directly or under a feature
+  if (config.features.node) {
+    return config.features.node.version;
+  }
+  // Fallback for older formats
+  return config.features['node:14'] ? config.features['node:14'].version : null;
 }
 
 function getTravisNodeVersion() {
   const configPath = path.join(__dirname, '..', '.travis.yml');
   const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node (\d+)/);
+  const match = config.match(/node_js:\s*["']?(\d+\.\d+)[\"']?/);
   return match ? match[1] : null;
 }
 
 function getRenovateUpdates() {
-  const renovateConfigPath = path.join(__dirname, '..', 'renovate.json');
-  if (fs.existsSync(renovateConfigPath)) {
-    return JSON.parse(fs.readFileSync(renovateConfigPath, 'utf8'));
-  }
-  return null;
+  const configPath = path.join(__dirname, '..', 'renovate.json');
+  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  return config.updates;
 }
 
 function getSentryVersion() {
@@ -90,177 +93,33 @@ function getSentryVersion() {
 }
 
 function getGitHubActionsPythonVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-autocoder.yml');
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'node.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/python (\d+\.\d+)/);
+  const match = workflow.match(/actions\/setup-python@(\d+\.\d+\.\d+)/);
   return match ? match[1] : null;
 }
 
 function getGitHubActionsNodeVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'node.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/node (\d+)/);
+  const match = workflow.match(/actions\/setup-node@(\d+\.\d+\.\d+)/);
   return match ? match[1] : null;
 }
 
 function getGitHubActionsSetupNodeVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-node v(\d+)/);
+  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'setup-node.yml');
+  const config = fs.readFileSync(configPath, 'utf8');
+  const match = config.match(/actions\/setup-node@(\d+\.\d+\.\d+)/);
   return match ? match[1] : null;
 }
 
 function getGitHubActionsUploadArtifactVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'auto-issue.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/upload-artifact v(\d+)/);
+  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'upload-artifact.yml');
+  const config = fs.readFileSync(configPath, 'utf8');
+  const match = config.match(/actions\/upload-artifact@(\d+\.\d+\.\d+)/);
   return match ? match[1] : null;
 }
 
 function getGitHubActionsSetupPythonVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-autocoder.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-python v(\d+)/);
-  return match ? match[1] : null;
-}
-
-function getGitHubActionsCodeQLVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-guardian.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/github\/codeql-action v(\d+)/);
-  return match ? match[1] : null;
-}
-
-function getGitHubActionsPnpmVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-guardian.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/pnpm (\d+)/);
-  return match ? match[1] : null;
-}
-
-function getGitHubActionsGitStreamVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'gitstream.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/linear-bots\/gitstream-github-action v(\d+)/);
-  return match ? match[1] : null;
-}
-
-/**
- * Gets a list of test files in the project
- * @returns {string[]} Array of test file paths
- */
-function getTestFiles() {
-  const testDir = path.join(__dirname, '..', 'tests');
-  if (!fs.existsSync(testDir)) {
-    return [];
-  }
-
-  const files = fs.readdirSync(testDir);
-  return files.filter(file =>
-    file.endsWith('.test.js') || file.endsWith('.spec.js')
-  ).map(file => path.join(testDir, file));
-}
-
-/**
- * Gets the update version for GitHub Actions setup-node
- * @returns {string|null} The update version or null if not found
- */
-function getGitHubActionsSetupNodeUpdate() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-node v(\d+) → \[Updates: `v(\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for GitHub Actions upload-artifact
- * @returns {string|null} The update version or null if not found
- */
-function getGitHubActionsUploadArtifactUpdate() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'auto-issue.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/upload-artifact v(\d+) → \[Updates: `v(\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for Node.js major version
- * @returns {string|null} The update version or null if not found
- */
-function getNodeMajorVersionUpdate() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/node (\d+) → \[Updates: `(\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for GitHub Actions setup-python
- * @returns {string|null} The update version or null if not found
- */
-function getGitHubActionsSetupPythonUpdate() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'auto-merge-pr.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-python v(\d+) → \[Updates: `v(\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for TypeScript
- * @returns {string|null} The update version or null if not found
- */
-function getTypeScriptVersionUpdate() {
-  const packageJsonPath = path.join(__dirname, '..', 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  const match = packageJson.dependencies.typescript.match(/typescript (\^?\d+\.\d+\.\d+) → \[Updates: `(\^?\d+\.\d+\.\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for pnpm/action-setup
- * @returns {string|null} The update version or null if not found
- */
-function getPnpmActionSetupUpdate() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-guardian.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/pnpm\/action-setup v(\d+) → \[Updates: `v(\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-/**
- * Gets the update version for posthog-js
- * @returns {string|null} The update version or null if not found
- */
-function getPostHogVersionUpdate() {
-  const packageJsonPath = path.join(__dirname, '..', 'package.json');
-  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  const match = packageJson.dependencies['posthog-js'].match(/posthog-js (\d+\.\d+\.\d+) → \[Updates: `(\d+\.\d+\.\d+)`\]/);
-  return match ? match[2] : null;
-}
-
-module.exports = {
-  getPostHogVersion,
-  getSupabaseVersion,
-  getCircleCINodeVersion,
-  getDevContainerPythonVersion,
-  getDevContainerNodeVersion,
-  getTravisNodeVersion,
-  getRenovateUpdates,
-  getSentryVersion,
-  getGitHubActionsPythonVersion,
-  getGitHubActionsNodeVersion,
-  getGitHubActionsSetupNodeVersion,
-  getGitHubActionsUploadArtifactVersion,
-  getGitHubActionsSetupPythonVersion,
-  getGitHubActionsCodeQLVersion,
-  getGitHubActionsPnpmVersion,
-  getGitHubActionsGitStreamVersion,
-  getTestFiles,
-  getGitHubActionsSetupNodeUpdate,
-  getGitHubActionsUploadArtifactUpdate,
-  getNodeMajorVersionUpdate,
-  getGitHubActionsSetupPythonUpdate,
-  getTypeScriptVersionUpdate,
-  getPnpmActionSetupUpdate,
-  getPostHogVersionUpdate
-};
+  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'setup-python.yml');
+  const config = fs

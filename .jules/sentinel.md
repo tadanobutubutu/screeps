@@ -24,3 +24,8 @@
 **Vulnerability:** Partial redaction / leak of sensitive words (e.g. `password` becoming `[REDACTED]word`) in regular expression log sanitizers when shorter keywords (`pass`) precede longer keywords (`password`) in the alternation list (`pass|password`).
 **Learning:** In JavaScript regex, alternations (`|`) evaluate left-to-right. A shorter prefix matched first will short-circuit, leaving the rest of the sensitive word unredacted.
 **Prevention:** Always dynamically sort matching keywords by descending length (`.sort((a, b) => b.length - a.length)`) before constructing the regular expression alternation.
+
+## 2026-07-18 - [Log Label and Level Parameter Credential Redaction]
+**Vulnerability:** Log label/level credential bypass in generic log methods. When custom labels or swapped parameters (such as calling `log(msg, level)`) are processed, credentials and secret values in the label parameter bypass sanitization.
+**Learning:** Security redaction functions (like `_redactPaths`) must be applied uniformly to all user-controlled or developer-controlled log metadata, including custom log levels or labels, to prevent accidental exposures in nested logging payloads.
+**Prevention:** Always run standard redaction functions on both the log message and any dynamic log labels/levels before formatting and writing to standard output or database logs.

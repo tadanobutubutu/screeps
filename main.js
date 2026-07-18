@@ -26,38 +26,16 @@
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
  *   - getTestFiles
+ *   - getPostHogVersionUpdate
  *   - getGitHubActionsSetupNodeUpdate
  *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
  *   - getGitHubActionsSetupPythonUpdate
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmActionSetupUpdate
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmActionSetupUpdate
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
+ *
  */
-
-
-
-
-
-
 
 // The rest of the file...

@@ -31,7 +31,6 @@
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmActionSetupUpdate
- */ 
-// Functions implementation would follow here
-// ... (rest of the module code)
+ */

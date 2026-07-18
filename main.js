@@ -1,5 +1,3 @@
-// In utils.emotions.js, around line 365, ensure proper parentheses matching
-// For example, if you have something like:
 function someFunction() {
   // code...
   if (someCondition) {
@@ -10,3 +8,17 @@ function someFunction() {
 // Make sure all parentheses, brackets, and braces are properly matched
 // Check for missing closing parentheses, brackets, or braces
 // Verify that all function calls and conditionals are properly closed
+
+/* deploy.js – Deployment helper utilities
+ *
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for
+ * the Screeps bot repository.
+ *
+ * The module functions are:
+ *
+ *   - getPostHogVersion
+ *   - getSupabaseVersion
+ *   - getCircleCINodeVersion
+ *   -

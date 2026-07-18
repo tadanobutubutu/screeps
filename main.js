@@ -13,4 +13,27 @@
  *   - getPostHogVersion
  *   - getSupabaseVersion
  *   - getCircleCINodeVersion
- *
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
+ *   - getGitHubActionsPythonVersion
+ *   - getGitHubActionsNodeVersion
+ *   - getGitHubActionsSetupNodeVersion
+ *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmActionSetupUpdate
+ */

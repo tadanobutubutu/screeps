@@ -17,64 +17,26 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - getGitHubActionsPythonVersion
- *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
  *   - getGitHubActionsSetupPyt
 
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/**
+ * Jest configuration helper
+ * Provides configuration for Jest test runner
+ */
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: [
+    '**/__tests__/**/*.js',
+    '**/*.test.js',
+    '**/*.spec.js'
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/'
+  ],
+  collectCoverageFrom: [
+    '**/*.js',
+    '!**/node_modules/**',
+    '!**/coverage/**',
+    '!**/dist/**'
+  ]
+};

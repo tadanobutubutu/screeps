@@ -1,13 +1,4 @@
-function someFunction() {
-  // code...
-  if (someCondition) {
-    // properly closed parentheses here
-  }
-}
-
-// Make sure all parentheses, brackets, and braces are properly matched
-// Check for missing closing parentheses, brackets, or braces
-// Verify that all function calls and conditionals are properly closed
+'use strict';
 
 /* deploy.js - Deployment helper utilities
  *
@@ -20,4 +11,11 @@ function someFunction() {
  *
  *   - getPostHogVersion
  *   - getSupabaseVersion
- *   -
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
+ *
+ */

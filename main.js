@@ -18,32 +18,32 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - getGitHubActionsPythonVersion
- *   - getGitHubActionsNodeVersion
- *   - getGitHubActionsSetupNodeVersion
- *   - getGitHubActionsUploadArtifactVersion
- *   - getGitHubActionsSetupPythonVersion
- *   - getGitHubActionsCodeQLVersion
- *   - getGitHubActionsPnpmVersion
- *   - getGitHubActionsGitStreamVersion
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
+ *   - ...
  *   - getTestFiles
  *   - getPostHogVersionUpdate
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
+ *   - ...
+ *   - ...
  *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
+ *   - ...
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmActionSetupUpdate
- *   - getGitHubActionsGitStreamUpdate
+ *   - ...
+ *   - ...
+ *   - ...
  */
 
 /**
  * Gets the update information for GitHub Actions GitStream version
  * @returns {Object} The update information for GitHub Actions GitStream version
  */
-function getGitHubActionsGitStreamUpdate() {
+function getGitHubActionsGitStreamVersionUpdate() {
   return {
     current: 'v2',
     update: 'v2' // No update available as per the issue

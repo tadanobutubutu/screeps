@@ -30,4 +30,15 @@ function someFunction() {
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
  *   - getGitHubActionsUploadArtifactVersion
- *   -
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ */

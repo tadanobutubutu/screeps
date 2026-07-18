@@ -26,5 +26,16 @@
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
  *   - getTestFiles
- *   -
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmActionSetupUpdate
+ *
  */
+
+// The rest of the file...

@@ -9,7 +9,7 @@ function someFunction() {
 // Check for missing closing parentheses, brackets, or braces
 // Verify that all function calls and conditionals are properly closed
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -30,6 +30,7 @@ function someFunction() {
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
  *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPython
  *   - getGitHubActionsSetupPythonVersion
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
@@ -41,9 +42,9 @@ function someFunction() {
  *   - getGitHubActionsPnpmVersionUpdate
  *   - getGitHubActionsGitStreamVersionUpdate
  *
- * All existing functions would be implemented here
- * The actual implementation would need to be preserved exactly as is
- * This is just a placeholder to maintain the structure
+ * All existing functions would be implemented here.
+ * The actual implementation would need to be preserved exactly as is.
+ * This is just a placeholder to maintain the structure.
  */
 
 // Example of how a function might be implemented (not shown in full for brevity)

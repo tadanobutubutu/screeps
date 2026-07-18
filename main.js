@@ -1,6 +1,6 @@
 'use strict';
 
-/* main.js – Deployment helper utilities
+/* deploy.js – Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -25,72 +25,88 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
  *
  * The exported functions are also
  */
 
 const fs = require('fs');
 const path = require('path');
+const yaml = require('js-yaml');
+
+/**
+ * Load a JSON file with safety.
+ */
+function loadJson(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Load a YAML file with safety.
+ */
+function loadYaml(filePath) {
+  try {
+    return yaml.load(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
 
 function getPostHogVersion() {
   const packageJson = require('../package.json');
-  return packageJson.dependencies['posthog-js'];
+  return packageJson.dependencies?.['posthog-js'] ?? null;
 }
 
 function getSupabaseVersion() {
   const packageJson = require('../package.json');
-  return packageJson.dependencies['@supabase/supabase-js'];
+  return packageJson.dependencies?.['@supabase/supabase-js'] ?? null;
 }
 
 function getCircleCINodeVersion() {
   const configPath = path.join(__dirname, '..', '.circleci', 'config.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/cimg\/node (\d+\.\d+\.\d+)/);
-  return match ? match[1] : null;
+  const config = loadYaml(configPath);
+  if (!config) return null;
+  const jobs = config.jobs || {};
+  // assume "build" job contains docker image
+  const job = jobs.build || {};
+  const dockerImage = Array.isArray(job.docker) && job.docker[0]?.image;
+  if (!dockerImage) return null;
+  const match = dockerImage.match(/cimg\/node:(\d+\.\d+\.\d+)/);
+  return match?.[1] ?? null;
 }
 
 function getDevContainerPythonVersion() {
   const configPath = path.join(__dirname, '..', '.devcontainer', 'devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.features.python.version;
+  const config = loadJson(configPath);
+  return config?.features?.python?.version ?? null;
 }
 
 function getDevContainerNodeVersion() {
   const configPath = path.join(__dirname, '..', '.devcontainer', 'devcontainer.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.features.node.version;
+  const config = loadJson(configPath);
+  return config?.features?.node?.version ?? null;
 }
 
 function getTravisNodeVersion() {
   const configPath = path.join(__dirname, '..', '.travis.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node (\d+)/);
-  return match ? match[1] : null;
+  const config = loadYaml(configPath);
+  if (!config) return null;
+  return config.language === 'node_js' ? config.node_js?.[0] ?? null : null;
 }
 
 function getRenovateUpdates() {
-  const renovateConfigPath = path.join(__dirname, '..', 'renovate.json');
-  if (fs.existsSync(renovateConfigPath)) {
-    return JSON.parse(fs.readFileSync(renovateConfigPath, 'utf8'));
-  }
-  return null;
-}
-
-function getSentryVersion() {
-  const packageJson = require('../package.json');
-  return packageJson.dependencies['@sentry/browser'];
-}
-
-function getGitHubActionsPythonVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-autocoder.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/python (\d+\.\d+)/);
-  return match ? match[1] : null;
-}
-
-function getGitHubActionsNodeVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/node (\d+)/);
-  return match ? match[1] : null;
-}
+  // This is a placeholder; real implementation would parse renovate.json
+  const configPath = path.join(__dirname, '..', 'renovate.json');
+  const config = loadJson(configPath);
+  return

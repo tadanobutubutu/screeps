@@ -25,14 +25,15 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmUpdate
+ *   - getGitHubActionsGitStreamUpdate
  *   - getGitHubActionsSetupNodeUpdate
  *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
  *   - getGitHubActionsSetupPythonUpdate
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
- *
+ */

@@ -17,6 +17,9 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
+ *   - getGitHubActionsPythonVersion
+ *   - getGitHubActionsNodeVersion
+ *   - getGitHubActionsSetupNodeVersion
  *   - getTestFiles
  *   - getNodeMajorVersionUpdate
  *   - getTypeScriptVersionUpdate

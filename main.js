@@ -20,8 +20,4 @@ function someFunction() {
  *
  *   - getPostHogVersion
  *   - getSupabaseVersion
- *   - getCircleCINodeVersion
- *   - getDevContainerPythonVersion
- *   - getDevContainerNodeVersion
- *   - getTravisNodeVersion
- *   - getRenovateUpdates
+ *   - getCircleCINode

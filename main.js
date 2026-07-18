@@ -1,6 +1,6 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -60,21 +60,7 @@
  *   - getGitHubActionsCodeQLVersionUpdate
  *   - getGitHubActionsPnpmVersionUpdate
  *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
  *   - getGitHubActionsSetupPyt
+ */
 
-
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+// [Rest of the existing code remains unchanged]

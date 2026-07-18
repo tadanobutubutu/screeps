@@ -20,4 +20,37 @@ function someFunction() {
  *
  *   - getPostHogVersion
  *   - getSupabaseVersion
- *   - getCircleCINode
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
+ *   - getGitHubActionsPythonVersion
+ *   - getGitHubActionsNodeVersion
+ *   - getGitHubActionsSetupNodeVersion
+ *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmUpdate
+ *   - getGitHubActionsGitStreamUpdate
+ *   - getGitHubActionsSetupNodeVersionUpdate
+ *   - getGitHubActionsUploadArtifactVersionUpdate
+ *   - getGitHubActionsSetupPythonVersionUpdate
+ *   - getGitHubActionsCodeQLVersionUpdate
+ *   - getGitHubActionsPnpmVersionUpdate
+ *   - getGitHubActionsGitStreamVersionUpdate
+ *   - getGitHubActionsSetupNodeVer
+
+---

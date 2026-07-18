@@ -42,6 +42,12 @@
  *   - getGitHubActionsCodeQLVersionUpdate
  *   - getGitHubActionsPnpmVersionUpdate
  *   - getGitHubActionsGitStreamVersionUpdate
+ *   - getGitHubActionsSetupNodeVersionUpdate
+ *   - getGitHubActionsUploadArtifactVersionUpdate
+ *   - getGitHubActionsSetupPythonVersionUpdate
+ *   - getGitHubActionsCodeQLVersionUpdate
+ *   - getGitHubActionsPnpmVersionUpdate
+ *   - getGitHubActionsGitStreamVersionUpdate
  *
  * The exported functions are also
  */

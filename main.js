@@ -9,7 +9,7 @@ function someFunction() {
 // Check for missing closing parentheses, brackets, or braces
 // Verify that all function calls and conditionals are properly closed
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -30,31 +30,24 @@ function someFunction() {
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
  *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPython
  *   - getGitHubActionsSetupPythonVersion
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmUpdate
- *   - getGitHubActionsGitStreamUpdate
  *   - getGitHubActionsSetupNodeVersionUpdate
  *   - getGitHubActionsUploadArtifactVersionUpdate
  *   - getGitHubActionsSetupPythonVersionUpdate
  *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getCircleCINode
- *   - getGitHubActionsSetupNodeVer
- *
- * Note: The function list above includes both version retrieval and update
- * helpers, ensuring that all environment components can be queried
- * and versioned consistently.
- */
+ *   - get
+
+
+
+---
+
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

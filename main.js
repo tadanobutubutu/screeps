@@ -25,6 +25,7 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
  *   - getGitHubActionsSetupNodeUpdate
  *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
@@ -34,3 +35,12 @@
  *   - getPostHogVersionUpdate
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmActionSetup
+ *
+ * The above list covers all the exported helper utilities available
+ * in this module. The implementations of these functions are defined
+ * below.
+ */
+
+module.exports = {
+  // Implementation details go here...
+};

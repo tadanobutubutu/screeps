@@ -26,13 +26,4 @@
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
  *   - getTestFiles
- *   - getGitHubActionsSetupNodeUpdate
- *   - getGitHubActionsUploadArtifactUpdate
- *   - getNodeMajorVersionUpdate
- *   - getGitHubActionsSetupPythonUpdate
- *   - getTypeScriptVersionUpdate
- *   - getPnpmActionSetupUpdate
- *   - getPostHogVersionUpdate
- *   - getGitHubActionsCodeQLUpdate
- *   - getGitHubActionsPnpmActionSetupUpdate
- */
+ *   -

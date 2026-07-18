@@ -33,3 +33,11 @@
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
  *
+ * The above list covers all the exported helper utilities available
+ * in this module. The implementations of these functions are defined
+ * below.
+ */
+
+module.exports = {
+  // Implementation details go here...
+};

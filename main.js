@@ -1,6 +1,6 @@
 'use strict';
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -25,7 +25,6 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
  *   - getGitHubActionsSetupNodeUpdate
  *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
@@ -36,13 +35,4 @@
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmUpdate
  *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
  *
- * Note: Functions under the "Get…Update" namespace are intended for
- * updating the respective configuration or dependency in CI environments.
- */

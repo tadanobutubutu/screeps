@@ -18,3 +18,4 @@
  *   - getRenovateUpdates
  *   - getSentryVersion
  *
+ */

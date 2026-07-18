@@ -36,4 +36,16 @@
  *   - getPnpmActionSetupUpdate
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmActionSetupUpdate
+ *   - getGitHubActionsGitStreamUpdate
  */
+
+/**
+ * Gets the update information for GitHub Actions GitStream version
+ * @returns {Object} The update information for GitHub Actions GitStream version
+ */
+function getGitHubActionsGitStreamUpdate() {
+  return {
+    current: 'v2',
+    update: 'v2' // No update available as per the issue
+  };
+}

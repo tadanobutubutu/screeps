@@ -1,6 +1,7 @@
 'use strict';
 
-/* deploy.js - Deployment helper utilities
+/**
+ * Lightweight deployment helper utilities.
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid

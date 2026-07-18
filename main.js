@@ -33,6 +33,9 @@
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmUpdate
+ *   - getGitHubActionsGitStreamUpdate
  *
  * The exported functions are also
  */
@@ -121,4 +124,131 @@ function getGitHubActionsSetupNodeVersion() {
   return match ? match[1] : null;
 }
 
-function getGitHubActionsUpload
+function getGitHubActionsUploadArtifactVersion() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: actions\/upload-artifact@v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsSetupPythonVersion() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: actions\/setup-python@v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsCodeQLVersion() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: github\/codeql-action@v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsPnpmVersion() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: pnpm\/action-setup@v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsGitStreamVersion() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'gitstream.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: linear-bots\/gitstream-github-action@v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getTestFiles() {
+  const testDir = path.join(__dirname, '..', 'tests');
+  if (!fs.existsSync(testDir)) return [];
+  return fs.readdirSync(testDir).filter(file => file.endsWith('.test.js'));
+}
+
+function getGitHubActionsSetupNodeUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/actions\/setup-node v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsUploadArtifactUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/actions\/upload-artifact v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getNodeMajorVersionUpdate() {
+  const packageJson = require('../package.json');
+  const engines = packageJson.engines || {};
+  const nodeVersion = engines.node || null;
+  if (!nodeVersion) return null;
+  const match = nodeVersion.match(/^(\d+)/);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsSetupPythonUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/actions\/setup-python v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getTypeScriptVersionUpdate() {
+  const packageJson = require('../package.json');
+  const devDeps = packageJson.devDependencies || {};
+  const tsVersion = devDeps.typescript || null;
+  if (!tsVersion) return null;
+  const match = tsVersion.match(/^(\d+)/);
+  return match ? match[1] : null;
+}
+
+function getPnpmActionSetupUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/pnpm\/action-setup v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getPostHogVersionUpdate() {
+  const packageJson = require('../package.json');
+  const deps = packageJson.dependencies || {};
+  const postHogVersion = deps['posthog-js'] || null;
+  if (!postHogVersion) return null;
+  const match = postHogVersion.match(/^(\d+\.\d+\.\d+)/);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsCodeQLUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/github\/codeql-action v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsPnpmUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/pnpm\/action-setup v(\d+)/i);
+  return match ? match[1] : null;
+}
+
+function getGitHubActionsGitStreamUpdate() {
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'gitstream.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/linear-bots\/gitstream-github-action v(\d+)/i);
+  return match ? match[1] : null;
+}

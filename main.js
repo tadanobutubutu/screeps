@@ -34,4 +34,13 @@
  *   - getPnpmActionSetupUpdate
  *   - getPostHogVersionUpdate
  *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmActionSetupUpdate
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsCodeQLUpdate
  */

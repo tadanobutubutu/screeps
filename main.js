@@ -49,3 +49,17 @@ function getGitHubActionsGitStreamUpdate() {
     update: 'v2' // No update available as per the issue
   };
 }
+
+// Test file for verification
+// This should be in a separate file in the tests directory
+// but we'll include it here for demonstration purposes
+// In a real scenario, this would be in a file like tests/main.test.js
+
+// Example test for one of the functions
+test('getGitHubActionsGitStreamUpdate returns correct version', () => {
+  const result = getGitHubActionsGitStreamUpdate();
+  expect(result).toEqual({
+    current: 'v2',
+    update: 'v2'
+  });
+});

@@ -9,7 +9,7 @@ function someFunction() {
 // Check for missing closing parentheses, brackets, or braces
 // Verify that all function calls and conditionals are properly closed
 
-/* deploy.js – Deployment helper utilities
+/* deploy.js - Deployment helper utilities
  *
  * This module provides helper functions for querying package versions
  * and environment configuration. It is intentionally minimal to avoid
@@ -42,3 +42,5 @@ function someFunction() {
  *   - getTypeScriptVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - get
+ *   -
+ */

@@ -42,12 +42,12 @@ const path = require('path');
 
 function getPostHogVersion() {
   const packageJson = require('../package.json');
-  return packageJson.dependencies['posthog-js'];
+  return packageJson.dependencies['posthog-js'] || null;
 }
 
 function getSupabaseVersion() {
   const packageJson = require('../package.json');
-  return packageJson.dependencies['@supabase/supabase-js'];
+  return packageJson.dependencies['@supabase/supabase-js'] || null;
 }
 
 function getCircleCINodeVersion() {
@@ -60,66 +60,65 @@ function getCircleCINodeVersion() {
 function getDevContainerPythonVersion() {
   const configPath = path.join(__dirname, '..', '.devcontainer', 'devcontainer.json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.features.python.version;
+  return config.features?.python?.version || null;
 }
 
 function getDevContainerNodeVersion() {
   const configPath = path.join(__dirname, '..', '.devcontainer', 'devcontainer.json');
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  // Dev Container node version can be defined directly or under a feature
-  if (config.features.node) {
-    return config.features.node.version;
-  }
-  // Fallback for older formats
-  return config.features['node:14'] ? config.features['node:14'].version : null;
+  return config.features?.node?.version || null;
 }
 
 function getTravisNodeVersion() {
-  const configPath = path.join(__dirname, '..', '.travis.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/node_js:\s*["']?(\d+\.\d+)[\"']?/);
-  return match ? match[1] : null;
+  const travisPath = path.join(__dirname, '..', '.travis.yml');
+  const config = fs.readFileSync(travisPath, 'utf8');
+  const match = config.match(/node_js:\s*\[(.*?)\]/i);
+  if (!match) return null;
+  const versions = match[1]
+    .split(',')
+    .map(v => v.trim().replace(/['"`]/g, ''))
+    .filter(Boolean);
+  return versions.length ? versions[0] : null;
 }
 
 function getRenovateUpdates() {
-  const configPath = path.join(__dirname, '..', 'renovate.json');
-  const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  return config.updates;
+  const renovatePath = path.join(__dirname, '..', 'renovate.json');
+  if (!fs.existsSync(renovatePath)) return null;
+  const data = JSON.parse(fs.readFileSync(renovatePath, 'utf8'));
+  return data.updates || null;
 }
 
 function getSentryVersion() {
   const packageJson = require('../package.json');
-  return packageJson.dependencies['@sentry/browser'];
+  return packageJson.dependencies['@sentry/node'] || null;
 }
 
 function getGitHubActionsPythonVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'node.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-python@(\d+\.\d+\.\d+)/);
-  return match ? match[1] : null;
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: actions\/setup-python@v\d+/i);
+  if (!match) return null;
+  const pyMatch = config.match(/python-version: ('|\")?([:.0-9a-zA-Z-_]+)('|\")?/i);
+  return pyMatch ? pyMatch[2] : null;
 }
 
 function getGitHubActionsNodeVersion() {
-  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'node.yml');
-  const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const match = workflow.match(/actions\/setup-node@(\d+\.\d+\.\d+)/);
-  return match ? match[1] : null;
+  const workflow = path.join(__dirname, '..', '.github', 'workflows', 'ci.yml');
+  if (!fs.existsSync(workflow)) return null;
+  const config = fs.readFileSync(workflow, 'utf8');
+  const match = config.match(/uses: actions\/setup-node@v\d+/i);
+  if (!match) return null;
+  const nodeMatch = config.match(/node-version: ('|\")?([:.0-9a-zA-Z-_]+)('|\")?/i);
+  return nodeMatch ? nodeMatch[2] : null;
 }
 
 function getGitHubActionsSetupNodeVersion() {
-  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'setup-node.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/actions\/setup-node@(\d+\.\d+\.\d+)/);
+  const dist = path.join(__dirname, '..', 'dist', 'setup-node.js');
+  if (!fs.existsSync(dist)) return null;
+  const content = fs.readFileSync(dist, 'utf8');
+  const match = content.match(/process\.env\.NODE_VERSION = '([^']+)';/);
   return match ? match[1] : null;
 }
 
-function getGitHubActionsUploadArtifactVersion() {
-  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'upload-artifact.yml');
-  const config = fs.readFileSync(configPath, 'utf8');
-  const match = config.match(/actions\/upload-artifact@(\d+\.\d+\.\d+)/);
-  return match ? match[1] : null;
-}
-
-function getGitHubActionsSetupPythonVersion() {
-  const configPath = path.join(__dirname, '..', '.github', 'workflow-templates', 'setup-python.yml');
-  const config = fs
+function getGitHubActionsUpload

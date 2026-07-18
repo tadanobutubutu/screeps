@@ -25,7 +25,6 @@
  *   - getGitHubActionsCodeQLVersion
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
- *   - getTestFiles
  *   - getGitHubActionsSetupNodeUpdate
  *   - getGitHubActionsUploadArtifactUpdate
  *   - getNodeMajorVersionUpdate
@@ -36,31 +35,4 @@
  *   - getGitHubActionsCodeQLUpdate
  *   - getGitHubActionsPnpmUpdate
  *   - getGitHubActionsGitStreamUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupNodeVersionUpdate
- *   - getGitHubActionsUploadArtifactVersionUpdate
- *   - getGitHubActionsSetupPythonVersionUpdate
- *   - getGitHubActionsCodeQLVersionUpdate
- *   - getGitHubActionsPnpmVersionUpdate
- *   - getGitHubActionsGitStreamVersionUpdate
- *   - getGitHubActionsSetupPyt
- */
-
-// [Rest of the existing code remains unchanged]
+ *

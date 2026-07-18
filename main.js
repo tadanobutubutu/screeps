@@ -137,6 +137,21 @@ function getGitHubActionsGitStreamVersion() {
   return match ? match[1] : null;
 }
 
+// Add Jest configuration to ensure tests are found
+function getJestConfig() {
+  return {
+    testMatch: [
+      "**/__tests__/**/*.js",
+      "**/*.test.js",
+      "**/*.spec.js",
+      "**/tests/**/*.js"  // Add this pattern to match tests in /tests/
+    ],
+    testPathIgnorePatterns: [
+      "/node_modules/"
+    ]
+  };
+}
+
 module.exports = {
   getPostHogVersion,
   getSupabaseVersion,
@@ -153,5 +168,6 @@ module.exports = {
   getGitHubActionsSetupPythonVersion,
   getGitHubActionsCodeQLVersion,
   getGitHubActionsPnpmVersion,
-  getGitHubActionsGitStreamVersion
+  getGitHubActionsGitStreamVersion,
+  getJestConfig  // Add the new export
 };

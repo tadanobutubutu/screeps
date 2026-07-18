@@ -21,4 +21,10 @@
  *   - getGitHubActionsNodeVersion
  *   - getGitHubActionsSetupNodeVersion
  *   - getGitHubActionsUploadArtifactVersion
- *   - get
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   -
+ */

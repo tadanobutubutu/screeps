@@ -49,3 +49,15 @@ function getGitHubActionsGitStreamUpdate() {
     update: 'v2' // No update available as per the issue
   };
 }
+
+/**
+ * Gets the list of test files that should be included in the test run
+ * @returns {Array} Array of test file patterns
+ */
+function getTestFiles() {
+  return [
+    '**/__tests__/**/*.js',
+    '**/*.test.js',
+    '**/*.spec.js'
+  ];
+}

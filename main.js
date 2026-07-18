@@ -26,6 +26,13 @@
  *   - getGitHubActionsPnpmVersion
  *   - getGitHubActionsGitStreamVersion
  *   - getTestFiles
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getPostHogVersionUpdate
  *
  * The exported functions are also
  */
@@ -154,6 +161,83 @@ function getTestFiles() {
   ).map(file => path.join(testDir, file));
 }
 
+/**
+ * Gets the update version for GitHub Actions setup-node
+ * @returns {string|null} The update version or null if not found
+ */
+function getGitHubActionsSetupNodeUpdate() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/actions\/setup-node v(\d+) → \[Updates: `v(\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for GitHub Actions upload-artifact
+ * @returns {string|null} The update version or null if not found
+ */
+function getGitHubActionsUploadArtifactUpdate() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'auto-issue.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/actions\/upload-artifact v(\d+) → \[Updates: `v(\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for Node.js major version
+ * @returns {string|null} The update version or null if not found
+ */
+function getNodeMajorVersionUpdate() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-code-maintenance.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/node (\d+) → \[Updates: `(\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for GitHub Actions setup-python
+ * @returns {string|null} The update version or null if not found
+ */
+function getGitHubActionsSetupPythonUpdate() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'auto-merge-pr.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/actions\/setup-python v(\d+) → \[Updates: `v(\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for TypeScript
+ * @returns {string|null} The update version or null if not found
+ */
+function getTypeScriptVersionUpdate() {
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const match = packageJson.dependencies.typescript.match(/typescript (\^?\d+\.\d+\.\d+) → \[Updates: `(\^?\d+\.\d+\.\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for pnpm/action-setup
+ * @returns {string|null} The update version or null if not found
+ */
+function getPnpmActionSetupUpdate() {
+  const workflowPath = path.join(__dirname, '..', '.github', 'workflows', 'ai-guardian.yml');
+  const workflow = fs.readFileSync(workflowPath, 'utf8');
+  const match = workflow.match(/pnpm\/action-setup v(\d+) → \[Updates: `v(\d+)`\]/);
+  return match ? match[2] : null;
+}
+
+/**
+ * Gets the update version for posthog-js
+ * @returns {string|null} The update version or null if not found
+ */
+function getPostHogVersionUpdate() {
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const match = packageJson.dependencies['posthog-js'].match(/posthog-js (\d+\.\d+\.\d+) → \[Updates: `(\d+\.\d+\.\d+)`\]/);
+  return match ? match[2] : null;
+}
+
 module.exports = {
   getPostHogVersion,
   getSupabaseVersion,
@@ -171,5 +255,12 @@ module.exports = {
   getGitHubActionsCodeQLVersion,
   getGitHubActionsPnpmVersion,
   getGitHubActionsGitStreamVersion,
-  getTestFiles
+  getTestFiles,
+  getGitHubActionsSetupNodeUpdate,
+  getGitHubActionsUploadArtifactUpdate,
+  getNodeMajorVersionUpdate,
+  getGitHubActionsSetupPythonUpdate,
+  getTypeScriptVersionUpdate,
+  getPnpmActionSetupUpdate,
+  getPostHogVersionUpdate
 };

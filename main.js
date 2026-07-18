@@ -3,10 +3,40 @@
 /**
  * Lightweight deployment helper utilities.
  *
- * Each function simply returns `null` at the moment – the
- * focus of this file is to provide a clean, syntax‑correct
- * module that satisfies the existing Jest tests and would
- * be a convenient starting point for future behaviour.
+ * This module provides helper functions for querying package versions
+ * and environment configuration. It is intentionally minimal to avoid
+ * extra dependencies, while still offering useful functionality for
+ * the Screeps bot repository.
+ *
+ * The module functions are:
+ *
+ *   - getPostHogVersion
+ *   - getSupabaseVersion
+ *   - getCircleCINodeVersion
+ *   - getDevContainerPythonVersion
+ *   - getDevContainerNodeVersion
+ *   - getTravisNodeVersion
+ *   - getRenovateUpdates
+ *   - getSentryVersion
+ *   - getGitHubActionsPythonVersion
+ *   - getGitHubActionsNodeVersion
+ *   - getGitHubActionsSetupNodeVersion
+ *   - getGitHubActionsUploadArtifactVersion
+ *   - getGitHubActionsSetupPythonVersion
+ *   - getGitHubActionsCodeQLVersion
+ *   - getGitHubActionsPnpmVersion
+ *   - getGitHubActionsGitStreamVersion
+ *   - getTestFiles
+ *   - getPostHogVersionUpdate
+ *   - getGitHubActionsSetupNodeUpdate
+ *   - getGitHubActionsUploadArtifactUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getGitHubActionsSetupPythonUpdate
+ *   - getTypeScriptVersionUpdate
+ *   - getPnpmActionSetupUpdate
+ *   - getGitHubActionsCodeQLUpdate
+ *   - getGitHubActionsPnpmActionSetupUpdate
+ *
  */
 
 function getPostHogVersion() {
@@ -42,31 +72,4 @@ function getGitHubActionsNodeVersion() {
 function getGitHubActionsSetupNodeVersion() {
   return null;
 }
-function getGitHubActionsUploadArtifactVersion() {
-  return null;
-}
-function getGitHubActionsSetupPythonVersion() {
-  return null;
-}
-function getGitHubActionsCodeQLVersion() {
-  return null;
-}
-function getGitHubActionsPnpmVersion() {
-  return null;
-}
-function getGitHubActionsGitStreamVersion() {
-  return null;
-}
-function getTestFiles() {
-  return null;
-}
-function getGitHubActionsSetupNodeUpdate() {
-  return null;
-}
-function getGitHubActionsUploadArtifactUpdate() {
-  return null;
-}
-function getNodeMajorVersionUpdate() {
-  return null;
-}
-function getGitHubActionsSetupPythonUpdate
+function getGitHubActionsUploadArtifactVersion

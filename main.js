@@ -4,12 +4,10 @@ function subtract(a, b) { return a - b; }
 
 function leer() { return read(); }
 
-function add(a, b) { return a + b; }
+function add(a, b) { // /** comment a */
+    return a + b;
+}
 
-/**
- * Reads input from the user or system
- * @returns {string} The input data
- */
 function read() {
   // Implementation would go here
   return "";
@@ -21,7 +19,7 @@ const emotions = {
    * @param {string} text - Input text to analyze
    * @returns {{ sentiment: string, score: number }}
    */
-  parseEmotion: function (text) {
+  parseEmotion: function(text) {
     // Basic fallback implementation
     return { sentiment: "neutral", score: 0 };
   },
@@ -30,7 +28,7 @@ const emotions = {
    * Updates the emotion analysis model with new training data.
    * @param {Array<{text: string, sentiment: string}>} trainingData
    */
-  updateModel: function (trainingData) {
+  updateModel: function(trainingData) {
     // Implementation would go here
   }
 };
@@ -40,6 +38,7 @@ function parse(text) {
     if (typeof emotions.parseEmotion === 'function') {
       return emotions.parseEmotion(text);
     }
+    throw new Error(`Function emotions.parseEmotion is not implemented`);
   } catch (error) {
     console.error('Error parsing emotion:', error);
     return { sentiment: "neutral", score: 0 };
@@ -51,7 +50,7 @@ function parse(text) {
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results.
  */
-function analyzeMultipleTexts(texts) {
+function analyze(texts) {
   if (!Array.isArray(texts)) {
     throw new Error('Input must be an array of strings');
   }
@@ -73,6 +72,28 @@ function updateDependencies() {
   console.log('Dependency updates are being processed');
 }
 
+/**
+ * Calculates statistics on a set of emotion analysis results.
+ * @param {Object[]} results - Array of emotion analysis results.
+ * @returns {{
+ *   positive: number,
+ *   neutral: number,
+ *   negative: number
+ * }} Statistics object
+ */
+function calculateStatistics(results) {
+  if (!Array.isArray(results)) {
+    throw new Error('Input must be an array of objects');
+  }
+
+  return results.reduce((stats, curr) => {
+    if (curr.sentiment === 'positive') stats.positive++;
+    else if (curr.sentiment === 'neutral') stats.neutral++;
+    else if (curr.sentiment === 'negative') stats.negative++;
+    return stats;
+  }, { positive: 0, neutral: 0, negative: 0 });
+}
+
 // Export all existing functions
 module.exports = {
   subtract,
@@ -81,6 +102,7 @@ module.exports = {
   read,
   emotions,
   parse,
-  analyzeMultipleTexts,
-  updateDependencies
+  analyze,
+  updateDependencies,
+  calculateStatistics
 };

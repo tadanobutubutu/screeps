@@ -235,12 +235,11 @@ describe('roomManager', () => {
         });
     });
 
-
     describe('_getNeededExtensionCount', () => {
         beforeEach(() => {
             mockRoom.controller.level = 2; // Default mock RCL
             global.CONTROLLER_STRUCTURES = {
-                extension: { 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 }
+                extension: { 1: 0, 2: 5, 3: 10, 4: 20, 5: 30, 6: 40, 7: 50, 8: 60 },
             };
             global.STRUCTURE_EXTENSION = 'extension';
         });
@@ -264,7 +263,7 @@ describe('roomManager', () => {
             cache.getMyStructures.mockReturnValue([{}, {}, {}]); // 3 existing
             cache.getConstructionSites.mockReturnValue([
                 { structureType: 'extension' },
-                { structureType: 'extension' }
+                { structureType: 'extension' },
             ]); // 2 sites
 
             const count = roomManager._getNeededExtensionCount(mockRoom);
@@ -276,7 +275,7 @@ describe('roomManager', () => {
             cache.getMyStructures.mockReturnValue([{}, {}]); // 2 existing
             cache.getConstructionSites.mockReturnValue([
                 { structureType: 'extension' },
-                { structureType: 'container' } // ignore non-extension sites
+                { structureType: 'container' }, // ignore non-extension sites
             ]); // 1 valid site
             // total = 3. needed = 10 - 3 = 7. Capped at 5 -> 5
             const count = roomManager._getNeededExtensionCount(mockRoom);
@@ -286,9 +285,7 @@ describe('roomManager', () => {
         test('returns exact remaining if needed is less than 5', () => {
             mockRoom.controller.level = 3; // max is 10
             cache.getMyStructures.mockReturnValue([{}, {}, {}, {}, {}, {}, {}]); // 7 existing
-            cache.getConstructionSites.mockReturnValue([
-                { structureType: 'extension' }
-            ]); // 1 site
+            cache.getConstructionSites.mockReturnValue([{ structureType: 'extension' }]); // 1 site
             // total = 8. needed = 10 - 8 = 2. Capped at 5 -> 2
             const count = roomManager._getNeededExtensionCount(mockRoom);
             expect(count).toBe(2);
@@ -453,7 +450,6 @@ describe('roomManager', () => {
         });
     });
 
-
     describe('_planRoads', () => {
         beforeEach(() => {
             global.Game.time = 50; // trigger _planConstruction
@@ -521,7 +517,6 @@ describe('roomManager', () => {
             });
 
             roomManager.run(mockRoom);
-
 
             expect(mockRoom.createConstructionSite).toHaveBeenCalledTimes(10); // 5 for source, 5 for controller
             expect(cache.invalidate).toHaveBeenCalledWith(`construction_sites_${mockRoom.name}`);

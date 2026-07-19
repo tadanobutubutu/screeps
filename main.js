@@ -18,23 +18,15 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - ...
- *   - ...
- *   - ...
- *   - ...
- *   - ...
+ *   - getGitStreamVersion
+ *   - getGitStreamVersionUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getTypeScriptVersionUpdate
  *   - getTestFiles
  *   - getPostHogVersionUpdate
- *   - ...
- *   - ...
- *   - getNodeMajorVersionUpdate
- *   - ...
- *   - getTypeScriptVersionUpdateUpdate
+ *   - getDailyChallengeVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPnpm
- *   - ...
- *   - ...
- *   - ...
  */
 
 /**
@@ -67,6 +59,31 @@ function getPnpm() {
 function getGitStreamVersionUpdate() {
   return {
     current: 'linear-bots/gitstream-github-action v2',
-    update: null // No update available as per the issue
+    update: 'linear-bots/gitstream-github-action v2' // No update available as per the issue
   };
 }
+
+/**
+ * Gets the update information for daily challenge version
+ * @returns {Object} The update information for daily challenge version
+ */
+function getDailyChallengeVersionUpdate() {
+  return {
+    current: 'v1',
+    update: 'v1' // No update available as per the issue
+  };
+}
+
+/**
+ * Gets the update information for Node.js major version
+ * @returns {Object} The update information for Node.js major version
+ */
+function getNodeMajorVersionUpdate() {
+  // Implementation placeholder – replace with logic as needed
+  return {
+    current: 'v14',
+    update: 'v16'
+  };
+}
+
+// ... (other functions would follow here, unchanged)

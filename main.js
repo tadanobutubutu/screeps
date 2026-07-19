@@ -1,4 +1,4 @@
-'use strict';
+use strict';
 
 /**
  * Lightweight deployment helper utilities.
@@ -7,6 +7,10 @@
  */
 
 /** ---------- Basic arithmetic helpers ---------- */
+
+function subtract(a, b) {
+  return a - b;
+}
 
 /**
  * Add two numbers.
@@ -18,21 +22,11 @@ function add(a, b) {
   return a + b;
 }
 
-/**
- * Subtract two numbers.
- * @param {number} a
- * @param {number} b
- * @returns {number}
- */
-function subtract(a, b) {
-  return a - b;
-}
-
 /** ---------- Emotion utilities ---------- */
 
 const emotions = {
   /**
-   * Parses emotional context from text input
+   * Parses emotional context from text input.
    * @param {string} text - Input text to analyze
    * @returns {{ sentiment: string, score: number }}
    */
@@ -80,7 +74,8 @@ const memoryVisualizer = Object.freeze({
     if (!data) return 'No memory data provided';
 
     // Simple visualization for demonstration
-    const memoryInfo = typeof data === 'object' ? JSON.stringify(data, null, 2) : data.toString();
+    const memoryInfo =
+      typeof data === 'object' ? JSON.stringify(data, null, 2) : data.toString();
     return `Memory Visualization:\n${memoryInfo}`;
   },
 
@@ -95,7 +90,7 @@ const memoryVisualizer = Object.freeze({
     // Simple summary for demonstration
     const size = typeof data === 'object' ? Object.keys(data).length : 'N/A';
     return `Memory Summary: ${size} items`;
-  }
+  },
 });
 
 /**
@@ -103,15 +98,13 @@ const memoryVisualizer = Object.freeze({
  * @param {any} data - Memory data to visualize
  */
 function visualizeMemoryUsage(data) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
   console.log(memoryVisualizer.visualize(data));
 }
 
 /** ---------- Input processing ---------- */
 
 /**
- * Placeholder function to demonstrate proper addition of new code
+ * Placeholder function to demonstrate proper addition of new code.
  * @param {string} input - Input string to process
  * @returns {string} Processed string
  */
@@ -131,8 +124,10 @@ function processInput(input) {
  */
 function validateNodeVersion(minVersion) {
   const version = process.version.replace(/^v/, '');
-  const [major, minor, patch] = version.split('.').map(v => parseInt(v, 10));
-  const [reqMajor, reqMinor, reqPatch] = minVersion.split('.').map(v => parseInt(v, 10));
+  const [major, minor, patch] = version.split('.').map((v) => parseInt(v, 10));
+  const [reqMajor, reqMinor, reqPatch] = minVersion
+    .split('.')
+    .map((v) => parseInt(v, 10));
 
   const isOutdated =
     major < reqMajor ||
@@ -141,7 +136,7 @@ function validateNodeVersion(minVersion) {
 
   if (isOutdated) {
     throw new Error(
-      `Node.js v${minVersion} or higher is required, but running v${process.version}`
+      `Node.js v${minVersion} or higher is required, but running v${process.version}`,
     );
   }
 
@@ -156,8 +151,8 @@ module.exports = {
   emotions,
   log,
   noop,
+  memoryVisualizer,
   visualizeMemoryUsage,
   processInput,
   validateNodeVersion,
-  memoryVisualizer,
 };

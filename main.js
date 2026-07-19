@@ -1,4 +1,4 @@
-'use strict';
+use strict';
 
 /**
  * Lightweight deployment helper utilities.
@@ -13,53 +13,98 @@ function subtract(a, b) {
 }
 
 /**
- * Add two numbers
- * @param {number} a - first number
- * @param {number} b - second number
- * @returns {number} sum
+ * Add two numbers.
+ * @param {number} a
+ * @param {number} b
+ * @returns {number}
  */
 function add(a, b) {
   return a + b;
 }
 
+/** ---------- Emotion utilities ---------- */
+
 const emotions = {
   /**
-   * Parses emotional context from text input
+   * Parses emotional context from text input.
    * @param {string} text - Input text to analyze
-   * @returns {object} - Emotion analysis result
+   * @returns {{ sentiment: string, score: number }}
    */
   parse(text) {
+    // Placeholder: a real implementation would do NLP
     return {
       sentiment: 'neutral',
-      score: 0
+      score: 0,
     };
-  }
+  },
 };
 
-// Logging helper
+/** ---------- Logging helpers ---------- */
+
+/**
+ * Simple logger that forwards all arguments to console.log.
+ * @param {...any} args
+ */
 function log(...args) {
+  // Nothing fancy – just a passthrough
+  console.log(...args);
 }
 
-// No-operation placeholder
+/** ---------- No‑op placeholder ---------- */
+
+/**
+ * Function that intentionally does nothing.
+ */
 function noop() {
   // no operation
 }
 
-// Stub for memory.visualizer to sidestep parsing issues in the original file.
-// Existing tests do not require its implementation, so we expose an empty object.
-const memoryVisualizer = Object.freeze({});
+/** ---------- Memory visualisation ---------- */
 
 /**
- * Function to visualize memory usage, for debugging purposes
+ * Memory visualizer object with visualization methods.
+ */
+const memoryVisualizer = Object.freeze({
+  /**
+   * Visualizes memory usage in a simple format.
+   * @param {any} data - Memory data to visualize
+   * @returns {string} Visualized memory representation
+   */
+  visualize(data) {
+    if (!data) return 'No memory data provided';
+
+    // Simple visualization for demonstration
+    const memoryInfo =
+      typeof data === 'object' ? JSON.stringify(data, null, 2) : data.toString();
+    return `Memory Visualization:\n${memoryInfo}`;
+  },
+
+  /**
+   * Generates a summary of memory usage.
+   * @param {any} data - Memory data to summarize
+   * @returns {string} Summary of memory usage
+   */
+  summarize(data) {
+    if (!data) return 'No memory data provided';
+
+    // Simple summary for demonstration
+    const size = typeof data === 'object' ? Object.keys(data).length : 'N/A';
+    return `Memory Summary: ${size} items`;
+  },
+});
+
+/**
+ * Function to visualize memory usage, for debugging purposes.
  * @param {any} data - Memory data to visualize
  */
 function visualizeMemoryUsage(data) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
+  console.log(memoryVisualizer.visualize(data));
 }
 
+/** ---------- Input processing ---------- */
+
 /**
- * Placeholder function to demonstrate proper addition of new code
+ * Placeholder function to demonstrate proper addition of new code.
  * @param {string} input - Input string to process
  * @returns {string} Processed string
  */
@@ -70,114 +115,35 @@ function processInput(input) {
   return input.trim();
 }
 
+/** ---------- Node.js version validation ---------- */
+
 /**
- * Helper function to validate Node.js version
- * @param {string} requiredVersion - Required Node.js version
- * @returns {boolean} True if current version meets requirement
+ * Helper function to ensure Node.js version meets a minimum requirement.
+ * @param {string} minVersion - Minimum required semantic version (e.g., '14.0.0')
+ * @throws Will throw an error if the running Node.js version is insufficient.
  */
-function validateNodeVersion(requiredVersion) {
-  const currentVersion = process.version;
-  // Simple version comparison - in a real implementation, you'd want a more robust version comparison
+function validateNodeVersion(minVersion) {
+  const version = process.version.replace(/^v/, '');
+  const [major, minor, patch] = version.split('.').map((v) => parseInt(v, 10));
+  const [reqMajor, reqMinor, reqPatch] = minVersion
+    .split('.')
+    .map((v) => parseInt(v, 10));
+
+  const isOutdated =
+    major < reqMajor ||
+    (major === reqMajor && minor < reqMinor) ||
+    (major === reqMajor && minor === reqMinor && patch < reqPatch);
+
+  if (isOutdated) {
+    throw new Error(
+      `Node.js v${minVersion} or higher is required, but running v${process.version}`,
+    );
+  }
+
   return true;
 }
 
-/**
- * Helper function to initialize PostHog analytics
- * @param {string} apiKey - PostHog API key
- * @param {Object} options - Configuration options
- */
-function initPostHog(apiKey, options = {}) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-}
-
-/**
- * Helper function to validate Python version
- * @param {string} requiredVersion - Required Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate pnpm version
- * @param {string} requiredVersion - Required pnpm version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePnpmVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitHub Actions version
- * @param {string} requiredVersion - Required GitHub Actions version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitHubActionsVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate CircleCI Node version
- * @param {string} requiredVersion - Required CircleCI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateCircleCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate Travis Node version
- * @param {string} requiredVersion - Required Travis Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateTravisNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitLab CI Node version
- * @param {string} requiredVersion - Required GitLab CI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitLabCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Python version
- * @param {string} requiredVersion - Required DevContainer Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerPythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Node version
- * @param {string} requiredVersion - Required DevContainer Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
+/** ---------- Exported API ---------- */
 
 module.exports = {
   add,
@@ -189,13 +155,4 @@ module.exports = {
   visualizeMemoryUsage,
   processInput,
   validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
-  validatePnpmVersion,
-  validateGitHubActionsVersion,
-  validateCircleCINodeVersion,
-  validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
-  validateDevContainerPythonVersion,
-  validateDevContainerNodeVersion
 };

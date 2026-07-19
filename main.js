@@ -59,3 +59,14 @@ function getPnpm() {
     update: 'pnpm 7.0.0'
   };
 }
+
+/**
+ * Gets the update information for GitHub Actions GitStream version
+ * @returns {Object} The update information for GitHub Actions GitStream version
+ */
+function getGitStreamVersionUpdate() {
+  return {
+    current: 'linear-bots/gitstream-github-action v2',
+    update: null // No update available as per the issue
+  };
+}

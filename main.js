@@ -113,6 +113,78 @@ function validatePnpmVersion(requiredVersion) {
   return true;
 }
 
+/**
+ * Helper function to validate GitHub Actions version
+ * @param {string} requiredVersion - Required GitHub Actions version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateGithubActionsVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating GitHub Actions version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate CircleCI Node version
+ * @param {string} requiredVersion - Required CircleCI Node version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateCircleCINodeVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating CircleCI Node version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate Travis Node version
+ * @param {string} requiredVersion - Required Travis Node version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateTravisNodeVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating Travis Node version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate GitLab CI Node version
+ * @param {string} requiredVersion - Required GitLab CI Node version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateGitLabCINodeVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating GitLab CI Node version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate DevContainer Python version
+ * @param {string} requiredVersion - Required DevContainer Python version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateDevContainerPythonVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating DevContainer Python version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate DevContainer Node version
+ * @param {string} requiredVersion - Required DevContainer Node version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateDevContainerNodeVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating DevContainer Node version ${requiredVersion}`);
+  return true;
+}
+
 module.exports = {
   add,
   subtract,
@@ -125,5 +197,11 @@ module.exports = {
   validateNodeVersion,
   initPostHog,
   validatePythonVersion,
-  validatePnpmVersion
+  validatePnpmVersion,
+  validateGithubActionsVersion,
+  validateCircleCINodeVersion,
+  validateTravisNodeVersion,
+  validateGitLabCINodeVersion,
+  validateDevContainerPythonVersion,
+  validateDevContainerNodeVersion
 };

@@ -259,3 +259,24 @@ function getDependencyProblems() {
   const dashboard = getDependencyDashboard();
   return dashboard.problems || [];
 }
+
+// Export all functions for testing
+module.exports = {
+  subtract,
+  leer,
+  add,
+  parse,
+  analyzeMultipleTexts,
+  getEmotionStatistics,
+  getMostCommonEmotion,
+  updateDependencies,
+  getNodeVersion,
+  validateNodeVersion,
+  getDependencyDashboard,
+  getPendingStatusChecks,
+  getOpenPRs,
+  getClosedPRs,
+  getDetectedDependencies,
+  getDependencyProblems,
+  emotions
+};

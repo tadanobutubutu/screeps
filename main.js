@@ -99,44 +99,30 @@ function processInput(input) {
 /** ---------- Node.js version validation ---------- */
 
 /**
- * Helper function to validate Node.js version
- * @param {string} requiredVersion - Required Node.js version
- * @returns {boolean} True if current version meets requirement
+ * Helper function to ensure Node.js version meets a minimum requirement.
+ * @param {string} minVersion - Minimum required semantic version (e.g., '14.0.0')
+ * @throws Will throw an error if the running Node.js version is insufficient.
  */
-function validateNodeVersion(requiredVersion) {
-  const currentVersion = process.version;
-  // Simple version comparison – real life would use a semver library
-  return currentVersion.startsWith(`v${requiredVersion}`);
+function validateNodeVersion(minVersion) {
+  const version = process.version.replace(/^v/, '');
+  const [major, minor, patch] = version.split('.').map(v => parseInt(v, 10));
+  const [reqMajor, reqMinor, reqPatch] = minVersion.split('.').map(v => parseInt(v, 10));
+
+  const isOutdated =
+    major < reqMajor ||
+    (major === reqMajor && minor < reqMinor) ||
+    (major === reqMajor && minor === reqMinor && patch < reqPatch);
+
+  if (isOutdated) {
+    throw new Error(
+      `Node.js v${minVersion} or higher is required, but running v${process.version}`
+    );
+  }
+
+  return true;
 }
 
-/** ---------- PostHog analytics initialization placeholder ---------- */
-
-/**
- * Helper function to initialize PostHog analytics
- * @param {string} apiKey - PostHog API key
- * @param {Object} options - Configuration options
- * @returns {Object|null} Some representation of a PostHog instance or null
- */
-function initPostHog(apiKey, options = {}) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return null;
-}
-
-/** ---------- Python version validation placeholder ---------- */
-
-/**
- * Helper function to validate Python version
- * @param {string} requiredVersion - Required Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePythonVersion(requiredVersion) {
-  // Implementation would go here – placeholder returns false
-  // Real life might spawn a child_process etc.
-  return false;
-}
-
-/** ---------- Export ----*/
+/** ---------- Exported API ---------- */
 
 module.exports = {
   add,
@@ -144,10 +130,8 @@ module.exports = {
   emotions,
   log,
   noop,
-  memoryVisualizer,
   visualizeMemoryUsage,
   processInput,
   validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
+  memoryVisualizer,
 };

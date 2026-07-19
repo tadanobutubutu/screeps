@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Lightweight deployment helper utilities.
@@ -6,12 +6,10 @@
  * Combines emotion parsing utilities with logging and memory visualization helpers.
  */
 
-// Add a simple function that can be tested
 function add(a, b) {
   return a + b;
 }
 
-// Add a simple function that can be tested
 function subtract(a, b) {
   return a - b;
 }
@@ -23,9 +21,15 @@ const emotions = {
    * @returns {object} - Emotion analysis result
    */
   parse(text) {
+    if (!text) {
+      return { sentiment: 'neutral', score: 0 };
+    }
+    // Very light heuristic: count exclamation marks
+    const exclam = (text.match(/!/g) || []).length;
+    const sentiment = exclam > 0 ? 'excited' : 'neutral';
     return {
-      sentiment: 'neutral',
-      score: 0
+      sentiment,
+      score: exclam
     };
   }
 };
@@ -67,8 +71,8 @@ function processInput(input) {
 }
 
 /**
- * Helper function to validate Node. js version
- * @param {string} requiredVersion - Required Node. js version
+ * Helper function to validate Node.js version
+ * @param {string} requiredVersion - Required Node.js version
  * @returns {boolean} True if current version meets requirement
  */
 function validateNodeVersion(requiredVersion) {
@@ -125,73 +129,4 @@ function validateGitHubActionsVersion(requiredVersion) {
  * @param {string} requiredVersion - Required CircleCI Node version
  * @returns {boolean} True if current version meets requirement
  */
-function validateCircleCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate Travis Node version
- * @param {string} requiredVersion - Required Travis Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateTravisNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitLab CI Node version
- * @param {string} requiredVersion - Required GitLab CI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitLabCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Python version
- * @param {string} requiredVersion - Required DevContainer Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerPythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Node version
- * @param {string} requiredVersion - Required DevContainer Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-module.exports = {
-  add,
-  subtract,
-  emotions,
-  log,
-  noop,
-  memoryVisualizer,
-  visualizeMemoryUsage,
-  processInput,
-  validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
-  validatePnpmVersion,
-  validateGitHubActionsVersion,
-  validateCircleCINodeVersion,
-  validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
-  validateDevContainerPythonVersion,
-  validateDevContainerNodeVersion
-};
+function validateCircleCINodeVersion(required

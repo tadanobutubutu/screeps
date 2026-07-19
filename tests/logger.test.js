@@ -80,6 +80,37 @@ describe('logger', () => {
         });
     });
 
+
+    describe('resetStats', () => {
+        test('統計と履歴をリセットする', () => {
+            // Generate some dummy logs
+            logger.debug('Debug msg');
+            logger.info('Info msg');
+            logger.warn('Warn msg');
+            logger.error('Error msg');
+
+            // Verify they were recorded
+            const statsBefore = logger.getStats();
+            expect(statsBefore.debug).toBeGreaterThan(0);
+            expect(statsBefore.info).toBeGreaterThan(0);
+            expect(statsBefore.warn).toBeGreaterThan(0);
+            expect(statsBefore.error).toBeGreaterThan(0);
+            expect(logger.getHistory().length).toBeGreaterThan(0);
+
+            // Reset
+            logger.resetStats();
+
+            // Verify reset
+            const statsAfter = logger.getStats();
+            expect(statsAfter.debug).toBe(0);
+            expect(statsAfter.info).toBe(0);
+            expect(statsAfter.warn).toBe(0);
+            expect(statsAfter.error).toBe(0);
+            expect(statsAfter.total).toBe(0);
+            expect(logger.getHistory().length).toBe(0);
+        });
+    });
+
     describe('clear', () => {
         test('ログをクリアする', () => {
             logger.info('Test message');

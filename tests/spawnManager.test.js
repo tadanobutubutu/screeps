@@ -200,6 +200,18 @@ describe('spawnManager', () => {
             spawnManager.clearQueue();
             expect(global.cache.spawnQueue).toEqual([]);
         });
+
+        test('global.cacheが未定義の場合、エラーにならない', () => {
+            delete global.cache;
+            expect(() => spawnManager.clearQueue()).not.toThrow();
+            expect(global.cache).toBeUndefined();
+        });
+
+        test('global.cache.spawnQueueが未定義の場合、空配列をセットする', () => {
+            global.cache = {};
+            spawnManager.clearQueue();
+            expect(global.cache.spawnQueue).toEqual([]);
+        });
     });
 
     describe('内部ロジックの網羅', () => {

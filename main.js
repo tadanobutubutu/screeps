@@ -50,25 +50,4 @@ function parse(text) {
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results.
  */
-function analyze(texts) {
-  if (!Array.isArray(texts)) {
-    throw new Error('Input must be an array of strings');
-  }
-
-  return texts.map(text => {
-    try {
-      return emotions.parseEmotion(text);
-    } catch (error) {
-      console.error(`Error analyzing text: ${text}`, error);
-      return { sentiment: "neutral", score: 0 };
-    }
-  });
-}
-
-/**
- * Calculates statistics on a set of emotion analysis results.
- * @param {string[]} texts - Array of input strings.
- * @returns {{
- *   positive: number,
- *   neutral: number,
- *
+function analyze(texts

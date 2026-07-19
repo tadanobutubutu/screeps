@@ -51,7 +51,7 @@ function parse(text) {
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results.
  */
-function analyzeMultipleTexts(texts) {
+function analyze(texts) {
   if (!Array.isArray(texts)) {
     throw new Error('Input must be an array of strings');
   }
@@ -61,4 +61,7 @@ function analyzeMultipleTexts(texts) {
       return emotions.parseEmotion(text);
     } catch (error) {
       console.error(`Error analyzing text: ${text}`, error);
-      return { sentiment: "neutral", score: 0
+      return { sentiment: "neutral", score: 0 };
+    }
+  });
+}

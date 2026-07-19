@@ -192,16 +192,14 @@ function _deliver(creep) {
 }
 
 /**
- * エネルギーを必要とする構造物を優先度順に探す
+ * スポーン、エクステンション、またはタワーの中から最適な納品先を探す
  * @param {Creep} creep
  * @returns {Structure|null}
  */
-function _findEnergyTarget(creep) {
-    const room = creep.room;
-
+function _findPrimaryTarget(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
     // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
-    const needingEnergy = cache.getStructuresNeedingEnergy(room);
+    const needingEnergy = cache.getStructuresNeedingEnergy(creep.room);
 
     let closestSpawnExt = null;
     let minSpawnExtDist = Infinity;
@@ -232,8 +230,16 @@ function _findEnergyTarget(creep) {
     if (closestSpawnExt) return closestSpawnExt;
     if (closestTower) return closestTower;
 
-    // 3. コンテナ（空き容量がある場合）
-    const containers = cache.getContainers(room);
+    return null;
+}
+
+/**
+ * 納品可能なコンテナを探す
+ * @param {Creep} creep
+ * @returns {StructureContainer|null}
+ */
+function _findContainerTarget(creep) {
+    const containers = cache.getContainers(creep.room);
     let closestContainer = null;
     let minContainerDist = Infinity;
 
@@ -248,15 +254,36 @@ function _findEnergyTarget(creep) {
         }
     }
 
-    if (closestContainer) return closestContainer;
+    return closestContainer;
+}
 
-    // 4. ストレージ
-    const storage = cache.getStorage(room);
+/**
+ * 納品可能なストレージを探す
+ * @param {Creep} creep
+ * @returns {StructureStorage|null}
+ */
+function _findStorageTarget(creep) {
+    const storage = cache.getStorage(creep.room);
     if (storage && storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
         return storage;
     }
 
     return null;
+}
+
+/**
+ * エネルギーを必要とする構造物を優先度順に探す
+ * @param {Creep} creep
+ * @returns {Structure|null}
+ */
+function _findEnergyTarget(creep) {
+    let target = _findPrimaryTarget(creep);
+    if (target) return target;
+
+    target = _findContainerTarget(creep);
+    if (target) return target;
+
+    return _findStorageTarget(creep);
 }
 
 /**
@@ -295,4 +322,4 @@ function getBody(energy) {
     return [WORK, CARRY, MOVE];
 }
 
-module.exports = { run, getBody, TASK, _findDroppedEnergy, _findAvailableContainer };
+module.exports = { run, getBody, TASK, _findDroppedEnergy, _findAvailableContainer, _updateWorkingState, _harvest, _deliver, _findEnergyTarget, _upgradeAsBackup };

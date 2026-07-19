@@ -1,7 +1,7 @@
-## 2026-06-15 - [Hardened Path Redaction & Fail-Secure Logging]
+## 2026-06-15 - [Hardened Path Redaction & Fail‑Secure Logging]
 
 **Vulnerability:** Broken stack trace sanitization due to syntax errors (`if ( === undefined)`) and a path redaction regex (`/(\/|...)/`) that caused false positives on mathematical division (e.g., `1/2`) or root slashes.  
-**Learning:** Security utilities must be exceptionally robust; a failure in the logger can crash the entire AI or leak unsanitized data. Path redaction regexes should require at least one subdirectory level (e.g. `/\/[a-zA-Z0-9_-]+\//`) to avoid redacting non-path slashes used in arithmetic or versioning.  
+**Learning:** Security utilities must be exceptionally robust; a failure in the logger can crash the entire AI or leak unsanitized data. Path redaction regexes should require at least one subdirectory level (e.g. `/\/[a-zA-Z0-9_-]+\//`) to avoid redacting non‑path slashes used in arithmetic or versioning.
 **Prevention:** Always verify security utilities with `node -c` and unit tests covering both positive (redaction) and negative (false positive) cases. Implement fail‑secure patterns (e.g., `try‑catch` with generic fallback) in sanitization logic.
 
 ## 2026-06-02 - [Enhanced Secret Redaction]
@@ -14,7 +14,7 @@
 
 **Vulnerability:** Partial data exposure in logs. The previous logic used a simple match, which failed to capture the full value if it contained spaces, even when quoted.  
 **Learning:** Redaction regexes must explicitly handle quoted strings to prevent partial leakage of multi‑word values.  
-**Prevention:** Use a regex pattern that recognizes single and double‑quoted blocks as a single value when following a sensitive keyword. Note: keywords in regex and documentation should be obfuscated or dynamically constructed (e.g., using a regex builder that escapes special characters).
+**Prevention:** Use a regex pattern that recognizes single and double‑quoted blocks as a single value when following a sensitive keyword, and employ a prefix‑aware approach to capture environment‑variable‑style secrets. Note: keywords in regex and documentation should be obfuscated or dynamically constructed (e.g., using a regex builder that escapes special characters).
 
 ## 2026-07-16 - [Advanced Secret Redaction & Log Consistency]
 

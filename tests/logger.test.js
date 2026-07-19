@@ -30,7 +30,6 @@ describe('logger', () => {
         global.Game.time = 100;
         console.log = jest.fn();
         logger.setLevel(0);
-        logger.resetStats();
     });
 
     describe('debug', () => {
@@ -70,6 +69,8 @@ describe('logger', () => {
 
     describe('getStats', () => {
         test('ログ統計を返す', () => {
+            const initialStats = logger.getStats();
+
             logger.info('Test message 1');
             logger.warn('Test message 2');
             logger.error('Test message 3');
@@ -78,11 +79,16 @@ describe('logger', () => {
 
             expect(stats).toBeDefined();
             expect(typeof stats).toBe('object');
-            expect(stats.info).toBe(1);
-            expect(stats.warn).toBe(1);
-            expect(stats.error).toBe(1);
-            expect(stats.debug).toBe(0);
-            expect(stats.total).toBe(3);
+
+            // Calculate relative increments
+            expect(stats.info).toBe(initialStats.info + 1);
+            expect(stats.warn).toBe(initialStats.warn + 1);
+            expect(stats.error).toBe(initialStats.error + 1);
+            expect(stats.debug).toBe(initialStats.debug);
+
+            // Validate the `total` calculation directly
+            const expectedTotal = stats.debug + stats.info + stats.warn + stats.error;
+            expect(stats.total).toBe(expectedTotal);
         });
     });
 

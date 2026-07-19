@@ -224,6 +224,51 @@ describe('towerManager', () => {
         });
     });
 
+
+    describe('getStats', () => {
+        test('タワーがない場合はすべて0を返す', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const stats = towerManager.getStats(mockRoom);
+            expect(stats).toEqual({
+                total: 0,
+                active: 0,
+                avgEnergy: 0,
+                lowEnergy: 0,
+            });
+        });
+
+        test('複数のタワーの統計を正しく計算する', () => {
+            const tower0 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 0,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                }
+            };
+            const tower1 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 100,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                }
+            };
+            const tower2 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 800,
+                    getCapacity: jest.fn().mockReturnValue(1000),
+                }
+            };
+            cache.getMyStructures.mockReturnValue([tower0, tower1, tower2]);
+
+            const stats = towerManager.getStats(mockRoom);
+
+            expect(stats).toEqual({
+                total: 3,
+                active: 2,
+                avgEnergy: 0.3,
+                lowEnergy: 2,
+            });
+        });
+    });
+
     describe('showDashboard', () => {
         test('タワーがない場合は何もしない', () => {
             cache.getMyStructures.mockReturnValue([]);

@@ -5,13 +5,26 @@
  *
  */
 
-// Add any new functions or changes requested in the issue here
-// For example, if the issue requires adding a new function to handle memory visualization:
+// Function to visualize memory usage, for debugging purposes
 function visualizeMemoryUsage(data) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
   console.log('Visualizing memory usage:', data);
 }
 
-// Export any new functions if needed
-// module.exports = { visualizeMemoryUsage };
+/**
+ * Placeholder function to demonstrate proper addition of new code
+ * @param {string} input - Input string to process
+ * @returns {string} Processed string
+ */
+function processInput(input) {
+  if (!input) {
+    throw new Error('Input cannot be empty');
+  }
+  return input.trim();
+}
+
+module.exports = {
+  processInput,
+  visualizeMemoryUsage
+};

@@ -222,7 +222,7 @@ function setLevel(level) {
     const numericLevel = parseInt(level, 10);
     const validLevels = Object.values(LOG_LEVEL);
 
-    if (!isNaN(numericLevel) && validLevels.includes(numericLevel)) {
+    if (!isNaN(numericLevel) && numericLevel >= 0 && validLevels.includes(numericLevel)) {
         _level = numericLevel;
     } else {
         // Fallback to INFO on invalid input
@@ -244,7 +244,7 @@ function getLevel() {
  * @param {*} [data] - 付加情報（JSON文字列化される）
  */
 function debug(message, data) {
-    if (_level > LOG_LEVEL.DEBUG) return;
+    if (_level > LOG_LEVEL.DEBUG || _level < LOG_LEVEL.DEBUG) return;
     _stats.debug++;
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
@@ -268,7 +268,7 @@ function debug(message, data) {
  * @param {*} [data]
  */
 function info(message, data) {
-    if (_level > LOG_LEVEL.INFO) return;
+    if (_level > LOG_LEVEL.INFO || _level < LOG_LEVEL.DEBUG) return;
     _stats.info++;
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
@@ -292,7 +292,7 @@ function info(message, data) {
  * @param {*} [data]
  */
 function warn(message, data) {
-    if (_level > LOG_LEVEL.WARN) return;
+    if (_level > LOG_LEVEL.WARN || _level < LOG_LEVEL.DEBUG) return;
     _stats.warn++;
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
@@ -316,7 +316,7 @@ function warn(message, data) {
  * @param {Error|*} [error] - エラーオブジェクトまたは付加情報
  */
 function error(message, error) {
-    if (_level > LOG_LEVEL.ERROR) return;
+    if (_level > LOG_LEVEL.ERROR || _level < LOG_LEVEL.DEBUG) return;
     _stats.error++;
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage
@@ -352,7 +352,7 @@ function error(message, error) {
  * @param {string} message
  */
 function success(message) {
-    if (_level > LOG_LEVEL.INFO) return;
+    if (_level > LOG_LEVEL.INFO || _level < LOG_LEVEL.DEBUG) return;
     _stats.info++;
 
     // Security: Truncate and redact message to avoid Memory DoS and path leakage

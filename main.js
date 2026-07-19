@@ -141,3 +141,76 @@ function validateNodeVersion(requiredVersion) {
   const currentVersion = getNodeVersion();
   return currentVersion >= requiredVersion;
 }
+
+/**
+ * Gets the dependency dashboard information
+ * @returns {Object} Dashboard information
+ */
+function getDependencyDashboard() {
+  return {
+    problems: [
+      {
+        type: "warning",
+        message: "Updating multiple npm lock files is deprecated and support will be removed in future versions."
+      },
+      {
+        type: "warning",
+        message: "Package lookup failures"
+      }
+    ],
+    pendingStatusChecks: [
+      {
+        branch: "renovate/typescript-7.x",
+        message: "chore(deps): update dependency typescript to v7"
+      },
+      {
+        branch: "renovate/pnpm-action-setup-6.x",
+        message: "chore(deps): update pnpm/action-setup action to v6"
+      }
+    ],
+    openPRs: [
+      {
+        branch: "renovate/python-3.x",
+        message: "chore(deps): update dependency python to 3.14"
+      },
+      {
+        branch: "renovate/major-github-artifact-actions",
+        message: "chore(deps): update actions/upload-artifact action to v7"
+      }
+    ],
+    closedPRs: [
+      {
+        branch: "renovate/github-codeql-action-4.x",
+        message: "chore(deps): update github/codeql-action action to v4"
+      }
+    ],
+    detectedDependencies: {
+      circleci: ["cimg/node 24.18.0"],
+      devcontainer: [
+        "mcr.microsoft.com/devcontainers/python 3.14",
+        "ghcr.io/devcontainers/features/node 2",
+        "node 24"
+      ],
+      githubActions: [
+        "actions/checkout v7",
+        "actions/setup-python v6",
+        "actions/setup-node v7",
+        "pnpm/action-setup v4",
+        "node 24",
+        "pnpm 11"
+      ],
+      gitlabci: ["node 24"],
+      npm: [
+        "@supabase/supabase-js ^2.47.0",
+        "next ^16.2.3",
+        "react ^19.0.0",
+        "react-dom ^19.0.0",
+        "@types/node ^24.0.0",
+        "@types/react ^19.0.0",
+        "postcss ^8.5.14",
+        "typescript ^6.0.0"
+      ],
+      travis: ["node 20"]
+    }
+  };
+}

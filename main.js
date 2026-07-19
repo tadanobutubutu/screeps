@@ -23,7 +23,6 @@
  *   - ...
  *   - ...
  *   - ...
- *   - ...
  *   - getTestFiles
  *   - getPostHogVersionUpdate
  *   - ...
@@ -60,24 +59,3 @@ function getPnpm() {
     update: 'pnpm 7.0.0'
   };
 }
-
-/**
- * Gets the update information for GitHub Actions GitStream version
- * @returns {Object} The update information for GitHub Actions GitStream version
- */
-function getGitStreamVersionUpdate() {
-  return {
-    current: 'v2',
-    update: 'v2' // No update available as per the issue
-  };
-}
-
-// The following code would be added to utils.emotions.js to fix the lint error
-// This is a general fix for an unexpected closing parenthesis issue
-// The actual implementation would depend on the specific code in utils.emotions.js
-
-// Example fix for utils.emotions.js (line 365):
-// If the line looks like this:
-//   someFunction(arg1, arg2, );
-// It should be changed to:
-//   someFunction(arg1, arg2);

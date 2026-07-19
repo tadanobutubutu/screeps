@@ -105,25 +105,52 @@ function _repair(creep) {
 }
 
 /**
- * 最優先の修復対象を返す
- * RCLに応じたウォールHPターゲットも考慮する
+ * メモリに保存された修復対象を取得する
  * @param {Creep} creep
  * @returns {Structure|null}
  */
-function _getRepairTarget(creep) {
-    // 前回のターゲットを再利用
+function _getSavedRepairTarget(creep) {
     if (creep.memory[MEMORY_KEYS.TARGET_ID]) {
         const saved = Game.getObjectById(creep.memory[MEMORY_KEYS.TARGET_ID]);
         if (saved && _needsRepair(saved, creep.room)) return saved;
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
     }
+    return null;
+}
 
-    const room = creep.room;
-    const rcl = room.controller ? room.controller.level : 1;
-    const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
+/**
+ * より優先すべき修復対象かを判定する
+ * @param {number} priority
+ * @param {number} hitsRatio
+ * @param {number} distance
+ * @param {number} minPriority
+ * @param {number} minHitsRatio
+ * @param {number} minDistance
+ * @returns {boolean}
+ */
+function _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance) {
+    if (priority < minPriority) {
+        return true;
+    } else if (priority === minPriority) {
+        if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
+            if (hitsRatio < minHitsRatio) {
+                return true;
+            }
+        } else if (distance < minDistance) {
+            return true;
+        }
+    }
+    return false;
+}
 
-    // ⚡ PERFORMANCE: Use single-pass for loop to find best repair target.
-    // Complexity reduces from O(N log N) to O(N) and avoids array allocations.
+/**
+ * 全構造物から最優先の修復対象を検索する
+ * @param {Creep} creep
+ * @param {Room} room
+ * @param {number} wallTarget
+ * @returns {Structure|null}
+ */
+function _findBestRepairTarget(creep, room, wallTarget) {
     const structures = cache.getStructures(room);
     let bestTarget = null;
     let minPriority = Infinity;
@@ -141,16 +168,8 @@ function _getRepairTarget(creep) {
         let isBetter = false;
         if (!bestTarget) {
             isBetter = true;
-        } else if (priority < minPriority) {
-            isBetter = true;
-        } else if (priority === minPriority) {
-            if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
-                if (hitsRatio < minHitsRatio) {
-                    isBetter = true;
-                }
-            } else if (distance < minDistance) {
-                isBetter = true;
-            }
+        } else {
+            isBetter = _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance);
         }
 
         if (isBetter) {
@@ -160,13 +179,30 @@ function _getRepairTarget(creep) {
             minDistance = distance;
         }
     }
+    return bestTarget;
+}
+
+/**
+ * 最優先の修復対象を返す
+ * RCLに応じたウォールHPターゲットも考慮する
+ * @param {Creep} creep
+ * @returns {Structure|null}
+ */
+function _getRepairTarget(creep) {
+    const savedTarget = _getSavedRepairTarget(creep);
+    if (savedTarget) return savedTarget;
+
+    const room = creep.room;
+    const rcl = room.controller ? room.controller.level : 1;
+    const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
+
+    const bestTarget = _findBestRepairTarget(creep, room, wallTarget);
 
     if (!bestTarget) return null;
 
     creep.memory[MEMORY_KEYS.TARGET_ID] = bestTarget.id;
     return bestTarget;
 }
-
 /**
  * 壁の修復が必要か判断する
  * @param {Structure} structure

@@ -202,6 +202,48 @@ describe('cache', () => {
             expect(sources.length).toBe(2);
             expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
         });
+
+        test('複数回呼び出してもキャッシュが利用され、findは1回だけ呼ばれる', () => {
+            const mockRoom = {
+                name: 'W1N2',
+                find: jest.fn().mockReturnValue([{ id: 'source1' }, { id: 'source2' }]),
+            };
+
+            const sources1 = cache.getSources(mockRoom);
+            const sources2 = cache.getSources(mockRoom);
+
+            expect(sources1).toBe(sources2);
+            expect(mockRoom.find).toHaveBeenCalledTimes(1);
+            expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
+        });
+
+        test('TTL経過後は再度findが呼ばれる', () => {
+            const mockRoom = {
+                name: 'W1N3',
+                find: jest.fn().mockReturnValue([{ id: 'source1' }]),
+            };
+
+            cache.getSources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledTimes(1);
+
+            // TTLを進める
+            global.Game.time += 100; // CACHE_TTL.SOURCES
+
+            cache.getSources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledTimes(2);
+        });
+
+        test('ソースが見つからない場合は空の配列を返す', () => {
+            const mockRoom = {
+                name: 'W1N4',
+                find: jest.fn().mockReturnValue([]),
+            };
+
+            const sources = cache.getSources(mockRoom);
+
+            expect(sources.length).toBe(0);
+            expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
+        });
     });
 
     describe('getStructures', () => {
@@ -228,6 +270,34 @@ describe('cache', () => {
             const structures = cache.getMyStructures(mockRoom, 'spawn');
 
             expect(mockRoom.find).toHaveBeenCalled();
+        });
+    });
+
+    describe('getMyCreeps', () => {
+        test('自分のクリープを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ name: 'creep1' }]),
+            };
+
+            const creeps = cache.getMyCreeps(mockRoom);
+
+            expect(creeps.length).toBeGreaterThan(0);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_CREEPS);
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockCreeps = [{ name: 'creep2' }];
+            const mockRoom = {
+                name: 'W1N1',
+                _myCreeps: mockCreeps,
+                _myCreepsTick: global.Game.time,
+                find: jest.fn(),
+            };
+
+            const creeps = cache.getMyCreeps(mockRoom);
+            expect(creeps).toBe(mockCreeps);
+            expect(mockRoom.find).not.toHaveBeenCalled();
         });
     });
 

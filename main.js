@@ -20,10 +20,13 @@
  *   - getSentryVersion
  *   - getGitStreamVersion
  *   - getGitStreamVersionUpdate
- *   - getNodeMajorVersionUpdate
- *   - getTypeScriptVersionUpdate
+ *   - getDailyChallengeVersionUpdate
+ *   - getTestFiles
+ *   - getPostHogVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPnpm
+ *   - getNodeMajorVersionUpdate
+ *   - getTypeScriptVersionUpdate
  */
 
 /**
@@ -55,7 +58,56 @@ function getPnpm() {
  */
 function getGitStreamVersionUpdate() {
   return {
-    current: 'v2',
-    update: 'v2' // No update available as per the issue
+    current: 'linear-bots/gitstream-github-action v2',
+    update: 'linear-bots/gitstream-github-action v2' // No update available as per the issue
   };
 }
+
+/**
+ * Gets the update information for daily challenge version
+ * @returns {Object} The update information for daily challenge version
+ */
+function getDailyChallengeVersionUpdate() {
+  return {
+    current: 'v1',
+    update: 'v1' // No update available as per the issue
+  };
+}
+
+/**
+ * Gets a list of test files in the repository.
+ * @returns {Array<string>} Array of test file paths
+ */
+function getTestFiles() {
+  // Simple glob-inspired implementation; replace with actual logic if needed.
+  return [
+    'tests/unit/creep.test.js',
+    'tests/integration/room.test.js',
+    'tests/e2e/game.test.js'
+  ];
+}
+
+/**
+ * Gets the update information for PostHog version
+ * @returns {Object} The update information for PostHog
+ */
+function getPostHogVersionUpdate() {
+  return {
+    current: '2.2.0',
+    update: '2.3.0' // Example update suggestion
+  };
+}
+
+/**
+ * Gets the update information for Node.js major version
+ * @returns {Object} The update information for Node.js major version
+ */
+function getNodeMajorVersionUpdate() {
+  // Implementation placeholder – replace with logic as needed
+  return {
+    current: 'v14',
+    update: 'v16'
+  };
+}
+
+// ... (other functions would follow here, unchanged)

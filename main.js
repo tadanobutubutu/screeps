@@ -91,8 +91,35 @@ function visualizeMemoryUsage(data) {
  */
 function processInput(input) {
   if (input === undefined || input === null) {
-    throw new Error('Input must be defined');
+    throw new Error('Input cannot be empty');
   }
-  // Example placeholder logic: return the input unchanged
-  return String(input);
+  return input.trim();
 }
+
+/** ---------- Node.js version validation ---------- */
+
+/**
+ * Helper function to ensure node version meets a minimum requirement.
+ * @param {string} requiredVersion - Minimum required version, e.g., '14.0.0'.
+ * @returns {boolean} true if current Node.js satisfies the requirement.
+ */
+function validateNodeVersion(requiredVersion) {
+  const semver = require('semver');
+  const current = process.version.replace(/^v/, '');
+  return semver.gte(current, requiredVersion);
+}
+
+/** ---------- Exports ---------- */
+
+/* Export all helpers for use in other modules. */
+module.exports = {
+  add,
+  subtract,
+  emotions,
+  log,
+  noop,
+  memoryVisualizer,
+  visualizeMemoryUsage,
+  processInput,
+  validateNodeVersion,
+};

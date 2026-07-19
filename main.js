@@ -25,26 +25,4 @@ const emotions = {
   },
 
   /**
-   * Updates the emotion analysis model with new training data.
-   * @param {Array<{text: string, sentiment: string}>} trainingData
-   */
-  updateModel: function(trainingData) {
-    // Implementation would go here
-  }
-};
-
-function parse(text) {
-  try {
-    if (typeof emotions.parseEmotion === 'function') {
-      return emotions.parseEmotion(text);
-    }
-    throw new Error(`Function emotions.parseEmotion is not implemented`);
-  } catch (error) {
-    console.error('Error parsing emotion:', error);
-    return { sentiment: "neutral", score: 0 };
-  }
-}
-
-/**
- * Analyzes an array of texts for emotional content.
- * @param {string[]} texts - Array of input strings.
+   *

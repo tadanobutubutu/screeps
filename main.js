@@ -2,6 +2,7 @@
 function subtract(a, b) { return a - b; }
 function leer() {return read(); }function add(a, b) { return a + b; }
 
+
 const emotions = {
   /**
    * Parses emotional context from text input
@@ -117,15 +118,15 @@ function updateDependencies(dependencies) {
     updatedDeps['posthog-js'] = '1.404.1';
   }
 
-  if (updatedDeps['@sentry/browser']) {
-    updatedDeps['@sentry/browser'] = '10.66.0';
+  if (updatedDeps.pnpm) {
+    updatedDeps.pnpm = '10.66.0';
   }
 
   return updatedDeps;
 }
 
 /**
- * Retrieves the current Node.js version.
+ * Retrieves the current Node. js version.
  * @returns {string} Current Node.js version.
  */
 function getNodeVersion() {
@@ -160,12 +161,12 @@ function getDependencyDashboard() {
     ],
     pendingStatusChecks: [
       {
-        branch: "renovate/typescript-7.x",
+        branch: "main",
         message: "chore(deps): update dependency typescript to v7"
       },
       {
-        branch: "renovate/pnpm-action-setup-6.x",
-        message: "chore(deps): update pnpm/action-setup action to v6"
+        branch: "main",
+        message: "chore(deps): update pnpm/ action-setup action to v6"
       }
     ],
     openPRs: [
@@ -174,21 +175,21 @@ function getDependencyDashboard() {
         message: "chore(deps): update dependency python to 3.14"
       },
       {
-        branch: "renovate/major-github-artifact-actions",
+        branch: "renovate/upload-artifact-v7",
         message: "chore(deps): update actions/upload-artifact action to v7"
       }
     ],
     closedPRs: [
       {
-        branch: "renovate/github-codeql-action-4.x",
+        branch: "renovate/codeql-action-v4",
         message: "chore(deps): update github/codeql-action action to v4"
       }
     ],
     detectedDependencies: {
       circleci: ["cimg/node 24.18.0"],
       devcontainer: [
-        "mcr.microsoft.com/devcontainers/python 3.14",
-        "ghcr.io/devcontainers/features/node 2",
+        "python 3.14",
+        "node 2",
         "node 24"
       ],
       githubActions: [

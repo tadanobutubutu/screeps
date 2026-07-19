@@ -14,4 +14,4 @@
 
 **Vulnerability:** Partial data exposure in logs. The previous logic used a simple match, which failed to capture the full value if it contained spaces, even when quoted.  
 **Learning:** Redaction regexes must explicitly handle quoted strings to prevent partial leakage of multi‑word values.  
-**Prevention:** Use a regex pattern that recognizes single and double‑quoted blocks as a single value when following a sensitive keyword, and centralize secret sanitization to include environment‑variable prefixes and other common secret patterns, ensuring that no partial matches slip through.
+**Prevention:** Use a regex pattern that recognizes single and double‑quoted blocks as a single value when following a sensitive keyword, and employ a prefix‑aware approach to capture environment‑variable‑style secrets.

@@ -1,6 +1,8 @@
 "use strict";
+
 function subtract(a, b) { return a - b; }
-function leer() {return read(); }function add(a, b) { return a + b; }
+function leer() { return read(); }
+function add(a, b) { return a + b; }
 
 const emotions = {
   /**

@@ -252,7 +252,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             withdraw: jest.fn(),
-            pickup: jest.fn(),
+            pickup: jest.fn(), harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: { controller: {} },
         };
 
@@ -338,7 +338,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             withdraw: jest.fn(),
-            pickup: jest.fn(),
+            pickup: jest.fn(), harvest: jest.fn(),
             room: { controller: {} },
         };
 
@@ -397,5 +397,258 @@ describe('src/roles/upgrader', () => {
         upgrader.run(creep);
 
         expect(creep.harvest).toHaveBeenCalledWith(source);
+    });
+
+    test('ストレージからエネルギーをwithdrawできるときmoveToを呼ばない', () => {
+        const storage = { store: { [global.RESOURCE_ENERGY]: 1500 } };
+        mockCache.getStorage.mockReturnValue(storage);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
+            room: { controller: {} },
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(storage, global.RESOURCE_ENERGY);
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    test('リンクからエネルギーをwithdrawできるときmoveToを呼ばない', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        const link = { store: { [global.RESOURCE_ENERGY]: 500 } };
+        mockCache.getLinks.mockReturnValue([link]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
+            room: { controller: {} },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(link, global.RESOURCE_ENERGY);
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    test('リンクからの取得で距離比較とcreep.posがない場合のフォールバック', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        const link1 = { id: 'l1', store: { [global.RESOURCE_ENERGY]: 500 } };
+        const link2 = { id: 'l2', store: { [global.RESOURCE_ENERGY]: 500 } };
+        mockCache.getLinks.mockReturnValue([link1, link2]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: { controller: {} },
+            pos: null // creep.posがnullの場合
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(link1, global.RESOURCE_ENERGY); // Infinity -> 0になって l1がセットされ、以後の要素も0になるが < ではないためl1のまま
+    });
+
+    test('コンテナからエネルギーをwithdrawできるときmoveToを呼ばない', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        const controller = { pos: { x: 5, y: 5 } };
+        const container = {
+            store: { [global.RESOURCE_ENERGY]: 200 },
+            pos: { getRangeTo: jest.fn().mockReturnValue(3) }
+        };
+        mockCache.getContainers.mockReturnValue([container]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
+            room: { controller },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(container, global.RESOURCE_ENERGY);
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    test('コンテナからの取得でcreep.posがない場合のフォールバック', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        const controller = { pos: { x: 5, y: 5 } };
+        const container1 = {
+            id: 'c1',
+            store: { [global.RESOURCE_ENERGY]: 200 },
+            pos: { getRangeTo: jest.fn().mockReturnValue(3) }
+        };
+        const container2 = {
+            id: 'c2',
+            store: { [global.RESOURCE_ENERGY]: 300 },
+            pos: { getRangeTo: jest.fn().mockReturnValue(2) }
+        };
+        mockCache.getContainers.mockReturnValue([container1, container2]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: { controller },
+            pos: null // creep.posがnullの場合
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(container1, global.RESOURCE_ENERGY); // 最初に見つかったものが選ばれる
+    });
+
+    test('落下リソースをpickupできるときmoveToを呼ばない', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        const drop = { resourceType: global.RESOURCE_ENERGY, amount: 80 };
+        mockCache.getDroppedResources.mockReturnValue([drop]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            pickup: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
+            room: { controller: {} },
+            pos: { getRangeTo: jest.fn().mockReturnValue(2) }
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.pickup).toHaveBeenCalledWith(drop);
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    test('落下リソースで複数ある場合の距離判定とcreep.posのフォールバック', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        const drop1 = { id: 'd1', resourceType: global.RESOURCE_ENERGY, amount: 80 };
+        const drop2 = { id: 'd2', resourceType: global.RESOURCE_ENERGY, amount: 100 };
+        mockCache.getDroppedResources.mockReturnValue([drop1, drop2]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            pickup: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: { controller: {} },
+            pos: null // creep.posがnull
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.pickup).toHaveBeenCalledWith(drop1);
+    });
+
+    test('ソースから直接採掘でharvestできるときmoveToを呼ばない', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        mockCache.getDroppedResources.mockReturnValue([]);
+        const source = { id: 's1' };
+        mockCache.assignSource.mockReturnValue(source);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            harvest: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
+            withdraw: jest.fn(),
+            pickup: jest.fn(), harvest: jest.fn(),
+            room: { controller: {} },
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.harvest).toHaveBeenCalledWith(source);
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    test('アップグレードでOKが返るがレベル8未満の場合はsayしない', () => {
+        const controller = { id: 'c3', level: 7 }; // レベル8未満
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 20, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            upgradeController: jest.fn().mockReturnValue(global.OK),
+            room: { controller },
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.say).not.toHaveBeenCalled(); // 呼ばれないはず
+    });
+
+    test('リンクのエネルギーが200未満の場合スキップされる', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        const link = { id: 'l_low', store: { [global.RESOURCE_ENERGY]: 199 } };
+        mockCache.getLinks.mockReturnValue([link]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            withdraw: jest.fn(), harvest: jest.fn(),
+            room: { controller: {} },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.withdraw).not.toHaveBeenCalledWith(link, global.RESOURCE_ENERGY);
+    });
+
+    test('落下リソースがエネルギーでない、または50未満の場合スキップされる', () => {
+        mockCache.getStorage.mockReturnValue(null);
+        mockCache.getLinks.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        const drop1 = { id: 'd_other', resourceType: 'mineral', amount: 100 };
+        const drop2 = { id: 'd_low', resourceType: global.RESOURCE_ENERGY, amount: 49 };
+        mockCache.getDroppedResources.mockReturnValue([drop1, drop2]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+            say: jest.fn(),
+            pickup: jest.fn(), harvest: jest.fn(),
+            room: { controller: {} },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.pickup).not.toHaveBeenCalled();
+    });
+
+    test('アップグレードでOK以外の値(ERR_NOT_ENOUGH_RESOURCES等)が返った場合はsayもmoveToもしない', () => {
+        const controller = { id: 'c3', level: 8 };
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 20, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            upgradeController: jest.fn().mockReturnValue(-6), // ERR_NOT_ENOUGH_RESOURCES
+            room: { controller },
+        };
+
+        upgrader.run(creep);
+
+        expect(creep.say).not.toHaveBeenCalledWith('✨ MAX');
+        expect(pathfinder.moveTo).not.toHaveBeenCalled();
     });
 });

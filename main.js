@@ -66,6 +66,29 @@ function processInput(input) {
   return input.trim();
 }
 
+/**
+ * Helper function to validate Node.js version
+ * @param {string} requiredVersion - Required Node.js version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validateNodeVersion(requiredVersion) {
+  const currentVersion = process.version;
+  // Simple version comparison - in a real implementation, you'd want a more robust version comparison
+  return currentVersion.startsWith(`v${requiredVersion}`);
+}
+
+/**
+ * Helper function to initialize PostHog analytics
+ * @param {string} apiKey - PostHog API key
+ * @param {Object} options - Configuration options
+ */
+function initPostHog(apiKey, options = {}) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Initializing PostHog with API key: ${apiKey}`);
+  console.log('Options:', options);
+}
+
 module.exports = {
   add,
   subtract,
@@ -74,5 +97,7 @@ module.exports = {
   noop,
   memoryVisualizer,
   visualizeMemoryUsage,
-  processInput
+  processInput,
+  validateNodeVersion,
+  initPostHog
 };

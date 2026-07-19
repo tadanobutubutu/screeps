@@ -231,6 +231,34 @@ describe('cache', () => {
         });
     });
 
+    describe('getMyCreeps', () => {
+        test('自分のクリープを取得する', () => {
+            const mockRoom = {
+                name: 'W1N1',
+                find: jest.fn().mockReturnValue([{ name: 'creep1' }]),
+            };
+
+            const creeps = cache.getMyCreeps(mockRoom);
+
+            expect(creeps.length).toBeGreaterThan(0);
+            expect(mockRoom.find).toHaveBeenCalledWith(global.FIND_MY_CREEPS);
+        });
+
+        test('キャッシュから取得される場合はフィルタリングが実行されない', () => {
+            const mockCreeps = [{ name: 'creep2' }];
+            const mockRoom = {
+                name: 'W1N1',
+                _myCreeps: mockCreeps,
+                _myCreepsTick: global.Game.time,
+                find: jest.fn(),
+            };
+
+            const creeps = cache.getMyCreeps(mockRoom);
+            expect(creeps).toBe(mockCreeps);
+            expect(mockRoom.find).not.toHaveBeenCalled();
+        });
+    });
+
     describe('getConstructionSites', () => {
         test('建設サイトを取得する', () => {
             const mockRoom = {

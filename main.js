@@ -99,45 +99,19 @@ function processInput(input) {
 /** ---------- Node.js version validation ---------- */
 
 /**
- * Helper function to validate Node.js version
- * @param {string} requiredVersion - Required Node.js version
- * @returns {boolean} True if current version meets requirement
+ * Helper function to ensure node version meets a minimum requirement.
+ * @param {string} requiredVersion - Minimum required version, e.g., '14.0.0'.
+ * @returns {boolean} true if current Node.js satisfies the requirement.
  */
 function validateNodeVersion(requiredVersion) {
-  const currentVersion = process.version;
-  // Simple version comparison – real life would use a semver library
-  return currentVersion.startsWith(`v${requiredVersion}`);
+  const semver = require('semver');
+  const current = process.version.replace(/^v/, '');
+  return semver.gte(current, requiredVersion);
 }
 
-/** ---------- PostHog analytics initialization placeholder ---------- */
+/** ---------- Exports ---------- */
 
-/**
- * Helper function to initialize PostHog analytics
- * @param {string} apiKey - PostHog API key
- * @param {Object} options - Configuration options
- * @returns {Object|null} Some representation of a PostHog instance or null
- */
-function initPostHog(apiKey, options = {}) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return null;
-}
-
-/** ---------- Python version validation placeholder ---------- */
-
-/**
- * Helper function to validate Python version
- * @param {string} requiredVersion - Required Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePythonVersion(requiredVersion) {
-  // Implementation would go here – placeholder returns false
-  // Real life might spawn a child_process etc.
-  return false;
-}
-
-/** ---------- Export ----*/
-
+/* Export all helpers for use in other modules. */
 module.exports = {
   add,
   subtract,
@@ -148,6 +122,4 @@ module.exports = {
   visualizeMemoryUsage,
   processInput,
   validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
 };

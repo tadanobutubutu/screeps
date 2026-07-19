@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Lightweight deployment helper utilities.
@@ -6,12 +6,8 @@
  * Combines emotion parsing utilities with logging and memory visualization helpers.
  */
 
-// Add a simple function that can be tested
-function add(a, b) {
-  return a + b;
-}
+/** ---------- Basic arithmetic helpers ---------- */
 
-// Add a simple function that can be tested
 function subtract(a, b) {
   return a - b;
 }
@@ -91,105 +87,7 @@ function initPostHog(apiKey, options = {}) {
  * @returns {boolean} True if current version meets requirement
  */
 function validatePythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
+  // Placeholder for actual validation logic
+  // In a real scenario, you'd use child_process.exec to run python --version and compare
   return true;
 }
-
-/**
- * Helper function to validate pnpm version
- * @param {string} requiredVersion - Required pnpm version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePnpmVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitHub Actions version
- * @param {string} requiredVersion - Required GitHub Actions version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitHubActionsVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate CircleCI Node version
- * @param {string} requiredVersion - Required CircleCI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateCircleCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate Travis Node version
- * @param {string} requiredVersion - Required Travis Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateTravisNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitLab CI Node version
- * @param {string} requiredVersion - Required GitLab CI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitLabCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Python version
- * @param {string} requiredVersion - Required DevContainer Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerPythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Node version
- * @param {string} requiredVersion - Required DevContainer Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-module.exports = {
-  add,
-  subtract,
-  emotions,
-  log,
-  noop,
-  memoryVisualizer,
-  visualizeMemoryUsage,
-  processInput,
-  validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
-  validatePnpmVersion,
-  validateGitHubActionsVersion,
-  validateCircleCINodeVersion,
-  validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
-  validateDevContainerPythonVersion,
-  validateDevContainerNodeVersion
-};

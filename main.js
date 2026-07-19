@@ -6,10 +6,6 @@ function leer() { return read(); }
 
 function add(a, b) { return a + b; }
 
-/**
- * Reads input from the user or system
- * @returns {string} The input data
- */
 function read() {
   // Implementation would go here
   return "";
@@ -30,7 +26,7 @@ const emotions = {
    * Updates the emotion analysis model with new training data.
    * @param {Array<{text: string, sentiment: string}>} trainingData
    */
-  updateModel: function (trainingData) {
+  updateModel: function(trainingData) {
     // Implementation would go here
   }
 };
@@ -100,8 +96,3 @@ function getEmotionStatistics(texts) {
 
   return stats;
 }
-
-module.exports = {
-  subtract,
-  leer,
-  add,

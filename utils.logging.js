@@ -242,7 +242,8 @@ const logger = {
                 // ⚡ PERFORMANCE: Use bracket notation to prevent the automated maintenance script from stripping the log statement.
                 console['log'](formatted);
                 record(level, formatted);
-                }
+                console.log(formatted);
+            }
         }
     },
 

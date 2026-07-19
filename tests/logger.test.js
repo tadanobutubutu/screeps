@@ -111,6 +111,41 @@ describe('logger', () => {
         });
     });
 
+
+    describe('showDashboard', () => {
+        test('ダッシュボード情報を正しく出力する', () => {
+            // ダッシュボードに表示するログを追加
+            logger.setLevel(0); // 全てのログを出力するようにする
+            logger.info('Test info dashboard');
+            logger.warn('Test warn dashboard');
+
+            logger.showDashboard();
+
+            // ヘッダーやレベルの表示など、複数回 console.log が呼ばれることを確認
+            expect(console.log).toHaveBeenCalled();
+
+            // 出力内容のチェック
+            const calls = console.log.mock.calls.map(call => call[0]);
+
+            // 各行の出力が含まれているか確認
+            const hasHeader = calls.some(msg => msg.includes('=== Logger Dashboard ==='));
+            const hasLevel = calls.some(msg => msg.includes('Level: 0 (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)'));
+            const hasStats = calls.some(msg => msg.includes('Stats: DEBUG=0 INFO=1 WARN=1 ERROR=0'));
+            const hasRecentLogsHeader = calls.some(msg => msg.includes('Recent logs:'));
+
+            // エスケープ処理されたログメッセージが出力されているか確認
+            const hasInfoLog = calls.some(msg => msg.includes('Test info dashboard'));
+            const hasWarnLog = calls.some(msg => msg.includes('Test warn dashboard'));
+
+            expect(hasHeader).toBe(true);
+            expect(hasLevel).toBe(true);
+            expect(hasStats).toBe(true);
+            expect(hasRecentLogsHeader).toBe(true);
+            expect(hasInfoLog).toBe(true);
+            expect(hasWarnLog).toBe(true);
+        });
+    });
+
     describe('_redactPaths', () => {
         test('文字列以外の入力はそのまま返す', () => {
             expect(logger._redactPaths(null)).toBeNull();

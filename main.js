@@ -89,6 +89,30 @@ function initPostHog(apiKey, options = {}) {
   console.log('Options:', options);
 }
 
+/**
+ * Helper function to validate Python version
+ * @param {string} requiredVersion - Required Python version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validatePythonVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating Python version ${requiredVersion}`);
+  return true;
+}
+
+/**
+ * Helper function to validate pnpm version
+ * @param {string} requiredVersion - Required pnpm version
+ * @returns {boolean} True if current version meets requirement
+ */
+function validatePnpmVersion(requiredVersion) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log(`Validating pnpm version ${requiredVersion}`);
+  return true;
+}
+
 module.exports = {
   add,
   subtract,
@@ -99,5 +123,7 @@ module.exports = {
   visualizeMemoryUsage,
   processInput,
   validateNodeVersion,
-  initPostHog
+  initPostHog,
+  validatePythonVersion,
+  validatePnpmVersion
 };

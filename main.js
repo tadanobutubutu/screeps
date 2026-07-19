@@ -23,14 +23,13 @@
  *   - ...
  *   - ...
  *   - ...
- *   - ...
  *   - getTestFiles
  *   - getPostHogVersionUpdate
  *   - ...
  *   - ...
  *   - getNodeMajorVersionUpdate
  *   - ...
- *   - getTypeScriptVersionUpdate
+ *   - getTypeScriptVersionUpdateUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPnpm
  *   - ...
@@ -39,14 +38,22 @@
  */
 
 /**
- * Gets the update information for GitHub Actions GitStream version
+ * Gets the update information for GitHub Actions GitStream version.
  * @returns {Object} The update information for GitHub Actions GitStream version
  */
-function getGitStreamActionVersionUpdate() {
+function getGitStreamVersion() {
   return {
     current: 'v2',
     update: 'v2' // No update available as per the issue
   };
+}
+
+/**
+ * Alias for getGitStreamVersion to maintain backward compatibility.
+ * @returns {Object}
+ */
+function getGitStreamActionVersionUpdate() {
+  return getGitStreamVersion();
 }
 
 /**
@@ -62,12 +69,9 @@ function getPnpm() {
 }
 
 /**
- * Gets the update information for GitHub Actions GitStream version
- * @returns {Object} The update information for GitHub Actions GitStream version
+ * Alternate GitStream action version function (legacy name).
+ * @returns {Object}
  */
 function getGitStreamActionVersionUpdateAlt() {
-  return {
-    current: 'v2',
-    update: 'v2' // No update available as per the issue
-  };
+  return getGitStreamVersion();
 }

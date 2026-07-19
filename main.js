@@ -4,7 +4,9 @@ function subtract(a, b) { return a - b; }
 
 function leer() { return read(); }
 
-function add(a, b) { return a + b; }
+function add(a, b) { // /** comment a */
+    return a + b;
+}
 
 function read() {
   // Implementation would go here

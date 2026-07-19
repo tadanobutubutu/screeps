@@ -222,6 +222,20 @@ describe('towerManager', () => {
             const result = towerManager.getTowersNeedingEnergy(mockRoom);
             expect(result).toHaveLength(0);
         });
+
+        test('エネルギー比率が閾値に等しいタワーを返さない', () => {
+            const thresholdTower = {
+                id: 'tower_threshold',
+                store: {
+                    [global.RESOURCE_ENERGY]: 500, // TOWER_ENERGY_PRIORITY = 0.5
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([thresholdTower]);
+
+            const result = towerManager.getTowersNeedingEnergy(mockRoom);
+            expect(result).toHaveLength(0);
+        });
     });
 
     describe('showDashboard', () => {

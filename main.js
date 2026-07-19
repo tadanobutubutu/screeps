@@ -21,7 +21,7 @@ const emotions = {
    * @param {string} text - Input text to analyze
    * @returns {{ sentiment: string, score: number }}
    */
-  parseEmotion: function (text) {
+  parseEmotion: function(text) {
     // Basic fallback implementation
     return { sentiment: "neutral", score: 0 };
   },
@@ -90,16 +90,18 @@ function getEmotionStatistics(texts) {
   results.forEach(result => {
     stats.totalScore += result.score;
     if (result.sentiment === 'positive') {
-      stats.positive++;
+      stats.positive += 1;
     } else if (result.sentiment === 'neutral') {
-      stats.neutral++;
+      stats.neutral += 1;
     } else if (result.sentiment === 'negative') {
-      stats.negative++;
+      stats.negative += 1;
     }
   });
 
   return stats;
 }
 
-/**
- * Determines
+module.exports = {
+  subtract,
+  leer,
+  add,

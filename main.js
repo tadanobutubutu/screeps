@@ -259,3 +259,71 @@ function getDependencyProblems() {
   const dashboard = getDependencyDashboard();
   return dashboard.problems || [];
 }
+
+// utils.logging.js content (fixed version)
+const utilsLogging = {
+  /**
+   * Logs a message with a timestamp
+   * @param {string} message - The message to log
+   */
+  logWithTimestamp: function(message) {
+    console.log(`[${new Date().toISOString()}] ${message}`);
+  },
+
+  /**
+   * Logs an error message with a timestamp
+   * @param {string} message - The error message to log
+   */
+  logError: function(message) {
+    console.error(`[${new Date().toISOString()}] ERROR: ${message}`);
+  },
+
+  /**
+   * Logs a warning message with a timestamp
+   * @param {string} message - The warning message to log
+   */
+  logWarning: function(message) {
+    console.warn(`[${new Date().toISOString()}] WARNING: ${message}`);
+  },
+
+  /**
+   * Logs debug information with a timestamp
+   * @param {string} message - The debug message to log
+   */
+  logDebug: function(message) {
+    if (process.env.NODE_ENV === 'development') {
+      console.debug(`[${new Date().toISOString()}] DEBUG: ${message}`);
+    }
+  },
+
+  /**
+   * Logs an object with formatting
+   * @param {Object} obj - The object to log
+   * @param {string} [label] - Optional label for the object
+   */
+  logObject: function(obj, label) {
+    const prefix = label ? `${label}: ` : '';
+    console.log(`${prefix}${JSON.stringify(obj, null, 2)}`);
+  }
+};
+
+// Export all functions
+module.exports = {
+  subtract,
+  leer,
+  add,
+  parse,
+  analyzeMultipleTexts,
+  getEmotionStatistics,
+  getMostCommonEmotion,
+  updateDependencies,
+  getNodeVersion,
+  validateNodeVersion,
+  getDependencyDashboard,
+  getPendingStatusChecks,
+  getOpenPRs,
+  getClosedPRs,
+  getDetectedDependencies,
+  getDependencyProblems,
+  utilsLogging
+};

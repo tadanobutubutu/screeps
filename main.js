@@ -6,14 +6,20 @@
  * Combines emotion parsing utilities with logging and memory visualization helpers.
  */
 
-// Add a simple function that can be tested
-function add(a, b) {
-  return a + b;
-}
+/** ---------- Basic arithmetic helpers ---------- */
 
-// Add a simple function that can be tested
 function subtract(a, b) {
   return a - b;
+}
+
+/**
+ * Add two numbers
+ * @param {number} a - first number
+ * @param {number} b - second number
+ * @returns {number} sum
+ */
+function add(a, b) {
+  return a + b;
 }
 
 const emotions = {

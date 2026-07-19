@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /**
  * Lightweight deployment helper utilities.
@@ -6,12 +6,6 @@
  * Combines emotion parsing utilities with logging and memory visualization helpers.
  */
 
-// Add a simple function that can be tested
-function add(a, b) {
-  return a + b;
-}
-
-// Add a simple function that can be tested
 function subtract(a, b) {
   return a - b;
 }
@@ -23,6 +17,19 @@ const emotions = {
    * @returns {object} - Emotion analysis result
    */
   parse(text) {
+    /* HEAD implementation: neutral sentiment as fall‑back.
+     * In the other branch a more elaborate analysis was present.
+     * To preserve functionality, we return a neutral result when no
+     * analyzer is available, while still allowing the more advanced
+     * implementation to be plugged in if desired. */
+    try {
+      // If an advanced parser has been injected, use it.
+      if (typeof module.exports.parseEmotion === 'function') {
+        return module.exports.parseEmotion(text);
+      }
+    } catch (e) {
+      // Fall back to neutral
+    }
     return {
       sentiment: 'neutral',
       score: 0
@@ -67,14 +74,13 @@ function processInput(input) {
 }
 
 /**
- * Helper function to validate Node. js version
- * @param {string} requiredVersion - Required Node. js version
+ * Helper function to validate Node.js version
+ * @param {string} requiredVersion - Required Node.js version
  * @returns {boolean} True if current version meets requirement
  */
 function validateNodeVersion(requiredVersion) {
-  const currentVersion = process.version;
-  // Simple version comparison - in a real implementation, you'd want a more robust version comparison
-  return currentVersion >= requiredVersion;
+  const currentVersion = process.version.replace(/^v/, '');
+  return compareVersions(currentVersion, requiredVersion);
 }
 
 /**
@@ -90,108 +96,23 @@ function initPostHog(apiKey, options = {}) {
 /**
  * Helper function to validate Python version
  * @param {string} requiredVersion - Required Python version
- * @returns {boolean} True if current version meets requirement
+ * @returns {boolean} True if current Python version meets requirement
  */
 function validatePythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
+  if (!requiredVersion) {
+    return true;
+  }
+  try {
+    const { execSync } = require('child_process');
+    const output = execSync('python --version', { encoding: 'utf8' });
+    const version = output.replace(/^Python\s*/, '').trim();
+    return compareVersions(version, requiredVersion);
+  } catch (e) {
+    return false;
+  }
 }
 
 /**
- * Helper function to validate pnpm version
- * @param {string} requiredVersion - Required pnpm version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePnpmVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitHub Actions version
- * @param {string} requiredVersion - Required GitHub Actions version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitHubActionsVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate CircleCI Node version
- * @param {string} requiredVersion - Required CircleCI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateCircleCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate Travis Node version
- * @param {string} requiredVersion - Required Travis Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateTravisNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate GitLab CI Node version
- * @param {string} requiredVersion - Required GitLab CI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitLabCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Python version
- * @param {string} requiredVersion - Required DevContainer Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerPythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Node version
- * @param {string} requiredVersion - Required DevContainer Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-module.exports = {
-  add,
-  subtract,
-  emotions,
-  log,
-  noop,
-  memoryVisualizer,
-  visualizeMemoryUsage,
-  processInput,
-  validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
-  validatePnpmVersion,
-  validateGitHubActionsVersion,
-  validateCircleCINodeVersion,
-  validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
-  validateDevContainerPythonVersion,
-  validateDevContainerNodeVersion
-};
+ * Very simple semantic version comparison (major.minor.patch).
+ * @param {string} a - Version string
+ * @param {string} b

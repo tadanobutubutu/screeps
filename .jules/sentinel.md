@@ -33,3 +33,5 @@
 **Vulnerability:** Log label/level credential bypass in generic log methods. When custom labels or swapped parameters (such as calling `log(msg, level)`) are processed, credentials and secret values in the label parameter bypass sanitization.
 **Learning:** Security redaction functions (like `_redactPaths`) must be applied uniformly to all user-controlled or developer-controlled log metadata, including custom log levels or labels, to prevent accidental exposures in nested logging payloads.
 **Prevention:** Always run standard redaction functions on both the log message and any dynamic log labels/levels before formatting and writing to standard output or database logs.
+
+2024-05-25 - [Fix Command Injection in add-contributor.js], Command Injection, `execSync` with unsanitized variables interpolating string commands in shell can lead to arbitrary code execution, Use `execFileSync` to pass arguments as an array or securely escape shell parameters.

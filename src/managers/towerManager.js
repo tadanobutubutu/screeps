@@ -255,27 +255,32 @@ function _selectHealTarget(tower, injured) {
  * @returns {Structure|null}
  */
 function _selectRepairTarget(tower, room) {
-    // ⚡ PERFORMANCE: Use single-pass for loop to identify candidates for all repair priorities.
-    // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
     const urgentRampartThreshold = Math.min(wallTarget * 0.1, 5000);
 
+    const urgentRampart = _findUrgentRampart(room, urgentRampartThreshold);
+    if (urgentRampart) return urgentRampart;
+
+    return _findDamagedStructure(room);
+}
+
+/**
+ * 緊急修復が必要な防壁を探す
+ * @param {Room} room
+ * @param {number} threshold
+ * @returns {Structure|null}
+ */
+function _findUrgentRampart(room, threshold) {
     let urgentRampart = null;
     let minRampartHits = Infinity;
-
-    let mostDamagedStructure = null;
-    let minHitsRatio = Infinity;
-
     const myStructures = cache.getMyStructures(room);
-    const allStructures = cache.getStructures(room);
 
-    // 1. Identify Urgent Ramparts
     // ⚡ PERFORMANCE: Filter for ramparts manually to avoid multiple array passes.
     for (let i = 0; i < myStructures.length; i++) {
         const s = myStructures[i];
         if (s.structureType === STRUCTURE_RAMPART) {
-            if (s.hits < urgentRampartThreshold) {
+            if (s.hits < threshold) {
                 if (s.hits < minRampartHits) {
                     minRampartHits = s.hits;
                     urgentRampart = s;
@@ -283,10 +288,19 @@ function _selectRepairTarget(tower, room) {
             }
         }
     }
+    return urgentRampart;
+}
 
-    if (urgentRampart) return urgentRampart;
+/**
+ * 損傷した構造物を探す
+ * @param {Room} room
+ * @returns {Structure|null}
+ */
+function _findDamagedStructure(room) {
+    let mostDamagedStructure = null;
+    let minHitsRatio = Infinity;
+    const allStructures = cache.getStructures(room);
 
-    // 2. Identify Damaged Structures (Roads, Containers, etc.)
     for (let i = 0; i < allStructures.length; i++) {
         const s = allStructures[i];
         const type = s.structureType;
@@ -306,7 +320,6 @@ function _selectRepairTarget(tower, room) {
             }
         }
     }
-
     return mostDamagedStructure;
 }
 

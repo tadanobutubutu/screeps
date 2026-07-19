@@ -32,7 +32,7 @@ const emotions = {
 
 // Logging helper
 function log(...args) {
-  }
+}
 
 // No-operation placeholder
 function noop() {
@@ -50,7 +50,7 @@ const memoryVisualizer = Object.freeze({});
 function visualizeMemoryUsage(data) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
-  }
+}
 
 /**
  * Placeholder function to demonstrate proper addition of new code
@@ -58,7 +58,7 @@ function visualizeMemoryUsage(data) {
  * @returns {string} Processed string
  */
 function processInput(input) {
-  if ( === undefined ||  === null) {
+  if (input === undefined || input === null) {
     throw new Error('Input cannot be empty');
   }
   return input.trim();
@@ -72,7 +72,7 @@ function processInput(input) {
 function validateNodeVersion(requiredVersion) {
   const currentVersion = process.version;
   // Simple version comparison - in a real implementation, you'd want a more robust version comparison
-  return currentVersion.startsWith(`v${requiredVersion}`);
+  return currentVersion === requiredVersion;
 }
 
 /**
@@ -83,7 +83,7 @@ function validateNodeVersion(requiredVersion) {
 function initPostHog(apiKey, options = {}) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
-  }
+}
 
 /**
  * Helper function to validate Python version
@@ -123,7 +123,7 @@ function validateGithubActionsVersion(requiredVersion) {
  * @param {string} requiredVersion - Required CircleCI Node version
  * @returns {boolean} True if current version meets requirement
  */
-function validateCircleCINodeVersion(requiredVersion) {
+function validateCircleCiNodeVersion(requiredVersion) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
   return true;
@@ -145,7 +145,7 @@ function validateTravisNodeVersion(requiredVersion) {
  * @param {string} requiredVersion - Required GitLab CI Node version
  * @returns {boolean} True if current version meets requirement
  */
-function validateGitLabCINodeVersion(requiredVersion) {
+function validateGitLabCiNodeVersion(requiredVersion) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
   return true;
@@ -187,9 +187,9 @@ module.exports = {
   validatePythonVersion,
   validatePnpmVersion,
   validateGithubActionsVersion,
-  validateCircleCINodeVersion,
+  validateCircleCiNodeVersion,
   validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
+  validateGitLabCiNodeVersion,
   validateDevContainerPythonVersion,
   validateDevContainerNodeVersion
 };

@@ -20,7 +20,7 @@ jest.mock('utils.memory', () => ({
 jest.mock('daily-challenge', () => ({
     getChallenge: jest.fn(() => ({
         progress: 10,
-        challenge: { target: 100, name: 'Test Challenge' }
+        challenge: { target: 100, name: 'Test Challenge' },
     })),
 }));
 
@@ -34,10 +34,13 @@ describe('Gamification System', () => {
         global.Game = {
             time: 100,
             spawns: {
-                Spawn1: { pos: { x: 25, y: 25, roomName: 'W1N1' }, room: { name: 'W1N1', visual: { rect: jest.fn(), text: jest.fn() } } }
+                Spawn1: {
+                    pos: { x: 25, y: 25, roomName: 'W1N1' },
+                    room: { name: 'W1N1', visual: { rect: jest.fn(), text: jest.fn() } },
+                },
             },
             creeps: {},
-            gcl: { level: 1 }
+            gcl: { level: 1 },
         };
         global._primarySpawn = global.Game.spawns['Spawn1'];
         global._primarySpawnTick = 100;

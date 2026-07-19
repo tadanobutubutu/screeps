@@ -14,6 +14,7 @@ export default function Dashboard() {
     const [refreshHover, setRefreshHover] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
+    const [refreshSuccess, setRefreshSuccess] = useState(false);
 
     const formatNumber = (num: number) => {
         if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
@@ -31,6 +32,10 @@ export default function Dashboard() {
             setStats(d);
             setLastUpdated(new Date());
             setError(null);
+            if (isManual) {
+                setRefreshSuccess(true);
+                setTimeout(() => setRefreshSuccess(false), 2000);
+            }
         } catch (e: any) {
             setError(e.message || String(e));
         } finally {
@@ -162,6 +167,25 @@ export default function Dashboard() {
             >
                 <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    {refreshSuccess && (
+                        <span
+                            style={{
+                                fontSize: '0.8rem',
+                                color: '#155d27',
+                                backgroundColor: '#c6f6d5',
+                                border: '1px solid #cbd5e0',
+                                padding: '0.1rem 0.4rem',
+                                borderRadius: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                animation: 'bounce 0.5s ease-in-out',
+                            }}
+                            aria-live="polite"
+                        >
+                            ✅ 更新完了
+                        </span>
+                    )}
                     {lastUpdated && (
                         <span
                             className="interactive-hint"
@@ -210,8 +234,15 @@ export default function Dashboard() {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 transition: 'all 0.2s ease-in-out',
-                                transform: refreshing ? 'none' : refreshHover ? 'scale(1.15)' : 'scale(1)',
-                                boxShadow: refreshHover && !refreshing ? '0 4px 10px rgba(0, 75, 115, 0.4)' : 'none',
+                                transform: refreshing
+                                    ? 'none'
+                                    : refreshHover
+                                      ? 'scale(1.15)'
+                                      : 'scale(1)',
+                                boxShadow:
+                                    refreshHover && !refreshing
+                                        ? '0 4px 10px rgba(0, 75, 115, 0.4)'
+                                        : 'none',
                                 filter: refreshHover && !refreshing ? 'brightness(1.1)' : 'none',
                             }}
                         >
@@ -343,7 +374,12 @@ export default function Dashboard() {
                                 }
                                 style={{
                                     fontSize: '0.75rem',
-                                    backgroundColor: copiedRoom === room ? '#c6f6d5' : hoveredRoom === room ? '#e2e8f0' : '#edf2f7',
+                                    backgroundColor:
+                                        copiedRoom === room
+                                            ? '#c6f6d5'
+                                            : hoveredRoom === room
+                                              ? '#e2e8f0'
+                                              : '#edf2f7',
                                     padding: '0.1rem 0.4rem',
                                     borderRadius: '4px',
                                     border: '1px solid #cbd5e0',
@@ -351,7 +387,8 @@ export default function Dashboard() {
                                     cursor: 'pointer',
                                     transition: 'all 0.2s ease-in-out',
                                     transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
-                                    boxShadow: hoveredRoom === room ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow:
+                                        hoveredRoom === room ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                                 }}
                             >
                                 {copiedRoom === room ? `✅ ${room}` : room}
@@ -389,7 +426,11 @@ export default function Dashboard() {
                         style={{
                             fontSize: '0.7rem',
                             padding: '0.1rem 0.4rem',
-                            backgroundColor: copiedJson ? '#155d27' : jsonHover ? '#e2e8f0' : '#f7fafc',
+                            backgroundColor: copiedJson
+                                ? '#155d27'
+                                : jsonHover
+                                  ? '#e2e8f0'
+                                  : '#f7fafc',
                             border: '1px solid #cbd5e0',
                             borderRadius: '4px',
                             color: copiedJson ? 'white' : '#4a5568',

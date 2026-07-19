@@ -233,14 +233,15 @@ const logger = {
      */
     log(level, msg, meta) {
         if (Object.prototype.hasOwnProperty.call(LEVELS, level) || typeof level === 'string') {
-            const numericLevel =
-                Object.prototype.hasOwnProperty.call(LEVELS, level) ? LEVELS[level] : LEVELS.debug;
+            const numericLevel = Object.prototype.hasOwnProperty.call(LEVELS, level)
+                ? LEVELS[level]
+                : LEVELS.debug;
             if (currentLevel >= numericLevel) {
                 const formatted = format(level, msg, meta);
                 // Security: All output goes to console.log for consistent test capture
                 // while maintaining log level distinctions in the formatted string.
                 record(level, formatted);
-                }
+            }
         }
     },
 

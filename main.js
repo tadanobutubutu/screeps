@@ -18,23 +18,16 @@
  *   - getTravisNodeVersion
  *   - getRenovateUpdates
  *   - getSentryVersion
- *   - ...
- *   - ...
- *   - ...
- *   - ...
- *   - ...
+ *   - getGitStreamVersion
+ *   - getGitStreamActionVersionUpdate
+ *   - getGitStreamVersionUpdate
+ *   - getNodeMajorVersionUpdate
+ *   - getTypeScriptVersionUpdate
  *   - getTestFiles
  *   - getPostHogVersionUpdate
- *   - ...
- *   - ...
- *   - getNodeMajorVersionUpdate
- *   - ...
- *   - getTypeScriptVersionUpdateUpdate
+ *   - getDailyChallengeVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPnpm
- *   - ...
- *   - ...
- *   - ...
  */
 
 /**
@@ -57,21 +50,61 @@ function getGitStreamActionVersionUpdate() {
 }
 
 /**
- * Gets the current and suggested pnpm versions.
- * @returns {Object} The current and update information for pnpm
- */
-function getPnpm() {
-  // Placeholder implementation; replace with actual logic if available.
-  return {
-    current: 'pnpm 6.14.8',
-    update: 'pnpm 7.0.0'
-  };
-}
-
-/**
  * Alternate GitStream action version function (legacy name).
  * @returns {Object}
  */
 function getGitStreamActionVersionUpdateAlt() {
   return getGitStreamVersion();
 }
+
+/**
+ * Gets the update information for GitHub Actions GitStream version.
+ * @returns {Object} The update information for GitHub Actions GitStream version
+ */
+function getGitStreamVersionUpdate() {
+  return {
+    current: 'v2',
+    update: 'v2' // No update available as per the issue
+  };
+}
+
+/**
+ * Gets the update information for daily challenge version
+ * @returns {Object} The update information for daily challenge version
+ */
+function getDailyChallengeVersionUpdate() {
+  return {
+    current: 'v1',
+    update: 'v1' // No update available as per the issue
+  };
+}
+
+/**
+ * Gets the update information for Node.js major version
+ * @returns {Object} The update information for Node.js major version
+ */
+function getNodeMajorVersionUpdate() {
+  // Example placeholder; implement actual logic as needed.
+  return {
+    current: '14.x',
+    update: '16.x'
+  };
+}
+
+/**
+ * Gets the update information for TypeScript version
+ * @returns {Object} The update information for TypeScript version
+ */
+function getTypeScriptVersionUpdate() {
+  // Example placeholder; implement actual logic as needed.
+  return {
+    current: '4.9',
+    update: '5.0'
+  };
+}
+
+/**
+ * Retrieves a list of test file paths in the repository.
+ * @returns {Array<string>} List of test file paths.
+ */
+function get

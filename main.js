@@ -65,3 +65,38 @@ function analyze(texts) {
     }
   });
 }
+
+/**
+ * Calculates statistics on a set of emotion analysis results.
+ * @param {string[]} texts - Array of input strings.
+ * @returns {{
+ *   positive: number,
+ *   neutral: number,
+ *   negative: number,
+ *   totalScore: number,
+ *   count: number
+ * }}
+ */
+function getEmotionStatistics(texts) {
+  const results = analyze(texts);
+  const stats = {
+    positive: 0,
+    neutral: 0,
+    negative: 0,
+    totalScore: 0,
+    count: results.length
+  };
+
+  results.forEach(result => {
+    stats.totalScore += result.score;
+    if (result.sentiment === 'positive') {
+      stats.positive++;
+    } else if (result.sentiment === 'neutral') {
+      stats.neutral++;
+    } else if (result.sentiment === 'negative') {
+      stats.negative++;
+    }
+  });
+
+  return stats;
+}

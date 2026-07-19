@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -126,8 +126,8 @@ async function createFixBranch(issue, analysis) {
     console.log(`🌿 Creating branch: ${fullBranchName}`);
 
     try {
-        execSync('git fetch origin', { stdio: 'inherit' });
-        execSync('git checkout -b ' + fullBranchName + ' origin/main', { stdio: 'inherit' });
+        execFileSync('git', ['fetch', 'origin'], { stdio: 'inherit' });
+        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], { stdio: 'inherit' });
     } catch (error) {
         console.error('Failed to create branch:', error.message);
         throw error;
@@ -163,9 +163,9 @@ Fixes #${issue.number}
 
 ${analysis.rootCause}`;
 
-    execSync(`git add -A`, { stdio: 'inherit' });
-    execSync(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`, { stdio: 'inherit' });
-    execSync(`git push origin ${fullBranchName}`, { stdio: 'inherit' });
+    execFileSync('git', ['add', '-A'], { stdio: 'inherit' });
+    execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
+    execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' });
 
     return { branchName: fullBranchName, commitMessage };
 }

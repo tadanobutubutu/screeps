@@ -105,52 +105,25 @@ function _repair(creep) {
 }
 
 /**
- * メモリに保存された修復対象を取得する
+ * 最優先の修復対象を返す
+ * RCLに応じたウォールHPターゲットも考慮する
  * @param {Creep} creep
  * @returns {Structure|null}
  */
-function _getSavedRepairTarget(creep) {
+function _getRepairTarget(creep) {
+    // 前回のターゲットを再利用
     if (creep.memory[MEMORY_KEYS.TARGET_ID]) {
         const saved = Game.getObjectById(creep.memory[MEMORY_KEYS.TARGET_ID]);
         if (saved && _needsRepair(saved, creep.room)) return saved;
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
     }
-    return null;
-}
 
-/**
- * より優先すべき修復対象かを判定する
- * @param {number} priority
- * @param {number} hitsRatio
- * @param {number} distance
- * @param {number} minPriority
- * @param {number} minHitsRatio
- * @param {number} minDistance
- * @returns {boolean}
- */
-function _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance) {
-    if (priority < minPriority) {
-        return true;
-    } else if (priority === minPriority) {
-        if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
-            if (hitsRatio < minHitsRatio) {
-                return true;
-            }
-        } else if (distance < minDistance) {
-            return true;
-        }
-    }
-    return false;
-}
+    const room = creep.room;
+    const rcl = room.controller ? room.controller.level : 1;
+    const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
 
-/**
- * 全構造物から最優先の修復対象を検索する
- * @param {Creep} creep
- * @param {Room} room
- * @param {number} wallTarget
- * @returns {Structure|null}
- */
-function _findBestRepairTarget(creep, room, wallTarget) {
+    // ⚡ PERFORMANCE: Use single-pass for loop to find best repair target.
+    // Complexity reduces from O(N log N) to O(N) and avoids array allocations.
     const structures = cache.getStructures(room);
     let bestTarget = null;
     let minPriority = Infinity;
@@ -168,8 +141,16 @@ function _findBestRepairTarget(creep, room, wallTarget) {
         let isBetter = false;
         if (!bestTarget) {
             isBetter = true;
-        } else {
-            isBetter = _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance);
+        } else if (priority < minPriority) {
+            isBetter = true;
+        } else if (priority === minPriority) {
+            if (Math.abs(hitsRatio - minHitsRatio) > 0.1) {
+                if (hitsRatio < minHitsRatio) {
+                    isBetter = true;
+                }
+            } else if (distance < minDistance) {
+                isBetter = true;
+            }
         }
 
         if (isBetter) {
@@ -179,30 +160,13 @@ function _findBestRepairTarget(creep, room, wallTarget) {
             minDistance = distance;
         }
     }
-    return bestTarget;
-}
-
-/**
- * 最優先の修復対象を返す
- * RCLに応じたウォールHPターゲットも考慮する
- * @param {Creep} creep
- * @returns {Structure|null}
- */
-function _getRepairTarget(creep) {
-    const savedTarget = _getSavedRepairTarget(creep);
-    if (savedTarget) return savedTarget;
-
-    const room = creep.room;
-    const rcl = room.controller ? room.controller.level : 1;
-    const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-
-    const bestTarget = _findBestRepairTarget(creep, room, wallTarget);
 
     if (!bestTarget) return null;
 
     creep.memory[MEMORY_KEYS.TARGET_ID] = bestTarget.id;
     return bestTarget;
 }
+
 /**
  * 壁の修復が必要か判断する
  * @param {Structure} structure
@@ -313,19 +277,7 @@ function _getEnergy(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations and find the closest target directly.
     // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
 
-    if (_getEnergyFromDropped(creep, room)) return;
-    if (_getEnergyFromContainer(creep, room)) return;
-    if (_getEnergyFromStorage(creep, room)) return;
-    _getEnergyFromSource(creep, room);
-}
-
-/**
- * 落下リソースを優先回収
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromDropped(creep, room) {
+    // 1. 落下リソースを優先回収
     const dropped = cache.getDroppedResources(room);
     let bestDrop = null;
     let minDropDist = Infinity;
@@ -345,18 +297,10 @@ function _getEnergyFromDropped(creep, room) {
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
-        return true;
+        return;
     }
-    return false;
-}
 
-/**
- * コンテナから取得
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromContainer(creep, room) {
+    // 2. コンテナから取得
     const containers = cache.getContainers(room);
     let bestContainer = null;
     let minContainerDist = Infinity;
@@ -376,43 +320,25 @@ function _getEnergyFromContainer(creep, room) {
         if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
-        return true;
+        return;
     }
-    return false;
-}
 
-/**
- * ストレージから取得
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromStorage(creep, room) {
+    // 3. ストレージから取得
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 200) {
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
-        return true;
+        return;
     }
-    return false;
-}
 
-/**
- * ソースから直接採掘
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromSource(creep, room) {
+    // 4. ソースから直接採掘
     const source = cache.assignSource(creep, room);
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }
-        return true;
     }
-    return false;
 }
 
 // ============================================================

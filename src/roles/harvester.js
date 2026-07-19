@@ -192,14 +192,16 @@ function _deliver(creep) {
 }
 
 /**
- * スポーン、エクステンション、またはタワーの中から最適な納品先を探す
+ * エネルギーを必要とする構造物を優先度順に探す
  * @param {Creep} creep
  * @returns {Structure|null}
  */
-function _findPrimaryTarget(creep) {
+function _findEnergyTarget(creep) {
+    const room = creep.room;
+
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to identify candidates for all priorities.
     // Estimated impact: Reduces array allocations and avoids multiple full passes over structures.
-    const needingEnergy = cache.getStructuresNeedingEnergy(creep.room);
+    const needingEnergy = cache.getStructuresNeedingEnergy(room);
 
     let closestSpawnExt = null;
     let minSpawnExtDist = Infinity;
@@ -230,16 +232,8 @@ function _findPrimaryTarget(creep) {
     if (closestSpawnExt) return closestSpawnExt;
     if (closestTower) return closestTower;
 
-    return null;
-}
-
-/**
- * 納品可能なコンテナを探す
- * @param {Creep} creep
- * @returns {StructureContainer|null}
- */
-function _findContainerTarget(creep) {
-    const containers = cache.getContainers(creep.room);
+    // 3. コンテナ（空き容量がある場合）
+    const containers = cache.getContainers(room);
     let closestContainer = null;
     let minContainerDist = Infinity;
 
@@ -254,36 +248,15 @@ function _findContainerTarget(creep) {
         }
     }
 
-    return closestContainer;
-}
+    if (closestContainer) return closestContainer;
 
-/**
- * 納品可能なストレージを探す
- * @param {Creep} creep
- * @returns {StructureStorage|null}
- */
-function _findStorageTarget(creep) {
-    const storage = cache.getStorage(creep.room);
+    // 4. ストレージ
+    const storage = cache.getStorage(room);
     if (storage && storage.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
         return storage;
     }
 
     return null;
-}
-
-/**
- * エネルギーを必要とする構造物を優先度順に探す
- * @param {Creep} creep
- * @returns {Structure|null}
- */
-function _findEnergyTarget(creep) {
-    let target = _findPrimaryTarget(creep);
-    if (target) return target;
-
-    target = _findContainerTarget(creep);
-    if (target) return target;
-
-    return _findStorageTarget(creep);
 }
 
 /**

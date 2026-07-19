@@ -50,27 +50,4 @@ function parse(text) {
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results.
  */
-function analyze(texts) {
-  if (!Array.isArray(texts)) {
-    throw new Error('Input must be an array of strings');
-  }
-
-  return texts.map(text => {
-    try {
-      return emotions.parseEmotion(text);
-    } catch (error) {
-      console.error(`Error analyzing text: ${text}`, error);
-      return { sentiment: "neutral", score: 0 };
-    }
-  });
-}
-
-// New function to handle dependency updates
-function updateDependencies() {
-  // Implementation for handling dependency updates would go here
-  // This is a placeholder to address the Renovate warnings
-  console.log('Dependency updates are being processed');
-}
-
-/**
- * Calculates statistics on
+function analyze(texts

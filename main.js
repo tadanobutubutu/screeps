@@ -20,14 +20,15 @@
  *   - getSentryVersion
  *   - getGitStreamVersion
  *   - getGitStreamActionVersionUpdate
+ *   - getGitStreamActionVersionUpdateAlt
  *   - getGitStreamVersionUpdate
- *   - getNodeMajorVersionUpdate
- *   - getTypeScriptVersionUpdate
+ *   - getDailyChallengeVersionUpdate
  *   - getTestFiles
  *   - getPostHogVersionUpdate
- *   - getDailyChallengeVersionUpdate
  *   - getPnpmActionSetupUpdate
  *   - getPnpm
+ *   - getNodeMajorVersionUpdate
+ *   - getTypeScriptVersionUpdate
  */
 
 /**
@@ -63,8 +64,8 @@ function getGitStreamActionVersionUpdateAlt() {
  */
 function getGitStreamVersionUpdate() {
   return {
-    current: 'v2',
-    update: 'v2' // No update available as per the issue
+    current: 'linear-bots/gitstream-github-action v2',
+    update: 'linear-bots/gitstream-github-action v2' // No update available as per the issue
   };
 }
 
@@ -75,36 +76,4 @@ function getGitStreamVersionUpdate() {
 function getDailyChallengeVersionUpdate() {
   return {
     current: 'v1',
-    update: 'v1' // No update available as per the issue
-  };
-}
-
-/**
- * Gets the update information for Node.js major version
- * @returns {Object} The update information for Node.js major version
- */
-function getNodeMajorVersionUpdate() {
-  // Example placeholder; implement actual logic as needed.
-  return {
-    current: '14.x',
-    update: '16.x'
-  };
-}
-
-/**
- * Gets the update information for TypeScript version
- * @returns {Object} The update information for TypeScript version
- */
-function getTypeScriptVersionUpdate() {
-  // Example placeholder; implement actual logic as needed.
-  return {
-    current: '4.9',
-    update: '5.0'
-  };
-}
-
-/**
- * Retrieves a list of test file paths in the repository.
- * @returns {Array<string>} List of test file paths.
- */
-function get
+    update: 'v

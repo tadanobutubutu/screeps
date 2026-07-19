@@ -30,6 +30,7 @@ describe('logger', () => {
         global.Game.time = 100;
         console.log = jest.fn();
         logger.setLevel(0);
+        logger.resetStats();
     });
 
     describe('debug', () => {
@@ -77,6 +78,11 @@ describe('logger', () => {
 
             expect(stats).toBeDefined();
             expect(typeof stats).toBe('object');
+            expect(stats.info).toBe(1);
+            expect(stats.warn).toBe(1);
+            expect(stats.error).toBe(1);
+            expect(stats.debug).toBe(0);
+            expect(stats.total).toBe(3);
         });
     });
 

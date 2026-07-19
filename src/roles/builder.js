@@ -215,7 +215,19 @@ function _getEnergy(creep) {
     // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations.
     // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
 
-    // 1. 落下リソースを優先回収
+    if (_getEnergyFromDropped(creep, room)) return;
+    if (_getEnergyFromContainer(creep, room)) return;
+    if (_getEnergyFromStorage(creep, room)) return;
+    _getEnergyFromSource(creep, room);
+}
+
+/**
+ * 落下リソースを優先回収
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
     let bestDrop = null;
     let minDropDist = Infinity;
@@ -235,10 +247,18 @@ function _getEnergy(creep) {
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // 2. コンテナから取得
+/**
+ * コンテナから取得
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     let bestContainer = null;
     let minContainerDist = Infinity;
@@ -258,25 +278,43 @@ function _getEnergy(creep) {
         if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // ストレージから取得
+/**
+ * ストレージから取得
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromStorage(creep, room) {
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 500) {
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
-        return;
+        return true;
     }
+    return false;
+}
 
-    // ソースから直接採掘
+/**
+ * ソースから直接採掘
+ * @param {Creep} creep
+ * @param {Room} room
+ * @returns {boolean}
+ */
+function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
     if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }
+        return true;
     }
+    return false;
 }
 
 // ============================================================

@@ -73,36 +73,4 @@ function updateDependencies() {
 }
 
 /**
- * Calculates statistics on a set of emotion analysis results.
- * @param {Object[]} results - Array of emotion analysis results.
- * @returns {{
- *   positive: number,
- *   neutral: number,
- *   negative: number
- * }} Statistics object
- */
-function calculateStatistics(results) {
-  if (!Array.isArray(results)) {
-    throw new Error('Input must be an array of objects');
-  }
-
-  return results.reduce((stats, curr) => {
-    if (curr.sentiment === 'positive') stats.positive++;
-    else if (curr.sentiment === 'neutral') stats.neutral++;
-    else if (curr.sentiment === 'negative') stats.negative++;
-    return stats;
-  }, { positive: 0, neutral: 0, negative: 0 });
-}
-
-// Export all existing functions
-module.exports = {
-  subtract,
-  leer,
-  add,
-  read,
-  emotions,
-  parse,
-  analyze,
-  updateDependencies,
-  calculateStatistics
-};
+ * Calculates statistics on

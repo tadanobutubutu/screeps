@@ -1,6 +1,19 @@
 "use strict";
+
 function subtract(a, b) { return a - b; }
-function leer() {return read(); }function add(a, b) { return a + b; }
+
+function leer() { return read(); }
+
+function add(a, b) { return a + b; }
+
+/**
+ * Reads input from the user or system
+ * @returns {string} The input data
+ */
+function read() {
+  // Implementation would go here
+  return "";
+}
 
 
 const emotions = {
@@ -39,7 +52,7 @@ function parse(text) {
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results.
  */
-function analyzeMultipleTexts(texts) {
+function analyze(texts) {
   if (!Array.isArray(texts)) {
     throw new Error('Input must be an array of strings');
   }
@@ -66,7 +79,7 @@ function analyzeMultipleTexts(texts) {
  * }}
  */
 function getEmotionStatistics(texts) {
-  const results = analyzeMultipleTexts(texts);
+  const results = analyze(texts);
   const stats = {
     positive: 0,
     neutral: 0,
@@ -77,9 +90,13 @@ function getEmotionStatistics(texts) {
 
   results.forEach(result => {
     stats.totalScore += result.score;
-    if (result.sentiment === 'positive') stats.positive++;
-    else if (result.sentiment === 'neutral') stats.neutral++;
-    else if (result.sentiment === 'negative') stats.negative++;
+    if (result.sentiment === 'positive') {
+      stats.positive++;
+    } else if (result.sentiment === 'neutral') {
+      stats.neutral++;
+    } else if (result.sentiment === 'negative') {
+      stats.negative++;
+    }
   });
 
   return stats;

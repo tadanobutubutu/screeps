@@ -33,6 +33,24 @@ function generateMissionId() {
     return timePrefix + '-' + global._missionIdCounter.toString(36);
 }
 
+
+/**
+ * セキュアな乱数を生成する (PRNGの脆弱性対策)
+ * @param {number} max - 0以上、max未満の整数を返す
+ */
+function secureRandomInt(max) {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) % max;
+        }
+    } catch (e) {
+        // Fallback
+    }
+    return Math.floor(Math.random() * max);
+}
+
 const MissionSystem = {
     initMemory() {
         if (!Memory.missions) {
@@ -98,11 +116,11 @@ const MissionSystem = {
 
     createRandomMission() {
         const types = ['scout', 'harvest_boost', 'defense_patrol', 'build_sprint'];
-        const type = types[Math.floor(Math.random() * types.length)];
+        const type = types[secureRandomInt(types.length)];
 
         const targets = Object.values(Game.rooms)[0];
         const rewards = [100, 250, 500];
-        const reward = rewards[Math.floor(Math.random() * rewards.length)];
+        const reward = rewards[secureRandomInt(rewards.length)];
 
         return this.createMission(type, targets ? targets.name : 'sim', reward);
     },

@@ -259,3 +259,135 @@ function getDependencyProblems() {
   const dashboard = getDependencyDashboard();
   return dashboard.problems || [];
 }
+
+// Memory Visualizer functions
+/**
+ * Creates a memory visualization of an object
+ * @param {Object} obj - The object to visualize
+ * @returns {string} Visual representation of the object's memory structure
+ */
+function visualizeMemory(obj) {
+  if (typeof obj !== 'object' || obj === null) {
+    return String(obj);
+  }
+
+  const seen = new WeakSet();
+  const visualize = (currentObj, depth = 0) => {
+    if (seen.has(currentObj)) {
+      return '[Circular Reference]';
+    }
+    seen.add(currentObj);
+
+    const indent = '  '.repeat(depth);
+    let result = '';
+
+    if (Array.isArray(currentObj)) {
+      result += '[\n';
+      for (let i = 0; i < currentObj.length; i++) {
+        result += `${indent}  ${visualize(currentObj[i], depth + 1)}`;
+        if (i < currentObj.length - 1) {
+          result += ',\n';
+        }
+      }
+      result += `\n${indent}]`;
+    } else {
+      result += '{\n';
+      const keys = Object.keys(currentObj);
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        result += `${indent}  ${key}: ${visualize(currentObj[key], depth + 1)}`;
+        if (i < keys.length - 1) {
+          result += ',\n';
+        }
+      }
+      result += `\n${indent}}`;
+    }
+
+    return result;
+  };
+
+  return visualize(obj);
+}
+
+/**
+ * Estimates the memory size of an object in bytes
+ * @param {Object} obj - The object to analyze
+ * @returns {number} Estimated memory size in bytes
+ */
+function estimateMemorySize(obj) {
+  if (typeof obj !== 'object' || obj === null) {
+    return Buffer.byteLength(String(obj));
+  }
+
+  const seen = new WeakSet();
+  const calculateSize = (currentObj) => {
+    if (seen.has(currentObj)) {
+      return 0; // Avoid circular references
+    }
+    seen.add(currentObj);
+
+    let size = 0;
+
+    if (Array.isArray(currentObj)) {
+      size += 24; // Array overhead
+      for (const item of currentObj) {
+        size += calculateSize(item);
+      }
+    } else {
+      size += 40; // Object overhead
+      for (const key in currentObj) {
+        if (currentObj.hasOwnProperty(key)) {
+          size += Buffer.byteLength(key);
+          size += calculateSize(currentObj[key]);
+        }
+      }
+    }
+
+    return size;
+  };
+
+  return calculateSize(obj);
+}
+
+/**
+ * Compares memory usage between two objects
+ * @param {Object} obj1 - First object to compare
+ * @param {Object} obj2 - Second object to compare
+ * @returns {Object} Comparison results with size and structure differences
+ */
+function compareMemoryUsage(obj1, obj2) {
+  const size1 = estimateMemorySize(obj1);
+  const size2 = estimateMemorySize(obj2);
+
+  const diff = {
+    sizeDifference: size1 - size2,
+    size1,
+    size2,
+    structureDifference: null
+  };
+
+  // Simple structure comparison
+  if (typeof obj1 !== typeof obj2) {
+    diff.structureDifference = `Type mismatch: ${typeof obj1} vs ${typeof obj2}`;
+  } else if (Array.isArray(obj1) !== Array.isArray(obj2)) {
+    diff.structureDifference = `Array mismatch: ${Array.isArray(obj1)} vs ${Array.isArray(obj2)}`;
+  } else if (Array.isArray(obj1)) {
+    if (obj1.length !== obj2.length) {
+      diff.structureDifference = `Array length mismatch: ${obj1.length} vs ${obj2.length}`;
+    }
+  } else {
+    const keys1 = Object.keys(obj1);
+    const keys2 = Object.keys(obj2);
+
+    if (keys1.length !== keys2.length) {
+      diff.structureDifference = `Key count mismatch: ${keys1.length} vs ${keys2.length}`;
+    } else {
+      const missingKeys = keys1.filter(key => !keys2.includes(key));
+      if (missingKeys.length > 0) {
+        diff.structureDifference = `Missing keys: ${missingKeys.join(', ')}`;
+      }
+    }
+  }
+
+  return diff;
+}

@@ -224,6 +224,50 @@ describe('towerManager', () => {
         });
     });
 
+
+    describe('getStats', () => {
+        test('タワーがない場合は全ての統計が0になる', () => {
+            cache.getMyStructures.mockReturnValue([]);
+            const result = towerManager.getStats(mockRoom);
+            expect(result).toEqual({
+                total: 0,
+                active: 0,
+                avgEnergy: 0,
+                lowEnergy: 0,
+            });
+        });
+
+        test('タワーの統計を正しく計算する', () => {
+            const tower1 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 800,
+                    getCapacity: () => 1000,
+                },
+            };
+            const tower2 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 200,
+                    getCapacity: () => 1000,
+                },
+            };
+            const tower3 = {
+                store: {
+                    [global.RESOURCE_ENERGY]: 0,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([tower1, tower2, tower3]);
+
+            const result = towerManager.getStats(mockRoom);
+            expect(result).toEqual({
+                total: 3,
+                active: 2,
+                avgEnergy: (0.8 + 0.2 + 0) / 3,
+                lowEnergy: 2,
+            });
+        });
+    });
+
     describe('showDashboard', () => {
         test('タワーがない場合は何もしない', () => {
             cache.getMyStructures.mockReturnValue([]);
@@ -269,6 +313,42 @@ describe('towerManager', () => {
                 '🏰 30%',
                 25,
                 24,
+                expect.objectContaining({ color: '#ff4444', font: 0.4, align: 'center' })
+            );
+        });
+
+        test('複数のタワーが正しく描画される', () => {
+            const tower1 = {
+                room: mockRoom,
+                pos: { x: 10, y: 10 },
+                store: {
+                    [global.RESOURCE_ENERGY]: 800,
+                    getCapacity: () => 1000,
+                },
+            };
+            const tower2 = {
+                room: mockRoom,
+                pos: { x: 20, y: 20 },
+                store: {
+                    [global.RESOURCE_ENERGY]: 300,
+                    getCapacity: () => 1000,
+                },
+            };
+            cache.getMyStructures.mockReturnValue([tower1, tower2]);
+
+            towerManager.showDashboard(mockRoom);
+
+            expect(mockRoom.visual.text).toHaveBeenCalledTimes(2);
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 80%',
+                10,
+                9,
+                expect.objectContaining({ color: '#00ff88', font: 0.4, align: 'center' })
+            );
+            expect(mockRoom.visual.text).toHaveBeenCalledWith(
+                '🏰 30%',
+                20,
+                19,
                 expect.objectContaining({ color: '#ff4444', font: 0.4, align: 'center' })
             );
         });

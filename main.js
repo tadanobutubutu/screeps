@@ -6,6 +6,16 @@
  * Combines emotion parsing utilities with logging and memory visualization helpers.
  */
 
+// Add a simple function that can be tested
+function add(a, b) {
+  return a + b;
+}
+
+// Add a simple function that can be tested
+function subtract(a, b) {
+  return a - b;
+}
+
 const emotions = {
   /**
    * Parses emotional context from text input
@@ -57,6 +67,8 @@ function processInput(input) {
 }
 
 module.exports = {
+  add,
+  subtract,
   emotions,
   log,
   noop,

@@ -65,13 +65,38 @@ function noop() {
   // no operation
 }
 
-/** ---------- Memory visualisation placeholder ---------- */
+/** ---------- Memory visualisation ---------- */
 
 /**
- * Stub for memory.visualizer to sidestep parsing issues in the original file.
- * Existing tests do not require its implementation, so we expose an empty object.
+ * Memory visualizer object with visualization methods.
  */
-const memoryVisualizer = Object.freeze({});
+const memoryVisualizer = Object.freeze({
+  /**
+   * Visualizes memory usage in a simple format.
+   * @param {any} data - Memory data to visualize
+   * @returns {string} Visualized memory representation
+   */
+  visualize(data) {
+    if (!data) return 'No memory data provided';
+
+    // Simple visualization for demonstration
+    const memoryInfo = typeof data === 'object' ? JSON.stringify(data, null, 2) : data.toString();
+    return `Memory Visualization:\n${memoryInfo}`;
+  },
+
+  /**
+   * Generates a summary of memory usage.
+   * @param {any} data - Memory data to summarize
+   * @returns {string} Summary of memory usage
+   */
+  summarize(data) {
+    if (!data) return 'No memory data provided';
+
+    // Simple summary for demonstration
+    const size = typeof data === 'object' ? Object.keys(data).length : 'N/A';
+    return `Memory Summary: ${size} items`;
+  }
+});
 
 /**
  * Function to visualize memory usage, for debugging purposes.
@@ -80,6 +105,7 @@ const memoryVisualizer = Object.freeze({});
 function visualizeMemoryUsage(data) {
   // Implementation would go here
   // This is just a placeholder to demonstrate the structure
+  console.log(memoryVisualizer.visualize(data));
 }
 
 /** ---------- Input processing ---------- */

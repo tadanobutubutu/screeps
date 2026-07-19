@@ -74,7 +74,7 @@ function processInput(input) {
 function validateNodeVersion(requiredVersion) {
   const currentVersion = process.version;
   // Simple version comparison - in a real implementation, you'd want a more robust version comparison
-  return currentVersion.startsWith(`v${requiredVersion}`);
+  return currentVersion === requiredVersion;
 }
 
 /**
@@ -82,117 +82,15 @@ function validateNodeVersion(requiredVersion) {
  * @param {string} apiKey - PostHog API key
  * @param {Object} options - Configuration options
  */
-function initPostHog(apiKey, options = {}) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  console.log('Initializing PostHog with API key:', apiKey);
-}
+fun
 
-/**
- * Helper function to validate Python version
- * @param {string} requiredVersion - Required Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
 
-/**
- * Helper function to validate pnpm version
- * @param {string} requiredVersion - Required pnpm version
- * @returns {boolean} True if current version meets requirement
- */
-function validatePnpmVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
 
-/**
- * Helper function to validate GitHub Actions version
- * @param {string} requiredVersion - Required GitHub Actions version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGithubActionsVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
+---
 
-/**
- * Helper function to validate CircleCI Node version
- * @param {string} requiredVersion - Required CircleCI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateCircleCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
+**Support Pollinations.AI:**
 
-/**
- * Helper function to validate Travis Node version
- * @param {string} requiredVersion - Required Travis Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateTravisNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
+---
 
-/**
- * Helper function to validate GitLab CI Node version
- * @param {string} requiredVersion - Required GitLab CI Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateGitLabCINodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Python version
- * @param {string} requiredVersion - Required DevContainer Python version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerPythonVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-/**
- * Helper function to validate DevContainer Node version
- * @param {string} requiredVersion - Required DevContainer Node version
- * @returns {boolean} True if current version meets requirement
- */
-function validateDevContainerNodeVersion(requiredVersion) {
-  // Implementation would go here
-  // This is just a placeholder to demonstrate the structure
-  return true;
-}
-
-module.exports = {
-  add,
-  subtract,
-  emotions,
-  log,
-  noop,
-  memoryVisualizer,
-  visualizeMemoryUsage,
-  processInput,
-  validateNodeVersion,
-  initPostHog,
-  validatePythonVersion,
-  validatePnpmVersion,
-  validateGithubActionsVersion,
-  validateCircleCINodeVersion,
-  validateTravisNodeVersion,
-  validateGitLabCINodeVersion,
-  validateDevContainerPythonVersion,
-  validateDevContainerNodeVersion
-};
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

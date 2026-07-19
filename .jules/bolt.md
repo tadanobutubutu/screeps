@@ -18,14 +18,16 @@
 
 ## 2024-05-20 - [Cache Size Tracking Regression]
 
-**Learning:** Attempting to synchronize a module‑level counter (_cacheSize) with an external object (global.cache) using `Object.keys().length` on every access creates an O(N) bottleneck in what should be an O(1) hot path. Even if the intent is O(1) capacity checking, the synchronization cost can exceed the benefit.  
-**Action:** Use an object reference check (_lastCacheRef !== global.cache) to detect resets and only recalculate size when the reference changes.
+**Learning:** Attempting to synchronize a module‑level counter (\_cacheSize) with an external object (global.cache) using `Object.keys().length` on every access creates an O(N) bottleneck in what should be an O(1) hot path. Even if the intent is O(1) capacity checking, the synchronization cost can exceed the benefit.
+**Action:** Use an object reference check (\_lastCacheRef !== global.cache) to detect resets and only recalculate size when the reference changes.
 
 ## ⚡ Bolt Learning: `Array.prototype.filter` inside loops
 
 **Date:** 2024-06-02
 **Title:** Optimizing
+
 ## 2025-05-14 - Single-pass loop for multi-criteria target selection
+
 **Learning:** Chaining `.filter().sort()` or `.filter().closest()` in high-frequency roles (like Repairers or Upgraders) leads to (N \log N)$ complexity and multiple array allocations per tick.
 **Action:** Replace functional chains with a single `for` loop that tracks multiple minima (priority, hit ratio, distance) to achieve (N)$ complexity and zero intermediate array allocations.
 

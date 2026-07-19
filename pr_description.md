@@ -6,9 +6,10 @@ The use of `Array.prototype.find` resulted in $O(N)$ execution time whenever a t
 
 📊 **Measured Improvement:**
 Using an isolated performance test that iterated adding and updating items for a 50-task maximum limit:
-* Baseline (Array.find): ~203-211ms
-* Map Update Time: ~64ms
-* Dual structure (Run logic check): Map values iteration introduces negligible differences (~24ms vs ~15ms loop overhead per 100,000 iterations), while saving substantially on lookup logic.
+
+- Baseline (Array.find): ~203-211ms
+- Map Update Time: ~64ms
+- Dual structure (Run logic check): Map values iteration introduces negligible differences (~24ms vs ~15ms loop overhead per 100,000 iterations), while saving substantially on lookup logic.
 
 🎯 **What:** Removed the comment `// ⚡ PERFORMANCE: Early return if visual effects are disabled to save CPU` in `gamification.js`.
 💡 **Why:** The code health scanner flagged this as unused commented-out code. Removing it improves scanner compliance.

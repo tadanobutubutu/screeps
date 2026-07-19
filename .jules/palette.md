@@ -41,3 +41,8 @@
 
 **Learning:** When implementing "click to copy" interactions, it is crucial to keep the `title` and `aria-label` attributes fully coordinated with the interactive/visual state changes. Dynamically switching both to a success state message (e.g., "コピー済み") prevents mismatch bugs where screen readers and native tooltips hover-stale descriptions of "Copy" on an already copied item.
 **Action:** Always dynamically bind and update both `title` and `aria-label` attributes in sync with any transient UI states (such as success copy confirmations).
+
+## 2026-07-26 - [Transient Success Feedback for Async Actions]
+
+**Learning:** Providing non-disruptive, transient visual feedback for manually triggered background actions (such as dashboard refresh buttons or keyboard shortcuts like Alt + R) makes interactions feel responsive and highly rewarding. Pairing this banner with an `aria-live="polite"` attribute ensures keyboard and screen reader users are immediately updated on task completion without shifting focus.
+**Action:** Always include transient visual badges accompanied by `aria-live="polite"` attributes when actions complete in the background to keep all users seamlessly informed.

@@ -1,57 +1,57 @@
 {
-  "timestamp": "2026-07-14T19:36:34.403Z",
-  "status": "unhealthy",
-  "issues": [
-    {
-      "type": "lint",
-      "fingerprint": "lint:daily-challenge.js:124:unknown",
-      "severity": "error",
-      "file": "daily-challenge.js",
-      "line": 124,
-      "message": "Parsing error: Unterminated template",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:deploy.js:1:unknown",
-      "severity": "error",
-      "file": "deploy.js",
-      "line": 1,
-      "message": "Parsing error: Unexpected character '’'",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:main.js:50:unknown",
-      "severity": "error",
-      "file": "main.js",
-      "line": 50,
-      "message": "Parsing error: Unexpected token .",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:memory.visualizer.js:31:unknown",
-      "severity": "error",
-      "file": "memory.visualizer.js",
-      "line": 31,
-      "message": "Parsing error: Unexpected token .",
-      "ruleId": null
-    },
-    {
-      "type": "lint",
-      "fingerprint": "lint:utils.emotions.js:365:unknown",
-      "severity": "error",
-      "file": "utils.emotions.js",
-      "line": 365,
-      "message": "Parsing error: Unexpected token )",
-      "ruleId": null
-    },
-    {
-      "type": "test_failure",
-      "fingerprint": "test:execution-failed",
-      "severity": "error",
-      "message": "Jest の実行に失敗しました: \n> screeps-ai@1.0.0 test:coverage /app\n> jest --coverage -- --json --outputFile=/tmp/repo-health-0kj2KG/jest.json --coverageReporters=json-summary\n\nNo tests found, exiting with code 1\nRun with `--passWithNoTests` to exit with code 0\nIn /app\n  167 files checked.\n  testMatch: **/__tests__/**/*.js, **/*.test.js, **/*.spec.js - 76 matches\n  testPathIgnorePatterns: /node_modules/ - 167 matches\n  testRegex:  - 0 matches\nPattern: --json|--outputFile=/tmp/repo-health-0kj2KG/jest.json|--coverageReporters"
-    }
-  ]
+    "timestamp": "2026-07-14T19:36:34.403Z",
+    "status": "unhealthy",
+    "issues": [
+        {
+            "type": "lint",
+            "fingerprint": "lint:daily-challenge.js:124:unknown",
+            "severity": "error",
+            "file": "daily-challenge.js",
+            "line": 124,
+            "message": "Parsing error: Unterminated template",
+            "ruleId": null
+        },
+        {
+            "type": "lint",
+            "fingerprint": "lint:deploy.js:1:unknown",
+            "severity": "error",
+            "file": "deploy.js",
+            "line": 1,
+            "message": "Parsing error: Unexpected character '’'",
+            "ruleId": null
+        },
+        {
+            "type": "lint",
+            "fingerprint": "lint:main.js:50:unknown",
+            "severity": "error",
+            "file": "main.js",
+            "line": 50,
+            "message": "Parsing error: Unexpected token .",
+            "ruleId": null
+        },
+        {
+            "type": "lint",
+            "fingerprint": "lint:memory.visualizer.js:31:unknown",
+            "severity": "error",
+            "file": "memory.visualizer.js",
+            "line": 31,
+            "message": "Parsing error: Unexpected token .",
+            "ruleId": null
+        },
+        {
+            "type": "lint",
+            "fingerprint": "lint:utils.emotions.js:365:unknown",
+            "severity": "error",
+            "file": "utils.emotions.js",
+            "line": 365,
+            "message": "Parsing error: Unexpected token )",
+            "ruleId": null
+        },
+        {
+            "type": "test_failure",
+            "fingerprint": "test:execution-failed",
+            "severity": "error",
+            "message": "Jest の実行に失敗しました: \n> screeps-ai@1.0.0 test:coverage /app\n> jest --coverage -- --json --outputFile=/tmp/repo-health-0kj2KG/jest.json --coverageReporters=json-summary\n\nNo tests found, exiting with code 1\nRun with `--passWithNoTests` to exit with code 0\nIn /app\n  167 files checked.\n  testMatch: **/__tests__/**/*.js, **/*.test.js, **/*.spec.js - 76 matches\n  testPathIgnorePatterns: /node_modules/ - 167 matches\n  testRegex:  - 0 matches\nPattern: --json|--outputFile=/tmp/repo-health-0kj2KG/jest.json|--coverageReporters"
+        }
+    ]
 }

@@ -159,61 +159,95 @@ function _selectAttackTarget(tower, enemies) {
         return null;
     }
 
-    // ⚡ PERFORMANCE: Use single-pass for loop to identify candidates for all priorities.
-    // Estimated impact: Reduces array allocations and iterates enemies only once.
-    let criticalTarget = null;
-    let minCriticalDist = Infinity;
-
-    let claimerTarget = null;
-    let minClaimerDist = Infinity;
-    const controller = tower.room.controller;
-
-    let bestAttacker = null;
-    let minAttackerHits = Infinity;
-
-    let weakestEnemy = null;
-    let minEnemyHits = Infinity;
-
-    for (let i = 0; i < enemies.length; i++) {
-        const e = enemies[i];
-        const hits = e.hits;
-
-        // 1. Critical HP Priority
-        if (hits <= TOWER_ATTACK_PRIORITY_HP) {
-            const dist = tower.pos.getRangeTo(e);
-            if (dist < minCriticalDist) {
-                minCriticalDist = dist;
-                criticalTarget = e;
-            }
-        }
-
-        // 2. Claimer Priority (nearest to controller)
-        if (controller && e.getActiveBodyparts(CLAIM) > 0) {
-            const dist = controller.pos.getRangeTo(e);
-            if (dist < minClaimerDist) {
-                minClaimerDist = dist;
-                claimerTarget = e;
-            }
-        }
-
-        // 3. Attacker Priority (lowest HP)
-        if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
-            if (hits < minAttackerHits) {
-                minAttackerHits = hits;
-                bestAttacker = e;
-            }
-        }
-
-        // 4. General Weakest Priority
-        if (hits < minEnemyHits) {
-            minEnemyHits = hits;
-            weakestEnemy = e;
-        }
-    }
-
-    return criticalTarget || claimerTarget || bestAttacker || weakestEnemy;
+    return _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
+           _findClaimerTarget(tower, enemies) ||
+           _findAttackerTarget(tower, enemies) ||
+           _findWeakestTarget(tower, enemies);
 }
 
+/**
+ * @param {StructureTower} tower
+ * @param {Creep[]} enemies
+ * @param {number} threshold
+ * @returns {Creep|null}
+ */
+function _findCriticalTarget(tower, enemies, threshold) {
+    let target = null;
+    let minDist = Infinity;
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.hits <= threshold) {
+            const dist = tower.pos.getRangeTo(e);
+            if (dist < minDist) {
+                minDist = dist;
+                target = e;
+            }
+        }
+    }
+    return target;
+}
+
+/**
+ * @param {StructureTower} tower
+ * @param {Creep[]} enemies
+ * @returns {Creep|null}
+ */
+function _findClaimerTarget(tower, enemies) {
+    const controller = tower.room.controller;
+    if (!controller) return null;
+
+    let target = null;
+    let minDist = Infinity;
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.getActiveBodyparts(CLAIM) > 0) {
+            const dist = controller.pos.getRangeTo(e);
+            if (dist < minDist) {
+                minDist = dist;
+                target = e;
+            }
+        }
+    }
+    return target;
+}
+
+/**
+ * @param {StructureTower} tower
+ * @param {Creep[]} enemies
+ * @returns {Creep|null}
+ */
+function _findAttackerTarget(tower, enemies) {
+    let target = null;
+    let minHits = Infinity;
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.getActiveBodyparts(ATTACK) > 0 || e.getActiveBodyparts(RANGED_ATTACK) > 0) {
+            if (e.hits < minHits) {
+                minHits = e.hits;
+                target = e;
+            }
+        }
+    }
+    return target;
+}
+
+/**
+ * @param {StructureTower} tower
+ * @param {Creep[]} enemies
+ * @returns {Creep|null}
+ */
+function _findWeakestTarget(tower, enemies) {
+    let target = null;
+    let minHits = Infinity;
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (e.hits < minHits) {
+            minHits = e.hits;
+            target = e;
+        }
+    }
+    return target;
+}
 // ============================================================
 // 回復対象選択
 // ============================================================

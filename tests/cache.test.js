@@ -174,8 +174,8 @@ describe('cache', () => {
             const stats = cache.getStats();
 
             expect(stats.total).toBe(2);
-            expect(stats.active).toBeGreaterThanOrEqual(0);
-            expect(stats.expired).toBeGreaterThanOrEqual(0);
+            expect(stats.active).toBe(2);
+            expect(stats.expired).toBe(0);
         });
 
         test('有効期限ジャストのキャッシュを期限切れとしてカウントする', () => {
@@ -187,6 +187,29 @@ describe('cache', () => {
             expect(stats.total).toBe(1);
             expect(stats.expired).toBe(1);
             expect(stats.active).toBe(0);
+        });
+
+        test('不正なexpiresプロパティを持つキャッシュは期限切れとしてカウントしない', () => {
+            cache.get('key1', () => 'data1', 10);
+            global.cache['key1'].expires = 'invalid';
+            global.Game.time += 10;
+
+            const stats = cache.getStats();
+
+            expect(stats.total).toBe(1);
+            expect(stats.expired).toBe(0);
+            expect(stats.active).toBe(1);
+        });
+
+        test('falsyなキャッシュエントリはエラーにならず無視される', () => {
+            cache.get('key1', () => 'data1', 10);
+            global.cache['key1'] = null; // inject falsy entry
+
+            const stats = cache.getStats();
+
+            expect(stats.total).toBe(1); // total counts the tracked cacheSize, which wasn't updated by our manual assignment
+            expect(stats.expired).toBe(0);
+            expect(stats.active).toBe(1);
         });
     });
 

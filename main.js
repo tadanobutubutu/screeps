@@ -5,6 +5,13 @@
  *
  */
 
+// Function to visualize memory usage, for debugging purposes
+function visualizeMemoryUsage(data) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  console.log('Visualizing memory usage:', data);
+}
+
 /**
  * Placeholder function to demonstrate proper addition of new code
  * @param {string} input - Input string to process
@@ -18,5 +25,6 @@ function processInput(input) {
 }
 
 module.exports = {
-  processInput
+  processInput,
+  visualizeMemoryUsage
 };

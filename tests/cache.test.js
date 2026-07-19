@@ -202,6 +202,48 @@ describe('cache', () => {
             expect(sources.length).toBe(2);
             expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
         });
+
+        test('複数回呼び出してもキャッシュが利用され、findは1回だけ呼ばれる', () => {
+            const mockRoom = {
+                name: 'W1N2',
+                find: jest.fn().mockReturnValue([{ id: 'source1' }, { id: 'source2' }]),
+            };
+
+            const sources1 = cache.getSources(mockRoom);
+            const sources2 = cache.getSources(mockRoom);
+
+            expect(sources1).toBe(sources2);
+            expect(mockRoom.find).toHaveBeenCalledTimes(1);
+            expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
+        });
+
+        test('TTL経過後は再度findが呼ばれる', () => {
+            const mockRoom = {
+                name: 'W1N3',
+                find: jest.fn().mockReturnValue([{ id: 'source1' }]),
+            };
+
+            cache.getSources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledTimes(1);
+
+            // TTLを進める
+            global.Game.time += 100; // CACHE_TTL.SOURCES
+
+            cache.getSources(mockRoom);
+            expect(mockRoom.find).toHaveBeenCalledTimes(2);
+        });
+
+        test('ソースが見つからない場合は空の配列を返す', () => {
+            const mockRoom = {
+                name: 'W1N4',
+                find: jest.fn().mockReturnValue([]),
+            };
+
+            const sources = cache.getSources(mockRoom);
+
+            expect(sources.length).toBe(0);
+            expect(mockRoom.find).toHaveBeenCalledWith(FIND_SOURCES);
+        });
     });
 
     describe('getStructures', () => {

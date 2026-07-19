@@ -71,6 +71,207 @@ describe('src/roles/builder', () => {
         global.Game.getObjectById.mockReturnValue(null);
     });
 
+
+
+
+
+    test('建設サイトの優先度が既存のものより低い場合は無視される', () => {
+        const nearHighPrioritySite = {
+            id: 'high_priority',
+            structureType: global.STRUCTURE_CONTAINER, // priority 1
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        const farLowPrioritySite = {
+            id: 'low_priority',
+            structureType: global.STRUCTURE_ROAD, // priority 7
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+        // 優先度が高いものを先に評価させ、後から低いものを評価させる
+        mockCache.getConstructionSites.mockReturnValue([nearHighPrioritySite, farLowPrioritySite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (s) => s.id === 'high_priority' ? 5 : 10 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('high_priority');
+    });
+
+    test('建設サイトの優先度が既存のものより高い場合は距離に関わらず優先される', () => {
+        const farHighPrioritySite = {
+            id: 'high_priority',
+            structureType: global.STRUCTURE_CONTAINER, // priority 1
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+        const nearLowPrioritySite = {
+            id: 'low_priority',
+            structureType: global.STRUCTURE_ROAD, // priority 7
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        // 優先度が低いものを先に評価させ、後から高いものを評価させる
+        mockCache.getConstructionSites.mockReturnValue([nearLowPrioritySite, farHighPrioritySite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (s) => s.id === 'high_priority' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('high_priority');
+    });
+
+    test('建設サイトの優先度が同じで、より遠い場合は更新しない', () => {
+        const site1 = {
+            id: 's1',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        const site2 = {
+            id: 's2',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) } // より遠い
+        };
+        mockCache.getConstructionSites.mockReturnValue([site1, site2]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (s) => s.id === 's1' ? 5 : 10 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('s1');
+    });
+
+    test('建設サイトの優先度と距離が同じ場合は既存のものを優先する', () => {
+        const site1 = {
+            id: 's1',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        const site2 = {
+            id: 's2',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        mockCache.getConstructionSites.mockReturnValue([site1, site2]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: () => 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('s1');
+    });
+
+    test('コントローラーが範囲内の場合は移動しない', () => {
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+            visual: { text: jest.fn() },
+            name: 'W0N0',
+            controller: { id: 'ctrl1' }
+        };
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn(),
+            upgradeController: jest.fn().mockReturnValue(global.OK),
+            room,
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.upgradeController).toHaveBeenCalledWith(room.controller);
+        expect(pathfinder.moveTo).not.toHaveBeenCalledWith(creep, room.controller, expect.any(Object));
+    });
+
+    test('コンテナの距離が既存のものと同じ場合は既存のものを優先する', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        const c1 = { store: { [global.RESOURCE_ENERGY]: 200 }, id: 'c1' };
+        const c2 = { store: { [global.RESOURCE_ENERGY]: 200 }, id: 'c2' };
+        mockCache.getContainers.mockReturnValue([c1, c2]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: () => 5 } // 距離同じ
+        };
+
+        builder.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(c1, global.RESOURCE_ENERGY);
+    });
+
+    test('ソースが範囲内の場合は移動しない', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        mockCache.getStorage.mockReturnValue(null);
+        const source = { id: 'src1' };
+        mockCache.assignSource.mockReturnValue(source);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            harvest: jest.fn().mockReturnValue(global.OK),
+            withdraw: jest.fn(),
+            pickup: jest.fn(),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.harvest).toHaveBeenCalledWith(source);
+        expect(pathfinder.moveTo).not.toHaveBeenCalledWith(creep, source, expect.any(Object));
+    });
+
     test('建設ターゲットを選択して移動する', () => {
         const containerSite = {
             id: 's1',
@@ -104,6 +305,189 @@ describe('src/roles/builder', () => {
         expect(creep.room.visual.text).toHaveBeenCalled();
     });
 
+
+
+    test('同じ優先度の建設サイトがある場合、近い方を選ぶ（より近い距離）', () => {
+        const farSite = {
+            id: 'far',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+        const nearSite = {
+            id: 'near',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        // 逆順で返すことで、すでに同じ優先度が見つかっている状態での距離比較をテストする
+        mockCache.getConstructionSites.mockReturnValue([farSite, nearSite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (site) => site.id === 'far' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('near');
+    });
+
+    test('同じ優先度の建設サイトがある場合、既存のものより遠い場合は選ばない', () => {
+        const nearSite = {
+            id: 'near',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        const farSite = {
+            id: 'far',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+        mockCache.getConstructionSites.mockReturnValue([nearSite, farSite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (site) => site.id === 'near' ? 5 : 10 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('near');
+    });
+
+    test('修復対象との距離が既存のものより短い場合、更新する', () => {
+        const farDamaged = {
+            id: 'd1',
+            hits: 100,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_ROAD,
+            pos: { x: 10, y: 10 }
+        };
+        const nearDamaged = {
+            id: 'd2',
+            hits: 100,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_ROAD,
+            pos: { x: 5, y: 5 }
+        };
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([farDamaged, nearDamaged]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: (s) => s.id === 'd1' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.repair).toHaveBeenCalledWith(nearDamaged);
+    });
+
+    test('同じ優先度の建設サイトがある場合、近い方を選ぶ', () => {
+        const farSite = {
+            id: 'far',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 10, y: 10, getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+        const nearSite = {
+            id: 'near',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(5) }
+        };
+        mockCache.getConstructionSites.mockReturnValue([farSite, nearSite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: (site) => site.id === 'far' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('near');
+        expect(creep.build).toHaveBeenCalledWith(nearSite);
+    });
+
+
+    test('メモリのターゲットが無効な場合、メモリから削除して再検索する', () => {
+        global.Game.getObjectById.mockReturnValue(null);
+        const site = {
+            id: 'new_site',
+            structureType: global.STRUCTURE_EXTENSION,
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+        mockCache.getConstructionSites.mockReturnValue([site]);
+
+        const creep = {
+            memory: { working: true, targetId: 'invalid_id' },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        // delete はプロパティを消すのでtoBeUndefinedで確認
+        expect(creep.memory.targetId).toBe('new_site');
+        expect(creep.build).toHaveBeenCalledWith(site);
+    });
+
+
+    test('建設サイトの優先度が設定されていない場合はデフォルトの優先度10とする', () => {
+        const unknownSite = {
+            id: 'unknown',
+            structureType: 'some_unknown_structure',
+            progress: 0,
+            progressTotal: 100,
+            pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+        mockCache.getConstructionSites.mockReturnValue([unknownSite]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn().mockReturnValue(global.OK),
+            room: { visual: { text: jest.fn() }, name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.memory.targetId).toBe('unknown');
+    });
+
     test('無効な建設サイトを検知してキャッシュを削除する', () => {
         const site = {
             id: 's3',
@@ -128,6 +512,90 @@ describe('src/roles/builder', () => {
 
         expect(creep.memory.targetId).toBeUndefined();
         expect(mockCache.invalidate).toHaveBeenCalledWith('construction_sites_W0N0');
+    });
+
+
+
+    test('距離比較で等しい距離の場合は既存のものを優先する', () => {
+        const farDrop = { id: 'd2', resourceType: global.RESOURCE_ENERGY, amount: 80, pos: { x: 10, y: 10 } };
+        const nearDrop = { id: 'd1', resourceType: global.RESOURCE_ENERGY, amount: 80, pos: { x: 5, y: 5 } };
+        mockCache.getDroppedResources.mockReturnValue([nearDrop, farDrop]); // 近い方が先
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            pickup: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: (r) => r.id === 'd2' ? 5 : 5 } // 距離同じ
+        };
+
+        builder.run(creep);
+
+        expect(creep.pickup).toHaveBeenCalledWith(nearDrop);
+    });
+
+    test('修復対象の距離が既存のものと同じ場合は既存のものを優先する', () => {
+        const d1 = { id: 'd1', hits: 100, hitsMax: 500, structureType: global.STRUCTURE_ROAD };
+        const d2 = { id: 'd2', hits: 100, hitsMax: 500, structureType: global.STRUCTURE_ROAD };
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([d1, d2]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: () => 5 } // 距離同じ
+        };
+
+        builder.run(creep);
+
+        expect(creep.repair).toHaveBeenCalledWith(d1);
+    });
+
+    test('同じエネルギーの落下リソースがある場合、近い方を優先する', () => {
+        const farDrop = { id: 'd2', resourceType: global.RESOURCE_ENERGY, amount: 80, pos: { x: 10, y: 10 } };
+        const nearDrop = { id: 'd1', resourceType: global.RESOURCE_ENERGY, amount: 80, pos: { x: 5, y: 5 } };
+        mockCache.getDroppedResources.mockReturnValue([farDrop, nearDrop]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            pickup: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: (r) => r.id === 'd2' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.pickup).toHaveBeenCalledWith(nearDrop);
+    });
+
+    test('十分な量の落下リソースがない場合はコンテナを検索する', () => {
+        const smallDrop = { id: 'd1', resourceType: global.RESOURCE_ENERGY, amount: 40 };
+        mockCache.getDroppedResources.mockReturnValue([smallDrop]);
+
+        const container = { store: { [global.RESOURCE_ENERGY]: 200 }, id: 'c1' };
+        mockCache.getContainers.mockReturnValue([container]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            pickup: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.pickup).not.toHaveBeenCalled();
+        expect(creep.withdraw).toHaveBeenCalledWith(container, global.RESOURCE_ENERGY);
     });
 
     test('エネルギー取得で落下リソースを拾う', () => {
@@ -251,6 +719,35 @@ describe('src/roles/builder', () => {
         expect(creep.build).toHaveBeenCalledWith(site);
     });
 
+
+    test('修復対象が範囲外の場合、移動する', () => {
+        const damaged = {
+            id: 'd3',
+            hits: 100,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_ROAD,
+            pos: { x: 3, y: 3 }
+        };
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([damaged]);
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.repair).toHaveBeenCalledWith(damaged);
+        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, damaged, { range: 3 });
+        expect(creep.say).toHaveBeenCalledWith('🔧 修復');
+    });
+
     test('修復バックアップで損傷構造物を修復する', () => {
         const damaged = {
             id: 'd2',
@@ -286,6 +783,112 @@ describe('src/roles/builder', () => {
         expect(creep.say).toHaveBeenCalledWith('🔧 修復');
     });
 
+
+    test('修復バックアップで壁や防壁は対象外とする', () => {
+        const wall = {
+            id: 'wall1',
+            hits: 100,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_WALL,
+            pos: { x: 3, y: 3 }
+        };
+        const rampart = {
+            id: 'rampart1',
+            hits: 100,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_RAMPART,
+            pos: { x: 4, y: 4 }
+        };
+        const healthyRoad = {
+            id: 'hroad',
+            hits: 500,
+            hitsMax: 500,
+            structureType: global.STRUCTURE_ROAD,
+            pos: { x: 5, y: 5 }
+        };
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([wall, rampart, healthyRoad]);
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+            visual: { text: jest.fn() },
+            name: 'W0N0',
+            controller: { id: 'ctrl1' }
+        };
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn(),
+            upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room,
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        // 壁・防壁・健康な道は修復されないため、フォールバックのアップグレードが実行されるはず
+        expect(creep.repair).not.toHaveBeenCalled();
+        expect(creep.upgradeController).toHaveBeenCalled();
+    });
+
+
+    test('コントローラーが範囲外の場合、移動する', () => {
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+            visual: { text: jest.fn() },
+            name: 'W0N0',
+            controller: { id: 'ctrl1' }
+        };
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn(),
+            upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room,
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.upgradeController).toHaveBeenCalledWith(room.controller);
+        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, room.controller, { range: 3 });
+        expect(creep.say).toHaveBeenCalledWith('⬆️ 強化');
+    });
+
+    test('コントローラーがない場合は何もしない', () => {
+        mockCache.getConstructionSites.mockReturnValue([]);
+        mockCache.getStructures.mockReturnValue([]);
+        const room = {
+            find: jest.fn().mockReturnValue([]),
+            visual: { text: jest.fn() },
+            name: 'W0N0',
+            controller: null
+        };
+
+        const creep = {
+            memory: { working: true },
+            store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            build: jest.fn(),
+            repair: jest.fn(),
+            upgradeController: jest.fn(),
+            room,
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.upgradeController).not.toHaveBeenCalled();
+        expect(creep.say).not.toHaveBeenCalledWith('⬆️ 強化');
+    });
+
     test('修復対象も建設サイトもないときコントローラーをアップグレードする', () => {
         mockCache.getConstructionSites.mockReturnValue([]);
         mockCache.getStructures.mockReturnValue([]);
@@ -313,6 +916,49 @@ describe('src/roles/builder', () => {
         expect(creep.say).toHaveBeenCalledWith('⬆️ 強化');
     });
 
+
+    test('複数のコンテナがある場合、近い方を選ぶ', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        const farContainer = { store: { [global.RESOURCE_ENERGY]: 200 }, id: 'c2', pos: { x: 10, y: 10 } };
+        const nearContainer = { store: { [global.RESOURCE_ENERGY]: 200 }, id: 'c1', pos: { x: 5, y: 5 } };
+        mockCache.getContainers.mockReturnValue([farContainer, nearContainer]);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: (c) => c.id === 'c2' ? 10 : 5 }
+        };
+
+        builder.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(nearContainer, global.RESOURCE_ENERGY);
+    });
+
+    test('十分なエネルギーを持つコンテナがない場合はストレージを検索する', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        const emptyContainer = { store: { [global.RESOURCE_ENERGY]: 50 }, id: 'c1' };
+        mockCache.getContainers.mockReturnValue([emptyContainer]);
+
+        const storage = { store: { [global.RESOURCE_ENERGY]: 1000 }, id: 'st1' };
+        mockCache.getStorage.mockReturnValue(storage);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.OK),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(storage, global.RESOURCE_ENERGY);
+    });
+
     test('コンテナからエネルギーを取得する', () => {
         mockCache.getDroppedResources.mockReturnValue([]);
         const container = { store: { [global.RESOURCE_ENERGY]: 200 } };
@@ -335,6 +981,28 @@ describe('src/roles/builder', () => {
 
         expect(creep.withdraw).toHaveBeenCalledWith(container, global.RESOURCE_ENERGY);
         expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, container, { range: 1 });
+    });
+
+
+    test('ストレージから取得する際、範囲外の場合は移動する', () => {
+        mockCache.getDroppedResources.mockReturnValue([]);
+        mockCache.getContainers.mockReturnValue([]);
+        const storage = { store: { [global.RESOURCE_ENERGY]: 1000 }, id: 'st1' };
+        mockCache.getStorage.mockReturnValue(storage);
+
+        const creep = {
+            memory: { working: false },
+            store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+            say: jest.fn(),
+            withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            room: { name: 'W0N0' },
+            pos: { getRangeTo: jest.fn().mockReturnValue(10) }
+        };
+
+        builder.run(creep);
+
+        expect(creep.withdraw).toHaveBeenCalledWith(storage, global.RESOURCE_ENERGY);
+        expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, storage, { range: 1 });
     });
 
     test('ストレージからエネルギーを取得する', () => {

@@ -60,34 +60,5 @@ function analyzeMultipleTexts(texts) {
     try {
       return emotions.parseEmotion(text);
     } catch (error) {
-      console.error('Error analyzing text:', error);
-      return { sentiment: "neutral", score: 0 };
-    }
-  });
-}
-
-// New function to handle dependency updates
-function updateDependencies() {
-  // This function would handle updating dependencies as needed
-  // Implementation would go here
-}
-
-// New function to validate dependency versions
-function validateDependencyVersions() {
-  // This function would validate current dependency versions
-  // Implementation would go here
-  return true;
-}
-
-// Export all functions for testing
-module.exports = {
-  subtract,
-  leer,
-  add,
-  read,
-  emotions,
-  parse,
-  analyzeMultipleTexts,
-  updateDependencies,
-  validateDependencyVersions
-};
+      console.error(`Error analyzing text: ${text}`, error);
+      return { sentiment: "neutral", score: 0

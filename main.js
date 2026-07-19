@@ -214,3 +214,48 @@ function getDependencyDashboard() {
     }
   };
 }
+
+/**
+ * Gets the list of pending status checks from the dependency dashboard
+ * @returns {Array<{branch: string, message: string}>} Array of pending status checks
+ */
+function getPendingStatusChecks() {
+  const dashboard = getDependencyDashboard();
+  return dashboard.pendingStatusChecks || [];
+}
+
+/**
+ * Gets the list of open PRs from the dependency dashboard
+ * @returns {Array<{branch: string, message: string}>} Array of open PRs
+ */
+function getOpenPRs() {
+  const dashboard = getDependencyDashboard();
+  return dashboard.openPRs || [];
+}
+
+/**
+ * Gets the list of closed PRs from the dependency dashboard
+ * @returns {Array<{branch: string, message: string}>} Array of closed PRs
+ */
+function getClosedPRs() {
+  const dashboard = getDependencyDashboard();
+  return dashboard.closedPRs || [];
+}
+
+/**
+ * Gets the list of detected dependencies from the dependency dashboard
+ * @returns {Object} Detected dependencies by category
+ */
+function getDetectedDependencies() {
+  const dashboard = getDependencyDashboard();
+  return dashboard.detectedDependencies || {};
+}
+
+/**
+ * Gets the list of problems from the dependency dashboard
+ * @returns {Array<{type: string, message: string}>} Array of problems
+ */
+function getDependencyProblems() {
+  const dashboard = getDependencyDashboard();
+  return dashboard.problems || [];
+}

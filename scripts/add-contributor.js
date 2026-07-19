@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ISSUE_AUTHOR = process.env.ISSUE_AUTHOR;
@@ -112,9 +112,9 @@ function updateReadme() {
 function commitAndPush(username) {
     try {
         console.log('📤 Committing changes...');
-        execSync('git add .all-contributorsrc README.md', { stdio: 'inherit' });
-        execSync(`git commit -m "docs: add ${username} as a contributor"`, { stdio: 'inherit' });
-        execSync('git push origin HEAD', { stdio: 'inherit' });
+        execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });
+        execFileSync('git', ['commit', '-m', `docs: add ${username} as a contributor`], { stdio: 'inherit' });
+        execFileSync('git', ['push', 'origin', 'HEAD'], { stdio: 'inherit' });
         console.log('✅ Changes pushed');
     } catch (error) {
         console.warn('⚠️  Failed to commit/push:', error.message);

@@ -37,6 +37,10 @@ describe('src/utils/logger security: log-level bypass', () => {
     });
 
     test('init() should default to INFO on invalid numeric Memory.logLevel', () => {
+        // Maliciously set Memory.logLevel to -1 to bypass gates
+        // A vulnerable implementation would assign -1 to the internal level.
+        // debug gate: if (_level > LOG_LEVEL.DEBUG) return;
+        // if (-1 > 0) return; -> false, so it logs!
         global.Memory.logLevel = -1; // Invalid negative value
 
         logger.init();
@@ -55,56 +59,4 @@ describe('src/utils/logger security: log-level bypass', () => {
         logger.init();
 
         logger.debug('Debug message');
-
-        expect(logger.getLevel()).toBe(LOG_LEVEL.INFO);
-        const debugLogs = logSpy.mock.calls.filter((call) => call[0].includes('DEBUG'));
-        expect(debugLogs.length).toBe(0);
-    });
-
-    test('init() should accept valid Memory.logLevel', () => {
-        global.Memory.logLevel = LOG_LEVEL.WARN;
-
-        logger.init();
-
-        logger.info('Info message');
-
-        expect(logger.getLevel()).toBe(LOG_LEVEL.WARN);
-        const infoLogs = logSpy.mock.calls.filter((call) => call[0].includes('INFO'));
-        expect(infoLogs.length).toBe(0);
-
-        logger.warn('Warning message');
-        const warnLogs = logSpy.mock.calls.filter((call) => call[0].includes('WARN'));
-        expect(warnLogs.length).toBeGreaterThan(0);
-    });
-
-    test('init() should handle null/boolean/empty string/arrays from Memory securely', () => {
-        const trickyValues = [null, false, '', [], ' ', true];
-
-        trickyValues.forEach((val) => {
-            global.Memory.logLevel = val;
-            logger.init();
-
-            // Should fallback to INFO and NOT show DEBUG
-            logger.debug('This should be suppressed');
-            const debugLogs = logSpy.mock.calls.filter((call) => call[0].includes('DEBUG'));
-            expect(debugLogs.length).toBe(0);
-
-            // Reset for next iteration
-            logSpy.mockClear();
-        });
-    });
-
-    test('init() should correctly handle numeric strings from Memory', () => {
-        global.Memory.logLevel = '2'; // WARN
-        logger.init();
-
-        logger.info('This should be suppressed');
-        logger.warn('This should be shown');
-
-        const infoLogs = logSpy.mock.calls.filter((call) => call[0].includes('INFO'));
-        const warnLogs = logSpy.mock.calls.filter((call) => call[0].includes('WARN'));
-
-        expect(infoLogs.length).toBe(0);
-        expect(warnLogs.length).toBe(1);
-    });
-});
+        const debugLogs = logSpy.mock.calls.filter

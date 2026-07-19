@@ -58,7 +58,7 @@ function visualizeMemoryUsage(data) {
  * @returns {string} Processed string
  */
 function processInput(input) {
-  if ( === undefined ||  === null) {
+  if (input === undefined || input === null) {
     throw new Error('Input cannot be empty');
   }
   return input.trim();

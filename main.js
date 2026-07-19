@@ -5,6 +5,16 @@
  *
  */
 
+// Logging helper
+function log(...args) {
+  console.log(...args);
+}
+
+// No-operation placeholder
+function noop() {
+  // no operation
+}
+
 // Stub for memory.visualizer to sidestep parsing issues in the original file.
 // Existing tests do not require its implementation, so we expose an empty object.
 const memoryVisualizer = Object.freeze({});
@@ -32,7 +42,9 @@ function processInput(input) {
 }
 
 module.exports = {
+  log,
+  noop,
   memoryVisualizer,
-  processInput,
-  visualizeMemoryUsage
+  visualizeMemoryUsage,
+  processInput
 };

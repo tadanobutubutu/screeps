@@ -38,6 +38,7 @@ function parse(text) {
     if (typeof emotions.parseEmotion === 'function') {
       return emotions.parseEmotion(text);
     }
+    throw new Error(`Function emotions.parseEmotion is not implemented`);
   } catch (error) {
     console.error('Error parsing emotion:', error);
     return { sentiment: "neutral", score: 0 };
@@ -70,31 +71,4 @@ function analyze(texts) {
  * @returns {{
  *   positive: number,
  *   neutral: number,
- *   negative: number,
- *   totalScore: number,
- *   count: number
- * }}
- */
-function getEmotionStatistics(texts) {
-  const results = analyze(texts);
-  const stats = {
-    positive: 0,
-    neutral: 0,
-    negative: 0,
-    totalScore: 0,
-    count: results.length
-  };
-
-  results.forEach(result => {
-    stats.totalScore += result.score;
-    if (result.sentiment === 'positive') {
-      stats.positive += 1;
-    } else if (result.sentiment === 'neutral') {
-      stats.neutral += 1;
-    } else if (result.sentiment === 'negative') {
-      stats.negative += 1;
-    }
-  });
-
-  return stats;
-}
+ *

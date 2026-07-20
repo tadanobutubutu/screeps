@@ -82,6 +82,16 @@ function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>}
   }
 }
 
+// Add this new function to handle the JSON output requirement
+function getCoverageReport() {
+  // This is a placeholder for the coverage report functionality
+  // The actual implementation would depend on the testing framework
+  return {
+    coverageMap: {},
+    coverageSummary: {}
+  };
+}
+
 // Export all functions for testing
 module.exports = {
   subtract,
@@ -91,5 +101,6 @@ module.exports = {
   emotions,
   parse,
   analyzeTexts,
-  updateEmotionModel
+  updateEmotionModel,
+  getCoverageReport // Added new export
 };

@@ -31,34 +31,14 @@ function addTask(title) {
 }
 
 /**
+ * Reads content. (placeholder)
+ *
+ * @returns {string}
+ */
+function read() {
+    // Implementation would go here
+    return "";
+}
+
+/**
  * Lists all tasks.
- *
- * @returns {Array<{id:number,title:string,done:boolean}>}
- */
-function listTasks() {
-    return _tasks.slice();
-}
-
-/**
- * Marks a task as completed.
- *
- * @param {number} id – The task's ID.
- * @throws Will throw an error if the task is not found.
- */
-function completeTask(id) {
-    const task = _tasks.find(t => t.id === id);
-    if (!task) {
-        throw new Error(`No task with id ${id}`);
-    }
-    task.done = true;
-}
-
-/**
- * Adds two numbers.
- *
- * @param {number} a
- * @param {number} b
- * @returns {number}
- */
-function add(a, b) {
-    return a

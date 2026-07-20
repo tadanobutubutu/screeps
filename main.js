@@ -60,7 +60,7 @@ function analyze(/** @type {string[]} */ texts) {
     try {
       return emotions.parseEmotion(text);
     } catch (error) {
-      console.error('Error analyzing text: ' text, error);
+      console.error(`Error analyzing text: ${text}`, error);
       return { sentiment: "neutral", score: 0 };
     }
   });
@@ -75,7 +75,7 @@ function updateDependencies() {
 function fetchDependencies() {
   // This function would interact with the Renovate API or another source to fetch dependency updates
   // Mock data for demonstration purposes
-  var dependencyUpdates = [
+  const dependencyUpdates = [
     { name: 'libA', currentVersion: '1.0.0', latestVersion: '1.2.0' },
     { name: 'libB', currentVersion: '2.3.4', latestVersion: '2.4.0' }
   ];
@@ -96,7 +96,7 @@ function processDependencyUpdates(/** @type {Array<{name: string, currentVersion
 // New function to get dependency dashboard information
 function getDependencyDashboard() {
   // Mock data for demonstration purposes
-  var dashboardInfo = {
+  const dashboardInfo = {
     totalDependencies: 42,
     outdatedDependencies: 12,
     securityVulnerabilities: 3,

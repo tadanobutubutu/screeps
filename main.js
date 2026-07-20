@@ -65,6 +65,22 @@ function analyzeTexts(/** @type {string[]} */ texts) {
   return texts.map(text => parse(text));
 }
 
+/**
+ * Updates the emotion analysis model with new training data.
+ * @param {Array<{text: string, sentiment: string}>} trainingData
+ */
+function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>} */ trainingData) {
+  if (!Array.isArray(trainingData)) {
+    throw new TypeError('Expected an array of training data objects');
+  }
+
+  if (typeof emotions.updateModel === 'function') {
+    emotions.updateModel(trainingData);
+  } else {
+    console.warn('Emotion model update not implemented');
+  }
+}
+
 // Export all functions for testing
 module.exports = {
   subtract,
@@ -73,5 +89,6 @@ module.exports = {
   add,
   emotions,
   parse,
-  analyzeTexts
+  analyzeTexts,
+  updateEmotionModel
 };

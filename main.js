@@ -59,27 +59,4 @@ function listTasks() {
 function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
   if (task === undefined || task === null) return false;
-  task.completed = true;
-  task.updatedAt = Date.now();
-  return true;
-}
-
-/**
- * Removes a task from the list.
- *
- * @param {number} id - The ID of the task to remove.
- * @returns {boolean} True if a task was found and removed.
- */
-function removeTask(id) {
-  const index = _tasks.findIndex(t => t.id === id);
-  if (index === -1) return false;
-  _tasks.splice(index, 1);
-  return true;
-}
-
-module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-};
+  task.completed =

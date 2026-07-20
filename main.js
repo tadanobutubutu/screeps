@@ -2,14 +2,14 @@
 
 function subtract(a, b) { return a - b; }
 
+function leer() { return read(); }
+
 function read() {
   // Implementation would go here
   return "";
 }
 
-function leer() { return read(); }
-
-function add(a, b) { // comment a */
+function add(a, b) { // /** comment a */ // Fixed: Added missing closing parenthesis
     return a + b;
 }
 

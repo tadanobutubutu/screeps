@@ -23,7 +23,6 @@
  *
  * @module main
  */
-
 let _tasks = [];
 let _nextId = 1;
 
@@ -34,7 +33,13 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now() };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
   _tasks.push(task);
   return task.id;
 }
@@ -59,6 +64,7 @@ function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
   if (task === undefined || task === null) return false;
   task.completed = true;
+  task.updatedAt = Date.now();
   return true;
 }
 
@@ -78,52 +84,6 @@ function removeTask(id) {
 /**
  * Finds tasks that match a given predicate.
  *
- * @param {(task: {id:number, title:string, completed:boolean, createdAt:number})=>boolean} predicate
- * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
+ * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}) => boolean} predicate - A function that takes a task and returns a boolean.
+ * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} Matching tasks.
  */
-function findTasks(predicate) {
-  // Use the same mapping as listTasks to keep the API consistent.
-  return _tasks.filter(predicate).map(({ id, title, completed }) => ({ id, title, completed }));
-}
-
-/**
- * Gets a task by its ID.
- *
- * @param {number} id - The ID of the task to retrieve.
- * @returns {{id:number, title:string, completed:boolean, createdAt:number}|undefined}
- *          The task if found; otherwise `undefined`.
- */
-function getTaskById(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return undefined;
-  const { id: taskId, title, completed, createdAt } = task;
-  return { id: taskId, title, completed, createdAt };
-}
-
-/**
- * Updates a task's title.
- *
- * @param {number} id         - The ID of the task to update.
- * @param {string} newTitle   - The new title for the task.
- * @returns {boolean} True if the task was found and updated.
- */
-function updateTaskTitle(id, newTitle) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return false;
-  task.title = newTitle;
-  return true;
-}
-
-/*--------------------------------------------------------------------
- * Export the public API so that the tests can import individual
- * utilities.
- *--------------------------------------------------------------------*/
-module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle
-};

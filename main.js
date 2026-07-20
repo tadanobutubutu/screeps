@@ -9,7 +9,13 @@ function read() {
 
 function leer() { return read(); }
 
-function add(/** @param {number} a, @param {number} b */ a, b) {
+/**
+ * Adds two numbers.
+ * @param {number} a - First operand
+ * @param {number} b - Second operand
+ * @returns {number} Sum of a and b
+ */
+function add(a, b) {
     return a + b;
 }
 

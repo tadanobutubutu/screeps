@@ -87,7 +87,7 @@ function processDependencyUpdates(updates) {
     throw new Error('Input must be an array of dependency updates');
   }
 
-  updates.forEach(update => {
+  updates.foreach(update => {
     // Implementation for processing each update would go here
   });
 }

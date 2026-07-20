@@ -24,36 +24,4 @@ let _nextId = 1;
  */
 function addTask(title) {
   const task = {
-    id: _nextId++,
-    title,
-    completed: false,
-    createdAt: Date.now(),
-    updatedAt: Date.now(),
-  };
-  _tasks.push(task);
-  return task.id;
-}
-
-/**
- * Lists all tasks.
- *
- * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} All tasks.
- */
-function listTasks() {
-  // Return a shallow copy to avoid external mutation.
-  return _tasks.map(({ id, title, completed, createdAt, updatedAt }) => ({
-    id,
-    title,
-    completed,
-    createdAt,
-    updatedAt,
-  }));
-}
-
-/**
- * Marks a task as completed.
- *
- * @param {number} id - The ID of the task to complete.
- * @returns {boolean} True if a task was found and marked as completed.
- */
-function completeTask(id)
+    id: _nextId

@@ -1,4 +1,4 @@
-let _tasks = [];
+const _tasks = [];
 let _nextId = 1;
 
 /**

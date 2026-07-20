@@ -7,12 +7,12 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, parse } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, read, parseEmotion } = require('./main.js');
  *
  *   const id = addTask('Buy milk');
  *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false, createdAt: 1700423904123 }]
  *   completeTask(id);
- *   console.log(parse('I am happy')); // { sentiment: 'neutral', score: 0 }
+ *   console.log(parseEmotion('I am happy')); // { sentiment: 'neutral', score: 0 }
  */
 "use strict";
 
@@ -61,12 +61,46 @@ function completeTask(id) {
 }
 
 /**
+ * Reads content. (placeholder)
+ *
+ * @returns {string}
+ */
+function read() {
+  // Implementation would go here
+  return "";
+}
+
+/**
  * Emotion analysis utilities.
  */
 const emotions = {
   /**
-   * Parses emotional context from text input
+   * Parses emotional context from text input.
+   *
    * @param {string} text - Input text to analyze
    * @returns {{ sentiment: string, score: number }}
    */
-  parseEmotion: function(/** @
+  parseEmotion: function (text) {
+    // Simple heuristic placeholder
+    if (typeof text !== 'string') {
+      return { sentiment: 'neutral', score: 0 };
+    }
+    const lower = text.toLowerCase();
+    let score = 0;
+    if (lower.includes('happy') || lower.includes('great') || lower.includes('good')) {
+      score = 1;
+    } else if (lower.includes('sad') || lower.includes('bad') || lower.includes('terrible')) {
+      score = -1;
+    }
+    const sentiment = score > 0 ? 'positive' : score < 0 ? 'negative' : 'neutral';
+    return { sentiment, score };
+  }
+};
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  read,
+  parseEmotion: emotions.parseEmotion
+};

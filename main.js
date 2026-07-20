@@ -22,7 +22,10 @@
  *     getIncompleteTasks,
  *     clearAllTasks,
  *     getTaskCount,
- *     resetTaskIdCounter
+ *     resetTaskIdCounter,
+ *     getTasksByStatus,
+ *     getTasksSortedByCreationDate,
+ *     getTasksSortedByTitle
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
@@ -170,6 +173,44 @@ function resetTaskIdCounter() {
   _nextId = 1;
 }
 
+/**
+ * Gets tasks filtered by status.
+ *
+ * @param {boolean} completed - Whether to return completed or incomplete tasks.
+ * @returns {Array} Array of tasks matching the status.
+ */
+function getTasksByStatus(completed) {
+  return _tasks.filter(task => task.completed === completed);
+}
+
+/**
+ * Gets tasks sorted by creation date.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by creation date.
+ */
+function getTasksSortedByCreationDate(ascending = true) {
+  return [..._tasks].sort((a, b) => {
+    return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+  });
+}
+
+/**
+ * Gets tasks sorted by title.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by title.
+ */
+function getTasksSortedByTitle(ascending = true) {
+  return [..._tasks].sort((a, b) => {
+    const titleA = a.title.toLowerCase();
+    const titleB = b.title.toLowerCase();
+    if (titleA < titleB) return ascending ? -1 : 1;
+    if (titleA > titleB) return ascending ? 1 : -1;
+    return 0;
+  });
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -183,5 +224,8 @@ module.exports = {
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
-  resetTaskIdCounter
+  resetTaskIdCounter,
+  getTasksByStatus,
+  getTasksSortedByCreationDate,
+  getTasksSortedByTitle
 };

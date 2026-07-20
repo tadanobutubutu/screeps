@@ -56,3 +56,22 @@ function parse(/** @type {string} */ text) {
  * Analyzes an array of texts for emotional content.
  * @param {string[]} texts - Array of input strings.
  * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results
+ */
+function analyzeTexts(/** @type {string[]} */ texts) {
+  if (!Array.isArray(texts)) {
+    throw new TypeError('Expected an array of strings');
+  }
+
+  return texts.map(text => parse(text));
+}
+
+// Export all functions for testing
+module.exports = {
+  subtract,
+  read,
+  leer,
+  add,
+  emotions,
+  parse,
+  analyzeTexts
+};

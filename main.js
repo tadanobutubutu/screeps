@@ -33,7 +33,13 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now(), updatedAt: Date.now() };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
   _tasks.push(task);
   return task.id;
 }
@@ -78,47 +84,6 @@ function removeTask(id) {
 /**
  * Finds tasks that match a given predicate.
  *
- * @param {(task: {id:number, title:string, completed:boolean, ...}) => boolean} predicate - A function that takes a task and returns a boolean.
- * @returns {Array<{id:number, title:string, completed:boolean}>} An array of tasks that matched.
+ * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}) => boolean} predicate - A function that takes a task and returns a boolean.
+ * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} Matching tasks.
  */
-function findTasks(predicate) {
-  return _tasks.filter(predicate);
-}
-
-/**
- * Retrieves a task by its ID.
- *
- * @param {number} id - The ID of the task to retrieve.
- * @returns {({id:number, title:string, completed:boolean, ...}) | null} The matching task, or null if not found.
- */
-function getTaskById(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return null;
-  const { id: taskId, title, completed } = task;
-  return { id: taskId, title, completed };
-}
-
-/**
- * Updates the title of a task.
- *
- * @param {number} id - The ID of the task to update.
- * @param {string} newTitle - The new title to set.
- * @returns {boolean} True if the task was found and updated.
- */
-function updateTaskTitle(id, newTitle) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return false;
-  task.title = newTitle;
-  task.updatedAt = Date.now();
-  return true;
-}
-
-module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle
-};

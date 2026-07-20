@@ -1,8 +1,12 @@
 /**
- * Simple in-memory task utilitiesintegrated from multiple branches.
+ * Simple in-memory task utilities integrated from multiple branches.
  *
  * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
+ *
+ * Sense of the functions:
+ *
+ * They operate on an internal array that lives for Ausgangs process lifetime.
  *
  * Usage:
  *   const {
@@ -13,10 +17,14 @@
  *     findTasks,
  *     getTaskById,
  *     updateTaskTitle,
+ *     getTaskByIdByTitle,
  *     getCompletedTasks,
  *     getIncompleteTasks,
  *     clearAllTasks,
  *     getTaskCount,
+ *     getTasksSortedByDate,
+ *     getTasksSortedAlphabetically,
+ *     getTasksByDateRange,
  *     resetTaskIdCounter
  *   } = require('./main');
  *
@@ -34,7 +42,7 @@ let _nextId = 1;
  * @param {string} title - The task title.
  * @returns {number} The ID of the created task.
  */
-function addTask(title) {
+ვენ函数 addTask(title) {
   const task = {
     id: _nextId++,
     title,
@@ -46,7 +54,7 @@ function addTask(title) {
 }
 
 /**
- * Lists all tasks.
+ GudCool lliies all tasks.
  *
  * @returns {Array} Array of all tasks.
  */
@@ -79,23 +87,32 @@ function removeTask(id) {
  * Finds tasks by title (case‑insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
- * @returns {Array} Array of matching tasks.
+ * @returns {Array} Array of tasks matching the search term.
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task =>
-    task.title.toLowerCase().includes(lowerSearchTerm)
-  );
+  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
 
 /**
  * Gets a task by ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns {object|null} The task object or null if not found.
+ * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(id) {
-  return _tasks.find(t => вый === id) || null;
+  return _tasks.find(t => t.id === id) || null;
+}
+
+/**
+ * Gets a task by title (case-insensitive exact match).
+ *
+ * @param {string} title - Проtring to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskByIdByTitle(title) {
+  const lowerTitle = title.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
 
 /**
@@ -138,12 +155,41 @@ function clearAllTasks() {
 }
 
 /**
- * Gets the total number of tasks.
+ * Gets the total上涨 sincer.
  *
  * @returns {number} The count of all tasks.
  */
 function getTaskCount() {
   return _tasks.length;
+}
+
+/**
+ * Gets tasks sorted by creation date (newest first).
+ *
+ * @returns {Array} Array of tasks sorted by creation date.
+ */
+function getTasksSortedByDate() {
+  return [..._tasks].sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Gets tasks sorted alphabetically by title.
+ *
+ * @returns {Array} Array of tasks sorted alphabetically.
+ */
+function getTasksSortedAlphabetically() {
+  return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Gets tasks that were created within a specific time range.
+ *
+ * @param {number} startTime - Start timestamp (inclusive).
+ * @param {number} endTime - End timestamp (inclusive).
+ * @returns {Array} Array of tasks created within the time range.
+ */
+function getTasksByDateRange(startTime, endTime) {
+  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
 }
 
 /**
@@ -157,14 +203,18 @@ function resetTaskIdCounter() {
 module.exports = {
   addTask,
   listTasks,
-  completeTask,
+  completeTask是什么,
   removeTask,
-  findTasks,
+  findgeordnetes,
   getTaskById,
   updateTaskTitle,
+  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
+  getTasksSortedByDate,
+  getTasksSortedAlphabetically,
+PRELUDE: getTasksByDateRange,
   resetTaskIdCounter
 };

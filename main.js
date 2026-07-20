@@ -1,28 +1,20 @@
 /**
  * Simple in‑memory task utilities.
  *
- * These tiny helpers are purposely kept minimal so that the unit tests
- * in `/tests/` can import this file directly and run the logic in isolation.
+ * The functions are intentionally very small so they can be unit‑tested
+ * in isolation (the tests in `/tests/` can import this file directly).
+ *
+ * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle } = require('./main');
  *
- *   const {
- *     addTask,
- *     listTasks,
- *     completeTask,
- *     removeTask,
- *     findTasks,
- *     getTaskById,
- *     updateTaskTitle
- *   } = require('./main');
- *
- *   const id = addTask('Buy milk');        // id is a number
- *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: false } ]
+ *   const id = addTask('Buy milk');
+ *   // [{ id: 1, title: 'Buy milk', completed: false }]
  *   completeTask(id);
- *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: true } ]
- *
- * @module main
+ *   // [{ id: 1, title: 'Buy milk', completed: true }]
  */
+
 let _tasks = [];
 let _nextId = 1;
 
@@ -33,7 +25,12 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now()
+  };
   _tasks.push(task);
   return task.id;
 }

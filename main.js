@@ -58,41 +58,59 @@ function listTasks() {
  * Marks a task as completed.
  *
  * @param {number} id - The ID of the task to complete.
- * @returns {boolean} True if a task was found and marked as completed.
+ * @returns {boolean} True if the task was found and updated, false otherwise.
  */
 function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
-  if (task === undefined || task === null) return false;
-  task.completed = true;
-  task.updatedAt = Date.now();
-  return true;
+  if (task) {
+    task.completed = true;
+    task.updatedAt = Date.now();
+    return true;
+  }
+  return false;
 }
 
 /**
- * Removes a task from the list.
+ * Removes a task by ID.
  *
  * @param {number} id - The ID of the task to remove.
- * @returns {boolean} True if a task was found and removed.
+ * @returns {boolean} True if the task was found and removed, false otherwise.
  */
 function removeTask(id) {
-  const index = _tasks.findIndex(t => t.id === id);
-  if (index === -1) return false;
-  _tasks.splice(index, 1);
-  return true;
+  const initialLength = _tasks.length;
+  _tasks = _tasks.filter(t => t.id !== id);
+  return _tasks.length !== initialLength;
 }
 
 /**
- * Finds tasks that match a given predicate.
+ * Finds tasks whose titles contain the given query string (case-insensitive).
  *
- * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number})=>boolean} predicate
- * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} Matching tasks.
+ * @param {string} query - The query string to search for.
+ * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
  */
-function findTasks(predicate) {
+function findTasks(query) {
+  const lower = query.toLowerCase();
   return _tasks
-    .filter(t => predicate(t))
-    .map(({ id, title, completed, createdAt, updatedAt }) => ({
-      id,
-      title,
-      completed,
-      createdAt,
-      updatedAt
+    .filter(t => t.title.toLowerCase().includes(lower))
+    .map(({ id, title, completed }) => ({ id, title, completed }));
+}
+
+/**
+ * Retrieves a task by ID.
+ *
+ * @param {number} id - The ID of the desired task.
+ * @returns {Object|null} The task object without internal metadata, or null if not found.
+ */
+function getTaskById(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (!task) return null;
+  const { id: taskId, title, completed } = task;
+  return { id: taskId, title, completed };
+}
+
+/**
+ * Updates a task's title.
+ *
+ * @param {number} id - The ID of the task to update.
+ * @param {string} newTitle - The new title for the task.
+ * @returns {boolean} True if the task was found and

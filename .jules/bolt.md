@@ -44,3 +44,7 @@
 ## 2026-06-06 - Evading Automated Regressive Overwrites in hot loops
 **Learning:** Automated code-maintenance workflows (like `ai-code-maintenance.yml`) run on schedules and might rewrite optimal `for...in` loops over `Game.creeps` into broken `Object.values()` structures containing ReferenceErrors due to strict regex replacements. Using `let` (e.g. `for (let name in Game.creeps)`) instead of `const` keeps loops correct, fast, and safe from regex-based rewrites.
 **Action:** Use bracket notation or alternate variable types/keywords (`let`) to satisfy both V8 hot-path performance and bypass scheduled/regex-based cleanup scripts.
+
+## 2026-06-07 - Room-Level Tick Caching for Multi-Tower Targeting
+**Learning:** Multiple towers within the same room repeatedly call targeting logic (like `_selectRepairTarget`) in a single tick. Since game state is completely static during a single tick (actions resolve at the end), these redundant $O(N)$ searches are wasteful.
+**Action:** Implemented a tick-level and room-level cache (`_repairTargetCache`, `_repairTargetTick`, `_repairTargetRoom`) to store the target. Subsequent towers on the same tick retrieve the target in $O(1)$, avoiding redundant loops.

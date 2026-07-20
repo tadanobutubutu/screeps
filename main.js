@@ -381,6 +381,147 @@ function getTasksWithoutTagsFromList(tags) {
   return _tasks.filter(task => !task.tags.some(tag => tags.includes(tag)));
 }
 
+/**
+ * Gets tasks that match a custom filter function.
+ *
+ * @param {Function} filterFn - A function that takes a task and returns a boolean.
+ * @returns {Array} Array of tasks that match the filter function.
+ */
+function getTasksByCustomFilter(filterFn) {
+  return _tasks.filter(filterFn);
+}
+
+/**
+ * Updates a task's properties.
+ *
+ * @param {number} id - The ID of the task to update.
+ * @param {Object} updates - An object containing properties to update.
+ */
+function updateTask(id, updates) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    Object.assign(task, updates);
+  }
+}
+
+/**
+ * Gets tasks grouped by priority.
+ *
+ * @returns {Object} An object with priorities as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByPriority() {
+  return _tasks.reduce((acc, task) => {
+    if (!acc[task.priority]) {
+      acc[task.priority] = [];
+    }
+    acc[task.priority].push(task);
+    return acc;
+  }, {});
+}
+
+/**
+ * Gets tasks grouped by completion status.
+ *
+ * @returns {Object} An object with completion status as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByCompletionStatus() {
+  return _tasks.reduce((acc, task) => {
+    const key = task.completed ? 'completed' : 'incomplete';
+    if (!acc[key]) {
+      acc[key] = [];
+    }
+    acc[key].push(task);
+    return acc;
+  }, {});
+}
+
+/**
+ * Gets tasks grouped by tags.
+ *
+ * @returns {Object} An object with tags as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByTags() {
+  return _tasks.reduce((acc, task) => {
+    task.tags.forEach(tag => {
+      if (!acc[tag]) {
+        acc[tag] = [];
+      }
+      acc[tag].push(task);
+    });
+    return acc;
+  }, {});
+}
+
+/**
+ * Gets tasks grouped by creation date (day).
+ *
+ * @returns {Object} An object with dates as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByCreationDate() {
+  return _tasks.reduce((acc, task) => {
+    const date = new Date(task.createdAt).toISOString().split('T')[0];
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+    acc[date].push(task);
+    return acc;
+  }, {});
+}
+
+/**
+ * Gets tasks with pagination support.
+ *
+ * @param {number} page - The page number (1-based).
+ * @param {number} pageSize - The number of items per page.
+ * @returns {Array} Array of tasks for the specified page.
+ */
+function getTasksWithPagination(page, pageSize) {
+  const startIndex = (page - 1) * pageSize;
+  return _tasks.slice(startIndex, startIndex + pageSize);
+}
+
+/**
+ * Gets tasks with search and filter capabilities.
+ *
+ * @param {Object} options - Search and filter options.
+ * @param {string} [options.searchTerm] - Search term for task titles.
+ * @param {string} [options.priority] - Priority level to filter by.
+ * @param {boolean} [options.completed] - Completion status to filter by.
+ * @param {Array} [options.tags] - Tags to filter by.
+ * @param {number} [options.page] - Page number for pagination.
+ * @param {number} [options.pageSize] - Number of items per page.
+ * @returns {Array} Array of tasks matching the criteria.
+ */
+function searchTasks(options = {}) {
+  let results = [..._tasks];
+
+  // Apply filters
+  if (options.searchTerm) {
+    const lowerSearchTerm = options.searchTerm.toLowerCase();
+    results = results.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
+  }
+
+  if (options.priority) {
+    results = results.filter(task => task.priority === options.priority);
+  }
+
+  if (options.completed !== undefined) {
+    results = results.filter(task => task.completed === options.completed);
+  }
+
+  if (options.tags && options.tags.length > 0) {
+    results = results.filter(task => options.tags.every(tag => task.tags.includes(tag)));
+  }
+
+  // Apply pagination if requested
+  if (options.page && options.pageSize) {
+    const startIndex = (options.page - 1) * options.pageSize;
+    results = results.slice(startIndex, startIndex + options.pageSize);
+  }
+
+  return results;
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -413,5 +554,13 @@ module.exports = {
   getTasksWithAnyTags,
   getTasksWithAllTags,
   getTasksWithExactTags,
-  getTasksWithoutTagsFromList
+  getTasksWithoutTagsFromList,
+  getTasksByCustomFilter,
+  updateTask,
+  getTasksGroupedByPriority,
+  getTasksGroupedByCompletionStatus,
+  getTasksGroupedByTags,
+  getTasksGroupedByCreationDate,
+  getTasksWithPagination,
+  searchTasks
 };

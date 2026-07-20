@@ -4,7 +4,7 @@ function subtract(a, b) { return a - b; }
 
 function leer() { return read(); }
 
-function add(a, b) { // /** comment a */
+function add(/** @param {number} a, @param {number} b */ a, b) {
     return a + b;
 }
 
@@ -105,6 +105,7 @@ function getDependencyDashboard() {
   return dashboardInfo;
 }
 
+// New function to handle room management
 function manageRoom() {
   // Implementation for room management would go here
   // This function was added to address the lint error on line 83

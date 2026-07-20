@@ -281,6 +281,13 @@ function _selectHealTarget(tower, injured) {
 // 修復対象選択
 // ============================================================
 
+// ⚡ PERFORMANCE OPTIMIZATION: Cache selected repair target on a room-level per tick basis.
+// Since Screeps actions (like repair) resolve at the end of the tick, room state remains
+// unchanged. Multiple towers calling this on the same tick can reuse the target to avoid O(N) loops.
+let _repairTargetCache = null;
+let _repairTargetTick = -1;
+let _repairTargetRoom = null;
+
 /**
  * 修復対象を選択する
  * 損傷率が高い構造物を優先（ウォールは除く）
@@ -289,14 +296,27 @@ function _selectHealTarget(tower, injured) {
  * @returns {Structure|null}
  */
 function _selectRepairTarget(tower, room) {
+    if (_repairTargetTick === Game.time && _repairTargetRoom === room.name) {
+        return _repairTargetCache;
+    }
+
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
     const urgentRampartThreshold = Math.min(wallTarget * 0.1, 5000);
 
     const urgentRampart = _findUrgentRampart(room, urgentRampartThreshold);
-    if (urgentRampart) return urgentRampart;
+    if (urgentRampart) {
+        _repairTargetCache = urgentRampart;
+        _repairTargetTick = Game.time;
+        _repairTargetRoom = room.name;
+        return urgentRampart;
+    }
 
-    return _findDamagedStructure(room);
+    const damaged = _findDamagedStructure(room);
+    _repairTargetCache = damaged;
+    _repairTargetTick = Game.time;
+    _repairTargetRoom = room.name;
+    return damaged;
 }
 
 /**

@@ -111,3 +111,18 @@ function manageRoom() {
   // This function was added to address the lint error on line 83
   // in src/managers/roomManager.js
 }
+
+module.exports = {
+  subtract,
+  leer,
+  add,
+  read,
+  emotions,
+  parse,
+  analyze,
+  updateDependencies,
+  fetchDependencies,
+  processDependencyUpdates,
+  getDependencyDashboard,
+  manageRoom
+};

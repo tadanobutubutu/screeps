@@ -83,34 +83,26 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks whose titles contain the given query string (case-insensitive).
+ * Finds tasks based on a query string or a predicate function.
  *
- * @param {string} query - The query string to search for.
- * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
+ * If a string is provided, it returns tasks whose titles contain the string
+ * (case‑insensitive). If a function is provided, it uses that function to
+ * filter the tasks. The filter function receives a task object and should
+ * return a boolean.
+ *
+ * @param {string|function} queryOrPredicate - A search string or a predicate function.
+ * @returns {Array<{id:number, title:string, completed:boolean}>} The matching tasks.
  */
-function findTasks(query) {
-  const lower = query.toLowerCase();
+function findTasks(queryOrPredicate) {
+  let predicate;
+  if (typeof queryOrPredicate === 'function') {
+    predicate = queryOrPredicate;
+  } else if (typeof queryOrPredicate === 'string') {
+    const q = queryOrPredicate.toLowerCase();
+    predicate = task => task.title.toLowerCase().includes(q);
+  } else {
+    throw new TypeError('findTasks expects a string or predicate function');
+  }
   return _tasks
-    .filter(t => t.title.toLowerCase().includes(lower))
-    .map(({ id, title, completed }) => ({ id, title, completed }));
-}
-
-/**
- * Retrieves a task by ID.
- *
- * @param {number} id - The ID of the desired task.
- * @returns {Object|null} The task object without internal metadata, or null if not found.
- */
-function getTaskById(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return null;
-  const { id: taskId, title, completed } = task;
-  return { id: taskId, title, completed };
-}
-
-/**
- * Updates a task's title.
- *
- * @param {number} id - The ID of the task to update.
- * @param {string} newTitle - The new title for the task.
- * @returns {boolean} True if the task was found and
+    .filter(predicate)
+    .map

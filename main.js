@@ -14,7 +14,6 @@
  *   completeTask(id);
  *   );      // [{ id: 1, title: 'Buy milk', completed: true }]
  */
-
 let _tasks = [];
 let _nextId = 1;
 
@@ -48,7 +47,7 @@ function listTasks() {
  */
 function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return false;
+  if (task === undefined || task === null) return false;
   task.completed = true;
   return true;
 }
@@ -69,7 +68,7 @@ function removeTask(id) {
 /**
  * Finds tasks that match a given predicate.
  *
- * @param {(task: {id:number, title:string, completed:boolean, createdAt:number})=>boolean} predicate
+ * @param {(task: {id:number, title:string, completed:boolean, ... predicate
  * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
  */
 function findTasks(predicate) {
@@ -85,7 +84,7 @@ function findTasks(predicate) {
  */
 function getTaskById(id) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return null;
+  if (task === undefined || task === null) return null;
   return { id: task.id, title: task.title, completed: task.completed };
 }
 
@@ -98,7 +97,7 @@ function getTaskById(id) {
  */
 function updateTaskTitle(id, newTitle) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return false;
+  if (task === undefined || task === null) return false;
   task.title = newTitle;
   return true;
 }

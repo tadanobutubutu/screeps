@@ -4,7 +4,7 @@ function subtract(a, b) { return a - b; }
 
 function leer() { return read(); }
 
-function add(/** comment a */ a, b) {
+function add(/** @param {number} a, @param {number} b */ a, b) {
     return a + b;
 }
 
@@ -60,7 +60,7 @@ function analyze(/** @type {string[]} */ texts) {
     try {
       return emotions.parseEmotion(text);
     } catch (error) {
-      console.error('Error analyzing text: ' + text, error);
+      console.error('Error analyzing text: ' text, error);
       return { sentiment: "neutral", score: 0 };
     }
   });

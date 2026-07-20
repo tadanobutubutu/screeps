@@ -80,46 +80,6 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks that match a predicate.
+ * Searches for tasks whose title includes the provided query string.
  *
- * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}) => boolean} predicate
- * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>}
- */
-function findTasks(predicate) {
-  return _tasks.filter(predicate);
-}
-
-/**
- * Retrieves a task by its ID.
- *
- * @param {number} id
- * @returns {{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}|undefined}
- */
-function getTaskById(id) {
-  return _tasks.find((t) => t.id === id);
-}
-
-/**
- * Updates a task's title.
- *
- * @param {number} id
- * @param {string} newTitle
- * @returns {boolean} True if a task was found and updated.
- */
-function updateTaskTitle(id, newTitle) {
-  const task = _tasks.find((t) => t.id === id);
-  if (!task) return false;
-  task.title = newTitle;
-  task.updatedAt = Date.now();
-  return true;
-}
-
-module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle,
-};
+ * @param {string} query - A case-insensitive substring to search within

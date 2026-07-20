@@ -33,7 +33,13 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now(), updatedAt: Date.now() };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
   _tasks.push(task);
   return task.id;
 }
@@ -52,60 +58,51 @@ function listTasks() {
  * Marks a task as completed.
  *
  * @param {number} id - The ID of the task to complete.
- * @returns {boolean} True if a task was found and marked as completed.
+ * @returns {boolean} True if the task was found and updated, false otherwise.
  */
 function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
-  if (task === undefined || task === null) return false;
-  task.completed = true;
-  task.updatedAt = Date.now();
-  return true;
+  if (task) {
+    task.completed = true;
+    task.updatedAt = Date.now();
+    return true;
+  }
+  return false;
 }
 
 /**
- * Removes a task from the list.
+ * Removes a task by ID.
  *
  * @param {number} id - The ID of the task to remove.
- * @returns {boolean} True if a task was found and removed.
+ * @returns {boolean} True if the task was found and removed, false otherwise.
  */
 function removeTask(id) {
-  const index = _tasks.findIndex(t => t.id === id);
-  if (index === -1) return false;
-  _tasks.splice(index, 1);
-  return true;
+  const initialLength = _tasks.length;
+  _tasks = _tasks.filter(t => t.id !== id);
+  return _tasks.length !== initialLength;
 }
 
 /**
- * Finds tasks that match a given predicate.
+ * Finds tasks based on a query string or a predicate function.
  *
- * @param {function} predicate - A function that takes a task and returns a boolean.
- * @returns {Array<{id:number, title:string, completed:boolean}>} The tasks that satisfy the predicate.
+ * If a string is provided, it returns tasks whose titles contain the string
+ * (case‑insensitive). If a function is provided, it uses that function to
+ * filter the tasks. The filter function receives a task object and should
+ * return a boolean.
+ *
+ * @param {string|function} queryOrPredicate - A search string or a predicate function.
+ * @returns {Array<{id:number, title:string, completed:boolean}>} The matching tasks.
  */
-function findTasks(predicate) {
-  if (typeof predicate !== 'function') {
-    throw new TypeError('Predicate must be a function');
+function findTasks(queryOrPredicate) {
+  let predicate;
+  if (typeof queryOrPredicate === 'function') {
+    predicate = queryOrPredicate;
+  } else if (typeof queryOrPredicate === 'string') {
+    const q = queryOrPredicate.toLowerCase();
+    predicate = task => task.title.toLowerCase().includes(q);
+  } else {
+    throw new TypeError('findTasks expects a string or predicate function');
   }
   return _tasks
     .filter(predicate)
-    .map(({ id, title, completed }) => ({ id, title, completed }));
-}
-
-/**
- * Gets a task by its ID.
- *
- * @param {number} id - The ID of the task.
- * @returns {(Object|null)} The task object or null if not found.
- */
-function getTaskById(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (!task) return null;
-  const { id: taskId, title, completed } = task;
-  return { id: taskId, title, completed };
-}
-
-/**
- * Updates the title of a task.
- *
- * @param {number} id - The ID of the task to update.
- * @param {string} newTitle - The new title for the task.
- * @returns {boolean} True if the task
+    .map

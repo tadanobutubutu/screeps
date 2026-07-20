@@ -68,4 +68,9 @@ function completeTask(id) {
  * Removes a task from the list.
  *
  * @param {number} id - The ID of the task to remove.
- * @returns {boolean} True if a
+ * @returns {boolean} True if a task was found and removed.
+ */
+function removeTask(id) {
+  const index = _tasks.findIndex(t => t.id === id);
+  if (index !== -1) {
+    _tasks.splice(index

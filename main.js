@@ -147,6 +147,14 @@ function getTaskCount() {
   return _tasks.length;
 }
 
+/**
+ * Resets the task ID counter.
+ * This is useful for testing scenarios where you want to start fresh.
+ */
+function resetTaskIdCounter() {
+  _nextId = 1;
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -158,5 +166,6 @@ module.exports = {
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
-  getTaskCount
+  getTaskCount,
+  resetTaskIdCounter
 };

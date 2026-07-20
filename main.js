@@ -1,18 +1,17 @@
 /**
  * Simple in‑memory task utilities.
  *
- * The functions are intentionally very small so they can be unit‑tested
- * in isolation (the tests in `/tests/` can import this file directly).
- *
- * They operate on an internal array that lives for the process lifetime.
+ * These tiny helpers are purposely kept minimal so that the unit tests
+ * in `/tests/` can import this file directly and run the logic in isolation.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle } = require('./main');
  *
- *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
+ *   const id = addTask('Buy milk');        // id is a number
+ *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: false, createdAt: ..., updatedAt: ... } ]
  *   completeTask(id);
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: true }]
+ *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: true, createdAt: ..., updatedAt: ... } ]
+ *
+ * @module main
  */
 let _tasks = [];
 let _nextId = 1;
@@ -24,7 +23,13 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now() };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
   _tasks.push(task);
   return task.id;
 }
@@ -32,11 +37,17 @@ function addTask(title) {
 /**
  * Lists all tasks.
  *
- * @returns {Array<{id:number, title:string, completed:boolean}>} All tasks.
+ * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} All tasks.
  */
 function listTasks() {
   // Return a shallow copy to avoid external mutation.
-  return _tasks.map(({ id, title, completed }) => ({ id, title, completed }));
+  return _tasks.map(({ id, title, completed, createdAt, updatedAt }) => ({
+    id,
+    title,
+    completed,
+    createdAt,
+    updatedAt,
+  }));
 }
 
 /**
@@ -49,6 +60,7 @@ function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
   if (task === undefined || task === null) return false;
   task.completed = true;
+  task.updatedAt = Date.now();
   return true;
 }
 
@@ -60,54 +72,5 @@ function completeTask(id) {
  */
 function removeTask(id) {
   const index = _tasks.findIndex(t => t.id === id);
-  if (index === -1) return false;
-  _tasks.splice(index, 1);
-  return true;
-}
-
-/**
- * Finds tasks that match a given predicate.
- *
- * @param {function} predicate - A function that takes a task and returns true if it matches.
- * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
- */
-function findTasks(predicate) {
-  // Use the same mapping as listTasks to keep the API consistent.
-  return _tasks.filter(predicate).map(({ id, title, completed }) => ({ id, title, completed }));
-}
-
-/**
- * Gets a task by its ID.
- *
- * @param {number} id - The ID of the task to retrieve.
- * @returns {{id:number, title:string, completed:boolean}|null} The task or null if not found.
- */
-function getTaskById(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (task === undefined || task === null) return null;
-  return { id: task.id, title: task.title, completed: task.completed };
-}
-
-/**
- * Updates the title of a task.
- *
- * @param {number} id - The ID of the task to update.
- * @param {string} newTitle - The new title for the task.
- * @returns {boolean} True if the task was found and updated.
- */
-function updateTaskTitle(id, newTitle) {
-  const task = _tasks.find(t => t.id === id);
-  if (task === undefined || task === null) return false;
-  task.title = newTitle;
-  return true;
-}
-
-module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle
-};
+  if (index !== -1) {
+    _tasks.splice(index

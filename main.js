@@ -2,6 +2,8 @@
 
 function subtract(a, b) { return a - b; }
 
+function leer() { return read(); }
+
 function read() {
   // Implementation would go here
   return "";
@@ -105,13 +107,14 @@ function getDependencyDashboard() {
   return dashboardInfo;
 }
 
-// New function to handle room management
+// New function to handle room management (integration of both changes)
 function manageRoom() {
   // Implementation for room management would go here
   // This function was added to address the lint error on line 83
   // in src/managers/roomManager.js
 }
 
+// Export all functions for use in memory.visualizer.js
 module.exports = {
   subtract,
   leer,

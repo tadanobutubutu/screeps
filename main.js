@@ -72,5 +72,14 @@ function completeTask(id) {
  */
 function removeTask(id) {
   const index = _tasks.findIndex(t => t.id === id);
-  if (index !== -1) {
-    _tasks.splice(index
+  if (index === -1) return false;
+  _tasks.splice(index, 1);
+  return true;
+}
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+};

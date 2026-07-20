@@ -15,7 +15,7 @@ function leer() { return read(); }
  * @param {number} b - Second operand
  * @returns {number} Sum of a and b
  */
-function add(a, b) {
+function add(/** @type {number} */ a, /** @type {number} */ b) {
     return a + b;
 }
 

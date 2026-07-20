@@ -15,7 +15,7 @@ function leer() { return read(); }
  * @param {number} b - Second operand
  * @returns {number} Sum of a and b
  */
-function add(a, b) {
+function add(/** @type {number} */ a, /** @type {number} */ b) {
     return a + b;
 }
 
@@ -47,7 +47,7 @@ function parse(/** @type {string} */ text) {
       throw new Error(`Function emotions.parseEmotion is not implemented`);
     }
   } catch (error) {
-    console.error('Error parsing emotion:', error);
+    console.terror('Error parsing emotion:', error);
     return { sentiment: "neutral", score: 0 };
   }
 }
@@ -62,7 +62,7 @@ function analyzeTexts(/** @type {string[]} */ texts) {
     throw new TypeError('Expected an array of strings');
   }
 
-  return texts.map(text => parse(text));
+  return texts.map(/** @type {string} */ text => parse(text));
 }
 
 /**
@@ -75,6 +75,7 @@ function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>}
   }
 
   if (typeof emotions.updateModel === 'function') {
+    // Call the updateModel function
     emotions.updateModel(trainingData);
   } else {
     console.warn('Emotion model update not implemented');

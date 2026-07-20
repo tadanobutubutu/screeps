@@ -56,4 +56,16 @@ function listTasks() {
  * @param {number} id - The ID of the task to complete.
  * @returns {boolean} True if a task was found and marked as completed.
  */
-function completeTask(id)
+function completeTask(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (task === undefined || task === null) return false;
+  task.completed = true;
+  task.updatedAt = Date.now();
+  return true;
+}
+
+/**
+ * Removes a task from the list.
+ *
+ * @param {number} id - The ID of the task to remove.
+ * @returns {boolean} True if a

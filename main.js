@@ -82,5 +82,43 @@ function removeTask(id) {
  * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
  */
 function findTasks(predicate) {
-  // Use the same map as listTasks to keep the result concise.
-  return _tasks.filter(predicate).map(({ id, title, completed }) =>
+  return _tasks
+    .filter(predicate)
+    .map(({ id, title, completed }) => ({ id, title, completed }));
+}
+
+/**
+ * Retrieves a task by its ID.
+ *
+ * @param {number} id - The ID of the task to retrieve.
+ * @returns {object|null} The full task object, or null if not found.
+ */
+function getTaskById(id) {
+  const task = _tasks.find(t => t.id === id);
+  return task ?? null;
+}
+
+/**
+ * Updates the title of an existing task.
+ *
+ * @param {number} id - The ID of the task to update.
+ * @param {string} newTitle - The new title for the task.
+ * @returns {boolean} True if the task was found and updated.
+ */
+function updateTaskTitle(id, newTitle) {
+  const task = _tasks.find(t => t.id === id);
+  if (!task) return false;
+  task.title = newTitle;
+  task.updatedAt = Date.now();
+  return true;
+}
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle
+};

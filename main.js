@@ -7,7 +7,7 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getTaskByIdByTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -89,6 +89,17 @@ function getTaskById(id) {
 }
 
 /**
+ * Gets a task by title (case-insensitive exact match).
+ *
+ * @param {string} title - The title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskByIdByTitle(title) {
+  const lowerTitle = title.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+}
+
+/**
  * Updates a task's title.
  *
  * @param {number} id - The ID of the task to update.
@@ -144,6 +155,7 @@ module.exports = {
   findTasks,
   getTaskById,
   updateTaskTitle,
+  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,

@@ -631,6 +631,44 @@ function visualizeMemoryUsage() {
   };
 }
 
+/**
+ * Logs a message with a timestamp.
+ *
+ * @param {string} message - The message to log.
+ * @param {string} [level='info'] - The log level ('info', 'warn', 'error').
+ */
+function logMessage(message, level = 'info') {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+}
+
+/**
+ * Logs an error message.
+ *
+ * @param {string} message - The error message to log.
+ */
+function logError(message) {
+  logMessage(message, 'error');
+}
+
+/**
+ * Logs a warning message.
+ *
+ * @param {string} message - The warning message to log.
+ */
+function logWarning(message) {
+  logMessage(message, 'warn');
+}
+
+/**
+ * Logs a debug message.
+ *
+ * @param {string} message - The debug message to log.
+ */
+function logDebug(message) {
+  logMessage(message, 'debug');
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -679,5 +717,9 @@ module.exports = {
   removeDependency,
   checkForOutdatedDependencies,
   updateAllDependencies,
-  visualizeMemoryUsage
+  visualizeMemoryUsage,
+  logMessage,
+  logError,
+  logWarning,
+  logDebug
 };

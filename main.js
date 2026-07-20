@@ -71,7 +71,7 @@ function updateDependencies() {
   // Implementation for handling dependency updates would go here
 }
 
-// New function to fetch dependency updates
+// New function to handle dependency updates via external API
 function fetchDependencies() {
   // This function would interact with the Renovate API or another source to fetch dependency updates
   // Mock data for demonstration purposes

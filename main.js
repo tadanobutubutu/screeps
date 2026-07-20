@@ -7,11 +7,12 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, read, emotions } = require('./utils.tasks');
  *
  *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false }]
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false, createdAt: 1700423904123 }]
  *   completeTask(id);
+ *   console.log(emotions.parseEmotion('I am happy')); // { sentiment: 'neutral', score: 0 }
  */
 "use strict";
 
@@ -25,7 +26,7 @@ const _tasks = [];
  * @returns {number} The new task’s unique ID.
  */
 function addTask(title) {
-    const task = { id: _nextId++, title, done: false };
+    const task = { id: _nextId++, title, done: false, createdAt: Date.now() };
     _tasks.push(task);
     return task.id;
 }
@@ -33,7 +34,7 @@ function addTask(title) {
 /**
  * Lists all tasks.
  *
- * @returns {Array<{id:number,title:string,done:boolean}>}
+ * @returns {Array<{id:number,title:string,done:boolean,createdAt:number}>}
  */
 function listTasks() {
     return _tasks.slice();
@@ -84,56 +85,10 @@ const emotions = {
   }
 };
 
-function parse(/** @type {string} */ text) {
-  try {
-    if (typeof emotions.parseEmotion === 'function') {
-      return emotions.parseEmotion(text);
-    } else {
-      throw new Error(`Function emotions.parseEmotion is not implemented`);
-    }
-  } catch (error) {
-    console.error('Error parsing emotion:', error);
-    return { sentiment: "neutral", score: 0 };
-  }
-}
-
-/**
- * Analyzes an array of texts for emotional content.
- * @param {string[]} texts - Array of input strings.
- * @returns {{ sentiment: string, score: number }[]} Array of emotion analysis results
- */
-function analyzeTexts(/** @type {string[]} */ texts) {
-  if (!Array.isArray(texts)) {
-    throw new TypeError('Expected an array of strings');
-  }
-
-  return texts.map(text => parse(text));
-}
-
-/**
- * Updates the emotion analysis model with new training data.
- * @param {Array<{text: string, sentiment: string}>} trainingData
- */
-function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>} */ trainingData) {
-  if (!Array.isArray(trainingData)) {
-    throw new TypeError('Expected an array of training data objects');
-  }
-
-  if (typeof emotions.updateModel === 'function') {
-    emotions.updateModel(trainingData);
-  } else {
-    console.warn('Emotion model update not implemented');
-  }
-}
-
-// Export all functions for testing
 module.exports = {
-  subtract,
-  read,
-  leer,
-  add,
-  emotions,
-  parse,
-  analyzeTexts,
-  updateEmotionModel
+    addTask,
+    listTasks,
+    completeTask,
+    add,
+    emotions
 };

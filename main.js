@@ -1,13 +1,24 @@
 /**
- * Simple in‑memory task utilities.
+ * Simple in-memory task utilitiesintegrated from multiple branches.
  *
- * The functions are intentionally very small so they can be unit‑tested
+ * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
  *
- * They operate on an internal array that lives for the process lifetime.
- *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
+ *   const {
+ *     addTask,
+ *     listTasks,
+ *     completeTask,
+ *     removeTask,
+ *     findTasks,
+ *     getTaskById,
+ *     updateTaskTitle,
+ *     getCompletedTasks,
+ *     getIncompleteTasks,
+ *     clearAllTasks,
+ *     getTaskCount,
+ *     resetTaskIdCounter
+ *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -28,9 +39,9 @@ function addTask(title) {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date. now()
+    createdAt: Date.now()
   };
-  _tasks. push(task);
+  _tasks.push(task);
   return task.id;
 }
 
@@ -65,7 +76,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case- insensitive partial match).
+ * Finds tasks by title (case‑insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of matching tasks.
@@ -73,7 +84,7 @@ function removeTask(id) {
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task =>
-    task.title.toLowerCase(). includes(lowerSearchTerm)
+    task.title.toLowerCase().includes(lowerSearchTerm)
   );
 }
 
@@ -81,10 +92,10 @@ function findTasks(searchTerm) {
  * Gets a task by ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns {Object|null} The task object or null if not found.
+ * @returns {object|null} The task object or null if not found.
  */
 function getTaskById(id) {
-  return _tasks.find(t => t.id === id) || null;
+  return _tasks.find(t => вый === id) || null;
 }
 
 /**
@@ -135,7 +146,15 @@ function getTaskCount() {
   return _tasks.length;
 }
 
-module. exports = {
+/**
+ * Resets the task ID counter.
+ * This is useful for testing scenarios where you want to start fresh.
+ */
+function resetTaskIdCounter() {
+  _nextId = 1;
+}
+
+module.exports = {
   addTask,
   listTasks,
   completeTask,
@@ -146,5 +165,6 @@ module. exports = {
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
-  getTaskCount
+  getTaskCount,
+  resetTaskIdCounter
 };

@@ -11,43 +11,46 @@
  *
  *   const id = addTask('Buy milk');
  *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
+ *   completeTask(id);
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: true }]
+ *
+ * Each task also records a created timestamp which can be accessed via `findTasks`.
  */
 
-const tasks = [];
-let nextId = 1;
+let _tasks = [];
+let _nextId = 1;
 
 /**
- * Adds a new task with the given title.
+ * Adds a new task.
  *
- * @param {string} title
- * @returns {number} The unique ID of the created task.
+ * @param {string} title - The task title.
+ * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = {
-    id: nextId++,
-    title,
-    completed: false,
-  };
-  tasks.push(task);
+  const task = { id: _nextId++, title, completed: false, createdAt: Date.now() };
+  _tasks.push(task);
   return task.id;
 }
 
 /**
- * Returns a copy of the current task list.
+ * Lists all tasks.
  *
- * @returns {Array<{id: number, title: string, completed: boolean}>}
+ * @returns {Array<{id:number, title:string, completed:boolean}>} All tasks.
  */
 function listTasks() {
-  return tasks.map(t => ({ ...t }));
+  // Return a shallow copy to avoid external mutation.
+  return _tasks.map(({ id, title, completed }) => ({ id, title, completed }));
 }
 
 /**
  * Marks a task as completed.
  *
- * @param {number} id – The task's unique ID.
+ * @param {number} id - The ID of the task to complete.
+ * @throws {Error} If no task with the given ID exists.
+ * @returns {boolean} True if the task was found and marked as completed.
  */
 function completeTask(id) {
-  const task = tasks.find(t => t.id === id);
+  const task = _tasks.find(t => t.id === id);
   if (!task) {
     throw new Error(`Task with id ${id} not found`);
   }
@@ -56,7 +59,33 @@ function completeTask(id) {
 }
 
 /**
- * Removes a task by ID.
+ * Removes a task from the list.
  *
- * @param {number} id
- * @
+ * @param {number} id - The ID of the task to remove.
+ * @returns {boolean} True if a task was found and removed.
+ */
+function removeTask(id) {
+  const index = _tasks.findIndex(t => t.id === id);
+  if (index === -1) return false;
+  _tasks.splice(index, 1);
+  return true;
+}
+
+/**
+ * Finds tasks that match a given predicate.
+ *
+ * @param {(task: {id:number, title:string, completed:boolean, createdAt:number})=>boolean} predicate
+ * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
+ */
+function findTasks(predicate) {
+  // Use the same mapping as listTasks to keep the API consistent.
+  return _tasks.filter(predicate).map(({ id, title, completed }) => ({ id, title, completed }));
+}
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks
+};

@@ -7,7 +7,7 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getTaskById, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]

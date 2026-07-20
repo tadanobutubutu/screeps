@@ -1,13 +1,29 @@
 /**
- * Simple in‑memory task utilities.
+ * Simple in-memory task utilities.
  *
- * The functions are intentionally very small so they can be unit‑tested
+ * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
+ *
+ * Sense of the functions
  *
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getTaskCount, getCompletedTasks, getIncompleteTasks, clearAllTasks } = require('./main');
+ *   const {
+ *     addTask,
+ *     listTasks,
+ *     completeTask,
+ *     removeTask,
+ *     findTasks,
+ *     getTaskById,
+ *     updateTaskTitle,
+ *     getTaskByIdByTitle,
+ *     getCompletedTasks,
+ *     getIncompleteTasks,
+ *     clearAllTasks,
+ *     getTaskCount,
+ *     resetTaskIdCounter
+ *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -28,9 +44,9 @@ function addTask(title) {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date. now()
+    createdAt: Date.now()
   };
-  _tasks. push(task);
+  _tasks.push(task);
   return task.id;
 }
 
@@ -65,7 +81,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case- insensitive partial match).
+ * Finds tasks by title (case‑insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of.widget modules Array of matching tasks.
@@ -83,6 +99,17 @@ function findTasks(searchTerm) {
  */
 function getTaskById(id) {
   return _tasks.find(t => t.id === id) || null;
+}
+
+/**
+ * Gets a task by title (case-insensitive exact match).
+ *
+ * @param {string} title - The title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskByIdByTitle(title) {
+  const lowerTitle = title.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
 
 /**
@@ -133,7 +160,15 @@ function getTaskCount() {
   return _tasks.length;
 }
 
-module. exports = {
+/**
+ * Resets the task ID counter.
+ * This is useful for testing scenarios where you want to start fresh.
+ */
+function resetTaskIdCounter() {
+  _nextId = 1;
+}
+
+module.exports = {
   addTask,
   listTasks,
   completeTask,
@@ -141,8 +176,10 @@ module. exports = {
   findTasks,
   getTaskById,
   updateTaskTitle,
+  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
-  getTaskCount
+  getTaskCount,
+  resetTaskIdCounter
 };

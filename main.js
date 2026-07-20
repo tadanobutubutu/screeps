@@ -14,7 +14,6 @@
  *   completeTask(id);
  *   // [{ id: 1, title: 'Buy milk', completed: true }]
  */
-
 let _tasks = [];
 let _nextId = 1;
 
@@ -73,9 +72,7 @@ function removeTask(id) {
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task =>
-    task.title.toLowerCase().includes(lowerSearchTerm)
-  );
+  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
 
 /**

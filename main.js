@@ -6,9 +6,9 @@
  *
  * Usage:
  *
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle } = require('./main');
- *
  *   const id = addTask('Buy milk');        // id is a number
+ *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: false } ]
+ *   // or with timestamps:
  *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: false, createdAt: ..., updatedAt: ... } ]
  *   completeTask(id);
  *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: true, createdAt: ..., updatedAt: ... } ]
@@ -67,7 +67,7 @@ function completeTask(id) {
 }
 
 /**
- * Removes a task from the list.
+ * Removes a task by ID.
  *
  * @param {number} id - The ID of the task to remove.
  * @returns {boolean} True if a task was found and removed.
@@ -80,6 +80,52 @@ function removeTask(id) {
 }
 
 /**
- * Searches for tasks whose title includes the provided query string.
+ * Finds tasks matching a query.
  *
- * @param {string} query - A case-insensitive substring to search within
+ * @param {Object} query - An object containing properties to match.
+ * @returns {Array} Array of matching tasks.
+ */
+function findTasks(query) {
+  return _tasks.filter((task) => {
+    for (const key in query) {
+      if (task[key] !== query[key]) return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Retrieves a task by ID.
+ *
+ * @param {number} id - The ID of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskById(id) {
+  const task = _tasks.find((t) => t.id === id);
+  return task || null;
+}
+
+/**
+ * Updates a task's title.
+ *
+ * @param {number} id - The ID of the task to update.
+ * @param {string} newTitle - The new title for the task.
+ * @returns {boolean} True if the task was found and updated.
+ */
+function updateTaskTitle(id, newTitle) {
+  const task = _tasks.find((t) => t.id === id);
+  if (!task) return false;
+  task.title = newTitle;
+  task.updatedAt = Date.now();
+  return true;
+}
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+};

@@ -7,38 +7,18 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, add, emotions } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./utils.tasks');
  *
  *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false, createdAt: 1700423904123 }]
- *   completeTask(id);
- *   console.log(emotions.parseEmotion('I am happy')); // { sentiment: "neutral", score: 0 }
- */
-"use strict";
+ *   console.log(listTasks());      // [{ id: 1, title: '
 
-let _nextId = 1;
-const _tasks = [];
 
-/**
- * Add a new task.
- *
- * @param {string} title – The task description.
- * @returns {number} The new task’s unique ID.
- */
-function addTask(title) {
-    const task = { id: _nextId++, title, done: false, createdAt: Date.now() };
-    _tasks.push(task);
-    return task.id;
-}
 
-/**
- * Lists all tasks.
- *
- * @returns {Array<{id:number,title:string,done:boolean,createdAt:number}>}
- */
-function listTasks() {
-    return _tasks.slice();
-}
+---
 
-/**
- * Marks a task
+**Support Pollinations.AI:**
+
+---
+
+🌸 **Ad** 🌸
+Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.

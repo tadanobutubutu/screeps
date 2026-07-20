@@ -163,6 +163,35 @@ function getTaskCount() {
 }
 
 /**
+ * Gets tasks sorted by creation date (newest first).
+ *
+ * @returns {Array} Array of tasks sorted by creation date.
+ */
+function getTasksSortedByDate() {
+  return [..._tasks].sort((a, b) => b.createdAt - a.createdAt);
+}
+
+/**
+ * Gets tasks sorted alphabetically by title.
+ *
+ * @returns {Array} Array of tasks sorted alphabetically.
+ */
+function getTasksSortedAlphabetically() {
+  return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Gets tasks that were created within a specific time range.
+ *
+ * @param {number} startTime - Start timestamp (inclusive).
+ * @param {number} endTime - End timestamp (inclusive).
+ * @returns {Array} Array of tasks created within the time range.
+ */
+function getTasksByDateRange(startTime, endTime) {
+  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
+}
+
+/**
  * Resets the task ID counter.
  * This is useful for testing scenarios where you want to start fresh.
  */
@@ -183,5 +212,8 @@ module.exports = {
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
+  getTasksSortedByDate,
+  getTasksSortedAlphabetically,
+  getTasksByDateRange,
   resetTaskIdCounter
 };

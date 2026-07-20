@@ -217,6 +217,7 @@ function handleDependencyConflicts() {
   ];
 }
 
+// Export all functions for module usage
 module.exports = {
   subtract,
   leer,

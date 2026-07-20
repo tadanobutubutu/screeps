@@ -2,6 +2,7 @@
 
 function subtract(a, b) { return a - b; }
 
+
 function read() {
   // Implementation would go here
   return "";
@@ -75,7 +76,7 @@ function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>}
   }
 
   if (typeof emotions.updateModel === 'function') {
-    emotions.updateModel(trainingData);
+    return emotions.updateModel(trainingData);
   } else {
     console.warn('Emotion model update not implemented');
   }

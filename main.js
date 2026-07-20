@@ -7,37 +7,38 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, add, emotions } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./main');
  *
  *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false, createdAt: 1700423904123 }]
- *   completeTask(id);
- *   console.log(emotions.parseEmotion('I am happy')); // { sentiment: "neutral", score: 0 }
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
  */
-"use strict";
 
-let _nextId = 1;
-const _tasks = [];
+const tasks = [];
+let nextId = 1;
 
 /**
- * Add a new task.
+ * Adds a new task with the given title.
  *
- * @param {string} title – The task description.
- * @returns {number} The new task’s unique ID.
+ * @param {string} title
+ * @returns {number} The unique ID of the created task.
  */
 function addTask(title) {
-    const task = { id: _nextId++, title, done: false, createdAt: Date.now() };
-    _tasks.push(task);
-    return task.id;
+  const task = {
+    id: nextId++,
+    title,
+    completed: false,
+  };
+  tasks.push(task);
+  return task.id;
 }
 
 /**
- * Lists all tasks.
+ * Returns a copy of the current task list.
  *
- * @returns {Array<{id:number,title:string,done:boolean,createdAt:number}>}
+ * @returns {Array<{id: number, title: string, completed: boolean}>}
  */
 function listTasks() {
-    return _tasks.slice();
+  return tasks.map(t => ({ ...t }));
 }
 
 /**
@@ -46,4 +47,16 @@ function listTasks() {
  * @param {number} id – The task's unique ID.
  */
 function completeTask(id) {
-    const task =
+  const task = tasks.find(t => t.id === id);
+  if (!task) {
+    throw new Error(`Task with id ${id} not found`);
+  }
+  task.completed = true;
+  return true;
+}
+
+/**
+ * Removes a task by ID.
+ *
+ * @param {number} id
+ * @

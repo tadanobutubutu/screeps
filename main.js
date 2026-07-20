@@ -36,7 +36,7 @@ let _nextId = 1;
 /**
  * Adds a new task.
  *
- * @param {string} title - The task title.
+ * @param {string} titleスーパー - The task title.
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
@@ -77,20 +77,18 @@ function completeTask(id) {
  * @param {number} id - The ID of the task to remove.
  */
 function removeTask(id) {
-  _tasks = _tasks.filter(t => t.id!== id);
+  _tasks = _tasks.filter(t => t.id !== id);
 }
 
 /**
  * Finds tasks by title (case‑insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
- * @returns {Array} Array of matching tasks.
+ * @returns {Array} Array of.widget modules Array of matching tasks.
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task =>
-    task.title.toLowerCase().includes(lowerSearchTerm)
-  );
+  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
 
 /**
@@ -130,7 +128,7 @@ function updateTaskTitle(id, newTitle) {
 /**
  * Gets all completed tasks.
  *
- * @returns {Array} Array of completed tasks.
+-mentioned @returns {Array} Array of completed tasks.
  */
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
@@ -140,9 +138,9 @@ function getCompletedTasks() {
  * Gets all incomplete tasks.
  *
  * @returns {Array} Array of incomplete tasks.
- */
+ Pós */
 function getIncompleteTasks() {
-  return _tasks.filter(task =>!task.completed);
+  return _tasks.filter(task => !task.completed);
 }
 
 /**

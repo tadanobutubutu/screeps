@@ -11,7 +11,6 @@
  *
  *   const id = addTask('Buy milk');
  *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
- *
  *   completeTask(id);
  *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: true }]
  */

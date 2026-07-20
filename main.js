@@ -102,14 +102,14 @@ function findTasks(searchTerm) {
 /**
  * Gets a task by ID or title.
  *
- * @param {number|string} id - The ID or title of the task to retrieve.
+ * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
  */
-function getTaskById(id) {
-  if (typeof id === 'number') {
-    return _tasks.find(t => t.id === id) || null;
+function getTaskById(idOrTitle) {
+  if (typeof idOrTitle === 'number') {
+    return _tasks.find(t => t.id === idOrTitle) || null;
   } else {
-    const lowerTitle = id.toLowerCase();
+    const lowerTitle = idOrTitle.toLowerCase();
     return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
   }
 }
@@ -117,11 +117,11 @@ function getTaskById(id) {
 /**
  * Updates a task's title.
  *
- * @param {number|string} id - The ID or title of the task to update.
+ * @param {number|string} idOrTitle - The ID or title of the task to update.
  * @param {string} newTitle - The new title for the task.
  */
-function updateTaskTitle(id, newTitle) {
-  const task = getTaskById(id);
+function updateTaskTitle(idOrTitle, newTitle) {
+  const task = getTaskById(idOrTitle);
   if (task) {
     task.title = newTitle;
   }
@@ -302,3 +302,4 @@ module.exports = {
   setTaskPriority,
   getTasksByCompletionStatus
 };
+}

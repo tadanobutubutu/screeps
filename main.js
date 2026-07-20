@@ -14,7 +14,6 @@
  *   completeTask(id);
  *   // [{ id: 1, title: 'Buy milk', completed: true }]
  */
-
 let _tasks = [];
 let _nextId = 1;
 

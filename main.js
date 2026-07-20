@@ -1,7 +1,7 @@
 /**
- * Simple in‑memory task utilities.
+ * Simple in-memory task utilities.
  *
- * The functions are intentionally very small so they can be unit‑tested
+ * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
  *
  * They operate on an internal array that lives for the process lifetime.

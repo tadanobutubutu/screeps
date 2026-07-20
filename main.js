@@ -84,6 +84,15 @@ function removeTask(id) {
 /**
  * Finds tasks that match a given predicate.
  *
- * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}) => boolean} predicate - A function that takes a task and returns a boolean.
+ * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number})=>boolean} predicate
  * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} Matching tasks.
  */
+function findTasks(predicate) {
+  return _tasks
+    .filter(t => predicate(t))
+    .map(({ id, title, completed, createdAt, updatedAt }) => ({
+      id,
+      title,
+      completed,
+      createdAt,
+      updatedAt

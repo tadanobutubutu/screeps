@@ -78,31 +78,31 @@ function removeTask(id) {
 /**
  * Finds tasks that match a given predicate.
  *
- * @param {function} predicate - A function that takes a task and returns a boolean.
- * @returns {Array<{id:number, title:string, completed:boolean}>} Matching tasks.
+ * @param {(task: {id:number, title:string, completed:boolean, ...}) => boolean} predicate - A function that takes a task and returns a boolean.
+ * @returns {Array<{id:number, title:string, completed:boolean}>} An array of tasks that matched.
  */
 function findTasks(predicate) {
-  return _tasks
-    .filter(predicate)
-    .map(({ id, title, completed }) => ({ id, title, completed }));
+  return _tasks.filter(predicate);
 }
 
 /**
  * Retrieves a task by its ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns {object|null} The full task object, or null if not found.
+ * @returns {({id:number, title:string, completed:boolean, ...}) | null} The matching task, or null if not found.
  */
 function getTaskById(id) {
   const task = _tasks.find(t => t.id === id);
-  return task ?? null;
+  if (!task) return null;
+  const { id: taskId, title, completed } = task;
+  return { id: taskId, title, completed };
 }
 
 /**
- * Updates the title of an existing task.
+ * Updates the title of a task.
  *
  * @param {number} id - The ID of the task to update.
- * @param {string} newTitle - The new title for the task.
+ * @param {string} newTitle - The new title to set.
  * @returns {boolean} True if the task was found and updated.
  */
 function updateTaskTitle(id, newTitle) {

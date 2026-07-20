@@ -1,41 +1,3 @@
-/**
- * Simple in-memory task utilities integrated from multiple branches.
- *
- * The functions are intentionally very small so they can be unit-tested
- * in isolation (the tests in `/tests/` can import this file directly).
- *
- * Sense of the functions
- * They operate on an internal array that lives for the process lifetime.
- *
- * Usage:
- *   const {
- *     addTask,
- *     listTasks,
- *     completeTask,
- *     removeTask,
- *     findTasks,
- *     getTaskById,
- *     updateTaskTitle,
- *     getCompletedTasks,
- *     getIncompleteTasks,
- *     clearAllTasks,
- *     getTaskCount,
- *     getTasksSortedByDate,
- *     getTasksSortedAlphabetically,
- *     getTasksByDateRange,
- *     resetTaskIdCounter,
- *     getTasksByPriority,
- *     getTasksByTag,
- *     addTagToTask,
- *     removeTagFromTask,
- *     getTasksWithTags,
- *     setTaskPriority,
- *     getTasksByCompletionStatus
- *   } = require('./main');
- *
- *   const id = addTask('Buy milk');
- *   //cdots
- */
 let _tasks = [];
 let _nextId = 1;
 
@@ -192,6 +154,34 @@ function getTasksByDateRange(startTime, endTime) {
 }
 
 /**
+ * Gets tasks sorted by creation date (oldest first).
+ *
+ * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by creation date (oldest first).
+ */
+function getTasksSortedByCreationDate(ascending = false) {
+  return [..._tasks].sort((a, b) => {
+    return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+  });
+}
+
+/**
+ * Gets tasks sorted by title.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by title.
+ */
+function getTasksSortedByTitle(ascending = true) {
+  return [..._tasks].sort((a, b) => {
+    const titleA = a.title.toLowerCase();
+    const titleB = b.title.toLowerCase();
+    if (titleA < titleB) return ascending ? -1 : 1;
+    if (titleA > titleB) return ascending ? 1 : -1;
+    return 0;
+  });
+}
+
+/**
  * Resets the task ID counter.
  * This is useful for testing scenarios where you want to start fresh.
  */
@@ -200,7 +190,7 @@ function resetTaskIdCounter() {
 }
 
 /**
- * Gets tasks filtered by priority level.
+ * Gets tasks filtered by priority level
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of tasks with the specified priority.

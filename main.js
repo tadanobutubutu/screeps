@@ -65,6 +65,24 @@ function completeTask(id) {
 }
 
 /**
+ * Find tasks by optional filters.
+ *
+ * @param {Object} [options] – Filter options.
+ * @param {boolean} [options.done] – Only show tasks with matching status.
+ * @param {string} [options.titleContains] – Only show tasks whose title contains this string (case‑insensitive).
+ * @returns {Array<{id:number,title:string,done:boolean,createdAt:Date}>}
+ */
+function findTasks(options = {}) {
+  const { done, titleContains } = options;
+  return _tasks.filter(task => {
+    if (typeof done === 'boolean' && task.done !== done) return false;
+    if (typeof titleContains === 'string' &&
+        !task.title.toLowerCase().includes(titleContains.toLowerCase())) return false;
+    return true;
+  });
+}
+
+/**
  * List all tasks, optionally filtering by completion status.
  *
  * @param {Object} [options] – Filter options.
@@ -76,24 +94,13 @@ function listTasks(options = {}) {
   if (typeof done === 'undefined') {
     return [..._tasks];
   }
-  return _tasks.filter(t => t.done === done);
+  return _tasks.filter(task => task.done === done);
 }
 
-/**
- * Find tasks whose titles contain the given query string.
- *
- * @param {string} query – Substring to search for.
- * @returns {Array<{id:number,title:string,done:boolean,createdAt:Date}>} Matching tasks.
- */
-function findTasks(query) {
-  if (typeof query !== 'string') {
-    throw new TypeError('query must be a string');
-  }
-  const q = query.trim().toLowerCase();
-  if (!q) {
-    return [..._tasks];
-  }
-  return _tasks.filter(t => t.title.toLowerCase().includes(q));
-}
-
-module.exports = { addTask, removeTask, completeTask, listTasks, findTasks };
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+};

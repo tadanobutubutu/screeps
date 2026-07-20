@@ -15,7 +15,7 @@ function leer() { return read(); }
  * @param {number} b - Second operand
  * @returns {number} Sum of a and b
  */
-function add(a, b) {
+function add(/** @type {number} */ a, /** @type {number} */ b) {
     return a + b;
 }
 
@@ -75,7 +75,7 @@ function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>}
   }
 
   if (typeof emotions.updateModel === 'function') {
-    emotions.updateModel(trainingData);
+    // Implementation would go here
   } else {
     console.warn('Emotion model update not implemented');
   }

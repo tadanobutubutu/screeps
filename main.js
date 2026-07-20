@@ -62,7 +62,7 @@ function analyze(/** @type {string[]} */ texts) {
     throw new Error('Input must be an array of strings');
   }
 
-  return texts.map(/** @param {string} text */ (text) => {
+  return texts.map(/** @type {string} */ (text) => {
     try {
       return emotions.parseEmotion(text);
     } catch (error) {
@@ -94,7 +94,7 @@ function processDependencyUpdates(/** @type {Array<{name: string, currentVersion
     throw new Error('Input must be an array of dependency updates');
   }
 
-  updates.forEach(/** @param {{name: string, currentVersion: string, latestVersion: string}} update */ (update) => {
+  updates.forEach(/** @type {{name: string, currentVersion: string, latestVersion: string}} */ (update) => {
     // Implementation for processing each update would go here
   });
 }
@@ -116,6 +116,61 @@ function manageRoom() {
   // Implementation for room management would go here
   // This function was added to address the lint error on line 83
   // in src/managers/roomManager.js
+}
+
+// New function to handle autonomous creep efficiency
+/**
+ * Autonomous Efficiency Creep Role
+ * This creep will dynamically adapt its behavior based on room conditions
+ * and available resources to maximize efficiency.
+ * @param {Creep} creep - The creep instance to control
+ */
+function autonomousEfficiency(/** @type {Creep} */ creep) {
+  // Check creep's current state and energy level
+  if (creep.memory.working && creep.store[RESOURCE_ENERGY] === 0) {
+    creep.memory.working = false;
+  }
+  if (!creep.memory.working && creep.store.getFreeCapacity() === 0) {
+    creep.memory.working = true;
+  }
+
+  // If creep is working (has energy)
+  if (creep.memory.working) {
+    // Prioritize repairing structures with low hits
+    const targets = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (structure.hits < structure.hitsMax * 0.7) &&
+               structure.structureType !== STRUCTURE_WALL &&
+               structure.structureType !== STRUCTURE_RAMPART;
+      }
+    });
+
+    if (targets.length > 0) {
+      // Sort by lowest hits percentage
+      targets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hitsMax);
+      if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0], { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      return;
+    }
+
+    // If no repairs needed, upgrade controller
+    if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+    }
+  }
+  // If creep is not working (needs energy)
+  else {
+    // Find the closest energy source
+    const sources = creep.room.find(FIND_SOURCES);
+    if (sources.length > 0) {
+      // Sort by distance to creep
+      sources.sort((a, b) => creep.pos.getRangeTo(a) - creep.pos.getRangeTo(b));
+      if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+      }
+    }
+  }
 }
 
 // New function to handle autonomous creep role
@@ -231,6 +286,7 @@ module.exports = {
   processDependencyUpdates,
   getDependencyDashboard,
   manageRoom,
+  autonomousEfficiency,
   autonomousCreep,
   getDependencyUpdateStatus,
   generateDependencyReport,

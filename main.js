@@ -4,7 +4,7 @@
  * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
  *
- *Sense of the functions
+ * Sense of the functions
  *
  * They operate on an internal array that lives for the process lifetime.
  *
@@ -17,10 +17,12 @@
  *     findTasks,
  *     getTaskById,
  *     updateTaskTitle,
+ *     getTaskByIdByTitle,
  *     getCompletedTasks,
  *     getIncompleteTasks,
  *     clearAllTasks,
- *     getTaskCount
+ *     getTaskCount,
+ *     resetTaskIdCounter
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
@@ -95,10 +97,21 @@ function findTasks(searchTerm) {
  * Gets a task by ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns { desplazamiento object|null} The task object or null if not found.
+ * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(id) {
   return _tasks.find(t => t.id === id) || null;
+}
+
+/**
+ * Gets a task by title (case-insensitive exact match).
+ *
+ * @param {string} title - The title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskByIdByTitle(title) {
+  const lowerTitle = title.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
 
 /**
@@ -165,6 +178,7 @@ module.exports = {
   findTasks,
   getTaskById,
   updateTaskTitle,
+  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,

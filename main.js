@@ -7,7 +7,7 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./main');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -77,10 +77,38 @@ function findTasks(predicate) {
   return _tasks.filter(predicate).map(({ id, title, completed }) => ({ id, title, completed }));
 }
 
+/**
+ * Gets a task by its ID.
+ *
+ * @param {number} id - The ID of the task to retrieve.
+ * @returns {{id:number, title:string, completed:boolean}|null} The task or null if not found.
+ */
+function getTaskById(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (!task) return null;
+  return { id: task.id, title: task.title, completed: task.completed };
+}
+
+/**
+ * Updates the title of a task.
+ *
+ * @param {number} id - The ID of the task to update.
+ * @param {string} newTitle - The new title for the task.
+ * @returns {boolean} True if the task was found and updated.
+ */
+function updateTaskTitle(id, newTitle) {
+  const task = _tasks.find(t => t.id === id);
+  if (!task) return false;
+  task.title = newTitle;
+  return true;
+}
+
 module.exports = {
   addTask,
   listTasks,
   completeTask,
   removeTask,
-  findTasks
+  findTasks,
+  getTaskById,
+  updateTaskTitle
 };

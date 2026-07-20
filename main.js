@@ -82,10 +82,44 @@ function removeTask(id) {
 /**
  * Finds tasks that match a predicate.
  *
- * @param {function} predicate - A function used to test each task.
- * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>} Matching tasks.
- * @throws {Error} If predicate is not a function.
+ * @param {(task: {id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}) => boolean} predicate
+ * @returns {Array<{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}>}
  */
 function findTasks(predicate) {
-  if (typeof predicate !== 'function') {
-    throw new Error('Predicate
+  return _tasks.filter(predicate);
+}
+
+/**
+ * Retrieves a task by its ID.
+ *
+ * @param {number} id
+ * @returns {{id:number, title:string, completed:boolean, createdAt:number, updatedAt:number}|undefined}
+ */
+function getTaskById(id) {
+  return _tasks.find((t) => t.id === id);
+}
+
+/**
+ * Updates a task's title.
+ *
+ * @param {number} id
+ * @param {string} newTitle
+ * @returns {boolean} True if a task was found and updated.
+ */
+function updateTaskTitle(id, newTitle) {
+  const task = _tasks.find((t) => t.id === id);
+  if (!task) return false;
+  task.title = newTitle;
+  task.updatedAt = Date.now();
+  return true;
+}
+
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+};

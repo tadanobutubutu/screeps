@@ -4,10 +4,24 @@
  * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
  *
+ *Sense of the functions
+ *
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getTaskCount, getCompletedTasks, getIncompleteTasks, clearAllTasks } = require('./main');
+ *   const {
+ *     addTask,
+ *     listTasks,
+ *     completeTask,
+ *     removeTask,
+ *     findTasks,
+ *     getTaskById,
+ *     updateTaskTitle,
+ *     getCompletedTasks,
+ *     getIncompleteTasks,
+ *     clearAllTasks,
+ *     getTaskCount
+ *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -65,7 +79,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case- insensitive partial match).
+ * Finds tasks by title (case‑insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of matching tasks.
@@ -79,7 +93,7 @@ function findTasks(searchTerm) {
  * Gets a task by ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns {Object|null} The task object or null if not found.
+ * @returns { desplazamiento object|null} The task object or null if not found.
  */
 function getTaskById(id) {
   return _tasks.find(t => t.id === id) || null;

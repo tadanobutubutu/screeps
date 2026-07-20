@@ -14,7 +14,6 @@
  *   completeTask(id);
  *   // [{ id: 1, title: 'Buy milk', completed: true }]
  */
-
 let _tasks = [];
 let _nextId = 1;
 
@@ -29,9 +28,9 @@ function addTask(title) {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date.now()
+    createdAt: Date. now()
   };
-  _tasks.push(task);
+  _tasks. push(task);
   return task.id;
 }
 
@@ -66,7 +65,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case-insensitive partial match).
+ * Finds tasks by title (case- insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of matching tasks.
@@ -74,7 +73,7 @@ function removeTask(id) {
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task =>
-    task.title.toLowerCase().includes(lowerSearchTerm)
+    task.title.toLowerCase(). includes(lowerSearchTerm)
   );
 }
 
@@ -136,7 +135,7 @@ function getTaskCount() {
   return _tasks.length;
 }
 
-module.exports = {
+module. exports = {
   addTask,
   listTasks,
   completeTask,

@@ -4,7 +4,7 @@
  * The functions are intentionally very small so they can be unit-tested
  * in isolation (the tests in `/tests/` can import this file directly).
  *
- *Sense of the functions
+ * Sense of the functions
  *
  * They operate on an internal array that lives for the process lifetime.
  *
@@ -17,10 +17,12 @@
  *     findTasks,
  *     getTaskById,
  *     updateTaskTitle,
+ *     getTaskByIdByTitle,
  *     getCompletedTasks,
  *     getIncompleteTasks,
  *     clearAllTasks,
- *     getTaskCount
+ *     getTaskCount,
+ *     resetTaskIdCounter
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
@@ -75,7 +77,7 @@ function completeTask(id) {
  * @param {number} id - The ID of the task to remove.
  */
 function removeTask(id) {
-  _tasks = _tasks.filter(t => t.id !== id);
+  _tasks = _tasks.filter(t => t.id!== id);
 }
 
 /**
@@ -86,17 +88,30 @@ function removeTask(id) {
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
+  return _tasks.filter(task =>
+    task.title.toLowerCase().includes(lowerSearchTerm)
+  );
 }
 
 /**
  * Gets a task by ID.
  *
  * @param {number} id - The ID of the task to retrieve.
- * @returns { desplazamiento object|null} The task object or null if not found.
+ * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(id) {
   return _tasks.find(t => t.id === id) || null;
+}
+
+/**
+ * Gets a task by title (case-insensitive exact match).
+ *
+ * @param {string} title - The title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskByIdByTitle(title) {
+  const lowerTitle = title.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
 
 /**
@@ -127,7 +142,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks.
  */
 function getIncompleteTasks() {
-  return _tasks.filter(task => !task.completed);
+  return _tasks.filter(task =>!task.completed);
 }
 
 /**
@@ -176,6 +191,14 @@ function getTasksByDateRange(startTime, endTime) {
   return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
 }
 
+/**
+ * Resets the task ID counter.
+ * This is useful for testing scenarios where you want to start fresh.
+ */
+function resetTaskIdCounter() {
+  _nextId = 1;
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -184,11 +207,13 @@ module.exports = {
   findTasks,
   getTaskById,
   updateTaskTitle,
+  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
   getTasksSortedByDate,
   getTasksSortedAlphabetically,
-  getTasksByDateRange
+  getTasksByDateRange,
+  resetTaskIdCounter
 };

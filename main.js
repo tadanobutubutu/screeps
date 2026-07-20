@@ -25,7 +25,14 @@
  *     getTasksSortedByDate,
  *     getTasksSortedAlphabetically,
  *     getTasksByDateRange,
- *     resetTaskIdCounter
+ *     resetTaskIdCounter,
+ *     getTasksByPriority,
+ *     getTasksByTag,
+ *     addTagToTask,
+ *     removeTagFromTask,
+ *     getTasksWithTags,
+ *     setTaskPriority,
+ *     getTasksByCompletionStatus
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
@@ -47,7 +54,9 @@ function addTask(title) {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    tags: [],
+    priority: 'medium'
   };
   _tasks.push(task);
   return task.id;
@@ -200,6 +209,85 @@ function resetTaskIdCounter() {
   _nextId = 1;
 }
 
+/**
+ * Gets tasks filtered by priority level.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of tasks with the specified priority.
+ */
+function getTasksByPriority(priority) {
+  return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Gets tasks that have a specific tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of tasks with the specified tag.
+ */
+function getTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to add.
+ */
+function addTagToTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task && !task.tags.includes(tag)) {
+    task.tags.push(tag);
+  }
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to remove.
+ */
+function removeTagFromTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.tags = task.tags.filter(t => t !== tag);
+  }
+}
+
+/**
+ * Gets tasks that have at least one of the specified tags.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksWithTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Sets the priority of a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} priority - The priority level ('low', 'medium', 'high').
+ */
+function setTaskPriority(id, priority) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.priority = priority;
+  }
+}
+
+/**
+ * Gets tasks filtered by completion status.
+ *
+ * @param {boolean} completed - Whether to filter completed or incomplete tasks.
+ * @returns {Array} Array of tasks with the specified completion status.
+ */
+function getTasksByCompletionStatus(completed) {
+  return _tasks.filter(task => task.completed === completed);
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -216,5 +304,12 @@ module.exports = {
   getTasksSortedByDate,
   getTasksSortedAlphabetically,
   getTasksByDateRange,
-  resetTaskIdCounter
+  resetTaskIdCounter,
+  getTasksByPriority,
+  getTasksByTag,
+  addTagToTask,
+  removeTagFromTask,
+  getTasksWithTags,
+  setTaskPriority,
+  getTasksByCompletionStatus
 };

@@ -15,7 +15,7 @@ function leer() { return read(); }
  * @param {number} b - Second operand
  * @returns {number} Sum of a and b
  */
-function add(a, b) {
+function add(/** @type {number} */ a, /** @type {number} */ b) {
     return a + b;
 }
 
@@ -29,12 +29,3 @@ const emotions = {
     // Basic fallback implementation
     return { sentiment: "neutral", score: 0 };
   },
-
-  /**
-   * Updates the emotion analysis model with new training data.
-   * @param {Array<{text: string, sentiment: string}>} trainingData
-   */
-  updateModel: function(/** @type {Array<{text: string, sentiment: string}>} */ trainingData) {
-    // Implementation would go here
-  }
-};

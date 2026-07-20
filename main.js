@@ -1,40 +1,67 @@
+/**
+ * Simple in‑memory task utilities.
+ *
+ * The functions are intentionally very small so they can be unit‑tested
+ * in isolation (the tests in `/tests/` can import this file directly).
+ *
+ * They operate on an internal array that lives for the process lifetime.
+ *
+ * Usage:
+ *   const { addTask, listTasks, completeTask } = require('./utils.tasks');
+ *
+ *   const id = addTask('Buy milk');
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false }]
+ *   completeTask(id);
+ */
 "use strict";
 
-function subtract(a, b) { return a - b; }
-
-function read() {
-  // Implementation would go here
-  return "";
-}
-
-function leer() { return read(); }
+let _nextId = 1;
+const _tasks = [];
 
 /**
- * Adds two numbers.
- * @param {number} a - First operand
- * @param {number} b - Second operand
- * @returns {number} Sum of a and b
+ * Add a new task.
+ *
+ * @param {string} title – The task description.
+ * @returns {number} The new task’s unique ID.
  */
-function add(a, b) {
-    return a + b;
+function addTask(title) {
+    const task = { id: _nextId++, title, done: false };
+    _tasks.push(task);
+    return task.id;
 }
 
-const emotions = {
-  /**
-   * Parses emotional context from text input
-   * @param {string} text - Input text to analyze
-   * @returns {{ sentiment: string, score: number }}
-   */
-  parseEmotion: function(/** @type {string} */ text) {
-    // Basic fallback implementation
-    return { sentiment: "neutral", score: 0 };
-  },
-
-  /**
-   * Updates the emotion analysis model with new training data.
-   * @param {Array<{text: string, sentiment: string}>} trainingData
-   */
-  updateModel: function(/** @type {Array<{text: string, sentiment: string}>} */ trainingData) {
+/**
+ * Reads content. (placeholder)
+ *
+ * @returns {string}
+ */
+function read() {
     // Implementation would go here
-  }
+    return "";
+}
+
+/**
+ * Lists all tasks.
+ */
+function listTasks() {
+    return [..._tasks];
+}
+
+/**
+ * Marks a task as completed.
+ *
+ * @param {number} id – The task's unique ID.
+ */
+function completeTask(id) {
+    const task = _tasks.find(t => t.id === id);
+    if (task) {
+        task.done = true;
+    }
+}
+
+module.exports = {
+    addTask,
+    listTasks,
+    completeTask,
+    read
 };

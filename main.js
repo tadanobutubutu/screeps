@@ -7,7 +7,7 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle } = require('./main');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -101,6 +101,41 @@ function updateTaskTitle(id, newTitle) {
   }
 }
 
+/**
+ * Gets all completed tasks.
+ *
+ * @returns {Array} Array of completed tasks.
+ */
+function getCompletedTasks() {
+  return _tasks.filter(task => task.completed);
+}
+
+/**
+ * Gets all incomplete tasks.
+ *
+ * @returns {Array} Array of incomplete tasks.
+ */
+function getIncompleteTasks() {
+  return _tasks.filter(task => !task.completed);
+}
+
+/**
+ * Clears all tasks.
+ */
+function clearAllTasks() {
+  _tasks = [];
+  _nextId = 1;
+}
+
+/**
+ * Gets the total number of tasks.
+ *
+ * @returns {number} The count of all tasks.
+ */
+function getTaskCount() {
+  return _tasks.length;
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -108,5 +143,9 @@ module.exports = {
   removeTask,
   findTasks,
   getTaskById,
-  updateTaskTitle
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks,
+  clearAllTasks,
+  getTaskCount
 };

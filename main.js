@@ -37,8 +37,9 @@ function parse(/** @type {string} */ text) {
   try {
     if (typeof emotions.parseEmotion === 'function') {
       return emotions.parseEmotion(text);
+    } else {
+      throw new Error(`Function emotions.parseEmotion is not implemented`);
     }
-    throw new Error(`Function emotions.parseEmotion is not implemented`);
   } catch (error) {
     console.error('Error parsing emotion:', error);
     return { sentiment: "neutral", score: 0 };

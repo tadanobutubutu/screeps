@@ -72,8 +72,9 @@ function removeTask(id) {
  * @returns {Array} Array of matching tasks.
  */
 function findTasks(searchTerm) {
+  const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task =>
-    task.title.toLowerCase().includes(searchTerm.toLowerCase())
+    task.title.toLowerCase().includes(lowerSearchTerm)
   );
 }
 

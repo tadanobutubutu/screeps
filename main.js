@@ -7,10 +7,10 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./utils.tasks');
  *
  *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false }]
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false, createdAt: Date }]
  *   completeTask(id);
  */
 "use strict";
@@ -32,7 +32,7 @@ function addTask(title) {
     id: _nextId++,
     title,
     done: false,
-    createdAt: new Date()
+    createdAt: new Date(),
   };
   _tasks.push(task);
   return task.id;
@@ -83,29 +83,17 @@ function listTasks(options = {}) {
  * Find tasks whose titles contain the given query string.
  *
  * @param {string} query – Substring to search for.
- * @returns {Array} Matching tasks.
+ * @returns {Array<{id:number,title:string,done:boolean,createdAt:Date}>} Matching tasks.
  */
 function findTasks(query) {
   if (typeof query !== 'string') {
     throw new TypeError('query must be a string');
   }
-  const lower = query.toLowerCase();
-  return _tasks.filter(t => t.title.toLowerCase().includes(lower));
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    return [..._tasks];
+  }
+  return _tasks.filter(t => t.title.toLowerCase().includes(q));
 }
 
-/**
- * Remove all tasks (useful for tests).
- */
-function clearTasks() {
-  _tasks.length = 0;
-  _nextId = 1;
-}
-
-module.exports = {
-  addTask,
-  removeTask,
-  completeTask,
-  listTasks,
-  findTasks,
-  clearTasks
-};
+module.exports = { addTask, removeTask, completeTask, listTasks, findTasks };

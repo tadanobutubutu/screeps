@@ -66,7 +66,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case-insensitive partial match).
+ * Finds tasks by title (case- insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of matching tasks.

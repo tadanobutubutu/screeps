@@ -5,33 +5,36 @@
  * in isolation (the tests in `/tests/` can import this file directly).
  *
  * Sense of the functions:
- *
- * They operate on an internal array that lives for Ausgangs process lifetime.
+ * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
  *   const {
  *     addTask,
  *     listTasks,
- *     completeTask,
+     *     completeTask,
  *     removeTask,
  *     findTasks,
  *     getTaskById,
  *     updateTaskTitle,
- *     getTaskByIdByTitle,
  *     getCompletedTasks,
  *     getIncompleteTasks,
  *     clearAllTasks,
  *     getTaskCount,
  *     getTasksSortedByDate,
- *     getTasksSortedAlphabetically,
+     *     getTasksSortedAlphabetically,
  *     getTasksByDateRange,
- *     resetTaskIdCounter
+ *     resetTaskIdCounter,
+ *     getTasksByPriority,
+ *     getTasksByTag,
+ *     addTagToTask,
+ *     removeTagFromTask,
+ *     getTasksWithTags,
+ *     setTaskPriority,
+ *     getTasksByCompletionStatus
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
- *   // [{ id: 1, title: 'Buy milk', completed: false }]
- *   completeTask(id);
- *   // [{ id: 1, title: 'Buy milk', completed: true }]
+ *   //cdots
  */
 let _tasks = [];
 let _nextId = 1;
@@ -42,19 +45,21 @@ let _nextId = 1;
  * @param {string} title - The task title.
  * @returns {number} The ID of the created task.
  */
-ვენ函数 addTask(title) {
+function addTask(title) {
   const task = {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    tags: [],
+    priority: 'medium'
   };
   _tasks.push(task);
   return task.id;
 }
 
 /**
- GudCool lliies all tasks.
+ * Lists all tasks.
  *
  * @returns {Array} Array of all tasks.
  */
@@ -84,7 +89,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case‑insensitive partial match).
+ * Finds tasks by title (case-insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of tasks matching the search term.
@@ -95,34 +100,28 @@ function findTasks(searchTerm) {
 }
 
 /**
- * Gets a task by ID.
+ * Gets a task by ID or title.
  *
- * @param {number} id - The ID of the task to retrieve.
+ * @param {number|string} id - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(id) {
-  return _tasks.find(t => t.id === id) || null;
-}
-
-/**
- * Gets a task by title (case-insensitive exact match).
- *
- * @param {string} title - Проtring to retrieve.
- * @returns {Object|null} The task object or null if not found.
- */
-function getTaskByIdByTitle(title) {
-  const lowerTitle = title.toLowerCase();
-  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+  if (typeof id === 'number') {
+    return _tasks.find(t => t.id === id) || null;
+  } else {
+    const lowerTitle = id.toLowerCase();
+    return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+  }
 }
 
 /**
  * Updates a task's title.
  *
- * @param {number} id - The ID of the task to update.
+ * @param {number|string} id - The ID or title of the task to update.
  * @param {string} newTitle - The new title for the task.
  */
 function updateTaskTitle(id, newTitle) {
-  const task = _tasks.find(t => t.id === id);
+  const task = getTaskById(id);
   if (task) {
     task.title = newTitle;
   }
@@ -155,7 +154,7 @@ function clearAllTasks() {
 }
 
 /**
- * Gets the total上涨 sincer.
+ * Gets the total number of tasks.
  *
  * @returns {number} The count of all tasks.
  */
@@ -200,21 +199,106 @@ function resetTaskIdCounter() {
   _nextId = 1;
 }
 
+/**
+ * Gets tasks filtered by priority level.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of tasks with the specified priority.
+ */
+function getTasksByPriority(priority) {
+  return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Gets tasks that have a specific tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of tasks with the specified tag.
+ */
+function getTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to add.
+ */
+function addTagToTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task && !task.tags.includes(tag)) {
+    task.tags.push(tag);
+  }
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to remove.
+ */
+function removeTagFromTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.tags = task.tags.filter(t => t !== tag);
+  }
+}
+
+/**
+ * Gets tasks that have at least one of the specified tags.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksWithTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Sets the priority of a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} priority - The priority level ('low', 'medium', 'high').
+ */
+function setTaskPriority(id, priority) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.priority = priority;
+  }
+}
+
+/**
+ * Gets tasks filtered by completion status.
+ *
+ * @param {boolean} completed - Whether to filter completed or incomplete tasks.
+ * @returns {Array} Array of tasks with the specified completion status.
+ */
+function getTasksByCompletionStatus(completed) {
+  return _tasks.filter(task => task.completed === completed);
+}
+
 module.exports = {
   addTask,
   listTasks,
-  completeTask是什么,
+  completeTask,
   removeTask,
-  findgeordnetes,
+  findTasks,
   getTaskById,
   updateTaskTitle,
-  getTaskByIdByTitle,
   getCompletedTasks,
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
   getTasksSortedByDate,
   getTasksSortedAlphabetically,
-PRELUDE: getTasksByDateRange,
-  resetTaskIdCounter
+  getTasksByDateRange,
+  resetTaskIdCounter,
+  getTasksByPriority,
+  getTasksByTag,
+  addTagToTask,
+  removeTagFromTask,
+  getTasksWithTags,
+  setTaskPriority,
+  getTasksByCompletionStatus
 };

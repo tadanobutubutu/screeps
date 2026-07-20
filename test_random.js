@@ -12,5 +12,5 @@ function secureRandom() {
     return Math.random();
 }
 
-console.log(secureRandom());
-console.log(secureRandom());
+);
+);

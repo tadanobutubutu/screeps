@@ -7,7 +7,7 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getCompletedTasks, getIncompleteTasks, clearAllTasks, getTaskCount } = require('./main');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks, getTaskById, updateTaskTitle, getTaskCount, getCompletedTasks, getIncompleteTasks, clearAllTasks } = require('./main');
  *
  *   const id = addTask('Buy milk');
  *   // [{ id: 1, title: 'Buy milk', completed: false }]
@@ -15,7 +15,7 @@
  *   // [{ id: 1, title: 'Buy milk', completed: true }]
  */
 
-const _tasks = [];
+let _tasks = [];
 let _nextId = 1;
 
 /**
@@ -66,7 +66,7 @@ function removeTask(id) {
 }
 
 /**
- * Finds tasks by title (case-insensitive partial match).
+ * Finds tasks by title (case- insensitive partial match).
  *
  * @param {string} searchTerm - The term to search for in task titles.
  * @returns {Array} Array of matching tasks.

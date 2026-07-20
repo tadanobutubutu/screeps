@@ -19,9 +19,4 @@
  *   const id = addTask('Buy milk');        // id is a number
  *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: false } ]
  *   completeTask(id);
- *   console.log(listTasks());              // [ { id: 1, title: 'Buy milk', completed: true } ]
- *
- * @module main
- */
-let _tasks = [];
-let
+ *   console.log(listTasks());              // [ { id: 1, title:

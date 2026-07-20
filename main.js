@@ -75,7 +75,7 @@ function completeTask(id) {
  * @param {number} id - The ID of the task to remove.
  */
 function removeTask(id) {
-  _tasks = _tasks.filter(t => t.id !== id);
+  _tasks = _tasks.filter(t => t.id!== id);
 }
 
 /**
@@ -86,7 +86,9 @@ function removeTask(id) {
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
+  return _tasks.filter(task =>
+    task.title.toLowerCase().includes(lowerSearchTerm)
+  );
 }
 
 /**
@@ -127,7 +129,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks.
  */
 function getIncompleteTasks() {
-  return _tasks.filter(task => !task.completed);
+  return _tasks.filter(task =>!task.completed);
 }
 
 /**

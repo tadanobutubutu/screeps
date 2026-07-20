@@ -22,6 +22,9 @@
  *     getIncompleteTasks,
  *     clearAllTasks,
  *     getTaskCount,
+ *     getTasksSortedByDate,
+ *     getTasksSortedAlphabetically,
+ *     getTasksByDateRange,
  *     resetTaskIdCounter
  *   } = require('./main');
  *

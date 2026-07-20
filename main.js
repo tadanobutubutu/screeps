@@ -23,7 +23,6 @@
  *
  * @module main
  */
-
 let _tasks = [];
 let _nextId = 1;
 
@@ -34,14 +33,4 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now() };
-  _tasks.push(task);
-  return task.id;
-}
-
-/**
- * Lists all tasks.
- *
- * @returns {Array<{id:number, title:string, completed:boolean}>} All tasks.
- */
-function listTasks
+  const task = { id: _nextId++, title,

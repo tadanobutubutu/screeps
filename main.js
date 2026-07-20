@@ -268,6 +268,119 @@ function getTasksByCompletionStatus(completed) {
   return _tasks.filter(task => task.completed === completed);
 }
 
+/**
+ * Gets tasks sorted by priority.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by priority.
+ */
+function getTasksSortedByPriority(ascending = true) {
+  const priorityOrder = { low: 0, medium: 1, high: 2 };
+  return [..._tasks].sort((a, b) => {
+    const priorityA = priorityOrder[a.priority];
+    const priorityB = priorityOrder[b.priority];
+    return ascending ? priorityA - priorityB : priorityB - priorityA;
+  });
+}
+
+/**
+ * Gets tasks sorted by completion status.
+ *
+ * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
+ * @returns {Array} Array of tasks sorted by completion status.
+ */
+function getTasksSortedByCompletionStatus(completedFirst = true) {
+  return [..._tasks].sort((a, b) => {
+    if (a.completed === b.completed) return 0;
+    return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
+  });
+}
+
+/**
+ * Gets tasks sorted by number of tags.
+ *
+ * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by number of tags.
+ */
+function getTasksSortedByTagCount(ascending = false) {
+  return [..._tasks].sort((a, b) => {
+    const countA = a.tags.length;
+    const countB = b.tags.length;
+    return ascending ? countA - countB : countB - countA;
+  });
+}
+
+/**
+ * Gets tasks that were created before a specific date.
+ *
+ * @param {number} date - The timestamp to compare against.
+ * @returns {Array} Array of tasks created before the specified date.
+ */
+function getTasksCreatedBefore(date) {
+  return _tasks.filter(task => task.createdAt < date);
+}
+
+/**
+ * Gets tasks that were created after a specific date.
+ *
+ * @param {number} date - The timestamp to compare against.
+ * @returns {Array} Array of tasks created after the specified date.
+ */
+function getTasksCreatedAfter(date) {
+  return _tasks.filter(task => task.createdAt > date);
+}
+
+/**
+ * Gets tasks that have no tags.
+ *
+ * @returns {Array} Array of tasks with no tags.
+ */
+function getTasksWithoutTags() {
+  return _tasks.filter(task => task.tags.length === 0);
+}
+
+/**
+ * Gets tasks that have at least one tag.
+ *
+ * @returns {Array} Array of tasks with at least one tag.
+ */
+function getTasksWithAnyTags() {
+  return _tasks.filter(task => task.tags.length > 0);
+}
+
+/**
+ * Gets tasks that have all specified tags.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have all specified tags.
+ */
+function getTasksWithAllTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have exactly the specified tags.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have exactly the specified tags.
+ */
+function getTasksWithExactTags(tags) {
+  return _tasks.filter(task => {
+    if (task.tags.length !== tags.length) return false;
+    return tags.every(tag => task.tags.includes(tag));
+  });
+}
+
+/**
+ * Gets tasks that have no tags from the specified list.
+ *
+ * @param {Array} tags - Array of tags to exclude.
+ * @returns {Array} Array of tasks that don't have any of the specified tags.
+ */
+function getTasksWithoutTagsFromList(tags) {
+  return _tasks.filter(task => !task.tags.some(tag => tags.includes(tag)));
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -290,5 +403,15 @@ module.exports = {
   removeTagFromTask,
   getTasksWithTags,
   setTaskPriority,
-  getTasksByCompletionStatus
+  getTasksByCompletionStatus,
+  getTasksSortedByPriority,
+  getTasksSortedByCompletionStatus,
+  getTasksSortedByTagCount,
+  getTasksCreatedBefore,
+  getTasksCreatedAfter,
+  getTasksWithoutTags,
+  getTasksWithAnyTags,
+  getTasksWithAllTags,
+  getTasksWithExactTags,
+  getTasksWithoutTagsFromList
 };

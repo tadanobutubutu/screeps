@@ -112,6 +112,72 @@ function manageRoom() {
   // in src/managers/roomManager.js
 }
 
+// New function to handle autonomous creep role
+/**
+ * Autonomous Efficiency Creep Role
+ * This creep will dynamically adapt its behavior based on room conditions
+ * @param {Creep} creep - The creep instance to manage
+ */
+function autonomousCreep(creep) {
+  // Get room energy status
+  const room = creep.room;
+  const energyAvailable = room.energyAvailable;
+  const energyCapacity = room.energyCapacityAvailable;
+
+  // Determine creep behavior based on room conditions
+  if (energyAvailable < energyCapacity * 0.3) {
+    // Low energy - focus on harvesting and mining
+    if (creep.store.getFreeCapacity() > 0) {
+      // Find energy sources
+      const sources = room.find(FIND_SOURCES);
+      if (sources.length > 0) {
+        if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+        }
+      }
+    } else {
+      // Deposit energy to structures
+      const targets = room.find(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return (structure.structureType === STRUCTURE_EXTENSION ||
+                  structure.structureType === STRUCTURE_SPAWN ||
+                  structure.structureType === STRUCTURE_TOWER) &&
+                 structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+        }
+      });
+
+      if (targets.length > 0) {
+        if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+        }
+      }
+    }
+  } else {
+    // Normal energy levels - perform balanced tasks
+    const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
+    const repairTargets = room.find(FIND_STRUCTURES, {
+      filter: (structure) => structure.hits < structure.hitsMax * 0.8
+    });
+
+    if (constructionSites.length > 0) {
+      // Build structures
+      if (creep.build(constructionSites[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(constructionSites[0], {visualizePathStyle: {stroke: '#ffffff'}});
+      }
+    } else if (repairTargets.length > 0) {
+      // Repair structures
+      if (creep.repair(repairTargets[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(repairTargets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+      }
+    } else {
+      // Upgrade controller
+      if (creep.upgradeController(room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(room.controller, {visualizePathStyle: {stroke: '#ffffff'}});
+      }
+    }
+  }
+}
+
 module.exports = {
   subtract,
   leer,
@@ -124,5 +190,6 @@ module.exports = {
   fetchDependencies,
   processDependencyUpdates,
   getDependencyDashboard,
-  manageRoom
+  manageRoom,
+  autonomousCreep
 };

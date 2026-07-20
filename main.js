@@ -1,24 +1,67 @@
+/**
+ * Simple in‑memory task utilities.
+ *
+ * The functions are intentionally very small so they can be unit‑tested
+ * in isolation (the tests in `/tests/` can import this file directly).
+ *
+ * They operate on an internal array that lives for the process lifetime.
+ *
+ * Usage:
+ *   const { addTask, listTasks, completeTask } = require('./utils.tasks');
+ *
+ *   const id = addTask('Buy milk');
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', done: false }]
+ *   completeTask(id);
+ */
 "use strict";
 
-function subtract(a, b) { return a - b; }
-
-function read() {
-  // Implementation would go here
-  return "";
-}
-
-function leer() { return read(); }
+let _nextId = 1;
+const _tasks = [];
 
 /**
- * Adds two numbers.
- * @param {number} a - First operand
- * @param {number} b - Second operand
- * @returns {number} Sum of a and b
+ * Add a new task.
+ *
+ * @param {string} title – The task description.
+ * @returns {number} The new task’s unique ID.
  */
-function add(/** @type {number} */ a, /** @type {number} */ b) {
-    return a + b;
+function addTask(title) {
+  if (typeof title !== 'string') {
+    throw new TypeError('title must be a string');
+  }
+  const task = {
+    id: _nextId++,
+    title,
+    done: false,
+    createdAt: Date.now()
+  };
+  _tasks.push(task);
+  return task.id;
 }
 
+/**
+ * List all tasks.
+ *
+ * @returns {Array<{id:number, title:string, done:boolean, createdAt:number}>} A copy of the task list.
+ */
+function listTasks() {
+  return _tasks.map(t => ({ ...t }));
+}
+
+/**
+ * Mark a task as completed.
+ *
+ * @param {number} id – The task ID to complete.
+ */
+function completeTask(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.done = true;
+  }
+}
+
+/**
+ * Emotion analysis utilities.
+ */
 const emotions = {
   /**
    * Parses emotional context from text input
@@ -39,6 +82,11 @@ const emotions = {
   }
 };
 
+/**
+ * Parses emotion from a single text string, delegating to emotions.parseEmotion.
+ * @param {string} text - Input text to analyze
+ * @returns {{ sentiment: string, score: number }}
+ */
 function parse(/** @type {string} */ text) {
   try {
     if (typeof emotions.parseEmotion === 'function') {
@@ -47,7 +95,7 @@ function parse(/** @type {string} */ text) {
       throw new Error(`Function emotions.parseEmotion is not implemented`);
     }
   } catch (error) {
-    console.terror('Error parsing emotion:', error);
+    console.error('Error parsing emotion:', error);
     return { sentiment: "neutral", score: 0 };
   }
 }
@@ -84,12 +132,12 @@ function updateEmotionModel(/** @type {Array<{text: string, sentiment: string}>}
 
 // Export all functions for testing
 module.exports = {
-  subtract,
-  read,
-  leer,
-  add,
+  addTask,
+  listTasks,
+  completeTask,
   emotions,
   parse,
   analyzeTexts,
   updateEmotionModel
 };
+```

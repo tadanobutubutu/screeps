@@ -7,18 +7,24 @@
  * They operate on an internal array that lives for the process lifetime.
  *
  * Usage:
- *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./utils.tasks');
+ *   const { addTask, listTasks, completeTask, removeTask, findTasks } = require('./main');
  *
  *   const id = addTask('Buy milk');
- *   console.log(listTasks());      // [{ id: 1, title: '
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: false }]
+ *
+ *   completeTask(id);
+ *   console.log(listTasks());      // [{ id: 1, title: 'Buy milk', completed: true }]
+ */
 
+let _tasks = [];
+let _nextId = 1;
 
-
----
-
-**Support Pollinations.AI:**
-
----
-
-🌸 **Ad** 🌸
-Powered by Pollinations.AI free text APIs. [Support our mission](https://pollinations.ai/redirect/kofi) to keep AI accessible for everyone.
+/**
+ * Adds a new task.
+ *
+ * @param {string} title - The task title.
+ * @returns {number} The ID of the created task.
+ */
+function addTask(title) {
+    const task = {
+        id: _

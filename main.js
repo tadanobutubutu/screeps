@@ -16,7 +16,6 @@
  *     findTasks,
  *     getTaskById,
  *     updateTaskTitle,
- *     getTaskByIdByTitle,
  *     getCompletedTasks,
  *     getIncompleteTasks,
  *     clearAllTasks,
@@ -24,7 +23,14 @@
  *     getTasksSortedByDate,
  *     getTasksSortedAlphabetically,
  *     getTasksByDateRange,
- *     resetTaskIdCounter
+ *     resetTaskIdCounter,
+ *     getTasksByPriority,
+ *     getTasksByTag,
+ *     addTagToTask,
+ *     removeTagFromTask,
+ *     getTasksWithTags,
+ *     setTaskPriority,
+ *     getTasksByCompletionStatus
  *   } = require('./main');
  *
  *   const id = addTask('Buy milk');
@@ -44,7 +50,9 @@ function addTask(title) {
     id: _nextId++,
     title,
     completed: false,
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    tags: [],
+    priority: 'medium'
   };
   _tasks.push(task);
   return task.id;
@@ -92,7 +100,7 @@ function findTasks(searchTerm) {
 }
 
 /**
- * Gets a task by ID.
+ * Gets a task by ID or title.
  *
  * @param {number|string} id - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
@@ -118,8 +126,6 @@ function updateTaskTitle(id, newTitle) {
     task.title = newTitle;
   }
 }
-
-(ew immigrants getTaskByIdByTitle - moved to getTaskById function)
 
 /**
  * Gets all completed tasks.
@@ -193,6 +199,85 @@ function resetTaskIdCounter() {
   _nextId = 1;
 }
 
+/**
+ * Gets tasks filtered by priority level.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of tasks with the specified priority.
+ */
+function getTasksByPriority(priority) {
+  return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Gets tasks that have a specific tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of tasks with the specified tag.
+ */
+function getTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to add.
+ */
+function addTagToTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task && !task.tags.includes(tag)) {
+    task.tags.push(tag);
+  }
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} tag - The tag to remove.
+ */
+function removeTagFromTask(id, tag) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.tags = task.tags.filter(t => t !== tag);
+  }
+}
+
+/**
+ * Gets tasks that have at least one of the specified tags.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksWithTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Sets the priority of a task.
+ *
+ * @param {number} id - The ID of the task.
+ * @param {string} priority - The priority level ('low', 'medium', 'high').
+ */
+function setTaskPriority(id, priority) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.priority = priority;
+  }
+}
+
+/**
+ * Gets tasks filtered by completion status.
+ *
+ * @param {boolean} completed - Whether to filter completed or incomplete tasks.
+ * @returns {Array} Array of tasks with the specified completion status.
+ */
+function getTasksByCompletionStatus(completed) {
+  return _tasks.filter(task => task.completed === completed);
+}
+
 module.exports = {
   addTask,
   listTasks,
@@ -208,18 +293,12 @@ module.exports = {
   getTasksSortedByDate,
   getTasksSortedAlphabetically,
   getTasksByDateRange,
-  resetTaskIdCounter
+  resetTaskIdCounter,
+  getTasksByPriority,
+  getTasksByTag,
+  addTagToTask,
+  removeTagFromTask,
+  getTasksWithTags,
+  setTaskPriority,
+  getTasksByCompletionStatus
 };
-```
-
-This resolved file combines changes from both branches:
-
-1. It merges the comments and function descriptions, as they are different in both branches but still contain valuable information.
-
-2. It keeps the default implementation of `addTask` function from one branch and combines it with the type declaration for the parameter from another branch.
-
-3. It adds the ability to pass either the id or title when getting tasks by id or updating their title. This allows for both methods to work (either passing the id or title in `getTaskById` and `updateTaskTitle` functions).
-
-4. It keeps all the functions intact from both branches, ensuring no functionality is lost.
-
-5. It preserves the original style and order of functions as much as possible.

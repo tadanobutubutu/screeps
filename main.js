@@ -103,3 +103,18 @@ function getDependencyDashboard() {
   };
   return dashboardInfo;
 }
+
+// Export all functions for use in memory.visualizer.js
+module.exports = {
+  subtract,
+  leer,
+  add,
+  read,
+  emotions,
+  parse,
+  analyze,
+  updateDependencies,
+  fetchDependencies,
+  processDependencyUpdates,
+  getDependencyDashboard
+};

@@ -9,6 +9,8 @@ function read() {
   return "";
 }
 
+function leer() { return read(); }
+
 function add(a, b) { // /** comment a */ // Fixed: Added missing closing parenthesis
     return a + b;
 }

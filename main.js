@@ -25,7 +25,12 @@ let _nextId = 1;
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = { id: _nextId++, title, completed: false, createdAt: Date.now() };
+  const task = {
+    id: _nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now()
+  };
   _tasks.push(task);
   return task.id;
 }
@@ -37,7 +42,11 @@ function addTask(title) {
  */
 function listTasks() {
   // Return a shallow copy to avoid external mutation.
-  return _tasks.map(({ id, title, completed }) => ({ id, title, completed }));
+  return _tasks.map(({ id, title, completed }) => ({
+    id,
+    title,
+    completed
+  }));
 }
 
 /**
@@ -48,7 +57,7 @@ function listTasks() {
  */
 function completeTask(id) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return false;
+  if (task === undefined || task === null) return false;
   task.completed = true;
   return true;
 }
@@ -74,7 +83,11 @@ function removeTask(id) {
  */
 function findTasks(predicate) {
   // Use the same mapping as listTasks to keep the API consistent.
-  return _tasks.filter(predicate).map(({ id, title, completed }) => ({ id, title, completed }));
+  return _tasks.filter(predicate).map(({ id, title, completed }) => ({
+    id,
+    title,
+    completed
+  }));
 }
 
 /**
@@ -85,8 +98,12 @@ function findTasks(predicate) {
  */
 function getTaskById(id) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return null;
-  return { id: task.id, title: task.title, completed: task.completed };
+  if (task === undefined || task === null) return null;
+  return {
+    id: task.id,
+    title: task.title,
+    completed: task.completed
+  };
 }
 
 /**
@@ -98,7 +115,7 @@ function getTaskById(id) {
  */
 function updateTaskTitle(id, newTitle) {
   const task = _tasks.find(t => t.id === id);
-  if ( === undefined ||  === null) return false;
+  if (task === undefined || task === null) return false;
   task.title = newTitle;
   return true;
 }

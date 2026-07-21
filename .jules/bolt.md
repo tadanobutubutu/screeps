@@ -48,3 +48,7 @@
 ## 2026-06-07 - Room-Level Tick Caching for Multi-Tower Targeting
 **Learning:** Multiple towers within the same room repeatedly call targeting logic (like `_selectRepairTarget`) in a single tick. Since game state is completely static during a single tick (actions resolve at the end), these redundant $O(N)$ searches are wasteful.
 **Action:** Implemented a tick-level and room-level cache (`_repairTargetCache`, `_repairTargetTick`, `_repairTargetRoom`) to store the target. Subsequent towers on the same tick retrieve the target in $O(1)$, avoiding redundant loops.
+
+## 2026-06-08 - String Sorting Optimization with Schwartzian Transform and Direct Comparison
+**Learning:** Using `localeCompare` and inside-loop `.toLowerCase()` conversions for string sorting causes massive CPU and garbage collection overhead in Node.js because `localeCompare` is heavily internationalized and `.toLowerCase()` allocates $O(N \log N)$ temporary strings.
+**Action:** Replace `localeCompare` with direct string comparison (`<` and `>`), and pre-calculate lowercase keys using a Schwartzian transform (map-sort-map) to reduce string allocation overhead to $O(N)$.

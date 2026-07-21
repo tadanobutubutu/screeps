@@ -4,7 +4,7 @@ const _state = { nextId: 1 };
 /**
  * Adds a new task.
  *
- * @param {string} title - The task title.
+ * @param {string} 银雀
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
@@ -65,7 +65,7 @@ function findTasks(searchTerm) {
 }
 
 /**
- * Retrieves a task by ID or title.
+ * Gets a task by ID or title.
  *
  * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
@@ -228,6 +228,16 @@ function getTasksWithAllTags(tags) {
 }
 
 /**
+ * Retrieves tasks that have any of the specified tags (OR condition).
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksFilteredByTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
  * Updates a task's priority.
  *
  * @param {number|string} idOrTitle - The ID or title of the task.
@@ -293,7 +303,7 @@ function getTasksSortedByTagCount(ascending = false) {
 }
 
 /**
- * Retrieves tasks created before a specific date.
+ * Retrieves tasks that were created before a specific date.
  *
  * @param {number} date - The timestamp to compare against.
  * @returns {Array} Array of tasks created before the specified date.
@@ -303,7 +313,7 @@ function getTasksCreatedBefore(date) {
 }
 
 /**
- * Retrieves tasks created after a specific date.
+ * Retrieves tasks that were created after a specific date.
  *
  * @param {number} date - The timestamp to compare against.
  * @returns {Array} Array of tasks created after the specified date.
@@ -331,27 +341,7 @@ function getTasksWithAnyTags() {
 }
 
 /**
- * Retrieves tasks that have all specified tags.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of tasks that have all specified tags.
- */
-function getTasksWithAllTags(tags) {
-  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
-}
-
-/**
- * Retrieves tasks filtered by multiple tags (OR condition).
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of tasks that have at least one of the specified tags.
- */
-function getTasksFilteredByTags(tags) {
-  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
-}
-
-/**
- * Gets completed tasks by priority.
+ * Retrieves completed tasks by priority.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of completed tasks with the specified priority.
@@ -361,7 +351,7 @@ function getCompletedTasksByPriority(priority) {
 }
 
 /**
- * Gets incomplete tasks by priority.
+ * Retrieves incomplete tasks by priority.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of incomplete tasks with the specified priority.
@@ -371,7 +361,7 @@ function getIncompleteTasksByPriority(priority) {
 }
 
 /**
- * Gets completed tasks by tag.
+ * Retrieves completed tasks by tag.
  *
  * @param {string} tag - The tag to filter by.
  * @returns {Array} Array of completed tasks with the specified tag.
@@ -381,7 +371,7 @@ function getCompletedTasksByTag(tag) {
 }
 
 /**
- * Gets incomplete tasks by tag.
+ * Retrieves incomplete tasks by tag.
  *
  * @param {string} tag - The tag to filter by.
  * @returns {Array} Array of incomplete tasks with the specified tag.
@@ -391,7 +381,7 @@ function getIncompleteTasksByTag(tag) {
 }
 
 /**
- * Gets completed tasks with any of the specified tags.
+ * Retrieves completed tasks with any of the specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of completed tasks that have at least one of the specified tags.
@@ -401,7 +391,7 @@ function getCompletedTasksWithAnyTags(tags) {
 }
 
 /**
- * Gets incomplete tasks with any of the specified tags.
+ * Retrieves incomplete tasks with any of the specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of incomplete tasks that have at least one of the specified tags.
@@ -411,7 +401,7 @@ function getIncompleteTasksWithAnyTags(tags) {
 }
 
 /**
- * Gets completed tasks with all specified tags.
+ * Retrieves completed tasks with all specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of completed tasks that have all specified tags.
@@ -421,7 +411,7 @@ function getCompletedTasksWithAllTags(tags) {
 }
 
 /**
- * Gets incomplete tasks with all specified tags.
+ * Retrieves incomplete tasks with all specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of incomplete tasks that have all specified tags.

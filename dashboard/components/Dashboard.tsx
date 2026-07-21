@@ -405,55 +405,57 @@ export default function Dashboard() {
                     title="生データを JSON 形式で表示/非表示にします"
                     style={{
                         color: '#4a5568',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
+                        padding: '0.2rem 0',
                     }}
                 >
                     <span>生データを確認</span>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            copyRawData();
-                        }}
-                        onMouseEnter={() => setJsonHover(true)}
-                        onMouseLeave={() => setJsonHover(false)}
-                        onFocus={() => setJsonHover(true)}
-                        onBlur={() => setJsonHover(false)}
-                        aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
-                        title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                </summary>
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                copyRawData();
+                            }}
+                            onMouseEnter={() => setJsonHover(true)}
+                            onMouseLeave={() => setJsonHover(false)}
+                            onFocus={() => setJsonHover(true)}
+                            onBlur={() => setJsonHover(false)}
+                            aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
+                            title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                            style={{
+                                fontSize: '0.75rem',
+                                padding: '0.3rem 0.6rem',
+                                backgroundColor: copiedJson
+                                    ? '#155d27'
+                                    : jsonHover
+                                      ? '#e2e8f0'
+                                      : '#edf2f7',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                color: copiedJson ? 'white' : '#4a5568',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease-in-out',
+                                transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
+                                boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                            }}
+                        >
+                            {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
+                        </button>
+                    </div>
+                    <pre
                         style={{
-                            fontSize: '0.7rem',
-                            padding: '0.1rem 0.4rem',
-                            backgroundColor: copiedJson
-                                ? '#155d27'
-                                : jsonHover
-                                  ? '#e2e8f0'
-                                  : '#f7fafc',
-                            border: '1px solid #cbd5e0',
+                            backgroundColor: '#f7fafc',
+                            padding: '1rem',
                             borderRadius: '4px',
-                            color: copiedJson ? 'white' : '#4a5568',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s ease-in-out',
-                            transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
-                            boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                            margin: 0,
+                            overflow: 'auto',
                         }}
                     >
-                        {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
-                    </button>
-                </summary>
-                <pre
-                    style={{
-                        backgroundColor: '#f7fafc',
-                        padding: '1rem',
-                        borderRadius: '4px',
-                        marginTop: '0.5rem',
-                        overflow: 'auto',
-                    }}
-                >
-                    {JSON.stringify(stats, null, 2)}
-                </pre>
+                        {JSON.stringify(stats, null, 2)}
+                    </pre>
+                </div>
             </details>
         </main>
     );

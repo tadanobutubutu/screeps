@@ -378,6 +378,52 @@ function findTasksByAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
 
+/**
+ * Gets tasks filtered by tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of tasks with the specified tag.
+ */
+function getTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Gets tasks filtered by multiple tags (AND logic).
+ *
+ * @param {string[]} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have all specified tags.
+ */
+function getTasksByTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks filtered by date range.
+ *
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks created within the specified date range.
+ */
+function getTasksByDateRange(startDate, endDate) {
+  return _tasks.filter(task => task.createdAt >= startDate && task.createdAt <= endDate);
+}
+
+/**
+ * Gets tasks filtered by completion status and priority.
+ *
+ * @param {boolean} completed - Whether to return completed or incomplete tasks.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @returns {Array} Array of tasks matching both completion status and priority.
+ */
+function getTasksByCompletionAndPriority(completed, priority) {
+  const validPriorities = ['low', 'medium', 'high'];
+  if (!validPriorities.includes(priority)) {
+    throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+  }
+  return _tasks.filter(task => task.completed === completed && task.priority === priority);
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -410,5 +456,9 @@ module.exports = {
   clearTagsFromTask,
   getAllTags,
   findTasksByAnyTag,
-  findTasksByAllTags
+  findTasksByAllTags,
+  getTasksByTag,
+  getTasksByTags,
+  getTasksByDateRange,
+  getTasksByCompletionAndPriority
 };

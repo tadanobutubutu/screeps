@@ -532,7 +532,7 @@ function searchTasks(options = {}) {
 function updateDependencyVersion(dependencyName, newVersion) {
   // This is a placeholder implementation that would be expanded
   // to handle actual dependency management in a real application
-  }
+}
 
 /**
  * Gets the current version of a dependency.
@@ -569,7 +569,7 @@ function listDependencies() {
 function addDependency(dependencyName, version) {
   // This is a placeholder implementation that would be expanded
   // to handle actual dependency management in a real application
-  }
+}
 
 /**
  * Removes a dependency from the system.
@@ -580,7 +580,7 @@ function addDependency(dependencyName, version) {
 function removeDependency(dependencyName) {
   // This is a placeholder implementation that would be expanded
   // to handle actual dependency management in a real application
-  }
+}
 
 /**
  * Checks for outdated dependencies.
@@ -601,7 +601,7 @@ function checkForOutdatedDependencies() {
 function updateAllDependencies() {
   // This is a placeholder implementation that would be expanded
   // to handle actual dependency management in a real application
-  }
+}
 
 /**
  * Visualizes memory usage of tasks.
@@ -632,7 +632,7 @@ function visualizeMemoryUsage() {
  */
 function logMessage(message, level = 'info') {
   const timestamp = new Date().toISOString();
-  }] ${message}`);
+  console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
 }
 
 /**
@@ -670,7 +670,7 @@ function logDebug(message) {
  */
 function updateDependencyVersion(dependencyName, newVersion) {
   // Implementation would be expanded to handle actual dependency management
-  }
+}
 
 /**
  * Gets the current version of a dependency.
@@ -701,7 +701,7 @@ function listDependencies() {
  */
 function addDependency(dependencyName, version) {
   // Implementation would be expanded to handle actual dependency management
-  }
+}
 
 /**
  * Removes a dependency from the system.
@@ -710,7 +710,7 @@ function addDependency(dependencyName, version) {
  */
 function removeDependency(dependencyName) {
   // Implementation would be expanded to handle actual dependency management
-  }
+}
 
 /**
  * Checks for outdated dependencies.
@@ -727,7 +727,7 @@ function checkForOutdatedDependencies() {
  */
 function updateAllDependencies() {
   // Implementation would be expanded to handle actual dependency management
-  }
+}
 
 /**
  * Gets the dependency dashboard information.

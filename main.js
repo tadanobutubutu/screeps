@@ -1,5 +1,5 @@
 const _tasks = [];
-let _nextId = 1;
+const _state = { nextId: 1 };
 
 /**
  * Adds a new task.
@@ -9,7 +9,7 @@ let _nextId = 1;
  */
 function addTask(title) {
   const task = {
-    id: _nextId++,
+    id: _state.nextId++,
     title,
     completed: false,
     createdAt: Date.now(),
@@ -115,7 +115,7 @@ function getIncompleteTasks() {
  */
 function clearAllTasks() {
   _tasks.length = 0;
-  _nextId = 1;
+  _state.nextId = 1;
 }
 
 /**
@@ -189,11 +189,11 @@ function getTasksSortedByTitle(ascending = true) {
  * This is useful for testing scenarios where you want to start fresh.
  */
 function resetTaskIdCounter() {
-  _nextId = 1;
+  _state.nextId = 1;
 }
 
 /**
- * Gets tasks filtered by priority level
+ * Gets tasks filtered by priority level.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of tasks with the specified priority.

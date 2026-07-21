@@ -255,6 +255,30 @@ function getTasksGroupedByCompletion() {
   };
 }
 
+/**
+ * Gets tasks filtered by completion status.
+ *
+ * @param {boolean} completed - Whether to return completed or incomplete tasks.
+ * @returns {Array} Array of tasks matching the completion status.
+ */
+function getTasksByCompletion(completed) {
+  return _tasks.filter(task => task.completed === completed);
+}
+
+/**
+ * Gets tasks filtered by priority.
+ *
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @returns {Array} Array of tasks with the specified priority.
+ */
+function getTasksByPriorityFilter(priority) {
+  const validPriorities = ['low', 'medium', 'high'];
+  if (!validPriorities.includes(priority)) {
+    throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+  }
+  return _tasks.filter(task => task.priority === priority);
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -277,5 +301,7 @@ module.exports = {
   getCompletedTaskCount,
   getIncompleteTaskCount,
   getTasksGroupedByPriority,
-  getTasksGroupedByCompletion
+  getTasksGroupedByCompletion,
+  getTasksByCompletion,
+  getTasksByPriorityFilter
 };

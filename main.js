@@ -1,5 +1,5 @@
 const _tasks = [];
-let _nextId = 1;
+const _state = { nextId: 1 };
 
 /**
  * Adds a new task.
@@ -9,7 +9,7 @@ let _nextId = 1;
  */
 function addTask(title) {
   const task = {
-    id: _nextId++,
+    id: _state.nextId++,
     title,
     completed: false,
     createdAt: Date.now(),
@@ -115,7 +115,7 @@ function getIncompleteTasks() {
  */
 function clearAllTasks() {
   _tasks.length = 0;
-  _nextId = 1;
+  _state.nextId = 1;
 }
 
 /**
@@ -139,9 +139,10 @@ function getTasksSortedByDate() {
 /**
  * Gets tasks sorted alphabetically by title.
  *
+ * @param {boolean} [ascending = true] - Whether to sort alphabetically.
  * @returns {Array} Array of tasks sorted alphabetically.
  */
-function getTasksSortedAlphabetically() {
+function getTasksSortedByTitle(ascending = true) {
   return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
 }
 
@@ -162,7 +163,7 @@ function getTasksByDateRange(startTime, endTime) {
  * @param {boolean} [ascending=false] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by creation date (oldest first).
  */
-function getTasksSortedByCreationDate(ascending = false) {
+function getTasksSortedByDateAscending(ascending = false) {
   return [..._tasks].sort((a, b) => {
     return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
   });
@@ -174,7 +175,7 @@ function getTasksSortedByCreationDate(ascending = false) {
  * @param {boolean} [ascending=true] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by title.
  */
-function getTasksSortedByTitle(ascending = true) {
+function getTasksSortedByTitleOrder(ascending = true) {
   return [..._tasks].sort((a, b) => {
     const titleA = a.title.toLowerCase();
     const titleB = b.title.toLowerCase();
@@ -189,11 +190,11 @@ function getTasksSortedByTitle(ascending = true) {
  * This is useful for testing scenarios where you want to start fresh.
  */
 function resetTaskIdCounter() {
-  _nextId = 1;
+  _state.nextId = 1;
 }
 
 /**
- * Gets tasks filtered by priority level
+ * Gets tasks filtered by priority level.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of tasks with the specified priority.
@@ -292,7 +293,7 @@ function getTasksSortedByPriority(ascending = true) {
  * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
  * @returns {Array} Array of tasks sorted by completion status.
  */
-function getTasksSortedByCompletionStatus(completedFirst = true) {
+function getTasksSortedByCompletion(completedFirst = true) {
   return [..._tasks].sort((a, b) => {
     if (a.completed === b.completed) return 0;
     return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
@@ -361,7 +362,7 @@ function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
 
-// Export all functions
+// Export all functions for testing
 module.exports = {
   addTask,
   listTasks,

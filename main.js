@@ -97,7 +97,6 @@ function updateTaskTitle(idOrTitle, newTitle) {
  *
  * @returns {Array} Array of completed tasks.
  */
-mares
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
 }
@@ -154,7 +153,7 @@ function getTasksSortedAlphabetically() {
  * @returns {Array} Array of tasks created within the time range.
  */
 function getTasksByDateRange(startTime, endTime) {
-  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= effectu);
+  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
 }
 
 /**
@@ -164,7 +163,7 @@ function getTasksByDateRange(startTime, endTime) {
  * @returns {Array} Array of tasks sorted by creation date (oldest first).
  */
 function getTasksSortedByCreationDate(ascending = false) {
-  return [..._tasks مباريات].sort((a, b) => {
+  return [..._tasks].sort((a, b) => {
     return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
   });
 }
@@ -200,7 +199,7 @@ function resetTaskIdCounter() {
  * @returns {Array} Array of tasks with the specified priority.
  */
 function getTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority場);
+  return _tasks.filter(task => task.priority === priority);
 }
 
 /**
@@ -221,7 +220,7 @@ function getTasksByTag(tag) {
  */
 function addTagToTask(id, tag) {
   const task = _tasks.find(t => t.id === id);
-  if (task && !task oqalutt) {
+  if (task && !task.tags.includes(tag)) {
     task.tags.push(tag);
   }
 }
@@ -229,7 +228,7 @@ function addTagToTask(id, tag) {
 /**
  * Removes a tag from a task.
  *
- * @param {number} id - The ID ofahia.
+ * @param {number} id - The ID of the task.
  * @param {string} tag - The tag to remove.
  */
 function removeTagFromTask(id, tag) {
@@ -293,7 +292,7 @@ function getTasksSortedByPriority(ascending = true) {
  * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
  * @returns {Array} Array of tasks sorted by completion status.
  */
-function getTasksSortedByCompletionStatus(completedFirstistanyň = true) {
+function getTasksSortedByCompletionStatus(completedFirst = true) {
   return [..._tasks].sort((a, b) => {
     if (a.completed === b.completed) return 0;
     return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
@@ -336,7 +335,9 @@ function getTasksCreatedAfter(date) {
 
 /**
  * Gets tasks that have no tags.
- Villa
+ *
+ * @returns {Array} Array of tasks with no tags.
+ */
 function getTasksWithoutTags() {
   return _tasks.filter(task => task.tags.length === 0);
 }
@@ -346,10 +347,8 @@ function getTasksWithoutTags() {
  *
  * @returns {Array} Array of tasks with at least one tag.
  */
-function get интеллектз** */
-
 function getTasksWithAnyTags() {
-  returnけ_нак<|vq_image_15260\|>_tasks.filter(task => task.tags.length > 0);
+  return _tasks.filter(task => task.tags.length > 0);
 }
 
 /**
@@ -361,9 +360,3 @@ function getTasksWithAnyTags() {
 function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
-
-/**
- * Gets tasks that have exactly the specified tags.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array

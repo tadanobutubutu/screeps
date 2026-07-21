@@ -650,83 +650,111 @@ function getIncompleteTasksWithAllTags(tags) {
 }
 
 /**
- * Gets tasks that have a specific priority level and are completed.
+ * Gets tasks that have a specific priority level and are completed or incomplete.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @returns {Array} Array of completed tasks with the specified priority.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
  */
-function getCompletedTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority && task.completed);
+function getTasksByPriorityAndCompletion(priority, completed) {
+  return _tasks.filter(task =>
+    task.priority === priority && task.completed === completed
+  );
 }
 
 /**
- * Gets tasks that have a specific priority level and are incomplete.
+ * Gets tasks that have a specific tag and are completed or incomplete.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
+ */
+function getTasksByTagAndCompletion(tag, completed) {
+  return _tasks.filter(task =>
+    task.tags.includes(tag) && task.completed === completed
+  );
+}
+
+/**
+ * Gets tasks that have any of the specified tags and are completed or incomplete.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
+ */
+function getTasksWithAnyTagsAndCompletion(tags, completed) {
+  return _tasks.filter(task =>
+    task.completed === completed &&
+    task.tags.some(tag => tags.includes(tag))
+  );
+}
+
+/**
+ * Gets tasks that have all specified tags and are completed or incomplete.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
+ */
+function getTasksWithAllTagsAndCompletion(tags, completed) {
+  return _tasks.filter(task =>
+    task.completed === completed &&
+    tags.every(tag => task.tags.includes(tag))
+  );
+}
+
+/**
+ * Gets tasks that have a specific priority level and are completed or incomplete.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @returns {Array} Array of incomplete tasks with the specified priority.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
  */
-function getIncompleteTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority && !task.completed);
+function getTasksByPriorityAndCompletionStatus(priority, completed) {
+  return _tasks.filter(task =>
+    task.priority === priority && task.completed === completed
+  );
 }
 
 /**
- * Gets tasks that have a specific tag and are completed.
+ * Gets tasks that have a specific tag and are completed or incomplete.
  *
  * @param {string} tag - The tag to filter by.
- * @returns {Array} Array of completed tasks with the specified tag.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
  */
-function getCompletedTasksByTag(tag) {
-  return _tasks.filter(task => task.tags.includes(tag) && task.completed);
+function getTasksByTagAndCompletionStatus(tag, completed) {
+  return _tasks.filter(task =>
+    task.tags.includes(tag) && task.completed === completed
+  );
 }
 
 /**
- * Gets tasks that have a specific tag and are incomplete.
- *
- * @param {string} tag - The tag to filter by.
- * @returns {Array} Array of incomplete tasks with the specified tag.
- */
-function getIncompleteTasksByTag(tag) {
-  return _tasks.filter(task => task.tags.includes(tag) && !task.completed);
-}
-
-/**
- * Gets tasks that have at least one of the specified tags and are completed.
+ * Gets tasks that have any of the specified tags and are completed or incomplete.
  *
  * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of completed tasks that have at least one of the specified tags.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
  */
-function getCompletedTasksWithTags(tags) {
-  return _tasks.filter(task => task.completed && task.tags.some(tag => tags.includes(tag)));
+function getTasksWithAnyTagsAndCompletionStatus(tags, completed) {
+  return _tasks.filter(task =>
+    task.completed === completed &&
+    task.tags.some(tag => tags.includes(tag))
+  );
 }
 
 /**
- * Gets tasks that have at least one of the specified tags and are incomplete.
+ * Gets tasks that have all specified tags and are completed or incomplete.
  *
  * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of incomplete tasks that have at least one of the specified tags.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks that match the criteria.
  */
-function getIncompleteTasksWithTags(tags) {
-  return _tasks.filter(task => !task.completed && task.tags.some(tag => tags.includes(tag)));
-}
-
-/**
- * Gets tasks that have all specified tags and are completed.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of completed tasks that have all specified tags.
- */
-function getCompletedTasksWithAllTags(tags) {
-  return _tasks.filter(task => task.completed && tags.every(tag => task.tags.includes(tag)));
-}
-
-/**
- * Gets tasks that have all specified tags and are incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of incomplete tasks that have all specified tags.
- */
-function getIncompleteTasksWithAllTags(tags) {
-  return _tasks.filter(task => !task.completed && tags.every(tag => task.tags.includes(tag)));
+function getTasksWithAllTagsAndCompletionStatus(tags, completed) {
+  return _tasks.filter(task =>
+    task.completed === completed &&
+    tags.every(tag => task.tags.includes(tag))
+  );
 }
 
 /**
@@ -836,114 +864,6 @@ function getTasksCreatedBetweenDates(startDate, endDate) {
  */
 function getTasksByTitleRegex(regex) {
   return _tasks.filter(task => regex.test(task.title));
-}
-
-/**
- * Gets tasks that have a specific priority level and are completed or incomplete.
- *
- * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByPriorityAndCompletion(priority, completed) {
-  return _tasks.filter(task =>
-    task.priority === priority && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have a specific tag and are completed or incomplete.
- *
- * @param {string} tag - The tag to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByTagAndCompletion(tag, completed) {
-  return _tasks.filter(task =>
-    task.tags.includes(tag) && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have any of the specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAnyTagsAndCompletion(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    task.tags.some(tag => tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have all specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAllTagsAndCompletion(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    tags.every(tag => task.tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have a specific priority level and are completed or incomplete.
- *
- * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByPriorityAndCompletionStatus(priority, completed) {
-  return _tasks.filter(task =>
-    task.priority === priority && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have a specific tag and are completed or incomplete.
- *
- * @param {string} tag - The tag to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByTagAndCompletionStatus(tag, completed) {
-  return _tasks.filter(task =>
-    task.tags.includes(tag) && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have any of the specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAnyTagsAndCompletionStatus(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    task.tags.some(tag => tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have all specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAllTagsAndCompletionStatus(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    tags.every(tag => task.tags.includes(tag))
-  );
 }
 
 // Export all functions

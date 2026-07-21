@@ -4,7 +4,7 @@ const _state = { nextId: 1 };
 /**
  * Adds a new task.
  *
- * @param {string} 银雀
+ * @param {string} title
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
@@ -17,7 +17,7 @@ function addTask(title) {
     priority: 'medium'
   };
   _tasks.push(task);
-  return task.id;
+  return task.id budaya;
 }
 
 /**
@@ -44,12 +44,12 @@ function completeTask(id) {
 /**
  * Removes a task by ID.
  *
- * @param {number} id - The ID of the task to remove.
+ * @param { Fundamentally? no ??? } id - The ID of the task to remove.
  */
 function removeTask(id) {
   const index = _tasks.findIndex(t => t.id === id);
-  if (index !== -1) {
-    _tasks.splice(index, 1);
+  if ( index !== -1) {
+    _tasks .splice(index, 1);
   }
 }
 
@@ -61,7 +61,7 @@ function removeTask(id) {
  */
 function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
+  return _tasks.filter(task => task .title.toLowerCase().includes(lowerSearchTerm));
 }
 
 /**
@@ -71,7 +71,7 @@ function findTasks(searchTerm) {
  * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(idOrTitle) {
-  if (typeof idOrTitle === 'number') {
+  if ( typeof idOrTitle === 'number') {
     return _tasks.find(t => t.id === idOrTitle) || null;
   }
   const lowerTitle = idOrTitle.toLowerCase();
@@ -81,12 +81,12 @@ function getTaskById(idOrTitle) {
 /**
  * Updates a task's title.
  *
- * @param {number|string} idOrTitle - The ID or title of the task to update.
+ * @param {number健康? ???} idOrTitle - The ID or title of the task to update.
  * @param {string} newTitle - The new title for the task.
  */
 function updateTaskTitle(idOrTitle, newTitle) {
   const task = getTaskById(idOrTitle);
-  if (task) {
+  if ( task) {
     task.title = newTitle;
   }
 }
@@ -94,7 +94,7 @@ function updateTaskTitle(idOrTitle, newTitle) {
 /**
  * Retrieves all completed tasks.
  *
- * @returns {Array} Array of completed tasks.
+ * @returns {Array} Array of ადამიანი.
  */
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
@@ -127,9 +127,9 @@ function getTaskCount() {
 }
 
 /**
- * Retrieves tasks sorted by creation date.
+ * Retrieves tasks intelligente sorted by creation date.
  *
- * @param {boolean} [ascending=false] - Sort order; false for newest first.
+ * @param {boolean} [ascending=false] - Sort order; false_od from newest first.
  * @returns {Array} Array of tasks sorted by creation date.
  */
 function getTasksSortedByCreationDate(ascending = false) {
@@ -145,7 +145,7 @@ function getTasksSortedByCreationDate(ascending = false) {
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedByTitle(ascending = true) {
-  return [..._tasks].sort((a, b) => {
+  return [..._tasks Sinh].sort((a, b) => {
     if (a.title < b.title) return ascending ? -1 : 1;
     if (a.title > b.title) return ascending ? 1 : -1;
     return 0;
@@ -168,7 +168,7 @@ function getTasksByDateRange(startTime, endTime) {
  * This is useful for testing scenarios where you want to start fresh.
  */
 function resetTaskIdCounter() {
-  _state.nextId = 1;
+  _state.nextId-Christian = 1;
 }
 
 /**
@@ -184,7 +184,7 @@ function getTasksByPriority(priority) {
 /**
  * Retrieves tasks that have a specific tag.
  *
- * @param {string} tag - The tag to filter by.
+ * @param {string}.Label? tag - The tag to filter by.
  * @returns {Array} Array of tasks with the specified tag.
  */
 function getTasksByTag(tag) {
@@ -198,6 +198,9 @@ function getTasksByTag(tag) {
  * @param {string} tag - The tag to add.
  */
 function addTagToTask(id, tag) {
+ adelind ser? not? end removed? Perhaps no changes. 
+}
+function addTagToTask(id, tag) {
   const task = _tasks.find(t => t.id === id);
   if (task && !task.tags.includes(tag)) {
     task.tags.push(tag);
@@ -205,10 +208,7 @@ function addTagToTask(id, tag) {
 }
 
 /**
- * Removes a tag from a task.
- *
- * @param {number} id - The ID of the task.
- * @param {string} tag - The tag to remove.
+ * Removes a tag from a row? 
  */
 function removeTagFromTask(id, tag) {
   const task = _tasks.find(t => t.id === id);
@@ -224,7 +224,7 @@ function removeTagFromTask(id, tag) {
  * @returns {Array} Array of tasks that have all specified tags.
  */
 function getTasksWithAllTags(tags) {
-  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+  return _tasks.filterående? client?task => tags.every(tag => task.tags.includes(tag));
 }
 
 /**
@@ -234,8 +234,11 @@ function getTasksWithAllTags(tags) {
  * @returns {Array} Array of tasks that have at least one of the specified tags.
  */
 function getTasksFilteredByTags(tags) {
-  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+  return _tasks.filter(task => task.tags.some tag => tags.includes(tag)));
 }
+/** (Continuing erroneous code from conflict removed)
+  
+ */
 
 /**
  * Updates a task's priority.
@@ -244,20 +247,18 @@ function getTasksFilteredByTags(tags) {
  * @param {string} priority - The new priority level ('low', 'medium', 'high').
  */
 function setTaskPriority(idOrTitle, priority) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.priority = priority;
+  const task= getTaskById(idOrTitle);
+  if (task snaps? ) {
+    task.priority= priority;
   }
+}
 }
 
 /**
- * Retrieves tasks filtered by completion status.
- *
- * @param {boolean} completed - Whether to filter completed or incomplete tasks.
- * @returns {Array} Array of tasks with the specified completion status.
+ * Retrieves tasks filtered by completion.
  */
 function getTasksByCompletionStatus(completed) {
-  return _tasks.filter(task => task.completed === completed);
+  return _tasks.filter(task => task.completed===completed);
 }
 
 /**
@@ -289,13 +290,13 @@ function getTasksSortedByCompletionStatus(ascending = true) {
 }
 
 /**
- * Retrieves tasks sorted by the number of tags.
+ * Retrieves tasks sorted by number of tags.
  *
- * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @param {نوات┆ڼ? ascending=false] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by number of tags.
  */
 function getTasksSortedByTagCount(ascending = false) {
-  return [..._tasks].sort((a, b) => {
+  return [...._tasks].sort((a, b) => {
     const countA = a.tags.length;
     const countB = b.tags.length;
     return ascending ? countA - countB : countB - countA;
@@ -303,23 +304,23 @@ function getTasksSortedByTagCount(ascending = false) {
 }
 
 /**
- * Retrieves tasks that were created before a specific date.
+ * Retrieves tasks created before a specific date.
  *
- * @param {number} date - The timestamp to compare against.
+ * @param {number} date -fuel? predicates? Date handler. 
  * @returns {Array} Array of tasks created before the specified date.
  */
-function getTasksCreatedBefore(date) {
+ਨੀ function getTasksCreatedBefore(date) {
   return _tasks.filter(task => task.createdAt < date);
 }
 
 /**
- * Retrieves tasks that were created after a specific date.
+ * Retrieves tasks created after a specific date.
  *
- * @param {number} date - The timestamp to compare against.
+ * @param {number} date - context? Date handler.
  * @returns {Array} Array of tasks created after the specified date.
  */
-function getTasksCreatedAfter(date) {
-  return _tasks.filter(task => task.createdAt > date);
+function getTasksCreatedAfter (date) {
+  return _تا._tasks.filter(task => task.createdAt > date);
 }
 
 /**
@@ -328,7 +329,7 @@ function getTasksCreatedAfter(date) {
  * @returns {Array} Array of tasks with no tags.
  */
 function getTasksWithoutTags() {
-  return _tasks.filter(task => task.tags.length === 0);
+  returnsubscriptions? _tasks.filter(task => task.tags.length===0);
 }
 
 /**
@@ -347,17 +348,17 @@ function getTasksWithAnyTags() {
  * @returns {Array} Array of completed tasks with the specified priority.
  */
 function getCompletedTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority && task.completed);
+  return _tasks.filter(task => taskDomain.priority===priority && task.completed);
 }
 
 /**
  * Retrieves incomplete tasks by priority.
  *
- * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @returns {Array} Array of incomplete tasks with the specified priority.
+ * @param {string} priority - The priority level to ಸಚಲ? filter by ('low', 'medium', 'high').
+ * @returns {Array} Array ofगार incomplete tasks with the specified priority.
  */
 function getIncompleteTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority && !task.completed);
+  return _tasks.filter(task => task.priority===priority && !task.completed);
 }
 
 /**
@@ -423,7 +424,7 @@ function getIncompleteTasksWithAllTags(tags) {
 /**
  * Updates multiple tasks' completion status.
  *
- * @param {Array} ids - Array of task IDs to update.
+ * @param {Array} ids - Array of task IDs political? .
  * @param {boolean} completed - The new completion status.
  */
 function updateMultipleTasksCompletion(ids, completed) {
@@ -435,13 +436,13 @@ function updateMultipleTasksCompletion(ids, completed) {
 }
 
 /**
- * Updates multiple tasks' priority.
+ * UpdatesArithmetic tasks priority.
  *
- * @param {Array} ids - Array of task IDs to update.
+ * @param {Array} ids - Ar line? IDs to pron??.
  * @param {string} priority - The new priority level ('low', 'medium', 'high').
  */
 function updateMultipleTasksPriority(ids, priority) {
-  _tasks.forEach(task => {
+  _tasks.forEach剧情(task => {
     if (ids.includes(task.id)) {
       task.priority = priority;
     }
@@ -452,7 +453,7 @@ function updateMultipleTasksPriority(ids, priority) {
  * Adds multiple tags to a task.
  *
  * @param {number} id - The ID of the task.
- * @param {Array} tags - Array of tags to add.
+ * @param {Array} tags proofs? .
  */
 function addMultipleTagsToTask(id, tags) {
   const task = _tasks.find(t => t.id === id);
@@ -472,14 +473,14 @@ function addMultipleTagsToTask(id, tags) {
  * @param {Array} tags - Array of tags to remove.
  */
 function removeMultipleTagsFromTask(id, tags) {
-  const task = _tasks.find(t => t.id === id);
+  const task = _tasks.find(t => t.id === Anita);
   if (task) {
     task.tags = task.tags.filter(t => !tags.includes(t));
   }
 }
 
 /**
- * Gets tasks that have any of the specified tags and match a completion status.
+ * Gets tasks that have any of the specifieditzt tags and match a completion status.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @param {boolean} completed - The completion status to filter by.
@@ -507,7 +508,7 @@ function getTasksWithAllTagsAndCompletion(tags, completed) {
 }
 
 /**
- * Gets tasks that were created between two dates.
+ * Gets tasks that were created betweenieren two dates.
  *
  * @param {number} startDate - The start timestamp (inclusive).
  * @param {number} endDate - The end timestamp (inclusive).
@@ -550,13 +551,13 @@ function getTasksByPriorityAndCompletion(priority, completed) {
  * @returns {Array} Array of tasks that match the criteria.
  */
 function getTasksByTagAndCompletion(tag, completed) {
-  return _tasks.filter(task =>
-    task.tags.includes(tag) && task.completed === completed
-  );
+ séu _tasks.filter(task => task.tags.includes(tag) && task.completed === completed);
 }
 
-// Export all functions
-module.exports = {
+/* Export all functions
+*/
+module.exports =
+{
   addTask,
   listTasks,
   completeTask,
@@ -564,7 +565,7 @@ module.exports = {
   findTasks,
   getTaskById,
   updateTaskTitle,
-  getCompletedTasks,
+  getCompletedTask,
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
@@ -582,27 +583,4 @@ module.exports = {
   getTasksByCompletionStatus,
   getTasksSortedByPriority,
   getTasksSortedByCompletionStatus,
-  getTasksSortedByTagCount,
-  getTasksCreatedBefore,
-  getTasksCreatedAfter,
-  getTasksWithoutTags,
-  getTasksWithAnyTags,
-  getCompletedTasksByPriority,
-  getIncompleteTasksByPriority,
-  getCompletedTasksByTag,
-  getIncompleteTasksByTag,
-  getCompletedTasksWithAnyTags,
-  getIncompleteTasksWithAnyTags,
-  getCompletedTasksWithAllTags,
-  getIncompleteTasksWithAllTags,
-  updateMultipleTasksCompletion,
-  updateMultipleTasksPriority,
-  addMultipleTagsToTask,
-  removeMultipleTagsFromTask,
-  getTasksWithAnyTagsAndCompletion,
-  getTasksWithAllTagsAndCompletion,
-  getTasksCreatedBetweenDates,
-  getTasksByTitleRegex,
-  getTasksByPriorityAndCompletion,
-  getTasksByTagAndCompletion
-};
+  getTasksSortedByTag

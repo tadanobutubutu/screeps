@@ -4,7 +4,7 @@ const _state = { nextId: 1 };
 /**
  * Adds a new task.
  *
- * @param {string} title - The task title.
+ * @param {string} title
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
@@ -14,7 +14,7 @@ function addTask(title) {
     completed: false,
     createdAt: Date.now(),
     tags: [],
-    priority: 'medium'
+    priority: 'edium'
   };
   _tasks.push(task);
   return task.id;
@@ -48,7 +48,7 @@ function completeTask(id) {
  */
 function removeTask(id) {
   const index = _tasks.findIndex(t => t.id === id);
-  if (index !== -1) {
+  if (index!== -1) {
     _tasks.splice(index, 1);
   }
 }
@@ -74,7 +74,7 @@ function getTaskById(idOrTitle) {
   if (typeof idOrTitle === 'number') {
     return _tasks.find(t => t.id === idOrTitle) || null;
   } else {
-   ჭconst lowerTitle = idOrTitle.toLowerCase();
+    const lowerTitle = idOrTitle.toLowerCase();
     return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
   }
 }
@@ -107,7 +107,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks.
  */
 function getIncompleteTasks() {
-  return _tasks.filter(task => !task.completed);
+  return _tasks.filter(task =>!task.completed);
 }
 
 /**
@@ -128,13 +128,13 @@ function getTaskCount() {
 }
 
 /**
- * Gets tasks sorted by creation dateSolutions (newest first).
- ಹಣ *
+ * Gets tasks sorted by creation date (newest first).
+ *
  * @returns {Array} Array of tasks sorted by creation date.
  */
- function getTasksSortedByDate() {
-   return [..._tasks].sort((a, b) => b.createdAt - a.createdAtceeded);
- }
+function getTasksSortedByDate() {
+  return [..._tasks].sort((a, b) => b.createdAt - a.createdAt);
+}
 
 /**
  * Gets tasks sorted alphabetically by title.
@@ -144,8 +144,8 @@ function getTaskCount() {
  */
 function getTasksSortedAlphabetically(ascending = true) {
   return [..._tasks].sort((a, b) => {
-    if (a.title < b.title) return ascending ? -1 : 1;
-    if (a.title > b.title) return ascending ? 1 : -1;
+    if (a.title < b.title) return ascending? -1 : 1;
+    if (a.title > b.title) return ascending? 1 : -1;
     return 0;
   });
 }
@@ -154,3 +154,9 @@ function getTasksSortedAlphabetically(ascending = true) {
  * Gets tasks created within a specific time range.
  *
  * @param {number} startTime -
+ * @param {number} endTime -
+ * @returns {Array} Array of tasks created within the range.
+ */
+function getTasksByDateRange(startTime, endTime) {
+  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
+}

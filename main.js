@@ -142,7 +142,11 @@ function getTasksSortedByDate() {
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedByTitle(ascending = true) {
-  return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+  return [..._tasks].sort((a, b) => {
+    if (a.title < b.title) return ascending ? -1 : 1;
+    if (a.title > b.title) return ascending ? 1 : -1;
+    return 0;
+  });
 }
 
 /**
@@ -175,13 +179,13 @@ function getTasksSortedByDateAscending(ascending = false) {
  * @returns {Array} Array of tasks sorted by title.
  */
 function getTasksSortedByTitleOrder(ascending = true) {
-  return [..._tasks].sort((a, b) => {
-    const titleA = a.title.toLowerCase();
-    const titleB = b.title.toLowerCase();
-    if (titleA < titleB) return ascending ? -1 : 1;
-    if (titleA > titleB) return ascending ? 1 : -1;
+  const mapped = _tasks.map((task, idx) => ({ idx, title: task.title.toLowerCase() }));
+  mapped.sort((a, b) => {
+    if (a.title < b.title) return ascending ? -1 : 1;
+    if (a.title > b.title) return ascending ? 1 : -1;
     return 0;
   });
+  return mapped.map(item => _tasks[item.idx]);
 }
 
 /**
@@ -368,11 +372,13 @@ function getTasksWithAllTags(tags) {
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedAlphabetically(ascending = true) {
-  return [..._tasks].sort((a, b) => {
-    const titleA = a.title.toLowerCase();
-    const titleB = b.title.toLowerCase();
-    return ascending ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+  const mapped = _tasks.map((task, idx) => ({ idx, title: task.title.toLowerCase() }));
+  mapped.sort((a, b) => {
+    if (a.title < b.title) return ascending ? -1 : 1;
+    if (a.title > b.title) return ascending ? 1 : -1;
+    return 0;
   });
+  return mapped.map(item => _tasks[item.idx]);
 }
 
 /**

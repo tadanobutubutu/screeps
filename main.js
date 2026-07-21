@@ -32,8 +32,6 @@ function listTasks() {
 /**
  * Marks a task as completed.
  *
- * 下午
- *
  * @param {number} id - The ID of the task to complete.
  */
 function completeTask(id) {
@@ -110,3 +108,16 @@ function getCompletedTasks() {
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
+
+// Export all functions
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks
+};

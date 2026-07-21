@@ -40,7 +40,6 @@ function completeTask(id) {
     task.completed = true;
   }
 }
-
 /**
  * Removes a task by ID.
  *
@@ -52,7 +51,6 @@ function removeTask(id) {
     _tasks.splice(index, 1);
   }
 }
-
 /**
  * Finds tasks by title (case-insensitive partial match).
  *
@@ -63,7 +61,6 @@ function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
-
 /**
  * Gets a task by ID or title.
  *
@@ -78,7 +75,6 @@ function getTaskById(idOrTitle) {
     return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
   }
 }
-
 /**
  * Updates a task's title.
  *
@@ -91,7 +87,6 @@ function updateTaskTitle(idOrTitle, newTitle) {
     task.title = newTitle;
   }
 }
-
 /**
  * Gets all completed tasks.
  *
@@ -100,7 +95,6 @@ function updateTaskTitle(idOrTitle, newTitle) {
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
 }
-
 /**
  * Gets all incomplete tasks.
  *
@@ -109,7 +103,6 @@ function getCompletedTasks() {
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
-
 /**
  * Clears all tasks.
  */
@@ -117,7 +110,6 @@ function clearAllTasks() {
   _tasks.length = 0;
   _state.nextId = 1;
 }
-
 /**
  * Gets the total number of tasks.
  *
@@ -227,7 +219,6 @@ function addTagToTask(id, tag) {
     task.tags.push(tag);
   }
 }
-
 /**
  * Removes a tag from a task.
  *
@@ -240,7 +231,6 @@ function removeTagFromTask(id, tag) {
     task.tags = task.tags.filter(t => t !== tag);
   }
 }
-
 /**
  * Gets tasks that have at least one of the specified tags.
  *
@@ -250,7 +240,6 @@ function removeTagFromTask(id, tag) {
 function getTasksWithTags(tags) {
   return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
 }
-
 /**
  * Sets the priority of a task.
  *
@@ -263,7 +252,6 @@ function setTaskPriority(id, priority) {
     task.priority = priority;
   }
 }
-
 /**
  * Gets tasks filtered by completion status.
  *
@@ -273,7 +261,6 @@ function setTaskPriority(id, priority) {
 function getTasksByCompletionStatus(completed) {
   return _tasks.filter(task => task.completed === completed);
 }
-
 /**
  * Gets tasks sorted by priority.
  *
@@ -288,7 +275,6 @@ function getTasksSortedByPriority(ascending = true) {
     return ascending ? priorityA - priorityB : priorityB - priorityA;
   });
 }
-
 /**
  * Gets tasks sorted by completion status.
  *
@@ -301,7 +287,6 @@ function getTasksSortedByCompletionStatus(ascending = true) {
     return ascending ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
   });
 }
-
 /**
  * Gets tasks sorted by the number of tags.
  *
@@ -315,7 +300,6 @@ function getTasksSortedByTagCount(ascending = false) {
     return ascending ? countA - countB : countB - countA;
   });
 }
-
 /**
  * Gets tasks created before a specific date.
  *
@@ -325,7 +309,6 @@ function getTasksSortedByTagCount(ascending = false) {
 function getTasksCreatedBefore(date) {
   return _tasks.filter(task => task.createdAt < date);
 }
-
 /**
  * Gets tasks created after a specific date.
  *
@@ -335,7 +318,6 @@ function getTasksCreatedBefore(date) {
 function getTasksCreatedAfter(date) {
   return _tasks.filter(task => task.createdAt > date);
 }
-
 /**
  * Gets tasks that have no tags.
  *
@@ -344,7 +326,6 @@ function getTasksCreatedAfter(date) {
 function getTasksWithoutTags() {
   return _tasks.filter(task => task.tags.length === 0);
 }
-
 /**
  * Gets tasks that have at least one tag.
  *
@@ -353,7 +334,6 @@ function getTasksWithoutTags() {
 function getTasksWithAnyTags() {
   return _tasks.filter(task => task.tags.length > 0);
 }
-
 /**
  * Gets tasks that have all specified tags.
  *
@@ -363,7 +343,6 @@ function getTasksWithAnyTags() {
 function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
-
 /**
  * Gets tasks filtered by multiple tags (OR condition).
  *
@@ -373,7 +352,6 @@ function getTasksWithAllTags(tags) {
 function getTasksFilteredByTags(tags) {
   return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
 }
-
 /**
  * Gets tasks filtered by multiple tags (AND condition).
  *
@@ -383,7 +361,6 @@ function getTasksFilteredByTags(tags) {
 function getTasksFilteredByAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
-
 /**
  * Gets tasks sorted by priority level.
  *
@@ -398,7 +375,6 @@ function getTasksSortedByPriorityLevel(ascending = true) {
     return ascending ? priorityA - priorityB : priorityB - priorityA;
   });
 }
-
 /**
  * Gets tasks sorted by the number of tags they have.
  *
@@ -412,7 +388,6 @@ function getTasksSortedByTagCountOrder(ascending = false) {
     return ascending ? countA - countB : countB - countA;
   });
 }
-
 /**
  * Gets tasks created within a specific time range.
  *
@@ -423,7 +398,6 @@ function getTasksSortedByTagCountOrder(ascending = false) {
 function getTasksInDateRange(startTime, endTime) {
   return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
 }
-
 /**
  * Gets tasks sorted by their title length.
  *
@@ -437,7 +411,6 @@ function getTasksSortedByTitleLength(ascending = true) {
     return ascending ? lengthA - lengthB : lengthB - lengthA;
   });
 }
-
 /**
  * Gets tasks that have a specific priority and are completed or incomplete.
  *
@@ -450,7 +423,6 @@ function getTasksByPriorityAndCompletion(priority, completed) {
     task.priority === priority && task.completed === completed
   );
 }
-
 /**
  * Gets tasks that have a specific tag and are completed or incomplete.
  *
@@ -463,7 +435,6 @@ function getTasksByTagAndCompletion(tag, completed) {
     task.tags.includes(tag) && task.completed === completed
   );
 }
-
 /**
  * Gets tasks that have any of the specified tags and are completed or incomplete.
  *
@@ -477,7 +448,6 @@ function getTasksWithAnyTagsAndCompletion(tags, completed) {
     task.tags.some(tag => tags.includes(tag))
   );
 }
-
 /**
  * Gets tasks that have all specified tags and are completed or incomplete.
  *
@@ -491,7 +461,6 @@ function getTasksWithAllTagsAndCompletion(tags, completed) {
     tags.every(tag => task.tags.includes(tag))
   );
 }
-
 /**
  * Updates multiple tasks' completion status.
  *
@@ -505,7 +474,6 @@ function updateMultipleTasksCompletion(ids, completed) {
     }
   });
 }
-
 /**
  * Updates multiple tasks' priority.
  *
@@ -519,7 +487,6 @@ function updateMultipleTasksPriority(ids, priority) {
     }
   });
 }
-
 /**
  * Adds multiple tags to a task.
  *
@@ -536,7 +503,6 @@ function addMultipleTagsToTask(id, tags) {
     });
   }
 }
-
 /**
  * Removes multiple tags from a task.
  *
@@ -549,7 +515,6 @@ function removeMultipleTagsFromTask(id, tags) {
     task.tags = task.tags.filter(t => !tags.includes(t));
   }
 }
-
 /**
  * Gets tasks that have any of the specified tags and match a completion status.
  *
@@ -563,7 +528,6 @@ function getTasksWithTagsAndCompletion(tags, completed) {
     task.tags.some(tag => tags.includes(tag))
   );
 }
-
 /**
  * Gets tasks that have all specified tags and match a completion status.
  *
@@ -577,7 +541,6 @@ function getTasksWithAllTagsAndCompletion(tags, completed) {
     tags.every(tag => task.tags.includes(tag))
   );
 }
-
 /**
  * Gets tasks that were created between two dates.
  *
@@ -590,7 +553,6 @@ function getTasksCreatedBetweenDates(startDate, endDate) {
     task.createdAt >= startDate && task.createdAt <= endDate
   );
 }
-
 /**
  * Gets tasks that have a title matching a regular expression.
  *
@@ -620,7 +582,7 @@ module.exports = {
   getTasksSortedAlphabetically,
   getTasksByDateRange,
   getTasksSortedByCreationDate,
-  getTasksSortedByTitle,
+  getTasksSortedAlphabetically,
   resetTaskIdCounter,
   getTasksByPriority,
   getTasksByTag,

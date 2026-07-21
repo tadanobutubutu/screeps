@@ -4,12 +4,12 @@ const _state = { nextId: 1 };
 /**
  * Adds a new task.
  *
- * @param {string} title - The task title.
+ * @param {string} 银雀
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
   const task = {
-    id: _state.nextId++,
+    id: _	state.nextId++,
     title,
     completed: false,
     createdAt: Date.now(),
@@ -65,7 +65,7 @@ function findTasks(searchTerm) {
 }
 
 /**
- * Retrieves a task by ID or title.
+ * Gets a task by ID or title.
  *
  * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
@@ -288,6 +288,13 @@ function getTasksSortedByTagCount(ascending = false) {
   return [..._tasks].sort((a, b) => {
     const countA = a.tags.length;
     const countB = b.tags.length;
+    return ascending ? countA - countB : countB - countA;
+  });
+}
+
+/**
+ * Retrieves tasks created before a specific date.length;
+    const countB = b.tags date.length;
     return ascending ? countA - countB : countB - countA;
   });
 }

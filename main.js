@@ -1,5 +1,7 @@
 const _tasks = [];
-const _state = { nextId: 1 };
+const _state = {
+    nextId: 1
+};
 
 /**
  * Adds a new task.
@@ -8,16 +10,16 @@ const _state = { nextId: 1 };
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  const task = {
-    id: _state.nextId++,
-    title,
-    completed: false,
-    createdAt: Date.now(),
-    tags: [],
-    priority: 'medium'
-  };
-  _tasks.push(task);
-  return task.id;
+    const task = {
+        id: _state.nextId++,
+        title,
+        completed: false,
+        createdAt: Date.now(),
+        tags: [],
+        priority: 'medium'
+    };
+    _tasks.push(task);
+    return task.id;
 }
 
 /**
@@ -26,7 +28,7 @@ function addTask(title) {
  * @returns {Array} Array of all tasks.
  */
 function listTasks() {
-  return [..._tasks];
+    return [..._tasks];
 }
 
 /**
@@ -35,10 +37,10 @@ function listTasks() {
  * @param {number} id - The ID of the task to complete.
  */
 function completeTask(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (task) {
-    task.completed = true;
-  }
+    const task = _tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = true;
+    }
 }
 
 /**
@@ -47,10 +49,10 @@ function completeTask(id) {
  * @param {number} id - The ID of the task to remove.
  */
 function removeTask(id) {
-  const index = _tasks.findIndex(t => t.id === id);
-  if (index !== -1) {
-    _tasks.splice(index, 1);
-  }
+    const index = _tasks.findIndex(t => t.id === id);
+    if (index !== -1) {
+        _tasks.splice(index, 1);
+    }
 }
 
 /**
@@ -60,8 +62,8 @@ function removeTask(id) {
  * @returns {Array} Array of matching tasks.
  */
 function findTasks(searchTerm) {
-  const lowerSearchTerm = searchTerm.toLowerCase();
-  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
 
 /**
@@ -71,11 +73,11 @@ function findTasks(searchTerm) {
  * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(idOrTitle) {
-  if (typeof idOrTitle === 'number') {
-    return _tasks.find(t => t.id === idOrTitle) || null;
-  }
-  const lowerTitle = idOrTitle.toLowerCase();
-  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+    if (typeof idOrTitle === 'number') {
+        return _tasks.find(t => t.id === idOrTitle) || null;
+    }
+    const lowerTitle = idOrTitle.toLowerCase();
+    return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
 
 /**
@@ -85,10 +87,10 @@ function getTaskById(idOrTitle) {
  * @param {string} newTitle - The new title for the task.
  */
 function updateTaskTitle(idOrTitle, newTitle) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.title = newTitle;
-  }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.title = newTitle;
+    }
 }
 
 /**
@@ -97,7 +99,7 @@ function updateTaskTitle(idOrTitle, newTitle) {
  * @returns {Array} Array of completed tasks.
  */
 function getCompletedTasks() {
-  return _tasks.filter(task => task.completed);
+    return _tasks.filter(task => task.completed);
 }
 
 /**
@@ -106,7 +108,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks.
  */
 function getIncompleteTasks() {
-  return _tasks.filter(task => !task.completed);
+    return _tasks.filter(task => !task.completed);
 }
 
 /**
@@ -116,10 +118,10 @@ function getIncompleteTasks() {
  * @param {string} tag - The tag to add to the task.
  */
 function addTagToTask(idOrTitle, tag) {
-  const task = getTaskById(idOrTitle);
-  if (task && !task.tags.includes(tag)) {
-    task.tags.push(tag);
-  }
+    const task = getTaskById(idOrTitle);
+    if (task && !task.tags.includes(tag)) {
+        task.tags.push(tag);
+    }
 }
 
 /**
@@ -129,10 +131,10 @@ function addTagToTask(idOrTitle, tag) {
  * @param {string} tag - The tag to remove from the task.
  */
 function removeTagFromTask(idOrTitle, tag) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.tags = task.tags.filter(t => t !== tag);
-  }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.tags = task.tags.filter(t => t !== tag);
+    }
 }
 
 /**
@@ -142,7 +144,7 @@ function removeTagFromTask(idOrTitle, tag) {
  * @returns {Array} Array of tasks that have the specified tag.
  */
 function findTasksByTag(tag) {
-  return _tasks.filter(task => task.tags.includes(tag));
+    return _tasks.filter(task => task.tags.includes(tag));
 }
 
 /**
@@ -152,15 +154,14 @@ function findTasksByTag(tag) {
  * @param {string} priority - The new priority for the task (low, medium, high).
  */
 function updateTaskPriority(idOrTitle, priority) {
-  const validPriorities = ['low', 'medium', 'high'];
-  if (!validPriorities.includes(priority)) {
-    throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
-  }
-
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.priority = priority;
-  }
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.priority = priority;
+    }
 }
 
 /**
@@ -170,12 +171,11 @@ function updateTaskPriority(idOrTitle, priority) {
  * @returns {Array} Array of tasks sorted by priority.
  */
 function getTasksByPriority(order = 'asc') {
-  const priorityOrder = { low: 0, medium: 1, high: 2 };
-  const sortedTasks = [..._tasks].sort((a, b) => {
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  });
-
-  return order === 'desc' ? sortedTasks.reverse() : sortedTasks;
+    const priorityOrder = { low: 0, medium: 1, high: 2 };
+    const sortedTasks = [..._tasks].sort((a, b) => {
+        return priorityOrder[a.priority] - priorityOrder[b.priority];
+    });
+    return order === 'desc' ? sortedTasks.reverse() : sortedTasks;
 }
 
 /**
@@ -185,16 +185,16 @@ function getTasksByPriority(order = 'asc') {
  * @returns {Array} Array of tasks sorted by creation date.
  */
 function getTasksByCreationDate(order = 'asc') {
-  const sortedTasks = [..._tasks].sort((a, b) => a.createdAt - b.createdAt);
-  return order === 'desc' ? sortedTasks.reverse() : sortedTasks;
+    const sortedTasks = [..._tasks].sort((a, b) => a.createdAt - b.createdAt);
+    return order === 'desc' ? sortedTasks.reverse() : sortedTasks;
 }
 
 /**
  * Clears all tasks from the task list.
  */
 function clearAllTasks() {
-  _tasks.length = 0;
-  _state.nextId = 1;
+    _tasks.length = 0;
+    _state.nextId = 1;
 }
 
 /**
@@ -203,7 +203,7 @@ function clearAllTasks() {
  * @returns {number} The total number of tasks.
  */
 function getTaskCount() {
-  return _tasks.length;
+    return _tasks.length;
 }
 
 /**
@@ -212,7 +212,7 @@ function getTaskCount() {
  * @returns {number} The number of completed tasks.
  */
 function getCompletedTaskCount() {
-  return getCompletedTasks().length;
+    return getCompletedTasks().length;
 }
 
 /**
@@ -221,7 +221,7 @@ function getCompletedTaskCount() {
  * @returns {number} The number of incomplete tasks.
  */
 function getIncompleteTaskCount() {
-  return getIncompleteTasks().length;
+    return getIncompleteTasks().length;
 }
 
 /**
@@ -230,17 +230,11 @@ function getIncompleteTaskCount() {
  * @returns {Object} An object with priorities as keys and arrays of tasks as values.
  */
 function getTasksGroupedByPriority() {
-  const groups = {
-    low: [],
-    medium: [],
-    high: []
-  };
-
-  _tasks.forEach(task => {
-    groups[task.priority].push(task);
-  });
-
-  return groups;
+    const groups = { low: [], medium: [], high: [] };
+    _tasks.forEach(task => {
+        groups[task.priority].push(task);
+    });
+    return groups;
 }
 
 /**
@@ -249,10 +243,10 @@ function getTasksGroupedByPriority() {
  * @returns {Object} An object with 'completed' and 'incomplete' as keys and arrays of tasks as values.
  */
 function getTasksGroupedByCompletion() {
-  return {
-    completed: getCompletedTasks(),
-    incomplete: getIncompleteTasks()
-  };
+    return {
+        completed: getCompletedTasks(),
+        incomplete: getIncompleteTasks()
+    };
 }
 
 /**
@@ -262,7 +256,7 @@ function getTasksGroupedByCompletion() {
  * @returns {Array} Array of tasks matching the completion status.
  */
 function getTasksByCompletion(completed) {
-  return _tasks.filter(task => task.completed === completed);
+    return _tasks.filter(task => task.completed === completed);
 }
 
 /**
@@ -272,11 +266,11 @@ function getTasksByCompletion(completed) {
  * @returns {Array} Array of tasks with the specified priority.
  */
 function getTasksByPriorityFilter(priority) {
-  const validPriorities = ['low', 'medium', 'high'];
-  if (!validPriorities.includes(priority)) {
-    throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
-  }
-  return _tasks.filter(task => task.priority === priority);
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task => task.priority === priority);
 }
 
 /**
@@ -285,10 +279,10 @@ function getTasksByPriorityFilter(priority) {
  * @param {number} id - The ID of the task to mark as incomplete.
  */
 function incompleteTask(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (task) {
-    task.completed = false;
-  }
+    const task = _tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = false;
+    }
 }
 
 /**
@@ -297,10 +291,10 @@ function incompleteTask(id) {
  * @param {number} id - The ID of the task to toggle.
  */
 function toggleTaskCompletion(id) {
-  const task = _tasks.find(t => t.id === id);
-  if (task) {
-    task.completed = !task.completed;
-  }
+    const task = _tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = !task.completed;
+    }
 }
 
 /**
@@ -310,14 +304,14 @@ function toggleTaskCompletion(id) {
  * @param {string[]} tags - An array of tags to add to the task.
  */
 function addTagsToTask(idOrTitle, tags) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    tags.forEach(tag => {
-      if (!task.tags.includes(tag)) {
-        task.tags.push(tag);
-      }
-    });
-  }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        tags.forEach(tag => {
+            if (!task.tags.includes(tag)) {
+                task.tags.push(tag);
+            }
+        });
+    }
 }
 
 /**
@@ -327,10 +321,10 @@ function addTagsToTask(idOrTitle, tags) {
  * @param {string[]} tags - An array of tags to remove from the task.
  */
 function removeTagsFromTask(idOrTitle, tags) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.tags = task.tags.filter(tag => !tags.includes(tag));
-  }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.tags = task.tags.filter(tag => !tags.includes(tag));
+    }
 }
 
 /**
@@ -339,10 +333,10 @@ function removeTagsFromTask(idOrTitle, tags) {
  * @param {number|string} idOrTitle - The ID or title of the task.
  */
 function clearTagsFromTask(idOrTitle) {
-  const task = getTaskById(idOrTitle);
-  if (task) {
-    task.tags = [];
-  }
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.tags = [];
+    }
 }
 
 /**
@@ -351,11 +345,11 @@ function clearTagsFromTask(idOrTitle) {
  * @returns {string[]} An array of all unique tags.
  */
 function getAllTags() {
-  const allTags = new Set();
-  _tasks.forEach(task => {
-    task.tags.forEach(tag => allTags.add(tag));
-  });
-  return Array.from(allTags);
+    const allTags = new Set();
+    _tasks.forEach(task => {
+        task.tags.forEach(tag => allTags.add(tag));
+    });
+    return Array.from(allTags);
 }
 
 /**
@@ -365,7 +359,7 @@ function getAllTags() {
  * @returns {Array} Array of tasks that have any of the specified tags.
  */
 function findTasksByAnyTag(tags) {
-  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+    return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
 }
 
 /**
@@ -375,40 +369,90 @@ function findTasksByAnyTag(tags) {
  * @returns {Array} Array of tasks that have all of the specified tags.
  */
 function findTasksByAllTags(tags) {
-  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+    return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks filtered by tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of tasks with the specified tag.
+ */
+function getTasksByTag(tag) {
+    return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Gets tasks filtered by multiple tags (AND logic).
+ *
+ * @param {string[]} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have all specified tags.
+ */
+function getTasksByTags(tags) {
+    return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks filtered by date range.
+ *
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks created within the specified date range.
+ */
+function getTasksByDateRange(startDate, endDate) {
+    return _tasks.filter(task => task.createdAt >= startDate && task.createdAt <= endDate);
+}
+
+/**
+ * Gets tasks filtered by completion status and priority.
+ *
+ * @param {boolean} completed - Whether to return completed or incomplete tasks.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @returns {Array} Array of tasks matching both completion status and priority.
+ */
+function getTasksByCompletionAndPriority(completed, priority) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task => task.completed === completed && task.priority === priority);
 }
 
 // Export all functions
 module.exports = {
-  addTask,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle,
-  getCompletedTasks,
-  getIncompleteTasks,
-  addTagToTask,
-  removeTagFromTask,
-  findTasksByTag,
-  updateTaskPriority,
-  getTasksByPriority,
-  getTasksByCreationDate,
-  clearAllTasks,
-  getTaskCount,
-  getCompletedTaskCount,
-  getIncompleteTaskCount,
-  getTasksGroupedByPriority,
-  getTasksGroupedByCompletion,
-  getTasksByCompletion,
-  getTasksByPriorityFilter,
-  incompleteTask,
-  toggleTaskCompletion,
-  addTagsToTask,
-  removeTagsFromTask,
-  clearTagsFromTask,
-  getAllTags,
-  findTasksByAnyTag,
-  findTasksByAllTags
+    addTask,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskTitle,
+    getCompletedTasks,
+    getIncompleteTasks,
+    addTagToTask,
+    removeTagFromTask,
+    findTasksByTag,
+    updateTaskPriority,
+    getTasksByPriority,
+    getTasksByCreationDate,
+    clearAllTasks,
+    getTaskCount,
+    getCompletedTaskCount,
+    getIncompleteTaskCount,
+    getTasksGroupedByPriority,
+    getTasksGroupedByCompletion,
+    getTasksByCompletion,
+    getTasksByPriorityFilter,
+    incompleteTask,
+    toggleTaskCompletion,
+    addTagsToTask,
+    removeTagsFromTask,
+    clearTagsFromTask,
+    getAllTags,
+    findTasksByAnyTag,
+    findTasksByAllTags,
+    getTasksByTag,
+    getTasksByTags,
+    getTasksByDateRange,
+    getTasksByCompletionAndPriority
 };

@@ -141,7 +141,7 @@ function getTasksSortedByDate() {
  *
  * @returns {Array} Array of tasks sorted alphabetically.
  */
-function getTasksSortedAlphabetically() {
+function getTasksSortedByTitle(ascending = true) {
   return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
 }
 
@@ -162,7 +162,7 @@ function getTasksByDateRange(startTime, endTime) {
  * @param {boolean} [ascending=false] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by creation date (oldest first).
  */
-function getTasksSortedByCreationDate(ascending = false) {
+function getTasksSortedByDateAscending(ascending = false) {
   return [..._tasks].sort((a, b) => {
     return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
   });
@@ -174,7 +174,7 @@ function getTasksSortedByCreationDate(ascending = false) {
  * @param {boolean} [ascending=true] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by title.
  */
-function getTasksSortedByTitle(ascending = true) {
+function getTasksSortedByTitleOrder(ascending = true) {
   return [..._tasks].sort((a, b) => {
     const titleA = a.title.toLowerCase();
     const titleB = b.title.toLowerCase();
@@ -292,7 +292,7 @@ function getTasksSortedByPriority(ascending = true) {
  * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
  * @returns {Array} Array of tasks sorted by completion status.
  */
-function getTasksSortedByCompletionStatus(completedFirst = true) {
+function getTasksSortedByCompletion(completedFirst = true) {
   return [..._tasks].sort((a, b) => {
     if (a.completed === b.completed) return 0;
     return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);

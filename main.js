@@ -193,7 +193,7 @@ function resetTaskIdCounter() {
 }
 
 /**
- * Gets tasks filtered by priority level
+ * Gets tasks filtered by priority level.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of tasks with the specified priority.

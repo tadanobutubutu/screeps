@@ -87,7 +87,7 @@ function getTaskById(idOrTitle) {
 function updateTaskTitle(idOrTitle, newTitle) {
   const task = getTaskById(idOrTitle);
   if (task) {
-ומי task.title = newTitle;
+    task.title = newTitle;
   }
 }
 
@@ -105,4 +105,6 @@ function getCompletedTasks() {
  *
  * @returns {Array} Array of incomplete tasks.
  */
-function
+function getIncompleteTasks() {
+  return _tasks.filter(task => !task.completed);
+}

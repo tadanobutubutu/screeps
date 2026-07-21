@@ -361,6 +361,45 @@ function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
 
+/**
+ * Gets tasks sorted alphabetically by title.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted alphabetically.
+ */
+function getTasksSortedAlphabetically(ascending = true) {
+  return [..._tasks].sort((a, b) => {
+    const titleA = a.title.toLowerCase();
+    const titleB = b.title.toLowerCase();
+    return ascending ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+  });
+}
+
+/**
+ * Gets tasks sorted by creation date.
+ *
+ * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by creation date.
+ */
+function getTasksSortedByCreationDate(ascending = false) {
+  return [..._tasks].sort((a, b) => {
+    return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+  });
+}
+
+/**
+ * Gets tasks sorted by completion status.
+ *
+ * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
+ * @returns {Array} Array of tasks sorted by completion status.
+ */
+function getTasksSortedByCompletionStatus(completedFirst = true) {
+  return [..._tasks].sort((a, b) => {
+    if (a.completed === b.completed) return 0;
+    return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
+  });
+}
+
 // Export all functions
 module.exports = {
   addTask,

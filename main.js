@@ -139,6 +139,7 @@ function getTasksSortedByDate() {
 /**
  * Gets tasks sorted alphabetically by title.
  *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedByTitle(ascending = true) {

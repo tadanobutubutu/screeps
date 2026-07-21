@@ -14,7 +14,7 @@ function addTask(title) {
     completed: false,
     createdAt: Date.now(),
     tags: [],
-    priority: 'edium'
+    priority: 'medium'
   };
   _tasks.push(task);
   return task.id;
@@ -40,6 +40,7 @@ function completeTask(id) {
     task.completed = true;
   }
 }
+
 /**
  * Removes a task by ID.
  *
@@ -51,6 +52,7 @@ function removeTask(id) {
     _tasks.splice(index, 1);
   }
 }
+
 /**
  * Finds tasks by title (case-insensitive partial match).
  *
@@ -61,8 +63,9 @@ function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
+
 /**
- * Gets a task by ID or title.
+ * Retrieves a task by ID or title.
  *
  * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
  * @returns {Object|null} The task object or null if not found.
@@ -70,11 +73,11 @@ function findTasks(searchTerm) {
 function getTaskById(idOrTitle) {
   if (typeof idOrTitle === 'number') {
     return _tasks.find(t => t.id === idOrTitle) || null;
-  } else {
-    const lowerTitle = idOrTitle.toLowerCase();
-    return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
   }
+  const lowerTitle = idOrTitle.toLowerCase();
+  return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
 }
+
 /**
  * Updates a task's title.
  *
@@ -87,22 +90,25 @@ function updateTaskTitle(idOrTitle, newTitle) {
     task.title = newTitle;
   }
 }
+
 /**
- * Gets all completed tasks.
+ * Retrieves all completed tasks.
  *
  * @returns {Array} Array of completed tasks.
  */
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
 }
+
 /**
- * Gets all incomplete tasks.
+ * Retrieves all incomplete tasks.
  *
  * @returns {Array} Array of incomplete tasks.
  */
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
+
 /**
  * Clears all tasks.
  */
@@ -110,8 +116,9 @@ function clearAllTasks() {
   _tasks.length = 0;
   _state.nextId = 1;
 }
+
 /**
- * Gets the total number of tasks.
+ * Returns the total number of tasks.
  *
  * @returns {number} The count of all tasks.
  */
@@ -120,16 +127,19 @@ function getTaskCount() {
 }
 
 /**
- * Gets tasks sorted by creation date (newest first).
+ * Retrieves tasks sorted by creation date.
  *
+ * @param {boolean} [ascending=false] - Sort order; false for newest first.
  * @returns {Array} Array of tasks sorted by creation date.
  */
-function getTasksSortedByDate() {
-  return [..._tasks].sort((a, b) => b.createdAt - a.createdAt);
+function getTasksSortedByCreationDate(ascending = false) {
+  return [..._tasks].sort((a, b) =>
+    ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt
+  );
 }
 
 /**
- * Gets tasks sorted alphabetically by title.
+ * Retrieves tasks sorted alphabetically by title.
  *
  * @param {boolean} [ascending=true] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted alphabetically.
@@ -143,7 +153,7 @@ function getTasksSortedByTitle(ascending = true) {
 }
 
 /**
- * Gets tasks created within a specific time range.
+ * Lists tasks within a specific date range.
  *
  * @param {number} startTime - Start timestamp (inclusive).
  * @param {number} endTime - End timestamp (inclusive).
@@ -151,34 +161,6 @@ function getTasksSortedByTitle(ascending = true) {
  */
 function getTasksByDateRange(startTime, endTime) {
   return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
-}
-
-/**
- * Gets tasks sorted by creation date (oldest first).
- *
- * @param {boolean} [ascending=false] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by creation date.
- */
-function getTasksSortedByDateAscending(ascending = false) {
-  return [..._tasks].sort((a, b) => {
-    return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
-  });
-}
-
-/**
- * Gets tasks sorted by title.
- *
- * @param {boolean} [ascending=true] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by title.
- */
-function getTasksSortedByTitleOrder(ascending = true) {
-  const mapped = _tasks.map((task, idx) => ({ idx, title: task.title.toLowerCase() }));
-  mapped.sort((a, b) => {
-    if (a.title < b.title) return ascending ? -1 : 1;
-    if (a.title > b.title) return ascending ? 1 : -1;
-    return 0;
-  });
-  return mapped.map(item => _tasks[item.idx]);
 }
 
 /**
@@ -190,9 +172,9 @@ function resetTaskIdCounter() {
 }
 
 /**
- * Gets tasks filtered by priority level.
+ * Retrieves tasks filtered by priority level.
  *
- * @param {string} priority - The priority level to filter by ('low', 'edium', 'high').
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of tasks with the specified priority.
  */
 function getTasksByPriority(priority) {
@@ -200,7 +182,7 @@ function getTasksByPriority(priority) {
 }
 
 /**
- * Gets tasks that have a specific tag.
+ * Retrieves tasks that have a specific tag.
  *
  * @param {string} tag - The tag to filter by.
  * @returns {Array} Array of tasks with the specified tag.
@@ -236,30 +218,30 @@ function removeTagFromTask(id, tag) {
 }
 
 /**
- * Gets tasks that have at least one of the specified tags.
+ * Retrieves tasks that have all specified tags (AND condition).
  *
  * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of tasks that have at least one of the specified tags.
+ * @returns {Array} Array of tasks that have all specified tags.
  */
-function getTasksWithTags(tags) {
-  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+function getTasksWithAllTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
 
 /**
- * Sets the priority of a task.
+ * Updates a task's priority.
  *
- * @param {number} id - The ID of the task.
- * @param {string} priority - The priority level ('low', 'edium', 'high').
+ * @param {number|string} idOrTitle - The ID or title of the task.
+ * @param {string} priority - The new priority level ('low', 'medium', 'high').
  */
-function setTaskPriority(id, priority) {
-  const task = _tasks.find(t => t.id === id);
+function setTaskPriority(idOrTitle, priority) {
+  const task = getTaskById(idOrTitle);
   if (task) {
     task.priority = priority;
   }
 }
 
 /**
- * Gets tasks filtered by completion status.
+ * Retrieves tasks filtered by completion status.
  *
  * @param {boolean} completed - Whether to filter completed or incomplete tasks.
  * @returns {Array} Array of tasks with the specified completion status.
@@ -269,7 +251,7 @@ function getTasksByCompletionStatus(completed) {
 }
 
 /**
- * Gets tasks sorted by priority.
+ * Retrieves tasks sorted by priority.
  *
  * @param {boolean} [ascending=true] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by priority.
@@ -277,16 +259,16 @@ function getTasksByCompletionStatus(completed) {
 function getTasksSortedByPriority(ascending = true) {
   const priorityOrder = { low: 0, medium: 1, high: 2 };
   return [..._tasks].sort((a, b) => {
-    const priorityA = priorityOrder[a.priority];
-    const priorityB = priorityOrder[b.priority];
-    return ascending ? priorityA - priorityB : priorityB - priorityA;
+    const aVal = priorityOrder[a.priority];
+    const bVal = priorityOrder[b.priority];
+    return ascending ? aVal - bVal : bVal - aVal;
   });
 }
 
 /**
- * Gets tasks sorted by completion status.
+ * Retrieves tasks sorted by completion status.
  *
- * @param {boolean} [ascending = true] - Whether to show completed tasks first.
+ * @param {boolean} [ascending=true] - Whether to show completed tasks first.
  * @returns {Array} Array of tasks sorted by completion status.
  */
 function getTasksSortedByCompletionStatus(ascending = true) {
@@ -297,7 +279,7 @@ function getTasksSortedByCompletionStatus(ascending = true) {
 }
 
 /**
- * Gets tasks sorted by the number of tags.
+ * Retrieves tasks sorted by the number of tags.
  *
  * @param {boolean} [ascending=false] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by number of tags.
@@ -311,7 +293,7 @@ function getTasksSortedByTagCount(ascending = false) {
 }
 
 /**
- * Gets tasks created before a specific date.
+ * Retrieves tasks created before a specific date.
  *
  * @param {number} date - The timestamp to compare against.
  * @returns {Array} Array of tasks created before the specified date.
@@ -321,7 +303,7 @@ function getTasksCreatedBefore(date) {
 }
 
 /**
- * Gets tasks created after a specific date.
+ * Retrieves tasks created after a specific date.
  *
  * @param {number} date - The timestamp to compare against.
  * @returns {Array} Array of tasks created after the specified date.
@@ -331,7 +313,7 @@ function getTasksCreatedAfter(date) {
 }
 
 /**
- * Gets tasks that have no tags.
+ * Retrieves tasks that have no tags.
  *
  * @returns {Array} Array of tasks with no tags.
  */
@@ -340,7 +322,7 @@ function getTasksWithoutTags() {
 }
 
 /**
- * Gets tasks that have at least one tag.
+ * Retrieves tasks that have at least one tag.
  *
  * @returns {Array} Array of tasks with at least one tag.
  */
@@ -349,7 +331,7 @@ function getTasksWithAnyTags() {
 }
 
 /**
- * Gets tasks that have all specified tags.
+ * Retrieves tasks that have all specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of tasks that have all specified tags.
@@ -359,7 +341,7 @@ function getTasksWithAllTags(tags) {
 }
 
 /**
- * Gets tasks filtered by multiple tags (OR condition).
+ * Retrieves tasks filtered by multiple tags (OR condition).
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of tasks that have at least one of the specified tags.
@@ -369,71 +351,7 @@ function getTasksFilteredByTags(tags) {
 }
 
 /**
- * Gets tasks filtered by multiple tags (AND condition).
- *
- * @param {Array} tags - Array of tags to filter by.
- * @returns {Array} Array of tasks that have all specified tags.
- */
-function getTasksFilteredByAllTags(tags) {
-  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
-}
-
-/**
- * Gets tasks sorted by priority level.
- *
- * @param {boolean} [ascending=true] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by priority level.
- */
-function getTasksSortedByPriorityLevel(ascending = true) {
-  const priorityOrder = { low: 0, medium: 1, high: 2 };
-  return [..._tasks].sort((a, b) => {
-    const priorityA = priorityOrder[a.priority];
-    const priorityB = priorityOrder[b.priority];
-    return ascending ? priorityA - priorityB : priorityB - priorityA;
-  });
-}
-
-/**
- * Gets tasks sorted by the number of tags they have.
- *
- * @param {boolean} [ascending=false] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by the number of tags.
- */
-function getTasksSortedByTagCountOrder(ascending = false) {
-  return [..._tasks].sort((a, b) => {
-    const countA = a.tags.length;
-    const countB = b.tags.length;
-    return ascending ? countA - countB : countB - countA;
-  });
-}
-
-/**
- * Gets tasks created within a specific time range.
- *
- * @param {number} startTime - Start timestamp (inclusive).
- * @param {number} endTime - End timestamp (inclusive).
- * @returns {Array} Array of tasks created within the time range.
- */
-function getTasksInDateRange(startTime, endTime) {
-  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
-}
-
-/**
- * Gets tasks sorted by their title length.
- *
- * @param {boolean} [ascending=true] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by title length.
- */
-function getTasksSortedByTitleLength(ascending = true) {
-  return [..._tasks].sort((a, b) => {
-    const lengthA = a.title.length;
-    const lengthB = b.title.length;
-    return ascending ? lengthA - lengthB : lengthB - lengthA;
-  });
-}
-
-/**
- * Gets tasks that have a specific priority and are completed.
+ * Gets completed tasks by priority.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of completed tasks with the specified priority.
@@ -443,7 +361,7 @@ function getCompletedTasksByPriority(priority) {
 }
 
 /**
- * Gets tasks that have a specific priority and are incomplete.
+ * Gets incomplete tasks by priority.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @returns {Array} Array of incomplete tasks with the specified priority.
@@ -453,7 +371,7 @@ function getIncompleteTasksByPriority(priority) {
 }
 
 /**
- * Gets tasks that have a specific tag and are completed.
+ * Gets completed tasks by tag.
  *
  * @param {string} tag - The tag to filter by.
  * @returns {Array} Array of completed tasks with the specified tag.
@@ -463,7 +381,7 @@ function getCompletedTasksByTag(tag) {
 }
 
 /**
- * Gets tasks that have a specific tag and are incomplete.
+ * Gets incomplete tasks by tag.
  *
  * @param {string} tag - The tag to filter by.
  * @returns {Array} Array of incomplete tasks with the specified tag.
@@ -473,27 +391,27 @@ function getIncompleteTasksByTag(tag) {
 }
 
 /**
- * Gets tasks that have at least one of the specified tags and are completed.
+ * Gets completed tasks with any of the specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of completed tasks that have at least one of the specified tags.
  */
-function getCompletedTasksWithTags(tags) {
+function getCompletedTasksWithAnyTags(tags) {
   return _tasks.filter(task => task.completed && task.tags.some(tag => tags.includes(tag)));
 }
 
 /**
- * Gets tasks that have at least one of the specified tags and are incomplete.
+ * Gets incomplete tasks with any of the specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of incomplete tasks that have at least one of the specified tags.
  */
-function getIncompleteTasksWithTags(tags) {
+function getIncompleteTasksWithAnyTags(tags) {
   return _tasks.filter(task => !task.completed && task.tags.some(tag => tags.includes(tag)));
 }
 
 /**
- * Gets tasks that have all specified tags and are completed.
+ * Gets completed tasks with all specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of completed tasks that have all specified tags.
@@ -503,7 +421,7 @@ function getCompletedTasksWithAllTags(tags) {
 }
 
 /**
- * Gets tasks that have all specified tags and are incomplete.
+ * Gets incomplete tasks with all specified tags.
  *
  * @param {Array} tags - Array of tags to filter by.
  * @returns {Array} Array of incomplete tasks that have all specified tags.
@@ -577,7 +495,7 @@ function removeMultipleTagsFromTask(id, tags) {
  * @param {boolean} completed - The completion status to filter by.
  * @returns {Array} Array of tasks that match the criteria.
  */
-function getTasksWithTagsAndCompletion(tags, completed) {
+function getTasksWithAnyTagsAndCompletion(tags, completed) {
   return _tasks.filter(task =>
     task.completed === completed &&
     task.tags.some(tag => tags.includes(tag))
@@ -622,7 +540,7 @@ function getTasksByTitleRegex(regex) {
 }
 
 /**
- * Gets tasks that have a specific priority and are completed or incomplete.
+ * Gets tasks that have a specific priority and completion status.
  *
  * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
  * @param {boolean} completed - The completion status to filter by.
@@ -635,7 +553,7 @@ function getTasksByPriorityAndCompletion(priority, completed) {
 }
 
 /**
- * Gets tasks that have a specific tag and are completed or incomplete.
+ * Gets tasks that have a specific tag and completion status.
  *
  * @param {string} tag - The tag to filter by.
  * @param {boolean} completed - The completion status to filter by.
@@ -644,88 +562,6 @@ function getTasksByPriorityAndCompletion(priority, completed) {
 function getTasksByTagAndCompletion(tag, completed) {
   return _tasks.filter(task =>
     task.tags.includes(tag) && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have any of the specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAnyTagsAndCompletion(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    task.tags.some(tag => tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have all specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAllTagsAndCompletion(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    tags.every(tag => task.tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have a specific priority and are completed or incomplete.
- *
- * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByPriorityAndCompletionStatus(priority, completed) {
-  return _tasks.filter(task =>
-    task.priority === priority && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have a specific tag and are completed or incomplete.
- *
- * @param {string} tag - The tag to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByTagAndCompletionStatus(tag, completed) {
-  return _tasks.filter(task =>
-    task.tags.includes(tag) && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have any of the specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAnyTagsAndCompletionStatus(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    task.tags.some(tag => tags.includes(tag))
-  );
-}
-
-/**
- * Gets tasks that have all specified tags and are completed or incomplete.
- *
- * @param {Array} tags - Array of tags to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksWithAllTagsAndCompletionStatus(tags, completed) {
-  return _tasks.filter(task =>
-    task.completed === completed &&
-    tags.every(tag => task.tags.includes(tag))
   );
 }
 
@@ -742,17 +578,16 @@ module.exports = {
   getIncompleteTasks,
   clearAllTasks,
   getTaskCount,
-  getTasksSortedByDate,
-  getTasksSortedAlphabetically,
-  getTasksByDateRange,
   getTasksSortedByCreationDate,
   getTasksSortedByTitle,
+  getTasksByDateRange,
   resetTaskIdCounter,
   getTasksByPriority,
   getTasksByTag,
   addTagToTask,
   removeTagFromTask,
-  getTasksWithTags,
+  getTasksWithAllTags,
+  getTasksFilteredByTags,
   setTaskPriority,
   getTasksByCompletionStatus,
   getTasksSortedByPriority,
@@ -762,43 +597,22 @@ module.exports = {
   getTasksCreatedAfter,
   getTasksWithoutTags,
   getTasksWithAnyTags,
-  getTasksWithAllTags,
-  getTasksFilteredByTags,
-  getTasksFilteredByAllTags,
-  getTasksSortedByPriorityLevel,
-  getTasksSortedByTagCountOrder,
-  getTasksInDateRange,
-  getTasksSortedByTitleLength,
-  getTasksWithPriority,
-  getTasksWithAnyOfTags,
-  getTasksWithAllOfTags,
-  getTasksSortedByCreationDateOrder,
-  getTasksSortedByCompletionStatusOrder,
-  getTasksByTitle,
-  getTasksByTitleSubstring,
-  getTasksCreatedOnDate,
   getCompletedTasksByPriority,
   getIncompleteTasksByPriority,
   getCompletedTasksByTag,
   getIncompleteTasksByTag,
-  getCompletedTasksWithTags,
-  getIncompleteTasksWithTags,
+  getCompletedTasksWithAnyTags,
+  getIncompleteTasksWithAnyTags,
   getCompletedTasksWithAllTags,
   getIncompleteTasksWithAllTags,
   updateMultipleTasksCompletion,
   updateMultipleTasksPriority,
   addMultipleTagsToTask,
   removeMultipleTagsFromTask,
-  getTasksWithTagsAndCompletion,
+  getTasksWithAnyTagsAndCompletion,
   getTasksWithAllTagsAndCompletion,
   getTasksCreatedBetweenDates,
   getTasksByTitleRegex,
   getTasksByPriorityAndCompletion,
-  getTasksByTagAndCompletion,
-  getTasksWithAnyTagsAndCompletion,
-  getTasksWithAllTagsAndCompletion,
-  getTasksByPriorityAndCompletionStatus,
-  getTasksByTagAndCompletionStatus,
-  getTasksWithAnyTagsAndCompletionStatus,
-  getTasksWithAllTagsAndCompletionStatus
+  getTasksByTagAndCompletion
 };

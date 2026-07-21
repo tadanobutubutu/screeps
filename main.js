@@ -40,7 +40,6 @@ function completeTask(id) {
     task.completed = true;
   }
 }
-
 /**
  * Removes a task by ID.
  *
@@ -52,7 +51,6 @@ function removeTask(id) {
     _tasks.splice(index, 1);
   }
 }
-
 /**
  * Finds tasks by title (case-insensitive partial match).
  *
@@ -63,7 +61,6 @@ function findTasks(searchTerm) {
   const lowerSearchTerm = searchTerm.toLowerCase();
   return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
-
 /**
  * Gets a task by ID or title.
  *
@@ -78,7 +75,6 @@ function getTaskById(idOrTitle) {
     return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
   }
 }
-
 /**
  * Updates a task's title.
  *
@@ -91,7 +87,6 @@ function updateTaskTitle(idOrTitle, newTitle) {
     task.title = newTitle;
   }
 }
-
 /**
  * Gets all completed tasks.
  *
@@ -100,7 +95,6 @@ function updateTaskTitle(idOrTitle, newTitle) {
 function getCompletedTasks() {
   return _tasks.filter(task => task.completed);
 }
-
 /**
  * Gets all incomplete tasks.
  *
@@ -109,7 +103,6 @@ function getCompletedTasks() {
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
-
 /**
  * Clears all tasks.
  */
@@ -117,13 +110,12 @@ function clearAllTasks() {
   _tasks.length = 0;
   _state.nextId = 1;
 }
-
 /**
  * Gets the total number of tasks.
  *
  * @returns {number} The count of all tasks.
  */
-function getTaskCount() {
+ function getTaskCount() {
   return _tasks.length;
 }
 
@@ -385,93 +377,13 @@ function getTasksFilteredByAllTags(tags) {
 }
 
 /**
- * Gets tasks sorted by priority level.
- *
- * @param {boolean} [ascending=true] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by priority level.
- */
-function getTasksSortedByPriorityLevel(ascending = true) {
-  const priorityOrder = { low: 0, medium: 1, high: 2 };
-  return [..._tasks].sort((a, b) => {
-    const priorityA = priorityOrder[a.priority];
-    const priorityB = priorityOrder[b.priority];
-    return ascending ? priorityA - priorityB : priorityB - priorityA;
-  });
-}
-
-/**
- * Gets tasks sorted by the number of tags they have.
- *
- * @param {boolean} [ascending=false] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by the number of tags.
- */
-function getTasksSortedByTagCountOrder(ascending = false) {
-  return [..._tasks].sort((a, b) => {
-    const countA = a.tags.length;
-    const countB = b.tags.length;
-    return ascending ? countA - countB : countB - countA;
-  });
-}
-
-/**
- * Gets tasks created within a specific time range.
- *
- * @param {number} startTime - Start timestamp (inclusive).
- * @param {number} endTime - End timestamp (inclusive).
- * @returns {Array} Array of tasks created within the time range.
- */
-function getTasksInDateRange(startTime, endTime) {
-  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
-}
-
-/**
- * Gets tasks sorted by their title length.
- *
- * @param {boolean} [ascending=true] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by title length.
- */
-function getTasksSortedByTitleLength(ascending = true) {
-  return [..._tasks].sort((a, b) => {
-    const lengthA = a.title.length;
-    const lengthB = b.title.length;
-    return ascending ? lengthA - lengthB : lengthB - lengthA;
-  });
-}
-
-/**
- * Gets tasks that have a specific priority and are completed or incomplete.
- *
- * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByPriorityAndCompletion(priority, completed) {
-  return _tasks.filter(task =>
-    task.priority === priority && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have a specific tag and are completed or incomplete.
- *
- * @param {string} tag - The tag to filter by.
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks that match the criteria.
- */
-function getTasksByTagAndCompletion(tag, completed) {
-  return _tasks.filter(task =>
-    task.tags.includes(tag) && task.completed === completed
-  );
-}
-
-/**
- * Gets tasks that have any of the specified tags and are completed or incomplete.
+ * Updates tasks filtered by multiple tags (OR condition).
  *
  * @param {Array} tags - Array of tags to filter by.
  * @param {boolean} completed - The completion status to filter by.
  * @returns {Array} Array of tasks that match the criteria.
  */
-function getTasksWithAnyTagsAndCompletion(tags, completed) {
+function getTasksWithTagsAndCompletion(tags, completed) {
   return _tasks.filter(task =>
     task.completed === completed &&
     task.tags.some(tag => tags.includes(tag))
@@ -479,7 +391,7 @@ function getTasksWithAnyTagsAndCompletion(tags, completed) {
 }
 
 /**
- * Gets tasks that have all specified tags and are completed or incomplete.
+ * Updates tasks filtered by multiple tags (AND condition).
  *
  * @param {Array} tags - Array of tags to filter by.
  * @param {boolean} completed - The completion status to filter by.
@@ -643,22 +555,10 @@ module.exports = {
   getTasksSortedByTagCountOrder,
   getTasksInDateRange,
   getTasksSortedByTitleLength,
-  getTasksWithPriority,
-  getTasksWithAnyOfTags,
-  getTasksWithAllOfTags,
-  getTasksSortedByCreationDateOrder,
-  getTasksSortedByCompletionStatusOrder,
-  getTasksByTitle,
-  getTasksByTitleSubstring,
-  getTasks_createdOnDate,
-  getCompletedTasksByPriority,
-  getIncompleteTasksByPriority,
-  getCompletedTasksByTag,
-  getIncompleteTasksByTag,
-  getCompletedTasksWithTags,
-  getIncompleteTasksWithTags,
-  getCompletedTasksWithAllTags,
-  getIncompleteTasksWithAllTags,
+  getTasksByPriorityAndCompletion,
+  getTasksByTagAndCompletion,
+  getTasksWithAnyTagsAndCompletion,
+  getTasksWithAllTagsAndCompletion,
   updateMultipleTasksCompletion,
   updateMultipleTasksPriority,
   addMultipleTagsToTask,
@@ -667,10 +567,6 @@ module.exports = {
   getTasksWithAllTagsAndCompletion,
   getTasksCreatedBetweenDates,
   getTasksByTitleRegex,
-  getTasksByPriorityAndCompletion,
-  getTasksByTagAndCompletion,
-  getTasksWithAnyTagsAndCompletion,
-  getTasksWithAllTagsAndCompletion,
   getTasksByPriorityAndCompletionStatus,
   getTasksByTagAndCompletionStatus,
   getTasksWithAnyTagsAndCompletionStatus,

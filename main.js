@@ -418,6 +418,93 @@ function getTasksByCompletionAndPriority(completed, priority) {
     return _tasks.filter(task => task.completed === completed && task.priority === priority);
 }
 
+/**
+ * Gets tasks filtered by multiple priorities (OR logic).
+ *
+ * @param {string[]} priorities - Array of priorities to filter by (low, medium, high).
+ * @returns {Array} Array of tasks with any of the specified priorities.
+ */
+function getTasksByMultiplePriorities(priorities) {
+    const validPriorities = ['low', 'medium', 'high'];
+    const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
+    if (invalidPriorities.length > 0) {
+        throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task => priorities.includes(task.priority));
+}
+
+/**
+ * Gets tasks filtered by multiple completion statuses (OR logic).
+ *
+ * @param {boolean[]} statuses - Array of completion statuses to filter by.
+ * @returns {Array} Array of tasks with any of the specified completion statuses.
+ */
+function getTasksByMultipleCompletionStatuses(statuses) {
+    return _tasks.filter(task => statuses.includes(task.completed));
+}
+
+/**
+ * Gets tasks filtered by tag and priority.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @returns {Array} Array of tasks matching both tag and priority.
+ */
+function getTasksByTagAndPriority(tag, priority) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task => task.tags.includes(tag) && task.priority === priority);
+}
+
+/**
+ * Gets tasks filtered by tag and completion status.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks matching both tag and completion status.
+ */
+function getTasksByTagAndCompletion(tag, completed) {
+    return _tasks.filter(task => task.tags.includes(tag) && task.completed === completed);
+}
+
+/**
+ * Gets tasks filtered by priority and date range.
+ *
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching both priority and date range.
+ */
+function getTasksByPriorityAndDateRange(priority, startDate, endDate) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.priority === priority &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
+/**
+ * Gets tasks filtered by completion status and date range.
+ *
+ * @param {boolean} completed - The completion status to filter by.
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching both completion status and date range.
+ */
+function getTasksByCompletionAndDateRange(completed, startDate, endDate) {
+    return _tasks.filter(task =>
+        task.completed === completed &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -454,5 +541,11 @@ module.exports = {
   getTasksByTag,
   getTasksByTags,
   getTasksByDateRange,
-  getTasksByCompletionAndPriority
+  getTasksByCompletionAndPriority,
+  getTasksByMultiplePriorities,
+  getTasksByMultipleCompletionStatuses,
+  getTasksByTagAndPriority,
+  getTasksByTagAndCompletion,
+  getTasksByPriorityAndDateRange,
+  getTasksByCompletionAndDateRange
 };

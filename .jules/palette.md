@@ -46,3 +46,8 @@
 
 **Learning:** Providing non-disruptive, transient visual feedback for manually triggered background actions (such as dashboard refresh buttons or keyboard shortcuts like Alt + R) makes interactions feel responsive and highly rewarding. Pairing this banner with an `aria-live="polite"` attribute ensures keyboard and screen reader users are immediately updated on task completion without shifting focus.
 **Action:** Always include transient visual badges accompanied by `aria-live="polite"` attributes when actions complete in the background to keep all users seamlessly informed.
+
+## 2026-07-28 - [Accessible Interactive Nesting inside Summary]
+
+**Learning:** Nesting interactive elements like `<button>` inside a `<summary>` element violates HTML specifications and breaks accessibility. Screen readers and keyboard navigation users lose focus control or fail to activate either the details disclosure or the nested button correctly.
+**Action:** Keep `<summary>` elements clean of nested focusable controls; instead, place interactive buttons or tooltips inside the body of the `<details>` container, formatted with appropriate visual groupings.

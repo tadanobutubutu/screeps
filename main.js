@@ -360,3 +360,39 @@ function getTasksWithAnyTags() {
 function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
+
+// Export all functions
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks,
+  clearAllTasks,
+  getTaskCount,
+  getTasksSortedByDate,
+  getTasksSortedAlphabetically,
+  getTasksByDateRange,
+  getTasksSortedByCreationDate,
+  getTasksSortedByTitle,
+  resetTaskIdCounter,
+  getTasksByPriority,
+  getTasksByTag,
+  addTagToTask,
+  removeTagFromTask,
+  getTasksWithTags,
+  setTaskPriority,
+  getTasksByCompletionStatus,
+  getTasksSortedByPriority,
+  getTasksSortedByCompletionStatus,
+  getTasksSortedByTagCount,
+  getTasksCreatedBefore,
+  getTasksCreatedAfter,
+  getTasksWithoutTags,
+  getTasksWithAnyTags,
+  getTasksWithAllTags
+};

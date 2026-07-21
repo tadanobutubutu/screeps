@@ -406,6 +406,135 @@ function getTasksSortedByCompletionStatus(completedFirst = true) {
   });
 }
 
+/**
+ * Gets tasks filtered by multiple tags (OR condition).
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksFilteredByTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Gets tasks filtered by multiple tags (AND condition).
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have all specified tags.
+ */
+function getTasksFilteredByAllTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks sorted by priority level.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by priority level.
+ */
+function getTasksSortedByPriorityLevel(ascending = true) {
+  const priorityOrder = { low: 0, medium: 1, high: 2 };
+  return [..._tasks].sort((a, b) => {
+    const priorityA = priorityOrder[a.priority];
+    const priorityB = priorityOrder[b.priority];
+    return ascending ? priorityA - priorityB : priorityB - priorityA;
+  });
+}
+
+/**
+ * Gets tasks sorted by the number of tags they have.
+ *
+ * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by the number of tags.
+ */
+function getTasksSortedByTagCountOrder(ascending = false) {
+  return [..._tasks].sort((a, b) => {
+    const countA = a.tags.length;
+    const countB = b.tags.length;
+    return ascending ? countA - countB : countB - countA;
+  });
+}
+
+/**
+ * Gets tasks that were created within a specific time range.
+ *
+ * @param {number} startTime - Start timestamp (inclusive).
+ * @param {number} endTime - End timestamp (inclusive).
+ * @returns {Array} Array of tasks created within the time range.
+ */
+function getTasksInDateRange(startTime, endTime) {
+  return _tasks.filter(task => task.createdAt >= startTime && task.createdAt <= endTime);
+}
+
+/**
+ * Gets tasks sorted by their title length.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by title length.
+ */
+function getTasksSortedByTitleLength(ascending = true) {
+  return [..._tasks].sort((a, b) => {
+    const lengthA = a.title.length;
+    const lengthB = b.title.length;
+    return ascending ? lengthA - lengthB : lengthB - lengthA;
+  });
+}
+
+/**
+ * Gets tasks that have a specific priority level.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of tasks with the specified priority level.
+ */
+function getTasksWithPriority(priority) {
+  return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Gets tasks that have at least one tag from a specified list.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have at least one of the specified tags.
+ */
+function getTasksWithAnyOfTags(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have all tags from a specified list.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of tasks that have all specified tags.
+ */
+function getTasksWithAllOfTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks sorted by their creation date.
+ *
+ * @param {boolean} [ascending=false] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted by creation date.
+ */
+function getTasksSortedByCreationDateOrder(ascending = false) {
+  return [..._tasks].sort((a, b) => {
+    return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+  });
+}
+
+/**
+ * Gets tasks sorted by their completion status.
+ *
+ * @param {boolean} [completedFirst=true] - Whether to show completed tasks first.
+ * @returns {Array} Array of tasks sorted by completion status.
+ */
+function getTasksSortedByCompletionStatusOrder(completedFirst = true) {
+  return [..._tasks].sort((a, b) => {
+    if (a.completed === b.completed) return 0;
+    return completedFirst ? (a.completed ? -1 : 1) : (a.completed ? 1 : -1);
+  });
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -439,5 +568,16 @@ module.exports = {
   getTasksCreatedAfter,
   getTasksWithoutTags,
   getTasksWithAnyTags,
-  getTasksWithAllTags
+  getTasksWithAllTags,
+  getTasksFilteredByTags,
+  getTasksFilteredByAllTags,
+  getTasksSortedByPriorityLevel,
+  getTasksSortedByTagCountOrder,
+  getTasksInDateRange,
+  getTasksSortedByTitleLength,
+  getTasksWithPriority,
+  getTasksWithAnyOfTags,
+  getTasksWithAllOfTags,
+  getTasksSortedByCreationDateOrder,
+  getTasksSortedByCompletionStatusOrder
 };

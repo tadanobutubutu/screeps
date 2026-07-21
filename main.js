@@ -280,6 +280,105 @@ function getTasksByPriorityFilter(priority) {
 }
 
 /**
+ * Marks a task as incomplete.
+ *
+ * @param {number} id - The ID of the task to mark as incomplete.
+ */
+function incompleteTask(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.completed = false;
+  }
+}
+
+/**
+ * Toggles a task's completion status.
+ *
+ * @param {number} id - The ID of the task to toggle.
+ */
+function toggleTaskCompletion(id) {
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.completed = !task.completed;
+  }
+}
+
+/**
+ * Adds multiple tags to a task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to tag.
+ * @param {string[]} tags - An array of tags to add to the task.
+ */
+function addTagsToTask(idOrTitle, tags) {
+  const task = getTaskById(idOrTitle);
+  if (task) {
+    tags.forEach(tag => {
+      if (!task.tags.includes(tag)) {
+        task.tags.push(tag);
+      }
+    });
+  }
+}
+
+/**
+ * Removes multiple tags from a task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task.
+ * @param {string[]} tags - An array of tags to remove from the task.
+ */
+function removeTagsFromTask(idOrTitle, tags) {
+  const task = getTaskById(idOrTitle);
+  if (task) {
+    task.tags = task.tags.filter(tag => !tags.includes(tag));
+  }
+}
+
+/**
+ * Clears all tags from a task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task.
+ */
+function clearTagsFromTask(idOrTitle) {
+  const task = getTaskById(idOrTitle);
+  if (task) {
+    task.tags = [];
+  }
+}
+
+/**
+ * Gets all unique tags across all tasks.
+ *
+ * @returns {string[]} An array of all unique tags.
+ */
+function getAllTags() {
+  const allTags = new Set();
+  _tasks.forEach(task => {
+    task.tags.forEach(tag => allTags.add(tag));
+  });
+  return Array.from(allTags);
+}
+
+/**
+ * Gets tasks that have any of the specified tags.
+ *
+ * @param {string[]} tags - An array of tags to search for.
+ * @returns {Array} Array of tasks that have any of the specified tags.
+ */
+function findTasksByAnyTag(tags) {
+  return _tasks.filter(task => task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have all of the specified tags.
+ *
+ * @param {string[]} tags - An array of tags to search for.
+ * @returns {Array} Array of tasks that have all of the specified tags.
+ */
+function findTasksByAllTags(tags) {
+  return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
  * Gets tasks filtered by tag.
  *
  * @param {string} tag - The tag to filter by.
@@ -350,6 +449,14 @@ module.exports = {
   getTasksGroupedByCompletion,
   getTasksByCompletion,
   getTasksByPriorityFilter,
+  incompleteTask,
+  toggleTaskCompletion,
+  addTagsToTask,
+  removeTagsFromTask,
+  clearTagsFromTask,
+  getAllTags,
+  findTasksByAnyTag,
+  findTasksByAllTags,
   getTasksByTag,
   getTasksByTags,
   getTasksByDateRange,

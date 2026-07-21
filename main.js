@@ -189,6 +189,72 @@ function getTasksByCreationDate(order = 'asc') {
   return order === 'desc' ? sortedTasks.reverse() : sortedTasks;
 }
 
+/**
+ * Clears all tasks from the task list.
+ */
+function clearAllTasks() {
+  _tasks.length = 0;
+  _state.nextId = 1;
+}
+
+/**
+ * Gets the total count of tasks.
+ *
+ * @returns {number} The total number of tasks.
+ */
+function getTaskCount() {
+  return _tasks.length;
+}
+
+/**
+ * Gets the count of completed tasks.
+ *
+ * @returns {number} The number of completed tasks.
+ */
+function getCompletedTaskCount() {
+  return getCompletedTasks().length;
+}
+
+/**
+ * Gets the count of incomplete tasks.
+ *
+ * @returns {number} The number of incomplete tasks.
+ */
+function getIncompleteTaskCount() {
+  return getIncompleteTasks().length;
+}
+
+/**
+ * Gets tasks grouped by priority.
+ *
+ * @returns {Object} An object with priorities as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByPriority() {
+  const groups = {
+    low: [],
+    medium: [],
+    high: []
+  };
+
+  _tasks.forEach(task => {
+    groups[task.priority].push(task);
+  });
+
+  return groups;
+}
+
+/**
+ * Gets tasks grouped by completion status.
+ *
+ * @returns {Object} An object with 'completed' and 'incomplete' as keys and arrays of tasks as values.
+ */
+function getTasksGroupedByCompletion() {
+  return {
+    completed: getCompletedTasks(),
+    incomplete: getIncompleteTasks()
+  };
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -205,5 +271,11 @@ module.exports = {
   findTasksByTag,
   updateTaskPriority,
   getTasksByPriority,
-  getTasksByCreationDate
+  getTasksByCreationDate,
+  clearAllTasks,
+  getTaskCount,
+  getCompletedTaskCount,
+  getIncompleteTaskCount,
+  getTasksGroupedByPriority,
+  getTasksGroupedByCompletion
 };

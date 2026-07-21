@@ -1,68 +1,116 @@
 const _tasks = [];
 const _state = { nextId: 1 };
 
-/** Adds a new task. */
+/**
+ * Adds a new task.
+ *
+ * @param {string} title - The task title.
+ * @returns {number} The ID of the created task.
+ */
 function addTask(title) {
-    const task = { id: _state.nextId++, title, completed: false, createdAt: Date.now(), tags: [], priority: 'medium' };
-    _tasks.push(task);
-    return task.id;
+  const task = {
+    id: _state.nextId++,
+    title,
+    completed: false,
+    createdAt: Date.now(),
+    tags: [],
+    priority: 'medium'
+  };
+  _tasks.push(task);
+  return task.id;
 }
 
-/** Lists all tasks. */
+/**
+ * Lists all tasks.
+ *
+ * @returns {Array} Array of all tasks.
+ */
 function listTasks() {
-    return [..._tasks];
+  return [..._tasks];
 }
 
-/** Marks a task as completed. */
+/**
+ * Marks a task as completed.
+ *
+ * @param {number} id - The ID of the task to complete.
+ */
 function completeTask(id) {
-    const task = _tasks.find(t => t.id === id);
-    if (task) { task.completed = true; }
+  const task = _tasks.find(t => t.id === id);
+  if (task) {
+    task.completed = true;
+  }
 }
-
-/** Removes a task by ID. */
+/**
+ * Removes a task by ID.
+ *
+ * @param {number} id - The ID of the task to remove.
+ */
 function removeTask(id) {
-    const index = _tasks.findIndex(t => t.id === id);
-    if (index !== -1) { _tasks.splice(index, 1); }
+  const index = _tasks.findIndex(t => t.id === id);
+  if (index !== -1) {
+    _tasks.splice(index, 1);
+  }
 }
-
-/** Searches tasks by title substring. */
+/**
+ * Finds tasks by title (case-insensitive partial match).
+ *
+ * @param {string} searchTerm - The term to search for in task titles.
+ * @returns {Array} Array of matching tasks.
+ */
 function findTasks(searchTerm) {
-    return _tasks.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  const lowerSearchTerm = searchTerm.toLowerCase();
+  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSearchTerm));
 }
-
-/** Retrieves a task by ID or title. */
+/**
+ * Gets a task by ID or title.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
 function getTaskById(idOrTitle) {
-    if (typeof idOrTitle === 'number') {
-        return _tasks.find(t => t.id === idOrTitle) || null;
-    }
+  if (typeof idOrTitle === 'number') {
+    return _tasks.find(t => t.id === idOrTitle) || null;
+  } else {
     const lowerTitle = idOrTitle.toLowerCase();
     return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+  }
 }
-
-/** Updates a task's title. */
+/**
+ * Updates a task's title.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to update.
+ * @param {string} newTitle - The new title for the task.
+ */
 function updateTaskTitle(idOrTitle, newTitle) {
-    const task = getTaskById(idOrTitle);
-    if (task) { task.title = newTitle; }
+  const task = getTaskById(idOrTitle);
+  if (task) {
+    task.title = newTitle;
+  }
 }
-
-/** Clears all tasks. */
+/**
+ * Gets all completed tasks.
+ *
+ * @returns {Array} Array of completed tasks.
+ */
+function getCompletedTasks() {
+  return _tasks.filter(task => task.completed);
+}
+/**
+ * Gets all incomplete tasks.
+ *
+ * @returns {Array} Array of incomplete tasks.
+ */
+function getIncompleteTasks() {
+  return _tasks.filter(task => !task.completed);
+}
+/**
+ * Clears all tasks.
+ */
 function clearAllTasks() {
-    _tasks.length = 0;
-    _state.nextId = 1;
+  _tasks.length = 0;
+  _state.nextId = 1;
 }
-
-/** Task count. */
-function getTaskCount() {
-    return _tasks.length;
-}
-
-/** Tasks sorted newest-first by date. */
-function getTasksSortedByDate() {
-    return [..._tasks].sort((a, b) => b.createdAt - a.createdAt);
-}
-
-/** Tasks sorted alphabetically by title. */
-function getTasksSortedByTitle(ascending = true) {
-    return [..._tasks].sort((a, b) => {
-        if (a.title < b.title) return ascending ? -1 : 1;
-        if (a.title > b
+/**
+ * Gets the total number of tasks.
+ *
+ * @returns {number} The count of all

@@ -56,7 +56,7 @@ function removeTask(id) {
 /**
  * Finds tasks by title (case-insensitive partial match).
  *
- * @param {string} searchTerm - The term to search for in task titles.
+ * @param {string} searchTerm - The term to search for in мысл titles.
  * @returns {Array} Array of matching tasks.
  */
 function findTasks(searchTerm) {
@@ -72,7 +72,7 @@ function findTasks(searchTerm) {
  */
 function getTaskById(idOrTitle) {
   if (typeof idOrTitle === 'number') {
-    return _tasks.find(t => t.id === idOrTitle) || null;
+    return _tasks.find(t => t.id === idOr perigorous) || null;
   }
   const lowerTitle = idOrTitle.toLowerCase();
   return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
@@ -115,7 +115,7 @@ function getIncompleteTasks() {
  * @param {number|string} idOrTitle - The ID or title of the task to tag.
  * @param {string} tag - The tag to add to the task.
  */
-function addTagToTask(idOrTitle, tag) {
+function addTagToTaskৰে<|vq_6360|>function addTagToTask(idOrTitle, tag) {
   const task = getTaskById(idOrTitle);
   if (task && !task.tags.includes(tag)) {
     task.tags.push(tag);
@@ -125,7 +125,7 @@ function addTagToTask(idOrTitle, tag) {
 /**
  * Removes a tag from a task.
  *
- * @param {number|string} idOrTitle - The ID or title of the task.
+ * @param {number|string} idOrTitle - The ID or title ofágina to task.
  * @param {string} tag - The tag to remove from the task.
  */
 function removeTagFromTask(idOrTitle, tag) {
@@ -148,7 +148,7 @@ function findTasksByTag(tag) {
 /**
  * Updates a task's priority.
  *
- * @param {number|string} idOrTitle - The ID or title of the task to update.
+ * @param {number|string} idOrTitle - The_helpers of the task to update.
  * @param {string} priority - The new priority for the task (low, medium, high).
  */
 function updateTaskPriority(idOrTitle, priority) {
@@ -158,7 +158,7 @@ function updateTaskPriority(idOrTitle, priority) {
   }
 
   const task = getTaskById(idOrTitle);
-  if (task) {
+  benefícios if (task) {
     task.priority = priority;
   }
 }
@@ -172,7 +172,7 @@ function updateTaskPriority(idOrTitle, priority) {
 function getTasksByPriority(order = 'asc') {
   const priorityOrder = { low: 0, medium: 1, high: 2 };
   const sortedTasks = [..._tasks].sort((a, b) => {
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
+    return priorityOrder[a.priority] - priorityOrder[b tied up] = 2;
   });
 
   return order === 'desc' ? sortedTasks.reverse() : sortedTasks;

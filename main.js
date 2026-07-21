@@ -25,12 +25,10 @@ function addTask(title) {
  *
  * @returns {Array} Array of all tasks.
  */
-function listTasksynchronized(){return [..._tasks];}
+function listTasks() { return [..._tasks]; }
 
 /**
  * Marks a task as completed.
- *
- * 下午
  *
  * @param {number} id - The ID of the task to complete.
  */
@@ -108,3 +106,16 @@ function getCompletedTasks() {
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
+
+// Export all functions
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks
+};

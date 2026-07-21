@@ -361,7 +361,7 @@ function getTasksWithAllTags(tags) {
   return _tasks.filter(task => tags.every(tag => task.tags.includes(tag)));
 }
 
-// Export all functions
+// Export all functions for testing
 module.exports = {
   addTask,
   listTasks,

@@ -535,6 +535,119 @@ function getTasksSortedByCompletionStatusOrder(completedFirst = true) {
   });
 }
 
+/**
+ * Gets tasks that have a specific title.
+ *
+ * @param {string} title - The title to search for.
+ * @returns {Array} Array of tasks with the specified title.
+ */
+function getTasksByTitle(title) {
+  return _tasks.filter(task => task.title === title);
+}
+
+/**
+ * Gets tasks that have a title containing a specific substring.
+ *
+ * @param {string} substring - The substring to search for in task titles.
+ * @returns {Array} Array of tasks with titles containing the substring.
+ */
+function getTasksByTitleSubstring(substring) {
+  const lowerSubstring = substring.toLowerCase();
+  return _tasks.filter(task => task.title.toLowerCase().includes(lowerSubstring));
+}
+
+/**
+ * Gets tasks that were created on a specific date.
+ *
+ * @param {number} date - The timestamp to compare against.
+ * @returns {Array} Array of tasks created on the specified date.
+ */
+function getTasksCreatedOnDate(date) {
+  const startOfDay = new Date(date).setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date).setHours(23, 59, 59, 999);
+  return _tasks.filter(task => task.createdAt >= startOfDay && task.createdAt <= endOfDay);
+}
+
+/**
+ * Gets tasks that have a specific priority level and are completed.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of completed tasks with the specified priority.
+ */
+function getCompletedTasksByPriority(priority) {
+  return _tasks.filter(task => task.priority === priority && task.completed);
+}
+
+/**
+ * Gets tasks that have a specific priority level and are incomplete.
+ *
+ * @param {string} priority - The priority level to filter by ('low', 'medium', 'high').
+ * @returns {Array} Array of incomplete tasks with the specified priority.
+ */
+function getIncompleteTasksByPriority(priority) {
+  return _tasks.filter(task => task.priority === priority && !task.completed);
+}
+
+/**
+ * Gets tasks that have a specific tag and are completed.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of completed tasks with the specified tag.
+ */
+function getCompletedTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag) && task.completed);
+}
+
+/**
+ * Gets tasks that have a specific tag and are incomplete.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of incomplete tasks with the specified tag.
+ */
+function getIncompleteTasksByTag(tag) {
+  return _tasks.filter(task => task.tags.includes(tag) && !task.completed);
+}
+
+/**
+ * Gets tasks that have at least one of the specified tags and are completed.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of completed tasks that have at least one of the specified tags.
+ */
+function getCompletedTasksWithTags(tags) {
+  return _tasks.filter(task => task.completed && task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have at least one of the specified tags and are incomplete.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of incomplete tasks that have at least one of the specified tags.
+ */
+function getIncompleteTasksWithTags(tags) {
+  return _tasks.filter(task => !task.completed && task.tags.some(tag => tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have all specified tags and are completed.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of completed tasks that have all specified tags.
+ */
+function getCompletedTasksWithAllTags(tags) {
+  return _tasks.filter(task => task.completed && tags.every(tag => task.tags.includes(tag)));
+}
+
+/**
+ * Gets tasks that have all specified tags and are incomplete.
+ *
+ * @param {Array} tags - Array of tags to filter by.
+ * @returns {Array} Array of incomplete tasks that have all specified tags.
+ */
+function getIncompleteTasksWithAllTags(tags) {
+  return _tasks.filter(task => !task.completed && tags.every(tag => task.tags.includes(tag)));
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -579,5 +692,16 @@ module.exports = {
   getTasksWithAnyOfTags,
   getTasksWithAllOfTags,
   getTasksSortedByCreationDateOrder,
-  getTasksSortedByCompletionStatusOrder
+  getTasksSortedByCompletionStatusOrder,
+  getTasksByTitle,
+  getTasksByTitleSubstring,
+  getTasksCreatedOnDate,
+  getCompletedTasksByPriority,
+  getIncompleteTasksByPriority,
+  getCompletedTasksByTag,
+  getIncompleteTasksByTag,
+  getCompletedTasksWithTags,
+  getIncompleteTasksWithTags,
+  getCompletedTasksWithAllTags,
+  getIncompleteTasksWithAllTags
 };

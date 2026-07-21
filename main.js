@@ -165,7 +165,7 @@ function getTasksByDateRange(startTime, endTime) {
  * Gets tasks sorted by creation date (oldest first).
  *
  * @param {boolean} [ascending=false] - Whether to sort in ascending order.
- * @returns {Array} Array of tasks sorted by creation date (oldest first).
+ * @returns {Array} Array of tasks sorted by creation date.
  */
 function getTasksSortedByDateAscending(ascending = false) {
   return [..._tasks].sort((a, b) => {
@@ -305,7 +305,7 @@ function getTasksSortedByCompletion(completedFirst = true) {
 }
 
 /**
- * Gets tasks sorted by number of tags.
+ * Gets tasks sorted by the number of tags.
  *
  * @param {boolean} [ascending=false] - Whether to sort in ascending order.
  * @returns {Array} Array of tasks sorted by number of tags.
@@ -805,7 +805,7 @@ function getTasksWithAnyTagsAndCompletion(tags, completed) {
  * @param {boolean} completed - The completion status to filter by.
  * @returns {Array} Array of tasks that match the criteria.
  */
-function getTasksWithAllTagsAndCompletion(tags, completed) {
+function getTasksWithAllTagsAndCompletionStatus(tags, completed) {
   return _tasks.filter(task =>
     task.completed === completed &&
     tags.every(tag => task.tags.includes(tag))

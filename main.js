@@ -108,3 +108,16 @@ function getCompletedTasks() {
 function getIncompleteTasks() {
   return _tasks.filter(task => !task.completed);
 }
+
+// Export all functions
+module.exports = {
+  addTask,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks
+};

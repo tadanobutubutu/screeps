@@ -25,7 +25,7 @@ function addTask(title) {
  *
  * @returns {Array} Array of all tasks.
  */
-function listTasksynchronized(){return [..._tasks];}
+function listTasks() { return [..._tasks]; }
 
 /**
  * Marks a task as completed.

@@ -40,7 +40,7 @@ function getTasksByDependency(dependencyName) {
  * @param {string} dependencyName - The name of the dependency to update.
  * @param {string} currentVersion - The current version of the dependency.
  * @param {string} newVersion - The new version to update to.
- * @param {string} [priority='medium'] - The priority of the update task.
+ * @param {string} [priority='edium'] - The priority of the update task.
  * @returns {number} The ID of the created task.
  */
 function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'edium') {
@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ...stargazer,  // Fixed: Changed from .. to ...
+        ...stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']
@@ -116,7 +116,7 @@ function markAsRunawayStargazer(username) {
 function getAllStargazers(includeRunaway = true) {
     return _tasks.filter(task =>
         task.tags.includes('stargazer') &&
-        (includeRunaway ||!task.isRunaway)
+        (includeRunaway || !task.isRunaway)
     ).map(task => ({
         id: task.id,
         username: task.title.replace('Stargazer: ', ''),
@@ -153,7 +153,7 @@ function removeStargazer(username) {
         task.title.includes(`Stargazer: ${username}`)
     );
 
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return true;
     }

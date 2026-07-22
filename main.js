@@ -505,6 +505,112 @@ function getTasksByCompletionAndDateRange(completed, startDate, endDate) {
     );
 }
 
+/**
+ * Gets tasks filtered by tag, priority, and completion status.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByTagPriorityAndCompletion(tag, priority, completed) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.priority === priority &&
+        task.completed === completed
+    );
+}
+
+/**
+ * Gets tasks filtered by tag, priority, and date range.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByTagPriorityAndDateRange(tag, priority, startDate, endDate) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.priority === priority &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
+/**
+ * Gets tasks filtered by tag, completion status, and date range.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {boolean} completed - The completion status to filter by.
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByTagCompletionAndDateRange(tag, completed, startDate, endDate) {
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.completed === completed &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
+/**
+ * Gets tasks filtered by priority, completion status, and date range.
+ *
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {boolean} completed - The completion status to filter by.
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByPriorityCompletionAndDateRange(priority, completed, startDate, endDate) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.priority === priority &&
+        task.completed === completed &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
+/**
+ * Gets tasks filtered by all four criteria: tag, priority, completion status, and date range.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {boolean} completed - The completion status to filter by.
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching all four criteria.
+ */
+function getTasksByAllCriteria(tag, priority, completed, startDate, endDate) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.priority === priority &&
+        task.completed === completed &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -547,5 +653,10 @@ module.exports = {
   getTasksByTagAndPriority,
   getTasksByTagAndCompletion,
   getTasksByPriorityAndDateRange,
-  getTasksByCompletionAndDateRange
+  getTasksByCompletionAndDateRange,
+  getTasksByTagPriorityAndCompletion,
+  getTasksByTagPriorityAndDateRange,
+  getTasksByTagCompletionAndDateRange,
+  getTasksByPriorityCompletionAndDateRange,
+  getTasksByAllCriteria
 };

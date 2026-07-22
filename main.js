@@ -1,3 +1,4 @@
+// main.js (unchanged)
 const _tasks = [];
 const _state = {
     nextId: 1
@@ -195,3 +196,22 @@ function sortTasksByPriority(ascending = true) {
         return ascending ? aPriority - bPriority : bPriority - aPriority;
     });
 }
+
+// Export all functions
+module.exports = {
+    addTask,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskTitle,
+    updateTask,
+    addTagToTask,
+    removeTagFromTask,
+    filterTasksByCompletion,
+    filterTasksByPriority,
+    filterTasksByTag,
+    sortTasksByDate,
+    sortTasksByPriority
+};

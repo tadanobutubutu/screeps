@@ -43,8 +43,8 @@ function getTasksByDependency(dependencyName) {
  * @param {string} [priority='medium'] - The priority of the update task.
  * @returns {number} The ID of the created task.
  */
-function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'edium') {
-    const validPriorities = ['low', 'edium', 'high'];
+function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'medium') {
+    const validPriorities = ['low', 'medium', 'high'];
     if (!validPriorities.includes(priority)) {
         throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
     }
@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ..stargazer,
+        ...stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']
@@ -116,7 +116,7 @@ function markAsRunawayStargazer(username) {
 function getAllStargazers(includeRunaway = true) {
     return _tasks.filter(task =>
         task.tags.includes('stargazer') &&
-        (includeRunaway ||!task.isRunaway)
+        (includeRunaway || !task.isRunaway)
     ).map(task => ({
         id: task.id,
         username: task.title.replace('Stargazer: ', ''),
@@ -153,7 +153,7 @@ function removeStargazer(username) {
         task.title.includes(`Stargazer: ${username}`)
     );
 
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return true;
     }

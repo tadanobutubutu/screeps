@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ...stargazer,  // Fixed: Changed from .. to ...
+        ...stargazer,  // Fixed: Changed '..' to '...' for object spread
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']
@@ -153,7 +153,7 @@ function removeStargazer(username) {
         task.title.includes(`Stargazer: ${username}`)
     );
 
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return true;
     }

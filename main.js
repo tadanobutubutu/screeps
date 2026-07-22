@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ..stargazer,
+        ...stargazer,  // Fixed: Changed '..' to '...' for object spread
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']

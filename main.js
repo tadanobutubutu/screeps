@@ -711,7 +711,6 @@ function getTasksSorted(options = {}) {
                 comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
                 break;
             case 'title':
-                // ⚡ PERFORMANCE: Direct string comparison operators are significantly faster than localeCompare()
                 if (a.title < b.title) {
                     comparison = -1;
                 } else if (a.title > b.title) {
@@ -782,7 +781,6 @@ function searchTasks(options = {}) {
 
     let filteredTasks = [..._tasks];
 
-    // Apply search term filter
     if (searchTerm) {
         const lowerSearchTerm = searchTerm.toLowerCase();
         filteredTasks = filteredTasks.filter(task =>
@@ -790,14 +788,12 @@ function searchTasks(options = {}) {
         );
     }
 
-    // Apply tags filter (AND logic)
     if (tags && tags.length > 0) {
         filteredTasks = filteredTasks.filter(task =>
             tags.every(tag => task.tags.includes(tag))
         );
     }
 
-    // Apply priority filter
     if (priority) {
         const validPriorities = ['low', 'medium', 'high'];
         if (!validPriorities.includes(priority)) {
@@ -806,12 +802,10 @@ function searchTasks(options = {}) {
         filteredTasks = filteredTasks.filter(task => task.priority === priority);
     }
 
-    // Apply completion status filter
     if (completed !== undefined) {
         filteredTasks = filteredTasks.filter(task => task.completed === completed);
     }
 
-    // Apply date range filter
     if (startDate !== undefined || endDate !== undefined) {
         filteredTasks = filteredTasks.filter(task => {
             const createdAt = task.createdAt;
@@ -839,8 +833,6 @@ function resetTaskIdCounter() {
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedByTitle(ascending = true) {
-    // ⚡ PERFORMANCE: Direct string comparison operators (<, >) are significantly
-    // faster than localeCompare() in JS engines.
     return [..._tasks].sort((a, b) => {
         if (a.title < b.title) return ascending ? -1 : 1;
         if (a.title > b.title) return ascending ? 1 : -1;
@@ -856,9 +848,6 @@ function getTasksSortedByTitle(ascending = true) {
  * @returns {Array} Array of tasks sorted alphabetically.
  */
 function getTasksSortedAlphabetically(ascending = true) {
-    // ⚡ PERFORMANCE: Schwartzian transform (map-sort-map) pre-calculates the lowercase
-    // keys once per element, reducing string conversion complexity from O(N log N) to O(N).
-    // Direct string comparison is used instead of expensive localeCompare().
     const mapped = _tasks.map((task, idx) => ({ idx, title: task.title.toLowerCase() }));
     mapped.sort((a, b) => {
         if (a.title < b.title) return ascending ? -1 : 1;
@@ -888,12 +877,10 @@ function getTasksByMultipleCriteriaOr(options = {}) {
         endDate
     } = options;
 
-    // If no filters are provided, return all tasks
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
 
-    // Validate priorities if provided
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -903,12 +890,10 @@ function getTasksByMultipleCriteriaOr(options = {}) {
     }
 
     return _tasks.filter(task => {
-        // Check if task matches any of the criteria
         const matchesTags = tags ? tags.some(tag => task.tags.includes(tag)) : true;
         const matchesPriorities = priorities ? priorities.includes(task.priority) : true;
         const matchesCompletion = completionStatuses ? completionStatuses.includes(task.completed) : true;
 
-        // Check date range if provided
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -917,7 +902,6 @@ function getTasksByMultipleCriteriaOr(options = {}) {
             matchesDateRange = afterStart && beforeEnd;
         }
 
-        // Return true if task matches any of the criteria
         return matchesTags || matchesPriorities || matchesCompletion || matchesDateRange;
     });
 }
@@ -942,12 +926,10 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
         endDate
     } = options;
 
-    // If no filters are provided, return all tasks
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
 
-    // Validate priorities if provided
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -957,12 +939,10 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
     }
 
     return _tasks.filter(task => {
-        // Check if task matches all criteria
         const matchesTags = tags ? tags.every(tag => task.tags.includes(tag)) : true;
         const matchesPriorities = priorities ? priorities.includes(task.priority) : true;
         const matchesCompletion = completionStatuses ? completionStatuses.includes(task.completed) : true;
 
-        // Check date range if provided
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -971,7 +951,6 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
             matchesDateRange = afterStart && beforeEnd;
         }
 
-        // Return true if task matches all criteria
         return matchesTags && matchesPriorities && matchesCompletion && matchesDateRange;
     });
 }
@@ -998,12 +977,10 @@ function getTasksByMultipleCriteria(options = {}) {
         logic = 'and'
     } = options;
 
-    // If no filters are provided, return all tasks
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
 
-    // Validate priorities if provided
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -1013,7 +990,6 @@ function getTasksByMultipleCriteria(options = {}) {
     }
 
     return _tasks.filter(task => {
-        // Check if task matches the criteria based on the specified logic
         const matchesTags = tags ?
             (logic === 'and' ?
                 tags.every(tag => task.tags.includes(tag)) :
@@ -1032,7 +1008,6 @@ function getTasksByMultipleCriteria(options = {}) {
                 completionStatuses.includes(task.completed)) :
             true;
 
-        // Check date range if provided
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -1041,7 +1016,6 @@ function getTasksByMultipleCriteria(options = {}) {
             matchesDateRange = afterStart && beforeEnd;
         }
 
-        // Return true if task matches the criteria based on the specified logic
         if (logic === 'and') {
             return matchesTags && matchesPriorities && matchesCompletion && matchesDateRange;
         } else {
@@ -1050,7 +1024,160 @@ function getTasksByMultipleCriteria(options = {}) {
     });
 }
 
+/**
+ * Updates the version of a dependency in the task list.
+ * @param {string} dependencyName - The name of the dependency to update.
+ * @param {string} newVersion - The new version number.
+ * @returns {number} The number of tasks that were updated.
+ */
+function updateDependencyVersion(dependencyName, newVersion) {
+    let updatedCount = 0;
+    const versionRegex = new RegExp(dependencyName, 'i');
+
+    _tasks.forEach(task => {
+        if (versionRegex.test(task.title)) {
+            task.title = task.title.replace(new RegExp(`(${dependencyName})[\\d.]+`, 'gi'), `$1${newVersion}`);
+            updatedCount++;
+        }
+    });
+
+    return updatedCount;
+}
+
+/**
+ * Gets tasks that reference a specific dependency.
+ * @param {string} dependencyName - The name of the dependency to search for.
+ * @returns {Array} Array of tasks that reference the specified dependency.
+ */
+function getTasksByDependency(dependencyName) {
+    const dependencyRegex = new RegExp(dependencyName, 'i');
+    return _tasks.filter(task => dependencyRegex.test(task.title));
+}
+
+/**
+ * Adds a dependency update task to the task list.
+ * @param {string} dependencyName - The name of the dependency to update.
+ * @param {string} currentVersion - The current version of the dependency.
+ * @param {string} newVersion - The new version to update to.
+ * @param {string} [priority='medium'] - The priority of the update task.
+ * @returns {number} The ID of the created task.
+ */
+function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'medium') {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+
+    const task = {
+        id: _state.nextId++,
+        title: `${dependencyName}: update from ${currentVersion} to ${newVersion}`,
+        completed: false,
+        createdAt: Date.now(),
+        tags: ['dependency'],
+        priority
+    };
+    _tasks.push(task);
+    return task.id;
+}
+
+/**
+ * Tracks a stargazer for the repository.
+ * @param {string} username - The GitHub username of the stargazer.
+ * @param {string} [reason=''] - Optional reason for starring.
+ * @returns {number} The ID of the created stargazer record.
+ */
+function trackStargazer(username, reason = '') {
+    const stargazer = {
+        id: _state.nextId++,
+        username,
+        starredAt: Date.now(),
+        reason,
+        isRunaway: false
+    };
+
+    _tasks.push({
+        ...stargazer,
+        title: `Stargazer: ${username}`,
+        completed: false,
+        tags: ['stargazer']
+    });
+
+    return stargazer.id;
+}
+
+/**
+ * Marks a stargazer as a runaway stargazer.
+ * @param {string} username - The GitHub username of the stargazer.
+ * @returns {boolean} True if the stargazer was found and marked as runaway.
+ */
+function markAsRunawayStargazer(username) {
+    const stargazerTask = _tasks.find(task =>
+        task.tags.includes('stargazer') &&
+        task.title.includes(`Stargazer: ${username}`)
+    );
+
+    if (stargazerTask) {
+        stargazerTask.isRunaway = true;
+        stargazerTask.tags.push('runaway');
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets all stargazers.
+ * @param {boolean} [includeRunaway=true] - Whether to include runaway stargazers.
+ * @returns {Array} Array of stargazer records.
+ */
+function getAllStargazers(includeRunaway = true) {
+    return _tasks.filter(task =>
+        task.tags.includes('stargazer') &&
+        (includeRunaway || !task.isRunaway)
+    ).map(task => ({
+        id: task.id,
+        username: task.title.replace('Stargazer: ', ''),
+        starredAt: task.starredAt,
+        reason: task.reason,
+        isRunaway: task.isRunaway
+    }));
+}
+
+/**
+ * Gets runaway stargazers.
+ * @returns {Array} Array of runaway stargazer records.
+ */
+function getRunawayStargazers() {
+    return _tasks.filter(task =>
+        task.tags.includes('stargazer') &&
+        task.isRunaway
+    ).map(task => ({
+        id: task.id,
+        username: task.title.replace('Stargazer: ', ''),
+        starredAt: task.starredAt,
+        reason: task.reason
+    }));
+}
+
+/**
+ * Removes a stargazer record.
+ * @param {string} username - The GitHub username of the stargazer to remove.
+ * @returns {boolean} True if the stargazer was found and removed.
+ */
+function removeStargazer(username) {
+    const index = _tasks.findIndex(task =>
+        task.tags.includes('stargazer') &&
+        task.title.includes(`Stargazer: ${username}`)
+    );
+
+    if (index !== -1) {
+        _tasks.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+
 // Export all functions
+
 module.exports = {
   addTask,
   resetTaskIdCounter,
@@ -1077,8 +1204,6 @@ module.exports = {
   getTaskCount,
   getCompletedTaskCount,
   getIncompleteTaskCount,
-  getTasksGroupedByPriority,
-  getTasksGroupedByCompletion,
   getTasksByCompletion,
   getTasksByPriorityFilter,
   incompleteTask,
@@ -1092,22 +1217,19 @@ module.exports = {
   getTasksByTag,
   getTasksByTags,
   getTasksByDateRange,
-  getTasksByCompletionAndPriority,
-  getTasksByMultiplePriorities,
-  getTasksByMultipleCompletionStatuses,
-  getTasksByTagAndPriority,
-  getTasksByTagAndCompletion,
-  getTasksByPriorityAndDateRange,
-  getTasksByCompletionAndDateRange,
-  getTasksByTagPriorityAndCompletion,
-  getTasksByTagPriorityAndDateRange,
-  getTasksByTagCompletionAndDateRange,
-  getTasksByPriorityCompletionAndDateRange,
   getTasksByAllCriteria,
   updateTaskProperties,
   duplicateTask,
   moveTask,
   getTasksSorted,
   getTasksPaginated,
-  searchTasks
+  searchTasks,
+  updateDependencyVersion,
+  getTasksByDependency,
+  addDependencyUpdateTask,
+  trackStargazer,
+  markAsRunawayStargazer,
+  getAllStargazers,
+  getRunawayStargazers,
+  removeStargazer
 };

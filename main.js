@@ -76,9 +76,8 @@ function getTaskById(idOrTitle) {
  */
 function updateTaskTitle(idOrTitle, newTitle) {
     const task = getTaskById(idOrTitle);
-    if (task) {
-        task.title = newTitle;
-    }
+    if (task === undefined || task === null) return;
+    task.title = newTitle;
 }
 
 /**
@@ -494,48 +493,6 @@ function getTasksByCompletionAndDateRange(completed, startDate, endDate) {
 }
 
 /**
- * Gets tasks filtered by tag, priority, and completion status.
- *
- * @param {string} tag - The tag to filter by.
- * @param {string} priority - The priority to filter by (low, medium, high).
- * @param {boolean} completed - The completion status to filter by.
- * @returns {Array} Array of tasks matching all three criteria.
- */
-function getTasksByTagPriorityAndCompletion(tag, priority, completed) {
-    const validPriorities = ['low', 'medium', 'high'];
-    if (!validPriorities.includes(priority)) {
-        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
-    }
-    return _tasks.filter(task =>
-        task.tags.includes(tag) &&
-        task.priority === priority &&
-        task.completed === completed
-    );
-}
-
-/**
- * Gets tasks filtered by tag, priority, and date range.
- *
- * @param {string} tag - The tag to filter by.
- * @param {string} priority - The priority to filter by (low, medium, high).
- * @param {number} startDate - Start timestamp (inclusive).
- * @param {number} endDate - End timestamp (inclusive).
- * @returns {Array} Array of tasks matching all three criteria.
- */
-function getTasksByTagPriorityAndDateRange(tag, priority, startDate, endDate) {
-    const validPriorities = ['low', 'medium', 'high'];
-    if (!validPriorities.includes(priority)) {
-        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
-    }
-    return _tasks.filter(task =>
-        task.tags.includes(tag) &&
-        task.priority === priority &&
-        task.createdAt >= startDate &&
-        task.createdAt <= endDate
-    );
-}
-
-/**
  * Gets tasks filtered by all four criteria: tag, priority, completion status, and date range.
  *
  * @param {string} tag - The tag to filter by.
@@ -571,16 +528,13 @@ function getTasksByAllCriteria(tag, priority, completed, startDate, endDate) {
  */
 function updateTaskProperties(idOrTitle, updates) {
     const task = getTaskById(idOrTitle);
-    if (!task) return;
-
+    if (task === undefined || task === null) return;
     if (updates.title !== undefined) {
         task.title = updates.title;
     }
-
     if (updates.completed !== undefined) {
         task.completed = updates.completed;
     }
-
     if (updates.priority !== undefined) {
         const validPriorities = ['low', 'medium', 'high'];
         if (!validPriorities.includes(updates.priority)) {
@@ -588,7 +542,6 @@ function updateTaskProperties(idOrTitle, updates) {
         }
         task.priority = updates.priority;
     }
-
     if (updates.tags !== undefined) {
         task.tags = [...new Set(updates.tags)]; // Remove duplicates
     }
@@ -602,8 +555,7 @@ function updateTaskProperties(idOrTitle, updates) {
  */
 function duplicateTask(idOrTitle) {
     const originalTask = getTaskById(idOrTitle);
-    if (!originalTask) return null;
-
+    if (originalTask === undefined || originalTask === null) return null;
     const newTask = {
         id: _state.nextId++,
         title: originalTask.title,
@@ -612,7 +564,6 @@ function duplicateTask(idOrTitle) {
         tags: [...originalTask.tags],
         priority: originalTask.priority
     };
-
     _tasks.push(newTask);
     return newTask.id;
 }
@@ -626,11 +577,7 @@ function duplicateTask(idOrTitle) {
 function moveTask(id, newIndex) {
     const currentIndex = _tasks.findIndex(t => t.id === id);
     if (currentIndex === -1) return;
-
-    // Remove the task from its current position
     const [task] = _tasks.splice(currentIndex, 1);
-
-    // Insert the task at the new position
     _tasks.splice(newIndex, 0, task);
 }
 
@@ -645,12 +592,9 @@ function moveTask(id, newIndex) {
 function getTasksSorted(options = {}) {
     const { by = 'createdAt', order = 'asc' } = options;
     const sortedTasks = [..._tasks];
-
     const priorityOrder = { low: 0, medium: 1, high: 2 };
-
     sortedTasks.sort((a, b) => {
         let comparison = 0;
-
         switch (by) {
             case 'createdAt':
                 comparison = a.createdAt - b.createdAt;
@@ -670,10 +614,8 @@ function getTasksSorted(options = {}) {
             default:
                 comparison = 0;
         }
-
         return order === 'desc' ? -comparison : comparison;
     });
-
     return sortedTasks;
 }
 
@@ -689,9 +631,7 @@ function getTasksPaginated(options = {}) {
     const { page = 1, pageSize = 10 } = options;
     const startIndex = (page - 1) * pageSize;
     const endIndex = startIndex + pageSize;
-
     const paginatedTasks = _tasks.slice(startIndex, endIndex);
-
     return {
         tasks: paginatedTasks,
         pagination: {
@@ -726,22 +666,18 @@ function searchTasks(options = {}) {
         startDate,
         endDate
     } = options;
-
     let filteredTasks = [..._tasks];
-
     if (searchTerm) {
         const lowerSearchTerm = searchTerm.toLowerCase();
         filteredTasks = filteredTasks.filter(task =>
             task.title.toLowerCase().includes(lowerSearchTerm)
         );
     }
-
     if (tags && tags.length > 0) {
         filteredTasks = filteredTasks.filter(task =>
             tags.every(tag => task.tags.includes(tag))
         );
     }
-
     if (priority) {
         const validPriorities = ['low', 'medium', 'high'];
         if (!validPriorities.includes(priority)) {
@@ -749,11 +685,9 @@ function searchTasks(options = {}) {
         }
         filteredTasks = filteredTasks.filter(task => task.priority === priority);
     }
-
     if (completed !== undefined) {
         filteredTasks = filteredTasks.filter(task => task.completed === completed);
     }
-
     if (startDate !== undefined || endDate !== undefined) {
         filteredTasks = filteredTasks.filter(task => {
             const createdAt = task.createdAt;
@@ -762,7 +696,6 @@ function searchTasks(options = {}) {
             return afterStart && beforeEnd;
         });
     }
-
     return filteredTasks;
 }
 
@@ -824,11 +757,9 @@ function getTasksByMultipleCriteriaOr(options = {}) {
         startDate,
         endDate
     } = options;
-
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
-
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -836,12 +767,10 @@ function getTasksByMultipleCriteriaOr(options = {}) {
             throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
         }
     }
-
     return _tasks.filter(task => {
         const matchesTags = tags ? tags.some(tag => task.tags.includes(tag)) : true;
         const matchesPriorities = priorities ? priorities.includes(task.priority) : true;
         const matchesCompletion = completionStatuses ? completionStatuses.includes(task.completed) : true;
-
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -849,7 +778,6 @@ function getTasksByMultipleCriteriaOr(options = {}) {
             const beforeEnd = endDate === undefined || createdAt <= endDate;
             matchesDateRange = afterStart && beforeEnd;
         }
-
         return matchesTags || matchesPriorities || matchesCompletion || matchesDateRange;
     });
 }
@@ -873,11 +801,9 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
         startDate,
         endDate
     } = options;
-
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
-
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -885,12 +811,10 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
             throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
         }
     }
-
     return _tasks.filter(task => {
         const matchesTags = tags ? tags.every(tag => task.tags.includes(tag)) : true;
         const matchesPriorities = priorities ? priorities.includes(task.priority) : true;
         const matchesCompletion = completionStatuses ? completionStatuses.includes(task.completed) : true;
-
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -898,7 +822,6 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
             const beforeEnd = endDate === undefined || createdAt <= endDate;
             matchesDateRange = afterStart && beforeEnd;
         }
-
         return matchesTags && matchesPriorities && matchesCompletion && matchesDateRange;
     });
 }
@@ -924,11 +847,9 @@ function getTasksByMultipleCriteria(options = {}) {
         endDate,
         logic = 'and'
     } = options;
-
     if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
         return [..._tasks];
     }
-
     if (priorities) {
         const validPriorities = ['low', 'medium', 'high'];
         const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
@@ -936,26 +857,22 @@ function getTasksByMultipleCriteria(options = {}) {
             throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
         }
     }
-
     return _tasks.filter(task => {
         const matchesTags = tags ?
             (logic === 'and' ?
                 tags.every(tag => task.tags.includes(tag)) :
                 tags.some(tag => task.tags.includes(tag))) :
             true;
-
         const matchesPriorities = priorities ?
             (logic === 'and' ?
                 priorities.includes(task.priority) :
                 priorities.includes(task.priority)) :
             true;
-
         const matchesCompletion = completionStatuses ?
             (logic === 'and' ?
                 completionStatuses.includes(task.completed) :
                 completionStatuses.includes(task.completed)) :
             true;
-
         let matchesDateRange = true;
         if (startDate !== undefined || endDate !== undefined) {
             const createdAt = task.createdAt;
@@ -963,7 +880,6 @@ function getTasksByMultipleCriteria(options = {}) {
             const beforeEnd = endDate === undefined || createdAt <= endDate;
             matchesDateRange = afterStart && beforeEnd;
         }
-
         if (logic === 'and') {
             return matchesTags && matchesPriorities && matchesCompletion && matchesDateRange;
         } else {
@@ -981,14 +897,12 @@ function getTasksByMultipleCriteria(options = {}) {
 function updateDependencyVersion(dependencyName, newVersion) {
     let updatedCount = 0;
     const versionRegex = new RegExp(dependencyName, 'i');
-
     _tasks.forEach(task => {
         if (versionRegex.test(task.title)) {
             task.title = task.title.replace(new RegExp(`(${dependencyName})[\\d.]+`, 'gi'), `$1${newVersion}`);
             updatedCount++;
         }
     });
-
     return updatedCount;
 }
 
@@ -1015,7 +929,6 @@ function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, pri
     if (!validPriorities.includes(priority)) {
         throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
     }
-
     const task = {
         id: _state.nextId++,
         title: `${dependencyName}: update from ${currentVersion} to ${newVersion}`,
@@ -1042,14 +955,12 @@ function trackStargazer(username, reason = '') {
         reason,
         isRunaway: false
     };
-
     _tasks.push({
         ...stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']
     });
-
     return stargazer.id;
 }
 
@@ -1063,7 +974,6 @@ function markAsRunawayStargazer(username) {
         task.tags.includes('stargazer') &&
         task.title.includes(`Stargazer: ${username}`)
     );
-
     if (stargazerTask) {
         stargazerTask.isRunaway = true;
         stargazerTask.tags.push('runaway');
@@ -1116,7 +1026,6 @@ function removeStargazer(username) {
         task.tags.includes('stargazer') &&
         task.title.includes(`Stargazer: ${username}`)
     );
-
     if (index !== -1) {
         _tasks.splice(index, 1);
         return true;

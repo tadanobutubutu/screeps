@@ -88,6 +88,61 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
     return taskId;
 }
 
+/**
+ * Gets all dependencies across all tasks.
+ *
+ * @returns {Object} An object with all dependencies and their versions
+ */
+function getAllDependencies() {
+    const dependencies = {};
+
+    _tasks.forEach(task => {
+        if (task.dependencies) {
+            Object.entries(task.dependencies).forEach(([name, version]) => {
+                if (!dependencies[name]) {
+                    dependencies[name] = new Set();
+                }
+                dependencies[name].add(version);
+            });
+        }
+    });
+
+    // Convert sets to arrays for easier consumption
+    Object.keys(dependencies).forEach(name => {
+        dependencies[name] = Array.from(dependencies[name]);
+    });
+
+    return dependencies;
+}
+
+/**
+ * Gets tasks that need dependency updates.
+ *
+ * @returns {Array} Array of tasks with dependency updates
+ */
+function getDependencyUpdateTasks() {
+    return _tasks.filter(task =>
+        task.tags && task.tags.includes('dependency-update') &&
+        task.dependencies && Object.keys(task.dependencies).length > 0
+    );
+}
+
+/**
+ * Marks a dependency update task as completed.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was marked as completed
+ */
+function completeDependencyUpdateTask(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task || !task.tags.includes('dependency-update')) {
+        return false;
+    }
+
+    task.completed = true;
+    return true;
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -138,6 +193,9 @@ module.exports = {
   updateDependencyVersion,
   getTasksByDependency,
   addDependencyUpdateTask,
+  getAllDependencies,
+  getDependencyUpdateTasks,
+  completeDependencyUpdateTask,
   trackStargazer,
   markAsRunawayStargazer,
   getAllStargazers,

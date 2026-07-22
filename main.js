@@ -34,7 +34,7 @@ function listTasks() {
 /**
  * Removes a task by ID.
  *
- * @param {number} id - The ID of the task to remove.
+ * @param {number} id - The ID of the task to be removed.
  */
 function removeTask(id) {
     const index = _tasks.findIndex(t => t.id === id);
@@ -241,7 +241,6 @@ function getTasksGroupedByCompletion() {
  * Gets tasks filtered by completion status.
  *
  * @param {boolean} completed - Whether to return completed or incomplete tasks.
- * @returns {Array} Array of tasks matching the completion status.
  */
 function getTasksByCompletion(completed) {
     return _tasks.filter(task => task.completed === completed);

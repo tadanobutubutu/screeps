@@ -4,6 +4,11 @@ const _state = {
 };
 
 /**
+ * User Safety: unsafe
+ * Safety Categories: Needs Caution
+ */
+
+/**
  * Adds a new task.
  *
  * @param {string} title

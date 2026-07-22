@@ -76,9 +76,8 @@ function getTaskById(idOrTitle) {
  */
 function updateTaskTitle(idOrTitle, newTitle) {
     const task = getTaskById(idOrTitle);
-    if (task) {
-        task.title = newTitle;
-    }
+    if (task === undefined || task === null) return;
+    task.title = newTitle;
 }
 
 /**
@@ -576,11 +575,9 @@ function updateTaskProperties(idOrTitle, updates) {
     if (updates.title !== undefined) {
         task.title = updates.title;
     }
-
     if (updates.completed !== undefined) {
         task.completed = updates.completed;
     }
-
     if (updates.priority !== undefined) {
         const validPriorities = ['low', 'medium', 'high'];
         if (!validPriorities.includes(updates.priority)) {
@@ -588,7 +585,6 @@ function updateTaskProperties(idOrTitle, updates) {
         }
         task.priority = updates.priority;
     }
-
     if (updates.tags !== undefined) {
         task.tags = [...new Set(updates.tags)]; // Remove duplicates
     }
@@ -612,7 +608,6 @@ function duplicateTask(idOrTitle) {
         tags: [...originalTask.tags],
         priority: originalTask.priority
     };
-
     _tasks.push(newTask);
     return newTask.id;
 }
@@ -645,7 +640,6 @@ function moveTask(id, newIndex) {
 function getTasksSorted(options = {}) {
     const { by = 'createdAt', order = 'asc' } = options;
     const sortedTasks = [..._tasks];
-
     const priorityOrder = { low: 0, medium: 1, high: 2 };
 
     sortedTasks.sort((a, b) => {
@@ -735,13 +729,11 @@ function searchTasks(options = {}) {
             task.title.toLowerCase().includes(lowerSearchTerm)
         );
     }
-
     if (tags && tags.length > 0) {
         filteredTasks = filteredTasks.filter(task =>
             tags.every(tag => task.tags.includes(tag))
         );
     }
-
     if (priority) {
         const validPriorities = ['low', 'medium', 'high'];
         if (!validPriorities.includes(priority)) {
@@ -749,11 +741,9 @@ function searchTasks(options = {}) {
         }
         filteredTasks = filteredTasks.filter(task => task.priority === priority);
     }
-
     if (completed !== undefined) {
         filteredTasks = filteredTasks.filter(task => task.completed === completed);
     }
-
     if (startDate !== undefined || endDate !== undefined) {
         filteredTasks = filteredTasks.filter(task => {
             const createdAt = task.createdAt;
@@ -762,7 +752,6 @@ function searchTasks(options = {}) {
             return afterStart && beforeEnd;
         });
     }
-
     return filteredTasks;
 }
 
@@ -1136,7 +1125,6 @@ function completeTask(id) {
 }
 
 // Export all functions
-
 module.exports = {
   addTask,
   resetTaskIdCounter,

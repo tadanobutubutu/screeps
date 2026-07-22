@@ -51,3 +51,8 @@
 
 **Learning:** Nesting interactive elements like `<button>` inside a `<summary>` element violates HTML specifications and breaks accessibility. Screen readers and keyboard navigation users lose focus control or fail to activate either the details disclosure or the nested button correctly.
 **Action:** Keep `<summary>` elements clean of nested focusable controls; instead, place interactive buttons or tooltips inside the body of the `<details>` container, formatted with appropriate visual groupings.
+
+## 2026-07-29 - [Overlay Portal Placement for Toast Notifications]
+
+**Learning:** When implementing a floating Toast notification system, rendering the Toast component nested deep inside layout wrappers (like collapsible `<details>` or scrollable boxes) can cause the Toast to become completely hidden or cut off by container styles (`display: none` or `overflow: hidden`). Placing the Toast at the root level of the component's main layout prevents layout inheritance issues and ensures visual consistency.
+**Action:** Always position floating status/feedback notifications at the absolute root or outermost level of your React component hierarchy rather than nested inside conditional blocks.

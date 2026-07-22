@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 
 export default function Dashboard() {
     const [stats, setStats] = useState<any>(null),
@@ -15,6 +15,29 @@ export default function Dashboard() {
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
     const [refreshSuccess, setRefreshSuccess] = useState(false);
+    const [toastMsg, setToastMsg] = useState<string | null>(null);
+
+    const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const showToast = (msg: string) => {
+        if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+        }
+        setToastMsg(msg);
+        toastTimeoutRef.current = setTimeout(() => {
+            setToastMsg(null);
+            toastTimeoutRef.current = null;
+        }, 2500);
+    };
+
+    // Clean up timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (toastTimeoutRef.current) {
+                clearTimeout(toastTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const formatNumber = (num: number) => {
         if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B';
@@ -35,9 +58,11 @@ export default function Dashboard() {
             if (isManual) {
                 setRefreshSuccess(true);
                 setTimeout(() => setRefreshSuccess(false), 2000);
+                showToast('データを最新の状態に更新しました');
             }
         } catch (e: any) {
             setError(e.message || String(e));
+            showToast('データの更新に失敗しました');
         } finally {
             setLoading(false);
             setRefreshing(false);
@@ -75,12 +100,14 @@ export default function Dashboard() {
         navigator.clipboard.writeText(error).then(() => {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
+            showToast('エラーメッセージをクリップボードにコピーしました');
         });
 
     const copyRoom = (room: string) => {
         navigator.clipboard.writeText(room).then(() => {
             setCopiedRoom(room);
             setTimeout(() => setCopiedRoom(null), 2000);
+            showToast(`部屋名 ${room} をクリップボードにコピーしました`);
         });
     };
 
@@ -88,6 +115,7 @@ export default function Dashboard() {
         navigator.clipboard.writeText(JSON.stringify(stats, null, 2)).then(() => {
             setCopiedJson(true);
             setTimeout(() => setCopiedJson(false), 2000);
+            showToast('生データをクリップボードにコピーしました');
         });
     };
 
@@ -200,6 +228,7 @@ export default function Dashboard() {
                         <kbd
                             className="interactive-hint"
                             tabIndex={0}
+                            aria-label="キーボードショートカット Alt + R キーでダッシュボードの更新ができます"
                             title="Alt + R キーで更新できます"
                             style={{
                                 backgroundColor: '#f7fafc',
@@ -457,6 +486,31 @@ export default function Dashboard() {
                     </pre>
                 </div>
             </details>
+            {toastMsg && (
+                <div
+                    aria-live="polite"
+                    style={{
+                        position: 'fixed',
+                        bottom: '2rem',
+                        right: '2rem',
+                        backgroundColor: '#004b73',
+                        color: 'white',
+                        padding: '0.75rem 1.5rem',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        zIndex: 1000,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        animation: 'bounce 0.5s ease-in-out',
+                    }}
+                >
+                    <span>✨</span>
+                    <span>{toastMsg}</span>
+                </div>
+            )}
         </main>
     );
 }

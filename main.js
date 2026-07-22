@@ -23,8 +23,8 @@ function addTask(title) {
         tags: [],
         priority: 'medium'
     };
-    _tasks.push(task);
-    return task.id;
+    _tasks. push(task);
+    return task. id;
 }
 
 /** ... [all existing functions remain unchanged] ... **/
@@ -135,7 +135,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task || !task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 

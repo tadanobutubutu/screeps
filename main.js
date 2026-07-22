@@ -39,7 +39,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task) return false;
+    if ( === undefined ||  === null) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};

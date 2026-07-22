@@ -34,7 +34,7 @@ function listTasks() {
 /**
  * Removes a task by ID.
  *
- * @param {number} id - The ID of the task to be removed.
+ * @param {number} id - The ID of the task to remove.
  */
 function removeTask(id) {
     const index = _tasks.findIndex(t => t.id === id);
@@ -241,6 +241,7 @@ function getTasksGroupedByCompletion() {
  * Gets tasks filtered by completion status.
  *
  * @param {boolean} completed - Whether to return completed or incomplete tasks.
+ * @returns {Array} Array of tasks matching the completion status.
  */
 function getTasksByCompletion(completed) {
     return _tasks.filter(task => task.completed === completed);
@@ -570,7 +571,7 @@ function getTasksByAllCriteria(tag, priority, completed, startDate, endDate) {
  */
 function updateTaskProperties(idOrTitle, updates) {
     const task = getTaskById(idOrTitle);
-    if (task === undefined || task === null) return;
+    if (!task) return;
 
     if (updates.title !== undefined) {
         task.title = updates.title;
@@ -601,7 +602,7 @@ function updateTaskProperties(idOrTitle, updates) {
  */
 function duplicateTask(idOrTitle) {
     const originalTask = getTaskById(idOrTitle);
-    if (originalTask === undefined || originalTask === null) return null;
+    if (!originalTask) return null;
 
     const newTask = {
         id: _state.nextId++,

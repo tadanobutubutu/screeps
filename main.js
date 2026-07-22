@@ -19,7 +19,7 @@ function addTask(title) {
         id: _state.nextId++,
         title,
         completed: false,
-        createdAt: Date.now(),
+        createdAt: Date. now(),
         tags: [],
         priority: 'medium'
     };
@@ -39,7 +39,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if ( === undefined ||  === null) return false;
+    if (task === undefined || task === null) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -57,7 +57,7 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
  */
 function getTasksByDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies && task.dependencies.hasOwnProperty(dependencyName)
+        task.dependencies && task.dependencies[dependencyName]
     );
 }
 
@@ -148,10 +148,8 @@ module.exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
-  getTasksSortedAlphabetically,
-  getTasksByMultipleCriteriaOr,
-  getTasksByMultipleCriteriaAnd,
-  getTasksByMultipleCriteria,
+  getTasksSortedByCreatedAt,
+  getTasksByPriority,
   listTasks,
   completeTask,
   removeTask,

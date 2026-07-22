@@ -1124,6 +1124,17 @@ function removeStargazer(username) {
     return false;
 }
 
+/**
+ * Marks a task as completed.
+ * @param {number} id - The ID of the task to mark as completed.
+ */
+function completeTask(id) {
+    const task = _tasks.find(t => t.id === id);
+    if (task) {
+        task.completed = true;
+    }
+}
+
 // Export all functions
 
 module.exports = {

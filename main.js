@@ -67,6 +67,20 @@ function findTasks(searchTerm) {
 }
 
 /**
+ * Gets a task by ID or title.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
+ * @returns {Object|null} The task object or null if not found.
+ */
+function getTaskById(idOrTitle) {
+    if (typeof idOrTitle === 'number') {
+        return _tasks.find(t => t.id === idOrTitle) || null;
+    }
+    const lowerTitle = idOrTitle.toLowerCase();
+    return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
+}
+
+/**
  * Updates a task's title.
  *
  * @param {number|string} idOrTitle - The ID or title of the task to update.
@@ -80,30 +94,9 @@ function updateTaskTitle(idOrTitle, newTitle) {
 }
 
 /**
- * Get a task by ID or title.
+ * Updates multiple task properties at once.
  *
- * @param {number|string} idOrTitle - The ID or title of the task to retrieve.
- * @returns {Object|null} The task object or null if not found.
- */
-function getTaskById(idOrTitle) {
-    if (typeof idOrTitle === 'number') {
-        return _tasks.find(t => t.id === idOrTitle) || null;
-    }
-    const lowerTitle = idOrTitle.toLowerCase();
-    return _tasks.find(task => task.title.toLowerCase() === lowerTitle) || null;
-}
-
-// (addDependencyUpdateTask function from the conflicting branch)
-
-// (remaining functions from conflicting branch are not needed because they are partially implemented or redundant)
-
-// (export statement from conflicting branch)
-module.exports = {
-    addTask,
-    listTasks,
-    completeTask,
-    removeTask,
-    findTasks,
-    updateTaskTitle,
-    getTaskById
-};
+ * @param {number|string} idOrTitle - The ID or title of the task to update.
+ * @param {Object} updates - An object containing properties to update.
+ * @param {string} [updates.title] - New title for the task.
+ * @param {boolean

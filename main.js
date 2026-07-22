@@ -13,11 +13,11 @@ const _state = {
  */
 function updateDependencyVersion(dependencyName, newVersion) {
     let updatedCount = 0;
-    const versionRegex = new RegExp(`${dependencyName}@\\d+\\.\\d+\\.\\d+`, 'i');
+    const versionRegex = new RegExp(dependencyName, 'i');
 
     _tasks.forEach(task => {
         if (versionRegex.test(task.title)) {
-            task.title = task.title.replace(versionRegex, `${dependencyName}@${newVersion}`);
+            task.title = task.title.replace(new RegExp(`(${dependencyName})[\\d.]+`, 'gi'), `$1${newVersion}`);
             updatedCount++;
         }
     });
@@ -31,7 +31,7 @@ function updateDependencyVersion(dependencyName, newVersion) {
  * @returns {Array} Array of tasks that reference the specified dependency.
  */
 function getTasksByDependency(dependencyName) {
-    const dependencyRegex = new RegExp(`${dependencyName}@\\d+\\.\\d+\\.\\d+`, 'i');
+    const dependencyRegex = new RegExp(dependencyName, 'i');
     return _tasks.filter(task => dependencyRegex.test(task.title));
 }
 
@@ -43,8 +43,8 @@ function getTasksByDependency(dependencyName) {
  * @param {string} [priority='medium'] - The priority of the update task.
  * @returns {number} The ID of the created task.
  */
-function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'medium') {
-    const validPriorities = ['low', 'medium', 'high'];
+function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'edium') {
+    const validPriorities = ['low', 'edium', 'high'];
     if (!validPriorities.includes(priority)) {
         throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
     }
@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ...stargazer,
+        ..stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']
@@ -116,7 +116,7 @@ function markAsRunawayStargazer(username) {
 function getAllStargazers(includeRunaway = true) {
     return _tasks.filter(task =>
         task.tags.includes('stargazer') &&
-        (includeRunaway || !task.isRunaway)
+        (includeRunaway ||!task.isRunaway)
     ).map(task => ({
         id: task.id,
         username: task.title.replace('Stargazer: ', ''),
@@ -153,7 +153,7 @@ function removeStargazer(username) {
         task.title.includes(`Stargazer: ${username}`)
     );
 
-    if (index !== -1) {
+    if (index!== -1) {
         _tasks.splice(index, 1);
         return true;
     }
@@ -161,14 +161,11 @@ function removeStargazer(username) {
 }
 
 // Export all functions
+
 module.exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
-  getTasksSortedAlphabetically,
-  getTasksByMultipleCriteriaOr,
-  getTasksByMultipleCriteriaAnd,
-  getTasksByMultipleCriteria,
   listTasks,
   completeTask,
   removeTask,
@@ -187,8 +184,6 @@ module.exports = {
   getTaskCount,
   getCompletedTaskCount,
   getIncompleteTaskCount,
-  getTasksGroupedByPriority,
-  getTasksGroupedByCompletion,
   getTasksByCompletion,
   getTasksByPriorityFilter,
   incompleteTask,
@@ -202,17 +197,6 @@ module.exports = {
   getTasksByTag,
   getTasksByTags,
   getTasksByDateRange,
-  getTasksByCompletionAndPriority,
-  getTasksByMultiplePriorities,
-  getTasksByMultipleCompletionStatuses,
-  getTasksByTagAndPriority,
-  getTasksByTagAndCompletion,
-  getTasksByPriorityAndDateRange,
-  getTasksByCompletionAndDateRange,
-  getTasksByTagPriorityAndCompletion,
-  getTasksByTagPriorityAndDateRange,
-  getTasksByTagCompletionAndDateRange,
-  getTasksByPriorityCompletionAndDateRange,
   getTasksByAllCriteria,
   updateTaskProperties,
   duplicateTask,

@@ -611,6 +611,212 @@ function getTasksByAllCriteria(tag, priority, completed, startDate, endDate) {
     );
 }
 
+/**
+ * Updates multiple task properties at once.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to update.
+ * @param {Object} updates - An object containing properties to update.
+ * @param {string} [updates.title] - New title for the task.
+ * @param {boolean} [updates.completed] - New completion status for the task.
+ * @param {string} [updates.priority] - New priority for the task (low, medium, high).
+ * @param {string[]} [updates.tags] - New array of tags for the task.
+ */
+function updateTaskProperties(idOrTitle, updates) {
+    const task = getTaskById(idOrTitle);
+    if (!task) return;
+
+    if (updates.title !== undefined) {
+        task.title = updates.title;
+    }
+
+    if (updates.completed !== undefined) {
+        task.completed = updates.completed;
+    }
+
+    if (updates.priority !== undefined) {
+        const validPriorities = ['low', 'medium', 'high'];
+        if (!validPriorities.includes(updates.priority)) {
+            throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+        }
+        task.priority = updates.priority;
+    }
+
+    if (updates.tags !== undefined) {
+        task.tags = [...new Set(updates.tags)]; // Remove duplicates
+    }
+}
+
+/**
+ * Duplicates an existing task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task to duplicate.
+ * @returns {number|null} The ID of the new duplicated task, or null if the original task wasn't found.
+ */
+function duplicateTask(idOrTitle) {
+    const originalTask = getTaskById(idOrTitle);
+    if (!originalTask) return null;
+
+    const newTask = {
+        id: _state.nextId++,
+        title: originalTask.title,
+        completed: originalTask.completed,
+        createdAt: Date.now(),
+        tags: [...originalTask.tags],
+        priority: originalTask.priority
+    };
+
+    _tasks.push(newTask);
+    return newTask.id;
+}
+
+/**
+ * Moves a task to a new position in the task list.
+ *
+ * @param {number} id - The ID of the task to move.
+ * @param {number} newIndex - The new 0-based index where the task should be placed.
+ */
+function moveTask(id, newIndex) {
+    const currentIndex = _tasks.findIndex(t => t.id === id);
+    if (currentIndex === -1) return;
+
+    // Remove the task from its current position
+    const [task] = _tasks.splice(currentIndex, 1);
+
+    // Insert the task at the new position
+    _tasks.splice(newIndex, 0, task);
+}
+
+/**
+ * Gets tasks sorted by multiple criteria.
+ *
+ * @param {Object} options - Sorting options.
+ * @param {string} [options.by='createdAt'] - Property to sort by ('createdAt', 'priority', 'title').
+ * @param {string} [options.order='asc'] - Sort order ('asc' or 'desc').
+ * @returns {Array} Array of tasks sorted according to the specified criteria.
+ */
+function getTasksSorted(options = {}) {
+    const { by = 'createdAt', order = 'asc' } = options;
+    const sortedTasks = [..._tasks];
+
+    const priorityOrder = { low: 0, medium: 1, high: 2 };
+
+    sortedTasks.sort((a, b) => {
+        let comparison = 0;
+
+        switch (by) {
+            case 'createdAt':
+                comparison = a.createdAt - b.createdAt;
+                break;
+            case 'priority':
+                comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
+                break;
+            case 'title':
+                comparison = a.title.localeCompare(b.title);
+                break;
+            default:
+                comparison = 0;
+        }
+
+        return order === 'desc' ? -comparison : comparison;
+    });
+
+    return sortedTasks;
+}
+
+/**
+ * Gets tasks with pagination support.
+ *
+ * @param {Object} options - Pagination options.
+ * @param {number} [options.page=1] - Page number (1-based).
+ * @param {number} [options.pageSize=10] - Number of items per page.
+ * @returns {Object} An object containing paginated tasks and pagination info.
+ */
+function getTasksPaginated(options = {}) {
+    const { page = 1, pageSize = 10 } = options;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+
+    const paginatedTasks = _tasks.slice(startIndex, endIndex);
+
+    return {
+        tasks: paginatedTasks,
+        pagination: {
+            currentPage: page,
+            pageSize: pageSize,
+            totalItems: _tasks.length,
+            totalPages: Math.ceil(_tasks.length / pageSize),
+            hasNextPage: endIndex < _tasks.length,
+            hasPreviousPage: startIndex > 0
+        }
+    };
+}
+
+/**
+ * Gets tasks with search and filter capabilities.
+ *
+ * @param {Object} options - Search and filter options.
+ * @param {string} [options.searchTerm] - Search term to filter task titles.
+ * @param {string[]} [options.tags] - Tags to filter by (AND logic).
+ * @param {string} [options.priority] - Priority to filter by.
+ * @param {boolean} [options.completed] - Completion status to filter by.
+ * @param {number} [options.startDate] - Start date for date range filter.
+ * @param {number} [options.endDate] - End date for date range filter.
+ * @returns {Array} Array of tasks matching all specified criteria.
+ */
+function searchTasks(options = {}) {
+    const {
+        searchTerm,
+        tags,
+        priority,
+        completed,
+        startDate,
+        endDate
+    } = options;
+
+    let filteredTasks = [..._tasks];
+
+    // Apply search term filter
+    if (searchTerm) {
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        filteredTasks = filteredTasks.filter(task =>
+            task.title.toLowerCase().includes(lowerSearchTerm)
+        );
+    }
+
+    // Apply tags filter (AND logic)
+    if (tags && tags.length > 0) {
+        filteredTasks = filteredTasks.filter(task =>
+            tags.every(tag => task.tags.includes(tag))
+        );
+    }
+
+    // Apply priority filter
+    if (priority) {
+        const validPriorities = ['low', 'medium', 'high'];
+        if (!validPriorities.includes(priority)) {
+            throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+        }
+        filteredTasks = filteredTasks.filter(task => task.priority === priority);
+    }
+
+    // Apply completion status filter
+    if (completed !== undefined) {
+        filteredTasks = filteredTasks.filter(task => task.completed === completed);
+    }
+
+    // Apply date range filter
+    if (startDate !== undefined || endDate !== undefined) {
+        filteredTasks = filteredTasks.filter(task => {
+            const createdAt = task.createdAt;
+            const afterStart = startDate === undefined || createdAt >= startDate;
+            const beforeEnd = endDate === undefined || createdAt <= endDate;
+            return afterStart && beforeEnd;
+        });
+    }
+
+    return filteredTasks;
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -658,5 +864,11 @@ module.exports = {
   getTasksByTagPriorityAndDateRange,
   getTasksByTagCompletionAndDateRange,
   getTasksByPriorityCompletionAndDateRange,
-  getTasksByAllCriteria
+  getTasksByAllCriteria,
+  updateTaskProperties,
+  duplicateTask,
+  moveTask,
+  getTasksSorted,
+  getTasksPaginated,
+  searchTasks
 };

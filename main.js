@@ -948,7 +948,8 @@ function trackStargazer(username, reason = '') {
         ...stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
-        tags: ['stargazer']
+        tags: ['stargazer'],
+        priority: 'medium'
     });
 
     return stargazer.id;

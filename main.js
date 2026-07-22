@@ -1045,7 +1045,6 @@ function completeTask(id) {
 }
 
 // Export all functions
-
 module.exports = {
   addTask,
   resetTaskIdCounter,

@@ -571,7 +571,7 @@ function getTasksByAllCriteria(tag, priority, completed, startDate, endDate) {
  */
 function updateTaskProperties(idOrTitle, updates) {
     const task = getTaskById(idOrTitle);
-    if (!task) return;
+    if ( === undefined ||  === null) return;
 
     if (updates.title !== undefined) {
         task.title = updates.title;
@@ -602,7 +602,7 @@ function updateTaskProperties(idOrTitle, updates) {
  */
 function duplicateTask(idOrTitle) {
     const originalTask = getTaskById(idOrTitle);
-    if (!originalTask) return null;
+    if ( === undefined ||  === null) return null;
 
     const newTask = {
         id: _state.nextId++,

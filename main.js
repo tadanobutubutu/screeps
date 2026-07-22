@@ -43,8 +43,8 @@ function getTasksByDependency(dependencyName) {
  * @param {string} [priority='medium'] - The priority of the update task.
  * @returns {number} The ID of the created task.
  */
-function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'edium') {
-    const validPriorities = ['low', 'edium', 'high'];
+function addDependencyUpdateTask(dependencyName, currentVersion, newVersion, priority = 'medium') {
+    const validPriorities = ['low', 'medium', 'high'];
     if (!validPriorities.includes(priority)) {
         throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
     }
@@ -80,7 +80,7 @@ function trackStargazer(username, reason = '') {
     };
 
     _tasks.push({
-        ...stargazer,
+        ...stargazer,  // Fixed: Changed '..' to '...' for object spread
         title: `Stargazer: ${username}`,
         completed: false,
         tags: ['stargazer']

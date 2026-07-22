@@ -868,12 +868,67 @@ function getTasksSortedAlphabetically(ascending = true) {
     return mapped.map(item => _tasks[item.idx]);
 }
 
+/**
+ * Gets tasks filtered by multiple criteria with OR logic.
+ *
+ * @param {Object} options - Filter options.
+ * @param {string[]} [options.tags] - Tags to filter by (OR logic).
+ * @param {string[]} [options.priorities] - Priorities to filter by (OR logic).
+ * @param {boolean[]} [options.completionStatuses] - Completion statuses to filter by (OR logic).
+ * @param {number} [options.startDate] - Start date for date range filter.
+ * @param {number} [options.endDate] - End date for date range filter.
+ * @returns {Array} Array of tasks matching any of the specified criteria.
+ */
+function getTasksByMultipleCriteriaOr(options = {}) {
+    const {
+        tags,
+        priorities,
+        completionStatuses,
+        startDate,
+        endDate
+    } = options;
+
+    // If no filters are provided, return all tasks
+    if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
+        return [..._tasks];
+    }
+
+    // Validate priorities if provided
+    if (priorities) {
+        const validPriorities = ['low', 'medium', 'high'];
+        const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
+        if (invalidPriorities.length > 0) {
+            throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
+        }
+    }
+
+    return _tasks.filter(task => {
+        // Check if task matches any of the criteria
+        const matchesTags = tags ? tags.some(tag => task.tags.includes(tag)) : true;
+        const matchesPriorities = priorities ? priorities.includes(task.priority) : true;
+        const matchesCompletion = completionStatuses ? completionStatuses.includes(task.completed) : true;
+
+        // Check date range if provided
+        let matchesDateRange = true;
+        if (startDate !== undefined || endDate !== undefined) {
+            const createdAt = task.createdAt;
+            const afterStart = startDate === undefined || createdAt >= startDate;
+            const beforeEnd = endDate === undefined || createdAt <= endDate;
+            matchesDateRange = afterStart && beforeEnd;
+        }
+
+        // Return true if task matches any of the criteria
+        return matchesTags || matchesPriorities || matchesCompletion || matchesDateRange;
+    });
+}
+
 // Export all functions
 module.exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
   getTasksSortedAlphabetically,
+  getTasksByMultipleCriteriaOr,
   listTasks,
   completeTask,
   removeTask,

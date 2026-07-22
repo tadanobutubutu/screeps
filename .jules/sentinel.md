@@ -1,3 +1,9 @@
+## 2026-07-22 - [Defense-in-depth Numeric Reward Hardening]
+
+**Vulnerability:** Logic bypass or resource exploitation via unvalidated or manipulated numeric parameters (e.g., negative, Infinite, NaN, or non-numeric types) in mission reward assignment.
+**Learning:** Checking for truthiness (like `reward || 0`) is insufficient because negative numbers, NaN, and non-number types (objects, strings, arrays) can bypass these simple checks and cause unexpected behavior, state pollution, or resource manipulation.
+**Prevention:** Enforce defense-in-depth checks on incoming numeric parameters by verifying the exact type (`typeof val === 'number'`), confirming finiteness (`Number.isFinite(val) && !isNaN(val)`), and bounding via non-negativity constraints (`Math.max(0, val)`).
+
 ## 2026-06-15 - [Hardened Path Redaction & Fail‑Secure Logging]
 
 **Vulnerability:** Broken stack trace sanitization due to syntax errors (`if ( === undefined)`) and a path redaction regex (`/(\/|...)/`) that caused false positives on mathematical division (e.g., `1/2`) or root slashes.  

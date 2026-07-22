@@ -99,4 +99,99 @@ function updateTaskTitle(idOrTitle, newTitle) {
  * @param {number|string} idOrTitle - The ID or title of the task to update.
  * @param {Object} updates - An object containing properties to update.
  * @param {string} [updates.title] - New title for the task.
- * @param {boolean
+ * @param {boolean} [updates.completed] - Completion status for the task.
+ * @param {string[]} [updates.tags] - Array of tags for the task.
+ * @param {string} [updates.priority] - Priority level for the task.
+ */
+function updateTask(idOrTitle, updates) {
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        if (updates.title !== undefined) task.title = updates.title;
+        if (updates.completed !== undefined) task.completed = updates.completed;
+        if (updates.tags !== undefined) task.tags = updates.tags;
+        if (updates.priority !== undefined) task.priority = updates.priority;
+    }
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task.
+ * @param {string} tag - The tag to add.
+ */
+function addTagToTask(idOrTitle, tag) {
+    const task = getTaskById(idOrTitle);
+    if (task && !task.tags.includes(tag)) {
+        task.tags.push(tag);
+    }
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number|string} idOrTitle - The ID or title of the task.
+ * @param {string} tag - The tag to remove.
+ */
+function removeTagFromTask(idOrTitle, tag) {
+    const task = getTaskById(idOrTitle);
+    if (task) {
+        task.tags = task.tags.filter(t => t !== tag);
+    }
+}
+
+/**
+ * Filters tasks by completion status.
+ *
+ * @param {boolean} completed - Whether to filter completed or incomplete tasks.
+ * @returns {Array} Array of matching tasks.
+ */
+function filterTasksByCompletion(completed) {
+    return _tasks.filter(task => task.completed === completed);
+}
+
+/**
+ * Filters tasks by priority.
+ *
+ * @param {string} priority - The priority level to filter by.
+ * @returns {Array} Array of matching tasks.
+ */
+function filterTasksByPriority(priority) {
+    return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Filters tasks by tag.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @returns {Array} Array of matching tasks.
+ */
+function filterTasksByTag(tag) {
+    return _tasks.filter(task => task.tags.includes(tag));
+}
+
+/**
+ * Sorts tasks by creation date.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of sorted tasks.
+ */
+function sortTasksByDate(ascending = true) {
+    return [..._tasks].sort((a, b) => {
+        return ascending ? a.createdAt - b.createdAt : b.createdAt - a.createdAt;
+    });
+}
+
+/**
+ * Sorts tasks by priority.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of sorted tasks.
+ */
+function sortTasksByPriority(ascending = true) {
+    const priorityOrder = { low: 0, medium: 1, high: 2 };
+    return [..._tasks].sort((a, b) => {
+        const aPriority = priorityOrder[a.priority] || 1;
+        const bPriority = priorityOrder[b.priority] || 1;
+        return ascending ? aPriority - bPriority : bPriority - aPriority;
+    });
+}

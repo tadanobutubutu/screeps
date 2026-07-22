@@ -19,7 +19,7 @@ function addTask(title) {
         id: _state.nextId++,
         title,
         completed: false,
-        createdAt: Date.now(),
+        createdAt: Date. now(),
         tags: [],
         priority: 'medium'
     };
@@ -57,7 +57,7 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
  */
 function getTasksByDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies && task.dependencies.hasOwnProperty(dependencyName)
+        task.dependencies && task.dependencies[dependencyName]
     );
 }
 
@@ -148,10 +148,8 @@ module.exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
-  getTasksSortedAlphabetically,
-  getTasksByMultipleCriteriaOr,
-  getTasksByMultipleCriteriaAnd,
-  getTasksByMultipleCriteria,
+  getTasksSortedByCreatedAt,
+  getTasksByPriority,
   listTasks,
   completeTask,
   removeTask,

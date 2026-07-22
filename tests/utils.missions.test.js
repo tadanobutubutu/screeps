@@ -146,4 +146,38 @@ describe('utils.missions', () => {
         expect(mission1.id).not.toBe(mission2.id);
         mockMath.mockRestore();
     });
+
+    describe('reward validation defense-in-depth', () => {
+        test('should default to 0 for non-numeric, negative, infinite or NaN reward values', () => {
+            MissionSystem.initMemory();
+
+            // Negative numbers
+            const negMission = MissionSystem.createMission('scout', 'W0N0', -150);
+            expect(negMission.reward).toBe(0);
+
+            // NaN values
+            const nanMission = MissionSystem.createMission('scout', 'W0N0', NaN);
+            expect(nanMission.reward).toBe(0);
+
+            // Infinite values
+            const infMission = MissionSystem.createMission('scout', 'W0N0', Infinity);
+            expect(infMission.reward).toBe(0);
+
+            // String types
+            const strMission = MissionSystem.createMission('scout', 'W0N0', '100');
+            expect(strMission.reward).toBe(0);
+
+            // Object types
+            const objMission = MissionSystem.createMission('scout', 'W0N0', { amount: 500 });
+            expect(objMission.reward).toBe(0);
+
+            // Array types
+            const arrMission = MissionSystem.createMission('scout', 'W0N0', [250]);
+            expect(arrMission.reward).toBe(0);
+
+            // Valid positive reward
+            const validMission = MissionSystem.createMission('scout', 'W0N0', 500);
+            expect(validMission.reward).toBe(500);
+        });
+    });
 });

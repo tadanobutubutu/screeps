@@ -85,11 +85,17 @@ const MissionSystem = {
             Memory.missions.active.splice(evictIndex, 1);
         }
 
+        // Security: Harden reward parameter to prevent injection of negative numbers, NaN, Infinity, or non-number types.
+        let safeReward = 0;
+        if (typeof reward === 'number' && Number.isFinite(reward) && !isNaN(reward)) {
+            safeReward = Math.max(0, reward);
+        }
+
         const mission = {
             id: generateMissionId(),
             type: sanitizedType,
             target: sanitizedTarget,
-            reward: reward || 0,
+            reward: safeReward,
             createdAt: Game.time,
             status: 'active',
         };

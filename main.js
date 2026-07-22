@@ -711,7 +711,14 @@ function getTasksSorted(options = {}) {
                 comparison = priorityOrder[a.priority] - priorityOrder[b.priority];
                 break;
             case 'title':
-                comparison = a.title.localeCompare(b.title);
+                // ⚡ PERFORMANCE: Direct string comparison operators are significantly faster than localeCompare()
+                if (a.title < b.title) {
+                    comparison = -1;
+                } else if (a.title > b.title) {
+                    comparison = 1;
+                } else {
+                    comparison = 0;
+                }
                 break;
             default:
                 comparison = 0;
@@ -817,9 +824,56 @@ function searchTasks(options = {}) {
     return filteredTasks;
 }
 
+/**
+ * Resets the task ID counter.
+ * This is useful for testing scenarios where you want to start fresh.
+ */
+function resetTaskIdCounter() {
+    _state.nextId = 1;
+}
+
+/**
+ * Gets tasks sorted alphabetically by title using fast direct string comparison.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted alphabetically.
+ */
+function getTasksSortedByTitle(ascending = true) {
+    // ⚡ PERFORMANCE: Direct string comparison operators (<, >) are significantly
+    // faster than localeCompare() in JS engines.
+    return [..._tasks].sort((a, b) => {
+        if (a.title < b.title) return ascending ? -1 : 1;
+        if (a.title > b.title) return ascending ? 1 : -1;
+        return 0;
+    });
+}
+
+/**
+ * Gets tasks sorted alphabetically (case-insensitive) using a Schwartzian transform
+ * and fast direct string comparison to avoid repeated inside-loop lowercasing.
+ *
+ * @param {boolean} [ascending=true] - Whether to sort in ascending order.
+ * @returns {Array} Array of tasks sorted alphabetically.
+ */
+function getTasksSortedAlphabetically(ascending = true) {
+    // ⚡ PERFORMANCE: Schwartzian transform (map-sort-map) pre-calculates the lowercase
+    // keys once per element, reducing string conversion complexity from O(N log N) to O(N).
+    // Direct string comparison is used instead of expensive localeCompare().
+    const mapped = _tasks.map((task, idx) => ({ idx, title: task.title.toLowerCase() }));
+    mapped.sort((a, b) => {
+        if (a.title < b.title) return ascending ? -1 : 1;
+        if (a.title > b.title) return ascending ? 1 : -1;
+        return 0;
+    });
+    return mapped.map(item => _tasks[item.idx]);
+}
+
 // Export all functions
 module.exports = {
   addTask,
+  resetTaskIdCounter,
+  getTasksSortedByTitle,
+  getTasksSortedAlphabetically,
   listTasks,
   completeTask,
   removeTask,

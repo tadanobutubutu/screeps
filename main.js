@@ -32,18 +32,6 @@ function listTasks() {
 }
 
 /**
- * Marks a task as completed.
- *
- * @param {number} id - The ID of the task to complete.
- */
-function completeTask(id) {
-    const task = _tasks.find(t => t.id === id);
-    if (task) {
-        task.completed = true;
-    }
-}
-
-/**
  * Removes a task by ID.
  *
  * @param {number} id - The ID of the task to remove.
@@ -506,6 +494,48 @@ function getTasksByCompletionAndDateRange(completed, startDate, endDate) {
 }
 
 /**
+ * Gets tasks filtered by tag, priority, and completion status.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {boolean} completed - The completion status to filter by.
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByTagPriorityAndCompletion(tag, priority, completed) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.priority === priority &&
+        task.completed === completed
+    );
+}
+
+/**
+ * Gets tasks filtered by tag, priority, and date range.
+ *
+ * @param {string} tag - The tag to filter by.
+ * @param {string} priority - The priority to filter by (low, medium, high).
+ * @param {number} startDate - Start timestamp (inclusive).
+ * @param {number} endDate - End timestamp (inclusive).
+ * @returns {Array} Array of tasks matching all three criteria.
+ */
+function getTasksByTagPriorityAndDateRange(tag, priority, startDate, endDate) {
+    const validPriorities = ['low', 'medium', 'high'];
+    if (!validPriorities.includes(priority)) {
+        throw new Error(`Invalid priority. Must be one of: ${validPriorities.join(', ')}`);
+    }
+    return _tasks.filter(task =>
+        task.tags.includes(tag) &&
+        task.priority === priority &&
+        task.createdAt >= startDate &&
+        task.createdAt <= endDate
+    );
+}
+
+/**
  * Gets tasks filtered by all four criteria: tag, priority, completion status, and date range.
  *
  * @param {string} tag - The tag to filter by.
@@ -874,6 +904,75 @@ function getTasksByMultipleCriteriaAnd(options = {}) {
 }
 
 /**
+ * Gets tasks filtered by multiple criteria with customizable logic.
+ *
+ * @param {Object} options - Filter options.
+ * @param {string[]} [options.tags] - Tags to filter by.
+ * @param {string[]} [options.priorities] - Priorities to filter by.
+ * @param {boolean[]} [options.completionStatuses] - Completion statuses to filter by.
+ * @param {number} [options.startDate] - Start date for date range filter.
+ * @param {number} [options.endDate] - End date for date range filter.
+ * @param {string} [options.logic='and'] - Logic to use for combining filters ('and' or 'or').
+ * @returns {Array} Array of tasks matching the specified criteria.
+ */
+function getTasksByMultipleCriteria(options = {}) {
+    const {
+        tags,
+        priorities,
+        completionStatuses,
+        startDate,
+        endDate,
+        logic = 'and'
+    } = options;
+
+    if (!tags && !priorities && !completionStatuses && !startDate && !endDate) {
+        return [..._tasks];
+    }
+
+    if (priorities) {
+        const validPriorities = ['low', 'medium', 'high'];
+        const invalidPriorities = priorities.filter(p => !validPriorities.includes(p));
+        if (invalidPriorities.length > 0) {
+            throw new Error(`Invalid priorities: ${invalidPriorities.join(', ')}. Must be one of: ${validPriorities.join(', ')}`);
+        }
+    }
+
+    return _tasks.filter(task => {
+        const matchesTags = tags ?
+            (logic === 'and' ?
+                tags.every(tag => task.tags.includes(tag)) :
+                tags.some(tag => task.tags.includes(tag))) :
+            true;
+
+        const matchesPriorities = priorities ?
+            (logic === 'and' ?
+                priorities.includes(task.priority) :
+                priorities.includes(task.priority)) :
+            true;
+
+        const matchesCompletion = completionStatuses ?
+            (logic === 'and' ?
+                completionStatuses.includes(task.completed) :
+                completionStatuses.includes(task.completed)) :
+            true;
+
+        let matchesDateRange = true;
+        if (startDate !== undefined || endDate !== undefined) {
+            const createdAt = task.createdAt;
+            const afterStart = startDate === undefined || createdAt >= startDate;
+            const beforeEnd = endDate === undefined || createdAt <= endDate;
+            matchesDateRange = afterStart && beforeEnd;
+        }
+
+        if (logic === 'and') {
+            return matchesTags && matchesPriorities && matchesCompletion && matchesDateRange;
+        } else {
+            return matchesTags || matchesPriorities || matchesCompletion || matchesDateRange;
+        }
+    });
+}
+
+/**
  * Updates the version of a dependency in the task list.
  * @param {string} dependencyName - The name of the dependency to update.
  * @param {string} newVersion - The new version number.
@@ -948,8 +1047,7 @@ function trackStargazer(username, reason = '') {
         ...stargazer,
         title: `Stargazer: ${username}`,
         completed: false,
-        tags: ['stargazer'],
-        priority: 'medium'
+        tags: ['stargazer']
     });
 
     return stargazer.id;

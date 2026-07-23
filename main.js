@@ -40,8 +40,8 @@ function addTask(title) {
  * @returns {boolean} True if the update was successful
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
-    var task = _tasks.find(function(t) { return t.id === taskId; });
-    if (task === undefined || task === null) return false;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -166,13 +166,13 @@ function completeDependencyUpdateTask(taskId) {
  * @returns {Array} Array of tasks with the specified dependency version
  */
 function getDependencyVersionTasks(dependencyName, version) {
-    return _tasks.filter(function(task) {
-        return task.dependencies &&
-            task.dependencies[dependencyName] &&
-            ((typeof task.dependencies[dependencyName] === 'string' &&
-              task.dependencies[dependencyName] === version) ||
-             (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version));
-    });
+    return _tasks.filter(task =>
+        task.dependencies &&
+        task.dependencies[dependencyName] &&
+        ((typeof task.dependencies[dependencyName] === 'string' &&
+          task.dependencies[dependencyName] === version) ||
+         (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
+    );
 }
 
 /**
@@ -205,8 +205,8 @@ function getDependencyVersions(dependencyName) {
  * @returns {boolean} True if the update was successful
  */
 function updateDependencyVersions(taskId, dependencies) {
-    var task = _tasks.find(function(t) { return t.id === taskId; });
-    if (task === undefined || task === null) return false;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -286,7 +286,7 @@ function getTasksByPriority(priority) {
 }
 
 /**
- * Lists all tasks.
+} tasks.
  *
  * @returns {Array} Array of all tasks
  */

@@ -170,7 +170,7 @@ function getDependencyVersionTasks(dependencyName, version) {
         task.dependencies[dependencyName] &&
         ((typeof task.dependencies[dependencyName] === 'string' &&
           task.dependencies[dependencyName] === version) ||
-         (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
+         (task.dependencies.dependencyName && task.dependencies[dependencyName].target === version))
     );
 }
 

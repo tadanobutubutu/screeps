@@ -82,6 +82,8 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
                 target: targetVersion
             }
         };
+        // Add dependency-update tag
+        task.tags.push('dependency-update');
     }
 
     return taskId;

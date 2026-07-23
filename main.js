@@ -1,5 +1,7 @@
-/****************************************************************************************************************************/
-/* User Safety: unsafe Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity */
+/*
+User Safety: unsafe
+Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+*/
 
 var _tasks = [];
 var _state = { nextId: 1 };
@@ -36,8 +38,6 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
   task.dependencies[dependencyName] = newVersion;
   return true;
 }
-
-/** BEGIN Update functionality */
 
 /**
  * Gets tasks that depend on a specific dependency.
@@ -122,14 +122,14 @@ function getDependencyVersionTasks(dependencyName, version) {
   return _tasks.filter(task =>
     task.dependencies?.[dependencyName] &&
     (task.dependencies[dependencyName] === version ||
-     task.dependencies[dependencyName]?.target === version)
+    task.dependencies[dependencyName]?.target === version)
   );
 }
 
 /**
  * Gets all versions for a specific dependency across tasks.
  * @param {string} dependencyName
- * @returns {Array} Array of eligibile unique versions
+ * @returns {Array} Array of eligible unique versions
  */
 function getDependencyVersions(dependencyName) {
   const versions = new Set();
@@ -180,8 +180,6 @@ function addDependenciesToTask(taskId, dependencies) {
   return true;
 }
 
-/** END Update functionality */
-
 /**
  * Removes a dependency from a task.
  * @param {number} taskId
@@ -222,7 +220,7 @@ function getTasksSortedByTitle() {
 }
 
 /**
- * Gets tasks sorted CMA am creation date.
+ * Gets tasks sorted by creation date.
  * @returns {Array} Array of tasks sorted by creation date
  */
 function getTasksSortedByCreatedAt() {

@@ -336,7 +336,7 @@ function removeTagsFromTask(taskId, tags) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const initialLength = task.tags.length;
-        task.tags = task.tags.filter(t => t !== tag);
+        task.tags = task.tags.filter(t => !tags.includes(t));
         return task.tags.length !== initialLength;
     }
     return false;
@@ -681,6 +681,17 @@ function getTasksByDependencyVersion(dependencyName, version) {
 }
 
 /**
+ * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
+ *
+ * @param {string} dependencyName
+ * @param {string} version
+ * @returns {Array} Array of tasks with the specified dependency version
+ */
+function getDependencyVersionTasks(dependencyName, version) {
+    return getTasksByDependencyVersion(dependencyName, version);
+}
+
+/**
  * Gets all versions of a specific dependency across all tasks.
  *
  * @param {string} dependencyName
@@ -705,7 +716,7 @@ function getDependencyVersions(dependencyName) {
  * @param {Object} dependencies - Object with dependency names as keys and versions as values
  * @returns {boolean} True if the update was successful
  */
-function updateMultipleDependencyVersions(taskId, dependencies) {
+function updateTaskDependencies(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
     if (task === undefined || task === null) return false;
 
@@ -718,6 +729,17 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
     });
 
     return true;
+}
+
+/**
+ * Alias for updateTaskDependencies - updates multiple dependency versions in a task.
+ *
+ * @param {number} taskId
+ * @param {Object} dependencies - Object with dependency names as keys and versions as values
+ * @returns {boolean} True if the update was successful
+ */
+function updateMultipleDependencyVersions(taskId, dependencies) {
+    return updateTaskDependencies(taskId, dependencies);
 }
 
 /**
@@ -761,17 +783,6 @@ function clearAllTasks() {
 }
 
 /**
- * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
- *
- * @param {string} dependencyName
- * @param {string} version
- * @returns {Array} Array of tasks with the specified dependency version
- */
-function getDependencyVersionTasks(dependencyName, version) {
-    return getTasksByDependencyVersion(dependencyName, version);
-}
-
-/**
  * Logs a message with a timestamp.
  *
  * @param {string} message - The message to log
@@ -784,59 +795,60 @@ function log(message, level = 'info') {
 
 // Export all functions
 module.exports = {
-  addTask,
-  resetTaskIdCounter,
-  getTasksSortedByTitle,
-  getTasksSortedByCreatedAt,
-  getTasksByPriority,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle,
-  getCompletedTasks,
-  getIncompleteTasks,
-  addTagToTask,
-  removeTagFromTask,
-  findTasksByTag,
-  updateTaskPriority,
-  getTasksByPriorityFilter,
-  getTasksByCreationDate,
-  clearAllTasks,
-  getTaskCount,
-  getCompletedTaskCount,
-  getTasksByStatus,
-  incompleteTask,
-  toggleTaskCompletion,
-  addTagsToTask,
-  removeTagsFromTask,
-  clearTagsFromTask,
-  getAllTags,
-  findTasksByAnyTag,
-  findTasksByAllTags,
-  getTasksByTag,
-  getTasksByTags,
-  getTasksByDateRange,
-  getTasksByAllCriteria,
-  updateTaskProperties,
-  duplicateTask,
-  moveTask,
-  getTasksSorted,
-  getTasksPaginated,
-  searchTasks,
-  updateDependencyVersion,
-  getTasksByDependency,
-  addDependencyUpdateTask,
-  getAllDependencies,
-  getDependencyUpdateTasks,
-  completeDependencyUpdateTask,
-  getTasksByDependencyVersion,
-  getDependencyVersions,
-  updateMultipleDependencyVersions,
-  removeDependencyFromTask,
-  getTasksMissingDependency,
-  getAllTasks,
-  getDependencyVersionTasks,
-  log
+    addTask,
+    resetTaskIdCounter,
+    getTasksSortedByTitle,
+    getTasksSortedByCreatedAt,
+    getTasksByPriority,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskTitle,
+    getCompletedTasks,
+    getIncompleteTasks,
+    addTagToTask,
+    removeTagFromTask,
+    findTasksByTag,
+    updateTaskPriority,
+    getTasksByPriorityFilter,
+    getTasksByCreationDate,
+    clearAllTasks,
+    getTaskCount,
+    getCompletedTaskCount,
+    getTasksByStatus,
+    incompleteTask,
+    toggleTaskCompletion,
+    addTagsToTask,
+    removeTagsFromTask,
+    clearTagsFromTask,
+    getAllTags,
+    findTasksByAnyTag,
+    findTasksByAllTags,
+    getTasksByTag,
+    getTasksByTags,
+    getTasksByDateRange,
+    getTasksByAllCriteria,
+    updateTaskProperties,
+    duplicateTask,
+    moveTask,
+    getTasksSorted,
+    getTasksPaginated,
+    searchTasks,
+    updateDependencyVersion,
+    getTasksByDependency,
+    addDependencyUpdateTask,
+    getAllDependencies,
+    getDependencyUpdateTasks,
+    completeDependencyUpdateTask,
+    getTasksByDependencyVersion,
+    getDependencyVersionTasks,
+    getDependencyVersions,
+    updateTaskDependencies,
+    updateMultipleDependencyVersions,
+    removeDependencyFromTask,
+    getTasksMissingDependency,
+    getAllTasks,
+    log
 };

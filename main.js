@@ -448,6 +448,135 @@ function clearAllTasks() {
     _tasks.length = 0;
 }
 
+/**
+ * Gets all dependency update tasks with their status.
+ *
+ * @returns {Array} Array of dependency update tasks with status
+ */
+function getAllDependencyUpdateTasksWithStatus() {
+    return _tasks
+        .filter(task => task.tags && task.tags.includes('dependency-update'))
+        .map(task => ({
+            id: task.id,
+            title: task.title,
+            completed: task.completed,
+            dependencies: task.dependencies || {},
+            createdAt: task.createdAt
+        }));
+}
+
+/**
+ * Gets dependency update tasks grouped by dependency name.
+ *
+ * @returns {Object} Object with dependency names as keys and arrays of tasks as values
+ */
+function getDependencyUpdateTasksGroupedByName() {
+    const grouped = {};
+
+    _tasks.forEach(task => {
+        if (task.tags && task.tags.includes('dependency-update') && task.dependencies) {
+            Object.keys(task.dependencies).forEach(depName => {
+                if (!grouped[depName]) {
+                    grouped[depName] = [];
+                }
+                grouped[depName].push({
+                    id: task.id,
+                    title: task.title,
+                    completed: task.completed,
+                    version: task.dependencies[depName],
+                    createdAt: task.createdAt
+                });
+            });
+        }
+    });
+
+    return grouped;
+}
+
+/**
+ * Gets dependency update statistics.
+ *
+ * @returns {Object} Statistics about dependency updates
+ */
+function getDependencyUpdateStatistics() {
+    const stats = {
+        totalTasks: 0,
+        completedTasks: 0,
+        pendingTasks: 0,
+        dependencies: {}
+    };
+
+    _tasks.forEach(task => {
+        if (task.tags && task.tags.includes('dependency-update')) {
+            stats.totalTasks++;
+            if (task.completed) {
+                stats.completedTasks++;
+            } else {
+                stats.pendingTasks++;
+            }
+
+            if (task.dependencies) {
+                Object.entries(task.dependencies).forEach(([depName, versionInfo]) => {
+                    if (!stats.dependencies[depName]) {
+                        stats.dependencies[depName] = {
+                            count: 0,
+                            versions: new Set()
+                        };
+                    }
+
+                    stats.dependencies[depName].count++;
+                    if (typeof versionInfo === 'string') {
+                        stats.dependencies[depName].versions.add(versionInfo);
+                    } else if (versionInfo && versionInfo.target) {
+                        stats.dependencies[depName].versions.add(versionInfo.target);
+                    }
+                });
+            }
+        }
+    });
+
+    // Convert sets to arrays
+    Object.keys(stats.dependencies).forEach(depName => {
+        stats.dependencies[depName].versions = Array.from(stats.dependencies[depName].versions);
+    });
+
+    return stats;
+}
+
+/**
+ * Gets dependency update tasks for a specific version.
+ *
+ * @param {string} version
+ * @returns {Array} Array of tasks that update to the specified version
+ */
+function getDependencyUpdateTasksForVersion(version) {
+    return _tasks.filter(task =>
+        task.tags && task.tags.includes('dependency-update') &&
+        task.dependencies &&
+        Object.values(task.dependencies).some(depInfo =>
+            (typeof depInfo === 'string' && depInfo === version) ||
+            (depInfo && depInfo.target === version)
+        )
+    );
+}
+
+/**
+ * Gets dependency update tasks that are overdue.
+ *
+ * @param {number} daysOverdue - Number of days to consider as overdue
+ * @returns {Array} Array of overdue dependency update tasks
+ */
+function getOverdueDependencyUpdateTasks(daysOverdue = 7) {
+    const now = Date.now();
+    const overdueTime = daysOverdue * 24 * 60 * 60 * 1000;
+
+    return _tasks.filter(task =>
+        task.tags && task.tags.includes('dependency-update') &&
+        !task.completed &&
+        (now - task.createdAt) > overdueTime
+    );
+}
+
 // Export all defined functions
 module.exports = {
     addTask,
@@ -478,5 +607,10 @@ module.exports = {
     getTasksMissingDependency,
     getMemoryUsage,
     getAllTasks,
-    clearAllTasks
+    clearAllTasks,
+    getAllDependencyUpdateTasksWithStatus,
+    getDependencyUpdateTasksGroupedByName,
+    getDependencyUpdateStatistics,
+    getDependencyUpdateTasksForVersion,
+    getOverdueDependencyUpdateTasks
 };

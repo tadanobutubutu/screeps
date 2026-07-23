@@ -19,12 +19,12 @@ function addTask(title) {
         id: _state.nextId++,
         title,
         completed: false,
-        createdAt: Date. now(),
+        createdAt: Date.now(),
         tags: [],
         priority: 'medium'
     };
-    _tasks. push(task);
-    return task. id;
+    _tasks.push(task);
+    return task.id;
 }
 
 /** ... [all existing functions remain unchanged] ... **/
@@ -200,3 +200,14 @@ module.exports = {
   getRunawayStargazers,
   removeStargazer
 };
+
+// Add this function to help with testing
+function getAllTasks() {
+    return [..._tasks];
+}
+
+// Add this function to help with testing
+function clearAllTasks() {
+    _tasks.length = 0;
+    _state.nextId = 1;
+}

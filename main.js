@@ -291,7 +291,7 @@ function incompleteTask(taskId) {
  * Toggles a task's completion status.
  *
  * @param {number} taskId
- * @returns {boolean} True if the status was toggled
+ * @returns {boolean} True if the task's status was toggled
  */
 function toggleTaskCompletion(taskId) {
     const task = _tasks.find(t => t.id === taskId);
@@ -335,15 +335,9 @@ function addTagsToTask(taskId, tags) {
 function removeTagsFromTask(taskId, tags) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
-        let removed = false;
-        tags.forEach(tag => {
-            const index = task.tags.indexOf(tag);
-            if (index !== -1) {
-                task.tags.splice(index, 1);
-                removed = true;
-            }
-        });
-        return removed;
+        const initialLength = task.tags.length;
+        task.tags = task.tags.filter(t => t !== tag);
+        return task.tags.length !== initialLength;
     }
     return false;
 }
@@ -394,7 +388,7 @@ function findTasksByAnyTag(tags) {
  * Finds tasks that have all of the specified tags.
  *
  * @param {Array} tags
- * @returns {Array} Array of tasks with all of the specified tags
+ * @returns {Array} Array of tasks that have all of the specified tags
  */
 function findTasksByAllTags(tags) {
     return _tasks.filter(task =>
@@ -777,6 +771,17 @@ function getDependencyVersionTasks(dependencyName, version) {
     return getTasksByDependencyVersion(dependencyName, version);
 }
 
+/**
+ * Logs a message with a timestamp.
+ *
+ * @param {string} message - The message to log
+ * @param {string} [level='info'] - The log level (info, warn, error)
+ */
+function log(message, level = 'info') {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -832,5 +837,6 @@ module.exports = {
   removeDependencyFromTask,
   getTasksMissingDependency,
   getAllTasks,
-  getDependencyVersionTasks
+  getDependencyVersionTasks,
+  log
 };

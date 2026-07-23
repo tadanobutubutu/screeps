@@ -19,12 +19,12 @@ function addTask(title) {
         id: _state.nextId++,
         title,
         completed: false,
-        createdAt: Date. now(),
+        createdAt: Date.now(),
         tags: [],
         priority: 'medium'
     };
-    _tasks. push(task);
-    return task. id;
+    _tasks.push(task);
+    return task.id;
 }
 
 /** ... [all existing functions remain unchanged] ... **/
@@ -167,8 +167,7 @@ module.exports = {
   clearAllTasks,
   getTaskCount,
   getCompletedTaskCount,
-  getIncompleteTaskCount,
-  getTasksByCompletion,
+  getTasksByStatus,
   getTasksByPriorityFilter,
   incompleteTask,
   toggleTaskCompletion,

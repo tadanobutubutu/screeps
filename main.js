@@ -19,7 +19,7 @@ function addTask(title) {
         id: _state.nextId++,
         title,
         completed: false,
-        createdAt: Date.now(),
+        createdAt: Date. now(),
         tags: [],
         priority: 'edium'
     };
@@ -138,7 +138,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -153,7 +153,7 @@ function completeDependencyUpdateTask(taskId) {
  * @param {string} version
  * @returns {Array} Array of tasks with the specified dependency version
  */
-function getTasksByDependencyVersion(dependencyName, version) {
+function getDependencyVersionTasks(dependencyName, version) {
     return _tasks.filter(task =>
         task.dependencies &&
         task.dependencies[dependencyName] &&
@@ -186,7 +186,7 @@ function getDependencyVersions(dependencyName) {
  * @param {Object} dependencies - Object with dependency names as keys and versions as values
  * @returns {boolean} True if the update was successful
  */
-function updateMultipleDependencyVersions(taskId, dependencies) {
+function updateTaskDependencies(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
     if (task === undefined || task === null) return false;
 
@@ -210,7 +210,7 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -226,7 +226,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  */
 function getTasksMissingDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies ||!task.dependencies[dependencyName]
+        !task.dependencies || !task.dependencies[dependencyName]
     );
 }
 
@@ -241,71 +241,58 @@ function clearAllTasks() {
     _state.nextId = 1;
 }
 
-/**
- * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
- *
- * @param {string} dependencyName
- * @param {string} version
- * @returns {Array} Array of tasks with the specified dependency version
- */
-function getDependencyVersionTasks(dependencyName, version) {
-    return getTasksByDependencyVersion(dependencyName, version);
-}
-
 // Export all functions
 module.exports = {
-  addTask,
-  resetTaskIdCounter,
-  getTasksSortedByTitle,
-  getTasksSortedByCreatedAt,
-  getTasksByPriority,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle,
-  getCompletedTasks,
-  getIncompleteTasks,
-  addTagToTask,
-  removeTagFromTask,
-  findTasksByTag,
-  updateTaskPriority,
-  getTasksByPriorityFilter,
-  getTasksByCreationDate,
-  clearAllTasks,
-  getTaskCount,
-  getCompletedTaskCount,
-  getTasksByStatus,
-  incompleteTask,
-  toggleTaskCompletion,
-  addTagsToTask,
-  removeTagsFromTask,
-  clearTagsFromTask,
-  getAllTags,
-  findTasksByAnyTag,
-  findTasksByAllTags,
-  getTasksByTag,
-  getTasksByTags,
-  getTasksByDateRange,
-  getTasksByAllCriteria,
-  updateTaskProperties,
-  duplicateTask,
-  moveTask,
-  getTasksSorted,
-  getTasksPaginated,
-  searchTasks,
-  updateDependencyVersion,
-  getTasksByDependency,
-  addDependencyUpdateTask,
-  getAllDependencies,
-  getDependencyUpdateTasks,
-  completeDependencyUpdateTask,
-  getTasksByDependencyVersion,
-  getDependencyVersions,
-  updateMultipleDependencyVersions,
-  removeDependencyFromTask,
-  getTasksMissingDependency,
-  getAllTasks,
-  getDependencyVersionTasks
+    addTask,
+    resetTaskIdCounter,
+    getTasksSortedByTitle,
+    getTasksSortedByCreatedAt,
+    getTasksByPriority,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskTitle,
+    getCompletedTasks,
+    getIncompleteTasks,
+    addTagToTask,
+    removeTagFromTask,
+    findTasksByTag,
+    updateTaskPriority,
+    getTasksByPriorityFilter,
+    getTasksByCreationDate,
+    clearAllTasks,
+    getTaskCount,
+    getCompletedTaskCount,
+    getTasksByStatus,
+    incompleteTask,
+    toggleTaskCompletion,
+    addTagsToTask,
+    removeTagsFromTask,
+    clearTagsFromTask,
+    getAllTags,
+    findTasksByAnyTag,
+    findTasksByAllTags,
+    getTasksByTag,
+    getTasksByTags,
+    getTasksByDateRange,
+    getTasksByAllCriteria,
+    updateTaskProperties,
+    duplicateTask,
+    moveTask,
+    getTasksSorted,
+    getTasksPaginated,
+    searchTasks,
+    updateDependencyVersion,
+    getTasksByDependency,
+    addDependencyUpdateTask,
+    getAllDependencies,
+    getDependencyUpdateTasks,
+    completeDependencyUpdateTask,
+    getDependencyVersionTasks,
+    getDependencyVersions,
+    removeDependencyFromTask,
+    getTasksMissingDependency,
+    getAllTasks
 };

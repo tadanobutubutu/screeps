@@ -143,7 +143,7 @@ function completeDependencyUpdateTask(taskId) {
 }
 
 // Export all functions
-module.exports = {
+module. exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,

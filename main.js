@@ -13,7 +13,12 @@ User Safety: unsafe
 Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
 */
 
-// ======= BEGIN // Update dependency version
+function addTask(title) {
+    const id = _state.nextId++;
+    _tasks.push({ id: id, title: title });
+    return id;
+}
+
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
     if (!task) return false;
@@ -22,7 +27,6 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
     return true;
 }
 
-// BEGIN // Add task update functionality
 function getTasksByDependency(dependencyName) {
     return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
 }
@@ -45,7 +49,7 @@ function getAllDependencies() {
     _tasks.forEach(task => {
         if (task.dependencies) {
             Object.entries(task.dependencies).forEach(([name, info]) => {
-                let version = typeof info === 'tring' ? info : info.target;
+                let version = typeof info === 'string' ? info : info.target;
                 if (version && !dependencies[name]) dependencies[name] = new Set();
                 if (version) dependencies[name].add(version);
             });
@@ -84,7 +88,7 @@ function getDependencyVersions(dependencyName) {
     _tasks.forEach(task => {
         const dep = task.dependencies?.[dependencyName];
         if (dep && dep !== undefined) {
-            const ver = typeof dep === 'tring' ? dep : dep.target;
+            const ver = typeof dep === 'string' ? dep : dep.target;
             if (ver) versions.add(ver);
         }
     });
@@ -338,40 +342,29 @@ function getOverdueDependencyUpdateTasks(daysOverdue) {
 
 // Export all defined functions
 module.exports = {
-    run: run,
-    addTask: addTask,
-    resetTaskIdCounter: resetTaskIdCounter,
-    getTasksSortedByTitle: getTasksSortedByTitle,
-    getTasksSortedByCreatedAt: getTasksSortedByCreatedAt,
-    getTasksByPriority: getTasksByPriority,
-    listTasks: listTasks,
-    completeTask: completeTask,
-    removeTask: removeTask,
-    findTasks: findTasks,
-    getTaskById: getTaskById,
-    updateTaskTitle: updateTaskTitle,
-    getCompletedTasks: getCompletedTasks,
-    getIncompleteTasks: getIncompleteTasks,
-    addTagToTask: addTagToTask,
-    removeTagFromTask: removeTagFromTask,
-    updateDependencyVersion: updateDependencyVersion,
-    getTasksByDependency: getTasksByDependency,
-    addDependencyUpdateTask: addDependencyUpdateTask,
-    getAllDependencies: getAllDependencies,
-    getDependencyUpdateTasks: getDependencyUpdateTasks,
-    completeDependencyUpdateTask: completeDependencyUpdateTask,
-    getDependencyVersionTasks: getDependencyVersionTasks,
-    getDependencyVersions: getDependencyVersions,
-    updateDependencyVersions: updateDependencyVersions,
-    removeDependencyFromTask: removeDependencyFromTask,
-    getTasksMissingDependency: getTasksMissingDependency,
-    getMemoryUsage: getMemoryUsage,
-    getAllTasks: getAllTasks,
-    clearAllTasks: clearAllTasks,
-    getAllDependencyUpdateTasksWithStatus: getAllDependencyUpdateTasksWithStatus,
-    getDependencyUpdateTasksGroupedByName: getDependencyUpdateTasksGroupedByName,
-    getDependencyUpdateStatistics: getDependencyUpdateStatistics,
-    getDependencyUpdateTasksForVersion: getDependencyUpdateTasksForVersion,
-    getOverdueDependencyUpdateTasks: getOverdueDependencyUpdateTasks,
-    updateTasksWithDependenciesFromCodeowners: updateTasksWithDependenciesFromCodeowners
+  run: function() {
+    // Main game loop
+  },
+  updateDependencyVersion: updateDependencyVersion,
+  getTasksByDependency: getTasksByDependency,
+  addDependencyUpdateTask: addDependencyUpdateTask,
+  getAllDependencies: getAllDependencies,
+  getDependencyUpdateTasks: getDependencyUpdateTasks,
+  completeDependencyUpdateTask: completeDependencyUpdateTask,
+  getDependencyVersionTasks: getDependencyVersionTasks,
+  getDependencyVersions: getDependencyVersions,
+  updateDependencyVersions: updateDependencyVersions,
+  removeDependencyFromTask: removeDependencyFromTask,
+  getTasksMissingDependency: getTasksMissingDependency,
+  resetTaskIdCounter: resetTaskIdCounter,
+  getTasksSortedByTitle: getTasksSortedByTitle,
+  getTasksSortedByCreatedAt: getTasksSortedByCreatedAt,
+  getTasksByPriority: getTasksByPriority,
+  getAllTasks: getAllTasks,
+  clearAllTasks: clearAllTasks,
+  getAllDependencyUpdateTasksWithStatus: getAllDependencyUpdateTasksWithStatus,
+  getDependencyUpdateTasksGroupedByName: getDependencyUpdateTasksGroupedByName,
+  getDependencyUpdateStatistics: getDependencyUpdateStatistics,
+  getDependencyUpdateTasksForVersion: getDependencyUpdateTasksForVersion,
+  getOverdueDependencyUpdateTasks: getOverdueDependencyUpdateTasks
 };

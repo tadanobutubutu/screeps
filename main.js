@@ -110,7 +110,8 @@ function getAllDependencies() {
     });
 
     // Convert sets to arrays for easier consumption
-    Object.entries(dependencies).forEach(([name, set]) => {
+    Object.keys(dependencies).forEach(name => {
+        const set = dependencies[name];
         dependencies[name] = Array.from(set);
     });
 
@@ -279,6 +280,7 @@ module.exports = {
   getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
+  getDependencyVersionTasks,
   getTasksByDependencyVersion,
   getDependencyVersions,
   updateMultipleDependencyVersions,
@@ -288,7 +290,9 @@ module.exports = {
   markAsRunawayStargazer,
   getAllStargazers,
   getRunawayStargazers,
-  removeStargazer
+  removeStargazer,
+  getAllTasks,
+  clearAllTasks
 };
 
 // Add this function to help with testing

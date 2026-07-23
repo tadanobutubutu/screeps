@@ -83,6 +83,7 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
             }
         };
         // Add dependency-update tag
+        if (!task.tags) task.tags = [];
         task.tags.push('dependency-update');
     }
 
@@ -165,7 +166,7 @@ function getTasksByDependencyVersion(dependencyName, version) {
  * @param {string} dependencyName
  * @returns {Array} Array of all versions of the specified dependency
  */
-function getAllVersionsOfDependency(dependencyName) {
+function getAllDependencyVersions(dependencyName) {
     const versions = new Set();
 
     _tasks.forEach(task => {
@@ -278,8 +279,9 @@ module.exports = {
   getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
+  getDependencyVersionTasks,
   getTasksByDependencyVersion,
-  getAllVersionsOfDependency,
+  getAllDependencyVersions,
   updateMultipleDependencyVersions,
   removeDependencyFromTask,
   getTasksMissingDependency,

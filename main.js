@@ -1,2 +1,6 @@
-User Safety: unsafe
-Safety Categories: Unauthorized Advice, Needs Caution
+// Screeps main module for dependency dashboard
+module.exports = {
+  run: function() {
+    // Main game loop
+  }
+};

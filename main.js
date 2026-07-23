@@ -1,6 +1,5 @@
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+// Safety: User Safety: unsafe
+// Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
 const _tasks = [];
 const _state = {
     nextId: 1
@@ -24,7 +23,7 @@ function addTask(title) {
         completed: false,
         createdAt: Date.now(),
         tags: [],
-        priority: 'edium'
+        priority: 'medium'
     };
     _tasks.push(task);
     return task.id;
@@ -103,7 +102,7 @@ function getAllDependencies() {
         if (task.dependencies) {
             Object.entries(task.dependencies).forEach(([name, info]) => {
                 let version;
-                if (typeof info === 'tring') {
+                if (typeof info === 'string') {
                     version = info;
                 } else if (info && typeof info === 'object' && info.target) {
                     version = info.target;
@@ -148,7 +147,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -167,7 +166,7 @@ function getDependencyVersionTasks(dependencyName, version) {
     return _tasks.filter(task =>
         task.dependencies &&
         task.dependencies[dependencyName] &&
-        ((typeof task.dependencies[dependencyName] === 'tring' &&
+        ((typeof task.dependencies[dependencyName] === 'string' &&
           task.dependencies[dependencyName] === version) ||
          (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
     );
@@ -186,7 +185,7 @@ function getDependencyVersions(dependencyName) {
         if (task.dependencies && task.dependencies[dependencyName]) {
             const depInfo = task.dependencies[dependencyName];
             let ver;
-            if (typeof depInfo === 'tring') ver = depInfo;
+            if (typeof depInfo === 'string') ver = depInfo;
             else if (depInfo.target) ver = depInfo.target;
             if (ver) versions.add(ver);
         }
@@ -226,7 +225,7 @@ function updateDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -241,7 +240,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  * @returns {Array} Array of tasks that don't have the specified dependency
  */
 function getTasksMissingDependency(dependencyName) {
-    return _tasks.filter(task =>!task.dependencies ||!task.dependencies[dependencyName]);
+    return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]);
 }
 
 /**
@@ -311,7 +310,7 @@ function completeTask(taskId) {
  */
 function removeTask(taskId) {
     const index = _tasks.findIndex(t => t.id === taskId);
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return true;
     }
@@ -372,7 +371,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks
  */
 function getIncompleteTasks() {
-    return _tasks.filter(task =>!task.completed);
+    return _tasks.filter(task => !task.completed);
 }
 
 /**
@@ -405,7 +404,7 @@ function removeTagFromTask(taskId, tag) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const index = task.tags.indexOf(tag);
-        if (index!== -1) {
+        if (index !== -1) {
             task.tags.splice(index, 1);
             return true;
         }
@@ -454,8 +453,8 @@ function clearAllTasks() {
  */
 function getAllDependencyUpdateTasksWithStatus() {
     return _tasks
-        filter(task => task.tags && task.tags.includes('dependency-update'))
-        map(task => ({
+        .filter(task => task.tags && task.tags.includes('dependency-update'))
+        .map(task => ({
             id: task.id,
             title: task.title,
             completed: task.completed,
@@ -524,7 +523,7 @@ function getDependencyUpdateStatistics() {
                     }
 
                     stats.dependencies[depName].count++;
-                    if (typeof versionInfo === 'tring') {
+                    if (typeof versionInfo === 'string') {
                         stats.dependencies[depName].versions.add(versionInfo);
                     } else if (versionInfo && versionInfo.target) {
                         stats.dependencies[depName].versions.add(versionInfo.target);
@@ -553,7 +552,7 @@ function getDependencyUpdateTasksForVersion(version) {
         task.tags && task.tags.includes('dependency-update') &&
         task.dependencies &&
         Object.values(task.dependencies).some(depInfo =>
-            (typeof depInfo === 'tring' && depInfo === version) ||
+            (typeof depInfo === 'string' && depInfo === version) ||
             (depInfo && depInfo.target === version)
         )
     );
@@ -571,7 +570,7 @@ function getOverdueDependencyUpdateTasks(daysOverdue = 7) {
 
     return _tasks.filter(task =>
         task.tags && task.tags.includes('dependency-update') &&
-        task.completed &&
+        !task.completed &&
         (now - task.createdAt) > overdueTime
     );
 }

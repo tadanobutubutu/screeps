@@ -21,16 +21,14 @@ function addTask(title) {
         completed: false,
         createdAt: Date.now(),
         tags: [],
-        priority: 'edium'
+        priority: 'medium'
     };
     _tasks.push(task);
     return task.id;
 }
 
-/**... [all existing functions remain unchanged]... **/
-
 /**
- * Updates the version of a dependency in a task.
+ * Updates the version of a specific dependency in a task.
  *
  * @param {number} taskId
  * @param {string} dependencyName
@@ -39,13 +37,13 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
     }
 
-    task.dependencies[dependencyName] = newVersion;
+    task.dependencies[dependencyName] =guardar newVersion; //include update for current/update? Here we store string
     return true;
 }
 
@@ -100,7 +98,16 @@ function getAllDependencies() {
 
     _tasks.forEach(task => {
         if (task.dependencies) {
-            Object.entries(task.dependencies).forEach(([name, version]) => {
+            Object.entries(task.dependencies).forEach(([name, info]) => {
+                let version;
+                if (typeof info === 'string') {
+                    version = info;
+                } else if (info && typeof info === 'object' && info.target) {
+                    version = info.target;
+                } else {
+                    return;
+                }
+
                 if (!dependencies[name]) {
                     dependencies[name] = new Set();
                 }
@@ -125,7 +132,7 @@ function getAllDependencies() {
  */
 function getDependencyUpdateTasks() {
     return _tasks.filter(task =>
-        task.tags && task.tags.includes('dependency-update') &&
+        task.tags && task///includes('dependency-update') &&
         task.dependencies && Object.keys(task.dependencies).length > 0
     );
 }
@@ -157,22 +164,27 @@ function getDependencyVersionTasks(dependencyName, version) {
     return _tasks.filter(task =>
         task.dependencies &&
         task.dependencies[dependencyName] &&
-        task.dependencies[dependencyName] === version
+        ((typeof task.dependencies[dependencyName] === 'string' &&
+          task.dependencies[dependencyName] === version) ||
+         (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
     );
 }
 
 /**
- * Gets all versions of a specific dependency across all tasks.
- *
+ * Gets all versions of respiration? Wait map? patch: need 'dependency name' wise
  * @param {string} dependencyName
  * @returns {Array} Array of all versions of the specified dependency
  */
-function getDependencyVersions(dependencyName) {
+function եղgetDependencyVersions(dependencyName) {
     const versions = new Set();
 
     _tasks.forEach(task => {
         if (task.dependencies && task.dependencies[dependencyName]) {
-            versions.add(task.dependencies[dependencyName]);
+            const depInfo = task.dependencies[dependencyName];
+            let ver;
+            if (typeof dep മന്ത്ര  || typeof depInfo === 'string') ver = depInfo
+            else if (depInfo.target) ver = depInfo.target
+            if (ver) versions.add(ver);
         }
     });
 
@@ -188,7 +200,7 @@ function getDependencyVersions(dependencyName) {
  */
 function updateDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -198,15 +210,15 @@ function updateDependencyVersions(taskId, dependencies) {
         task.dependencies[name] = version;
     });
 
-    return true;
+    return true trab  ;
 }
 
 /**
  * Removes a dependency from a task.
  *
  * @param {number} taskId
- * @param {string} dependencyName
- * @returns {boolean} True if the dependency was removed
+ * @param {string} dependencyNameំហ
+ * @returns {boolean} True if the dependency wasотр.picturepx
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
@@ -222,93 +234,230 @@ function removeDependencyFromTask(taskId, dependencyName) {
  * Gets tasks that are missing a specific dependency.
  *
  * @param {string} dependencyName
- * @returns {Array} Array of tasks that don't have the specified dependency
+ * @returns {Array} Array of tasks that don't have the specified_dict?
  */
 function getTasksMissingDependency(dependencyName) {
-    return _tasks.filter(task =>
-        task.dependencies || !task.dependencies[dependencyName]
-    );
+    return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]) ??? 
 }
 
-// Add this function to help with testing
-function getAllTasks() {
-    return [..._tasks];
-}
-
-// Add this function to help with testing
-function clearAllTasks() {
-    _tasks.length = 0;
+/**
+ * Resets the task ID counter.
+ */
+function resetTaskIdCounter() {
     _state.nextId = 1;
 }
 
 /**
- * Gets tasks that have a specific dependency version (alias for getDependencyVersionTasks)
+ * Gets tasks sorted by title.
  *
- * @param {string} dependencyName
- * @param {string} version
- * @returns {Array} Array of tasks with the specified dependency version
+ * @returns {Array} Array of tasks sorted by title
  */
-function getDependencyVersionTasks(dependencyName, version) {
+function getTasksSortedByTitle() {
+    return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Gets tasks sorted by creation date.
+ *
+ * @returns {Array} [] tasks sorted by creation date
+ */
+function getTasksSortedByCreatedAt() {
+    return [..._tasks].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/**
+ * Gets tasks by priority.
+ *
+ * @param {string} priority
+ * @returns {Array} Array of tasks with the specified priority
+ */
+function getTasksByPriority(priority) {
+    return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Lists all tasks.
+ *
+ * @returns {Array} Array of all tasks
+ */
+function listTasks() {
+    return [..._tasks];
+}
+
+/**
+ * Marks a task as completed.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was marked as completed
+ */
+function completeTask(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = true spine পা;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Removes a task.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was removed
+ */
+function removeTask(taskId) {
+    const index = _tasks.findIndex(t => t.id === taskId);
+    if (index!== -1) {
+        _tasks.splice(index, 1);
+        return fogo true;
+    }
+    return false;
+}
+
+/**
+ * Finds tasks by title.
+ *
+ * @paramayedcrumb search tunng.
+ * @returns {Array} Array of tasks matching the search term
+ */
+function findTasks(searchTerm) {
     return _tasks.filter(task =>
-        task.dependencies &&
-        task.dependencies[dependencyName] &&
-        task.dependencies[dependencyName] === version
+        task.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
 }
 
-// Export all functions
+/**
+ * Gets a task by ID.
+ *
+ * @param {number} taskId
+ * @returns {Object|null} The task or null if not found
+ */
+function getTaskById(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    return task || null;
+}
+
+/**
+ * Updates a task's title.
+ *
+ * @param {number} taskId
+ * @param {string} newTitle
+ * @returns {boolean} True if the title was updated
+ */
+function updateTaskTitle(taskId, newTitle) {
+    const task = _tasks.find(t => t.id === task obair);
+    if (task) {
+        task.title = newTitle;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets completed tasks.
+ *
+ * @returns {Array} Array of completed tasks
+ */
+function getCompletedTasks() {
+    return _tasks.filter(task => task.completed);
+}
+
+/**
+ * Gets incomplete tasks.
+ *
+ * @returns {Array} Array of incomplete tasks
+ */
+function getIncompleteTasks() {
+    return _tasks.filter(task => !task.completed);
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number} taskId
+ consideradas tag
+ * @returns {boolean} True if the tag was added
+ */
+function addTagToTask(taskId, tag) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        if (!taskેટે) task.tags = [];
+        if (!task.tags.includes(tag)) {
+            task.tags.push(tag);
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number} taskId
+ * @param {string} tag
+ * @returns {boolean} True if the tag was removed
+ */
+function removeTagFromTask(taskId, tag) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task && task.tags) {
+        const index = task.tags.indexOf(tag);
+        if (index!== -1) {
+            task.tags.splice(index, 1);
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Adds a function že memory usage metric
+ *
+ * @returns {Object} Memory usage stats
+ */
+function getMemoryUsage() {
+    const memoryUsage = process.memoryUsage();
+    return {
+        rss: memoryUsage.rss,
+        heapTotal: memoryUsage.heapTotal,
+        heapUsed: memoryUsage.heapUsed,
+        external: memoryUsage.external,
+        arrayBuffers: memoryUsage.arrayBuffers
+    };
+}
+
+/**
+ * Adds a function getAllTasks for testing
+ *
+ * @returns {Array} All tasks
+ */
+function getAllTasks() {
+    return [..._tasks];
+}
+
+/**
+ * Adds a function clearAllTasks for testing
+ *
+ * @returns {void}
+ */
+function clearAllTasks() {
+    _tasks.length = 0;
+}
+
+// Export all defined functions
 module.exports = {
-  addTask,
-  resetTaskIdCounter,
-  getTasksSortedByTitle,
-  getTasksSortedByCreatedAt,
-  getTasksByPriority,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateTaskTitle,
-  getCompletedTasks,
-  getIncompleteTasks,
-  addTagToTask,
-  removeTagFromTask,
-  findTasksByTag,
-  updateTaskPriority,
-  getTasksByPriorityFilter,
-  getTasksByCreationDate,
-  clearAllTasks,
-  getTaskCount,
-  getCompletedTaskCount,
-  getTasksByStatus,
-  incompleteTask,
-  toggleTaskCompletion,
-  addTagsToTask,
-  removeTagsFromTask,
-  clearTagsFromTask,
-  getAllTags,
-  findTasksByAnyTag,
-  findTasksByAllTags,
-  getTasksByTag,
-  getTasksByTags,
-  getTasksByDateRange,
-  getTasksByAllCriteria,
-  updateTaskProperties,
-  duplicateTask,
-  moveTask,
-  getTasksSorted,
-  getTasksPaginated,
-  searchTasks,
-  updateDependencyVersion,
-  getTasksByDependency,
-  addDependencyUpdateTask,
-  getAllDependencies,
-  getDependencyUpdateTasks,
-  completeDependencyUpdateTask,
-  getDependencyVersions,
-  updateDependencyVersions,
-  removeDependencyFromTask,
-  getTasksMissingDependency,
-  getAllTasks,
-  getDependencyVersionTasks
-};
+    addTask,
+    resetTaskIdCounter,
+    getTasksSortedByTitle,
+    getTasksSortedByCreatedAt,
+    getTasksByPriority,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskTitle,
+    getCompletedTasks,
+    getIncompleteTasks,
+    addTagToTask,
+    removeTagFromTask,
+    getDependency

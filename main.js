@@ -144,6 +144,90 @@ function completeDependencyUpdateTask(taskId) {
     return true;
 }
 
+/**
+ * Gets tasks that have a specific dependency version.
+ *
+ * @param {string} dependencyName
+ * @param {string} version
+ * @returns {Array} Array of tasks with the specified dependency version
+ */
+function getTasksByDependencyVersion(dependencyName, version) {
+    return _tasks.filter(task =>
+        task.dependencies &&
+        task.dependencies[dependencyName] &&
+        task.dependencies[dependencyName] === version
+    );
+}
+
+/**
+ * Gets all versions of a specific dependency across all tasks.
+ *
+ * @param {string} dependencyName
+ * @returns {Array} Array of all versions of the specified dependency
+ */
+function getAllVersionsOfDependency(dependencyName) {
+    const versions = new Set();
+
+    _tasks.forEach(task => {
+        if (task.dependencies && task.dependencies[dependencyName]) {
+            versions.add(task.dependencies[dependencyName]);
+        }
+    });
+
+    return Array.from(versions);
+}
+
+/**
+ * Updates multiple dependency versions in a task.
+ *
+ * @param {number} taskId
+ * @param {Object} dependencies - Object with dependency names as keys and versions as values
+ * @returns {boolean} True if the update was successful
+ */
+function updateMultipleDependencyVersions(taskId, dependencies) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task) return false;
+
+    if (!task.dependencies) {
+        task.dependencies = {};
+    }
+
+    Object.entries(dependencies).forEach(([name, version]) => {
+        task.dependencies[name] = version;
+    });
+
+    return true;
+}
+
+/**
+ * Removes a dependency from a task.
+ *
+ * @param {number} taskId
+ * @param {string} dependencyName
+ * @returns {boolean} True if the dependency was removed
+ */
+function removeDependencyFromTask(taskId, dependencyName) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
+        return false;
+    }
+
+    delete task.dependencies[dependencyName];
+    return true;
+}
+
+/**
+ * Gets tasks that are missing a specific dependency.
+ *
+ * @param {string} dependencyName
+ * @returns {Array} Array of tasks that don't have the specified dependency
+ */
+function getTasksMissingDependency(dependencyName) {
+    return _tasks.filter(task =>
+        !task.dependencies || !task.dependencies[dependencyName]
+    );
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -194,6 +278,11 @@ module.exports = {
   getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
+  getTasksByDependencyVersion,
+  getAllVersionsOfDependency,
+  updateMultipleDependencyVersions,
+  removeDependencyFromTask,
+  getTasksMissingDependency,
   trackStargazer,
   markAsRunawayStargazer,
   getAllStargazers,

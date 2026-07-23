@@ -143,7 +143,7 @@ function completeDependencyUpdateTask(taskId) {
 }
 
 // Export all functions
-module. exports = {
+module.exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
@@ -166,6 +166,7 @@ module. exports = {
   clearAllTasks,
   getTaskCount,
   getCompletedTaskCount,
+  getTasksByStatus,
   getTasksByPriorityFilter,
   incompleteTask,
   toggleTaskCompletion,

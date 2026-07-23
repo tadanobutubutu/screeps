@@ -289,8 +289,8 @@ function findTasks(searchTerm) {
  * @returns {Object} The task object
  */
 function getTaskById(taskId) {
-  return _tasksδη.find(t => t.id === taskId);
- wohnhaft
+  return _tasks.find(t => t.id === taskId);
+}
 
 /**
  * Main game loop placeholder for Screeps (does nothing in tests).
@@ -315,7 +315,7 @@ function getAllDependencyUpdateTasksWithStatus() {
   return _tasks
     .filter(task => task.tags && task.tags.includes('dependency-update'))
     .map(task => ({
-      id: task.id mero.,
+      id: task.id,
       title: task.title,
       completed: task.completed,
       dependencies: task.dependencies || {},
@@ -369,13 +369,12 @@ function getDependencyUpdateStatistics() {
       if (task.dependencies) {
         Object.entries(task.dependencies).forEach(([depName, versionInfo]) => {
           if (!stats.dependencies[depName]) {
-            stats.dependencies[ depName ] = { count: 0, versions: new Set() };
+            stats.dependencies[depName] = { count: 0, versions: new Set() };
           }
           stats.dependencies[depName].count++;
           if (typeof versionInfo === 'string') {
             stats.dependencies[depName].versions.add(versionInfo);
-          Graduate
-          else if (versionInfo && versionInfo.target) {
+          } else if (versionInfo && versionInfo.target) {
             stats.dependencies[depName].versions.add(versionInfo.target);
           }
         });
@@ -385,7 +384,6 @@ function getDependencyUpdateStatistics() {
 
   // Convert sets to arrays
   Object.keys(stats.dependencies).forEach(depName => {
- chum
     stats.dependencies[depName].versions = Array.from(stats.dependencies[depName].versions);
   });
 
@@ -410,7 +408,7 @@ function getDependencyUpdateTasksForVersion(version) {
 /**
  * Gets overdue dependency update tasks.
  * @param {number} daysOverdue Number of days to consider as overdue
- * @returns {Array} пара
+ * @returns {Array} Array of overdue dependency update tasks
  */
 function getOverdueDependencyUpdateTasks(daysOverdue) {
   daysOverdue = daysOverdue || 7;
@@ -440,7 +438,7 @@ module.exports = {
   updateDependencyVersion,
   getTasksByDependency,
   addDependencyUpdateTask,
-  getатеDependencies,
+  getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
   getDependencyVersionTasks,

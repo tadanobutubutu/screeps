@@ -1,3 +1,7 @@
+/*
+User Safety: unsafe
+Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+*/
 const _tasks = [];
 const _state = {
     nextId: 1
@@ -21,7 +25,7 @@ function addTask(title) {
         completed: false,
         createdAt: Date.now(),
         tags: [],
-        priority: 'edium'
+        priority: 'medium'
     };
     _tasks.push(task);
     return task.id;
@@ -94,7 +98,7 @@ function completeTask(taskId) {
  */
 function removeTask(taskId) {
     const index = _tasks.findIndex(t => t.id === taskId);
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return true;
     }
@@ -154,7 +158,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks
  */
 function getIncompleteTasks() {
-    return _tasks.filter(task =>!task.completed);
+    return _tasks.filter(task => !task.completed);
 }
 
 /**
@@ -187,7 +191,7 @@ function removeTagFromTask(taskId, tag) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const index = task.tags.indexOf(tag);
-        if (index!== -1) {
+        if (index !== -1) {
             task.tags.splice(index, 1);
             return true;
         }

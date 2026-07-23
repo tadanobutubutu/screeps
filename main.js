@@ -1,7 +1,12 @@
-/*
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+const _tasks = [];
+const _state = {
+    nextId: 1
+};
+
+/**
+ * User Safety: unsafe
+ * Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+ */
 const _tasks = [];
 const _state = {
     nextId: 1
@@ -25,7 +30,7 @@ function addTask(title) {
         completed: false,
         createdAt: Date.now(),
         tags: [],
-        priority: 'medium'
+        priority: 'edium'
     };
     _tasks.push(task);
     return task.id;
@@ -41,7 +46,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -104,7 +109,7 @@ function getAllDependencies() {
         if (task.dependencies) {
             Object.entries(task.dependencies).forEach(([name, info]) => {
                 let version;
-                if (typeof info === 'string') {
+                if (typeof info === 'tring') {
                     version = info;
                 } else if (info && typeof info === 'object' && info.target) {
                     version = info.target;
@@ -149,7 +154,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
+    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -168,7 +173,7 @@ function getDependencyVersionTasks(dependencyName, version) {
     return _tasks.filter(task =>
         task.dependencies &&
         task.dependencies[dependencyName] &&
-        ((typeof task.dependencies[dependencyName] === 'string' &&
+        ((typeof task.dependencies[dependencyName] === 'tring' &&
           task.dependencies[dependencyName] === version) ||
          (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
     );
@@ -187,7 +192,7 @@ function getDependencyVersions(dependencyName) {
         if (task.dependencies && task.dependencies[dependencyName]) {
             const depInfo = task.dependencies[dependencyName];
             let ver;
-            if (typeof depInfo === 'string') ver = depInfo;
+            if (typeof depInfo === 'tring') ver = depInfo;
             else if (depInfo.target) ver = depInfo.target;
             if (ver) versions.add(ver);
         }
@@ -205,7 +210,7 @@ function getDependencyVersions(dependencyName) {
  */
 function updateDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -227,7 +232,7 @@ function updateDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
+    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -242,7 +247,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  * @returns {Array} Array of tasks that don't have the specified dependency
  */
 function getTasksMissingDependency(dependencyName) {
-    return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]);
+    return _tasks.filter(task =>!task.dependencies ||!task.dependencies[dependencyName]);
 }
 
 /**
@@ -312,7 +317,7 @@ function completeTask(taskId) {
  */
 function removeTask(taskId) {
     const index = _tasks.findIndex(t => t.id === taskId);
-    if (index !== -1) {
+    if (index!== -1) {
         _tasks.splice(index, 1);
         return true;
     }
@@ -373,7 +378,7 @@ function getCompletedTasks() {
  * @returns {Array} Array of incomplete tasks
  */
 function getIncompleteTasks() {
-    return _tasks.filter(task => !task.completed);
+    return _tasks.filter(task =>!task.completed);
 }
 
 /**
@@ -406,7 +411,7 @@ function removeTagFromTask(taskId, tag) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const index = task.tags.indexOf(tag);
-        if (index !== -1) {
+        if (index!== -1) {
             task.tags.splice(index, 1);
             return true;
         }
@@ -455,8 +460,8 @@ function clearAllTasks() {
  */
 function getAllDependencyUpdateTasksWithStatus() {
     return _tasks
-        .filter(task => task.tags && task.tags.includes('dependency-update'))
-        .map(task => ({
+        filter(task => task.tags && task.tags.includes('dependency-update'))
+        map(task => ({
             id: task.id,
             title: task.title,
             completed: task.completed,
@@ -525,7 +530,7 @@ function getDependencyUpdateStatistics() {
                     }
 
                     stats.dependencies[depName].count++;
-                    if (typeof versionInfo === 'string') {
+                    if (typeof versionInfo === 'tring') {
                         stats.dependencies[depName].versions.add(versionInfo);
                     } else if (versionInfo && versionInfo.target) {
                         stats.dependencies[depName].versions.add(versionInfo.target);
@@ -554,7 +559,7 @@ function getDependencyUpdateTasksForVersion(version) {
         task.tags && task.tags.includes('dependency-update') &&
         task.dependencies &&
         Object.values(task.dependencies).some(depInfo =>
-            (typeof depInfo === 'string' && depInfo === version) ||
+            (typeof depInfo === 'tring' && depInfo === version) ||
             (depInfo && depInfo.target === version)
         )
     );
@@ -572,7 +577,7 @@ function getOverdueDependencyUpdateTasks(daysOverdue = 7) {
 
     return _tasks.filter(task =>
         task.tags && task.tags.includes('dependency-update') &&
-        !task.completed &&
+        task.completed &&
         (now - task.createdAt) > overdueTime
     );
 }

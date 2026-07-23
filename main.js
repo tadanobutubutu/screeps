@@ -420,6 +420,169 @@ function getOverdueDependencyUpdateTasks(daysOverdue) {
   });
 }
 
+/**
+ * Gets all dependency update tasks with their status and additional details.
+ * @returns {Array} Array of dependency update tasks with detailed status
+ */
+function getDetailedDependencyUpdateTasks() {
+  return _tasks
+    .filter(task => task.tags?.includes('dependency-update'))
+    .map(task => {
+      const dependencies = task.dependencies || {};
+      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
+        if (typeof info === 'string') {
+          return { name, current: info, target: info, status: 'current' };
+        } else {
+          return {
+            name,
+            current: info.current,
+            target: info.target,
+            status: task.completed ? 'completed' : 'pending'
+          };
+        }
+      });
+
+      return {
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        createdAt: task.createdAt,
+        dependencies: dependencyDetails,
+        priority: task.priority,
+        tags: task.tags || []
+      };
+    });
+}
+
+/**
+ * Gets a summary of dependency updates by status.
+ * @returns {Object} Summary of dependency updates by status
+ */
+function getDependencyUpdateSummary() {
+  const summary = {
+    total: 0,
+    completed: 0,
+    pending: 0,
+    byDependency: {}
+  };
+
+  _tasks.forEach(task => {
+    if (task.tags?.includes('dependency-update')) {
+      summary.total++;
+      if (task.completed) summary.completed++;
+      else summary.pending++;
+
+      if (task.dependencies) {
+        Object.entries(task.dependencies).forEach(([name, info]) => {
+          if (!summary.byDependency[name]) {
+            summary.byDependency[name] = {
+              total: 0,
+              completed: 0,
+              pending: 0,
+              versions: new Set()
+            };
+          }
+
+          summary.byDependency[name].total++;
+          if (task.completed) summary.byDependency[name].completed++;
+          else summary.byDependency[name].pending++;
+
+          const version = typeof info === 'string' ? info : info.target;
+          if (version) summary.byDependency[name].versions.add(version);
+        });
+      }
+    }
+  });
+
+  // Convert sets to arrays and calculate percentages
+  Object.keys(summary.byDependency).forEach(name => {
+    const dep = summary.byDependency[name];
+    dep.versions = Array.from(dep.versions);
+    dep.completionPercentage = dep.total > 0 ? (dep.completed / dep.total) * 100 : 0;
+  });
+
+  summary.completionPercentage = summary.total > 0 ? (summary.completed / summary.total) * 100 : 0;
+
+  return summary;
+}
+
+/**
+ * Gets dependency update tasks grouped by their status.
+ * @returns {Object} Dependency update tasks grouped by status
+ */
+function getDependencyUpdateTasksByStatus() {
+  const result = {
+    completed: [],
+    pending: [],
+    overdue: []
+  };
+
+  const now = Date.now();
+  const overdueTime = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+  _tasks.forEach(task => {
+    if (task.tags?.includes('dependency-update')) {
+      const taskInfo = {
+        id: task.id,
+        title: task.title,
+        createdAt: task.createdAt,
+        dependencies: task.dependencies || {},
+        priority: task.priority
+      };
+
+      if (task.completed) {
+        result.completed.push(taskInfo);
+      } else if ((now - task.createdAt) > overdueTime) {
+        result.overdue.push(taskInfo);
+      } else {
+        result.pending.push(taskInfo);
+      }
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Gets a list of all unique dependencies across all tasks.
+ * @returns {Array} Array of unique dependency names
+ */
+function getAllUniqueDependencies() {
+  const dependencies = new Set();
+
+  _tasks.forEach(task => {
+    if (task.dependencies) {
+      Object.keys(task.dependencies).forEach(name => {
+        dependencies.add(name);
+      });
+    }
+  });
+
+  return Array.from(dependencies);
+}
+
+/**
+ * Gets dependency update tasks for a specific dependency with version details.
+ * @param {string} dependencyName
+ * @returns {Array} Array of tasks with version details for the specified dependency
+ */
+function getDependencyUpdateTasksWithVersions(dependencyName) {
+  return _tasks
+    .filter(task => task.tags?.includes('dependency-update') && task.dependencies?.[dependencyName])
+    .map(task => {
+      const depInfo = task.dependencies[dependencyName];
+      return {
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        createdAt: task.createdAt,
+        currentVersion: typeof depInfo === 'string' ? depInfo : depInfo.current,
+        targetVersion: typeof depInfo === 'string' ? depInfo : depInfo.target,
+        priority: task.priority
+      };
+    });
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -450,5 +613,10 @@ module.exports = {
   getDependencyUpdateTasksGroupedByName,
   getDependencyUpdateStatistics,
   getDependencyUpdateTasksForVersion,
-  getOverdueDependencyUpdateTasks
+  getOverdueDependencyUpdateTasks,
+  getDetailedDependencyUpdateTasks,
+  getDependencyUpdateSummary,
+  getDependencyUpdateTasksByStatus,
+  getAllUniqueDependencies,
+  getDependencyUpdateTasksWithVersions
 };

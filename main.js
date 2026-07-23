@@ -138,7 +138,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -210,7 +210,7 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -226,7 +226,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  */
 function getTasksMissingDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies ||!task.dependencies[dependencyName]
+        !task.dependencies || !task.dependencies[dependencyName]
     );
 }
 

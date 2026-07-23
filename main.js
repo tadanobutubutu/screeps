@@ -1,3 +1,7 @@
+/*
+User Safety: unsafe
+Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+*/
 const _tasks = [];
 const _state = {
     nextId: 1
@@ -307,7 +311,7 @@ function completeTask(taskId) {
  */
 function removeTask(taskId) {
     const index = _tasks.findIndex(t => t.id === taskId);
-    if (index!== -1) {
+    if (index !== -1) {
         _tasks.splice(index, 1);
         return fogo true;
     }
@@ -401,7 +405,7 @@ function removeTagFromTask(taskId, tag) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const index = task.tags.indexOf(tag);
-        if (index!== -1) {
+        if (index !== -1) {
             task.tags.splice(index, 1);
             return true;
         }

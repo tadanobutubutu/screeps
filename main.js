@@ -110,7 +110,8 @@ function getAllDependencies() {
     });
 
     // Convert sets to arrays for easier consumption
-    Object.entries(dependencies).forEach(([name, set]) => {
+    Object.keys(dependencies).forEach(name => {
+        const set = dependencies[name];
         dependencies[name] = Array.from(set);
     });
 
@@ -166,7 +167,7 @@ function getTasksByDependencyVersion(dependencyName, version) {
  * @param {string} dependencyName
  * @returns {Array} Array of all versions of the specified dependency
  */
-function getDependencyVersions(dependencyName) {
+function getAllDependencyVersions(dependencyName) {
     const versions = new Set();
 
     _tasks.forEach(task => {
@@ -229,6 +230,17 @@ function getTasksMissingDependency(dependencyName) {
     );
 }
 
+// Add this function to help with testing
+function getAllTasks() {
+    return [..._tasks];
+}
+
+// Add this function to help with testing
+function clearAllTasks() {
+    _tasks.length = 0;
+    _state.nextId = 1;
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -280,19 +292,9 @@ module.exports = {
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
   getTasksByDependencyVersion,
-  getDependencyVersions,
+  getAllDependencyVersions,
   updateMultipleDependencyVersions,
   removeDependencyFromTask,
-  getTasksMissingDependency
+  getTasksMissingDependency,
+  getAllTasks
 };
-
-// Add this function to help with testing
-function getAllTasks() {
-    return [..._tasks];
-}
-
-// Add this function to help with testing
-function clearAllTasks() {
-    _tasks.length = 0;
-    _state.nextId = 1;
-}

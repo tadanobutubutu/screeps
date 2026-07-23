@@ -41,7 +41,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if ( === undefined ||  === null) return false;
+    if (task === undefined || task === null) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -170,7 +170,7 @@ function getDependencyVersionTasks(dependencyName, version) {
         task.dependencies[dependencyName] &&
         ((typeof task.dependencies[dependencyName] === 'string' &&
           task.dependencies[dependencyName] === version) ||
-         (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
+         (task.dependencies.dependencyName && task.dependencies[dependencyName].target === version))
     );
 }
 
@@ -205,7 +205,7 @@ function getDependencyVersions(dependencyName) {
  */
 function updateDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
-    if ( === undefined ||  === null) return false;
+    if (task === undefined || task === null) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};

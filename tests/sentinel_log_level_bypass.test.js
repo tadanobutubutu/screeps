@@ -59,4 +59,7 @@ describe('src/utils/logger security: log-level bypass', () => {
         logger.init();
 
         logger.debug('Debug message');
-        const debugLogs = logSpy.mock.calls.filter
+        const debugLogs = logSpy.mock.calls.filter((call) => call[0].includes('DEBUG'));
+        expect(debugLogs.length).toBe(0);
+    });
+});

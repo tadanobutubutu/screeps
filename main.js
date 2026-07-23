@@ -197,3 +197,14 @@ module. exports = {
   getRunawayStargazers,
   removeStargazer
 };
+
+// Add this function to help with testing
+function getAllTasks() {
+    return [..._tasks];
+}
+
+// Add this function to help with testing
+function clearAllTasks() {
+    _tasks.length = 0;
+    _state.nextId = 1;
+}

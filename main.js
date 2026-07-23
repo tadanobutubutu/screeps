@@ -138,7 +138,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -153,7 +153,7 @@ function completeDependencyUpdateTask(taskId) {
  * @param {string} version
  * @returns {Array} Array of tasks with the specified dependency version
  */
-function getTasksByDependencyVersion(dependencyName, version) {
+function getDependencyVersionTasks(dependencyName, version) {
     return _tasks.filter(task =>
         task.dependencies &&
         task.dependencies[dependencyName] &&
@@ -186,7 +186,7 @@ function getDependencyVersions(dependencyName) {
  * @param {Object} dependencies - Object with dependency names as keys and versions as values
  * @returns {boolean} True if the update was successful
  */
-function updateMultipleDependencyVersions(taskId, dependencies) {
+function updateDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
     if (task === undefined || task === null) return false;
 
@@ -210,7 +210,7 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -226,7 +226,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  */
 function getTasksMissingDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies ||!task.dependencies[dependencyName]
+        task.dependencies || !task.dependencies[dependencyName]
     );
 }
 
@@ -242,14 +242,18 @@ function clearAllTasks() {
 }
 
 /**
- * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
+ * Gets tasks that have a specific dependency version (alias for getDependencyVersionTasks)
  *
  * @param {string} dependencyName
  * @param {string} version
  * @returns {Array} Array of tasks with the specified dependency version
  */
 function getDependencyVersionTasks(dependencyName, version) {
-    return getTasksByDependencyVersion(dependencyName, version);
+    return _tasks.filter(task =>
+        task.dependencies &&
+        task.dependencies[dependencyName] &&
+        task.dependencies[dependencyName] === version
+    );
 }
 
 // Export all functions
@@ -301,9 +305,8 @@ module.exports = {
   getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
-  getTasksByDependencyVersion,
   getDependencyVersions,
-  updateMultipleDependencyVersions,
+  updateDependencyVersions,
   removeDependencyFromTask,
   getTasksMissingDependency,
   getAllTasks,

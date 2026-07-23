@@ -21,13 +21,13 @@ function addTask(title) {
         completed: false,
         createdAt: Date.now(),
         tags: [],
-        priority: 'medium'
+        priority: 'edium'
     };
     _tasks.push(task);
     return task.id;
 }
 
-/** ... [all existing functions remain unchanged] ... **/
+/**... [all existing functions remain unchanged]... **/
 
 /**
  * Updates the version of a dependency in a task.
@@ -138,7 +138,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
+    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -167,7 +167,7 @@ function getTasksByDependencyVersion(dependencyName, version) {
  * @param {string} dependencyName
  * @returns {Array} Array of all versions of the specified dependency
  */
-function getAllDependencyVersions(dependencyName) {
+function getDependencyVersions(dependencyName) {
     const versions = new Set();
 
     _tasks.forEach(task => {
@@ -210,7 +210,7 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
+    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -226,7 +226,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  */
 function getTasksMissingDependency(dependencyName) {
     return _tasks.filter(task =>
-        !task.dependencies || !task.dependencies[dependencyName]
+        task.dependencies ||!task.dependencies[dependencyName]
     );
 }
 
@@ -239,6 +239,17 @@ function getAllTasks() {
 function clearAllTasks() {
     _tasks.length = 0;
     _state.nextId = 1;
+}
+
+/**
+ * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
+ *
+ * @param {string} dependencyName
+ * @param {string} version
+ * @returns {Array} Array of tasks with the specified dependency version
+ */
+function getDependencyVersionTasks(dependencyName, version) {
+    return getTasksByDependencyVersion(dependencyName, version);
 }
 
 // Export all functions
@@ -260,13 +271,12 @@ module.exports = {
   removeTagFromTask,
   findTasksByTag,
   updateTaskPriority,
-  getTasksByPriority,
+  getTasksByPriorityFilter,
   getTasksByCreationDate,
   clearAllTasks,
   getTaskCount,
   getCompletedTaskCount,
   getTasksByStatus,
-  getTasksByPriorityFilter,
   incompleteTask,
   toggleTaskCompletion,
   addTagsToTask,
@@ -292,9 +302,10 @@ module.exports = {
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
   getTasksByDependencyVersion,
-  getAllDependencyVersions,
+  getDependencyVersions,
   updateMultipleDependencyVersions,
   removeDependencyFromTask,
   getTasksMissingDependency,
-  getAllTasks
+  getAllTasks,
+  getDependencyVersionTasks
 };

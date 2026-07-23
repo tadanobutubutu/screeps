@@ -5,10 +5,7 @@ const _state = {
     nextId: 1
 };
 
-/**
- * User Safety: unsafe
- * Safety Categories: Needs Caution
- */
+// Safety Categories: Needs Caution
 
 /**
  * Adds a new task.

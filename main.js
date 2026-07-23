@@ -82,7 +82,6 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
                 target: targetVersion
             }
         };
-        task.tags.push('dependency-update');
     }
 
     return taskId;
@@ -108,8 +107,8 @@ function getAllDependencies() {
     });
 
     // Convert sets to arrays for easier consumption
-    Object.keys(dependencies).forEach(name => {
-        dependencies[name] = Array.from(dependencies[name]);
+    Object.entries(dependencies).forEach(([name, set]) => {
+        dependencies[name] = Array.from(set);
     });
 
     return dependencies;

@@ -167,7 +167,7 @@ function getTasksByDependencyVersion(dependencyName, version) {
  * @param {string} dependencyName
  * @returns {Array} Array of all versions of the specified dependency
  */
-function getAllDependencyVersions(dependencyName) {
+function getDependencyVersions(dependencyName) {
     const versions = new Set();
 
     _tasks.forEach(task => {
@@ -293,7 +293,7 @@ module.exports = {
   completeDependencyUpdateTask,
   getDependencyVersionTasks,
   getTasksByDependencyVersion,
-  getAllDependencyVersions,
+  getDependencyVersions,
   updateMultipleDependencyVersions,
   removeDependencyFromTask,
   getTasksMissingDependency,

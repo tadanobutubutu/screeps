@@ -53,7 +53,7 @@ function getTasksSortedByCreatedAt() {
 }
 
 /**
- * Gets tasks filtered by priority.
+ * Gets tasks by priority.
  *
  * @param {string} priority
  * @returns {Array} Array of tasks with the specified priority
@@ -93,9 +93,12 @@ function completeTask(taskId) {
  * @returns {boolean} True if the task was removed
  */
 function removeTask(taskId) {
-    const initialLength = _tasks.length;
-    _tasks = _tasks.filter(task => task.id !== taskId);
-    return _tasks.length !== initialLength;
+    const index = _tasks.findIndex(t => t.id === taskId);
+    if (index !== -1) {
+        _tasks.splice(index, 1);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -125,7 +128,7 @@ function getTaskById(taskId) {
  *
  * @param {number} taskId
  * @param {string} newTitle
- * @returns {boolean} True if the update was successful
+ * @returns {boolean} True if the title was updated
  */
 function updateTaskTitle(taskId, newTitle) {
     const task = _tasks.find(t => t.id === taskId);
@@ -183,9 +186,11 @@ function addTagToTask(taskId, tag) {
 function removeTagFromTask(taskId, tag) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
-        const initialLength = task.tags.length;
-        task.tags = task.tags.filter(t => t !== tag);
-        return task.tags.length !== initialLength;
+        const index = task.tags.indexOf(tag);
+        if (index !== -1) {
+            task.tags.splice(index, 1);
+            return true;
+        }
     }
     return false;
 }
@@ -205,7 +210,7 @@ function findTasksByTag(tag) {
  *
  * @param {number} taskId
  * @param {string} newPriority
- * @returns {boolean} True if the update was successful
+ * @returns {boolean} True if the priority was updated
  */
 function updateTaskPriority(taskId, newPriority) {
     const task = _tasks.find(t => t.id === taskId);
@@ -227,13 +232,16 @@ function getTasksByPriorityFilter(priority) {
 }
 
 /**
- * Gets tasks by creation date.
+ * Gets tasks by creation date range.
  *
- * @param {number} date
- * @returns {Array} Array of tasks created on the specified date
+ * @param {number} startDate
+ * @param {number} endDate
+ * @returns {Array} Array of tasks created within the date range
  */
-function getTasksByCreationDate(date) {
-    return _tasks.filter(task => task.createdAt === date);
+function getTasksByCreationDate(startDate, endDate) {
+    return _tasks.filter(task =>
+        task.createdAt >= startDate && task.createdAt <= endDate
+    );
 }
 
 /**
@@ -328,7 +336,7 @@ function removeTagsFromTask(taskId, tags) {
     const task = _tasks.find(t => t.id === taskId);
     if (task && task.tags) {
         const initialLength = task.tags.length;
-        task.tags = task.tags.filter(tag => !tags.includes(tag));
+        task.tags = task.tags.filter(t => t !== tag);
         return task.tags.length !== initialLength;
     }
     return false;
@@ -368,7 +376,7 @@ function getAllTags() {
  * Finds tasks that have any of the specified tags.
  *
  * @param {Array} tags
- * @returns {Array} Array of tasks that have any of the specified tags
+ * @returns {Array} Array of tasks with any of the specified tags
  */
 function findTasksByAnyTag(tags) {
     return _tasks.filter(task =>
@@ -399,13 +407,13 @@ function getTasksByTag(tag) {
 }
 
 /**
- * Gets tasks that have any of the specified tags (alias for findTasksByAnyTag).
+ * Gets tasks that have all of the specified tags (alias for findTasksByAllTags).
  *
  * @param {Array} tags
- * @returns {Array} Array of tasks that have any of the specified tags
+ * @returns {Array} Array of tasks with all of the specified tags
  */
 function getTasksByTags(tags) {
-    return findTasksByAnyTag(tags);
+    return findTasksByAllTags(tags);
 }
 
 /**
@@ -425,7 +433,7 @@ function getTasksByDateRange(startDate, endDate) {
  * Gets tasks that match all specified criteria.
  *
  * @param {Object} criteria - Object with criteria to match
- * @returns {Array} Array of tasks that match all criteria
+ * @returns {Array} Array of tasks matching all criteria
  */
 function getTasksByAllCriteria(criteria) {
     return _tasks.filter(task => {
@@ -443,13 +451,19 @@ function getTasksByAllCriteria(criteria) {
  *
  * @param {number} taskId
  * @param {Object} properties - Object with properties to update
- * @returns {boolean} True if the update was successful
+ * @returns {boolean} True if any properties were updated
  */
 function updateTaskProperties(taskId, properties) {
     const task = _tasks.find(t => t.id === taskId);
     if (task) {
-        Object.assign(task, properties);
-        return true;
+        let updated = false;
+        Object.entries(properties).forEach(([key, value]) => {
+            if (task[key] !== value) {
+                task[key] = value;
+                updated = true;
+            }
+        });
+        return updated;
     }
     return false;
 }
@@ -462,17 +476,17 @@ function updateTaskProperties(taskId, properties) {
  */
 function duplicateTask(taskId) {
     const originalTask = _tasks.find(t => t.id === taskId);
-    if (!originalTask) return null;
-
-    const newTask = {
-        ...originalTask,
-        id: _state.nextId++,
-        createdAt: Date.now(),
-        completed: false
-    };
-
-    _tasks.push(newTask);
-    return newTask.id;
+    if (originalTask) {
+        const newTask = {
+            ...originalTask,
+            id: _state.nextId++,
+            createdAt: Date.now(),
+            completed: false
+        };
+        _tasks.push(newTask);
+        return newTask.id;
+    }
+    return null;
 }
 
 /**
@@ -484,13 +498,12 @@ function duplicateTask(taskId) {
  */
 function moveTask(taskId, newIndex) {
     const taskIndex = _tasks.findIndex(t => t.id === taskId);
-    if (taskIndex === -1 || newIndex < 0 || newIndex >= _tasks.length) {
-        return false;
+    if (taskIndex !== -1 && newIndex >= 0 && newIndex < _tasks.length) {
+        const [task] = _tasks.splice(taskIndex, 1);
+        _tasks.splice(newIndex, 0, task);
+        return true;
     }
-
-    const [task] = _tasks.splice(taskIndex, 1);
-    _tasks.splice(newIndex, 0, task);
-    return true;
+    return false;
 }
 
 /**
@@ -510,7 +523,7 @@ function getTasksSorted(property, descending = false) {
 }
 
 /**
- * Gets a paginated subset of tasks.
+ * Gets a paginated list of tasks.
  *
  * @param {number} page
  * @param {number} pageSize
@@ -522,16 +535,16 @@ function getTasksPaginated(page, pageSize) {
 }
 
 /**
- * Searches tasks by title or description.
+ * Searches tasks by title or tags.
  *
- * @param {string} query
- * @returns {Array} Array of tasks matching the search query
+ * @param {string} searchTerm
+ * @returns {Array} Array of tasks matching the search term
  */
-function searchTasks(query) {
-    const lowerQuery = query.toLowerCase();
+function searchTasks(searchTerm) {
+    const lowerSearch = searchTerm.toLowerCase();
     return _tasks.filter(task =>
-        task.title.toLowerCase().includes(lowerQuery) ||
-        (task.description && task.description.toLowerCase().includes(lowerQuery))
+        task.title.toLowerCase().includes(lowerSearch) ||
+        (task.tags && task.tags.some(tag => tag.toLowerCase().includes(lowerSearch)))
     );
 }
 

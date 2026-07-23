@@ -186,7 +186,7 @@ function getAllVersionsOfDependency(dependencyName) {
  */
 function updateMultipleDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
-    if ( === undefined ||  === null) return false;
+    if (task === undefined || task === null) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -287,7 +287,9 @@ module.exports = {
   markAsRunawayStargazer,
   getAllStargazers,
   getRunawayStargazers,
-  removeStargazer
+  removeStargazer,
+  getAllTasks,
+  clearAllTasks
 };
 
 // Add this function to help with testing

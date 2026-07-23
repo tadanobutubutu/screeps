@@ -1,5 +1,4 @@
 /*
-
 User Safety: unsafe
 Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
 */
@@ -199,3 +198,35 @@ function removeTagFromTask(taskId, tag) {
     }
     return false;
 }
+
+// Add this function to handle memory visualization
+function getMemoryUsage() {
+    const memoryUsage = process.memoryUsage();
+    return {
+        rss: memoryUsage.rss,
+        heapTotal: memoryUsage.heapTotal,
+        heapUsed: memoryUsage.heapUsed,
+        external: memoryUsage.external,
+        arrayBuffers: memoryUsage.arrayBuffers
+    };
+}
+
+// Export all functions
+module.exports = {
+  addTask,
+  resetTaskIdCounter,
+  getTasksSortedByTitle,
+  getTasksSortedByCreatedAt,
+  getTasksByPriority,
+  listTasks,
+  completeTask,
+  removeTask,
+  findTasks,
+  getTaskById,
+  updateTaskTitle,
+  getCompletedTasks,
+  getIncompleteTasks,
+  addTagToTask,
+  removeTagFromTask,
+  getMemoryUsage
+};

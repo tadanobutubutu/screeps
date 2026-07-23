@@ -758,6 +758,17 @@ function getDependencyVersionTasks(dependencyName, version) {
     return getTasksByDependencyVersion(dependencyName, version);
 }
 
+/**
+ * Logs a message with a timestamp.
+ *
+ * @param {string} message - The message to log
+ * @param {string} [level='info'] - The log level (info, warn, error)
+ */
+function log(message, level = 'info') {
+    const timestamp = new Date().toISOString();
+    console.log(`[${timestamp}] [${level.toUpperCase()}] ${message}`);
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -813,5 +824,6 @@ module.exports = {
   removeDependencyFromTask,
   getTasksMissingDependency,
   getAllTasks,
-  getDependencyVersionTasks
+  getDependencyVersionTasks,
+  log
 };

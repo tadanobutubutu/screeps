@@ -252,6 +252,18 @@ function getDependencyVersionTasks(dependencyName, version) {
     return getTasksByDependencyVersion(dependencyName, version);
 }
 
+// Add this function to handle memory visualization
+function getMemoryUsage() {
+    const memoryUsage = process.memoryUsage();
+    return {
+        rss: memoryUsage.rss,
+        heapTotal: memoryUsage.heapTotal,
+        heapUsed: memoryUsage.heapUsed,
+        external: memoryUsage.external,
+        arrayBuffers: memoryUsage.arrayBuffers
+    };
+}
+
 // Export all functions
 module.exports = {
   addTask,
@@ -307,5 +319,6 @@ module.exports = {
   removeDependencyFromTask,
   getTasksMissingDependency,
   getAllTasks,
-  getDependencyVersionTasks
+  getDependencyVersionTasks,
+  getMemoryUsage
 };

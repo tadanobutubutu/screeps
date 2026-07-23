@@ -27,7 +27,513 @@ function addTask(title) {
     return task.id;
 }
 
-/**... [all existing functions remain unchanged]... **/
+/**
+ * Resets the task ID counter.
+ */
+function resetTaskIdCounter() {
+    _state.nextId = 1;
+}
+
+/**
+ * Gets tasks sorted by title.
+ *
+ * @returns {Array} Array of tasks sorted by title
+ */
+function getTasksSortedByTitle() {
+    return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+/**
+ * Gets tasks sorted by creation date.
+ *
+ * @returns {Array} Array of tasks sorted by creation date
+ */
+function getTasksSortedByCreatedAt() {
+    return [..._tasks].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+/**
+ * Gets tasks filtered by priority.
+ *
+ * @param {string} priority
+ * @returns {Array} Array of tasks with the specified priority
+ */
+function getTasksByPriority(priority) {
+    return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Lists all tasks.
+ *
+ * @returns {Array} Array of all tasks
+ */
+function listTasks() {
+    return [..._tasks];
+}
+
+/**
+ * Marks a task as completed.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was marked as completed
+ */
+function completeTask(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = true;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Removes a task.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was removed
+ */
+function removeTask(taskId) {
+    const initialLength = _tasks.length;
+    _tasks = _tasks.filter(task => task.id !== taskId);
+    return _tasks.length !== initialLength;
+}
+
+/**
+ * Finds tasks by title.
+ *
+ * @param {string} searchTerm
+ * @returns {Array} Array of tasks matching the search term
+ */
+function findTasks(searchTerm) {
+    return _tasks.filter(task =>
+        task.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+}
+
+/**
+ * Gets a task by ID.
+ *
+ * @param {number} taskId
+ * @returns {Object|null} The task or null if not found
+ */
+function getTaskById(taskId) {
+    return _tasks.find(t => t.id === taskId) || null;
+}
+
+/**
+ * Updates a task's title.
+ *
+ * @param {number} taskId
+ * @param {string} newTitle
+ * @returns {boolean} True if the update was successful
+ */
+function updateTaskTitle(taskId, newTitle) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.title = newTitle;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets completed tasks.
+ *
+ * @returns {Array} Array of completed tasks
+ */
+function getCompletedTasks() {
+    return _tasks.filter(task => task.completed);
+}
+
+/**
+ * Gets incomplete tasks.
+ *
+ * @returns {Array} Array of incomplete tasks
+ */
+function getIncompleteTasks() {
+    return _tasks.filter(task => !task.completed);
+}
+
+/**
+ * Adds a tag to a task.
+ *
+ * @param {number} taskId
+ * @param {string} tag
+ * @returns {boolean} True if the tag was added
+ */
+function addTagToTask(taskId, tag) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        if (!task.tags) task.tags = [];
+        if (!task.tags.includes(tag)) {
+            task.tags.push(tag);
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Removes a tag from a task.
+ *
+ * @param {number} taskId
+ * @param {string} tag
+ * @returns {boolean} True if the tag was removed
+ */
+function removeTagFromTask(taskId, tag) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task && task.tags) {
+        const initialLength = task.tags.length;
+        task.tags = task.tags.filter(t => t !== tag);
+        return task.tags.length !== initialLength;
+    }
+    return false;
+}
+
+/**
+ * Finds tasks by tag.
+ *
+ * @param {string} tag
+ * @returns {Array} Array of tasks with the specified tag
+ */
+function findTasksByTag(tag) {
+    return _tasks.filter(task => task.tags && task.tags.includes(tag));
+}
+
+/**
+ * Updates a task's priority.
+ *
+ * @param {number} taskId
+ * @param {string} newPriority
+ * @returns {boolean} True if the update was successful
+ */
+function updateTaskPriority(taskId, newPriority) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.priority = newPriority;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets tasks by priority filter.
+ *
+ * @param {string} priority
+ * @returns {Array} Array of tasks with the specified priority
+ */
+function getTasksByPriorityFilter(priority) {
+    return _tasks.filter(task => task.priority === priority);
+}
+
+/**
+ * Gets tasks by creation date.
+ *
+ * @param {number} date
+ * @returns {Array} Array of tasks created on the specified date
+ */
+function getTasksByCreationDate(date) {
+    return _tasks.filter(task => task.createdAt === date);
+}
+
+/**
+ * Gets the total number of tasks.
+ *
+ * @returns {number} The total number of tasks
+ */
+function getTaskCount() {
+    return _tasks.length;
+}
+
+/**
+ * Gets the number of completed tasks.
+ *
+ * @returns {number} The number of completed tasks
+ */
+function getCompletedTaskCount() {
+    return _tasks.filter(task => task.completed).length;
+}
+
+/**
+ * Gets tasks by status.
+ *
+ * @param {boolean} completed
+ * @returns {Array} Array of tasks with the specified status
+ */
+function getTasksByStatus(completed) {
+    return _tasks.filter(task => task.completed === completed);
+}
+
+/**
+ * Marks a task as incomplete.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task was marked as incomplete
+ */
+function incompleteTask(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = false;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Toggles a task's completion status.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if the task's status was toggled
+ */
+function toggleTaskCompletion(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed;
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Adds multiple tags to a task.
+ *
+ * @param {number} taskId
+ * @param {Array} tags
+ * @returns {boolean} True if any tags were added
+ */
+function addTagsToTask(taskId, tags) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        if (!task.tags) task.tags = [];
+        let added = false;
+        tags.forEach(tag => {
+            if (!task.tags.includes(tag)) {
+                task.tags.push(tag);
+                added = true;
+            }
+        });
+        return added;
+    }
+    return false;
+}
+
+/**
+ * Removes multiple tags from a task.
+ *
+ * @param {number} taskId
+ * @param {Array} tags
+ * @returns {boolean} True if any tags were removed
+ */
+function removeTagsFromTask(taskId, tags) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task && task.tags) {
+        const initialLength = task.tags.length;
+        task.tags = task.tags.filter(tag => !tags.includes(tag));
+        return task.tags.length !== initialLength;
+    }
+    return false;
+}
+
+/**
+ * Clears all tags from a task.
+ *
+ * @param {number} taskId
+ * @returns {boolean} True if tags were cleared
+ */
+function clearTagsFromTask(taskId) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task && task.tags) {
+        task.tags = [];
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Gets all unique tags across all tasks.
+ *
+ * @returns {Array} Array of all unique tags
+ */
+function getAllTags() {
+    const tags = new Set();
+    _tasks.forEach(task => {
+        if (task.tags) {
+            task.tags.forEach(tag => tags.add(tag));
+        }
+    });
+    return Array.from(tags);
+}
+
+/**
+ * Finds tasks that have any of the specified tags.
+ *
+ * @param {Array} tags
+ * @returns {Array} Array of tasks that have any of the specified tags
+ */
+function findTasksByAnyTag(tags) {
+    return _tasks.filter(task =>
+        task.tags && task.tags.some(tag => tags.includes(tag))
+    );
+}
+
+/**
+ * Finds tasks that have all of the specified tags.
+ *
+ * @param {Array} tags
+ * @returns {Array} Array of tasks that have all of the specified tags
+ */
+function findTasksByAllTags(tags) {
+    return _tasks.filter(task =>
+        task.tags && tags.every(tag => task.tags.includes(tag))
+    );
+}
+
+/**
+ * Gets tasks that have a specific tag (alias for findTasksByTag).
+ *
+ * @param {string} tag
+ * @returns {Array} Array of tasks with the specified tag
+ */
+function getTasksByTag(tag) {
+    return findTasksByTag(tag);
+}
+
+/**
+ * Gets tasks that have any of the specified tags (alias for findTasksByAnyTag).
+ *
+ * @param {Array} tags
+ * @returns {Array} Array of tasks that have any of the specified tags
+ */
+function getTasksByTags(tags) {
+    return findTasksByAnyTag(tags);
+}
+
+/**
+ * Gets tasks created within a specific date range.
+ *
+ * @param {number} startDate
+ * @param {number} endDate
+ * @returns {Array} Array of tasks created within the date range
+ */
+function getTasksByDateRange(startDate, endDate) {
+    return _tasks.filter(task =>
+        task.createdAt >= startDate && task.createdAt <= endDate
+    );
+}
+
+/**
+ * Gets tasks that match all specified criteria.
+ *
+ * @param {Object} criteria - Object with criteria to match
+ * @returns {Array} Array of tasks that match all criteria
+ */
+function getTasksByAllCriteria(criteria) {
+    return _tasks.filter(task => {
+        return Object.entries(criteria).every(([key, value]) => {
+            if (key === 'tags') {
+                return task.tags && value.every(tag => task.tags.includes(tag));
+            }
+            return task[key] === value;
+        });
+    });
+}
+
+/**
+ * Updates multiple properties of a task.
+ *
+ * @param {number} taskId
+ * @param {Object} properties - Object with properties to update
+ * @returns {boolean} True if the update was successful
+ */
+function updateTaskProperties(taskId, properties) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        Object.assign(task, properties);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Duplicates a task.
+ *
+ * @param {number} taskId
+ * @returns {number|null} The ID of the duplicated task or null if failed
+ */
+function duplicateTask(taskId) {
+    const originalTask = _tasks.find(t => t.id === taskId);
+    if (!originalTask) return null;
+
+    const newTask = {
+        ...originalTask,
+        id: _state.nextId++,
+        createdAt: Date.now(),
+        completed: false
+    };
+
+    _tasks.push(newTask);
+    return newTask.id;
+}
+
+/**
+ * Moves a task to a new position in the list.
+ *
+ * @param {number} taskId
+ * @param {number} newIndex
+ * @returns {boolean} True if the task was moved
+ */
+function moveTask(taskId, newIndex) {
+    const taskIndex = _tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1 || newIndex < 0 || newIndex >= _tasks.length) {
+        return false;
+    }
+
+    const [task] = _tasks.splice(taskIndex, 1);
+    _tasks.splice(newIndex, 0, task);
+    return true;
+}
+
+/**
+ * Gets tasks sorted by a specific property.
+ *
+ * @param {string} property
+ * @param {boolean} descending
+ * @returns {Array} Array of tasks sorted by the specified property
+ */
+function getTasksSorted(property, descending = false) {
+    const sorted = [..._tasks].sort((a, b) => {
+        if (a[property] < b[property]) return descending ? 1 : -1;
+        if (a[property] > b[property]) return descending ? -1 : 1;
+        return 0;
+    });
+    return sorted;
+}
+
+/**
+ * Gets a paginated subset of tasks.
+ *
+ * @param {number} page
+ * @param {number} pageSize
+ * @returns {Array} Array of tasks for the specified page
+ */
+function getTasksPaginated(page, pageSize) {
+    const startIndex = (page - 1) * pageSize;
+    return _tasks.slice(startIndex, startIndex + pageSize);
+}
+
+/**
+ * Searches tasks by title or description.
+ *
+ * @param {string} query
+ * @returns {Array} Array of tasks matching the search query
+ */
+function searchTasks(query) {
+    const lowerQuery = query.toLowerCase();
+    return _tasks.filter(task =>
+        task.title.toLowerCase().includes(lowerQuery) ||
+        (task.description && task.description.toLowerCase().includes(lowerQuery))
+    );
+}
 
 /**
  * Updates the version of a dependency in a task.
@@ -138,7 +644,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.tags ||!task.tags.includes('dependency-update')) {
+    if (!task || !task.tags || !task.tags.includes('dependency-update')) {
         return false;
     }
 
@@ -210,7 +716,7 @@ function updateMultipleDependencyVersions(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
     const task = _tasks.find(t => t.id === taskId);
-    if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
+    if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
         return false;
     }
 
@@ -226,7 +732,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  */
 function getTasksMissingDependency(dependencyName) {
     return _tasks.filter(task =>
-        task.dependencies ||!task.dependencies[dependencyName]
+        !task.dependencies || !task.dependencies[dependencyName]
     );
 }
 

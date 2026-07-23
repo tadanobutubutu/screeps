@@ -194,27 +194,19 @@ function getDependencyVersions(dependencyName) {
     return Array.from(versions);
 }
 
-/**
- * Updates multiple dependency versions in a task.
- *
- * @param {number} taskId
- * @param {Object} dependencies - Object with dependency names as keys and versions as values
- * @returns {boolean} True if the update was successful
- */
-function updateDependencyVersions(taskId, dependencies) {
+// ... Rest of the code remains the same after this point
+
+function addDependenciesToTask(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
     if (!task) return false;
-
     if (!task.dependencies) {
         task.dependencies = {};
     }
-
     Object.entries(dependencies).forEach(function(entry) {
         var name = entry[0];
         var version = entry[1];
         task.dependencies[name] = version;
     });
-
     return true;
 }
 
@@ -266,7 +258,7 @@ function getTasksSortedByTitle() {
 /**
  * Gets tasks sorted by creation date.
  *
- * @returns {Array} Array of tasks sorted by creation date
+ * @returns {Array} Array of tasks sorted by title
  */
 function getTasksSortedByCreatedAt() {
     return _tasks.slice().sort(function(a, b) { return a.createdAt - b.createdAt; });
@@ -336,4 +328,9 @@ function findTasks(searchTerm) {
 /**
  * Gets a task by ID.
  *
- * @param
+ * @param {number} taskId
+ * @returns {Object} The task object
+ */
+function getTaskById(taskId) {
+    return _tasks.find(function(t) { return t.id === taskId; });
+}

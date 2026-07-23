@@ -82,7 +82,6 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
                 target: targetVersion
             }
         };
-        task.tags.push('dependency-update');
     }
 
     return taskId;
@@ -144,7 +143,7 @@ function completeDependencyUpdateTask(taskId) {
 }
 
 // Export all functions
-module.exports = {
+module. exports = {
   addTask,
   resetTaskIdCounter,
   getTasksSortedByTitle,
@@ -167,8 +166,6 @@ module.exports = {
   clearAllTasks,
   getTaskCount,
   getCompletedTaskCount,
-  getIncompleteTaskCount,
-  getTasksByCompletion,
   getTasksByPriorityFilter,
   incompleteTask,
   toggleTaskCompletion,

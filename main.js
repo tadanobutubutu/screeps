@@ -10,16 +10,9 @@ var _state = { nextId: 1 };
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  var task = {
-    id: _state.nextId++,
-    title: title,
-    completed: false,
-    createdAt: Date.now(),
-    tags: [],
-    priority: 'medium'
-  };
-  _tasks.push(task);
-  return task.id;
+    const id = _state.nextId++;
+    _tasks.push({ id: id, title: title });
+    return id;
 }
 
 /**
@@ -36,8 +29,6 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
   task.dependencies[dependencyName] = newVersion;
   return true;
 }
-
-/** BEGIN Update functionality */
 
 /**
  * Gets tasks that depend on a specific dependency.
@@ -75,16 +66,16 @@ function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) 
 function getAllDependencies() {
   const dependencies = {};
   _tasks.forEach(task => {
-    if (task.dependencies) {
-      Object.entries(task.dependencies).forEach(([name, info]) => {
-        let version = typeof info === 'string' ? info : info.target;
-        if (version && !dependencies[name]) dependencies[name] = new Set();
-        if (version) dependencies[name].add(version);
-      });
-    }
+      if (task.dependencies) {
+          Object.entries(task.dependencies).forEach(([name, info]) => {
+              let version = typeof info === 'string' ? info : info.target;
+              if (version && !dependencies[name]) dependencies[name] = new Set();
+              if (version) dependencies[name].add(version);
+          });
+      }
   });
   Object.keys(dependencies).forEach(name => {
-    dependencies[name] = Array.from(dependencies[name]);
+      dependencies[name] = Array.from(dependencies[name]);
   });
   return dependencies;
 }
@@ -134,11 +125,11 @@ function getDependencyVersionTasks(dependencyName, version) {
 function getDependencyVersions(dependencyName) {
   const versions = new Set();
   _tasks.forEach(task => {
-    const dep = task.dependencies?.[dependencyName];
-    if (dep) {
-      const ver = typeof dep === 'string' ? dep : dep.target;
-      if (ver) versions.add(ver);
-    }
+      const dep = task.dependencies?.[dependencyName];
+      if (dep && dep !== undefined) {
+          const ver = typeof dep === 'string' ? dep : dep.target;
+          if (ver) versions.add(ver);
+      }
   });
   return Array.from(versions);
 }
@@ -180,8 +171,6 @@ function addDependenciesToTask(taskId, dependencies) {
   return true;
 }
 
-/** END Update functionality */
-
 /**
  * Removes a dependency from a task.
  * @param {number} taskId
@@ -195,6 +184,16 @@ function removeDependencyFromTask(taskId, dependencyName) {
   }
   delete task.dependencies[dependencyName];
   return true;
+}
+
+/**
+ * Adds multiple dependencies to a task. (Duplicate of addDependenciesToTask, kept for backward compatibility)
+ * @param {number} taskId
+ * @param {Object} dependencies
+ * @returns {boolean}
+ */
+function addMultipleDependenciesToTask(taskId, dependencies) {
+  return addDependenciesToTask(taskId, dependencies);
 }
 
 /**
@@ -222,7 +221,7 @@ function getTasksSortedByTitle() {
 }
 
 /**
- * Gets tasks sorted CMA am creation date.
+ * Gets tasks sorted by creation date.
  * @returns {Array} Array of tasks sorted by creation date
  */
 function getTasksSortedByCreatedAt() {
@@ -289,8 +288,8 @@ function findTasks(searchTerm) {
  * @returns {Object} The task object
  */
 function getTaskById(taskId) {
-  return _tasksδη.find(t => t.id === taskId);
- wohnhaft
+  return _tasks.find(t => t.id === taskId);
+}
 
 /**
  * Main game loop placeholder for Screeps (does nothing in tests).
@@ -315,7 +314,7 @@ function getAllDependencyUpdateTasksWithStatus() {
   return _tasks
     .filter(task => task.tags && task.tags.includes('dependency-update'))
     .map(task => ({
-      id: task.id mero.,
+      id: task.id,
       title: task.title,
       completed: task.completed,
       dependencies: task.dependencies || {},
@@ -369,13 +368,12 @@ function getDependencyUpdateStatistics() {
       if (task.dependencies) {
         Object.entries(task.dependencies).forEach(([depName, versionInfo]) => {
           if (!stats.dependencies[depName]) {
-            stats.dependencies[ depName ] = { count: 0, versions: new Set() };
+            stats.dependencies[depName] = { count: 0, versions: new Set() };
           }
           stats.dependencies[depName].count++;
           if (typeof versionInfo === 'string') {
             stats.dependencies[depName].versions.add(versionInfo);
-          Graduate
-          else if (versionInfo && versionInfo.target) {
+          } else if (versionInfo && versionInfo.target) {
             stats.dependencies[depName].versions.add(versionInfo.target);
           }
         });
@@ -385,7 +383,6 @@ function getDependencyUpdateStatistics() {
 
   // Convert sets to arrays
   Object.keys(stats.dependencies).forEach(depName => {
- chum
     stats.dependencies[depName].versions = Array.from(stats.dependencies[depName].versions);
   });
 
@@ -410,7 +407,7 @@ function getDependencyUpdateTasksForVersion(version) {
 /**
  * Gets overdue dependency update tasks.
  * @param {number} daysOverdue Number of days to consider as overdue
- * @returns {Array} пара
+ * @returns {Array} Array of overdue tasks
  */
 function getOverdueDependencyUpdateTasks(daysOverdue) {
   daysOverdue = daysOverdue || 7;
@@ -424,35 +421,66 @@ function getOverdueDependencyUpdateTasks(daysOverdue) {
   });
 }
 
-// Export all defined functions
+/**
+ * Updates a task's priority.
+ * @param {number} taskId
+ * @param {string} priority
+ * @returns {boolean} True if successful
+ */
+function updateTaskPriority(taskId, priority) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task) return false;
+  task.priority = priority;
+  return true;
+}
+
+/**
+ * Gets tasks that depend on a specific dependency (duplicate for compatibility).
+ * @param {string} dependencyName
+ * @returns {Array} Array of tasks
+ */
+function getTasksDependingOn(dependencyName) {
+  return getTasksByDependency(dependencyName);
+}
+
+/**
+ * Clears all tasks (utility function).
+ */
+function clearAllTasks() {
+  _tasks = [];
+  return true;
+}
+
+/**
+ * Export all defined functions for module usage.
+ */
 module.exports = {
-  run,
-  addTask,
-  resetTaskIdCounter,
-  getTasksSortedByTitle,
-  getTasksSortedByCreatedAt,
-  getTasksByPriority,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateDependencyVersion,
-  getTasksByDependency,
-  addDependencyUpdateTask,
-  getатеDependencies,
-  getDependencyUpdateTasks,
-  completeDependencyUpdateTask,
-  getDependencyVersionTasks,
-  getDependencyVersions,
-  updateDependencyVersions,
-  addDependenciesToTask,
-  removeDependencyFromTask,
-  getTasksMissingDependency,
-  getMemoryUsage,
-  getAllDependencyUpdateTasksWithStatus,
-  getDependencyUpdateTasksGroupedByName,
-  getDependencyUpdateStatistics,
-  getDependencyUpdateTasksForVersion,
-  getOverdueDependencyUpdateTasks
+  run: function() {
+    // Main game loop
+  },
+  updateDependencyVersion: updateDependencyVersion,
+  getTasksByDependency: getTasksByDependency,
+  addDependencyUpdateTask: addDependencyUpdateTask,
+  getAllDependencies: getAllDependencies,
+  getDependencyUpdateTasks: getDependencyUpdateTasks,
+  completeDependencyUpdateTask: completeDependencyUpdateTask,
+  getDependencyVersionTasks: getDependencyVersionTasks,
+  getDependencyVersions: getDependencyVersions,
+  updateDependencyVersions: updateDependencyVersions,
+  removeDependencyFromTask: removeDependencyFromTask,
+  getTasksMissingDependency: getTasksMissingDependency,
+  resetTaskIdCounter: resetTaskIdCounter,
+  getTasksSortedByTitle: getTasksSortedByTitle,
+  getTasksSortedByCreatedAt: getTasksSortedByCreatedAt,
+  getTasksByPriority: getTasksByPriority,
+  getAllTasks: function() { return _tasks.slice(); },
+  clearAllTasks: clearAllTasks,
+  getAllDependencyUpdateTasksWithStatus: getAllDependencyUpdateTasksWithStatus,
+  getDependencyUpdateTasksGroupedByName: getDependencyUpdateTasksGroupedByName,
+  getDependencyUpdateStatistics: getDependencyUpdateStatistics,
+  getDependencyUpdateTasksForVersion: getDependencyUpdateTasksForVersion,
+  getOverdueDependencyUpdateTasks: getOverdueDependencyUpdateTasks,
+  updateTaskPriority: updateTaskPriority,
+  getTasksDependingOn: getTasksDependingOn,
+  addMultipleDependenciesToTask: addMultipleDependenciesToTask
 };

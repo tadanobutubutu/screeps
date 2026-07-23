@@ -1,16 +1,11 @@
-/*
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+// Safety: User Safety: unsafe
+// Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
 const _tasks = [];
 const _state = {
     nextId: 1
 };
 
-/**
- * User Safety: unsafe
- * Safety Categories: Needs Caution
- */
+// Safety Categories: Needs Caution
 
 /**
  * Adds a new task.
@@ -41,7 +36,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};
@@ -205,7 +200,7 @@ function getDependencyVersions(dependencyName) {
  */
 function updateDependencyVersions(taskId, dependencies) {
     const task = _tasks.find(t => t.id === taskId);
-    if (task === undefined || task === null) return false;
+    if (!task) return false;
 
     if (!task.dependencies) {
         task.dependencies = {};

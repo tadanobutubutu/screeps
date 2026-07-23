@@ -133,8 +133,7 @@ function log(arg1, arg2) {
 
     const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? LOG_EMOJIS[level] : DEFAULT_EMOJI;
     const escaped = _escapeHTML(redacted);
-    console.log(`${emoji} [${level}] ${escaped}`);
-}
+    }
 
 function error(msg) { log(msg, 'error'); }
 function warn(msg) { log(msg, 'warn'); }
@@ -143,7 +142,7 @@ function debug(msg) { log(msg, 'debug'); }
 function trace(msg) { log(msg, 'trace'); }
 
 function getSafeStack(stack, maxLines = 5) {
-    if (!stack) return '';
+    if ( === undefined ||  === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
     const redacted = _redactPaths(truncatedStack);
     const lines = redacted.split('\n');
@@ -163,7 +162,7 @@ function getStats() {
 
     if (typeof Memory !== 'undefined' && Array.isArray(Memory.logs)) {
         for (const logItem of Memory.logs) {
-            if (!logItem) continue;
+            if ( === undefined ||  === null) continue;
             totalCount++;
             if (logItem.level === 'error') errorCount++;
             else if (logItem.level === 'warn') warnCount++;

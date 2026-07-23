@@ -230,6 +230,17 @@ function getTasksMissingDependency(dependencyName) {
     );
 }
 
+/**
+ * Gets tasks that have a specific dependency version (alias for getTasksByDependencyVersion).
+ *
+ * @param {string} dependencyName
+ * @param {string} version
+ * @returns {Array} Array of tasks with the specified dependency version
+ */
+function getDependencyVersionTasks(dependencyName, version) {
+    return getTasksByDependencyVersion(dependencyName, version);
+}
+
 // Export all functions
 module.exports = {
   addTask,

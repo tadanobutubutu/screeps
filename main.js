@@ -756,11 +756,11 @@ function getNpmLockFiles() {
 function getNpmLockFileDeprecationWarnings() {
   const warnings = [];
   const lockFiles = getNpmLockFiles();
-  
+
   if (lockFiles.length > 1) {
     warnings.push('WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.');
   }
-  
+
   return warnings;
 }
 
@@ -772,7 +772,7 @@ function getNpmLockFileDeprecationWarnings() {
 function hasMultipleLockFiles(dependencyName) {
   const tasks = getDependencyVersionTasks(dependencyName);
   const lockFiles = new Set();
-  
+
   tasks.forEach(task => {
     if (task.dependencies && task.dependencies[dependencyName]) {
       const dep = task.dependencies[dependencyName];
@@ -781,7 +781,7 @@ function hasMultipleLockFiles(dependencyName) {
       }
     }
   });
-  
+
   return lockFiles.size > 1;
 }
 
@@ -905,6 +905,57 @@ function getTasksCreatedAfter(timestamp) {
   return _tasks.filter(task => (task.createdAt || 0) > timestamp);
 }
 
+/**
+ * Gets dependency update tasks that failed to look up.
+ * @returns {Array} Array of failed lookup tasks
+ */
+function getFailedLookupTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    task.tags?.includes('failed-lookup')
+  );
+}
+
+/**
+ * Marks a dependency update task as failed lookup.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function markTaskAsFailedLookup(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+  if (!task.tags.includes('failed-lookup')) {
+    task.tags.push('failed-lookup');
+  }
+  return true;
+}
+
+/**
+ * Unmarks a dependency update task as failed lookup.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function unmarkTaskAsFailedLookup(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+  const index = task.tags.indexOf('failed-lookup');
+  if (index !== -1) {
+    task.tags.splice(index, 1);
+  }
+  return true;
+}
+
+/**
+ * Gets dependency update tasks that are blocked by failed lookups.
+ * @returns {Array} Array of tasks blocked by failed lookups
+ */
+function getBlockedByFailedLookupTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    task.tags?.includes('failed-lookup')
+  );
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -946,5 +997,9 @@ module.exports = {
   getTasksCreatedAfter,
   getNpmLockFiles,
   getNpmLockFileDeprecationWarnings,
-  hasMultipleLockFiles
+  hasMultipleLockFiles,
+  getFailedLookupTasks,
+  markTaskAsFailedLookup,
+  unmarkTaskAsFailedLookup,
+  getBlockedByFailedLookupTasks
 };

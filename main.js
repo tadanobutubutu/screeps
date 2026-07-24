@@ -10,7 +10,7 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
 
 async function updatePosthogJs() {
   await createAsyncUpdateTask('update posthog-js to v1.407.2');
-  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2').then(taskId => taskId)), 'posthog-js', '1.407.2');
+  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2')), 'posthog-js', '1.407.2');
 }
 
 async function updateActionsCheckout() {
@@ -18,7 +18,20 @@ async function updateActionsCheckout() {
   updateDependencyVersions('actions-checkout', 'v6', 'v7');
 }
 
-// Repeat the above pattern for the other actions-labeler, actions-setup-python, and create-all-awaiting-schedule-prs functions as necessary.
+async function updateActionsLabeler() {
+  await createAsyncUpdateTask('update actions/labeler action to v5');
+  updateDependencyVersions('actions-labeler', 'v4', 'v5');
+}
+
+async function updateActionsSetupPython() {
+  await createAsyncUpdateTask('update actions/setup-python action to v5');
+  updateDependencyVersions('actions-setup-python', 'v4', 'v5');
+}
+
+async function createAllAwaitingSchedulePrs() {
+  await createAsyncUpdateTask('create all awaiting schedule PRs');
+  // Implementation would go here
+}
 
 function getDependencyUpdateProgressForVersion(version) {
   return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)

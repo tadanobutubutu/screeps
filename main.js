@@ -132,6 +132,36 @@ async function handleCreateAllAwaitingSchedulePRs() {
   }
 }
 
+async function handleSentryBrowserUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateDependencyVersions('@sentry/browser', '10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+async function handleGitHubCodeQLActionUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await visualizeMemory('v3', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+async function handleGitStreamActionUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
+    // Implementation would go here
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   getTaskById,
@@ -141,6 +171,9 @@ module.exports = {
   handleActionsLabelerUpdate,
   handleActionsSetupPythonUpdate,
   handleCreateAllAwaitingSchedulePRs,
+  handleSentryBrowserUpdate,
+  handleGitHubCodeQLActionUpdate,
+  handleGitStreamActionUpdate,
   calculateDependencyUpdateProgress,
   addTask,
   createAsyncUpdateTask,

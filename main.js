@@ -687,20 +687,6 @@ function hasMultipleLockFiles(dependencyName) {
  */
 const logging = {
   /**
-   * Logs a formatted message with the given level and optional data.
-   * @param {string} level
-   * @param {string} message
-   * @param {*} [data]
-   */
-  log(level, message, data) {
-    const entry = this.formatLogEntry(level, message);
-    if (data !== undefined) {
-      console.log(entry, data);
-    } else {
-      console.log(entry);
-    }
-  },
-  /**
    * Logs an info-level message.
    * @param {string} message
    */
@@ -729,14 +715,29 @@ const logging = {
     console.debug(`[DEBUG] ${message}`);
   },
   /**
-   * Formats a log entry with timestamp and level.
+   * Formats a log entry with a timestamp.
    * @param {string} level
    * @param {string} message
    * @returns {string} Formatted log entry
    */
   formatLogEntry(level, message) {
     const timestamp = new Date().toISOString();
-    return `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+    return `${timestamp} [${level.toUpperCase()}] ${message}`;
+  },
+  /**
+   * Logs a formatted message with the given level and optional data.
+   * @param {string} level
+   * @param {string} message
+   * @param {*} [data]
+   * @returns {void}
+   */
+  log(level, message, data) {
+    const entry = this.formatLogEntry(level, message);
+    if (data !== undefined) {
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
   }
 };
 

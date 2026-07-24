@@ -583,6 +583,165 @@ function getDependencyUpdateTasksWithVersions(dependencyName) {
     });
 }
 
+/**
+ * Gets dependency update tasks that are awaiting their schedule.
+ * @returns {Array} Array of tasks awaiting schedule
+ */
+function getAwaitingScheduleTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    task.tags?.includes('awaiting-schedule')
+  );
+}
+
+/**
+ * Gets dependency update tasks that have been manually edited.
+ * @returns {Array} Array of manually edited tasks
+ */
+function getManuallyEditedTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    task.tags?.includes('manually-edited')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are blocked by closed PRs.
+ * @returns {Array} Array of tasks blocked by closed PRs
+ */
+function getBlockedByClosedPRTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    task.tags?.includes('blocked-by-closed-pr')
+  );
+}
+
+/**
+ * Marks a dependency update task as awaiting schedule.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function markTaskAsAwaitingSchedule(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  if (!task.tags.includes('awaiting-schedule')) {
+    task.tags.push('awaiting-schedule');
+  }
+  return true;
+}
+
+/**
+ * Marks a dependency update task as manually edited.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function markTaskAsManuallyEdited(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  if (!task.tags.includes('manually-edited')) {
+    task.tags.push('manually-edited');
+  }
+  return true;
+}
+
+/**
+ * Marks a dependency update task as blocked by closed PR.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function markTaskAsBlockedByClosedPR(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  if (!task.tags.includes('blocked-by-closed-pr')) {
+    task.tags.push('blocked-by-closed-pr');
+  }
+  return true;
+}
+
+/**
+ * Unmarks a dependency update task as awaiting schedule.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function unmarkTaskAsAwaitingSchedule(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  const index = task.tags.indexOf('awaiting-schedule');
+  if (index !== -1) {
+    task.tags.splice(index, 1);
+  }
+  return true;
+}
+
+/**
+ * Unmarks a dependency update task as manually edited.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function unmarkTaskAsManuallyEdited(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  const index = task.tags.indexOf('manually-edited');
+  if (index !== -1) {
+    task.tags.splice(index, 1);
+  }
+  return true;
+}
+
+/**
+ * Unmarks a dependency update task as blocked by closed PR.
+ * @param {number} taskId
+ * @returns {boolean} True if successful
+ */
+function unmarkTaskAsBlockedByClosedPR(taskId) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.tags?.includes('dependency-update')) return false;
+  const index = task.tags.indexOf('blocked-by-closed-pr');
+  if (index !== -1) {
+    task.tags.splice(index, 1);
+  }
+  return true;
+}
+
+/**
+ * Gets all dependency update tasks with their status and additional details.
+ * @returns {Array} Array of dependency update tasks with detailed status
+ */
+function getDetailedDependencyUpdateTasksWithStatus() {
+  return _tasks
+    .filter(task => task.tags?.includes('dependency-update'))
+    .map(task => {
+      const dependencies = task.dependencies || {};
+      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
+        if (typeof info === 'string') {
+          return { name, current: info, target: info, status: 'current' };
+        } else {
+          return {
+            name,
+            current: info.current,
+            target: info.target,
+            status: task.completed ? 'completed' : 'pending'
+          };
+        }
+      });
+
+      return {
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        createdAt: task.createdAt,
+        dependencies: dependencyDetails,
+        priority: task.priority,
+        tags: task.tags || [],
+        status: task.completed ? 'completed' :
+                task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+                task.tags?.includes('manually-edited') ? 'manually-edited' :
+                task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
+      };
+    });
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -618,5 +777,15 @@ module.exports = {
   getDependencyUpdateSummary,
   getDependencyUpdateTasksByStatus,
   getAllUniqueDependencies,
-  getDependencyUpdateTasksWithVersions
+  getDependencyUpdateTasksWithVersions,
+  getAwaitingScheduleTasks,
+  getManuallyEditedTasks,
+  getBlockedByClosedPRTasks,
+  markTaskAsAwaitingSchedule,
+  markTaskAsManuallyEdited,
+  markTaskAsBlockedByClosedPR,
+  unmarkTaskAsAwaitingSchedule,
+  unmarkTaskAsManuallyEdited,
+  unmarkTaskAsBlockedByClosedPR,
+  getDetailedDependencyUpdateTasksWithStatus
 };

@@ -201,7 +201,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  * @returns {Array} Array of tasks that don't have the specified dependency
  */
 function getTasksMissingDependency(dependencyName) {
-  return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]);
+  return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
 }
 
 /**
@@ -650,7 +650,7 @@ function getDetailedDependencyUpdateTasksWithStatus() {
  * @param {string} dependencyName
  * @returns {Array} Array of missing dependency tasks
  */
-function getTasksMissingDependency(dependencyName) {
+function getTasksMissingDependencyUpdated(dependencyName) {
   return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
 }
 

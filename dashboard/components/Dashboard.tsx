@@ -16,6 +16,8 @@ export default function Dashboard() {
     const [jsonHover, setJsonHover] = useState(false);
     const [refreshSuccess, setRefreshSuccess] = useState(false);
     const [toastMsg, setToastMsg] = useState<string | null>(null);
+    const [errCopyHover, setErrCopyHover] = useState(false);
+    const [errRetryHover, setErrRetryHover] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -149,6 +151,10 @@ export default function Dashboard() {
                 </pre>
                 <button
                     onClick={copyErr}
+                    onMouseEnter={() => setErrCopyHover(true)}
+                    onMouseLeave={() => setErrCopyHover(false)}
+                    onFocus={() => setErrCopyHover(true)}
+                    onBlur={() => setErrCopyHover(false)}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -158,7 +164,10 @@ export default function Dashboard() {
                         border: 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
-                        transition: 'background-color 0.2s',
+                        transition: 'all 0.2s ease-in-out',
+                        transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                        filter: errCopyHover ? 'brightness(1.1)' : 'none',
                     }}
                 >
                     {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
@@ -166,6 +175,10 @@ export default function Dashboard() {
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
+                    onMouseEnter={() => setErrRetryHover(true)}
+                    onMouseLeave={() => setErrRetryHover(false)}
+                    onFocus={() => setErrRetryHover(true)}
+                    onBlur={() => setErrRetryHover(false)}
                     aria-label={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     title={refreshing ? '読み込み中...' : 'データを再読み込み'}
                     style={{
@@ -176,7 +189,10 @@ export default function Dashboard() {
                         color: refreshing ? '#a0aec0' : 'inherit',
                         border: '1px solid #cbd5e0',
                         borderRadius: '4px',
-                        transition: 'all 0.2s',
+                        transition: 'all 0.2s ease-in-out',
+                        transform: errRetryHover && !refreshing ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
+                        filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
                     }}
                 >
                     {refreshing ? '読み込み中...' : '🔄 再試行'}
@@ -428,13 +444,14 @@ export default function Dashboard() {
                     )}
                 </div>
             </div>
-            <details style={{ cursor: 'pointer' }}>
+            <details style={{ border: 'none' }}>
                 <summary
                     className="interactive-hint"
                     title="生データを JSON 形式で表示/非表示にします"
                     style={{
                         color: '#4a5568',
                         padding: '0.2rem 0',
+                        cursor: 'pointer',
                     }}
                 >
                     <span>生データを確認</span>

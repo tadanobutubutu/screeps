@@ -18,18 +18,6 @@ async function updateActionsCheckout() {
   updateDependencyVersions('actions-checkout', 'v6', 'v7');
 }
 
-// Repeat the above pattern for the other actions-labeler, actions-setup-python, and create-all-awaiting-schedule-prs functions as necessary.
-
-function getDependencyUpdateProgressForVersion(version) {
-  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
-}
-
-function getPosthogJsDependencyUpdateProgress() {
-  return getDependencyUpdateProgressForVersion('1.404.1');
-}
-
-// Add these new functions at the end of your main.js file.
 async function updateActionsLabeler() {
   await createAsyncUpdateTask('update actions/labeler action to v5');
   updateDependencyVersions('actions-labeler', 'v4', 'v5');
@@ -43,6 +31,15 @@ async function updateActionsSetupPython() {
 async function createAllAwaitingSchedulePrs() {
   await createAsyncUpdateTask('create all awaiting schedule PRs');
   // Implementation would go here
+}
+
+function getDependencyUpdateProgressForVersion(version) {
+  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
+}
+
+function getPosthogJsDependencyUpdateProgress() {
+  return getDependencyUpdateProgressForVersion('1.404.1');
 }
 
 module.exports = { /*...existing exports...*/ };

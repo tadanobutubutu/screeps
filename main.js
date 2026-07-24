@@ -796,7 +796,8 @@ const logging = {
    * @param {string} message
    */
   info(message) {
-    },
+    // Implementation would go here
+  },
 
   /**
    * Logs a warning-level message.
@@ -819,7 +820,8 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    },
+    // Implementation would go here
+  },
 
   /**
    * Formats a log entry with a timestamp.
@@ -841,8 +843,10 @@ const logging = {
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      } else {
-      }
+      // Implementation would go here
+    } else {
+      // Implementation would go here
+    }
   }
 };
 

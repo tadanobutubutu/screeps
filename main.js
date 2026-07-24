@@ -437,7 +437,10 @@ function getDetailedDependencyUpdateTasks() {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' : 'pending'
+            status: task.completed ? 'completed' :
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+               task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+               task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')
           };
         }
       });
@@ -750,7 +753,45 @@ function getDetailedDependencyUpdateTasksWithStatus() {
 }
 
 /**
- * Gets a list of all dependency update tasks with their status and additional details.
+ * Gets dependency update tasks that are in progress.
+ * @returns {Array} Array of tasks in progress
+ */
+function getInProgressDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    !task.tags?.includes('awaiting-schedule') &&
+    !task.tags?.includes('manually-edited') &&
+    !task.tags?.includes('blocked-by-closed-pr')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are ready for review.
+ * @returns {Array} Array of tasks ready for review
+ */
+function getReadyForReviewDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    task.tags?.includes('awaiting-schedule')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are blocked.
+ * @returns {Array} Array of blocked tasks
+ */
+function getBlockedDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
+  );
+}
+
+/**
+ * Gets all dependency update tasks with their status and additional details.
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getAllDependencyUpdateTasksWithDetails() {
@@ -803,5 +844,8 @@ module.exports = {
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
   getDetailedDependencyUpdateTasksWithStatus,
+  getInProgressDependencyUpdateTasks,
+  getReadyForReviewDependencyUpdateTasks,
+  getBlockedDependencyUpdateTasks,
   getAllDependencyUpdateTasksWithDetails
 };

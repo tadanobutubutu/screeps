@@ -31,4 +31,11 @@ function getPosthogJsDependencyUpdateProgress() {
 
 // Add these new functions at the end of your main.js file.
 
+// Fix rule in memory.visualizer.js
+function visualizeMemory(memory) {
+  const container = document.getElementById('memory-container');
+  if (!container) return;
+  container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
+}
+
 module.exports = { /*...existing exports...*/ };

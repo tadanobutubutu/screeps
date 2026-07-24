@@ -83,10 +83,6 @@ function calculateDependencyUpdateProgress(version) {
   return (completed / total) * 100;
 }
 
-function visualizeMemory() {
-  return 'Memory visualization placeholder';
-}
-
 async function handlePosthogJsUpdate() {
   try {
     await updatePosthogJs();

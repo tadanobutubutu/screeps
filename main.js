@@ -77,7 +77,7 @@ function getAllDependencies() {
   _tasks.forEach(task => {
     if (task.dependencies) {
       Object.entries(task.dependencies).forEach(([name, info]) => {
-        let version = typeof info === 'string' ? info : info.target;
+        var version = typeof info === 'string' ? info : info.target;
         if (version && !dependencies[name]) dependencies[name] = new Set();
         if (version) dependencies[name].add(version);
       });
@@ -721,7 +721,10 @@ function getDetailedDependencyUpdateTasksWithStatus() {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' : 'pending'
+            status: task.completed ? 'completed' :
+                task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+                task.tags?.includes('manually-edited') ? 'manually-edited' :
+                task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
           };
         }
       });

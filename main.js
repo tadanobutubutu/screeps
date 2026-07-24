@@ -1,7 +1,7 @@
-/*
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+/**
+ * User Safety: unsafe
+ * Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+ */
 
 const _tasks = [];
 const _state = { nextId: 1 };
@@ -77,7 +77,7 @@ function getAllDependencies() {
   _tasks.forEach(task => {
     if (task.dependencies) {
       Object.entries(task.dependencies).forEach(([name, info]) => {
-        let version = typeof info === 'string' ? info : info.target;
+        var version = typeof info === 'string' ? info : info.target;
         if (version && !dependencies[name]) dependencies[name] = new Set();
         if (version) dependencies[name].add(version);
       });
@@ -224,7 +224,7 @@ function getTasksSortedByTitle() {
  * @returns {Array} Array of tasks sorted by creation date
  */
 function getTasksSortedByCreatedAt() {
-  return _tasks.slice().sort((a, b) => a.createdAt - b.createdAt);
+  return _tasks.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 }
 
 /**
@@ -449,7 +449,11 @@ function getDetailedDependencyUpdateTasks() {
         createdAt: task.createdAt,
         dependencies: dependencyDetails,
         priority: task.priority,
-        tags: task.tags || []
+        tags: task.tags || [],
+        status: task.completed ? 'completed' :
+                (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+                 task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+                 task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')
       };
     });
 }
@@ -722,9 +726,9 @@ function getDetailedDependencyUpdateTasksWithStatus() {
             current: info.current,
             target: info.target,
             status: task.completed ? 'completed' :
-                    (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-                     task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-                     task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+               task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+               task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')
           };
         }
       });

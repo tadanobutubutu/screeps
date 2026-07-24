@@ -428,6 +428,123 @@ function getBlockedByFailedLookupTasks() {
 	return _tasks.filter(task => task.tags?.includes('blocked-by-failed-lookup'));
 }
 
+// New functions for dependency dashboard
+function getDependencyDashboardSummary() {
+	const allDependencies = getAllUniqueDependencies();
+	const summary = {
+		totalDependencies: allDependencies.length,
+		updates: {
+			total: 0,
+			completed: 0,
+			awaitingSchedule: 0,
+			manuallyEdited: 0,
+			blockedByClosedPR: 0,
+			failedLookup: 0
+		},
+		lockFiles: {
+			total: getNpmLockFiles().length,
+			warnings: getNpmLockFileDeprecationWarnings()
+		},
+		dependencyDetails: []
+	};
+
+	allDependencies.forEach(dep => {
+		const tasks = getDependencyVersionTasks(dep);
+		const versions = getDependencyVersions(dep);
+		const updateTasks = tasks.filter(task => task.tags?.includes('dependency-update'));
+
+		summary.updates.total += updateTasks.length;
+		summary.updates.completed += updateTasks.filter(task => task.completed).length;
+		summary.updates.awaitingSchedule += updateTasks.filter(task => task.tags?.includes('awaiting-schedule')).length;
+		summary.updates.manuallyEdited += updateTasks.filter(task => task.tags?.includes('manually-edited')).length;
+		summary.updates.blockedByClosedPR += updateTasks.filter(task => task.tags?.includes('blocked-by-closed-pr')).length;
+		summary.updates.failedLookup += updateTasks.filter(task => task.tags?.includes('failed-lookup')).length;
+
+		summary.dependencyDetails.push({
+			name: dep,
+			versions: Array.from(versions),
+			tasks: tasks.length,
+			updateTasks: updateTasks.length,
+			hasMultipleLockFiles: hasMultipleLockFiles(dep)
+		});
+	});
+
+	return summary;
+}
+
+function getDependencyDashboardDetails(dependencyName) {
+	const tasks = getDependencyVersionTasks(dependencyName);
+	const versions = getDependencyVersions(dependencyName);
+	const updateTasks = tasks.filter(task => task.tags?.includes('dependency-update'));
+
+	return {
+		name: dependencyName,
+		versions: Array.from(versions),
+		totalTasks: tasks.length,
+		updateTasks: updateTasks.length,
+		completedUpdates: updateTasks.filter(task => task.completed).length,
+		awaitingSchedule: updateTasks.filter(task => task.tags?.includes('awaiting-schedule')).length,
+		manuallyEdited: updateTasks.filter(task => task.tags?.includes('manually-edited')).length,
+		blockedByClosedPR: updateTasks.filter(task => task.tags?.includes('blocked-by-closed-pr')).length,
+		failedLookup: updateTasks.filter(task => task.tags?.includes('failed-lookup')).length,
+		hasMultipleLockFiles: hasMultipleLockFiles(dependencyName),
+		tasks: tasks.map(task => ({
+			id: task.id,
+			title: task.title,
+			completed: task.completed,
+			createdAt: task.createdAt,
+			currentVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.current,
+			targetVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.target,
+			status: task.completed ? 'completed' :
+					task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+					task.tags?.includes('manually-edited') ? 'manually-edited' :
+					task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' :
+					task.tags?.includes('failed-lookup') ? 'failed-lookup' : 'pending'
+		}))
+	};
+}
+
+function getDependencyDashboardStatus() {
+	const summary = getDependencyDashboardSummary();
+	const status = {
+		overallStatus: 'healthy',
+		issues: [],
+		summary: summary
+	};
+
+	// Check for warnings
+	if (summary.lockFiles.warnings.length > 0) {
+		status.overallStatus = 'warning';
+		status.issues.push(...summary.lockFiles.warnings);
+	}
+
+	// Check for failed lookups
+	if (summary.updates.failedLookup > 0) {
+		status.overallStatus = 'error';
+		status.issues.push(`There are ${summary.updates.failedLookup} dependency updates blocked by failed lookups`);
+	}
+
+	// Check for blocked updates
+	if (summary.updates.blockedByClosedPR > 0) {
+		status.overallStatus = 'warning';
+		status.issues.push(`There are ${summary.updates.blockedByClosedPR} dependency updates blocked by closed PRs`);
+	}
+
+	// Check for manually edited updates
+	if (summary.updates.manuallyEdited > 0) {
+		status.overallStatus = 'warning';
+		status.issues.push(`There are ${summary.updates.manuallyEdited} dependency updates that have been manually edited`);
+	}
+
+	// Check for multiple lock files
+	if (summary.lockFiles.total > 1) {
+		status.overallStatus = 'warning';
+		status.issues.push(`Multiple lock files detected (${summary.lockFiles.total})`);
+	}
+
+	return status;
+}
+
 module.exports = {
 	logging,
 	addTask,
@@ -485,6 +602,10 @@ module.exports = {
 	markTaskAsFailedLookup,
 	unmarkTaskAsFailedLookup,
 	getFailedLookupTasks,
+	// New dashboard functions
+	getDependencyDashboardSummary,
+	getDependencyDashboardDetails,
+	getDependencyDashboardStatus,
 	_tasks,
 	_state,
 	getTaskById

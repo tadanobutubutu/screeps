@@ -10,7 +10,7 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
 
 async function updatePosthogJs() {
   await createAsyncUpdateTask('update posthog-js to v1.407.2');
-  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2').then(taskId => taskId)), 'posthog-js', '1.407.2');
+  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2')), 'posthog-js', '1.407.2');
 }
 
 async function updateActionsCheckout() {
@@ -43,6 +43,7 @@ function getPosthogJsDependencyUpdateProgress() {
 }
 
 // Add this new function for visualizing memory
+// Fix rule in memory.visualizer.js
 function visualizeMemory(memory) {
   const container = document.getElementById('memory-container');
   if (!container) return;

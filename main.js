@@ -839,6 +839,15 @@ function getAllDependencyUpdateTasksWithDetails() {
   return getDetailedDependencyUpdateTasksWithStatus();
 }
 
+/**
+ * Gets tasks created after a specific date.
+ * @param {number} timestamp - Unix timestamp in milliseconds
+ * @returns {Array} Array of tasks created after the given timestamp
+ */
+function getTasksCreatedAfter(timestamp) {
+  return _tasks.filter(task => (task.createdAt || 0) > timestamp);
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -876,5 +885,6 @@ module.exports = {
   getDependencyUpdateProgress,
   getDependencyUpdateTaskCounts,
   resolveDependencyConflicts,
-  isDependencyUpdateOverdue
+  isDependencyUpdateOverdue,
+  getTasksCreatedAfter
 };

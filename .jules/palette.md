@@ -56,3 +56,8 @@
 
 **Learning:** When implementing a floating Toast notification system, rendering the Toast component nested deep inside layout wrappers (like collapsible `<details>` or scrollable boxes) can cause the Toast to become completely hidden or cut off by container styles (`display: none` or `overflow: hidden`). Placing the Toast at the root level of the component's main layout prevents layout inheritance issues and ensures visual consistency.
 **Action:** Always position floating status/feedback notifications at the absolute root or outermost level of your React component hierarchy rather than nested inside conditional blocks.
+
+## 2026-07-31 - [Cursor Separation on Details Containers]
+
+**Learning:** Applying `cursor: pointer` to a parent `<details>` element causes the hand pointer cursor to be inherited by all of its nested children (including massive `<pre>` blocks). This misleadingly implies that the entire block is clickable and disrupts standard text-selection patterns. Setting `border: none` (or other structural styling) on the `<details>` container and applying `cursor: pointer` strictly to the `<summary>` element preserves expected interactive bounds.
+**Action:** Always scope `cursor: pointer` exclusively to the toggleable `<summary>` element rather than the parent `<details>` component.

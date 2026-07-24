@@ -18,11 +18,6 @@ function updateDependencyVersions(dependency, newVersion) {
   return Promise.resolve();
 }
 
-function visualizeMemory(currentVersion, newVersion) {
-  // Stub: simulate async update
-  return Promise.resolve();
-}
-
 /**
  * Creates a task asynchronously and logs its creation.
  */
@@ -83,8 +78,9 @@ function calculateDependencyUpdateProgress(version) {
   return (completed / total) * 100;
 }
 
-function visualizeMemory() {
-  return 'Memory visualization placeholder';
+function visualizeMemory(currentVersion, newVersion) {
+  // Stub: simulate async update
+  return Promise.resolve();
 }
 
 async function handlePosthogJsUpdate() {

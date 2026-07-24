@@ -21,8 +21,8 @@ async function updateActionsCheckout() {
 // Repeat the above pattern for the other actions-labeler, actions-setup-python, and create-all-awaiting-schedule-prs functions as necessary.
 
 function getDependencyUpdateProgressForVersion(version) {
-  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
+  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {

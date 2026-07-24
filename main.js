@@ -3,8 +3,8 @@ User Safety: unsafe
 Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
 */
 
-var _tasks = [];
-var _state = { nextId: 1 };
+const _tasks = [];
+const _state = { nextId: 1 };
 
 /**
  * Adds a new task.
@@ -12,7 +12,7 @@ var _state = { nextId: 1 };
  * @returns {number} The ID of the created task.
  */
 function addTask(title) {
-  var task = {
+  const task = {
     id: _state.nextId++,
     title: title,
     completed: false,
@@ -33,7 +33,7 @@ function addTask(title) {
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task) return false;
+  if ( === undefined ||  === null) return false;
   if (!task.dependencies) task.dependencies = {};
   task.dependencies[dependencyName] = newVersion;
   return true;
@@ -151,7 +151,7 @@ function getDependencyVersions(dependencyName) {
  */
 function updateDependencyVersions(taskId, dependencies) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task) return false;
+  if ( === undefined ||  === null) return false;
 
   if (!task.dependencies) {
     task.dependencies = {};
@@ -172,7 +172,7 @@ function updateDependencyVersions(taskId, dependencies) {
  */
 function addDependenciesToTask(taskId, dependencies) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task) return false;
+  if ( === undefined ||  === null) return false;
   if (!task.dependencies) task.dependencies = {};
   Object.entries(dependencies).forEach(([name, version]) => {
     task.dependencies[name] = version;
@@ -187,7 +187,7 @@ function addDependenciesToTask(taskId, dependencies) {
  * @returns {boolean} True if the dependency was removed
  */
 function removeDependencyFromTask(taskId, dependencyName) {
-  var task = _tasks.find(t => t.id === taskId);
+  const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
     return false;
   }
@@ -326,7 +326,7 @@ function getAllDependencyUpdateTasksWithStatus() {
  * @returns {Object} Object with dependency names as keys and arrays of tasks as values
  */
 function getDependencyUpdateTasksGroupedByName() {
-  var grouped = {};
+  const grouped = {};
 
   _tasks.forEach(task => {
     if (task.tags && task.tags.includes('dependency-update') && task.dependencies) {
@@ -351,7 +351,7 @@ function getDependencyUpdateTasksGroupedByName() {
  * @returns {Object} Statistics about dependency updates
  */
 function getDependencyUpdateStatistics() {
-  var stats = {
+  const stats = {
     totalTasks: 0,
     completedTasks: 0,
     pendingTasks: 0,
@@ -410,8 +410,8 @@ function getDependencyUpdateTasksForVersion(version) {
  */
 function getOverdueDependencyUpdateTasks(daysOverdue) {
   daysOverdue = daysOverdue || 7;
-  var now = Date.now();
-  var overdueTime = daysOverdue * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const overdueTime = daysOverdue * 24 * 60 * 60 * 1000;
 
   return _tasks.filter(task => {
     return task.tags?.includes('dependency-update') &&

@@ -34,16 +34,15 @@ async function createAllAwaitingSchedulePrs() {
 }
 
 function getDependencyUpdateProgressForVersion(version) {
-  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
+  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {
   return getDependencyUpdateProgressForVersion('1.404.1');
 }
 
-// Add these new functions at the end of your main.js file.
-
+// Add this new function for visualizing memory
 // Fix rule in memory.visualizer.js
 function visualizeMemory(memory) {
   const container = document.getElementById('memory-container');
@@ -51,4 +50,7 @@ function visualizeMemory(memory) {
   container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
 }
 
-module.exports = { /*...existing exports...*/ };
+module.exports = {
+  // ...existing exports...
+  visualizeMemory,
+};

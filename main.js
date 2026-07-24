@@ -1,24 +1,81 @@
-/**
- * User Safety: unsafe
- * Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
- */
-
-const _tasks = [];
+// Task management and dependency handling for the Screeps bot
+// ------------------------------------------------------------
+let _tasks = [];
+let _nextId = 1;
 const _state = { nextId: 1 };
 
+// ---------- Logging Utilities ----------
+const logging = {
+  /**
+   * Logs an info-level message.
+   * @param {string} message
+   */
+  info(message) {
+    console.log(`[INFO] ${message}`);
+  },
+  /**
+   * Logs a warning-level message.
+   * @param {string} message
+   */
+  warn(message) {
+    console.warn(`[WARN] ${message}`);
+  },
+  /**
+   * Logs an error-level message.
+   * @param {string} message
+   */
+  error(message) {
+    console.error(`[ERROR] ${message}`);
+  },
+  /**
+   * Logs a debug-level message.
+   * @param {string} message
+   */
+  debug(message) {
+    console.debug(`[DEBUG] ${message}`);
+  },
+  /**
+   * Formats a log entry with a timestamp.
+   * @param {string} level
+   * @param {string} message
+   * @returns {string} Formatted log entry
+   */
+  formatLogEntry(level, message) {
+    const timestamp = new Date().toISOString();
+    return `${timestamp} [${level.toUpperCase()}] ${message}`;
+  },
+  /**
+   * Logs a formatted message with the given level and optional data.
+   * @param {string} level
+   * @param {string} message
+   * @param {*} [data]
+   */
+  log(level, message, data) {
+    const entry = this.formatLogEntry(level, message);
+    if (data !== undefined) {
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
+  }
+};
+
+// ---------- Task CRUD ----------
 /**
- * Adds a new task.
+ * Adds a new task with an optional priority and tags.
  * @param {string} title
+ * @param {string} [priority='medium']
+ * @param {string[]} [tags=[]]
  * @returns {number} The ID of the created task.
  */
-function addTask(title) {
+function addTask(title, priority = 'medium', tags = []) {
   const task = {
     id: _state.nextId++,
     title: title,
     completed: false,
     createdAt: Date.now(),
-    tags: [],
-    priority: 'medium'
+    tags: tags,
+    priority: priority
   };
   _tasks.push(task);
   return task.id;
@@ -57,13 +114,11 @@ function getTasksByDependency(dependencyName) {
  */
 function addDependencyUpdateTask(dependencyName, currentVersion, targetVersion) {
   const title = `Update ${dependencyName} from ${currentVersion} to ${targetVersion}`;
-  const taskId = addTask(title);
+  const taskId = addTask(title, 'medium', ['dependency-update']);
   const task = _tasks.find(t => t.id === taskId);
   if (task) {
     if (!task.dependencies) task.dependencies = {};
     task.dependencies[dependencyName] = { current: currentVersion, target: targetVersion };
-    task.tags = task.tags || [];
-    task.tags.push('dependency-update');
   }
   return taskId;
 }
@@ -251,11 +306,9 @@ function listTasks() {
  */
 function completeTask(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (task) {
-    task.completed = true;
-    return true;
-  }
-  return false;
+  if (!task) return false;
+  task.completed = true;
+  return true;
 }
 
 /**
@@ -288,21 +341,6 @@ function findTasks(searchTerm) {
  */
 function getTaskById(taskId) {
   return _tasks.find(t => t.id === taskId);
-}
-
-/**
- * Main game loop placeholder for Screeps (does nothing in tests).
- */
-function run() {
-  // Main game loop implementation would go here
-}
-
-/**
- * Stub for memory usage function (not defined originally).
- * @returns {Object} Empty object
- */
-function getMemoryUsage() {
-  return {};
 }
 
 /**
@@ -700,35 +738,54 @@ function getDependencyUpdateTaskCounts() {
   return counts;
 }
 
-/**
- * Resolves dependency conflicts between tasks.
- * @param {string} dependencyName
- * @param {string} resolvedVersion
- * @returns {boolean} True if conflicts were resolved
- */
-function resolveDependencyConflicts(dependencyName, resolvedVersion) {
-  const tasks = getDependencyVersionTasks(dependencyName);
-  tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      task.dependencies[dependencyName] = resolvedVersion;
-    }
-  });
+// ---------- Tag Operations ----------
+function addTag(taskId, tag) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task) return false;
+  if (!task.tags.includes(tag)) {
+    task.tags.push(tag);
+  }
   return true;
 }
 
-/**
- * Checks if a dependency update is overdue.
- * @param {number} taskId
- * @returns {boolean} True if the task is overdue
- */
-function isDependencyUpdateOverdue(taskId) {
+function removeTag(taskId, tag) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || task.completed) return false;
-  const overdueTime = 7 * 24 * 60 * 60 * 1000;
-  return (Date.now() - task.createdAt) > overdueTime;
+  if (!task) return false;
+  const index = task.tags.indexOf(tag);
+  if (index !== -1) {
+    task.tags.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
-// ======= npm lock file management functions =======
+// ---------- Filtering & Analyses ----------
+/**
+ * Gets all tasks that have a specific dependency.
+ * @param {string} dependencyName
+ * @returns {Array} Array of tasks
+ */
+function getTasksByDependency(dependencyName) {
+  return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
+}
+
+/**
+ * Gets tasks filtered by priority and optionally a dependency name.
+ * @param {string} priority
+ * @param {string} [dependencyName]
+ * @returns {Array}
+ */
+function getTasksByPriorityAndDependencies(priority, dependencyName) {
+  return _tasks.filter(task => {
+    if (task.priority !== priority) return false;
+    if (dependencyName) {
+      return task.dependencies && task.dependencies[dependencyName];
+    }
+    return true;
+  });
+}
+
+// ---------- NPM Lock File Utilities ----------
 
 /**
  * Gets all npm lock files in the repository.
@@ -785,178 +842,83 @@ function hasMultipleLockFiles(dependencyName) {
   return lockFiles.size > 1;
 }
 
-// ======= Logging utility functions =======
+// ---------- Scheduler ----------
+/**
+ * Schedules dependencies in development.
+ * @returns {void}
+ */
+function scheduleDependenciesInDevelopment() {
+  logging.info('Scheduling dependencies in development...');
+}
 
 /**
- * Logging utility helpers for consistent log formatting and output.
+ * Processes tasks when scheduled.
+ * @returns {void}
  */
-const logging = {
-  /**
-   * Logs an info-level message.
-   * @param {string} message
-   */
-  info(message) {
-    // Implementation would go here
-  },
+function processTasksWhenScheduled() {
+  logging.info('Processing scheduled tasks...');
+}
 
-  /**
-   * Logs a warning-level message.
-   * @param {string} message
-   */
-  warn(message) {
-    console.warn(`[WARN] ${message}`);
-  },
+/**
+ * Resolves task dependencies in page tasks.
+ * @returns {void}
+ */
+function resolveTaskDependenciesInPageTasks() {
+  logging.info('Resolving task dependencies in page tasks...');
+}
 
-  /**
-   * Logs an error-level message.
-   * @param {string} message
-   */
-  error(message) {
-    console.error(`[ERROR] ${message}`);
-  },
-
-  /**
-   * Logs a debug-level message.
-   * @param {string} message
-   */
-  debug(message) {
-    // Implementation would go here
-  },
-
-  /**
-   * Formats a log entry with a timestamp.
-   * @param {string} level
-   * @param {string} message
-   * @returns {string} Formatted log entry
-   */
-  formatLogEntry(level, message) {
-    const timestamp = new Date().toISOString();
-    return `${timestamp} [${level.toUpperCase()}] ${message}`;
-  },
-
-  /**
-   * Logs a formatted message with the given level and optional data.
-   * @param {string} level
-   * @param {string} message
-   * @param {*} [data]
-   */
-  log(level, message, data) {
-    const entry = this.formatLogEntry(level, message);
-    if (data !== undefined) {
-      // Implementation would go here
-    } else {
-      // Implementation would go here
+/**
+ * Resolves dependency conflicts between tasks.
+ * @param {string} dependencyName
+ * @param {string} resolvedVersion
+ * @returns {boolean} True if conflicts were resolved
+ */
+function resolveDependencyConflicts(dependencyName, resolvedVersion) {
+  const tasks = getDependencyVersionTasks(dependencyName);
+  tasks.forEach(task => {
+    if (task.dependencies && task.dependencies[dependencyName]) {
+      task.dependencies[dependencyName] = resolvedVersion;
     }
-  }
-};
-
-/**
- * Gets dependency update tasks that are in progress.
- * @returns {Array} Array of tasks in progress
- */
-function getInProgressDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    !task.tags?.includes('awaiting-schedule') &&
-    !task.tags?.includes('manually-edited') &&
-    !task.tags?.includes('blocked-by-closed-pr')
-  );
-}
-
-/**
- * Gets dependency update tasks that are ready for review.
- * @returns {Array} Array of tasks ready for review
- */
-function getReadyForReviewDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    task.tags?.includes('awaiting-schedule')
-  );
-}
-
-/**
- * Gets dependency update tasks that are blocked.
- * @returns {Array} Array of blocked tasks
- */
-function getBlockedDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
-  );
-}
-
-/**
- * Gets all dependency update tasks with their status and additional details.
- * @returns {Array} Array of dependency update tasks with detailed status
- */
-function getAllDependencyUpdateTasksWithDetails() {
-  return getDetailedDependencyUpdateTasksWithStatus();
-}
-
-/**
- * Gets tasks created after a specific date.
- * @param {number} timestamp - Unix timestamp in milliseconds
- * @returns {Array} Array of tasks created after the given timestamp
- */
-function getTasksCreatedAfter(timestamp) {
-  return _tasks.filter(task => (task.createdAt || 0) > timestamp);
-}
-
-/**
- * Gets dependency update tasks that failed to look up.
- * @returns {Array} Array of failed lookup tasks
- */
-function getFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
-}
-
-/**
- * Marks a dependency update task as failed lookup.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsFailedLookup(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('failed-lookup')) {
-    task.tags.push('failed-lookup');
-  }
+  });
   return true;
 }
 
 /**
- * Unmarks a dependency update task as failed lookup.
+ * Checks if a dependency update is overdue.
  * @param {number} taskId
- * @returns {boolean} True if successful
+ * @returns {boolean} True if the task is overdue
  */
-function unmarkTaskAsFailedLookup(taskId) {
+function isDependencyUpdateOverdue(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('failed-lookup');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
+  if (!task || task.completed) return false;
+  const overdueTime = 7 * 24 * 60 * 60 * 1000;
+  return (Date.now() - task.createdAt) > overdueTime;
 }
 
 /**
- * Gets dependency update tasks that are blocked by failed lookups.
- * @returns {Array} Array of tasks blocked by failed lookups
+ * Main game loop placeholder for Screeps.
  */
-function getBlockedByFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
+function run() {
+  logging.info('Bot execution loop started');
+  scheduleDependenciesInDevelopment();
+  processTasksWhenScheduled();
+  resolveTaskDependenciesInPageTasks();
 }
 
-// Export all defined functions
+// ---------- Memory UI Helpers ----------
+/**
+ * Gets memory usage statistics.
+ * @returns {Object}
+ */
+function getMemoryUsage() {
+  return {
+    taskCount: _tasks.length,
+    nextId: _state.nextId,
+    memory: typeof process !== 'undefined' ? process.memoryUsage() : {}
+  };
+}
+
+// ---------- Exports ----------
 module.exports = {
   run,
   addTask,
@@ -985,11 +947,10 @@ module.exports = {
   getAllDependencyUpdateTasksWithStatus,
   getDetailedDependencyUpdateTasks,
   getDetailedDependencyUpdateTasksWithStatus,
-  logging,
+  getAllDependencyUpdateTasksWithDetails,
   getInProgressDependencyUpdateTasks,
   getReadyForReviewDependencyUpdateTasks,
   getBlockedDependencyUpdateTasks,
-  getAllDependencyUpdateTasksWithDetails,
   getDependencyUpdateProgress,
   getDependencyUpdateTaskCounts,
   resolveDependencyConflicts,
@@ -1001,5 +962,6 @@ module.exports = {
   getFailedLookupTasks,
   markTaskAsFailedLookup,
   unmarkTaskAsFailedLookup,
-  getBlockedByFailedLookupTasks
+  getBlockedByFailedLookupTasks,
+  logging
 };

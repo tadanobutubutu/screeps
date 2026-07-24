@@ -10,7 +10,7 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
 
 async function updatePosthogJs() {
   await createAsyncUpdateTask('update posthog-js to v1.407.2');
-  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2')), 'posthog-js', '1.407.2');
+  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthoh-js to v1.407.2')), 'posthoh-js', '1.407.2');
 }
 
 async function updateActionsCheckout() {
@@ -34,21 +34,22 @@ async function createAllAwaitingSchedulePrs() {
 }
 
 function getDependencyUpdateProgressForVersion(version) {
-  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
+  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthoh-js'].current === version)
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthoh-js']).length * 100;
 }
 
-function getPosthogJsDependencyUpdateProgress() {
+function getPosthohJsDependencyUpdateProgress() {
   return getDependencyUpdateProgressForVersion('1.404.1');
 }
 
-// Add these new functions at the end of your main.js file.
-
-// Fix rule in memory.visualizer.js
+// Add this new function for visualizing memory
 function visualizeMemory(memory) {
   const container = document.getElementById('memory-container');
   if (!container) return;
   container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
 }
 
-module.exports = { /*...existing exports...*/ };
+module.exports = {
+  // ...existing exports...
+  visualizeMemory,
+};

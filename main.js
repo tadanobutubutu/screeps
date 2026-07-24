@@ -782,11 +782,11 @@ const logging = {
  */
 function getInProgressDependencyUpdateTasks() {
   return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
+    task.tags?.includes('dependency-update') &&
     !task.completed &&
-    !task.tags.includes('awaiting-schedule') &&
-    !task.tags.includes('manually-edited') &&
-    !task.tags.includes('blocked-by-closed-pr')
+    !task.tags?.includes('awaiting-schedule') &&
+    !task.tags?.includes('manually-edited') &&
+    !task.tags?.includes('blocked-by-closed-pr')
   );
 }
 
@@ -796,9 +796,9 @@ function getInProgressDependencyUpdateTasks() {
  */
 function getReadyForReviewDependencyUpdateTasks() {
   return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
+    task.tags?.includes('dependency-update') &&
     !task.completed &&
-    task.tags.includes('awaiting-schedule')
+    task.tags?.includes('awaiting-schedule')
   );
 }
 
@@ -808,9 +808,9 @@ function getReadyForReviewDependencyUpdateTasks() {
  */
 function getBlockedDependencyUpdateTasks() {
   return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
+    task.tags?.includes('dependency-update') &&
     !task.completed &&
-    (task.tags.includes('manually-edited') || task.tags.includes('blocked-by-closed-pr'))
+    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
   );
 }
 
@@ -908,10 +908,10 @@ module.exports = {
   unmarkTaskAsAwaitingSchedule,
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
+  getDetailedDependencyUpdateTasksWithStatus,
+  logging,
   getInProgressDependencyUpdateTasks,
   getReadyForReviewDependencyUpdateTasks,
   getBlockedDependencyUpdateTasks,
-  getAllDependencyUpdateTasksWithDetails,
-  getDetailedDependencyUpdateTasksWithStatus,
-  logging
+  getAllDependencyUpdateTasksWithDetails
 };

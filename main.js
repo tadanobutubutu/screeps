@@ -347,55 +347,44 @@ function getDetailedDependencyUpdateTasks() {
 }
 
 /**
- * Gets a summary of dependency updates by status.
- * @returns {Object} Summary of dependency updates by status
+ * Gets all dependency update tasks with their status and additional details.
+ * @returns {Array} Array of dependency update tasks with detailed status
  */
-function getDependencyUpdateSummary() {
-  const summary = {
-    total: 0,
-    completed: 0,
-    pending: 0,
-    byDependency: {}
-  };
+function getAllDependencyUpdateTasksWithStatus() {
+  return _tasks
+    .filter(task => task.tags && task.tags.includes('dependency-update'))
+    .map(task => {
+      const dependencies = task.dependencies || {};
+      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
+        if (typeof info === 'string') {
+          return { name, current: info, target: info, status: 'current' };
+        } else {
+          return {
+            name,
+            current: info.current,
+            target: info.target,
+            status: task.completed ? 'completed' :
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+          };
+        }
+      });
 
-  _tasks.forEach(task => {
-    if (task.tags && task.tags.includes('dependency-update')) {
-      summary.total++;
-      if (task.completed) summary.completed++;
-      else summary.pending++;
-
-      if (task.dependencies) {
-        Object.entries(task.dependencies).forEach(([name, info]) => {
-          if (!summary.byDependency[name]) {
-            summary.byDependency[name] = {
-              total: 0,
-              completed: 0,
-              pending: 0,
-              versions: new Set()
-            };
-          }
-
-          summary.byDependency[name].total++;
-          if (task.completed) summary.byDependency[name].completed++;
-          else summary.byDependency[name].pending++;
-
-          const version = typeof info === 'string' ? info : info.target;
-          if (version) summary.byDependency[name].versions.add(version);
-        });
-      }
-    }
-  });
-
-  // Convert sets to arrays and calculate percentages
-  Object.keys(summary.byDependency).forEach(name => {
-    const dep = summary.byDependency[name];
-    dep.versions = Array.from(dep.versions);
-    dep.completionPercentage = dep.total > 0 ? (dep.completed / dep.total) * 100 : 0;
-  });
-
-  summary.completionPercentage = summary.total > 0 ? (summary.completed / summary.total) * 100 : 0;
-
-  return summary;
+      return {
+        id: task.id,
+        title: task.title,
+        completed: task.completed,
+        createdAt: task.createdAt,
+        dependencies: dependencyDetails,
+        priority: task.priority,
+        tags: task.tags || [],
+        status: task.completed ? 'completed' :
+          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+      };
+    });
 }
 
 /**
@@ -650,7 +639,7 @@ function getDetailedDependencyUpdateTasksWithStatus() {
  * @param {string} dependencyName
  * @returns {Array} Array of missing dependency tasks
  */
-function getTasksMissingDependency(dependencyName) {
+function getTasksMissingDependencyAndNotCompleted(dependencyName) {
   return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
 }
 
@@ -787,16 +776,13 @@ function hasMultipleLockFiles(dependencyName) {
 
 // ======= Logging utility functions =======
 
-/**
- * Logging utility helpers for consistent log formatting and output.
- */
 const logging = {
   /**
    * Logs an info-level message.
    * @param {string} message
    */
   info(message) {
-    // Implementation would go here
+    console.log(`[INFO] ${message}`);
   },
 
   /**
@@ -820,7 +806,7 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    // Implementation would go here
+    console.debug(`[DEBUG] ${message}`);
   },
 
   /**
@@ -843,9 +829,9 @@ const logging = {
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      // Implementation would go here
+      console.log(entry, data);
     } else {
-      // Implementation would go here
+      console.log(entry);
     }
   }
 };

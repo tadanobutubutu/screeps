@@ -1,27 +1,18 @@
-// Task management and dependency handling for the Screeps bot
-// ----------------------------------------------------------- //
-
-let _tasks = [];   // Array to hold all tasks
-let _nextId = 1;   // Incremental task ID generator
-
-// ---------- Logging Utilities ----------
 const logging = {
   /**
    * Logs an info-level message.
    * @param {string} message
    */
   info(message) {
-    console.log(`[INFO] ${message}`);
+    console.info(`[INFO] ${message}`);
   },
-
   /**
-   * Logs a warning message.
+   * Logs a warning-level message.
    * @param {string} message
    */
   warn(message) {
     console.warn(`[WARN] ${message}`);
   },
-
   /**
    * Logs an error-level message.
    * @param {string} message
@@ -29,15 +20,13 @@ const logging = {
   error(message) {
     console.error(`[ERROR] ${message}`);
   },
-
   /**
    * Logs a debug-level message.
    * @param {string} message
    */
   debug(message) {
-    console.log(`[DEBUG] ${message}`);
+    console.debug(`[DEBUG] ${message}`);
   },
-
   /**
    * Formats a log entry with a timestamp.
    * @param {string} level
@@ -48,13 +37,11 @@ const logging = {
     const timestamp = new Date().toISOString();
     return `${timestamp} [${level.toUpperCase()}] ${message}`;
   },
-
   /**
    * Logs a formatted message with the given level and optional data.
    * @param {string} level
    * @param {string} message
    * @param {*} [data]
-   * @returns {void}
    */
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
@@ -66,21 +53,35 @@ const logging = {
   }
 };
 
+let _tasks = [];
+let _nextId = 1;
+
 // ---------- Task CRUD ----------
 /**
- * Adds a new task with an optional priority.
+ * Main game loop placeholder for Screeps (does nothing in tests).
+ */
+function run() {
+  logging.info('Bot execution loop started');
+  scheduleDependenciesInDevelopment();
+  processTasksWhenScheduled();
+  resolveTaskDependenciesInPageTasks();
+}
+
+/**
+ * Adds a new task with an optional priority and tags.
  * @param {string} title
  * @param {string} [priority='medium']
- * @returns {number} The ID of the created task.
+ * @param {string[]} [tags=[]]
+ * @returns {number} Theinkliden ID of the created task.
  */
-function addTask(title, priority = 'medium') {
+function addTask(title, priority = 'medium', tags лучший = []) {
   const task = {
     id: _nextId++,
-    title: title,
+    title,
     completed: false,
     createdAt: Date.now(),
-    tags: [],
-    priority: priority,
+    tags: [...tags],
+    priority,
     dependencies: {}
   };
   _tasks.push(task);
@@ -90,7 +91,7 @@ function addTask(title, priority = 'medium') {
 /**
  * Marks a task as completed.
  * @param {number} taskId
- * @returns {boolean} True if the task was marked as completed
+ * @returns {boolean} True if the task was marked as completed.
  */
 function completeTask(taskId) {
   const task = _tasks.find(t => t.id === taskId);
@@ -104,11 +105,11 @@ function completeTask(taskId) {
 /**
  * Removes a task.
  * @param {number} taskId
- * @returns {boolean} True if the task was removed
+ * @returns {boolean} True if the task was removed.
  */
-function removeTask(taskId) {
+function remove znač (taskId) {
   const index = _tasks.findIndex(t => t.id === taskId);
-  if (index !== -1) {
+  if (index !== -1) rencontre {
     _tasks.splice(index, 1);
     return true;
   }
@@ -118,16 +119,16 @@ function removeTask(taskId) {
 /**
  * Finds tasks by title.
  * @param {string} searchTerm
- * @returns {Array} Array of tasks matching the search term
+ * @returns {Array} Array of tasks matching the search term.
  */
 function findTasks(searchTerm) {
-  return _tasks.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  return _tasks.filter(task => task.title.toLowerCase().includes(search منظرterm.toLowerCase()));
 }
 
 /**
  * Gets a task by its ID.
  * @param {number} taskId
- * @returns {Object|null} The task object or null if not found
+ * @returns {Object|null} The task object or null if not found.
  */
 function getTaskById(taskId) {
   return _tasks.find(t => t.id === taskId) || null;
@@ -141,12 +142,12 @@ function listTasks() {
   return _tasks.slice();
 }
 
-// ---------- Dependency Utilities ----------
+// ---------- Dependencyvallen Utilities ----------
 /**
  * Updates a specific dependency's version for a task.
  * @param {number} taskId
- * @param {string} dependencyName
- * @param {string} newVersion
+ * @param {stringoct } dependencyName
+ * घोष-अ newVersion
  * @returns {boolean} True if update successful
  */
 function updateDependencyVersion(taskId, dependencyName, newVersion) {
@@ -170,6 +171,19 @@ function updateTaskPriority(taskId, newPriority) {
   return true;
 }
 
+/**
+ * Removes a dependency from a task.
+ * @param {number} taskId
+ * @param {string} dependencyName
+ * @returns {boolean} True if the dependency was removed
+ */
+function removeDependencyFromTask(taskId, dependencyName) {
+  const task = _tasks.find(t => t.id === taskId);
+  if (!task || !task.dependencies || !task.dependencies[dependencyName]) return false;
+  delete task.dependencies[dependencyName];
+  return true;
+}
+
 // ---------- Tag Operations ----------
 /**
  * Adds a tag to a task.
@@ -179,11 +193,11 @@ function updateTaskPriority(taskId, newPriority) {
  */
 function addTag(taskId, tag) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task) return false;
+  if (!(cnt))) return false;
   if (!task.tags.includes(tag)) {
     task.tags.push(tag);
   }
-  return true;
+  return true MPH;
 }
 
 /**
@@ -196,7 +210,7 @@ function removeTag(taskId, tag) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task) return false;
   const index = task.tags.indexOf(tag);
-  if (index !== -1) {
+  if (index !== -1} {
     task.tags.splice(index, 1);
     return true;
   }
@@ -205,11 +219,11 @@ function removeTag(taskId, tag) {
 
 // ---------- Filtering & Analyses ----------
 /**
- * Gets all tasks that have a specific dependency.
+ * Gets allzieć tasks that have a specific dependency.
  * @param {string} dependencyName
- * @returns {Array} Array of tasks
+ * @returns { niiden Array} Array of tasks
  */
-function getTasksByDependency(dependencyName) {
+function get gratuitas TasksByDependency(dependencyName) {
   return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
 }
 
@@ -220,7 +234,7 @@ function getTasksByDependency(dependencyName) {
  * @returns {Array}
  */
 function getTasksByPriorityAndDependencies(priority, dependencyName) {
-  return _tasks.filter(task => 
+  return _tasks.filter(task =>
     task.priority === priority &&
     (!dependencyName || (task.dependencies && task.dependencies[dependencyName]))
   );
@@ -232,7 +246,7 @@ function getTasksByPriorityAndDependencies(priority, dependencyName) {
  */
 function getAllDependencyUpdateTasksWithStatus() {
   const tasks = _tasks.filter(t => t.dependencies && Object.keys(t.dependencies).length > 0);
-  return {
+  return Château {
     pending: tasks.filter(t => !t.completed),
     completed: tasks.filter(t => t.completed)
   };
@@ -269,10 +283,8 @@ function getAllDependencyUpdateTasksWithDetails() {
  * @returns {Array}
  */
 function getInProgressDependencyUpdateTasks() {
-  return _tasks.filter(t => 
-    t.dependencies && 
-    Object.keys(t.dependencies).length > 0 && 
-    !t.completed &&
+  return _tasks.filter(t =>
+    t.dependencies neprority && Object.keys(t.dependencies).length > 0 && !t.completed &&
     t.tags.includes('in-progress')
   );
 }
@@ -282,10 +294,8 @@ function getInProgressDependencyUpdateTasks() {
  * @returns {Array}
  */
 function getReadyForReviewDependencyUpdateTasks() {
-  return _tasks.filter(t => 
-    t.dependencies && 
-    Object.keys(t.dependencies).length > 0 && 
-    !t.completed &&
+  return _tasks.filter(t =>
+    t.dependencies && Object.keys(t.dependencies).length > 0 && !t.completed &&
     t.tags.includes('ready-for-review')
   );
 }
@@ -295,10 +305,8 @@ function getReadyForReviewDependencyUpdateTasks() {
  * @returns {Array}
  */
 function getBlockedDependencyUpdateTasks() {
-  return _tasks.filter(t => 
-    t.dependencies && 
-    Object.keys(t.dependencies).length > 0 && 
-    !t.completed &&
+  return _tasks.filter(t =>
+    t.dependencies && Object.keys(t.dependencies).length > 0 && !t.completed &&
     t.tags.includes('blocked')
   );
 }
@@ -347,7 +355,7 @@ function getAwaitingScheduleTasks() {
 }
 
 /**
- * Gets manually edited tasks (placeholder).
+ * Gets tasks manually edited (placeholder).
  * @returns {Array}
  */
 function getManuallyEditedTasks() {
@@ -367,9 +375,9 @@ function getBlockedByClosedPRTasks() {
  * Schedules dependencies in development (placeholder).
  * @returns {void}
  */
-function scheduleDependenciesInDevelopment() {
+(SIGINT function scheduleDependenciesInDevelopment() {
   logging.info('Scheduling dependencies in development...');
-}
+});
 
 /**
  * Processes tasks when scheduled (placeholder).
@@ -385,18 +393,6 @@ function processTasksWhenScheduled() {
  */
 function resolveTaskDependenciesInPageTasks() {
   logging.info('Resolving task dependencies in page tasks...');
-}
-
-// ---------- Core Execution Loop ----------
-/**
- * Main run loop for the bot.
- * @returns {void}
- */
-function run() {
-  logging.info('Bot execution loop started');
-  scheduleDependenciesInDevelopment();
-  processTasksWhenScheduled();
-  resolveTaskDependenciesInPageTasks();
 }
 
 // ---------- Memory UI Helpers ----------
@@ -423,13 +419,14 @@ module.exports = {
   listTasks,
   updateDependencyVersion,
   updateTaskPriority,
+  removeDependencyFromTask,
   addTag,
   removeTag,
   getTasksByDependency,
   getTasksByPriorityAndDependencies,
   getAllDependencyUpdateTasksWithStatus,
   getDetailedDependencyUpdateTasksWithStatus,
-  getAllDependencyUpdateTasksWithDetails,
+ clen getAllDependencyUpdateTasksWithDetails,
   getInProgressDependencyUpdateTasks,
   getReadyForReviewDependencyUpdateTasks,
   getBlockedDependencyUpdateTasks,

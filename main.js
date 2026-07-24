@@ -320,7 +320,10 @@ function getDetailedDependencyUpdateTasks() {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' : 'pending'
+            status: task.completed ? 'completed' :
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -333,7 +336,10 @@ function getDetailedDependencyUpdateTasks() {
         dependencies: dependencyDetails,
         priority: task.priority,
         tags: task.tags || [],
-        status: task.completed ? 'completed' : 'pending'
+        status: task.completed ? 'completed' :
+          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }
@@ -739,14 +745,6 @@ function getBlockedDependencyUpdateTasks() {
 }
 
 /**
- * Gets all dependency update tasks with their status and additional details.
- * @returns {Array} Array of dependency update tasks with detailed status
- */
-function getAllDependencyUpdateTasksWithDetails() {
-  return getDetailedDependencyUpdateTasks();
-}
-
-/**
  * Exports all defined functions
  */
 module.exports = {
@@ -776,12 +774,11 @@ module.exports = {
   getMemoryUsage,
   getAllDependencyUpdateTasksWithStatus,
   getDetailedDependencyUpdateTasks,
-  getDetailedDependencyUpdateTasksWithStatus,
+  getAllDependencyUpdateTasksWithDetails,
   logging,
   getInProgressDependencyUpdateTasks,
   getReadyForReviewDependencyUpdateTasks,
   getBlockedDependencyUpdateTasks,
-  getAllDependencyUpdateTasksWithDetails,
   getDependencyUpdateProgress,
   getDependencyUpdateTaskCounts,
   resolveDependencyConflicts,

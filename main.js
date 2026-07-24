@@ -30,5 +30,19 @@ function getPosthogJsDependencyUpdateProgress() {
 }
 
 // Add these new functions at the end of your main.js file.
+async function updateActionsLabeler() {
+  await createAsyncUpdateTask('update actions/labeler action to v5');
+  updateDependencyVersions('actions-labeler', 'v4', 'v5');
+}
+
+async function updateActionsSetupPython() {
+  await createAsyncUpdateTask('update actions/setup-python action to v5');
+  updateDependencyVersions('actions-setup-python', 'v4', 'v5');
+}
+
+async function createAllAwaitingSchedulePrs() {
+  await createAsyncUpdateTask('create all awaiting schedule PRs');
+  // Implementation would go here
+}
 
 module.exports = { /*...existing exports...*/ };

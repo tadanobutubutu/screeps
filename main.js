@@ -650,7 +650,7 @@ function getDetailedDependencyUpdateTasksWithStatus() {
  * @param {string} dependencyName
  * @returns {Array} Array of missing dependency tasks
  */
-function getTasksMissingDependency(dependencyName) {
+function getTasksMissingDependencyAndNotCompleted(dependencyName) {
   return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
 }
 
@@ -796,7 +796,8 @@ const logging = {
    * @param {string} message
    */
   info(message) {
-    },
+    console.log(`[INFO] ${message}`);
+  },
 
   /**
    * Logs a warning-level message.
@@ -819,7 +820,8 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    },
+    console.debug(`[DEBUG] ${message}`);
+  },
 
   /**
    * Formats a log entry with a timestamp.
@@ -841,8 +843,10 @@ const logging = {
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      } else {
-      }
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
   }
 };
 

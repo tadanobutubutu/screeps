@@ -224,7 +224,7 @@ function getTasksSortedByTitle() {
  * @returns {Array} Array of tasks sorted by creation date
  */
 function getTasksSortedByCreatedAt() {
-  return _tasks.slice().sort((a, b) => a.createdAt - b.createdAt);
+  return _tasks.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 }
 
 /**

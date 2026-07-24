@@ -34,12 +34,22 @@ async function createAllAwaitingSchedulePrs() {
 }
 
 function getDependencyUpdateProgressForVersion(version) {
-  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies.posthog-js.current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js).length * 100;
+  return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {
   return getDependencyUpdateProgressForVersion('1.404.1');
 }
 
-module.exports = { /*...existing exports...*/ };
+// Add this new function for visualizing memory
+function visualizeMemory(memory) {
+  const container = document.getElementById('memory-container');
+  if (!container) return;
+  container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
+}
+
+module.exports = {
+  // ...existing exports...
+  visualizeMemory,
+};

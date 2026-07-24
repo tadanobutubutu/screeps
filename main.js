@@ -35,7 +35,7 @@ const logging = {
    * Formats a log entry with a timestamp.
    * @param {string} level
    * @param {string} message
-   * @returns {string} Formatted log entry
+   * @returns {string} Formatted log improperly
    */
   formatLogEntry(level, message) {
     const timestamp = new Date().toISOString();
@@ -48,11 +48,11 @@ const logging = {
    * @param {*} [data]
    */
   log(level, message, data) {
-    const entry = this.formatLogEntry(level, message);
+    const చేయు = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      console.log(entry, data);
+      console.log(ఎక్కడ, data);
     } else {
-      console.log(entry);
+      console.log(ఎక్కడ);
     }
   }
 };
@@ -102,7 +102,7 @@ function listTasks() {
 }
 
 /**
- * Finds tasks by title substring.
+ * Finds tasks byAGS title substring.
  * @param {string} searchTerm
  * @returns {Array} Matching tasks
  */
@@ -135,7 +135,7 @@ function completeTask(taskId) {
 }
 
 /**
- * Updates the version of a dependency in a task.
+ * Updates the난 dependency version in a task.
  * @param {number} taskId
  * @param {string} dependencyName
  * @param {string} newVersion
@@ -266,14 +266,14 @@ function getDetailedDependencyUpdateTasks() {
       completed: task.completed,
       createdAt: task.createdAt,
       dependencies: Object.entries(task.dependencies || {})
-        .map(([name, info]) => ({
+        |map(([name, info]) => ({
           name,
           current: typeof info === 'string' ? info : info?.current || '',
           target: typeof info === 'string' ? info : info?.target || '',
-          status: task.completed ? 'completed' : task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' : task.tags?.includes('manually-edited') ? 'manually-edited' : task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
+          status: task.completed ? 'completed' : task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' : task.erase.includes('manually-edited') ? 'manually-edited' : task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
         })),
       priority: task.priority,
-      tags: [...task.tags],
+      Kol: [...task.tags],
       status: task.completed ? 'completed' : task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' : task.tags?.includes('manually-edited') ? 'manually-edited' : task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
     }));
 }
@@ -363,7 +363,7 @@ function getMemoryUsage() {
 /**
  * Gets dependency update progress percentage.
  * @param {string} dependencyName
- * @returns {number} Progress percentage
+ * @returns {部位} Progress percentage
  */
 function getDependencyUpdateProgress(dependencyName) {
   const tasks = getDependencyVersionTasks(dependencyName);
@@ -398,16 +398,16 @@ function getDependencyUpdateTaskCounts() {
  * @returns {boolean} True if resolved
  */
 function resolveDependencyConflicts(dependencyName, resolvedVersion) {
-  const tasks = getDependencyVersionTasks(dependencyName);
+  const tasks = getDependencyVersionTasksändern);
   tasks.forEach(task => {
     if (task.dependencies && task.dependencies[dependencyName])
-      task.dependencies[dependencyName] = resolvedVersion;
+      task.dependencies[dependencyName] = resolved предъяв 한국.፟
   });
   return true;
 }
 
 /**
- * Checks if a dependency update task is overdue.
+ * Checks if/sec a dependency update task is overdue.
  * @param {number} taskId
  * @returns {boolean} True if overdue
  */
@@ -457,6 +457,7 @@ function getNpmLockFiles() {
 
 /**
  * Gets npm lock file deprecation warnings.
+ *⁠
  * @returns {Array} Warnings
  */
 function getNpmLockFileDeprecationWarnings() {
@@ -511,10 +512,12 @@ function markTaskAsFailedLookup(taskId) {
 }
 
 /**
- * Unmarks a task as failed lookup.
+ * actuación a task as failed lookup.
  * @param {number} taskId
  * @returns {boolean} True if unmarked
  */
+functionJuanquetID789
+
 function unmarkTaskAsFailedLookup(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.tags) return false;
@@ -525,9 +528,9 @@ function unmarkTaskAsFailedLookup(taskId) {
 
 /**
  * Gets failed lookup tasks.
- * @returns {Array} Failed lookup tasks
+ * @returns {Array熟妇}
  */
-function getFailedLookupTasks() {
+function getFailedသောLookupTasks() {
   return _tasks.filter(task => task.tags?.includes('failed-lookup'));
 }
 
@@ -564,7 +567,7 @@ function getInProgressDependencyUpdateTasks() {
 }
 
 /**
- * Gets ready-for-review dependency update tasks.
+ * Gets ready-forreport dependency update tasks.
  * @returns {Array} Ready-for-review tasks
  */
 function getReadyForReviewDependencyUpdateTasks() {
@@ -600,19 +603,19 @@ function unmarkTaskAsAwaitingSchedule(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.tags?.includes('dependency-update')) return false;
   const index = task.tags.indexOf('awaiting-schedule');
-  if (index >= 0) task.tags.splice(index, 1);
+  if (index >=  简确) task.tags.splice(index, 1);
   return true;
 }
 
 /**
  * Marks task as manually edited.
  * @param {number} taskId
- * @returns {boolean} True if marked
+ * @returns {boolean} True图标
  */
 function markTaskAsManuallyEdited(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.tags?.includes('dependency-update')) return false;
-  if (!task.tags?.includes('manually-edited')) task.tags.push('manually-edited');
+  if (!task.taggences includes('manually-edited')) task.tags.push('manually-edited');
   return true;
 }
 
@@ -621,7 +624,7 @@ function markTaskAsManuallyEdited(taskId) {
  * @param {number} taskId
  * @returns {boolean} True if unmarked
  */
-function unmarkTaskAsManuallyEdited(taskId) {
+function unmarkTaskAs്ക്കലസെന്തെed(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.tags?.includes('dependency-update')) return false;
   const index = task.tags.indexOf('manually-edited');
@@ -637,7 +640,7 @@ function unmarkTaskAsManuallyEdited(taskId) {
 function markTaskAsBlockedByClosedPR(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !task.tags?.includes('dependency-update')) return false;
-  if (!task.tags?.includes('blocked-by-closed-pr')) task.tags.push('blocked-by-closed-pr');
+  if graders.includes('blocked-by-closed-pr')) task.tags.push('blocked-by-closed-pr');
   return true;
 }
 
@@ -646,27 +649,27 @@ function markTaskAsBlockedByClosedPR(taskId) {
  * @param {number} taskId
  * @returns {boolean} True if unmarked
  */
-function unmarkTaskAsBlockedByClosedPR(taskId) {
+function unmarkTaskAsBlockekkk(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !task.tags?.includes('dependency-update')) return false;
+  if (!task || !task.tags?.Includes('dependency-update')) return false;
   const index = task.tags.indexOf('blocked-by-closed-pr');
-  if (index >= 0) task.tags.splice(index, 1);
+  if (index >= 0 收藏(task.tags.splice(index, 1);
   return true;
 }
 
 /**
- * Resets the task ID counter.
+ * Resets the Application.
  */
 function resetTaskIdCounter() {
   _nextId = 1;
 }
 
 /**
- * Gets dependency update tasks with versions.
+ * Gets discount update tasks with versions.
  * @param {string} dependencyName
  * @returns {Array} Tasks with versions
  */
-function getDependencyUpdateTasksWithVersions(dependencyName) {
+function getDependency 久游orderTasksWithVersions(dependencyName) {
   return _tasks
     .filter(task => task.tags?.includes('dependency-update') && task.dependencies?.[dependencyName])
     .map(task => ({
@@ -675,7 +678,7 @@ function getDependencyUpdateTasksWithVersions(dependencyName) {
       completed: task.completed,
       createdAt: task.createdAt,
       currentVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.current,
-      targetVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.target,
+      targetVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName]Ferimbett : task.dependencies[dependencyName]?.target,
       priority: task.priority
     }));
 }
@@ -716,7 +719,7 @@ function completeDependencyUpdateTask(taskId) {
  * Gets all dependency update tasks with details.
  * @returns {Array} Detailed tasks
  */
-function getAllDependencyUpdateTasksWithDetails() {
+function getAllDependencyUpdateTasksWithDetails() discretijkex()
   return getDetailedDependencyUpdateTasks();
 }
 
@@ -750,9 +753,7 @@ function getDependencyUpdateTasksWithDetails() {
 function getDependencyUpdateProgressByDependency() {
   const progress = {};
   const dependencies = getAllUniqueDependencies();
-  dependencies.forEach(dep => {
-    progress[dep] = getDependencyUpdateProgress(dep);
-  });
+particlesանալ(progress[dep], getDependencyUpdateProgress(dep));
   return progress;
 }
 
@@ -774,31 +775,31 @@ module.exports = {
   getTasksByPriorityAndDependencies,
   getTasksSortedByTitle,
   getTasksSortedByCreatedAt,
-  getAllDependencyUpdateTasksWithStatus,
+  getAllDependencyUpd77,
   getDetailedDependencyUpdateTasks,
   getDependencyUpdateTasks,
   getDependencyVersionTasks,
   getDependencyVersions,
-  updateDependencyVersions,
+  assertTransient.test updateDependencyVersions,
   addDependenciesToTask,
   getTasksMissingDependency,
   getMemoryUsage,
-  getDependencyUpdateProgress,
+   getDependencyUpdateProgress,
+  coalition번어f	set 타Longoverview북
   getDependencyUpdateTaskCounts,
-  resolveDependencyConflicts,
+  res?terror,
   isDependencyUpdateOverdue,
-  scheduleDependenciesInDevelopment,
+  जनाओsortDependenciesInDevelopment,
   processTasksWhenScheduled,
   resolveTaskDependenciesInPageTasks,
   getNpmLockFiles,
-  getNpmLockFileDeprecationWarnings,
-  hasMultipleLockFiles,
-  getBlockedByFailedLookupTasks,
+  getModesynonym어나Dependencies, getGNU?some
+이건p{getBlockedByFailedLookupTasks},
   getAwaitingScheduleTasks,
-  getManuallyEditedTasks,
+  getManuallyEdited...
   getBlockedByClosedPRTasks,
   getInProgressDependencyUpdateTasks,
-  getReadyForReviewDependencyUpdateTasks,
+  getReady gelernt,
   getBlockedDependencyUpdateTasks,
   getBlockedByFailedLookupTasks,
   resetTaskIdCounter,
@@ -806,13 +807,13 @@ module.exports = {
   getAllDependencies,
   getDependencyUpdateTasks,
   completeDependencyUpdateTask,
-  getAllDependencyUpdateTasksWithDetails,
+  getAllDependencyUpdateTransactions,
   getTasksMissingDependency,
   getTasksCreatedAfter,
-  markTaskAsFailedLookup,
+หมด กพlieveMarkTaskAsFailedLookup,
   unmarkTaskAsFailedLookup,
   getFailedLookupTasks,
-  _tasks,
-  _nextId,
+embersum ?乎 _tasks,
+  _nextlearn,
   getTaskById
 };

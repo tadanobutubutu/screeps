@@ -1,174 +1,488 @@
 // main.js - Dependency Management System
 
-const tasks = new Map();
-const dependencies = new Map();
+const logging = { info(message) { console.log(`[INFO] ${message}`); }, warn(message) { console.warn(`[WARN] ${message}`); }, error(message) { console.error(`[ERROR] ${message}`); }, debug(message) { console.log(`[DEBUG] ${message}`); }, formatLogEntry(level, message) { const timestamp = new Date().toISOString(); return `${timestamp} [${level.toUpperCase()}] ${message}`; }, log(level, message, data) { const entry = this.formatLogEntry(level, message); if (data !== undefined) console.log(entry, data); else console.log(entry); } };
 
-/**
- * Adds a new task to the management system
- * @param {string} taskId - Unique identifier for the task
- * @param {Object} taskData - Task configuration object
- * @returns {Object} - The added task object
- */
-function addTask(taskId, taskData = {}) {
-  if (!taskId || typeof taskId !== 'string') {
-    console.error('Invalid task ID provided');
-    return null;
-  }
+let _tasks = [];
+let _state = { nextId: 1 };
 
-  if (tasks.has(taskId)) {
-    console.warn(`Task ${taskId} already exists`);
-    return tasks.get(taskId);
-  }
-
-  const task = {
-    id: taskId,
-    data: taskData,
-    dependencies: taskData.dependencies || {}, // Added dependencies as empty object
-    priority: taskData.priority || 'normal',
-    status: 'pending',
-    createdAt: new Date().toISOString()
-  };
-
-  tasks.set(taskId, task);
-  
-  // Also register in dependencies map if provided
-  if (taskData.dependencies && Object.keys(taskData.dependencies).length > 0) {
-    dependencies.set(taskId, taskData.dependencies);
-  }
-
-  console.log(`Task ${taskId} added successfully`);
-  return task;
+// Tag operations
+function addTag(taskId, tag) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	if (!task.tags.includes(tag)) task.tags.push(tag);
+	return true;
 }
 
-/**
- * Updates task priority - legacy function name
- * @param {string} taskId - Task identifier
- * @param {string} priority - New priority level
- * @returns {boolean} - Success status
- */
-function updateTaskPriority(taskId, priority) {
-  return updateDependencyVersions(taskId, { priority });
+function removeTag(taskId, tag) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	const idx = task.tags.indexOf(tag);
+	if (idx !== -1) {
+		task.tags.splice(idx, 1);
+		return true;
+	}
+	return false;
 }
 
-/**
- * Updates dependency versions for a task
- * @param {string} taskId - Task identifier
- * @param {Object} updates - Object containing updates (priority, dependencies, etc.)
- * @returns {boolean} - Success status
- */
-function updateDependencyVersions(taskId, updates = {}) {
-  if (!taskId || !tasks.has(taskId)) {
-    console.error(`Task ${taskId} not found`);
-    return false;
-  }
-
-  const task = tasks.get(taskId);
-
-  // Update priority if provided
-  if (updates.priority) {
-    task.priority = updates.priority;
-    console.log(`Updated priority for ${taskId} to ${updates.priority}`);
-  }
-
-  // Update dependencies if provided
-  if (updates.dependencies) {
-    task.dependencies = { ...task.dependencies, ...updates.dependencies };
-    dependencies.set(taskId, task.dependencies);
-    console.log(`Updated dependencies for ${taskId}`);
-  }
-
-  // Update other task data
-  if (updates.data) {
-    task.data = { ...task.data, ...updates.data };
-  }
-
-  task.updatedAt = new Date().toISOString();
-  return true;
+// ---------- Task CRUD ----------
+function addTask(title, priority = 'medium', tags = []) {
+	const task = {
+		id: _state.nextId++,
+		title: title,
+		completed: false,
+		createdAt: Date.now(),
+		tags: [...tags],
+		pending: false,
+		priority: priority,
+		dependencies: {}
+	};
+	_tasks.push(task);
+	return task.id;
 }
 
-/**
- * Gets a task by ID
- * @param {string} taskId - Task identifier
- * @returns {Object|null} - Task object or null if not found
- */
-function getTask(taskId) {
-  return tasks.get(taskId) || null;
+function completeTask(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (task) {
+		task.completed = true;
+		return true;
+	}
+	return false;
 }
 
-/**
- * Gets all tasks
- * @returns {Array} - Array of all task objects
- */
-function getAllTasks() {
-  return Array.from(tasks.values());
-}
-
-/**
- * Removes a task
- * @param {string} taskId - Task identifier
- * @returns {boolean} - Success status
- */
 function removeTask(taskId) {
-  if (!tasks.has(taskId)) {
-    console.warn(`Task ${taskId} not found`);
-    return false;
-  }
-
-  tasks.delete(taskId);
-  dependencies.delete(taskId);
-  console.log(`Task ${taskId} removed`);
-  return true;
+	const index = _tasks.findIndex(t => t.id === taskId);
+	if (index !== -1) _tasks.splice(index, 1);
+	return true;
 }
 
-/**
- * Gets dependencies for a task
- * @param {string} taskId - Task identifier
- * @returns {Object} - Dependencies object or empty object
- */
-function getTaskDependencies(taskId) {
-  return dependencies.get(taskId) || {};
+function findTasks(searchTerm) {
+	return _tasks.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
 }
 
-/**
- * Updates the status of a task
- * @param {string} taskId - Task identifier
- * @param {string} status - New status
- * @returns {boolean} - Success status
- */
-function updateTaskStatus(taskId, status) {
-  if (!taskId || !tasks.has(taskId)) {
-    console.error(`Task ${taskId} not found`);
-    return false;
-  }
-
-  const task = tasks.get(taskId);
-  task.status = status;
-  task.updatedAt = new Date().toISOString();
-  console.log(`Task ${taskId} status updated to ${status}`);
-  return true;
+function getTaskById(taskId) {
+	return _tasks.find(t => t.id === taskId) || null;
 }
 
-/**
- * Clears all tasks and dependencies
- */
-function clearAll() {
-  tasks.clear();
-  dependencies.clear();
-  console.log('All tasks and dependencies cleared');
+function listTasks() {
+	return _tasks.slice();
 }
 
-// Export all functions and objects
+// Dependency management
+function updateDependencyVersion(taskId, dependencyName, newVersion) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	if (!task.dependencies) task.dependencies = {};
+	task.dependencies[dependencyName] = newVersion;
+	return true;
+}
+
+function updateTaskPriority(taskId, newPriority) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	task.priority = newPriority;
+	return true;
+}
+
+function removeTaskDependency(taskId, dependencyName) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.dependencies || !task.dependencies[dependencyName]) return false;
+	delete task.dependencies[dependencyName];
+	return true;
+}
+
+// Updates all dependencies for a specific task (from origin/main, renamed to avoid conflict with updateDependencyVersions)
+function updateTaskDependencies(taskId, dependencies = {}) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	task.dependencies = { ...task.dependencies, ...dependencies };
+	return true;
+}
+
+// Updates a specific dependency across ALL tasks (HEAD version)
+function updateDependencyVersions(dependencyName, currentVersion, targetVersion) {
+	_tasks.forEach(task => {
+		if (task.dependencies && task.dependencies[dependencyName])
+			task.dependencies[dependencyName] = { current: currentVersion, target: targetVersion };
+	});
+}
+
+function addDependenciesToTask(taskId, dependencies) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	task.dependencies = { ...task.dependencies, ...dependencies };
+	return true;
+}
+
+function getTasksByDependency(dependencyName) {
+	return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
+}
+
+function getTasksByPriority(priority) {
+	return _tasks.filter(task => task.priority === priority);
+}
+
+function getTasksByPriorityAndDependencies(priority, dependencyName) {
+	return _tasks.filter(task => task.priority === priority && (!dependencyName || getTasksByDependency(dependencyName).includes(task)));
+}
+
+function getTasksSortedByTitle() {
+	return [..._tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function getTasksSortedByCreatedAt() {
+	return [..._tasks].sort((a, b) => a.createdAt - b.createdAt);
+}
+
+function getAllDependencyUpdateTasksWithStatus() {
+	return _tasks.filter(task => task.tags?.includes('dependency-update'));
+}
+
+function getDetailedDependencyUpdateTasks() {
+	return _tasks.filter(task => task.tags?.includes('dependency-update'))
+		.map(task => ({
+			id: task.id,
+			title: task.title,
+			completed: task.completed,
+			createdAt: task.createdAt,
+			dependencies: Object.entries(task.dependencies || {})
+				.map(([name, info]) => ({
+					name,
+					current: typeof info === 'string' ? info : info?.current || '',
+					target: typeof info === 'string' ? info : info?.target || '',
+					status: task.completed ? 'completed' :
+							task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+							task.tags?.includes('manually-edited') ? 'manually-edited' :
+							task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
+				})),
+			priority: task.priority,
+			tags: [...task.tags],
+			status: task.completed ? 'completed' :
+					task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+					task.tags?.includes('manually-edited') ? 'manually-edited' :
+					task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending'
+		}));
+}
+
+function getDependencyUpdateTasks() {
+	return _tasks.filter(task => task.tags?.includes('dependency-update'));
+}
+
+function getDependencyVersionTasks(dependencyName) {
+	return _tasks.filter(task => task.dependencies?.[dependencyName] !== undefined);
+}
+
+function getDependencyVersions(dependencyName) {
+	const versions = new Set();
+	_tasks.forEach(task => {
+		if (task.dependencies && task.dependencies[dependencyName]) {
+			const dep = task.dependencies[dependencyName];
+			if (typeof dep === 'string') versions.add(dep);
+			else if (dep.current) versions.add(dep.current);
+			if (dep.target) versions.add(dep.target);
+		}
+	});
+	return Array.from(versions);
+}
+
+function getTasksMissingDependency(dependencyName) {
+	return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
+}
+
+function getMemoryUsage() {
+	return { taskCount: _tasks.length, nextId: _state.nextId, memory: typeof process !== 'undefined' ? process.memoryUsage() : {} };
+}
+
+function getAllDependencies() {
+	return getAllUniqueDependencies();
+}
+
+function getAllUniqueDependencies() {
+	const deps = new Set();
+	_tasks.forEach(task => {
+		if (task.dependencies) Object.keys(task.dependencies).forEach(dep => deps.add(dep));
+	});
+	return Array.from(deps);
+}
+
+function getDependencyUpdateProgress(dependencyName) {
+	const tasks = getDependencyVersionTasks(dependencyName);
+	if (tasks.length === 0) return 0;
+	return (tasks.filter(t => t.completed).length / tasks.length) * 100;
+}
+
+function getDependencyUpdateTaskCounts() {
+	const counts = { total: 0, completed: 0, pending: 0, overdue: 0, blocked: 0 };
+	const now = Date.now();
+	const overdueTime = 7 * 24 * 60 * 60 * 1000;
+	_tasks.forEach(task => {
+		if (task.tags?.includes('dependency-update')) {
+			counts.total++;
+			if (task.completed) counts.completed++;
+			else if ((now - task.createdAt) > overdueTime) counts.overdue++;
+			else if (task.tags.includes('blocked-by-closed-pr') || task.tags.includes('manually-edited')) counts.blocked++;
+			else counts.pending++;
+		}
+	});
+	return counts;
+}
+
+function resolveDependencyConflicts(dependencyName, resolvedVersion) {
+	const tasks = getDependencyVersionTasks(dependencyName);
+	tasks.forEach(task => {
+		if (task.dependencies && task.dependencies[dependencyName])
+			task.dependencies[dependencyName] = resolvedVersion;
+	});
+	return true;
+}
+
+function isDependencyUpdateOverdue(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || task.completed) return false;
+	const overdueTime = 7 * 24 * 60 * 60 * 1000;
+	return (Date.now() - task.createdAt) > overdueTime;
+}
+
+function scheduleDependenciesInDevelopment() {
+	logging.info('Dependencies scheduled for development...');
+}
+
+function processTasksWhenScheduled() {
+	logging.info('Processing tasks...');
+}
+
+function resolveTaskDependenciesInPageTasks() {
+	logging.info('Resolving dependencies...');
+}
+
+function getNpmLockFiles() {
+	const files = [];
+	_tasks.forEach(task => {
+		if (task.dependencies) Object.keys(task.dependencies).forEach(dep => {
+			const depData = task.dependencies[dep];
+			if (depData && depData.lockFile) files.push(depData.lockFile);
+		});
+	});
+	return [...new Set(files)];
+}
+
+function getNpmLockFileDeprecationWarnings() {
+	return getNpmLockFiles().length > 1 ? ['WARN: Multiple lock files detected'] : [];
+}
+
+function hasMultipleLockFiles(dependencyName) {
+	const tasks = getDependencyVersionTasks(dependencyName);
+	const locks = new Set();
+	tasks.forEach(task => {
+		if (task.dependencies && task.dependencies[dependencyName]) {
+			const dep = task.dependencies[dependencyName];
+			if (dep && dep.lockFile) locks.add(dep.lockFile);
+		}
+	});
+	return locks.size > 1;
+}
+
+function getBlockedByFailedLookupTasks() {
+	return _tasks.filter(task => task.tags?.includes('blocked-by-failed-lookup'));
+}
+
+function getTasksCreatedAfter(timestamp) {
+	return _tasks.filter(task => task.createdAt > timestamp);
+}
+
+function markTaskAsFailedLookup(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task) return false;
+	if (!task.tags) task.tags = [];
+	if (!task.tags.includes('failed-lookup')) task.tags.push('failed-lookup');
+	return true;
+}
+
+function unmarkTaskAsFailedLookup(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags) return false;
+	const index = task.tags.indexOf('failed-lookup');
+	if (index !== -1) task.tags.splice(index, 1);
+	return true;
+}
+
+function getFailedLookupTasks() {
+	return _tasks.filter(task => task.tags?.includes('failed-lookup'));
+}
+
+function completeDependencyUpdateTask(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	task.completed = true;
+	return true;
+}
+
+function getAllDependencyUpdateTasksWithDetails() {
+	return _tasks.filter(task => task.tags?.includes('dependency-update'))
+		.map(task => ({
+			id: task.id,
+			title: task.title,
+			completed: task.completed,
+			createdAt: task.createdAt,
+			dependencies: Object.entries(task.dependencies || {})
+				.map(([name, info]) => ({
+					name,
+					current: typeof info === 'string' ? info : info?.current || '',
+					target: typeof info === 'string' ? info : info?.target || ''
+				})),
+			priority: task.priority,
+			tags: [...task.tags],
+			status: task.completed ? 'completed' :
+					task.tags?.includes('awaiting-schedule') ? 'awaiting-schedule' :
+					task.tags?.includes('manually-edited') ? 'manually-edited' :
+					task.tags?.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' :
+					'pending'
+		}));
+}
+
+function getAwaitingScheduleTasks() {
+	return getDependencyUpdateTasks().filter(task => task.tags?.includes('awaiting-schedule'));
+}
+
+function getManuallyEditedTasks() {
+	return getDependencyUpdateTasks().filter(task => task.tags?.includes('manually-edited'));
+}
+
+function getBlockedByClosedPRTasks() {
+	return getDependencyUpdateTasks().filter(task => task.tags?.includes('blocked-by-closed-pr'));
+}
+
+function getInProgressDependencyUpdateTasks() {
+	return _tasks.filter(task => task.dependencies && Object.keys(task.dependencies).length > 0 && !task.completed && task.tags?.includes('in-progress'));
+}
+
+function getReadyForReviewDependencyUpdateTasks() {
+	return _tasks.filter(task => task.dependencies && Object.keys(task.dependencies).length > 0 && !task.completed && task.tags?.includes('ready-for-review'));
+}
+
+function getBlockedDependencyUpdateTasks() {
+	return _tasks.filter(task => task.dependencies && Object.keys(task.dependencies).length > 0 && !task.completed && task.tags?.includes('blocked'));
+}
+
+function markTaskAsAwaitingSchedule(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	if (!task.tags?.includes('awaiting-schedule')) task.tags.push('awaiting-schedule');
+	return true;
+}
+
+function markTaskAsManuallyEdited(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	if (!task.tags?.includes('manually-edited')) task.tags.push('manually-edited');
+	return true;
+}
+
+function markTaskAsBlockedByClosedPR(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	if (!task.tags?.includes('blocked-by-closed-pr')) task.tags.push('blocked-by-closed-pr');
+	return true;
+}
+
+function unmarkTaskAsAwaitingSchedule(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	const index = task.tags.indexOf('awaiting-schedule');
+	if (index >= 0) task.tags.splice(index, 1);
+	return true;
+}
+
+function unmarkTaskAsManuallyEdited(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	const index = task.tags.indexOf('manually-edited');
+	if (index >= 0) task.tags.splice(index, 1);
+	return true;
+}
+
+function unmarkTaskAsBlockedByClosedPR(taskId) {
+	const task = _tasks.find(t => t.id === taskId);
+	if (!task || !task.tags?.includes('dependency-update')) return false;
+	const index = task.tags.indexOf('blocked-by-closed-pr');
+	if (index >= 0) task.tags.splice(index, 1);
+	return true;
+}
+
+function resetTaskIdCounter() {
+	_state.nextId = 1;
+}
+
+function getDependencyUpdateTasksWithVersions(dependencyName) {
+	return _tasks
+		.filter(task => task.tags?.includes('dependency-update') && task.dependencies?.[dependencyName])
+		.map(task => ({
+			id: task.id,
+			title: task.title,
+			completed: task.completed,
+			createdAt: task.createdAt,
+			currentVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.current,
+			targetVersion: typeof task.dependencies[dependencyName] === 'string' ? task.dependencies[dependencyName] : task.dependencies[dependencyName]?.target,
+			priority: task.priority
+		}));
+}
+
 module.exports = {
-  addTask,
-  updateTaskPriority,
-  updateDependencyVersions,
-  getTask,
-  getAllTasks,
-  removeTask,
-  getTaskDependencies,
-  updateTaskStatus,
-  updateTask: updateDependencyVersions, // Alias for backward compatibility
-  clearAll,
-  tasks,
-  dependencies
+	logging,
+	addTask,
+	completeTask,
+	removeTask,
+	findTasks,
+	getTaskById,
+	listTasks,
+	updateDependencyVersion,
+	updateTaskPriority,
+	removeTaskDependency,
+	addTag,
+	removeTag,
+	getTasksByDependency,
+	getTasksByPriority,
+	getTasksByPriorityAndDependencies,
+	getTasksSortedByTitle,
+	getTasksSortedByCreatedAt,
+	getAllDependencyUpdateTasksWithStatus,
+	getDetailedDependencyUpdateTasks,
+	getDependencyUpdateTasks,
+	getDependencyVersionTasks,
+	getDependencyVersions,
+	updateDependencyVersions,
+	updateTaskDependencies,
+	addDependenciesToTask,
+	getTasksMissingDependency,
+	getMemoryUsage,
+	getDependencyUpdateProgress,
+	getDependencyUpdateTaskCounts,
+	resolveDependencyConflicts,
+	isDependencyUpdateOverdue,
+	scheduleDependenciesInDevelopment,
+	processTasksWhenScheduled,
+	resolveTaskDependenciesInPageTasks,
+	getNpmLockFiles,
+	getNpmLockFileDeprecationWarnings,
+	hasMultipleLockFiles,
+	getBlockedByFailedLookupTasks,
+	getAwaitingScheduleTasks,
+	getManuallyEditedTasks,
+	getBlockedByClosedPRTasks,
+	getInProgressDependencyUpdateTasks,
+	getReadyForReviewDependencyUpdateTasks,
+	getBlockedDependencyUpdateTasks,
+	resetTaskIdCounter,
+	getDependencyUpdateTasksWithVersions,
+	getAllDependencies,
+	getDependencyUpdateTasks,
+	completeDependencyUpdateTask,
+	getAllDependencyUpdateTasksWithDetails,
+	getTasksMissingDependency,
+	getTasksCreatedAfter,
+	markTaskAsFailedLookup,
+	unmarkTaskAsFailedLookup,
+	getFailedLookupTasks,
+	_tasks,
+	_state,
+	getTaskById
 };

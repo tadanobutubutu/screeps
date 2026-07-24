@@ -1,6 +1,8 @@
+const taskId = addTask(title, priority, tags);
+
 const logging = { /*...existing code...*/ };
 
-function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
+function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
   return new Promise((resolve, reject) => {
     const taskId = addTask(title, priority, tags);
     logging.log('info', `Created task: ${title}`);
@@ -35,7 +37,7 @@ async function createAllAwaitingSchedulePrs() {
 
 function getDependencyUpdateProgressForVersion(version) {
   return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
+    reduce((prev, current) => prev + (current.completed? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {
@@ -51,6 +53,6 @@ function visualizeMemory(memory) {
 }
 
 module.exports = {
-  // ...existing exports...
+  //...existing exports...
   visualizeMemory,
 };

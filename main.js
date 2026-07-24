@@ -324,8 +324,8 @@ function getDetailedDependencyUpdateTasks() {
             target: info.target,
             status: task.completed ? 'completed' :
               (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-               task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-               task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')
+              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -338,7 +338,10 @@ function getDetailedDependencyUpdateTasks() {
         dependencies: dependencyDetails,
         priority: task.priority,
         tags: task.tags || [],
-        status: task.completed ? 'completed' : 'pending'
+        status: task.completed ? 'completed' :
+          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }
@@ -610,7 +613,10 @@ function getAllDependencyUpdateTasksWithStatus() {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' : 'pending'
+            status: task.completed ? 'completed' :
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -623,7 +629,10 @@ function getAllDependencyUpdateTasksWithStatus() {
         dependencies: dependencyDetails,
         priority: task.priority,
         tags: task.tags || [],
-        status: task.completed ? 'completed' : 'pending'
+        status: task.completed ? 'completed' :
+          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }

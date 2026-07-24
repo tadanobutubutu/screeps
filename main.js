@@ -19,13 +19,13 @@ async function updateActionsCheckout() {
 }
 
 async function updateActionsLabeler() {
-  await createAsyncUpdateTask('update actions/labeler action to v5');
-  updateDependencyVersions('actions-labeler', 'v4', 'v5');
+  await createAsyncUpdateTask('update actions/labeler action to v7');
+  updateDependencyVersions('actions-labeler', 'v6', 'v7');
 }
 
 async function updateActionsSetupPython() {
-  await createAsyncUpdateTask('update actions/setup-python action to v5');
-  updateDependencyVersions('actions-setup-python', 'v4', 'v5');
+  await createAsyncUpdateTask('update actions/setup-python action to v7');
+  updateDependencyVersions('actions-setup-python', 'v6', 'v7');
 }
 
 async function createAllAwaitingSchedulePrs() {

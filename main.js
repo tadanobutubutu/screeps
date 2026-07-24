@@ -77,7 +77,7 @@ function getAllDependencies() {
   _tasks.forEach(task => {
     if (task.dependencies) {
       Object.entries(task.dependencies).forEach(([name, info]) => {
-        var version = typeof info === 'string' ? info : info.target;
+        const version = typeof info === 'string' ? info : info.target;
         if (version && !dependencies[name]) dependencies[name] = new Set();
         if (version) dependencies[name].add(version);
       });
@@ -796,8 +796,7 @@ const logging = {
    * @param {string} message
    */
   info(message) {
-    console.log(`[INFO] ${message}`);
-  },
+    },
 
   /**
    * Logs a warning-level message.
@@ -820,8 +819,7 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    console.log(`[DEBUG] ${message}`);
-  },
+    },
 
   /**
    * Formats a log entry with a timestamp.
@@ -843,10 +841,8 @@ const logging = {
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      console.log(entry, data);
-    } else {
-      console.log(entry);
-    }
+      } else {
+      }
   }
 };
 

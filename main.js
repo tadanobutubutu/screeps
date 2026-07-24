@@ -1,7 +1,7 @@
-/*
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+/**
+ * User Safety: unsafe
+ * Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+ */
 
 const _tasks = [];
 const _state = { nextId: 1 };
@@ -77,7 +77,7 @@ function getAllDependencies() {
   _tasks.forEach(task => {
     if (task.dependencies) {
       Object.entries(task.dependencies).forEach(([name, info]) => {
-        let version = typeof info === 'string' ? info : info.target;
+        var version = typeof info === 'string' ? info : info.target;
         if (version && !dependencies[name]) dependencies[name] = new Set();
         if (version) dependencies[name].add(version);
       });
@@ -122,7 +122,7 @@ function getDependencyVersionTasks(dependencyName, version) {
   return _tasks.filter(task =>
     task.dependencies && task.dependencies[dependencyName] &&
     (task.dependencies[dependencyName] === version ||
-    (task.dependencies[dependencyName].target && task.dependencies[dependencyName].target === version))
+    (task.dependencies[dependencyName] && task.dependencies[dependencyName].target === version))
   );
 }
 
@@ -224,7 +224,7 @@ function getTasksSortedByTitle() {
  * @returns {Array} Array of tasks sorted by creation date
  */
 function getTasksSortedByCreatedAt() {
-  return _tasks.slice().sort((a, b) => a.createdAt - b.createdAt);
+  return _tasks.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 }
 
 /**
@@ -437,7 +437,10 @@ function getDetailedDependencyUpdateTasks() {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' : 'pending'
+            status: task.completed ? 'completed' :
+                    (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+                    (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+                    (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -449,7 +452,11 @@ function getDetailedDependencyUpdateTasks() {
         createdAt: task.createdAt,
         dependencies: dependencyDetails,
         priority: task.priority,
-        tags: task.tags || []
+        tags: task.tags || [],
+        status: task.completed ? 'completed' :
+                (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+                (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+                (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }
@@ -591,7 +598,7 @@ function getAwaitingScheduleTasks() {
   return _tasks.filter(task =>
     task.tags && task.tags.includes('dependency-update') &&
     !task.completed &&
-    task.tags && task.tags.includes('awaiting-schedule')
+    task.tags.includes('awaiting-schedule')
   );
 }
 
@@ -602,7 +609,7 @@ function getAwaitingScheduleTasks() {
 function getManuallyEditedTasks() {
   return _tasks.filter(task =>
     task.tags && task.tags.includes('dependency-update') &&
-    task.tags && task.tags.includes('manually-edited')
+    task.tags.includes('manually-edited')
   );
 }
 
@@ -613,7 +620,7 @@ function getManuallyEditedTasks() {
 function getBlockedByClosedPRTasks() {
   return _tasks.filter(task =>
     task.tags && task.tags.includes('dependency-update') &&
-    task.tags && task.tags.includes('blocked-by-closed-pr')
+    task.tags.includes('blocked-by-closed-pr')
   );
 }
 
@@ -625,7 +632,7 @@ function getBlockedByClosedPRTasks() {
 function markTaskAsAwaitingSchedule(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!(task.tags && task.tags.includes('awaiting-schedule'))) {
+  if (!task.tags.includes('awaiting-schedule')) {
     task.tags.push('awaiting-schedule');
   }
   return true;
@@ -639,7 +646,7 @@ function markTaskAsAwaitingSchedule(taskId) {
 function markTaskAsManuallyEdited(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!(task.tags && task.tags.includes('manually-edited'))) {
+  if (!task.tags.includes('manually-edited')) {
     task.tags.push('manually-edited');
   }
   return true;
@@ -653,7 +660,7 @@ function markTaskAsManuallyEdited(taskId) {
 function markTaskAsBlockedByClosedPR(taskId) {
   const task = _tasks.find(t => t.id === taskId);
   if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!(task.tags && task.tags.includes('blocked-by-closed-pr'))) {
+  if (!task.tags.includes('blocked-by-closed-pr')) {
     task.tags.push('blocked-by-closed-pr');
   }
   return true;
@@ -723,8 +730,8 @@ function getDetailedDependencyUpdateTasksWithStatus() {
             target: info.target,
             status: task.completed ? 'completed' :
                     (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-                    (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-                    (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+                     (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+                     (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -743,6 +750,14 @@ function getDetailedDependencyUpdateTasksWithStatus() {
                 (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
+}
+
+/**
+ * Gets a list of all dependency update tasks with their status and additional details.
+ * @returns {Array} Array of dependency update tasks with detailed status
+ */
+function getAllDependencyUpdateTasksWithDetails() {
+  return getDetailedDependencyUpdateTasksWithStatus();
 }
 
 // Export all defined functions
@@ -790,5 +805,6 @@ module.exports = {
   unmarkTaskAsAwaitingSchedule,
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
-  getDetailedDependencyUpdateTasksWithStatus
+  getDetailedDependencyUpdateTasksWithStatus,
+  getAllDependencyUpdateTasksWithDetails
 };

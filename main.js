@@ -742,6 +742,44 @@ function getDetailedDependencyUpdateTasksWithStatus() {
     });
 }
 
+/**
+ * Gets dependency update tasks that are in progress.
+ * @returns {Array} Array of tasks in progress
+ */
+function getInProgressDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    !task.tags?.includes('awaiting-schedule') &&
+    !task.tags?.includes('manually-edited') &&
+    !task.tags?.includes('blocked-by-closed-pr')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are ready for review.
+ * @returns {Array} Array of tasks ready for review
+ */
+function getReadyForReviewDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    task.tags?.includes('awaiting-schedule')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are blocked.
+ * @returns {Array} Array of blocked tasks
+ */
+function getBlockedDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
+  );
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -787,5 +825,8 @@ module.exports = {
   unmarkTaskAsAwaitingSchedule,
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
-  getDetailedDependencyUpdateTasksWithStatus
+  getDetailedDependencyUpdateTasksWithStatus,
+  getInProgressDependencyUpdateTasks,
+  getReadyForReviewDependencyUpdateTasks,
+  getBlockedDependencyUpdateTasks
 };

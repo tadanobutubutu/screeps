@@ -1,3 +1,5 @@
+// main.js - Dependency Management System
+
 const logging = { info(message) { console.log(`[INFO] ${message}`); }, warn(message) { console.warn(`[WARN] ${message}`); }, error(message) { console.error(`[ERROR] ${message}`); }, debug(message) { console.log(`[DEBUG] ${message}`); }, formatLogEntry(level, message) { const timestamp = new Date().toISOString(); return `${timestamp} [${level.toUpperCase()}] ${message}`; }, log(level, message, data) { const entry = this.formatLogEntry(level, message); if (data !== undefined) console.log(entry, data); else console.log(entry); } };
 
 let _tasks = [];
@@ -424,10 +426,6 @@ function getDependencyUpdateTasksWithVersions(dependencyName) {
 		}));
 }
 
-function getBlockedByFailedLookupTasks() {
-	return _tasks.filter(task => task.tags?.includes('blocked-by-failed-lookup'));
-}
-
 // New functions for dependency dashboard
 function getDependencyDashboardSummary() {
 	const allDependencies = getAllUniqueDependencies();
@@ -590,7 +588,6 @@ module.exports = {
 	getInProgressDependencyUpdateTasks,
 	getReadyForReviewDependencyUpdateTasks,
 	getBlockedDependencyUpdateTasks,
-	getBlockedByFailedLookupTasks,
 	resetTaskIdCounter,
 	getDependencyUpdateTasksWithVersions,
 	getAllDependencies,

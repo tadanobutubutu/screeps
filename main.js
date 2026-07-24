@@ -150,3 +150,34 @@ module.exports = {
   updateActionsSetupPython,
   createAllAwaitingSchedulePRs
 };
+
+// Test files would be added in the /tests directory
+// For example, a basic test file could be:
+/*
+// tests/task.test.js
+const {
+  addTask,
+  getTaskById,
+  createAsyncUpdateTask,
+  calculateDependencyUpdateProgress
+} = require('../main');
+
+describe('Task Management', () => {
+  test('addTask creates a task with a valid ID', () => {
+    const taskId = addTask('Test Task', 'high', ['test']);
+    expect(taskId).toBeGreaterThan(0);
+  });
+
+  test('getTaskById returns a task object', () => {
+    const task = getTaskById(123);
+    expect(task).toHaveProperty('id');
+    expect(task).toHaveProperty('tags');
+    expect(task).toHaveProperty('dependencies');
+  });
+
+  test('createAsyncUpdateTask resolves with a task ID', async () => {
+    const taskId = await createAsyncUpdateTask('Async Test Task');
+    expect(taskId).toBeGreaterThan(0);
+  });
+});
+*/

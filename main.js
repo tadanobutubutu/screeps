@@ -1,7 +1,7 @@
-/*
-User Safety: unsafe
-Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
-*/
+/**
+ * User Safety: unsafe
+ * Safety Categories: Needs Caution, Unauthorized Advice, Illegal Activity
+ */
 
 const _tasks = [];
 const _state = { nextId: 1 };

@@ -1,6 +1,8 @@
+const taskId = addTask(title, priority, tags);
+
 const logging = { /*...existing code...*/ };
 
-function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
+function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
   return new Promise((resolve, reject) => {
     const taskId = addTask(title, priority, tags);
     logging.log('info', `Created task: ${title}`);
@@ -10,7 +12,7 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
 
 async function updatePosthogJs() {
   await createAsyncUpdateTask('update posthog-js to v1.407.2');
-  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2').then(taskId => taskId)), 'posthog-js', '1.407.2');
+  updateDependencyVersion(await getTaskById(await createAsyncUpdateTask('update dependency posthog-js to v1.407.2')), 'posthog-js', '1.407.2');
 }
 
 async function updateActionsCheckout() {
@@ -35,7 +37,7 @@ async function createAllAwaitingSchedulePrs() {
 
 function getDependencyUpdateProgressForVersion(version) {
   return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
-    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
+    reduce((prev, current) => prev + (current.completed? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {
@@ -43,13 +45,65 @@ function getPosthogJsDependencyUpdateProgress() {
 }
 
 // Add this new function for visualizing memory
+// Fix rule in memory.visualizer.js
 function visualizeMemory(memory) {
   const container = document.getElementById('memory-container');
   if (!container) return;
   container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
 }
 
+// New functions to handle the dependency updates from the issue
+async function handlePosthogJsUpdate() {
+  try {
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+async function handleActionsCheckoutUpdate() {
+  try {
+    await updateActionsCheckout();
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+async function handleActionsLabelerUpdate() {
+  try {
+    await updateActionsLabeler();
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+async function handleActionsSetupPythonUpdate() {
+  try {
+    await updateActionsSetupPython();
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
+async function handleCreateAllAwaitingSchedulePrs() {
+  try {
+    await createAllAwaitingSchedulePrs();
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+}
+
 module.exports = {
-  // ...existing exports...
+  //...existing exports...
   visualizeMemory,
+  handlePosthogJsUpdate,
+  handleActionsCheckoutUpdate,
+  handleActionsLabelerUpdate,
+  handleActionsSetupPythonUpdate,
+  handleCreateAllAwaitingSchedulePrs
 };

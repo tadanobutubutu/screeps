@@ -1,84 +1,51 @@
 const logging = {
-  /**
-   * Logs an info-level message.
-   * @param {string} message
-   */
-  info(message) {
-    console.info(`[INFO] ${message}`);
-  },
-
-  /**
-   * Logs a warning-level message.
-   * @param {string} message
-   */
-  warn(message) {
-    console.warn(`[WARN] ${message}`);
-  },
-
-  /**
-   * Logs an error-level message.
-   * @param {string} message
-   */
-  error(message) {
-    console.error(`[ERROR] ${message}`);
-  },
-
-  /**
-   * Logs a debug-level message.
-   * @param {string} message
-   */
-  debug(message) {
-    console.debug(`[DEBUG] ${message}`);
-  },
-
-  /**
-   * Formats a log entry with a timestamp.
-   * @param {string} level
-   * @param {string} message
-   * @returns {string} Formatted log entry
-   */
-  formatLogEntry(level, message) {
-    const timestamp = new Date().toISOString();
-    return `${timestamp} [${level.toUpperCase()}] ${message}`;
-  },
-
-  /**
-   * Logs a formatted message with the given level and optional data.
-   * @param {string} level
-   * @param {string} message
-   * @param {*} [data]
-   * @returns {void}
-   */
-  log(level, message, data) {
-    const entry = this.formatLogEntry(level, message);
-    if (data !== undefined) {
-      console.log(entry, data);
-    } else {
-      console.log(entry);
+    info(message) {
+        console.info(`[INFO] ${message}`);
+    },
+    warn(message) {
+        console.warn(`[WARN] ${message}`);
+    },
+    error(message) {
+        console.error(`[ERROR] ${message}`);
+    },
+    debug(message) {
+        console.debug(`[DEBUG] ${message}`);
+    },
+    formatLogEntry(level, message) {
+        const timestamp = new Date().toISOString();
+        return `${timestamp} [${level.toUpperCase()}] ${message}`;
+    },
+    log(level, message, data) {
+        const entry = this.formatLogEntry(level, message);
+        if (data !== undefined) {
+            console.log(entry, data);
+        } else {
+            console.log(entry);
+        }
     }
-  }
 };
 
 const _tasks = [];
 let _nextId = 1;
 
 /**
- * Adds a new task.
+ * Adds a new task with an optional priority.
  * @param {string} title
- * @param {string} [priority]
- * @returns {number} the id of the created task.
+ * @param {string} [priority='medium']
+ * @returns {number} The ID of the created task.
  */
-function addTask(title, priority) {
-  const task = {
-    id: _nextId++,
-    title: title,
-    completed: false,
-    createdAt: Date.now(),
-    tags: [],
-    priority: priority || 'medium'
-  };
-  _tasks.push(task);
-  return task.id;
+function addTask(title, priority = 'medium') {
+    const task = {
+        id: _nextId++,
+        title: title,
+        completed: false,
+        createdAt: Date.now(),
+        tags: [],
+        priority: priority,
+        dependencies: {}
+    };
+    _tasks.push(task);
+    return task.id;
 }
 
 /**
@@ -86,7 +53,7 @@ function addTask(title, priority) {
  * @returns {void}
  */
 function resetTaskIdCounter() {
-  _nextId = 1;
+    _nextId = 1;
 }
 
 /**
@@ -94,7 +61,7 @@ function resetTaskIdCounter() {
  * @returns {Array} Sorted array of tasks
  */
 function getTasksSortedByTitle() {
-  return _tasks.slice().sort((a, b) => a.title.localeCompare(b.title));
+    return _tasks.slice().sort((a, b) => a.title.localeCompare(b.title));
 }
 
 /**
@@ -102,7 +69,7 @@ function getTasksSortedByTitle() {
  * @returns {Array} Sorted array of tasks
  */
 function getTasksSortedByCreatedAt() {
-  return _tasks.slice().sort((a, b) => a.createdAt - b.createdAt);
+    return _tasks.slice().sort((a, b) => a.createdAt - b.createdAt);
 }
 
 /**
@@ -111,7 +78,7 @@ function getTasksSortedByCreatedAt() {
  * @returns {Array} Array of tasks with the given priority
  */
 function getTasksByPriority(priority) {
-  return _tasks.filter(task => task.priority === priority);
+    return _tasks.filter(task => task.priority === priority);
 }
 
 /**
@@ -119,7 +86,7 @@ function getTasksByPriority(priority) {
  * @returns {Array} Array of all tasks
  */
 function listTasks() {
-  return _tasks.slice();
+    return _tasks.slice();
 }
 
 /**
@@ -128,12 +95,12 @@ function listTasks() {
  * @returns {boolean} True if the task was marked as completed
  */
 function completeTask(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (task) {
-    task.completed = true;
-    return true;
-  }
-  return false;
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = true;
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -142,12 +109,12 @@ function completeTask(taskId) {
  * @returns {boolean} True if the task was removed
  */
 function removeTask(taskId) {
-  const index = _tasks.findIndex(t => t.id === taskId);
-  if (index !== -1) {
-    _tasks.splice(index, 1);
-    return true;
-  }
-  return false;
+    const index = _tasks.findIndex(t => t.id === taskId);
+    if (index !== -1) {
+        _tasks.splice(index, 1);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -156,16 +123,16 @@ function removeTask(taskId) {
  * @returns {Array} Array of tasks matching the search term
  */
 function findTasks(searchTerm) {
-  return _tasks.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    return _tasks.filter(task => task.title.toLowerCase().includes(searchTerm.toLowerCase()));
 }
 
 /**
- * Gets a task by ID.
+ * Gets a task by its ID.
  * @param {number} taskId
- * @returns {Object} The task object
+ * @returns {Object|null} The task object or null if not found
  */
 function getTaskById(taskId) {
-  return _tasks.find(t => t.id === taskId);
+    return _tasks.find(t => t.id === taskId) || null;
 }
 
 /**
@@ -175,30 +142,36 @@ function getTaskById(taskId) {
  * @returns {boolean} True if the update was successful
  */
 function updateTaskPriority(taskId, newPriority) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (task === undefined || task === null) return false;
-  task.priority = newPriority;
-  return true;
-}
-
-/**
- * Gets tasks by priority and optional dependencies filter.
- * @param {string} priority
- * @param {string|number} [dependencies] - (Optional) Dependency name or version to filter tasks.
- * @returns {Array}
- */
-function getTasksByPriorityAndDependencies(priority, dependencies) {
-  return _tasks.filter(task => task.priority === priority &&
-    (!dependencies || task.dependencies && definitions[dependencies].map(version => task.dependencies[dependencies]).includes(version)));
+    const task = _tasks.find(t => t.id === taskId);
+    if (task) {
+        task.priority = newPriority;
+        return true;
+    }
+    return false;
 }
 
 /**
  * Gets tasks by dependency name.
  * @param {string} dependencyName
- * @returns {Array} Array of tasks that have the specified dependency
+ * @returns {Array} Array of tasks with the specified dependency
  */
 function getTasksByDependency(dependencyName) {
-  return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
+    return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
+}
+
+/**
+ * Updates a specific dependency's version for a task.
+ * @param {number} taskId
+ * @param {string} dependencyName
+ * @param {string} newVersion
+ * @returns {boolean} True if update successful
+ */
+function updateDependencyVersion(taskId, dependencyName, newVersion) {
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task) return false;
+    if (!task.dependencies) task.dependencies = {};
+    task.dependencies[dependencyName] = newVersion;
+    return true;
 }
 
 /**
@@ -209,17 +182,17 @@ function getTasksByDependency(dependencyName) {
  * @returns {number} The id of the created task
  */
 function addDependencyUpdateTask(title, dependencies, priority) {
-  const task = {
-    id: _nextId++,
-    title: title,
-    completed: false,
-    createdAt: Date.now(),
-    tags: ['dependency-update'],
-    priority: priority || 'medium',
-    dependencies: dependencies
-  };
-  _tasks.push(task);
-  return task.id;
+    const task = {
+        id: _nextId++,
+        title: title,
+        completed: false,
+        createdAt: Date.now(),
+        tags: ['dependency-update'],
+        priority: priority || 'medium',
+        dependencies: dependencies
+    };
+    _tasks.push(task);
+    return task.id;
 }
 
 /**
@@ -227,22 +200,22 @@ function addDependencyUpdateTask(title, dependencies, priority) {
  * @returns {Object} Map of dependency names to versions
  */
 function getAllDependencies() {
-  const allDeps = {};
-  _tasks.forEach(task => {
-    if (task.dependencies) {
-      Object.entries(task.dependencies).forEach(([name, version]) => {
-        if (!allDeps[name]) {
-          allDeps[name] = [];
+    const allDeps = {};
+    _tasks.forEach(task => {
+        if (task.dependencies) {
+            Object.entries(task.dependencies).forEach(([name, version]) => {
+                if (!allDeps[name]) {
+                    allDeps[name] = [];
+                }
+                if (typeof version === 'string') {
+                    allDeps[name].push(version);
+                } else if (version.current) {
+                    allDeps[name].push(version.current);
+                }
+            });
         }
-        if (typeof version === 'string') {
-          allDeps[name].push(version);
-        } else if (version.current) {
-          allDeps[name].push(version.current);
-        }
-      });
-    }
-  });
-  return allDeps;
+    });
+    return allDeps;
 }
 
 /**
@@ -250,7 +223,7 @@ function getAllDependencies() {
  * @returns {Array} Array of dependency update tasks
  */
 function getDependencyUpdateTasks() {
-  return _tasks.filter(task => task.tags && task.tags.includes('dependency-update'));
+    return _tasks.filter(task => task.tags && task.tags.includes('dependency-update'));
 }
 
 /**
@@ -259,7 +232,7 @@ function getDependencyUpdateTasks() {
  * @returns {boolean} True if successful
  */
 function completeDependencyUpdateTask(taskId) {
-  return completeTask(taskId);
+    return completeTask(taskId);
 }
 
 /**
@@ -268,7 +241,7 @@ function completeDependencyUpdateTask(taskId) {
  * @returns {Array} Array of tasks with the specified dependency
  */
 function getDependencyVersionTasks(dependencyName) {
-  return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
+    return _tasks.filter(task => task.dependencies && task.dependencies[dependencyName]);
 }
 
 /**
@@ -277,18 +250,18 @@ function getDependencyVersionTasks(dependencyName) {
  * @returns {Array} Array of version strings
  */
 function getDependencyVersions(dependencyName) {
-  const versions = [];
-  _tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      const version = task.dependencies[dependencyName];
-      if (typeof version === 'string') {
-        versions.push(version);
-      } else if (version.current) {
-        versions.push(version.current);
-      }
-    }
-  });
-  return [...new Set(versions)];
+    const versions = [];
+    _tasks.forEach(task => {
+        if (task.dependencies && task.dependencies[dependencyName]) {
+            const version = task.dependencies[dependencyName];
+            if (typeof version === 'string') {
+                versions.push(version);
+            } else if (version.current) {
+                versions.push(version.current);
+            }
+        }
+    });
+    return [...new Set(versions)];
 }
 
 /**
@@ -298,14 +271,14 @@ function getDependencyVersions(dependencyName) {
  * @returns {number} Number of tasks updated
  */
 function updateDependencyVersions(dependencyName, newVersion) {
-  let count = 0;
-  _tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      task.dependencies[dependencyName] = newVersion;
-      count++;
-    }
-  });
-  return count;
+    let count = 0;
+    _tasks.forEach(task => {
+        if (task.dependencies && task.dependencies[dependencyName]) {
+            task.dependencies[dependencyName] = newVersion;
+            count++;
+        }
+    });
+    return count;
 }
 
 /**
@@ -315,13 +288,13 @@ function updateDependencyVersions(dependencyName, newVersion) {
  * @returns {boolean} True if successful
  */
 function addDependenciesToTask(taskId, dependencies) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task) return false;
-  if (!task.dependencies) {
-    task.dependencies = {};
-  }
-  Object.assign(task.dependencies, dependencies);
-  return true;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task) return false;
+    if (!task.dependencies) {
+        task.dependencies = {};
+    }
+    Object.assign(task.dependencies, dependencies);
+    return true;
 }
 
 /**
@@ -331,13 +304,13 @@ function addDependenciesToTask(taskId, dependencies) {
  * @returns {boolean} True if successful
  */
 function removeDependencyFromTask(taskId, dependencyName) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !task.dependencies) return false;
-  if (task.dependencies[dependencyName]) {
-    delete task.dependencies[dependencyName];
-    return true;
-  }
-  return false;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task || !task.dependencies) return false;
+    if (task.dependencies[dependencyName]) {
+        delete task.dependencies[dependencyName];
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -346,7 +319,7 @@ function removeDependencyFromTask(taskId, dependencyName) {
  * @returns {Array} Array of tasks missing the dependency
  */
 function getTasksMissingDependency(dependencyName) {
-  return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]);
+    return _tasks.filter(task => !task.dependencies || !task.dependencies[dependencyName]);
 }
 
 /**
@@ -354,7 +327,7 @@ function getTasksMissingDependency(dependencyName) {
  * @returns {Object} Memory usage data
  */
 function getMemoryUsage() {
-  return process.memoryUsage ? process.memoryUsage() : {};
+    return process.memoryUsage() || {};
 }
 
 /**
@@ -362,40 +335,33 @@ function getMemoryUsage() {
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getAllDependencyUpdateTasksWithStatus() {
-  return _tasks
-    .filter(task => task.tags && task.tags.includes('dependency-update'))
-    .map(task => {
-      const dependencies = task.dependencies || {};
-      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
-        if (typeof info === 'string') {
-          return { name, current: info, target: info, status: 'current' };
-        } else {
-          return {
-            name,
-            current: info.current,
-            target: info.target,
-            status: task.completed ? 'completed' :
-              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-          };
-        }
-      });
-
-      return {
-        id: task.id,
-        title: task.title,
-        completed: task.completed,
-        createdAt: task.createdAt,
-        dependencies: dependencyDetails,
-        priority: task.priority,
-        tags: task.tags || [],
-        status: task.completed ? 'completed' :
-          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-      };
-    });
+    return _tasks
+        .filter(task => task.tags && task.tags.includes('dependency-update'))
+        .map(task => {
+            const dependencies = task.dependencies || {};
+            const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
+                if (typeof info === 'string') {
+                    return { name, current: info, target: info, status: 'current' };
+                } else {
+                    return {
+                        name,
+                        current: info.current,
+                        target: info.target,
+                        status: task.completed ? 'completed' : (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' : (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' : (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : (task.tags && task.tags.includes('failed-lookup') ? 'failed-lookup' : 'pending')))
+                    };
+                }
+            });
+            return {
+                id: task.id,
+                title: task.title,
+                completed: task.completed,
+                createdAt: task.createdAt,
+                dependencies: dependencyDetails,
+                priority: task.priority,
+                tags: task.tags || [],
+                status: task.completed ? 'completed' : (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' : (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' : (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : (task.tags && task.tags.includes('failed-lookup') ? 'failed-lookup' : 'pending')))
+            };
+        });
 }
 
 /**
@@ -403,7 +369,7 @@ function getAllDependencyUpdateTasksWithStatus() {
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getDetailedDependencyUpdateTasks() {
-  return getAllDependencyUpdateTasksWithStatus();
+    return getAllDependencyUpdateTasksWithStatus();
 }
 
 /**
@@ -411,7 +377,7 @@ function getDetailedDependencyUpdateTasks() {
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getAllDependencyUpdateTasksWithDetails() {
-  return getAllDependencyUpdateTasksWithStatus();
+    return getAllDependencyUpdateTasksWithStatus();
 }
 
 /**
@@ -419,13 +385,14 @@ function getAllDependencyUpdateTasksWithDetails() {
  * @returns {Array} Array of tasks in progress
  */
 function getInProgressDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    !task.tags?.includes('awaiting-schedule') &&
-    !task.tags?.includes('manually-edited') &&
-    !task.tags?.includes('blocked-by-closed-pr')
-  );
+    return _tasks.filter(task => 
+        task.tags?.includes('dependency-update') && 
+        !task.completed && 
+        !task.tags?.includes('awaiting-schedule') && 
+        !task.tags?.includes('manually-edited') && 
+        !task.tags?.includes('blocked-by-closed-pr') && 
+        !task.tags?.includes('failed-lookup')
+    );
 }
 
 /**
@@ -433,11 +400,11 @@ function getInProgressDependencyUpdateTasks() {
  * @returns {Array} Array of tasks ready for review
  */
 function getReadyForReviewDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    task.tags?.includes('awaiting-schedule')
-  );
+    return _tasks.filter(task => 
+        task.tags?.includes('dependency-update') && 
+        !task.completed && 
+        task.tags?.includes('awaiting-schedule')
+    );
 }
 
 /**
@@ -445,11 +412,11 @@ function getReadyForReviewDependencyUpdateTasks() {
  * @returns {Array} Array of blocked tasks
  */
 function getBlockedDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
-  );
+    return _tasks.filter(task => 
+        task.tags?.includes('dependency-update') && 
+        !task.completed && 
+        (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
+    );
 }
 
 /**
@@ -458,7 +425,7 @@ function getBlockedDependencyUpdateTasks() {
  * @returns {Array} Array of tasks created after the given timestamp
  */
 function getTasksCreatedAfter(timestamp) {
-  return _tasks.filter(task => (task.createdAt || 0) > timestamp);
+    return _tasks.filter(task => (task.createdAt || 0) > timestamp);
 }
 
 /**
@@ -466,18 +433,18 @@ function getTasksCreatedAfter(timestamp) {
  * @returns {Array} Array of npm lock file paths
  */
 function getNpmLockFiles() {
-  const lockFiles = [];
-  _tasks.forEach(task => {
-    if (task.dependencies) {
-      Object.keys(task.dependencies).forEach(depName => {
-        const dep = task.dependencies[depName];
-        if (dep && dep.lockFile) {
-          lockFiles.push(dep.lockFile);
+    const lockFiles = [];
+    _tasks.forEach(task => {
+        if (task.dependencies) {
+            Object.keys(task.dependencies).forEach(depName => {
+                const dep = task.dependencies[depName];
+                if (dep && dep.lockFile) {
+                    lockFiles.push(dep.lockFile);
+                }
+            });
         }
-      });
-    }
-  });
-  return [...new Set(lockFiles)];
+    });
+    return [...new Set(lockFiles)];
 }
 
 /**
@@ -485,14 +452,12 @@ function getNpmLockFiles() {
  * @returns {Array} Array of deprecation warning messages
  */
 function getNpmLockFileDeprecationWarnings() {
-  const warnings = [];
-  const lockFiles = getNpmLockFiles();
-
-  if (lockFiles.length > 1) {
-    warnings.push('WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.');
-  }
-
-  return warnings;
+    const warnings = [];
+    const lockFiles = getNpmLockFiles();
+    if (lockFiles.length > 1) {
+        warnings.push('WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.');
+    }
+    return warnings;
 }
 
 /**
@@ -501,19 +466,17 @@ function getNpmLockFileDeprecationWarnings() {
  * @returns {boolean} True if the update involves multiple lock files
  */
 function hasMultipleLockFiles(dependencyName) {
-  const tasks = getDependencyVersionTasks(dependencyName);
-  const lockFiles = new Set();
-
-  tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      const dep = task.dependencies[dependencyName];
-      if (dep && dep.lockFile) {
-        lockFiles.add(dep.lockFile);
-      }
-    }
-  });
-
-  return lockFiles.size > 1;
+    const tasks = getDependencyVersionTasks(dependencyName);
+    const lockFiles = new Set();
+    tasks.forEach(task => {
+        if (task.dependencies && task.dependencies[dependencyName]) {
+            const dep = task.dependencies[dependencyName];
+            if (dep && dep.lockFile) {
+                lockFiles.add(dep.lockFile);
+            }
+        }
+    });
+    return lockFiles.size > 1;
 }
 
 /**
@@ -521,10 +484,10 @@ function hasMultipleLockFiles(dependencyName) {
  * @returns {Array} Array of failed lookup tasks
  */
 function getFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
+    return _tasks.filter(task => 
+        task.tags?.includes('dependency-update') && 
+        task.tags?.includes('failed-lookup')
+    );
 }
 
 /**
@@ -533,12 +496,12 @@ function getFailedLookupTasks() {
  * @returns {boolean} True if successful
  */
 function markTaskAsFailedLookup(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('failed-lookup')) {
-    task.tags.push('failed-lookup');
-  }
-  return true;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+    if (!task.tags.includes('failed-lookup')) {
+        task.tags.push('failed-lookup');
+    }
+    return true;
 }
 
 /**
@@ -547,13 +510,13 @@ function markTaskAsFailedLookup(taskId) {
  * @returns {boolean} True if successful
  */
 function unmarkTaskAsFailedLookup(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('failed-lookup');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
+    const task = _tasks.find(t => t.id === taskId);
+    if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+    const index = task.tags.indexOf('failed-lookup');
+    if (index !== -1) {
+        task.tags.splice(index, 1);
+    }
+    return true;
 }
 
 /**
@@ -561,10 +524,10 @@ function unmarkTaskAsFailedLookup(taskId) {
  * @returns {Array} Array of tasks blocked by failed lookups
  */
 function getBlockedByFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
+    return _tasks.filter(task => 
+        task.tags?.includes('dependency-update') && 
+        task.tags?.includes('failed-lookup')
+    );
 }
 
 /**
@@ -580,15 +543,12 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
         logging.warn(`Task ${taskId} not found or has no dependencies`);
         return false;
     }
-
     if (!task.dependencies[dependencyName]) {
         logging.warn(`Dependency ${dependencyName} not found in task ${taskId}`);
         return false;
     }
-
     const oldVersion = task.dependencies[dependencyName];
     task.dependencies[dependencyName] = newVersion;
-
     logging.info(`Updated ${dependencyName} from ${oldVersion} to ${newVersion} in task ${taskId}`);
     return true;
 }
@@ -597,49 +557,49 @@ function updateDependencyVersion(taskId, dependencyName, newVersion) {
  * Main game loop placeholder for Screeps (does nothing in tests).
  */
 function run() {
-  // Main game loop implementation would go here
+    // Main game loop implementation would go here
 }
 
+// Exports
 module.exports = {
-  run,
-  addTask,
-  resetTaskIdCounter,
-  getTasksSortedByTitle,
-  getTasksSortedByCreatedAt,
-  getTasksByPriority,
-  listTasks,
-  completeTask,
-  removeTask,
-  findTasks,
-  getTaskById,
-  updateDependencyVersion,
-  getTasksByDependency,
-  addDependencyUpdateTask,
-  getAllDependencies,
-  getDependencyUpdateTasks,
-  completeDependencyUpdateTask,
-  getDependencyVersionTasks,
-  getDependencyVersions,
-  updateDependencyVersions,
-  addDependenciesToTask,
-  removeDependencyFromTask,
-  getTasksMissingDependency,
-  getMemoryUsage,
-  getAllDependencyUpdateTasksWithStatus,
-  getDetailedDependencyUpdateTasks,
-  getAllDependencyUpdateTasksWithDetails,
-  getInProgressDependencyUpdateTasks,
-  getReadyForReviewDependencyUpdateTasks,
-  getBlockedDependencyUpdateTasks,
-  getTasksCreatedAfter,
-  getNpmLockFiles,
-  getNpmLockFileDeprecationWarnings,
-  hasMultipleLockFiles,
-  getFailedLookupTasks,
-  markTaskAsFailedLookup,
-  unmarkTaskAsFailedLookup,
-  getBlockedByFailedLookupTasks,
-  updateTaskPriority,
-  getTasksByPriorityAndDependencies,
-  logging
+    logging,
+    addTask,
+    resetTaskIdCounter,
+    getTasksSortedByTitle,
+    getTasksSortedByCreatedAt,
+    getTasksByPriority,
+    listTasks,
+    completeTask,
+    removeTask,
+    findTasks,
+    getTaskById,
+    updateTaskPriority,
+    updateDependencyVersion,
+    getTasksByDependency,
+    addDependencyUpdateTask,
+    getAllDependencies,
+    getDependencyUpdateTasks,
+    completeDependencyUpdateTask,
+    getDependencyVersionTasks,
+    getDependencyVersions,
+    updateDependencyVersions,
+    addDependenciesToTask,
+    removeDependencyFromTask,
+    getTasksMissingDependency,
+    getMemoryUsage,
+    getAllDependencyUpdateTasksWithStatus,
+    getDetailedDependencyUpdateTasks,
+    getAllDependencyUpdateTasksWithDetails,
+    getInProgressDependencyUpdateTasks,
+    getReadyForReviewDependencyUpdateTasks,
+    getBlockedDependencyUpdateTasks,
+    getTasksCreatedAfter,
+    getNpmLockFiles,
+    getNpmLockFileDeprecationWarnings,
+    hasMultipleLockFiles,
+    getFailedLookupTasks,
+    markTaskAsFailedLookup,
+    unmarkTaskAsFailedLookup,
+    getBlockedByFailedLookupTasks,
+    run
 };

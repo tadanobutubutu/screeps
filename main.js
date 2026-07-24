@@ -1,31 +1,85 @@
+const logging = {
+  /**
+   * Logs an info-level message.
+   * @param {string} message
+   */
+  info(message) {
+    console.info(`[INFO] ${message}`);
+  },
+
+  /**
+   * Logs a warning-level message.
+   * @param {string} message
+   */
+  warn(message) {
+    console.warn(`[WARN] ${message}`);
+  },
+
+  /**
+   * Logs an error-level message.
+   * @param {string} message
+   */
+  error(message) {
+    console.error(`[ERROR] ${message}`);
+  },
+
+  /**
+   * Logs a debug-level message.
+   * @param {string} message
+   */
+  debug(message) {
+    console.debug(`[DEBUG] ${message}`);
+  },
+
+  /**
+   * Formats a log entry with a timestamp.
+   * @param {string} level
+   * @param {string} message
+   * @returns {string} Formatted log entry
+   */
+  formatLogEntry(level, message) {
+    const timestamp = new Date().toISOString();
+    return `${timestamp} [${level.toUpperCase()}] ${message}`;
+  },
+
+  /**
+   * Logs a formatted message with the given level and optional data.
+   * @param {string} level
+   * @param {string} message
+   * @param {*} [data]
+   * @returns {void}
+   */
+  log(level, message, data) {
+    const entry = this.formatLogEntry(level, message);
+    if (data !== undefined) {
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
+  }
+};
+
 const _tasks = [];
 let _nextId = 1;
 
 /**
- * ... (existing methods)
- */
-
-/**
  * Adds a new task.
  * @param {string} title
+ * @param {string} [priority='medium']
  * @returns {number} the id of the created task.
  */
-function addTask(title, priority) {
+function addTask(title, priority = 'medium') {
   const task = {
     id: _nextId++,
     title: title,
     completed: false,
     createdAt: Date.now(),
     tags: [],
-    priority: priority || 'medium'
+    priority: priority
   };
   _tasks.push(task);
   return task.id;
 }
-
-/**
- * ... (existing methods)
- */
 
 /**
  * Updates the priority of a specific task.
@@ -35,14 +89,10 @@ function addTask(title, priority) {
  */
 function updateTaskPriority(taskId, newPriority) {
   const task = _tasks.find(t => t.id === taskId);
-  if (task === undefined || task === null) return false;
+  if (!task) return false;
   task.priority = newPriority;
   return true;
 }
-
-/**
- * ... (existing methods)
- */
 
 /**
  * Gets tasks by priority.
@@ -52,11 +102,11 @@ function updateTaskPriority(taskId, newPriority) {
  */
 function getTasksByPriorityAndDependencies(priority, dependencies) {
   return _tasks.filter(task => task.priority === priority &&
-    (!dependencies || task.dependencies && definitions[dependencies].map(version => task.dependencies[dependencies]).includes(version)));
+    (!dependencies || task.dependencies && definitions[dependencies].map(version => task.dependencies[definitions[dependencies]]).includes(version)));
 }
 
 /**
- * ... (existing methods)
+ * ... (existing methods from the HEAD version, e.g., run, completeTask, etc.)
  */
 function listTasks() {
   return _tasks.slice();
@@ -323,446 +373,4 @@ function getBlockedByClosedPRTasks() {
  */
 function markTaskAsAwaitingSchedule(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('awaiting-schedule')) {
-    task.tags.push('awaiting-schedule');
-  }
-  return true;
-}
-
-/**
- * Marks a dependency update task as manually edited.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsManuallyEdited(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('manually-edited')) {
-    task.tags.push('manually-edited');
-  }
-  return true;
-}
-
-/**
- * Marks a dependency update task as blocked by closed PR.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsBlockedByClosedPR(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('blocked-by-closed-pr')) {
-    task.tags.push('blocked-by-closed-pr');
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as awaiting schedule.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsAwaitingSchedule(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('awaiting-schedule');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as manually edited.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsManuallyEdited(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('manually-edited');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as blocked by closed PR.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsBlockedByClosedPR(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('blocked-by-closed-pr');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Gets all dependency update tasks with their status and additional details.
- * @returns {Array} Array of dependency update tasks with detailed status
- */
-function getAllDependencyUpdateTasksWithStatus() {
-  return _tasks
-    .filter(task => task.tags && task.tags.includes('dependency-update'))
-    .map(task => {
-      const dependencies = task.dependencies || {};
-      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
-        if (typeof info === 'string') {
-          return { name, current: info, target: info, status: 'current' };
-        } else {
-          return {
-            name,
-            current: info.current,
-            target: info.target,
-            status: task.completed ? 'completed' :
-              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-          };
-        }
-      });
-
-      return {
-        id: task.id,
-        title: task.title,
-        completed: task.completed,
-        createdAt: task.createdAt,
-        dependencies: dependencyDetails,
-        priority: task.priority,
-        tags: task.tags || [],
-        status: task.completed ? 'completed' :
-          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-      };
-    });
-}
-
-/**
- * Gets all dependency update tasks with their status and additional details.
- * @returns {Array} Array of dependency update tasks with detailed status
- */
-function getDetailedDependencyUpdateTasksWithStatus() {
-  return getAllDependencyUpdateTasksWithStatus();
-}
-
-/**
- * Gets tasks missing a specific dependency and not yet completed.
- * @param {string} dependencyName
- * @returns {Array} Array of missing dependency tasks
- */
-function getTasksMissingDependencyAndNotCompleted(dependencyName) {
-  return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
-}
-
-/**
- * Gets the progress percentage of dependency updates.
- * @param {string} dependencyName
- * @returns {number} Progress percentage (0-100)
- */
-function getDependencyUpdateProgress(dependencyName) {
-  const tasks = getDependencyVersionTasks(dependencyName);
-  if (tasks.length === 0) return 0;
-  const completed = tasks.filter(t => t.completed).length;
-  return (completed / tasks.length) * 100;
-}
-
-/**
- * Gets dependency update task count by status.
- * @returns {Object} Status counts
- */
-function getDependencyUpdateTaskCounts() {
-  const counts = {
-    total: 0,
-    completed: 0,
-    pending: 0,
-    overdue: 0,
-    blocked: 0
-  };
-
-  const now = Date.now();
-  const overdueTime = 7 * 24 * 60 * 60 * 1000;
-
-  _tasks.forEach(task => {
-    if (task.tags && task.tags.includes('dependency-update')) {
-      counts.total++;
-      if (task.completed) {
-        counts.completed++;
-      } else if ((now - task.createdAt) > overdueTime) {
-        counts.overdue++;
-      } else if (task.tags.includes('blocked-by-closed-pr') || task.tags.includes('manually-edited')) {
-        counts.blocked++;
-      } else {
-        counts.pending++;
-      }
-    }
-  });
-
-  return counts;
-}
-
-/**
- * Resolves dependency conflicts between tasks.
- * @param {string} dependencyName
- * @param {string} resolvedVersion
- * @returns {boolean} True if conflicts were resolved
- */
-function resolveDependencyConflicts(dependencyName, resolvedVersion) {
-  const tasks = getDependencyVersionTasks(dependencyName);
-  tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      task.dependencies[dependencyName] = resolvedVersion;
-    }
-  });
-  return true;
-}
-
-/**
- * Checks if a dependency update is overdue.
- * @param {number} taskId
- * @returns {boolean} True if the task is overdue
- */
-function isDependencyUpdateOverdue(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || task.completed) return false;
-  const overdueTime = 7 * 24 * 60 * 60 * 1000;
-  return (Date.now() - task.createdAt) > overdueTime;
-}
-
-// ======= npm lock file management functions =======
-
-/**
- * Gets all npm lock files in the repository.
- * @returns {Array} Array of npm lock file paths
- */
-function getNpmLockFiles() {
-  const lockFiles = [];
-  _tasks.forEach(task => {
-    if (task.dependencies) {
-      Object.keys(task.dependencies).forEach(depName => {
-        const dep = task.dependencies[depName];
-        if (dep && dep.lockFile) {
-          lockFiles.push(dep.lockFile);
-        }
-      });
-    }
-  });
-  return [...new Set(lockFiles)];
-}
-
-/**
- * Gets deprecation warnings for npm lock file updates.
- * @returns {Array} Array of deprecation warning messages
- */
-function getNpmLockFileDeprecationWarnings() {
-  const warnings = [];
-  const lockFiles = getNpmLockFiles();
-
-  if (lockFiles.length > 1) {
-    warnings.push('WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.');
-  }
-
-  return warnings;
-}
-
-/**
- * Checks if a dependency update involves multiple npm lock files.
- * @param {string} dependencyName
- * @returns {boolean} True if the update involves multiple lock files
- */
-function hasMultipleLockFiles(dependencyName) {
-  const tasks = getDependencyVersionTasks(dependencyName);
-  const lockFiles = new Set();
-
-  tasks.forEach(task => {
-    if (task.dependencies && task.dependencies[dependencyName]) {
-      const dep = task.dependencies[dependencyName];
-      if (dep && dep.lockFile) {
-        lockFiles.add(dep.lockFile);
-      }
-    }
-  });
-
-  return lockFiles.size > 1;
-}
-
-// ======= Logging utility functions =======
-
-const logging = {
-  /**
-   * Logs an info-level message.
-   * @param {string} message
-   */
-  info(message) {
-    console.log(`[INFO] ${message}`);
-  },
-
-  /**
-   * Logs a warning-level message.
-   * @param {string} message
-   */
-  warn(message) {
-    console.warn(`[WARN] ${message}`);
-  },
-
-  /**
-   * Logs an error-level message.
-   * @param {string} message
-   */
-  error(message) {
-    console.error(`[ERROR] ${message}`);
-  },
-
-  /**
-   * Logs a debug-level message.
-   * @param {string} message
-   */
-  debug(message) {
-    console.debug(`[DEBUG] ${message}`);
-  },
-
-  /**
-   * Formats a log entry with a timestamp.
-   * @param {string} level
-   * @param {string} message
-   * @returns {string} Formatted log entry
-   */
-  formatLogEntry(level, message) {
-    const timestamp = new Date().toISOString();
-    return `${timestamp} [${level.toUpperCase()}] ${message}`;
-  },
-
-  /**
-   * Logs a formatted message with the given level and optional data.
-   * @param {string} level
-   * @param {string} message
-   * @param {*} [data]
-   */
-  log(level, message, data) {
-    const entry = this.formatLogEntry(level, message);
-    if (data !== undefined) {
-      console.log(entry, data);
-    } else {
-      console.log(entry);
-    }
-  }
-};
-
-/**
- * Gets dependency update tasks that are in progress.
- * @returns {Array} Array of tasks in progress
- */
-function getInProgressDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    !task.tags?.includes('awaiting-schedule') &&
-    !task.tags?.includes('manually-edited') &&
-    !task.tags?.includes('blocked-by-closed-pr')
-  );
-}
-
-/**
- * Gets dependency update tasks that are ready for review.
- * @returns {Array} Array of tasks ready for review
- */
-function getReadyForReviewDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    task.tags?.includes('awaiting-schedule')
-  );
-}
-
-/**
- * Gets dependency update tasks that are blocked.
- * @returns {Array} Array of blocked tasks
- */
-function getBlockedDependencyUpdateTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
-  );
-}
-
-/**
- * Gets all dependency update tasks with their status and additional details.
- * @returns {Array} Array of dependency update tasks with detailed status
- */
-function getAllDependencyUpdateTasksWithDetails() {
-  return getDetailedDependencyUpdateTasksWithStatus();
-}
-
-/**
- * Gets tasks created after a specific date.
- * @param {number} timestamp - Unix timestamp in milliseconds
- * @returns {Array} Array of tasks created after the given timestamp
- */
-function getTasksCreatedAfter(timestamp) {
-  return _tasks.filter(task => (task.createdAt || 0) > timestamp);
-}
-
-/**
- * Gets dependency update tasks that failed to look up.
- * @returns {Array} Array of failed lookup tasks
- */
-function getFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
-}
-
-/**
- * Marks a dependency update task as failed lookup.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsFailedLookup(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('failed-lookup')) {
-    task.tags.push('failed-lookup');
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as failed lookup.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsFailedLookup(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('failed-lookup');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Gets dependency update tasks that are blocked by failed lookups.
- * @returns {Array} Array of tasks blocked by failed lookups
- */
-function getBlockedByFailedLookupTasks() {
-  return _tasks.filter(task =>
-    task.tags?.includes('dependency-update') &&
-    task.tags?.includes('failed-lookup')
-  );
-}
-
-// Export all defined functions
-module.exports = {
-  // ... (existing exports)
-  updateTaskPriority,
-  getTasksByPriorityAndDependencies
-};
+  if (!task || !(task.tags

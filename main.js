@@ -1,5 +1,4 @@
 const taskId = addTask(title, priority, tags);
-
 const logging = { /*...existing code...*/ };
 
 function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
@@ -16,17 +15,17 @@ async function updatePosthogJs() {
 }
 
 async function updateActionsCheckout() {
-  await createAsyncUpdateTask('update actions/checkout action to v7');
+  await createAsyncUpdateTask('update actions/checkout to v7');
   updateDependencyVersions('actions-checkout', 'v6', 'v7');
 }
 
 async function updateActionsLabeler() {
-  await createAsyncUpdateTask('update actions/labeler action to v7');
+  await createAsyncUpdateTask('update actions/labeler to v7');
   updateDependencyVersions('actions-labeler', 'v6', 'v7');
 }
 
 async function updateActionsSetupPython() {
-  await createAsyncUpdateTask('update actions/setup-python action to v7');
+  await createAsyncUpdateTask('update actions/setup-python to v7');
   updateDependencyVersions('actions-setup-python', 'v6', 'v7');
 }
 
@@ -37,7 +36,8 @@ async function createAllAwaitingSchedulePrs() {
 
 function getDependencyUpdateProgressForVersion(version) {
   return _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies.posthog-js && task.dependencies['posthog-js'].current === version)
-    reduce((prev, current) => prev + (current.completed? 1 : 0), 0) / _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthog-js']).length * 100;
+    .reduce((prev, current) => prev + (current.completed ? 1 : 0), 0) / 
+    _tasks.filter(task => task.tags?.includes('dependency-update') && task.dependencies && task.dependencies['posthoh-js']).length * 100;
 }
 
 function getPosthogJsDependencyUpdateProgress() {
@@ -52,7 +52,6 @@ function visualizeMemory(memory) {
   container.innerHTML = memory.map(item => `<div class="memory-item">${item}</div>`).join('');
 }
 
-// New functions to handle the dependency updates from the issue
 async function handlePosthogJsUpdate() {
   try {
     await updatePosthogJs();

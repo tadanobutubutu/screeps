@@ -18,7 +18,7 @@ function addTask(title) {
     completed: false,
     createdAt: Date.now(),
     tags: [],
-    priority: 'medium'
+    priority: 'edium'
   };
   _tasks.push(task);
   return task.id;
@@ -77,8 +77,8 @@ function getAllDependencies() {
   _tasks.forEach(task => {
     if (task.dependencies) {
       Object.entries(task.dependencies).forEach(([name, info]) => {
-        const version = typeof info === 'string' ? info : info.target;
-        if (version && !dependencies[name]) dependencies[name] = new Set();
+        const version = typeof info === 'tring'? info : info.target;
+        if (version &&!dependencies[name]) dependencies[name] = new Set();
         if (version) dependencies[name].add(version);
       });
     }
@@ -107,7 +107,7 @@ function getDependencyUpdateTasks() {
  */
 function completeDependencyUpdateTask(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+  if (!task ||!(task.tags && task.tags.includes('dependency-update'))) return false;
   task.completed = true;
   return true;
 }
@@ -136,7 +136,7 @@ function getDependencyVersions(dependencyName) {
   _tasks.forEach(task => {
     const dep = task.dependencies && task.dependencies[dependencyName];
     if (dep) {
-      const ver = typeof dep === 'string' ? dep : dep.target;
+      const ver = typeof dep === 'tring'? dep : dep.target;
       if (ver) versions.add(ver);
     }
   });
@@ -188,7 +188,7 @@ function addDependenciesToTask(taskId, dependencies) {
  */
 function removeDependencyFromTask(taskId, dependencyName) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !task.dependencies || !task.dependencies[dependencyName]) {
+  if (!task ||!task.dependencies ||!task.dependencies[dependencyName]) {
     return false;
   }
   delete task.dependencies[dependencyName];
@@ -265,7 +265,7 @@ function completeTask(taskId) {
  */
 function removeTask(taskId) {
   const index = _tasks.findIndex(t => t.id === taskId);
-  if (index !== -1) {
+  if (index!== -1) {
     _tasks.splice(index, 1);
     return true;
   }
@@ -309,23 +309,23 @@ function getMemoryUsage() {
  * Gets all dependency update tasks with their status and additional details.
  * @returns {Array} Array of dependency update tasks with detailed status
  */
-function getDetailedDependencyUpdateTasks() {
+function getAllDependencyUpdateTasksWithStatus() {
   return _tasks
-    .filter(task => task.tags && task.tags.includes('dependency-update'))
-    .map(task => {
+    filter(task => task.tags && task.tags.includes('dependency-update'))
+    map(task => {
       const dependencies = task.dependencies || {};
       const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
-        if (typeof info === 'string') {
+        if (typeof info === 'tring') {
           return { name, current: info, target: info, status: 'current' };
         } else {
           return {
             name,
             current: info.current,
             target: info.target,
-            status: task.completed ? 'completed' :
-              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+            status: task.completed? 'completed' :
+              (task.tags && task.tags.includes('awaiting-schedule')? 'awaiting-schedule' :
+              (task.tags && task.tags.includes('manually-edited')? 'anually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr')? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -338,10 +338,10 @@ function getDetailedDependencyUpdateTasks() {
         dependencies: dependencyDetails,
         priority: task.priority,
         tags: task.tags || [],
-        status: task.completed ? 'completed' :
-          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+        status: task.completed? 'completed' :
+          (task.tags && task.tags.includes('awaiting-schedule')? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited')? 'anually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr')? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }
@@ -379,7 +379,7 @@ function getDependencyUpdateSummary() {
           if (task.completed) summary.byDependency[name].completed++;
           else summary.byDependency[name].pending++;
 
-          const version = typeof info === 'string' ? info : info.target;
+          const version = typeof info === 'tring'? info : info.target;
           if (version) summary.byDependency[name].versions.add(version);
         });
       }
@@ -390,10 +390,10 @@ function getDependencyUpdateSummary() {
   Object.keys(summary.byDependency).forEach(name => {
     const dep = summary.byDependency[name];
     dep.versions = Array.from(dep.versions);
-    dep.completionPercentage = dep.total > 0 ? (dep.completed / dep.total) * 100 : 0;
+    dep.completionPercentage = dep.total > 0? (dep.completed / dep.total) * 100 : 0;
   });
 
-  summary.completionPercentage = summary.total > 0 ? (summary.completed / summary.total) * 100 : 0;
+  summary.completionPercentage = summary.total > 0? (summary.completed / summary.total) * 100 : 0;
 
   return summary;
 }
@@ -436,213 +436,28 @@ function getDependencyUpdateTasksByStatus() {
 }
 
 /**
- * Gets a list of all unique dependencies across all tasks.
- * @returns {Array} Array of unique dependency names
- */
-function getAllUniqueDependencies() {
-  const dependencies = new Set();
-
-  _tasks.forEach(task => {
-    if (task.dependencies) {
-      Object.keys(task.dependencies).forEach(name => {
-        dependencies.add(name);
-      });
-    }
-  });
-
-  return Array.from(dependencies);
-}
-
-/**
- * Gets dependency update tasks for a specific dependency with version details.
- * @param {string} dependencyName
- * @returns {Array} Array of tasks with version details for the specified dependency
- */
-function getDependencyUpdateTasksWithVersions(dependencyName) {
-  return _tasks
-    .filter(task => task.tags && task.tags.includes('dependency-update') && task.dependencies && task.dependencies[dependencyName])
-    .map(task => {
-      const depInfo = task.dependencies[dependencyName];
-      return {
-        id: task.id,
-        title: task.title,
-        completed: task.completed,
-        createdAt: task.createdAt,
-        currentVersion: typeof depInfo === 'string' ? depInfo : depInfo.current,
-        targetVersion: typeof depInfo === 'string' ? depInfo : depInfo.target,
-        priority: task.priority
-      };
-    });
-}
-
-/**
- * Gets dependency update tasks that are awaiting their schedule.
- * @returns {Array} Array of tasks awaiting schedule
- */
-function getAwaitingScheduleTasks() {
-  return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
-    !task.completed &&
-    task.tags.includes('awaiting-schedule')
-  );
-}
-
-/**
- * Gets dependency update tasks that have been manually edited.
- * @returns {Array} Array of manually edited tasks
- */
-function getManuallyEditedTasks() {
-  return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
-    task.tags.includes('manually-edited')
-  );
-}
-
-/**
- * Gets dependency update tasks that are blocked by closed PRs.
- * @returns {Array} Array of tasks blocked by closed PRs
- */
-function getBlockedByClosedPRTasks() {
-  return _tasks.filter(task =>
-    task.tags && task.tags.includes('dependency-update') &&
-    task.tags.includes('blocked-by-closed-pr')
-  );
-}
-
-/**
- * Marks a dependency update task as awaiting schedule.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsAwaitingSchedule(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('awaiting-schedule')) {
-    task.tags.push('awaiting-schedule');
-  }
-  return true;
-}
-
-/**
- * Marks a dependency update task as manually edited.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsManuallyEdited(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('manually-edited')) {
-    task.tags.push('manually-edited');
-  }
-  return true;
-}
-
-/**
- * Marks a dependency update task as blocked by closed PR.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function markTaskAsBlockedByClosedPR(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  if (!task.tags.includes('blocked-by-closed-pr')) {
-    task.tags.push('blocked-by-closed-pr');
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as awaiting schedule.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsAwaitingSchedule(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('awaiting-schedule');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as manually edited.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsManuallyEdited(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('manually-edited');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
- * Unmarks a dependency update task as blocked by closed PR.
- * @param {number} taskId
- * @returns {boolean} True if successful
- */
-function unmarkTaskAsBlockedByClosedPR(taskId) {
-  const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
-  const index = task.tags.indexOf('blocked-by-closed-pr');
-  if (index !== -1) {
-    task.tags.splice(index, 1);
-  }
-  return true;
-}
-
-/**
  * Gets all dependency update tasks with their status and additional details.
  * @returns {Array} Array of dependency update tasks with detailed status
  */
-function getAllDependencyUpdateTasksWithStatus() {
-  return _tasks
-    .filter(task => task.tags && task.tags.includes('dependency-update'))
-    .map(task => {
-      const dependencies = task.dependencies || {};
-      const dependencyDetails = Object.entries(dependencies).map(([name, info]) => {
-        if (typeof info === 'string') {
-          return { name, current: info, target: info, status: 'current' };
-        } else {
-          return {
-            name,
-            current: info.current,
-            target: info.target,
-            status: task.completed ? 'completed' :
-              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-          };
-        }
-      });
-
-      return {
-        id: task.id,
-        title: task.title,
-        completed: task.completed,
-        createdAt: task.createdAt,
-        dependencies: dependencyDetails,
-        priority: task.priority,
-        tags: task.tags || [],
-        status: task.completed ? 'completed' :
-          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
-      };
-    });
+function getAllDependencyUpdateTasksWithDetails() {
+  return getDetailedDependencyUpdateTasksWithStatus();
 }
 
 /**
- * Gets all dependency update tasks with their status and additional details.
+ * Gets a detailed view of dependency update tasks.
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getDetailedDependencyUpdateTasksWithStatus() {
   return getAllDependencyUpdateTasksWithStatus();
+}
+
+/**
+ * Gets tasks missing a specific dependency and not yet completed.
+ * @param {string} dependencyName
+ * @returns {Array} Array of missing dependency tasks
+ */
+function getTasksMissingDependencyAndNotCompleted(dependencyName) {
+  return _tasks.filter(task =>!task.completed && (!task.dependencies ||!task.dependencies[dependencyName]));
 }
 
 /**
@@ -787,7 +602,8 @@ const logging = {
    * @param {string} message
    */
   info(message) {
-    },
+    console.log(`[INFO] ${message}`);
+  },
 
   /**
    * Logs a warning-level message.
@@ -810,7 +626,8 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    },
+    console.debug(`[DEBUG] ${message}`);
+  },
 
   /**
    * Formats a log entry with a timestamp.
@@ -831,23 +648,25 @@ const logging = {
    */
   log(level, message, data) {
     const entry = this.formatLogEntry(level, message);
-    if (data !== undefined) {
-      } else {
-      }
+    if (data!== undefined) {
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
   }
 };
 
 /**
- * Gets dependency update tasks that are in progress.
+ * Gets all dependency update tasks in progress.
  * @returns {Array} Array of tasks in progress
  */
 function getInProgressDependencyUpdateTasks() {
   return _tasks.filter(task =>
     task.tags?.includes('dependency-update') &&
-    !task.completed &&
-    !task.tags?.includes('awaiting-schedule') &&
-    !task.tags?.includes('manually-edited') &&
-    !task.tags?.includes('blocked-by-closed-pr')
+    task.completed &&
+    task.tags?.includes('awaiting-schedule') &&
+    task.tags?.includes('manually-edited') &&
+    task.tags?.includes('blocked-by-closed-pr')
   );
 }
 
@@ -858,7 +677,7 @@ function getInProgressDependencyUpdateTasks() {
 function getReadyForReviewDependencyUpdateTasks() {
   return _tasks.filter(task =>
     task.tags?.includes('dependency-update') &&
-    !task.completed &&
+    task.completed &&
     task.tags?.includes('awaiting-schedule')
   );
 }
@@ -870,7 +689,7 @@ function getReadyForReviewDependencyUpdateTasks() {
 function getBlockedDependencyUpdateTasks() {
   return _tasks.filter(task =>
     task.tags?.includes('dependency-update') &&
-    !task.completed &&
+    task.completed &&
     (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
   );
 }
@@ -910,7 +729,7 @@ function getFailedLookupTasks() {
  */
 function markTaskAsFailedLookup(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+  if (!task ||!(task.tags && task.tags.includes('dependency-update'))) return false;
   if (!task.tags.includes('failed-lookup')) {
     task.tags.push('failed-lookup');
   }
@@ -924,9 +743,9 @@ function markTaskAsFailedLookup(taskId) {
  */
 function unmarkTaskAsFailedLookup(taskId) {
   const task = _tasks.find(t => t.id === taskId);
-  if (!task || !(task.tags && task.tags.includes('dependency-update'))) return false;
+  if (!task ||!(task.tags && task.tags.includes('dependency-update'))) return false;
   const index = task.tags.indexOf('failed-lookup');
-  if (index !== -1) {
+  if (index!== -1) {
     task.tags.splice(index, 1);
   }
   return true;
@@ -990,3 +809,4 @@ module.exports = {
   unmarkTaskAsFailedLookup,
   getBlockedByFailedLookupTasks
 };
+```

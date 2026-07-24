@@ -438,9 +438,9 @@ function getDetailedDependencyUpdateTasks() {
             current: info.current,
             target: info.target,
             status: task.completed ? 'completed' :
-                    (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-                    (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-                    (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+              (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+              (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+              (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
           };
         }
       });
@@ -454,9 +454,9 @@ function getDetailedDependencyUpdateTasks() {
         priority: task.priority,
         tags: task.tags || [],
         status: task.completed ? 'completed' :
-                (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
-                (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
-                (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
+          (task.tags && task.tags.includes('awaiting-schedule') ? 'awaiting-schedule' :
+          (task.tags && task.tags.includes('manually-edited') ? 'manually-edited' :
+          (task.tags && task.tags.includes('blocked-by-closed-pr') ? 'blocked-by-closed-pr' : 'pending')))
       };
     });
 }
@@ -752,8 +752,111 @@ function getDetailedDependencyUpdateTasksWithStatus() {
     });
 }
 
+// ======= Logging utility functions =======
+
 /**
- * Gets a list of all dependency update tasks with their status and additional details.
+ * Logging utility helpers for consistent log formatting and output.
+ */
+const logging = {
+  /**
+   * Logs an info-level message.
+   * @param {string} message
+   */
+  info(message) {
+    console.log(`[INFO] ${message}`);
+  },
+
+  /**
+   * Logs a warning-level message.
+   * @param {string} message
+   */
+  warn(message) {
+    console.warn(`[WARN] ${message}`);
+  },
+
+  /**
+   * Logs an error-level message.
+   * @param {string} message
+   */
+  error(message) {
+    console.error(`[ERROR] ${message}`);
+  },
+
+  /**
+   * Logs a debug-level message.
+   * @param {string} message
+   */
+  debug(message) {
+    console.log(`[DEBUG] ${message}`);
+  },
+
+  /**
+   * Formats a log entry with a timestamp.
+   * @param {string} level
+   * @param {string} message
+   * @returns {string} Formatted log entry
+   */
+  formatLogEntry(level, message) {
+    const timestamp = new Date().toISOString();
+    return `${timestamp} [${level.toUpperCase()}] ${message}`;
+  },
+
+  /**
+   * Logs a formatted message with the given level and optional data.
+   * @param {string} level
+   * @param {string} message
+   * @param {*} [data]
+   */
+  log(level, message, data) {
+    const entry = this.formatLogEntry(level, message);
+    if (data !== undefined) {
+      console.log(entry, data);
+    } else {
+      console.log(entry);
+    }
+  }
+};
+
+/**
+ * Gets dependency update tasks that are in progress.
+ * @returns {Array} Array of tasks in progress
+ */
+function getInProgressDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    !task.tags?.includes('awaiting-schedule') &&
+    !task.tags?.includes('manually-edited') &&
+    !task.tags?.includes('blocked-by-closed-pr')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are ready for review.
+ * @returns {Array} Array of tasks ready for review
+ */
+function getReadyForReviewDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    task.tags?.includes('awaiting-schedule')
+  );
+}
+
+/**
+ * Gets dependency update tasks that are blocked.
+ * @returns {Array} Array of blocked tasks
+ */
+function getBlockedDependencyUpdateTasks() {
+  return _tasks.filter(task =>
+    task.tags?.includes('dependency-update') &&
+    !task.completed &&
+    (task.tags?.includes('manually-edited') || task.tags?.includes('blocked-by-closed-pr'))
+  );
+}
+
+/**
+ * Gets all dependency update tasks with their status and additional details.
  * @returns {Array} Array of dependency update tasks with detailed status
  */
 function getAllDependencyUpdateTasksWithDetails() {
@@ -806,5 +909,9 @@ module.exports = {
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
   getDetailedDependencyUpdateTasksWithStatus,
+  logging,
+  getInProgressDependencyUpdateTasks,
+  getReadyForReviewDependencyUpdateTasks,
+  getBlockedDependencyUpdateTasks,
   getAllDependencyUpdateTasksWithDetails
 };

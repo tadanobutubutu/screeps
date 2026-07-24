@@ -742,6 +742,14 @@ function getDetailedDependencyUpdateTasksWithStatus() {
     });
 }
 
+/**
+ * Gets a list of all dependency update tasks with their status and additional details.
+ * @returns {Array} Array of dependency update tasks with detailed status
+ */
+function getAllDependencyUpdateTasksWithDetails() {
+  return getDetailedDependencyUpdateTasksWithStatus();
+}
+
 // Export all defined functions
 module.exports = {
   run,
@@ -787,5 +795,6 @@ module.exports = {
   unmarkTaskAsAwaitingSchedule,
   unmarkTaskAsManuallyEdited,
   unmarkTaskAsBlockedByClosedPR,
-  getDetailedDependencyUpdateTasksWithStatus
+  getDetailedDependencyUpdateTasksWithStatus,
+  getAllDependencyUpdateTasksWithDetails
 };

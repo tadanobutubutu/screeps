@@ -728,6 +728,63 @@ function isDependencyUpdateOverdue(taskId) {
   return (Date.now() - task.createdAt) > overdueTime;
 }
 
+// ======= npm lock file management functions =======
+
+/**
+ * Gets all npm lock files in the repository.
+ * @returns {Array} Array of npm lock file paths
+ */
+function getNpmLockFiles() {
+  const lockFiles = [];
+  _tasks.forEach(task => {
+    if (task.dependencies) {
+      Object.keys(task.dependencies).forEach(depName => {
+        const dep = task.dependencies[depName];
+        if (dep && dep.lockFile) {
+          lockFiles.push(dep.lockFile);
+        }
+      });
+    }
+  });
+  return [...new Set(lockFiles)];
+}
+
+/**
+ * Gets deprecation warnings for npm lock file updates.
+ * @returns {Array} Array of deprecation warning messages
+ */
+function getNpmLockFileDeprecationWarnings() {
+  const warnings = [];
+  const lockFiles = getNpmLockFiles();
+  
+  if (lockFiles.length > 1) {
+    warnings.push('WARN: Updating multiple npm lock files is deprecated and support will be removed in future versions.');
+  }
+  
+  return warnings;
+}
+
+/**
+ * Checks if a dependency update involves multiple npm lock files.
+ * @param {string} dependencyName
+ * @returns {boolean} True if the update involves multiple lock files
+ */
+function hasMultipleLockFiles(dependencyName) {
+  const tasks = getDependencyVersionTasks(dependencyName);
+  const lockFiles = new Set();
+  
+  tasks.forEach(task => {
+    if (task.dependencies && task.dependencies[dependencyName]) {
+      const dep = task.dependencies[dependencyName];
+      if (dep && dep.lockFile) {
+        lockFiles.add(dep.lockFile);
+      }
+    }
+  });
+  
+  return lockFiles.size > 1;
+}
+
 // ======= Logging utility functions =======
 
 /**
@@ -886,5 +943,8 @@ module.exports = {
   getDependencyUpdateTaskCounts,
   resolveDependencyConflicts,
   isDependencyUpdateOverdue,
-  getTasksCreatedAfter
+  getTasksCreatedAfter,
+  getNpmLockFiles,
+  getNpmLockFileDeprecationWarnings,
+  hasMultipleLockFiles
 };

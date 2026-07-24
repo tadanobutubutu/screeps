@@ -650,7 +650,7 @@ function getDetailedDependencyUpdateTasksWithStatus() {
  * @param {string} dependencyName
  * @returns {Array} Array of missing dependency tasks
  */
-function getTasksMissingDependency(dependencyName) {
+function getTasksMissingDependencyAndNotCompleted(dependencyName) {
   return _tasks.filter(task => !task.completed && (!task.dependencies || !task.dependencies[dependencyName]));
 }
 

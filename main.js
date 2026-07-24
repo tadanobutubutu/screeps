@@ -24,8 +24,8 @@ async function updateActionsLabeler() {
 }
 
 async function updateActionsSetupPython() {
-  await createAsyncUpdateTask('update actions/setup-python action to v5');
-  updateDependencyVersions('actions-setup-python', 'v4', 'v5');
+  await createAsyncUpdateTask('update actions/setup-python action to v7');
+  updateDependencyVersions('actions-setup-python', 'v6', 'v7');
 }
 
 async function createAllAwaitingSchedulePrs() {

@@ -28,7 +28,18 @@ const logging = {
    * @param {string} message
    */
   debug(message) {
-    console.log(`[DEBUG] ${message}`);
+    console.debug(`[DEBUG] ${message}`);
+  },
+
+  /**
+   * Formats a log entry with a timestamp.
+   * @param {string} level
+   * @param {string} message
+   * @returns {string} Formatted log entry
+   */
+  formatLogEntry(level, message) {
+    const timestamp = new Date().toISOString();
+    return `${timestamp} [${level.toUpperCase()}] ${message}`;
   },
 
   /**
@@ -36,24 +47,15 @@ const logging = {
    * @param {string} level
    * @param {string} message
    * @param {*} [data]
+   * @returns {void}
    */
-  log: function (level, message, data) {
+  log(level, message, data) {
+    const entry = this.formatLogEntry(level, message);
     if (data !== undefined) {
-      console.log(this.formatLogEntry(level, message), data);
+      console.log(entry, data);
     } else {
-      console.log(this.formatLogEntry(level, message));
+      console.log(entry);
     }
-  },
-
-  /**
-   * Formats a log entry with the specified level and message.
-   * @param {string} level
-   * @param {string} message
-   * @returns {string} The formatted log entry
-   */
-  formatLogEntry: function (level, message) {
-    const timestamp = new Date().toISOString();
-    return `[${level} @ ${timestamp}] ${message}`;
   }
 };
 
@@ -68,7 +70,7 @@ module.exports = {
   resetTaskIdCounter,
   getTasksSortedByTitle,
   getTasksSortedByCreatedAt,
-  getTasksSortedByPriority,
+  getTasksByPriority,
   listTasks,
   completeTask,
   removeTask,

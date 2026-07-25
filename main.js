@@ -845,6 +845,19 @@ async function updateGitstreamActionToLatest() {
 }
 
 /**
+ * Updates posthog-js to v1.407.2.
+ */
+async function updatePosthogJsToV1_407_2() {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
  * Exported API.
  */
 module.exports = {
@@ -916,5 +929,6 @@ module.exports = {
   createAllAwaitingSchedulePRs,
   updateGithubCodeqlActionToV4,
   visualizeDependencyMemory,
-  updateGitstreamActionToLatest
+  updateGitstreamActionToLatest,
+  updatePosthogJsToV1_407_2
 };

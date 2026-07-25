@@ -584,6 +584,24 @@ async function generateStargazersReport() {
   }
 }
 
+/**
+ * Checks if a stargazer is active.
+ * @param {string} username - The GitHub username of the stargazer
+ * @param {number} days - Number of days to consider as "recent"
+ * @returns {boolean} True if the stargazer is active, false otherwise
+ */
+function isStargazerActive(username, days = 30) {
+  const stargazer = stargazers.find(s => s.username === username);
+  if (!stargazer) {
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    return false;
+  }
+
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+  return stargazer.lastActivity >= cutoffDate;
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -635,5 +653,6 @@ module.exports = {
   getStargazers,
   trackRunawayStargazers,
   monitorStargazersActivity,
-  generateStargazersReport
+  generateStargazersReport,
+  isStargazerActive
 };

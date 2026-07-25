@@ -1,3 +1,1 @@
-User Safety: unsafe
-Response Safety: safe
-Safety Categories: Malware, Unauthorized Advice
+Safety Categories: Malware, Needs Caution, Unauthorized Advice, Fraud/Deception

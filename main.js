@@ -4,6 +4,8 @@ const logging = {
   }
 };
 
+let _tasks = [];
+
 /**
  * Internal task list for tracking dependency update progress.
  * @type {Array}
@@ -52,62 +54,12 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
   });
 }
 
-async function updateActionsCheckout() {
-  const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
-  await updateDependencyVersions('actions/checkout', 'v7');
-}
-
-async function updateActionsLabeler() {
-  const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-  await updateDependencyVersions('actions/labeler', 'v7');
-}
-
-async function updateActionsSetupPython() {
-  const taskId = await createAsyncUpdateTask('update actions/setup-python action to v7');
-  await updateDependencyVersions('actions/setup-python', 'v7');
-}
-
 /**
- * Creates all awaiting schedule PRs.
+ * Visualizes memory usage before, during, and after an update.
+ * @param {string} currentVersion - The current version being updated.
+ * @param {string} newVersion - The target version.
+ * @returns {Promise<Object>} A promise resolving with memory statistics.
  */
-async function createAwaitingSchedulePRs() {
-  const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
-  // Implementation would go here
-}
-
-/**
- * Updates github/codeql-action to v4.
- */
-async function updateGithubCodeqlAction() {
-  const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
-  await updateDependencyVersions('github/codeql-action', 'v4');
-}
-
-/**
- * Calculates the progress of dependency updates for a specific version.
- */
-function calculateProgress(version) {
-  const allTasks = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version === version
-  );
-  const total = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version
-  ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
-  return (completed / total) * 100;
-}
-
-function calculateDependencyProgress(version) {
-  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
-  const total = allTasks.length;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
-  return (completed / total) * 100;
-}
-
 function visualizeMemory(currentVersion, newVersion) {
   // Implementation of memory visualization
   const memoryUsage = process.memoryUsage();
@@ -146,12 +98,83 @@ function visualizeMemory(currentVersion, newVersion) {
   });
 }
 
-function updatePosthogJs() {
+/**
+ * Calculates the progress of dependency updates for a specific version.
+ */
+function calculateProgress(version) {
+  const allTasks = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version === version
+  );
+  const total = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version
+  ).length || 1;
+  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
+  return (completed / total) * 100;
+}
+
+function calculateDependencyProgress(version) {
+  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
+  const total = allTasks.length;
+  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
+  return (completed / total) * 100;
+}
+
+/**
+ * Updates github/codeql-action to v4.
+ */
+async function updateGithubCodeqlAction() {
+  const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
+  await updateDependencyVersions('github/codeql-action', 'v4');
+}
+
+/**
+ * Updates actions/checkout to v7.
+ */
+async function updateActionsCheckout() {
+  const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
+  await updateDependencyVersions('actions/checkout', 'v7');
+}
+
+/**
+ * Updates actions/labeler to v7.
+ */
+async function updateActionsLabeler() {
+  const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+  await updateDependencyVersions('actions/labeler', 'v7');
+}
+
+/**
+ * Updates actions/setup-python to v7.
+ */
+async function updateActionsSetupPython() {
+  const taskId = await createAsyncUpdateTask('update actions/setup-python action to v7');
+  await updateDependencyVersions('actions/setup-python', 'v7');
+}
+
+/**
+ * Creates all awaiting schedule PRs.
+ */
+async function createAwaitingSchedulePRs() {
+  const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
+  // Implementation would go here
+}
+
+/**
+ * Creates a task for updating posthog-js to v1.407.2 and updates its dependency.
+ */
+async function updatePosthogJs() {
   const taskId = createAsyncUpdateTask('update posthog-js to v1.407.2');
   const task = getTaskById(taskId);
   updateDependencyVersions('posthog-js', '1.407.2');
 }
 
+/**
+ * Handles the update of posthog-js to v1.407.2.
+ */
 async function handlePosthogJsUpdate() {
   try {
     await updatePosthogJs();
@@ -161,6 +184,9 @@ async function handlePosthogJsUpdate() {
   }
 }
 
+/**
+ * Handles the update of actions/checkout to v7.
+ */
 async function handleActionsCheckoutUpdate() {
   try {
     await updateActionsCheckout();
@@ -170,6 +196,9 @@ async function handleActionsCheckoutUpdate() {
   }
 }
 
+/**
+ * Handles the update of actions/labeler to v7.
+ */
 async function handleActionsLabelerUpdate() {
   try {
     await updateActionsLabeler();
@@ -179,6 +208,9 @@ async function handleActionsLabelerUpdate() {
   }
 }
 
+/**
+ * Handles the update of actions/setup-python to v7.
+ */
 async function handleActionsSetupPythonUpdate() {
   try {
     await updateActionsSetupPython();
@@ -188,6 +220,9 @@ async function handleActionsSetupPythonUpdate() {
   }
 }
 
+/**
+ * Handles the creation of all awaiting schedule PRs.
+ */
 async function handleAwaitingSchedulePRsCreation() {
   try {
     await createAwaitingSchedulePRs();
@@ -197,25 +232,22 @@ async function handleAwaitingSchedulePRsCreation() {
   }
 }
 
-async function handleAwaitingSchedulePRs() {
-  try {
-    await createAwaitingSchedulePRs();
-    logging.log('info', 'Successfully created all awaiting schedule PRs');
-  } catch (error) {
-    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
-  }
-}
-
+/**
+ * Handles the update of @sentry/browser to v10.68.0.
+ */
 async function handleSentryBrowserUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-    await updateDependencyVersions('@sentry/browser', '10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
   }
 }
 
+/**
+ * Handles the update of lodash to v4.
+ */
 async function handleLodashUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update lodash to v4');
@@ -226,6 +258,9 @@ async function handleLodashUpdate() {
   }
 }
 
+/**
+ * Handles the update of moment to v3.
+ */
 async function handleMomentJsUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
@@ -274,6 +309,9 @@ async function handleSentryTrentUpdate() {
   }
 }
 
+/**
+ * Handles core update.
+ */
 async function handleCoreUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update core to v1.0.0');
@@ -284,7 +322,7 @@ async function handleCoreUpdate() {
 }
 
 /**
- * Handles github/codeql-action update to v4.
+ * Updates github/codeql-action to v4.
  */
 async function handleGithubCodeqlActionUpdate() {
   try {
@@ -296,7 +334,7 @@ async function handleGithubCodeqlActionUpdate() {
 }
 
 /**
- * Handles linear-bots/gitstream-github-action update.
+ * Updates linear-bots/gitstream-github-action.
  */
 async function handleGitstreamActionUpdate() {
   try {
@@ -309,7 +347,7 @@ async function handleGitstreamActionUpdate() {
 }
 
 /**
- * Handles the recreation of a closed PR for github/codeql-action update to v4.
+ * Recreates a closed PR for github/codeql-action update to v4.
  */
 async function handleRecreateGithubCodeqlActionPR() {
   try {
@@ -322,7 +360,7 @@ async function handleRecreateGithubCodeqlActionPR() {
 }
 
 /**
- * Handles the update of actions/checkout to v7.
+ * Updates actions/checkout to v7.
  */
 async function handleActionsCheckoutUpdateToV7() {
   try {
@@ -335,7 +373,7 @@ async function handleActionsCheckoutUpdateToV7() {
 }
 
 /**
- * Handles the update of actions/labeler to v7.
+ * Updates actions/labeler to v7.
  */
 async function handleActionsLabelerUpdateToV7() {
   try {
@@ -348,7 +386,7 @@ async function handleActionsLabelerUpdateToV7() {
 }
 
 /**
- * Handles the update of actions/setup-python to v7.
+ * Updates actions/setup-python to v7.
  */
 async function handleActionsSetupPythonUpdateToV7() {
   try {
@@ -361,20 +399,20 @@ async function handleActionsSetupPythonUpdateToV7() {
 }
 
 /**
- * Handles the update of posthog-js to v1.407.2.
+ * Updates posthog-js to v1.407.2.
  */
 async function handlePosthogJsUpdateToV1_407_2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    await updateDependencyVersions('posthohs', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthohs to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthohs: ${error.message}`);
   }
 }
 
 /**
- * Handles the update of @sentry/browser to v10.68.0.
+ * Updates @sentry/browser to v10.68.0.
  */
 async function handleSentryBrowserUpdateToV10_68_0() {
   try {
@@ -387,7 +425,7 @@ async function handleSentryBrowserUpdateToV10_68_0() {
 }
 
 /**
- * Handles the recreation of a closed PR for github/codeql-action update to v4.
+ * Recreates a closed PR for github/codeql-action update to v4.
  */
 async function handleRecreateGithubCodeqlActionPRToV4() {
   try {
@@ -400,7 +438,7 @@ async function handleRecreateGithubCodeqlActionPRToV4() {
 }
 
 /**
- * Handles the update of linear-bots/gitstream-github-action.
+ * Updates linear-bots/gitstream-github-action to latest.
  */
 async function handleGitstreamActionUpdateToLatest() {
   try {
@@ -675,7 +713,6 @@ module.exports = {
   handleSentryBrowserUpdate,
   handleLodashUpdate,
   handleMomentJsUpdate,
-  handleAwaitingSchedulePRs,
   handleSomeDependencyUpdate,
   handleAnotherDependencyUpdate,
   handleSentryTrentUpdate,

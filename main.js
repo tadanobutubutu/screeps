@@ -40,7 +40,7 @@ function updateAnotherDependency(newVersion) {
 /**
  * Creates a task asynchronously and logs its creation.
  */
-function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
+function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -97,14 +97,14 @@ function calculateProgress(version) {
     task.dependencies &&
     task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
 function calculateDependencyProgress(version) {
   const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
   const total = allTasks.length;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -229,7 +229,7 @@ async function handleLodashUpdate() {
 async function handleMomentJsUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
-    logging.log('info', 'Successfully updated moment to v3');
+    await updateDependencyVersions('moment', 'v3');
   } catch (error) {
     logging.log('error', `Failed to update moment: ${error.message}`);
   }
@@ -452,7 +452,7 @@ function addStargazer(username, starredAt = new Date()) {
  */
 function removeStargazer(username) {
   const initialLength = stargazers.length;
-  const filtered = stargazers.filter(s => s.username !== username);
+  const filtered = stargazers.filter(s => s.username!== username);
 
   if (filtered.length < initialLength) {
     stargazers.length = 0;
@@ -660,188 +660,6 @@ function resetStargazers() {
 function logWithComparison(level, message, value1, value2) {
   const comparisonResult = value1 === value2;
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
-}
-
-/**
- * Handles the update of actions/checkout to v7.
- */
-async function handleActionsCheckoutUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
-    await updateDependencyVersions('actions/checkout', 'v7');
-    logging.log('info', 'Successfully updated actions/checkout to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/labeler to v7.
- */
-async function handleActionsLabelerUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
-    logging.log('info', 'Successfully updated actions/labeler to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/setup-python to v7.
- */
-async function handleActionsSetupPythonUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
-    await updateDependencyVersions('actions/setup-python', 'v7');
-    logging.log('info', 'Successfully updated actions/setup-python to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of posthog-js to v1.407.2.
- */
-async function handlePosthogJsUpdateToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of @sentry/browser to v10.68.0.
- */
-async function handleSentryBrowserUpdateToV10_68_0() {
-  try {
-    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
-    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
-  } catch (error) {
-    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
-  }
-}
-
-/**
- * Handles the recreation of a closed PR for github/codeql-action update to v4.
- */
-async function handleRecreateGithubCodeqlActionPRToV4() {
-  try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
-  } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of linear-bots/gitstream-github-action.
- */
-async function handleGitstreamActionUpdateToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/checkout to v7.
- */
-async function handleActionsCheckoutUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
-    await updateDependencyVersions('actions/checkout', 'v7');
-    logging.log('info', 'Successfully updated actions/checkout to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/labeler to v7.
- */
-async function handleActionsLabelerUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
-    logging.log('info', 'Successfully updated actions/labeler to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/setup-python to v7.
- */
-async function handleActionsSetupPythonUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
-    await updateDependencyVersions('actions/setup-python', 'v7');
-    logging.log('info', 'Successfully updated actions/setup-python to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of posthog-js to v1.407.2.
- */
-async function handlePosthogJsUpdateToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of @sentry/browser to v10.68.0.
- */
-async function handleSentryBrowserUpdateToV10_68_0() {
-  try {
-    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
-    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
-  } catch (error) {
-    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
-  }
-}
-
-/**
- * Handles the recreation of a closed PR for github/codeql-action update to v4.
- */
-async function handleRecreateGithubCodeqlActionPRToV4() {
-  try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
-  } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of linear-bots/gitstream-github-action.
- */
-async function handleGitstreamActionUpdateToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
 }
 
 module.exports = {

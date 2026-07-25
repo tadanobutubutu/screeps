@@ -572,6 +572,19 @@ function logWithComparison(level, message, value1, value2) {
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
 }
 
+/**
+ * Handles the update of linear-bots/gitstream-github-action to the latest version.
+ */
+async function handleGitstreamActionUpdateToLatestVersion() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -599,6 +612,7 @@ module.exports = {
   handleRecreateGithubCodeqlActionPRToV4,
   handleGitstreamActionUpdateToLatest,
   handleGitstreamActionUpdateToLatest2,
+  handleGitstreamActionUpdateToLatestVersion,
   addTask,
   updatePosthogJs,
   updateActionsCheckout,

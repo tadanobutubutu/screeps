@@ -893,6 +893,8 @@ module.exports = {
   isStargazerActive,
   resetStargazers,
   logWithComparison,
+  calculateProgress,
+  calculateDependencyProgress,
   updateActionsCheckoutExternal,
   updateActionsLabelerExternal,
   updateActionsSetupPythonExternal,

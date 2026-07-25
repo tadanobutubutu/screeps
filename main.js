@@ -471,6 +471,20 @@ function getStargazerCount() {
 }
 
 /**
+ * Retrieves the list of stargazers for the repository.
+ */
+async function getStargazers() {
+  try {
+    const taskId = await createAsyncUpdateTask('get repository stargazers');
+    logging.log('info', 'Successfully retrieved stargazers list');
+    return { taskId, stargazers: getAllStargazers() };
+  } catch (error) {
+    logging.log('error', `Failed to retrieve stargazers: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
  * Handles the tracking of a new stargazer event.
  */
 async function handleNewStargazer(username) {
@@ -511,6 +525,62 @@ async function handleStargazerActivityUpdate(username) {
     }
   } catch (error) {
     logging.log('error', `Failed to update stargazer activity: ${error.message}`);
+  }
+}
+
+/**
+ * Tracks runaway stargazers who exhibit unusual stargazing patterns.
+ */
+async function trackRunawayStargazers() {
+  try {
+    const taskId = await createAsyncUpdateTask('track runaway stargazers');
+    const { stargazers } = await getStargazers();
+    const runawayStargazers = stargazers.filter(stargazer =>
+      stargazer && stargazer.starFrequency && stargazer.starFrequency > 100
+    );
+    logging.log('info', `Found ${runawayStargazers.length} runaway stargazers`);
+    return runawayStargazers;
+  } catch (error) {
+    logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * Monitors stargazers activity and logs suspicious patterns.
+ */
+async function monitorStargazersActivity() {
+  try {
+    const taskId = await createAsyncUpdateTask('monitor stargazers activity');
+    const { stargazers } = await getStargazers();
+    const suspiciousStargazers = stargazers.filter(stargazer =>
+      stargazer && stargazer.isBot && stargazer.starCount > 50
+    );
+    logging.log('info', `Found ${suspiciousStargazers.length} suspicious stargazers`);
+    return suspiciousStargazers;
+  } catch (error) {
+    logging.log('error', `Failed to monitor stargazers activity: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
+ * Generates a report of stargazers statistics.
+ */
+async function generateStargazersReport() {
+  try {
+    const taskId = await createAsyncUpdateTask('generate stargazers report');
+    const { stargazers: totalStargazers } = await getStargazers();
+    const runawayStargazers = await trackRunawayStargazers();
+    logging.log('info', 'Successfully generated stargazers report');
+    return {
+      totalCount: totalStargazers.length,
+      runawayCount: runawayStargazers.length,
+      reportGenerated: true
+    };
+  } catch (error) {
+    logging.log('error', `Failed to generate stargazers report: ${error.message}`);
+    throw error;
   }
 }
 
@@ -561,5 +631,9 @@ module.exports = {
   getStargazerCount,
   handleNewStargazer,
   handleStargazerRemoval,
-  handleStargazerActivityUpdate
+  handleStargazerActivityUpdate,
+  getStargazers,
+  trackRunawayStargazers,
+  monitorStargazersActivity,
+  generateStargazersReport
 };

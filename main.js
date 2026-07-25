@@ -36,7 +36,7 @@ function updateAnotherDependency(newVersion) {
 /**
  * Creates a task asynchronously and logs its creation.
  */
-function createAsyncUpdateTask(title, priority, tags) {
+function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -48,6 +48,21 @@ function createAsyncUpdateTask(title, priority, tags) {
   });
 }
 
+
+async function updateActionsCheckout() {
+  const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
+  await updateDependencyVersions('actions/checkout', 'v7');
+}
+
+async function updateActionsLabeler() {
+  const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+  await updateDependencyVersions('actions/labeler', 'v7');
+}
+
+async function updateActionsSetupPython() {
+  const taskId = await createAsyncUpdateTask('update actions/setup-python action to v7');
+  await updateDependencyVersions('actions/setup-python', 'v7');
+}
 
 /**
  * Creates all awaiting schedule PRs.
@@ -62,8 +77,16 @@ async function createAwaitingSchedulePRs() {
  * Calculates the progress of dependency updates for a specific version.
  */
 function calculateProgress(version) {
-  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
-  const total = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version).length || 1;
+  const allTasks = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version === version
+  );
+  const total = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version
+  ).length || 1;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
@@ -83,21 +106,6 @@ function updatePosthogJs() {
   const taskId = createAsyncUpdateTask('update posthog-js to v1.407.2');
   const task = getTaskById(taskId);
   updateDependencyVersions('posthog-js', '1.407.2');
-}
-
-async function updateActionsCheckout() {
-  const taskId = createAsyncUpdateTask('update actions/checkout action to v7');
-  await updateDependencyVersions('actions/checkout', 'v7');
-}
-
-async function updateActionsLabeler() {
-  const taskId = createAsyncUpdateTask('update actions/labeler action to v7');
-  await updateDependencyVersions('actions/labeler', 'v7');
-}
-
-async function updateActionsSetupPython() {
-  const taskId = createAsyncUpdateTask('update actions/setup-python action to v7');
-  await updateDependencyVersions('actions/setup-python', 'v7');
 }
 
 async function handlePosthogJsUpdate() {
@@ -145,6 +153,15 @@ async function handleAwaitingSchedulePRsCreation() {
   }
 }
 
+async function handleAwaitingSchedulePRs() {
+  try {
+    await createAwaitingSchedulePRs();
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+}
+
 async function handleSentryBrowserUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
@@ -155,12 +172,22 @@ async function handleSentryBrowserUpdate() {
   }
 }
 
-async function handleAwaitingSchedulePRs() {
+async function handleLodashUpdate() {
   try {
-    await createAwaitingSchedulePRs();
-    logging.log('info', 'Successfully created all awaiting schedule PRs');
+    const taskId = await createAsyncUpdateTask('update lodash to v4');
+    await updateDependencyVersions('lodash', 'v4');
+    logging.log('info', 'Successfully updated lodash to v4');
   } catch (error) {
-    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+    logging.log('error', `Failed to update lodash: ${error.message}`);
+  }
+}
+
+async function handleMomentJsUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update moment to v3');
+    logging.log('info', 'Successfully updated moment to v3');
+  } catch (error) {
+    logging.log('error', `Failed to update moment: ${error.message}`);
   }
 }
 
@@ -212,25 +239,6 @@ async function handleCoreUpdate() {
   }
 }
 
-async function handleLodashUpdate() {
-  try {
-    const taskId = await createAsyncUpdateTask('update lodash to v4');
-    await updateDependencyVersions('lodash', 'v4');
-    logging.log('info', 'Successfully updated lodash to v4');
-  } catch (error) {
-    logging.log('error', `Failed to update lodash: ${error.message}`);
-  }
-}
-
-async function handleMomentJsUpdate() {
-  try {
-    const taskId = await createAsyncUpdateTask('update moment to v3');
-    logging.log('info', 'Successfully updated moment to v3');
-  } catch (error) {
-    logging.log('error', `Failed to update moment: ${error.message}`);
-  }
-}
-
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -241,14 +249,14 @@ module.exports = {
   handleActionsLabelerUpdate,
   handleActionsSetupPythonUpdate,
   handleAwaitingSchedulePRsCreation,
-  handleAwaitingSchedulePRs,
   handleSentryBrowserUpdate,
+  handleLodashUpdate,
+  handleMomentJsUpdate,
+  handleAwaitingSchedulePRs,
+  handleSomeDependencyUpdate,
   handleAnotherDependencyUpdate,
   handleSentryTrentUpdate,
   handleCoreUpdate,
-  handleLodashUpdate,
-  handleMomentJsUpdate,
-  handleSomeDependencyUpdate,
   addTask,
   createAsyncUpdateTask,
   updatePosthogJs,

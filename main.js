@@ -1,6 +1,6 @@
 const logging = {
   log: (level, message) => {
-    }] ${message}`);
+    console.log(`[${level}] ${message}`);
   }
 };
 

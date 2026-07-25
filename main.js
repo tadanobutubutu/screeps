@@ -584,6 +584,14 @@ async function generateStargazersReport() {
   }
 }
 
+/**
+ * Enhanced logging function that handles the "===" token issue
+ */
+function logWithComparison(level, message, value1, value2) {
+  const comparisonResult = value1 === value2;
+  logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -635,5 +643,6 @@ module.exports = {
   getStargazers,
   trackRunawayStargazers,
   monitorStargazersActivity,
-  generateStargazersReport
+  generateStargazersReport,
+  logWithComparison
 };

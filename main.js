@@ -755,6 +755,83 @@ async function visualizeDependencyMemory(dependencyName, currentVersion, newVers
 }
 
 /**
+ * Updates posthog-js to v1.407.2.
+ */
+async function updatePosthogJsToV1_407_2() {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/checkout to v7.
+ */
+async function updateActionsCheckoutToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
+    await updateDependencyVersions('actions/checkout', 'v7');
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/labeler to v7.
+ */
+async function updateActionsLabelerToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/setup-python to v7.
+ */
+async function updateActionsSetupPythonToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
+    await updateDependencyVersions('actions/setup-python', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
+/**
+ * Creates all awaiting schedule PRs.
+ */
+async function createAllAwaitingSchedulePRs() {
+  try {
+    const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+}
+
+/**
+ * Updates github/codeql-action to v4.
+ */
+async function updateGithubCodeqlActionToV4() {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
  * Exported API.
  */
 module.exports = {
@@ -817,5 +894,11 @@ module.exports = {
   updateSomeDependencyExternal,
   updateAnotherDependencyExternal,
   updateSentryTrentExternal,
-  updateCoreExternal
+  updateCoreExternal,
+  updatePosthogJsToV1_407_2,
+  updateActionsCheckoutToV7,
+  updateActionsLabelerToV7,
+  updateActionsSetupPythonToV7,
+  createAllAwaitingSchedulePRs,
+  updateGithubCodeqlActionToV4
 };

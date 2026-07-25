@@ -755,6 +755,92 @@ async function visualizeDependencyMemory(dependencyName, currentVersion, newVers
 }
 
 /**
+ * Updates posthog-js to v1.407.2 (exposed for external use).
+ */
+async function updatePosthogJsExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/checkout to v7 (exposed for external use).
+ */
+async function updateActionsCheckoutExternal() {
+  try {
+    await updateActionsCheckout();
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/labeler to v7 (exposed for external use).
+ */
+async function updateActionsLabelerExternal() {
+  try {
+    await updateActionsLabeler();
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/setup-python to v7 (exposed for external use).
+ */
+async function updateActionsSetupPythonExternal() {
+  try {
+    await updateActionsSetupPython();
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
+/**
+ * Creates all awaiting schedule PRs (exposed for external use).
+ */
+async function createAwaitingSchedulePRsExternal() {
+  try {
+    await createAwaitingSchedulePRs();
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+}
+
+/**
+ * Updates github/codeql-action to v4 (exposed for external use).
+ */
+async function updateGithubCodeqlActionExternal() {
+  try {
+    await updateGithubCodeqlAction();
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (exposed for external use).
+ */
+async function updateGitstreamActionExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
  * Exported API.
  */
 module.exports = {
@@ -817,5 +903,8 @@ module.exports = {
   updateSomeDependencyExternal,
   updateAnotherDependencyExternal,
   updateSentryTrentExternal,
-  updateCoreExternal
+  updateCoreExternal,
+  updatePosthogJsExternal,
+  createAwaitingSchedulePRsExternal,
+  updateGitstreamActionExternal
 };

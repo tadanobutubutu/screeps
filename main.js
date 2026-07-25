@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
-    }
+    console.log(`[${level}] ${message}`);
+  }
 };
 
 /**
@@ -86,23 +87,15 @@ async function updateGithubCodeqlAction() {
  * Calculates the progress of dependency updates for a specific version.
  */
 function calculateProgress(version) {
-  const allTasks = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version === version
-  );
-  const total = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version
-  ).length || 1;
+  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
+  const total = _tasks.filter(task => task && task.dependencies && task.dependencies.version).length || 1;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
 function calculateDependencyProgress(version) {
   const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
-  const total = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version).length || 1;
+  const total = allTasks.length;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
@@ -423,10 +416,9 @@ const stargazers = [];
  * @returns {number} The new count of stargazers
  */
 function addStargazer(username, starredAt = new Date()) {
-  if (!username) {
+  if (username === undefined || username === null) {
     throw new Error('Username is required');
   }
-
   // Check if stargazer already exists
   const existing = stargazers.find(s => s.username === username);
   if (existing) {
@@ -470,15 +462,13 @@ function removeStargazer(username) {
  */
 function updateStargazerActivity(username, activityDate = new Date()) {
   const stargazer = stargazers.find(s => s.username === username);
-
-  if (stargazer) {
-    stargazer.lastActivity = activityDate;
-    logging.log('info', `Updated activity for stargazer: ${username}`);
-    return true;
+  if (!stargazer) {
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    return false;
   }
-
-  logging.log('warn', `Stargazer ${username} not found in tracking list`);
-  return false;
+  stargazer.lastActivity = activityDate;
+  logging.log('info', `Updated activity for stargazer: ${username}`);
+  return true;
 }
 
 /**
@@ -630,12 +620,15 @@ async function generateStargazersReport() {
  * @returns {boolean} True if the stargazer is active, false otherwise
  */
 function isStargazerActive(username, days = 30) {
-  const stargazer = stargazers.find(s => s.username === username);
-  if (!username) {
+  if (username === undefined || username === null) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
-
+  const stargazer = stargazers.find(s => s.username === username);
+  if (!stargazer) {
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    return false;
+  }
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - days);
   return stargazer.lastActivity >= cutoffDate;
@@ -643,7 +636,7 @@ function isStargazerActive(username, days = 30) {
 
 // Add this function to help with testing
 function resetStargazers() {
-  stargazers = [];
+  stargazers.length = 0;
 }
 
 /**

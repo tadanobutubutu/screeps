@@ -67,6 +67,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             border-bottom: 1px solid #004b73;
             box-shadow: 0 0 0 2px rgba(0, 75, 115, 0.2);
           }
+          summary::-webkit-details-marker {
+            display: none;
+          }
+          summary {
+            list-style: none; /* for standard compliant browsers */
+            outline: none;
+          }
+          summary:focus-visible {
+            outline: 2px solid #004b73;
+            outline-offset: 2px;
+          }
         `}</style>
             </head>
             <body>{children}</body>

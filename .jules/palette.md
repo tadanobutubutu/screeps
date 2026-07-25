@@ -61,3 +61,7 @@
 
 **Learning:** Applying `cursor: pointer` to a parent `<details>` element causes the hand pointer cursor to be inherited by all of its nested children (including massive `<pre>` blocks). This misleadingly implies that the entire block is clickable and disrupts standard text-selection patterns. Setting `border: none` (or other structural styling) on the `<details>` container and applying `cursor: pointer` strictly to the `<summary>` element preserves expected interactive bounds.
 **Action:** Always scope `cursor: pointer` exclusively to the toggleable `<summary>` element rather than the parent `<details>` component.
+
+## 2026-07-25 - [Cross-Browser Disclosure Consistency & Keyboard Focus]
+**Learning:** Default `<details>` and `<summary>` list-style markers vary significantly across browser engines (Chrome, Firefox, Safari), resulting in visual inconsistency. Hiding the default markers using both `listStyle: 'none'` and `-webkit-details-marker` while explicitly tracking the element's expansion state via React's `onToggle` allows for a highly consistent and beautifully animated custom chevron indicator. Crucially, when overriding default summary styles, custom `:focus-visible` styles must be explicitly defined to maintain proper visual focus states for keyboard-only users.
+**Action:** Always hide default browser markers on summary tags globally, pair them with a state-driven rotating chevron element, and enforce an explicit `focus-visible` outline stylesheet rule.

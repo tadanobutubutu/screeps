@@ -1,6 +1,6 @@
 {
-    "experiment": "add-tower-optimization",
-    "description": "タワーのターゲット選択を最適化",
-    "timestamp": "2026-07-18T20:03:40.464Z",
-    "status": "applied"
+  "experiment": "improve-spawn-priority",
+  "description": "スポーン優先度ロジックを改善",
+  "timestamp": "2026-07-25T20:10:24.690Z",
+  "status": "applied"
 }

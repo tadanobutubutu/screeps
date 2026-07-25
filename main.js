@@ -281,6 +281,45 @@ async function handleRecreateGithubCodeqlActionPR() {
   }
 }
 
+/**
+ * Handles the update of actions/checkout to v7.
+ */
+async function handleActionsCheckoutUpdateToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
+    await updateDependencyVersions('actions/checkout', 'v7');
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of actions/labeler to v7.
+ */
+async function handleActionsLabelerUpdateToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of actions/setup-python to v7.
+ */
+async function handleActionsSetupPythonUpdateToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
+    await updateDependencyVersions('actions/setup-python', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -302,6 +341,9 @@ module.exports = {
   handleGithubCodeqlActionUpdate,
   handleGitstreamActionUpdate,
   handleRecreateGithubCodeqlActionPR,
+  handleActionsCheckoutUpdateToV7,
+  handleActionsLabelerUpdateToV7,
+  handleActionsSetupPythonUpdateToV7,
   addTask,
   createAsyncUpdateTask,
   updatePosthogJs,

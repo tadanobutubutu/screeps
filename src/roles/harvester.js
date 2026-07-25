@@ -119,9 +119,20 @@ function _harvest(creep) {
  */
 function _findDroppedEnergy(creep) {
     const dropped = cache.getDroppedResources(creep.room);
-    const energyDrops = dropped.filter((r) => r.resourceType === RESOURCE_ENERGY);
-    if (energyDrops.length === 0) return null;
-    return pathfinder.closest(creep.pos, energyDrops);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+    let bestDrop = null;
+    let minDistance = Infinity;
+    for (let i = 0; i < dropped.length; i++) {
+        const r = dropped[i];
+        if (r.resourceType === RESOURCE_ENERGY) {
+            const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function') ? creep.pos.getRangeTo(r) : 0;
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestDrop = r;
+            }
+        }
+    }
+    return bestDrop;
 }
 
 /**
@@ -131,9 +142,20 @@ function _findDroppedEnergy(creep) {
  */
 function _findAvailableContainer(creep) {
     const containers = cache.getContainers(creep.room);
-    const available = containers.filter((c) => c.store[RESOURCE_ENERGY] >= 100);
-    if (available.length === 0) return null;
-    return pathfinder.closest(creep.pos, available);
+    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loop to avoid filter array allocation and find closest directly.
+    let bestContainer = null;
+    let minDistance = Infinity;
+    for (let i = 0; i < containers.length; i++) {
+        const c = containers[i];
+        if (c.store[RESOURCE_ENERGY] >= 100) {
+            const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function') ? creep.pos.getRangeTo(c) : 0;
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestContainer = c;
+            }
+        }
+    }
+    return bestContainer;
 }
 
 // ============================================================

@@ -64,7 +64,6 @@ describe('src/roles/harvester', () => {
     test('落下エネルギーを拾いに移動する', () => {
         const drop = { id: 'drop', resourceType: global.RESOURCE_ENERGY, amount: 100 };
         mockCache.getDroppedResources.mockReturnValue([drop]);
-        pathfinder.closest.mockReturnValue(drop);
 
         const creep = {
             name: 'h1',
@@ -73,6 +72,7 @@ describe('src/roles/harvester', () => {
             say: jest.fn(),
             pickup: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: {},
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
         };
 
         harvester.run(creep);
@@ -186,37 +186,50 @@ describe('_findDroppedEnergy', () => {
     });
 
     test('Returns the closest energy drop if energy drops are found', () => {
-        const creep = { room: 'room1', pos: { x: 5, y: 5 } };
         const energyDrop1 = { resourceType: global.RESOURCE_ENERGY, amount: 10 };
         const energyDrop2 = { resourceType: global.RESOURCE_ENERGY, amount: 20 };
+        const creep = {
+            room: 'room1',
+            pos: {
+                getRangeTo: jest.fn().mockImplementation((target) => {
+                    if (target === energyDrop1) return 5;
+                    if (target === energyDrop2) return 10;
+                    return 99;
+                })
+            }
+        };
 
         mockCache.getDroppedResources.mockReturnValue([energyDrop1, energyDrop2]);
-        pathfinder.closest.mockReturnValue(energyDrop1);
 
         const result = harvester._findDroppedEnergy(creep);
 
         expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
-        expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [energyDrop1, energyDrop2]);
         expect(result).toBe(energyDrop1);
     });
 
     test('Filters out non-energy drops', () => {
-        const creep = { room: 'room1', pos: { x: 5, y: 5 } };
         const nonEnergyDrop = { resourceType: 'minerals', amount: 10 };
         const energyDrop = { resourceType: global.RESOURCE_ENERGY, amount: 20 };
+        const creep = {
+            room: 'room1',
+            pos: {
+                getRangeTo: jest.fn().mockImplementation((target) => {
+                    if (target === energyDrop) return 5;
+                    return 99;
+                })
+            }
+        };
 
         mockCache.getDroppedResources.mockReturnValue([nonEnergyDrop, energyDrop]);
-        pathfinder.closest.mockReturnValue(energyDrop);
 
         const result = harvester._findDroppedEnergy(creep);
 
         expect(mockCache.getDroppedResources).toHaveBeenCalledWith(creep.room);
-        expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [energyDrop]);
         expect(result).toBe(energyDrop);
     });
 
     test('Returns null if no energy drops exist', () => {
-        const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+        const creep = { room: 'room1', pos: { getRangeTo: jest.fn().mockReturnValue(5) } };
         const nonEnergyDrop = { resourceType: 'minerals', amount: 10 };
 
         mockCache.getDroppedResources.mockReturnValue([nonEnergyDrop]);
@@ -228,7 +241,7 @@ describe('_findDroppedEnergy', () => {
     });
 
     test('Returns null if getDroppedResources returns empty array', () => {
-        const creep = { room: 'room1', pos: { x: 5, y: 5 } };
+        const creep = { room: 'room1', pos: { getRangeTo: jest.fn().mockReturnValue(5) } };
 
         mockCache.getDroppedResources.mockReturnValue([]);
 
@@ -245,7 +258,7 @@ describe('_findAvailableContainer', () => {
     });
 
     test('エネルギーが100未満のコンテナは無視し、条件を満たさない場合はnullを返す', () => {
-        const creep = { room: {}, pos: {} };
+        const creep = { room: {}, pos: { getRangeTo: jest.fn().mockReturnValue(5) } };
         // エネルギーが100未満のコンテナのみを用意する
         const containers = [
             { store: { [global.RESOURCE_ENERGY]: 0 } },
@@ -256,29 +269,31 @@ describe('_findAvailableContainer', () => {
         const result = harvester._findAvailableContainer(creep);
 
         expect(result).toBeNull();
-        expect(pathfinder.closest).not.toHaveBeenCalled();
     });
 
-    test('エネルギーが100以上のコンテナがある場合、pathfinder.closestにフィルタリングされた配列を渡す', () => {
-        const creep = { room: {}, pos: { x: 1, y: 1 } };
+    test('エネルギーが100以上のコンテナがある場合、最も近いコンテナを選択する', () => {
         const validContainer1 = { store: { [global.RESOURCE_ENERGY]: 100 } };
         const validContainer2 = { store: { [global.RESOURCE_ENERGY]: 200 } };
         const invalidContainer = { store: { [global.RESOURCE_ENERGY]: 50 } };
+        const creep = {
+            room: {},
+            pos: {
+                getRangeTo: jest.fn().mockImplementation((target) => {
+                    if (target === validContainer1) return 10;
+                    if (target === validContainer2) return 5;
+                    return 99;
+                })
+            }
+        };
 
         mockCache.getContainers.mockReturnValue([
             validContainer1,
             invalidContainer,
             validContainer2,
         ]);
-        pathfinder.closest.mockReturnValue(validContainer2);
 
         const result = harvester._findAvailableContainer(creep);
 
-        // closestに渡される配列が、エネルギー100以上のコンテナのみであるかを確認
-        expect(pathfinder.closest).toHaveBeenCalledWith(creep.pos, [
-            validContainer1,
-            validContainer2,
-        ]);
         expect(result).toBe(validContainer2);
     });
 });
@@ -369,10 +384,9 @@ describe('_harvest', () => {
         mockCache.getDroppedResources.mockReturnValue([]);
         const container = { store: { [global.RESOURCE_ENERGY]: 200 } };
         mockCache.getContainers.mockReturnValue([container]);
-        pathfinder.closest.mockReturnValue(container);
 
         const creep = {
-            pos: {},
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
             room: {},
             withdraw: jest.fn().mockReturnValue(global.OK),
         };
@@ -387,10 +401,9 @@ describe('_harvest', () => {
         mockCache.getDroppedResources.mockReturnValue([]);
         const container = { store: { [global.RESOURCE_ENERGY]: 200 } };
         mockCache.getContainers.mockReturnValue([container]);
-        pathfinder.closest.mockReturnValue(container);
 
         const creep = {
-            pos: {},
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
             room: {},
             withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
         };

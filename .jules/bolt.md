@@ -52,3 +52,7 @@
 ## 2026-06-08 - String Sorting Optimization with Schwartzian Transform and Direct Comparison
 **Learning:** Using `localeCompare` and inside-loop `.toLowerCase()` conversions for string sorting causes massive CPU and garbage collection overhead in Node.js because `localeCompare` is heavily internationalized and `.toLowerCase()` allocates $O(N \log N)$ temporary strings.
 **Action:** Replace `localeCompare` with direct string comparison (`<` and `>`), and pre-calculate lowercase keys using a Schwartzian transform (map-sort-map) to reduce string allocation overhead to $O(N)$.
+
+## 2026-06-09 - Single-Pass Acquisition of Resources and Containers in Creep Roles
+**Learning:** Chaining `.filter()` followed by `pathfinder.closest()` for harvesting selection (e.g. finding dropped energy or available containers) creates intermediate arrays and traverses the dataset multiple times. In highly frequent creep ticks, this creates significant memory allocation pressure and V8 garbage collection overhead.
+**Action:** Implemented single-pass `for` loop traversing raw cache resources, calculating distance inline, and maintaining the single closest valid target. Added defensive checks to fallback gracefully to `0` distance when `creep.pos.getRangeTo` is unmocked or missing.

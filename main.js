@@ -584,6 +584,11 @@ async function generateStargazersReport() {
   }
 }
 
+// Add this function to help with testing
+function resetStargazers() {
+  stargazers = [];
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -635,5 +640,6 @@ module.exports = {
   getStargazers,
   trackRunawayStargazers,
   monitorStargazersActivity,
-  generateStargazersReport
+  generateStargazersReport,
+  resetStargazers // Added for testing purposes
 };

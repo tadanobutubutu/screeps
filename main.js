@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
-    }
+    console.log(`[${level}] ${message}`);
+  }
 };
 
 /**
@@ -423,7 +424,7 @@ const stargazers = [];
  * @returns {number} The new count of stargazers
  */
 function addStargazer(username, starredAt = new Date()) {
-  if ( === undefined ||  === null) {
+  if (username === undefined || username === null) {
     throw new Error('Username is required');
   }
 
@@ -451,9 +452,11 @@ function addStargazer(username, starredAt = new Date()) {
  */
 function removeStargazer(username) {
   const initialLength = stargazers.length;
-  stargazers = stargazers.filter(s => s.username !== username);
+  const filtered = stargazers.filter(s => s.username !== username);
 
-  if (stargazers.length < initialLength) {
+  if (filtered.length < initialLength) {
+    stargazers.length = 0;
+    stargazers.push(...filtered);
     logging.log('info', `Removed stargazer: ${username}`);
     return true;
   }
@@ -631,7 +634,7 @@ async function generateStargazersReport() {
  */
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
-  if ( === undefined ||  === null) {
+  if (stargazer === undefined || stargazer === null) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
@@ -643,7 +646,7 @@ function isStargazerActive(username, days = 30) {
 
 // Add this function to help with testing
 function resetStargazers() {
-  stargazers = [];
+  stargazers.length = 0;
 }
 
 /**
@@ -652,84 +655,6 @@ function resetStargazers() {
 function logWithComparison(level, message, value1, value2) {
   const comparisonResult = value1 === value2;
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
-}
-
-/**
- * Handles the update of actions/checkout to v7.
- */
-async function handleActionsCheckoutUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
-    await updateDependencyVersions('actions/checkout', 'v7');
-    logging.log('info', 'Successfully updated actions/checkout to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/labeler to v7.
- */
-async function handleActionsLabelerUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
-    logging.log('info', 'Successfully updated actions/labeler to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of actions/setup-python to v7.
- */
-async function handleActionsSetupPythonUpdateToV7() {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
-    await updateDependencyVersions('actions/setup-python', 'v7');
-    logging.log('info', 'Successfully updated actions/setup-python to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of posthog-js to v1.407.2.
- */
-async function handlePosthogJsUpdateToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
-}
-
-/**
- * Handles the recreation of a closed PR for github/codeql-action update to v4.
- */
-async function handleRecreateGithubCodeqlActionPRToV4() {
-  try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
-  } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
-  }
-}
-
-/**
- * Handles the update of linear-bots/gitstream-github-action.
- */
-async function handleGitstreamActionUpdateToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
 }
 
 /**

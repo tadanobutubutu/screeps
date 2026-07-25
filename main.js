@@ -1,6 +1,6 @@
 const logging = {
   log: (level, message) => {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+    }] ${message}`);
   }
 };
 

@@ -3,8 +3,7 @@
     "main.js"
   ],
   "rules": [
-    "Remove console.log",
-    "Replace var with const"
+    "Remove console.log"
   ],
-  "timestamp": "2026-07-24T08:02:24.558Z"
+  "timestamp": "2026-07-25T07:46:18.721Z"
 }

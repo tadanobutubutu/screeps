@@ -375,7 +375,7 @@ async function handleGitstreamActionUpdateToLatest() {
 /**
  * Tracks stargazers of the repository.
  */
-let stargazers = [];
+const stargazers = [];
 
 /**
  * Adds a new stargazer to the tracking list.

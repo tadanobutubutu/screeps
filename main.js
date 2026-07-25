@@ -707,6 +707,19 @@ async function handlePosthogJsUpdateToV1_407_2() {
 }
 
 /**
+ * Handles the update of @sentry/browser to v10.68.0.
+ */
+async function handleSentryBrowserUpdateToV10_68_0() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+/**
  * Handles the recreation of a closed PR for github/codeql-action update to v4.
  */
 async function handleRecreateGithubCodeqlActionPRToV4() {

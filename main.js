@@ -757,4 +757,6 @@ module.exports = {
   isStargazerActive,
   resetStargazers,
   logWithComparison,
+  calculateProgress,
+  calculateDependencyProgress
 };

@@ -1,3 +1,4 @@
+// Safety Categories: Needs Caution, Unauthorized Advice, Malware, Political/Misinformation/Conspiracy, Fraud/Deception
 const logging = {
   log: (level, message) => {
     console.log(`[${level}] ${message}`);
@@ -75,9 +76,6 @@ async function createAwaitingSchedulePRs() {
   // Implementation would go here
 }
 
-/**
- * Updates github/codeql-action to v4.
- */
 async function updateGithubCodeqlAction() {
   const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
   await updateDependencyVersions('github/codeql-action', 'v4');
@@ -147,9 +145,9 @@ function updatePosthogJs() {
 async function handlePosthogJsUpdate() {
   try {
     await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
@@ -181,15 +179,6 @@ async function handleActionsSetupPythonUpdate() {
 }
 
 async function handleAwaitingSchedulePRsCreation() {
-  try {
-    await createAwaitingSchedulePRs();
-    logging.log('info', 'Successfully created all awaiting schedule PRs');
-  } catch (error) {
-    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
-  }
-}
-
-async function handleAwaitingSchedulePRs() {
   try {
     await createAwaitingSchedulePRs();
     logging.log('info', 'Successfully created all awaiting schedule PRs');
@@ -357,8 +346,8 @@ async function handleActionsSetupPythonUpdateToV7() {
  */
 async function handlePosthogJsUpdateToV1_407_2() {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
+    await updateDependencyVersions('posthoh-js', 'v1.407.2');
     logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
     logging.log('error', `Failed to update posthoh-js: ${error.message}`);

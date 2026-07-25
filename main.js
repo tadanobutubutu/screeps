@@ -1,5 +1,5 @@
 const logging = {
-  log: (level, message) => { console.log(`[${level}] ${message}`); }
+  log: (level, message) => { }
 };
 
 let _tasks = [];

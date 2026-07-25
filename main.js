@@ -423,7 +423,7 @@ const stargazers = [];
  * @returns {number} The new count of stargazers
  */
 function addStargazer(username, starredAt = new Date()) {
-  if ( === undefined ||  === null) {
+  if (!username) {
     throw new Error('Username is required');
   }
 
@@ -631,7 +631,7 @@ async function generateStargazersReport() {
  */
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
-  if ( === undefined ||  === null) {
+  if (!username) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }

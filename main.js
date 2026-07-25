@@ -259,5 +259,6 @@ module.exports = {
   updateActionsCheckout,
   updateActionsLabeler,
   updateActionsSetupPython,
-  calculateProgress,
+  calculateProgress
 };
+}

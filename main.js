@@ -255,6 +255,19 @@ async function handleGithubCodeqlActionUpdate() {
   }
 }
 
+/**
+ * Handles linear-bots/gitstream-github-action update.
+ */
+async function handleGitstreamActionUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -274,6 +287,7 @@ module.exports = {
   handleSentryTrentUpdate,
   handleCoreUpdate,
   handleGithubCodeqlActionUpdate,
+  handleGitstreamActionUpdate,
   addTask,
   createAsyncUpdateTask,
   updatePosthogJs,

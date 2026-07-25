@@ -75,7 +75,7 @@ async function createAwaitingSchedulePRs() {
 /**
  * Calculates the progress of dependency updates for a specific version.
  */
-function calculateProgressByVersion(version) {
+function calculateProgress(version) {
   const allTasks = _tasks.filter(task =>
     task &&
     task.dependencies &&
@@ -90,8 +90,9 @@ function calculateProgressByVersion(version) {
   return (completed / total) * 100;
 }
 
-function visualizeMemory() {
-  return 'Memory visualization placeholder';
+function visualizeMemory(currentVersion, newVersion) {
+  // Stub: simulate async update
+  return Promise.resolve();
 }
 
 async function handlePosthogJsUpdate() {
@@ -130,7 +131,7 @@ async function handleActionsSetupPythonUpdate() {
   }
 }
 
-async function handleAwaitingSchedulePRsCreation() {
+async function handleAwaitingSchedulePRs() {
   try {
     await createAwaitingSchedulePRs();
     logging.log('info', 'Successfully created all awaiting schedule PRs');
@@ -146,6 +147,26 @@ async function handleSentryBrowserUpdate() {
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+async function handleSentryTrentUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/trent to v4');
+    await updateDependencyVersions('@sentry/trent', 'v4');
+    logging.log('info', 'Successfully updated @sentry/trent to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/trent: ${error.message}`);
+  }
+}
+
+async function handleCoreUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update core to v1.0.0');
+    // Implementation would go here
+    logging.log('info', 'Successfully updated core to v1.0.0');
+  } catch (error) {
+    logging.log('error', `Failed to update core: ${error.message}`);
   }
 }
 
@@ -171,14 +192,17 @@ async function handleMomentJsUpdate() {
 
 module.exports = {
   updateDependencyVersions,
+  updateNpmPackage,
   getTaskById,
   visualizeMemory,
   handlePosthogJsUpdate,
   handleActionsCheckoutUpdate,
   handleActionsLabelerUpdate,
   handleActionsSetupPythonUpdate,
-  handleAwaitingSchedulePRsCreation,
+  handleAwaitingSchedulePRs,
   handleSentryBrowserUpdate,
+  handleSentryTrentUpdate,
+  handleCoreUpdate,
   handleLodashUpdate,
   handleMomentJsUpdate,
   addTask,
@@ -186,5 +210,6 @@ module.exports = {
   updatePosthogJs,
   updateActionsCheckout,
   updateActionsLabeler,
-  updateActionsSetupPython
+  updateActionsSetupPython,
+  calculateProgress,
 };

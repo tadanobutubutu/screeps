@@ -82,8 +82,9 @@ function calculateProgress(version) {
   return (completed / total) * 100;
 }
 
-function visualizeMemory() {
-  return 'Memory visualization placeholder';
+function visualizeMemory(currentVersion, newVersion) {
+  // Stub: simulate async update
+  return Promise.resolve();
 }
 
 async function handlePosthogJsUpdate() {
@@ -163,6 +164,7 @@ async function handleCoreUpdate() {
 
 module.exports = {
   updateDependencyVersions,
+  updateNpmPackage,
   getTaskById,
   visualizeMemory,
   handlePosthogJsUpdate,

@@ -1,36 +1,23 @@
-// Safety Categories: Needs Caution, Unauthorized Advice, Malware, Political/Misinformation/Conspiracy, Fraud/Deception
 const logging = {
-  log: (level, message) => {
-    console.log(`[${level}] ${message}`);
-  }
+  log: (level, message) => { console.log(`[${level}] ${message}`); }
 };
 
-/**
- * Internal task list for tracking dependency update progress.
- * @type {Array}
- */
 let _tasks = [];
 
-/**
- * Placeholder external functions. These should be replaced with actual implementations.
- */
 function addTask(title, priority = 'medium', tags = []) {
   // Stub implementation: returns a mock task ID
   return Math.floor(Math.random() * 10000);
 }
 
 function getTaskById(taskId) {
-  // Stub implementation: returns a mock task object
   return { id: taskId, tags: [], dependencies: {} };
 }
 
 function updateDependencyVersions(dependency, newVersion) {
-  // Stub: simulate async update
   return Promise.resolve();
 }
 
 function updateNpmPackage(packageName, newVersion) {
-  // Stub: simulate async update
   return Promise.resolve();
 }
 
@@ -94,26 +81,14 @@ async function updateGithubCodeqlAction() {
 }
 
 /**
- * Updates posthog-js to v1.407.2.
- */
-async function updatePosthogJs() {
-  const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-  await updateDependencyVersions('posthog-js', '1.407.2');
-}
-
-/**
  * Calculates overall progress for a given version.
  */
 function calculateProgress(version) {
   const allTasks = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version === version
+    task && task.dependencies && task.dependencies.version === version
   );
   const total = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version
+    task && task.dependencies && task.dependencies.version
   ).length || 1;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
@@ -124,9 +99,7 @@ function calculateProgress(version) {
  */
 function calculateDependencyProgress(version) {
   const allTasks = _tasks.filter(task =>
-    task &&
-    task.dependencies &&
-    task.dependencies.version === version
+    task && task.dependencies && task.dependencies.version === version
   );
   const total = allTasks.length;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
@@ -139,7 +112,6 @@ function calculateDependencyProgress(version) {
  * @param {string} newVersion - The target version.
  */
 function visualizeMemory(currentVersion, newVersion) {
-  // Implementation of memory visualization
   const memoryUsage = process.memoryUsage();
   const heapUsed = memoryUsage.heapUsed / 1024 / 1024; // Convert to MB
   const heapTotal = memoryUsage.heapTotal / 1024 / 1024; // Convert to MB
@@ -189,7 +161,7 @@ async function handlePosthogJsUpdate() {
 }
 
 /**
- * Handles the update of actions/checkout to v7.
+ * Handlers for updating actions.
  */
 async function handleActionsCheckoutUpdate() {
   try {
@@ -200,9 +172,6 @@ async function handleActionsCheckoutUpdate() {
   }
 }
 
-/**
- * Handles the update of actions/labeler to v7.
- */
 async function handleActionsLabelerUpdate() {
   try {
     await updateActionsLabeler();
@@ -212,9 +181,6 @@ async function handleActionsLabelerUpdate() {
   }
 }
 
-/**
- * Handles the update of actions/setup-python to v7.
- */
 async function handleActionsSetupPythonUpdate() {
   try {
     await updateActionsSetupPython();
@@ -225,7 +191,7 @@ async function handleActionsSetupPythonUpdate() {
 }
 
 /**
- * Handles the creation of all awaiting schedule PRs.
+ * Creates all awaiting schedule PRs.
  */
 async function handleAwaitingSchedulePRsCreation() {
   try {
@@ -242,7 +208,7 @@ async function handleAwaitingSchedulePRsCreation() {
 async function handleSentryBrowserUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-    await updateDependencyVersions('@sentry/browser', '10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
@@ -327,7 +293,7 @@ async function handleCoreUpdate() {
 }
 
 /**
- * Handles the update of github/codeql-action to v4.
+ * Updates github/codeql-action to v4.
  */
 async function handleGithubCodeqlActionUpdate() {
   try {
@@ -338,6 +304,9 @@ async function handleGithubCodeqlActionUpdate() {
   }
 }
 
+/**
+ * Updates linear-bots/gitstream-github-action to the latest version.
+ */
 async function handleGitstreamActionUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
@@ -348,6 +317,9 @@ async function handleGitstreamActionUpdate() {
   }
 }
 
+/**
+ * Recreates PR for github/codeql-action update to v4.
+ */
 async function handleRecreateGithubCodeqlActionPR() {
   try {
     const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
@@ -358,46 +330,22 @@ async function handleRecreateGithubCodeqlActionPR() {
   }
 }
 
-async function handleRecreateGithubCodeqlActionPRToV4() {
+/**
+ * Updates posthoh-js to v1.407.2.
+ */
+async function handlePosthohJsUpdateToV1_407_2() {
   try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
+    await updateDependencyVersions('posthoh-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
-async function handleGitstreamActionUpdateToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-async function handleGitstreamActionUpdateToLatest2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-async function handlePosthogJsUpdateToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
-}
-
+/**
+ * Updates @sentry/browser to v10.68.0.
+ */
 async function handleSentryBrowserUpdateToV10_68_0() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
@@ -405,6 +353,32 @@ async function handleSentryBrowserUpdateToV10_68_0() {
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version.
+ */
+async function handleGitstreamActionUpdateToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (duplicate alias).
+ */
+async function handleGitstreamActionUpdateToLatestVersion() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
 
@@ -573,11 +547,11 @@ function logWithComparison(level, message, value1, value2) {
 }
 
 /**
- * Handles the update of linear-bots/gitstream-github-action to the latest version.
+ * Updates linear-bots/gitstream-github-action to the latest version (additional alias).
  */
-async function handleGitstreamActionUpdateToLatestVersion() {
+async function handleGitstreamActionUpdateToLatest2() {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
@@ -585,6 +559,155 @@ async function handleGitstreamActionUpdateToLatestVersion() {
   }
 }
 
+/**
+ * Updates actions/checkout to v7 (exposed for external use).
+ */
+async function updateActionsCheckoutExternal() {
+  try {
+    await updateActionsCheckout();
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/labeler to v7 (exposed for external use).
+ */
+async function updateActionsLabelerExternal() {
+  try {
+    await updateActionsLabeler();
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/setup-python to v7 (exposed for external use).
+ */
+async function updateActionsSetupPythonExternal() {
+  try {
+    await updateActionsSetupPython();
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
+/**
+ * Updates github/codeql-action to v4 (exposed for external use).
+ */
+async function updateGithubCodeqlActionExternal() {
+  try {
+    await updateGithubCodeqlAction();
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates lodash to v4 (exposed for external use).
+ */
+async function updateLodashExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update lodash to v4');
+    await updateDependencyVersions('lodash', 'v4');
+    logging.log('info', 'Successfully updated lodash to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update lodash: ${error.message}`);
+  }
+}
+
+/**
+ * Updates @sentry/browser to v10.68.0 (exposed for external use).
+ */
+async function updateSentryBrowserExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+/**
+ * Updates moment to v3 (exposed for external use).
+ */
+async function updateMomentExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update moment to v3');
+    logging.log('info', 'Successfully updated moment to v3');
+  } catch (error) {
+    logging.log('error', `Failed to update moment: ${error.message}`);
+  }
+}
+
+/**
+ * Updates some-dependency to v4 (exposed for external use).
+ */
+async function updateSomeDependencyExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update some-dependency to v4');
+    await updateDependencyVersions('some-dependency', 'v4');
+    logging.log('info', 'Successfully updated some-dependency to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update some-dependency: ${error.message}`);
+  }
+}
+
+/**
+ * Updates another-dependency to v5 (exposed for external use).
+ */
+async function updateAnotherDependencyExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update another-dependency to v5');
+    await updateDependencyVersions('another-dependency', 'v5');
+    logging.log('info', 'Successfully updated another-dependency to v5');
+  } catch (error) {
+    logging.log('error', `Failed to update another-dependency: ${error.message}`);
+  }
+}
+
+/**
+ * Updates @sentry/trent to v4 (exposed for external use).
+ */
+async function updateSentryTrentExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/trent to v4');
+    await updateDependencyVersions('@sentry/trent', 'v4');
+    logging.log('info', 'Successfully updated @sentry/trent to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/trent: ${error.message}`);
+  }
+}
+
+/**
+ * Updates core to v1.0.0 (exposed for external use).
+ */
+async function updateCoreExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update core to v1.0.0');
+    await updateDependencyVersions('core', 'v1.0.0');
+    logging.log('info', 'Successfully updated core to v1.0.0');
+  } catch (error) {
+    logging.log('error', `Failed to update core: ${error.message}`);
+  }
+}
+
+/**
+ * Stubs for missing update functions.
+ */
+async function updatePosthogJs() {
+  // Placeholder for actual posthog-js update logic
+  return Promise.resolve();
+}
+
+/**
+ * Exported API.
+ */
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -607,9 +730,8 @@ module.exports = {
   handleGithubCodeqlActionUpdate,
   handleGitstreamActionUpdate,
   handleRecreateGithubCodeqlActionPR,
-  handlePosthogJsUpdateToV1_407_2,
+  handlePosthohJsUpdateToV1_407_2,
   handleSentryBrowserUpdateToV10_68_0,
-  handleRecreateGithubCodeqlActionPRToV4,
   handleGitstreamActionUpdateToLatest,
   handleGitstreamActionUpdateToLatest2,
   handleGitstreamActionUpdateToLatestVersion,

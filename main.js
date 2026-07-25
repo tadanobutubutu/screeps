@@ -268,6 +268,19 @@ async function handleGitstreamActionUpdate() {
   }
 }
 
+/**
+ * Handles the recreation of a closed PR for github/codeql-action update to v4.
+ */
+async function handleRecreateGithubCodeqlActionPR() {
+  try {
+    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
+  } catch (error) {
+    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -288,6 +301,7 @@ module.exports = {
   handleCoreUpdate,
   handleGithubCodeqlActionUpdate,
   handleGitstreamActionUpdate,
+  handleRecreateGithubCodeqlActionPR,
   addTask,
   createAsyncUpdateTask,
   updatePosthogJs,

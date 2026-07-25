@@ -2,7 +2,7 @@ const logging = {
   log: (level, message) => { }
 };
 
-let _tasks = [];
+const _tasks = [];
 
 function addTask(title, priority = 'medium', tags = []) {
   // Stub implementation: returns a mock task ID
@@ -385,7 +385,7 @@ async function handleGitstreamActionUpdateToLatestVersion() {
 /**
  * Stargazers tracking methods
  */
-let stargazers = [];
+const stargazers = [];
 
 function addStargazer(username, starredAt = new Date()) {
   if (username === undefined || username === null) {
@@ -706,6 +706,55 @@ async function updatePosthogJs() {
 }
 
 /**
+ * Visualizes memory usage for a specific dependency update.
+ * @param {string} dependencyName - The name of the dependency being updated.
+ * @param {string} currentVersion - The current version of the dependency.
+ * @param {string} newVersion - The target version to update to.
+ * @returns {Promise<Object>} A promise that resolves with memory usage statistics.
+ */
+async function visualizeDependencyMemory(dependencyName, currentVersion, newVersion) {
+  const memoryUsageBefore = process.memoryUsage();
+  const heapUsedBefore = memoryUsageBefore.heapUsed / 1024 / 1024; // Convert to MB
+  const heapTotalBefore = memoryUsageBefore.heapTotal / 1024 / 1024; // Convert to MB
+
+  logging.log('info', `Memory usage before updating ${dependencyName} from ${currentVersion} to ${newVersion}: ${heapUsedBefore.toFixed(2)}MB/${heapTotalBefore.toFixed(2)}MB`);
+
+  // Simulate the update process
+  await new Promise(resolve => setTimeout(resolve, 300));
+
+  const memoryUsageAfter = process.memoryUsage();
+  const heapUsedAfter = memoryUsageAfter.heapUsed / 1024 / 1024; // Convert to MB
+  const heapTotalAfter = memoryUsageAfter.heapTotal / 1024 / 1024; // Convert to MB
+
+  logging.log('info', `Memory usage after updating ${dependencyName}: ${heapUsedAfter.toFixed(2)}MB/${heapTotalAfter.toFixed(2)}MB`);
+
+  // Calculate memory difference
+  const memoryDifference = heapUsedAfter - heapUsedBefore;
+  const memoryDifferenceMB = memoryDifference.toFixed(2);
+
+  logging.log('info', `Memory difference after updating ${dependencyName}: ${memoryDifferenceMB}MB`);
+
+  return {
+    dependency: dependencyName,
+    versions: {
+      current: currentVersion,
+      new: newVersion
+    },
+    memoryUsage: {
+      before: {
+        heapUsed: heapUsedBefore,
+        heapTotal: heapTotalBefore
+      },
+      after: {
+        heapUsed: heapUsedAfter,
+        heapTotal: heapTotalAfter
+      },
+      difference: memoryDifferenceMB
+    }
+  };
+}
+
+/**
  * Exported API.
  */
 module.exports = {
@@ -713,6 +762,7 @@ module.exports = {
   updateNpmPackage,
   getTaskById,
   visualizeMemory,
+  visualizeDependencyMemory,
   handlePosthogJsUpdate,
   handleActionsCheckoutUpdate,
   handleActionsLabelerUpdate,
@@ -758,5 +808,16 @@ module.exports = {
   resetStargazers,
   logWithComparison,
   calculateProgress,
-  calculateDependencyProgress
+  calculateDependencyProgress,
+  updateActionsCheckoutExternal,
+  updateActionsLabelerExternal,
+  updateActionsSetupPythonExternal,
+  updateGithubCodeqlActionExternal,
+  updateLodashExternal,
+  updateSentryBrowserExternal,
+  updateMomentExternal,
+  updateSomeDependencyExternal,
+  updateAnotherDependencyExternal,
+  updateSentryTrentExternal,
+  updateCoreExternal
 };

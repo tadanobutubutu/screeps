@@ -757,4 +757,15 @@ module.exports = {
   isStargazerActive,
   resetStargazers,
   logWithComparison,
+  updateActionsCheckoutExternal,
+  updateActionsLabelerExternal,
+  updateActionsSetupPythonExternal,
+  updateGithubCodeqlActionExternal,
+  updateLodashExternal,
+  updateSentryBrowserExternal,
+  updateMomentExternal,
+  updateSomeDependencyExternal,
+  updateAnotherDependencyExternal,
+  updateSentryTrentExternal,
+  updateCoreExternal
 };

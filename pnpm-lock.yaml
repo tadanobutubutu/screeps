@@ -54,8 +54,8 @@ importers:
         specifier: ^10.7.0
         version: 10.7.0(jiti@2.6.1)
       eslint-plugin-jest:
-        specifier: ^29.15.5
-        version: 29.15.5(eslint@10.7.0(jiti@2.6.1))(jest@30.4.2(@types/node@26.1.1))(typescript@6.0.3)
+        specifier: ^29.16.0
+        version: 29.16.0(eslint@10.7.0(jiti@2.6.1))(jest@30.4.2(@types/node@26.1.1))(typescript@6.0.3)
       globals:
         specifier: ^17.7.0
         version: 17.7.0
@@ -69,8 +69,8 @@ importers:
         specifier: ^17.0.0
         version: 17.0.0
       lint-staged:
-        specifier: ^17.1.1
-        version: 17.1.1
+        specifier: ^17.2.0
+        version: 17.2.0
       prettier:
         specifier: ^3.9.6
         version: 3.9.6
@@ -1456,8 +1456,8 @@ packages:
     peerDependencies:
       eslint: '>=7.0.0'
 
-  eslint-plugin-jest@29.15.5:
-    resolution: {integrity: sha512-gnY9aw4HO7bI6lnKf+tx9uX/dwDPX5tHK3MB5Jd/NmmOHwEY8H8Caf2a39DNCZoqJ+j8EqNra/iuoj/z3GuAeA==}
+  eslint-plugin-jest@29.16.0:
+    resolution: {integrity: sha512-0WFBxDHlT2ratGQfnFQEVIsgQJ5cfd+0IV8Kc6U3X2onB8ATLG23voD2Ch5G9fCkEpCPmCMuzW0tbS0kYb8biw==}
     engines: {node: ^20.12.0 || ^22.0.0 || >=24.0.0}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': ^8.0.0
@@ -2026,8 +2026,8 @@ packages:
   lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
 
-  lint-staged@17.1.1:
-    resolution: {integrity: sha512-FnHWpSe5cPRtrDG+soOuNdBxb4XQb2gN5EqpEWKdweyqyOfpl4QSjbrz3ilcIf0WXmkiNQGZZRQ23R5YtB3TEw==}
+  lint-staged@17.2.0:
+    resolution: {integrity: sha512-FchGnFe4i4B1C/a35SPU9bNGPEHSC1+1iV0plLjzBmKVe9klZrlRfSgK6Cw4VeHyqOXbJUXP0vON61uRftNQ0A==}
     engines: {node: '>=22.22.1'}
     hasBin: true
 
@@ -4120,7 +4120,7 @@ snapshots:
     dependencies:
       eslint: 10.7.0(jiti@2.6.1)
 
-  eslint-plugin-jest@29.15.5(eslint@10.7.0(jiti@2.6.1))(jest@30.4.2(@types/node@26.1.1))(typescript@6.0.3):
+  eslint-plugin-jest@29.16.0(eslint@10.7.0(jiti@2.6.1))(jest@30.4.2(@types/node@26.1.1))(typescript@6.0.3):
     dependencies:
       '@typescript-eslint/utils': 8.65.0(eslint@10.7.0(jiti@2.6.1))(typescript@6.0.3)
       eslint: 10.7.0(jiti@2.6.1)
@@ -4879,7 +4879,7 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
-  lint-staged@17.1.1:
+  lint-staged@17.2.0:
     dependencies:
       picomatch: 4.0.5
       string-argv: 0.3.2

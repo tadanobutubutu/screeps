@@ -624,6 +624,11 @@ async function generateStargazersReport() {
   }
 }
 
+// Add this function to help with testing
+function resetStargazers() {
+  stargazers = [];
+}
+
 /**
  * Enhanced logging function that handles the "===" token issue
  */
@@ -775,5 +780,6 @@ module.exports = {
   trackRunawayStargazers,
   monitorStargazersActivity,
   generateStargazersReport,
+  resetStargazers,
   logWithComparison
 };

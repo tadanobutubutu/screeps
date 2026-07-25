@@ -837,6 +837,19 @@ async function handleGitstreamActionUpdateToLatest() {
   }
 }
 
+/**
+ * Handles the update of linear-bots/gitstream-github-action to the latest version.
+ */
+async function handleGitstreamActionUpdateToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,

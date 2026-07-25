@@ -2,7 +2,7 @@ const logging = {
   log: (level, message) => { }
 };
 
-let _tasks = [];
+const _tasks = [];
 
 function addTask(title, priority = 'medium', tags = []) {
   // Stub implementation: returns a mock task ID
@@ -385,7 +385,7 @@ async function handleGitstreamActionUpdateToLatestVersion() {
 /**
  * Stargazers tracking methods
  */
-let stargazers = [];
+const stargazers = [];
 
 function addStargazer(username, starredAt = new Date()) {
   if (username === undefined || username === null) {

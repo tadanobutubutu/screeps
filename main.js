@@ -5,6 +5,12 @@ const logging = {
 };
 
 /**
+ * Internal task list for tracking dependency update progress.
+ * @type {Array}
+ */
+let _tasks = [];
+
+/**
  * Placeholder external functions. These should be replaced with actual implementations.
  */
 function addTask(title, priority, tags) {

@@ -373,16 +373,158 @@ async function handleGitstreamActionUpdateToLatest() {
 }
 
 /**
+ * Tracks stargazers of the repository.
+ */
+let stargazers = [];
+
+/**
+ * Adds a new stargazer to the tracking list.
+ * @param {string} username - The GitHub username of the stargazer
+ * @param {Date} starredAt - The date when the user starred the repository
+ * @returns {number} The new count of stargazers
+ */
+function addStargazer(username, starredAt = new Date()) {
+  if (!username) {
+    throw new Error('Username is required');
+  }
+
+  // Check if stargazer already exists
+  const existing = stargazers.find(s => s.username === username);
+  if (existing) {
+    logging.log('warn', `User ${username} is already being tracked as a stargazer`);
+    return stargazers.length;
+  }
+
+  stargazers.push({
+    username,
+    starredAt,
+    lastActivity: starredAt
+  });
+
+  logging.log('info', `Added new stargazer: ${username}`);
+  return stargazers.length;
+}
+
+/**
+ * Removes a stargazer from the tracking list.
+ * @param {string} username - The GitHub username of the stargazer to remove
+ * @returns {boolean} True if the stargazer was found and removed, false otherwise
+ */
+function removeStargazer(username) {
+  const initialLength = stargazers.length;
+  stargazers = stargazers.filter(s => s.username !== username);
+
+  if (stargazers.length < initialLength) {
+    logging.log('info', `Removed stargazer: ${username}`);
+    return true;
+  }
+
+  logging.log('warn', `Stargazer ${username} not found in tracking list`);
+  return false;
+}
+
+/**
+ * Updates the last activity date for a stargazer.
+ * @param {string} username - The GitHub username of the stargazer
+ * @param {Date} activityDate - The date of the last activity
+ * @returns {boolean} True if the stargazer was found and updated, false otherwise
+ */
+function updateStargazerActivity(username, activityDate = new Date()) {
+  const stargazer = stargazers.find(s => s.username === username);
+
+  if (stargazer) {
+    stargazer.lastActivity = activityDate;
+    logging.log('info', `Updated activity for stargazer: ${username}`);
+    return true;
+  }
+
+  logging.log('warn', `Stargazer ${username} not found in tracking list`);
+  return false;
+}
+
+/**
+ * Gets all stargazers currently being tracked.
+ * @returns {Array} Array of stargazer objects
+ */
+function getAllStargazers() {
+  return [...stargazers]; // Return a copy to prevent direct modification
+}
+
+/**
+ * Gets stargazers who haven't shown activity recently.
+ * @param {number} days - Number of days to consider as "recent"
+ * @returns {Array} Array of inactive stargazers
+ */
+function getInactiveStargazers(days = 30) {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+
+  return stargazers.filter(s => s.lastActivity < cutoffDate);
+}
+
+/**
+ * Gets the count of current stargazers.
+ * @returns {number} The number of tracked stargazers
+ */
+function getStargazerCount() {
+  return stargazers.length;
+}
+
+/**
  * Retrieves the list of stargazers for the repository.
  */
 async function getStargazers() {
   try {
     const taskId = await createAsyncUpdateTask('get repository stargazers');
     logging.log('info', 'Successfully retrieved stargazers list');
-    return { taskId, stargazers: [] };
+    return { taskId, stargazers: getAllStargazers() };
   } catch (error) {
     logging.log('error', `Failed to retrieve stargazers: ${error.message}`);
     throw error;
+  }
+}
+
+/**
+ * Handles the tracking of a new stargazer event.
+ */
+async function handleNewStargazer(username) {
+  try {
+    const count = addStargazer(username);
+    logging.log('info', `New stargazer added: ${username}. Total stargazers: ${count}`);
+  } catch (error) {
+    logging.log('error', `Failed to add new stargazer: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the untracking of a stargazer who unstarred the repository.
+ */
+async function handleStargazerRemoval(username) {
+  try {
+    const success = removeStargazer(username);
+    if (success) {
+      logging.log('info', `Stargazer removed: ${username}`);
+    } else {
+      logging.log('warn', `Attempted to remove non-existent stargazer: ${username}`);
+    }
+  } catch (error) {
+    logging.log('error', `Failed to remove stargazer: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of a stargazer's activity.
+ */
+async function handleStargazerActivityUpdate(username) {
+  try {
+    const success = updateStargazerActivity(username);
+    if (success) {
+      logging.log('info', `Updated activity for stargazer: ${username}`);
+    } else {
+      logging.log('warn', `Attempted to update activity for non-existent stargazer: ${username}`);
+    }
+  } catch (error) {
+    logging.log('error', `Failed to update stargazer activity: ${error.message}`);
   }
 }
 
@@ -392,8 +534,8 @@ async function getStargazers() {
 async function trackRunawayStargazers() {
   try {
     const taskId = await createAsyncUpdateTask('track runaway stargazers');
-    const stargazers = await getStargazers();
-    const runawayStargazers = stargazers.stargazers.filter(stargazer =>
+    const { stargazers } = await getStargazers();
+    const runawayStargazers = stargazers.filter(stargazer =>
       stargazer && stargazer.starFrequency && stargazer.starFrequency > 100
     );
     logging.log('info', `Found ${runawayStargazers.length} runaway stargazers`);
@@ -410,8 +552,8 @@ async function trackRunawayStargazers() {
 async function monitorStargazersActivity() {
   try {
     const taskId = await createAsyncUpdateTask('monitor stargazers activity');
-    const stargazers = await getStargazers();
-    const suspiciousStargazers = stargazers.stargazers.filter(stargazer =>
+    const { stargazers } = await getStargazers();
+    const suspiciousStargazers = stargazers.filter(stargazer =>
       stargazer && stargazer.isBot && stargazer.starCount > 50
     );
     logging.log('info', `Found ${suspiciousStargazers.length} suspicious stargazers`);
@@ -428,11 +570,11 @@ async function monitorStargazersActivity() {
 async function generateStargazersReport() {
   try {
     const taskId = await createAsyncUpdateTask('generate stargazers report');
-    const totalStargazers = await getStargazers();
+    const { stargazers: totalStargazers } = await getStargazers();
     const runawayStargazers = await trackRunawayStargazers();
     logging.log('info', 'Successfully generated stargazers report');
     return {
-      totalCount: totalStargazers.stargazers.length,
+      totalCount: totalStargazers.length,
       runawayCount: runawayStargazers.length,
       reportGenerated: true
     };
@@ -481,6 +623,15 @@ module.exports = {
   calculateProgress,
   calculateDependencyProgress,
   updateAnotherDependency,
+  addStargazer,
+  removeStargazer,
+  updateStargazerActivity,
+  getAllStargazers,
+  getInactiveStargazers,
+  getStargazerCount,
+  handleNewStargazer,
+  handleStargazerRemoval,
+  handleStargazerActivityUpdate,
   getStargazers,
   trackRunawayStargazers,
   monitorStargazersActivity,

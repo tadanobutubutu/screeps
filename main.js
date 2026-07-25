@@ -1,26 +1,36 @@
-const logging = { log: (level, message) => { console.log(`[${level}] ${message}`); } };
+// Safety Categories: Needs Caution, Unauthorized Advice, Malware, Political/Misinformation/Conspiracy, Fraud/Deception
+const logging = {
+  log: (level, message) => {
+    console.log(`[${level}] ${message}`);
+  }
+};
 
-/** * Internal task list for tracking dependency update progress. * @type {Array} */
+/**
+ * Internal task list for tracking dependency update progress.
+ * @type {Array}
+ */
 let _tasks = [];
 
-/** * Placeholder external functions. These should be replaced with actual implementations. */
+/**
+ * Placeholder external functions. These should be replaced with actual implementations.
+ */
 function addTask(title, priority = 'medium', tags = []) {
-  /* Stub implementation: returns a mock task ID */
+  // Stub implementation: returns a mock task ID
   return Math.floor(Math.random() * 10000);
 }
 
 function getTaskById(taskId) {
-  /* Stub implementation: returns a mock task object */
+  // Stub implementation: returns a mock task object
   return { id: taskId, tags: [], dependencies: {} };
 }
 
 function updateDependencyVersions(dependency, newVersion) {
-  /* Stub: simulate async update */
+  // Stub: simulate async update
   return Promise.resolve();
 }
 
 function updateNpmPackage(packageName, newVersion) {
-  /* Stub: simulate async update */
+  // Stub: simulate async update
   return Promise.resolve();
 }
 
@@ -28,7 +38,9 @@ function updateAnotherDependency(newVersion) {
   return Promise.resolve();
 }
 
-/** * Creates a task asynchronously and logs its creation. */
+/**
+ * Creates a task asynchronously and logs its creation.
+ */
 function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
   return new Promise((resolve, reject) => {
     try {
@@ -41,66 +53,114 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
   });
 }
 
+/**
+ * Updates actions/checkout to v7.
+ */
 async function updateActionsCheckout() {
   const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
   await updateDependencyVersions('actions/checkout', 'v7');
 }
 
+/**
+ * Updates actions/labeler to v7.
+ */
 async function updateActionsLabeler() {
   const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
   await updateDependencyVersions('actions/labeler', 'v7');
 }
 
+/**
+ * Updates actions/setup-python to v7.
+ */
 async function updateActionsSetupPython() {
   const taskId = await createAsyncUpdateTask('update actions/setup-python action to v7');
   await updateDependencyVersions('actions/setup-python', 'v7');
 }
 
+/**
+ * Creates all awaiting schedule PRs.
+ */
 async function createAwaitingSchedulePRs() {
   const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
   // Implementation would go here
 }
 
+/**
+ * Updates github/codeql-action to v4.
+ */
 async function updateGithubCodeqlAction() {
   const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
   await updateDependencyVersions('github/codeql-action', 'v4');
 }
 
-/** * Calculate overall progress for a given version. */
+/**
+ * Updates posthog-js to v1.407.2.
+ */
+async function updatePosthogJs() {
+  const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+  await updateDependencyVersions('posthog-js', '1.407.2');
+}
+
+/**
+ * Calculates overall progress for a given version.
+ */
 function calculateProgress(version) {
-  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
-  const total = _tasks.filter(task => task && task.dependencies && task.dependencies.version).length || 1;
+  const allTasks = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version === version
+  );
+  const total = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version
+  ).length || 1;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
-/** * Calculate dependency-specific progress for a given version. */
+/**
+ * Calculates dependency-specific progress for a given version.
+ */
 function calculateDependencyProgress(version) {
-  const allTasks = _tasks.filter(task => task && task.dependencies && task.dependencies.version === version);
+  const allTasks = _tasks.filter(task =>
+    task &&
+    task.dependencies &&
+    task.dependencies.version === version
+  );
   const total = allTasks.length;
   const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
-/** * Visualize memory usage before, during, and after an update. */
+/**
+ * Visualizes memory usage before, during, and after an update.
+ * @param {string} currentVersion - The current version being updated.
+ * @param {string} newVersion - The target version.
+ */
 function visualizeMemory(currentVersion, newVersion) {
+  // Implementation of memory visualization
   const memoryUsage = process.memoryUsage();
-  const heapUsed = memoryUsage.heapUsed / 1024 / 1024;
-  const heapTotal = memoryUsage.heapTotal / 1024 / 1024;
+  const heapUsed = memoryUsage.heapUsed / 1024 / 1024; // Convert to MB
+  const heapTotal = memoryUsage.heapTotal / 1024 / 1024; // Convert to MB
+
   logging.log('info', `Memory usage before update: ${heapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB`);
 
+  // Simulate memory usage during update
   const updateMemoryUsage = () => {
-    const newHeapUsed = heapUsed + (Math.random() * 5);
+    const newHeapUsed = heapUsed + (Math.random() * 5); // Simulate some memory usage during update
     logging.log('info', `Memory usage during update: ${newHeapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB`);
     return newHeapUsed;
   };
 
+  // Simulate memory cleanup after update
   const cleanupMemory = () => {
-    const finalHeapUsed = heapUsed + (Math.random() * 2);
+    const finalHeapUsed = heapUsed + (Math.random() * 2); // Simulate some memory cleanup
     logging.log('info', `Memory usage after update: ${finalHeapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB`);
     return finalHeapUsed;
   };
 
+  // Return a promise that resolves with memory stats
   return new Promise((resolve) => {
     setTimeout(() => {
       const duringUpdate = updateMemoryUsage();
@@ -116,13 +176,9 @@ function visualizeMemory(currentVersion, newVersion) {
   });
 }
 
-/** * Update posthog-js to v1.407.2. */
-function updatePosthogJs() {
-  const taskId = createAsyncUpdateTask('update posthog-js to v1.407.2');
-  const task = getTaskById(taskId);
-  updateDependencyVersions(task, 'posthog-js', '1.407.2');
-}
-
+/**
+ * Handles the update of posthog-js to v1.407.2.
+ */
 async function handlePosthogJsUpdate() {
   try {
     await updatePosthogJs();
@@ -132,7 +188,9 @@ async function handlePosthogJsUpdate() {
   }
 }
 
-/** * Handlers for updating actions. */
+/**
+ * Handles the update of actions/checkout to v7.
+ */
 async function handleActionsCheckoutUpdate() {
   try {
     await updateActionsCheckout();
@@ -142,6 +200,9 @@ async function handleActionsCheckoutUpdate() {
   }
 }
 
+/**
+ * Handles the update of actions/labeler to v7.
+ */
 async function handleActionsLabelerUpdate() {
   try {
     await updateActionsLabeler();
@@ -151,6 +212,9 @@ async function handleActionsLabelerUpdate() {
   }
 }
 
+/**
+ * Handles the update of actions/setup-python to v7.
+ */
 async function handleActionsSetupPythonUpdate() {
   try {
     await updateActionsSetupPython();
@@ -160,6 +224,9 @@ async function handleActionsSetupPythonUpdate() {
   }
 }
 
+/**
+ * Handles the creation of all awaiting schedule PRs.
+ */
 async function handleAwaitingSchedulePRsCreation() {
   try {
     await createAwaitingSchedulePRs();
@@ -169,7 +236,9 @@ async function handleAwaitingSchedulePRsCreation() {
   }
 }
 
-/** * Sentry Browser update */
+/**
+ * Handles the update of @sentry/browser to v10.68.0.
+ */
 async function handleSentryBrowserUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
@@ -180,7 +249,9 @@ async function handleSentryBrowserUpdate() {
   }
 }
 
-/** * Lodash update */
+/**
+ * Handles the update of lodash to v4.
+ */
 async function handleLodashUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update lodash to v4');
@@ -191,7 +262,9 @@ async function handleLodashUpdate() {
   }
 }
 
-/** * Moment.js update */
+/**
+ * Handles the update of moment to v3.
+ */
 async function handleMomentJsUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
@@ -201,7 +274,9 @@ async function handleMomentJsUpdate() {
   }
 }
 
-/** * Some dependency update */
+/**
+ * Handles some-dependency update.
+ */
 async function handleSomeDependencyUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update some-dependency to v4');
@@ -212,7 +287,9 @@ async function handleSomeDependencyUpdate() {
   }
 }
 
-/** * Another dependency update */
+/**
+ * Handles another-dependency update.
+ */
 async function handleAnotherDependencyUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update another-dependency to v5');
@@ -223,7 +300,9 @@ async function handleAnotherDependencyUpdate() {
   }
 }
 
-/** * Sentry Trent update */
+/**
+ * Handles the update of @sentry/trent to v4.
+ */
 async function handleSentryTrentUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/trent to v4');
@@ -234,17 +313,22 @@ async function handleSentryTrentUpdate() {
   }
 }
 
-/** * Core update */
+/**
+ * Handles the core update.
+ */
 async function handleCoreUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update core to v1.0.0');
+    await updateDependencyVersions('core', 'v1.0.0');
     logging.log('info', 'Successfully updated core to v1.0.0');
   } catch (error) {
     logging.log('error', `Failed to update core: ${error.message}`);
   }
 }
 
-/** * Github CodeQL action update */
+/**
+ * Handles the update of github/codeql-action to v4.
+ */
 async function handleGithubCodeqlActionUpdate() {
   try {
     await updateGithubCodeqlAction();
@@ -254,7 +338,6 @@ async function handleGithubCodeqlActionUpdate() {
   }
 }
 
-/** * Gitstream action update */
 async function handleGitstreamActionUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
@@ -265,7 +348,6 @@ async function handleGitstreamActionUpdate() {
   }
 }
 
-/** * Recreate Github CodeQL action PR */
 async function handleRecreateGithubCodeqlActionPR() {
   try {
     const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
@@ -276,7 +358,6 @@ async function handleRecreateGithubCodeqlActionPR() {
   }
 }
 
-/** * Recreate Github CodeQL action PR to v4 */
 async function handleRecreateGithubCodeqlActionPRToV4() {
   try {
     const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
@@ -287,7 +368,6 @@ async function handleRecreateGithubCodeqlActionPRToV4() {
   }
 }
 
-/** * Gitstream to latest update */
 async function handleGitstreamActionUpdateToLatest() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
@@ -298,7 +378,6 @@ async function handleGitstreamActionUpdateToLatest() {
   }
 }
 
-/** * Gitstream to latest 2 update */
 async function handleGitstreamActionUpdateToLatest2() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
@@ -309,7 +388,6 @@ async function handleGitstreamActionUpdateToLatest2() {
   }
 }
 
-/** * Posthog JS update to v1.407.2 */
 async function handlePosthogJsUpdateToV1_407_2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
@@ -320,7 +398,6 @@ async function handlePosthogJsUpdateToV1_407_2() {
   }
 }
 
-/** * Sentry Browser update to v10.68.0 */
 async function handleSentryBrowserUpdateToV10_68_0() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
@@ -331,7 +408,9 @@ async function handleSentryBrowserUpdateToV10_68_0() {
   }
 }
 
-/** * Stargazers tracking methods */
+/**
+ * Stargazers tracking methods
+ */
 let stargazers = [];
 
 function addStargazer(username, starredAt = new Date()) {
@@ -485,7 +564,9 @@ function resetStargazers() {
   stargazers.length = 0;
 }
 
-/** * Add helper for log comparisons. */
+/**
+ * Add helper for log comparisons.
+ */
 function logWithComparison(level, message, value1, value2) {
   const comparisonResult = value1 === value2;
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);

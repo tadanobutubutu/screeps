@@ -480,6 +480,10 @@ function updateStargazerActivity(username, activityDate = new Date()) {
     return true;
   }
 
+  logging.log('warn', `info`, `Updated activity for stargazer: ${username}`;
+    return true;
+  }
+
   logging.log('warn', `Stargazer ${username} not found in tracking list`);
   return false;
 }
@@ -633,6 +637,11 @@ async function generateStargazersReport() {
  * @returns {boolean} True if the stargazer is active, false otherwise
  */
 function isStargazerActive(username, days = 30) {
+  if (username === undefined || username === null) {
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    return false;
+  }
+
   const stargazer = stargazers.find(s => s.username === username);
   if (stargazer === undefined || stargazer === null) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
@@ -706,6 +715,19 @@ async function handlePosthogJsUpdateToV1_407_2() {
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of @sentry/browser to v10.68.0.
+ */
+async function handleSentryBrowserUpdateToV10_68_0() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
   }
 }
 

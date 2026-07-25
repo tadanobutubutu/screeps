@@ -26,7 +26,7 @@ function updateNpmPackage(packageName, newVersion) {
 /**
  * Creates a task asynchronously and logs its creation.
  */
-function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
+function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -78,12 +78,13 @@ function calculateProgress(version) {
     task.dependencies &&
     task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
-function visualizeMemory() {
-  return 'Memory visualization placeholder';
+function visualizeMemory(currentVersion, newVersion) {
+  // Stub: simulate async update
+  return Promise.resolve();
 }
 
 async function handlePosthogJsUpdate() {
@@ -180,4 +181,5 @@ module.exports = {
   updateActionsLabeler,
   updateActionsSetupPython,
   calculateProgress,
+  updateNpmPackage,
 };

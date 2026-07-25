@@ -4,7 +4,6 @@ const logging = {
   }
 };
 
-
 /**
  * Placeholder external functions. These should be replaced with actual implementations.
  */
@@ -32,7 +31,6 @@ function updateAnotherDependency(newVersion) {
   return Promise.resolve();
 }
 
-
 /**
  * Creates a task asynchronously and logs its creation.
  */
@@ -47,7 +45,6 @@ function createAsyncUpdateTask(title, priority = 'medium', tags = []) {
     }
   });
 }
-
 
 async function updateActionsCheckout() {
   const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
@@ -72,6 +69,13 @@ async function createAwaitingSchedulePRs() {
   // Implementation would go here
 }
 
+/**
+ * Updates github/codeql-action to v4.
+ */
+async function updateGithubCodeqlAction() {
+  const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
+  await updateDependencyVersions('github/codeql-action', 'v4');
+}
 
 /**
  * Calculates the progress of dependency updates for a specific version.
@@ -239,6 +243,18 @@ async function handleCoreUpdate() {
   }
 }
 
+/**
+ * Handles github/codeql-action update to v4.
+ */
+async function handleGithubCodeqlActionUpdate() {
+  try {
+    await updateGithubCodeqlAction();
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
@@ -257,12 +273,14 @@ module.exports = {
   handleAnotherDependencyUpdate,
   handleSentryTrentUpdate,
   handleCoreUpdate,
+  handleGithubCodeqlActionUpdate,
   addTask,
   createAsyncUpdateTask,
   updatePosthogJs,
   updateActionsCheckout,
   updateActionsLabeler,
   updateActionsSetupPython,
+  updateGithubCodeqlAction,
   createAwaitingSchedulePRs,
   calculateProgress,
   calculateDependencyProgress,

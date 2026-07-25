@@ -2,7 +2,7 @@ const logging = {
   log: (level, message) => { }
 };
 
-const _tasks = [];
+let _tasks = [];
 
 function addTask(title, priority = 'medium', tags = []) {
   // Stub implementation: returns a mock task ID
@@ -385,7 +385,7 @@ async function handleGitstreamActionUpdateToLatestVersion() {
 /**
  * Stargazers tracking methods
  */
-const stargazers = [];
+let stargazers = [];
 
 function addStargazer(username, starredAt = new Date()) {
   if (username === undefined || username === null) {
@@ -839,7 +839,6 @@ module.exports = {
   updateNpmPackage,
   getTaskById,
   visualizeMemory,
-  visualizeDependencyMemory,
   handlePosthogJsUpdate,
   handleActionsCheckoutUpdate,
   handleActionsLabelerUpdate,
@@ -884,6 +883,8 @@ module.exports = {
   isStargazerActive,
   resetStargazers,
   logWithComparison,
+  calculateProgress,
+  calculateDependencyProgress,
   updateActionsCheckoutExternal,
   updateActionsLabelerExternal,
   updateActionsSetupPythonExternal,
@@ -900,5 +901,6 @@ module.exports = {
   updateActionsLabelerToV7,
   updateActionsSetupPythonToV7,
   createAllAwaitingSchedulePRs,
-  updateGithubCodeqlActionToV4
+  updateGithubCodeqlActionToV4,
+  visualizeDependencyMemory
 };

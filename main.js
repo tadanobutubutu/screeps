@@ -385,7 +385,7 @@ async function handleGitstreamActionUpdateToLatestVersion() {
 /**
  * Stargazers tracking methods
  */
-let stargazers = [];
+const stargazers = [];
 
 function addStargazer(username, starredAt = new Date()) {
   if (username === undefined || username === null) {

@@ -9,7 +9,8 @@ export default function Dashboard() {
         [lastUpdated, setLastUpdated] = useState<Date | null>(null),
         [copied, setCopied] = useState(false),
         [copiedRoom, setCopiedRoom] = useState<string | null>(null),
-        [copiedJson, setCopiedJson] = useState(false);
+        [copiedJson, setCopiedJson] = useState(false),
+        [detailsOpen, setDetailsOpen] = useState(false);
 
     const [refreshHover, setRefreshHover] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
@@ -444,7 +445,10 @@ export default function Dashboard() {
                     )}
                 </div>
             </div>
-            <details style={{ border: 'none' }}>
+            <details
+                onToggle={(e) => setDetailsOpen((e.target as HTMLDetailsElement).open)}
+                style={{ border: 'none' }}
+            >
                 <summary
                     className="interactive-hint"
                     title="生データを JSON 形式で表示/非表示にします"
@@ -452,8 +456,21 @@ export default function Dashboard() {
                         color: '#4a5568',
                         padding: '0.2rem 0',
                         cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
                     }}
                 >
+                    <span
+                        style={{
+                            display: 'inline-block',
+                            transition: 'transform 0.2s ease-in-out',
+                            transform: detailsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                            fontSize: '0.75rem',
+                        }}
+                    >
+                        ▶
+                    </span>
                     <span>生データを確認</span>
                 </summary>
                 <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

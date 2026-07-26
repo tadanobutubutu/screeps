@@ -12,3 +12,4 @@ function secureRandom() {
     throw new Error("No secure random number generator available.");
 }
 
+module.exports = { secureRandom };

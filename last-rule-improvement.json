@@ -1,10 +1,5 @@
 {
-  "files": [
-    "main.js"
-  ],
-  "rules": [
-    "Remove console.log",
-    "Strict undefined check"
-  ],
-  "timestamp": "2026-07-26T12:50:54.109Z"
+    "files": ["main.js"],
+    "rules": ["Remove console.log", "Strict undefined check"],
+    "timestamp": "2026-07-26T12:50:54.109Z"
 }

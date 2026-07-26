@@ -40,8 +40,22 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 };
 
 async function handleActionsLabelerUpdate() {
-  const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-  await updateDependencyVersions('actions/labeler', 'v7');
+  return new Promise((resolve, reject) => {
+    try {
+      const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+      updateDependencyVersions('actions/labeler', 'v7')
+        .then(() => {
+          logging.log('info', `Successfully updated actions/labeler to v7`);
+          resolve(taskId);
+        })
+        .catch((error) => {
+          logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+          reject(error);
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function handleGitstreamActionUpdate() {

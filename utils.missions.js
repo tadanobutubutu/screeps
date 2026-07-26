@@ -33,7 +33,6 @@ function generateMissionId() {
     return timePrefix + '-' + global._missionIdCounter.toString(36);
 }
 
-
 /**
  * セキュアな乱数を生成する (PRNGの脆弱性対策)
  * @param {number} max - 0以上、max未満の整数を返す
@@ -49,7 +48,6 @@ function secureRandomInt(max) {
     } catch (e) {
         // Fallback
     }
-
     // scanner-disable-next-line
     // Fallback to Math.random() if crypto is unavailable (accepted for Sandbox)
     return Math.floor(Math.random() * max);

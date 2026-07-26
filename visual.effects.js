@@ -4,6 +4,24 @@
 
 const adaptiveSystem = require('system.adaptive');
 
+/**
+ * セキュアな乱数を生成する (PRNGの脆弱性対策)
+ * @returns {number} 0以上、1未満の浮動小数点数
+ */
+function secureRandomFloat() {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) / (0xffffffff + 1);
+        }
+    } catch (e) {
+        // Fallback
+    }
+    return Math.random();
+}
+
+
 // ⚡ PERFORMANCE: Per-tick cache for visual effects enablement
 let _isVfxEnabledTick = -1;
 let _isVfxEnabledValue = true;

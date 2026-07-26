@@ -1,10 +1,8 @@
-// deploy.js - Screeps PTR & 本番両方にデプロイ
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const ptrToken = process.env.SCREEPS_TOKEN;
-const prodToken = process.env.SCREEPS_PROD_TOKEN;
+// Tokens are read at deploy time now
 
 // トークン検証関数
 function validateToken(token, label) {
@@ -100,7 +98,7 @@ function sanitizeLog(str) {
     const secretPattern = new RegExp(
         '\\b([a-zA-Z0-9_-]*(' +
             keys +
-            ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
+            ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\' ]*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
         'gi'
     );
 
@@ -184,47 +182,59 @@ function deployTo(label, apiPath, token, modules) {
 }
 
 // スクリプトとして直接実行された場合のみデプロイ処理を実行
-if (require.main === module) {
-    // Read all JS files
-    const files = [
-        { name: 'main', file: 'main.js' },
-        { name: 'role.harvester', file: 'role.harvester.js' },
-        { name: 'role.upgrader', file: 'role.upgrader.js' },
-        { name: 'role.builder', file: 'role.builder.js' },
-        { name: 'role.repairer', file: 'role.repairer.js' },
-        { name: 'role.explorer', file: 'role.explorer.js' },
-    ];
+// Read all JS files
+const defaultFiles = [
+    { name: 'main', file: 'main.js' },
+    { name: 'role.harvester', file: 'role.harvester.js' },
+    { name: 'role.upgrader', file: 'role.upgrader.js' },
+    { name: 'role.builder', file: 'role.builder.js' },
+    { name: 'role.repairer', file: 'role.repairer.js' },
+    { name: 'role.explorer', file: 'role.explorer.js' },
+];
 
-    (async () => {
-        try {
-            const modules = {};
-            for (const m of files) {
-                try {
-                    // ファイルパスの検証
-                    const filePath = validateFilePath(m.file);
-                    let content = await fs.promises.readFile(filePath, 'utf8');
+/**
+ * デプロイ処理（環境変数または引数でトークンを指定可能）
+ * @param {Array<{name:string, file:string}>} [files] - デプロイ対象ファイルリスト（省略時はデフォルトリスト）
+ * @param {string} [ptrToken] - PTR用トークン（省略時はprocess.env.SCREEPS_TOKEN）
+ * @param {string} [prodToken] - PROD用トークン（省略時はprocess.env.SCREEPS_PROD_TOKEN）
+ */
+async function runDeploy(...params) {
+    let files = defaultFiles;
+    let ptrToken = process.env.SCREEPS_TOKEN;
+    let prodToken = process.env.SCREEPS_PROD_TOKEN;
 
-                    // Security: Inject environment variables into the source
-                    content = injectEnvVars(content);
+    if (params.length === 3) {
+        [files, ptrToken, prodToken] = params;
+    } else if (params.length === 1 && Array.isArray(params[0])) {
+        files = params[0];
+    }
 
-                    modules[m.name] = content;
-                } catch (e) {
-                    // エラーメッセージから機密情報を除外
-                    const safeMessage = sanitizeLog(e.message);
-                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                    process.exit(1);
-                }
+    try {
+        const modules = {};
+        for (const m of files) {
+            try {
+                const filePath = validateFilePath(m.file);
+                let content = await fs.promises.readFile(filePath, 'utf8');
+                content = injectEnvVars(content);
+                modules[m.name] = content;
+            } catch (e) {
+                const safeMessage = sanitizeLog(e.message);
+                console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                process.exit(1);
             }
-
-            await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
-            await deployTo('PROD', '/api/user/code', prodToken, modules);
-        } catch (error) {
-            // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-            const safeMessage = sanitizeLog(error.message);
-            console.error('Deployment process failed:', safeMessage);
-            process.exit(1);
         }
-    })();
+
+        await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
+        await deployTo('PROD', '/api/user/code', prodToken, modules);
+    } catch (error) {
+        const safeMessage = sanitizeLog(error.message);
+        console.error('Deployment process failed:', safeMessage);
+        process.exit(1);
+    }
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };
+if (require.main === module) {
+    runDeploy();
+}
+
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog, runDeploy };

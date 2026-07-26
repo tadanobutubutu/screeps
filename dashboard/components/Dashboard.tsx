@@ -192,8 +192,7 @@ export default function Dashboard() {
                         borderRadius: '4px',
                         transition: 'all 0.2s ease-in-out',
                         transform: errRetryHover && !refreshing ? 'scale(1.05)' : 'scale(1)',
-                        boxShadow:
-                            errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
+                        boxShadow: errRetryHover && !refreshing ? '0 4px 10px rgba(0,0,0,0.05)' : 'none',
                         filter: errRetryHover && !refreshing ? 'brightness(0.95)' : 'none',
                     }}
                 >
@@ -384,9 +383,7 @@ export default function Dashboard() {
                     >
                         <span>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
                         <span style={{ fontSize: '0.85rem' }}>
-                            {stats?.cpuUsed !== undefined
-                                ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%`
-                                : '0.0%'}
+                            {stats?.cpuUsed !== undefined ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%` : '0.0%'}
                         </span>
                     </div>
                     <div
@@ -413,8 +410,7 @@ export default function Dashboard() {
                                           ? '#dd6b20'
                                           : '#319795',
                                 width: `${Math.min(100, stats?.cpuUsed || 0)}%`,
-                                transition:
-                                    'width 0.3s ease-in-out, background-color 0.3s ease-in-out',
+                                transition: 'width 0.3s ease-in-out, background-color 0.3s ease-in-out',
                             }}
                         />
                     </div>
@@ -516,14 +512,7 @@ export default function Dashboard() {
                     </span>
                     <span>生データを確認</span>
                 </summary>
-                <div
-                    style={{
-                        marginTop: '0.5rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                    }}
-                >
+                <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                         <button
                             onClick={(e) => {

@@ -102,4 +102,27 @@ describe('role.explorer', () => {
             expect.any(Object)
         );
     });
+
+    test('picks a random exit securely when arriving at target', () => {
+        global.Game.map.describeExits.mockReturnValue({ '1': 'W1N2', '3': 'W2N1' });
+
+        // Mock Math.random to verify fallback doesn't throw and coverage hits
+        const originalRandom = Math.random;
+        Math.random = jest.fn().mockReturnValue(0.9);
+
+        const creep = {
+            memory: { targetRoom: 'W1N1' }, // we are already here
+            say: jest.fn(),
+            moveTo: jest.fn(),
+            room: { name: 'W1N1' },
+            pos: { x: 25, y: 25 }, // at center
+        };
+
+        expect(() => roleExplorer.run(creep)).not.toThrow();
+        expect(creep.say).toHaveBeenCalledWith('👀 scouting');
+        expect(creep.memory.targetRoom).toBeDefined();
+        expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
+
+        Math.random = originalRandom;
+    });
 });

@@ -184,7 +184,7 @@ function deployTo(label, apiPath, token, modules) {
 }
 
 // スクリプトとして直接実行された場合のみデプロイ処理を実行
-if (require.main === module) {
+async function runDeploy() {
     // Read all JS files
     const files = [
         { name: 'main', file: 'main.js' },
@@ -195,36 +195,39 @@ if (require.main === module) {
         { name: 'role.explorer', file: 'role.explorer.js' },
     ];
 
-    (async () => {
-        try {
-            const modules = {};
-            for (const m of files) {
-                try {
-                    // ファイルパスの検証
-                    const filePath = validateFilePath(m.file);
-                    let content = await fs.promises.readFile(filePath, 'utf8');
+    try {
+        const modules = {};
+        for (const m of files) {
+            try {
+                // ファイルパスの検証
+                const filePath = validateFilePath(m.file);
+                let content = await fs.promises.readFile(filePath, 'utf8');
 
-                    // Security: Inject environment variables into the source
-                    content = injectEnvVars(content);
+                // Security: Inject environment variables into the source
+                content = injectEnvVars(content);
 
-                    modules[m.name] = content;
-                } catch (e) {
-                    // エラーメッセージから機密情報を除外
-                    const safeMessage = sanitizeLog(e.message);
-                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                    process.exit(1);
-                }
+                modules[m.name] = content;
+            } catch (e) {
+                // エラーメッセージから機密情報を除外
+                const safeMessage = sanitizeLog(e.message);
+                console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                process.exit(1);
             }
-
-            await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
-            await deployTo('PROD', '/api/user/code', prodToken, modules);
-        } catch (error) {
-            // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-            const safeMessage = sanitizeLog(error.message);
-            console.error('Deployment process failed:', safeMessage);
-            process.exit(1);
         }
-    })();
+
+        await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
+        await deployTo('PROD', '/api/user/code', prodToken, modules);
+    } catch (error) {
+        // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
+        const safeMessage = sanitizeLog(error.message);
+        console.error('Deployment process failed:', safeMessage);
+        process.exit(1);
+    }
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };
+// スクリプトとして直接実行された場合のみデプロイ処理を実行
+if (require.main === module) {
+    runDeploy();
+}
+
+module.exports = { runDeploy, validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };

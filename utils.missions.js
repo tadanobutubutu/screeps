@@ -33,7 +33,6 @@ function generateMissionId() {
     return timePrefix + '-' + global._missionIdCounter.toString(36);
 }
 
-
 /**
  * セキュアな乱数を生成する (PRNGの脆弱性対策)
  * @param {number} max - 0以上、max未満の整数を返す
@@ -48,7 +47,7 @@ function secureRandomInt(max) {
     } catch (e) {
         // Fallback
     }
-    return Math.floor(Math.random() * max);
+    throw new Error('Secure random number generation failed: crypto module unavailable.');
 }
 
 const MissionSystem = {

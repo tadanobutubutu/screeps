@@ -1,6 +1,7 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
 ## 2026-08-01 - [Visual Telemetry Accessibility with Semantic Progress Bars]
+
 **Learning:** For dynamic, resource-intensive visual metrics like CPU usage on dashboards, replacing raw text stats with a color-coded, keyboard-focusable progress bar significantly reduces user cognitive load. Implementing proper semantic ARIA attributes (`role="progressbar"`, `aria-label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext`) guarantees that screen readers announce changes deterministically and with equal fidelity.
 **Action:** Always wrap visual gauges in focusable container blocks (`tabIndex={0}`) with descriptive title tooltips and style indicators with clear color thresholds (green/teal, orange, red) to provide instant visual and auditory feedback.
 
@@ -67,5 +68,6 @@
 **Action:** Always scope `cursor: pointer` exclusively to the toggleable `<summary>` element rather than the parent `<details>` component.
 
 ## 2026-07-25 - [Cross-Browser Disclosure Consistency & Keyboard Focus]
+
 **Learning:** Default `<details>` and `<summary>` list-style markers vary significantly across browser engines (Chrome, Firefox, Safari), resulting in visual inconsistency. Hiding the default markers using both `listStyle: 'none'` and `-webkit-details-marker` while explicitly tracking the element's expansion state via React's `onToggle` allows for a highly consistent and beautifully animated custom chevron indicator. Crucially, when overriding default summary styles, custom `:focus-visible` styles must be explicitly defined to maintain proper visual focus states for keyboard-only users.
 **Action:** Always hide default browser markers on summary tags globally, pair them with a state-driven rotating chevron element, and enforce an explicit `focus-visible` outline stylesheet rule.

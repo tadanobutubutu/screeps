@@ -6,12 +6,16 @@ const DefenseManager = {
 
         const hostiles = cache.getEnemies(room);
         const allStructures = cache.getStructures(room);
-        const damagedStructures = allStructures.filter(
-            (s) => s.hits && s.hits < s.hitsMax && s.structureType !== STRUCTURE_WALL
-        );
-        const damagedWalls = allStructures.filter(
-            (s) => s.structureType === STRUCTURE_WALL && s.hits < 100000
-        );
+        const damagedStructures = [];
+        const damagedWalls = [];
+        for (let i = 0; i < allStructures.length; i++) {
+            const s = allStructures[i];
+            if (s.structureType === STRUCTURE_WALL) {
+                if (s.hits < 100000) damagedWalls.push(s);
+            } else {
+                if (s.hits && s.hits < s.hitsMax) damagedStructures.push(s);
+            }
+        }
 
         towers.forEach((tower) => {
             if (hostiles.length > 0) {

@@ -1,50 +1,69 @@
-/**
- * deploy.js ロジックのユニットテスト
- */
-
-// httpsモジュールをモック
-jest.mock('https');
-const https = require('https');
-
-const { validateToken, validateFilePath, deployTo } = require('../deploy');
+const { validateToken, validateFilePath, deployTo, runDeploy } = require('../deploy');
+const fs = require('fs');
 
 describe('deploy.js', () => {
+    describe('runDeploy error handling', () => {
+        let originalExit, originalError;
+        beforeEach(() => {
+            originalExit = process.exit;
+            originalError = console.error;
+            process.exit = jest.fn();
+            console.error = jest.fn();
+        });
+
+        afterEach(() => {
+            process.exit = originalExit;
+            console.error = originalError;
+            jest.restoreAllMocks();
+        });
+
+        test('catches file read error and exits', async () => {
+            const { runDeploy } = require('../deploy');
+            jest.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('simulated read error token=\'[REDACTED]\''));
+            await runDeploy();
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[ERROR] Failed to read main.js: simulated read error token=\'[REDACTED]\'')
+            );
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+    });
+
     describe('validateToken', () => {
-        test('有効なトークンを許可', () => {
+        test('have valid token', () => {
             const result = validateToken('valid_token_1234567890', 'PTR');
             expect(result.valid).toBe(true);
         });
 
-        test('トークンが未設定の場合、無効', () => {
+        test('token not set', () => {
             const result = validateToken(undefined, 'PTR');
             expect(result.valid).toBe(false);
             expect(result.message).toContain('not set');
         });
 
-        test('短いトークンを無効', () => {
+        test('token too short', () => {
             const result = validateToken('short', 'PTR');
             expect(result.valid).toBe(false);
             expect(result.message).toContain('format is invalid');
         });
 
-        test('空文字列を無効', () => {
+        test('empty string', () => {
             const result = validateToken('', 'PTR');
             expect(result.valid).toBe(false);
             expect(result.message).toContain('not set');
         });
 
-        test('nullを無効', () => {
+        test('null value', () => {
             const result = validateToken(null, 'PTR');
             expect(result.valid).toBe(false);
             expect(result.message).toContain('not set');
         });
 
-        test('正常な長さのトークンを許可', () => {
+        test('long token', () => {
             const result = validateToken('abc12345678901234567890', 'PTR');
             expect(result.valid).toBe(true);
         });
 
-        test('特殊文字を含むトークンを無効', () => {
+        test('special characters', () => {
             const result = validateToken('invalid!@#$%^&*()token123456789', 'PTR');
             expect(result.valid).toBe(false);
         });
@@ -54,40 +73,34 @@ describe('deploy.js', () => {
         const path = require('path');
         const testBaseDir = '/workspace/test';
 
-        test('正常なファイルパスを受け入れる', () => {
+        test('valid file path', () => {
             const result = validateFilePath('main.js', testBaseDir);
-            expect(result).toContain('main.js');
+            expect(result).toBe('/workspace/test/main.js');
         });
 
-        test('path traversal攻撃をブロック', () => {
+        test('path traversal attack blocked', () => {
             expect(() => {
                 validateFilePath('../etc/passwd', testBaseDir);
-            }).toThrow();
+            }).toThrow('path traversal attack detected');
         });
 
-        test('Poison Null Byteをブロック', () => {
-            expect(() => {
-                validateFilePath('\0../../etc/passwd', testBaseDir);
-            }).toThrow('contains null byte');
+        test('Poison Null Byte blocked', () => {
+            expect(() => validateFilePath('\0../../etc/passwd', testBaseDir)).toThrow('contains null byte');
         });
 
-        test('サブディレクトリを許可', () => {
+        test('accept subdirectories', () => {
             const result = validateFilePath('subdir/file.js', testBaseDir);
             expect(result).toContain('subdir/file.js');
         });
 
-        test('絶対パスをブロック', () => {
-            expect(() => {
-                validateFilePath('/etc/passwd', testBaseDir);
-            }).toThrow();
+        test('disallow absolute path', () => {
+            expect(() => validateFilePath('/etc/passwd', testBaseDir)).toThrow('absolute path detected');
         });
 
-        test('should block partial base path match (starts-with bypass)', () => {
+        test('block partial base path match (starts-with bypass)', () => {
             const baseDir = '/app';
             const malicousPath = '../app_danger/main.js';
-            expect(() => {
-                validateFilePath(malicousPath, baseDir);
-            }).toThrow();
+            expect(() => validateFilePath(malicousPath, baseDir)).toThrow('path traversal attack detected');
         });
     });
 
@@ -103,146 +116,99 @@ describe('deploy.js', () => {
             console.error.mockRestore();
         });
 
-        test('トークンが未設定の場合はスキップ', async () => {
+        test('skip if token not set', async () => {
             await expect(deployTo('PTR', '/ptr/api/user/code', null, {})).resolves.toBeUndefined();
         });
 
-        test('無効なトークン形式の場合はスキップ', async () => {
-            await expect(
-                deployTo('PTR', '/ptr/api/user/code', 'short', {})
-            ).resolves.toBeUndefined();
+        test('skip if invalid token format', async () => {
+            await expect(deployTo('PTR', '/ptr/api/user/code', 'short', {})).resolves.toBeUndefined();
         });
 
-        test('デプロイ成功時にresolveする', async () => {
+        test('resolve on success', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
-                on: jest.fn(),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 200,
                 on: jest.fn((event, callback) => {
                     if (event === 'data') callback(JSON.stringify({ ok: 1 }));
                     if (event === 'end') callback();
                 }),
             };
+            const mockRes = {
+                statusCode: 200,
+            };
             https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
+                callback(mockRes, mockReq);
             });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(
-                deployTo('PTR', '/ptr/api/user/code', validToken, {})
-            ).resolves.toBeUndefined();
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).resolves.toBeUndefined();
         });
 
-        test('デプロイ失敗時（ok !== 1）にrejectする', async () => {
+        test('reject on failure (ok !== 1)', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
-                on: jest.fn(),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 200,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data') {
-                        callback(JSON.stringify({ ok: 0, error: 'deploy failed' }));
-                    }
+                    if (event === 'data') callback(JSON.stringify({ ok: 0, error: 'deploy failed' }));
                     if (event === 'end') callback();
                 }),
             };
+            const mockRes = {
+                statusCode: 200,
+            };
             https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
+                callback(mockRes, mockReq);
             });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow('PTR deployment failed');
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[PTR] Deployment failed! Raw:'),
+                expect.stringContaining('deploy failed')
+            );
         });
 
-        test('HTTPステータス200でJSONパース失敗の場合はresolveする', async () => {
+        test('resolve on success (JSON parse failure)', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
-                on: jest.fn(),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 200,
                 on: jest.fn((event, callback) => {
                     if (event === 'data') callback('not json');
                     if (event === 'end') callback();
                 }),
             };
+            const mockRes = {
+                statusCode: 200,
+            };
             https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
+                callback(mockRes, mockReq);
             });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(
-                deployTo('PTR', '/ptr/api/user/code', validToken, {})
-            ).resolves.toBeUndefined();
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).resolves.toBeUndefined();
         });
 
-        test('HTTPステータスが非200でJSONパース失敗の場合はrejectする', async () => {
+        test('reject on failure (non-200 status and JSON parsing failure)', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
-                on: jest.fn(),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 500,
-                on: jest.fn((event, callback) => {
-                    if (event === 'data') callback('not json error token=' + 'sec' + 'ret');
-                    if (event === 'end') callback();
-                }),
-            };
-            https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
-            });
-
-            const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
-                'PTR deployment failed'
-            );
-
-            // Should redact token
-            expect(console.error).toHaveBeenCalledWith(
-                expect.stringContaining('[PTR] Deployment failed! Raw:'),
-                expect.stringContaining('not json error token=[REDACTED]')
-            );
-        });
-
-        test('HTTPエラー時（非200）にrejectする', async () => {
-            const mockReq = {
-                write: jest.fn(),
-                end: jest.fn(),
-                on: jest.fn(),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 500,
                 on: jest.fn((event, callback) => {
                     if (event === 'data') callback('Server error');
                     if (event === 'end') callback();
                 }),
             };
+            const mockRes = {
+                statusCode: 500,
+            };
             https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
+                callback(mockRes, mockReq);
             });
 
             const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
         });
 
-        test('リクエストエラー時にrejectする', async () => {
+        test('reject on network error', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
@@ -251,26 +217,30 @@ describe('deploy.js', () => {
                 }),
                 setTimeout: jest.fn(),
             };
-            https.request.mockImplementation(() => mockReq);
+            https.request.mockImplementation((options, callback) => {
+                callback(mockReq);
+            });
 
             const validToken = 'valid_token_12345678901234567890';
             await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
         });
 
-        test('タイムアウト時にrejectする', async () => {
+        test('reject on timeout', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
-                on: jest.fn(),
+                on: jest.fn((event, callback) => {
+                    if (event === 'timeout') callback();
+                }),
                 setTimeout: jest.fn((ms, callback) => callback()),
                 destroy: jest.fn(),
             };
-            https.request.mockImplementation(() => mockReq);
+            https.request.mockImplementation((options, callback) => {
+                callback(mockReq);
+            });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
-                'timeout'
-            );
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow('TIMEOUT');
         });
     });
 });

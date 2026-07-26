@@ -102,6 +102,9 @@ function calculateDependencyProgress(version) {
     task && task.dependencies && task.dependencies.version === version
   );
   const total = allTasks.length;
+  if (total === 0) {
+    return 0;
+  }
   const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
   return (completed / total) * 100;
 }
@@ -665,7 +668,7 @@ async function updateAnotherDependencyExternal() {
   try {
     const taskId = await createAsyncUpdateTask('update another-dependency to v5');
     await updateDependencyVersions('another-dependency', 'v5');
-    logging.log('info', 'Successfully updated another-dependency: ${error.message}');
+    logging.log('info', `Successfully updated another-dependency to v5`);
   } catch (error) {
     logging.log('error', `Failed to update another-dependency: ${error.message}`);
   }

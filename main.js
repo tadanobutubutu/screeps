@@ -194,6 +194,33 @@ async function handleCodeQLActionUpdate() {
   }
 }
 
+async function handleActionsSetupNodeUpdate() {
+  try {
+    await updateDependencyVersions('actions/setup-node', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-node to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-node: ${error.message}`);
+  }
+}
+
+async function handleActionsGithubScriptUpdate() {
+  try {
+    await updateDependencyVersions('actions/github-script', 'v9');
+    logging.log('info', 'Successfully updated actions/github-script to v9');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/github-script: ${error.message}`);
+  }
+}
+
+async function handleNodeVersionUpdate() {
+  try {
+    await updateDependencyVersions('node', '24');
+    logging.log('info', 'Successfully updated node to v24');
+  } catch (error) {
+    logging.log('error', `Failed to update node: ${error.message}`);
+  }
+}
+
 module.exports = {
   logging,
   addTask,
@@ -219,4 +246,7 @@ module.exports = {
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
   handleCodeQLActionUpdate,
+  handleActionsSetupNodeUpdate,
+  handleActionsGithubScriptUpdate,
+  handleNodeVersionUpdate,
 };

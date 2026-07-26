@@ -335,14 +335,13 @@ describe('src/roles/miner', () => {
         });
     });
 
-
     test('ソースが割り当てられない場合は警告を出して終了する', () => {
         cache.getSources.mockReturnValue([]);
         const creep = {
             name: 'miner_no_source',
             memory: {},
             room: roomMock,
-            pos: new RoomPosition(0, 0, 'W0N0')
+            pos: new RoomPosition(0, 0, 'W0N0'),
         };
         miner.run(creep);
         expect(logger.warn).toHaveBeenCalledWith(`[${creep.name}] ソースの割り当てがありません`);
@@ -353,7 +352,7 @@ describe('src/roles/miner', () => {
             id: 's_empty1',
             room: roomMock,
             pos: new RoomPosition(5, 5, 'W0N0'),
-            ticksToRegeneration: 15
+            ticksToRegeneration: 15,
         };
         const container = {
             structureType: global.STRUCTURE_CONTAINER,
@@ -418,7 +417,7 @@ describe('src/roles/miner', () => {
             id: 's_empty2',
             room: roomMock,
             pos: new RoomPosition(5, 5, 'W0N0'),
-            ticksToRegeneration: 20
+            ticksToRegeneration: 20,
         };
         cache.getContainers.mockReturnValue([]);
         global.Game.getObjectById.mockReturnValue(source);
@@ -466,16 +465,13 @@ describe('src/roles/miner', () => {
         expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, source, { range: 1 });
     });
 
-
-
-
     test('割り当て可能なソースがない場合はフォールバックとして最初のソースを返す', () => {
         const sourceA = { id: 'a', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
         const sourceB = { id: 'b', room: roomMock, pos: new RoomPosition(10, 10, 'W0N0') };
         cache.getSources.mockReturnValue([sourceA, sourceB]);
 
         const mockTerrain = {
-            get: jest.fn().mockReturnValue(global.TERRAIN_MASK_WALL) // Always wall, so 0 mining spots
+            get: jest.fn().mockReturnValue(global.TERRAIN_MASK_WALL), // Always wall, so 0 mining spots
         };
         roomMock.getTerrain.mockReturnValue(mockTerrain);
 
@@ -501,8 +497,6 @@ describe('src/roles/miner', () => {
         expect(creep.memory.sourceId).toBe('a');
     });
 
-
-
     test('割り当て済みのソースが存在する場合、それを使って採掘する', () => {
         const source = { id: 'assigned_src', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
         global.Game.getObjectById.mockReturnValue(source);
@@ -515,7 +509,7 @@ describe('src/roles/miner', () => {
             pos: new RoomPosition(5, 5, 'W0N0'),
             harvest: jest.fn().mockReturnValue(global.OK),
             drop: jest.fn(),
-            store: { getFreeCapacity: jest.fn().mockReturnValue(50) }
+            store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
         };
 
         miner.run(creep);

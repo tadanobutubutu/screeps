@@ -1,8 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`[${level}] ${message}`);
-  },
+    },
 };
 
 const addTask = (title, priority = 'medium', tags = []) => {
@@ -705,7 +704,7 @@ function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - days);
-  if (!stargazer) {
+  if ( === undefined ||  === null) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }

@@ -518,19 +518,6 @@ async function updateGitstreamActionToLatest() {
 }
 
 /**
- * Updates posthoh-js to v1.407.2.
- */
-async function updatePosthohJsToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
-    await updateDependencyVersions('posthoh-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
-  }
-}
-
-/**
  * Updates linear-bots/gitstream-github-action to latest version.
  */
 async function updateGitstreamActionToLatestVersion() {
@@ -711,13 +698,17 @@ async function generateStargazersReport() {
 }
 
 function isStargazerActive(username, days = 30) {
-  const stargazer = stargazers.find(s => s.username === username);
   if (username === undefined || username === null) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
+  const stargazer = stargazers.find(s => s.username === username);
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - days);
+  if (!stargazer) {
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    return false;
+  }
   return stargazer.lastActivity >= cutoffDate;
 }
 
@@ -731,32 +722,6 @@ function resetStargazers() {
 function logWithComparison(level, message, value1, value2) {
   const comparisonResult = value1 === value2;
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
-}
-
-/**
- * Updates linear-bots/gitstream-github-action to latest version (additional alias).
- */
-async function handleGitstreamActionUpdateToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-/**
- * Recreates PR for github/codeql-action update to v4 (duplicate alias).
- */
-async function handleRecreateGithubCodeqlActionPRToLatest() {
-  try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
-  } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
-  }
 }
 
 /**

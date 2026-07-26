@@ -329,18 +329,27 @@ function getBody(energy, ranged) {
  */
 function detectInvasion(room) {
     const enemies = cache.getEnemies(room);
-    const hostileCreeps = enemies.filter(
-        (e) =>
+    // ⚡ PERFORMANCE OPTIMIZATION: Use a single-pass for loop to avoid array allocation and multiple iterations. (1パスのforループを使用して、配列の割り当てや複数回の反復処理を避ける)
+    let count = 0;
+    let strongestHp = 0;
+
+    for (let i = 0; i < enemies.length; i++) {
+        const e = enemies[i];
+        if (
             e.getActiveBodyparts(ATTACK) > 0 ||
             e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
             e.getActiveBodyparts(CLAIM) > 0
-    );
-
-    const strongestHp = hostileCreeps.reduce((max, e) => Math.max(max, e.hitsMax), 0);
+        ) {
+            count++;
+            if (e.hitsMax > strongestHp) {
+                strongestHp = e.hitsMax;
+            }
+        }
+    }
 
     return {
-        detected: hostileCreeps.length > 0,
-        count: hostileCreeps.length,
+        detected: count > 0,
+        count: count,
         strongestHp,
     };
 }

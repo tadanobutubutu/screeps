@@ -735,4 +735,36 @@ async function handleGitstreamActionUpdateToLatest() {
  */
 async function handleRecreateGithubCodeqlActionPRToLatest() {
   try {
-    const taskId
+    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
+  } catch (error) {
+    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (additional implementation).
+ */
+async function updateGitstreamAction() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
+ * Recreates PR for github/codeql-action update to v4 (additional implementation).
+ */
+async function recreateGithubCodeqlActionPR() {
+  try {
+    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
+  } catch (error) {
+    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
+  }
+}

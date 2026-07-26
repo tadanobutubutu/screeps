@@ -12,4 +12,5 @@ function secureRandom() {
     return Math.random();
 }
 
-module.exports = { secureRandom };
+);
+);

@@ -16,7 +16,7 @@ const roleScout = {
 
             if (exits && Object.keys(exits).length > 0) {
                 const exitValues = Object.values(exits);
-                creep.memory.targetRoom = _.sample(exitValues);
+                creep.memory.targetRoom = exitValues[Math.floor(Math.random() * exitValues.length)];
             } else {
                 // No exits found, stay in current room
                 creep.say('⚠️');

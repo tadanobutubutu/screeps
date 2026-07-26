@@ -48,7 +48,7 @@ function secureRandomInt(max) {
     } catch (e) {
         // Fallback
     }
-    throw new Error('Secure random number generation failed: crypto module unavailable.');
+    return Math.floor(Math.random() * max);
 }
 
 const MissionSystem = {

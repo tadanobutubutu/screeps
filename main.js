@@ -9,7 +9,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -27,7 +27,7 @@ const updateNpmPackage = (packageName, newVersion) => {
   return Promise.resolve();
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -44,11 +44,11 @@ async function handleActionsLabelerUpdate() {
     try {
       const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
       updateDependencyVersions('actions/labeler', 'v7')
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated actions/labeler to v7`);
           resolve(taskId);
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update actions/labeler: ${error.message}`);
           reject(error);
         });
@@ -63,7 +63,7 @@ async function handleGitstreamActionUpdate() {
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
-handleCodeQLActionUpdate = async () => {
+const handleCodeQLActionUpdate = async () => {
   try {
     await updateDependencyVersions('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
@@ -139,7 +139,7 @@ async function handlePosthohJsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
-};
+}
 
 async function handleActionsCheckoutUpdate() {
   try {
@@ -192,6 +192,33 @@ async function handleSentryBrowserUpdate() {
   }
 };
 
+async function handleActionsSetupNodeUpdate() {
+  try {
+    await updateDependencyVersions('actions/setup-node', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-node to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-node: ${error.message}`);
+  }
+}
+
+async function handleActionsGithubScriptUpdate() {
+  try {
+    await updateDependencyVersions('actions/github-script', 'v9');
+    logging.log('info', 'Successfully updated actions/github-script to v9');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/github-script: ${error.message}`);
+  }
+}
+
+async function handleNodeVersionUpdate() {
+  try {
+    await updateDependencyVersions('node', '24');
+    logging.log('info', 'Successfully updated node to v24');
+  } catch (error) {
+    logging.log('error', `Failed to update node: ${error.message}`);
+  }
+}
+
 module.exports = {
   logging,
   addTask,
@@ -215,4 +242,7 @@ module.exports = {
   handleAwaitingSchedulePRsUpdate,
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
+  handleActionsSetupNodeUpdate,
+  handleActionsGithubScriptUpdate,
+  handleNodeVersionUpdate,
 };

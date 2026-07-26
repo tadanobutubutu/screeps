@@ -162,7 +162,7 @@ function getStats() {
 
     if (typeof Memory !== 'undefined' && Array.isArray(Memory.logs)) {
         for (const logItem of Memory.logs) {
-            if (stack === undefined || stack === null) continue;
+            if (logItem === undefined || logItem === null) continue;
             totalCount++;
             if (logItem.level === 'error') errorCount++;
             else if (logItem.level === 'warn') warnCount++;

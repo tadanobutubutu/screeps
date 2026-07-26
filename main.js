@@ -56,6 +56,11 @@ async function updateGithubCodeqlAction() {
     await updateDependencyVersions('github/codeql-action', 'v4');
 }
 
+async function updateGitstreamAction() {
+  const taskId = await createAsyncUpdateTask('update gitstream-... action to v4');
+  await updateDependencyVersions('linear-bots/gitstream-...', 'v4');
+}
+
 const visualizeMemory = async (heapUsed, heapTotal) => {
     // Simulate memory usage during update
     const updateMemoryUsage = () => {
@@ -106,7 +111,7 @@ async function handlePosthohJsUpdate() {
 }
 
 /**
- * Handles actions/checkout update.
+ * Handles actions/labeler update.
  */
 async function handleActionsCheckoutUpdate() {
     try {
@@ -150,57 +155,51 @@ async function createAllAwaitingSchedulePRs() {
 /**
  * Updates linear-bots/gitstream-github-action to latest version.
  */
-async function updateGitstreamAction() {
-    try {
-        const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
-        await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-        logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-    } catch (error) {
-        logging.log(
-            'error',
-            `Failed to update linear-bots/gitstream-github-action: ${error.message}`
-        );
-    }
+async function updateGitstreamActionToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-... to latest');
+    await updateDependencyVersions('linear-bots/gitstream-...', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-... to latest');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
+  }
 }
 
 /**
  * Handles the update of linear-bots/gitstream-github-action to latest version.
  */
-async function handleGitstreamActionUpdateToLatest() {
-    try {
-        await updateGitstreamActionToLatest();
-        logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-    } catch (error) {
-        logging.log(
-            'error',
-            `Failed to update linear-bots/gitstream-github-action: ${error.message}`
-        );
-    }
+async function handleGitstreamActionUpdate() {
+  try {
+    await updateGitstreamActionToLatest();
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
+  }
 }
 
 /**
  * Updates @sentry/browser to v10.68.0.
  */
 async function updateSentryBrowserToV10_68_0() {
-    try {
-        const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-        await updateDependencyVersions('@sentry/browser', 'v10.68.0');
-        logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
-    } catch (error) {
-        logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
-    }
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateNpmPackage('@sentry/browser', 'v10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
 }
 
 /**
  * Handles the update of @sentry/browser to v10.68.0.
  */
-async function handleSentryBrowserUpdateToV10_68_0() {
-    try {
-        await updateSentryBrowserToV10_68_0();
-        logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
-    } catch (error) {
-        logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
-    }
+async function handleSentryBrowserUpdate() {
+  try {
+    await updateSentryBrowserToV10_68_0();
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
 }
 
 /**

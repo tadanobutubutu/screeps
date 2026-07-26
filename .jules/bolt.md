@@ -70,6 +70,10 @@
 
 **Date:** $(date +%Y-%m-%d)
 **Context:** When checking for the existence of at least one creep with a specific role.
-**Problem:** `_.filter(Game.creeps, ...)` or `Object.values(Game.creeps).filter(...)` iterates over all elements, instantiates a new array, and adds to garbage collection pressure, even if the element is found on the first iteration.
+**Problem:** `_.filter(Game.creeps)` or `Object.values(Game.creeps).filter(...)` iterates over all elements, instantiates a new array, and adds to garbage collection pressure, even if the element is found on the first iteration.
 **Solution:** Use a basic `for...in` loop with an early `break`. In hot paths where object enumeration is necessary (like `Game.creeps`), early exits can save significant CPU time compared to full iterations and map/filter array creation.
 **Measurement:** Benchmarking showed `_.filter` at ~137k ops/sec vs `for...in` with early exit at ~142k ops/sec, an approximate 3.5% gain in this particular simulated environment (likely more in Screeps where GC is expensive).
+
+* 🧪 **Testing Improvement**: When creating test suites for script files that run logic in the global scope directly on load (e.g., `patch_main.js`), refactoring the main execution logic into a named function and exporting it (e.g., `module.exports = runPatch;`) prevents unintended automatic execution when required by the test framework (e.g., Jest). The script can still support direct execution by checking `if (require.main === module)`.
+
+- **Tower Target Optimization:** In `findTowerTargets` (`utils.defense.js`), iterating over all structures to filter for damaged ones can be expensive. Replacing multiple `.filter()` calls with a single `for` loop eliminates intermediate array allocations and reduces loop iterations by half.

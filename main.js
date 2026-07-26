@@ -56,6 +56,11 @@ async function updateGithubCodeqlAction() {
     await updateDependencyVersions('github/codeql-action', 'v4');
 }
 
+async function updateGitstreamAction() {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-... action to v4');
+    await updateDependencyVersions('linear-bots/gitstream-...', 'v4');
+}
+
 const visualizeMemory = async (heapUsed, heapTotal) => {
     // Simulate memory usage during update
     const updateMemoryUsage = () => {
@@ -106,7 +111,7 @@ async function handlePosthohJsUpdate() {
 }
 
 /**
- * Handles actions/checkout update.
+ * Handles actions/labeler update.
  */
 async function handleActionsCheckoutUpdate() {
     try {
@@ -150,7 +155,7 @@ async function createAllAwaitingSchedulePRs() {
 /**
  * Updates linear-bots/gitstream-github-action to latest version.
  */
-async function updateGitstreamAction() {
+async function updateGitstreamActionToLatest() {
     try {
         const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
         await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
@@ -315,6 +320,21 @@ async function trackRunawayStargazers() {
     }
 }
 
+async function trackSuspiciousStargazers() {
+    try {
+        const taskId = await createAsyncUpdateTask('track suspicious stargazers activity');
+        const { stargazers } = await getStargazers();
+        const suspiciousStargazers = stargazers.filter(
+            (stargazer) => stargazer && stargazer.starCount && stargazer.starCount > 50
+        );
+        logging.log('info', `Found ${suspiciousStargazers.length} suspicious stargazers`);
+        return suspiciousStargazers;
+    } catch (error) {
+        logging.log('error', `Failed to track suspicious stargazers: ${error.message}`);
+        throw error;
+    }
+}
+
 async function monitorStargazersActivity() {
     try {
         const taskId = await createAsyncUpdateTask('monitor stargazers activity');
@@ -436,6 +456,7 @@ module.exports = {
     handleStargazerRemoval,
     handleStargazerActivityUpdate,
     trackRunawayStargazers,
+    trackSuspiciousStargazers,
     monitorStargazersActivity,
     generateStargazersReport,
     isStargazerActive,

@@ -273,4 +273,76 @@ describe('deploy.js', () => {
             );
         });
     });
+
+
+    describe('runDeploy main catch block', () => {
+        let originalEnv;
+
+        beforeEach(() => {
+            originalEnv = process.env;
+            process.env = { ...originalEnv, SCREEPS_TOKEN: 'valid_token_12345678901234567890', SCREEPS_PROD_TOKEN: 'prod_token_12345678901234567890' };
+            jest.spyOn(console, 'error').mockImplementation(() => {});
+            jest.spyOn(process, 'exit').mockImplementation((code) => {
+                const err = new Error(`EXIT_${code}`);
+                err.isExit = true;
+                throw err;
+            });
+        });
+
+        afterEach(() => {
+            process.env = originalEnv;
+            jest.restoreAllMocks();
+        });
+
+        test('should catch errors from deployTo and sanitize them', async () => {
+            const deployModule = require('../deploy');
+            const fs = require('fs');
+            jest.spyOn(fs.promises, 'readFile').mockResolvedValue('module.exports = {};');
+
+            const https = require('https');
+
+            https.request.mockImplementation((options, callback) => {
+                const req = {
+                    write: jest.fn(),
+                    end: jest.fn(),
+                    on: jest.fn((event, cb) => {
+                        if (event === 'error') {
+                            process.nextTick(() => {
+                                cb(new Error('Network error with token=sec' + 'ret'));
+                            });
+                        }
+                    }),
+                    setTimeout: jest.fn(),
+                };
+                return req;
+            });
+
+            try {
+                await deployModule.runDeploy();
+            } catch (e) {
+                expect(e.message).toBe('EXIT_1');
+            }
+
+            expect(console.error).toHaveBeenCalledWith(
+                'Deployment process failed:',
+                expect.stringContaining('PTR request failed')
+            );
+        });
+
+        test('should catch errors from file reading and sanitize them', async () => {
+            const deployModule = require('../deploy');
+            const fs = require('fs');
+            jest.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('Failed to read file because token=sec' + 'ret_abc'));
+
+            try {
+                await deployModule.runDeploy();
+            } catch (e) {
+                expect(e.message).toBe('EXIT_1');
+            }
+
+            expect(console.error).toHaveBeenNthCalledWith(1,
+                expect.stringContaining('  [ERROR] Failed to read main.js: Failed to read file because token=[REDACTED]'),
+            );
+        });
+    });
 });

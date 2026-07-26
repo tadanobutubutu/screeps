@@ -3,8 +3,8 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
-const ptrToken = process.env.SCREEPS_TOKEN;
-const prodToken = process.env.SCREEPS_PROD_TOKEN;
+// Tokens are read at deploy time now
+
 
 // トークン検証関数
 function validateToken(token, label) {
@@ -184,19 +184,18 @@ function deployTo(label, apiPath, token, modules) {
 }
 
 // スクリプトとして直接実行された場合のみデプロイ処理を実行
-if (require.main === module) {
-    // Read all JS files
-    const files = [
-        { name: 'main', file: 'main.js' },
-        { name: 'role.harvester', file: 'role.harvester.js' },
-        { name: 'role.upgrader', file: 'role.upgrader.js' },
-        { name: 'role.builder', file: 'role.builder.js' },
-        { name: 'role.repairer', file: 'role.repairer.js' },
-        { name: 'role.explorer', file: 'role.explorer.js' },
-    ];
+// Read all JS files
+const files = [
+    { name: 'main', file: 'main.js' },
+    { name: 'role.harvester', file: 'role.harvester.js' },
+    { name: 'role.upgrader', file: 'role.upgrader.js' },
+    { name: 'role.builder', file: 'role.builder.js' },
+    { name: 'role.repairer', file: 'role.repairer.js' },
+    { name: 'role.explorer', file: 'role.explorer.js' },
+];
 
-    (async () => {
-        try {
+async function runDeploy() {
+    try {
             const modules = {};
             for (const m of files) {
                 try {
@@ -216,15 +215,18 @@ if (require.main === module) {
                 }
             }
 
-            await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
-            await deployTo('PROD', '/api/user/code', prodToken, modules);
+            await deployTo('PTR', '/ptr/api/user/code', process.env.SCREEPS_TOKEN, modules);
+            await deployTo('PROD', '/api/user/code', process.env.SCREEPS_PROD_TOKEN, modules);
         } catch (error) {
             // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
             const safeMessage = sanitizeLog(error.message);
             console.error('Deployment process failed:', safeMessage);
             process.exit(1);
         }
-    })();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };
+if (require.main === module) {
+    runDeploy();
+}
+
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog, runDeploy };

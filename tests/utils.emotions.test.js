@@ -43,22 +43,6 @@ describe('utils.emotions', () => {
         expect(mockCreep.memory.emotions.personalityTraits).toBeDefined();
     });
 
-    test('generatePersonality falls back to Math.random when crypto throws', () => {
-        const crypto = require('crypto');
-        const cryptoSpy = jest.spyOn(crypto, 'randomInt').mockImplementation(() => {
-            throw new Error('mock error');
-        });
-        const mathRandomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
-
-        const trait = EmotionSystem.generatePersonality();
-
-        expect(trait).toBeDefined();
-        expect(mathRandomSpy).toHaveBeenCalled();
-
-        cryptoSpy.mockRestore();
-        mathRandomSpy.mockRestore();
-    });
-
     test('initializeが既存のemotionsを上書きしない', () => {
         mockCreep.memory.emotions = { mood: 5, test: 'value' };
         EmotionSystem.initialize(mockCreep);

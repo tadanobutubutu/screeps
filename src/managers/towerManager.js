@@ -159,12 +159,10 @@ function _selectAttackTarget(tower, enemies) {
         return null;
     }
 
-    return (
-        _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
-        _findClaimerTarget(tower, enemies) ||
-        _findAttackerTarget(tower, enemies) ||
-        _findWeakestTarget(tower, enemies)
-    );
+    return _findCriticalTarget(tower, enemies, TOWER_ATTACK_PRIORITY_HP) ||
+           _findClaimerTarget(tower, enemies) ||
+           _findAttackerTarget(tower, enemies) ||
+           _findWeakestTarget(tower, enemies);
 }
 
 /**

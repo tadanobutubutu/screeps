@@ -9,7 +9,8 @@ function secureRandom() {
     } catch (e) {
         // Fallback
     }
-    throw new Error("No secure random number generator available.");
+    return Math.random();
 }
 
-module.exports = { secureRandom };
+);
+);

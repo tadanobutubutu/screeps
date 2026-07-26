@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const fs = require('fs');
 
 // 作成可能なロールのテンプレート
@@ -319,7 +318,7 @@ if (availableTemplates.length === 0) {
 }
 
 // ランダムに1つ選択
-const selected = availableTemplates[crypto.randomInt(availableTemplates.length)];
+const selected = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
 
 console.log(`🆕 Creating new role: ${selected.name}`);
 console.log(`📝 Description: ${selected.description}`);

@@ -125,10 +125,7 @@ function _findDroppedEnergy(creep) {
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY) {
-            const dist =
-                creep.pos && typeof creep.pos.getRangeTo === 'function'
-                    ? creep.pos.getRangeTo(r)
-                    : 0;
+            const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function') ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestDrop = r;
@@ -151,10 +148,7 @@ function _findAvailableContainer(creep) {
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store[RESOURCE_ENERGY] >= 100) {
-            const dist =
-                creep.pos && typeof creep.pos.getRangeTo === 'function'
-                    ? creep.pos.getRangeTo(c)
-                    : 0;
+            const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function') ? creep.pos.getRangeTo(c) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 bestContainer = c;
@@ -350,15 +344,4 @@ function getBody(energy) {
     return [WORK, CARRY, MOVE];
 }
 
-module.exports = {
-    run,
-    getBody,
-    TASK,
-    _findDroppedEnergy,
-    _findAvailableContainer,
-    _updateWorkingState,
-    _harvest,
-    _deliver,
-    _findEnergyTarget,
-    _upgradeAsBackup,
-};
+module.exports = { run, getBody, TASK, _findDroppedEnergy, _findAvailableContainer, _updateWorkingState, _harvest, _deliver, _findEnergyTarget, _upgradeAsBackup };

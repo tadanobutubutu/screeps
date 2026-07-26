@@ -871,6 +871,19 @@ async function updateGitstreamActionToLatestVersion() {
 }
 
 /**
+ * Updates linear-bots/gitstream-github-action to latest version.
+ */
+async function updateGitstreamActionToLatestVersion2() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
  * Exported API.
  */
 module.exports = {
@@ -944,5 +957,6 @@ module.exports = {
   visualizeDependencyMemory,
   updateGitstreamActionToLatest,
   updatePosthogJsToV1_407_2,
-  updateGitstreamActionToLatestVersion
+  updateGitstreamActionToLatestVersion,
+  updateGitstreamActionToLatestVersion2
 };

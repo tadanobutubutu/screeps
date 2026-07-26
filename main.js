@@ -1,12 +1,3 @@
-Looking at the error, I need to fix the syntax issues. The code has:
-1. Ellipses (`...`) used as placeholder names in function declarations and calls
-2. Incomplete string literals in logging statements
-3. Missing closing brace at the end
-4. Missing function names in multiple async function declarations
-
-Let me fix all these issues:
-
-```javascript
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
@@ -60,7 +51,7 @@ const createAwaitingSchedulePRs = async () => {
   // Implementation would go here
 };
 
-async function updateGitstreamActionToV4() {
+async function updateGitstreamAction() {
   const taskId = await createAsyncUpdateTask('update gitstream-... action to v4');
   await updateDependencyVersions('linear-bots/gitstream-...', 'v4');
 }
@@ -111,7 +102,7 @@ async function handlePosthohJsUpdate() {
 /**
  * Handles actions/labeler update.
  */
-async function updateActionsLabelerHandler() {
+async function handleActionsLabelerUpdate() {
   try {
     await updateActionsLabeler();
     logging.log('info', 'Successfully updated actions/labeler to v7');
@@ -120,7 +111,7 @@ async function updateActionsLabelerHandler() {
   }
 }
 
-async function updateActionsSetupPythonHandler() {
+async function handleActionsSetupPythonUpdate() {
   try {
     await updateActionsSetupPython();
     logging.log('info', 'Successfully updated actions/setup-python to v7');
@@ -132,7 +123,7 @@ async function updateActionsSetupPythonHandler() {
 /**
  * Creates all awaiting schedule PRs.
  */
-async function createAwaitingSchedulePRsHandler() {
+async function handleCreateAwaitingSchedulePRs() {
   try {
     const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
     logging.log('info', 'Successfully created all awaiting schedule PRs');
@@ -144,11 +135,11 @@ async function createAwaitingSchedulePRsHandler() {
 /**
  * Updates linear-bots/gitstream-github-action to latest version.
  */
-async function updateGitstreamActionExternal() {
+async function updateGitstreamActionToLatest() {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-...');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-... to latest');
     await updateDependencyVersions('linear-bots/gitstream-...', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-...');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-... to latest');
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
   }
@@ -159,7 +150,7 @@ async function updateGitstreamActionExternal() {
  */
 async function handleGitstreamActionUpdate() {
   try {
-    await updateGitstreamActionExternal();
+    await updateGitstreamActionToLatest();
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
@@ -169,7 +160,7 @@ async function handleGitstreamActionUpdate() {
 /**
  * Updates @sentry/browser to v10.68.0.
  */
-async function updateSentryBrowserExternal() {
+async function updateSentryBrowser() {
   try {
     const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
     await updateNpmPackage('@sentry/browser', 'v10.68.0');
@@ -184,7 +175,7 @@ async function updateSentryBrowserExternal() {
  */
 async function handleSentryBrowserUpdate() {
   try {
-    await updateSentryBrowserExternal();
+    await updateSentryBrowser();
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
@@ -259,7 +250,7 @@ async function handleNewStargazer(username) {
   }
 }
 
-async function handleStargazerRemoval(username) {
+async function handleRemoveStargazer(username) {
   try {
     const success = removeStargazer(username);
     if (success) {
@@ -272,7 +263,7 @@ async function handleStargazerRemoval(username) {
   }
 }
 
-async function updateStargazerActivityHandler(username) {
+async function handleUpdateStargazerActivity(username) {
   try {
     const success = updateStargazerActivity(username);
     if (success) {
@@ -300,9 +291,9 @@ async function trackRunawayStargazers() {
   }
 }
 
-async function monitorStargazersActivity() {
+async function trackSuspiciousStargazers() {
   try {
-    const taskId = await createAsyncUpdateTask('monitor stargazers activity');
+    const taskId = await createAsyncUpdateTask('track suspicious stargazers activity');
     const { stargazers } = await getStargazersList();
     const suspiciousStargazers = stargazers.filter(stargazer =>
       stargazer && stargazer.starCount && stargazer.starCount > 50
@@ -310,4 +301,7 @@ async function monitorStargazersActivity() {
     logging.log('info', `Found ${suspiciousStargazers.length} suspicious stargazers`);
     return suspiciousStargazers;
   } catch (error) {
-    logging.log('
+    logging.log('error', `Failed to track suspicious stargazers: ${error.message}`);
+    throw error;
+  }
+}

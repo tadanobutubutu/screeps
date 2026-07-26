@@ -22,6 +22,8 @@
 **Learning:** Critical security controllers must fail securely. If a script is truncated or corrupted, the runtime environment should not default to executing un-redacted fallback paths or crashing. Robust and complete module implementations, proper unit testing of every log-level boundary, and safe prototype pollution prevention are essential.
 **Prevention:** Ensure all logging modules are fully complete and feature-hardened. Implement polymorphic parameter parsing (`log(level, msg)` or `log(msg, level)`) to avoid misuse, enforce strict type checks, and re-initialize corrupted runtime logging stores safely. Use robust pre-commit checks to verify syntax validity before deployment.
 
+* **Failing Securely (Fail Closed):** When a function is explicitly designed to return cryptographically secure values (e.g., `secureRandomInt`), and the primary secure mechanism (`crypto` module) is unavailable, it must **throw an error** rather than falling back to an insecure, predictable generator like `Math.random()` or a simple Linear Congruential Generator (LCG). Providing a guessable number silently creates a false sense of security and opens up exploitation vectors.
+
 ## 2026-07-26 - [Insecure Math.random Usage Fix]
 
 **Vulnerability:** A script `scripts/random-experiment.js` used the insecure `Math.random()` function to select experiments, which could be predictable.

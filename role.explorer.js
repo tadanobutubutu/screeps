@@ -1,6 +1,26 @@
 // ⚡ PERFORMANCE: Hoisted constant path styles to reduce per-tick object allocation.
 const PATH_STYLE_EXPLORE = { visualizePathStyle: { stroke: '#ffffff', opacity: 0.5 } };
 
+/**
+ * Generates a secure random integer between 0 and max-1.
+ * Uses crypto for security with a fallback to Math.random() for sandbox environments.
+ * @param {number} max
+ * @returns {number}
+ */
+function secureRandomInt(max) {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) % max;
+        }
+    } catch (e) {
+        // Fallback
+    }
+    return Math.floor(Math.random() * max);
+}
+
+
 const roleExplorer = {
     run: function (creep) {
         // メモリにターゲットの部屋がなければ設定（例: 隣の部屋）
@@ -44,7 +64,7 @@ const roleExplorer = {
                 if (exits && Object.keys(exits).length > 0) {
                     // Pick a random exit
                     const exitDirs = Object.keys(exits);
-                    const randomDir = exitDirs[Math.floor(Math.random() * exitDirs.length)];
+                    const randomDir = exitDirs[secureRandomInt(exitDirs.length)];
                     creep.memory.targetRoom = exits[randomDir];
                 }
             }

@@ -142,7 +142,7 @@ function debug(msg) { log(msg, 'debug'); }
 function trace(msg) { log(msg, 'trace'); }
 
 function getSafeStack(stack, maxLines = 5) {
-    if (stack === undefined || stack === null) return '';
+    if ( === undefined ||  === null) return '';
     const truncatedStack = String(stack).substring(0, MAX_STACK_TRACE_LENGTH);
     const redacted = _redactPaths(truncatedStack);
     const lines = redacted.split('\n');
@@ -162,7 +162,7 @@ function getStats() {
 
     if (typeof Memory !== 'undefined' && Array.isArray(Memory.logs)) {
         for (const logItem of Memory.logs) {
-            if (logItem === undefined || logItem === null) continue;
+            if ( === undefined ||  === null) continue;
             totalCount++;
             if (logItem.level === 'error') errorCount++;
             else if (logItem.level === 'warn') warnCount++;

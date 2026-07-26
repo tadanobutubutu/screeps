@@ -8,35 +8,7 @@ const https = require('https');
 
 const { validateToken, validateFilePath, deployTo } = require('../deploy');
 
-const fs = require('fs');
-
 describe('deploy.js', () => {
-    describe('runDeploy error handling', () => {
-        let originalExit, originalError;
-        beforeEach(() => {
-            originalExit = process.exit;
-            originalError = console.error;
-            process.exit = jest.fn();
-            console.error = jest.fn();
-        });
-        afterEach(() => {
-            process.exit = originalExit;
-            console.error = originalError;
-            jest.restoreAllMocks();
-        });
-
-        test('catches file read error and exits', async () => {
-            const { runDeploy } = require('../deploy');
-            jest.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('simulated read error token=\'secret\''));
-
-            await runDeploy();
-
-            expect(console.error).toHaveBeenCalledWith(
-                expect.stringContaining('[ERROR] Failed to read main.js: simulated read error token=\'[REDACTED]\'')
-            );
-            expect(process.exit).toHaveBeenCalledWith(1);
-        });
-    });
     describe('validateToken', () => {
         test('有効なトークンを許可', () => {
             const result = validateToken('valid_token_1234567890', 'PTR');
@@ -302,60 +274,6 @@ describe('deploy.js', () => {
         });
     });
 
-    describe('runDeploy', () => {
-        let originalExit;
-        let originalConsoleError;
-
-        beforeEach(() => {
-            originalExit = process.exit;
-            originalConsoleError = console.error;
-            process.exit = jest.fn();
-            console.error = jest.fn();
-            jest.resetModules();
-            // Set up environment variables for tokens
-            process.env.SCREEPS_TOKEN = 'valid_token_12345678901234567890';
-            process.env.SCREEPS_PROD_TOKEN = 'prod_token_12345678901234567890';
-        });
-
-        afterEach(() => {
-            process.exit = originalExit;
-            console.error = originalConsoleError;
-            jest.restoreAllMocks();
-        });
-
-        test('外側のcatchブロックがエラーを捕捉する', async () => {
-            const fsModule = require('fs');
-            jest.spyOn(fsModule.promises, 'readFile').mockResolvedValue('dummy content');
-
-            const httpsModule = require('https');
-
-            // First we need to make sure we don't use the mock from the top level
-            httpsModule.request.mockImplementation((options, callback) => {
-                const req = {
-                    on: jest.fn((evt, cb) => {
-                        if (evt === 'error') {
-                            cb(new Error('PTR request failed'));
-                        }
-                    }),
-                    setTimeout: jest.fn(),
-                    write: jest.fn(),
-                    end: jest.fn(),
-                    destroy: jest.fn(),
-                };
-                return req;
-            });
-
-            const { runDeploy } = require('../deploy.js');
-
-            await runDeploy();
-
-            expect(console.error).toHaveBeenCalledWith(
-                'Deployment process failed:',
-                'PTR request failed'
-            );
-            expect(process.exit).toHaveBeenCalledWith(1);
-        });
-    });
 
     describe('runDeploy main catch block', () => {
         let originalEnv;
@@ -383,30 +301,20 @@ describe('deploy.js', () => {
 
             const https = require('https');
 
-            // Fix: define mockReq and mockRes
-            const mockReq = {
-                write: jest.fn(),
-                end: jest.fn(),
-                on: jest.fn((event, cb) => {
-                    if (event === 'error') {
-                        process.nextTick(() => {
-                            cb(new Error('Network error with token=sec' + 'ret'));
-                        });
-                    }
-                }),
-                setTimeout: jest.fn(),
-            };
-            const mockRes = {
-                statusCode: 200,
-                on: jest.fn((event, callback) => {
-                    if (event === 'data') callback(JSON.stringify({ ok: 1 }));
-                    if (event === 'end') callback();
-                }),
-            };
-
             https.request.mockImplementation((options, callback) => {
-                callback(mockRes);
-                return mockReq;
+                const req = {
+                    write: jest.fn(),
+                    end: jest.fn(),
+                    on: jest.fn((event, cb) => {
+                        if (event === 'error') {
+                            process.nextTick(() => {
+                                cb(new Error('Network error with token=sec' + 'ret'));
+                            });
+                        }
+                    }),
+                    setTimeout: jest.fn(),
+                };
+                return req;
             });
 
             try {

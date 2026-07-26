@@ -56,3 +56,7 @@
 ## 2026-06-09 - Single-Pass Acquisition of Resources and Containers in Creep Roles
 **Learning:** Chaining `.filter()` followed by `pathfinder.closest()` for harvesting selection (e.g. finding dropped energy or available containers) creates intermediate arrays and traverses the dataset multiple times. In highly frequent creep ticks, this creates significant memory allocation pressure and V8 garbage collection overhead.
 **Action:** Implemented single-pass `for` loop traversing raw cache resources, calculating distance inline, and maintaining the single closest valid target. Added defensive checks to fallback gracefully to `0` distance when `creep.pos.getRangeTo` is unmocked or missing.
+
+## 2026-06-10 - Single-Pass Loop for Invasion and Threat Detection
+**Learning:** Chaining `.filter()` and `.reduce()` in hot, per-tick functions like `detectInvasion` to count hostile creeps and find the maximum HP allocates temporary arrays and iterates over hostiles multiple times. This introduces severe CPU overhead and GC pressure under high-load situations.
+**Action:** Combined `.filter()` and `.reduce()` into a single `for` loop that filters, counts, and tracks the highest HP in a single pass with zero array allocations.

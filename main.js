@@ -520,7 +520,7 @@ async function updateGitstreamActionToLatest() {
 /**
  * Updates posthoh-js to v1.407.2.
  */
-async function updatePosthohJsToV1_407_2() {
+async function updatePosthohJsToV1_407_2_v2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
     await updateDependencyVersions('posthoh-js', 'v1.407.2');
@@ -713,7 +713,7 @@ async function generateStargazersReport() {
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
   if (username === undefined || username === null) {
-    logging.log('info', `Stargazer ${username} not found in tracking list`);
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
   const cutoffDate = new Date();
@@ -736,7 +736,7 @@ function logWithComparison(level, message, value1, value2) {
 /**
  * Updates linear-bots/gitstream-github-action to latest version (additional alias).
  */
-async function handleGitstreamActionUpdateToLatest() {
+async function handleGitstreamActionUpdateToLatest_v2() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
@@ -784,3 +784,4 @@ async function recreateGithubCodeqlActionPR() {
     logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
   }
 }
+```

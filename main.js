@@ -22,10 +22,6 @@ const updateNpmPackage = (packageName, newVersion) => {
   return Promise.resolve();
 };
 
-const updateAnotherDependency = (newVersion) => {
-  return Promise.resolve();
-};
-
 const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
@@ -100,7 +96,7 @@ function calculateDependencyProgress(versionWrapped) {
  * @param {string} newVersion - The new version to update to.
  * @returns {Promise<Object>} Memory usage statistics.
  */
-function visualizeMemory(currentVersion, newVersion) {
+async function visualizeMemory(currentVersion, newVersion) {
   const memoryUsage = process.memoryUsage();
   const heapUsed = memoryUsage.heapUsed / 1024 / 1024; // Convert to MB
   const heapTotal = memoryUsage.heapTotal / 1024 / 1024; // Convert to MB
@@ -189,14 +185,6 @@ async function handleAwaitingSchedulePRsCreation() {
 }
 
 /**
- * Updates github/codeql-action to v4.
- */
-async function updateGithubCodeqlAction() {
-  const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-  await updateDependencyVersions('github/codeql-action', 'v4');
-}
-
-/**
  * Updates linear-bots/gitstream-github-action to latest version.
  */
 async function updateGitstreamActionUpdate() {
@@ -234,16 +222,22 @@ async function updateLodashExternal() {
   }
 }
 
-/**
- * Updates @sentry/browser to v10.68.0 (exposed for external use).
- */
-async function updateSentryBrowserExternal() {
+async function handleSentryBrowserUpdate() {
   try {
-    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
-    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
+    await updateSentryBrowser();
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+async function handleLodashUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update lodash to v4');
+    await updateDependencyVersions('lodash', 'v4');
+    logging.log('info', 'Successfully updated lodash to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update lodash: ${error.message}`);
   }
 }
 
@@ -259,10 +253,29 @@ async function updateMomentExternal() {
   }
 }
 
+async function handleMomentJsUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update moment to v3');
+    logging.log('info', 'Successfully updated moment to v3');
+  } catch (error) {
+    logging.log('error', `Failed to update moment: ${error.message}`);
+  }
+}
+
 /**
  * Updates some-dependency to v4 (exposed for external use).
  */
 async function updateSomeDependencyExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update some-dependency to v4');
+    await updateDependencyVersions('some-dependency', 'v4');
+    logging.log('info', 'Successfully updated some-dependency to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update some-dependency: ${error.message}`);
+  }
+}
+
+async function handleSomeDependencyUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update some-dependency to v4');
     await updateDependencyVersions('some-dependency', 'v4');
@@ -285,6 +298,16 @@ async function updateAnotherDependencyExternal() {
   }
 }
 
+async function handleAnotherDependencyUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update another-dependency to v5');
+    await updateDependencyVersions('another-dependency', 'v5');
+    logging.log('info', 'Successfully updated another-dependency to v5');
+  } catch (error) {
+    logging.log('error', `Failed to update another-dependency: ${error.message}`);
+  }
+}
+
 /**
  * Updates @sentry/trent to v4 (exposed for external use).
  */
@@ -298,10 +321,30 @@ async function updateSentryTrentExternal() {
   }
 }
 
+async function handleSentryTrentUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/trent to v4');
+    await updateDependencyVersions('@sentry/trent', 'v4');
+    logging.log('info', 'Successfully updated @sentry/trent to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/trent: ${error.message}`);
+  }
+}
+
 /**
  * Updates core to v1.0.0 (exposed for external use).
  */
 async function updateCoreExternal() {
+  try {
+    const taskId = await createAsyncUpdateTask('update core to v1.0.0');
+    await updateDependencyVersions('core', 'v1.0.0');
+    logging.log('info', 'Successfully updated core to v1.0.0');
+  } catch (error) {
+    logging.log('error', `Failed to update core: ${error.message}`);
+  }
+}
+
+async function handleCoreUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update core to v1.0.0');
     await updateDependencyVersions('core', 'v1.0.0');
@@ -371,7 +414,7 @@ async function visualizeDependencyMemory(dependencyName, currentVersion, newVers
 /**
  * Updates posthoh-js to v1.407.2.
  */
-async function handlePosthohJsUpdateToV1_407_2() {
+async function updatePosthohJsToV1_407_2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
     await updateDependencyVersions('posthoh-js', 'v1.407.2');
@@ -475,19 +518,6 @@ async function updatePosthohJsToV1_407_2() {
  * Updates linear-bots/gitstream-github-action to latest version.
  */
 async function updateGitstreamActionToLatestVersion() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-/**
- * Updates linear-bots/gitstream-github-action to latest version (duplicate alias).
- */
-async function updateGitstreamActionToLatestVersion2() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
@@ -705,118 +735,4 @@ async function handleGitstreamActionUpdateToLatest() {
  */
 async function handleRecreateGithubCodeqlActionPRToLatest() {
   try {
-    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4 (latest)');
-    await updateDependencyVersions('github/codeql-action', 'v4');
-    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4 (latest)');
-  } catch (error) {
-    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
-  }
-}
-
-/**
- * Updates posthoh-js to v1.407.2.
- */
-async function updatePosthohJsToV1_407_2() {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
-    await updateDependencyVersions('posthoh-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
-  }
-}
-
-/**
- * Exported API.
- */
-module.exports = {
-  updateDependencyVersions,
-  updateNpmPackage,
-  getTaskById,
-  visualizeMemory,
-  handlePosthohJsUpdate,
-  handleActionsCheckoutUpdate,
-  handleActionsLabelerUpdate,
-  handleActionsSetupPythonUpdate,
-  handleAwaitingSchedulePRsCreation,
-  handleSentryBrowserUpdate,
-  handleLodashUpdate,
-  handleMomentJsUpdate,
-  handleSomeDependencyUpdate,
-  handleAnotherDependencyUpdate,
-  handleSentryTrentUpdate,
-  handleCoreUpdate,
-  updateGithubCodeqlAction,
-  createAsyncUpdateTask,
-  handleGithubCodeqlActionUpdate,
-  handleGitstreamActionUpdate,
-  handleRecreateGithubCodeqlActionPR,
-  handlePosthohJsUpdateToV1_407_2,
-  handleSentryBrowserUpdateToV10_68_0,
-  handleGitstreamActionUpdateToLatest,
-  handleGitstreamActionUpdateToLatestVersion,
-  handleGitstreamActionUpdateToLatestVersion2,
-  addTask,
-  updatePosthohJs,
-  updateActionsCheckout,
-  updateActionsLabeler,
-  updateActionsSetupPython,
-  updateAnotherDependency,
-  addStargazer,
-  removeStargazer,
-  updateStargazerActivity,
-  getAllStargazers,
-  getInactiveStargazers,
-  getStargazerCount,
-  handleNewStargazer,
-  handleStargazerRemoval,
-  handleStargazerActivityUpdate,
-  getStargazers,
-  trackRunawayStargazers,
-  monitorStargazersActivity,
-  generateStargazersReport,
-  isStargazerActive,
-  resetStargazers,
-  logWithComparison,
-  calculateProgress,
-  calculateDependencyProgress,
-  updateActionsCheckoutExternal,
-  updateActionsLabelerExternal,
-  updateActionsSetupPythonExternal,
-  updateGithubCodeqlActionExternal,
-  updateLodashExternal,
-  updateSentryBrowserExternal,
-  updateMomentExternal,
-  updateSomeDependencyExternal,
-  updateAnotherDependencyExternal,
-  updateSentryTrentExternal,
-  updateCoreExternal,
-  updatePosthohJsToV1_407_2,
-  updateActionsCheckoutToV7,
-  updateActionsLabelerToV7,
-  updateActionsSetupPythonToV7,
-  createAllAwaitingSchedulePRs,
-  updateGithubCodeqlActionToV4,
-  visualizeDependencyMemory,
-  updatePosthohJsUpdate,
-  // Add any remaining exported symbols that were defined earlier
-  // Finally, include all stargazer helpers
-  addStargazer,
-  removeStargazer,
-  updateStargazerActivity,
-  getAllStargazers,
-  getInactiveStargazers,
-  getStargazerCount,
-  handleNewStargazer,
-  handleStargazerRemoval,
-  handleStargazerActivityUpdate,
-  getStargazers,
-  trackRunawayStargazers,
-  monitorStargazersActivity,
-  generateStargazersReport,
-  isStargazerActive,
-  resetStargazers,
-  logWithComparison,
-  calculateProgress,
-  calculateDependencyProgress
-};
+    const taskId

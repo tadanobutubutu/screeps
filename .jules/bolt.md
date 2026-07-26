@@ -60,4 +60,7 @@
 ## 2026-06-10 - Single-Pass Loop for Invasion and Threat Detection
 **Learning:** Chaining `.filter()` and `.reduce()` in hot, per-tick functions like `detectInvasion` to count hostile creeps and find the maximum HP allocates temporary arrays and iterates over hostiles multiple times. This introduces severe CPU overhead and GC pressure under high-load situations.
 **Action:** Combined `.filter()` and `.reduce()` into a single `for` loop that filters, counts, and tracks the highest HP in a single pass with zero array allocations.
+
 * 🧪 **Testing Improvement**: When creating test suites for script files that run logic in the global scope directly on load (e.g., `patch_main.js`), refactoring the main execution logic into a named function and exporting it (e.g., `module.exports = runPatch;`) prevents unintended automatic execution when required by the test framework (e.g., Jest). The script can still support direct execution by checking `if (require.main === module)`.
+
+- **Tower Target Optimization:** In `findTowerTargets` (`utils.defense.js`), iterating over all structures to filter for damaged ones can be expensive. Replacing multiple `.filter()` calls with a single `for` loop eliminates intermediate array allocations and reduces loop iterations by half.

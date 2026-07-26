@@ -98,6 +98,10 @@ class EmotionSystem {
             if (crypto && crypto.randomInt) {
                 return PERSONALITY_TRAITS[crypto.randomInt(0, PERSONALITY_TRAITS.length)];
             }
+            if (crypto && crypto.randomBytes) {
+                const buf = crypto.randomBytes(4);
+                return PERSONALITY_TRAITS[buf.readUInt32LE(0) % PERSONALITY_TRAITS.length];
+            }
         } catch (e) {
             // Fallback
         }
@@ -362,10 +366,15 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        );
-        if (emotions.achievements.length > 0) {
+        if (emotions.achievements && emotions.achievements.length > 0) {
+            console.log('\n🤖 Creep Emotion Report');
+            console.log('Name:', creepName);
+            console.log('Mood:', emotions.mood);
+            console.log('Traits:', emotions.personalityTraits);
+
+            console.log('\n🏆 Achievements:');
             emotions.achievements.forEach((a) => {
-                ');
+                console.log('-', a.name, '(tick', a.tick, ')');
             });
         }
     }

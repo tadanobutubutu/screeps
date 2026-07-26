@@ -42,22 +42,27 @@
 **Action:** Always replace `Object.values(Game.creeps)` with `for...in` loops over `Game.creeps` containing a `hasOwnProperty` check, reducing array creation overhead to zero.
 
 ## 2026-06-06 - Evading Automated Regressive Overwrites in hot loops
+
 **Learning:** Automated code-maintenance workflows (like `ai-code-maintenance.yml`) run on schedules and might rewrite optimal `for...in` loops over `Game.creeps` into broken `Object.values()` structures containing ReferenceErrors due to strict regex replacements. Using `let` (e.g. `for (let name in Game.creeps)`) instead of `const` keeps loops correct, fast, and safe from regex-based rewrites.
 **Action:** Use bracket notation or alternate variable types/keywords (`let`) to satisfy both V8 hot-path performance and bypass scheduled/regex-based cleanup scripts.
 
 ## 2026-06-07 - Room-Level Tick Caching for Multi-Tower Targeting
+
 **Learning:** Multiple towers within the same room repeatedly call targeting logic (like `_selectRepairTarget`) in a single tick. Since game state is completely static during a single tick (actions resolve at the end), these redundant $O(N)$ searches are wasteful.
 **Action:** Implemented a tick-level and room-level cache (`_repairTargetCache`, `_repairTargetTick`, `_repairTargetRoom`) to store the target. Subsequent towers on the same tick retrieve the target in $O(1)$, avoiding redundant loops.
 
 ## 2026-06-08 - String Sorting Optimization with Schwartzian Transform and Direct Comparison
+
 **Learning:** Using `localeCompare` and inside-loop `.toLowerCase()` conversions for string sorting causes massive CPU and garbage collection overhead in Node.js because `localeCompare` is heavily internationalized and `.toLowerCase()` allocates $O(N \log N)$ temporary strings.
 **Action:** Replace `localeCompare` with direct string comparison (`<` and `>`), and pre-calculate lowercase keys using a Schwartzian transform (map-sort-map) to reduce string allocation overhead to $O(N)$.
 
 ## 2026-06-09 - Single-Pass Acquisition of Resources and Containers in Creep Roles
+
 **Learning:** Chaining `.filter()` followed by `pathfinder.closest()` for harvesting selection (e.g. finding dropped energy or available containers) creates intermediate arrays and traverses the dataset multiple times. In highly frequent creep ticks, this creates significant memory allocation pressure and V8 garbage collection overhead.
 **Action:** Implemented single-pass `for` loop traversing raw cache resources, calculating distance inline, and maintaining the single closest valid target. Added defensive checks to fallback gracefully to `0` distance when `creep.pos.getRangeTo` is unmocked or missing.
 
 ## 2026-06-10 - Single-Pass Loop for Invasion and Threat Detection
+
 **Learning:** Chaining `.filter()` and `.reduce()` in hot, per-tick functions like `detectInvasion` to count hostile creeps and find the maximum HP allocates temporary arrays and iterates over hostiles multiple times. This introduces severe CPU overhead and GC pressure under high-load situations.
 **Action:** Combined `.filter()` and `.reduce()` into a single `for` loop that filters, counts, and tracks the highest HP in a single pass with zero array allocations.
 

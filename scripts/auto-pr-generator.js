@@ -143,7 +143,9 @@ async function createFixBranch(issue, analysis) {
 
     try {
         execFileSync('git', ['fetch', 'origin'], { stdio: 'inherit' });
-        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], { stdio: 'inherit' });
+        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], {
+            stdio: 'inherit',
+        });
     } catch (error) {
         console.error('Failed to create branch:', error.message);
         throw error;

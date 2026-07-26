@@ -195,8 +195,8 @@ describe('_findDroppedEnergy', () => {
                     if (target === energyDrop1) return 5;
                     if (target === energyDrop2) return 10;
                     return 99;
-                }),
-            },
+                })
+            }
         };
 
         mockCache.getDroppedResources.mockReturnValue([energyDrop1, energyDrop2]);
@@ -216,8 +216,8 @@ describe('_findDroppedEnergy', () => {
                 getRangeTo: jest.fn().mockImplementation((target) => {
                     if (target === energyDrop) return 5;
                     return 99;
-                }),
-            },
+                })
+            }
         };
 
         mockCache.getDroppedResources.mockReturnValue([nonEnergyDrop, energyDrop]);
@@ -282,8 +282,8 @@ describe('_findAvailableContainer', () => {
                     if (target === validContainer1) return 10;
                     if (target === validContainer2) return 5;
                     return 99;
-                }),
-            },
+                })
+            }
         };
 
         mockCache.getContainers.mockReturnValue([
@@ -424,7 +424,7 @@ describe('_harvest', () => {
             pos: {},
             room: {},
             harvest: jest.fn().mockReturnValue(global.OK),
-            name: 'creep1',
+            name: 'creep1'
         };
 
         harvester._harvest(creep);
@@ -444,7 +444,7 @@ describe('_harvest', () => {
             room: {},
             harvest: jest.fn().mockReturnValue(global.ERR_NOT_ENOUGH_ENERGY),
             memory: { [MEMORY_KEYS.SOURCE_ID]: 'source1' },
-            name: 'creep1',
+            name: 'creep1'
         };
 
         harvester._harvest(creep);
@@ -462,7 +462,7 @@ describe('_harvest', () => {
         const creep = {
             pos: {},
             room: {},
-            name: 'creep1',
+            name: 'creep1'
         };
 
         harvester._harvest(creep);
@@ -487,7 +487,7 @@ describe('_deliver', () => {
         const creep = {
             memory: { targetId: 'spawn1' },
             transfer: jest.fn().mockReturnValue(global.OK),
-            room: { name: 'W1N1' },
+            room: { name: 'W1N1' }
         };
 
         harvester._deliver(creep);
@@ -516,7 +516,7 @@ describe('_deliver', () => {
             memory: { targetId: 'spawn1' },
             transfer: jest.fn().mockReturnValue(global.OK),
             room: { name: 'W1N1' },
-            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) }
         };
 
         harvester._deliver(creep);
@@ -537,7 +537,7 @@ describe('_deliver', () => {
             memory: {},
             transfer: jest.fn().mockReturnValue(global.ERR_FULL),
             room: { name: 'W1N1' },
-            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) }
         };
 
         harvester._deliver(creep);
@@ -558,7 +558,7 @@ describe('_deliver', () => {
             transfer: jest.fn(),
             upgradeController: jest.fn().mockReturnValue(global.OK),
             room: { name: 'W1N1', controller },
-            pos: {},
+            pos: {}
         };
 
         harvester._deliver(creep);
@@ -575,13 +575,10 @@ describe('_findEnergyTarget', () => {
     test('スポーン・エクステンションが最も優先される', () => {
         const creep = {
             pos: { getRangeTo: jest.fn().mockReturnValue(5) },
-            room: {},
+            room: {}
         };
         const spawn = { structureType: global.STRUCTURE_SPAWN };
-        const tower = {
-            structureType: global.STRUCTURE_TOWER,
-            store: { getFreeCapacity: jest.fn().mockReturnValue(300) },
-        };
+        const tower = { structureType: global.STRUCTURE_TOWER, store: { getFreeCapacity: jest.fn().mockReturnValue(300) } };
 
         mockCache.getStructuresNeedingEnergy.mockReturnValue([spawn, tower]);
 
@@ -593,12 +590,9 @@ describe('_findEnergyTarget', () => {
     test('スポーン・エクステンションがない場合、タワー（空き容量>200）が優先される', () => {
         const creep = {
             pos: { getRangeTo: jest.fn().mockReturnValue(5) },
-            room: {},
+            room: {}
         };
-        const tower = {
-            structureType: global.STRUCTURE_TOWER,
-            store: { getFreeCapacity: jest.fn().mockReturnValue(300) },
-        };
+        const tower = { structureType: global.STRUCTURE_TOWER, store: { getFreeCapacity: jest.fn().mockReturnValue(300) } };
 
         mockCache.getStructuresNeedingEnergy.mockReturnValue([tower]);
 
@@ -610,7 +604,7 @@ describe('_findEnergyTarget', () => {
     test('上記のどれもない場合、コンテナ（空き容量>200）が優先される', () => {
         const creep = {
             pos: { getRangeTo: jest.fn().mockReturnValue(5) },
-            room: {},
+            room: {}
         };
         const container = { store: { getFreeCapacity: jest.fn().mockReturnValue(300) } };
 
@@ -625,7 +619,7 @@ describe('_findEnergyTarget', () => {
     test('コンテナもない場合、ストレージ（空き容量>0）が選ばれる', () => {
         const creep = {
             pos: { getRangeTo: jest.fn().mockReturnValue(5) },
-            room: {},
+            room: {}
         };
         const storage = { store: { getFreeCapacity: jest.fn().mockReturnValue(100) } };
 
@@ -641,7 +635,7 @@ describe('_findEnergyTarget', () => {
     test('候補が何もない場合はnullを返す', () => {
         const creep = {
             pos: { getRangeTo: jest.fn().mockReturnValue(5) },
-            room: {},
+            room: {}
         };
 
         mockCache.getStructuresNeedingEnergy.mockReturnValue([]);
@@ -661,7 +655,7 @@ describe('_upgradeAsBackup', () => {
 
     test('コントローラーがない場合は何もしない', () => {
         const creep = {
-            room: {},
+            room: {}
         };
 
         harvester._upgradeAsBackup(creep);
@@ -673,7 +667,7 @@ describe('_upgradeAsBackup', () => {
         const controller = { id: 'controller' };
         const creep = {
             upgradeController: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
-            room: { controller },
+            room: { controller }
         };
 
         harvester._upgradeAsBackup(creep);

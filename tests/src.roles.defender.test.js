@@ -268,7 +268,7 @@ describe('src/roles/defender', () => {
             memory: {},
             room: roomMock,
             pos: new RoomPosition(11, 11, 'W0N0'),
-            getActiveBodyparts: jest.fn((part) => (part === global.ATTACK ? 1 : 0)),
+            getActiveBodyparts: jest.fn((part) => part === global.ATTACK ? 1 : 0),
             attack: jest.fn(),
         };
 
@@ -303,7 +303,7 @@ describe('src/roles/defender', () => {
             memory: {},
             room: roomMock,
             pos: new RoomPosition(10, 10, 'W0N0'), // dist 10
-            getActiveBodyparts: jest.fn((part) => (part === global.RANGED_ATTACK ? 1 : 0)),
+            getActiveBodyparts: jest.fn((part) => part === global.RANGED_ATTACK ? 1 : 0),
             rangedAttack: jest.fn(),
         };
 
@@ -343,7 +343,7 @@ describe('src/roles/defender', () => {
             x: 5,
             y: 5,
             roomName: 'W0N0',
-            getRangeTo: jest.fn().mockReturnValue(1), // Force distance <= 2
+            getRangeTo: jest.fn().mockReturnValue(1) // Force distance <= 2
         };
 
         const creep = {
@@ -360,38 +360,12 @@ describe('src/roles/defender', () => {
 
     test('getBody handles various energy levels', () => {
         // Ranged
-        expect(defender.getBody(450, true)).toEqual([
-            global.TOUGH,
-            global.RANGED_ATTACK,
-            global.RANGED_ATTACK,
-            global.MOVE,
-            global.MOVE,
-            global.MOVE,
-        ]);
+        expect(defender.getBody(450, true)).toEqual([global.TOUGH, global.RANGED_ATTACK, global.RANGED_ATTACK, global.MOVE, global.MOVE, global.MOVE]);
         expect(defender.getBody(300, true)).toEqual([global.RANGED_ATTACK, global.MOVE]);
 
         // Melee
-        expect(defender.getBody(800, false)).toEqual([
-            global.TOUGH,
-            global.TOUGH,
-            global.TOUGH,
-            global.ATTACK,
-            global.ATTACK,
-            global.ATTACK,
-            global.MOVE,
-            global.MOVE,
-            global.MOVE,
-            global.MOVE,
-        ]);
-        expect(defender.getBody(400, false)).toEqual([
-            global.TOUGH,
-            global.TOUGH,
-            global.ATTACK,
-            global.ATTACK,
-            global.MOVE,
-            global.MOVE,
-            global.MOVE,
-        ]);
+        expect(defender.getBody(800, false)).toEqual([global.TOUGH, global.TOUGH, global.TOUGH, global.ATTACK, global.ATTACK, global.ATTACK, global.MOVE, global.MOVE, global.MOVE, global.MOVE]);
+        expect(defender.getBody(400, false)).toEqual([global.TOUGH, global.TOUGH, global.ATTACK, global.ATTACK, global.MOVE, global.MOVE, global.MOVE]);
         expect(defender.getBody(100, false)).toEqual([global.ATTACK, global.MOVE]);
     });
 
@@ -456,7 +430,7 @@ describe('src/roles/defender', () => {
             memory: {},
             room: roomMock,
             pos: new RoomPosition(10, 11, 'W0N0'), // dist 1
-            getActiveBodyparts: jest.fn((part) => (part === global.RANGED_ATTACK ? 1 : 0)),
+            getActiveBodyparts: jest.fn((part) => part === global.RANGED_ATTACK ? 1 : 0),
             rangedAttack: jest.fn(),
             attack: jest.fn(),
         };
@@ -465,4 +439,6 @@ describe('src/roles/defender', () => {
         expect(creep.rangedAttack).toHaveBeenCalledWith(target);
         expect(pathfinder.moveTo).toHaveBeenCalled(); // _fleeFrom uses moveTo with range: 0
     });
+
+
 });

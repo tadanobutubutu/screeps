@@ -113,49 +113,6 @@ function sanitizeLog(str) {
     });
 }
 
-function handleDeployResponse(res, label, resolve, reject) {
-    let data = '';
-    res.on('data', (chunk) => {
-        data += chunk;
-    });
-    res.on('end', () => {
-        try {
-            const json = JSON.parse(data);
-            if (json.ok === 1) {
-                resolve();
-            } else {
-                // エラーレスポンスから機密情報を除外してログ出力
-                const safeJson = sanitizeLog(JSON.stringify(json));
-                console.error(`[${label}] Deployment failed:`, safeJson);
-                reject(new Error(`${label} deployment failed`));
-            }
-        } catch (e) {
-            if (res.statusCode === 200) {
-                resolve();
-            } else {
-                // エラーデータから機密情報を除外
-                const safeData = sanitizeLog(data);
-                console.error(`[${label}] Deployment failed! Raw:`, safeData);
-                reject(new Error(`${label} deployment failed`));
-            }
-        }
-    });
-}
-
-function buildRequestOptions(apiPath, bodyLength, token) {
-    return {
-        hostname: 'screeps.com',
-        port: 443,
-        path: apiPath,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Content-Length': bodyLength,
-            'X-Token': token,
-        },
-    };
-}
-
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
@@ -168,9 +125,46 @@ function deployTo(label, apiPath, token, modules) {
             return resolve();
         }
 
-        const options = buildRequestOptions(apiPath, Buffer.byteLength(body), token);
+        const options = {
+            hostname: 'screeps.com',
+            port: 443,
+            path: apiPath,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=utf-8',
+                'Content-Length': Buffer.byteLength(body),
+                'X-Token': token,
+            },
+        };
 
-        const req = https.request(options, (res) => handleDeployResponse(res, label, resolve, reject));
+        const req = https.request(options, (res) => {
+            let data = '';
+            res.on('data', (chunk) => {
+                data += chunk;
+            });
+            res.on('end', () => {
+                try {
+                    const json = JSON.parse(data);
+                    if (json.ok === 1) {
+                        resolve();
+                    } else {
+                        // エラーレスポンスから機密情報を除外してログ出力
+                        const safeJson = sanitizeLog(JSON.stringify(json));
+                        console.error(`[${label}] Deployment failed:`, safeJson);
+                        reject(new Error(`${label} deployment failed`));
+                    }
+                } catch (e) {
+                    if (res.statusCode === 200) {
+                        resolve();
+                    } else {
+                        // エラーデータから機密情報を除外
+                        const safeData = sanitizeLog(data);
+                        console.error(`[${label}] Deployment failed! Raw:`, safeData);
+                        reject(new Error(`${label} deployment failed`));
+                    }
+                }
+            });
+        });
 
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外
@@ -190,7 +184,7 @@ function deployTo(label, apiPath, token, modules) {
 }
 
 // スクリプトとして直接実行された場合のみデプロイ処理を実行
-async function runDeploy() {
+if (require.main === module) {
     // Read all JS files
     const files = [
         { name: 'main', file: 'main.js' },
@@ -201,39 +195,31 @@ async function runDeploy() {
         { name: 'role.explorer', file: 'role.explorer.js' },
     ];
 
+    runDeploy(files, ptrToken, prodToken);
+}
+
+async function runDeploy(files, ptrToken, prodToken) {
     try {
         const modules = {};
         for (const m of files) {
             try {
-                // ファイルパスの検証
                 const filePath = validateFilePath(m.file);
                 let content = await fs.promises.readFile(filePath, 'utf8');
-
-                // Security: Inject environment variables into the source
                 content = injectEnvVars(content);
-
                 modules[m.name] = content;
             } catch (e) {
-                // エラーメッセージから機密情報を除外
                 const safeMessage = sanitizeLog(e.message);
                 console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
                 process.exit(1);
             }
         }
-
         await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
         await deployTo('PROD', '/api/user/code', prodToken, modules);
     } catch (error) {
-        // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
         const safeMessage = sanitizeLog(error.message);
         console.error('Deployment process failed:', safeMessage);
         process.exit(1);
     }
 }
 
-// スクリプトとして直接実行された場合のみデプロイ処理を実行
-if (require.main === module) {
-    runDeploy();
-}
-
-module.exports = { runDeploy, validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog, runDeploy };

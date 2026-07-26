@@ -1,7 +1,8 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+    console.log(`[${level}] ${message}`);
+  },
 };
 
 const addTask = (title, priority = 'medium', tags = []) => {
@@ -73,7 +74,7 @@ function calculateProgress(version) {
   const total = _tasks.filter(task =>
     task && task.dependencies && task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current && current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -85,7 +86,7 @@ function calculateDependencyProgress(versionWrapped) {
     task && task.dependencies && task.dependencies.version === versionWrapped
   );
   const total = allTasks.length;
-  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current && current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -888,6 +889,10 @@ if (typeof module !== 'undefined' && module.exports) {
     resetStargazers,
     logWithComparison,
     handlePosthogJsUpdate,
+    updateGitstreamActionToLatest,
+    handleGitstreamActionUpdateToLatest,
+    handleRecreateGithubCodeqlActionPR,
+    updateGitstreamAction,
     handleActionsCheckoutUpdate,
     handleActionsLabelerUpdate,
     handleActionsSetupPythonUpdate

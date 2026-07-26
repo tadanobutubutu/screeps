@@ -1,3 +1,8 @@
+jest.mock('utils.logging', () => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+}));
 /**
  * tutorial.auto.js のユニットテスト
  */

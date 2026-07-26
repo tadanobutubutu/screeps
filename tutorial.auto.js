@@ -5,6 +5,26 @@
 const logger = require('utils.logging');
 
 const autoTutorial = {
+    _towersCache: { time: 0, towers: [] },
+
+    /**
+     * ⚡ PERFORMANCE OPTIMIZATION: Get cached towers to avoid O(N) _.filter every tick
+     */
+    _getTowers: function () {
+        if (this._towersCache.time !== Game.time) {
+            this._towersCache.towers = [];
+            for (let id in Game.structures) {
+                if (!Object.prototype.hasOwnProperty.call(Game.structures, id)) continue;
+                const s = Game.structures[id];
+                if (s.structureType === STRUCTURE_TOWER) {
+                    this._towersCache.towers.push(s);
+                }
+            }
+            this._towersCache.time = Game.time;
+        }
+        return this._towersCache.towers;
+    },
+
     /**
      * チュートリアル検出
      */
@@ -177,7 +197,7 @@ const autoTutorial = {
      * Step 5: Defend room
      */
     step5_defendRoom: function () {
-        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
+        const towers = this._getTowers();
 
         if (towers.length > 0) {
             const tower = towers[0];
@@ -253,7 +273,7 @@ const autoTutorial = {
 
     _handleTowers: function (hostilesCache) {
         // Tower防衛
-        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
+        const towers = this._getTowers();
         for (const tower of towers) {
             const roomName = tower.room.name;
             let hostiles = hostilesCache[roomName];

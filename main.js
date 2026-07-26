@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console.log(`[${level}] ${message}`);
   },
 };
 
@@ -73,7 +74,7 @@ function calculateProgress(version) {
   const total = _tasks.filter(task =>
     task && task.dependencies && task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current && current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -85,7 +86,7 @@ function calculateDependencyProgress(versionWrapped) {
     task && task.dependencies && task.dependencies.version === versionWrapped
   );
   const total = allTasks.length;
-  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current && current.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -820,3 +821,70 @@ async function handleActionsSetupPythonUpdate() {
     logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
   }
 }
+
+// Add this export to make the functions available for testing
+module.exports = {
+  logging,
+  addTask,
+  getTaskById,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateActionsLabeler,
+  updateActionsSetupPython,
+  createAwaitingSchedulePRs,
+  updateGithubCodeqlAction,
+  calculateProgress,
+  calculateDependencyProgress,
+  visualizeMemory,
+  handlePosthohJsUpdate,
+  handleActionsCheckoutUpdate,
+  handleActionsLabelerUpdate,
+  handleActionsSetupPythonUpdate,
+  handleAwaitingSchedulePRsCreation,
+  updateGitstreamActionUpdate,
+  updateGithubCodeqlActionExternal,
+  updateLodashExternal,
+  handleSentryBrowserUpdate,
+  handleLodashUpdate,
+  updateMomentExternal,
+  handleMomentJsUpdate,
+  updateSomeDependencyExternal,
+  handleSomeDependencyUpdate,
+  updateAnotherDependencyExternal,
+  handleAnotherDependencyUpdate,
+  updateSentryTrentExternal,
+  handleSentryTrentUpdate,
+  updateCoreExternal,
+  handleCoreUpdate,
+  updatePosthohJs,
+  updateSentryBrowser,
+  updateActionsCheckout,
+  visualizeDependencyMemory,
+  updatePosthohJsToV1_407_2,
+  updateActionsCheckoutToV7,
+  updateActionsLabelerToV7,
+  updateActionsSetupPythonToV7,
+  createAllAwaitingSchedulePRs,
+  updateGithubCodeqlActionToV4,
+  updateGitstreamActionToLatest,
+  handleGitstreamActionUpdateToLatest,
+  handleRecreateGithubCodeqlActionPR,
+  updateGitstreamAction,
+  addStargazer,
+  removeStargazer,
+  updateStargazerActivity,
+  getAllStargazers,
+  getInactiveStargazers,
+  getStargazerCount,
+  getStargazers,
+  handleNewStargazer,
+  handleStargazerRemoval,
+  handleStargazerActivityUpdate,
+  trackRunawayStargazers,
+  monitorStargazersActivity,
+  generateStargazersReport,
+  isStargazerActive,
+  resetStargazers,
+  logWithComparison
+};

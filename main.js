@@ -40,8 +40,22 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 };
 
 async function handleActionsLabelerUpdate() {
-  const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-  await updateDependencyVersions('actions/labeler', 'v7');
+  return new Promise((resolve, reject) => {
+    try {
+      const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+      updateDependencyVersions('actions/labeler', 'v7')
+        .then(() => {
+          logging.log('info', `Successfully updated actions/labeler to v7`);
+          resolve(taskId);
+        })
+        .catch((error) => {
+          logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+          reject(error);
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function handleActionsLabelerSuccess() {
@@ -185,6 +199,15 @@ async function handleSentryBrowserUpdate() {
   }
 }
 
+async function handleCodeQLActionUpdate() {
+  try {
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   logging,
   addTask,
@@ -209,5 +232,5 @@ module.exports = {
   handleAwaitingSchedulePRsUpdate,
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
+  handleCodeQLActionUpdate,
 };
-```

@@ -214,7 +214,7 @@ function runPatch() {
             }
         }
 
-        // ストレージを引出元に追加
+        // ストレージを抽出元に追加
         if (room.storage && room.storage.store[RESOURCE_ENERGY] > 1000) {
             state.withdrawalSources.push(room.storage);
         }

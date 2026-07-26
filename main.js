@@ -665,7 +665,7 @@ async function updateAnotherDependencyExternal() {
   try {
     const taskId = await createAsyncUpdateTask('update another-dependency to v5');
     await updateDependencyVersions('another-dependency', 'v5');
-    logging.log('info', 'Successfully updated another-dependency: ${error.message}');
+    logging.log('info', `Successfully updated another-dependency: ${error.message}`);
   } catch (error) {
     logging.log('error', `Failed to update another-dependency: ${error.message}`);
   }

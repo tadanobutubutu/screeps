@@ -9,8 +9,6 @@ function secureRandom() {
     } catch (e) {
         // Fallback
     }
-    return Math.random();
+    throw new Error("No secure random number generator available.");
 }
 
-);
-);

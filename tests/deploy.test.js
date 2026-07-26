@@ -6,9 +6,35 @@
 jest.mock('https');
 const https = require('https');
 
-const { validateToken, validateFilePath, deployTo } = require('../deploy');
+const { validateToken, validateFilePath, deployTo, runDeploy } = require('../deploy');
+const fs = require('fs');
 
 describe('deploy.js', () => {
+    describe('runDeploy error handling', () => {
+        let originalExit, originalError;
+        beforeEach(() => {
+            originalExit = process.exit;
+            originalError = console.error;
+            process.exit = jest.fn();
+            console.error = jest.fn();
+        });
+
+        afterEach(() => {
+            process.exit = originalExit;
+            console.error = originalError;
+            jest.restoreAllMocks();
+        });
+
+        test('catches file read error and exits', async () => {
+            jest.spyOn(fs.promises, 'eadFile').mockRejectedValue(new Error('simulated read error token=\'secret\''));
+            await runDeploy();
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[ERROR] Failed to read main.js: simulated read error token=\'[REDACTED]\'')
+            );
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+    });
+
     describe('validateToken', () => {
         test('有効なトークンを許可', () => {
             const result = validateToken('valid_token_1234567890', 'PTR');
@@ -45,8 +71,9 @@ describe('deploy.js', () => {
         });
 
         test('特殊文字を含むトークンを無効', () => {
-            const result = validateToken('invalid!@#$%^&*()token123456789', 'PTR');
+            const result = validateToken('invalid!@#$%^&*()token12345678901234567890', 'PTR');
             expect(result.valid).toBe(false);
+            expect(result.message).toContain('contains invalid characters');
         });
     });
 
@@ -56,19 +83,16 @@ describe('deploy.js', () => {
 
         test('正常なファイルパスを受け入れる', () => {
             const result = validateFilePath('main.js', testBaseDir);
-            expect(result).toContain('main.js');
+            expect(result).toBe('/workspace/test/main.js');
         });
 
-        test('path traversal攻撃をブロック', () => {
-            expect(() => {
-                validateFilePath('../etc/passwd', testBaseDir);
-            }).toThrow();
+        test('パストラバーサル攻撃をブロック', () => {
+            const baseDir = '/workspace/test';
+            expect(() => validateFilePath('../etc/passwd', baseDir)).toThrow('path traversal attack detected');
         });
 
         test('Poison Null Byteをブロック', () => {
-            expect(() => {
-                validateFilePath('\0../../etc/passwd', testBaseDir);
-            }).toThrow('contains null byte');
+            expect(() => validateFilePath('\0../../etc/passwd', testBaseDir)).toThrow('contains null byte');
         });
 
         test('サブディレクトリを許可', () => {
@@ -77,17 +101,13 @@ describe('deploy.js', () => {
         });
 
         test('絶対パスをブロック', () => {
-            expect(() => {
-                validateFilePath('/etc/passwd', testBaseDir);
-            }).toThrow();
+            expect(() => validateFilePath('/etc/passwd', testBaseDir)).toThrow('absolute path detected');
         });
 
-        test('should block partial base path match (starts-with bypass)', () => {
+        test('部分的なベースパスのマッチングをブロック', () => {
             const baseDir = '/app';
-            const malicousPath = '../app_danger/main.js';
-            expect(() => {
-                validateFilePath(malicousPath, baseDir);
-            }).toThrow();
+            const maliciousPath = '../app_danger/main.js';
+            expect(() => validateFilePath(maliciousPath, baseDir)).toThrow('path traversal attack detected');
         });
     });
 
@@ -108,9 +128,7 @@ describe('deploy.js', () => {
         });
 
         test('無効なトークン形式の場合はスキップ', async () => {
-            await expect(
-                deployTo('PTR', '/ptr/api/user/code', 'short', {})
-            ).resolves.toBeUndefined();
+            await expect(deployTo('PTR', '/ptr/api/user/code', 'hort', {})).resolves.toBeUndefined();
         });
 
         test('デプロイ成功時にresolveする', async () => {
@@ -138,7 +156,7 @@ describe('deploy.js', () => {
             ).resolves.toBeUndefined();
         });
 
-        test('デプロイ失敗時（ok !== 1）にrejectする', async () => {
+        test('デプロイ失敗時（ok!== 1）にrejectする', async () => {
             const mockReq = {
                 write: jest.fn(),
                 end: jest.fn(),
@@ -160,7 +178,11 @@ describe('deploy.js', () => {
             });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow();
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow('PTR deployment failed');
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[PTR] Deployment failed! Raw:'),
+                expect.stringContaining('deploy failed')
+            );
         });
 
         test('HTTPステータス200でJSONパース失敗の場合はresolveする', async () => {
@@ -198,7 +220,7 @@ describe('deploy.js', () => {
             const mockRes = {
                 statusCode: 500,
                 on: jest.fn((event, callback) => {
-                    if (event === 'data') callback('not json error token=' + 'sec' + 'ret');
+                    if (event === 'data') callback('not json error token=sec' + 'et');
                     if (event === 'end') callback();
                 }),
             };
@@ -208,11 +230,7 @@ describe('deploy.js', () => {
             });
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
-                'PTR deployment failed'
-            );
-
-            // Should redact token
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow('PTR deployment failed');
             expect(console.error).toHaveBeenCalledWith(
                 expect.stringContaining('[PTR] Deployment failed! Raw:'),
                 expect.stringContaining('not json error token=[REDACTED]')
@@ -268,36 +286,100 @@ describe('deploy.js', () => {
             https.request.mockImplementation(() => mockReq);
 
             const validToken = 'valid_token_12345678901234567890';
-            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow(
-                'timeout'
-            );
+            await expect(deployTo('PTR', '/ptr/api/user/code', validToken, {})).rejects.toThrow('timeout');
+        });
+
+        test('deployTo API catch error with status 500', async () => {
+            const mockReq = {
+                write: jest.fn(),
+                end: jest.fn(),
+                on: jest.fn(),
+                setTimeout: jest.fn(),
+            };
+            const mockRes = {
+                statusCode: 500,
+                on: jest.fn((event, callback) => {
+                    if (event === 'data') callback('invalid json');
+                    if (event === 'end') callback();
+                }),
+            };
+            https.request.mockImplementation((options, callback) => {
+                callback(mockRes);
+                return mockReq;
+            });
+
+            await expect(deployTo('TEST', '/api', 'valid_token_1234567890', {})).rejects.toThrow('TEST deployment failed');
+            expect(console.error).toHaveBeenCalledWith(expect.stringContaining('[TEST] Deployment failed! Raw:'), 'invalid json');
+        });
+
+        test('deployTo API catch error with status 200 (json parse error)', async () => {
+            const mockReq = {
+                write: jest.fn(),
+                end: jest.fn(),
+                on: jest.fn(),
+                setTimeout: jest.fn(),
+            };
+            const mockRes = {
+                statusCode: 200,
+                on: jest.fn((event, callback) => {
+                    if (event === 'data') callback('invalid json');
+                    if (event === 'end') callback();
+                }),
+            };
+            https.request.mockImplementation((options, callback) => {
+                callback(mockRes);
+                return mockReq;
+            });
+
+            await expect(deployTo('TEST', '/api', 'valid_token_1234567890', {})).resolves.toBeUndefined();
         });
     });
 
-
-    describe('runDeploy main catch block', () => {
-        let originalEnv;
-
+    describe('runDeploy with files argument', () => {
+        let originalExit;
+        let originalConsoleError;
         beforeEach(() => {
-            originalEnv = process.env;
-            process.env = { ...originalEnv, SCREEPS_TOKEN: 'valid_token_12345678901234567890', SCREEPS_PROD_TOKEN: 'prod_token_12345678901234567890' };
-            jest.spyOn(console, 'error').mockImplementation(() => {});
-            jest.spyOn(process, 'exit').mockImplementation((code) => {
-                const err = new Error(`EXIT_${code}`);
-                err.isExit = true;
-                throw err;
-            });
+            originalExit = process.exit;
+            originalConsoleError = console.error;
+            process.exit = jest.fn();
+            console.error = jest.fn();
         });
 
         afterEach(() => {
-            process.env = originalEnv;
+            process.exit = originalExit;
+            console.error = originalConsoleError;
             jest.restoreAllMocks();
         });
 
+        test('外側のcatchブロックがエラーを捕捉する', async () => {
+            const fsModule = require('fs');
+            jest.spyOn(fsModule.promises, 'eadFile').mockResolvedValue('dummy content');
+            const httpsModule = require('https');
+            httpsModule.request.mockImplementation((options, callback) => {
+                const req = { on: jest.fn((evt, cb) => {
+                    if (evt === 'error') {
+                        cb(new Error('PTR request failed'));
+                    }
+                }), setTimeout: jest.fn(), write: jest.fn(), end: jest.fn(), destroy: jest.fn(); };
+                return req;
+            });
+            const files = [{ name: 'ain', file: 'ain.js' }];
+            await runDeploy(files, 'valid_token_1234567890123', 'valid_token_1234567890123');
+            expect(console.error).toHaveBeenCalledWith('Deployment process failed:', 'PTR request failed');
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+
+        test('ファイル読み込みエラーを捕捉する', async () => {
+            const fsModule = require('fs');
+            jest.spyOn(fsModule.promises, 'eadFile').mockRejectedValue(new Error('Failed to read file because token=sec' + 'et_abc'));
+            await runDeploy();
+            expect(console.error).toHaveBeenCalledWith('Deployment process failed:', expect.stringContaining('Failed to read file because token=[REDACTED]'));
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+
         test('should catch errors from deployTo and sanitize them', async () => {
-            const deployModule = require('../deploy');
             const fs = require('fs');
-            jest.spyOn(fs.promises, 'readFile').mockResolvedValue('module.exports = {};');
+            jest.spyOn(fs.promises, 'eadFile').mockResolvedValue('module.exports = {};');
 
             const https = require('https');
 
@@ -308,7 +390,7 @@ describe('deploy.js', () => {
                     on: jest.fn((event, cb) => {
                         if (event === 'error') {
                             process.nextTick(() => {
-                                cb(new Error('Network error with token=sec' + 'ret'));
+                                cb(new Error('Network error with token=sec' + 'et'));
                             });
                         }
                     }),
@@ -318,7 +400,7 @@ describe('deploy.js', () => {
             });
 
             try {
-                await deployModule.runDeploy();
+                await runDeploy();
             } catch (e) {
                 expect(e.message).toBe('EXIT_1');
             }
@@ -330,12 +412,11 @@ describe('deploy.js', () => {
         });
 
         test('should catch errors from file reading and sanitize them', async () => {
-            const deployModule = require('../deploy');
             const fs = require('fs');
-            jest.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('Failed to read file because token=sec' + 'ret_abc'));
+            jest.spyOn(fs.promises, 'eadFile').mockRejectedValue(new Error('Failed to read file because token=sec' + 'et_abc'));
 
             try {
-                await deployModule.runDeploy();
+                await runDeploy();
             } catch (e) {
                 expect(e.message).toBe('EXIT_1');
             }

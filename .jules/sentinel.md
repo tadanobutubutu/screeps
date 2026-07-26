@@ -21,10 +21,3 @@
 **Vulnerability:** A truncated core utility file (`utils.logging.js`) with an unterminated string constant causing full compilation/runtime failure in Jest test suites and production execution. When a core logging script fails to parse, security-critical log filtering and redaction are bypassed entirely, risking data leaks.
 **Learning:** Critical security controllers must fail securely. If a script is truncated or corrupted, the runtime environment should not default to executing un-redacted fallback paths or crashing. Robust and complete module implementations, proper unit testing of every log-level boundary, and safe prototype pollution prevention are essential.
 **Prevention:** Ensure all logging modules are fully complete and feature-hardened. Implement polymorphic parameter parsing (`log(level, msg)` or `log(msg, level)`) to avoid misuse, enforce strict type checks, and re-initialize corrupted runtime logging stores safely. Use robust pre-commit checks to verify syntax validity before deployment.
-
-### PRNG Vulnerability Fix Pattern
-When identifying `Math.random()` used for generating secure values (like IDs, tokens, or security simulations), always replace it with a cryptographically secure pseudo-random number generator (CSPRNG).
-In Node.js:
-- For secure random integers within a range, use `crypto.randomInt(max)`.
-- For secure random floats between 0 and 1 (a direct replacement for `Math.random()`), calculate using random bytes: `crypto.randomBytes(4).readUInt32LE() / 0xffffffff`.
-Avoid using `Math.random()` in any context where predictability can be exploited, such as task IDs or session handling (preventing IDOR and similar attacks). Ensure you require the `crypto` module (`const crypto = require('crypto');`) at the top of the file.

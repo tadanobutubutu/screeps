@@ -47,11 +47,10 @@ async function getIssueDetails(issueNumber) {
 /**
  * Claude API で Issue を分析し、修正コードを生成
  */
-/**
- * Claudeに送るプロンプトを構築する
- */
-function _buildClaudePrompt(issue) {
-    return `You are an expert software engineer. Analyze the following GitHub issue and provide:
+async function analyzeIssueWithClaude(issue) {
+    console.log('🔍 Analyzing issue with Claude...');
+
+    const prompt = `You are an expert software engineer. Analyze the following GitHub issue and provide:
 1. Root cause analysis
 2. Specific code changes needed (with file paths)
 3. A concise implementation plan
@@ -77,12 +76,7 @@ Please respond in JSON format:
   },
   "testSuggestion": "what to test after the fix"
 }`;
-}
 
-/**
- * Claude APIを呼び出して分析を取得する
- */
-async function _fetchClaudeAnalysis(prompt) {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -106,26 +100,16 @@ async function _fetchClaudeAnalysis(prompt) {
         throw new Error(`Claude API error: ${response.status}`);
     }
 
-    return response.json();
-}
-
-/**
- * ClaudeのレスポンスからJSONを抽出する
- */
-function _parseClaudeResponse(data) {
+    const data = await response.json();
     const content = data.content[0].text;
+
+    // JSON を抽出
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
         throw new Error('Failed to extract JSON from Claude response');
     }
-    return JSON.parse(jsonMatch[0]);
-}
 
-async function analyzeIssueWithClaude(issue) {
-    console.log('🔍 Analyzing issue with Claude...');
-    const prompt = _buildClaudePrompt(issue);
-    const data = await _fetchClaudeAnalysis(prompt);
-    return _parseClaudeResponse(data);
+    return JSON.parse(jsonMatch[0]);
 }
 
 /**
@@ -143,9 +127,7 @@ async function createFixBranch(issue, analysis) {
 
     try {
         execFileSync('git', ['fetch', 'origin'], { stdio: 'inherit' });
-        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], {
-            stdio: 'inherit',
-        });
+        execFileSync('git', ['checkout', '-b', fullBranchName, 'origin/main'], { stdio: 'inherit' });
     } catch (error) {
         console.error('Failed to create branch:', error.message);
         throw error;
@@ -254,7 +236,7 @@ async function main() {
         const analysis = await analyzeIssueWithClaude(issue);
         console.log(`✅ Analysis complete: ${analysis.severity} severity`);
 
-        // 修正ブランチを作成してコミット
+        // Fix ブランチを作成してコミット
         const branch = await createFixBranch(issue, analysis);
         console.log(`✅ Branch and commit created: ${branch.branchName}`);
 

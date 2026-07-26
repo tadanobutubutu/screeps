@@ -329,6 +329,57 @@ async function updateActionsSetupPythonToV7() {
 }
 
 /**
+ * Updates github/codeql-action to v4.
+ */
+async function updateGithubCodeqlActionToV4() {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version.
+ */
+async function updateGitstreamActionToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the recreation of github/codeql-action PR.
+ */
+async function handleRecreateGithubCodeqlActionPR() {
+  try {
+    const taskId = await createAsyncUpdateTask('recreate github/codeql-action PR');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully recreated github/codeql-action PR');
+  } catch (error) {
+    logging.log('error', `Failed to recreate github/codeql-action PR: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of linear-bots/gitstream-github-action to latest.
+ */
+async function handleGitstreamActionUpdateToLatest() {
+  try {
+    await updateGitstreamActionToLatest();
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
  * Stargazers tracking methods
  */
 let stargazers = [];

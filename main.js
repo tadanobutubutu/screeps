@@ -520,7 +520,7 @@ async function updateGitstreamActionToLatest() {
 /**
  * Updates posthoh-js to v1.407.2.
  */
-async function updatePosthohJsToV1_407_2() {
+async function updatePosthohJsToV1_407_2_v2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
     await updateDependencyVersions('posthoh-js', 'v1.407.2');
@@ -736,7 +736,7 @@ function logWithComparison(level, message, value1, value2) {
 /**
  * Updates linear-bots/gitstream-github-action to latest version (additional alias).
  */
-async function handleGitstreamActionUpdateToLatest() {
+async function handleGitstreamActionUpdateToLatest_v2() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');

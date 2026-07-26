@@ -1,34 +1,32 @@
 const logging = {
-  log: (level, message) => { }
+  log: (level, message) => {
+    // Basic console logging; replace with a proper logger as needed
+    console.log(`[${level.toUpperCase()}] ${message}`);
+  },
 };
 
-let _tasks = [];
-
-function addTask(title, priority = 'edium', tags = []) {
+const addTask = (title, priority = 'medium', tags = []) => {
   // Stub implementation: returns a mock task ID
   return Math.floor(Math.random() * 10000);
-}
+};
 
-function getTaskById(taskId) {
+const getTaskById = (taskId) => {
   return { id: taskId, tags: [], dependencies: {} };
-}
+};
 
-function updateDependencyVersions(dependency, newVersion) {
+const updateDependencyVersions = (dependency, newVersion) => {
   return Promise.resolve();
-}
+};
 
-function updateNpmPackage(packageName, newVersion) {
+const updateNpmPackage = (packageName, newVersion) => {
   return Promise.resolve();
-}
+};
 
-function updateAnotherDependency(newVersion) {
+const updateAnotherDependency = (newVersion) => {
   return Promise.resolve();
-}
+};
 
-/**
- * Creates a task asynchronously and logs its creation.
- */
-function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -38,19 +36,9 @@ function createAsyncUpdateTask(title, priority = 'edium', tags = []) {
       reject(error);
     }
   });
-}
+};
 
-/**
- * Updates actions/checkout to v7.
- */
-async function updateActionsCheckout() {
-  const taskId = await createAsyncUpdateTask('update actions/checkout action to v7');
-  await updateDependencyVersions('actions/checkout', 'v7');
-}
-
-/**
- * Updates actions/labeler to v7.
- */
+// Updates actions/labeler to v7.
 async function updateActionsLabeler() {
   const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
   await updateDependencyVersions('actions/labeler', 'v7');
@@ -497,7 +485,7 @@ async function updateGitstreamActionToLatestVersion() {
 }
 
 /**
- * Updates linear-bots/gitstream-github-action to latest version.
+ * Updates linear-bots/gitstream-github-action to latest version (duplicate alias).
  */
 async function updateGitstreamActionToLatestVersion2() {
   try {
@@ -512,22 +500,9 @@ async function updateGitstreamActionToLatestVersion2() {
 /**
  * Updates linear-bots/gitstream-github-action to latest (additional alias).
  */
-async function handleGitstreamActionUpdateToLatest2() {
+async function handleGitstreamActionUpdateToLatest() {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
-    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-/**
- * Updates linear-bots/gitstream-github-action to latest version (duplicate alias).
- */
-async function handleGitstreamActionUpdateToLatestVersion() {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
@@ -781,7 +756,6 @@ module.exports = {
   handleGitstreamActionUpdateToLatest,
   handleGitstreamActionUpdateToLatestVersion,
   handleGitstreamActionUpdateToLatestVersion2,
-  handleGitstreamActionUpdateToLatest2,
   addTask,
   updatePosthohJs,
   updateActionsCheckout,
@@ -824,28 +798,8 @@ module.exports = {
   createAllAwaitingSchedulePRs,
   updateGithubCodeqlActionToV4,
   visualizeDependencyMemory,
-  updateGitstreamActionToLatest,
-  // Ensure all necessary stargazer‑related exports are included
-  visualizeDependencyMemory,
-  // Add any remaining exported symbols that were defined earlier
   updatePosthohJsUpdate,
-  updateActionsCheckoutExternal,
-  updateActionsLabelerExternal,
-  updateActionsSetupPythonExternal,
-  updateGithubCodeqlActionExternal,
-  updateLodashExternal,
-  updateSentryBrowserExternal,
-  updateMomentExternal,
-  updateSomeDependencyExternal,
-  updateAnotherDependencyExternal,
-  updateSentryTrentExternal,
-  updateCoreExternal,
-  updatePosthohJsToV1_407_2,
-  updateActionsCheckoutToV7,
-  updateActionsLabelerToV7,
-  updateActionsSetupPythonToV7,
-  createAllAwaitingSchedulePRs,
-  updateGithubCodeqlActionToV4,
+  // Add any remaining exported symbols that were defined earlier
   // Finally, include all stargazer helpers
   addStargazer,
   removeStargazer,

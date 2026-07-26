@@ -272,5 +272,52 @@ describe('deploy.js', () => {
                 'timeout'
             );
         });
+
+        test('deployTo API catch error with status 500', async () => {
+            const mockReq = {
+                write: jest.fn(),
+                end: jest.fn(),
+                on: jest.fn(),
+                setTimeout: jest.fn(),
+            };
+            // Mock a response that throws an error during data processing/parsing, but has statusCode 500
+            const mockRes = {
+                statusCode: 500,
+                on: jest.fn((event, callback) => {
+                    if (event === 'data') callback('invalid json');
+                    if (event === 'end') callback();
+                }),
+            };
+            https.request.mockImplementation((options, callback) => {
+                callback(mockRes);
+                return mockReq;
+            });
+
+            await expect(deployTo('TEST', '/api', 'valid_token_1234567890', {})).rejects.toThrow('TEST deployment failed');
+            expect(console.error).toHaveBeenCalledWith(expect.stringContaining('[TEST] Deployment failed! Raw:'), 'invalid json');
+        });
+
+        test('deployTo API catch error with status 200 (json parse error)', async () => {
+            const mockReq = {
+                write: jest.fn(),
+                end: jest.fn(),
+                on: jest.fn(),
+                setTimeout: jest.fn(),
+            };
+            // Mock a response that throws an error during data processing/parsing, and has statusCode 200
+            const mockRes = {
+                statusCode: 200,
+                on: jest.fn((event, callback) => {
+                    if (event === 'data') callback('invalid json');
+                    if (event === 'end') callback(); // this will trigger JSON.parse('invalid json') and throw
+                }),
+            };
+            https.request.mockImplementation((options, callback) => {
+                callback(mockRes);
+                return mockReq;
+            });
+
+            await expect(deployTo('TEST', '/api', 'valid_token_1234567890', {})).resolves.toBeUndefined();
+        });
     });
 });

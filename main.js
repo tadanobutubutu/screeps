@@ -784,3 +784,4 @@ async function recreateGithubCodeqlActionPR() {
     logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
   }
 }
+```

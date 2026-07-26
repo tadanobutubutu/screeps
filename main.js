@@ -363,6 +363,22 @@ async function updatePosthohJs() {
 }
 
 /**
+ * Stub for missing updateSentryBrowser function.
+ */
+async function updateSentryBrowser() {
+  // Placeholder for actual @sentry/browser update logic
+  return Promise.resolve();
+}
+
+/**
+ * Stub for missing updateActionsCheckout function.
+ */
+async function updateActionsCheckout() {
+  // Placeholder for actual actions/checkout update logic
+  return Promise.resolve();
+}
+
+/**
  * Visualizes memory usage for a specific dependency update.
  * @param {string} dependencyName - The name of the dependency being updated.
  * @param {string} currentVersion - The current version of the dependency.

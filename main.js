@@ -81,11 +81,6 @@ async function handleGitstreamActionLatestUpdate() {
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
-async function updateGitstreamActionToV4() {
-  const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-... to v4');
-  await updateDependencyVersions('linear-bots/gitstream-...', 'v4');
-}
-
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
   const updateMemoryUsage = () => {
@@ -128,14 +123,14 @@ async function handlePosthogJsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
-};
+}
 
 async function handlePosthohJsUpdate() {
   try {
     await updatePosthogJs();
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 }
 
@@ -181,12 +176,8 @@ async function handleGitstreamActionLatestSuccess() {
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
 }
 
-/**
- * Handles the update of @sentry/browser to v10.68.0.
- */
 async function handleSentryBrowserUpdate() {
   try {
-    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
     await updateNpmPackage('@sentry/browser', '10.68.0');
     logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
   } catch (error) {
@@ -217,7 +208,6 @@ module.exports = {
   handleGitstreamActionUpdate,
   handleGitstreamUpdateSuccess,
   handleGitstreamActionLatestUpdate,
-  updateGitstreamActionToV4,
   visualizeMemory,
   updatePosthogJs,
   handlePosthogJsUpdate,

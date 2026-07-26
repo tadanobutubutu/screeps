@@ -702,12 +702,12 @@ function isStargazerActive(username, days = 30) {
     return false;
   }
   const stargazer = stargazers.find(s => s.username === username);
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  if ( === undefined ||  === null) {
+  if (!stargazer) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
   return stargazer.lastActivity >= cutoffDate;
 }
 

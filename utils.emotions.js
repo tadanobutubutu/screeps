@@ -92,6 +92,23 @@ class EmotionSystem {
         }
     }
 
+    /**
+     * セキュアな乱数を生成する (PRNGの脆弱性対策)
+     * @returns {number} 0以上1未満の乱数
+     */
+    static _secureRandom() {
+        try {
+            const crypto = require('crypto');
+            if (crypto && crypto.randomBytes) {
+                const buf = crypto.randomBytes(4);
+                return buf.readUInt32LE(0) / 0x100000000;
+            }
+        } catch (e) {
+            // Fallback
+        }
+        return Math.random();
+    }
+
     static generatePersonality() {
         try {
             const crypto = require('crypto');
@@ -101,8 +118,8 @@ class EmotionSystem {
         } catch (e) {
             // Fallback
         }
-        // Fallback to Math.random() if crypto.randomInt is not available
-        return PERSONALITY_TRAITS[Math.floor(Math.random() * PERSONALITY_TRAITS.length)];
+        // Fallback to this._secureRandom() if crypto.randomInt is not available
+        return PERSONALITY_TRAITS[Math.floor(this._secureRandom() * PERSONALITY_TRAITS.length)];
     }
 
     /**
@@ -212,7 +229,7 @@ class EmotionSystem {
         const currentMood = Number.isFinite(emotions.mood) ? emotions.mood : MOOD_LEVELS.NEUTRAL;
         emotions.mood = Math.max(1, Math.min(5, currentMood + moodChange));
 
-        if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
+        if (emotions.personalityTraits === 'cheerful' && this._secureRandom() > 0.7) {
             emoji = EMOTIONS.HAPPY;
         }
 
@@ -349,11 +366,13 @@ class EmotionSystem {
     static checkCreep(creepName) {
         // Security: プロトタイプ汚染対策のため、名前を検証
         if (!utilsMemory.isSafeKey(creepName)) {
+            console.log('❌ Invalid creep name');
             return;
         }
 
         const creep = Game.creeps[creepName];
         if (creep === undefined || creep === null) {
+            console.log('❌ Creep not found');
             return;
         }
 
@@ -362,10 +381,15 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        );
+        console.log('\n🤖 Creep Emotion Report');
+        console.log('Name:', creepName);
+        console.log('Mood:', emotions.mood);
+        console.log('Traits:', emotions.personalityTraits);
+
         if (emotions.achievements.length > 0) {
+            console.log('\n🏆 Achievements:');
             emotions.achievements.forEach((a) => {
-                ');
+                console.log('-', a.name, '(tick', a.tick, ')');
             });
         }
     }

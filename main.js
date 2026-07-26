@@ -403,7 +403,7 @@ function addStargazer(username, starredAt = new Date()) {
 
 function removeStargazer(username) {
   const initialLength = stargazers.length;
-  stargazers = stargazers.filter(s => s.username!== username);
+  stargazers = stargazers.filter(s => s.username !== username);
   return stargazers.length < initialLength;
 }
 

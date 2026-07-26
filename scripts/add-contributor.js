@@ -113,7 +113,9 @@ function commitAndPush(username) {
     try {
         console.log('📤 Committing changes...');
         execFileSync('git', ['add', '.all-contributorsrc', 'README.md'], { stdio: 'inherit' });
-        execFileSync('git', ['commit', '-m', `docs: add ${username} as a contributor`], { stdio: 'inherit' });
+        execFileSync('git', ['commit', '-m', `docs: add ${username} as a contributor`], {
+            stdio: 'inherit',
+        });
         execFileSync('git', ['push', 'origin', 'HEAD'], { stdio: 'inherit' });
         console.log('✅ Changes pushed');
     } catch (error) {

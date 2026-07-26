@@ -34,13 +34,11 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-// Updates actions/labeler to v7
 async function updateActionsLabeler() {
   const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
   await updateDependencyVersions('actions/labeler', 'v7');
 }
 
-// Updated: Updates actions/setup-python to v7
 async function updateActionsSetupPython() {
   const updatedUtils = require('./utils').utils; // Assume utils.js exists and exports updated utils
   const taskId = await createAsyncUpdateTask('update actions/setup-python action to v7', 'high');
@@ -48,25 +46,15 @@ async function updateActionsSetupPython() {
   logging.log('info', 'Successfully updated actions/setup-python to v7 with updated utils.');
 }
 
-// Created: creates all awaiting schedule PRs
-async function createAwaitingSchedulePRs() {
+const createAwaitingSchedulePRs = async () => {
   const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
   // Implementation would go here
-}
+};
 
-// Updated: updates github/codeql-action to v4
 async function updateGithubCodeqlAction() {
   const taskId = await createAsyncUpdateTask('update github/codeql-action action to v4');
   await updateDependencyVersions('github/codeql-action', 'v4');
 }
-
-//... Rest of the code remains unchanged
-
-// Merge conflict resolution approach:
-1. Combine both changes related to `updateActionsSetupPython` function. The change in the first version (updating the dependency) was good, but the second version provided a solution for updating the utils. By combining both, we achieve the functionality of updating the dependency as well as the utils.
-2. Both versions had the same implementation for `createAwaitingSchedulePRs` function, so I left it unchanged. However, it's good to note that this function doesn't seem to interact with the rest of the codebase, so it might be possible to remove it if it's not needed.
-3. For other functions like `updateGithubCodeqlAction`, I chose the implementation from the first version as it does not require any external modules, ensuring a cleaner and more self-contained codebase.
-4. In case multiple changes were conflicting, I might have chosen one based on the time of addition (latest would take preference), but the conflict in this case was not that complex.
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
@@ -371,7 +359,9 @@ function logWithComparison(level, message, value1, value2) {
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
 }
 
-// Exported functions
+/**
+ * Exported functions
+ */
 module.exports = {
   logging,
   addTask,
@@ -396,11 +386,10 @@ module.exports = {
   updateLodashExternal,
   handleLodashUpdate,
   updateMomentExternal,
-  handleMomentJsUpdate,
   updateSomeDependencyExternal,
   handleSomeDependencyUpdate,
   updateAnotherDependencyExternal,
-  handleAnotherDependencyUpdate,
+  updateAnotherDependencyUpdate,
   updateSentryTrentExternal,
   handleSentryTrentUpdate,
   updateCoreExternal,
@@ -417,7 +406,7 @@ module.exports = {
   updateGithubCodeqlActionToV4,
   updateGitstreamActionToLatest,
   handleGitstreamActionUpdateToLatest,
-  handleRecreateGithubCodeqlActionPR,
+  releaseGithubCodeqlActionPR,
   updateGitstreamAction,
   updateSentryBrowserToV10_68_0,
   handleSentryBrowserUpdateToV10_68_0,

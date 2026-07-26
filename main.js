@@ -97,9 +97,9 @@ function calculateProgress(version) {
 /**
  * Calculates dependency-specific progress for a given version.
  */
-function calculateDependencyProgress(version) {
+function calculateDependencyProgress(versionWrapped) {
   const allTasks = _tasks.filter(task =>
-    task && task.dependencies && task.dependencies.version === version
+    task && task.dependencies && task.dependencies.version === versionWrapped
   );
   const total = allTasks.length;
   const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
@@ -109,7 +109,7 @@ function calculateDependencyProgress(version) {
 /**
  * Visualizes memory usage before, during, and after an update.
  * @param {string} currentVersion - The current version being updated.
- * @param {string} newVersion - The target version.
+ * @param {string} newVersion - The new version to update to.
  */
 function visualizeMemory(currentVersion, newVersion) {
   const memoryUsage = process.memoryUsage();
@@ -127,7 +127,7 @@ function visualizeMemory(currentVersion, newVersion) {
 
   // Simulate memory cleanup after update
   const cleanupMemory = () => {
-    const finalHeapUsed = heapUsed + (Math.random() * 2); // Simulate some memory cleanup
+    const finalHeapUsed = heapUsed + (Math.random() * 2); // Simulate memory cleanup after update
     logging.log('info', `Memory usage after update: ${finalHeapUsed.toFixed(2)}MB/${heapTotal.toFixed(2)}MB`);
     return finalHeapUsed;
   };
@@ -153,15 +153,15 @@ function visualizeMemory(currentVersion, newVersion) {
  */
 async function handlePosthogJsUpdate() {
   try {
-    await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    await updatePosthohJs();
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
 /**
- * Handlers for updating actions.
+ * Handles actions/checkout update.
  */
 async function handleActionsCheckoutUpdate() {
   try {
@@ -229,7 +229,7 @@ async function handleLodashUpdate() {
 }
 
 /**
- * Handles the update of moment to v3.
+ * Handles moment to v3.
  */
 async function handleMomentJsUpdate() {
   try {
@@ -331,7 +331,7 @@ async function handleRecreateGithubCodeqlActionPR() {
 }
 
 /**
- * Updates posthoh-js to v1.407.2.
+ * Updates posthog-js to v1.407.2.
  */
 async function handlePosthohJsUpdateToV1_407_2() {
   try {
@@ -361,7 +361,7 @@ async function handleSentryBrowserUpdateToV10_68_0() {
  */
 async function handleGitstreamActionUpdateToLatest() {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest version');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
     await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
@@ -383,7 +383,7 @@ async function handleGitstreamActionUpdateToLatestVersion() {
 }
 
 /**
- * Stargazers tracking methods
+ * Stargazers tracking methods.
  */
 let stargazers = [];
 
@@ -509,11 +509,11 @@ async function monitorStargazersActivity() {
 async function generateStargazersReport() {
   try {
     const taskId = await createAsyncUpdateTask('generate stargazers report');
-    const { stargazers: totalStargazers } = await getStargazers();
+    const { stargazers } = await getStargazers();
     const runawayStargazers = await trackRunawayStargazers();
     logging.log('info', 'Successfully generated stargazers report');
     return {
-      totalCount: totalStargazers.length,
+      totalCount: stargazers.length,
       runawayCount: runawayStargazers.length,
       reportGenerated: true
     };
@@ -526,7 +526,7 @@ async function generateStargazersReport() {
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
   if (username === undefined || username === null) {
-    logging.log('warn', `Stargazer ${username} not found in tracking list`);
+    logging.log(`Stargazer ${username} not found in tracking list`);
     return false;
   }
   const cutoffDate = new Date();
@@ -556,18 +556,6 @@ async function handleGitstreamActionUpdateToLatest2() {
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-  }
-}
-
-/**
- * Updates actions/checkout to v7 (exposed for external use).
- */
-async function updateActionsCheckoutExternal() {
-  try {
-    await updateActionsCheckout();
-    logging.log('info', 'Successfully updated actions/checkout to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
   }
 }
 

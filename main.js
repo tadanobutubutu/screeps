@@ -90,7 +90,7 @@ function calculateProgress(version) {
   const total = _tasks.filter(task =>
     task && task.dependencies && task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -105,7 +105,7 @@ function calculateDependencyProgress(version) {
   if (total === 0) {
     return 0;
   }
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -152,14 +152,14 @@ function visualizeMemory(currentVersion, newVersion) {
 }
 
 /**
- * Handles the update of posthog-js to v1.407.2.
+ * Handles the update of posthoh-js to v1.407.2.
  */
-async function handlePosthogJsUpdate() {
+async function handlePosthohJsUpdate() {
   try {
-    await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    await updatePosthohJs();
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
@@ -232,7 +232,7 @@ async function handleLodashUpdate() {
 }
 
 /**
- * Handles the update of moment to v3.
+ * Handles moment to v3.
  */
 async function handleMomentJsUpdate() {
   try {
@@ -298,13 +298,9 @@ async function handleCoreUpdate() {
 /**
  * Updates github/codeql-action to v4.
  */
-async function handleGithubCodeqlActionUpdate() {
-  try {
-    await updateGithubCodeqlAction();
-    logging.log('info', 'Successfully updated github/codeql-action to v4');
-  } catch (error) {
-    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-  }
+async function updateGithubCodeqlAction() {
+  const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+  await updateDependencyVersions('github/codeql-action', 'v4');
 }
 
 /**
@@ -406,7 +402,7 @@ function addStargazer(username, starredAt = new Date()) {
 
 function removeStargazer(username) {
   const initialLength = stargazers.length;
-  stargazers = stargazers.filter(s => s.username!== username);
+  stargazers = stargazers.filter(s => s.username !== username);
   return stargazers.length < initialLength;
 }
 
@@ -668,7 +664,7 @@ async function updateAnotherDependencyExternal() {
   try {
     const taskId = await createAsyncUpdateTask('update another-dependency to v5');
     await updateDependencyVersions('another-dependency', 'v5');
-    logging.log('info', `Successfully updated another-dependency to v5`);
+    logging.log('info', 'Successfully updated another-dependency to v5');
   } catch (error) {
     logging.log('error', `Failed to update another-dependency: ${error.message}`);
   }
@@ -703,8 +699,8 @@ async function updateCoreExternal() {
 /**
  * Stubs for missing update functions.
  */
-async function updatePosthogJs() {
-  // Placeholder for actual posthog-js update logic
+async function updatePosthohJs() {
+  // Placeholder for actual posthoh-js update logic
   return Promise.resolve();
 }
 
@@ -848,15 +844,15 @@ async function updateGitstreamActionToLatest() {
 }
 
 /**
- * Updates posthog-js to v1.407.2.
+ * Updates posthoh-js to v1.407.2.
  */
-async function updatePosthogJsToV1_407_2() {
+async function updatePosthohJsToV1_407_2() {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.2');
+    await updateDependencyVersions('posthoh-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
@@ -881,7 +877,7 @@ module.exports = {
   updateNpmPackage,
   getTaskById,
   visualizeMemory,
-  handlePosthogJsUpdate,
+  handlePosthohJsUpdate,
   handleActionsCheckoutUpdate,
   handleActionsLabelerUpdate,
   handleActionsSetupPythonUpdate,
@@ -904,7 +900,7 @@ module.exports = {
   handleGitstreamActionUpdateToLatest2,
   handleGitstreamActionUpdateToLatestVersion,
   addTask,
-  updatePosthogJs,
+  updatePosthohJs,
   updateActionsCheckout,
   updateActionsLabeler,
   updateActionsSetupPython,
@@ -946,6 +942,6 @@ module.exports = {
   updateGithubCodeqlActionToV4,
   visualizeDependencyMemory,
   updateGitstreamActionToLatest,
-  updatePosthogJsToV1_407_2,
+  updatePosthohJsToV1_407_2,
   updateGitstreamActionToLatestVersion
 };

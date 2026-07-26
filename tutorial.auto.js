@@ -79,9 +79,16 @@ const autoTutorial = {
         }
 
         // Harvesterがいなければ作成
-        const harvesters = _.filter(Game.creeps, (c) => c.memory.role === 'harvester');
+        // ⚡ PERFORMANCE OPTIMIZATION: Avoid expensive array allocation from _.filter
+        let hasHarvester = false;
+        for (const name in Game.creeps) {
+            if (Game.creeps[name].memory.role === 'harvester') {
+                hasHarvester = true;
+                break;
+            }
+        }
 
-        if (harvesters.length === 0 && !spawn.spawning) {
+        if (!hasHarvester && !spawn.spawning) {
             spawn.spawnCreep([WORK, CARRY, MOVE], 'Harvester1', {
                 memory: { role: 'harvester' },
             });

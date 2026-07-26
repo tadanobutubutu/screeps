@@ -98,6 +98,10 @@ class EmotionSystem {
             if (crypto && crypto.randomInt) {
                 return PERSONALITY_TRAITS[crypto.randomInt(0, PERSONALITY_TRAITS.length)];
             }
+            if (crypto && crypto.randomBytes) {
+                const buf = crypto.randomBytes(4);
+                return PERSONALITY_TRAITS[buf.readUInt32LE(0) % PERSONALITY_TRAITS.length];
+            }
         } catch (e) {
             // Fallback
         }
@@ -212,8 +216,20 @@ class EmotionSystem {
         const currentMood = Number.isFinite(emotions.mood) ? emotions.mood : MOOD_LEVELS.NEUTRAL;
         emotions.mood = Math.max(1, Math.min(5, currentMood + moodChange));
 
-        if (emotions.personalityTraits === 'cheerful' && Math.random() > 0.7) {
-            emoji = EMOTIONS.HAPPY;
+        if (emotions.personalityTraits === 'cheerful') {
+            let rand = Math.random();
+            try {
+                const crypto = require('crypto');
+                if (crypto && crypto.randomBytes) {
+                    const buf = crypto.randomBytes(4);
+                    rand = buf.readUInt32LE(0) / 0xFFFFFFFF;
+                }
+            } catch (e) {
+                // Fallback
+            }
+            if (rand > 0.7) {
+                emoji = EMOTIONS.HAPPY;
+            }
         }
 
         emotions.lastEmotion = emoji;
@@ -362,10 +378,9 @@ class EmotionSystem {
         }
         const emotions = creep.memory.emotions;
 
-        );
-        if (emotions.achievements.length > 0) {
+        if (emotions.achievements && emotions.achievements.length > 0) {
             emotions.achievements.forEach((a) => {
-                ');
+                // Do something
             });
         }
     }

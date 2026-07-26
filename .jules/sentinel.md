@@ -21,3 +21,8 @@
 **Vulnerability:** A truncated core utility file (`utils.logging.js`) with an unterminated string constant causing full compilation/runtime failure in Jest test suites and production execution. When a core logging script fails to parse, security-critical log filtering and redaction are bypassed entirely, risking data leaks.
 **Learning:** Critical security controllers must fail securely. If a script is truncated or corrupted, the runtime environment should not default to executing un-redacted fallback paths or crashing. Robust and complete module implementations, proper unit testing of every log-level boundary, and safe prototype pollution prevention are essential.
 **Prevention:** Ensure all logging modules are fully complete and feature-hardened. Implement polymorphic parameter parsing (`log(level, msg)` or `log(msg, level)`) to avoid misuse, enforce strict type checks, and re-initialize corrupted runtime logging stores safely. Use robust pre-commit checks to verify syntax validity before deployment.
+## 2026-08-10 - [Fix Predictable PRNG]
+
+**Vulnerability:** Use of predictable `Math.random()` in `utils.emotions.js`.
+**Learning:** When needing random numbers in security-sensitive or predictable contexts, avoid `Math.random()` as it is a predictable PRNG.
+**Prevention:** Instead, use a cryptographically secure random number generator like Node's `crypto.randomBytes()`, with a fallback mechanism if the secure option isn't available in the environment (e.g., Screeps sandbox).

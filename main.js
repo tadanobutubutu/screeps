@@ -90,7 +90,7 @@ function calculateProgress(version) {
   const total = _tasks.filter(task =>
     task && task.dependencies && task.dependencies.version
   ).length || 1;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 
@@ -102,7 +102,7 @@ function calculateDependencyProgress(version) {
     task && task.dependencies && task.dependencies.version === version
   );
   const total = allTasks.length;
-  const completed = allTasks.reduce((prev, current) => prev + (current.completed? 1 : 0), 0);
+  const completed = allTasks.reduce((prev, current) => prev + (current?.completed ? 1 : 0), 0);
   return (completed / total) * 100;
 }
 

@@ -393,6 +393,31 @@ async function handleGitstreamActionUpdateToLatest() {
 }
 
 /**
+ * Updates @sentry/browser to v10.68.0.
+ */
+async function updateSentryBrowserToV10_68_0() {
+  try {
+    const taskId = await createAsyncUpdateTask('update @sentry/browser to v10.68.0');
+    await updateDependencyVersions('@sentry/browser', 'v10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of @sentry/browser to v10.68.0.
+ */
+async function handleSentryBrowserUpdateToV10_68_0() {
+  try {
+    await updateSentryBrowserToV10_68_0();
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+}
+
+/**
  * Stargazers tracking methods
  */
 let stargazers = [];
@@ -609,6 +634,8 @@ module.exports = {
   handleGitstreamActionUpdateToLatest,
   handleRecreateGithubCodeqlActionPR,
   updateGitstreamAction,
+  updateSentryBrowserToV10_68_0,
+  handleSentryBrowserUpdateToV10_68_0,
   addStargazer,
   removeStargazer,
   updateStargazerActivity,

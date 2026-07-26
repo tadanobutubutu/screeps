@@ -153,10 +153,10 @@ function visualizeMemory(currentVersion, newVersion) {
  */
 async function handlePosthogJsUpdate() {
   try {
-    await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    await updatePosthohJs();
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
@@ -229,7 +229,7 @@ async function handleLodashUpdate() {
 }
 
 /**
- * Handles the update of moment to v3.
+ * Handles moment to v3.
  */
 async function handleMomentJsUpdate() {
   try {
@@ -700,8 +700,8 @@ async function updateCoreExternal() {
 /**
  * Stubs for missing update functions.
  */
-async function updatePosthogJs() {
-  // Placeholder for actual posthog-js update logic
+async function updatePosthohJs() {
+  // Placeholder for actual posthoh-js update logic
   return Promise.resolve();
 }
 
@@ -850,10 +850,10 @@ async function updateGitstreamActionToLatest() {
 async function updatePosthogJsToV1_407_2() {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
-    await updateDependencyVersions('posthog-js', 'v1.407.2');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+    await updateDependencyVersions('posthoh-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 
@@ -901,7 +901,7 @@ module.exports = {
   handleGitstreamActionUpdateToLatest2,
   handleGitstreamActionUpdateToLatestVersion,
   addTask,
-  updatePosthogJs,
+  updatePosthohJs,
   updateActionsCheckout,
   updateActionsLabeler,
   updateActionsSetupPython,
@@ -943,6 +943,6 @@ module.exports = {
   updateGithubCodeqlActionToV4,
   visualizeDependencyMemory,
   updateGitstreamActionToLatest,
-  updatePosthogJsToV1_407_2,
+  updatePosthohJsToV1_407_2,
   updateGitstreamActionToLatestVersion
 };

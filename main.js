@@ -132,7 +132,7 @@ async function handlePosthogJsUpdate() {
 
 async function handlePosthohJsUpdate() {
   try {
-    await updateNpmPackage('posthog-js', '1.407.2');
+    await updatePosthogJs();
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
     logging.log('error', `Failed to update posthoh-js: ${error.message}`);

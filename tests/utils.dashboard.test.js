@@ -1,3 +1,9 @@
+jest.mock('system.adaptive', () => {
+    return {
+        getModeName: jest.fn().mockReturnValue('normal')
+    };
+}, { virtual: true });
+
 const DashboardRenderer = require('../utils.dashboard');
 
 describe('DashboardRenderer', () => {

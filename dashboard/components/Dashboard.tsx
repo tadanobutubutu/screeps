@@ -368,15 +368,54 @@ export default function Dashboard() {
                         />
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
-                    <p
-                        className="interactive-hint"
-                        title="現在のサーバー時間における AI の CPU 使用量です"
-                        tabIndex={0}
-                        style={{ margin: 0 }}
+                <div
+                    style={{ marginBottom: '1rem' }}
+                    className="interactive-hint"
+                    tabIndex={0}
+                    title={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)`}
+                >
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            marginBottom: '0.25rem',
+                        }}
                     >
-                        📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2)}
-                    </p>
+                        <span>📊 CPU 使用率: {stats?.cpuUsed?.toFixed(2) || '0.00'}</span>
+                        <span style={{ fontSize: '0.85rem' }}>
+                            {stats?.cpuUsed !== undefined ? `${Math.min(100, stats.cpuUsed).toFixed(1)}%` : '0.0%'}
+                        </span>
+                    </div>
+                    <div
+                        role="progressbar"
+                        aria-label="CPU Usage Progress"
+                        aria-valuenow={stats?.cpuUsed || 0}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuetext={`${stats?.cpuUsed?.toFixed(2) || 0} / 100`}
+                        style={{
+                            height: '0.5rem',
+                            backgroundColor: '#edf2f7',
+                            borderRadius: '4px',
+                            overflow: 'hidden',
+                        }}
+                    >
+                        <div
+                            style={{
+                                height: '100%',
+                                backgroundColor:
+                                    (stats?.cpuUsed || 0) > 80
+                                        ? '#e53e3e'
+                                        : (stats?.cpuUsed || 0) > 40
+                                          ? '#dd6b20'
+                                          : '#319795',
+                                width: `${Math.min(100, stats?.cpuUsed || 0)}%`,
+                                transition: 'width 0.3s ease-in-out, background-color 0.3s ease-in-out',
+                            }}
+                        />
+                    </div>
+                </div>
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem' }}>
                     {stats?.power !== undefined && (
                         <p
                             className="interactive-hint"

@@ -113,6 +113,49 @@ function sanitizeLog(str) {
     });
 }
 
+function handleDeployResponse(res, label, resolve, reject) {
+    let data = '';
+    res.on('data', (chunk) => {
+        data += chunk;
+    });
+    res.on('end', () => {
+        try {
+            const json = JSON.parse(data);
+            if (json.ok === 1) {
+                resolve();
+            } else {
+                // エラーレスポンスから機密情報を除外してログ出力
+                const safeJson = sanitizeLog(JSON.stringify(json));
+                console.error(`[${label}] Deployment failed:`, safeJson);
+                reject(new Error(`${label} deployment failed`));
+            }
+        } catch (e) {
+            if (res.statusCode === 200) {
+                resolve();
+            } else {
+                // エラーデータから機密情報を除外
+                const safeData = sanitizeLog(data);
+                console.error(`[${label}] Deployment failed! Raw:`, safeData);
+                reject(new Error(`${label} deployment failed`));
+            }
+        }
+    });
+}
+
+function buildRequestOptions(apiPath, bodyLength, token) {
+    return {
+        hostname: 'screeps.com',
+        port: 443,
+        path: apiPath,
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Content-Length': bodyLength,
+            'X-Token': token,
+        },
+    };
+}
+
 function deployTo(label, apiPath, token, modules) {
     const body = JSON.stringify({ branch: 'default', modules });
     return new Promise((resolve, reject) => {
@@ -125,46 +168,9 @@ function deployTo(label, apiPath, token, modules) {
             return resolve();
         }
 
-        const options = {
-            hostname: 'screeps.com',
-            port: 443,
-            path: apiPath,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json; charset=utf-8',
-                'Content-Length': Buffer.byteLength(body),
-                'X-Token': token,
-            },
-        };
+        const options = buildRequestOptions(apiPath, Buffer.byteLength(body), token);
 
-        const req = https.request(options, (res) => {
-            let data = '';
-            res.on('data', (chunk) => {
-                data += chunk;
-            });
-            res.on('end', () => {
-                try {
-                    const json = JSON.parse(data);
-                    if (json.ok === 1) {
-                        resolve();
-                    } else {
-                        // エラーレスポンスから機密情報を除外してログ出力
-                        const safeJson = sanitizeLog(JSON.stringify(json));
-                        console.error(`[${label}] Deployment failed:`, safeJson);
-                        reject(new Error(`${label} deployment failed`));
-                    }
-                } catch (e) {
-                    if (res.statusCode === 200) {
-                        resolve();
-                    } else {
-                        // エラーデータから機密情報を除外
-                        const safeData = sanitizeLog(data);
-                        console.error(`[${label}] Deployment failed! Raw:`, safeData);
-                        reject(new Error(`${label} deployment failed`));
-                    }
-                }
-            });
-        });
+        const req = https.request(options, (res) => handleDeployResponse(res, label, resolve, reject));
 
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外

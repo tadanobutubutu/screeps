@@ -403,7 +403,7 @@ function addStargazer(username, starredAt = new Date()) {
 
 function removeStargazer(username) {
   const initialLength = stargazers.length;
-  stargazers = stargazers.filter(s => s.username!== username);
+  stargazers = stargazers.filter(s => s.username !== username);
   return stargazers.length < initialLength;
 }
 
@@ -665,7 +665,7 @@ async function updateAnotherDependencyExternal() {
   try {
     const taskId = await createAsyncUpdateTask('update another-dependency to v5');
     await updateDependencyVersions('another-dependency', 'v5');
-    logging.log('info', 'Successfully updated another-dependency: ${error.message}');
+    logging.log('info', 'Successfully updated another-dependency to v5');
   } catch (error) {
     logging.log('error', `Failed to update another-dependency: ${error.message}`);
   }

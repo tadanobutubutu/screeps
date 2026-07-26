@@ -198,12 +198,6 @@ const autoTutorial = {
         const sitesCache = {};
         const hostilesCache = {};
 
-        this._handleCreeps(sourcesCache, sitesCache);
-        this._handleTowers(hostilesCache);
-        this._handleSpawns();
-    },
-
-    _handleCreeps: function (sourcesCache, sitesCache) {
         // 基本的なCreep動作
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
@@ -249,9 +243,7 @@ const autoTutorial = {
                 }
             }
         }
-    },
 
-    _handleTowers: function (hostilesCache) {
         // Tower防衛
         const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
         for (const tower of towers) {
@@ -266,9 +258,7 @@ const autoTutorial = {
                 tower.attack(hostiles[0]);
             }
         }
-    },
 
-    _handleSpawns: function () {
         // 自動Spawn
         const spawn = Game.spawns.Spawn1;
         if (spawn && !spawn.spawning && Object.keys(Game.creeps).length < 3) {

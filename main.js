@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    }] ${message}`);
+    console.log(`[${level}] ${message}`);
   },
 };
 
@@ -713,7 +713,7 @@ async function generateStargazersReport() {
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
   if (username === undefined || username === null) {
-    logging.log(`Stargazer ${username} not found in tracking list`);
+    logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
   const cutoffDate = new Date();

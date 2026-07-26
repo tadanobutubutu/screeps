@@ -1,3 +1,4 @@
+global._ = { sample: jest.fn((arr) => arr[0]) };
 /**
  * role.scout.js のユニットテスト
  */

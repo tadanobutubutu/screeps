@@ -54,8 +54,8 @@ const createAwaitingSchedulePRs = async () => {
 };
 
 async function updateGitstreamActionToV4() {
-  const taskId = await createAsyncUpdateTask('update gitstream-... action to v4');
-  await updateDependencyVersions('linear-bots/gitstream-...', 'v4');
+  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+  await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
@@ -90,14 +90,14 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 /**
- * Handles the update of posthoh-js to v1.407.2.
+ * Handles the update of posthog-js to v1.407.2.
  */
-async function handlePosthohJsUpdate() {
+async function handlePosthogJsUpdate() {
   try {
-    await updatePosthohJs();
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 }
 
@@ -139,11 +139,11 @@ async function createAwaitingSchedulePRsHandler() {
  */
 async function updateGitstreamActionExternal() {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-...');
-    await updateDependencyVersions('linear-bots/gitstream-...', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-...');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
 
@@ -155,7 +155,7 @@ async function handleGitstreamActionUpdate() {
     await updateGitstreamActionExternal();
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-... ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
 
@@ -303,7 +303,7 @@ async function monitorStargazersActivity() {
     logging.log('info', `Found ${suspiciousStargazers.length} suspicious stargazers`);
     return suspiciousStargazers;
   } catch (error) {
-    logging.log('error', `Failed to monitor stargazers: ${error.message}`);
+    logging.log('error', `Failed to monitor stargazers activity: ${error.message}`);
     throw error;
   }
 }
@@ -322,7 +322,7 @@ module.exports = {
     const titleA = a.title.toLowerCase();
     const titleB = b.title.toLowerCase();
     if (asc) return titleA < titleB ? -1 : (titleA > titleB ? 1 : 0);
-    return titleA > titleB ? -1 : (titleA < titleB ? 1 : 0);
+    return titleA > b.title ? -1 : (titleA < b.title ? 1 : 0);
   }),
   getIncompleteTasks: () => tasks.filter(t => !t.completed),
   getCompletedTasks: () => tasks.filter(t => t.completed),
@@ -334,3 +334,9 @@ module.exports = {
   createAsyncUpdateTask,
   visualizeMemory
 };
+
+// Missing function implementations referenced above
+async function updatePosthogJs() {
+  const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+  await updateNpmPackage('posthog-js', 'v1.407.2');
+}

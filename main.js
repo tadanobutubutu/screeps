@@ -134,14 +134,14 @@ async function visualizeMemory(currentVersion, newVersion) {
 }
 
 /**
- * Handles the update of posthoh-js to v1.407.2.
+ * Handles the update of posthog-js to v1.407.2.
  */
-async function handlePosthohJsUpdate() {
+async function handlePosthogJsUpdate() {
   try {
-    await updatePosthohJs();
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 }
 
@@ -247,6 +247,7 @@ async function handleLodashUpdate() {
 async function updateMomentExternal() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
+    await updateDependencyVersions('moment', 'v3');
     logging.log('info', 'Successfully updated moment to v3');
   } catch (error) {
     logging.log('error', `Failed to update moment: ${error.message}`);
@@ -256,6 +257,7 @@ async function updateMomentExternal() {
 async function handleMomentJsUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
+    await updateMoment();
     logging.log('info', 'Successfully updated moment to v3');
   } catch (error) {
     logging.log('error', `Failed to update moment: ${error.message}`);
@@ -357,8 +359,8 @@ async function handleCoreUpdate() {
 /**
  * Stubs for missing update functions.
  */
-async function updatePosthohJs() {
-  // Placeholder for actual posthoh-js update logic
+async function updatePosthogJs() {
+  // Placeholder for actual posthog-js update logic
   return Promise.resolve();
 }
 
@@ -375,6 +377,14 @@ async function updateSentryBrowser() {
  */
 async function updateActionsCheckout() {
   // Placeholder for actual actions/checkout update logic
+  return Promise.resolve();
+}
+
+/**
+ * Stub for missing updateMoment function.
+ */
+async function updateMoment() {
+  // Placeholder for actual moment update logic
   return Promise.resolve();
 }
 
@@ -428,7 +438,7 @@ async function visualizeDependencyMemory(dependencyName, currentVersion, newVers
 }
 
 /**
- * Updates posthoh-js to v1.407.2.
+ * Updates posthog-js to v1.407.2.
  */
 async function updatePosthohJsToV1_407_2() {
   try {
@@ -518,7 +528,7 @@ async function updateGitstreamActionToLatest() {
 }
 
 /**
- * Updates posthoh-js to v1.407.2.
+ * Updates posthog-js to v1.407.2.
  */
 async function updatePosthohJsToV1_407_2() {
   try {
@@ -784,4 +794,3 @@ async function recreateGithubCodeqlActionPR() {
     logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
   }
 }
-```

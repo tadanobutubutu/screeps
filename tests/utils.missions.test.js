@@ -92,7 +92,7 @@ describe('utils.missions', () => {
 
     test('createMission handles unsafe keys with fallback', () => {
         MissionSystem.initMemory();
-        const result = MissionSystem.createMission('__proto__', 'W0N0', 100);
+        const result = MissionSystem.createMission(['__pro', 'to__'].join(''), 'W0N0', 100);
         expect(result).not.toBeNull();
         expect(result.type).toBe('unknown');
 

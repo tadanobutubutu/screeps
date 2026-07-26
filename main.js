@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`${message}`);
+    console.log(`[${level}] ${message}`);
   },
 };
 
@@ -93,7 +93,7 @@ function calculateDependencyProgress(versionWrapped) {
 /**
  * Visualizes memory usage before, during, and after an update.
  * @param {string} currentVersion - The current version being updated.
- * @param {string} newVersion - The new version to update to.
+ * @param {string} newVersion - The new version - The new version to update to.
  * @returns {Promise<Object>} Memory usage statistics.
  */
 async function visualizeMemory(currentVersion, newVersion) {
@@ -713,7 +713,7 @@ async function generateStargazersReport() {
 function isStargazerActive(username, days = 30) {
   const stargazer = stargazers.find(s => s.username === username);
   if (username === undefined || username === null) {
-    logging.log(`Stargazer ${username} not found in tracking list`);
+    logging.log('info', `Stargazer ${username} not found in tracking list`);
     return false;
   }
   const cutoffDate = new Date();

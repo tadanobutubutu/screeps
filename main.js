@@ -185,6 +185,15 @@ async function handleSentryBrowserUpdate() {
   }
 }
 
+async function handleCodeQLActionUpdate() {
+  try {
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
 module.exports = {
   logging,
   addTask,
@@ -209,5 +218,5 @@ module.exports = {
   handleAwaitingSchedulePRsUpdate,
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
+  handleCodeQLActionUpdate,
 };
-```

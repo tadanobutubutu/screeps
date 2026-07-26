@@ -86,7 +86,6 @@ describe('logger', () => {
         });
     });
 
-
     describe('resetStats', () => {
         test('統計と履歴をリセットする', () => {
             // Generate some dummy logs
@@ -148,7 +147,6 @@ describe('logger', () => {
         });
     });
 
-
     describe('showDashboard', () => {
         test('ダッシュボード情報を正しく出力する', () => {
             // ダッシュボードに表示するログを追加
@@ -162,17 +160,21 @@ describe('logger', () => {
             expect(console.log).toHaveBeenCalled();
 
             // 出力内容のチェック
-            const calls = console.log.mock.calls.map(call => call[0]);
+            const calls = console.log.mock.calls.map((call) => call[0]);
 
             // 各行の出力が含まれているか確認
-            const hasHeader = calls.some(msg => msg.includes('=== Logger Dashboard ==='));
-            const hasLevel = calls.some(msg => msg.includes('Level: 0 (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)'));
-            const hasStats = calls.some(msg => msg.includes('Stats: DEBUG=0 INFO=1 WARN=1 ERROR=0'));
-            const hasRecentLogsHeader = calls.some(msg => msg.includes('Recent logs:'));
+            const hasHeader = calls.some((msg) => msg.includes('=== Logger Dashboard ==='));
+            const hasLevel = calls.some((msg) =>
+                msg.includes('Level: 0 (0=DEBUG, 1=INFO, 2=WARN, 3=ERROR, 4=NONE)')
+            );
+            const hasStats = calls.some((msg) =>
+                msg.includes('Stats: DEBUG=0 INFO=1 WARN=1 ERROR=0')
+            );
+            const hasRecentLogsHeader = calls.some((msg) => msg.includes('Recent logs:'));
 
             // エスケープ処理されたログメッセージが出力されているか確認
-            const hasInfoLog = calls.some(msg => msg.includes('Test info dashboard'));
-            const hasWarnLog = calls.some(msg => msg.includes('Test warn dashboard'));
+            const hasInfoLog = calls.some((msg) => msg.includes('Test info dashboard'));
+            const hasWarnLog = calls.some((msg) => msg.includes('Test warn dashboard'));
 
             expect(hasHeader).toBe(true);
             expect(hasLevel).toBe(true);

@@ -31,6 +31,24 @@ function isVfxEnabled() {
  * Gets a RoomVisual object for the specified room, using a per-tick cache
  * to avoid redundant object allocations.
  */
+
+/**
+ * セキュアな乱数を生成する (PRNGの脆弱性対策)
+ * @returns {number} 0以上、1未満の浮動小数点数
+ */
+function secureRandomFloat() {
+    try {
+        const crypto = require('crypto');
+        if (crypto && crypto.randomBytes) {
+            const buf = crypto.randomBytes(4);
+            return buf.readUInt32LE(0) / (0xffffffff + 1);
+        }
+    } catch (e) {
+        // Fallback
+    }
+    return Math.random();
+}
+
 function getVisual(roomName) {
     if (typeof Game !== 'undefined' && Game.time !== _visualsTick) {
         _visualsTick = Game.time;
@@ -98,12 +116,12 @@ const visualEffects = {
 
         for (let i = 0; i < count; i++) {
             const angle = (Math.PI * 2 * i) / count;
-            const distance = 0.5 + Math.random() * 0.5;
+            const distance = 0.5 + secureRandomFloat() * 0.5;
             const x = pos.x + Math.cos(angle) * distance;
             const y = pos.y + Math.sin(angle) * distance;
 
             visual.circle(x, y, {
-                radius: 0.1 + Math.random() * 0.2,
+                radius: 0.1 + secureRandomFloat() * 0.2,
                 fill: color,
                 ...STYLE_PARTICLE_DEFAULT,
             });

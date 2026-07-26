@@ -61,7 +61,7 @@ module.exports = [
                 ERR_NO_PATH: 'readonly',
                 ERR_NAME_EXISTS: 'readonly',
                 ERR_BUSY: 'readonly',
-        ERR_FULL: 'readonly',
+                ERR_FULL: 'readonly',
                 ERR_NOT_FOUND: 'readonly',
                 ERR_NOT_ENOUGH_ENERGY: 'readonly',
                 ERR_NOT_ENOUGH_RESOURCES: 'readonly',

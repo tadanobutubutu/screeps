@@ -128,7 +128,14 @@ function _getSavedRepairTarget(creep) {
  * @param {number} minDistance
  * @returns {boolean}
  */
-function _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance) {
+function _isBetterRepairTarget(
+    priority,
+    hitsRatio,
+    distance,
+    minPriority,
+    minHitsRatio,
+    minDistance
+) {
     if (priority < minPriority) {
         return true;
     } else if (priority === minPriority) {
@@ -169,7 +176,14 @@ function _findBestRepairTarget(creep, room, wallTarget) {
         if (!bestTarget) {
             isBetter = true;
         } else {
-            isBetter = _isBetterRepairTarget(priority, hitsRatio, distance, minPriority, minHitsRatio, minDistance);
+            isBetter = _isBetterRepairTarget(
+                priority,
+                hitsRatio,
+                distance,
+                minPriority,
+                minHitsRatio,
+                minDistance
+            );
         }
 
         if (isBetter) {

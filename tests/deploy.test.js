@@ -8,7 +8,35 @@ const https = require('https');
 
 const { validateToken, validateFilePath, deployTo } = require('../deploy');
 
+const fs = require('fs');
+
 describe('deploy.js', () => {
+    describe('runDeploy error handling', () => {
+        let originalExit, originalError;
+        beforeEach(() => {
+            originalExit = process.exit;
+            originalError = console.error;
+            process.exit = jest.fn();
+            console.error = jest.fn();
+        });
+        afterEach(() => {
+            process.exit = originalExit;
+            console.error = originalError;
+            jest.restoreAllMocks();
+        });
+
+        test('catches file read error and exits', async () => {
+            const { runDeploy } = require('../deploy');
+            jest.spyOn(fs.promises, 'readFile').mockRejectedValue(new Error('simulated read error token=\'secret\''));
+
+            await runDeploy();
+
+            expect(console.error).toHaveBeenCalledWith(
+                expect.stringContaining('[ERROR] Failed to read main.js: simulated read error token=\'[REDACTED]\'')
+            );
+            expect(process.exit).toHaveBeenCalledWith(1);
+        });
+    });
     describe('validateToken', () => {
         test('有効なトークンを許可', () => {
             const result = validateToken('valid_token_1234567890', 'PTR');

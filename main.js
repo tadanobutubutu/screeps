@@ -794,3 +794,93 @@ async function recreateGithubCodeqlActionPR() {
     logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
   }
 }
+
+/**
+ * Updates posthog-js to v1.407.2 (new function for the issue).
+ */
+async function updatePosthogJsToV1_407_2() {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/checkout to v7 (new function for the issue).
+ */
+async function updateActionsCheckoutToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
+    await updateDependencyVersions('actions/checkout', 'v7');
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/labeler to v7 (new function for the issue).
+ */
+async function updateActionsLabelerToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Updates actions/setup-python to v7 (new function for the issue).
+ */
+async function updateActionsSetupPythonToV7() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
+    await updateDependencyVersions('actions/setup-python', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}
+
+/**
+ * Creates all awaiting schedule PRs (new function for the issue).
+ */
+async function createAllAwaitingSchedulePRs() {
+  try {
+    const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+}
+
+/**
+ * Updates github/codeql-action to v4 (new function for the issue).
+ */
+async function updateGithubCodeqlActionToV4() {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (new function for the issue).
+ */
+async function updateGitstreamActionToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}

@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 const addTask = (title, priority = 'medium', tags = []) => {
@@ -240,18 +240,6 @@ async function handleLodashUpdate() {
   }
 }
 
-/**
- * Updates moment to v3 (exposed for external use).
- */
-async function updateMomentExternal() {
-  try {
-    const taskId = await createAsyncUpdateTask('update moment to v3');
-    logging.log('info', 'Successfully updated moment to v3');
-  } catch (error) {
-    logging.log('error', `Failed to update moment: ${error.message}`);
-  }
-}
-
 async function handleMomentJsUpdate() {
   try {
     const taskId = await createAsyncUpdateTask('update moment to v3');
@@ -487,6 +475,7 @@ async function createAllAwaitingSchedulePRs() {
     logging.log('info', 'Successfully created all awaiting schedule PRs');
   } catch (error) {
     logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+    throw error;
   }
 }
 
@@ -500,6 +489,7 @@ async function updateGithubCodeqlActionToV4() {
     logging.log('info', 'Successfully updated github/codeql-action to v4');
   } catch (error) {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+    throw error;
   }
 }
 
@@ -513,6 +503,7 @@ async function updateGitstreamActionToLatest() {
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
   }
 }
 
@@ -526,6 +517,7 @@ async function updateGitstreamActionToLatestVersion() {
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
   }
 }
 
@@ -702,12 +694,12 @@ function isStargazerActive(username, days = 30) {
     return false;
   }
   const stargazer = stargazers.find(s => s.username === username);
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - days);
-  if (stargazer === undefined || stargazer === null) {
+  if (!stargazer) {
     logging.log('warn', `Stargazer ${username} not found in tracking list`);
     return false;
   }
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
   return stargazer.lastActivity >= cutoffDate;
 }
 

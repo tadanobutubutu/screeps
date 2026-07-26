@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-01 - [Visual Telemetry Accessibility with Semantic Progress Bars]
+**Learning:** For dynamic, resource-intensive visual metrics like CPU usage on dashboards, replacing raw text stats with a color-coded, keyboard-focusable progress bar significantly reduces user cognitive load. Implementing proper semantic ARIA attributes (`role="progressbar"`, `aria-label`, `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, and `aria-valuetext`) guarantees that screen readers announce changes deterministically and with equal fidelity.
+**Action:** Always wrap visual gauges in focusable container blocks (`tabIndex={0}`) with descriptive title tooltips and style indicators with clear color thresholds (green/teal, orange, red) to provide instant visual and auditory feedback.
+
 ## 2025-05-22 - [Accessibility & Consistency]
 
 **Learning:** Improving color contrast to WCAG AAA (#004b73) and ensuring consistent number formatting (adding Billions support) across the dashboard and game visuals enhances both accessibility and user trust.

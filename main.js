@@ -716,3 +716,55 @@ function logWithComparison(level, message, value1, value2) {
   const comparisonResult = value1 === value2;
   logging.log(level, `${message} - Comparison result: ${comparisonResult}`);
 }
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version.
+ */
+async function updateGitstreamActionToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (additional alias).
+ */
+async function handleGitstreamActionUpdateToLatest() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+/**
+ * Recreates PR for github/codeql-action update to v4.
+ */
+async function handleRecreateGithubCodeqlActionPR() {
+  try {
+    const taskId = await createAsyncUpdateTask('recreate PR for github/codeql-action update to v4');
+    await updateDependencyVersions('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully recreated PR for github/codeql-action update to v4');
+  } catch (error) {
+    logging.log('error', `Failed to recreate PR for github/codeql-action: ${error.message}`);
+  }
+}
+
+/**
+ * Updates linear-bots/gitstream-github-action to latest version (additional implementation).
+ */
+async function updateGitstreamAction() {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest version');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}

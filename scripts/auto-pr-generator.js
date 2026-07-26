@@ -252,7 +252,7 @@ async function main() {
         const analysis = await analyzeIssueWithClaude(issue);
         console.log(`✅ Analysis complete: ${analysis.severity} severity`);
 
-        // Fix ブランチを作成してコミット
+        // 修正ブランチを作成してコミット
         const branch = await createFixBranch(issue, analysis);
         console.log(`✅ Branch and commit created: ${branch.branchName}`);
 

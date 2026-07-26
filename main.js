@@ -768,3 +768,55 @@ async function updateGitstreamAction() {
     logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
+
+/**
+ * Handles the update of posthog-js to v1.407.2.
+ */
+async function handlePosthogJsUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.2');
+    await updateDependencyVersions('posthog-js', 'v1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of actions/checkout to v7.
+ */
+async function handleActionsCheckoutUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/checkout to v7');
+    await updateDependencyVersions('actions/checkout', 'v7');
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of actions/labeler to v7.
+ */
+async function handleActionsLabelerUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+}
+
+/**
+ * Handles the update of actions/setup-python to v7.
+ */
+async function handleActionsSetupPythonUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/setup-python to v7');
+    await updateDependencyVersions('actions/setup-python', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+}

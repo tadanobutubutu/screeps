@@ -195,36 +195,31 @@ if (require.main === module) {
         { name: 'role.explorer', file: 'role.explorer.js' },
     ];
 
-    (async () => {
-        try {
-            const modules = {};
-            for (const m of files) {
-                try {
-                    // ファイルパスの検証
-                    const filePath = validateFilePath(m.file);
-                    let content = await fs.promises.readFile(filePath, 'utf8');
-
-                    // Security: Inject environment variables into the source
-                    content = injectEnvVars(content);
-
-                    modules[m.name] = content;
-                } catch (e) {
-                    // エラーメッセージから機密情報を除外
-                    const safeMessage = sanitizeLog(e.message);
-                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                    process.exit(1);
-                }
-            }
-
-            await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
-            await deployTo('PROD', '/api/user/code', prodToken, modules);
-        } catch (error) {
-            // 最終的なエラーハンドリング（機密情報のフィルタリング付き）
-            const safeMessage = sanitizeLog(error.message);
-            console.error('Deployment process failed:', safeMessage);
-            process.exit(1);
-        }
-    })();
+    runDeploy(files, ptrToken, prodToken);
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog };
+async function runDeploy(files, ptrToken, prodToken) {
+    try {
+        const modules = {};
+        for (const m of files) {
+            try {
+                const filePath = validateFilePath(m.file);
+                let content = await fs.promises.readFile(filePath, 'utf8');
+                content = injectEnvVars(content);
+                modules[m.name] = content;
+            } catch (e) {
+                const safeMessage = sanitizeLog(e.message);
+                console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                process.exit(1);
+            }
+        }
+        await deployTo('PTR', '/ptr/api/user/code', ptrToken, modules);
+        await deployTo('PROD', '/api/user/code', prodToken, modules);
+    } catch (error) {
+        const safeMessage = sanitizeLog(error.message);
+        console.error('Deployment process failed:', safeMessage);
+        process.exit(1);
+    }
+}
+
+module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog, runDeploy };

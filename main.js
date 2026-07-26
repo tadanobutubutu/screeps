@@ -123,14 +123,14 @@ async function handlePosthogJsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
-}
+};
 
 async function handlePosthohJsUpdate() {
   try {
-    await updatePosthogJs();
+    await updateNpmPackage('posthog-js', '1.407.2');
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 }
 

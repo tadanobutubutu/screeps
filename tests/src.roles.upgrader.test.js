@@ -252,7 +252,8 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             withdraw: jest.fn(),
-            pickup: jest.fn(), harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+            pickup: jest.fn(),
+            harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: { controller: {} },
         };
 
@@ -338,7 +339,8 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             harvest: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             withdraw: jest.fn(),
-            pickup: jest.fn(), harvest: jest.fn(),
+            pickup: jest.fn(),
+            harvest: jest.fn(),
             room: { controller: {} },
         };
 
@@ -428,7 +430,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             withdraw: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
             room: { controller: {} },
-            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) },
         };
 
         upgrader.run(creep);
@@ -449,7 +451,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: { controller: {} },
-            pos: null // creep.posがnullの場合
+            pos: null, // creep.posがnullの場合
         };
 
         upgrader.run(creep);
@@ -463,7 +465,7 @@ describe('src/roles/upgrader', () => {
         const controller = { pos: { x: 5, y: 5 } };
         const container = {
             store: { [global.RESOURCE_ENERGY]: 200 },
-            pos: { getRangeTo: jest.fn().mockReturnValue(3) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(3) },
         };
         mockCache.getContainers.mockReturnValue([container]);
 
@@ -473,7 +475,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             withdraw: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
             room: { controller },
-            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) },
         };
 
         upgrader.run(creep);
@@ -489,12 +491,12 @@ describe('src/roles/upgrader', () => {
         const container1 = {
             id: 'c1',
             store: { [global.RESOURCE_ENERGY]: 200 },
-            pos: { getRangeTo: jest.fn().mockReturnValue(3) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(3) },
         };
         const container2 = {
             id: 'c2',
             store: { [global.RESOURCE_ENERGY]: 300 },
-            pos: { getRangeTo: jest.fn().mockReturnValue(2) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(2) },
         };
         mockCache.getContainers.mockReturnValue([container1, container2]);
 
@@ -504,7 +506,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: { controller },
-            pos: null // creep.posがnullの場合
+            pos: null, // creep.posがnullの場合
         };
 
         upgrader.run(creep);
@@ -525,7 +527,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             pickup: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
             room: { controller: {} },
-            pos: { getRangeTo: jest.fn().mockReturnValue(2) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(2) },
         };
 
         upgrader.run(creep);
@@ -548,7 +550,7 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             pickup: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
             room: { controller: {} },
-            pos: null // creep.posがnull
+            pos: null, // creep.posがnull
         };
 
         upgrader.run(creep);
@@ -570,7 +572,8 @@ describe('src/roles/upgrader', () => {
             say: jest.fn(),
             harvest: jest.fn().mockReturnValue(global.OK), // ERR_NOT_IN_RANGE以外
             withdraw: jest.fn(),
-            pickup: jest.fn(), harvest: jest.fn(),
+            pickup: jest.fn(),
+            harvest: jest.fn(),
             room: { controller: {} },
         };
 
@@ -604,9 +607,10 @@ describe('src/roles/upgrader', () => {
             memory: { working: false },
             store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
             say: jest.fn(),
-            withdraw: jest.fn(), harvest: jest.fn(),
+            withdraw: jest.fn(),
+            harvest: jest.fn(),
             room: { controller: {} },
-            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) },
         };
 
         upgrader.run(creep);
@@ -626,9 +630,10 @@ describe('src/roles/upgrader', () => {
             memory: { working: false },
             store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
             say: jest.fn(),
-            pickup: jest.fn(), harvest: jest.fn(),
+            pickup: jest.fn(),
+            harvest: jest.fn(),
             room: { controller: {} },
-            pos: { getRangeTo: jest.fn().mockReturnValue(1) }
+            pos: { getRangeTo: jest.fn().mockReturnValue(1) },
         };
 
         upgrader.run(creep);

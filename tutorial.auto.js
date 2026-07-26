@@ -5,26 +5,6 @@
 const logger = require('utils.logging');
 
 const autoTutorial = {
-    _towersCache: { time: 0, towers: [] },
-
-    /**
-     * ⚡ PERFORMANCE OPTIMIZATION: Get cached towers to avoid O(N) _.filter every tick
-     */
-    _getTowers: function () {
-        if (this._towersCache.time !== Game.time) {
-            this._towersCache.towers = [];
-            for (let id in Game.structures) {
-                if (!Object.prototype.hasOwnProperty.call(Game.structures, id)) continue;
-                const s = Game.structures[id];
-                if (s.structureType === STRUCTURE_TOWER) {
-                    this._towersCache.towers.push(s);
-                }
-            }
-            this._towersCache.time = Game.time;
-        }
-        return this._towersCache.towers;
-    },
-
     /**
      * チュートリアル検出
      */
@@ -79,16 +59,9 @@ const autoTutorial = {
         }
 
         // Harvesterがいなければ作成
-        // ⚡ PERFORMANCE OPTIMIZATION: Avoid expensive array allocation from _.filter
-        let hasHarvester = false;
-        for (const name in Game.creeps) {
-            if (Game.creeps[name].memory.role === 'harvester') {
-                hasHarvester = true;
-                break;
-            }
-        }
+        const harvesters = _.filter(Game.creeps, (c) => c.memory.role === 'harvester');
 
-        if (!hasHarvester && !spawn.spawning) {
+        if (harvesters.length === 0 && !spawn.spawning) {
             spawn.spawnCreep([WORK, CARRY, MOVE], 'Harvester1', {
                 memory: { role: 'harvester' },
             });
@@ -204,7 +177,7 @@ const autoTutorial = {
      * Step 5: Defend room
      */
     step5_defendRoom: function () {
-        const towers = this._getTowers();
+        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
 
         if (towers.length > 0) {
             const tower = towers[0];
@@ -225,12 +198,6 @@ const autoTutorial = {
         const sitesCache = {};
         const hostilesCache = {};
 
-        this._handleCreeps(sourcesCache, sitesCache);
-        this._handleTowers(hostilesCache);
-        this._handleSpawns();
-    },
-
-    _handleCreeps: function (sourcesCache, sitesCache) {
         // 基本的なCreep動作
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
@@ -276,11 +243,9 @@ const autoTutorial = {
                 }
             }
         }
-    },
 
-    _handleTowers: function (hostilesCache) {
         // Tower防衛
-        const towers = this._getTowers();
+        const towers = _.filter(Game.structures, (s) => s.structureType === STRUCTURE_TOWER);
         for (const tower of towers) {
             const roomName = tower.room.name;
             let hostiles = hostilesCache[roomName];
@@ -293,9 +258,7 @@ const autoTutorial = {
                 tower.attack(hostiles[0]);
             }
         }
-    },
 
-    _handleSpawns: function () {
         // 自動Spawn
         const spawn = Game.spawns.Spawn1;
         if (spawn && !spawn.spawning && Object.keys(Game.creeps).length < 3) {

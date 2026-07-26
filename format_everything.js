@@ -8,7 +8,7 @@ try {
     });
 } catch (e) {}
 
-// Execute standard eslint --fix
+// Run standard eslint --fix
 try {
     execSync('npx eslint@8.57.0 --fix utils.defense.js tests/utils.defense.test.js', {
         stdio: 'inherit',

@@ -1,5 +1,4 @@
 const fs = require('fs');
-const crypto = require('crypto');
 
 // 実験カタログ
 const experiments = [
@@ -152,7 +151,7 @@ const experiments = [
 ];
 
 // ランダムに1つ選択
-const selected = experiments[crypto.randomInt(0, experiments.length)];
+const selected = experiments[Math.floor(Math.random() * experiments.length)];
 console.log(`🎲 Selected experiment: ${selected.name}`);
 console.log(`📝 Description: ${selected.description}`);
 

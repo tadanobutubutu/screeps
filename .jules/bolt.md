@@ -60,3 +60,7 @@
 ## 2026-06-10 - Single-Pass Loop for Invasion and Threat Detection
 **Learning:** Chaining `.filter()` and `.reduce()` in hot, per-tick functions like `detectInvasion` to count hostile creeps and find the maximum HP allocates temporary arrays and iterates over hostiles multiple times. This introduces severe CPU overhead and GC pressure under high-load situations.
 **Action:** Combined `.filter()` and `.reduce()` into a single `for` loop that filters, counts, and tracks the highest HP in a single pass with zero array allocations.
+
+## 2026-06-11 - V8 optimization of Array.filter vs For Loop in V8 JS
+**Learning:** While a standard `for` loop might seem theoretically faster for filtering arrays, `Array.prototype.filter` is heavily optimized in modern V8 engines and often outperforms manual loops when dealing with simple boolean checks (e.g. `room.controller && room.controller.my`), especially on smaller object arrays.
+**Action:** Replaced manual `for` loops used for filtering arrays with the cleaner, more readable, and measurably faster `Array.prototype.filter` equivalent.

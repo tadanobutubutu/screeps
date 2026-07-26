@@ -5,13 +5,12 @@ function secureRandom() {
             const buf = crypto.randomBytes(4);
             const num = buf.readUInt32LE(0);
             return num / (0xffffffff + 1);
-        } else if (Math && Math.random) {
-            return Math.random();
         }
     } catch (e) {
-        return Math.random();
+        // Fallback
     }
     return Math.random();
 }
 
-module.exports = { secureRandom };
+);
+);

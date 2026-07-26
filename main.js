@@ -132,10 +132,10 @@ async function handlePosthogJsUpdate() {
 // MERGED FROM BOTH BRANCHES
 async function handlePosthohJsUpdate() {
   try {
-    await updatePosthohJs();
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.2');
+    await updateNpmPackage('posthog-js', '1.407.2');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 }
 

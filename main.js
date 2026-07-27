@@ -1,13 +1,14 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console[level](message);
   },
 };
 
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -18,26 +19,24 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
+  // Placeholder function for dependency updates
   return new Promise(resolve => {
     resolve();
   });
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
 
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -47,7 +46,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -60,20 +59,17 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-// Helper function to check if a dependency update is awaiting a schedule
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "Update" prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task && !task.completed;
+  return task &&!task.completed;
 };
 
-// Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\br/;
+  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
 
-  return blockedPrNumber === pr.number;
+  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -90,12 +86,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
+    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
     throw error;
   }
 };
@@ -164,7 +160,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

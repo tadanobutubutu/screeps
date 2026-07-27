@@ -1,8 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`[${level}] ${message}`);
-  },
+    },
 };
 
 let taskIdCounter = 0;

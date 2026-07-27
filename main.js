@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -184,7 +184,7 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,

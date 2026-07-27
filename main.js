@@ -7,6 +7,7 @@ const logging = {
 
 let taskIdCounter = 0;
 const tasks = [];
+const blockedPRs = [];
 
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -16,6 +17,12 @@ const addTask = (title, priority = 'medium', tags = []) => {
 
 const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
+};
+
+const addBlockedPR = (prNumber) => {
+  if (!blockedPRs.includes(prNumber)) {
+    blockedPRs.push(prNumber);
+  }
 };
 
 const npmUpdate = async (dependency, newVersion) => {
@@ -66,10 +73,10 @@ const isAwaitingSchedule = (dependency) => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
+  // Check if this PR would recreate a previously blocked update
+  const blockedPrNumber = blockedPRs.find(blockedNum => blockedNum === pr.number);
 
-  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  return blockedPrNumber !== undefined;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -87,7 +94,7 @@ const updateNpmPackage = async ({ name, version }) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
-    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
@@ -146,7 +153,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -176,6 +183,8 @@ module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
+  addBlockedPR,
+  blockedPRs,
   updateGitstreamGithubAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,

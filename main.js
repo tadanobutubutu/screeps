@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console[level](message);
   },
 };
 
@@ -66,10 +67,11 @@ const isAwaitingSchedule = (dependency) => {
 
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
-  const match = /\br Pavouk/i.exec(pr.data.title);
-  const blockedPrNumber = match ? match[0] : null; // Replace "Pavouk" with the regex of your blocked PR title.
+  const title = pr.data?.title ?? pr.title;
+  const match = /#(\d+)/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
 
-  return blockedPrNumber === pr.number;
+  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -86,12 +88,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
+    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
     throw error;
   }
 };

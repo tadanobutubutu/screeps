@@ -20,7 +20,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -43,12 +43,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -58,7 +58,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -73,18 +73,15 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
-
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
   const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
-  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  
   return hasPavouk || matchesPrNumber;
 };
 
@@ -100,7 +97,6 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
-// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -163,7 +159,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Handle and consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;

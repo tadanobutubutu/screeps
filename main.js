@@ -18,6 +18,12 @@ const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
 
+const npmUpdate = async (dependency, newVersion) => {
+  return new Promise((resolve) => {
+    resolve();
+  });
+};
+
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
@@ -221,6 +227,7 @@ module.exports = {
   logging,
   addTask,
   getTaskById,
+  npmUpdate,
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
@@ -229,4 +236,17 @@ module.exports = {
   handleCodeQLActionUpdate,
   handleAwaitingSchedulePRs,
   handleGitstreamUpdateSuccess,
+  handleGitstreamActionLatestUpdate,
+  visualizeMemory,
+  updatePosthogJs,
+  handlePosthogJsUpdate,
+  handleActionsCheckoutUpdate,
+  handleActionsLabelerVersionUpdate,
+  handleActionsSetupPythonUpdate,
+  handleAwaitingSchedulePRsUpdate,
+  handleGitstreamActionLatestSuccess,
+  handleSentryBrowserUpdate,
+  handleActionsSetupNodeUpdate,
+  handleActionsGithubScriptUpdate,
+  handleNodeVersionUpdate,
 };

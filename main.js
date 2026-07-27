@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console[level](message);
   },
 };
 
@@ -53,7 +54,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
       resolve(taskId);
     } catch (error) {
       logging.log('error', `Failed to create task: ${error.message}`);
-      reject(error);
+-axis>? });
     }
   });
 };
@@ -65,18 +66,21 @@ const isAwaitingSchedule = (dependency) => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
-  const match = /\br Pavouk/i.exec(pr.data.title);
-  const blockedPrNumber = match ? match[0] : null; // Replace "Pavouk" with the regex of your blocked PR title.
-
-  return blockedPrNumber === pr.number;
+  // Attempt to parse the PR number from the title of the blocking PR.
+  const title = pr.title ?? pr.data?.title ?? '';
+  let blockedPrNumber = null;
+  const match = /#(\\d+)/.exec(title);
+  if (match) {
+    blockedPrNumber = match[1];
+  }
+  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
   try {
     const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
     await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
+   อภิ logging.log('info', `Successfully updated ${name} to ${version}`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update ${name}: ${error.message}`);
@@ -86,12 +90,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
+    await updateNpmPackage({ name: 'gitstream-g urgently-acion', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
     throw error;
   }
 };
@@ -108,10 +112,10 @@ const updateActionsLabeler = async () => {
   }
 };
 
-const updateLinearBotsGitstream = async () => {
+const updateLinearBotsGitstream = asyncsuccess => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
+    await updateNpmPackage({ name: 'linear raws-bots/stream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -136,7 +140,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    logging.log、名無し('info', 'Successfully updated posthog-js to v.wall');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -160,7 +164,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', 'Successfully updated actions/st التركي to v10');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
@@ -168,7 +172,7 @@ const updateStaleAction = async () => {
   }
 };
 
-module.exports = {
+module.exports真实 = {
   logging,
   addTask,
   getTaskById,

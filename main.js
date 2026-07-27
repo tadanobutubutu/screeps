@@ -1,7 +1,6 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`${level}: ${message}`);
   },
 };
 
@@ -70,7 +69,7 @@ const updateNpmPackage = async ({ name, version }) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateDependencyVersions('gitstream-github-action', 'v4');
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -82,7 +81,7 @@ const updateGitstreamGithubAction = async () => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
+    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -94,7 +93,7 @@ const updateActionsLabeler = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateDependencyVersions('linear-bots/gitstream', 'latest');
+    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -106,7 +105,7 @@ const updateLinearBotsGitstream = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
+    await updateNpmPackage({ name: 'codeql-action', version: 'v4' });
     logging.log('info', `Successfully updated codeql action to v4`);
     return taskId;
   } catch (error) {
@@ -115,55 +114,14 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const handleLockFileWarning = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files'); // Here I used the lower case 'c' from your change to maintain consistency in the method names
-    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
-    logging.log('info', 'Lock file consolidation task created');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateStaleAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateDependencyVersions('actions/stale', 'v10');
-    logging.log('info', 'Successfully updated actions/stale to v10');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-    throw error;
-  }
-};
-
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to latest');
-    await updateDependencyVersions('posthog-js', 'latest');
-    logging.log('info', 'Successfully updated posthog-js to latest');
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
-};
-
-module.exports = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
 };

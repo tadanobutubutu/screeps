@@ -8,7 +8,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -46,7 +46,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -68,10 +68,12 @@ const isAwaitingSchedule = (dependency) => {
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
   // Adjust the regex to match your project's blocked PR title pattern.
-  const hasPavouk = /Pavouk/i.test(pr.title);
+  const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
   
-  // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
+  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
+  const match = /#(\d+)/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   
   return hasPavouk || matchesPrNumber;
@@ -165,7 +167,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

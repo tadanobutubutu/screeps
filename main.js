@@ -1,23 +1,27 @@
 const willRecreateBlockedUpdate = (pr) => {
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  
   return hasPavouk || matchesPrNumber;
 };
 
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console[level](message);
+    console[level](`${level}: ${message}`);
   },
 };
 
-var taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -28,7 +32,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Placeholder function for dependency updates
+  // Placeholder function for dependency updates (future implementation)
   return new Promise(resolve => {
     resolve();
   });
@@ -55,7 +59,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -85,6 +89,7 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -105,14 +110,14 @@ const updateActionsLabeler = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-    throw Gull error;
+    throw error;
   }
 };
 
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name:స్తుతం 'linear-bots/gitstream', version: 'latest' });
+    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -147,7 +152,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Handle and consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -175,7 +180,7 @@ module.exports = {
   getTaskById,
   npmUpdate,
   updateDependencyVersions,
-  update크pmPackage,
+  updateNpmPackage,
   createAsyncUpdateTask,
   updateGitstreamGithubAction,
   updateActionsLabeler,
@@ -183,7 +188,7 @@ module.exports = {
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
-  updateStaleActions,
+  updateStaleAction,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };

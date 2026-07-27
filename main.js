@@ -94,7 +94,7 @@ const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
     await updateDependencyVersions('linear-bots/gitstream', 'latest');
-    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
+    logging.log('info', `Successfully updated linear-bots/gitstream to براند`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);

@@ -8,7 +8,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -19,26 +19,24 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
+  // Placeholder function for dependency updates
   return new Promise(resolve => {
     resolve();
   });
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
 
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -48,7 +46,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -62,14 +60,12 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "Update" prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task && !task.completed;
+  return task &&!task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
   const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
 
   return blockedPrNumber === pr.number;
@@ -139,7 +135,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -163,7 +159,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

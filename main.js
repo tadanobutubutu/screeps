@@ -299,5 +299,5 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs,
+  handleImageSearchPRs
 };

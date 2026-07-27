@@ -1,3 +1,16 @@
+const willRecreateBlockedUpdate = (pr) => {
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
+  const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title (as a standalone word)
+  const match = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+
+  return hasPavouk || matchesPrNumber;
+};
+
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
@@ -63,12 +76,6 @@ const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
   return task && !task.completed;
-};
-
-const willRecreateBlockedUpdate = (pr) => {
-  const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
-
-  return blockedPrNumber === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {

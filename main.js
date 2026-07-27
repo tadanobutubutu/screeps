@@ -21,7 +21,6 @@ const getTaskById = (taskId) => {
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
-      // The change from using Promise.resolve() to wrapping in a promise with try-catch block is to support Promise-based error handling.
       npmUpdate(dependency, newVersion)
         .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
@@ -241,5 +240,16 @@ module.exports = {
   updateSentryBrowser,
   updateActionsSetupNode,
   updateActionsGithubScript,
+  handleAwaitingSchedulePRs: createAwaitingSchedulePRs,
+  handleGitstreamUpdateSuccess: updateGitstreamGithubActionV4,
+  handlePosthogJsUpdate: updatePosthogJsVersion,
+  handleActionsCheckoutUpdate: updateActionsCheckout,
+  handleActionsLabelerVersionUpdate: updateActionsLabelerV7,
+  handleActionsSetupPythonUpdate: updateActionsSetupPython,
+  handleAwaitingSchedulePRsUpdate: createAwaitingSchedulePRsTask,
+  handleGitstreamActionLatestSuccess: updateLinearBotsGitstreamLatest,
+  handleSentryBrowserUpdate: updateSentryBrowser,
+  handleActionsSetupNodeUpdate: updateActionsSetupNode,
+  handleActionsGithubScriptUpdate: updateActionsGithubScript,
   handleNodeVersionUpdate,
 };

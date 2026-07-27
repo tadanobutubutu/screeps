@@ -66,9 +66,10 @@ const isAwaitingSchedule = (dependency) => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.notes from the title of blocking PRs.
-  // Replace "Pavouk" with the regex of your blocked PR title.
-  return null;
+  // Filter the pr.number from the title of blocking PRs.
+  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
+
+  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -145,7 +146,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('handle multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;

@@ -8,7 +8,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -42,7 +42,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -115,21 +115,9 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const updatePosthogJsToLatest = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateDependencyVersions('posthog-js', 'v1.407.3');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
-  }
-};
-
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files'); // Here I used the lower case 'c' from your change to maintain consistency in the method names
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -147,6 +135,18 @@ const updateStaleAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
+    throw error;
+  }
+};
+
+const updatePosthogJsToLatest = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to latest');
+    await updateDependencyVersions('posthog-js', 'latest');
+    logging.log('info', 'Successfully updated posthog-js to latest');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };

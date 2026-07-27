@@ -40,22 +40,15 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 };
 
 async function handleActionsLabelerUpdate() {
-  return new Promise((resolve, reject) => {
-    try {
-      const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-      updateDependencyVersions('actions/labeler', 'v7')
-        then(() => {
-          logging.log('info', `Successfully updated actions/labeler to v7`);
-          resolve(taskId);
-        })
-        catch((error) => {
-          logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-          reject(error);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', `Successfully updated actions/labeler to v7`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+    throw error;
+  }
 }
 
 async function handleGitstreamActionUpdate() {

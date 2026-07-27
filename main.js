@@ -204,7 +204,7 @@ const autonomousEfficiencyRole = {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
       });
       if (storageTarget) {
-        if (creep.withdraw(storageTarget, RESOURCE_ENERGIT_ENERGY) === ERR_NOT_IN_RANGE) {
+        if (creep.withdraw(storageTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(storageTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
         return;
@@ -285,6 +285,56 @@ const handleImageSearchPRs = async () => {
   return createPR();
 };
 
+// New functions for Dependency Dashboard updates
+const updateCodeqlAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateNpmPackage('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+    throw error;
+  }
+};
+
+const updatePosthogJsToLatest = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage('posthog-js', '1.407.3');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    throw error;
+  }
+};
+
+const handleLockFileWarning = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
+    logging.log('info', 'Lock file consolidation task created');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
+    throw error;
+  }
+};
+
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest available');
+    // Note: Renovate failed to look up this package, using latest as fallback
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Attempted update of linear-bots/gitstream-github-action');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -299,5 +349,9 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs
+  handleImageSearchPRs,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateLinearBotsGitstreamGithubAction
 };

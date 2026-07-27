@@ -69,7 +69,7 @@ const updateNpmPackage = async ({ name, version }) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateDependencyVersions('gitstream-github-action', 'v4');
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -81,7 +81,7 @@ const updateGitstreamGithubAction = async () => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
+    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -93,8 +93,8 @@ const updateActionsLabeler = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateDependencyVersions('linear-bots/gitstream', 'latest');
-    logging.log('info', `Successfully updated linear-bots/gitstream to براند`);
+    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
+    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
@@ -105,7 +105,7 @@ const updateLinearBotsGitstream = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateDependencyVersions('codeql-action', 'v4');
+    await updateNpmPackage({ name: 'codeql-action', version: 'v4' });
     logging.log('info', `Successfully updated codeql action to v4`);
     return taskId;
   } catch (error) {
@@ -117,7 +117,7 @@ const updateCodeqlAction = async () => {
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateDependencyVersions('posthog-js', 'v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
     logging.log('info', 'Successfully updated posthog-js to v1.407.3');
     return taskId;
   } catch (error) {
@@ -128,7 +128,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consider consolidating multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -141,7 +141,7 @@ const handleLockFileWarning = async () => {
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateDependencyVersions('actions/stale', 'v10');
+    await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
     logging.log('info', 'Successfully updated actions/stale to v10');
     return taskId;
   } catch (error) {

@@ -8,7 +8,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -31,12 +31,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -46,7 +46,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -62,17 +62,16 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task && !task.completed;
+  return task &&!task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Adjust the regex to match your project's blocked PR title pattern.
+  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
-  
-  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
-  const match = /#(\d+)/.exec(title);
+  // Extract the first number in the title (as a standalone word)
+  const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   
@@ -91,10 +90,11 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
-    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    await updateNpmPackage({ name: 'gitstream-gurgently-acion', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
@@ -143,7 +143,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -167,7 +167,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

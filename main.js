@@ -67,7 +67,9 @@ const isAwaitingSchedule = (dependency) => {
 
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
+  const title = pr.data?.title ?? pr.title;
+  const match = /#(\d+)/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
 
   return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };

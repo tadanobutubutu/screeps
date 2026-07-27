@@ -1,16 +1,18 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`[${level}] ${message}`);
   },
 };
+
 let taskIdCounter = 0;
 const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
+
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
 };
+
 const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
@@ -25,11 +27,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -38,10 +40,12 @@ const updateDependencyVersions = (dependency, newVersion) => {
     }
   });
 };
+
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -56,7 +60,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage('actions/labeler', 'v7');
+    await npmUpdate('actions/labeler', 'v7'); // Consistent function usage
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -68,7 +72,7 @@ const updateActionsLabeler = async () => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage('gitstream-github-action', 'v4');
+    await npmUpdate('gitstream-github-action', 'v4'); // Consistent function usage
   } catch (error) {
     logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
   }
@@ -76,11 +80,11 @@ const updateGitstreamGithubAction = async () => {
 
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'latest'); // Resolved package name conflict
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update linearbots/gitstream: ${error.message}`);
   }
 };
 
@@ -91,12 +95,14 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
     logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
+
   // Simulate memory cleanup after update
   const cleanupMemory = (duringHeapUsed) => {
     const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 5 * 1024 * 1024);
     logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
     return afterHeapUsed;
   };
+
   // Return a promise that resolves with memory stats
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -114,7 +120,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 const updatePosthogJs = async () => {
-  return updateNpmPackage('@posthog/js', '1.407.2');
+  return npmUpdate('@posthog/js', '1.407.2'); // Consistent function usage
 };
 
 const autonomousEfficiencyRole = {
@@ -152,7 +158,7 @@ const autonomousEfficiencyRole = {
 
       // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
       const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
+        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType!== STRUCTURE_WALL && s.structureType!== STRUCTURE_RAMPART,
       });
       if (damagedStructure) {
         if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
@@ -223,67 +229,17 @@ const autonomousEfficiencyRole = {
   },
 };
 
-const handleImageSearchPRs = async () => {
+async function handleImageSearchPRs() {
   // New function to address image search PRs
-  const prTitle = 'Update image search dependencies';
-  const prBody = 'This pull request updates the image search dependencies to fix some issues.';
-  const prLabels = ['image-search', 'dependencies', 'update'];
-  const projectOwner = '<OWNER_OF_PROJECT>';
-  const projectRepo = '<REPOSITORY_OF_PROJECT>';
-
-  const createPR = async () => {
-    try {
-      const github = new Octokit();
-      const gitHubAuth = process.env.GITHUB_TOKEN;
-      const authToken = new BasicAuth(gitHubAuth);
-
-      const user = await github.rest.users.getUser();
-      const repository = await github.rest.repos.get({
-        owner: projectOwner,
-        repo: projectRepo,
-      });
-
-      await github.authenticate({
-        auth: authToken,
-      });
-
-      await github.issues.createComment({
-        issue_number: repository.data.open_issues_count,
-        owner: projectOwner,
-        repo: projectRepo,
-        body: `Creating pull request for updating image search dependencies (${prTitle}).\n\n${prBody}`,
-      });
-
-      const { data: pr } = await github.pulls.create({
-        owner: projectOwner,
-        repo: projectRepo,
-        title: prTitle,
-        body: prBody,
-        labels: prLabels,
-        head: 'main',
-        base: 'main',
-      });
-
-      logging.log('info', `Successfully created pull request #${pr.data.number}`);
-      const taskId = await createAsyncUpdateTask(`Handle ${prTitle} PR ${pr.data.number}`);
-
-      // Add a comment to the PR with the task ID
-      await github.issues.createComment({
-        issue_number: pr.data.number,
-        owner: projectOwner,
-        repo: projectRepo,
-        body: `Task ID for handling ${prTitle} PR (${pr.data.number}): ${taskId}`
-      });
-
-      return taskId;
-    } catch (error) {
-      logging.log('error', `Failed to create pull request: ${error.message}`);
-      throw error;
-    }
-  };
-
-  return createPR();
-};
+  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
+  await updateDependencyVersions('actions/checkout', 'v7'); // HEAD changes
+  await updateDependencyVersions('actions/setup-node', 'v7'); // HEAD changes
+  await npmUpdate('image-search-package', 'v7'); // Other branch changes
+  await npmUpdate('image-processor', 'v7'); // Other branch changes
+  await updateDependencyVersions('node', '24'); // Common change
+  logging.log('info', 'Successfully updated image search PRs dependencies');
+  return taskId;
+}
 
 // New functions for Dependency Dashboard updates
 const updateCodeqlAction = async () => {

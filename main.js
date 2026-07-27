@@ -71,7 +71,7 @@ async function handleGitstreamActionUpdate() {
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
-handleCodeQLActionUpdate = async () => {
+const handleCodeQLActionUpdate = async () => {
   try {
     await updateDependencyVersions('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
@@ -138,15 +138,6 @@ async function handlePosthogJsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
-}
-
-async function handlePosthohJsUpdate() {
-  try {
-    await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  };
 }
 
 async function handleActionsCheckoutUpdate() {
@@ -239,6 +230,4 @@ module.exports = {
   handleCodeQLActionUpdate,
   handleAwaitingSchedulePRs,
   handleGitstreamUpdateSuccess,
-  // rest of the functions remain the same
 };
-```

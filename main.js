@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
@@ -65,15 +62,21 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Adjust the regex to match your project's blocked PR title pattern.
   const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+  
+  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
   const match = /#(\d+)/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
-
-  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  
+  return hasPavouk || matchesPrNumber;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -140,11 +143,11 @@ const updateCodeqlAction = async () => {
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
     logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
     throw error;
   }
 };
@@ -185,12 +188,9 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthogJsToLatest,
+  updatePosthohJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };
-```
-
-This resolved file contains updated GitHub Action-specific functions for `updateGitstreamGithubAction`, `updateActionsLabeler`, `updateLinearBotsGitstream`, `updateCodeqlAction`, `updatePosthogJsToLatest`, and `updateStaleAction`. These functions were originally merged from different branches in the conflicting file.

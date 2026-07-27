@@ -7,7 +7,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -41,7 +41,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -116,19 +116,19 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Consolidating multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -141,7 +141,7 @@ const handleLockFileWarning = async () => {
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateDependencyVersions('actions/stale', 'v10');
+    await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
     logging.log('info', 'Successfully updated actions/stale to v10');
     return taskId;
   } catch (error) {
@@ -162,7 +162,7 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
 };

@@ -28,11 +28,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -117,9 +117,9 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateDependencyVersions('posthog-js', 'v1.407.3');
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    const taskId = await createAsyncUpdateTask('update posthog-js to latest');
+    await updateDependencyVersions('posthog-js', 'latest');
+    logging.log('info', 'Successfully updated posthog-js to latest');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);

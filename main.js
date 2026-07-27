@@ -82,7 +82,7 @@ const handleCodeQLActionUpdate = async () => {
 async function handleAwaitingSchedulePRs() {
   const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
   // Implementation would go here
-};
+}
 
 async function handleGitstreamUpdateSuccess() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
@@ -146,7 +146,7 @@ async function handleActionsCheckoutUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update actions/checkout: ${error.message}`);
   }
-};
+}
 
 async function handleActionsLabelerVersionUpdate() {
   try {
@@ -155,7 +155,7 @@ async function handleActionsLabelerVersionUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
   }
-};
+}
 
 async function handleActionsSetupPythonUpdate() {
   try {
@@ -164,7 +164,7 @@ async function handleActionsSetupPythonUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
   }
-};
+}
 
 async function handleAwaitingSchedulePRsUpdate() {
   try {
@@ -173,13 +173,13 @@ async function handleAwaitingSchedulePRsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
   }
-};
+}
 
 async function handleGitstreamActionLatestSuccess() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-};
+}
 
 async function handleSentryBrowserUpdate() {
   try {
@@ -188,7 +188,7 @@ async function handleSentryBrowserUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
   }
-};
+}
 
 async function handleActionsSetupNodeUpdate() {
   try {

@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console.log(`[${level}] ${message}`);
   },
 };
 let taskIdCounter = 0;
@@ -75,9 +76,9 @@ const updateGitstreamGithubAction = async () => {
 
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage('gitstream', 'latest');
-    logging.log('info', 'Successfully updated gitstream');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
     logging.log('error', `Failed to update gitstream: ${error.message}`);
   }
@@ -210,15 +211,14 @@ const autonomousEfficiencyRole = {
   },
 };
 
-async function handleImageSearchPRs() {
-  // New function to address image search PRs
+const handleImageSearchPRs = async () => {
   const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
   await updateNpmPackage('image-search', 'v7');
   await updateNpmPackage('image-utils', 'v7');
   await updateDependencyVersions('node', '24');
   logging.log('info', 'Successfully updated image search PRs dependencies');
   return taskId;
-}
+};
 
 module.exports = {
   logging,
@@ -234,5 +234,5 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs,
+  handleImageSearchPRs
 };

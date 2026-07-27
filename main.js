@@ -76,7 +76,7 @@ const updateGitstreamGithubAction = async () => {
 
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action action to v4');
     await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
@@ -225,13 +225,65 @@ const autonomousEfficiencyRole = {
 
 async function handleImageSearchPRs() {
   // New function to address image search PRs
-  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-  await updateDependencyVersions('actions/checkout', 'v7');
-  await updateDependencyVersions('actions/setup-node', 'v7');
-  await updateDependencyVersions('node', '24');
-  logging.log('info', 'Successfully updated image search PRs dependencies');
-  return taskId;
-}
+  const prTitle = 'Update image search dependencies';
+  const prBody = 'This pull request updates the image search dependencies to fix some issues.';
+  const prLabels = ['image-search', 'dependencies', 'update'];
+  const projectOwner = '<OWNER_OF_PROJECT>';
+  const projectRepo = '<REPOSITORY_OF_PROJECT>';
+
+  const createPR = async () => {
+    try {
+      const github = new Octokit();
+      const gitHubAuth = process.env.GITHUB_TOKEN;
+      const authToken = new BasicAuth(gitHubAuth);
+
+      const user = await github.rest.users.getUser();
+      const repository = await github.rest.repos.get({
+        owner: projectOwner,
+        repo: projectRepo,
+      });
+
+      await github.authenticate({
+        auth: authToken,
+      });
+
+      await github.issues.createComment({
+        issue_number: repository.data.open_issues_count,
+        owner: projectOwner,
+        repo: projectRepo,
+        body: `Creating pull request for updating image search dependencies (${prTitle}).\n\n${prBody}`,
+      });
+
+      const { data: pr } = await github.pulls.create({
+        owner: projectOwner,
+        repo: projectRepo,
+        title: prTitle,
+        body: prBody,
+        labels: prLabels,
+        head: 'main',
+        base: 'main',
+      });
+
+      logging.log('info', `Successfully created pull request #${pr.data.number}`);
+      const taskId = await createAsyncUpdateTask(`Handle ${prTitle} PR ${pr.data.number}`);
+
+      // Add a comment to the PR with the task ID
+      await github.issues.createComment({
+        issue_number: pr.data.number,
+        owner: projectOwner,
+        repo: projectRepo,
+        body: `Task ID for handling ${prTitle} PR (${pr.data.number}): ${taskId}`
+      });
+
+      return taskId;
+    } catch (error) {
+      logging.log('error', `Failed to create pull request: ${error.message}`);
+      throw error;
+    }
+  };
+
+  return createPR();
+};
 
 module.exports = {
   logging,

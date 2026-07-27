@@ -1,7 +1,8 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+    console[level](message);
+  },
 };
 
 let taskIdCounter = 0;
@@ -60,7 +61,6 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-// Helper function to check if a dependency update is awaiting a schedule
 const isAwaitingSchedule = (dependency) => {
   // Filter tasks with the "Update" prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
@@ -68,7 +68,6 @@ const isAwaitingSchedule = (dependency) => {
   return task && !task.completed;
 };
 
-// Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
   const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
@@ -184,7 +183,7 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,

@@ -91,6 +91,7 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');

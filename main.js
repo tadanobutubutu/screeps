@@ -80,16 +80,6 @@ const isAwaitingSchedule = (dependency) => {
   return task && !task.completed;
 };
 
-// Helper function to check if a closed PR will recreate a blocked update
-const willRecreateBlockedUpdate = (pr) => {
-  const title = pr.data?.title ?? pr.title;
-  const hasPavouk = /Pavouk/i.test(title);
-  const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match ? match[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  return hasPavouk || matchesPrNumber;
-};
-
 const updateNpmPackage = async ({ name, version }) => {
   try {
     const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
@@ -139,6 +129,18 @@ const updateLinearBotsGitstream = async () => {
   }
 };
 
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'latest' });
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
+  }
+};
+
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
@@ -151,11 +153,11 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const updatePosthohJsToLatest = async () => {
+const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -179,7 +181,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
@@ -198,8 +200,28 @@ module.exports = {
   updateGitstreamGithubAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
+  isAwaitingSchedule,
+  willRecreateBlockedUpdate,
+};
+module.exports.real = {
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,

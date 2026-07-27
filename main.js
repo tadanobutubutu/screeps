@@ -31,12 +31,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -62,16 +62,21 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Attempt to parse the PR number from the title of the blocking PR.
-  const title = pr.data?.title?? pr.title?? '';
-  const match = /#(\d+)/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Adjust the regex to match your project's blocked PR title pattern.
+  const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
   
-  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
+  const match = /#(\d+)/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  
+  return hasPavouk || matchesPrNumber;
 };
 
 const updateNpmPackage = async ({ name, version }) => {

@@ -8,7 +8,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -46,7 +46,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -167,7 +167,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', `Successfully updated actions/stale to v10`);
+    logging.log('info', 'Successfully updated actions/stale to v10');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

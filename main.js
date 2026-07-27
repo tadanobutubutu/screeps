@@ -278,6 +278,7 @@ module.exports = {
   updateNpmPackage,
   createAsyncUpdateTask,
   updateActionsLabeler,
+  updateGitstreamGithubAction,
   updateLinearBotsGitstream,
   visualizeMemory,
   updatePosthogJs,
@@ -286,5 +287,6 @@ module.exports = {
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
-  updateLinearBotsGitstreamGithubAction,
+  updateLinearBotsGitstreamGithubAction
 };
+```

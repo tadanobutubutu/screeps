@@ -94,7 +94,7 @@ const updateNpmPackage = async ({ name, version }) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
-    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    await updateNpmPackage({ name: 'gitstream-gurgently-acion', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
@@ -143,7 +143,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);

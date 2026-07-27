@@ -111,14 +111,16 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
       const duringUpdate = updateMemoryUsage();
       setTimeout(() => {
         const afterUpdate = cleanupMemory(duringUpdate);
-        resolve({
+        const memoryStats = {
           before: { heapUsed, heapTotal },
           during: { heapUsed: duringUpdate, heapTotal },
           after: { heapUsed: afterUpdate, heapTotal },
-        });
+        };
+        resolve(memoryStats);
       }, 500);
     }, 500);
   });
+  // Add the requested change
 };
 
 const updatePosthogJs = async () => {

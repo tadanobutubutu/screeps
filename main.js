@@ -31,12 +31,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -62,16 +62,21 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Adjust the regex to match your project's blocked PR title pattern.
   const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+  
+  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
   const match = /#(\d+)/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
-
-  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  
+  return hasPavouk || matchesPrNumber;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -138,7 +143,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);

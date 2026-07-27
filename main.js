@@ -1,6 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console[level](message);
   },
 };
 
@@ -18,15 +19,13 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
+  // Placeholder function for dependency updates
   return new Promise(resolve => {
     resolve();
   });
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
 
   return new Promise((resolve, reject) => {
@@ -60,20 +59,16 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-// Helper function to check if a dependency update is awaiting a schedule
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "Update" prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
   return task && !task.completed;
 };
 
-// Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\bPavouk\b/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
-
-  return blockedPrNumber === pr.number;
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Adjust the regex to match your project's blocked PR title pattern.
+  return /Pavouk/i.test(pr.title);
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -90,12 +85,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
+    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
     throw error;
   }
 };
@@ -150,7 +145,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('handle multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -184,7 +179,7 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,

@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -71,7 +71,7 @@ const isAwaitingSchedule = (dependency) => {
 // Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
+  const blockedPrNumber = /\bPavouk\b/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
 
   return blockedPrNumber === pr.number;
 };

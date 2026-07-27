@@ -16,17 +16,22 @@ async function updatePosthogJs() {
 }
 
 module.exports = {
-    logging,
-    addTask,
-    getTaskById,
-    npmUpdate,
-    updateDependencyVersions,
-    updateNpmPackage,
-    createAsyncUpdateTask,
-    updateActionsLabeler,
-    updateLinearBotsGitstream,
-    updateGitstreamGithubAction,
-    visualizeMemory,
-    updatePosthogJs,
-    autonomousEfficiencyRole
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateActionsLabeler,
+  updateGitstreamGithubAction,
+  updateLinearBotsGitstream,
+  visualizeMemory,
+  updatePosthogJs,
+  autonomousEfficiencyRole,
+  handleImageSearchPRs,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateLinearBotsGitstreamGithubAction
 };

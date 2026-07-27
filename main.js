@@ -1,13 +1,13 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -27,11 +27,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -41,7 +41,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -69,7 +69,7 @@ const updateNpmPackage = async ({ name, version }) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateDependencyVersions('gitstream-github-action', 'v4');
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -81,7 +81,7 @@ const updateGitstreamGithubAction = async () => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
+    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -93,7 +93,7 @@ const updateActionsLabeler = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateDependencyVersions('linear-bots/gitstream', 'latest');
+    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -105,7 +105,7 @@ const updateLinearBotsGitstream = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateDependencyVersions('codeql', 'v4');
+    await updateNpmPackage({ name: 'codeql-action', version: 'v4' });
     logging.log('info', `Successfully updated codeql action to v4`);
     return taskId;
   } catch (error) {
@@ -117,52 +117,5 @@ const updateCodeqlAction = async () => {
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateDependencyVersions('posthog-js', 'v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
     logging.log('info', 'Successfully updated posthog-js to v1.407.3');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
-  }
-};
-
-const handleLockFileWarning = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('handle multiple npm lock files');
-    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
-    logging.log('info', 'Lock file consolidation task created');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateStaleAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateDependencyVersions('actions/stale', 'v10');
-    logging.log('info', 'Successfully updated actions/stale to v10');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-    throw error;
-  }
-};
-
-module.exports = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-};

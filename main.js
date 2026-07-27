@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -71,7 +71,7 @@ const isAwaitingSchedule = (dependency) => {
 // Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
   // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
+  const blockedPrNumber = /\br \d+/; // Replace with the regex of your blocked PR title.
 
   return blockedPrNumber === pr.number;
 };
@@ -140,7 +140,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -150,7 +150,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Handle multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -184,7 +184,7 @@ module.exports = {
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,

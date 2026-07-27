@@ -7,7 +7,6 @@ const willRecreateBlockedUpdate = (pr) => {
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-
   return hasPavouk || matchesPrNumber;
 };
 
@@ -159,7 +158,7 @@ const updatePosthohJsToLatest = async () => {
     logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };

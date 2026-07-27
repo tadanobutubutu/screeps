@@ -1,7 +1,8 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+    console.log(`[${level}] ${message}`);
+  },
 };
 let taskIdCounter = 0;
 const tasks = [];
@@ -203,7 +204,7 @@ const autonomousEfficiencyRole = {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
       });
       if (storageTarget) {
-        if (creep.withdraw(storageTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        if (creep.withdraw(storageTarget, RESOURCE_ENERGIT_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(storageTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
         return;

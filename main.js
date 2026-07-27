@@ -20,7 +20,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -60,7 +60,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);

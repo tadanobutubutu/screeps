@@ -7,7 +7,7 @@ const logging = {
 
 let taskIdCounter = 0;
 const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -27,11 +27,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
-          logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+        then(() => {
+          logging.log('info', `Successfully updated ${dependency} to ${Version}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -57,7 +57,7 @@ const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -164,9 +164,9 @@ const autonomousEfficiencyRole = {
         return;
       }
       // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
-      const damagedStructure = creep.room.find(FIND_STRUCTURES, {
-        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
-      })[0];
+      const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType!== STRUCTURE_WALL && s.structureType!== STRUCTURE_RAMPART,
+      });
       if (damagedStructure) {
         if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
           creep.moveTo(damagedStructure, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -178,11 +178,11 @@ const autonomousEfficiencyRole = {
         creep.moveTo(spawn, { visualizePathStyle: { stroke: '#88ccff' } });
       }
       // Priority 5: Fill extensions and towers
-      const target = creep.room.find(FIND_STRUCTURES, {
+      const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
         filter: (s) =>
           (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) &&
           s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-      })[0];
+      });
       if (target) {
         if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target, { visualizePathStyle: { stroke: '#88ccff' } });
@@ -190,9 +190,9 @@ const autonomousEfficiencyRole = {
         return;
       }
       // Priority 6: Fill containers and tombstones
-      const container = creep.room.find(FIND_STRUCTURES, {
+      const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-      })[0];
+      });
       if (container) {
         if (creep.transfer(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(container, { visualizePathStyle: { stroke: '#88ccff' } });
@@ -201,7 +201,7 @@ const autonomousEfficiencyRole = {
       }
     } else {
       // Harvesting / gathering phase
-      const source = creep.room.find(FIND_SOURCES_ACTIVE)[0];
+      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
       if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -219,9 +219,9 @@ const autonomousEfficiencyRole = {
         return;
       }
       // Last fallback: pick up dropped energy
-      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES, {
+      const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
         filter: (r) => r.resourceType === RESOURCE_ENERGY && r.amount > 0,
-      })[0];
+      });
       if (droppedEnergy) {
         if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
           creep.moveTo(droppedEnergy, { visualizePathStyle: { stroke: '#ffaa00' } });

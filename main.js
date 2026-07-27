@@ -1,3 +1,15 @@
+const willRecreateBlockedUpdate = (pr) => { 
+  let blockedPrNumber = pr.number; 
+  if (blockedPrNumber === undefined) { 
+    const title = pr.data?.title ?? pr.title; 
+    const match = /#(\d+)/.exec(title); 
+    blockedPrNumber = match ? match[1] : null; 
+  } 
+  const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+  return hasPavouk || (blockedPrNumber !== undefined);
+};
+
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
@@ -66,8 +78,6 @@ const isAwaitingSchedule = (dependency) => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
@@ -93,12 +103,12 @@ const updateNpmPackage = async ({ name, version }) => {
 // Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
-    await updateNpmPackage({ name: 'gitstream-gurgently-acion', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
     throw error;
   }
 };
@@ -193,4 +203,3 @@ module.exports = {
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };
-```

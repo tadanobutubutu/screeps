@@ -1,10 +1,24 @@
+const willRecreateBlockedUpdate = (pr) => {
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
+  const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title (as a standalone word)
+  const match = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+
+  return hasPavouk || matchesPrNumber;
+};
+
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console[level](`${level}: ${message}`);
   },
 };
 
-var taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = [];
 
 const addTask = (title, priority = 'edium', tags = []) => {
@@ -64,17 +78,8 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   // Filter tasks with the "Update" prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
-  return task &&!task.completed;
-};
 
-// Helper function to check if a closed PR will recreate a blocked update
-const willRecreateBlockedUpdate = (pr) => {
-  const title = pr.data?.title?? pr.title;
-  const hasPavouk = /Pavouk/i.test(title);
-  const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  return hasPavouk || matchesPrNumber;
+  return task && !task.completed;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -89,6 +94,7 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -151,7 +157,7 @@ const updatePosthohJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Handle and consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;

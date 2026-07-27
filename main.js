@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -21,7 +21,6 @@ const getTaskById = (taskId) => {
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
-      // The change from using Promise.resolve() to wrapping in a promise with try-catch block is to support Promise-based error handling.
       npmUpdate(dependency, newVersion)
         .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
@@ -119,7 +118,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
         resolve({
           before: { heapUsed, heapTotal },
           during: { heapUsed: duringUpdate, heapTotal },
-          after: { heapUsed: afterHeapUsed, heapTotal },
+          after: { heapUsed: afterUpdate, heapTotal },
         });
       }, 500);
     }, 500);
@@ -229,4 +228,14 @@ module.exports = {
   handleCodeQLActionUpdate,
   handleAwaitingSchedulePRs,
   handleGitstreamUpdateSuccess,
+  handlePosthogJsUpdate,
+  handleActionsCheckoutUpdate,
+  handleActionsLabelerVersionUpdate,
+  handleActionsSetupPythonUpdate,
+  handleAwaitingSchedulePRsUpdate,
+  handleGitstreamActionLatestSuccess,
+  handleSentryBrowserUpdate,
+  handleActionsSetupNodeUpdate,
+  handleActionsGithubScriptUpdate,
+  handleNodeVersionUpdate,
 };

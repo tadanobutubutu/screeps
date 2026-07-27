@@ -43,14 +43,16 @@ const updateDependencyVersions = (dependency, newVersion) => {
 };
 
 const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
-  try {
-    const taskId = addTask(title, priority, tags);
-    logging.log('info', `Created task: ${title}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to create task: ${error.message}`);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    try {
+      const taskId = addTask(title, priority, tags);
+      logging.log('info', `Created task: ${title}`);
+      resolve(taskId);
+    } catch (error) {
+      logging.log('error', `Failed to create task: ${error.message}`);
+      reject(error);
+    }
+  });
 };
 
 const updateNpmPackage = async ({ name, version }) => {

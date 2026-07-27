@@ -22,7 +22,13 @@ const tasks = [];
 
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
-  tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
+  tasks.push({
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+  });
   return taskIdCounter;
 };
 
@@ -41,7 +47,6 @@ const npmUpdate = async (dependency, newVersion) => {
 const updateDependencyVersions = async (dependency, newVersion) => {
   // Asynchronously update dependency versions using 'enovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
-
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
@@ -208,6 +213,7 @@ module.exports = {
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };
+
 module.exports.real = {
   logging,
   addTask,

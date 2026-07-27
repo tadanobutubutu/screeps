@@ -53,7 +53,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-async function updateActionsLabeler() {
+const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
     await updateNpmPackage('actions/labeler', 'v7');
@@ -63,37 +63,26 @@ async function updateActionsLabeler() {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
     throw error;
   }
-}
+};
 
-async function updateGitstreamGithubAction() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('gitstream-github-action', 'v4');
-}
-
-const handleCodeQLActionUpdate = async () => {
+const updateGitstreamGithubAction = async () => {
   try {
-    await updateNpmPackage('codeql-action', 'v4');
-    logging.log('info', 'Successfully updated codeql-action to v4');
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await updateNpmPackage('gitstream-github-action', 'v4');
   } catch (error) {
-    logging.log('error', `Failed to update codeql-action ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
   }
 };
 
-async function createAwaitingSchedulePRs() {
-  const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
-  logging.log('info', `Successfully created all awaiting schedule PRs`);
-}
-
-async function updateLinearBotsGitstream() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
-  logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-}
-
-async function updateGitstreamGithubActionV4() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('gitstream-github-action', 'v4');
-}
+const updateLinearBotsGitstream = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+};
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
@@ -128,92 +117,111 @@ const updatePosthogJs = async () => {
   return updateNpmPackage('@posthog/js', '1.407.2');
 };
 
-async function updatePosthogJsVersion() {
-  try {
-    await updatePosthogJs();
-    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
-}
+const autonomousEfficiencyRole = {
+  /**
+   * Autonomous Efficiency Creep Role.
+   * Prioritizes self-sustaining behavior: harvests energy when needed,
+   * upgrades the controller, repairs structures, builds construction sites,
+   * and withdraws from sources/containers for maximum efficiency.
+   */
+  run: (creep) => {
+    const spawn = creep.room.find(FIND_MY_SPAWNS)[0];
 
-async function updateActionsCheckout() {
-  try {
-    await updateNpmPackage('actions/checkout', 'v7');
-    logging.log('info', 'Successfully updated actions/checkout to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
-  }
-}
+    // Determine if the creep should be harvesting or working
+    if (creep.store.getFreeCapacity() === 0) {
+      creep.memory.working = true;
+    }
+    if (creep.store[RESOURCE_ENERGY] === 0) {
+      creep.memory.working = false;
+    }
 
-async function updateActionsLabelerV7() {
-  try {
-    await updateNpmPackage('actions/labeler', 'v7');
-    logging.log('info', 'Successfully updated actions/labeler to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-  }
-}
+    if (creep.memory.working) {
+      // Priority 1: Upgrade controller
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
 
-async function updateActionsSetupPython() {
-  try {
-    await updateNpmPackage('actions/setup-python', 'v7');
-    logging.log('info', 'Successfully updated actions/setup-python to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
-  }
-}
+      // Priority 2: Build construction sites
+      const constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+      if (constructionSite) {
+        if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(constructionSite, { visualizePathStyle: { stroke: '#88ccff' } });
+        }
+        return;
+      }
 
-async function createAwaitingSchedulePRsTask() {
-  try {
-    const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
-    logging.log('info', 'Successfully created all awaiting schedule PRs');
-  } catch (error) {
-    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
-  }
-}
+      // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
+      const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
+      });
+      if (damagedStructure) {
+        if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(damagedStructure, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+        return;
+      }
 
-async function updateLinearBotsGitstreamLatest() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
-  logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-}
+      // Priority 4: Transfer energy to spawning structures
+      if (spawn && spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(spawn, { visualizePathStyle: { stroke: '#88ccff' } });
+      }
 
-async function updateSentryBrowser() {
-  try {
-    await updateNpmPackage('@sentry/browser', '10.68.0');
-    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
-  } catch (error) {
-    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
-  }
-}
+      // Priority 5: Fill extensions and towers
+      const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: (s) =>
+          (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) &&
+          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+      });
+      if (target) {
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(target, { visualizePathStyle: { stroke: '#88ccff' } });
+        }
+        return;
+      }
 
-async function updateActionsSetupNode() {
-  try {
-    await updateNpmPackage('actions/setup-node', 'v7');
-    logging.log('info', 'Successfully updated actions/setup-node to v7');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/setup-node: ${error.message}`);
-  }
-}
+      // Priority 6: Fill containers and tombstones
+      const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+      });
+      if (container) {
+        if (creep.transfer(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(container, { visualizePathStyle: { stroke: '#88ccff' } });
+        }
+        return;
+      }
+    } else {
+      // Harvesting / gathering phase
+      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+      if (source) {
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+        return;
+      }
 
-async function updateActionsGithubScript() {
-  try {
-    await updateNpmPackage('actions/github-script', 'v9');
-    logging.log('info', 'Successfully updated actions/github-script to v9');
-  } catch (error) {
-    logging.log('error', `Failed to update actions/github-script: ${error.message}`);
-  }
-}
+      // Fallback: withdraw from containers / tombstones
+      const storageTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
+      });
+      if (storageTarget) {
+        if (creep.withdraw(storageTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(storageTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+        return;
+      }
 
-async function handleNodeVersionUpdate() {
-  try {
-    await updateDependencyVersions('node', '24');
-    logging.log('info', 'Successfully updated node to v24');
-  } catch (error) {
-    logging.log('error', `Failed to update node: ${error.message}`);
-  }
-}
+      // Last fallback: pick up dropped energy
+      const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+        filter: (r) => r.resourceType === RESOURCE_ENERGY && r.amount > 0,
+      });
+      if (droppedEnergy) {
+        if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(droppedEnergy, { visualizePathStyle: { stroke: '#ffaa00' } });
+        }
+      }
+    }
+  },
+};
 
 async function handleImageSearchPRs() {
   // New function to address image search PRs
@@ -235,33 +243,9 @@ module.exports = {
   createAsyncUpdateTask,
   updateActionsLabeler,
   updateGitstreamGithubAction,
-  handleCodeQLActionUpdate,
-  createAwaitingSchedulePRs,
   updateLinearBotsGitstream,
-  updateGitstreamGithubActionV4,
   visualizeMemory,
   updatePosthogJs,
-  updatePosthogJsVersion,
-  updateActionsCheckout,
-  updateActionsLabelerV7,
-  updateActionsSetupPython,
-  createAwaitingSchedulePRsTask,
-  updateLinearBotsGitstreamLatest,
-  updateSentryBrowser,
-  updateActionsSetupNode,
-  updateActionsGithubScript,
-  handleNodeVersionUpdate,
+  autonomousEfficiencyRole,
   handleImageSearchPRs,
-  handleAwaitingSchedulePRs: createAwaitingSchedulePRs,
-  handleGitstreamUpdateSuccess: updateGitstreamGithubActionV4,
-  handleGitstreamActionLatestUpdate: updateLinearBotsGitstreamLatest,
-  handlePosthogJsUpdate: updatePosthogJsVersion,
-  handleActionsCheckoutUpdate: updateActionsCheckout,
-  handleActionsLabelerVersionUpdate: updateActionsLabelerV7,
-  handleActionsSetupPythonUpdate: updateActionsSetupPython,
-  handleAwaitingSchedulePRsUpdate: createAwaitingSchedulePRsTask,
-  handleGitstreamActionLatestSuccess: updateLinearBotsGitstreamLatest,
-  handleSentryBrowserUpdate: updateSentryBrowser,
-  handleActionsSetupNodeUpdate: updateActionsSetupNode,
-  handleActionsGithubScriptUpdate: updateActionsGithubScript,
 };

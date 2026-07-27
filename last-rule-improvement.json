@@ -1,5 +1,12 @@
 {
-    "files": ["main.js"],
-    "rules": ["Remove console.log", "Strict undefined check"],
-    "timestamp": "2026-07-26T12:50:54.109Z"
+  "files": [
+    "main.js",
+    "tutorial.auto.js",
+    "utils.emotions.js"
+  ],
+  "rules": [
+    "Remove console.log",
+    "Optimize Game.creeps loop"
+  ],
+  "timestamp": "2026-07-27T01:28:06.125Z"
 }

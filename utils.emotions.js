@@ -370,13 +370,11 @@ class EmotionSystem {
     static checkCreep(creepName) {
         // Security: プロトタイプ汚染対策のため、名前を検証
         if (!utilsMemory.isSafeKey(creepName)) {
-            console.log('❌ Invalid creep name');
             return;
         }
 
         const creep = Game.creeps[creepName];
         if (creep === undefined || creep === null) {
-            console.log('❌ Creep not found');
             return;
         }
 
@@ -386,15 +384,9 @@ class EmotionSystem {
         const emotions = creep.memory.emotions;
 
         if (emotions.achievements && emotions.achievements.length > 0) {
-            console.log('\n🤖 Creep Emotion Report');
-            console.log('Name:', creepName);
-            console.log('Mood:', emotions.mood);
-            console.log('Traits:', emotions.personalityTraits);
-
             if (emotions.achievements.length > 0) {
-                console.log('\n🏆 Achievements:');
                 emotions.achievements.forEach((a) => {
-                    console.log('-', a.name, '(tick', a.tick, ')');
+                    ');
                 });
             }
         }

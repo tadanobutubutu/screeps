@@ -81,7 +81,7 @@ const autoTutorial = {
         // Harvesterがいなければ作成
         // ⚡ PERFORMANCE OPTIMIZATION: Avoid expensive array allocation from _.filter
         let hasHarvester = false;
-        for (const name in Game.creeps) {
+        for (const creep of Object.values(Game.creeps)) {
             if (Game.creeps[name].memory.role === 'harvester') {
                 hasHarvester = true;
                 break;

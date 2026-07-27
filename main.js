@@ -1,9 +1,9 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`[${level}] ${message}`);
   },
 };
+
 let taskIdCounter = 0;
 const tasks = [];
 const addTask = (title, priority = 'medium', tags = []) => {
@@ -11,6 +11,7 @@ const addTask = (title, priority = 'medium', tags = []) => {
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
 };
+
 const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
@@ -25,11 +26,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -38,6 +39,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
     }
   });
 };
+
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
@@ -56,7 +58,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage('actions/labeler', 'v7');
+    await npmUpdate('actions/labeler', 'v7'); // Consistent function usage
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -68,7 +70,7 @@ const updateActionsLabeler = async () => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage('gitstream-github-action', 'v4');
+    await npmUpdate('gitstream-github-action', 'v4'); // Consistent function usage
   } catch (error) {
     logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
   }
@@ -76,11 +78,12 @@ const updateGitstreamGithubAction = async () => {
 
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'latest'); // Resolved package name conflict
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
     logging.log('error', `Failed to update gitstream: ${error.message}`);
+    throw error;
   }
 };
 
@@ -91,12 +94,14 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
     logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
+
   // Simulate memory cleanup after update
   const cleanupMemory = (duringHeapUsed) => {
     const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 5 * 10 * 1024 * 1024);
     logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
     return afterHeapUsed;
   };
+
   // Return a promise that resolves with memory stats
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -212,12 +217,102 @@ const autonomousEfficiencyRole = {
 };
 
 const handleImageSearchPRs = async () => {
-  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-  await updateNpmPackage('image-search', 'v7');
-  await updateNpmPackage('image-utils', 'v7');
-  await updateDependencyVersions('node', '24');
-  logging.log('info', 'Successfully updated image search PRs dependencies');
-  return taskId;
+  const prTitle = 'Update image search dependencies';
+  const prBody = 'This pull request updates the image search dependencies to fix some issues.';
+  const prLabels = ['image-search', 'dependencies', 'update'];
+  const projectOwner = '<OWNER_OF_PROJECT>';
+  const projectRepo = '<REPOSITORY_OF_PROJECT>';
+
+  try {
+    const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
+    await updateNpmPackage('image-search', 'v7');
+    await updateNpmPackage('image-utils', 'v7');
+    await updateDependencyVersions('node', '24');
+
+    const github = new Octokit();
+    const gitHubAuth = process.env.GITHUB_TOKEN;
+    const authToken = new BasicAuth(gitHubAuth);
+
+    const user = await github.rest.users.getUser();
+    const repository = await github.rest.repos.get({
+      owner: projectOwner,
+      repo: projectRepo,
+    });
+
+    await github.authenticate({
+      auth: authToken,
+    });
+
+    await github.issues.createComment({
+      issue_number: repository.data.open_issues_count,
+      owner: projectOwner,
+      repo: projectRepo,
+      body: `Creating pull request for updating image search dependencies (${prTitle}).
+
+${prBody}`,
+    });
+
+    const { data: pr } = await github.pulls.create({
+      owner: projectOwner,
+      repo: projectRepo,
+      title: prTitle,
+      body: prBody,
+      labels: prLabels,
+      head: 'ain',
+      base: 'ain',
+    });
+
+    logging.log('info', `Successfully updated image search PRs. PR #${pr.data.number} created.`);
+
+    // Add a comment to the PR with the task ID
+    await github.issues.createComment({
+      issue_number: pr.data.number,
+      owner: projectOwner,
+      repo: projectRepo,
+      body: `Task ID for handling ${prTitle} PR (${pr.data.number}): ${taskId}`
+    });
+
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to process image search PRs: ${error.message}`);
+    throw error;
+  }
+};
+
+const updateCodeqlAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateNpmPackage('github/codeql-action', 'v4');
+    logging.log('info', 'Successfully updated github/codeql-action to v4');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+    throw error;
+  }
+};
+
+const updatePosthogJsToLatest = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage('posthog-js', '1.407.3');
+    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    throw error;
+  }
+};
+
+const handleLockFileWarning = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
+    logging.log('info', 'Lock file consolidation task created');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
+    throw error;
+  }
 };
 
 module.exports = {
@@ -234,5 +329,10 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs
+  handleImageSearchPRs,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateLinearBotsGitstreamGithubAction
+};
 };

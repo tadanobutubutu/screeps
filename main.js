@@ -7,7 +7,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  
+
   return hasPavouk || matchesPrNumber;
 };
 
@@ -44,12 +44,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });

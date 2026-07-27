@@ -14,6 +14,12 @@ const addTask = (title, priority = 'medium', tags = []) => {
 const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
+const npmUpdate = async (dependency, newVersion) => {
+  return new Promise((resolve) => {
+    resolve();
+  });
+};
+
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
@@ -31,9 +37,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
     }
   });
 };
+
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
+
 const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
@@ -45,7 +53,8 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
     }
   });
 };
-async function updateActionsLabeler() {
+
+const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
     await updateNpmPackage('actions/labeler', 'v7');
@@ -55,11 +64,11 @@ async function updateActionsLabeler() {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
     throw error;
   }
-}
-async function updateGitstreamGithubAction() {
+};
+const updateGitstreamGithubAction = async () => {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('gitstream-github-action', 'v4');
-}
+};
 const handleCodeQLActionUpdate = async () => {
   try {
     await updateNpmPackage('codeql-action', 'v4');
@@ -68,19 +77,21 @@ const handleCodeQLActionUpdate = async () => {
     logging.log('error', `Failed to update codeql-action ${error.message}`);
   }
 };
-async function createAwaitingSchedulePRs() {
+const createAwaitingSchedulePRs = async () => {
   const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
   logging.log('info', `Successfully created all awaiting schedule PRs`);
-}
-async function updateLinearBotsGitstream() {
+};
+const updateLinearBotsGitstream = async () => {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-}
-async function updateGitstreamGithubActionV4() {
+};
+
+const updateGitstreamGithubActionV4 = async () => {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('gitstream-github-action', 'v4');
-}
+};
+
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
   const updateMemoryUsage = () => {
@@ -109,6 +120,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
     }, 500);
   });
 };
+
 const updatePosthogJs = async () => {
   return updateNpmPackage('@posthog/js', '1.407.2');
 };
@@ -188,8 +200,8 @@ async function handleAwaitingSchedulePRs() {
 async function handleGitstreamUpdateSuccess() {
   return updateGitstreamGithubActionV4();
 }
-async function handlePosthogJsUpdate() {
-  return updatePosthogJsVersion();
+async function handlePosthohJsUpdate() {
+  return updatePosthohJsVersion();
 }
 async function handleActionsCheckoutUpdate() {
   return updateActionsCheckout();
@@ -219,6 +231,7 @@ module.exports = {
   logging,
   addTask,
   getTaskById,
+  npmUpdate,
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
@@ -230,7 +243,7 @@ module.exports = {
   updateGitstreamGithubActionV4,
   visualizeMemory,
   updatePosthogJs,
-  updatePosthogJsVersion,
+  updatePosthohJsVersion,
   updateActionsCheckout,
   updateActionsLabelerV7,
   updateActionsSetupPython,
@@ -241,7 +254,7 @@ module.exports = {
   updateActionsGithubScript,
   handleAwaitingSchedulePRs,
   handleGitstreamUpdateSuccess,
-  handlePosthogJsUpdate,
+  handlePosthohJsUpdate,
   handleActionsCheckoutUpdate,
   handleActionsLabelerVersionUpdate,
   handleActionsSetupPythonUpdate,

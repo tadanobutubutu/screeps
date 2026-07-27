@@ -1,11 +1,13 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console.log(`[${level}] ${message}`);
   },
 };
 
 let taskIdCounter = 0;
 const tasks = [];
+
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
@@ -40,8 +42,15 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title) => {
-  return addTask(title);
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+  try {
+    const taskId = addTask(title, priority, tags);
+    logging.log('info', `Created task: ${title}`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to create task: ${error.message}`);
+    throw error;
+  }
 };
 
 const updateNpmPackage = async ({ name, version }) => {

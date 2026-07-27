@@ -27,11 +27,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -129,7 +129,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('handle multiple npm lock files (consider consolidating)');
+    const taskId = await createAsyncUpdateTask('Consolidating multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -142,7 +142,7 @@ const handleLockFileWarning = async () => {
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
+    await updateDependencyVersions('actions/stale', 'v10');
     logging.log('info', 'Successfully updated actions/stale to v10');
     return taskId;
   } catch (error) {

@@ -17,7 +17,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     resolve();
   });
 };
@@ -40,6 +40,18 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
+async function updateGitstreamGithubAction() {
+    try {
+        const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+        await npmUpdate('linear-bots/gitstream-github-action', 'latest');
+        logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+        return taskId;
+    } catch (error) {
+        logging.log('error', `Failed to update linearbots/gitstream: ${error.message}`);
+        throw error;
+    }
+}
+
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
@@ -59,7 +71,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateDependencyVersions('actions/labeler', 'v7');
+    await npmUpdate('actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -68,22 +80,9 @@ const updateActionsLabeler = async () => {
   }
 };
 
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await npmUpdate('gitstream-github-action', 'v4');
-    logging.log('info', 'Successfully updated gitstream-github-action to v4');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
-    throw error;
-  }
-};
-
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    // Using the more specific package name from the origin branch
     await npmUpdate('linear-bots/gitstream-github-action', 'latest');
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
     return taskId;
@@ -100,25 +99,24 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
     logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
-
   // Simulate memory cleanup after update
   const cleanupMemory = (duringHeapUsed) => {
     const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 5 * 10 * 1024 * 1024);
     logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
     return afterHeapUsed;
   };
-
   // Return a promise that resolves with memory stats
   return new Promise((resolve) => {
     setTimeout(() => {
       const duringUpdate = updateMemoryUsage();
       setTimeout(() => {
         const afterUpdate = cleanupMemory(duringUpdate);
-        resolve({
+        const memoryStats = {
           before: { heapUsed, heapTotal },
           during: { heapUsed: duringUpdate, heapTotal },
           after: { heapUsed: afterUpdate, heapTotal },
-        });
+        };
+        resolve(memoryStats);
       }, 500);
     }, 500);
   });
@@ -137,22 +135,19 @@ const autonomousEfficiencyRole = {
    * and withdraws from sources/containers for maximum efficiency.
    */
   run: (creep) => {
-    const spawn = creep.room.find(FIND_MY_SPAWNS)[0];
-
+    const spawn = Game.spawns['Spawn1'];
     // Determine if the creep should be harvesting or working
     if (creep.store.getFreeCapacity() === 0) {
       creep.memory.working = true;
     }
-    if (creep.store[RESOURCE_ENERGY] === 0) {
+    if (creep.store.getFreeCapacity() === 0) {
       creep.memory.working = false;
     }
-
     if (creep.memory.working) {
       // Priority 1: Upgrade controller
       if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller, { visualizePathStyle: { stroke: '#ffffff' } });
       }
-
       // Priority 2: Build construction sites
       const constructionSite = creep.room.find(FIND_CONSTRUCTION_SITES)[0];
       if (constructionSite) {
@@ -161,7 +156,6 @@ const autonomousEfficiencyRole = {
         }
         return;
       }
-
       // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
       const damagedStructure = creep.room.find(FIND_STRUCTURES, {
         filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART
@@ -172,12 +166,10 @@ const autonomousEfficiencyRole = {
         }
         return;
       }
-
       // Priority 4: Transfer energy to spawning structures
-      if (spawn && spawn.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+      if (spawn && spawn.energy > 0 && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(spawn, { visualizePathStyle: { stroke: '#88ccff' } });
       }
-
       // Priority 5: Fill extensions and towers
       const target = creep.room.find(FIND_STRUCTURES, {
         filter: (s) => (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
@@ -188,7 +180,6 @@ const autonomousEfficiencyRole = {
         }
         return;
       }
-
       // Priority 6: Fill containers and tombstones
       const container = creep.room.find(FIND_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
@@ -201,14 +192,13 @@ const autonomousEfficiencyRole = {
       }
     } else {
       // Harvesting / gathering phase
-      const source = creep.room.find(FIND_SOURCES)[0];
+      const source = creep.room.find(FIND_SOURCES_ACTIVE)[0];
       if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
         return;
       }
-
       // Fallback: withdraw from containers / tombstones
       const storageTarget = creep.room.find(FIND_STRUCTURES, {
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0
@@ -219,9 +209,8 @@ const autonomousEfficiencyRole = {
         }
         return;
       }
-
       // Last fallback: pick up dropped energy
-      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES)[0];
+      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCE, { filter: (r) => r.resourceType === RESOURCE_ENERGY && r.amount > 0, })[0];
       if (droppedEnergy) {
         if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
           creep.moveTo(droppedEnergy, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -232,26 +221,13 @@ const autonomousEfficiencyRole = {
 };
 
 async function handleImageSearchPRs() {
-  const prTitle = 'Update image search dependencies';
-  const prBody = 'This pull request updates the image search dependencies to fix some issues.';
-  const prLabels = ['image-search', 'dependencies', 'update'];
-  const projectOwner = '<OWNER_OF_PROJECT>';
-  const projectRepo = '<REPOSITORY_OF_PROJECT>';
-
-  try {
-    const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-    await updateDependencyVersions('actions/checkout', 'v7');
-    await updateDependencyVersions('actions/setup-node', 'v7');
-    await updateDependencyVersions('node', '24');
-    await npmUpdate('image-search-package', 'v7');
-    await npmUpdate('image-processor', 'v7');
-
-    logging.log('info', `Successfully updated image search PRs. Task ID: ${taskId}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to process image search PRs: ${error.message}`);
-    throw error;
-  }
+  // New function to address image search PRs
+  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
+  await npmUpdate('image-search-package', 'v7');
+  await npmUpdate('image-utils', 'v7');
+  await updateDependencyVersions('node', '24');
+  logging.log('info', 'Successfully updated image search PRs dependencies');
+  return taskId;
 }
 
 const updateCodeqlAction = async () => {
@@ -290,6 +266,18 @@ const handleLockFileWarning = async () => {
   }
 };
 
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await npmUpdate('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -305,37 +293,8 @@ module.exports = {
   updatePosthogJs,
   autonomousEfficiencyRole,
   handleImageSearchPRs,
-  updateCodeqlAction: async () => {
-    try {
-      const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-      await updateNpmPackage('github/codeql-action', 'v4');
-      logging.log('info', 'Successfully updated github/codeql-action to v4');
-      return taskId;
-    } catch (error) {
-      logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-      throw error;
-    }
-  },
-  updatePosthogJsToLatest: async () => {
-    try {
-      const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-      await updateNpmPackage('posthog-js', '1.407.3');
-      logging.log('info', 'Successfully updated posthog-js to v1.407.3');
-      return taskId;
-    } catch (error) {
-      logging.log('error', `Failed to update posthog-js: ${error.message}`);
-      throw error;
-    }
-  },
-  handleLockFileWarning: async () => {
-    try {
-      const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
-      logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
-      logging.log('info', 'Lock file consolidation task created');
-      return taskId;
-    } catch (error) {
-      logging.log('error', `Failed to handle lock file warning: ${error.message}`);
-      throw error;
-    }
-  }
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateLinearBotsGitstreamGithubAction
 };

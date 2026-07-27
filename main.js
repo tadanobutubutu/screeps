@@ -7,14 +7,13 @@ const willRecreateBlockedUpdate = (pr) => {
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  
   return hasPavouk || matchesPrNumber;
 };
 
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console[level](message);
+    console[level](`${level}: ${message}`);
   },
 };
 
@@ -32,7 +31,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Placeholder function for dependency updates
+  // Placeholder function for dependency updates (future implementation)
   return new Promise(resolve => {
     resolve();
   });
@@ -44,12 +43,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           addTask(taskTitle, 'high', ['renovate']);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -74,8 +73,7 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
-
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -146,7 +144,7 @@ const updatePosthogJsToLatest = async () => {
     logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };

@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -105,7 +105,7 @@ const updateLinearBotsGitstream = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
+    await updateDependencyVersions('codeql', 'v4');
     logging.log('info', `Successfully updated codeql action to v4`);
     return taskId;
   } catch (error) {
@@ -128,7 +128,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consolidating multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;

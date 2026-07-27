@@ -91,6 +91,142 @@ async function handleGitstreamUpdateSuccess() {
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
 }
 
+async function handleGitstreamActionLatestUpdate() {
+  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+  await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
+}
+
+const visualizeMemory = async (heapUsed, heapTotal) => {
+  // Simulate memory usage during update
+  const updateMemoryUsage = () => {
+    const duringHeapUsed = heapUsed + Math.floor(Math.random() * 1024 * 1024 * 5);
+    logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
+    return duringHeapUsed;
+  };
+
+  // Simulate memory cleanup after update
+  const cleanupMemory = (duringHeapUsed) => {
+    const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 1024 * 1024 * 2);
+    logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
+    return afterHeapUsed;
+  };
+
+  // Return a promise that resolves with memory stats
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const duringUpdate = updateMemoryUsage();
+      setTimeout(() => {
+        const afterUpdate = cleanupMemory(duringUpdate);
+        resolve({
+          before: { heapUsed, heapTotal },
+          during: { heapUsed: duringUpdate, heapTotal },
+          after: { heapUsed: afterHeapUsed, heapTotal },
+        });
+      }, 500);
+    }, 500);
+  });
+};
+
+const updatePosthogJs = async () => {
+  return updateNpmPackage('posthog-js', '1.407.2');
+};
+
+async function handlePosthogJsUpdate() {
+  try {
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  }
+}
+
+async function handlePosthohJsUpdate() {
+  try {
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated posthog-js to v1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+  };
+}
+
+async function handleActionsCheckoutUpdate() {
+  try {
+    await updateDependencyVersions('actions/checkout', 'v7');
+    logging.log('info', 'Successfully updated actions/checkout to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/checkout: ${error.message}`);
+  }
+};
+
+async function handleActionsLabelerVersionUpdate() {
+  try {
+    await updateDependencyVersions('actions/labeler', 'v7');
+    logging.log('info', 'Successfully updated actions/labeler to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+  }
+};
+
+async function handleActionsSetupPythonUpdate() {
+  try {
+    await updateDependencyVersions('actions/setup-python', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-python to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
+  }
+};
+
+async function handleAwaitingSchedulePRsUpdate() {
+  try {
+    const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
+    logging.log('info', 'Successfully created all awaiting schedule PRs');
+  } catch (error) {
+    logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
+  }
+};
+
+async function handleGitstreamActionLatestSuccess() {
+  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+  await updateDependencyVersions('linear-bots/gitstream-github-action', 'latest');
+  logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+};
+
+async function handleSentryBrowserUpdate() {
+  try {
+    await updateNpmPackage('@sentry/browser', '10.68.0');
+    logging.log('info', 'Successfully updated @sentry/browser to v10.68.0');
+  } catch (error) {
+    logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
+  }
+};
+
+async function handleActionsSetupNodeUpdate() {
+  try {
+    await updateDependencyVersions('actions/setup-node', 'v7');
+    logging.log('info', 'Successfully updated actions/setup-node to v7');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/setup-node: ${error.message}`);
+  }
+}
+
+async function handleActionsGithubScriptUpdate() {
+  try {
+    await updateDependencyVersions('actions/github-script', 'v9');
+    logging.log('info', 'Successfully updated actions/github-script to v9');
+  } catch (error) {
+    logging.log('error', `Failed to update actions/github-script: ${error.message}`);
+  }
+}
+
+async function handleNodeVersionUpdate() {
+  try {
+    await updateDependencyVersions('node', '24');
+    logging.log('info', 'Successfully updated node to v24');
+  } catch (error) {
+    logging.log('error', `Failed to update node: ${error.message}`);
+  }
+}
+
 module.exports = {
   logging,
   addTask,
@@ -106,5 +242,3 @@ module.exports = {
   // rest of the functions remain the same
 };
 ```
-
-In this solution, I have used the approach of centralizing the dependency update logic in the `updateDependencyVersions` function, considering both changes proposed. This function now receives a Promise-based error-handling format that caters to both updates (using `npmUpdate` or the previous method). The rest of the file remains unchanged or is modified to maintain a consistent approach, as marked.

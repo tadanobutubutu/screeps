@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`${level}: ${message}`);
+    console[level](`${level}: ${message}`);
   },
 };
 
@@ -19,7 +19,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Placeholder function for a future implementation.
+  // Placeholder function for dependency updates (future implementation)
   return new Promise(resolve => {
     resolve();
   });

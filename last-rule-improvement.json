@@ -1,12 +1,9 @@
 {
   "files": [
-    "main.js",
-    "tutorial.auto.js",
-    "utils.emotions.js"
+    "main.js"
   ],
   "rules": [
-    "Remove console.log",
-    "Optimize Game.creeps loop"
+    "Remove console.log"
   ],
-  "timestamp": "2026-07-27T01:28:06.125Z"
+  "timestamp": "2026-07-27T09:20:17.442Z"
 }

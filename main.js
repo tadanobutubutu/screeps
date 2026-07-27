@@ -14,7 +14,7 @@ const willRecreateBlockedUpdate = (pr) => {
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console.log(`[${level}] ${message}`);
+    console[level](`${level}: ${message}`);
   },
 };
 
@@ -83,10 +83,10 @@ const isAwaitingSchedule = (dependency) => {
 
 // Helper function to check if a closed PR will recreate a blocked update
 const willRecreateBlockedUpdate = (pr) => {
-  const title = pr.data?.title?? pr.title;
+  const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
+  const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   return hasPavouk || matchesPrNumber;
 };

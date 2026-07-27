@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
@@ -8,7 +11,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -46,7 +49,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   });
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -62,19 +65,15 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task && !task.completed;
+  return task &&!task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Adjust the regex to match your project's blocked PR title pattern.
-  const hasPavouk = /Pavouk/i.test(pr.title);
-  
-  // Filter the pr.number from the title of blocking PRs.
-  const blockedPrNumber = /\b(\d+)\b/.exec(pr.title)?.[1];
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  
-  return hasPavouk || matchesPrNumber;
+  const title = pr.data?.title ?? pr.title;
+  const match = /#(\d+)/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
+
+  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -89,6 +88,7 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
@@ -165,7 +165,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', 'Successfully updated actions/stale to v10');
+    logging.log('info', `Successfully updated actions/stale to v10`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
@@ -191,3 +191,6 @@ module.exports = {
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };
+```
+
+This resolved file contains updated GitHub Action-specific functions for `updateGitstreamGithubAction`, `updateActionsLabeler`, `updateLinearBotsGitstream`, `updateCodeqlAction`, `updatePosthogJsToLatest`, and `updateStaleAction`. These functions were originally merged from different branches in the conflicting file.

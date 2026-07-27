@@ -7,7 +7,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
-  
+
   return hasPavouk || matchesPrNumber;
 };
 

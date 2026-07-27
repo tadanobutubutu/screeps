@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 let taskIdCounter = 0;
 const tasks = [];
@@ -55,7 +55,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage('actions/labeler', 'v7');
+    await updateNpmPackage('@actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -76,10 +76,10 @@ const updateGitstreamGithubAction = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+    await updateNpmPackage('linear-bots-gitstream', 'latest');
+    logging.log('info', 'Successfully updated linear-bots-gitstream to latest');
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots-gitstream ${error.message}`);
   }
 };
 
@@ -113,7 +113,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 const updatePosthogJs = async () => {
-  return updateNpmPackage('@posthog/js', '1.407.2');
+  return updateNpmPackage('posthog-js', '1.407.2');
 };
 
 const autonomousEfficiencyRole = {
@@ -124,13 +124,13 @@ const autonomousEfficiencyRole = {
    * and withdraws from sources/containers for maximum efficiency.
    */
   run: (creep) => {
-    const spawn = creep.room.find(FIND_MY_SPAWNS)[0];
+    const spawn = creep.room.find(FIND_MY_SPAWERS)[0];
 
     // Determine if the creep should be harvesting or working
     if (creep.store.getFreeCapacity() === 0) {
       creep.memory.working = true;
     }
-    if (creep.store[RESOURCE_ENERGY] === 0) {
+    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
       creep.memory.working = false;
     }
 
@@ -141,7 +141,7 @@ const autonomousEfficiencyRole = {
       }
 
       // Priority 2: Build construction sites
-      const constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+      const constructionSite = creep.room.find(FIND_CONSTRUCTION_SITES)[0];
       if (constructionSite) {
         if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
           creep.moveTo(constructionSite, { visualizePathStyle: { stroke: '#88ccff' } });
@@ -150,7 +150,7 @@ const autonomousEfficiencyRole = {
       }
 
       // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
-      const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      const damagedStructure = creep.room.find(FIND_STRUCTURES).find({
         filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
       });
       if (damagedStructure) {
@@ -166,7 +166,7 @@ const autonomousEfficiencyRole = {
       }
 
       // Priority 5: Fill extensions and towers
-      const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+      const target = creep.room.find(FIND_STRUCTURES).find({
         filter: (s) =>
           (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) &&
           s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
@@ -179,7 +179,7 @@ const autonomousEfficiencyRole = {
       }
 
       // Priority 6: Fill containers and tombstones
-      const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+      const container = creep.room.find(FIND_STRUCTURES).find({
         filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
       });
       if (container) {
@@ -190,7 +190,7 @@ const autonomousEfficiencyRole = {
       }
     } else {
       // Harvesting / gathering phase
-      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+      const source = creep.room.find(FIND_SOURCES).find((s) => s.energy > 0);
       if (source) {
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
           creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
@@ -199,8 +199,8 @@ const autonomousEfficiencyRole = {
       }
 
       // Fallback: withdraw from containers / tombstones
-      const storageTarget = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store[RESOURCE_ENERGY] > 0,
+      const storageTarget = creep.room.find(FIND_STRUCTURES).find({
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0,
       });
       if (storageTarget) {
         if (creep.withdraw(storageTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
@@ -210,7 +210,7 @@ const autonomousEfficiencyRole = {
       }
 
       // Last fallback: pick up dropped energy
-      const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
+      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCES).find({
         filter: (r) => r.resourceType === RESOURCE_ENERGY && r.amount > 0,
       });
       if (droppedEnergy) {
@@ -225,8 +225,8 @@ const autonomousEfficiencyRole = {
 async function handleImageSearchPRs() {
   // New function to address image search PRs
   const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-  await updateDependencyVersions('actions/checkout', 'v7');
-  await updateDependencyVersions('actions/setup-node', 'v7');
+  await updateNpmPackage('image-search-lib', 'v7');
+  await updateNpmPackage('image-processor', 'v7');
   await updateDependencyVersions('node', '24');
   logging.log('info', 'Successfully updated image search PRs dependencies');
   return taskId;
@@ -235,16 +235,4 @@ async function handleImageSearchPRs() {
 module.exports = {
   logging,
   addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateActionsLabeler,
-  updateGitstreamGithubAction,
-  updateLinearBotsGitstream,
-  visualizeMemory,
-  updatePosthogJs,
-  autonomousEfficiencyRole,
-  handleImageSearchPRs,
-};
+  getTaskById

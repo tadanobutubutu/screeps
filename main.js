@@ -60,7 +60,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage('@actions/labeler', 'v7');
+    await npmUpdate('actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -81,29 +81,26 @@ const updateGitstreamGithubAction = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await npmUpdate('linearbots/gitstream', 'latest');
-    logging.log('info', 'Successfully updated linearbots/gitstream');
+    await npmUpdate('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
     logging.log('error', `Failed to update linearbots/gitstream: ${error.message}`);
   }
 };
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
-  // Simulate memory usage during update
   const updateMemoryUsage = () => {
     const duringHeapUsed = heapUsed + Math.floor(Math.random() * 10 * 1024 * 1024);
     logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
 
-  // Simulate memory cleanup after update
   const cleanupMemory = (duringHeapUsed) => {
     const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 5 * 1024 * 1024);
     logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
     return afterHeapUsed;
   };
 
-  // Return a promise that resolves with memory stats
   return new Promise((resolve) => {
     setTimeout(() => {
       const duringUpdate = updateMemoryUsage();
@@ -120,7 +117,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 const updatePosthogJs = async () => {
-  return npmUpdate('posthog-js', '1.407.2');
+  return npmUpdate('@posthog/js', '1.407.2');
 };
 
 const autonomousEfficiencyRole = {
@@ -232,9 +229,11 @@ const autonomousEfficiencyRole = {
 async function handleImageSearchPRs() {
   // New function to address image search PRs
   const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-  await npmUpdate('image-search-package', 'v7');
-  await npmUpdate('image-processor', 'v7');
-  await updateDependencyVersions('node', '24');
+  await updateDependencyVersions('actions/checkout', 'v7'); // HEAD changes
+  await updateDependencyVersions('actions/setup-node', 'v7'); // HEAD changes
+  await npmUpdate('image-search-package', 'v7'); // Other branch changes
+  await npmUpdate('image-processor', 'v7'); // Other branch changes
+  await updateDependencyVersions('node', '24'); // Common change
   logging.log('info', 'Successfully updated image search PRs dependencies');
   return taskId;
 }
@@ -243,4 +242,5 @@ module.exports = {
   logging,
   addTask,
   getTaskById,
+  handleImageSearchPRs,
 };

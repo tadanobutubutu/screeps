@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -21,7 +21,6 @@ const getTaskById = (taskId) => {
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
-      // The change from using Promise.resolve() to wrapping in a promise with try-catch block is to support Promise-based error handling.
       npmUpdate(dependency, newVersion)
         .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
@@ -53,7 +52,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   });
 };
 
-async function updateLabelerAction() {
+async function updateActionsLabeler() {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
     await updateNpmPackage('actions/labeler', 'v7');
@@ -65,7 +64,7 @@ async function updateLabelerAction() {
   }
 }
 
-async function updateGitstreamAction() {
+async function updateGitstreamGithubAction() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('gitstream-github-action', 'v4');
 }
@@ -82,17 +81,17 @@ const handleCodeQLActionUpdate = async () => {
 async function createAwaitingSchedulePRs() {
   const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
   // Implementation would go here
-};
+}
 
-async function updateGitstreamLatest() {
+async function updateLinearBotsGitstream() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
 }
 
-async function updateGitstreamV4() {
+async function updateGitstreamGithubActionV4() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+  await updateNpmPackage('gitstream-github-action', 'v4');
 }
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
@@ -130,7 +129,7 @@ const updatePosthogJs = async () => {
   return updateNpmPackage('@posthog/js', '1.407.2');
 };
 
-async function updatePosthogJsTask() {
+async function updatePosthogJsVersion() {
   try {
     await updatePosthogJs();
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
@@ -139,32 +138,32 @@ async function updatePosthogJsTask() {
   }
 }
 
-async function updateCheckoutAction() {
+async function updateActionsCheckout() {
   try {
     await updateNpmPackage('actions/checkout', 'v7');
     logging.log('info', 'Successfully updated actions/checkout to v7');
   } catch (error) {
     logging.log('error', `Failed to update actions/checkout: ${error.message}`);
   }
-};
+}
 
-async function updateLabelerActionAgain() {
+async function updateActionsLabelerV7() {
   try {
     await updateNpmPackage('actions/labeler', 'v7');
     logging.log('info', 'Successfully updated actions/labeler to v7');
   } catch (error) {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
   }
-};
+}
 
-async function updateSetupPythonAction() {
+async function updateActionsSetupPython() {
   try {
     await updateNpmPackage('actions/setup-python', 'v7');
     logging.log('info', 'Successfully updated actions/setup-python to v7');
   } catch (error) {
     logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
   }
-};
+}
 
 async function createAwaitingSchedulePRsTask() {
   try {
@@ -173,13 +172,13 @@ async function createAwaitingSchedulePRsTask() {
   } catch (error) {
     logging.log('error', `Failed to create awaiting schedule PRs: ${error.message}`);
   }
-};
+}
 
-async function updateGitstreamLatestTask() {
+async function updateLinearBotsGitstreamLatest() {
   const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
   await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
   logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
-};
+}
 
 async function updateSentryBrowser() {
   try {
@@ -188,9 +187,9 @@ async function updateSentryBrowser() {
   } catch (error) {
     logging.log('error', `Failed to update @sentry/browser: ${error.message}`);
   }
-};
+}
 
-async function updateSetupNodeAction() {
+async function updateActionsSetupNode() {
   try {
     await updateNpmPackage('actions/setup-node', 'v7');
     logging.log('info', 'Successfully updated actions/setup-node to v7');
@@ -199,7 +198,7 @@ async function updateSetupNodeAction() {
   }
 }
 
-async function updateGithubScriptAction() {
+async function updateActionsGithubScript() {
   try {
     await updateNpmPackage('actions/github-script', 'v9');
     logging.log('info', 'Successfully updated actions/github-script to v9');
@@ -224,22 +223,34 @@ module.exports = {
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
-  updateLabelerAction,
-  updateGitstreamAction,
+  updateActionsLabeler,
+  updateGitstreamGithubAction,
   handleCodeQLActionUpdate,
   createAwaitingSchedulePRs,
-  updateGitstreamLatest,
-  updateGitstreamV4,
+  updateLinearBotsGitstream,
+  updateGitstreamGithubActionV4,
   visualizeMemory,
   updatePosthogJs,
-  updatePosthogJsTask,
-  updateCheckoutAction,
-  updateLabelerActionAgain,
-  updateSetupPythonAction,
+  updatePosthogJsVersion,
+  updateActionsCheckout,
+  updateActionsLabelerV7,
+  updateActionsSetupPython,
   createAwaitingSchedulePRsTask,
-  updateGitstreamLatestTask,
+  updateLinearBotsGitstreamLatest,
   updateSentryBrowser,
-  updateSetupNodeAction,
-  updateGithubScriptAction,
+  updateActionsSetupNode,
+  updateActionsGithubScript,
+  handleAwaitingSchedulePRs: createAwaitingSchedulePRs,
+  handleGitstreamUpdateSuccess: updateGitstreamGithubActionV4,
+  handlePosthogJsUpdate: updatePosthogJsVersion,
+  handleActionsCheckoutUpdate: updateActionsCheckout,
+  handleActionsLabelerVersionUpdate: updateActionsLabelerV7,
+  handleActionsSetupPythonUpdate: updateActionsSetupPython,
+  handleAwaitingSchedulePRsUpdate: createAwaitingSchedulePRsTask,
+  handleGitstreamActionLatestSuccess: updateLinearBotsGitstreamLatest,
+  handleSentryBrowserUpdate: updateSentryBrowser,
+  handleActionsSetupNodeUpdate: updateActionsSetupNode,
+  handleActionsGithubScriptUpdate: updateActionsGithubScript,
   handleNodeVersionUpdate,
 };
+```

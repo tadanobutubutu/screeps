@@ -9,7 +9,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -27,7 +27,7 @@ const updateNpmPackage = (packageName, newVersion) => {
   return Promise.resolve();
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -44,11 +44,11 @@ async function handleActionsLabelerUpdate() {
     try {
       const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
       updateDependencyVersions('actions/labeler', 'v7')
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated actions/labeler to v7`);
           resolve(taskId);
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update actions/labeler: ${error.message}`);
           reject(error);
         });
@@ -63,7 +63,7 @@ async function handleGitstreamActionUpdate() {
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
-const handleCodeQLActionUpdate = async () => {
+handleCodeQLActionUpdate = async () => {
   try {
     await updateDependencyVersions('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
@@ -139,7 +139,7 @@ async function handlePosthohJsUpdate() {
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
-}
+};
 
 async function handleActionsCheckoutUpdate() {
   try {
@@ -242,6 +242,7 @@ module.exports = {
   handleAwaitingSchedulePRsUpdate,
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
+  handleCodeQLActionUpdate,
   handleActionsSetupNodeUpdate,
   handleActionsGithubScriptUpdate,
   handleNodeVersionUpdate,

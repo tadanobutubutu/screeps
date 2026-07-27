@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  },
 };
 
 let taskIdCounter = 0;
@@ -105,7 +105,7 @@ const updateLinearBotsGitstream = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateDependencyVersions('github/codeql-action', 'v4');
+    await updateDependencyVersions('codeql-action', 'v4');
     logging.log('info', `Successfully updated codeql action to v4`);
     return taskId;
   } catch (error) {

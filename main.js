@@ -119,7 +119,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
         resolve({
           before: { heapUsed, heapTotal },
           during: { heapUsed: duringUpdate, heapTotal },
-          after: { heapUsed: afterHeapUsed, heapTotal },
+          after: { heapUsed: afterUpdate, heapTotal },
         });
       }, 500);
     }, 500);

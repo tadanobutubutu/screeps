@@ -40,6 +40,18 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
+async function updateGitstreamGithubAction() {
+    try {
+        const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+        await npmUpdate('linear-bots/gitstream-github-action', 'latest');
+        logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
+        return taskId;
+    } catch (error) {
+        logging.log('error', `Failed to update linearbots/gitstream: ${error.message}`);
+        throw error;
+    }
+}
+
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
@@ -64,18 +76,6 @@ const updateActionsLabeler = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await npmUpdate('gitstream-github-action', 'v4');
-    logging.log('info', 'Successfully updated gitstream-github-action to v4');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
     throw error;
   }
 };
@@ -278,7 +278,6 @@ module.exports = {
   updateNpmPackage,
   createAsyncUpdateTask,
   updateActionsLabeler,
-  updateGitstreamGithubAction,
   updateLinearBotsGitstream,
   visualizeMemory,
   updatePosthogJs,

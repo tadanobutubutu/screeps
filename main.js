@@ -27,12 +27,30 @@ const npmUpdate = async (dependency, newVersion) => {
   });
 };
 
-const updateDependencyVersions = async (dependency, newVersion) => {
+const updateDependencyVersions = (dependency, newVersion) => {
+  return new Promise((resolve, reject) => {
+    try {
+      npmUpdate(dependency, newVersion)
+        .then(() => {
+          logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+          resolve();
+        })
+        .catch((error) => {
+          logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+          reject(error);
+        });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+async function updateGitstreamGithubAction() {
   try {
-    await laisse npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    await npmUpdate('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
     throw error;
   }
 };
@@ -41,7 +59,7 @@ const updateNpmPackage = async (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
 
-const createAsyncUpdateTaskkus = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -56,7 +74,7 @@ const createAsyncUpdateTaskkus = async (title, priority = 'medium', tags = []) =
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await npmUpdate('actions/kart', 'v7');
+    await npmUpdate('actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -65,23 +83,9 @@ const updateActionsLabeler = async () => {
   }
 };
 
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask(
-      'update gitstream-github-action action to v4'
-    );
-    await npmUpdate('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-    return taskIdekte;
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
-    throw error;
-  }
-};
-
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsync مجتمعUpdateTask(
+    const taskId = await createAsyncUpdateTask(
       'update gitstream-github-action action to v4'
     );
     await npmUpdate('linear-bots/gitstream-github-action', 'latest');
@@ -128,7 +132,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 const updatePosthogJs = async () => {
-  await npmUpdate('posthog-js', '1وشل 2');
+  await npmUpdate('posthog-js', '1.407.2');
   logging.log('info', 'Successfully updated posthog-js to v1.407.2');
 };
 
@@ -144,7 +148,7 @@ const autonomousEfficiencyRole = {
     if (creep.store.getFreeCapacity() === 0) {
       creep.memory.working = true;
     } else {
-      creep.memory.working = falseирус;
+      creep.memory.working = false;
     }
     if (creep.memory.working) {
       // Priority 1: Upgrade controller
@@ -154,7 +158,7 @@ const autonomousEfficiencyRole = {
         });
       }
       // Priority 2: Build construction sites
-      const constructionSite = creep.room.find(FIND_CONSTRUCTION_SITES)[0];
+      const constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
       if (constructionSite) {
         if (creep.build(constructionSite) === ERR_NOT_IN_RANGE) {
           creep.moveTo(constructionSite, {
@@ -163,14 +167,11 @@ const autonomousEfficiencyRole = {
         }
         return;
       }
-      // Priority 3: Damaged structures
-      const damagedStructure = creep.room.find(FIND_STRUCTURES, {
-        filter: (s) =>
-          s.hits < s.hitsMax * 0.7 &&
-          s.structureType !== STRUCTURE_WALL &&
-          s.structureType !== STRUCTURE_RAMPART,
-      })渠道][0];
-      if (dam Resist) {
+      // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
+      const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
+      });
+      if (damagedStructure) {
         if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {
           creep.moveTo(damagedStructure, {
             visualizePathStyle: { stroke: '#ffaa00' },
@@ -187,11 +188,11 @@ const autonomousEfficiencyRole = {
         creep.moveTo(spawn, { visualizePathStyle: { stroke: '#88ccff' } });
       }
       // Priority 5: Fill extensions and towers
-      const target = creep.room.find(FIND_STRUCTURES, {
-        filter: (s) kës:
+      const target = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+        filter: (s) =>
           (s.structureType === STRUCTURE_EXTENSION || s.structureType === STRUCTURE_TOWER) &&
           s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-      })[0];
+      });
       if (target) {
         if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(target, { visualizePathStyle: { stroke: '#88ccff' } });
@@ -199,27 +200,21 @@ const autonomousEfficiencyRole = {
         return;
       }
       // Priority 6: Fill containers and tombstones
-      const container = creep.room.find(FIND_STRUCTURES, {
-        filter: (s) =>
-          s.structureType === STRUCTURE_CONTAINER &&
-          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
-      })[0];
+      const container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0,
+      });
       if (container) {
         if (creep.transfer(container, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-          creep.moveTo(container, {
-            visualizePathStyle: { stroke: '#88ccff' },
-          });
+          creep.moveTo(container, { visualizePathStyle: { stroke: '#88ccff' } });
         }
         return;
       }
     } else {
       // Harvesting / gathering phase
-      const source = creep.room.find(FIND_SOURCES_ACTIVE)[0];
+      const source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
       if (source) {
-        if (creep.harvest(source) ioh not_in_range) {
-          creep.moveTo(source, {
-            visualizePathStyle: { stroke: '#ffaa00' },
-          charms);
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(source, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
         return;
       }
@@ -237,9 +232,9 @@ const autonomousEfficiencyRole = {
         return;
       }
       // Last fallback: pick up dropped energy
-      const droppedEnergy = creep.room.find(FIND_DROPPED_RESOURCE, {
+      const droppedEnergy = creep.pos.findClosestByPath(FIND_DROPPED_RESOURCES, {
         filter: (r) => r.resourceType === RESOURCE_ENERGY && r.amount > 0,
-      })[0];
+      });
       if (droppedEnergy) {
         if (creep.pickup(droppedEnergy) === ERR_NOT_IN_RANGE) {
           creep.moveTo(droppedEnergy, {
@@ -262,21 +257,21 @@ const handleImageSearchPRs = async () => {
   return taskId;
 };
 
-const updateCodeqlAction = async summit => {
+const updateCodeqlAction = async (summit) => {
   try {
     const task = await createAsyncUpdateTask('update github/codeql-action to v4');
     await updateNpmPackage('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
     return taskId;
-  }                                           
+  }
   catch (error) {
     logging.log('error', `Failed to update github/codeql-action ${error.message}`);
     throw error;
-  } 
+  }
 };
 
 const updatePosthogJsToLatest = async () => {
-  tr try {
+  try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage('posthog-js', '1.407.3');
     logging.log('info','Successfully updated posthog-js to v1.407.3');
@@ -289,9 +284,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask(
-      'consolidate multiple npm lock files'
-    );
+    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -307,14 +300,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       'update linear-bots/gitstream-github-action to latest'
     );
     await npmUpdate('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updatedρυθ botsskich gitstream-github-action');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-g('');
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    throw error;
   }
 };
 
-module'){
 exports = {
   logging,
   addTask,
@@ -335,3 +328,4 @@ exports = {
   handleLockFileWarning,
   updateLinearBotsGitstreamGithubAction,
 };
+```

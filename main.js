@@ -1,11 +1,12 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
+    console.log(`[${level}] ${message}`);
   },
 };
 let taskIdCounter = 0;
 const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -24,11 +25,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        .then(() => {
+        then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        .catch((error) => {
+        catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -40,7 +41,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -75,9 +76,9 @@ const updateGitstreamGithubAction = async () => {
 
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage('gitstream', 'latest');
-    logging.log('info', 'Successfully updated gitstream');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
     logging.log('error', `Failed to update gitstream: ${error.message}`);
   }
@@ -193,7 +194,7 @@ const autonomousEfficiencyRole = {
       // Fallback: withdraw from containers / tombstones
       const storageTarget = creep.room.find(FIND_STRUCTURES)[0];
       if (storageTarget) {
-        if (creep.withdraw(storageTarget, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+        if (creep.withdraw(storageTarget, RESOURCE_ENERGIT_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(storageTarget, { visualizePathStyle: { stroke: '#ffaa00' } });
         }
         return;
@@ -210,15 +211,66 @@ const autonomousEfficiencyRole = {
   },
 };
 
-async function handleImageSearchPRs() {
-  // New function to address image search PRs
-  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
-  await updateNpmPackage('image-search', 'v7');
-  await updateNpmPackage('image-utils', 'v7');
-  await updateDependencyVersions('node', '24');
-  logging.log('info', 'Successfully updated image search PRs dependencies');
-  return taskId;
-}
+const handleImageSearchPRs = async () => {
+  const prTitle = 'Update image search dependencies';
+  const prBody = 'This pull request updates the image search dependencies to fix some issues.';
+  const prLabels = ['image-search', 'dependencies', 'update'];
+  const projectOwner = '<OWNER_OF_PROJECT>';
+  const projectRepo = '<REPOSITORY_OF_PROJECT>';
+
+  try {
+    const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
+    await updateNpmPackage('image-search', 'v7');
+    await updateNpmPackage('image-utils', 'v7');
+    await updateDependencyVersions('node', '24');
+
+    const github = new Octokit();
+    const gitHubAuth = process.env.GITHUB_TOKEN;
+    const authToken = new BasicAuth(gitHubAuth);
+
+    const user = await github.rest.users.getUser();
+    const repository = await github.rest.repos.get({
+      owner: projectOwner,
+      repo: projectRepo,
+    });
+
+    await github.authenticate({
+      auth: authToken,
+    });
+
+    await github.issues.createComment({
+      issue_number: repository.data.open_issues_count,
+      owner: projectOwner,
+      repo: projectRepo,
+      body: `Creating pull request for updating image search dependencies (${prTitle}).\n\n${prBody}`,
+    });
+
+    const { data: pr } = await github.pulls.create({
+      owner: projectOwner,
+      repo: projectRepo,
+      title: prTitle,
+      body: prBody,
+      labels: prLabels,
+      head: 'ain',
+      base: 'ain',
+    });
+
+    logging.log('info', `Successfully updated image search PRs. PR #${pr.data.number} created.`);
+
+    // Add a comment to the PR with the task ID
+    await github.issues.createComment({
+      issue_number: pr.data.number,
+      owner: projectOwner,
+      repo: projectRepo,
+      body: `Task ID for handling ${prTitle} PR (${pr.data.number}): ${taskId}`
+    });
+
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to process image search PRs: ${error.message}`);
+    throw error;
+  }
+};
 
 module.exports = {
   logging,
@@ -234,5 +286,5 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs,
+  handleImageSearchPRs
 };

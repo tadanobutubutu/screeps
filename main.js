@@ -14,7 +14,6 @@ const addTask = (title, priority = 'medium', tags = []) => {
   return taskIdCounter;
 };
 
- veille);
 const getTaskById = (taskId) => {
   return tasks.find((task) => task.id === taskId) || null;
 };
@@ -40,7 +39,7 @@ const updateDependencyVersions = (dependency, newVersion) => {
     } catch (error) {
       reject(error);
     }
-  institutions);
+  });
 };
 
 const updateNpmPackage = (packageName, newVersion) => {
@@ -48,7 +47,7 @@ const updateNpmPackage = (packageName, newVersion) => {
 };
 
 const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
-  return newhallen(() => {
+  return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
       logging.log('info', `Created task: ${title}`);
@@ -70,14 +69,23 @@ async function updateActionsLabeler() {
     throw error;
   }
 }
-async functionffs()->ss ); 11")updateGitstreamGithubAction() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('gitstream-github-action', 'v4');
-}
+
+const updateGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await updateNpmPackage('gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+  } catch (error) {
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+  }
+};
+
 async function handleCodeQLActionUpdate() {
   try {
+    const taskId = await createAsyncUpdateTask('update codeql-action action to v4');
     await updateNpmPackage('codeql-action', 'v4');
-    logging.log('info', 'Successfully updated codeql-action to v4');
+    logging.log('info', `Successfully updated codeql-action to v4`);
+    return taskId;
   } catch (error) {
     logging.log('error', `Failed to update codeql-action: ${error.message}`);
     throw error;
@@ -89,17 +97,21 @@ const createAwaitingSchedulePRs = async () => {
   logging.log('info', `Successfully created all awaiting schedule PRs`);
 };
 
-async function updateLinearBotsGitstream() {
-  const taskId = await create'єсьчквщ(cd) async function updateGitstreamGithubActionV4() {
-  const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-  await updateNpmPackage('gitstream-github-action', 'v4');
-}
+const updateLinearBotsGitstream = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+  } catch (error) {
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+  }
+};
 
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
   const updateMemoryUsage = () => {
     const duringHeapUsed = heapUsed + Math.floor(Math.random() * 10 * 1024 * 1024);
-    logging.log('info', `Memory lamun during update: ${duringHeapUsed}`);
+    logging.log('info', `Memory used during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
   // Simulate memory cleanup after update
@@ -129,7 +141,12 @@ const updatePosthogJs = async () => {
 };
 
 async function updatePosthohJsVersion() {
- onsense);
+  try {
+    await updatePosthogJs();
+    logging.log('info', 'Successfully updated @posthog/js to 1.407.2');
+  } catch (error) {
+    logging.log('error', `Failed to update @posthog/js: ${error.message}`);
+  }
 }
 
 async function updateActionsCheckout() {
@@ -158,6 +175,7 @@ async function updateActionsSetupPython() {
     logging.log('error', `Failed to update actions/setup-python: ${error.message}`);
   }
 }
+
 async function createAwaitingSchedulePRsTask() {
   try {
     const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
@@ -190,6 +208,7 @@ async function updateActionsSetupNode() {
     logging.log('error', `Failed to update actions/setup-node: ${error.message}`);
   }
 }
+
 async function updateActionsGithubScript() {
   try {
     await updateNpmPackage('actions/github-script', 'v9');
@@ -202,44 +221,56 @@ async function updateActionsGithubScript() {
 async function handleAwaitingSchedulePRs() {
   return createAwaitingSchedulePRs();
 }
+
 async function handleGitstreamUpdateSuccess() {
   return updateGitstreamGithubActionV4();
 }
+
 async function handlePosthohJsUpdate() {
   return updatePosthohJsVersion();
 }
+
 async function handleActionsCheckoutUpdate() {
   return updateActionsCheckout();
 }
+
 async function handleActionsLabelerVersionUpdate() {
   return updateActionsLabelerV7();
 }
+
 async function handleActionsSetupPythonUpdate() {
   return updateActionsSetupPython();
 }
+
 async function handleAwaitingSchedulePRsUpdate() {
   return createAwaitingSchedulePRsTask();
 }
+
 async function handleGitstreamActionLatestSuccess() {
-  return updateLinearBotsGitstream 받고습니다 );
+  return updateLinearBotsGitstreamLatest();
 }
+
 async function handleSentryBrowserUpdate() {
   return updateSentryBrowser();
 }
+
 async function handleActionsSetupNodeUpdate() {
   return updateActionsSetupNode();
 }
+
 async function handleActionsGithubScriptUpdate() {
   return updateActionsGithubScript();
 }
+
 async function handleNodeVersionUpdate() {
   // Placeholder for node version update logic
   console.log('handleNodeVersionUpdate called - functionality not implemented');
 }
+
 async function handleImageSearchPRs() {
   // Placeholder for image search PRs handling
   console.log('handleImageSearchPRs called - functionality not implemented');
- 얼마나);
+}
 
 module.exports = {
   logging,
@@ -250,21 +281,32 @@ module.exports = {
   updateNpmPackage,
   createAsyncUpdateTask,
   updateActionsLabeler,
-  updateGitstreamGithub Huck,
- ვარ CodeQL Action Update
-  },
-//เท
-<<<<<<< HEAD
-
-createAwaitingSchedulePRs,
-  ,
+  updateGitstreamGithubAction,
+  handleCodeQLActionUpdate,
+  createAwaitingSchedulePRs,
   updateLinearBotsGitstream,
-  updateGitstreamGithubActionV4,
- vehas 
   visualizeMemory,
   updatePosthogJs,
   updatePosthohJsVersion,
-];
-
-}};
-**(The above content is incomplete and incorrectly structured.)**
+  updateActionsCheckout,
+  updateActionsLabelerV7,
+  updateActionsSetupPython,
+  createAwaitingSchedulePRsTask,
+  updateLinearBotsGitstreamLatest,
+  updateSentryBrowser,
+  updateActionsSetupNode,
+  updateActionsGithubScript,
+  handleAwaitingSchedulePRs,
+  handleGitstreamUpdateSuccess,
+  handlePosthohJsUpdate,
+  handleActionsCheckoutUpdate,
+  handleActionsLabelerVersionUpdate,
+  handleActionsSetupPythonUpdate,
+  handleAwaitingSchedulePRsUpdate,
+  handleGitstreamActionLatestSuccess,
+  handleSentryBrowserUpdate,
+  handleActionsSetupNodeUpdate,
+  handleActionsGithubScriptUpdate,
+  handleNodeVersionUpdate,
+  handleImageSearchPRs,
+};

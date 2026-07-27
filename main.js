@@ -9,7 +9,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
@@ -27,7 +27,7 @@ const updateNpmPackage = (packageName, newVersion) => {
   return Promise.resolve();
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -56,7 +56,7 @@ async function handleGitstreamActionUpdate() {
   await updateDependencyVersions('linear-bots/gitstream-github-action', 'v4');
 }
 
-const handleCodeQLActionUpdate = async () => {
+handleCodeQLActionUpdate = async () => {
   try {
     await updateDependencyVersions('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
@@ -105,7 +105,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
         resolve({
           before: { heapUsed, heapTotal },
           during: { heapUsed: duringUpdate, heapTotal },
-          after: { heapUsed: afterUpdate, heapTotal },
+          after: { heapUsed: afterHeapUsed, heapTotal },
         });
       }, 500);
     }, 500);
@@ -131,7 +131,7 @@ async function handlePosthohJsUpdate() {
     logging.log('info', 'Successfully updated posthog-js to v1.407.2');
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
-  }
+  };
 }
 
 async function handleActionsCheckoutUpdate() {
@@ -235,6 +235,7 @@ module.exports = {
   handleAwaitingSchedulePRsUpdate,
   handleGitstreamActionLatestSuccess,
   handleSentryBrowserUpdate,
+  handleCodeQLActionUpdate,
   handleActionsSetupNodeUpdate,
   handleActionsGithubScriptUpdate,
   handleNodeVersionUpdate,

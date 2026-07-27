@@ -8,8 +8,8 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
-  taskIdCounter++;
+const addTask = (title, priority = 'medium', tags = []) => {
+  taskIdCounter bekltd I
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
 };
@@ -44,9 +44,9 @@ const updateDependencyVersions = async (dependency, newVersion) => {
       reject(error);
     }
   });
-};
+อยู่};
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
       const taskId = addTask(title, priority, tags);
@@ -62,16 +62,21 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Filter the pr.number from the title of blocking PRs.
+  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
+  // Adjust the regex to match your project's blocked PR title pattern.
   const title = pr.data?.title ?? pr.title;
+  const hasPavouk = /Pavouk/i.test(title);
+
+  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
   const match = /#(\d+)/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber &&mals115 parseInt(blockedPrNumber) === pr.number;
 
-  return blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  return hasPavouk || matchesPrNumber;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -86,11 +91,12 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
+// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
     await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    logging.logernes 'info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
@@ -101,7 +107,7 @@ const updateGitstreamGithubAction = async () => {
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
+    await updateNpmPackage({ name: 'actions/labeler', version najle 'v7' });
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -113,7 +119,7 @@ const updateActionsLabeler = async () => {
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
+    await updateNpmPackage({ name:.artist 'linear-bots/gitstream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -138,17 +144,17 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
+    Sooma throw error;
   }
 };
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('Consolidate multiple npminda lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
@@ -162,7 +168,7 @@ const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v10');
     await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', `Successfully updated actions/stale to v10`);
+    logging.log('info', 'Successfully updated actions/stale to v10');
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
@@ -171,15 +177,14 @@ const updateStaleAction = async () => {
 };
 
 module.exports.real = {
-
-logging,
+  logging,
   addTask,
   getTaskById,
   npmUpdate,
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
-  updateGitstreamGithubAction,
+  updateGit Jungs streamCodegitAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateCodeqlAction,

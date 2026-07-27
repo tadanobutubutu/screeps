@@ -27,11 +27,11 @@ const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
       npmUpdate(dependency, newVersion)
-        then(() => {
+        .then(() => {
           logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
           resolve();
         })
-        catch((error) => {
+        .catch((error) => {
           logging.log('error', `Failed to update ${dependency}: ${error.message}`);
           reject(error);
         });
@@ -158,7 +158,7 @@ const autonomousEfficiencyRole = {
 
       // Priority 3: Damaged structures (exclude walls/ramparts unless critical)
       const damagedStructure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType!== STRUCTURE_WALL && s.structureType!== STRUCTURE_RAMPART,
+        filter: (s) => s.hits < s.hitsMax * 0.7 && s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_RAMPART,
       });
       if (damagedStructure) {
         if (creep.repair(damagedStructure) === ERR_NOT_IN_RANGE) {

@@ -18,6 +18,12 @@ const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
 
+const npmUpdate = async (dependency, newVersion) => {
+  return new Promise((resolve) => {
+    resolve();
+  });
+};
+
 const updateDependencyVersions = (dependency, newVersion) => {
   return new Promise((resolve, reject) => {
     try {
@@ -220,6 +226,7 @@ module.exports = {
   logging,
   addTask,
   getTaskById,
+  npmUpdate,
   updateDependencyVersions,
   updateNpmPackage,
   createAsyncUpdateTask,
@@ -240,8 +247,10 @@ module.exports = {
   updateSentryBrowser,
   updateActionsSetupNode,
   updateActionsGithubScript,
+  handleNodeVersionUpdate,
   handleAwaitingSchedulePRs: createAwaitingSchedulePRs,
   handleGitstreamUpdateSuccess: updateGitstreamGithubActionV4,
+  handleGitstreamActionLatestUpdate: updateLinearBotsGitstreamLatest,
   handlePosthogJsUpdate: updatePosthogJsVersion,
   handleActionsCheckoutUpdate: updateActionsCheckout,
   handleActionsLabelerVersionUpdate: updateActionsLabelerV7,
@@ -251,6 +260,4 @@ module.exports = {
   handleSentryBrowserUpdate: updateSentryBrowser,
   handleActionsSetupNodeUpdate: updateActionsSetupNode,
   handleActionsGithubScriptUpdate: updateActionsGithubScript,
-  handleNodeVersionUpdate,
 };
-```

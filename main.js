@@ -67,12 +67,11 @@ const isAwaitingSchedule = (dependency) => {
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Adjust the regex to match your project's blocked PR title pattern.
+  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   const title = pr.data?.title ?? pr.title;
   const hasPavouk = /Pavouk/i.test(title);
-  
-  // Filter the pr.number from the title of blocking PRs (e.g., "#123").
-  const match = /#(\d+)/.exec(title);
+  // Extract the first number in the title (as a standalone word)
+  const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   
@@ -194,3 +193,4 @@ module.exports = {
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
 };
+```

@@ -65,9 +65,9 @@ const isAwaitingSchedule = (dependency) => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  const blockedPrNumber = /\br Pavouk/i.exec(pr.data.title)[0]; // Replace "Pavouk" with the regex of your blocked PR title.
-
-  return blockedPrNumber === pr.number;
+  // Filter the pr.notes from the title of blocking PRs.
+  // Replace "Pavouk" with the regex of your blocked PR title.
+  return null;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -84,12 +84,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update gitstream-github-acion to v4');
+    await updateNpmPackage({ name: 'gitstream-github-acion', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-acion to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update gitstream-github-acion: ${error.message}`);
     throw error;
   }
 };
@@ -144,7 +144,7 @@ const updatePosthogJsToLatest = async () => {
 
 const handleLockFileWarning = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('consolidate multiple npm lock files');
+    const taskId = await createAsyncUpdateTask('handle multiple npm lock files');
     logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;

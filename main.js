@@ -6,13 +6,11 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = [];
-
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({ id: taskIdCounter, title, priority, tags, completed: false });
   return taskIdCounter;
 };
-
 const getTaskById = (taskId) => {
   return tasks.find(task => task.id === taskId) || null;
 };
@@ -40,11 +38,9 @@ const updateDependencyVersions = (dependency, newVersion) => {
     }
   });
 };
-
 const updateNpmPackage = (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
-
 const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   return new Promise((resolve, reject) => {
     try {
@@ -78,18 +74,13 @@ const updateGitstreamGithubAction = async () => {
   }
 };
 
-const createAwaitingSchedulePRs = async () => {
-  const taskId = await createAsyncUpdateTask('create all awaiting schedule PRs');
-  logging.log('info', `Successfully created all awaiting schedule PRs`);
-};
-
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
     await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action to latest');
+    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
 
@@ -232,6 +223,16 @@ const autonomousEfficiencyRole = {
   },
 };
 
+async function handleImageSearchPRs() {
+  // New function to address image search PRs
+  const taskId = await createAsyncUpdateTask('update image search dependencies for await schedule PRs');
+  await updateDependencyVersions('actions/checkout', 'v7');
+  await updateDependencyVersions('actions/setup-node', 'v7');
+  await updateDependencyVersions('node', '24');
+  logging.log('info', 'Successfully updated image search PRs dependencies');
+  return taskId;
+}
+
 module.exports = {
   logging,
   addTask,
@@ -242,9 +243,9 @@ module.exports = {
   createAsyncUpdateTask,
   updateActionsLabeler,
   updateGitstreamGithubAction,
-  createAwaitingSchedulePRs,
   updateLinearBotsGitstream,
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
+  handleImageSearchPRs,
 };

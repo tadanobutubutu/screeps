@@ -116,12 +116,53 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', 'Successfully updated posthog-js to v1.407.3');
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
+    logging.log('info', 'Successfully updated posthoh-js to v1.407.3');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
     throw error;
   }
+};
+
+const handleLockFileWarning = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('Consolidating multiple npm lock files');
+    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
+    logging.log('info', 'Lock file consolidation task created');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
+    throw error;
+  }
+};
+
+const updateStaleAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/stale to v10');
+    await updateDependencyVersions('actions/stale', 'v10');
+    logging.log('info', 'Successfully updated actions/stale to v10');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update actions/stale: ${error.message}`);
+    throw error;
+  }
+};
+
+module.exports = {
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateCodeqlAction,
+  updatePosthohJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
 };

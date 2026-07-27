@@ -17,7 +17,7 @@ const logging = {
   },
 };
 
-let taskIdCounter = 0;
+var taskIdCounter = 0;
 const tasks = [];
 
 const addTask = (title, priority = 'medium', tags = []) => {

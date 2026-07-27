@@ -97,14 +97,14 @@ async function updateGitstreamGithubActionV4() {
 const visualizeMemory = async (heapUsed, heapTotal) => {
   // Simulate memory usage during update
   const updateMemoryUsage = () => {
-    const duringHeapUsed = heapUsed + Math.floor(Math.random() * 1024 * 1024 * 5);
+    const duringHeapUsed = heapUsed + Math.floor(Math.random() * 10 * 1024 * 1024);
     logging.log('info', `Memory usage during update: ${duringHeapUsed}`);
     return duringHeapUsed;
   };
 
   // Simulate memory cleanup after update
   const cleanupMemory = (duringHeapUsed) => {
-    const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 1024 * 1024 * 2);
+    const afterHeapUsed = duringHeapUsed - Math.floor(Math.random() * 5 * 1024 * 1024);
     logging.log('info', `Memory usage after update: ${afterHeapUsed}`);
     return afterHeapUsed;
   };
@@ -126,7 +126,7 @@ const visualizeMemory = async (heapUsed, heapTotal) => {
 };
 
 const updatePosthogJs = async () => {
-  return updateNpmPackage('posthog-js', '1.407.2');
+  return updateNpmPackage('@posthog/js', '1.407.2');
 };
 
 async function updatePosthogJsVersion() {
@@ -253,3 +253,4 @@ module.exports = {
   handleActionsGithubScriptUpdate: updateActionsGithubScript,
   handleNodeVersionUpdate,
 };
+```

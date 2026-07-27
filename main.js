@@ -1,4 +1,4 @@
-constivoq logging = {
+const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
     console.log(`[${level.toUpperCase()}] ${message}`);
@@ -45,16 +45,6 @@ const updateDependencyVersions = (dependency, newVersion) => {
   });
 };
 
-async function updateGitstreamGithubAction() {
-  try {
-    await npmUpdate('linear-bots/gitstream-github-action', 'latest');
-    logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    throw error;
-  }
-};
-
 const updateNpmPackage = async (packageName, newVersion) => {
   return npmUpdate(packageName, newVersion);
 };
@@ -83,6 +73,18 @@ const updateActionsLabeler = async () => {
   }
 };
 
+const updateGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action action to v4');
+    await updateDependencyVersions('gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    throw error;
+  }
+};
+
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask(
@@ -92,7 +94,7 @@ const updateLinearBotsGitstream = async () => {
     logging.log('info', 'Successfully updated linear-bots/gitstream-github-action');
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
+    logging.log('error', `Failed to update gitstream: ${error.message}`);
     throw error;
   }
 };
@@ -257,9 +259,9 @@ const handleImageSearchPRs = async () => {
   return taskId;
 };
 
-const updateCodeqlAction = async (summit) => {
+const updateCodeqlAction = async () => {
   try {
-    const task = await createAsyncUpdateTask('update github/codeql-action to v4');
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
     await updateNpmPackage('github/codeql-action', 'v4');
     logging.log('info', 'Successfully updated github/codeql-action to v4');
     return taskId;
@@ -319,13 +321,12 @@ exports = {
   updateActionsLabeler,
   updateGitstreamGithubAction,
   updateLinearBotsGitstream,
-  visualizeMemory,
-  updatePosthogJs,
-  autonomousEfficiencyRole,
-  handleImageSearchPRs,
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
   updateLinearBotsGitstreamGithubAction,
+  visualizeMemory,
+  updatePosthogJs,
+  autonomousEfficiencyRole,
+  handleImageSearchPRs
 };
-```

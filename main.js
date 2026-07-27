@@ -14,7 +14,7 @@ const willRecreateBlockedUpdate = (pr) => {
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    console[level](message);
+    console[level](`${level}: ${message}`);
   },
 };
 
@@ -32,7 +32,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Placeholder function for dependency updates
+  // Placeholder function for dependency updates (future implementation)
   return new Promise(resolve => {
     resolve();
   });
@@ -75,7 +75,7 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
 
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const updateNpmPackage = async ({ name, version }) => {

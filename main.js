@@ -1,7 +1,7 @@
 const logging = {
   log: (level, message) => {
     // Basic console logging; replace with a proper logger as needed
-    },
+  }
 };
 let taskIdCounter = 0;
 const tasks = [];
@@ -246,5 +246,5 @@ module.exports = {
   visualizeMemory,
   updatePosthogJs,
   autonomousEfficiencyRole,
-  handleImageSearchPRs,
+  handleImageSearchPRs
 };

@@ -45,9 +45,9 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
     log: (level, message) => {
         if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+            console[level](`FailSafe: ${message}`);
         } else {
-            console[level]?.( `${level}: ${message}` );
+            console[level](`${level}: ${message}`);
         }
     }
 };
@@ -232,7 +232,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === '') {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -546,7 +546,7 @@ const getStargazerStats = (repo) => {
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
     if (repoData === undefined || repoData === null) {
-      return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
+      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
     const uniqueUsers = new Set(stargazers.map((s) => s.username));

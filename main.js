@@ -1,4 +1,5 @@
 'use strict';
+const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
@@ -7,7 +8,7 @@ const willRecreateBlockedUpdate = (pr) => {
     return false;
   }
 
-  const title = pr.data?.title ?? pr.title;
+  const title = pr.data != null ? pr.data.title : pr.title;
   // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
     return false;
@@ -194,11 +195,9 @@ const updateStaleAction = async () => {
 };
 
 // New utility to address ESLint linting violations automatically
-const { spawnSync } = require('child_process');
-
 const fixLintingIssues = () => {
   try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
       logging.log('info', 'ESLint fix completed successfully.');
     } else {
@@ -210,27 +209,6 @@ const fixLintingIssues = () => {
 };
 
 module.exports = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
-};
-
-module.exports.real = {
   logging,
   addTask,
   getTaskById,

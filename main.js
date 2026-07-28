@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 "use strict";
 const { updateDependencyVersions } = require('./updateDependencyVersions');
 
@@ -47,7 +44,8 @@ const willRecreateBlockedUpdate = (pr) => {
 };
 
 const checkPavoukPr = (pr) => {
-  if (!userSafety.UserSafety === 'safe') {
+  // Ensure user safety is safe before proceeding
+  if (userSafety.UserSafety !== 'safe') {
     console.log('User Safety: unsafe. Safety Categories: PII/Privacy, Unauthorized Advice');
     return false;
   }
@@ -163,6 +161,3 @@ module.exports = {
 module.exports.real = {
   ...module.exports,
 };
-```
-
-This resolves the conflict by preserving both changes, integrating the origin and conflicted functions, and providing a combined, updated module export. It eliminates the duplicate `updateLinearBotsGitstreamGithubAction` function while keeping the `updateLinearBotsGitstream` function from the origin branch.

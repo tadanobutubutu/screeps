@@ -424,17 +424,6 @@ module.exports = {
 module.exports.real = {
   runLinting,
   checkPavoukPr,
-  handlePrTitle,
-  validateEmotion,
-  categorizeEmotion,
-  analyzeEmotionText,
-  batchAnalyzeEmotions,
-  createEmotionProfile,
-  getEmotionTrends,
-  detectEmotionConflicts,
-  filterEmotionsByCategory,
-  updateNpmPackage,
-  updateGitstreamGithubAction,
   willRecreateBlockedUpdate,
   fixLintingIssues,
 };

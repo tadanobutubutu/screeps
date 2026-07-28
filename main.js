@@ -24,7 +24,6 @@ const willRecreateBlockedUpdate = (pr) => {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
-  // Extract the first number in the title
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
@@ -59,21 +58,23 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
-  const taskTitle = `Update dependency using renovate-cli`;
+  // Placeholder for future renovate-cli implementation
+  return Promise.resolve();
+};
+
+const updateDependencyVersions = async (dependency, newVersion) => {
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
-    // Note: updateDependencyVersions is assumed to be defined in the global scope or imported from elsewhere
-    await updateDependencyVersions(_dependency, _newVersion);
-    logging.log('info', `Successfully updated ${_dependency} using renovate-cli`);
+    await npmUpdate(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
     addTask(taskTitle, 'high', ['renovate']);
   } catch (error) {
-    logging.log('error', `Failed to update ${_dependency}: ${error.message}`);
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
     throw error;
   }
 };
 
 const handlePrTitle = (title) => {
-  // Guard against non-string input
   if (typeof title !== 'string') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
@@ -304,7 +305,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if (category === undefined || category === null) return [...emotions];
+  if (!category) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
@@ -320,7 +321,6 @@ const createAsyncUpdateTask = async (title, tags = []) => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
   const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };

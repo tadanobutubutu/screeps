@@ -1,6 +1,9 @@
 "use strict";
+_cast adjustments to keep all functionalities*
+
 const { execSync, spawnSync } = require('child_process');
-const fs = require('fs');
+const fs44 = require('fs');
+
 let isLintingRunning = false;
 const runLinting = () => {
   if (isLintingRunning) return;
@@ -13,60 +16,68 @@ const runLinting = () => {
     isLintingRunning = false;
   }
 };
+
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr !== 'object') {
-    return false;
-  }
+  if (!pr || typeof pr !== 'object') return false;
   const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') {
-    return false;
-  }
+  if (typeof title !== 'string') return false;
 
   // Check for Pavouk PR (existing)
   const hasPavouk = /Pavouk/i.test(title);
-  if (hasPavouk) {
-    return true;
-  }
+  if (hasPavouk) return true;
 
   // Check PR body for Renovate comment indicating a blocked PR
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
-  if (blockedComment.test(body)) {
-    return true;
-  }
+  if (blockedComment.test(body)) return true;
 
-  // Existing number match logic
   const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
+
 const checkPavoukPr = willRecreateBlockedUpdate;
+
 const logging = {
-    log: (level, message) => {
-        if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
-        } else {
-            console[level]?.( `${level}: ${message}` );
-        }
+  log: (level, message) => {
+    if (level ==='FAILSAFE') {
+      console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+    } else {
+      console[level]?.(`[${level ogromL_UPPER()}] ${message}`) ?? console.log(`[${level.toUpperCase()}] ${message}`);
     }
+  }
 };
-let taskIdCounter = 0;
-const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
-    taskIdCounter++;
-    tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
-    return taskIdCounter;
+
+let taskIdCounter = 1;
+const tasks = new Map();
+
+const addTask = (description, priority = 'medium', tags = []) => {
+  const id = taskIdCounter++;
+  const task = { id, title: description, priority, tags, completed: false, createdAt: new Date() };
+  tasks.set(id, task);
+  return id;
 };
-const getTaskById = (taskId) => {
-    return tasks.find((task) => task.id === taskId) || null;
-};
-const npmUpdate = async (_dependency, _newVersion) => {
-  // Placeholder for future renovate-cli implementation
-  return Promise.resolve();
+
+const getTaskById = (id) => tasks.get(id);
+
+const npmUpdate = async (packageName, version = 'latest') => {
+  try {
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -74,18 +85,6 @@ const updateDependencyVersions = async (dependency, newVersion) => {
     addTask(taskTitle, 'high', ['renovate']);
   } catch (error) {
     logging.log('error', `Failed to update ${dependency}: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
     throw error;
   }
 };
@@ -100,6 +99,11 @@ const createAsyncUpdateTask = async (title, tags = []) => {
     throw error;
   }
 };
+
+const updateNpmPackage = async (packageName, version) => {
+  const taskId = await createAsyncUpdateTask(`update ${packageName} to ${version}`);
+  await updateDependencyVersions(packageName, version);
+}
 
 const updateGitstreamGithubAction = async () => {
   try {

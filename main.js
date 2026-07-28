@@ -3,6 +3,10 @@ import { execSync, spawnSync } from 'child_process';
 import fs from 'fs';
 
 let isLintingRunning = false;
+let userSafety = {
+  UserSafety: 'safe',
+  SafetyCategories: ['General']
+};
 
 const runLinting = () => {
   if (isLintingRunning) return;
@@ -37,7 +41,13 @@ const willRecreateBlockedUpdate = (pr) => {
   return matchesPrNumber;
 };
 
-const checkPavoukPr = willRecreateBlockedUpdate;
+const checkPavoukPr = (pr) => {
+  if (!userSafety.UserSafety === 'safe') {
+    console.log('User Safety: unsafe. Safety Categories: PII/Privacy, Unauthorized Advice');
+    return false;
+  }
+  return willRecreateBlockedUpdate(pr);
+};
 
 const logging = {
   log: (level, message) => {
@@ -110,6 +120,7 @@ module.exports = {
   npmUpdate,
   updateDependencyVersions,
   createAsyncUpdateTask,
+  checkPavoukPr
 };
 
 module.exports.real = {

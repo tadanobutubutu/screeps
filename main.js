@@ -396,6 +396,18 @@ const updateStaleAction = async () => {
   }
 };
 
+const updateTypeScript = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update typescript to ^7.0.2');
+    await updateNpmPackage({ name: 'typescript', version: '^7.0.2' });
+    logging.log('info', `Successfully updated typescript to ^7.0.2`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update typescript: ${error.message}`);
+    throw error;
+  }
+};
+
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
@@ -425,6 +437,7 @@ module.exports = {
   updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
+  updateTypeScript,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
   fixLintingIssues,

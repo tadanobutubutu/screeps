@@ -165,7 +165,7 @@ const updateCodeqlAction = async () => {
 const updatePosthohJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage('posthog-js', 'v1.407.3');
+    await updateNpmPackage('posthoh-js', 'v1.407.3');
     logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
     return taskId;
   } catch (error) {
@@ -381,9 +381,9 @@ const analyzeStargazerGrowth = (repo) => {
        (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
       : 0;
     const trend = secondHalfRate > firstHalfRate * 1.5
-       'accelerating'
+       ? 'accelerating'
       : secondHalfRate < firstHalfRate * 0.5
-       'decelerating'
+       ? 'decelerating'
       : 'table';
     return {
       growthRate: Math.round(growthRate * 100) / 100,
@@ -447,3 +447,4 @@ module.exports = {
 };
 
 module.exports.real = {...module.exports };
+=========================================

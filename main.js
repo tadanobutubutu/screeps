@@ -7,7 +7,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
+    execSync('npx eslint --fix.', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -16,20 +16,16 @@ const runLinting = () => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
-  if (!pr || typeof pr !== 'object') {
+  if (!pr || typeof pr!== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
-  // If title is not a string, we return false to avoid errors in regex test
-  if (typeof title !== 'string') {
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'string') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
-  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match ? match[1] : null;
+  const blockedPrNumber = match? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
@@ -38,7 +34,6 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 
 const logging = {
   log: (level, message) => {
-    // Basic console logging; replace with a proper logger.FAILSAFE
     console[level](`${level}: ${message}`);
   },
 };
@@ -63,55 +58,47 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
-  return Promise.resolve();
-};
-
-const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  const taskTitle = `Update dependency using renovate-cli`;
   try {
-    await npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    await updateDependencyVersions(_dependency, _newVersion);
+    logging.log('info', `Successfully updated dependency using renovate-cli`);
     addTask(taskTitle, 'high', ['renovate']);
   } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    logging.log('error', `Failed to update dependency: ${error.message}`);
     throw error;
   }
 };
 
 const handlePrTitle = (title) => {
-  const trimmedTitle = title.trim();
-  if (!trimmedTitle) {
+  const trimmedTitle = title?.trim();
+  if (trimmedTitle === undefined || trimmedTitle === null || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
-
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
-
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
+// Added functions below
 const validateEmotion = (emotion) => {
-  if (!emotion || typeof emotion !== 'object') {
+  if (!emotion || typeof emotion!== 'object') {
     return { valid: false, errors: ['Invalid emotion object'] };
   }
 
   const errors = [];
-  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
+  if (typeof emotion.name!== 'string' ||!emotion.name.trim()) {
     errors.push('Emotion name must be a non-empty string');
   }
   if (!Array.isArray(emotion.tags)) {
     errors.push('Emotion tags must be an array');
   }
-  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+  if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
     errors.push('Emotion intensity must be a number between 0 and 1');
   }
-  if (!emotion.category || typeof emotion.category !== 'string') {
+  if (!emotion.category || typeof emotion.category!== 'string') {
     errors.push('Emotion category is required and must be a string');
   }
 
@@ -123,13 +110,13 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'sorrowful';
+    return 'orrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'surprised';
+    return 'urprised';
   } else {
     return 'neutral';
   }
@@ -266,111 +253,11 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if (!category) return [...emotions];
+  if (category === undefined || category === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
-const createAsyncUpdateTask = async (title, tags = []) => {
-  try {
-    const taskId = addTask(title, 'medium', tags);
-    logging.log('info', `Created task: ${title}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to create task: ${error.message}`);
-    throw error;
-  }
-};
-
-const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
-  return task && !task.completed;
-};
-
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateActionsLabeler = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
-    logging.log('info', `Successfully updated actions/labeler to v7`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateLinearBotsGitstream = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
-    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateLinearBotsGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'latest' });
-    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateCodeqlAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-    await updateNpmPackage({ name: 'github/codeql-action', version: 'v4' });
-    logging.log('info', `Successfully updated github/codeql-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-    throw error;
-  }
-};
-
-const updatePosthogJsToLatest = async () => {
-  // Note: spelling corrected to posthog-js to match package name
-  try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
-  }
-};
+// Removed function updatePosthogJsToLatest below
 
 const handleLockFileWarning = async () => {
   try {
@@ -410,7 +297,7 @@ const updateTypeScript = async () => {
 
 const fixLintingIssues = () => {
   try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
+    const result = spawnSync('npx', ['eslint', '--fix', './src/managers/roomManager.js', './tests/**/*.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
       logging.log('info', 'ESLint fix completed successfully.');
     } else {
@@ -426,24 +313,6 @@ module.exports = {
   addTask,
   getTaskById,
   npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  updateTypeScript,
-  isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
-  // Additional exported utilities from the merged conflict
-  runLinting,
-  checkPavoukPr,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
@@ -453,6 +322,17 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
+  createAsyncUpdateTask,
+  isAwaitingSchedule,
+  updateNpmPackage,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateStaleAction,
+  updateTypeScript,
+  fixLintingIssues,
+  handleLockFileWarning,
 };
 
 module.exports.real = { ...module.exports };

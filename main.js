@@ -232,7 +232,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === '') {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -492,4 +492,3 @@ module.exports = {
 };
 
 module.exports.real = {...module.exports };
-=========================================

@@ -1,4 +1,4 @@
-const "use strict"; const { spawnSync } = require('child_process');
+"use strict"; const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
@@ -6,13 +6,11 @@ const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-
   const title = pr.data?.title ?? pr.title;
   // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
     return false;
   }
-
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);

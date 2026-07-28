@@ -1,4 +1,4 @@
-const "use strict"; const { spawnSync } = require('child_process');
+"use strict"; const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
@@ -6,7 +6,6 @@ const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-
   const title = pr.data?.title ?? pr.title;
   // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
@@ -190,6 +189,7 @@ const isAwaitingSchedule = (dependency) => {
   return task && !task.completed;
 };
 
+// New utility to address ESLint linting violations automatically
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });

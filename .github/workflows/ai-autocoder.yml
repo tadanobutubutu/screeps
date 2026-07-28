@@ -140,10 +140,10 @@ jobs:
                 RESOLVED=$(curl -s "https://text.pollinations.ai/$ENCODED?model=openai" || echo "")
                 if [ -n "$RESOLVED" ] && [[ "$RESOLVED" != *"<!DOCTYPE html>"* ]]; then
                   echo "$RESOLVED" | sed '1{/^```/d;};${/^```/d;}' | sed '/^```javascript/d' | sed '/^```js/d' > "$FILE"
-                  git add "$FILE"
+                  git add "$FILE" || git add -f "$FILE"
                 else
                   git checkout --ours "$FILE"
-                  git add "$FILE"
+                  git add "$FILE" || git add -f "$FILE"
                 fi
               done
               git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD"

@@ -37,7 +37,7 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (dependency, newVersion) => {
-  // Based on the issue, it seems we should be using the 'enovate-cli' for dependency updates.
+  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
   // Instead, here's a placeholder function for a future implementation.
   return new Promise(resolve => {
     resolve();
@@ -45,7 +45,7 @@ const npmUpdate = async (dependency, newVersion) => {
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'enovate-cli' or another package management tool.
+  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   return new Promise((resolve, reject) => {
     try {

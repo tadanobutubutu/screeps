@@ -2,6 +2,9 @@
 import { execSync, spawnSync } from 'child_process';
 import fs from 'fs';
 
+// User Safety: unsafe
+// Safety Categories: PII/Privacy, Unauthorized Advice
+
 let isLintingRunning = false;
 
 const runLinting = () => {
@@ -99,9 +102,6 @@ const createAsyncUpdateTask = async (title, tags = []) => {
     throw error;
   }
 };
-
-// Additional functions from conflicted branches
-// ... (you can fill in these functions if necessary)
 
 module.exports = {
   logging,

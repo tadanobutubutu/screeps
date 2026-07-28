@@ -201,18 +201,6 @@ const updateStaleAction = async () => {
   }
 };
 
-const updateTypeScript = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update typescript to ^7.0.2');
-    await updateNpmPackage({ name: 'typescript', version: '^7.0.2' });
-    logging.log('info', `Successfully updated typescript to ^7.0.2`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update typescript: ${error.message}`);
-    throw error;
-  }
-};
-
 const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;

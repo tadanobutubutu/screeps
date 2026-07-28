@@ -74,9 +74,7 @@ const handlePrTitle = (title) => {
   if (trimmedTitle === undefined || trimmedTitle === null || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
-
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
-  
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
@@ -348,12 +346,12 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthob-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthob-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthob-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthob-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };

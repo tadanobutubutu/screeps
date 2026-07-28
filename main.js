@@ -196,7 +196,7 @@ const { spawnSync } = require('child_process');
 
 const fixLintingIssues = () => {
   try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
       logging.log('info', 'ESLint fix completed successfully.');
     } else {

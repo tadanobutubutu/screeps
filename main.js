@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
+    execSync('npx eslint --fix.', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -163,12 +163,12 @@ const updateCodeqlAction = async () => {
 
 const updatePosthohJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthoh_js to v1.407.3');
+    await updateNpmPackage({ name: 'posthoh_js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthoh_js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh_js: ${error.message}`);
     throw error;
   }
 };
@@ -236,6 +236,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
+  // Check for conventional commit prefix
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
@@ -455,8 +456,7 @@ const detectEmotionConflicts = (emotions) => {
 };
 
 const filterEmotionsByCategory = (emotions, category) => {
-  if (!Array.isArray(emotions)) return [];
-  if (!category) return [...emotions];
+  if (category === undefined || category === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 

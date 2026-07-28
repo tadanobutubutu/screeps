@@ -1,7 +1,8 @@
-"use strict";
-const { execSync, spawnSync } = require('child_process');
-const fs = require('fs');
+import { execSync, spawnSync } from 'child_process';
+import fs from 'fs';
+
 let isLintingRunning = false;
+
 const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
@@ -13,6 +14,7 @@ const runLinting = () => {
     isLintingRunning = false;
   }
 };
+
 const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
@@ -41,26 +43,38 @@ const willRecreateBlockedUpdate = (pr) => {
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
+
 const checkPavoukPr = willRecreateBlockedUpdate;
+
 const logging = {
-    log: (level, message) => {
-        if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
-        } else {
-            console[level]?.( `${level}: ${message}` );
-        }
+  log: (level, message) => {
+    if (level === 'FAILSAFE') {
+      console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+    } else {
+      console[level]?.( `${level}: ${message}` );
     }
+  }
 };
+
 let taskIdCounter = 0;
 const tasks = [];
+
 const addTask = (title, priority = 'medium', tags = []) => {
-    taskIdCounter++;
-    tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
-    return taskIdCounter;
+  taskIdCounter++;
+  tasks.push({
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+  });
+  return taskIdCounter;
 };
+
 const getTaskById = (taskId) => {
-    return tasks.find((task) => task.id === taskId) || null;
+  return tasks.find((task) => task.id === taskId) || null;
 };
+
 const npmUpdate = async (_dependency, _newVersion) => {
   // Placeholder for future renovate-cli implementation
   return Promise.resolve();
@@ -109,7 +123,7 @@ const updateGitstreamGithubAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
+    // Do not re-throw – Renovate will handle the failure gracefully
   }
 };
 
@@ -145,7 +159,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
+    // Do not re-throw – Renovate will handle the failure gracefully
   }
 };
 
@@ -232,7 +246,8 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null) {
+
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -246,23 +261,23 @@ const handlePrTitle = (title) => {
 };
 
 const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion !== 'object') {
-        return { valid: false, errors: ['Invalid emotion object'] };
-    }
-    const errors = [];
-    if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
-        errors.push('Emotion name must be a non-empty string');
-    }
-    if (!Array.isArray(emotion.tags)) {
-        errors.push('Emotion tags must be an array');
-    }
-    if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
-        errors.push('Emotion intensity must be a number between 0 and 1');
-    }
-    if (!emotion.category || typeof emotion.category !== 'string') {
-        errors.push('Emotion category is required and must be a string');
-    }
-    return { valid: errors.length === 0, errors };
+  if (!emotion || typeof emotion !== 'object') {
+    return { valid: false, errors: ['Invalid emotion object'] };
+  }
+  const errors = [];
+  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
+    errors.push('Emotion name must be a non-empty string');
+  }
+  if (!Array.isArray(emotion.tags)) {
+    errors.push('Emotion tags must be an array');
+  }
+  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+    errors.push('Emotion intensity must be a number between 0 and 1');
+  }
+  if (!emotion.category || typeof emotion.category !== 'string') {
+    errors.push('Emotion category is required and must be a string');
+  }
+  return { valid: errors.length === 0, errors };
 };
 
 const categorizeEmotion = (text) => {
@@ -286,49 +301,18 @@ const analyzeEmotionText = (text) => {
   if (!text || typeof text !== 'string') {
     return { emotion: 'neutral', confidence: 0 };
   }
-
   const trimmed = text.trim();
   if (trimmed.length === 0) {
     return { emotion: 'neutral', confidence: 0 };
   }
-
   const category = categorizeEmotion(trimmed);
   let confidence = 0.5;
-
   const positiveWords = [
-    'happy',
-    'joy',
-    'love',
-    'great',
-    'excellent',
-    'wonderful',
-    'fantastic',
-    'amazing',
-    'good',
-    'nice',
-    'awesome',
-    'brilliant',
-    'delight',
-    'cheerful',
-    'pleased',
+    'happy', 'joy', 'love', 'great', 'excellent', 'wonderful', 'fantastic', 'amazing', 'good', 'nice', 'awesome', 'brilliant', 'delight', 'cheerful', 'pleased',
   ];
   const negativeWords = [
-    'bad',
-    'terrible',
-    'horrible',
-    'awful',
-    'angry',
-    'upset',
-    'disappointed',
-    'hate',
-    'worst',
-    'dreadful',
-    'miserable',
-    'depressed',
-    'frustrated',
-    'annoyed',
+    'bad', 'terrible', 'horrible', 'awful', 'angry', 'upset', 'disappointed', 'hate', 'worst', 'dreadful', 'miserable', 'depressed', 'frustrated', 'annoyed',
   ];
-
   let positiveCount = 0;
   let negativeCount = 0;
 
@@ -348,14 +332,16 @@ const analyzeEmotionText = (text) => {
     confidence = Math.min(0.5 + negativeCount * 0.1, 1.0);
   }
 
-  return { emotion: category, confidence: Math.round(confidence * 100) / 100 };
+  return {
+    emotion: category,
+    confidence: Math.round(confidence * 100) / 100,
+  };
 };
 
 const batchAnalyzeEmotions = (texts) => {
   if (!Array.isArray(texts)) {
     return [];
   }
-
   return texts.map((text) => ({
     text,
     analysis: analyzeEmotionText(text),
@@ -388,18 +374,13 @@ const createEmotionProfile = (name, initialEmotions = []) => {
       return dominant;
     },
   };
-
   return profile;
 };
 
 const getEmotionTrends = (emotionData) => {
   if (!Array.isArray(emotionData) || emotionData.length === 0) {
-    return {
-      trends: [],
-      summary: 'No data available',
-    };
+    return { trends: [], summary: 'No data available', };
   }
-
   const trends = [];
   const grouped = {};
 
@@ -413,7 +394,10 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
+    const trend = entries.length > 1 ? 
+      (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') 
+      : 'stable';
+
     trends.push({
       emotion,
       count: entries.length,
@@ -432,13 +416,13 @@ const detectEmotionConflicts = (emotions) => {
   if (!Array.isArray(emotions) || emotions.length < 2) {
     return { conflicts: [], hasConflict: false };
   }
-
   const conflicts = [];
+
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
     if (current.emotion !== next.emotion) {
-      const intensityDiff = Math.abs(current.confidence - next.confidence);
+      const intensityDiff = Math.abs(current.analysis.confidence - next.analysis.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({
           from: current.emotion,
@@ -456,17 +440,20 @@ const detectEmotionConflicts = (emotions) => {
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
   if (category === undefined || category === null) return [...emotions];
-  return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
+  return emotions.filter((emotion) => 
+    emotion.category && 
+    emotion.category.toLowerCase() === category.toLowerCase()
+  );
 };
 
 const runPendingRenovateUpdates = async () => {
-  // List of Renovate‑scheduled updates that have corresponding functions above
   const pending = [
     { name: 'typescript', fn: updateTypeScript },
     { name: 'posthoh-js', fn: updatePosthohJsToLatest },
     { name: 'actions/stale', fn: updateStaleAction },
     { name: 'linear-bots/gitstream-github-action', fn: updateLinearBotsGitstreamGithubAction },
   ];
+
   for (const { name, fn } of pending) {
     if (isAwaitingSchedule(name)) {
       try {
@@ -479,7 +466,6 @@ const runPendingRenovateUpdates = async () => {
   }
 };
 
-// Stargazer tracking functions
 let stargazerData = new Map();
 
 const trackStargazers = async (repo, stargazerList = []) => {
@@ -488,15 +474,21 @@ const trackStargazers = async (repo, stargazerList = []) => {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
-    const existingData = stargazerData.get(normalizedRepo) || { repo, stargazers: [], firstSeen: new Date(), lastUpdated: new Date() };
-    const now = new Date();
-    existingData.lastUpdated = now;
+    const existingData = stargazerData.get(normalizedRepo) || {
+      repo,
+      stargazers: [],
+      firstSeen: new Date(),
+      lastUpdated: new Date(),
+    };
+
+    existingData.lastUpdated = new Date();
     existingData.stargazers = stargazerList.map((s) => ({
       username: s.username || s.login || s,
       starredAt: s.starredAt || s.date || new Date(),
       profileUrl: s.profileUrl || s.html_url || null,
     }));
     existingData.totalCount = existingData.stargazers.length;
+
     stargazerData.set(normalizedRepo, existingData);
     addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
@@ -514,19 +506,23 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
+
     if (!repoData || !Array.isArray(repoData.stargazers)) {
       return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
     }
+
     const runawayStargazers = repoData.stargazers.filter((s) => {
       if (s.username && typeof s.username === 'string') {
         const username = s.username.toLowerCase();
-        const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0)
-          + (username.length < 4 ? 2 : 0)
-          + (/\d{4,}/.test(username) ? 1 : 0);
+        const score = 
+          (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0) +
+          (username.length < 4 ? 2 : 0) +
+          (/\d{4,}/.test(username) ? 1 : 0);
         return score >= threshold;
       }
       return false;
     });
+
     return {
       runawayStargazers,
       totalCount: repoData.stargazers.length,
@@ -545,16 +541,26 @@ const getStargazerStats = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
+
     if (repoData === undefined || repoData === null) {
-      return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
+      return {
+        totalCount: 0,
+        uniqueUsers: 0,
+        averageActivity: 0,
+        firstSeen: new Date(),
+        lastUpdated: new Date(),
+        hasData: false,
+      };
     }
-    const stargazers = repoData.stargazers || [];
+
+    const stargazers = repoData.stargazers;
     const uniqueUsers = new Set(stargazers.map((s) => s.username));
     const uniqueCount = uniqueUsers.size;
     const activityScores = stargazers.map((_, i) => i);
-    const avgActivity = activityScores.length > 0
-      ? Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
+    const avgActivity = activityScores.length > 0 ? 
+      Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100 
       : 0;
+
     return {
       totalCount: stargazers.length,
       uniqueUsers: uniqueCount,
@@ -576,12 +582,15 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
+
     if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length === 0) {
       return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
     }
+
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
+
     for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
@@ -589,17 +598,26 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
         timeDiffs.push(Math.abs(currTime - prevTime));
       }
     }
+
     if (timeDiffs.length === 0) {
       return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
     }
+
     const mean = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
-    const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
+    const stdDev = Math.sqrt(
+      timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length
+    );
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
+
     for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
-      if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
+      if (
+        !isNaN(prevTime) && 
+        !isNaN(currTime) && 
+        Math.abs(currTime - prevTime) < threshold
+      ) {
         anomalies.push({
           index: i,
           username: stargazers[i].username,
@@ -607,6 +625,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
         });
       }
     }
+
     return {
       anomalies,
       anomalyCount: anomalies.length,
@@ -625,35 +644,63 @@ const analyzeStargazerGrowth = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
+
     if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: repoData ? repoData.stargazers.length : 0 };
+      return {
+        growthRate: 0,
+        trend: 'stable',
+        totalStars: repoData ? repoData.stargazers.length : 0,
+      };
     }
+
     const stargazers = repoData.stargazers;
-    const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) => !isNaN(t));
+    const timestamps = stargazers.map((s) => 
+      new Date(s.starredAt).getTime()
+    ).filter((t) => !isNaN(t));
+
     if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
+      return {
+        growthRate: 0,
+        trend: 'stable',
+        totalStars: stargazers.length,
+      };
     }
+
     timestamps.sort((a, b) => a - b);
     const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
-    const growthRate = timeSpan > 0 ? (stargazers.length / timeSpan) * 1000 * 60 * 60 * 24 : 0;
+    const growthRate = timeSpan > 0 ? 
+      (stargazers.length / timeSpan) * 
+      1000 * 60 * 60 * 24 : 0;
+
     const midpoint = Math.floor(timestamps.length / 2);
-    const firstHalfRate = midpoint > 0
-      ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
+    const firstHalfRate = 
+      midpoint > 0 ? 
+        (midpoint / (timestamps[midpoint] - timestamps[0])) * 
+        1000 * 60 * 60 * 24 
       : 0;
-    const secondHalfRate = (timestamps.length - midpoint) > 0
-      ? ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24
+    const secondHalfRate = 
+      (timestamps.length - midpoint) > 0 ? 
+        ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 
+        1000 * 60 * 60 * 24 
       : 0;
-    const trend = secondHalfRate > firstHalfRate * 1.5 ? 'accelerating'
-      : secondHalfRate < firstHalfRate * 0.5 ? 'decelerating'
+
+    const trend = secondHalfRate > firstHalfRate * 1.5 ? 
+      'accelerating' : 
+      secondHalfRate < firstHalfRate * 0.5 ? 
+        'decelerating' 
       : 'stable';
-    return { growthRate: Math.round(growthRate * 100) / 100, trend, totalStars: stargazers.length };
+
+    return {
+      growthRate: Math.round(growthRate * 100) / 100,
+      trend,
+      totalStars: stargazers.length,
+    };
   } catch (error) {
     logging.log('error', `Failed to analyze stargazer growth: ${error.message}`);
     throw error;
   }
 };
 
-// Origin's added function for runaway stargazers via GitHub API
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
@@ -702,7 +749,9 @@ module.exports = {
   getStargazerStats,
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
-  trackRunawayStargazers
+  trackRunawayStargazers,
 };
 
-module.exports.real = { ...module.exports };
+module.exports.real = {
+  ...module.exports,
+};

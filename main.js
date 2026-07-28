@@ -82,16 +82,14 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 const handlePrTitle = (title) => {
-  const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (title === undefined || title === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
-
+  const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (trimmedTitle === '' || !hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
-
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
@@ -266,7 +264,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if ( === undefined ||  === null) return [...emotions];
+  if (category === undefined || category === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 

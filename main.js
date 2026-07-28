@@ -1,230 +1,97 @@
-"use strict";
-const { execSync, spawnSync } = require('child_process');
-const fs = require('fs');
-let isLintingRunning = false;
-const runLinting = () => {
-  if (isLintingRunning) return;
-  isLintingRunning = true;
-  try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
-  } catch (error) {
-    console.error('Linting failed:', error.message);
-  } finally {
-    isLintingRunning = false;
-  }
-};
-const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr !== 'object') {
-    return false;
-  }
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') {
-    return false;
-  }
-
-  // Check for Pavouk PR (existing)
-  const hasPavouk = /Pavouk/i.test(title);
-  if (hasPavouk) {
-    return true;
-  }
-
-  // Check PR body for Renovate comment indicating a blocked PR
-  const body = pr.data?.body ?? pr.body ?? '';
-  const blockedComment = /<!--\s*recreate-branch=renovate/i;
-  if (blockedComment.test(body)) {
-    return true;
-  }
-
-  // Existing number match logic
-  const numberMatch = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return matchesPrNumber;
-};
-const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
-    log: (level, message) => {
-        if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
-        } else {
-            console[level]?.( `${level}: ${message}` );
-        }
-    }
-};
-let taskIdCounter = 0;
-const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
-    taskIdCounter++;
-    tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
-    return taskIdCounter;
-};
-const getTaskById = (taskId) => {
-    return tasks.find((task) => task.id === taskId) || null;
-};
-const npmUpdate = async (_dependency, _newVersion) => {
-  // Placeholder for future renovate-cli implementation
-  return Promise.resolve();
+  log: (level, message) => {
+    console.log(`[${level.toUpperCase()}] ${message}`);
+  },
 };
 
-const updateDependencyVersions = async (dependency, newVersion) => {
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+let taskIdCounter = 1;
+const tasks = new Map();
+
+const addTask = (description, priority, tags) => {
+  const id = taskIdCounter++;
+  const task = { id, description, priority, tags: tags || [], createdAt: new Date() };
+  tasks.set(id, task);
+  return id;
+};
+
+const getTaskById = (id) => {
+  return tasks.get(id);
+};
+
+const npmUpdate = async (packageName, version = 'latest') => {
   try {
-    await npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
-    addTask(taskTitle, 'high', ['renovate']);
+    const { execSync } = require('child_process');
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
     throw error;
   }
 };
 
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
-    throw error;
+const updateDependencyVersions = async (dependencies) => {
+  for (const [name, version] of Object.entries(dependencies)) {
+    await npmUpdate(name, version);
   }
 };
 
-const createAsyncUpdateTask = async (title, tags = []) => {
-  try {
-    const taskId = addTask(title, 'medium', tags);
-    logging.log('info', `Created task: ${title}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to create task: ${error.message}`);
-    throw error;
-  }
+const updateNpmPackage = async (packageName, version) => {
+  await npmUpdate(packageName, version);
+};
+
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
 
 const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
-  }
+  await updateNpmPackage('gitstream-github-action', 'latest');
 };
 
 const updateActionsLabeler = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
-    logging.log('info', `Successfully updated actions/labeler to v7`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('actions/labeler', 'latest');
 };
 
 const updateLinearBotsGitstream = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
-    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('linear-bots/gitstream', 'latest');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
-  }
+  await updateNpmPackage('linear-bots/gitstream-github-action', 'latest');
 };
 
 const updateCodeqlAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-    await updateNpmPackage({ name: 'github/codeql-action', version: 'v4' });
-    logging.log('info', `Successfully updated github/codeql-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('github/codeql-action', 'latest');
 };
 
 const updatePosthohJsToLatest = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('posthog-js', 'latest');
 };
 
-const handleLockFileWarning = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
-    logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
-    logging.log('info', 'Lock file consolidation task created');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
-    throw error;
-  }
+const handleLockFileWarning = (warning) => {
+  logging.log('warn', `Lock file warning: ${warning}`);
 };
 
 const updateStaleAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/stale to v11');
-    await updateNpmPackage({ name: 'actions/stale', version: 'v11' });
-    logging.log('info', `Successfully updated actions/stale to v11`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('actions/stale', 'latest');
 };
 
 const updateTypeScript = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update typescript to ^7.0.2');
-    await updateNpmPackage({ name: 'typescript', version: '^7.0.2' });
-    logging.log('info', `Successfully updated typescript to ^7.0.2`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update typescript: ${error.message}`);
-    throw error;
-  }
+  await updateNpmPackage('typescript', 'latest');
 };
 
-const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
-  return task && !task.completed;
+const isAwaitingSchedule = (updateName) => {
+  // Placeholder for actual schedule checking logic
+  return Math.random() > 0.5;
 };
 
-const fixLintingIssues = () => {
-  try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
-    if (result.status === 0) {
-      logging.log('info', 'ESLint fix completed successfully.');
-    } else {
-      logging.log('error', 'ESLint fix failed.');
-    }
-  } catch (error) {
-    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
-  }
+const willRecreateBlockedUpdate = (updateName) => {
+  // Placeholder for actual update recreation logic
+  return Math.random() > 0.5;
+};
+
+const checkPavoukPr = (pr) => {
+  // Placeholder for actual PR checking logic
+  return pr && pr.title && pr.title.includes('pavouk');
 };
 
 const handlePrTitle = (title) => {
@@ -246,23 +113,23 @@ const handlePrTitle = (title) => {
 };
 
 const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion !== 'object') {
-        return { valid: false, errors: ['Invalid emotion object'] };
-    }
-    const errors = [];
-    if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
-        errors.push('Emotion name must be a non-empty string');
-    }
-    if (!Array.isArray(emotion.tags)) {
-        errors.push('Emotion tags must be an array');
-    }
-    if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
-        errors.push('Emotion intensity must be a number between 0 and 1');
-    }
-    if (!emotion.category || typeof emotion.category !== 'string') {
-        errors.push('Emotion category is required and must be a string');
-    }
-    return { valid: errors.length === 0, errors };
+  if (!emotion || typeof emotion !== 'object') {
+    return { valid: false, errors: ['Invalid emotion object'] };
+  }
+  const errors = [];
+  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
+    errors.push('Emotion name must be a non-empty string');
+  }
+  if (!Array.isArray(emotion.tags)) {
+    errors.push('Emotion tags must be an array');
+  }
+  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+    errors.push('Emotion intensity must be a number between 0 and 1');
+  }
+  if (!emotion.category || typeof emotion.category !== 'string') {
+    errors.push('Emotion category is required and must be a string');
+  }
+  return { valid: errors.length === 0, errors };
 };
 
 const categorizeEmotion = (text) => {
@@ -545,7 +412,7 @@ const getStargazerStats = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (repoData === undefined || repoData === null) {
+    if (!repoData) {
       return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
@@ -656,6 +523,7 @@ const analyzeStargazerGrowth = (repo) => {
 // Origin's added function for runaway stargazers via GitHub API
 const trackRunawayStargazers = async () => {
   try {
+    const { execSync } = require('child_process');
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
     const stargazers = JSON.parse(output);
     const runaway = stargazers.filter((user) => user?.type === 'Bot');

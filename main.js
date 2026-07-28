@@ -653,6 +653,20 @@ const analyzeStargazerGrowth = (repo) => {
   }
 };
 
+// Origin's added function for runaway stargazers via GitHub API
+const trackRunawayStargazers = async () => {
+  try {
+    const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
+    const stargazers = JSON.parse(output);
+    const runaway = stargazers.filter((user) => user?.type === 'Bot');
+    logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
+    return runaway;
+  } catch (error) {
+    logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
+    return [];
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -687,7 +701,9 @@ module.exports = {
   identifyRunawayStargazers,
   getStargazerStats,
   detectStargazerAnomalies,
-  analyzeStargazerGrowth
+  analyzeStargazerGrowth,
+  trackRunawayStargazers
 };
 
 module.exports.real = { ...module.exports };
+=========================================

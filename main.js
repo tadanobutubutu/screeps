@@ -26,7 +26,7 @@ const willRecreateBlockedUpdate = (pr) => {
   if (typeof title !== 'string') {
     return false;
   }
-  const hasPavPavouk/i.test(title);
+  const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
@@ -349,12 +349,12 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 
 const updateCodeqlAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update codeql action to v4');
-    await updateNpmPackage({ name: 'codeql-action', version: 'v4' });
-    logging.log('info', `Successfully updated codeql action to v4`);
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    await updateNpmPackage({ name: 'github/codeql-action', version: 'v4' });
+    logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update codeql action: ${error.message}`);
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
     throw error;
   }
 };
@@ -381,7 +381,7 @@ const handleLockFileWarning = async () => {
   } catch (error) {
     logging.log('error', `Failed to handle lock file warning: ${error.message}`);
     throw error;
-  };
+  }
 };
 
 const updateStaleAction = async () => {

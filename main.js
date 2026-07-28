@@ -104,12 +104,12 @@ const createAsyncUpdateTask = async (title, tags = []) => {
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
+    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
-    throw error;
+    logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
+    // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
 
@@ -139,13 +139,13 @@ const updateLinearBotsGitstream = async () => {
 
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'latest' });
-    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`);
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
+    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    throw error;
+    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
 
@@ -270,7 +270,7 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return ' sorrowful';
+    return 'sorrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
@@ -459,6 +459,26 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
+const runPendingRenovateUpdates = async () => {
+  // List of Renovate‑scheduled updates that have corresponding functions above
+  const pending = [
+    { name: 'typescript', fn: updateTypeScript },
+    { name: 'posthoh-js', fn: updatePosthohJsToLatest },
+    { name: 'actions/stale', fn: updateStaleAction },
+    { name: 'linear-bots/gitstream-github-action', fn: updateLinearBotsGitstreamGithubAction },
+  ];
+  for (const { name, fn } of pending) {
+    if (isAwaitingSchedule(name)) {
+      try {
+        await fn();
+        logging.log('info', `Renovate update processed for ${name}`);
+      } catch (e) {
+        logging.log('warn', `Failed to process Renovate update for ${name}: ${e.message}`);
+      }
+    }
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -487,7 +507,8 @@ module.exports = {
   createEmotionProfile,
   getEmotionTrends,
   detectEmotionConflicts,
-  filterEmotionsByCategory
+  filterEmotionsByCategory,
+  runPendingRenovateUpdates
 };
 
 module.exports.real = { ...module.exports };

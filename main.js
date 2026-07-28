@@ -7,7 +7,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
+    execSync('npx eslint --fix.', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -16,20 +16,16 @@ const runLinting = () => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
-  if (!pr || typeof pr !== 'object') {
+  if (!pr || typeof pr!== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
-  // If title is not a string, we return false to avoid errors in regex test
-  if (typeof title !== 'string') {
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'string') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
-  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match ? match[1] : null;
+  const blockedPrNumber = match? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
@@ -62,7 +58,6 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency using renovate-cli`;
   try {
     await updateDependencyVersions(_dependency, _newVersion);
@@ -74,7 +69,6 @@ const npmUpdate = async (_dependency, _newVersion) => {
   }
 };
 
-// Additional exported utilities
 const handlePrTitle = (title) => {
   // Guard against non-string input
   if (typeof title !== 'string') {
@@ -85,7 +79,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|ci)(\(.+\))?: .+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
@@ -95,21 +89,21 @@ const handlePrTitle = (title) => {
 };
 
 const validateEmotion = (emotion) => {
-  if (!emotion || typeof emotion !== 'object') {
+  if (!emotion || typeof emotion!== 'object') {
     return { valid: false, errors: ['Invalid emotion object'] };
   }
 
   const errors = [];
-  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
+  if (typeof emotion.name!== 'string' ||!emotion.name.trim()) {
     errors.push('Emotion name must be a non-empty string');
   }
   if (!Array.isArray(emotion.tags)) {
     errors.push('Emotion tags must be an array');
   }
-  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+  if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
     errors.push('Emotion intensity must be a number between 0 and 1');
   }
-  if (!emotion.category || typeof emotion.category !== 'string') {
+  if (!emotion.category || typeof emotion.category!== 'string') {
     errors.push('Emotion category is required and must be a string');
   }
 
@@ -121,13 +115,13 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'sorrowful';
+    return 'orrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'surprised';
+    return 'urprised';
   } else {
     return 'neutral';
   }
@@ -280,7 +274,6 @@ const createAsyncUpdateTask = async (title, tags = []) => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
   return task && !task.completed;
 };
@@ -358,7 +351,6 @@ const updateCodeqlAction = async () => {
 };
 
 const updatePosthogJsToLatest = async () => {
-  // Note: spelling corrected to posthog-js to match package name
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
@@ -424,7 +416,28 @@ module.exports = {
   addTask,
   getTaskById,
   npmUpdate,
-  // Other exports removed for brevity
+  handlePrTitle,
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  batchAnalyzeEmotions,
+  createEmotionProfile,
+  getEmotionTrends,
+  detectEmotionConflicts,
+  filterEmotionsByCategory,
+  createAsyncUpdateTask,
+  isAwaitingSchedule,
+  updateNpmPackage,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
+  updateTypeScript,
+  fixLintingIssues,
 };
 
 module.exports.real = { ...module.exports };

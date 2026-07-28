@@ -228,20 +228,20 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title!== 'string') {
+  if (typeof title !== 'string') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
@@ -283,7 +283,7 @@ const categorizeEmotion = (text) => {
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text!== 'string') {
+  if (!text || typeof text !== 'string') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -438,7 +438,7 @@ const detectEmotionConflicts = (emotions) => {
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
-    if (current.emotion!== next.emotion) {
+    if (current.emotion !== next.emotion) {
       const intensityDiff = Math.abs(current.confidence - next.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({
@@ -456,7 +456,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if ( === undefined ||  === null) return [...emotions];
+  if (category === undefined || category === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 

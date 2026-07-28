@@ -1,21 +1,25 @@
 const logging = {
   log: (level, message) => {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+    if (level === 'FAILSAFE') {
+      console.error(`FAILSAFE: ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   },
 };
 
 let taskIdCounter = 1;
 const tasks = new Map();
 
-const addTask = (description, priority, tags) => {
+const addTask = (description, priority = 'medium', tags = []) => {
   const id = taskIdCounter++;
-  const task = { id, description, priority, tags: tags || [], createdAt: new Date() };
+  const task = { id, description, priority, tags, completed: false };
   tasks.set(id, task);
   return id;
 };
 
-const getTaskById = (id) => {
-  return tasks.get(id);
+const getTaskById = (taskId) => {
+  return tasks.get(taskId);
 };
 
 const npmUpdate = async (packageName, version = 'latest') => {
@@ -412,8 +416,8 @@ const getStargazerStats = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData) {
-      return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
+    if (repoData === undefined || repoData === null) {
+      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
     const uniqueUsers = new Set(stargazers.map((s) => s.username));
@@ -535,6 +539,14 @@ const trackRunawayStargazers = async () => {
   }
 };
 
+function handleConventionalCommit(title) {
+  if (!title) return { valid: false, reason: 'Empty title', score: 0 };
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(title);
+  if (!hasConvention) return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  const lengthScore = title.length <= 72 ? 100 : 50;
+  return { valid: true, score: lengthScore };
+}
+
 module.exports = {
   logging,
   addTask,
@@ -556,6 +568,7 @@ module.exports = {
   willRecreateBlockedUpdate,
   checkPavoukPr,
   handlePrTitle,
+  handleConventionalCommit,
   validateEmotion,
   categorizeEmotion,
   analyzeEmotionText,

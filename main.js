@@ -4,13 +4,11 @@ const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-
   const title = pr.data?.title ?? pr.title;
   // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
     return false;
   }
-
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
@@ -193,7 +191,6 @@ const updateStaleAction = async () => {
 
 // New utility to address ESLint linting violations automatically
 const { spawnSync } = require('child_process');
-
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });

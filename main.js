@@ -47,23 +47,29 @@ const logging = {
         if (level === 'FAILSAFE') {
             console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
         } else {
-            console[level]?.( `${level}: ${message}` );
+            console[level]?.( `[${level.toUpperCase()}] ${message}` );
         }
     }
 };
-let taskIdCounter = 0;
-const tasks = [];
+let taskIdCounter = 1;
+const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
     taskIdCounter++;
-    tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
+    const task = { id: taskIdCounter, title, priority, tags, completed: false };
+    tasks.set(taskIdCounter, task);
     return taskIdCounter;
 };
 const getTaskById = (taskId) => {
-    return tasks.find((task) => task.id === taskId) || null;
+    return tasks.get(taskId);
 };
-const npmUpdate = async (_dependency, _newVersion) => {
-  // Placeholder for future renovate-cli implementation
-  return Promise.resolve();
+const npmUpdate = async (packageName, version = 'latest') => {
+  try {
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
@@ -210,7 +216,7 @@ const updateTypeScript = async () => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
+  const task = tasks.has(dependency) ? tasks.get(dependency) : Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
 

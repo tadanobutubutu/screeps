@@ -232,12 +232,12 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
@@ -251,7 +251,7 @@ const validateEmotion = (emotion) => {
     }
     const errors = [];
     if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
-        errors.push('Emotion name must be a non-empty string');
+        errors.push('Emotion name must be a non‑empty string');
     }
     if (!Array.isArray(emotion.tags)) {
         errors.push('Emotion tags must be an array');
@@ -545,7 +545,7 @@ const getStargazerStats = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if ( === undefined ||  === null) {
+    if (!repoData) {
       return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
@@ -706,4 +706,3 @@ module.exports = {
 };
 
 module.exports.real = { ...module.exports };
-=========================================

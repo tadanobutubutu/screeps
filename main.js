@@ -232,12 +232,12 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (trimmedTitle === undefined || trimmedTitle === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (hasConvention === undefined || hasConvention === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
@@ -545,7 +545,7 @@ const getStargazerStats = (repo) => {
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if ( === undefined ||  === null) {
+    if (repoData === undefined || repoData === null) {
       return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
@@ -706,4 +706,3 @@ module.exports = {
 };
 
 module.exports.real = { ...module.exports };
-=========================================

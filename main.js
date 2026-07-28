@@ -98,12 +98,12 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
+    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'latest' });
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
     throw error;
   }
 };

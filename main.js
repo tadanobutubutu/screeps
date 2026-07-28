@@ -78,13 +78,6 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   }
 };
 
-// Helper function to check if a dependency update is awaiting a schedule
-const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
-  return task && !task.completed;
-};
-
 const updateNpmPackage = async ({ name, version }) => {
   try {
     const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
@@ -97,7 +90,6 @@ const updateNpmPackage = async ({ name, version }) => {
   }
 };
 
-// Added GitHub Action updates based on the changes
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');

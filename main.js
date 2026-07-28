@@ -83,7 +83,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 
 const handlePrTitle = (title) => {
   const trimmedTitle = title.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -266,7 +266,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if (category === undefined || category === null) return [...emotions];
+  if (!category) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
@@ -362,12 +362,12 @@ const updateCodeqlAction = async () => {
 const updatePosthogJsToLatest = async () => {
   // Note: spelling corrected to posthog-js to match package name
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
     throw error;
   }
 };

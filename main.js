@@ -7,7 +7,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix.', { stdio: 'inherit' });
+    execSync('npx eslint --fix .', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -16,17 +16,18 @@ const runLinting = () => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr!== 'object') {
+  if (!pr || typeof pr !== 'object') {
     return false;
   }
-  const title = pr.data?.title?? pr.title;
-  if (typeof title!== 'string') {
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
 
@@ -54,12 +55,14 @@ const addTask = (title, priority = 'medium', tags = []) => {
 };
 
 const getTaskById = (taskId) => {
-  return tasks.find(task => task.id === taskId) || null;
+  return tasks.find((task) => task.id === taskId) || null;
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
+  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency using renovate-cli`;
   try {
+    // Note: updateDependencyVersions is assumed to be defined in the global scope or imported from elsewhere
     await updateDependencyVersions(_dependency, _newVersion);
     logging.log('info', `Successfully updated ${_dependency} using renovate-cli`);
     addTask(taskTitle, 'high', ['renovate']);
@@ -70,34 +73,40 @@ const npmUpdate = async (_dependency, _newVersion) => {
 };
 
 const handlePrTitle = (title) => {
-  const trimmedTitle = title?.trim();
+  // Guard against non-string input
+  if (typeof title !== 'string') {
+    return { valid: false, reason: 'Invalid title type', score: 0 };
+  }
+  const trimmedTitle = title.trim();
   if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
+
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
+
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
 const validateEmotion = (emotion) => {
-  if (!emotion || typeof emotion!== 'object') {
+  if (!emotion || typeof emotion !== 'object') {
     return { valid: false, errors: ['Invalid emotion object'] };
   }
 
   const errors = [];
-  if (typeof emotion.name!== 'string' ||!emotion.name.trim()) {
+  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
     errors.push('Emotion name must be a non-empty string');
   }
   if (!Array.isArray(emotion.tags)) {
     errors.push('Emotion tags must be an array');
   }
-  if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
     errors.push('Emotion intensity must be a number between 0 and 1');
   }
-  if (!emotion.category || typeof emotion.category!== 'string') {
+  if (!emotion.category || typeof emotion.category !== 'string') {
     errors.push('Emotion category is required and must be a string');
   }
 
@@ -106,16 +115,16 @@ const validateEmotion = (emotion) => {
 
 const categorizeEmotion = (text) => {
   const lowerText = text.toLowerCase();
-  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
+  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes(' Conditions?')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'orrowful';
+    return 'sorrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'urprised';
+    return 'surprised';
   } else {
     return 'neutral';
   }
@@ -134,8 +143,40 @@ const analyzeEmotionText = (text) => {
   const category = categorizeEmotion(trimmed);
   let confidence = 0.5;
 
-  const positiveWords = ['happy', 'joy', 'love', 'great', 'excellent', 'wonderful', 'fantastic', 'amazing', 'good', 'nice', 'awesome', 'brilliant', 'delight', 'cheerful', 'pleased'];
-  const negativeWords = ['sad', 'bad', 'terrible', 'horrible', 'awful', 'angry', 'upset', 'disappointed', 'hate', 'worst', 'dreadful', 'miserable', 'depressed', 'frustrated', 'annoyed'];
+  const positiveWords = [
+    'happy',
+    'joy',
+    'love',
+    'great',
+    'excellent',
+    'wonderful',
+    'fantastic',
+    'amazing',
+    'good',
+    'nice',
+    'awesome',
+    'brilliant',
+    'delight',
+    'cheerful',
+    'pleased',
+  ];
+  const negativeWords = [
+    'sad',
+    'bad',
+    'terrible',
+    'horrible',
+    'awful',
+    'angry',
+    'upset',
+    'disappointed',
+    'hate',
+    'worst',
+    'dreadful',
+    'miserable',
+    'depressed',
+    'frustrated',
+    'annoyed',
+  ];
 
   let positiveCount = 0;
   let negativeCount = 0;
@@ -202,7 +243,10 @@ const createEmotionProfile = (name, initialEmotions = []) => {
 
 const getEmotionTrends = (emotionData) => {
   if (!Array.isArray(emotionData) || emotionData.length === 0) {
-    return { trends: [], summary: 'No data available' };
+    return {
+      trends: [],
+      summary: 'No data available',
+    };
   }
 
   const trends = [];
@@ -219,10 +263,18 @@ const getEmotionTrends = (emotionData) => {
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
     const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
-    trends.push({ emotion, count: entries.length, averageConfidence: Math.round(avgConfidence * 100) / 100, trend });
+    trends.push({
+      emotion,
+      count: entries.length,
+      averageConfidence: Math.round(avgConfidence * 100) / 100,
+      trend,
+    });
   });
 
-  return { trends, summary: `Analyzed ${emotionData.length} emotion entries across ${Object.keys(grouped).length} categories` };
+  return {
+    trends,
+    summary: `Analyzed ${emotionData.length} emotion entries across ${Object.keys(grouped).length} categories`,
+  };
 };
 
 const detectEmotionConflicts = (emotions) => {
@@ -268,7 +320,8 @@ const createAsyncUpdateTask = async (title, tags = []) => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
+  // Filter tasks with the "update " prefix and the specified dependency
+  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
 
@@ -346,12 +399,12 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthob-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthob-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthob-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthob-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };
@@ -359,7 +412,7 @@ const updatePosthogJsToLatest = async () => {
 const handleLockFileWarning = async () => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
-    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
+    logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
   } catch (error) {
@@ -410,18 +463,9 @@ module.exports = {
   addTask,
   getTaskById,
   npmUpdate,
-  handlePrTitle,
-  validateEmotion,
-  categorizeEmotion,
-  analyzeEmotionText,
-  batchAnalyzeEmotions,
-  createEmotionProfile,
-  getEmotionTrends,
-  detectEmotionConflicts,
-  filterEmotionsByCategory,
-  createAsyncUpdateTask,
-  isAwaitingSchedule,
+  updateDependencyVersions,
   updateNpmPackage,
+  createAsyncUpdateTask,
   updateGitstreamGithubAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,
@@ -431,7 +475,20 @@ module.exports = {
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,
+  isAwaitingSchedule,
+  willRecreateBlockedUpdate,
   fixLintingIssues,
+  runLinting,
+  checkPavoukPr,
+  handlePrTitle,
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  batchAnalyzeEmotions,
+  createEmotionProfile,
+  getEmotionTrends,
+  detectEmotionConflicts,
+  filterEmotionsByCategory
 };
 
 module.exports.real = { ...module.exports };

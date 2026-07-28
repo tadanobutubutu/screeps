@@ -82,7 +82,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 const handlePrTitle = (title) => {
-  if (title === undefined || title === null) {
+  if (title === undefined || title === null || typeof title !== 'string') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();

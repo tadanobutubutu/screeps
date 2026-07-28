@@ -26,7 +26,7 @@ const willRecreateBlockedUpdate = (pr) => {
   if (typeof title !== 'string') {
     return false;
   }
-  const hasPavouk = /Pavouk/i.test(title);
+  const hasPavPavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
@@ -381,14 +381,14 @@ const handleLockFileWarning = async () => {
   } catch (error) {
     logging.log('error', `Failed to handle lock file warning: ${error.message}`);
     throw error;
-  }
+  };
 };
 
 const updateStaleAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update actions/stale to v10');
-    await updateNpmPackage({ name: 'actions/stale', version: 'v10' });
-    logging.log('info', `Successfully updated actions/stale to v10`);
+    const taskId = await createAsyncUpdateTask('update actions/stale to v11');
+    await updateNpmPackage({ name: 'actions/stale', version: 'v11' });
+    logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);

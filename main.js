@@ -1,5 +1,6 @@
 "use strict";
 const { execSync, spawnSync } = require('child_process');
+const fs = require('fs');
 let isLintingRunning = false;
 const runLinting = () => {
   if (isLintingRunning) return;
@@ -13,18 +14,32 @@ const runLinting = () => {
   }
 };
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr!== 'object') {
+  if (!pr || typeof pr !== 'object') {
     return false;
   }
-  const title = pr.data?.title?? pr.title;
-  if (typeof title!== 'tring') {
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') {
     return false;
   }
+
+  // Check for Pavouk PR (existing)
   const hasPavouk = /Pavouk/i.test(title);
-  const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
+  if (hasPavouk) {
+    return true;
+  }
+
+  // Check PR body for Renovate comment indicating a blocked PR
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = /<!--\s*recreate-branch=renovate/i;
+  if (blockedComment.test(body)) {
+    return true;
+  }
+
+  // Existing number match logic
+  const numberMatch = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return hasPavouk || matchesPrNumber;
+  return matchesPrNumber;
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
@@ -84,11 +99,6 @@ const createAsyncUpdateTask = async (title, tags = []) => {
     logging.log('error', `Failed to create task: ${error.message}`);
     throw error;
   }
-};
-
-const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
-  return task && !task.completed;
 };
 
 const updateGitstreamGithubAction = async () => {
@@ -199,6 +209,11 @@ const updateTypeScript = async () => {
   }
 };
 
+const isAwaitingSchedule = (dependency) => {
+  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
+  return task && !task.completed;
+};
+
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
@@ -213,7 +228,7 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title!== 'tring') {
+  if (typeof title!== 'string') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
@@ -268,7 +283,7 @@ const categorizeEmotion = (text) => {
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text!== 'tring') {
+  if (!text || typeof text!== 'string') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -353,7 +368,7 @@ const createEmotionProfile = (name, initialEmotions = []) => {
     name,
     createdAt: new Date(),
     emotions: initialEmotions.map((em) => ({
-      ..em,
+      ...em,
       timestamp: em.timestamp || new Date(),
     })),
     getAverageConfidence() {
@@ -464,8 +479,6 @@ module.exports = {
   updateTypeScript,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
-  fixLintingIssues,
-  runLinting,
   checkPavoukPr,
   handlePrTitle,
   validateEmotion,

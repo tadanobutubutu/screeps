@@ -1,22 +1,20 @@
-const { spawnSync } = require('child_process');
+"use strict"; const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
   // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
-  if (!pr || typeof pr!== 'object') {
+  if (!pr || typeof pr !== 'object') {
     return false;
   }
-
-  const title = (pr.data!= null && pr.data.title!= null)? pr.data.title : pr.title;
+  const title = pr.data?.title ?? pr.title;
   // If title is not a string, we return false to avoid errors in regex test
-  if (typeof title!== 'tring') {
+  if (typeof title !== 'string') {
     return false;
   }
-
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match? match[1] : null;
+  const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
@@ -31,7 +29,7 @@ const logging = {
 let taskIdCounter = 0;
 const tasks = [];
 
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   tasks.push({
     id: taskIdCounter,
@@ -48,13 +46,13 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Based on the issue, it seems we should be using the 'enovate-cli' for dependency updates.
+  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
   // Instead, here's a placeholder function for a future implementation.
   return Promise.resolve();
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'enovate-cli' or another package management tool.
+  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -66,7 +64,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   }
 };
 
-const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
+const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   try {
     const taskId = addTask(title, priority, tags);
     logging.log('info', `Created task: ${title}`);
@@ -81,7 +79,7 @@ const createAsyncUpdateTask = async (title, priority = 'edium', tags = []) => {
 const isAwaitingSchedule = (dependency) => {
   // Filter tasks with the "update " prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
-  return task &&!task.completed;
+  return task && !task.completed;
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -208,6 +206,27 @@ const fixLintingIssues = () => {
 };
 
 module.exports = {
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
+  isAwaitingSchedule,
+  willRecreateBlockedUpdate,
+  fixLintingIssues,
+};
+
+module.exports.real = {
   logging,
   addTask,
   getTaskById,

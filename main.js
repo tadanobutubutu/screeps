@@ -1,15 +1,19 @@
 const logging = {
   log: (level, message) => {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+    if (level === 'FAILSAFE') {
+      console.error(`FAILSAFE: ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   },
 };
 
 let taskIdCounter = 1;
 const tasks = new Map();
 
-const addTask = (description, priority, tags) => {
+const addTask = (description, priority = 'medium', tags = []) => {
   const id = taskIdCounter++;
-  const task = { id, description, priority, tags: tags || [], createdAt: new Date() };
+  const task = { id, description, priority, tags, completed: false, createdAt: new Date() };
   tasks.set(id, task);
   return id;
 };
@@ -134,15 +138,19 @@ const validateEmotion = (emotion) => {
 
 const categorizeEmotion = (text) => {
   const lowerText = text.toLowerCase();
+<<<<<<< HEAD
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
+=======
+  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('love') || lowerText.includes('great') || lowerText.includes('excellent') || lowerText.includes('wonderful') || lowerText.includes('fantastic') || lowerText.includes('amazing') || lowerText.includes('good') || lowerText.includes('nice') || lowerText.includes('awesome') || lowerText.includes('brilliant') || lowerText.includes('delight') || lowerText.includes('cheerful') || lowerText.includes('pleased')) {
+>>>>>>> origin/main
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
     return 'sorrowful';
-  } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
+  } else if (lowerText.includes('angry') || lowerText.includes('frustrated') || lowerText.includes('irritated')) {
     return 'angry';
-  } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
+  } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxious')) {
     return 'fearful';
-  } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
+  } else if (lowerText.includes('surprise') || lowerText.includes('shock') || lowerText.includes('amazed')) {
     return 'surprised';
   } else {
     return 'neutral';
@@ -200,12 +208,12 @@ const analyzeEmotionText = (text) => {
   let negativeCount = 0;
 
   positiveWords.forEach((word) => {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const regex = new RegExp(`${word}\\b`, 'gi');
     if (regex.test(trimmed)) positiveCount++;
   });
 
   negativeWords.forEach((word) => {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    const regex = new RegExp(`${word}\\b`, 'gi');
     if (regex.test(trimmed)) negativeCount++;
   });
 
@@ -327,7 +335,7 @@ const filterEmotionsByCategory = (emotions, category) => {
 };
 
 const runPendingRenovateUpdates = async () => {
-  // List of Renovate‑scheduled updates that have corresponding functions above
+  // List of pending renovate updates
   const pending = [
     { name: 'typescript', fn: updateTypeScript },
     { name: 'posthoh-js', fn: updatePosthohJsToLatest },
@@ -375,34 +383,29 @@ const trackStargazers = async (repo, stargazerList = []) => {
 };
 
 const identifyRunawayStargazers = (repo, threshold = 10) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers)) {
-      return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
-    }
-    const runawayStargazers = repoData.stargazers.filter((s) => {
-      if (s.username && typeof s.username === 'string') {
-        const username = s.username.toLowerCase();
-        const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0)
-          + (username.length < 4 ? 2 : 0)
-          + (/\d{4,}/.test(username) ? 1 : 0);
-        return score >= threshold;
-      }
-      return false;
-    });
-    return {
-      runawayStargazers,
-      totalCount: repoData.stargazers.length,
-      hasRunaways: runawayStargazers.length > 0,
-    };
-  } catch (error) {
-    logging.log('error', `Failed to identify runaway stargazers: ${error.message}`);
-    throw error;
+  if (!repo || typeof repo !== 'string') {
+    throw new Error('Invalid repository identifier');
   }
+  const normalizedRepo = repo.toLowerCase();
+  const repoData = stargazerData.get(normalizedRepo);
+  if (!repoData || !Array.isArray(repoData.stargazers)) {
+    return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
+  }
+  const runawayStargazers = repoData.stargazers.filter((s) => {
+    if (s.username && typeof s.username === 'string') {
+      const username = s.username.toLowerCase();
+      const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i)
+        ? 3
+        : 0) + (username.length < 4 ? 2 : 0) + (/\d{4,}/.test(username) ? 1 : 0);
+      return score >= threshold;
+    }
+    return false;
+  });
+  return {
+    runawayStargazers,
+    totalCount: repoData.stargazers.length,
+    hasRunaways: runawayStargazers.length > 0,
+  };
 };
 
 const getStargazerStats = (repo) => {
@@ -510,8 +513,10 @@ const analyzeStargazerGrowth = (repo) => {
     const secondHalfRate = (timestamps.length - midpoint) > 0
       ? ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24
       : 0;
-    const trend = secondHalfRate > firstHalfRate * 1.5 ? 'accelerating'
-      : secondHalfRate < firstHalfRate * 0.5 ? 'decelerating'
+    const trend = secondHalfRate > firstHalfRate * 1.5
+      ? 'accelerating'
+      : secondHalfRate < firstHalfRate * 0.5
+      ? 'decelerating'
       : 'stable';
     return { growthRate: Math.round(growthRate * 100) / 100, trend, totalStars: stargazers.length };
   } catch (error) {
@@ -520,7 +525,6 @@ const analyzeStargazerGrowth = (repo) => {
   }
 };
 
-// Origin's added function for runaway stargazers via GitHub API
 const trackRunawayStargazers = async () => {
   try {
     const { execSync } = require('child_process');

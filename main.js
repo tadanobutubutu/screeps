@@ -162,14 +162,14 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthohJsToLatest = async () => {
+const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage('posthoh-js', 'v1.407.3');
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
+    await updateNpmPackage('posthog-js', 'v1.407.5');
+    logging.log('info', `Successfully updated posthog-js to v1.407.5`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };
@@ -196,13 +196,13 @@ const updateStaleAction = async () => {
   }
 };
 const updateTypeScript = async () => {
-  await updateNpmPackage('typescript', 'latest');
+  await updateNpmPackage('typescript', '^7.0.2');
 };
 const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
-const fixLintingIssues = () => {
+const fixLintingIsses = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
@@ -487,7 +487,7 @@ module.exports = {
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthohJsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,

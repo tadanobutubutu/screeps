@@ -546,7 +546,7 @@ const getStargazerStats = (repo) => {
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
     if (repoData === undefined || repoData === null) {
-      return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
+      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
     const uniqueUsers = new Set(stargazers.map((s) => s.username));
@@ -706,3 +706,4 @@ module.exports = {
 };
 
 module.exports.real = { ...module.exports };
+=========================================

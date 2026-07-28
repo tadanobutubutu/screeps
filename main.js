@@ -490,3 +490,5 @@ module.exports = {
   detectEmotionConflicts,
   filterEmotionsByCategory
 };
+
+module.exports.real = { ...module.exports };

@@ -81,13 +81,13 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) {
+  if (trimmedTitle === undefined || trimmedTitle === null || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
   if (!hasConvention) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 0 };
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;

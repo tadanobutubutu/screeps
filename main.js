@@ -16,21 +16,17 @@ const runLinting = () => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   if (!pr || typeof pr !== 'object') {
     return false;
   }
   const title = pr.data?.title ?? pr.title;
-  // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
-  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
 
@@ -38,7 +34,6 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 
 const logging = {
   log: (level, message) => {
-    // Basic console logging; replace with a proper logger.FAILSAFE
     console[level](`${level}: ${message}`);
   },
 };
@@ -59,17 +54,15 @@ const addTask = (title, priority = 'medium', tags = []) => {
 };
 
 const getTaskById = (taskId) => {
-  return tasks.find(task => task.id === taskId) || null;
+  return tasks.find((task) => task.id === taskId) || null;
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
+  // Placeholder for future renovate-cli implementation
   return Promise.resolve();
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -82,8 +75,11 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 const handlePrTitle = (title) => {
+  if (typeof title !== 'string') {
+    return { valid: false, reason: 'Invalid title type', score: 0 };
+  }
   const trimmedTitle = title?.trim?.() ?? '';
-  if (title === undefined || title === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -148,8 +144,40 @@ const analyzeEmotionText = (text) => {
   const category = categorizeEmotion(trimmed);
   let confidence = 0.5;
 
-  const positiveWords = ['happy', 'joy', 'love', 'great', 'excellent', 'wonderful', 'fantastic', 'amazing', 'good', 'nice', 'awesome', 'brilliant', 'delight', 'cheerful', 'pleased'];
-  const negativeWords = ['sad', 'bad', 'terrible', 'horrible', 'awful', 'angry', 'upset', 'disappointed', 'hate', 'worst', 'dreadful', 'miserable', 'depressed', 'frustrated', 'annoyed'];
+  const positiveWords = [
+    'happy',
+    'joy',
+    'love',
+    'great',
+    'excellent',
+    'wonderful',
+    'fantastic',
+    'amazing',
+    'good',
+    'nice',
+    'awesome',
+    'brilliant',
+    'delight',
+    'cheerful',
+    'pleased',
+  ];
+  const negativeWords = [
+    'sad',
+    'bad',
+    'terrible',
+    'horrible',
+    'awful',
+    'angry',
+    'upset',
+    'disappointed',
+    'hate',
+    'worst',
+    'dreadful',
+    'miserable',
+    'depressed',
+    'frustrated',
+    'annoyed',
+  ];
 
   let positiveCount = 0;
   let negativeCount = 0;
@@ -216,7 +244,10 @@ const createEmotionProfile = (name, initialEmotions = []) => {
 
 const getEmotionTrends = (emotionData) => {
   if (!Array.isArray(emotionData) || emotionData.length === 0) {
-    return { trends: [], summary: 'No data available' };
+    return {
+      trends: [],
+      summary: 'No data available',
+    };
   }
 
   const trends = [];
@@ -233,10 +264,18 @@ const getEmotionTrends = (emotionData) => {
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
     const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
-    trends.push({ emotion, count: entries.length, averageConfidence: Math.round(avgConfidence * 100) / 100, trend });
+    trends.push({
+      emotion,
+      count: entries.length,
+      averageConfidence: Math.round(avgConfidence * 100) / 100,
+      trend,
+    });
   });
 
-  return { trends, summary: `Analyzed ${emotionData.length} emotion entries across ${Object.keys(grouped).length} categories` };
+  return {
+    trends,
+    summary: `Analyzed ${emotionData.length} emotion entries across ${Object.keys(grouped).length} categories`,
+  };
 };
 
 const detectEmotionConflicts = (emotions) => {
@@ -282,8 +321,7 @@ const createAsyncUpdateTask = async (title, tags = []) => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
+  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
 
@@ -360,7 +398,6 @@ const updateCodeqlAction = async () => {
 };
 
 const updatePosthogJsToLatest = async () => {
-  // Note: spelling corrected to posthog-js to match package name
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
     await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
@@ -375,7 +412,7 @@ const updatePosthogJsToLatest = async () => {
 const handleLockFileWarning = async () => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
-    logging.log('warn', 'Multiple npm lock files detected. Consider consolidating to a single lock file.');
+    logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
     logging.log('info', 'Lock file consolidation task created');
     return taskId;
   } catch (error) {
@@ -441,7 +478,6 @@ module.exports = {
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
   fixLintingIssues,
-  // Additional exported utilities from the merged conflict
   runLinting,
   checkPavoukPr,
   handlePrTitle,
@@ -452,7 +488,7 @@ module.exports = {
   createEmotionProfile,
   getEmotionTrends,
   detectEmotionConflicts,
-  filterEmotionsByCategory,
+  filterEmotionsByCategory
 };
 
 module.exports.real = { ...module.exports };

@@ -43,23 +43,27 @@ const willRecreateBlockedUpdate = (pr) => {
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
-    log: (level, message) => {
-        if (level === 'FAILSAFE') {
-            console[level](`FailSafe: ${message}`);
-        } else {
-            console[level](`${level}: ${message}`);
-        }
+  log: (level, message) => {
+    if (level === 'FAILSAFE') {
+      console[level](`FailSafe: ${message}`);
+    } else {
+      const method = level.toUpperCase();
+      const prefix = `[${method}]`;
+      const consoleMethod = method in console ? console[method] : console.log;
+      consoleMethod(`${prefix} ${message}`);
     }
+  }
 };
 let taskIdCounter = 0;
-const tasks = [];
+const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
-    taskIdCounter++;
-    tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
-    return taskIdCounter;
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  tasks.set(taskIdCounter, task);
+  return taskIdCounter;
 };
 const getTaskById = (taskId) => {
-    return tasks.find((task) => task.id === taskId) || null;
+  return tasks.get(taskId) || null;
 };
 const npmUpdate = async (_dependency, _newVersion) => {
   // Placeholder for future renovate-cli implementation
@@ -210,7 +214,7 @@ const updateTypeScript = async () => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
+  const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
 
@@ -653,7 +657,6 @@ const analyzeStargazerGrowth = (repo) => {
   }
 };
 
-// Origin's added function for runaway stargazers via GitHub API
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });

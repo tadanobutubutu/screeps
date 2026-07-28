@@ -83,12 +83,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 
 const handlePrTitle = (title) => {
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
-  if (!hasConvention) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
@@ -266,7 +266,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if (!category) return [...emotions];
+  if ( === undefined ||  === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 

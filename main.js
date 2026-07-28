@@ -116,7 +116,7 @@ const validateEmotion = (emotion) => {
 
 const categorizeEmotion = (text) => {
   const lowerText = text.toLowerCase();
-  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes(' Conditions?')) {
+  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
     return 'sorrowful';

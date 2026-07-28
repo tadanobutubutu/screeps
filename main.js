@@ -2,27 +2,27 @@
 const { execSync, spawnSync } = require('child_process');
 let isLintingRunning = false;
 const runLinting = () => {
-    if (isLintingRunning) return;
-    isLintingRunning = true;
-    try {
-        execSync('npx eslint --fix .', { stdio: 'inherit' });
-    } catch (error) {
-        console.error('Linting failed:', error.message);
-    } finally {
-        isLintingRunning = false;
-    }
+  if (isLintingRunning) return;
+  isLintingRunning = true;
+  try {
+    execSync('npx eslint --fix .', { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Linting failed:', error.message);
+  } finally {
+    isLintingRunning = false;
+  }
 };
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr !== 'object') {
+  if (!pr || typeof pr!== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') {
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'tring') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
   const match = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = match ? match[1] : null;
+  const blockedPrNumber = match? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return hasPavouk || matchesPrNumber;
 };
@@ -213,7 +213,7 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title !== 'string') {
+  if (typeof title!== 'tring') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
@@ -221,12 +221,12 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
@@ -255,20 +255,20 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'sorrowful';
+    return 'orrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'surprised';
+    return 'urprised';
   } else {
     return 'neutral';
   }
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text !== 'string') {
+  if (!text || typeof text!== 'tring') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -298,7 +298,7 @@ const analyzeEmotionText = (text) => {
     'pleased',
   ];
   const negativeWords = [
-    'sad',
+    'ad',
     'bad',
     'terrible',
     'horrible',
@@ -309,7 +309,7 @@ const analyzeEmotionText = (text) => {
     'hate',
     'worst',
     'dreadful',
-    'miserable',
+    'iserable',
     'depressed',
     'frustrated',
     'annoyed',
@@ -353,7 +353,7 @@ const createEmotionProfile = (name, initialEmotions = []) => {
     name,
     createdAt: new Date(),
     emotions: initialEmotions.map((em) => ({
-      ...em,
+      ..em,
       timestamp: em.timestamp || new Date(),
     })),
     getAverageConfidence() {
@@ -399,7 +399,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
+    const trend = entries.length > 1? (entries[entries.length - 1].confidence >= entries[0].confidence? 'improving' : 'declining') : 'table';
     trends.push({
       emotion,
       count: entries.length,
@@ -423,7 +423,7 @@ const detectEmotionConflicts = (emotions) => {
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
-    if (current.emotion !== next.emotion) {
+    if (current.emotion!== next.emotion) {
       const intensityDiff = Math.abs(current.confidence - next.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({
@@ -478,4 +478,4 @@ module.exports = {
   filterEmotionsByCategory
 };
 
-module.exports.real = { ...module.exports };
+module.exports.real = {...module.exports };

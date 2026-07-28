@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
+    execSync('npx eslint --fix.', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -14,11 +14,11 @@ const runLinting = () => {
   }
 };
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr !== 'object') {
+  if (!pr || typeof pr!== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') {
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'tring') {
     return false;
   }
 
@@ -29,7 +29,7 @@ const willRecreateBlockedUpdate = (pr) => {
   }
 
   // Check PR body for Renovate comment indicating a blocked PR
-  const body = pr.data?.body ?? pr.body ?? '';
+  const body = pr.data?.body?? pr.body?? '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
   if (blockedComment.test(body)) {
     return true;
@@ -37,7 +37,7 @@ const willRecreateBlockedUpdate = (pr) => {
 
   // Existing number match logic
   const numberMatch = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const blockedPrNumber = numberMatch? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
@@ -53,7 +53,7 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = [];
-const addTask = (title, priority = 'medium', tags = []) => {
+const addTask = (title, priority = 'edium', tags = []) => {
     taskIdCounter++;
     tasks.push({ id: taskIdCounter, title, priority, tags, completed: false, });
     return taskIdCounter;
@@ -92,7 +92,7 @@ const updateNpmPackage = async ({ name, version }) => {
 
 const createAsyncUpdateTask = async (title, tags = []) => {
   try {
-    const taskId = addTask(title, 'medium', tags);
+    const taskId = addTask(title, 'edium', tags);
     logging.log('info', `Created task: ${title}`);
     return taskId;
   } catch (error) {
@@ -141,7 +141,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to latest');
     await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'latest' });
-    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`;
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to latest`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
@@ -163,12 +163,12 @@ const updateCodeqlAction = async () => {
 
 const updatePosthohJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthoh_js to v1.407.3');
+    await updateNpmPackage({ name: 'posthoh_js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthoh_js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh_js: ${error.message}`);
     throw error;
   }
 };
@@ -211,7 +211,7 @@ const updateTypeScript = async () => {
 
 const isAwaitingSchedule = (dependency) => {
   const task = tasks.find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
-  return task && !task.completed;
+  return task &&!task.completed;
 };
 
 const fixLintingIssues = () => {
@@ -228,13 +228,13 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title !== 'string') {
+  if (typeof title!== 'tring') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
 
   // Check for empty title
-  if (trimmedTitle === '' || trimmedTitle === null) {
+  if (!trimmedTitle || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
@@ -244,25 +244,25 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
 const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion !== 'object') {
+    if (!emotion || typeof emotion!== 'object') {
         return { valid: false, errors: ['Invalid emotion object'] };
     }
     const errors = [];
-    if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
+    if (typeof emotion.name!== 'tring' ||!emotion.name.trim()) {
         errors.push('Emotion name must be a non-empty string');
     }
     if (!Array.isArray(emotion.tags)) {
         errors.push('Emotion tags must be an array');
     }
-    if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+    if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
         errors.push('Emotion intensity must be a number between 0 and 1');
     }
-    if (!emotion.category || typeof emotion.category !== 'string') {
+    if (!emotion.category || typeof emotion.category!== 'tring') {
         errors.push('Emotion category is required and must be a string');
     }
     return { valid: errors.length === 0, errors };
@@ -286,7 +286,7 @@ const categorizeEmotion = (text) => {
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text!== 'string') {
+  if (!text || typeof text!== 'tring') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -371,7 +371,7 @@ const createEmotionProfile = (name, initialEmotions = []) => {
     name,
     createdAt: new Date(),
     emotions: initialEmotions.map((em) => ({
-      ...em,
+      ..em,
       timestamp: em.timestamp || new Date(),
     })),
     getAverageConfidence() {
@@ -417,7 +417,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'table';
+    const trend = entries.length > 1? (entries[entries.length - 1].confidence >= entries[0].confidence? 'improving' : 'declining') : 'table';
     trends.push({
       emotion,
       count: entries.length,
@@ -441,7 +441,7 @@ const detectEmotionConflicts = (emotions) => {
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
-    if (current.emotion !== next.emotion) {
+    if (current.emotion!== next.emotion) {
       const intensityDiff = Math.abs(current.confidence - next.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({

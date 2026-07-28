@@ -71,7 +71,7 @@ const npmUpdate = async (_dependency, _newVersion) => {
 
 const handlePrTitle = (title) => {
   const trimmedTitle = title?.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null || trimmedTitle === '') {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);

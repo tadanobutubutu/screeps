@@ -18,30 +18,42 @@ const willRecreateBlockedUpdate = (pr) => {
     return false;
   }
   const title = pr.data?.title?? pr.title;
-  if (typeof title!== 'tring') {
+  if (typeof title!== 'string') {
     return false;
   }
 
-  // Check for Pavouk PR (existing)
   const hasPavouk = /Pavouk/i.test(title);
   if (hasPavouk) {
     return true;
   }
 
-  // Check PR body for Renovate comment indicating a blocked PR
   const body = pr.data?.body?? pr.body?? '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
   if (blockedComment.test(body)) {
     return true;
   }
 
-  // Existing number match logic
   const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
+const handlePrTitle = (title) => {
+  if (!title) {
+    return { valid: false, reason: 'Empty title', score: 0 };
+  }
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle) {
+    return { valid: false, reason: 'Empty title', score: 0 };
+  }
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  if (!hasConvention) {
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  }
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  return { valid: true, reason: '', score: lengthScore };
+};
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
@@ -105,7 +117,6 @@ const updateGitstreamGithubAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
 const updateActionsLabeler = async () => {
@@ -138,7 +149,6 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
 const updateCodeqlAction = async () => {
@@ -204,11 +214,10 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
-// Stargazer tracking functions
 let stargazerData = new Map();
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
-    if (!repo || typeof repo!== 'tring') {
+    if (!repo || typeof repo!== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
@@ -237,7 +246,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
 };
 const identifyRunawayStargazers = (repo, threshold = 10) => {
   try {
-    if (!repo || typeof repo!== 'tring') {
+    if (!repo || typeof repo!== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
@@ -246,7 +255,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
       return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
     }
     const runawayStargazers = repoData.stargazers.filter((s) => {
-      if (s.username && typeof s.username === 'tring') {
+      if (s.username && typeof s.username === 'string') {
         const username = s.username.toLowerCase();
         const score =
           (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i)
@@ -270,7 +279,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
 };
 const getStargazerStats = (repo) => {
   try {
-    if (!repo || typeof repo!== 'tring') {
+    if (!repo || typeof repo!== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
@@ -300,7 +309,7 @@ const getStargazerStats = (repo) => {
 };
 const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
   try {
-    if (!repo || typeof repo!== 'tring') {
+    if (!repo || typeof repo!== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
@@ -348,7 +357,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
 };
 const analyzeStargazerGrowth = (repo) => {
   try {
-    if (!repo || typeof repo!== 'tring') {
+    if (!repo || typeof repo!== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();

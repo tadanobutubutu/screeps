@@ -1,7 +1,10 @@
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
   // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
-  const title = pr.data?.title ?? pr.title;
+  if (!pr) {
+    return false;
+  }
+  const title = (pr.data?.title ?? pr.title) || '';
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);

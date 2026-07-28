@@ -45,9 +45,9 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
     log: (level, message) => {
         if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+            console[level](`FailSafe: ${message}`);
         } else {
-            console[level]?.( `${level}: ${message}` );
+            console[level](`${level}: ${message}`);
         }
     }
 };
@@ -232,7 +232,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle.length === 0) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 

@@ -1,16 +1,14 @@
-const { spawnSync } = require('child_process');
 "use strict";
+const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-
   const title = pr.data?.title ?? pr.title;
   if (typeof title !== 'string') {
     return false;
   }
-
   const hasPavouk = /Pavouk/i.test(title);
   // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
@@ -60,9 +58,9 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   }
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, tags = []) => {
   try {
-    const taskId = addTask(title, priority, tags);
+    const taskId = addTask(title, 'medium', tags);
     logging.log('info', `Created task: ${title}`);
     return taskId;
   } catch (error) {
@@ -71,7 +69,23 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   }
 };
 
-// New updates based on origin/main
+const isAwaitingSchedule = (dependency) => {
+  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
+  return task && !task.completed;
+};
+
+const updateNpmPackage = async ({ name, version }) => {
+  try {
+    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
+    await updateDependencyVersions(name, version);
+    logging.log('info', `Successfully updated ${name} to ${version}`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update ${name}: ${error.message}`);
+    throw error;
+  }
+};
+
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -168,7 +182,6 @@ const updateStaleAction = async () => {
   }
 };
 
-// New lint fix utility from HEAD
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js', './src/managers/roomManager.js'], { stdio: 'inherit' });
@@ -180,11 +193,6 @@ const fixLintingIssues = () => {
   } catch (error) {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
-};
-
-const isAwaitingSchedule = (dependency) => {
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
-  return task && !task.completed;
 };
 
 module.exports = {

@@ -65,12 +65,28 @@ const addTask = (title, priority = 'medium', tags = []) => {
 const getTaskById = (taskId) => {
   return tasks.get(taskId) || null;
 };
-const npmUpdate = async (_dependency, _newVersion) => {
-  // Placeholder for future renovate-cli implementation
-  return Promise.resolve();
+const npmUpdate = async (packageName, version = 'latest') => {
+  try {
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
 };
-
+const updateNpmPackage = async (packageName, version) => {
+  await npmUpdate(packageName, version);
+};
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+};
 const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -81,34 +97,10 @@ const updateDependencyVersions = async (dependency, newVersion) => {
     throw error;
   }
 };
-
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
-    throw error;
-  }
-};
-
-const createAsyncUpdateTask = async (title, tags = []) => {
-  try {
-    const taskId = addTask(title, 'medium', tags);
-    logging.log('info', `Created task: ${title}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to create task: ${error.message}`);
-    throw error;
-  }
-};
-
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -116,11 +108,10 @@ const updateGitstreamGithubAction = async () => {
     // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
-
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
+    await updateNpmPackage('actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -128,11 +119,10 @@ const updateActionsLabeler = async () => {
     throw error;
   }
 };
-
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
+    await updateNpmPackage('linear-bots/gitstream', 'latest');
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
   } catch (error) {
@@ -140,11 +130,10 @@ const updateLinearBotsGitstream = async () => {
     throw error;
   }
 };
-
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
-    await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -152,11 +141,10 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
-
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-    await updateNpmPackage({ name: 'github/codeql-action', version: 'v4' });
+    await updateNpmPackage('github/codeql-action', 'v4');
     logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
   } catch (error) {
@@ -164,11 +152,10 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-
 const updatePosthohJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
+    await updateNpmPackage('posthog-js', 'v1.407.3');
     logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
     return taskId;
   } catch (error) {
@@ -176,7 +163,6 @@ const updatePosthohJsToLatest = async () => {
     throw error;
   }
 };
-
 const handleLockFileWarning = async () => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
@@ -188,11 +174,10 @@ const handleLockFileWarning = async () => {
     throw error;
   }
 };
-
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v11');
-    await updateNpmPackage({ name: 'actions/stale', version: 'v11' });
+    await updateNpmPackage('actions/stale', 'v11');
     logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
   } catch (error) {
@@ -200,12 +185,13 @@ const updateStaleAction = async () => {
     throw error;
   }
 };
-
+const updateTypeScript = async () => {
+  await updateNpmPackage('typescript', 'latest');
+};
 const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
-
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
@@ -218,269 +204,20 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
-
-const handlePrTitle = (title) => {
-  if (typeof title !== 'string') {
-    return { valid: false, reason: 'Invalid title type', score: 0 };
-  }
-  const trimmedTitle = title.trim();
-  if (!trimmedTitle) {
-    return { valid: false, reason: 'Empty title', score: 0 };
-  }
-
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
-  }
-
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
-  return { valid: true, reason: 'Valid title', score: lengthScore };
-};
-
-const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion !== 'object') {
-        return { valid: false, errors: ['Invalid emotion object'] };
-    }
-    const errors = [];
-    if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
-        errors.push('Emotion name must be a non-empty string');
-    }
-    if (!Array.isArray(emotion.tags)) {
-        errors.push('Emotion tags must be an array');
-    }
-    if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
-        errors.push('Emotion intensity must be a number between 0 and 1');
-    }
-    if (!emotion.category || typeof emotion.category !== 'string') {
-        errors.push('Emotion category is required and must be a string');
-    }
-    return { valid: errors.length === 0, errors };
-};
-
-const categorizeEmotion = (text) => {
-  const lowerText = text.toLowerCase();
-  if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
-    return 'joyful';
-  } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'sorrowful';
-  } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
-    return 'angry';
-  } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
-    return 'fearful';
-  } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'surprised';
-  } else {
-    return 'neutral';
-  }
-};
-
-const analyzeEmotionText = (text) => {
-  if (!text || typeof text !== 'string') {
-    return { emotion: 'neutral', confidence: 0 };
-  }
-
-  const trimmed = text.trim();
-  if (trimmed.length === 0) {
-    return { emotion: 'neutral', confidence: 0 };
-  }
-
-  const category = categorizeEmotion(trimmed);
-  let confidence = 0.5;
-
-  const positiveWords = [
-    'happy',
-    'joy',
-    'love',
-    'great',
-    'excellent',
-    'wonderful',
-    'fantastic',
-    'amazing',
-    'good',
-    'nice',
-    'awesome',
-    'brilliant',
-    'delight',
-    'cheerful',
-    'pleased',
-  ];
-  const negativeWords = [
-    'bad',
-    'terrible',
-    'horrible',
-    'awful',
-    'angry',
-    'upset',
-    'disappointed',
-    'hate',
-    'worst',
-    'dreadful',
-    'miserable',
-    'depressed',
-    'frustrated',
-    'annoyed',
-  ];
-
-  let positiveCount = 0;
-  let negativeCount = 0;
-
-  positiveWords.forEach((word) => {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
-    if (regex.test(trimmed)) positiveCount++;
-  });
-
-  negativeWords.forEach((word) => {
-    const regex = new RegExp(`\\b${word}\\b`, 'gi');
-    if (regex.test(trimmed)) negativeCount++;
-  });
-
-  if (positiveCount > negativeCount) {
-    confidence = Math.min(0.5 + positiveCount * 0.1, 1.0);
-  } else if (negativeCount > positiveCount) {
-    confidence = Math.min(0.5 + negativeCount * 0.1, 1.0);
-  }
-
-  return { emotion: category, confidence: Math.round(confidence * 100) / 100 };
-};
-
-const batchAnalyzeEmotions = (texts) => {
-  if (!Array.isArray(texts)) {
-    return [];
-  }
-
-  return texts.map((text) => ({
-    text,
-    analysis: analyzeEmotionText(text),
-  }));
-};
-
-const createEmotionProfile = (name, initialEmotions = []) => {
-  const profile = {
-    name,
-    createdAt: new Date(),
-    emotions: initialEmotions.map((em) => ({
-      ...em,
-      timestamp: em.timestamp || new Date(),
-    })),
-    getAverageConfidence() {
-      if (this.emotions.length === 0) return 0;
-      const sum = this.emotions.reduce((acc, curr) => acc + curr.analysis.confidence, 0);
-      return Math.round((sum / this.emotions.length) * 100) / 100;
-    },
-    getDominantEmotion() {
-      if (this.emotions.length === 0) return null;
-      let maxConf = 0;
-      let dominant = null;
-      this.emotions.forEach((em) => {
-        if (em.analysis.confidence > maxConf) {
-          maxConf = em.analysis.confidence;
-          dominant = em.analysis.emotion;
-        }
-      });
-      return dominant;
-    },
-  };
-
-  return profile;
-};
-
-const getEmotionTrends = (emotionData) => {
-  if (!Array.isArray(emotionData) || emotionData.length === 0) {
-    return {
-      trends: [],
-      summary: 'No data available',
-    };
-  }
-
-  const trends = [];
-  const grouped = {};
-
-  emotionData.forEach((entry) => {
-    const { emotion, confidence, timestamp } = entry;
-    if (!grouped[emotion]) {
-      grouped[emotion] = [];
-    }
-    grouped[emotion].push({ confidence, timestamp: timestamp || new Date() });
-  });
-
-  Object.entries(grouped).forEach(([emotion, entries]) => {
-    const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
-    trends.push({
-      emotion,
-      count: entries.length,
-      averageConfidence: Math.round(avgConfidence * 100) / 100,
-      trend,
-    });
-  });
-
-  return {
-    trends,
-    summary: `Analyzed ${emotionData.length} emotion entries across ${Object.keys(grouped).length} categories`,
-  };
-};
-
-const detectEmotionConflicts = (emotions) => {
-  if (!Array.isArray(emotions) || emotions.length < 2) {
-    return { conflicts: [], hasConflict: false };
-  }
-
-  const conflicts = [];
-  for (let i = 0; i < emotions.length - 1; i++) {
-    const current = emotions[i];
-    const next = emotions[i + 1];
-    if (current.emotion !== next.emotion) {
-      const intensityDiff = Math.abs(current.confidence - next.confidence);
-      if (intensityDiff > 0.5) {
-        conflicts.push({
-          from: current.emotion,
-          to: next.emotion,
-          intensityDifference: intensityDiff,
-          position: i,
-        });
-      }
-    }
-  }
-
-  return { conflicts, hasConflict: conflicts.length > 0 };
-};
-
-const filterEmotionsByCategory = (emotions, category) => {
-  if (!Array.isArray(emotions)) return [];
-  if (category === undefined || category === null) return [...emotions];
-  return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
-};
-
-const runPendingRenovateUpdates = async () => {
-  // List of Renovate‑scheduled updates that have corresponding functions above
-  const pending = [
-    { name: 'typescript', fn: updateTypeScript },
-    { name: 'posthoh-js', fn: updatePosthohJsToLatest },
-    { name: 'actions/stale', fn: updateStaleAction },
-    { name: 'linear-bots/gitstream-github-action', fn: updateLinearBotsGitstreamGithubAction },
-  ];
-  for (const { name, fn } of pending) {
-    if (isAwaitingSchedule(name)) {
-      try {
-        await fn();
-        logging.log('info', `Renovate update processed for ${name}`);
-      } catch (e) {
-        logging.log('warn', `Failed to process Renovate update for ${name}: ${e.message}`);
-      }
-    }
-  }
-};
-
 // Stargazer tracking functions
 let stargazerData = new Map();
-
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
-    const existingData = stargazerData.get(normalizedRepo) || { repo, stargazers: [], firstSeen: new Date(), lastUpdated: new Date() };
+    const existingData = stargazerData.get(normalizedRepo) || {
+      repo,
+      stargazers: [],
+      firstSeen: new Date(),
+      lastUpdated: new Date(),
+    };
     const now = new Date();
     existingData.lastUpdated = now;
     existingData.stargazers = stargazerList.map((s) => ({
@@ -498,7 +235,6 @@ const trackStargazers = async (repo, stargazerList = []) => {
     throw error;
   }
 };
-
 const identifyRunawayStargazers = (repo, threshold = 10) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -512,9 +248,12 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     const runawayStargazers = repoData.stargazers.filter((s) => {
       if (s.username && typeof s.username === 'string') {
         const username = s.username.toLowerCase();
-        const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0)
-          + (username.length < 4 ? 2 : 0)
-          + (/\d{4,}/.test(username) ? 1 : 0);
+        const score =
+          (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i)
+            ? 3
+            : 0) +
+          (username.length < 4 ? 2 : 0) +
+          (/\d{4,}/.test(username) ? 1 : 0);
         return score >= threshold;
       }
       return false;
@@ -529,7 +268,6 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     throw error;
   }
 };
-
 const getStargazerStats = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -560,7 +298,6 @@ const getStargazerStats = (repo) => {
     throw error;
   }
 };
-
 const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -609,7 +346,6 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     throw error;
   }
 };
-
 const analyzeStargazerGrowth = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -633,18 +369,23 @@ const analyzeStargazerGrowth = (repo) => {
       ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
       : 0;
     const secondHalfRate = (timestamps.length - midpoint) > 0
-      ? ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24
+      ? (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
       : 0;
-    const trend = secondHalfRate > firstHalfRate * 1.5 ? 'accelerating'
-      : secondHalfRate < firstHalfRate * 0.5 ? 'decelerating'
+    const trend = secondHalfRate > firstHalfRate * 1.5
+      ? 'accelerating'
+      : secondHalfRate < firstHalfRate * 0.5
+      ? 'decelerating'
       : 'stable';
-    return { growthRate: Math.round(growthRate * 100) / 100, trend, totalStars: stargazers.length };
+    return {
+      growthRate: Math.round(growthRate * 100) / 100,
+      trend,
+      totalStars: stargazers.length,
+    };
   } catch (error) {
     logging.log('error', `Failed to analyze stargazer growth: ${error.message}`);
     throw error;
   }
 };
-
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });

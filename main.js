@@ -74,9 +74,7 @@ const handlePrTitle = (title) => {
   if (trimmedTitle === undefined || trimmedTitle === null || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
-
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
-  
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }

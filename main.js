@@ -1,3 +1,5 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 

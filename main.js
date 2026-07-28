@@ -67,15 +67,8 @@ const npmUpdate = async (_dependency, _newVersion) => {
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
-  try {
-    await npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
-    addTask(taskTitle, 'high', ['renovate']);
-  } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
-    throw error;
-  }
+  // Placeholder for future renovate-cli implementation
+  return Promise.resolve();
 };
 
 const updateNpmPackage = async ({ name, version }) => {
@@ -270,13 +263,13 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'orrowful';
+    return ' sorrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'urprised';
+    return 'surprised';
   } else {
     return 'neutral';
   }
@@ -313,7 +306,6 @@ const analyzeEmotionText = (text) => {
     'pleased',
   ];
   const negativeWords = [
-    'ad',
     'bad',
     'terrible',
     'horrible',
@@ -324,7 +316,7 @@ const analyzeEmotionText = (text) => {
     'hate',
     'worst',
     'dreadful',
-    'iserable',
+    'miserable',
     'depressed',
     'frustrated',
     'annoyed',
@@ -414,7 +406,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'table';
+    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
     trends.push({
       emotion,
       count: entries.length,
@@ -491,4 +483,4 @@ module.exports = {
   filterEmotionsByCategory
 };
 
-module.exports.real = {...module.exports };
+module.exports.real = { ...module.exports };

@@ -333,6 +333,7 @@ const isAwaitingSchedule = (dependency) => {
   return task && !task.completed;
 };
 
+// New utility to address ESLint linting violations automatically
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });

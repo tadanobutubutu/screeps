@@ -14,6 +14,21 @@ const runLinting = () => {
   }
 };
 
+const checkPavoukPr = (pr) => {
+  const title = (pr.data != null && pr.data.title != null) ? pr.data.title : pr.title;
+  // If title is not a string, we return false to avoid errors in regex test
+  if (typeof title !== 'string') {
+    return false;
+  }
+
+  const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title (as a standalone word)
+  const match = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = match ? match[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
+  return hasPavouk || matchesPrNumber;
+};
+
 const handlePrTitle = (title) => {
   const trimmedTitle = title.trim();
   if (!trimmedTitle) {
@@ -203,8 +218,33 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
+const updateNpmPackage = async ({ name, version }) => {
+  try {
+    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
+    await updateDependencyVersions(name, version);
+    logging.log('info', `Successfully updated ${name} to ${version}`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update ${name}: ${error.message}`);
+    throw error;
+  }
+};
+
+const updateGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    await updateNpmPackage({ name: 'gitstream-github-action', version: 'v4' });
+    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update gitstream-github-action: ${error.message}`);
+    throw error;
+  }
+};
+
 module.exports = {
   runLinting,
+  checkPavoukPr,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
@@ -214,10 +254,13 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
+  updateNpmPackage,
+  updateGitstreamGithubAction,
 };
 
 module.exports.real = {
   runLinting,
+  checkPavoukPr,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
@@ -227,4 +270,6 @@ module.exports.real = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
+  updateNpmPackage,
+  updateGitstreamGithubAction,
 };

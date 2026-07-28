@@ -49,9 +49,9 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+      console[level](`FailSafe: ${message}`);
     } else {
-      console[level]?.( `${level}: ${message}` );
+      console[level](`${level}: ${message}`);
     }
   }
 };
@@ -543,14 +543,7 @@ const getStargazerStats = (repo) => {
     const repoData = stargazerData.get(normalizedRepo);
 
     if (repoData === undefined || repoData === null) {
-      return {
-        totalCount: 0,
-        uniqueUsers: 0,
-        averageActivity: 0,
-        firstSeen: new Date(),
-        lastUpdated: new Date(),
-        hasData: false,
-      };
+      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, firstSeen: new Date(), lastUpdated: new Date(), hasData: false };
     }
 
     const stargazers = repoData.stargazers;
@@ -714,6 +707,14 @@ const trackRunawayStargazers = async () => {
   }
 };
 
+function handleConventionalCommit(title) {
+  if (!title) return { valid: false, reason: 'Empty title', score: 0 };
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(title);
+  if (!hasConvention) return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  const lengthScore = title.length <= 72 ? 100 : 50;
+  return { valid: true, score: lengthScore };
+}
+
 module.exports = {
   logging,
   addTask,
@@ -735,6 +736,7 @@ module.exports = {
   willRecreateBlockedUpdate,
   checkPavoukPr,
   handlePrTitle,
+  handleConventionalCommit,
   validateEmotion,
   categorizeEmotion,
   analyzeEmotionText,

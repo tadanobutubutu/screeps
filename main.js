@@ -228,11 +228,10 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title!== 'tring') {
+  if (typeof title !== 'string') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-
   // Check for empty title
   if (!trimmedTitle || trimmedTitle === '') {
     return { valid: false, reason: 'Empty title', score: 0 };
@@ -244,13 +243,13 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
 const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion!== 'object') {
-        return { valid: false, errors: ['Invalid emotion object'] };
+    if (!emotion || typeof emotion!== 'tring' ||!emotion.name.trim()) {
+        return { valid: false, errors: ['Emotion name must be a non-empty string'] };
     }
     const errors = [];
     if (typeof emotion.name!== 'tring' ||!emotion.name.trim()) {

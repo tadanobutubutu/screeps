@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix .', { stdio: 'inherit' });
+    execSync('npx eslint --fix.', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -14,11 +14,11 @@ const runLinting = () => {
   }
 };
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr !== 'object') {
+  if (!pr || typeof pr!== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') {
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'tring') {
     return false;
   }
 
@@ -29,7 +29,7 @@ const willRecreateBlockedUpdate = (pr) => {
   }
 
   // Check PR body for Renovate comment indicating a blocked PR
-  const body = pr.data?.body ?? pr.body ?? '';
+  const body = pr.data?.body?? pr.body?? '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
   if (blockedComment.test(body)) {
     return true;
@@ -37,30 +37,33 @@ const willRecreateBlockedUpdate = (pr) => {
 
   // Existing number match logic
   const numberMatch = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const blockedPrNumber = numberMatch? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
-    log: (level, message) => {
-        if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
-        } else {
-            console[level]?.( `[${level.toUpperCase()}] ${message}` );
-        }
+  log: (level, message) => {
+    if (level === 'FAILSAFE') {
+      console.log(`FailSafe: ${message}`);
+    } else {
+      const method = level.toUpperCase();
+      const prefix = `[${method}]`;
+      const consoleMethod = method in console? console[method] : console.log;
+      consoleMethod(`${prefix} ${message}`);
     }
+  }
 };
 let taskIdCounter = 1;
 const tasks = new Map();
-const addTask = (title, priority = 'medium', tags = []) => {
-    taskIdCounter++;
-    const task = { id: taskIdCounter, title, priority, tags, completed: false };
-    tasks.set(taskIdCounter, task);
-    return taskIdCounter;
+const addTask = (title, priority = 'edium', tags = []) => {
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  tasks.set(taskIdCounter, task);
+  return taskIdCounter;
 };
 const getTaskById = (taskId) => {
-    return tasks.get(taskId);
+  return tasks.get(taskId) || null;
 };
 const npmUpdate = async (packageName, version = 'latest') => {
   try {
@@ -73,6 +76,12 @@ const npmUpdate = async (packageName, version = 'latest') => {
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' &&!Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -84,21 +93,9 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   }
 };
 
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
-    throw error;
-  }
-};
-
 const createAsyncUpdateTask = async (title, tags = []) => {
   try {
-    const taskId = addTask(title, 'medium', tags);
+    const taskId = addTask(title, 'edium', tags);
     logging.log('info', `Created task: ${title}`);
     return taskId;
   } catch (error) {
@@ -107,9 +104,13 @@ const createAsyncUpdateTask = async (title, tags = []) => {
   }
 };
 
+const updateNpmPackage = async ({ name, version }) => {
+  await npmUpdate(name, version);
+};
+
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4', ['dependency-update']);
     await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
@@ -118,10 +119,9 @@ const updateGitstreamGithubAction = async () => {
     // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
-
 const updateActionsLabeler = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
+    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7', ['dependency-update']);
     await updateNpmPackage({ name: 'actions/labeler', version: 'v7' });
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
@@ -130,10 +130,9 @@ const updateActionsLabeler = async () => {
     throw error;
   }
 };
-
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest', ['dependency-update']);
     await updateNpmPackage({ name: 'linear-bots/gitstream', version: 'latest' });
     logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
     return taskId;
@@ -142,10 +141,9 @@ const updateLinearBotsGitstream = async () => {
     throw error;
   }
 };
-
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4', ['dependency-update']);
     await updateNpmPackage({ name: 'linear-bots/gitstream-github-action', version: 'v4' });
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
@@ -154,10 +152,9 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     // Do not re‑throw – Renovate will handle the failure gracefully
   }
 };
-
 const updateCodeqlAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
+    const taskId = await createAsyncUpdateTask('update github/codeql-action to v4', ['dependency-update']);
     await updateNpmPackage({ name: 'github/codeql-action', version: 'v4' });
     logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
@@ -166,15 +163,14 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-
 const updatePosthohJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3', ['dependency-update']);
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };
@@ -190,10 +186,9 @@ const handleLockFileWarning = async () => {
     throw error;
   }
 };
-
 const updateStaleAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update actions/stale to v11');
+    const taskId = await createAsyncUpdateTask('update actions/stale to v11', ['dependency-update']);
     await updateNpmPackage({ name: 'actions/stale', version: 'v11' });
     logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
@@ -202,10 +197,9 @@ const updateStaleAction = async () => {
     throw error;
   }
 };
-
 const updateTypeScript = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update typescript to ^7.0.2');
+    const taskId = await createAsyncUpdateTask('update typescript to ^7.0.2', ['dependency-update']);
     await updateNpmPackage({ name: 'typescript', version: '^7.0.2' });
     logging.log('info', `Successfully updated typescript to ^7.0.2`);
     return taskId;
@@ -216,8 +210,8 @@ const updateTypeScript = async () => {
 };
 
 const isAwaitingSchedule = (dependency) => {
-  const task = tasks.has(dependency) ? tasks.get(dependency) : Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
-  return task && !task.completed;
+  const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
+  return task &&!task.completed;
 };
 
 const fixLintingIssues = () => {
@@ -234,7 +228,7 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title !== 'string') {
+  if (typeof title!== 'tring') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
@@ -247,28 +241,28 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
 const validateEmotion = (emotion) => {
-    if (!emotion || typeof emotion !== 'object') {
-        return { valid: false, errors: ['Invalid emotion object'] };
-    }
-    const errors = [];
-    if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
-        errors.push('Emotion name must be a non-empty string');
-    }
-    if (!Array.isArray(emotion.tags)) {
-        errors.push('Emotion tags must be an array');
-    }
-    if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
-        errors.push('Emotion intensity must be a number between 0 and 1');
-    }
-    if (!emotion.category || typeof emotion.category !== 'string') {
-        errors.push('Emotion category is required and must be a string');
-    }
-    return { valid: errors.length === 0, errors };
+  if (!emotion || typeof emotion!== 'object') {
+    return { valid: false, errors: ['Invalid emotion object'] };
+  }
+  const errors = [];
+  if (typeof emotion.name!== 'tring' ||!emotion.name.trim()) {
+    errors.push('Emotion name must be a non-empty string');
+  }
+  if (!Array.isArray(emotion.tags)) {
+    errors.push('Emotion tags must be an array');
+  }
+  if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+    errors.push('Emotion intensity must be a number between 0 and 1');
+  }
+  if (!emotion.category || typeof emotion.category!== 'tring') {
+    errors.push('Emotion category is required and must be a string');
+  }
+  return { valid: errors.length === 0, errors };
 };
 
 const categorizeEmotion = (text) => {
@@ -276,20 +270,20 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'sorrowful';
+    return 'orrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'surprised';
+    return 'urprised';
   } else {
     return 'neutral';
   }
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text !== 'string') {
+  if (!text || typeof text!== 'tring') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -302,37 +296,10 @@ const analyzeEmotionText = (text) => {
   let confidence = 0.5;
 
   const positiveWords = [
-    'happy',
-    'joy',
-    'love',
-    'great',
-    'excellent',
-    'wonderful',
-    'fantastic',
-    'amazing',
-    'good',
-    'nice',
-    'awesome',
-    'brilliant',
-    'delight',
-    'cheerful',
-    'pleased',
+    'happy', 'joy', 'love', 'great', 'excellent', 'wonderful', 'fantastic', 'amazing', 'good', 'nice', 'awesome', 'brilliant', 'delight', 'cheerful', 'pleased',
   ];
   const negativeWords = [
-    'bad',
-    'terrible',
-    'horrible',
-    'awful',
-    'angry',
-    'upset',
-    'disappointed',
-    'hate',
-    'worst',
-    'dreadful',
-    'miserable',
-    'depressed',
-    'frustrated',
-    'annoyed',
+    'bad', 'terrible', 'horrible', 'awful', 'angry', 'upset', 'disappointed', 'hate', 'worst', 'dreadful', 'iserable', 'depressed', 'frustrated', 'annoyed',
   ];
 
   let positiveCount = 0;
@@ -373,7 +340,7 @@ const createEmotionProfile = (name, initialEmotions = []) => {
     name,
     createdAt: new Date(),
     emotions: initialEmotions.map((em) => ({
-      ...em,
+      ..em,
       timestamp: em.timestamp || new Date(),
     })),
     getAverageConfidence() {
@@ -419,7 +386,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
+    const trend = entries.length > 1? (entries[entries.length - 1].confidence >= entries[0].confidence? 'improving' : 'declining') : 'table';
     trends.push({
       emotion,
       count: entries.length,
@@ -443,7 +410,7 @@ const detectEmotionConflicts = (emotions) => {
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
-    if (current.emotion !== next.emotion) {
+    if (current.emotion!== next.emotion) {
       const intensityDiff = Math.abs(current.confidence - next.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({
@@ -469,7 +436,7 @@ const runPendingRenovateUpdates = async () => {
   // List of Renovate‑scheduled updates that have corresponding functions above
   const pending = [
     { name: 'typescript', fn: updateTypeScript },
-    { name: 'posthoh-js', fn: updatePosthohJsToLatest },
+    { name: 'posthog-js', fn: updatePosthohJsToLatest },
     { name: 'actions/stale', fn: updateStaleAction },
     { name: 'linear-bots/gitstream-github-action', fn: updateLinearBotsGitstreamGithubAction },
   ];
@@ -487,10 +454,9 @@ const runPendingRenovateUpdates = async () => {
 
 // Stargazer tracking functions
 let stargazerData = new Map();
-
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
-    if (!repo || typeof repo !== 'string') {
+    if (!repo || typeof repo!== 'tring') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
@@ -504,7 +470,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
     }));
     existingData.totalCount = existingData.stargazers.length;
     stargazerData.set(normalizedRepo, existingData);
-    addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
+    addTask(`Track stargazers for ${repo}`, 'edium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
     return existingData;
   } catch (error) {
@@ -512,23 +478,22 @@ const trackStargazers = async (repo, stargazerList = []) => {
     throw error;
   }
 };
-
 const identifyRunawayStargazers = (repo, threshold = 10) => {
   try {
-    if (!repo || typeof repo !== 'string') {
+    if (!repo || typeof repo!== 'tring') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers)) {
+    if (!repoData ||!Array.isArray(repoData.stargazers)) {
       return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
     }
     const runawayStargazers = repoData.stargazers.filter((s) => {
-      if (s.username && typeof s.username === 'string') {
+      if (s.username && typeof s.username === 'tring') {
         const username = s.username.toLowerCase();
-        const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0)
-          + (username.length < 4 ? 2 : 0)
-          + (/\d{4,}/.test(username) ? 1 : 0);
+        const score = (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i)? 3 : 0)
+          + (username.length < 4? 2 : 0)
+          + (/\d{4,}/.test(username)? 1 : 0);
         return score >= threshold;
       }
       return false;
@@ -546,20 +511,20 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
 
 const getStargazerStats = (repo) => {
   try {
-    if (!repo || typeof repo !== 'string') {
+    if (!repo || typeof repo!== 'tring') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (repoData === undefined || repoData === null) {
-      return { totalCount: 0, averageActivity: 0, growthRate: 0, hasData: false };
+    if (!repoData ||!Array.isArray(repoData.stargazers)) {
+      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
     const uniqueUsers = new Set(stargazers.map((s) => s.username));
     const uniqueCount = uniqueUsers.size;
     const activityScores = stargazers.map((_, i) => i);
     const avgActivity = activityScores.length > 0
-      ? Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
+        Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
       : 0;
     return {
       totalCount: stargazers.length,
@@ -574,15 +539,14 @@ const getStargazerStats = (repo) => {
     throw error;
   }
 };
-
 const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
   try {
-    if (!repo || typeof repo !== 'string') {
+    if (!repo || typeof repo!== 'tring') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length === 0) {
+    if (!repoData ||!Array.isArray(repoData.stargazers) || repoData.stargazers.length === 0) {
       return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
     }
     const stargazers = repoData.stargazers;
@@ -591,7 +555,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
-      if (!isNaN(prevTime) && !isNaN(currTime)) {
+      if (!isNaN(prevTime) &&!isNaN(currTime)) {
         timeDiffs.push(Math.abs(currTime - prevTime));
       }
     }
@@ -605,7 +569,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
-      if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
+      if (!isNaN(prevTime) &&!isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
         anomalies.push({
           index: i,
           username: stargazers[i].username,
@@ -623,35 +587,36 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     throw error;
   }
 };
-
 const analyzeStargazerGrowth = (repo) => {
   try {
-    if (!repo || typeof repo !== 'string') {
+    if (!repo || typeof repo!== 'tring') {
       throw new Error('Invalid repository identifier');
     }
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: repoData ? repoData.stargazers.length : 0 };
+    if (!repoData ||!Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
+      return { growthRate: 0, trend: 'table', totalStars: repoData? repoData.stargazers.length : 0 };
     }
     const stargazers = repoData.stargazers;
-    const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) => !isNaN(t));
+    const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) =>!isNaN(t));
     if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
+      return { growthRate: 0, trend: 'table', totalStars: stargazers.length };
     }
     timestamps.sort((a, b) => a - b);
     const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
-    const growthRate = timeSpan > 0 ? (stargazers.length / timeSpan) * 1000 * 60 * 60 * 24 : 0;
+    const growthRate = timeSpan > 0? (stargazers.length / timeSpan) * 1000 * 60 * 60 * 24 : 0;
     const midpoint = Math.floor(timestamps.length / 2);
     const firstHalfRate = midpoint > 0
-      ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
+       (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
       : 0;
     const secondHalfRate = (timestamps.length - midpoint) > 0
-      ? ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24
+       ((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24
       : 0;
-    const trend = secondHalfRate > firstHalfRate * 1.5 ? 'accelerating'
-      : secondHalfRate < firstHalfRate * 0.5 ? 'decelerating'
-      : 'stable';
+    const trend = secondHalfRate > firstHalfRate * 1.5
+       'accelerating'
+      : secondHalfRate < firstHalfRate * 0.5
+       'decelerating'
+      : 'table';
     return { growthRate: Math.round(growthRate * 100) / 100, trend, totalStars: stargazers.length };
   } catch (error) {
     logging.log('error', `Failed to analyze stargazer growth: ${error.message}`);
@@ -659,7 +624,6 @@ const analyzeStargazerGrowth = (repo) => {
   }
 };
 
-// Origin's added function for runaway stargazers via GitHub API
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
@@ -711,4 +675,4 @@ module.exports = {
   trackRunawayStargazers
 };
 
-module.exports.real = { ...module.exports };
+module.exports.real = {...module.exports };

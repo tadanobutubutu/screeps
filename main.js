@@ -90,8 +90,8 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
 
 // Helper function to check if a dependency update is awaiting a schedule
 const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "Update" prefix and the specified dependency
-  const task = tasks.find(task => task.title.startsWith("Update ") && task.title.includes(dependency));
+  // Filter tasks with the "update " prefix and the specified dependency
+  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
   return task && !task.completed;
 };
 

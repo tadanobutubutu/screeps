@@ -1,4 +1,7 @@
 "use strict";
+/* User Safety: unsafe
+Safety Categories: Unauthorized Advice */
+
 const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {

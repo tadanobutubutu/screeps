@@ -43,6 +43,44 @@ const logging = {
   },
 };
 
+let taskIdCounter = 0;
+const tasks = [];
+
+const addTask = (title, priority = 'medium', tags = []) => {
+  taskIdCounter++;
+  tasks.push({
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+  });
+  return taskIdCounter;
+};
+
+const getTaskById = (taskId) => {
+  return tasks.find(task => task.id === taskId) || null;
+};
+
+const npmUpdate = async (_dependency, _newVersion) => {
+  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
+  // Instead, here's a placeholder function for a future implementation.
+  return Promise.resolve();
+};
+
+const updateDependencyVersions = async (dependency, newVersion) => {
+  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  try {
+    await npmUpdate(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    addTask(taskTitle, 'high', ['renovate']);
+  } catch (error) {
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    throw error;
+  }
+};
+
 const handlePrTitle = (title) => {
   const trimmedTitle = title.trim();
   if (!trimmedTitle) {
@@ -133,36 +171,6 @@ const analyzeEmotionText = (text) => {
   }
 
   return { emotion: category, confidence: Math.round(confidence * 100) / 100 };
-};
-
-const npmUpdate = async (_dependency, _newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
-  return Promise.resolve();
-};
-
-const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
-  try {
-    await npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
-    addTask(taskTitle, 'high', ['renovate']);
-  } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
-    throw error;
-  }
-};
-
-const createAsyncUpdateTask = async (title, tags) => {
-  try {
-    const taskId = addTask(title, 'medium', tags);
-    logging.log('info', `Created task: ${title}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to create task: ${error.message}`);
-    throw error;
-  }
 };
 
 const batchAnalyzeEmotions = (texts) => {
@@ -262,6 +270,17 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
+const createAsyncUpdateTask = async (title, tags = []) => {
+  try {
+    const taskId = addTask(title, 'medium', tags);
+    logging.log('info', `Created task: ${title}`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to create task: ${error.message}`);
+    throw error;
+  }
+};
+
 const isAwaitingSchedule = (dependency) => {
   // Filter tasks with the "update " prefix and the specified dependency
   const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
@@ -340,10 +359,11 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const updatePosthogJsToLatest = async () => {
+const updatePosthohJsToLatest = async () => {
+  // Note: spelling corrected to posthog-js to match package name
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
     logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
     return taskId;
   } catch (error) {
@@ -390,38 +410,25 @@ const fixLintingIssues = () => {
 };
 
 module.exports = {
-  runLinting,
-  checkPavoukPr,
-  handlePrTitle,
-  validateEmotion,
-  categorizeEmotion,
-  analyzeEmotionText,
-  batchAnalyzeEmotions,
-  createEmotionProfile,
-  getEmotionTrends,
-  detectEmotionConflicts,
-  filterEmotionsByCategory,
-  updateNpmPackage,
-  updateGitstreamGithubAction,
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
   updateDependencyVersions,
+  updateNpmPackage,
   createAsyncUpdateTask,
+  updateGitstreamGithubAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthogJsToLatest,
+  updatePosthohJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
   fixLintingIssues,
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-};
-
-module.exports.real = {
+  // Additional exported utilities from the merged conflict
   runLinting,
   checkPavoukPr,
   handlePrTitle,
@@ -433,8 +440,6 @@ module.exports.real = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
-  updateNpmPackage,
-  updateGitstreamGithubAction,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
 };
+
+module.exports.real = { ...module.exports };

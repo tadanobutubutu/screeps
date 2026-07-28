@@ -45,9 +45,9 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 const logging = {
     log: (level, message) => {
         if (level === 'FAILSAFE') {
-            console[level]?.call?.console?.log?.(`FailSafe: ${message}`);
+            console[level](`FailSafe: ${message}`);
         } else {
-            console[level]?.( `${level}: ${message}` );
+            console[level](`${level}: ${message}`);
         }
     }
 };

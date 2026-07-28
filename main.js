@@ -65,7 +65,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   }
 };
 
-const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
+const createAsyncUpdateTask = async (title, tags = []) => {
   try {
     const taskId = addTask(title, 'medium', tags);
     logging.log('info', `Created task: ${title}`);
@@ -191,6 +191,7 @@ const updateStaleAction = async () => {
 };
 
 const fixLintingIssues = () => {
+  // New utility to address ESLint linting violations automatically
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
@@ -199,7 +200,7 @@ const fixLintingIssues = () => {
       logging.log('error', 'ESLint fix failed.');
     }
   } catch (error) {
-    logging.log('error', `Failed to run lint: ${error.message}`);
+    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
 

@@ -1,19 +1,18 @@
 const { spawnSync } = require('child_process');
+"use strict";
 
 const willRecreateBlockedUpdate = (pr) => {
-  // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
-  // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
   if (!pr || typeof pr !== 'object') {
     return false;
   }
 
-  const title = (pr.data != null && pr.data.title != null) ? pr.data.title : pr.title;
-  // If title is not a string, we return false to avoid errors in regex test
+  const title = pr.data?.title ?? pr.title;
   if (typeof title !== 'string') {
     return false;
   }
 
   const hasPavouk = /Pavouk/i.test(title);
+  // Extract the first number in the title (as a standalone word)
   const match = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = match ? match[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber) === pr.number;
@@ -22,7 +21,6 @@ const willRecreateBlockedUpdate = (pr) => {
 
 const logging = {
   log: (level, message) => {
-    // Basic console logging; replace with a proper logger as needed
     console[level](`${level}: ${message}`);
   },
 };
@@ -47,13 +45,10 @@ const getTaskById = (taskId) => {
 };
 
 const npmUpdate = async (_dependency, _newVersion) => {
-  // Based on the issue, it seems we should be using the 'renovate-cli' for dependency updates.
-  // Instead, here's a placeholder function for a future implementation.
   return Promise.resolve();
 };
 
 const updateDependencyVersions = async (dependency, newVersion) => {
-  // Asynchronously update dependency versions using 'renovate-cli' or another package management tool.
   const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
   try {
     await npmUpdate(dependency, newVersion);
@@ -76,26 +71,7 @@ const createAsyncUpdateTask = async (title, priority = 'medium', tags = []) => {
   }
 };
 
-// Helper function to check if a dependency update is awaiting a schedule
-const isAwaitingSchedule = (dependency) => {
-  // Filter tasks with the "update " prefix and the specified dependency
-  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
-  return task && !task.completed;
-};
-
-const updateNpmPackage = async ({ name, version }) => {
-  try {
-    const taskId = await createAsyncUpdateTask(`update ${name} to ${version}`);
-    await updateDependencyVersions(name, version);
-    logging.log('info', `Successfully updated ${name} to ${version}`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update ${name}: ${error.message}`);
-    throw error;
-  }
-};
-
-// Added GitHub Action updates based on the changes
+// New updates based on origin/main
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -192,7 +168,7 @@ const updateStaleAction = async () => {
   }
 };
 
-// New utility to address ESLint linting violations automatically
+// New lint fix utility from HEAD
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js', './src/managers/roomManager.js'], { stdio: 'inherit' });
@@ -204,6 +180,11 @@ const fixLintingIssues = () => {
   } catch (error) {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
+};
+
+const isAwaitingSchedule = (dependency) => {
+  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
+  return task && !task.completed;
 };
 
 module.exports = {
@@ -227,23 +208,4 @@ module.exports = {
   fixLintingIssues,
 };
 
-module.exports.real = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
-};
+module.exports.real = { ...module.exports };

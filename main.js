@@ -1,32 +1,75 @@
+"use strict";
+_cast adjustments to keep all functionalities*
+
+const { execSync, spawnSync } = require('child_process');
+const fs44 = require('fs');
+
+let isLintingRunning = false;
+const runLinting = () => {
+  if (isLintingRunning) return;
+  isLintingRunning = true;
+  try {
+    execSync('npx eslint --fix .', { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Linting failed:', error.message);
+  } finally {
+    isLintingRunning = false;
+  }
+};
+
+const willRecreateBlockedUpdate = (pr) => {
+  if (!pr || typeof pr !== 'object') return false;
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') return false;
+
+  // Check for Pavouk PR (existing)
+  const hasPavouk = /Pavouk/i.test(title);
+  if (hasPavouk) return true;
+
+  // Check PR body for Renovate comment indicating a blocked PR
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = /<!--\s*recreate-branch=renovate/i;
+  if (blockedComment.test(body)) return true;
+
+  const numberMatch = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
+};
+
+const checkPavoukPr = willRecreateBlockedUpdate;
+
 const logging = {
   log: (level, message) => {
-    console.log(`[${level.toUpperCase()}] ${message}`);
-  },
+    if (level === 'FAILSAFE') {
+      console.log(`FailSafe: ${message}`);
+    } else {
+      console[level]?.(`[${level.toUpperCase()}] ${message}`);
+    }
+  }
 };
 
 let taskIdCounter = 1;
 const tasks = new Map();
 
-const addTask = (description, priority, tags) => {
+const addTask = (description, priority = 'medium', tags = []) => {
   const id = taskIdCounter++;
-  const task = { 
-    id, 
-    description, 
-    priority, 
-    tags: tags || [], 
-    createdAt: new Date() 
+  const task = {
+    id,
+    title: description,
+    priority,
+    tags: tags || [],
+    completed: false,
+    createdAt: new Date()
   };
   tasks.set(id, task);
   return id;
 };
 
-const getTaskById = (id) => {
-  return tasks.get(id);
-};
+const getTaskById = (id) => tasks.get(id);
 
 const npmUpdate = async (packageName, version = 'latest') => {
   try {
-    const { execSync } = require('child_process');
     execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
@@ -35,9 +78,32 @@ const npmUpdate = async (packageName, version = 'latest') => {
   }
 };
 
-const updateDependencyVersions = async (dependencies) => {
-  for (const [name, version] of Object.entries(dependencies)) {
-    await npmUpdate(name, version);
+const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  try {
+    await npmUpdate(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    addTask(taskTitle, 'high', ['renovate']);
+  } catch (error) {
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    throw error;
+  }
+};
+
+const createAsyncUpdateTask = async (title, tags = []) => {
+  try {
+    const taskId = addTask(title, 'medium', tags);
+    logging.log('info', `Created task: ${title}`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to create task: ${error.message}`);
+    throw error;
   }
 };
 
@@ -89,8 +155,24 @@ const isAwaitingSchedule = (updateName) => {
   return Math.random() > 0.5;
 };
 
-const willRecreateBlockedUpdate = (updateName) => {
-  return Math.random() > 0.5;
+const willRecreateBlockedUpdate = (pr) => {
+  if (!pr || typeof pr !== 'object') return false;
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') return false;
+
+  // Check for Pavouk PR (existing)
+  const hasPavouk = /Pavouk/i.test(title);
+  if (hasPavouk) return true;
+
+  // Check PR body for Renovate comment indicating a blocked PR
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = /<!--\s*recreate-branch=renovate/i;
+  if (blockedComment.test(body)) return true;
+
+  const numberMatch = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
 };
 
 const checkPavoukPr = (pr) => {
@@ -431,7 +513,7 @@ const getStargazerStats = (repo) => {
     const stargazers = repoData.stargazers || [];
     const uniqueUsers = new Set(stargazers.map((s) => s.username));
     const totalCount = uniqueUsers.size;
-    const activityScores = stargazers.map((_, i) => i);
+    const activityScores = stargazers.map((s, i) => i);
     const avgActivity = activityScores.length > 0
       ? Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
       : 0;
@@ -523,7 +605,7 @@ const analyzeStargazerGrowth = (repo) => {
       ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
       : 0;
     const secondHalfRate = (timestamps.length - midpoint) > 0
-      ? (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint])) * 1000 * 60 * 60 * 24)
+      ? (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
       : 0;
     const trend = secondHalfRate > firstHalfRate * 1.5
       ? 'accelerating'
@@ -568,7 +650,7 @@ module.exports = {
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthogJsToLatest,
+  updatePosthohJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,

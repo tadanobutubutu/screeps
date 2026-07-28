@@ -1,3 +1,5 @@
+const { spawnSync } = require('child_process');
+
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
   // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
@@ -192,11 +194,9 @@ const updateStaleAction = async () => {
 };
 
 // New utility to address ESLint linting violations automatically
-const { spawnSync } = require('child_process');
-
 const fixLintingIssues = () => {
   try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
       logging.log('info', 'ESLint fix completed successfully.');
     } else {
@@ -227,24 +227,4 @@ module.exports = {
   willRecreateBlockedUpdate,
   fixLintingIssues,
 };
-
-module.exports.real = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
-};
+```

@@ -7,7 +7,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix.', { stdio: 'inherit' });
+    execSync('npx eslint --fix .', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -16,11 +16,11 @@ const runLinting = () => {
 };
 
 const willRecreateBlockedUpdate = (pr) => {
-  if (!pr || typeof pr!== 'object') {
+  if (!pr || typeof pr !== 'object') {
     return false;
   }
-  const title = pr.data?.title?? pr.title;
-  if (typeof title!== 'string') {
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') {
     return false;
   }
   const hasPavouk = /Pavouk/i.test(title);
@@ -73,34 +73,40 @@ const npmUpdate = async (_dependency, _newVersion) => {
 };
 
 const handlePrTitle = (title) => {
-  const trimmedTitle = title?.trim();
+  // Guard against non-string input
+  if (typeof title !== 'string') {
+    return { valid: false, reason: 'Invalid title type', score: 0 };
+  }
+  const trimmedTitle = title.trim();
   if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
+
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?: .+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
+
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
 const validateEmotion = (emotion) => {
-  if (!emotion || typeof emotion!== 'object') {
+  if (!emotion || typeof emotion !== 'object') {
     return { valid: false, errors: ['Invalid emotion object'] };
   }
 
   const errors = [];
-  if (typeof emotion.name!== 'string' ||!emotion.name.trim()) {
+  if (typeof emotion.name !== 'string' || !emotion.name.trim()) {
     errors.push('Emotion name must be a non-empty string');
   }
   if (!Array.isArray(emotion.tags)) {
     errors.push('Emotion tags must be an array');
   }
-  if (typeof emotion.intensity!== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
+  if (typeof emotion.intensity !== 'number' || emotion.intensity < 0 || emotion.intensity > 1) {
     errors.push('Emotion intensity must be a number between 0 and 1');
   }
-  if (!emotion.category || typeof emotion.category!== 'string') {
+  if (!emotion.category || typeof emotion.category !== 'string') {
     errors.push('Emotion category is required and must be a string');
   }
 
@@ -457,18 +463,9 @@ module.exports = {
   addTask,
   getTaskById,
   npmUpdate,
-  handlePrTitle,
-  validateEmotion,
-  categorizeEmotion,
-  analyzeEmotionText,
-  batchAnalyzeEmotions,
-  createEmotionProfile,
-  getEmotionTrends,
-  detectEmotionConflicts,
-  filterEmotionsByCategory,
-  createAsyncUpdateTask,
-  isAwaitingSchedule,
+  updateDependencyVersions,
   updateNpmPackage,
+  createAsyncUpdateTask,
   updateGitstreamGithubAction,
   updateActionsLabeler,
   updateLinearBotsGitstream,
@@ -478,7 +475,18 @@ module.exports = {
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,
+  isAwaitingSchedule,
+  willRecreateBlockedUpdate,
   fixLintingIssues,
+  runLinting,
+  checkPavoukPr,
+  handlePrTitle,
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  batchAnalyzeEmotions,
+  createEmotionProfile,
+  getEmotionTrends,
+  detectEmotionConflicts,
+  filterEmotionsByCategory
 };
-
-module.exports.real = { ...module.exports };

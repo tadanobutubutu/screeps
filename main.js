@@ -5,7 +5,7 @@ const willRecreateBlockedUpdate = (pr) => {
     return false;
   }
 
-  const title = pr.data?.title ?? pr.title;
+  const title = pr.data != null ? pr.data.title : pr.title;
   // If title is not a string, we return false to avoid errors in regex test
   if (typeof title !== 'string') {
     return false;

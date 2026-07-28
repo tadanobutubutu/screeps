@@ -1,3 +1,5 @@
+const { spawnSync } = require('child_process');
+
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
   // Also checks for a number in the title (e.g., "123" or "#123") that matches the current PR number.
@@ -192,8 +194,6 @@ const updateStaleAction = async () => {
 };
 
 // New utility to address ESLint linting violations automatically
-const { spawnSync } = require('child_process');
-
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });

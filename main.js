@@ -1,5 +1,4 @@
-'use strict';
-const { spawnSync } = require('child_process');
+"use strict"; const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")
@@ -184,7 +183,12 @@ const updateStaleAction = async () => {
   }
 };
 
-// New utility to address ESLint linting violations automatically
+const isAwaitingSchedule = (dependency) => {
+  // Filter tasks with the "update " prefix and the specified dependency
+  const task = tasks.find(task => task.title.startsWith("update ") && task.title.includes(dependency));
+  return task && !task.completed;
+};
+
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
@@ -199,6 +203,27 @@ const fixLintingIssues = () => {
 };
 
 module.exports = {
+  logging,
+  addTask,
+  getTaskById,
+  npmUpdate,
+  updateDependencyVersions,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
+  isAwaitingSchedule,
+  willRecreateBlockedUpdate,
+  fixLintingIssues,
+};
+
+module.exports.real = {
   logging,
   addTask,
   getTaskById,

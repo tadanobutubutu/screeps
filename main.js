@@ -1,4 +1,4 @@
-"use strict"; const { spawnSync } = require('child_process');
+const "use strict"; const { spawnSync } = require('child_process');
 
 const willRecreateBlockedUpdate = (pr) => {
   // Returns true if the PR title indicates it blocks an update (e.g., contains "Pavouk")

@@ -258,9 +258,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
       if (s.username && typeof s.username === 'string') {
         const username = s.username.toLowerCase();
         const score =
-          (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i)
-             3
-            : 0) +
+          (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0) +
           (username.length < 4? 2 : 0) +
           (/\d{4,}/.test(username)? 1 : 0);
         return score >= threshold;
@@ -292,7 +290,7 @@ const getStargazerStats = (repo) => {
     const uniqueCount = uniqueUsers.size;
     const activityScores = stargazers.map((_, i) => i);
     const avgActivity = activityScores.length > 0
-       Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
+       ? Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
       : 0;
     return {
       totalCount: stargazers.length,
@@ -375,10 +373,10 @@ const analyzeStargazerGrowth = (repo) => {
     const growthRate = timeSpan > 0? (stargazers.length / timeSpan) * 1000 * 60 * 60 * 24 : 0;
     const midpoint = Math.floor(timestamps.length / 2);
     const firstHalfRate = midpoint > 0
-       (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
+       ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
       : 0;
     const secondHalfRate = (timestamps.length - midpoint) > 0
-       (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
+       ? (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
       : 0;
     const trend = secondHalfRate > firstHalfRate * 1.5
        ? 'accelerating'
@@ -447,4 +445,3 @@ module.exports = {
 };
 
 module.exports.real = {...module.exports };
-=========================================

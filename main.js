@@ -163,12 +163,12 @@ const updateCodeqlAction = async () => {
 
 const updatePosthohJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthoh_js to v1.407.3');
+    await updateNpmPackage({ name: 'posthoh_js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthoh_js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh_js: ${error.message}`);
     throw error;
   }
 };
@@ -270,13 +270,13 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'orrowful';
+    return 'sorrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'urprised';
+    return 'surprised';
   } else {
     return 'neutral';
   }
@@ -324,7 +324,7 @@ const analyzeEmotionText = (text) => {
     'hate',
     'worst',
     'dreadful',
-    'iserable',
+    'miserable',
     'depressed',
     'frustrated',
     'annoyed',
@@ -414,7 +414,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'table';
+    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
     trends.push({
       emotion,
       count: entries.length,

@@ -227,24 +227,3 @@ module.exports = {
   willRecreateBlockedUpdate,
   fixLintingIssues,
 };
-
-module.exports.real = {
-  logging,
-  addTask,
-  getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  fixLintingIssues,
-};

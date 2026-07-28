@@ -204,6 +204,22 @@ const updateStaleAction = async () => {
   }
 };
 
+// New utility to address ESLint linting violations automatically
+const { spawnSync } = require('child_process');
+
+const fixLintingIssues = () => {
+  try {
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './main.js'], { stdio: 'inherit' });
+    if (result.status === 0) {
+      logging.log('info', 'ESLint fix completed successfully.');
+    } else {
+      logging.log('error', 'ESLint fix failed.');
+    }
+  } catch (error) {
+    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -222,6 +238,7 @@ module.exports = {
   updateStaleAction,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
+  fixLintingIssues,
 };
 
 module.exports.real = {
@@ -242,4 +259,5 @@ module.exports.real = {
   updateStaleAction,
   isAwaitingSchedule,
   willRecreateBlockedUpdate,
+  fixLintingIssues,
 };

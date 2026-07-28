@@ -479,6 +479,31 @@ const runPendingRenovateUpdates = async () => {
   }
 };
 
+const trackStargazers = async () => {
+  try {
+    const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
+    const stargazers = JSON.parse(output);
+    logging.log('info', `Tracked ${stargazers.length} stargazers`);
+    return stargazers;
+  } catch (error) {
+    logging.log('error', `Failed to track stargazers: ${error.message}`);
+    return [];
+  }
+};
+
+const trackRunawayStargazers = async () => {
+  try {
+    const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
+    const stargazers = JSON.parse(output);
+    const runaway = stargazers.filter((user) => user?.type === 'Bot');
+    logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
+    return runaway;
+  } catch (error) {
+    logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
+    return [];
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -508,7 +533,9 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
-  runPendingRenovateUpdates
+  runPendingRenovateUpdates,
+  trackStargazers,
+  trackRunawayStargazers
 };
 
 module.exports.real = { ...module.exports };

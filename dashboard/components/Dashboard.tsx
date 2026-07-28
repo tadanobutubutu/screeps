@@ -124,16 +124,49 @@ export default function Dashboard() {
 
     if (loading)
         return (
-            <p
+            <div
                 aria-live="polite"
+                aria-busy="true"
                 style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
                     padding: '2rem',
                     fontFamily: 'monospace',
-                    animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                 }}
             >
-                読み込み中...
-            </p>
+                <svg
+                    viewBox="0 0 24 24"
+                    style={{
+                        width: '1.5rem',
+                        height: '1.5rem',
+                        animation: 'spin 1s linear infinite',
+                        color: '#004b73',
+                    }}
+                    aria-hidden="true"
+                >
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray="42"
+                        style={{ opacity: 0.2 }}
+                    />
+                    <path
+                        d="M12 2 C 6.48 2 2 6.48 2 12"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        fill="none"
+                    />
+                </svg>
+                <span style={{ animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }}>
+                    読み込み中...
+                </span>
+            </div>
         );
     if (error)
         return (

@@ -228,20 +228,20 @@ const fixLintingIssues = () => {
 };
 
 const handlePrTitle = (title) => {
-  if (typeof title!== 'string') {
+  if (typeof title !== 'string') {
     return { valid: false, reason: 'Invalid title type', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
 
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
 
-  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: 'Valid title', score: lengthScore };
 };
 
@@ -270,20 +270,20 @@ const categorizeEmotion = (text) => {
   if (lowerText.includes('happy') || lowerText.includes('joy') || lowerText.includes('glad')) {
     return 'joyful';
   } else if (lowerText.includes('sad') || lowerText.includes('sorrow') || lowerText.includes('unhappy')) {
-    return 'orrowful';
+    return ' sorrowful';
   } else if (lowerText.includes('angry') || lowerText.includes('frustrat') || lowerText.includes('irritat')) {
     return 'angry';
   } else if (lowerText.includes('fear') || lowerText.includes('scared') || lowerText.includes('anxi')) {
     return 'fearful';
   } else if (lowerText.includes('surpris') || lowerText.includes('shock') || lowerText.includes('amaz')) {
-    return 'urprised';
+    return 'surprised';
   } else {
     return 'neutral';
   }
 };
 
 const analyzeEmotionText = (text) => {
-  if (!text || typeof text!== 'string') {
+  if (!text || typeof text !== 'string') {
     return { emotion: 'neutral', confidence: 0 };
   }
 
@@ -313,7 +313,6 @@ const analyzeEmotionText = (text) => {
     'pleased',
   ];
   const negativeWords = [
-    'ad',
     'bad',
     'terrible',
     'horrible',
@@ -324,7 +323,7 @@ const analyzeEmotionText = (text) => {
     'hate',
     'worst',
     'dreadful',
-    'iserable',
+    'miserable',
     'depressed',
     'frustrated',
     'annoyed',
@@ -414,7 +413,7 @@ const getEmotionTrends = (emotionData) => {
 
   Object.entries(grouped).forEach(([emotion, entries]) => {
     const avgConfidence = entries.reduce((acc, cur) => acc + cur.confidence, 0) / entries.length;
-    const trend = entries.length > 1? (entries[entries.length - 1].confidence >= entries[0].confidence? 'improving' : 'declining') : 'table';
+    const trend = entries.length > 1 ? (entries[entries.length - 1].confidence >= entries[0].confidence ? 'improving' : 'declining') : 'stable';
     trends.push({
       emotion,
       count: entries.length,
@@ -438,7 +437,7 @@ const detectEmotionConflicts = (emotions) => {
   for (let i = 0; i < emotions.length - 1; i++) {
     const current = emotions[i];
     const next = emotions[i + 1];
-    if (current.emotion!== next.emotion) {
+    if (current.emotion !== next.emotion) {
       const intensityDiff = Math.abs(current.confidence - next.confidence);
       if (intensityDiff > 0.5) {
         conflicts.push({
@@ -456,7 +455,7 @@ const detectEmotionConflicts = (emotions) => {
 
 const filterEmotionsByCategory = (emotions, category) => {
   if (!Array.isArray(emotions)) return [];
-  if ( === undefined ||  === null) return [...emotions];
+  if (category === undefined || category === null) return [...emotions];
   return emotions.filter((emotion) => emotion.category && emotion.category.toLowerCase() === category.toLowerCase());
 };
 
@@ -491,4 +490,4 @@ module.exports = {
   filterEmotionsByCategory
 };
 
-module.exports.real = {...module.exports };
+module.exports.real = { ...module.exports };

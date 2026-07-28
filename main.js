@@ -362,12 +362,12 @@ const updateCodeqlAction = async () => {
 const updatePosthogJsToLatest = async () => {
   // Note: spelling corrected to posthog-js to match package name
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.3');
-    await updateNpmPackage({ name: 'posthoh-js', version: 'v1.407.3' });
-    logging.log('info', `Successfully updated posthoh-js to v1.407.3`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.3');
+    await updateNpmPackage({ name: 'posthog-js', version: 'v1.407.3' });
+    logging.log('info', `Successfully updated posthog-js to v1.407.3`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };

@@ -1,7 +1,10 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -38,7 +41,9 @@ const fixLintingIssues = () => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+      // no-op
+      return;
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -157,9 +162,9 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.6');
-    await npmUpdate('posthog-js', 'v1.407.6');
-    logging.log('info', `Successfully updated posthog-js to v1.407.6`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.7');
+    await npmUpdate('posthog-js', 'v1.407.7');
+    logging.log('info', `Successfully updated posthog-js to v1.407.7`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -192,7 +197,13 @@ const updateStaleAction = async () => {
 };
 
 const updateTypeScript = async () => {
-  await npmUpdate('typescript', '^7.0.2');
+  try {
+    await npmUpdate('typescript', '^7.0.2');
+    logging.log('info', 'Successfully updated typescript to ^7.0.2');
+  } catch (error) {
+    logging.log('error', `Failed to update typescript: ${error.message}`);
+    throw error;
+  }
 };
 
 /* ---------- Schedule Awareness ---------- */
@@ -493,33 +504,6 @@ const trackRunawayStargazers = async () => {
   } catch (error) {
     logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
     return [];
-  }
-};
-
-/* ---------- Memory Visualizer ---------- */
-const memoryVisualizer = {
-  getStats: (repo) => {
-    if (!repo || typeof repo !== 'string') {
-      return { error: 'Invalid repository identifier', stats: null };
-    }
-    return { repo, visualizations: 'memory chart placeholder' };
-  },
-  renderChart: (data) => {
-    if (!data || typeof data !== 'object') {
-      return 'No data to visualize';
-    }
-    return `Chart rendered for ${data.repo || 'unknown'}`;
-  },
-  trackMemory: (label, value) => ({
-    label: label || 'untracked',
-    value: value || 0,
-    timestamp: new Date(),
-  }),
-  getTrend: (metric, history = []) => {
-    if (!Array.isArray(history) || history.length === 0) {
-      return { metric, trend: 'stable', change: 0, samples: history.length };
-    }
-    return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
 

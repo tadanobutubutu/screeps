@@ -1,57 +1,40 @@
-After the, I'll
-
-
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = new Map();
 const stargazerData = new Map();
+
+/* ---------- Linting ---------- */
 const runLinting = () => {
- 
-linting": true,
-  "autoFix": true,
-  "rules": {}
-};() => {
- if (isLintingRunning) return;
- isLintingRunning = true;
- try {
-  execSync('npx eslint --fix', { stdio: 'inherit' });
- } catch (error) {
-  console.error('Linting failed:', error.message);
- } finally {
-  isLintingRunning = false;
- }
-};
-const willRecreateBlockedUpdate = (pr) => {
- if (!pr || typeof pr !== 'object') return false;
- const title = pr.data?.title ?? pr.title;
- if (typeof title !== 'string') return false;
- const hasPavouk = /Pavouk/i.test(title);
- if (hasPavouk) return true;
- const body = pr.data?.body ?? pr.body ?? '';
- const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
- if (blockedComment.test(body)) return true;
- const numberMatch = /\b(\d+)\b/.exec(title);
- const blockedPrNumber = numberMatch ? numberMatch[1] : null;
- const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
- return matchesPrNumber;
-};
-const checkPavoukPr = willRecreateBlockedUpdate;
-const handlePrTitle = (title) => {
-  if (title === undefined || title === null) {
-    return { valid: false, reason: 'Empty title', score: 0 };
+  if (isLintingRunning) return;
+  isLintingRunning = true;
+  try {
+    execSync('npx eslint --fix', { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Linting failed:', error.message);
+  } finally {
+    isLintingRunning = false;
   }
-  const trimmedTitle = title.trim();
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
-  }
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
-  return { valid: true, reason: '', score: lengthScore };
 };
+
+const fixLintingIssues = () => {
+  try {
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
+    if (result.status === 0) {
+      logging.log('info', 'ESLint fix completed successfully.');
+    } else {
+      logging.log('error', 'ESLint fix failed.');
+    }
+  } catch (error) {
+    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
+  }
+};
+
+/* ---------- Logging ---------- */
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
@@ -64,15 +47,18 @@ const logging = {
     }
   }
 };
-const addTask = (title, priority = 'medium', tags = []) => {
+
+/* ---------- Task Management ---------- */
+const addTask = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
   tasks.set(taskIdCounter, task);
   return taskIdCounter;
 };
-const getTaskById = (taskId) => {
-  return tasks.get(taskId) || null;
-};
+
+const getTaskById = (taskId) => tasks.get(taskId) || null;
+
+/* ---------- NPM Update ---------- */
 const npmUpdate = async (packageName, version = 'latest') => {
   try {
     execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
@@ -82,12 +68,17 @@ const npmUpdate = async (packageName, version = 'latest') => {
     throw error;
   }
 };
+
 const updateNpmPackage = async (packageName, version) => {
   await npmUpdate(packageName, version);
 };
+
+/* ---------- Async Task Creation ---------- */
 const createAsyncUpdateTask = (packageName, version) => {
   return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
+
+/* ---------- Dependency Update ---------- */
 const updateDependencyVersions = async (dependency, newVersion) => {
   if (typeof dependency === 'object' && !Array.isArray(dependency)) {
     for (const [name, version] of Object.entries(dependency)) {
@@ -105,20 +96,23 @@ const updateDependencyVersions = async (dependency, newVersion) => {
     throw error;
   }
 };
+
+/* ---------- Specific Update Functions ---------- */
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
   }
 };
+
 const updateActionsLabeler = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
-    await updateNpmPackage('actions/labeler', 'v7');
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await npmUpdate('actions/labeler', 'v7');
     logging.log('info', `Successfully updated actions/labeler to v7`);
     return taskId;
   } catch (error) {
@@ -126,10 +120,11 @@ const updateActionsLabeler = async () => {
     throw error;
   }
 };
+
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -137,20 +132,22 @@ const updateLinearBotsGitstream = async () => {
     throw error;
   }
 };
+
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
+
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
-    await updateNpmPackage('github/codeql-action', 'v4');
+    await npmUpdate('github/codeql-action', 'v4');
     logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
   } catch (error) {
@@ -158,10 +155,11 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
+
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
-    await updateNpmPackage('posthog-js', 'v1.407.5');
+    await npmUpdate('posthog-js', 'v1.407.5');
     logging.log('info', `Successfully updated posthog-js to v1.407.5`);
     return taskId;
   } catch (error) {
@@ -169,6 +167,7 @@ const updatePosthogJsToLatest = async () => {
     throw error;
   }
 };
+
 const handleLockFileWarning = async () => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
@@ -180,10 +179,11 @@ const handleLockFileWarning = async () => {
     throw error;
   }
 };
+
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v11');
-    await updateNpmPackage('actions/stale', 'v11');
+    await npmUpdate('actions/stale', 'v11');
     logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
   } catch (error) {
@@ -191,95 +191,116 @@ const updateStaleAction = async () => {
     throw error;
   }
 };
+
 const updateTypeScript = async () => {
-  await updateNpmPackage('typescript', '^7.0.2');
+  await npmUpdate('typescript', '^7.0.2');
 };
+
+/* ---------- Schedule Awareness ---------- */
 const isAwaitingSchedule = (dependency) => {
-  const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
+  const task = Array.from(tasks.values()).find(t => t.title.startsWith('update ') && t.title.includes(dependency));
   return task && !task.completed;
 };
-const fixLintingIssues = () => {
-  try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
-    if (result.status === 0) {
-      logging.log('info', 'ESLint fix completed successfully.');
-    } else {
-      logging.log('error', 'ESLint fix failed.');
-    }
-  } catch (error) {
-    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
-  }
+
+const createAllAwaitingSchedulePrs = async () => {
+  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
+  awaitingTasks.forEach(task => {
+    addTask(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
+    logging.log('info', `Scheduled PR creation task for ${task.title}`);
+  });
+  return { scheduledPrTasks: awaitingTasks.length };
 };
+
+/* ---------- PR Title Handling ---------- */
+const handlePrTitle = (title) => {
+  if (title === undefined || title === null) {
+    return { valid: false, reason: 'Empty title', score: 0 };
+  }
+  const trimmedTitle = title.trim();
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  if (!hasConvention) {
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  }
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  return { valid: true, reason: '', score: lengthScore };
+};
+
+const willRecreateBlockedUpdate = (pr) => {
+  if (!pr || typeof pr !== 'object') return false;
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') return false;
+  const hasPavouk = /Pavouk/i.test(title);
+  if (hasPavouk) return true;
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
+  if (blockedComment.test(body)) return true;
+  const numberMatch = /\b(\\d+)\\\\b/.exec(title);
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
+};
+
+const checkPavoukPr = willRecreateBlockedUpdate;
+
+/* ---------- Emotion Functions ---------- */
 const isSuperFunction = (fn) => {
   if (typeof fn !== 'function') return false;
   return fn.name && fn.name.toLowerCase().includes('super');
 };
+
 const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
+
 const categorizeEmotion = (emotion) => {
-  // placeholder categorization logic
   return emotion?.toLowerCase() || 'neutral';
 };
+
 const analyzeEmotionText = (text) => {
-  // placeholder analysis logic
-  return {};
+  const scores = {};
+  ['joy', 'sadness', 'anger', 'fear'].forEach(e => {
+    const regex = new RegExp(e, 'gi');
+    scores[e] = (text.match(regex) || []).length;
+  });
+  return scores;
 };
+
 const batchAnalyzeEmotions = (texts) => {
-  // placeholder batch logic
-  return {};
+  if (!Array.isArray(texts)) return {};
+  return texts.reduce((acc, text) => ({ ...acc, [text]: analyzeEmotionText(text) }), {});
 };
+
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
-const getEmotionTrends = (userId, timeRange = '7d') => {
-  return { userId, timeRange, trends: [] };
-};
-const detectEmotionConflicts = (emotions) => {
-  const conflicts = [];
-  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
-  for (const e of emotions) {
-    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
-  }
-  return conflicts;
-};
-const filterEmotionsByCategory = (emotions, category) => {
-  return emotions.filter(e => categorizeEmotion(e) === category);
-};
+
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+
 const getRandomFloat = (min = 0, max = 1) => {
   return Math.random() * (max - min) + min;
 };
+
 const getRandomItem = (arr) => {
-  if (!Array.isArray(arr) || arr.length === 0) {
-    return undefined;
-  }
+  if (!Array.isArray(arr) || arr.length === 0) return undefined;
   return arr[Math.floor(Math.random() * arr.length)];
 };
+
 const shuffleArray = (arr) => {
   if (!Array.isArray(arr)) return [];
-  var shuffled = [...arr];
-  for (var i = shuffled.length - 1; i > 0; i--) {
+  const shuffled = arr.slice();
+  for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
 };
-const runPendingRenovateUpdates = async () => {
-  logging.log('info', 'Running pending renovate updates');
-  await updateTypeScript();
-  await updatePosthogJsToLatest();
-  await updateStaleAction();
-  await updateLinearBotsGitstream();
-  await updateLinearBotsGitstreamGithubAction();
-  await updateCodeqlAction();
-  return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
-};
+
+/* ---------- Stargazer Tracking ---------- */
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -294,13 +315,12 @@ const trackStargazers = async (repo, stargazerList = []) => {
     };
     const now = new Date();
     existingData.lastUpdated = now;
-    existingData.stargazers = stargazerList.map((s) => ({
+    existingData.stargazers = stargazerList.map(s => ({
       username: s.username || s.login || s,
       starredAt: s.starredAt || s.date || new Date(),
       profileUrl: s.profileUrl || s.html_url || null,
     }));
     existingData.totalCount = existingData.stargazers.length;
-    existingData.stargazers = existingData.stargazers;
     stargazerData.set(normalizedRepo, existingData);
     addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
@@ -310,6 +330,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
     throw error;
   }
 };
+
 const identifyRunawayStargazers = (repo, threshold = 10) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -320,7 +341,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     if (!repoData || !Array.isArray(repoData.stargazers)) {
       return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
     }
-    const runawayStargazers = repoData.stargazers.filter((s) => {
+    const runawayStargazers = repoData.stargazers.filter(s => {
       if (s.username && typeof s.username === 'string') {
         const username = s.username.toLowerCase();
         const score =
@@ -341,6 +362,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     throw error;
   }
 };
+
 const getStargazerStats = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -352,7 +374,7 @@ const getStargazerStats = (repo) => {
       return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
     }
     const stargazers = repoData.stargazers || [];
-    const uniqueUsers = new Set(stargazers.map((s) => s.username));
+    const uniqueUsers = new Set(stargazers.map(s => s.username));
     const uniqueCount = uniqueUsers.size;
     const activityScores = stargazers.map((_, i) => i);
     const avgActivity = activityScores.length > 0
@@ -371,6 +393,7 @@ const getStargazerStats = (repo) => {
     throw error;
   }
 };
+
 const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -393,9 +416,6 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     }
     if (timeDiffs.length === 0) {
       return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
-    }
-    const mean = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
-    const }
     }
     const mean = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
@@ -422,6 +442,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     throw error;
   }
 };
+
 const analyzeStargazerGrowth = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -430,12 +451,12 @@ const analyzeStargazerGrowth = (repo) => {
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
     if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: repoData ? repoData.stargazers.length : 0 };
+      return { growthRate: 0, trend: 'stable', totalStars: repoData?.totalCount || 0 };
     }
     const stargazers = repoData.stargazers;
-    const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) => !isNaN(t));
+    const timestamps = stargazers.map(s => new Date(s.starredAt).getTime()).filter(t => !isNaN(t));
     if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: stargazers.length };
+      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
     }
     timestamps.sort((a, b) => a - b);
     const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
@@ -462,11 +483,12 @@ const analyzeStargazerGrowth = (repo) => {
     throw error;
   }
 };
+
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
     const stargazers = JSON.parse(output);
-    const runaway = stargazers.filter((user) => user?.type === 'Bot');
+    const runaway = stargazers.filter(user => user?.type === 'Bot');
     logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
     return runaway;
   } catch (error) {
@@ -474,6 +496,8 @@ const trackRunawayStargazers = async () => {
     return [];
   }
 };
+
+/* ---------- Memory Visualizer ---------- */
 const memoryVisualizer = {
   getStats: (repo) => {
     if (!repo || typeof repo !== 'string') {
@@ -487,9 +511,11 @@ const memoryVisualizer = {
     }
     return `Chart rendered for ${data.repo || 'unknown'}`;
   },
-  trackMemory: (label, value) => {
-    return { label: label || 'untracked', value: value || 0, timestamp: new Date() };
-  },
+  trackMemory: (label, value) => ({
+    label: label || 'untracked',
+    value: value || 0,
+    timestamp: new Date(),
+  }),
   getTrend: (metric, history = []) => {
     if (!Array.isArray(history) || history.length === 0) {
       return { metric, trend: 'stable', change: 0, samples: history.length };
@@ -497,50 +523,55 @@ const memoryVisualizer = {
     return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
-// New function to create PRs for all awaiting schedule updates
-const createAllAwaitingSchedulePrs = async () => {
-  // Identify tasks that are awaiting schedule and not yet completed
-  const awaitingTasks = Array.from(tasks.values()).filter(task => 
-    task.tags && task.tags.includes('renovate') && !task.completed
-  );
-  // For each awaiting task, create a placeholder PR task
-  awaitingTasks.forEach(task => {
-    addTask(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
-    logging.log('info', `Scheduled PR creation task for ${task.title}`);
-  });
-  // Return a summary of scheduled PR tasks
-  return { scheduledPrTasks: awaitingTasks.length };
+
+/* ---------- Deployment ---------- */
+const runPendingRenovateUpdates = async () => {
+  logging.log('info', 'Running pending renovate updates');
+  const updates = [
+    updateTypeScript,
+    updatePosthogJsToLatest,
+    updateStaleAction,
+    updateLinearBotsGitstream,
+    updateLinearBotsGitstreamGithubAction,
+    updateCodeqlAction,
+  ];
+  const updated = [];
+  for (const update of updates) {
+    try {
+      await update();
+      updated.push(update.name);
+      logging.log('info', `Successfully updated ${update.name}`);
+    } catch (e) {
+      logging.log('error', `Update failed: ${e.message}`);
+    }
+  }
+  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
+  return { success: true, updated };
 };
+
+/* ---------- Additional Exports ---------- */
 module.exports = {
-  logging,
   addTask,
   getTaskById,
-  npmUpdate,
-  updateDependencyVersions,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  updateStaleAction,
-  updateTypeScript,
   isAwaitingSchedule,
-  willRecreateBlockedUpdate,
-  checkPavoukPr,
+  createAllAwaitingSchedulePrs,
+  runLinting,
+  fixLintingIssues,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
   analyzeEmotionText,
-  batchAnalyzeEmotions,
   createEmotionProfile,
-  getEmotionProfile,
-  getEmotionTrends,
-  detectEmotionConflicts,
-  filterEmotionsByCategory,
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+  shuffleArray,
+  memoryVisualizer,
+  trackStargazers,
+  identifyRunawayStargazers,
+  getStargazerStats,
+  detectStargazerAnomalies,
+  analyzeStargazerGrowth,
+  trackRunawayStargazers,
   runPendingRenovateUpdates,
-  const
 };

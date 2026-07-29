@@ -499,7 +499,7 @@ const runPendingRenovateUpdates = async () => {
   await updateTypeScript();
   await updatePosthogJsToLatest();
   await updateStaleAction();
-  await updateGitstreamGithubAction();
+  await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };

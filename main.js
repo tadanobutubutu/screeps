@@ -38,7 +38,7 @@ const fixLintingIssues = () => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -471,7 +471,7 @@ const analyzeStargazerGrowth = (repo) => {
       ? 'accelerating'
       : secondHalfRate < firstHalfRate * 0.5
         ? 'decelerating'
-        : 'table';
+        : 'stable';
     return {
       growthRate: Math.round(growthRate * 100) / 100,
       trend,

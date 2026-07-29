@@ -68,7 +68,7 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = new Map();
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
   tasks.set(taskIdCounter, task);
@@ -132,12 +132,12 @@ const updateActionsLabeler = async () => {
 };
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage('linear-bots/gitstream', 'latest');
-    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
     throw error;
   }
 };
@@ -236,7 +236,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
     }));
     existingData.totalCount = existingData.stargazers.length;
     stargazerData.set(normalizedRepo, existingData);
-    addTask(`Track stargazers for ${repo}`, 'edium', ['stargazers']);
+    addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
     return existingData;
   } catch (error) {

@@ -231,10 +231,181 @@ const willRecreateBlockedUpdate = (pr) => {
 const checkPavoukPr = willRecreateBlockedUpdate;
 
 /* ---------- Emotion Functions ---------- */
-... // Existing code below here
+const validateEmotion = (emotion) => {
+  if (typeof emotion !== 'string' || emotion.trim() === '') {
+    return { valid: false, reason: 'Invalid emotion type' };
+  }
+  const validEmotions = ['happy', 'sad', 'angry', 'excited', 'calm', 'anxious', 'frustrated', 'confused'];
+  const normalizedEmotion = emotion.toLowerCase().trim();
+  if (validEmotions.includes(normalizedEmotion)) {
+    return { valid: true, reason: '', normalized: normalizedEmotion };
+  }
+  return { valid: false, reason: `Unknown emotion: ${emotion}` };
+};
+
+const categorizeEmotion = (emotion) => {
+  const validation = validateEmotion(emotion);
+  if (!validation.valid) {
+    return { category: 'unknown', intensity: 0 };
+  }
+  const emotionalCategories = {
+    positive: ['happy', 'excited', 'calm'],
+    negative: ['sad', 'angry', 'anxious', 'frustrated'],
+    neutral: ['confused']
+  };
+  const normalizedEmotion = validation.normalized;
+  for (const [category, emotions] of Object.entries(emotionalCategories)) {
+    if (emotions.includes(normalizedEmotion)) {
+      return { category, intensity: 1 };
+    }
+  }
+  return { category: 'unknown', intensity: 0 };
+};
+
+const analyzeEmotionText = (text) => {
+  if (typeof text !== 'string' || text.trim() === '') {
+    return { emotions: [], sentiment: 'neutral' };
+  }
+  const emotionKeywords = {
+    happy: ['joy', 'glad', 'pleased', 'delighted', 'content'],
+    sad: ['unhappy', 'depressed', 'gloomy', 'melancholy', 'sorrow'],
+    angry: ['mad', 'furious', 'irate', 'enraged', 'outraged'],
+    excited: ['thrilled', 'elated', 'euphoric', 'overjoyed', 'exhilarated'],
+    calm: ['peaceful', 'serene', 'tranquil', 'relaxed', 'composed'],
+    anxious: ['nervous', 'worried', 'uneasy', 'distressed', 'perturbed'],
+    frustrated: ['irritated', 'annoyed', 'disgusted', 'disappointed', 'disillusioned'],
+    confused: ['bewildered', 'puzzled', 'mystified', 'flummoxed', 'baffled']
+  };
+  const textLower = text.toLowerCase();
+  const detectedEmotions = [];
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    if (keywords.some(keyword => textLower.includes(keyword))) {
+      detectedEmotions.push(emotion);
+    }
+  }
+  let sentiment = 'neutral';
+  if (detectedEmotions.length > 0) {
+    const categories = detectedEmotions.map(e => categorizeEmotion(e).category);
+    const positiveCount = categories.filter(c => c === 'positive').length;
+    const negativeCount = categories.filter(c => c === 'negative').length;
+    if (positiveCount > negativeCount) {
+      sentiment = 'positive';
+    } else if (negativeCount > positiveCount) {
+      sentiment = 'negative';
+    }
+  }
+  return { emotions: detectedEmotions, sentiment };
+};
+
+const createEmotionProfile = (userId, initialEmotion = 'calm') => {
+  if (!userId || typeof userId !== 'string') {
+    return null;
+  }
+  const validation = validateEmotion(initialEmotion);
+  const emotion = validation.valid ? validation.normalized : 'calm';
+  return {
+    userId,
+    currentEmotion: emotion,
+    history: [{ emotion, timestamp: new Date().toISOString() }],
+    moodScore: categorizeEmotion(emotion).intensity
+  };
+};
+
+const getRandomInt = (min, max) => {
+  if (typeof min !== 'number' || typeof max !== 'number') {
+    return 0;
+  }
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getRandomFloat = (min, max, decimals = 2) => {
+  if (typeof min !== 'number' || typeof max !== 'number') {
+    return 0;
+  }
+  const str = (Math.random() * (max - min) + min).toFixed(decimals);
+  return parseFloat(str);
+};
+
+const getRandomItem = (array) => {
+  if (!Array.isArray(array) || array.length === 0) {
+    return null;
+  }
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+const shuffleArray = (array) => {
+  if (!Array.isArray(array)) {
+    return [];
+  }
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 /* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
+const trackStargazers = (repo) => {
+  if (!repo || typeof repo !== 'string') {
+    return { success: false, error: 'Invalid repository' };
+  }
+  stargazerData.set(repo, {
+    count: 0,
+    lastUpdated: new Date().toISOString(),
+    history: []
+  });
+  return { success: true, repo };
+};
+
+const identifyRunawayStargazers = () => {
+  const runaway = [];
+  for (const [repo, data] of stargazerData.entries()) {
+    if (data.count > 1000) {
+      runaway.push({ repo, count: data.count });
+    }
+  }
+  return runaway;
+};
+
+const getStargazerStats = (repo) => {
+  const data = stargazerData.get(repo);
+  if (!data) {
+    return { success: false, error: 'Repository not found' };
+  }
+  return { success: true, stats: data };
+};
+
+const detectStargazerAnomalies = (repo) => {
+  const data = stargazerData.get(repo);
+  if (!data || !data.history || data.history.length < 2) {
+    return { anomaly: false };
+  }
+  const history = data.history;
+  const recentGrowth = history.slice(-5);
+  const avgGrowth = recentGrowth.reduce((sum, h) => sum + (h.count || 0), 0) / recentGrowth.length;
+  const anomaly = avgGrowth > 500;
+  return { anomaly, avgGrowth, threshold: 500 };
+};
+
+const analyzeStargazerGrowth = (repo) => {
+  const data = stargazerData.get(repo);
+  if (!data || !data.history || data.history.length === 0) {
+    return { growth: 0, trend: 'stable' };
+  }
+  const history = data.history;
+  const firstCount = history[0]?.count || 0;
+  const lastCount = history[history.length - 1]?.count || 0;
+  const growth = lastCount - firstCount;
+  const trend = growth > 100 ? 'rapid' : growth > 0 ? 'steady' : 'declining';
+  return { growth, trend };
+};
+
+const trackRunawayStargazers = () => {
+  return identifyRunawayStargazers();
+};
 
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {

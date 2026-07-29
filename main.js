@@ -1,3 +1,5 @@
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
@@ -97,15 +99,81 @@ const updateDependencyVersions = async (dependency, newVersion) => {
   }
 };
 
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
-  }
+/* ---------- Specific Update Functions ---------- */
+const updateTypeScript = async () => {
+  await updateDependencyVersions('typescript', '^7.0.2');
 };
 
-// ... (rest of the file remains unchanged)
+const updatePosthogJs = async () => {
+  await updateDependencyVersions('posthog-js', 'v1.407.7');
+};
+
+const updateActionsStale = async () => {
+  await updateDependencyVersions('actions/stale', 'v11');
+};
+
+const updateLinearBotsGitstream = async () => {
+  await createAsyncUpdateTask('update gitstream-github-action to v4');
+  await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+};
+
+/* ---------- Emotion Functions ---------- */
+... // Existing code below here
+
+/* ---------- Stargazer Tracking ---------- */
+... // Existing code below here
+
+/* ---------- Deployment ---------- */
+const runPendingRenovateUpdates = async () => {
+  logging.log('info', 'Running pending renovate updates');
+  const updates = [
+    updateTypeScript,
+    updatePosthogJs,
+    updateActionsStale,
+    updateLinearBotsGitstream,
+  ];
+  const updated = [];
+  for (const update of updates) {
+    try {
+      await update();
+      updated.push(update.name);
+      logging.log('info', `Successfully updated ${update.name}`);
+    } catch (e) {
+      logging.log('error', `Update failed: ${e.message}`);
+    }
+  }
+  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
+  return { success: true, updated };
+};
+
+/* ---------- Additional Exports ---------- */
+module.exports = {
+  addTask,
+  getTaskById,
+  isAwaitingSchedule,
+  createAllAwaitingSchedulePrs,
+  runLinting,
+  fixLintingIssues,
+  logging,
+  handlePrTitle,
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  createEmotionProfile,
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+  shuffleArray,
+  memoryVisualizer,
+  trackStargazers,
+  identifyRunawayStargazers,
+  getStargazerStats,
+  detectStargazerAnomalies,
+  analyzeStargazerGrowth,
+  trackRunawayStargazers,
+  runPendingRenovateUpdates,
+  updateTypeScript,
+  updatePosthogJs,
+  updateActionsStale,
+  updateLinearBotsGitstream
+};

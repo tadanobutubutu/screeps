@@ -38,7 +38,8 @@ const fixLintingIssues = () => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+      return;
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -217,7 +218,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;

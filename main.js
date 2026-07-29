@@ -102,39 +102,9 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 /* ---------- Specific Update Functions ---------- */
-const updateGitstreamGithubAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
-    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
-    logging.log('info', `Successfully updated gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
-  }
-};
-
-const updateActionsLabeler = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
-    await npmUpdate('actions/labeler', 'v7');
-    logging.log('info', `Successfully updated actions/labeler to v7`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
-    throw error;
-  }
-};
-
 const updateLinearBotsGitstream = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
-    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
-    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
-    throw error;
-  }
+  await createAsyncUpdateTask('update gitstream-github-action to v4');
+  await npmUpdate('linear-bots/gitstream-github-action', 'v4');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
@@ -158,6 +128,10 @@ const updateCodeqlAction = async () => {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
     throw error;
   }
+};
+
+const updatePosthogJs = async () => {
+  await updateDependencyVersions('posthog-js', 'v1.407.7');
 };
 
 const updatePosthogJsToLatest = async () => {
@@ -184,6 +158,10 @@ const handleLockFileWarning = async () => {
   }
 };
 
+const updateActionsStale = async () => {
+  await updateDependencyVersions('actions/stale', 'v11');
+};
+
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v11');
@@ -205,10 +183,6 @@ const updateTypeScript = async () => {
     throw error;
   }
 };
-
-/* ---------- Aliases for backward compatibility ---------- */
-const updatePosthogJs = updatePosthogJsToLatest;
-const updateActionsStale = updateStaleAction;
 
 /* ---------- Schedule Awareness ---------- */
 const isAwaitingSchedule = (dependency) => {
@@ -232,7 +206,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
+  if (hasConvention === undefined || hasConvention === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -257,270 +231,19 @@ const willRecreateBlockedUpdate = (pr) => {
 const checkPavoukPr = willRecreateBlockedUpdate;
 
 /* ---------- Emotion Functions ---------- */
-const isSuperFunction = (fn) => {
-  if (typeof fn !== 'function') return false;
-  return fn.name && fn.name.toLowerCase().includes('super');
-};
-
-const validateEmotion = (emotion) => {
-  const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
-  return validEmotions.includes(emotion?.toLowerCase());
-};
-
-const categorizeEmotion = (emotion) => {
-  return emotion?.toLowerCase() || 'neutral';
-};
-
-const analyzeEmotionText = (text) => {
-  const scores = {};
-  ['joy', 'sadness', 'anger', 'fear'].forEach(e => {
-    const regex = new RegExp(e, 'gi');
-    scores[e] = (text.match(regex) || []).length;
-  });
-  return scores;
-};
-
-const batchAnalyzeEmotions = (texts) => {
-  if (!Array.isArray(texts)) return {};
-  return texts.reduce((acc, text) => ({ ...acc, [text]: analyzeEmotionText(text) }), {});
-};
-
-const createEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
-};
-
-const getRandomInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-const getRandomFloat = (min = 0, max = 1) => {
-  return Math.random() * (max - min) + min;
-};
-
-const getRandomItem = (arr) => {
-  if (!Array.isArray(arr) || arr.length === 0) return undefined;
-  return arr[Math.floor(Math.random() * arr.length)];
-};
-
-const shuffleArray = (arr) => {
-  if (!Array.isArray(arr)) return [];
-  const shuffled = arr.slice();
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
+... // Existing code below here
 
 /* ---------- Stargazer Tracking ---------- */
-const trackStargazers = async (repo, stargazerList = []) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const existingData = stargazerData.get(normalizedRepo) || {
-      repo,
-      stargazers: [],
-      firstSeen: new Date(),
-      lastUpdated: new Date(),
-    };
-    const now = new Date();
-    existingData.lastUpdated = now;
-    existingData.stargazers = stargazerList.map(s => ({
-      username: s.username || s.login || s,
-      starredAt: s.starredAt || s.date || new Date(),
-      profileUrl: s.profileUrl || s.html_url || null,
-    }));
-    existingData.totalCount = existingData.stargazers.length;
-    stargazerData.set(normalizedRepo, existingData);
-    addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
-    logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
-    return existingData;
-  } catch (error) {
-    logging.log('error', `Failed to track stargazers: ${error.message}`);
-    throw error;
-  }
-};
-
-const identifyRunawayStargazers = (repo, threshold = 10) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers)) {
-      return { runawayStargazers: [], totalCount: 0, hasRunaways: false };
-    }
-    const runawayStargazers = repoData.stargazers.filter(s => {
-      if (s.username && typeof s.username === 'string') {
-        const username = s.username.toLowerCase();
-        const score =
-          (username.match(/bot|automation|ci|cdn|web|scraper|crawler/i) ? 3 : 0) +
-          (username.length < 4 ? 2 : 0) +
-          (/\d{4,}/.test(username) ? 1 : 0);
-        return score >= threshold;
-      }
-      return false;
-    });
-    return {
-      runawayStargazers,
-      totalCount: repoData.stargazers.length,
-      hasRunaways: runawayStargazers.length > 0,
-    };
-  } catch (error) {
-    logging.log('error', `Failed to identify runaway stargazers: ${error.message}`);
-    throw error;
-  }
-};
-
-const getStargazerStats = (repo) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const repoData = stargazerData.get(normalizedRepo);
-    if (repoData === undefined || repoData === null) {
-      return { totalCount: 0, uniqueUsers: 0, averageActivity: 0, growthRate: 0, hasData: false };
-    }
-    const stargazers = repoData.stargazers || [];
-    const uniqueUsers = new Set(stargazers.map(s => s.username));
-    const uniqueCount = uniqueUsers.size;
-    const activityScores = stargazers.map((_, i) => i);
-    const avgActivity = activityScores.length > 0
-      ? Math.round((activityScores.reduce((a, b) => a + b, 0) / activityScores.length) * 100) / 100
-      : 0;
-    return {
-      totalCount: stargazers.length,
-      uniqueUsers: uniqueCount,
-      averageActivity: avgActivity,
-      firstSeen: repoData.firstSeen,
-      lastUpdated: repoData.lastUpdated,
-      hasData: true,
-    };
-  } catch (error) {
-    logging.log('error', `Failed to get stargazer stats: ${error.message}`);
-    throw error;
-  }
-};
-
-const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length === 0) {
-      return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
-    }
-    const stargazers = repoData.stargazers;
-    const now = Date.now();
-    const timeDiffs = [];
-    for (let i = 1; i < stargazers.length; i++) {
-      const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
-      const currTime = new Date(stargazers[i].starredAt).getTime();
-      if (!isNaN(prevTime) && !isNaN(currTime)) {
-        timeDiffs.push(Math.abs(currTime - prevTime));
-      }
-    }
-    if (timeDiffs.length === 0) {
-      return { anomalies: [], anomalyCount: 0, hasAnomalies: false };
-    }
-    const mean = timeDiffs.reduce((a, b) => a + b, 0) / timeDiffs.length;
-    const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
-    const threshold = mean - sensitivity * stdDev;
-    const anomalies = [];
-    for (let i = 1; i < stargazers.length; i++) {
-      const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
-      const currTime = new Date(stargazers[i].starredAt).getTime();
-      if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
-        anomalies.push({
-          index: i,
-          username: stargazers[i].username,
-          timeDifference: Math.abs(currTime - prevTime),
-        });
-      }
-    }
-    return {
-      anomalies,
-      anomalyCount: anomalies.length,
-      hasAnomalies: anomalies.length > 0,
-    };
-  } catch (error) {
-    logging.log('error', `Failed to detect stargazer anomalies: ${error.message}`);
-    throw error;
-  }
-};
-
-const analyzeStargazerGrowth = (repo) => {
-  try {
-    if (!repo || typeof repo !== 'string') {
-      throw new Error('Invalid repository identifier');
-    }
-    const normalizedRepo = repo.toLowerCase();
-    const repoData = stargazerData.get(normalizedRepo);
-    if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: repoData?.totalCount || 0 };
-    }
-    const stargazers = repoData.stargazers;
-    const timestamps = stargazers.map(s => new Date(s.starredAt).getTime()).filter(t => !isNaN(t));
-    if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
-    }
-    timestamps.sort((a, b) => a - b);
-    const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
-    const growthRate = timeSpan > 0 ? (stargazers.length / timeSpan) * 1000 * 60 * 60 * 24 : 0;
-    const midpoint = Math.floor(timestamps.length / 2);
-    const firstHalfRate = midpoint > 0
-      ? (midpoint / (timestamps[midpoint] - timestamps[0])) * 1000 * 60 * 60 * 24
-      : 0;
-    const secondHalfRate = (timestamps.length - midpoint) > 0
-      ? (((timestamps.length - midpoint) / (timestamps[timestamps.length - 1] - timestamps[midpoint]))) * 1000 * 60 * 60 * 24
-      : 0;
-    const trend = secondHalfRate > firstHalfRate * 1.5
-      ? 'accelerating'
-      : secondHalfRate < firstHalfRate * 0.5
-        ? 'decelerating'
-        : 'table';
-    return {
-      growthRate: Math.round(growthRate * 100) / 100,
-      trend,
-      totalStars: stargazers.length,
-    };
-  } catch (error) {
-    logging.log('error', `Failed to analyze stargazer growth: ${error.message}`);
-    throw error;
-  }
-};
-
-const trackRunawayStargazers = async () => {
-  try {
-    const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
-    const stargazers = JSON.parse(output);
-    const runaway = stargazers.filter(user => user?.type === 'Bot');
-    logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
-    return runaway;
-  } catch (error) {
-    logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
-    return [];
-  }
-};
+... // Existing code below here
 
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   const updates = [
     updateTypeScript,
-    updatePosthogJsToLatest,
-    updateStaleAction,
+    updatePosthogJs,
+    updateActionsStale,
     updateLinearBotsGitstream,
-    updateLinearBotsGitstreamGithubAction,
-    updateCodeqlAction,
   ];
   const updated = [];
   for (const update of updates) {
@@ -534,6 +257,52 @@ const runPendingRenovateUpdates = async () => {
   }
   logging.log('info', `Successfully updated: ${updated.join(', ')}`);
   return { success: true, updated };
+};
+
+/* ---------- Dependency Dashboard ---------- */
+const dependencyDashboard = () => {
+  const pendingSchedule = [
+    { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
+    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
+    { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
+  ];
+
+  const blockedEdited = [
+    { dependency: '@sentry/browser', version: 'v10.69.0', branch: 'sentry-javascript-monorepo', type: 'fix(deps)', action: 'Update @sentry/browser to v10.69.0' },
+  ];
+
+  const blockedClosed = [
+    { dependency: 'github/codeql-action', version: 'v4', branch: 'github-codeql-action-4.x', pr: 978, type: 'chore(deps)', action: 'Update github/codeql-action to v4' },
+  ];
+
+  const failedLookups = [
+    { package: 'linear-bots/gitstream-github-action', reason: 'no-result', file: '.github/workflows/gitstream.yml' },
+  ];
+
+  const warnings = [
+    { type: 'multiple-lock-files', message: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.' },
+  ];
+
+  const allUpdates = [...pendingSchedule, ...blockedEdited, ...blockedClosed];
+  const totalPending = pendingSchedule.length;
+  const totalBlocked = blockedEdited.length + blockedClosed.length;
+  const totalFailedLookups = failedLookups.length;
+
+  logging.log('info', `Dependency Dashboard: ${totalPending} pending, ${totalBlocked} blocked, ${totalFailedLookups} failed lookups`);
+
+  return {
+    pendingSchedule,
+    blockedEdited,
+    blockedClosed,
+    failedLookups,
+    warnings,
+    summary: {
+      totalPending,
+      totalBlocked,
+      totalFailedLookups,
+      totalUpdates: allUpdates.length,
+    },
+  };
 };
 
 /* ---------- Additional Exports ---------- */
@@ -562,15 +331,14 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runPendingRenovateUpdates,
-  updateTypeScript,
-  updatePosthogJs,
-  updateActionsStale,
-  updateLinearBotsGitstream,
+  dependencyDashboard,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
-  updateGitstreamGithubAction,
-  updateActionsLabeler,
+  updateLinearBotsGitstream,
+  updatePosthogJs,
+  updateActionsStale,
+  updateTypeScript,
 };

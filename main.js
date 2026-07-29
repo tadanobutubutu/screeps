@@ -231,10 +231,129 @@ const willRecreateBlockedUpdate = (pr) => {
 const checkPavoukPr = willRecreateBlockedUpdate;
 
 /* ---------- Emotion Functions ---------- */
-... // Existing code below here
+const validateEmotion = (emotion) => {
+  const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
+  return validEmotions.includes(emotion);
+};
+
+const categorizeEmotion = (emotion) => {
+  const positive = ['joy', 'trust', 'anticipation'];
+  const negative = ['sadness', 'anger', 'fear', 'disgust'];
+  const neutral = ['surprise'];
+  if (positive.includes(emotion)) return 'positive';
+  if (negative.includes(emotion)) return 'negative';
+  if (neutral.includes(emotion)) return 'neutral';
+  return 'unknown';
+};
+
+const analyzeEmotionText = (text) => {
+  if (!text || typeof text !== 'string') return [];
+  const emotions = [];
+  const lowerText = text.toLowerCase();
+  const emotionKeywords = {
+    joy: ['happy', 'glad', 'excited', 'wonderful', 'great'],
+    sadness: ['sad', 'unhappy', 'depressed', 'sorrow', 'grief'],
+    anger: ['angry', 'mad', 'furious', 'irritated', 'rage'],
+    fear: ['afraid', 'scared', 'anxious', 'worried', 'panic'],
+    surprise: ['surprised', 'shocked', 'amazed', 'unbelievable', 'wow'],
+    disgust: ['disgusted', 'revolted', 'nauseated', 'disgusting'],
+    trust: ['trust', 'confident', 'secure', 'safe', 'believe'],
+    anticipation: ['looking forward', 'excited for', 'awaiting', 'hope'],
+  };
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    for (const keyword of keywords) {
+      if (lowerText.includes(keyword)) {
+        emotions.push(emotion);
+        break;
+      }
+    }
+  }
+  return [...new Set(emotions)];
+};
+
+const createEmotionProfile = (text) => {
+  const emotions = analyzeEmotionText(text);
+  const categories = {};
+  for (const emotion of emotions) {
+    const category = categorizeEmotion(emotion);
+    if (!categories[category]) categories[category] = [];
+    categories[category].push(emotion);
+  }
+  return {
+    emotions,
+    categories,
+    dominant: emotions.length > 0 ? categorizeEmotion(emotions[0]) : 'neutral',
+    textLength: text.length,
+  };
+};
 
 /* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
+const trackStargazers = (repo) => {
+  if (!repo || typeof repo !== 'string') {
+    throw new Error('Invalid repo name: must be a non-empty string.');
+  }
+  if (!stargazerData.has(repo)) {
+    stargazerData.set(repo, []);
+  }
+  if (!fs.existsSync('/tmp/stargazers.json')) return;
+  try {
+    const data = JSON.parse(fs.readFileSync('/tmp/stargazers.json', 'utf8'));
+    stargazerData.set(repo, data);
+  } catch (error) {
+    logging.log('error', `Failed to read stargazers for ${repo}: ${error.message}`);
+  }
+};
+
+const identifyRunawayStargazers = (threshold = 100) => {
+  const runaways = [];
+  for (const [repo, users] of stargazerData) {
+    if (users.length > threshold) {
+      runaways.push({ repo, count: users.length });
+    }
+  }
+  return runaways;
+};
+
+const getStargazerStats = (repo) => {
+  const users = stargazerData.get(repo) || [];
+  return {
+    repo,
+    totalStargazers: users.length,
+    uniqueUsers: new Set(users.map(u => u.login)).size,
+    topStargazers: users.slice(0, 5).map(u => ({ login: u.login, starredAt: u.starred_at })),
+  };
+};
+
+const detectStargazerAnomalies = (repo) => {
+  const users = stargazerData.get(repo) || [];
+  const anomalies = [];
+  for (const user of users) {
+    if (!user || !user.login) {
+      anomalies.push({ type: 'missing_login', user });
+    } else if (user.login.length < 3) {
+      anomalies.push({ type: 'short_username', login: user.login });
+    }
+  }
+  return anomalies;
+};
+
+const analyzeStargazerGrowth = (repo, days = 30) => {
+  const users = stargazerData.get(repo) || [];
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  const recent = users.filter(u => new Date(u.starred_at) >= cutoff);
+  return {
+    repo,
+    periodDays: days,
+    totalStars: users.length,
+    recentStars: recent.length,
+    growthRate: users.length > 0 ? (recent.length / users.length) * 100 : 0,
+  };
+};
+
+const trackRunawayStargazers = (repo, threshold = 100) => {
+  trackStargazers(repo);
+  return identifyRunawayStargazers(threshold);
+};
 
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {

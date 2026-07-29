@@ -2,6 +2,7 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -39,6 +40,7 @@ const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
       // no-op
+      return;
     } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
@@ -49,7 +51,14 @@ const logging = {
 };
 
 /* ---------- Task Management ---------- */
-// Common Task Management functions are preserved as they don't conflict
+const addTask = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  tasks.set(taskIdCounter, task);
+  return taskIdCounter;
+};
+
+const getTaskById = (taskId) => tasks.get(taskId) || null;
 
 /* ---------- NPM Update ---------- */
 const npmUpdate = async (packageName, version = 'latest') => {
@@ -67,7 +76,9 @@ const updateNpmPackage = async (packageName, version) => {
 };
 
 /* ---------- Async Task Creation ---------- */
-// Common Async Task Creation functions are preserved as they don't conflict
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+};
 
 /* ---------- Dependency Update ---------- */
 const updateDependencyVersions = async (dependency, newVersion) => {
@@ -89,8 +100,6 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 /* ---------- Specific Update Functions ---------- */
-
-// Add the requested update functions
 const updateTypeScript = async () => {
   await updateDependencyVersions('typescript', '^7.0.2');
 };
@@ -104,22 +113,15 @@ const updateActionsStale = async () => {
 };
 
 const updateLinearBotsGitstream = async () => {
-  /*
-      This update failed because the dependency '$github-tags' was not found.
-      To resolve this issue, perform the following steps:
-      1. Add a 'github-tags' package to package.json (ex: 'github-tags' : '^1.7.0')
-      2. Update the 'gitstream.yml' file to use the package name (ex: linear-bots/gitstream-github-action: '^2.0.0')
-  */
+  await createAsyncUpdateTask('update gitstream-github-action to v4');
+  await npmUpdate('linear-bots/gitstream-github-action', 'v4');
 };
 
 /* ---------- Emotion Functions ---------- */
-// Emotion functions are preserved as they don't conflict or add new functionality
+... // Existing code below here
 
 /* ---------- Stargazer Tracking ---------- */
-// Stargazer tracking functions are preserved as they don't conflict or add new functionality
-
-/* ---------- Memory Visualizer ---------- */
-// Memory visualizer functions are preserved as they don't conflict or add new functionality
+... // Existing code below here
 
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {
@@ -129,8 +131,6 @@ const runPendingRenovateUpdates = async () => {
     updatePosthogJs,
     updateActionsStale,
     updateLinearBotsGitstream,
-    // Call the existing updateCodeqlAction function if there's a PR or checkbox for it in the future
-    // updateCodeqlAction,
   ];
   const updated = [];
   for (const update of updates) {
@@ -154,6 +154,7 @@ module.exports = {
   createAllAwaitingSchedulePrs,
   runLinting,
   fixLintingIssues,
+  logging,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
@@ -171,8 +172,8 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runPendingRenovateUpdates,
-  updateTypeScript, // Add updateTypeScript to exports
-  updatePosthogJs, // Add updatePosthogJs to exports
-  updateActionsStale, // Add updateActionsStale to exports
-  updateLinearBotsGitstream  // Add updateLinearBotsGitstream to exports
+  updateTypeScript,
+  updatePosthogJs,
+  updateActionsStale,
+  updateLinearBotsGitstream
 };

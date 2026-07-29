@@ -38,6 +38,7 @@ const fixLintingIssues = () => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
+      console.error(`[FAILSAFE] ${message}`);
     } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
@@ -233,7 +234,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\\\b/.exec(title);
+  const numberMatch = /\b(\\d+)\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;

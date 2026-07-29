@@ -1,7 +1,7 @@
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
-let isLintingRunning = false;
+var isLintingRunning = false;
 const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
@@ -63,7 +63,7 @@ const logging = {
     }
   }
 };
-let taskIdCounter = 0;
+var taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -211,7 +211,7 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
-let stargazerData = new Map();
+const stargazerData = new Map();
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -315,7 +315,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (let i = 1; i < stargazers.length; i++) {
+    for (var i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -329,7 +329,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (let i = 1; i < stargazers.length; i++) {
+    for (var i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
@@ -467,6 +467,34 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 
+// Random utility functions for test_random.js
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getRandomFloat = (min = 0, max = 1) => {
+  return Math.random() * (max - min) + min;
+};
+
+const getRandomItem = (arr) => {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return undefined;
+  }
+  return arr[Math.floor(Math.random() * arr.length)];
+};
+
+const shuffleArray = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
@@ -540,7 +568,11 @@ module.exports = {
   trackRunawayStargazers,
   runLinting,
   fixLintingIssues,
-  memoryVisualizer
+  memoryVisualizer,
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+  shuffleArray
 };
 
 module.exports.real = { ...module.exports };

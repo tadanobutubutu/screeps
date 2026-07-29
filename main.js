@@ -2,8 +2,7 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path'); // Added to support file path operations
-const isLintingRunning = false;
-
+let isLintingRunning = false;
 const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
@@ -19,7 +18,7 @@ const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-  const title = pr.data && pr.data.title !== undefined ? pr.data.title : pr.title;
+  const title = pr.data?.title ?? pr.title;
   if (typeof title !== 'string') {
     return false;
   }
@@ -29,8 +28,8 @@ const willRecreateBlockedUpdate = (pr) => {
     return true;
   }
 
-  const body = (pr.data && pr.data.body !== undefined ? pr.data.body : pr.body) || '';
-  const blockedComment = /<!--\s*recreate-branch=renovate/i;
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) {
     return true;
   }
@@ -65,7 +64,7 @@ const logging = {
     }
   }
 };
-var taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -213,7 +212,7 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
-const stargazerData = new Map();
+let stargazerData = new Map();
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -317,7 +316,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (var i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -331,7 +330,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (var i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {
@@ -360,12 +359,12 @@ const analyzeStargazerGrowth = (repo) => {
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
     if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: repoData ? repoData.stargazers.length : 0 };
+      return { growthRate: 0, trend: 'stable', totalStars: repoData ? repoData.stargazers.length : 0 };
     }
     const stargazers = repoData.stargazers;
     const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) => !isNaN(t));
     if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: stargazers.length };
+      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
     }
     timestamps.sort((a, b) => a - b);
     const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
@@ -381,7 +380,7 @@ const analyzeStargazerGrowth = (repo) => {
       ? 'accelerating'
       : secondHalfRate < firstHalfRate * 0.5
         ? 'decelerating'
-        : 'table';
+        : 'stable';
     return {
       growthRate: Math.round(growthRate * 100) / 100,
       trend,
@@ -396,7 +395,7 @@ const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
     const stargazers = JSON.parse(output);
-    const runaway = stargazers.filter((user) => user && user.type === 'Bot');
+    const runaway = stargazers.filter((user) => user?.type === 'Bot');
     logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
     return runaway;
   } catch (error) {
@@ -405,10 +404,10 @@ const trackRunawayStargazers = async () => {
   }
 };
 
-// Emotion analysis functions (referenced in exports but missing)
+// Emotion analysis functions (referenced in exports)
 const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
-  return validEmotions.includes(typeof emotion === 'string' ? emotion.toLowerCase() : '');
+  return validEmotions.includes(emotion?.toLowerCase());
 };
 
 const categorizeEmotion = (emotion) => {
@@ -417,9 +416,8 @@ const categorizeEmotion = (emotion) => {
     negative: ['sadness', 'anger', 'fear', 'disgust'],
     neutral: ['surprise']
   };
-  const normalizedEmotion = typeof emotion === 'string' ? emotion.toLowerCase() : '';
   for (const [category, emotions] of Object.entries(categories)) {
-    if (emotions.includes(normalizedEmotion)) return category;
+    if (emotions.includes(emotion?.toLowerCase())) return category;
   }
   return 'unknown';
 };
@@ -586,7 +584,6 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
-  isSuperFunction,
   runPendingRenovateUpdates,
   trackStargazers,
   identifyRunawayStargazers,
@@ -595,13 +592,7 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runLinting,
-  fixLintingIssues,
-  memoryVisualizer,
-  getRandomInt,
-  getRandomFloat,
-  getRandomItem,
-  shuffleArray
+  fixLintingIssues
 };
 
 module.exports.real = { ...module.exports };
-=========================================

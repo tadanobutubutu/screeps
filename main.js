@@ -40,15 +40,15 @@ const willRecreateBlockedUpdate = (pr) => {
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
 const handlePrTitle = (title) => {
-  if (!title) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (!trimmedTitle) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;

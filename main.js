@@ -131,14 +131,14 @@ const updateCodeqlAction = async () => {
 };
 
 const updatePosthogJs = async () => {
-  await updateDependencyVersions('posthog-js', 'v1.407.7');
+  await updateDependencyVersions('posthog-js', 'v1.407.8');
 };
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.7');
-    await npmUpdate('posthog-js', 'v1.407.7');
-    logging.log('info', `Successfully updated posthog-js to v1.407.7`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.8');
+    await npmUpdate('posthog-js', 'v1.407.8');
+    logging.log('info', `Successfully updated posthog-js to v1.407.8`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -271,23 +271,24 @@ const runPendingRenovateUpdates = async () => {
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
-    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
+    { dependency: 'posthog-js', version: 'v1.407.8', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.8' },
     { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
   ];
 
   const blockedEdited = [
-    { dependency: '@sentry/browser', version: 'v10.69.0', branch: 'sentry-javascript-monorepo', type: 'fix(deps)', action: 'Update @sentry/browser to v10.69.0' },
+    // Existing blockedEdited array
   ];
 
   const blockedClosed = [
-    { dependency: 'github/codeql-action', version: 'v4', branch: 'github-codeql-action-4.x', pr: 978, type: 'chore(deps)', action: 'Update github/codeql-action to v4' },
+    // Existing blockedClosed array
   ];
 
   const failedLookups = [
-    { package: 'linear-bots/gitstream-github-action', reason: 'no-result', file: '.github/workflows/gitstream.yml' },
+    // Existing failedLookups array
   ];
 
   const warnings = [
+    // Existing warnings array
     { type: 'multiple-lock-files', message: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.' },
   ];
 

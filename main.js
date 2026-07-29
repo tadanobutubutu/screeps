@@ -99,7 +99,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 /* ---------- Specific Update Functions ---------- */
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    const taskId = await createAsyncUpdateTask('Update gitstream-github-action to v4');
     await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;
@@ -217,7 +217,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -235,8 +235,8 @@ const willRecreateBlockedUpdate = (pr) => {
   if (blockedComment.test(body)) return true;
   const numberMatch = /\b(\\d+)\\\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return matchesPrNumber;
+  const blockedPrNumberMatches = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return blockedPrNumberMatches;
 };
 
 const checkPavoukPr = willRecreateBlockedUpdate;

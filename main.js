@@ -156,7 +156,7 @@ const updatePosthogJsToLatest = async () => {
     logging.log('info', `Successfully updated posthog-js to v1.407.5`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
     throw error;
   }
 };
@@ -281,7 +281,7 @@ const filterEmotionsByCategory = (emotions, category) => {
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
-  await updatePosthogJsToLatest();
+  await updatePosthoh_jsToLatest();
   await updateStaleAction();
   await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
@@ -502,6 +502,20 @@ const memoryVisualizer = {
     return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
+// New function to create PRs for all awaiting schedule updates
+const createAllAwaitingSchedulePrs = async () => {
+  // Identify tasks that are awaiting schedule and not yet completed
+  const awaitingTasks = Array.from(tasks.values()).filter(task => 
+    task.tags && task.tags.includes('renovate') && !task.completed
+  );
+  // For each awaiting task, create a placeholder PR task
+  awaitingTasks.forEach(task => {
+    addTask(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
+    logging.log('info', `Scheduled PR creation task for ${task.title}`);
+  });
+  // Return a summary of scheduled PR tasks
+  return { scheduledPrTasks: awaitingTasks.length };
+};
 module.exports = {
   logging,
   addTask,
@@ -515,7 +529,7 @@ module.exports = {
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthogJsToLatest,
+  updatePosthoh_jsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,
@@ -545,5 +559,6 @@ module.exports = {
   getRandomFloat,
   getRandomItem,
   shuffleArray,
-  memoryVisualizer
+  memoryVisualizer,
+  createAllAwaitingSchedulePrs
 };

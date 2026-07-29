@@ -3,6 +3,7 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 let isLintingRunning = false;
+const stargazerData = new Map();
 const runLinting = () => {
  if (isLintingRunning) return;
  isLintingRunning = true;
@@ -35,7 +36,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -148,7 +149,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');
@@ -262,20 +263,6 @@ const batchAnalyzeEmotions = (texts) => {
 };
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
-};
-const getEmotionTrends = (userId, timeRange = '7d') => {
-  return { userId, timeRange, trends: [] };
-};
-const detectEmotionConflicts = (emotions) => {
-  const conflicts = [];
-  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
-  for (const e of emotions) {
-    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
-  }
-  return conflicts;
-};
-const filterEmotionsByCategory = (emotions, category) => {
-  return emotions.filter(e => categorizeEmotion(e) === category);
 };
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');

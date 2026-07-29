@@ -45,7 +45,8 @@ const handlePrTitle = (title) => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+      console.log(message);
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -55,7 +56,6 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = new Map();
-const stargazerData = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
@@ -150,7 +150,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthoh_jsToLatest = async () => {
+const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');
@@ -210,6 +210,35 @@ const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
+const categorizeEmotion = (emotion) => {
+  // placeholder categorization logic
+  return emotion?.toLowerCase() || 'neutral';
+};
+const analyzeEmotionText = (text) => {
+  // placeholder analysis logic
+  return {};
+};
+const batchAnalyzeEmotions = (texts) => {
+  // placeholder batch logic
+  return {};
+};
+const createEmotionProfile = (userId, emotions = []) => {
+  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
+};
+const getEmotionTrends = (userId, timeRange = '7d') => {
+  return { userId, timeRange, trends: [] };
+};
+const detectEmotionConflicts = (emotions) => {
+  const conflicts = [];
+  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
+  for (const e of emotions) {
+    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
+  }
+  return conflicts;
+};
+const filterEmotionsByCategory = (emotions, category) => {
+  return emotions.filter(e => categorizeEmotion(e) === category);
+};
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -226,29 +255,14 @@ const getRandomItem = (arr) => {
 };
 const shuffleArray = (arr) => {
   if (!Array.isArray(arr)) return [];
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  var shuffled = [...arr];
+  for (var i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
 };
 const getEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
-};
-const categorizeEmotion = (emotion) => {
-  // placeholder categorization logic
-  return emotion?.toLowerCase() || 'neutral';
-};
-const analyzeEmotionText = (text) => {
-  // placeholder analysis logic
-  return {};
-};
-const batchAnalyzeEmotions = (texts) => {
-  // placeholder batch logic
-  return {};
-};
-const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const getEmotionTrends = (userId, timeRange = '7d') => {

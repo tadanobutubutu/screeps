@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix.', { stdio: 'inherit' });
+    execSync('npx eslint --fix', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -515,7 +515,9 @@ module.exports = {
   getStargazerStats,
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
-  trackRunawayStargazers
+  trackRunawayStargazers,
+  runLinting,
+  fixLintingIsses
 };
 
 module.exports.real = { ...module.exports };

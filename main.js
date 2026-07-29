@@ -45,13 +45,16 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  if (!hasConvention) {
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: '', score: lengthScore };
 };
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      console[level](`FailSafe: ${message}`);
+      console.log(`FailSafe: ${message}`);
     } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;

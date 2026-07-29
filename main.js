@@ -509,7 +509,9 @@ module.exports = {
   getStargazerStats,
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
-  trackRunawayStargazers
+  trackRunawayStargazers,
+  runLinting,
+  fixLintingIsses
 };
 
 module.exports.real = { ...module.exports };

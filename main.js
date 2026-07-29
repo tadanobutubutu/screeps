@@ -3,6 +3,7 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 let isLintingRunning = false;
+const stargazerData = new Map();
 const runLinting = () => {
  if (isLintingRunning) return;
  isLintingRunning = true;
@@ -23,7 +24,7 @@ const willRecreateBlockedUpdate = (pr) => {
  const body = pr.data?.body ?? pr.body ?? '';
  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
  if (blockedComment.test(body)) return true;
- const numberMatch = /\b(\\d+)\\b/.exec(title);
+ const numberMatch = /\b(\d+)\b/.exec(title);
  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
  return matchesPrNumber;
@@ -52,8 +53,9 @@ const logging = {
     }
   }
 };
-const taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
+const stargazerData = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
@@ -205,7 +207,7 @@ const isSuperFunction = (fn) => {
   return fn.name && fn.name.toLowerCase().includes('super');
 };
 const validateEmotion = (emotion) => {
-  const validEmotions = ['joy', 'adness', 'anger', 'fear', 'urprise', 'disgust', 'trust', 'anticipation'];
+  const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
 const getRandomInt = (min, max) => {
@@ -263,11 +265,10 @@ const detectEmotionConflicts = (emotions) => {
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
-const stargazerData = new Map();
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
-  await updatePosthoh_jsToLatest();
+  await updatePosthogJsToLatest();
   await updateStaleAction();
   await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
@@ -515,7 +516,7 @@ module.exports = {
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthoh_jsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,

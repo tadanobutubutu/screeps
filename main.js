@@ -18,17 +18,6 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
-function isAwaitingSchedule(task) {
-  return task.status === 'awaiting_schedule';
-}
-
-function createAllAwaitingSchedulePrs() {
-  const awaiting = tasks.filter(isAwaitingSchedule);
-  awaiting.forEach(task => {
-    // Implementation would go here
-  });
-}
-
 /* ---------- Linting ---------- */
 function runLinting() {
   logging.log('info', 'Running linting');
@@ -176,15 +165,10 @@ const updateTypeScript = async () => {
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
     throw error;
-  }
+  };
 };
 
 /* ---------- Schedule Awareness ---------- */
-const isAwaitingSchedule = (dependency) => {
-  const task = Array.from(tasks.values()).find(t => t.title.startsWith('update ') && t.title.includes(dependency));
-  return task && !task.completed;
-};
-
 const createAllAwaitingSchedulePrs = async () => {
   const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
   awaitingTasks.forEach(task => {

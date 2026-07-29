@@ -45,7 +45,8 @@ const handlePrTitle = (title) => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+      console.log(message);
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;

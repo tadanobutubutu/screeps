@@ -35,7 +35,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
+  if ( === undefined ||  === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -44,8 +44,7 @@ const handlePrTitle = (title) => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      console.log(`FailSafe: ${message}`);
-    } else {
+      } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -53,7 +52,7 @@ const logging = {
     }
   }
 };
-var taskIdCounter = 0;
+const taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -392,7 +391,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (var i = 1; i < stargazers.length; i++) {
+    for (const i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -406,7 +405,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (var i = 1; i < stargazers.length; i++) {
+    for (const i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {

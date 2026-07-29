@@ -28,7 +28,7 @@ const willRecreateBlockedUpdate = (pr) => {
   }
 
   const body = pr.data?.body ?? pr.body ?? '';
-  const blockedComment = /<!--\s*recreate-branch=renovate/i;
+  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) {
     return true;
   }

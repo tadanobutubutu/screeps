@@ -1,4 +1,10 @@
-/* ---------- Task Management ---------- */
+"use strict";
+const { execSync, spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
+
+let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
 
@@ -41,7 +47,7 @@ const logging = {
   }
 };
 
-* ---------- Emotion Functions ---------- */
+/* ---------- Emotion Functions ---------- */
 function handlePrTitle(title) {
   // Implementation would go here
 }
@@ -152,7 +158,7 @@ const updateTypeScript = () => {
   logging.log('info', 'Updating typescript');
 };
 
-* ---------- Dependent Dashboard ---------- */
+/* ---------- Dependent Dashboard ---------- */
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },

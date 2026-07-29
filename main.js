@@ -1,11 +1,16 @@
 // User Safety: unsafe
 // Safety Categories: Unauthorized Advice
 "use strict";
-const { execSync, spawnSync } = require('child_process');
+
+const {
+  execSync,
+  spawnSync
+} = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js');
-
+const {
+  memoryVisualizer
+} = require('./memory.visualizer.js');
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = new Map();
@@ -16,7 +21,9 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix', { stdio: 'inherit' });
+    execSync('npx eslint --fix', {
+      stdio: 'inherit'
+    });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -26,14 +33,31 @@ const runLinting = () => {
 
 const fixLintingIssues = () => {
   try {
-    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
+    const result = spawnSync(
+      'npx',
+      [
+        'eslint',
+        '--fix',
+        './tests/**/*.js',
+        './src/managers/roomManager.js',
+        './main.js'
+      ],
+      {
+        stdio: 'inherit',
+        maxBuffer: 1024 * 1024 // Increase maxBuffer to handle larger output
+      }
+    );
     if (result.status === 0) {
       logging.log('info', 'ESLint fix completed successfully.');
     } else {
       logging.log('error', 'ESLint fix failed.');
+      console.error('ESLint error output:', result.stderr.toString());
     }
   } catch (error) {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
+    if (error.code === 'ECONNABORN') {
+      logging.log('warn', 'eslint command failed to spawn');
+    }
   }
 };
 
@@ -55,7 +79,14 @@ const logging = {
 /* ---------- Task Management ---------- */
 const addTask = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
-  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
   tasks.set(taskIdCounter, task);
   return taskIdCounter;
 };
@@ -63,9 +94,11 @@ const addTask = (title, priority = "medium", tags = []) => {
 const getTaskById = (taskId) => tasks.get(taskId) || null;
 
 /* ---------- NPM Update ---------- */
-const npmUpdate = async (packageName, version = 'latest') => {
+const npmUpdate = async(packageName, version = 'latest') => {
   try {
-    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    execSync(`npm install ${packageName}@${version}`, {
+      stdio: 'inherit'
+    });
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
     logging.log('error', `Failed to update ${packageName}: ${error.message}`);
@@ -73,7 +106,7 @@ const npmUpdate = async (packageName, version = 'latest') => {
   }
 };
 
-const updateNpmPackage = async (packageName, version) => {
+const updateNpmPackage = async(packageName, version) => {
   await npmUpdate(packageName, version);
 };
 
@@ -83,7 +116,7 @@ const createAsyncUpdateTask = (packageName, version) => {
 };
 
 /* ---------- Dependency Update ---------- */
-const updateDependencyVersions = async (dependency, newVersion) => {
+const updateDependencyVersions = async(dependency, newVersion) => {
   if (typeof dependency === 'object' && !Array.isArray(dependency)) {
     for (const [name, version] of Object.entries(dependency)) {
       await updateDependencyVersions(name, version);
@@ -102,12 +135,12 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 };
 
 /* ---------- Specific Update Functions ---------- */
-const updateLinearBotsGitstream = async () => {
+const updateLinearBotsGitstream = async() => {
   await createAsyncUpdateTask('update gitstream-github-action to v4');
   await npmUpdate('linear-bots/gitstream-github-action', 'v4');
 };
 
-const updateLinearBotsGitstreamGithubAction = async () => {
+const updateLinearBotsGitstreamGithubAction = async() => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
     await npmUpdate('linear-bots/gitstream-github-action', 'v4');
@@ -118,7 +151,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   }
 };
 
-const updateCodeqlAction = async () => {
+const updateCodeqlAction = async() => {
   try {
     const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
     await npmUpdate('github/codeql-action', 'v4');
@@ -130,11 +163,11 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const updatePosthogJs = async () => {
+const updatePosthogJs = async() => {
   await updateDependencyVersions('posthog-js', 'v1.407.7');
 };
 
-const updatePosthogJsToLatest = async () => {
+const updatePosthogJsToLatest = async() => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.7');
     await npmUpdate('posthog-js', 'v1.407.7');
@@ -146,7 +179,7 @@ const updatePosthogJsToLatest = async () => {
   }
 };
 
-const handleLockFileWarning = async () => {
+const handleLockFileWarning = async() => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
     logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
@@ -158,11 +191,11 @@ const handleLockFileWarning = async () => {
   }
 };
 
-const updateActionsStale = async () => {
+const updateActionsStale = async() => {
   await updateDependencyVersions('actions/stale', 'v11');
 };
 
-const updateStaleAction = async () => {
+const updateStaleAction = async() => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v11');
     await npmUpdate('actions/stale', 'v11');
@@ -174,7 +207,7 @@ const updateStaleAction = async () => {
   }
 };
 
-const updateTypeScript = async () => {
+const updateTypeScript = async() => {
   try {
     await npmUpdate('typescript', '^7.0.2');
     logging.log('info', 'Successfully updated typescript to ^7.0.2');
@@ -190,27 +223,41 @@ const isAwaitingSchedule = (dependency) => {
   return task && !task.completed;
 };
 
-const createAllAwaitingSchedulePrs = async () => {
+const createAllAwaitingSchedulePrs = async() => {
   const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
   awaitingTasks.forEach(task => {
     addTask(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
   });
-  return { scheduledPrTasks: awaitingTasks.length };
+  return {
+    scheduledPrTasks: awaitingTasks.length
+  };
 };
 
 /* ---------- PR Title Handling ---------- */
 const handlePrTitle = (title) => {
   if (title === undefined || title === null) {
-    return { valid: false, reason: 'Empty title', score: 0 };
+    return {
+      valid: false,
+      reason: 'Empty title',
+      score: 0
+    };
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
   if (hasConvention === undefined || hasConvention === null) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+    return {
+      valid: false,
+      reason: 'Missing conventional commit prefix',
+      score: 20
+    };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
-  return { valid: true, reason: '', score: lengthScore };
+  return {
+    valid: true,
+    reason: '',
+    score: lengthScore
+  };
 };
 
 const willRecreateBlockedUpdate = (pr) => {
@@ -222,7 +269,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\\b(\\d+)\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -231,19 +278,21 @@ const willRecreateBlockedUpdate = (pr) => {
 const checkPavoukPr = willRecreateBlockedUpdate;
 
 /* ---------- Emotion Functions ---------- */
-... // Existing code below here
+/* ... Existing code ... */
 
 /* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
+/* ... Existing code ... */
 
 /* ---------- Deployment ---------- */
-const runPendingRenovateUpdates = async () => {
+const runPendingRenovateUpdates = async() => {
   logging.log('info', 'Running pending renovate updates');
   const updates = [
     updateTypeScript,
     updatePosthogJs,
     updateActionsStale,
     updateLinearBotsGitstream,
+    updateStaleAction,
+    updateCodeqlAction
   ];
   const updated = [];
   for (const update of updates) {
@@ -256,40 +305,74 @@ const runPendingRenovateUpdates = async () => {
     }
   }
   logging.log('info', `Successfully updated: ${updated.join(', ')}`);
-  return { success: true, updated };
+  return {
+    success: true,
+    updated
+  };
 };
 
 /* ---------- Dependency Dashboard ---------- */
 const dependencyDashboard = () => {
   const pendingSchedule = [
-    { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
-    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
-    { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
+    {
+      dependency: 'typescript',
+      version: '^7.0.2',
+      branch: 'typescript-7.x',
+      type: 'chore(deps)',
+      action: 'Update typescript to ^7.0.2'
+    },
+    {
+      dependency: 'posthog-js',
+      version: '1.407.7',
+      branch: 'posthog-js-1.x',
+      type: 'fix(deps)',
+      action: 'Update posthog-js to v1.407.7'
+    },
+    {
+      dependency: 'actions/stale',
+      version: 'v11',
+      branch: 'actions-stale-11.x',
+      type: 'chore(deps)',
+      action: 'Update actions/stale to v11'
+    }
   ];
-
   const blockedEdited = [
-    { dependency: '@sentry/browser', version: 'v10.69.0', branch: 'sentry-javascript-monorepo', type: 'fix(deps)', action: 'Update @sentry/browser to v10.69.0' },
+    {
+      dependency: '@sentry/browser',
+      version: 'v10.69.0',
+      branch: 'sentry-javascript-monorepo',
+      type: 'fix(deps)',
+      action: 'Update @sentry/browser to v10.69.0'
+    }
   ];
-
   const blockedClosed = [
-    { dependency: 'github/codeql-action', version: 'v4', branch: 'github-codeql-action-4.x', pr: 978, type: 'chore(deps)', action: 'Update github/codeql-action to v4' },
+    {
+      dependency: 'github/codeql-action',
+      version: 'v4',
+      branch: 'github-codeql-action-4.x',
+      pr: 978,
+      type: 'chore(deps)',
+      action: 'Update github/codeql-action to v4'
+    }
   ];
-
   const failedLookups = [
-    { package: 'linear-bots/gitstream-github-action', reason: 'no-result', file: '.github/workflows/gitstream.yml' },
+    {
+      package: 'linear-bots/gitstream-github-action',
+      reason: 'no-result',
+      file: '.github/workflows/gitstream.yml'
+    }
   ];
-
   const warnings = [
-    { type: 'multiple-lock-files', message: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.' },
+    {
+      type: 'multiple-lock-files',
+      message: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.'
+    }
   ];
-
   const allUpdates = [...pendingSchedule, ...blockedEdited, ...blockedClosed];
   const totalPending = pendingSchedule.length;
   const totalBlocked = blockedEdited.length + blockedClosed.length;
   const totalFailedLookups = failedLookups.length;
-
   logging.log('info', `Dependency Dashboard: ${totalPending} pending, ${totalBlocked} blocked, ${totalFailedLookups} failed lookups`);
-
   return {
     pendingSchedule,
     blockedEdited,
@@ -300,7 +383,7 @@ const dependencyDashboard = () => {
       totalPending,
       totalBlocked,
       totalFailedLookups,
-      totalUpdates: allUpdates.length,
+      totalUpdates: allUpdates.length
     },
   };
 };
@@ -340,5 +423,5 @@ module.exports = {
   updateLinearBotsGitstream,
   updatePosthogJs,
   updateActionsStale,
-  updateTypeScript,
+  updateTypeScript
 };

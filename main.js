@@ -150,11 +150,11 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
-    await updateNpmPackage('posthog-js', 'v1.407.5');
-    logging.log('info', `Successfully updated posthog-js to v1.407.5`);
+    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.5');
+    await updateNpmPackage('posthoh-js', 'v1.407.5');
+    logging.log('info', `Successfully updated posthoh-js to v1.407.5`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -292,6 +292,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
       profileUrl: s.profileUrl || s.html_url || null,
     }));
     existingData.totalCount = existingData.stargazers.length;
+    existingData.stargazers = existingData.stargazers;
     existingData.stargazers = existingData.stargazers;
     stargazerData.set(normalizedRepo, existingData);
     addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);

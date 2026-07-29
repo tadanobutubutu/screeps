@@ -232,6 +232,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
       profileUrl: s.profileUrl || s.html_url || null,
     }));
     existingData.totalCount = existingData.stargazers.length;
+    existingData.stargazers = existingData.stargazers;
     stargazerData.set(normalizedRepo, existingData);
     addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
@@ -548,5 +549,3 @@ module.exports = {
   getRandomItem,
   shuffleArray
 };
-
-module.exports.real = { ...module.exports };

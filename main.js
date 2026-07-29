@@ -44,11 +44,11 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null) {
+  if (!trimmedTitle) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -477,7 +477,7 @@ const runPendingRenovateUpdates = async () => {
   await updateGitstreamGithubAction();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
-  await runPendingRenovateUpdates();
+  // removed recursive call to prevent infinite recursion
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 

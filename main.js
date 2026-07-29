@@ -44,13 +44,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null) {
-    return { valid: false, reason: 'Empty title', score: 0 };
-  }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
-  }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: '', score: lengthScore };
 };
@@ -202,7 +196,7 @@ const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
-const fixLintingIsses = () => {
+const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {

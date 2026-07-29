@@ -53,8 +53,9 @@ const logging = {
     }
   }
 };
-const taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
+const stargazerData = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };

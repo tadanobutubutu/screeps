@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix.', { stdio: 'inherit' });
+    execSync('npx eslint --fix', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -477,7 +477,6 @@ const runPendingRenovateUpdates = async () => {
   await updateGitstreamGithubAction();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
-  await runPendingRenovateUpdates();
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 
@@ -516,7 +515,9 @@ module.exports = {
   getStargazerStats,
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
-  trackRunawayStargazers
+  trackRunawayStargazers,
+  runLinting,
+  fixLintingIsses
 };
 
 module.exports.real = { ...module.exports };

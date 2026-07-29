@@ -55,7 +55,6 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = new Map();
-const stargazerData = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
@@ -210,30 +209,19 @@ const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
-const getRandomInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+const categorizeEmotion = (emotion) => {
+  // placeholder categorization logic
+  return emotion?.toLowerCase() || 'neutral';
 };
-const getRandomFloat = (min = 0, max = 1) => {
-  return Math.random() * (max - min) + min;
+const analyzeEmotionText = (text) => {
+  // placeholder analysis logic
+  return {};
 };
-const getRandomItem = (arr) => {
-  if (!Array.isArray(arr) || arr.length === 0) {
-    return undefined;
-  }
-  return arr[Math.floor(Math.random() * arr.length)];
+const batchAnalyzeEmotions = (texts) => {
+  // placeholder batch logic
+  return {};
 };
-const shuffleArray = (arr) => {
-  if (!Array.isArray(arr)) return [];
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
-const getEmotionProfile = (userId, emotions = []) => {
+const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const getEmotionTrends = (userId, timeRange = '7d') => {
@@ -249,21 +237,6 @@ const detectEmotionConflicts = (emotions) => {
 };
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
-};
-const categorizeEmotion = (emotion) => {
-  // placeholder categorization logic
-  return emotion?.toLowerCase() || 'neutral';
-};
-const analyzeEmotionText = (text) => {
-  // placeholder analysis logic
-  return {};
-};
-const batchAnalyzeEmotions = (texts) => {
-  // placeholder batch logic
-  return {};
-};
-const createEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');

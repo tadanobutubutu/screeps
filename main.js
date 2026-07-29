@@ -1,7 +1,7 @@
 "use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
-let isLintingRunning = false;
+var isLintingRunning = false;
 const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
@@ -63,7 +63,7 @@ const logging = {
     }
   }
 };
-let taskIdCounter = 0;
+var taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -211,7 +211,7 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
-let stargazerData = new Map();
+var stargazerData = new Map();
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -315,7 +315,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (let i = 1; i < stargazers.length; i++) {
+    for (var i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -329,7 +329,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (let i = 1; i < stargazers.length; i++) {
+    for (var i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {

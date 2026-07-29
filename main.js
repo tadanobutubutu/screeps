@@ -3,6 +3,7 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 let isLintingRunning = false;
+const stargazerData = new Map();
 const runLinting = () => {
  if (isLintingRunning) return;
  isLintingRunning = true;
@@ -23,7 +24,7 @@ const willRecreateBlockedUpdate = (pr) => {
  const body = pr.data?.body ?? pr.body ?? '';
  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
  if (blockedComment.test(body)) return true;
- const numberMatch = /\b(\\d+)\\b/.exec(title);
+ const numberMatch = /\b(\d+)\b/.exec(title);
  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
  return matchesPrNumber;
@@ -35,7 +36,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -53,7 +54,7 @@ const logging = {
     }
   }
 };
-const taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -149,7 +150,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');
@@ -209,30 +210,19 @@ const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
-const getRandomInt = (min, max) => {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+const categorizeEmotion = (emotion) => {
+  // placeholder categorization logic
+  return emotion?.toLowerCase() || 'neutral';
 };
-const getRandomFloat = (min = 0, max = 1) => {
-  return Math.random() * (max - min) + min;
+const analyzeEmotionText = (text) => {
+  // placeholder analysis logic
+  return {};
 };
-const getRandomItem = (arr) => {
-  if (!Array.isArray(arr) || arr.length === 0) {
-    return undefined;
-  }
-  return arr[Math.floor(Math.random() * arr.length)];
+const batchAnalyzeEmotions = (texts) => {
+  // placeholder batch logic
+  return {};
 };
-const shuffleArray = (arr) => {
-  if (!Array.isArray(arr)) return [];
-  const shuffled = [...arr];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
-const getEmotionProfile = (userId, emotions = []) => {
+const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const getEmotionTrends = (userId, timeRange = '7d') => {
@@ -248,21 +238,6 @@ const detectEmotionConflicts = (emotions) => {
 };
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
-};
-const categorizeEmotion = (emotion) => {
-  // placeholder categorization logic
-  return emotion?.toLowerCase() || 'neutral';
-};
-const analyzeEmotionText = (text) => {
-  // placeholder analysis logic
-  return {};
-};
-const batchAnalyzeEmotions = (texts) => {
-  // placeholder batch logic
-  return {};
-};
-const createEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
@@ -378,7 +353,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (const i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -392,7 +367,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (const i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {

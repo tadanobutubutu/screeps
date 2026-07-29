@@ -45,7 +45,8 @@ const handlePrTitle = (title) => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      } else {
+      console.log(message);
+    } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
       const consoleMethod = method in console ? console[method] : console.log;
@@ -224,10 +225,10 @@ const batchAnalyzeEmotions = (texts) => {
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
-const getEmotionTrends2 = (userId, timeRange = '7d') => {
+const getEmotionTrends = (userId, timeRange = '7d') => {
   return { userId, timeRange, trends: [] };
 };
-const detectEmotionConflicts2 = (emotions) => {
+const detectEmotionConflicts = (emotions) => {
   const conflicts = [];
   const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
   for (const e of emotions) {
@@ -235,7 +236,7 @@ const detectEmotionConflicts2 = (emotions) => {
   }
   return conflicts;
 };
-const filterEmotionsByCategory2 = (emotions, category) => {
+const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 const runPendingRenovateUpdates = async () => {

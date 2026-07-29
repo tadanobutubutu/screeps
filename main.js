@@ -6,7 +6,7 @@ const runLinting = () => {
   if (isLintingRunning) return;
   isLintingRunning = true;
   try {
-    execSync('npx eslint --fix.', { stdio: 'inherit' });
+    execSync('npx eslint --fix', { stdio: 'inherit' });
   } catch (error) {
     console.error('Linting failed:', error.message);
   } finally {
@@ -44,9 +44,6 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if (trimmedTitle === undefined || trimmedTitle === null) {
-    return { valid: false, reason: 'Empty title', score: 0 };
-  }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
@@ -68,7 +65,7 @@ const logging = {
 };
 let taskIdCounter = 0;
 const tasks = new Map();
-const addTask = (title, priority = 'edium', tags = []) => {
+const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
   tasks.set(taskIdCounter, task);
@@ -132,12 +129,12 @@ const updateActionsLabeler = async () => {
 };
 const updateLinearBotsGitstream = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream to latest');
-    await updateNpmPackage('linear-bots/gitstream', 'latest');
-    logging.log('info', `Successfully updated linear-bots/gitstream to latest`);
+    const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update linear-bots/gitstream: ${error.message}`);
+    logging.log('error', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
     throw error;
   }
 };
@@ -202,7 +199,7 @@ const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
-const fixLintingIsses = () => {
+const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
     if (result.status === 0) {
@@ -236,7 +233,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
     }));
     existingData.totalCount = existingData.stargazers.length;
     stargazerData.set(normalizedRepo, existingData);
-    addTask(`Track stargazers for ${repo}`, 'edium', ['stargazers']);
+    addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
     return existingData;
   } catch (error) {
@@ -516,7 +513,8 @@ module.exports = {
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
   trackRunawayStargazers,
-  fixLintingIsses
+  runLinting,
+  fixLintingIssues
 };
 
 module.exports.real = { ...module.exports };

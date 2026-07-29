@@ -48,7 +48,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -57,7 +57,7 @@ const handlePrTitle = (title) => {
 const logging = {
   log: (level, message) => {
     if (level === 'FAILSAFE') {
-      console[level](`FailSafe: ${message}`);
+      console.log(`FailSafe: ${message}`);
     } else {
       const method = level.toUpperCase();
       const prefix = `[${method}]`;
@@ -477,7 +477,6 @@ const runPendingRenovateUpdates = async () => {
   await updateGitstreamGithubAction();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
-  await runPendingRenovateUpdates();
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 
@@ -516,7 +515,8 @@ module.exports = {
   getStargazerStats,
   detectStargazerAnomalies,
   analyzeStargazerGrowth,
-  trackRunawayStargazers
+  trackRunawayStargazers,
+  fixLintingIsses
 };
 
 module.exports.real = { ...module.exports };

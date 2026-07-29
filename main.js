@@ -41,7 +41,7 @@ const logging = {
   }
 };
 
-/* ---------- Emotion Functions ---------- */
+* ---------- Emotion Functions ---------- */
 function handlePrTitle(title) {
   // Implementation would go here
 }
@@ -152,40 +152,11 @@ const updateTypeScript = () => {
   logging.log('info', 'Updating typescript');
 };
 
-/* ---------- Emotion Functions ---------- */
-... // Existing code below here
-
-/* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
-
-/* ---------- Deployment ---------- */
-const runPendingRenovateUpdates = async () => {
-  logging.log('info', 'Running pending renovate updates');
-  const updates = [
-    updateTypeScript,
-    updatePosthogJs,
-    updateActionsStale,
-    updateLinearBotsGitstream,
-  ];
-  const updated = [];
-  for (const update of updates) {
-    try {
-      await update();
-      updated.push(update.name);
-      logging.log('info', `Successfully updated ${update.name}`);
-    } catch (e) {
-      logging.log('error', `Update failed: ${e.message}`);
-    }
-  }
-  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
-  return { success: true, updated };
-};
-
-/* ---------- Dependency Dashboard ---------- */
+* ---------- Dependent Dashboard ---------- */
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
-    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
+    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthoh-js-1.x', type: 'fix(deps)', action: 'Update posthoh-js to v1.407.7' },
     { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
   ];
 
@@ -227,7 +198,30 @@ const dependencyDashboard = () => {
   };
 };
 
-/* ---------- Additional Exports ---------- */
+/* ---------- Deployment ---------- */
+const runPendingRenovateUpdates = async () => {
+  logging.log('info', 'Running pending renovate updates');
+  const updates = [
+    updateTypeScript,
+    updatePosthogJs,
+    updateActionsStale,
+    updateLinearBotsGitstream,
+  ];
+  const updated = [];
+  for (const update of updates) {
+    try {
+      await update();
+      updated.push(update.name);
+      logging.log('info', `Successfully updated ${update.name}`);
+    } catch (e) {
+      logging.log('error', `Update failed: ${e.message}`);
+    }
+  }
+  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
+  return { success: true, updated };
+};
+
+// Additional Exports
 module.exports = {
   addTask,
   getTaskById,

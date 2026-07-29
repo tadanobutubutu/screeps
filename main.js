@@ -27,7 +27,7 @@ const willRecreateBlockedUpdate = (pr) => {
     return true;
   }
 
-  const body = (pr.data && pr.data.body !== undefined ? pr.data.body : pr.body) || '';
+  const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
   if (blockedComment.test(body)) {
     return true;
@@ -581,3 +581,4 @@ module.exports = {
 };
 
 module.exports.real = { ...module.exports };
+=========================================

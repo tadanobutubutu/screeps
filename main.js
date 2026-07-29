@@ -149,7 +149,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');

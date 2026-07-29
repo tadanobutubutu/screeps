@@ -354,12 +354,19 @@ function hasBuildSites(room) {
 
 /**
  * ルーム内のすべての建設サイトの合計建設量を返す
+ * ⚡ PERFORMANCE OPTIMIZATION: Use a standard for-loop instead of Array.prototype.reduce
+ * to avoid closure allocations and callback overhead in hot-path room evaluation.
  * @param {Room} room
  * @returns {number}
  */
 function getTotalBuildProgress(room) {
     const sites = cache.getConstructionSites(room);
-    return sites.reduce((acc, s) => acc + (s.progressTotal - s.progress), 0);
+    let total = 0;
+    for (let i = 0; i < sites.length; i++) {
+        const s = sites[i];
+        total += (s.progressTotal - s.progress);
+    }
+    return total;
 }
 
 module.exports = { run, getBody, hasBuildSites, getTotalBuildProgress, BUILD_PRIORITY };

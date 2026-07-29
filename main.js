@@ -38,6 +38,12 @@ const isSuperFunction = (fn) => {
  return fn.name && fn.name.toLowerCase().includes('super');
 };
 
+// Emotion analysis functions (referenced in exports)
+const validateEmotion = (emotion) => {
+  const validEmotions = ['joy', 'adness', 'anger', 'fear', 'urprise', 'disgust', 'trust', 'anticipation'];
+  return validEmotions.includes(emotion?.toLowerCase());
+};
+
 const getRandomInt = (min, max) => {
  min = Math.ceil(min);
  max = Math.floor(max);
@@ -175,4 +181,4 @@ module.exports = {
  memoryVisualizer
 };
 
-module.exports.real = { ...module.exports };
+module.exports.real = {...module.exports };

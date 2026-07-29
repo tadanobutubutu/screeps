@@ -466,6 +466,11 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 
+const isSuperFunction = (fn) => {
+  if (typeof fn !== 'function') return false;
+  return fn.name && fn.name.toLowerCase().includes('super');
+};
+
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
@@ -506,6 +511,7 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
+  isSuperFunction,
   runPendingRenovateUpdates,
   trackStargazers,
   identifyRunawayStargazers,

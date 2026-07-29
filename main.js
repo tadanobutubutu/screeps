@@ -157,9 +157,9 @@ const updateCodeqlAction = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.6');
-    await npmUpdate('posthog-js', 'v1.407.6');
-    logging.log('info', `Successfully updated posthog-js to v1.407.6`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.7');
+    await npmUpdate('posthog-js', 'v1.407.7');
+    logging.log('info', `Successfully updated posthog-js to v1.407.7`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);

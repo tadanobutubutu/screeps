@@ -1,6 +1,8 @@
+"use strict";
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -9,83 +11,115 @@ const stargazerData = new Map();
 
 /* ---------- Linting ---------- */
 const runLinting = () => {
-	if (isLintingRunning) return;
-	isLintingRunning = true;
-	try {
-		execSync('npx eslint --fix', { stdio: 'inherit' });
-	} catch (error) {
-		console.error('Linting failed:', error.message);
-	} finally {
-		isLintingRunning = false;
-	}
+  if (isLintingRunning) return;
+  isLintingRunning = true;
+  try {
+    execSync('npx eslint --fix', { stdio: 'inherit' });
+  } catch (error) {
+    console.error('Linting failed:', error.message);
+  } finally {
+    isLintingRunning = false;
+  }
 };
 
 const fixLintingIssues = () => {
-	try {
-		const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
-		if (result.status === 0) {
-			logging.log('info', 'ESLint fix completed successfully.');
-		} else {
-			logging.log('error', 'ESLint fix failed.');
-		}
-	} catch (error) {
-		logging.log('error', `Failed to run ESLint fix: ${error.message}`);
-	}
+  try {
+    const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
+    if (result.status === 0) {
+      logging.log('info', 'ESLint fix completed successfully.');
+    } else {
+      logging.log('error', 'ESLint fix failed.');
+    }
+  } catch (error) {
+    logging.log('error', `Failed to run ESLint fix: ${error.message}`);
+  }
 };
 
 /* ---------- Logging ---------- */
 const logging = {
-	log: (level, message) => {
-		if (level === 'FAILSAFE') {
-			// no-op
-		} else {
-			const method = level.toUpperCase();
-			const prefix = `[${method}]`;
-			const consoleMethod = method in console ? console[method] : console.log;
-			consoleMethod(`${prefix} ${message}`);
-		}
-	}
+  log: (level, message) => {
+    if (level === 'FAILSAFE') {
+      } else {
+      const method = level.toUpperCase();
+      const prefix = `[${method}]`;
+      const consoleMethod = method in console ? console[method] : console.log;
+      consoleMethod(`${prefix} ${message}`);
+    }
+  }
 };
 
 /* ---------- Task Management ---------- */
-const addTask = (title, priority = 'high', tags = []) => {
-	taskIdCounter++;
-	tasks.set(taskIdCounter, { title, priority, tags, createdAt: new Date() });
-	return taskIdCounter;
+const addTask = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  tasks.set(taskIdCounter, task);
+  return taskIdCounter;
 };
-const getTaskById = (id) => tasks.get(id);
-const isAwaitingSchedule = () => false;
-const createAllAwaitingSchedulePrs = async () => { };
+
+const getTaskById = (taskId) => tasks.get(taskId) || null;
 
 /* ---------- NPM Update ---------- */
 const npmUpdate = async (packageName, version = 'latest') => {
-	try {
-		execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
-		logging.log('info', `Updated ${packageName} to ${version}`);
-	} catch (error) {
-		logging.log('error', `Failed to update ${packageName}: ${error.message}`);
-		throw error;
-	}
+  try {
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
 };
 
 const updateNpmPackage = async (packageName, version) => {
-	await npmUpdate(packageName, version);
+  await npmUpdate(packageName, version);
 };
 
 /* ---------- Async Task Creation ---------- */
-const createTask = (title, taskFn) => {
-	// Implementation
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
 
-const createMonitorTask = (title, taskFn) => {
-	// Implementation
+/* ---------- Dependency Update ---------- */
+const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  try {
+    await npmUpdate(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    addTask(taskTitle, 'high', ['renovate']);
+  } catch (error) {
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    throw error;
+  }
 };
 
-const createAwaitingScheduleTask = (title, taskFn) => {
-	// Implementation
+/* ---------- Specific Update Functions ---------- */
+const updateGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
+  }
 };
 
-// *********** Other non-conflicting modules ***********
+const updateActionsLabeler = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('update actions/labeler to v7');
+    await npmUpdate('actions/labeler', 'v7');
+    logging.log('info', `Successfully updated actions/labeler to v7`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update actions/labeler: ${error.message}`);
+    throw error;
+  }
+};
 
 const updateLinearBotsGitstream = async () => {
   try {
@@ -184,7 +218,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (!hasConvention) {
+  if (hasConvention === undefined || hasConvention === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -200,7 +234,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\\\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -438,7 +472,7 @@ const analyzeStargazerGrowth = (repo) => {
       ? 'accelerating'
       : secondHalfRate < firstHalfRate * 0.5
         ? 'decelerating'
-        : 'stable';
+        : 'table';
     return {
       growthRate: Math.round(growthRate * 100) / 100,
       trend,
@@ -460,33 +494,6 @@ const trackRunawayStargazers = async () => {
   } catch (error) {
     logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
     return [];
-  }
-};
-
-/* ---------- Memory Visualizer ---------- */
-const memoryVisualizer = {
-  getStats: (repo) => {
-    if (!repo || typeof repo !== 'string') {
-      return { error: 'Invalid repository identifier', stats: null };
-    }
-    return { repo, visualizations: 'memory chart placeholder' };
-  },
-  renderChart: (data) => {
-    if (!data || typeof data !== 'object') {
-      return 'No data to visualize';
-    }
-    return `Chart rendered for ${data.repo || 'unknown'}`;
-  },
-  trackMemory: (label, value) => ({
-    label: label || 'untracked',
-    value: value || 0,
-    timestamp: new Date(),
-  }),
-  getTrend: (metric, history = []) => {
-    if (!Array.isArray(history) || history.length === 0) {
-      return { metric, trend: 'stable', change: 0, samples: history.length };
-    }
-    return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
 
@@ -515,28 +522,29 @@ const runPendingRenovateUpdates = async () => {
   return { success: true, updated };
 };
 
+/* ---------- Additional Exports ---------- */
 module.exports = {
-	addTask,
-	getTaskById,
-	isAwaitingSchedule,
-	createAllAwaitingSchedulePrs,
-	runLinting,
-	fixLintingIssues,
-	handlePrTitle,
-	validateEmotion,
-	categorizeEmotion,
-	analyzeEmotionText,
-	createEmotionProfile,
-	getRandomInt,
-	getRandomFloat,
-	getRandomItem,
-	shuffleArray,
-	memoryVisualizer,
-	trackStargazers,
-	identifyRunawayStargazers,
-	getStargazerStats,
-	detectStargazerAnomalies,
-	analyzeStargazerGrowth,
-	trackRunawayStargazers,
-	runPendingRenovateUpdates,
+  addTask,
+  getTaskById,
+  isAwaitingSchedule,
+  createAllAwaitingSchedulePrs,
+  runLinting,
+  fixLintingIssues,
+  handlePrTitle,
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  createEmotionProfile,
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+  shuffleArray,
+  memoryVisualizer,
+  trackStargazers,
+  identifyRunawayStargazers,
+  getStargazerStats,
+  detectStargazerAnomalies,
+  analyzeStargazerGrowth,
+  trackRunawayStargazers,
+  runPendingRenovateUpdates,
 };

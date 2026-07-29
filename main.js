@@ -242,7 +242,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\\\b/.exec(title);
+  const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -530,6 +530,52 @@ const runPendingRenovateUpdates = async () => {
   return { success: true, updated };
 };
 
+/* ---------- Dependency Dashboard ---------- */
+const dependencyDashboard = () => {
+  const pendingSchedule = [
+    { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
+    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
+    { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
+  ];
+
+  const blockedEdited = [
+    { dependency: '@sentry/browser', version: 'v10.69.0', branch: 'sentry-javascript-monorepo', type: 'fix(deps)', action: 'Update @sentry/browser to v10.69.0' },
+  ];
+
+  const blockedClosed = [
+    { dependency: 'github/codeql-action', version: 'v4', branch: 'github-codeql-action-4.x', pr: 978, type: 'chore(deps)', action: 'Update github/codeql-action to v4' },
+  ];
+
+  const failedLookups = [
+    { package: 'linear-bots/gitstream-github-action', reason: 'no-result', file: '.github/workflows/gitstream.yml' },
+  ];
+
+  const warnings = [
+    { type: 'multiple-lock-files', message: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.' },
+  ];
+
+  const allUpdates = [...pendingSchedule, ...blockedEdited, ...blockedClosed];
+  const totalPending = pendingSchedule.length;
+  const totalBlocked = blockedEdited.length + blockedClosed.length;
+  const totalFailedLookups = failedLookups.length;
+
+  logging.log('info', `Dependency Dashboard: ${totalPending} pending, ${totalBlocked} blocked, ${totalFailedLookups} failed lookups`);
+
+  return {
+    pendingSchedule,
+    blockedEdited,
+    blockedClosed,
+    failedLookups,
+    warnings,
+    summary: {
+      totalPending,
+      totalBlocked,
+      totalFailedLookups,
+      totalUpdates: allUpdates.length,
+    },
+  };
+};
+
 /* ---------- Additional Exports ---------- */
 module.exports = {
   addTask,
@@ -555,4 +601,5 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runPendingRenovateUpdates,
+  dependencyDashboard,
 };

@@ -5,6 +5,20 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
+const {
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  createEmotionProfile
+} = require('./utils.emotions.js');
+const {
+  trackStargazers,
+  identifyRunawayStargazers,
+  getStargazerStats,
+  detectStargazerAnomalies,
+  analyzeStargazerGrowth,
+  trackRunawayStargazers
+} = require('./utils.stargazer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -138,7 +152,7 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.7');
     await npmUpdate('posthog-js', 'v1.407.7');
-    logging.log('info', `Successfully updated posthog-js to ${version}`);
+    logging.log('info', `Successfully updated posthog-js to v1.407.7`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);

@@ -217,7 +217,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;

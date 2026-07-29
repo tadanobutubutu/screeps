@@ -466,6 +466,34 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 
+// Random utility functions for test_random.js
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getRandomFloat = (min = 0, max = 1) => {
+  return Math.random() * (max - min) + min;
+};
+
+const getRandomItem = (arr) => {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return undefined;
+  }
+  return arr[Math.floor(Math.random() * arr.length)];
+};
+
+const shuffleArray = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
@@ -514,7 +542,11 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runLinting,
-  fixLintingIssues
+  fixLintingIssues,
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+  shuffleArray
 };
 
 module.exports.real = { ...module.exports };

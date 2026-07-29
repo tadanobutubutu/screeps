@@ -4,8 +4,7 @@
   ],
   "rules": [
     "Remove console.log",
-    "Replace var with const",
     "Strict undefined check"
   ],
-  "timestamp": "2026-07-29T08:13:32.059Z"
+  "timestamp": "2026-07-29T13:30:12.881Z"
 }

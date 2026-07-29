@@ -467,7 +467,11 @@ const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 
-// Random utility functions for test_random.js
+const isSuperFunction = (fn) => {
+  if (typeof fn !== 'function') return false;
+  return fn.name && fn.name.toLowerCase().includes('super');
+};
+
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -559,6 +563,7 @@ module.exports = {
   getEmotionTrends,
   detectEmotionConflicts,
   filterEmotionsByCategory,
+  isSuperFunction,
   runPendingRenovateUpdates,
   trackStargazers,
   identifyRunawayStargazers,

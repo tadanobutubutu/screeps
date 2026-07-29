@@ -35,7 +35,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -263,10 +263,10 @@ const batchAnalyzeEmotions = (texts) => {
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
-const getEmotionTrends = (userId, timeRange = '7d') => {
+const getEmotionTrends2 = (userId, timeRange = '7d') => {
   return { userId, timeRange, trends: [] };
 };
-const detectEmotionConflicts = (emotions) => {
+const detectEmotionConflicts2 = (emotions) => {
   const conflicts = [];
   const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
   for (const e of emotions) {
@@ -274,7 +274,7 @@ const detectEmotionConflicts = (emotions) => {
   }
   return conflicts;
 };
-const filterEmotionsByCategory = (emotions, category) => {
+const filterEmotionsByCategory2 = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
 const runPendingRenovateUpdates = async () => {

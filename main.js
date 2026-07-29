@@ -28,7 +28,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\\\b/.exec(title);
+  const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -62,15 +62,18 @@ const logging = {
     }
   }
 };
+
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
   tasks.set(taskIdCounter, task);
   return taskIdCounter;
 };
+
 const getTaskById = (taskId) => {
   return tasks.get(taskId) || null;
 };
+
 const npmUpdate = async (packageName, version = 'latest') => {
   try {
     execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
@@ -80,12 +83,15 @@ const npmUpdate = async (packageName, version = 'latest') => {
     throw error;
   }
 };
+
 const updateNpmPackage = async (packageName, version) => {
   await npmUpdate(packageName, version);
 };
+
 const createAsyncUpdateTask = (packageName, version) => {
   return addTask(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
+
 const updateDependencyVersions = async (dependency, newVersion) => {
   if (typeof dependency === 'object' && !Array.isArray(dependency)) {
     for (const [name, version] of Object.entries(dependency)) {
@@ -103,6 +109,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
     throw error;
   }
 };
+
 const updateGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
@@ -113,6 +120,7 @@ const updateGitstreamGithubAction = async () => {
     logging.log('warn', `Failed to update gitstream-github-action: ${error.message}`);
   }
 };
+
 const updateActionsLabeler = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/labeler action to v7');
@@ -124,6 +132,7 @@ const updateActionsLabeler = async () => {
     throw error;
   }
 };
+
 const updateLinearBotsGitstream = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
@@ -135,6 +144,7 @@ const updateLinearBotsGitstream = async () => {
     throw error;
   }
 };
+
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update linear-bots/gitstream-github-action to v4');
@@ -145,6 +155,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
+
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update github/codeql-action to v4');
@@ -156,6 +167,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
+
 const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.5');
@@ -167,6 +179,7 @@ const updatePosthoh_jsToLatest = async () => {
     throw error;
   }
 };
+
 const handleLockFileWarning = async () => {
   try {
     const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
@@ -178,6 +191,7 @@ const handleLockFileWarning = async () => {
     throw error;
   }
 };
+
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update actions/stale to v11');
@@ -189,13 +203,16 @@ const updateStaleAction = async () => {
     throw error;
   }
 };
+
 const updateTypeScript = async () => {
   await updateNpmPackage('typescript', '^7.0.2');
 };
+
 const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find((task) => task.title.startsWith('update ') && task.title.includes(dependency));
   return task && !task.completed;
 };
+
 const fixLintingIssues = () => {
   try {
     const result = spawnSync('npx', ['eslint', '--fix', './tests/**/*.js', './src/managers/roomManager.js', './main.js'], { stdio: 'inherit' });
@@ -208,32 +225,40 @@ const fixLintingIssues = () => {
     logging.log('error', `Failed to run ESLint fix: ${error.message}`);
   }
 };
+
 const isSuperFunction = (fn) => {
   if (typeof fn !== 'function') return false;
   return fn.name && fn.name.toLowerCase().includes('super');
 };
+
 const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
 };
+
 const categorizeEmotion = (emotion) => {
   // placeholder categorization logic
   return emotion?.toLowerCase() || 'neutral';
 };
+
 const analyzeEmotionText = (text) => {
   // placeholder analysis logic
   return {};
 };
+
 const batchAnalyzeEmotions = (texts) => {
   // placeholder batch logic
   return {};
 };
+
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
+
 const getEmotionTrends = (userId, timeRange = '7d') => {
   return { userId, timeRange, trends: [] };
 };
+
 const detectEmotionConflicts = (emotions) => {
   const conflicts = [];
   const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
@@ -242,23 +267,28 @@ const detectEmotionConflicts = (emotions) => {
   }
   return conflicts;
 };
+
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
+
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
+
 const getRandomFloat = (min = 0, max = 1) => {
   return Math.random() * (max - min) + min;
 };
+
 const getRandomItem = (arr) => {
   if (!Array.isArray(arr) || arr.length === 0) {
     return undefined;
   }
   return arr[Math.floor(Math.random() * arr.length)];
 };
+
 const shuffleArray = (arr) => {
   if (!Array.isArray(arr)) return [];
   var shuffled = [...arr];
@@ -268,16 +298,18 @@ const shuffleArray = (arr) => {
   }
   return shuffled;
 };
+
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
-  await updatePosthogJsToLatest();
+  await updatePosthoh_jsToLatest();
   await updateStaleAction();
   await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
+
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -298,8 +330,6 @@ const trackStargazers = async (repo, stargazerList = []) => {
       profileUrl: s.profileUrl || s.html_url || null,
     }));
     existingData.totalCount = existingData.stargazers.length;
-    existingData.stargazers = existingData.stargazers;
-    existingData.stargazers = existingData.stargazers;
     stargazerData.set(normalizedRepo, existingData);
     addTask(`Track stargazers for ${repo}`, 'medium', ['stargazers']);
     logging.log('info', `Tracked ${existingData.stargazers.length} stargazers for ${repo}`);
@@ -309,6 +339,7 @@ const trackStargazers = async (repo, stargazerList = []) => {
     throw error;
   }
 };
+
 const identifyRunawayStargazers = (repo, threshold = 10) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -329,7 +360,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
         return score >= threshold;
       }
       return false;
-    };
+    });
     return {
       runawayStargazers,
       totalCount: repoData.stargazers.length,
@@ -340,6 +371,7 @@ const identifyRunawayStargazers = (repo, threshold = 10) => {
     throw error;
   }
 };
+
 const getStargazerStats = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -370,6 +402,7 @@ const getStargazerStats = (repo) => {
     throw error;
   }
 };
+
 const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -418,6 +451,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     throw error;
   }
 };
+
 const analyzeStargazerGrowth = (repo) => {
   try {
     if (!repo || typeof repo !== 'string') {
@@ -458,6 +492,7 @@ const analyzeStargazerGrowth = (repo) => {
     throw error;
   }
 };
+
 const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
@@ -470,6 +505,7 @@ const trackRunawayStargazers = async () => {
     return [];
   }
 };
+
 const memoryVisualizer = {
   getStats: (repo) => {
     if (!repo || typeof repo !== 'string') {
@@ -493,6 +529,7 @@ const memoryVisualizer = {
     return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
+
 // New function to create PRs for all awaiting schedule updates
 const createAllAwaitingSchedulePrs = async () => {
   // Identify tasks that are awaiting schedule and not yet completed
@@ -507,6 +544,7 @@ const createAllAwaitingSchedulePrs = async () => {
   // Return a summary of scheduled PR tasks
   return { scheduledPrTasks: awaitingTasks.length };
 };
+
 module.exports = {
   //...
   handlePrTitle,

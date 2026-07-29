@@ -3,6 +3,8 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 let isLintingRunning = false;
+let taskIdCounter = 0;
+const tasks = new Map();
 const stargazerData = new Map();
 const runLinting = () => {
  if (isLintingRunning) return;
@@ -54,8 +56,6 @@ const logging = {
     }
   }
 };
-let taskIdCounter = 0;
-const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
@@ -261,23 +261,6 @@ const shuffleArray = (arr) => {
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
   }
   return shuffled;
-};
-const getEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
-};
-const getEmotionTrends = (userId, timeRange = '7d') => {
-  return { userId, timeRange, trends: [] };
-};
-const detectEmotionConflicts = (emotions) => {
-  const conflicts = [];
-  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
-  for (const e of emotions) {
-    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
-  }
-  return conflicts;
-};
-const filterEmotionsByCategory = (emotions, category) => {
-  return emotions.filter(e => categorizeEmotion(e) === category);
 };
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');

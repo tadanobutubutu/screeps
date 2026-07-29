@@ -17,7 +17,7 @@ const willRecreateBlockedUpdate = (pr) => {
   if (!pr || typeof pr !== 'object') {
     return false;
   }
-  const title = pr.data?.title ?? pr.title;
+  const title = pr.data && pr.data.title !== undefined ? pr.data.title : pr.title;
   if (typeof title !== 'string') {
     return false;
   }
@@ -27,7 +27,7 @@ const willRecreateBlockedUpdate = (pr) => {
     return true;
   }
 
-  const body = pr.data?.body ?? pr.body ?? '';
+  const body = (pr.data && pr.data.body !== undefined ? pr.data.body : pr.body) || '';
   const blockedComment = /<!--\s*recreate-branch=renovate/i;
   if (blockedComment.test(body)) {
     return true;
@@ -394,7 +394,7 @@ const trackRunawayStargazers = async () => {
   try {
     const output = execSync('gh api repos/:owner/:repo/stargazers', { encoding: 'utf8' });
     const stargazers = JSON.parse(output);
-    const runaway = stargazers.filter((user) => user?.type === 'Bot');
+    const runaway = stargazers.filter((user) => user && user.type === 'Bot');
     logging.log('warn', `Detected ${runaway.length} runaway stargazers`);
     return runaway;
   } catch (error) {
@@ -406,7 +406,7 @@ const trackRunawayStargazers = async () => {
 // Emotion analysis functions (referenced in exports but missing)
 const validateEmotion = (emotion) => {
   const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
-  return validEmotions.includes(emotion?.toLowerCase());
+  return validEmotions.includes(typeof emotion === 'string' ? emotion.toLowerCase() : '');
 };
 
 const categorizeEmotion = (emotion) => {
@@ -415,8 +415,9 @@ const categorizeEmotion = (emotion) => {
     negative: ['sadness', 'anger', 'fear', 'disgust'],
     neutral: ['surprise']
   };
+  const normalizedEmotion = typeof emotion === 'string' ? emotion.toLowerCase() : '';
   for (const [category, emotions] of Object.entries(categories)) {
-    if (emotions.includes(emotion?.toLowerCase())) return category;
+    if (emotions.includes(normalizedEmotion)) return category;
   }
   return 'unknown';
 };
@@ -477,6 +478,30 @@ const runPendingRenovateUpdates = async () => {
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 
+const memoryVisualizer = {
+  getStats: (repo) => {
+    if (!repo || typeof repo !== 'string') {
+      return { error: 'Invalid repository identifier', stats: null };
+    }
+    return { repo, visualizations: 'memory chart placeholder' };
+  },
+  renderChart: (data) => {
+    if (!data || typeof data !== 'object') {
+      return 'No data to visualize';
+    }
+    return `Chart rendered for ${data.repo || 'unknown'}`;
+  },
+  trackMemory: (label, value) => {
+    return { label: label || 'untracked', value: value || 0, timestamp: new Date() };
+  },
+  getTrend: (metric, history = []) => {
+    if (!Array.isArray(history) || history.length === 0) {
+      return { metric, trend: 'stable', change: 0 };
+    }
+    return { metric, trend: 'stable', change: 0, samples: history.length };
+  }
+};
+
 module.exports = {
   logging,
   addTask,
@@ -514,7 +539,8 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runLinting,
-  fixLintingIssues
+  fixLintingIssues,
+  memoryVisualizer
 };
 
 module.exports.real = { ...module.exports };

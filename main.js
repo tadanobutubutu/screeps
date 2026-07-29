@@ -35,7 +35,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -52,8 +52,9 @@ const logging = {
     }
   }
 };
-const taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
+const stargazerData = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
   const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
@@ -263,29 +264,15 @@ const batchAnalyzeEmotions = (texts) => {
 const createEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
-const getEmotionTrends = (userId, timeRange = '7d') => {
-  return { userId, timeRange, trends: [] };
-};
-const detectEmotionConflicts = (emotions) => {
-  const conflicts = [];
-  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
-  for (const e of emotions) {
-    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
-  }
-  return conflicts;
-};
-const filterEmotionsByCategory = (emotions, category) => {
-  return emotions.filter(e => categorizeEmotion(e) === category);
-};
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
-  await updatePosthoh_jsToLatest();
+  await updatePosthogJsToLatest();
   await updateStaleAction();
   await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
-  return { success: true, updated: ['typescript', 'posthoh-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
+  return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
@@ -528,7 +515,7 @@ module.exports = {
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthoh_jsToLatest,
+  updatePosthogJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateTypeScript,

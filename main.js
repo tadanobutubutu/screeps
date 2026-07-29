@@ -40,15 +40,15 @@ const willRecreateBlockedUpdate = (pr) => {
 };
 const checkPavoukPr = willRecreateBlockedUpdate;
 const handlePrTitle = (title) => {
-  if ( === undefined ||  === null) {
+  if (title === undefined || title === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  if ( === undefined ||  === null) {
+  if (trimmedTitle === undefined || trimmedTitle === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (hasConvention === undefined || hasConvention === null) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -471,7 +471,14 @@ const filterEmotionsByCategory = (emotions, category) => {
 
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
-  return { success: true, updated: [] };
+  await updateTypeScript();
+  await updatePosthogJsToLatest();
+  await updateStaleAction();
+  await updateGitstreamGithubAction();
+  await updateLinearBotsGitstreamGithubAction();
+  await updateCodeqlAction();
+  await runPendingRenovateUpdates();
+  return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 
 module.exports = {

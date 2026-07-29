@@ -511,7 +511,7 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runLinting,
-  fixLintingIsses
+  fixLintingIssues
 };
 
 module.exports.real = { ...module.exports };

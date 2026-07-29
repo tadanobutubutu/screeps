@@ -236,8 +236,8 @@ const willRecreateBlockedUpdate = (pr) => {
   if (blockedComment.test(body)) return true;
   const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return matchesPrNumber;
+  const blockedPrMatch = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return blockedPrMatch;
 };
 
 const checkPavoukPr = willRecreateBlockedUpdate;

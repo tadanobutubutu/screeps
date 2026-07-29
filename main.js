@@ -2,7 +2,6 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -218,7 +217,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -234,10 +233,10 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\b/.exec(title);
+  const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
-  const blockedPrMatch = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return blockedPrMatch;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
 };
 
 const checkPavoukPr = willRecreateBlockedUpdate;
@@ -494,6 +493,33 @@ const trackRunawayStargazers = async () => {
   } catch (error) {
     logging.log('error', `Failed to track runaway stargazers: ${error.message}`);
     return [];
+  }
+};
+
+/* ---------- Memory Visualizer ---------- */
+const memoryVisualizer = {
+  getStats: (repo) => {
+    if (!repo || typeof repo !== 'string') {
+      return { error: 'Invalid repository identifier', stats: null };
+    }
+    return { repo, visualizations: 'memory chart placeholder' };
+  },
+  renderChart: (data) => {
+    if (!data || typeof data !== 'object') {
+      return 'No data to visualize';
+    }
+    return `Chart rendered for ${data.repo || 'unknown'}`;
+  },
+  trackMemory: (label, value) => ({
+    label: label || 'untracked',
+    value: value || 0,
+    timestamp: new Date(),
+  }),
+  getTrend: (metric, history = []) => {
+    if (!Array.isArray(history) || history.length === 0) {
+      return { metric, trend: 'stable', change: 0, samples: history.length };
+    }
+    return { metric, trend: 'stable', change: 0, samples: history.length };
   }
 };
 

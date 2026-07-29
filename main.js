@@ -231,10 +231,140 @@ const willRecreateBlockedUpdate = (pr) => {
 const checkPavoukPr = willRecreateBlockedUpdate;
 
 /* ---------- Emotion Functions ---------- */
-... // Existing code below here
+const validateEmotion = (emotion) => {
+  if (typeof emotion !== 'string') return false;
+  const normalized = emotion.toLowerCase().trim();
+  return ['happy', 'sad', 'angry', 'calm', 'excited', 'tired', 'anxious', 'confident'].includes(normalized);
+};
+
+const categorizeEmotion = (emotion) => {
+  if (!validateEmotion(emotion)) return null;
+  const positive = ['happy', 'excited', 'calm', 'confident'];
+  const negative = ['sad', 'angry', 'anxious', 'tired'];
+  const normalized = emotion.toLowerCase().trim();
+  if (positive.includes(normalized)) return 'positive';
+  if (negative.includes(normalized)) return 'negative';
+  return 'neutral';
+};
+
+const analyzeEmotionText = (text) => {
+  if (typeof text !== 'string') return { emotion: null, confidence: 0 };
+  const emotionKeywords = {
+    happy: ['joy', 'glad', 'pleased', 'delighted', 'content'],
+    sad: ['unhappy', 'depressed', 'gloomy', 'melancholy', 'downcast'],
+    angry: ['mad', 'furious', 'irritated', 'enraged', 'outrageous'],
+    calm: ['peaceful', 'serene', 'tranquil', 'relaxed', 'composed'],
+    excited: ['thrilled', 'eager', 'enthusiastic', 'animated', 'energetic'],
+    tired: ['exhausted', 'weary', 'fatigued', 'drained', 'spent'],
+    anxious: ['nervous', 'worried', 'concerned', 'apprehensive', 'uneasy'],
+    confident: ['certain', 'sure', 'assured', 'self-reliant', 'steady']
+  };
+  const lowerText = text.toLowerCase();
+  let bestEmotion = null;
+  let bestCount = 0;
+  for (const [emotion, keywords] of Object.entries(emotionKeywords)) {
+    const count = keywords.filter(k => lowerText.includes(k)).length;
+    if (count > bestCount) {
+      bestCount = count;
+      bestEmotion = emotion;
+    }
+  }
+  const confidence = bestCount > 0 ? Math.min(100, bestCount * 20) : 0;
+  return { emotion: bestEmotion, confidence };
+};
+
+const createEmotionProfile = (emotions) => {
+  if (!Array.isArray(emotions)) return { emotions: [], dominant: null };
+  const validEmotions = emotions.filter(validateEmotion);
+  const counts = {};
+  validEmotions.forEach(e => {
+    const normalized = e.toLowerCase().trim();
+    counts[normalized] = (counts[normalized] || 0) + 1;
+  });
+  let dominant = null;
+  let maxCount = 0;
+  for (const [emotion, count] of Object.entries(counts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      dominant = emotion;
+    }
+  }
+  return { emotions: validEmotions, dominant };
+};
+
+/* ---------- Utility Functions ---------- */
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+const getRandomFloat = (min, max) => {
+  return Math.random() * (max - min) + min;
+};
+
+const getRandomItem = (array) => {
+  if (!Array.isArray(array) || array.length === 0) return undefined;
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+const shuffleArray = (array) => {
+  if (!Array.isArray(array)) return [];
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 /* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
+const trackStargazers = async (repo) => {
+  if (!repo) return [];
+  try {
+    const result = execSync(`git ls-remote --heads origin | grep -i "refs/tags/${repo}"`, { encoding: 'utf8' });
+    const lines = result.trim().split('\n').filter(l => l);
+    return lines.map(line => ({ hash: line.split('\t')[0], ref: line.split('\t')[1] }));
+  } catch (error) {
+    return [];
+  }
+};
+
+const identifyRunawayStargazers = () => {
+  const now = Date.now();
+  const threshold = now - 7 * 24 * 60 * 60 * 1000;
+  return Array.from(stargazerData.entries())
+    .filter(([_, data]) => data.lastActivity > threshold)
+    .map(([id, data]) => ({ id, ...data }));
+};
+
+const getStargazerStats = () => {
+  const total = stargazerData.size;
+  const active = Array.from(stargazerData.values()).filter(d => d.active).length;
+  return { total, active, inactive: total - active };
+};
+
+const detectStargazerAnomalies = () => {
+  const anomalies = [];
+  for (const [id, data] of stargazerData.entries()) {
+    if (data.activityRate > 100) {
+      anomalies.push({ id, type: 'high_activity', details: data });
+    }
+  }
+  return anomalies;
+};
+
+const analyzeStargazerGrowth = () => {
+  const entries = Array.from(stargazerData.entries());
+  if (entries.length === 0) return { growthRate: 0, trend: 'stable' };
+  const first = entries[0][1].lastActivity;
+  const last = entries[entries.length - 1][1].lastActivity;
+  const growthRate = ((entries.length - 1) / (last - first)) * 100 || 0;
+  const trend = growthRate > 10 ? 'increasing' : growthRate < -10 ? 'decreasing' : 'stable';
+  return { growthRate, trend };
+};
+
+const trackRunawayStargazers = identifyRunawayStargazers;
 
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {

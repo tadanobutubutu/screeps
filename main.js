@@ -358,12 +358,12 @@ const analyzeStargazerGrowth = (repo) => {
     const normalizedRepo = repo.toLowerCase();
     const repoData = stargazerData.get(normalizedRepo);
     if (!repoData || !Array.isArray(repoData.stargazers) || repoData.stargazers.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: repoData ? repoData.stargazers.length : 0 };
+      return { growthRate: 0, trend: 'stable', totalStars: repoData ? repoData.stargazers.length : 0 };
     }
     const stargazers = repoData.stargazers;
     const timestamps = stargazers.map((s) => new Date(s.starredAt).getTime()).filter((t) => !isNaN(t));
     if (timestamps.length < 2) {
-      return { growthRate: 0, trend: 'table', totalStars: stargazers.length };
+      return { growthRate: 0, trend: 'stable', totalStars: stargazers.length };
     }
     timestamps.sort((a, b) => a - b);
     const timeSpan = timestamps[timestamps.length - 1] - timestamps[0];
@@ -379,7 +379,7 @@ const analyzeStargazerGrowth = (repo) => {
       ? 'accelerating'
       : secondHalfRate < firstHalfRate * 0.5
         ? 'decelerating'
-        : 'table';
+        : 'stable';
     return {
       growthRate: Math.round(growthRate * 100) / 100,
       trend,

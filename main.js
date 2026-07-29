@@ -35,7 +35,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -148,14 +148,14 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');
     logging.log('info', `Successfully updated posthog-js to v1.407.5`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
     throw error;
   }
 };
@@ -234,20 +234,6 @@ const shuffleArray = (arr) => {
 const getEmotionProfile = (userId, emotions = []) => {
   return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
-const getEmotionTrends = (userId, timeRange = '7d') => {
-  return { userId, timeRange, trends: [] };
-};
-const detectEmotionConflicts = (emotions) => {
-  const conflicts = [];
-  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
-  for (const e of emotions) {
-    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
-  }
-  return conflicts;
-};
-const filterEmotionsByCategory = (emotions, category) => {
-  return emotions.filter(e => categorizeEmotion(e) === category);
-};
 const categorizeEmotion = (emotion) => {
   // placeholder categorization logic
   return emotion?.toLowerCase() || 'neutral';
@@ -277,6 +263,7 @@ const detectEmotionConflicts = (emotions) => {
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
 };
+const stargazerData = new Map();
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   await updateTypeScript();
@@ -285,7 +272,7 @@ const runPendingRenovateUpdates = async () => {
   await updateLinearBotsGitstream();
   await updateLinearBotsGitstreamGithubAction();
   await updateCodeqlAction();
-  return { success: true, updated: ['typescript', 'posthoh-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
+  return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
@@ -391,7 +378,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stargazers = repoData.stargazers;
     const now = Date.now();
     const timeDiffs = [];
-    for (const i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime)) {
@@ -405,7 +392,7 @@ const detectStargazerAnomalies = (repo, sensitivity = 1.5) => {
     const stdDev = Math.sqrt(timeDiffs.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / timeDiffs.length);
     const threshold = mean - sensitivity * stdDev;
     const anomalies = [];
-    for (const i = 1; i < stargazers.length; i++) {
+    for (let i = 1; i < stargazers.length; i++) {
       const prevTime = new Date(stargazers[i - 1].starredAt).getTime();
       const currTime = new Date(stargazers[i].starredAt).getTime();
       if (!isNaN(prevTime) && !isNaN(currTime) && Math.abs(currTime - prevTime) < threshold) {

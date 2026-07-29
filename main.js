@@ -206,6 +206,10 @@ const updateTypeScript = async () => {
   }
 };
 
+/* ---------- Aliases for backward compatibility ---------- */
+const updatePosthogJs = updatePosthogJsToLatest;
+const updateActionsStale = updateStaleAction;
+
 /* ---------- Schedule Awareness ---------- */
 const isAwaitingSchedule = (dependency) => {
   const task = Array.from(tasks.values()).find(t => t.title.startsWith('update ') && t.title.includes(dependency));
@@ -540,6 +544,7 @@ module.exports = {
   createAllAwaitingSchedulePrs,
   runLinting,
   fixLintingIssues,
+  logging,
   handlePrTitle,
   validateEmotion,
   categorizeEmotion,
@@ -557,4 +562,15 @@ module.exports = {
   analyzeStargazerGrowth,
   trackRunawayStargazers,
   runPendingRenovateUpdates,
+  updateTypeScript,
+  updatePosthogJs,
+  updateActionsStale,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  updateCodeqlAction,
+  updatePosthogJsToLatest,
+  handleLockFileWarning,
+  updateStaleAction,
+  updateGitstreamGithubAction,
+  updateActionsLabeler,
 };

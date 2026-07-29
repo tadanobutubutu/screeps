@@ -5,6 +5,20 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
+const {
+  validateEmotion,
+  categorizeEmotion,
+  analyzeEmotionText,
+  createEmotionProfile
+} = require('./utils.emotions.js');
+const {
+  trackStargazers,
+  identifyRunawayStargazers,
+  getStargazerStats,
+  detectStargazerAnomalies,
+  analyzeStargazerGrowth,
+  trackRunawayStargazers
+} = require('./utils.stargazer.js');
 
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -229,35 +243,6 @@ const willRecreateBlockedUpdate = (pr) => {
 };
 
 const checkPavoukPr = willRecreateBlockedUpdate;
-
-/* ---------- Emotion Functions ---------- */
-... // Existing code below here
-
-/* ---------- Stargazer Tracking ---------- */
-... // Existing code below here
-
-/* ---------- Deployment ---------- */
-const runPendingRenovateUpdates = async () => {
-  logging.log('info', 'Running pending renovate updates');
-  const updates = [
-    updateTypeScript,
-    updatePosthogJs,
-    updateActionsStale,
-    updateLinearBotsGitstream,
-  ];
-  const updated = [];
-  for (const update of updates) {
-    try {
-      await update();
-      updated.push(update.name);
-      logging.log('info', `Successfully updated ${update.name}`);
-    } catch (e) {
-      logging.log('error', `Update failed: ${e.message}`);
-    }
-  }
-  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
-  return { success: true, updated };
-};
 
 /* ---------- Dependency Dashboard ---------- */
 const dependencyDashboard = () => {

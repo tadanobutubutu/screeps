@@ -2,7 +2,8 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-var isLintingRunning = false;
+let isLintingRunning = false;
+const stargazerData = new Map();
 const runLinting = () => {
  if (isLintingRunning) return;
  isLintingRunning = true;
@@ -35,7 +36,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -52,7 +53,7 @@ const logging = {
     }
   }
 };
-var taskIdCounter = 0;
+let taskIdCounter = 0;
 const tasks = new Map();
 const addTask = (title, priority = 'medium', tags = []) => {
   taskIdCounter++;
@@ -148,7 +149,7 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthogJsToLatest = async () => {
+const updatePosthoh_jsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
     await updateNpmPackage('posthog-js', 'v1.407.5');
@@ -205,8 +206,37 @@ const isSuperFunction = (fn) => {
   return fn.name && fn.name.toLowerCase().includes('super');
 };
 const validateEmotion = (emotion) => {
-  const validEmotions = ['joy', 'adness', 'anger', 'fear', 'urprise', 'disgust', 'trust', 'anticipation'];
+  const validEmotions = ['joy', 'sadness', 'anger', 'fear', 'surprise', 'disgust', 'trust', 'anticipation'];
   return validEmotions.includes(emotion?.toLowerCase());
+};
+const categorizeEmotion = (emotion) => {
+  // placeholder categorization logic
+  return emotion?.toLowerCase() || 'neutral';
+};
+const analyzeEmotionText = (text) => {
+  // placeholder analysis logic
+  return {};
+};
+const batchAnalyzeEmotions = (texts) => {
+  // placeholder batch logic
+  return {};
+};
+const createEmotionProfile = (userId, emotions = []) => {
+  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
+};
+const getEmotionTrends = (userId, timeRange = '7d') => {
+  return { userId, timeRange, trends: [] };
+};
+const detectEmotionConflicts = (emotions) => {
+  const conflicts = [];
+  const opposing = { joy: 'sadness', trust: 'disgust', fear: 'anger', anticipation: 'surprise' };
+  for (const e of emotions) {
+    if (opposing[e] && emotions.includes(opposing[e])) conflicts.push([e, opposing[e]]);
+  }
+  return conflicts;
+};
+const filterEmotionsByCategory = (emotions, category) => {
+  return emotions.filter(e => categorizeEmotion(e) === category);
 };
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -247,21 +277,6 @@ const detectEmotionConflicts = (emotions) => {
 };
 const filterEmotionsByCategory = (emotions, category) => {
   return emotions.filter(e => categorizeEmotion(e) === category);
-};
-const categorizeEmotion = (emotion) => {
-  // placeholder categorization logic
-  return emotion?.toLowerCase() || 'neutral';
-};
-const analyzeEmotionText = (text) => {
-  // placeholder analysis logic
-  return {};
-};
-const batchAnalyzeEmotions = (texts) => {
-  // placeholder batch logic
-  return {};
-};
-const createEmotionProfile = (userId, emotions = []) => {
-  return { userId, emotions, createdAt: new Date(), updatedAt: new Date() };
 };
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');

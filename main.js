@@ -100,7 +100,7 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 /* ---------- Specific Update Functions ---------- */
 const updateGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update gitstream-github-action to v4');
+    const taskId = await createAsyncUpdateTask('Update gitstream-github-action to v4');
     await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated gitstream-github-action to v4`);
     return taskId;

@@ -150,11 +150,11 @@ const updateCodeqlAction = async () => {
     throw error;
   }
 };
-const updatePosthoh_jsToLatest = async () => {
+const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('update posthoh-js to v1.407.5');
-    await updateNpmPackage('posthoh-js', 'v1.407.5');
-    logging.log('info', `Successfully updated posthoh-js to v1.407.5`);
+    const taskId = await createAsyncUpdateTask('update posthog-js to v1.407.5');
+    await updateNpmPackage('posthog-js', 'v1.407.5');
+    logging.log('info', `Successfully updated posthog-js to v1.407.5`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -289,7 +289,6 @@ const runPendingRenovateUpdates = async () => {
   await updateCodeqlAction();
   return { success: true, updated: ['typescript', 'posthog-js', 'actions/stale', 'linear-bots/gitstream-github-action', 'github/codeql-action'] };
 };
-const stargazerData = new Map();
 const trackStargazers = async (repo, stargazerList = []) => {
   try {
     if (!repo || typeof repo !== 'string') {

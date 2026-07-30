@@ -1,7 +1,7 @@
-import { evolve } from './auto.evolution.js';
-import { visualizeMemory } from './memory.visualizer.js';
+// main.js
 
-console.log('Main file loaded successfully.');
+import { evolve } from './auto.evolution.js';
+import { visualizeMemory } from './memory-visualizer.js';
 
 export function checkStatus() {
   return 'OK';
@@ -32,14 +32,12 @@ export function startApp() {
     }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof module === 'object' && typeof module.exports === 'object') {
+    module.exports = sum;
+    module.exports.checkStatus = checkStatus;
+    module.exports.sum = sum;
+    module.exports.runEvolution = runEvolution;
+    module.exports.startApp = startApp;
+} else if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
-
-startApp();
-
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;

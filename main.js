@@ -159,7 +159,7 @@ function getTaskById(id) {
 }
 
 function getTaskByIdExtended(id) {
-  return tasks.find(task => task.id === agents?.id);
+  return tasks.find(task => task.id === id);
 }
 
 function handlePrTitle(title) {

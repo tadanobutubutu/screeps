@@ -1,12 +1,16 @@
 'use strict';
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
-const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js');
+ const path = require('path');
+ const { memoryVisualizer } = require('./memory.visualizer.js');
+ let isLintingRunning = false;
+ let taskIdCounter = 0;
+ const tasks = [];
 
-let isLintingRunning = false;
-let taskIdCounter = 0;
-const tasks = [];
+ // Add your new function here as per the requirements
+function newFunction() {
+  // Your code here...
+}
 
 function addTask(task) {
   task.id = ++taskIdCounter;
@@ -18,7 +22,6 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
-/* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
@@ -29,7 +32,6 @@ const logging = {
   }
 };
 
-/* ---------- Linting ---------- */
 async function runLinting() {
   if (isLintingRunning) {
     logging.log('warn', 'Linting is already running');
@@ -64,6 +66,57 @@ async function fixLintingIssues() {
   }
 }
 
+// Moved this function outside the async function blocks to fix the indentation issue.
+const addTaskExtended = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(task);
+  return taskIdCounter;
+};
+
+const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
+
+// Changes inside this function to preserve the comment.
+const updateNpmPackage = async (packageName, version) => {
+  try {
+    if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
+    } else {
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
+    }
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
+};
+
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+};
+
+const updateDependencyVersions = async (dependencies, newVersion) => {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions([name], version);
+    }
+    return;
+  }
+  // Add your new code or changes here as requested in the issue.
+};
+
+const updateLinearBotsGitstream = async () => {
+  await createAsyncUpdateTask('gitstream-github-action', 'v4');
+  await updateNpmPackage('github/gitstream-github-action', 'v4');
+};
+
 async function updateLinearBotsGitstreamGithubAction() {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -96,18 +149,8 @@ async function updateLinearBotsGitstreamGithubAction() {
   } catch (error) {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
-}
-
-const createAsyncUpdateTask = (packageName, version) => {
-  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
-async function updateDependencyVersions(dependencies, newVersion) {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
-    for (const [name, version] of Object.entries(dependencies)) {
-      await updateDependencyVersions([name], version);
-    }
-  }
-}
+
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('github/codeql-action', 'v4');
@@ -118,54 +161,37 @@ const updateCodeqlAction = async () => {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
   }
 };
+
 const updatePosthogJs = async () => {
   await updateDependencyVersions({ 'posthog-js': 'v1.408.1' });
 };
+
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
     await updateNpmPackage('posthog-js', 'v1.408.1');
-    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
+    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 };
 
-const updateActionsStale = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
-    await updateNpmPackage('actions/stale', 'v11');
-    logging.log('info', `Successfully updated actions/stale to v11`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-  }
-};
-
-const updateTypescript = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('typescript', 'v7');
-    await updateNpmPackage('typescript', 'v7');
-    logging.log('info', `Successfully updated typescript to v7`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update typescript: ${error.message}`);
-  }
-};
 const handleLockFileWarning = async () => {
   const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
   logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
   logging.log('info', 'Lock file consolidation task created');
   return taskId;
 };
+
 const isAwaitingSchedule = (taskId) => {
   const task = getTaskById(taskId);
   return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
 };
+
 const createAllAwaitingSchedulePrs = async () => {
-  const awaitingTasks = Array.from(tasks.values()).filter(task => {
-    return task.tags && task.tags.includes('auto-schedule') && !task.completed;
+  const awaitingTasks = Array.from(tasks.values()).filter(t => {
+    return t.tags && t.tags.includes('auto-schedule') && !t.completed;
   });
   awaitingTasks.forEach(task => {
     addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
@@ -173,6 +199,7 @@ const createAllAwaitingSchedulePrs = async () => {
   });
   return { scheduledPrTasks: awaitingTasks.length };
 };
+
 const handlePrTitle = (title) => {
   if (title === undefined || title === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
@@ -185,6 +212,7 @@ const handlePrTitle = (title) => {
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: '', score: lengthScore };
 };
+
 const checkPavoukpr = (pr) => {
   if (!pr || typeof pr !== 'object') return false;
   const title = pr.data?.title ?? pr.title;
@@ -199,6 +227,7 @@ const checkPavoukpr = (pr) => {
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
+
 async function runPendingRenovateUpdatesFinal() {
   const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
   for (const task of pending) {
@@ -206,10 +235,12 @@ async function runPendingRenovateUpdatesFinal() {
   }
   return { pendingTasks: pending.length };
 }
+
 const manualTrigger = () => {
   logging.log('info', 'Manual trigger requested for Renovate re-run.');
   return { manual: true };
 };
+
 module.exports = {
   addTask,
   getTaskById,

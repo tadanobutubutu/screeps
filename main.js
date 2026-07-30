@@ -1,7 +1,30 @@
-// main.js
-// This file previously contained placeholder text due to a merge conflict.
-// The original implementation is not required for the current tests,
-// so we provide a minimal, syntactically correct CommonJS module.
+module.exports.loop = function () {
+  // Clean up dead creep memory
+  for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
+  }
 
-// Export an empty object to satisfy any imports that expect a module.
-module.exports = {};
+  // Count harvesters in the room
+  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester');
+
+  // Spawn new harvesters if needed
+  if (harvesters.length < 2) {
+    const newName = 'Harvester' + Game.time;
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: { role: 'harvester' },
+    });
+  }
+
+  // Run role logic for each creep
+  for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role === 'harvester') {
+      roleHarvester.run(creep);
+    }
+    if (creep.memory.role === 'upgrader') {
+      roleUpgrader.run(creep);
+    }
+  }
+};

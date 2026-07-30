@@ -19,7 +19,7 @@ const logging = {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      console.log(`[${level.toUpperCase()}] ${message}`);
+      console.error(`[${level.toUpperCase()}] ${message}`);
     }
   }
 };
@@ -131,7 +131,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (dependencies.includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 

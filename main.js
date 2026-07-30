@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function processEmotions(data) {
+    // ... other code ...
+
+    let emotionText = "This is a test emotion message ";
+    // ... more code ...
+
+    return emotionText; // Assuming there's an error here if emotionText is not terminated properly
+}

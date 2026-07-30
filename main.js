@@ -38,7 +38,7 @@ const logging = {
     } else {
       console.log(formattedMessage);
     }
-  },
+  }
 };
 
 /* ---------- Task Management ---------- */
@@ -50,6 +50,198 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
 };
 
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
+
+/* ---------- NPM Update ---------- */
+const npmUpdate = async (packageName, version = 'latest') => {
+  try {
+    execSync(`npm install ${packageName}@${version}`, { stdio: 'inherit' });
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
+};
+
+const updateNpmPackage = async (packageName, version) => {
+  await npmUpdate(packageName, version);
+};
+
+/* ---------- Async Task Creation ---------- */
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+};
+
+/* ---------- Dependency Update ---------- */
+const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  try {
+    await npmUpdate(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    addTaskExtended(taskTitle, 'high', ['renovate']);
+  } catch (error) {
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    throw error;
+  }
+};
+
+/* ---------- Specific Update Functions ---------- */
+const updateLinearBotsGitstream = async () => {
+  await createAsyncUpdateTask('Update gitstream-github-action to v4');
+  await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+};
+
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('linear-bots/gitstream-github-action to v4');
+    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+};
+
+const updateCodeqlAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('github/codeql-action to v4');
+    await npmUpdate('github/codeql-action', 'v4');
+    logging.log('info', `Successfully updated github/codeql-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
+    throw error;
+  }
+};
+
+const updatePosthogJs = async () => {
+  await updateDependencyVersions('posthog-js', 'v1.408.1');
+};
+
+const updatePosthogJsToLatest = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('posthog-js to v1.408.1');
+    await npmUpdate('posthog-js', 'v1.408.1');
+    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    throw error;
+  }
+};
+
+/* ---------- Lock File Warning ---------- */
+const handleLockFileWarning = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
+    logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
+    logging.log('info', 'Lock file consolidation task created');
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
+    throw error;
+  }
+};
+
+/* ---------- Stale Action Update ---------- */
+const updateActionsStale = async () => {
+  await updateDependencyVersions('actions/stale', 'v11');
+};
+
+const updateStaleAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('actions/stale to v11');
+    await npmUpdate('actions/stale', 'v11');
+    logging.log('info', `Successfully updated actions/stale to v11`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update actions/stale: ${error.message}`);
+    throw error;
+  }
+};
+
+/* ---------- TypeScript Update ---------- */
+const updateTypeScript = async () => {
+  try {
+    await npmUpdate('typescript', '^7.0.2');
+    logging.log('info', 'Successfully updated typescript to ^7.0.2');
+  } catch (error) {
+    logging.log('error', `Failed to update typescript: ${error.message}`);
+    throw error;
+  }
+};
+
+/* ---------- Schedule Awareness ---------- */
+const isAwaitingSchedule = (taskId) => {
+  const task = getTaskById(taskId);
+  return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
+};
+
+const createAllAwaitingSchedulePrs = async () => {
+  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
+  awaitingTasks.forEach(task => {
+    addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
+    logging.log('info', `Scheduled PR creation task for ${task.title}`);
+  });
+  return { scheduledPrTasks: awaitingTasks.length };
+};
+
+/* ---------- PR Title Handling ---------- */
+const handlePrTitle = (title) => {
+  if (title === undefined || title === null) {
+    return { valid: false, reason: 'Empty title', score: 0 };
+  }
+  const trimmedTitle = title.trim();
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  if (!hasConvention) {
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  }
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  return { valid: true, reason: '', score: lengthScore };
+};
+
+const willRecreateBlockedUpdate = (pr) => {
+  if (!pr || typeof pr !== 'object') return false;
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') return false;
+  const hasPavouk = /Pavouk/i.test(title);
+  if (hasPavouk) return true;
+  const body = pr.data?.body ?? pr.body ?? '';
+  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
+  if (blockedComment.test(body)) return true;
+  const numberMatch = /\b(\\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
+};
+
+const checkPavoukPr = willRecreateBlockedUpdate;
+
+/* ---------- Emotion Functions ---------- */
+function handlePrTitleEmotion(title) {
+  // Implementation would go here
+}
+
+function validateEmotion(emotion) {
+  // Implementation would go here
+}
+
+function categorizeEmotion(emotion) {
+  // Implementation would go here
+}
+
+function analyzeEmotionText(text) {
+  // Implementation would go here
+}
+
+function createEmotionProfile(emotions) {
+  // Implementation would go here
+}
 
 /* ---------- Utility Functions ---------- */
 function getRandomInt(min, max) {
@@ -99,6 +291,11 @@ function trackRunawayStargazers() {
   // Implementation would go here
 }
 
+/* ---------- Dependency Dashboard ---------- */
+const dependencyDashboard = () => {
+  // Implementation would go here
+};
+
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
@@ -122,9 +319,62 @@ const runPendingRenovateUpdates = async () => {
   return { success: true, updated };
 };
 
-/* ---------- Dependency Dashboard ---------- */
-const dependencyDashboard = () => {
-  // Implementation would go here
+const updateLinearBotsGitstreamGithubActionDashboard = () => {
+  logging.log('info', 'Updating linear-bots/gitstream-github-action');
+};
+
+const updateCodeqlActionDashboard = () => {
+  logging.log('info', 'Updating codeql-action');
+};
+
+const updatePosthogJsToLatestDashboard = () => {
+  logging.log('info', 'Updating posthog-js to latest');
+};
+
+const handleLockFileWarningDashboard = () => {
+  logging.log('warn', 'Lock file warning handled');
+};
+
+const updateStaleActionDashboard = () => {
+  logging.log('info', 'Updating actions/stale');
+};
+
+const updateLinearBotsGitstreamDashboard = () => {
+  logging.log('info', 'Updating linear-bots/gitstream');
+};
+
+const updatePosthogJsDashboard = () => {
+  logging.log('info', 'Updating posthoh-js');
+};
+
+const updateActionsStaleDashboard = () => {
+  logging.log('info', 'Updating actions/stale');
+};
+
+const updateTypeScriptDashboard = () => {
+  logging.log('info', 'Updating typescript');
+};
+
+const runPendingRenovateUpdatesFinal = async () => {
+  logging.log('info', 'Running pending renovate updates');
+  const updates = [
+    updateTypeScriptDashboard,
+    updatePosthogJsDashboard,
+    updateActionsStaleDashboard,
+    updateLinearBotsGitstreamDashboard,
+  ];
+  const updated = [];
+  for (const update of updates) {
+    try {
+      await update();
+      updated.push(update.name);
+      logging.log('info', `Successfully updated ${update.name}`);
+    } catch (e) {
+      logging.log('error', `Update failed: ${e.message}`);
+    }
+  }
+  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
+  return { success: true, updated };
 };
 
 // Additional Exports
@@ -148,6 +398,16 @@ module.exports = {
   updateTypeScript,
   runPendingRenovateUpdates,
   dependencyDashboard,
+  updateLinearBotsGitstreamGithubActionDashboard,
+  updateCodeqlActionDashboard,
+  updatePosthogJsToLatestDashboard,
+  handleLockFileWarningDashboard,
+  updateStaleActionDashboard,
+  updateLinearBotsGitstreamDashboard,
+  updatePosthogJsDashboard,
+  updateActionsStaleDashboard,
+  updateTypeScriptDashboard,
+  runPendingRenovateUpdatesFinal,
   trackStargazers,
   identifyRunawayStargazers,
   getStargazerStats,

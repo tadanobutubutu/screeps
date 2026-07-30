@@ -12,7 +12,6 @@ function newFunction() {
 }
 
 const addTask = addTaskExtended;
-const getTaskById = getTaskByIdExtended;
 
 const logging = {
   log(level, message) {
@@ -158,25 +157,18 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
 
 module.exports = [
   addTask,
-  getTaskById,
   addTaskExtended,
-  getTaskByIdExtended,
   updateNpmPackage,
   createAsyncUpdateTask,
   runLinting,
   fixLintingIssues,
   updateDependencyVersions,
   logging,
-  handlePrTitle,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
 
 async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') &&!task.completed
-  );
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);
@@ -184,5 +176,3 @@ async function awaitScheduledUpdates() {
   }
   return { createdPrTasks: scheduledTasks.length };
 }
-
-module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

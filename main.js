@@ -14,7 +14,7 @@ function newFunction() {
 
 function logging(level, message) {  
   if (typeof console[level] === 'function') {  
-    console[level](`[${level.toUpperCase()}] ${message}`);  
+    console[level](`[${level.toUpperACE()}] ${message}`);  
   } else {  
     console.log(`[${level.toUpperCase()}] ${message}`);  
   }  
@@ -126,7 +126,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');  
   }  
   if (dependencies === ['posthog-js']) {  
-    await updateNpmPackage('posthog-js', '1.408.2');  
+    await updateNpmPackage('posthog-js', '1.408.3');  
   }  
   if (dependencies === ['actions/stale']) {  
     await updateNpmPackage('actions/stale', '11');  
@@ -165,5 +165,4 @@ async function awaitScheduledUpdates() {
   return { createdPrTasks: scheduledTasks.length };  
 }  
 
-module.exports.awaitScheduledUpdates = awaitScheduledUpdates;  
-```
+module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

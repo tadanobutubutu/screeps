@@ -66,51 +66,15 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;
 };
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
-const updateNpmPackage = async (packageName, version) => {
-  try {
-    if (packageName === 'gitstream-github-action') {
-      await execSync(`npm install ${packageName}@${version}`);
-    } else {
-      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
-    }
-    logging.log('info', `Updated ${packageName} to ${version}`);
-  } catch (error) {
-    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
-    throw error;
-  }
-};
-const createAsyncUpdateTask = (packageName, version) => {
-  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
-};
-const updateDependencyVersions = async (dependencies, newVersion) => {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
-    for (const [name, version] of Object.entries(dependencies)) {
-      await updateDependencyVersions(name, version);
-    }
-    return;
-  }
-  const taskTitle = `Update dependency${dependencies.length > 1 ? 's' : ''} to ${newVersion}`;
-  try {
-    for (const dependency of dependencies) {
-      await updateNpmPackage(dependency, newVersion);
-    }
-    logging.log('info', `Successfully updated dependencies${dependencies.length > 1 ? 's' : ''} to ${newVersion}`);
-    Array.from(tasks.values()).filter(task => task.title.includes(taskTitle)).forEach(task => {
-      task.completed = true;
-    });
-  } catch (error) {
-    logging.log('error', `Failed to update dependencies: ${error.message}`);
-    throw error;
-  }
-};
+/* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
-  await createAsyncUpdateTask('gitstream-github-action', 'v4');
-  await updateNpmPackage('github/gitstream-github-action', 'v4');
+  await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
 };
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
-    await updateNpmPackage('github/gitstream-github-action', 'v4');
+    const taskId = await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -134,10 +98,30 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
     await updateNpmPackage('posthog-js', 'v1.408.1');
-    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
+    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+  }
+};
+const updateActionsStale = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
+    await updateNpmPackage('actions/stale', 'v11');
+    logging.log('info', `Successfully updated actions/stale to v11`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update actions/stale: ${error.message}`);
+  }
+};
+const updateTypescript = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('typescript', 'v7');
+    await updateNpmPackage('typescript', 'v7');
+    logging.log('info', `Successfully updated typescript to v7`);
+    return taskId;
+  } catch (error) {
+    logging.log('error', `Failed to update typescript: ${error.message}`);
   }
 };
 const handleLockFileWarning = async () => {
@@ -145,6 +129,70 @@ const handleLockFileWarning = async () => {
   logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
   logging.log('info', 'Lock file consolidation task created');
   return taskId;
+};
+// Add missing createAsyncUpdateTask function
+async function createAsyncUpdateTask(packageName, version) {
+  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+}
+// Replace updateNpmPackage with a new function that checks for linear-bots/gitstream-github-action package
+const updateNpmPackage = async (packageName, version) => {
+  try {
+    if (packageName === 'linear-bots/gitstream-github-action') {
+      // Check if package exists in package.json
+      const packageJsonPath = path.join(__dirname, '..', 'package.json');
+      const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+      const parsedPackageJson = JSON.parse(packageJsonData);
+      const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes(packageName);
+
+      if (!isDependencyPresent) {
+        logging.log('warn', `Package "${packageName}" not found as a dependency in the current project`);
+        throw new Error(`Package "${packageName}" not found as a dependency in the current project`);
+      }
+
+      // Update the package.json file, using regex to find the correct package and its version
+      const matchFound = parsedPackageJson.dependencies[packageName].match(/^(\d+\.\d+\.\d+)$/);
+      let newDependency;
+
+      if (!matchFound) {
+        newDependency = `${version}`;
+      } else {
+        newDependency = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+      }
+
+      parsedPackageJson.dependencies[packageName] = newDependency;
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+    } else if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
+    } else {
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
+    }
+
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
+};
+const updateDependencyVersions = async (dependencies, newVersion) => {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
+  const taskTitle = `Update dependency${dependencies.length > 1 ? 's' : ''} to ${newVersion}`;
+  try {
+    for (const dependency of dependencies) {
+      await updateNpmPackage(dependency, newVersion);
+    }
+    logging.log('info', `Successfully updated dependencies${dependencies.length > 1 ? 's' : ''} to ${newVersion}`);
+    Array.from(tasks.values()).filter(task => task.title.includes(taskTitle)).forEach(task => {
+      task.completed = true;
+    });
+  } catch (error) {
+    logging.log('error', `Failed to update dependencies: ${error.message}`);
+    throw error;
+  }
 };
 const isAwaitingSchedule = (taskId) => {
   const task = getTaskById(taskId);
@@ -207,10 +255,19 @@ module.exports = {
   logging,
   handlePrTitle,
   updateLinearBotsGitstreamGithubAction,
+  updateLinearBotsGitstream,
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
   checkPavoukpr,
   runPendingRenovateUpdatesFinal,
-  manualTrigger
+  manualTrigger,
+  updateNpmPackage,
+  updateDependencyVersions,
+  createAsyncUpdateTask,
+  addTaskExtended,
+  getTaskByIdExtended,
+  updateActionsStale,
+  updateTypescript,
+  updatePosthogJs
 };

@@ -1,19 +1,15 @@
 import { evolve as evolveDefault } from './auto.evolution.js';
 import { visualizeMemory as visualizeMemoryDefault } from './memory.visualizer.js';
-
 console.log('Main file loaded successfully.');
-
 export function checkStatus() {
   return 'OK';
 }
-
 export function sum(a, b) {
   if (typeof a !== 'number' || typeof b !== 'number') {
     throw new TypeError('Both arguments must be numbers');
   }
   return a + b;
 }
-
 export function runEvolution() {
   try {
     const result = evolveDefault();
@@ -22,7 +18,6 @@ export function runEvolution() {
     console.error('Error running evolution:', err);
   }
 }
-
 export function startApp() {
   try {
     visualizeMemoryDefault();
@@ -31,13 +26,10 @@ export function startApp() {
     console.error('Failed to start memory visualizer:', error);
   }
 }
-
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', runEvolution);
 }
-
 startApp();
-
 module.exports = sum;
 module.exports.checkStatus = checkStatus;
 module.exports.sum = sum;

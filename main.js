@@ -8,10 +8,6 @@ let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
 
-function newFunction() {
-  return { hello: 'world' };
-}
-
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
@@ -22,22 +18,8 @@ const logging = {
   }
 };
 
-function addTaskExtended(title, priority = "medium", tags = []) {
-  taskIdCounter++;
-  const task = {
-    id: taskIdCounter,
-    title,
-    priority,
-    tags,
-    completed: false,
-    createdAt: new Date()
-  };
-  tasks.push(task);
-  return taskIdCounter;
-}
-
-function getTaskByIdExtended(id) {
-  return tasks.find(t => t.id === id);
+function newFunction() {
+  return { hello: 'world' };
 }
 
 function handleParsingError(code) {
@@ -63,6 +45,16 @@ async function checkAndFixMemoryVisualizer() {
   return { success: true };
 }
 
+const addTaskExtended = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  tasks.push(task);
+  return taskIdCounter;
+};
+const getTaskByIdExtended = (id) => tasks.find(t => t.id === id);
+const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
+
 async function runLinting() {
   if (isLintingRunning) {
     logging.log('warn', 'Linting is already running');
@@ -78,7 +70,7 @@ async function runLinting() {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
     }
-    logging.log('info', 'Linting completed successfully');
+    isLintingRunning = false;
     return { success: true };
   } catch (error) {
     logging.log('error', `Linting failed: ${error.message}`);
@@ -113,12 +105,12 @@ async function updateNpmPackage(packageName, version) {
   }
 }
 
-async function createAsyncUpdateTask(name, version) {
+const createAsyncUpdateTask = async (name, version) => {
   taskIdCounter++;
   return taskIdCounter;
-}
+};
 
-async function updateLinearBotsGitstreamGithubAction() {
+const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
     const packageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -148,33 +140,28 @@ async function updateLinearBotsGitstreamGithubAction() {
   } catch (error) {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
-}
+};
 
-const updateLinearBotsGitstreamGithubActionExported = updateLinearBotsGitstreamGithubAction;
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubActionExported;
-
-async function updateDependencyVersions(dependencies) {
+const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
-      // delegating to itself would cause recursion, so we handle known cases directly
-      if (name === 'linear-bots/gitstream-github-action') {
-        await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
-      }
-      if (dependencies === ['posthog-js']) {
-        await updateNpmPackage('posthog-js', '1.408.2');
-      }
-      if (dependencies === ['actions/stale']) {
-        await updateNpmPackage('actions/stale', '11');
-      }
-      if (dependencies === ['typescript']) {
-        await updateNpmPackage('typescript', '7');
-      }
+      await updateDependencyVersions([name], version);
     }
+    return;
   }
-}
-
-const addTask = addTaskExtended;
-const getTaskById = getTaskByIdExtended;
+  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  }
+  if (dependencies === ['posthog-js']) {
+    await updateNpmPackage('posthog-js', '1.408.2');
+  }
+  if (dependencies === ['actions/stale']) {
+    await updateNpmPackage('actions/stale', '11');
+  }
+  if (dependencies === ['typescript']) {
+    await updateNpmPackage('typescript', '7');
+  }
+};
 
 module.exports = [
   addTask,
@@ -188,7 +175,7 @@ module.exports = [
   updateDependencyVersions,
   logging,
   handleParsingError,
-  updateLinearBotsGitstreamGithubActionExported,
+  updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
 

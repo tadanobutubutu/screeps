@@ -44,4 +44,12 @@ if (typeof module === 'object' && typeof module.exports === 'object') {
 
 startApp();
 
+if (typeof module === 'object' && typeof module.exports === 'object') {
+    module.exports = sum;
+    module.exports.checkStatus = checkStatus;
+    module.exports.sum = sum;
+    module.exports.runEvolution = runEvolution;
+    module.exports.startApp = startApp;
+}
+
 // Ensure the file is treated as a module by setting "type": "module" in package.json

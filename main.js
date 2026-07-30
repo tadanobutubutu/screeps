@@ -1,1 +1,2 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+<!-- health-fp:lint:test_random.js:1:unknown -->
+myVariable = "Test Value"; // Lint Error: Unexpected token

@@ -1,5 +1,3 @@
-// main.js
-
 import { evolve } from './auto.evolution.js';
 import { visualizeMemory } from './memory-visualizer.js';
 
@@ -8,7 +6,7 @@ export function checkStatus() {
 }
 
 export function sum(a, b) {
-  if (typeof a !== 'number' || typeof b !== 'number') {
+ if (typeof a !== 'number' || typeof b !== 'number') {
     throw new TypeError('Both arguments must be numbers');
   }
   return a + b;
@@ -33,23 +31,15 @@ export function startApp() {
 }
 
 if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = sum;
-    module.exports.checkStatus = checkStatus;
-    module.exports.sum = sum;
-    module.exports.runEvolution = runEvolution;
-    module.exports.startApp = startApp;
+  module.exports = sum;
+  module.exports.checkStatus = checkStatus;
+  module.exports.sum = sum;
+  module.exports.runEvolution = runEvolution;
+  module.exports.startApp = startApp;
 } else if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', runEvolution);
+  window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
-startApp();
-
-if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = sum;
-    module.exports.checkStatus = checkStatus;
-    module.exports.sum = sum;
-    module.exports.runEvolution = runEvolution;
-    module.exports.startApp = startApp;
-}
+startApp-grey;
 
 // Ensure the file is treated as a module by setting "type": "module" in package.json

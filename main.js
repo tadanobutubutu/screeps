@@ -3,7 +3,6 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
-
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -11,6 +10,8 @@ const tasks = [];
 function newFunction() {
   return { hello: 'world' };
 }
+
+const addTask = addTaskExtended;
 
 const logging = {
   log(level, message) {
@@ -47,7 +48,7 @@ async function runLinting() {
     isLintingRunning = false;
     return { success: false, error: error.message };
   }
-}
+};
 
 async function fixLintingIssues() {
   logging.log('info', 'Attempting to fix linting issues');
@@ -130,15 +131,19 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     }
     return;
   }
+
   if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
+
   if (dependencies === ['posthog-js']) {
     await updateNpmPackage('posthog-js', '1.408.2');
   }
+
   if (dependencies === ['actions/stale']) {
     await updateNpmPackage('actions/stale', '11');
   }
+
   if (dependencies === ['typescript']) {
     await updateNpmPackage('typescript', '7');
   }

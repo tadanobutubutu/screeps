@@ -1,8 +1,5 @@
-// This is a line within a comment that needs to be closed
-// This is another line within a comment that needs to be closed
-// Missing end of comment
-
-console.log('Main file loaded successfully.');
+import { evolve } from './auto.evolution.js';
+import { visualizeMemory } from './memory-visualizer.js';
 
 export function checkStatus() {
   return 'OK';
@@ -33,17 +30,17 @@ export function startApp() {
   }
 }
 
-if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', runEvolution);
-}
-
-startApp();
-
 // Ensure the file is treated as a module by setting "type": "module" in package.json
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module === 'object' && typeof module.exports === 'object') {
   module.exports = sum;
   module.exports.checkStatus = checkStatus;
   module.exports.sum = sum;
   module.exports.runEvolution = runEvolution;
   module.exports.startApp = startApp;
 }
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', runEvolution);
+}
+
+startApp();

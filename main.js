@@ -1,3 +1,1 @@
-I'm sorry for the confusion, but as an AI, I don't have direct access to your local files or repositories. To help you resolve the lint error in `utils.emotions.js`, you'll need to provide the relevant sections of the file that contain the error. Additionally, I need the contents of `main.js` if the error is related to a conflict between `main.js` and `utils.emotions.js`.
-
-Please provide the contents of the problematic section of `utils.emotions.js` and any relevant parts of `main.js` that might be causing the conflict. Once I have that information, I can assist you with the syntax correction needed to resolve the issue.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

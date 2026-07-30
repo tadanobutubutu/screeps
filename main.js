@@ -434,3 +434,4 @@ module.exports = {
   runPendingRenovateUpdates,
   dependencyDashboard,
 };
+```

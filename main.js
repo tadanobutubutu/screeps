@@ -18,22 +18,11 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
-/* ---------- Linting ---------- */
-function runLinting() {
-  logging.log('info', 'Running linting');
-  // Implementation would go here
-}
-
-function fixLintingIssues() {
-  logging.log('info', 'Fixing linting issues');
-  // Implementation would go here
-}
-
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
-      console[level](message);
+      console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
       console.log(`[${level}] ${message}`);
     }

@@ -244,18 +244,23 @@ const manualTrigger = () => {
 module.exports = {
   addTask,
   getTaskById,
+  addTaskExtended,
+  getTaskByIdExtended,
+  updateNpmPackage,
+  createAsyncUpdateTask,
   isAwaitingSchedule,
   createAllAwaitingSchedulePrs,
   runLinting,
   fixLintingIssues,
+  updateDependencyVersions,
   logging,
   handlePrTitle,
+  updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
   checkPavoukpr,
   runPendingRenovateUpdatesFinal,
-  manualTrigger,
-  // Add your new function exports here as required in the issue.
+  manualTrigger
 };

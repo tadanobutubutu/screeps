@@ -27,14 +27,14 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
 
 const getTaskByIdExtended = (id) => tasks.find(t => t.id === id);
 const addTask = addTaskExtended;
-const getTaskById = getTaskById;
+const getTaskById = getTaskByIdExtended;
 
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      console.log(message);
+      console.log(`[${level.toUpperCase()}] ${message}`);
     }
   }
 };
@@ -94,6 +94,7 @@ const createAsyncUpdateTask = async (name, version) => {
   return taskIdCounter;
 };
 
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -103,24 +104,22 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
     
     if (!isDependencyPresent) {
-      logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      logging.log('warn', 'Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
-
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
     if (!matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
     } else {
-      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+      const [major, minor, patch] = matchFound[1].split('.').map(Number);
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
       updated = true;
     }
-
     if (updated) {
       fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
     }
-
     await updateNpmPackage('github/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
@@ -128,8 +127,6 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
-
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' &&!Array.isArray(dependencies)) {
@@ -139,7 +136,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (dependencies.includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 
@@ -177,9 +174,7 @@ module.exports = [
 ];
 
 async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') &&!task.completed
-  );
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') &&!task.completed);
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);

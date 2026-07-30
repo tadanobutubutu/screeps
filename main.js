@@ -8,28 +8,28 @@ export function checkStatus() {
 }
 
 export function sum(a, b) {
-    if (typeof a !== 'number' || typeof b !== 'number') {
-        throw new TypeError('Both arguments must be numbers');
-    }
-    return a + b;
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw new TypeError('Both arguments must be numbers');
+  }
+  return a + b;
 }
 
 export function runEvolution() {
-    try {
-        const result = evolve();
-        console.log('Evolution result:', result);
-    } catch (err) {
-        console.error('Error running evolution:', err);
-    }
+  try {
+    const result = evolve();
+    console.log('Evolution result:', result);
+  } catch (err) {
+    console.error('Error running evolution:', err);
+  }
 }
 
 export function startApp() {
-    try {
-        visualizeMemory();
-        console.log('Memory visualizer started successfully.');
-    } catch (error) {
-        console.error('Failed to start memory visualizer:', error);
-    }
+  try {
+    visualizeMemory();
+    console.log('Memory visualizer started successfully.');
+  } catch (error) {
+    console.error('Failed to start memory visualizer:', error);
+  }
 }
 
 if (typeof module === 'object' && typeof module.exports === 'object') {
@@ -41,3 +41,7 @@ if (typeof module === 'object' && typeof module.exports === 'object') {
 } else if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
+
+startApp();
+
+// Ensure the file is treated as a module by setting "type": "module" in package.json

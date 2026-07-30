@@ -54,6 +54,12 @@ const getTaskByIdExtended = (id) => tasks.find(t => t.id === id);
 const addTask = addTaskExtended;
 const getTaskById = getTaskByIdExtended;
 
+async function checkAndFixUserSafety() {
+  // TODO: Implement user safety checks
+  logging.log('info', 'User safety checks are not yet implemented');
+  return { success: false, error: 'User safety checks are not yet implemented' };
+}
+
 async function runLinting() {
   if (isLintingRunning) {
     logging.log('warn', 'Linting is already running');
@@ -127,7 +133,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       updated = true;
     } else {
       const [major, minor, patch] = matchFound[1].split('.').map(Number);
-      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
+     parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
       updated = true;
     }
     if (updated) {
@@ -171,6 +177,8 @@ module.exports = [
   createAsyncUpdateTask,
   runLinting,
   fixLintingIssues,
+  checkAndFixMemoryVisualizer, // Integrating this change from the other branch
+  checkAndFixUserSafety, // Integrating this change from the other branch
   updateDependencyVersions,
   logging,
   handleParsingError,

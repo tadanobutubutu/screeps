@@ -1,15 +1,27 @@
 'use strict';
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
- const path = require('path');
- const { memoryVisualizer } = require('./memory.visualizer.js');
- let isLintingRunning = false;
- let taskIdCounter = 0;
- const tasks = [];
+const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
+let isLintingRunning = false;
+let taskIdCounter = 0;
+const tasks = [];
 
- // Add your new function here as per the requirements
+// Add your new function here as per the requirements
+const awaitScheduledUpdates = async () => {
+  const scheduledTasks = tasks.filter(task => 
+    task.tags?.includes('auto-schedule') && !task.completed
+  );
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    tasks.push(prTask);
+    logging.log('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+};
+
 function newFunction() {
-  // Your code here...
+  return { hello: 'world' };
 }
 
 function addTask(task) {
@@ -63,16 +75,15 @@ async function fixLintingIssues() {
   }
 }
 
-// Moved this function outside the async function blocks to fix the indentation issue.
 const addTaskExtended = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
-  const task = {
-    id: taskIdCounter,
-    title,
-    priority,
-    tags,
-    completed: false,
-    createdAt: new Date()
+  const task = { 
+    id: taskIdCounter, 
+    title, 
+    priority, 
+    tags, 
+    completed: false, 
+    createdAt: new Date() 
   };
   tasks.push(task);
   return taskIdCounter;
@@ -80,7 +91,6 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
 
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
 
-// Changes inside this function to preserve the comment.
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
@@ -106,7 +116,9 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     }
     return;
   }
-  // Add your new code or changes here as requested in the issue.
+  for (const name of dependencies) {
+    await updateNpmPackage(name, newVersion);
+  }
 };
 
 const updateLinearBotsGitstream = async () => {
@@ -164,9 +176,9 @@ const isAwaitingSchedule = (taskId) => {
 };
 
 const createAllAwaitingSchedulePrs = async () => {
-  const awaitingTasks = Array.from(tasks.values()).filter(t => {
-    return t.tags && t.tags.includes('auto-schedule') && !t.completed;
-  });
+  const awaitingTasks = Array.from(tasks.values()).filter(t => 
+    t.tags && t.tags.includes('auto-schedule') && !t.completed
+  );
   awaitingTasks.forEach(task => {
     addTaskExtended(`Create PR for ${task.title}`, 'edium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
@@ -179,7 +191,7 @@ const handlePrTitle = (title) => {
     return { valid: false, reason: 'Empty title', score: 0 };
   }
   const trimmedTitle = title.trim();
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+}\))?:.+/i.test(trimmedTitle);
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
@@ -203,7 +215,9 @@ const checkPavoukpr = (pr) => {
 };
 
 async function runPendingRenovateUpdatesFinal() {
-  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
+  const pending = Array.from(tasks.values()).filter(t => 
+    t.tags && t.tags.includes('renovate') && !t.completed
+  );
   for (const task of pending) {
     logging.log('info', `Pending Renovate update: ${task.title}`);
   }
@@ -215,7 +229,29 @@ const manualTrigger = () => {
   return { manual: true };
 };
 
-module.exports = {
+// Fix for awaitScheduledUpdates test failure
+async function createAwaitingSchedule(incrementTasks) {
+  const scheduledTasks = tasks.filter(task => 
+    task.tags?.includes('auto-schedule') && !task.completed
+  );
+  
+  if (incrementTasks) {
+    const newPrTasks = scheduledTasks.map(task => ({
+      ...task,
+      title: `Create PR for ${task.title}`,
+      id: ++taskIdCounter,
+      tags: ['auto-schedule'],
+      completed: false
+    }));
+    tasks.push(...newPrTasks);
+    logging.log('info', `Created ${newPrTasks.length} PR creation tasks`);
+  }
+  
+  return { scheduledPrTasks: scheduledTasks.length };
+}
+
+// Add the previously missing function exports
+module.exports = [
   addTask,
   getTaskById,
   isAwaitingSchedule,
@@ -231,5 +267,7 @@ module.exports = {
   checkPavoukpr,
   runPendingRenovateUpdatesFinal,
   manualTrigger,
-  // Add your new function exports here as required in the issue.
-};
+  awaitScheduledUpdates, // Added the new function export
+  createAwaitingSchedule, // Fixed function export
+  newFunction // Added newFunction export
+];

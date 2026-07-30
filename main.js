@@ -1,5 +1,3 @@
-// Resolved main.js – conflict markers removed, HEAD version retained, all existing code preserved
-
 console.log('App initialized');
 
 function init() {

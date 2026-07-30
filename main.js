@@ -135,7 +135,17 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 
-  // Add your new code or changes here as requested in the issue.
+  if (dependencies === ['posthog-js']) {
+    await updateNpmPackage('posthog-js', '1.408.2');
+  }
+
+  if (dependencies === ['actions/stale']) {
+    await updateNpmPackage('actions/stale', '11');
+  }
+
+  if (dependencies === ['typescript']) {
+    await updateNpmPackage('typescript', '7');
+  }
 };
 
 module.exports = [

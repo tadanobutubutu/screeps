@@ -66,7 +66,7 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;
 };
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
-const updateNpmPackage = (packageName, version) => {
+const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'linear-bots/gitstream-github-action') {
       const packageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -86,8 +86,10 @@ const updateNpmPackage = (packageName, version) => {
       }
       parsedPackageJson.dependencies[packageName] = newDependency;
       fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+    } else if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
     } else {
-      execSync(`npm install ${packageName}@${version}`);
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
     }
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
@@ -98,7 +100,7 @@ const updateNpmPackage = (packageName, version) => {
 const createAsyncUpdateTask = (packageName, version) => {
   return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
-async function updateDependencyVersions(dependencies, newVersion) {
+const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions(name, version);
@@ -118,7 +120,7 @@ async function updateDependencyVersions(dependencies, newVersion) {
     logging.log('error', `Failed to update dependencies: ${error.message}`);
     throw error;
   }
-}
+};
 /* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
   await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');

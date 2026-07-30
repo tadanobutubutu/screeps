@@ -34,6 +34,11 @@ async function runLinting() {
   try {
     await spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
     logging.log('info', 'Linting completed successfully');
+    if (Process.env.CI) {
+      if (stdio.toString().includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+      }
+    }
     isLintingRunning = false;
     return { success: true };
   } catch (error) {
@@ -55,33 +60,83 @@ async function fixLintingIssues() {
   }
 }
 
-const updateNpmPackage = updateNpmPackage;
+const addTaskExtended = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(task);
+  return taskIdCounter;
+};
 
-const createAsyncUpdateTask = createAsyncUpdateTask;
+const updateNpmPackage = async (packageName, version) => {
+  try {
+    if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
+    } else {
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
+    }
+    logging.log('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
+};
 
-const updateDependencyVersions = updateDependencyVersions;
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+    const parsedPackageJson = JSON.parse(packageJsonData);
+    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    if (!isDependencyPresent) {
+      logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
 
-const updateLinearBotsGitstream = updateLinearBotsGitstream;
-const updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstreamGithubAction;
-const updateCodeqlAction = updateCodeqlAction;
-const updatePosthogJs = updatePosthogJs;
-const updatePosthogJsToLatest = updatePosthogJsToLatest;
-const updateActionsStale = updateActionsStale;
-const updateTypescript = updateTypescript;
-const handleLockFileWarning = handleLockFileWarning;
+    let updated = false;
+    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+      updated = true;
+    } else {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+      updated = true;
+    }
 
-const isAwaitingSchedule = isAwaitingSchedule;
-const createAllAwaitingSchedulePrs = createAllAwaitingSchedulePrs;
+    if (updated) {
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+    }
 
-async function runPendingRenovateUpdatesFinal() {
-  return runPendingRenovateUpdatesFinal();
-}
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+};
 
-const manualTrigger = manualTrigger;
+const updateDependencyVersions = async (dependencies, newVersion) => {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions([name], version);
+    }
+    return;
+  }
 
-async function createAwaitingSchedule(incrementTasks) {
-  return createAwaitingSchedule(incrementTasks);
-}
+  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  }
+
+  // Add your new code or changes here as requested in the issue.
+};
 
 module.exports = [
   addTask,
@@ -90,8 +145,6 @@ module.exports = [
   getTaskByIdExtended,
   updateNpmPackage,
   createAsyncUpdateTask,
-  isAwaitingSchedule,
-  createAllAwaitingSchedulePrs,
   runLinting,
   fixLintingIssues,
   updateDependencyVersions,
@@ -99,13 +152,6 @@ module.exports = [
   handlePrTitle,
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
-  updateCodeqlAction,
-  updatePosthogJsToLatest,
-  handleLockFileWarning,
-  checkPavoukpr,
-  runPendingRenovateUpdatesFinal,
-  manualTrigger,
-  createAwaitingSchedule,
   newFunction
 ];
 

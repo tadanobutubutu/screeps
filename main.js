@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// This is a line within a comment that needs to be closed
+
+// This is another line within a comment that needs to be closed
+// Missing end of comment

@@ -111,13 +111,13 @@ const updateDependencyVersions = async (dependency, newVersion) => {
 
 /* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
-  await createAsyncUpdateTask('Update gitstream-github-action to v4');
+  await createAsyncUpdateTask('gitstream-github-action', 'v4');
   await npmUpdate('linear-bots/gitstream-github-action', 'v4');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('Update gitstream-github-action to v4');
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
     await npmUpdate('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
@@ -128,7 +128,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 
 const updateCodeqlAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('github/codeql-action to v4');
+    const taskId = await createAsyncUpdateTask('github/codeql-action', 'v4');
     await npmUpdate('github/codeql-action', 'v4');
     logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
@@ -144,7 +144,7 @@ const updatePosthogJs = async () => {
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('posthog-js to v1.408.1');
+    const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
     await npmUpdate('posthog-js', 'v1.408.1');
     logging.log('info', `Successfully updated posthog-js to v1.408.1`);
     return taskId;
@@ -172,7 +172,7 @@ const updateActionsStale = async () => {
 
 const updateStaleAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('actions/stale to v11');
+    const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
     await npmUpdate('actions/stale', 'v11');
     logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
@@ -199,7 +199,8 @@ const isAwaitingSchedule = (taskId) => {
 };
 
 const createAllAwaitingSchedulePrs = async () => {
-  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
+  // Find tasks that are awaiting schedule (tagged with 'auto-schedule') and not completed
+  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') && !task.completed);
   awaitingTasks.forEach(task => {
     addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
@@ -230,12 +231,32 @@ const checkPavoukPr = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
 
+/* ---------- Run Pending Renovate Updates Final ---------- */
+async function runPendingRenovateUpdatesFinal() {
+  // Identify all pending Renovate tasks (tagged 'renovate' and not completed)
+  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
+  for (const task of pending) {
+    logging.log('info', `Pending Renovate update: ${task.title}`);
+    // Additional logic could be added here to trigger actual Renovate actions
+  }
+  return { pendingTasks: pending.length };
+}
+
+/* ---------- Manual Job Trigger ---------- */
+// This placeholder allows a manual trigger to request Renovate to run again.
+const manualTrigger = () => {
+  logging.log('info', 'Manual trigger requested for Renovate re-run.');
+  // In a real environment this could invoke a CLI command or API call.
+  return { manual: true };
+};
+
+/* ---------- Exports ---------- */
 module.exports = {
   addTask,
   getTaskById,
@@ -256,4 +277,5 @@ module.exports = {
   updateTypeScript,
   checkPavoukPr,
   runPendingRenovateUpdatesFinal,
+  manualTrigger,
 };

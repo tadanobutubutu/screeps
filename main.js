@@ -1,20 +1,20 @@
-const { evolve } = require('./auto.evolution.js');
-const { visualizeMemory } = require('./memory.visualizer.js');
+import { evolve } from './auto.evolution.js';
+import { visualizeMemory } from './memory-visualizer.js';
 
 console.log('Main file loaded successfully.');
 
-function checkStatus() {
+export function checkStatus() {
   return 'OK';
 }
 
-function sum(a, b) {
-  if (typeof a !== 'number' || typeof b !== 'number') {
+export function sum(a, b) {
+  if (typeof a!== 'number' || typeof b!== 'number') {
     throw new TypeError('Both arguments must be numbers');
   }
   return a + b;
 }
 
-function runEvolution() {
+export function runEvolution() {
   try {
     const result = evolve();
     console.log('Evolution result:', result);
@@ -23,7 +23,7 @@ function runEvolution() {
   }
 }
 
-function startApp() {
+export function startApp() {
   try {
     visualizeMemory();
     console.log('Memory visualizer started successfully.');
@@ -32,14 +32,18 @@ function startApp() {
   }
 }
 
-if (typeof window !== 'undefined') {
+// Ensure the file is treated as a module by setting "type": "module" in package.json
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = {
+    sum,
+    checkStatus,
+    runEvolution,
+    startApp
+  };
+}
+
+if (typeof window!== 'undefined') {
   window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
 startApp();
-
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;

@@ -11,6 +11,21 @@ function newFunction() {
   return { hello: 'world' };
 }
 
+const addTaskExtended = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(task);
+  return taskIdCounter;
+};
+
+const getTaskByIdExtended = (id) => tasks.find(t => t.id === id);
 const addTask = addTaskExtended;
 const getTaskById = getTaskByIdExtended;
 
@@ -60,20 +75,6 @@ async function fixLintingIssues() {
   }
 }
 
-const addTaskExtended = (title, priority = "medium", tags = []) => {
-  taskIdCounter++;
-  const task = {
-    id: taskIdCounter,
-    title,
-    priority,
-    tags,
-    completed: false,
-    createdAt: new Date()
-  };
-  tasks.push(task);
-  return taskIdCounter;
-};
-
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
@@ -88,6 +89,11 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
+const createAsyncUpdateTask = async (name, version) => {
+  taskIdCounter++;
+  return taskIdCounter;
+};
+
 const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
@@ -96,6 +102,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    
     if (!isDependencyPresent) {
       logging.log('warn', 'Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
@@ -124,7 +131,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 };
 
 const updateDependencyVersions = async (dependencies, newVersion) => {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+  if (typeof dependencies === 'object' &&!Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
     }
@@ -148,6 +155,9 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   }
 };
 
+const createAllAwaitingSchedulePrs = (title) => ({ title, completed: false });
+const handlePrTitle = (title) => title;
+
 module.exports = [
   addTask,
   getTaskById,
@@ -166,7 +176,7 @@ module.exports = [
 ];
 
 async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') &&!task.completed);
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);

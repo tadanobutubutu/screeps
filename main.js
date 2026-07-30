@@ -96,14 +96,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
-    if (isDependencyPresent === undefined || isDependencyPresent === null) {
+    if (!isDependencyPresent) {
       logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if (matchFound === undefined || matchFound === null) {
+    if (!matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
     } else {
@@ -124,7 +124,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 };
 
 const updateDependencyVersions = async (dependencies, newVersion) => {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+  if (typeof dependencies === 'object' &&!Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
     }
@@ -167,7 +167,7 @@ module.exports = [
 
 async function awaitScheduledUpdates() {
   const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') && !task.completed
+    task.tags?.includes('auto-schedule') &&!task.completed
   );
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);

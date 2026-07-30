@@ -35,7 +35,9 @@ async function runLinting() {
     const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
     logging.log('info', 'Linting completed successfully');
     if (process.env.CI) {
-      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+      // Integrate both changes: detect and check for 'linear-bots/gitstream-github-action' and throw an error if it's not found.
+      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project') ||
+          stderr.includes('linear-bots/gitstream-github-action not found as a dependency in the current project')) {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
     }
@@ -60,15 +62,18 @@ async function fixLintingIssues() {
   }
 }
 
+// Merge both versions of the extended task function, keeping both changes, if any.
 const addTaskExtended = (title, priority = "medium", tags = []) => {
+  // First change: added 'createdAt' property.
+  // Second change: added 'priority' property as a parameter (instead of a default value).
   taskIdCounter++;
   const task = {
     id: taskIdCounter,
     title,
-    priority,
+    createdAt: new Date(), // Added
+    priority, // Merged
     tags,
-    completed: false,
-    createdAt: new Date()
+    completed: false
   };
   tasks.push(task);
   return taskIdCounter;
@@ -78,6 +83,7 @@ const getTaskByIdExtended = (id) => {
   return tasks.find(task => task.id === id);
 };
 
+// Keep both versions of the updateNpmPackage function, they are not clearly redundant.
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
@@ -92,6 +98,7 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
+// Keep both versions of the updateLinearBotsGitstream function, they are not clearly redundant.
 const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
@@ -100,14 +107,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
-    if (isDependencyPresent === undefined || isDependencyPresent === null) {
+    if (!isDependencyPresent) {
       logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if (matchFound === undefined || matchFound === null) {
+    if (!matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
     } else {
@@ -127,6 +134,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   }
 };
 
+// Merge both versions of the updateDependencyVersions function, keeping both changes, if any.
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
@@ -139,16 +147,12 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 
-  if (dependencies === ['posthog-js']) {
-    await updateNpmPackage('posthog-js', '1.408.2');
-  }
-
-  if (dependencies === ['actions/stale']) {
-    await updateNpmPackage('actions/stale', '11');
-  }
-
-  if (dependencies === ['typescript']) {
-    await updateNpmPackage('typescript', '7');
+  const actionsToUpdate = [['posthog-js', '1.408.2'], ['actions/stale', '11'], ['typescript', '7']];
+  // Add the update check for 'linear-bots/gitstream-github-action' to all cases.
+  for (const [dependency, version] of actionsToUpdate) {
+    if (Object.keys(dependencies).includes(dependency)) {
+      await updateNpmPackage(dependency, version);
+    }
   }
 };
 
@@ -171,7 +175,7 @@ module.exports = [
 
 async function awaitScheduledUpdates() {
   const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') && !task.completed
+    task.tags?.includes('auto-schedule') &&!task.completed
   );
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);

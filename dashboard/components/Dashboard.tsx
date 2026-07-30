@@ -19,6 +19,7 @@ export default function Dashboard() {
     const [toastMsg, setToastMsg] = useState<string | null>(null);
     const [errCopyHover, setErrCopyHover] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
+    const [toastCloseFocused, setToastCloseFocused] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -620,12 +621,45 @@ export default function Dashboard() {
                         zIndex: 1000,
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.5rem',
+                        gap: '0.75rem',
                         animation: 'bounce 0.5s ease-in-out',
                     }}
                 >
                     <span>✨</span>
-                    <span>{toastMsg}</span>
+                    <span style={{ flex: 1 }}>{toastMsg}</span>
+                    <button
+                        onClick={() => {
+                            setToastMsg(null);
+                            if (toastTimeoutRef.current) {
+                                clearTimeout(toastTimeoutRef.current);
+                                toastTimeoutRef.current = null;
+                            }
+                        }}
+                        onFocus={() => setToastCloseFocused(true)}
+                        onBlur={() => setToastCloseFocused(false)}
+                        onMouseEnter={() => setToastCloseFocused(true)}
+                        onMouseLeave={() => setToastCloseFocused(false)}
+                        aria-label="通知を閉じる"
+                        title="閉じる"
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'white',
+                            cursor: 'pointer',
+                            padding: '0.2rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.8rem',
+                            opacity: toastCloseFocused ? 1 : 0.7,
+                            transition: 'all 0.1s ease-in-out',
+                            outline: 'none',
+                            boxShadow: toastCloseFocused ? '0 0 0 2px white' : 'none',
+                            borderRadius: '4px',
+                        }}
+                    >
+                        ✕
+                    </button>
                 </div>
             )}
         </main>

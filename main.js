@@ -19,7 +19,7 @@ const logging = {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      }] ${message}`);
+      console.log(`] ${message}`);
     }
   }
 };
@@ -96,17 +96,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
-    if ( === undefined ||  === null) {
+    if (!isDependencyPresent) {
       logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if ( === undefined ||  === null) {
-      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
-      updated = true;
-    } else {
+    if (matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
       updated = true;
     }

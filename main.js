@@ -1,4 +1,7 @@
 import { evolve } from './auto.evolution.js';
+import { visualizeMemory } from './memory.visualizer.js';
+
+console.log('Main file loaded successfully.');
 
 export function checkStatus() {
   return 'OK';
@@ -20,6 +23,15 @@ export function runEvolution() {
     }
 }
 
+export function startApp() {
+    try {
+        visualizeMemory();
+        console.log('Memory visualizer started successfully.');
+    } catch (error) {
+        console.error('Failed to start memory visualizer:', error);
+    }
+}
+
 if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
@@ -28,3 +40,4 @@ module.exports = sum;
 module.exports.checkStatus = checkStatus;
 module.exports.sum = sum;
 module.exports.runEvolution = runEvolution;
+module.exports.startApp = startApp;

@@ -18,21 +18,14 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
-/* ---------- Linting ---------- */
-function runLinting() {
-  logging.log('info', 'Running linting');
-  // Implementation would go here
-}
-
-function fixLintingIssues() {
-  logging.log('info', 'Fixing linting issues');
-  // Implementation would go here
-}
-
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console.log(`[${level}] ${message}`);
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level}] ${message}`);
+    }
   }
 };
 
@@ -165,7 +158,7 @@ const updateTypeScript = async () => {
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
     throw error;
-  };
+  }
 };
 
 /* ---------- Schedule Awareness ---------- */
@@ -190,7 +183,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -276,7 +269,7 @@ function detectStargazerAnomalies() {
 }
 
 function analyzeStargazerGrowth() {
-  // Implementation would return {}
+  // Implementation would be here
 }
 
 function trackRunawayStargazers() {

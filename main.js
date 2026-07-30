@@ -1,45 +1,41 @@
-import { evolve } from './auto.evolution.js';
-import { visualizeMemory } from './memory.visualizer.js';
+const autoEvolution = require('./auto.evolution.js');
+const memoryVisualizer = require('./memory.visualizer.js');
 
 console.log('Main file loaded successfully.');
 
-export function checkStatus() {
-  return 'OK';
-}
-
-export function sum(a, b) {
+module.exports = {
+  checkStatus() {
+    return 'OK';
+  },
+  sum(a, b) {
     if (typeof a !== 'number' || typeof b !== 'number') {
         throw new TypeError('Both arguments must be numbers');
     }
     return a + b;
-}
-
-export function runEvolution() {
+  },
+  runEvolution() {
     try {
-        const result = evolve();
+        const result = autoEvolution.evolve();
         console.log('Evolution result:', result);
     } catch (err) {
         console.error('Error running evolution:', err);
     }
-}
-
-export function startApp() {
+  },
+  startApp() {
     try {
-        visualizeMemory();
+        memoryVisualizer.visualizeMemory();
         console.log('Memory visualizer started successfully.');
     } catch (error) {
         console.error('Failed to start memory visualizer:', error);
     }
-}
-
-if (typeof window !== 'undefined') {
-    window.addEventListener('DOMContentLoaded', runEvolution);
-}
-
-startApp();
-
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+  },
+  runEvolutionOnLoad() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('DOMContentLoaded', this.runEvolution);
+    }
+  },
+  init() {
+    this.runEvolutionOnLoad();
+    this.startApp();
+  }
+};

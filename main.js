@@ -38,8 +38,13 @@ if (typeof window !== 'undefined') {
 
 startApp();
 
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+// The following is added to preserve the exports in the current context
+// when the module is imported by other modules or run in Node.js
+// that expects CommonJS module exports.
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = sum;
+  module.exports.checkStatus = checkStatus;
+  module.exports.sum = sum;
+  module.exports.runEvolution = runEvolution;
+  module.exports.startApp = startApp;
+}

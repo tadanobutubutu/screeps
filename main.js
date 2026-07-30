@@ -1,20 +1,27 @@
-import { evolve } from './auto.evolution.js';
-import { visualizeMemory } from './memory.visualizer.js';
+// utils.tasks.js
+
+function evolve() {
+  return { evolved: true };
+}
+
+function visualizeMemory() {
+  console.log('Memory visualization');
+}
 
 console.log('Main file loaded successfully.');
 
-export function checkStatus() {
+function checkStatus() {
   return 'OK';
 }
 
-export function sum(a, b) {
+function sum(a, b) {
     if (typeof a !== 'number' || typeof b !== 'number') {
         throw new TypeError('Both arguments must be numbers');
     }
     return a + b;
 }
 
-export function runEvolution() {
+function runEvolution() {
     try {
         const result = evolve();
         console.log('Evolution result:', result);
@@ -23,7 +30,7 @@ export function runEvolution() {
     }
 }
 
-export function startApp() {
+function startApp() {
     try {
         visualizeMemory();
         console.log('Memory visualizer started successfully.');

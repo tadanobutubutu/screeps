@@ -32,7 +32,11 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console.log(`[${level}] ${message}`);
+    if (typeof console[level] === 'function') {
+      console[level](message);
+    } else {
+      console.log(`[${level}] ${message}`);
+    }
   }
 };
 
@@ -165,7 +169,7 @@ const updateTypeScript = async () => {
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
     throw error;
-  };
+  }
 };
 
 /* ---------- Schedule Awareness ---------- */
@@ -206,7 +210,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -276,7 +280,7 @@ function detectStargazerAnomalies() {
 }
 
 function analyzeStargazerGrowth() {
-  // Implementation would return {}
+  // Implementation would be here
 }
 
 function trackRunawayStargazers() {

@@ -18,25 +18,13 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
-/* ---------- Linting ---------- */
-function runLinting() {
-  logging.log('info', 'Running linting');
-  // Implementation would go here
-}
-
-function fixLintingIssues() {
-  logging.log('info', 'Fixing linting issues');
-  // Implementation would go here
-}
-
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    const formattedMessage = `[${level}] ${message}`;
     if (typeof console[level] === 'function') {
-      console[level](formattedMessage.toUpperCase());
+      console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      console.log(formattedMessage);
+      console.log(`[${level}] ${message}`);
     }
   }
 };
@@ -211,7 +199,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\b/.exec(title);
+  const numberMatch = /\b(\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -288,7 +276,99 @@ function trackRunawayStargazers() {
   // Implementation would go here
 }
 
+/* ---------- Linting Functions ---------- */
+const runLinting = async () => {
+  if (isLintingRunning) {
+    logging.log('warn', 'Linting is already running');
+    return { success: false, reason: 'already_running' };
+  }
+  isLintingRunning = true;
+  logging.log('info', 'Starting linting process');
+  try {
+    execSync('npm run lint', { stdio: 'inherit' });
+    logging.log('info', 'Linting completed successfully');
+    return { success: true };
+  } catch (error) {
+    logging.log('error', `Linting failed: ${error.message}`);
+    return { success: false, error: error.message };
+  } finally {
+    isLintingRunning = false;
+  }
+};
+
+const fixLintingIssues = async () => {
+  logging.log('info', 'Attempting to fix linting issues');
+  try {
+    execSync('npm run lint:fix', { stdio: 'inherit' });
+    logging.log('info', 'Linting fixes applied');
+    return { success: true };
+  } catch (error) {
+    logging.log('error', `Failed to fix linting issues: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+};
+
+/* ---------- Deployment ---------- */
+const runPendingRenovateUpdates = async () => {
+  logging.log('info', 'Running pending renovate updates');
+  const updates = [
+    updateTypeScript,
+    updatePosthogJs,
+    updateActionsStale,
+    updateLinearBotsGitstream,
+  ];
+  const updated = [];
+  for (const update of updates) {
+    try {
+      await update();
+      updated.push(update.name);
+      logging.log('info', `Successfully updated ${update.name}`);
+    } catch (e) {
+      logging.log('error', `Update failed: ${e.message}`);
+    }
+  }
+  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
+  return { success: true, updated };
+};
+
 /* ---------- Dependency Dashboard ---------- */
+const updateLinearBotsGitstreamGithubActionDashboard = () => {
+  logging.log('info', 'Updating linear-bots/gitstream-github-action');
+};
+
+const updateCodeqlActionDashboard = () => {
+  logging.log('info', 'Updating codeql-action');
+};
+
+const updatePosthogJsToLatestDashboard = () => {
+  logging.log('info', 'Updating posthog-js to latest');
+};
+
+const handleLockFileWarningDashboard = () => {
+  logging.log('warn', 'Lock file warning handled');
+};
+
+const updateStaleActionDashboard = () => {
+  logging.log('info', 'Updating actions/stale');
+};
+
+const updateLinearBotsGitstreamDashboard = () => {
+  logging.log('info', 'Updating linear-bots/gitstream');
+};
+
+const updatePosthogJsDashboard = () => {
+  logging.log('info', 'Updating posthog-js');
+};
+
+const updateActionsStaleDashboard = () => {
+  logging.log('info', 'Updating actions/stale');
+};
+
+const updateTypeScriptDashboard = () => {
+  logging.log('info', 'Updating typescript');
+};
+
+/* ---------- Dependent Dashboard ---------- */
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
@@ -335,64 +415,6 @@ const dependencyDashboard = () => {
 };
 
 /* ---------- Deployment ---------- */
-const runPendingRenovateUpdates = async () => {
-  logging.log('info', 'Running pending renovate updates');
-  const updates = [
-    updateTypeScript,
-    updatePosthogJs,
-    updateActionsStale,
-    updateLinearBotsGitstream,
-  ];
-  const updated = [];
-  for (const update of updates) {
-    try {
-      await update();
-      updated.push(update.name);
-      logging.log('info', `Successfully updated ${update.name}`);
-    } catch (e) {
-      logging.log('error', `Update failed: ${e.message}`);
-    }
-  }
-  logging.log('info', `Successfully updated: ${updated.join(', ')}`);
-  return { success: true, updated };
-};
-
-const updateLinearBotsGitstreamGithubActionDashboard = () => {
-  logging.log('info', 'Updating linear-bots/gitstream-github-action');
-};
-
-const updateCodeqlActionDashboard = () => {
-  logging.log('info', 'Updating codeql-action');
-};
-
-const updatePosthogJsToLatestDashboard = () => {
-  logging.log('info', 'Updating posthog-js to latest');
-};
-
-const handleLockFileWarningDashboard = () => {
-  logging.log('warn', 'Lock file warning handled');
-};
-
-const updateStaleActionDashboard = () => {
-  logging.log('info', 'Updating actions/stale');
-};
-
-const updateLinearBotsGitstreamDashboard = () => {
-  logging.log('info', 'Updating linear-bots/gitstream');
-};
-
-const updatePosthogJsDashboard = () => {
-  logging.log('info', 'Updating posthog-js');
-};
-
-const updateActionsStaleDashboard = () => {
-  logging.log('info', 'Updating actions/stale');
-};
-
-const updateTypeScriptDashboard = () => {
-  logging.log('info', 'Updating typescript');
-};
-
 const runPendingRenovateUpdatesFinal = async () => {
   logging.log('info', 'Running pending renovate updates');
   const updates = [
@@ -436,20 +458,4 @@ module.exports = {
   updateTypeScript,
   runPendingRenovateUpdates,
   dependencyDashboard,
-  updateLinearBotsGitstreamGithubActionDashboard,
-  updateCodeqlActionDashboard,
-  updatePosthogJsToLatestDashboard,
-  handleLockFileWarningDashboard,
-  updateStaleActionDashboard,
-  updateLinearBotsGitstreamDashboard,
-  updatePosthogJsDashboard,
-  updateActionsStaleDashboard,
-  updateTypeScriptDashboard,
-  runPendingRenovateUpdatesFinal,
-  trackStargazers,
-  identifyRunawayStargazers,
-  getStargazerStats,
-  detectStargazerAnomalies,
-  analyzeStargazerGrowth,
-  trackRunawayStargazers,
 };

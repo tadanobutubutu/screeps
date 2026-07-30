@@ -276,6 +276,38 @@ function trackRunawayStargazers() {
   // Implementation would go here
 }
 
+/* ---------- Linting Functions ---------- */
+const runLinting = async () => {
+  if (isLintingRunning) {
+    logging.log('warn', 'Linting is already running');
+    return { success: false, reason: 'already_running' };
+  }
+  isLintingRunning = true;
+  logging.log('info', 'Starting linting process');
+  try {
+    execSync('npm run lint', { stdio: 'inherit' });
+    logging.log('info', 'Linting completed successfully');
+    return { success: true };
+  } catch (error) {
+    logging.log('error', `Linting failed: ${error.message}`);
+    return { success: false, error: error.message };
+  } finally {
+    isLintingRunning = false;
+  }
+};
+
+const fixLintingIssues = async () => {
+  logging.log('info', 'Attempting to fix linting issues');
+  try {
+    execSync('npm run lint:fix', { stdio: 'inherit' });
+    logging.log('info', 'Linting fixes applied');
+    return { success: true };
+  } catch (error) {
+    logging.log('error', `Failed to fix linting issues: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+};
+
 /* ---------- Deployment ---------- */
 const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');

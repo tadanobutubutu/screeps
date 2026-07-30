@@ -2,8 +2,6 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-// User Safety: unsafe
-// Safety Categories: Unauthorized Advice
 const { memoryVisualizer } = require('./memory.visualizer.js');
 let isLintingRunning = false;
 let taskIdCounter = 0;
@@ -14,6 +12,7 @@ function newFunction() {
 }
 
 const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
 
 const logging = {
   log(level, message) {
@@ -24,9 +23,6 @@ const logging = {
     }
   }
 };
-
-const addTask = addTaskExtended;
-const getTaskById = getTaskByIdExtended;
 
 async function runLinting() {
   if (isLintingRunning) {
@@ -50,7 +46,7 @@ async function runLinting() {
     isLintingRunning = false;
     return { success: false, error: error.message };
   }
-};
+}
 
 async function fixLintingIssues() {
   logging.log('info', 'Attempting to fix linting issues');
@@ -93,7 +89,6 @@ const updateNpmPackage = async (packageName, version) => {
 };
 
 const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
-
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -134,7 +129,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (dependencies.includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 

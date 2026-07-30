@@ -24,7 +24,8 @@ const logging = {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      }
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   }
 };
 
@@ -43,6 +44,7 @@ async function runLinting() {
     return { success: true };
   } catch (error) {
     logging.log('error', `Linting failed: ${error.message}`);
+    isLintingRunning = false;
     return { success: false, error: error.message };
   }
 }
@@ -72,7 +74,11 @@ const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null
 /* ---------- NPM Update ---------- */
 const updateNpmPackage = async (packageName, version) => {
   try {
-    await spawnSync('npm', ['install', '--silent', packageName, '@' + version], { stdio: 'inherit' });
+    if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
+    } else {
+      await spawnSync('npm', ['install', packageName, '@' + version], { stdio: 'inherit' });
+    }
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
     logging.log('error', `Failed to update ${packageName}: ${error.message}`);
@@ -80,16 +86,44 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
+/* ---------- Async Task Creation ---------- */
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+};
+
+/* ---------- Dependency Update ---------- */
+const updateDependencyVersions = async (dependencies, newVersion) => {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
+  }
+  const taskTitle = `Update dependency${dependencies.length > 1? 's' : ''} to ${newVersion}`;
+  try {
+    for (const dependency of dependencies) {
+      await updateNpmPackage(dependency, newVersion);
+    }
+    logging.log('info', `Successfully updated dependencies${dependencies.length > 1? 's' : ''} to ${newVersion}`);
+    Array.from(tasks.values()).filter(task => task.title.includes(`Update dependency${dependencies.length > 1? 's' : ''} to ${newVersion}`)).forEach(task => {
+      task.completed = true;
+    });
+  } catch (error) {
+    logging.log('error', `Failed to update dependencies: ${error.message}`);
+    throw error;
+  }
+};
+
 /* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
   await createAsyncUpdateTask('gitstream-github-action', 'v4');
-  await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+  await updateNpmPackage('github/gitstream-github-action', 'v4');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -105,12 +139,11 @@ const updateCodeqlAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-    throw error;
   }
 };
 
 const updatePosthogJs = async () => {
-  await updateDependencyVersions('posthog-js', 'v1.408.1');
+  await updateDependencyVersions({ posthog-js: 'v1.408.1' });
 };
 
 const updatePosthogJsToLatest = async () => {
@@ -121,7 +154,6 @@ const updatePosthogJsToLatest = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
   }
 };
 
@@ -132,54 +164,69 @@ const handleLockFileWarning = async () => {
   return taskId;
 };
 
-const updateActionsStale = async () => {
-  await updateDependencyVersions('actions/stale', 'v11');
+/* ---------- Schedule Awareness ---------- */
+const isAwaitingSchedule = (taskId) => {
+  const task = getTaskById(taskId);
+  return task && task.tags && task.tags.includes('auto-schedule') &&!task.completed;
 };
 
-const updateStaleAction = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
-    await updateNpmPackage('actions/stale', 'v11');
-    logging.log('info', `Successfully updated actions/stale to v11`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-    throw error;
-  }
+const createAllAwaitingSchedulePrs = async () => {
+  // Find tasks that are awaiting schedule (tagged with 'auto-schedule' and not completed)
+  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') &&!task.completed);
+  awaitingTasks.forEach(task => {
+    addTaskExtended(`Create PR for ${task.title}`, 'edium', ['auto-schedule']);
+    logging.log('info', `Scheduled PR creation task for ${task.title}`);
+  });
+  return { scheduledPrTasks: awaitingTasks.length };
 };
 
-const updateTypeScript = async () => {
-  try {
-    await updateNpmPackage('typescript', '^7.0.2');
-    logging.log('info', 'Successfully updated typescript to ^7.0.2');
-  } catch (error) {
-    logging.log('error', `Failed to update typescript: ${error.message}`);
-    throw error;
+/* ---------- PR Title Handling ---------- */
+const handlePrTitle = (title) => {
+  if (title === undefined || title === null) {
+    return { valid: false, reason: 'Empty title', score: 0 };
   }
+  const trimmedTitle = title.trim();
+  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
+  if (!hasConvention) {
+    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  }
+  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
+  return { valid: true, reason: '', score: lengthScore };
 };
 
-/* ---------- Utility Functions ---------- */
-const createAsyncUpdateTask = (packageName, version) => {
-  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
+const checkPavoukPr = (pr) => {
+  if (!pr || typeof pr!== 'object') return false;
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'tring') return false;
+  const hasPavouk = /Pavouk/i.test(title);
+  if (hasPavouk) return true;
+  const body = pr.data?.body?? pr.body?? '';
+  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
+  if (blockedComment.test(body)) return true;
+  const numberMatch = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch? numberMatch[1] : null;
+  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
+  return matchesPrNumber;
 };
 
-const updateDependencyVersions = async (dependency, newVersion) => {
-  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
-    for (const [name, version] of Object.entries(dependency)) {
-      await updateDependencyVersions(name, version);
-    }
-    return;
+/* ---------- Run Pending Renovate Updates Final ---------- */
+async function runPendingRenovateUpdatesFinal() {
+  // Identify all pending Renovate tasks (tagged 'renovate' and not completed)
+  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') &&!t.completed);
+  for (const task of pending) {
+    logging.log('info', `Pending Renovate update: ${task.title}`);
+    // Additional logic could be added here to trigger actual Renovate actions
   }
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
-  try {
-    await updateNpmPackage(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
-    addTaskExtended(taskTitle, 'high', ['renovate']);
-  } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
-    throw error;
-  }
-};
+  return { pendingTasks: pending.length };
+}
+
+/* ---------- Manual Job Trigger ---------- */
+// This placeholder allows a manual trigger to request Renovate to run again.
+const manualTrigger = () => {
+  logging.log('info', 'Manual trigger requested for Renovate re-run.');
+  // In a real environment this could invoke a CLI command or API call.
+  return { manual: true };
+}
 
 /* ---------- Exports ---------- */
 module.exports = {
@@ -195,11 +242,6 @@ module.exports = {
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
-  updateStaleAction,
-  updateLinearBotsGitstream,
-  updatePosthogJs,
-  updateActionsStale,
-  updateTypeScript,
   checkPavoukPr,
   runPendingRenovateUpdatesFinal,
   manualTrigger,

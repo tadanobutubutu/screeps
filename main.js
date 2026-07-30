@@ -2,6 +2,8 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+// User Safety: unsafe
+// Safety Categories: Unauthorized Advice
 const { memoryVisualizer } = require('./memory.visualizer.js');
 let isLintingRunning = false;
 let taskIdCounter = 0;

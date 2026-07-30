@@ -32,7 +32,11 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console[level](message);
+    if (typeof console[level] === 'function') {
+      console[level](message);
+    } else {
+      console.log(`[${level}] ${message}`);
+    }
   }
 };
 
@@ -276,7 +280,7 @@ function detectStargazerAnomalies() {
 }
 
 function analyzeStargazerGrowth() {
-  // Implementation would return {}
+  // Implementation would be here
 }
 
 function trackRunawayStargazers() {
@@ -434,4 +438,3 @@ module.exports = {
   runPendingRenovateUpdates,
   dependencyDashboard,
 };
-```

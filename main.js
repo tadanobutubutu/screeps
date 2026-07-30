@@ -70,9 +70,9 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
 
 /* ---------- NPM Update ---------- */
-const npmUpdate = async (packageName, version = 'latest') => {
+const updateNpmPackage = async (packageName, version) => {
   try {
-    await spawnSync('npm', ['install', packageName, '@' + version], { stdio: 'inherit' });
+    await spawnSync('npm', ['install', '--silent', packageName, '@' + version], { stdio: 'inherit' });
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
     logging.log('error', `Failed to update ${packageName}: ${error.message}`);
@@ -80,44 +80,16 @@ const npmUpdate = async (packageName, version = 'latest') => {
   }
 };
 
-const updateNpmPackage = async (packageName, version) => {
-  await npmUpdate(packageName, version);
-};
-
-/* ---------- Async Task Creation ---------- */
-const createAsyncUpdateTask = (packageName, version) => {
-  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
-};
-
-/* ---------- Dependency Update ---------- */
-const updateDependencyVersions = async (dependency, newVersion) => {
-  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
-    for (const [name, version] of Object.entries(dependency)) {
-      await updateDependencyVersions(name, version);
-    }
-    return;
-  }
-  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
-  try {
-    await npmUpdate(dependency, newVersion);
-    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
-    addTaskExtended(taskTitle, 'high', ['renovate']);
-  } catch (error) {
-    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
-    throw error;
-  }
-};
-
 /* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
   await createAsyncUpdateTask('gitstream-github-action', 'v4');
-  await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+  await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
-    await npmUpdate('linear-bots/gitstream-github-action', 'v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -128,7 +100,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('github/codeql-action', 'v4');
-    await npmUpdate('github/codeql-action', 'v4');
+    await updateNpmPackage('github/codeql-action', 'v4');
     logging.log('info', `Successfully updated github/codeql-action to v4`);
     return taskId;
   } catch (error) {
@@ -144,7 +116,7 @@ const updatePosthogJs = async () => {
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
-    await npmUpdate('posthog-js', 'v1.408.1');
+    await updateNpmPackage('posthog-js', 'v1.408.1');
     logging.log('info', `Successfully updated posthog-js to v1.408.1`);
     return taskId;
   } catch (error) {
@@ -154,15 +126,10 @@ const updatePosthogJsToLatest = async () => {
 };
 
 const handleLockFileWarning = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
-    logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
-    logging.log('info', 'Lock file consolidation task created');
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to handle lock file warning: ${error.message}`);
-    throw error;
-  }
+  const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
+  logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
+  logging.log('info', 'Lock file consolidation task created');
+  return taskId;
 };
 
 const updateActionsStale = async () => {
@@ -172,7 +139,7 @@ const updateActionsStale = async () => {
 const updateStaleAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
-    await npmUpdate('actions/stale', 'v11');
+    await updateNpmPackage('actions/stale', 'v11');
     logging.log('info', `Successfully updated actions/stale to v11`);
     return taskId;
   } catch (error) {
@@ -183,7 +150,7 @@ const updateStaleAction = async () => {
 
 const updateTypeScript = async () => {
   try {
-    await npmUpdate('typescript', '^7.0.2');
+    await updateNpmPackage('typescript', '^7.0.2');
     logging.log('info', 'Successfully updated typescript to ^7.0.2');
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
@@ -191,68 +158,27 @@ const updateTypeScript = async () => {
   }
 };
 
-/* ---------- Schedule Awareness ---------- */
-const isAwaitingSchedule = (taskId) => {
-  const task = getTaskById(taskId);
-  return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
+/* ---------- Utility Functions ---------- */
+const createAsyncUpdateTask = (packageName, version) => {
+  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
 
-const createAllAwaitingSchedulePrs = async () => {
-  // Find tasks that are awaiting schedule (tagged with 'auto-schedule') and not completed
-  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') && !task.completed);
-  awaitingTasks.forEach(task => {
-    addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
-    logging.log('info', `Scheduled PR creation task for ${task.title}`);
-  });
-  return { scheduledPrTasks: awaitingTasks.length };
-};
-
-/* ---------- PR Title Handling ---------- */
-const handlePrTitle = (title) => {
-  if (title === undefined || title === null) {
-    return { valid: false, reason: 'Empty title', score: 0 };
+const updateDependencyVersions = async (dependency, newVersion) => {
+  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+    for (const [name, version] of Object.entries(dependency)) {
+      await updateDependencyVersions(name, version);
+    }
+    return;
   }
-  const trimmedTitle = title.trim();
-  const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
-    return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
+  const taskTitle = `Update dependency ${dependency} to ${newVersion}`;
+  try {
+    await updateNpmPackage(dependency, newVersion);
+    logging.log('info', `Successfully updated ${dependency} to ${newVersion}`);
+    addTaskExtended(taskTitle, 'high', ['renovate']);
+  } catch (error) {
+    logging.log('error', `Failed to update ${dependency}: ${error.message}`);
+    throw error;
   }
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
-  return { valid: true, reason: '', score: lengthScore };
-};
-
-const checkPavoukPr = (pr) => {
-  if (!pr || typeof pr !== 'object') return false;
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') return false;
-  const hasPavouk = /Pavouk/i.test(title);
-  if (hasPavouk) return true;
-  const body = pr.data?.body ?? pr.body ?? '';
-  const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
-  if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\b/.exec(title);
-  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
-  const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
-  return matchesPrNumber;
-};
-
-/* ---------- Run Pending Renovate Updates Final ---------- */
-async function runPendingRenovateUpdatesFinal() {
-  // Identify all pending Renovate tasks (tagged 'renovate' and not completed)
-  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
-  for (const task of pending) {
-    logging.log('info', `Pending Renovate update: ${task.title}`);
-    // Additional logic could be added here to trigger actual Renovate actions
-  }
-  return { pendingTasks: pending.length };
-}
-
-/* ---------- Manual Job Trigger ---------- */
-// This placeholder allows a manual trigger to request Renovate to run again.
-const manualTrigger = () => {
-  logging.log('info', 'Manual trigger requested for Renovate re-run.');
-  // In a real environment this could invoke a CLI command or API call.
-  return { manual: true };
 };
 
 /* ---------- Exports ---------- */

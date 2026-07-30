@@ -115,14 +115,14 @@ const updateCodeqlAction = async () => {
 };
 
 const updatePosthogJs = async () => {
-  await updateDependencyVersions('posthog-js', 'v1.407.7');
+  await updateDependencyVersions('posthog-js', 'v1.408.1');
 };
 
 const updatePosthogJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('posthog-js to v1.407.7');
-    await npmUpdate('posthog-js', 'v1.407.7');
-    logging.log('info', `Successfully updated posthog-js to v1.407.7`);
+    const taskId = await createAsyncUpdateTask('posthog-js to v1.408.1');
+    await npmUpdate('posthog-js', 'v1.408.1');
+    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
@@ -169,6 +169,11 @@ const updateTypeScript = async () => {
 };
 
 /* ---------- Schedule Awareness ---------- */
+const isAwaitingSchedule = (taskId) => {
+  const task = getTaskById(taskId);
+  return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
+};
+
 const createAllAwaitingSchedulePrs = async () => {
   const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('renovate') && !task.completed);
   awaitingTasks.forEach(task => {
@@ -267,7 +272,7 @@ function getStargazerStats() {
 }
 
 function detectStargazerAnomalies() {
-  // Implementation would return []
+  return [];
 }
 
 function analyzeStargazerGrowth() {
@@ -342,7 +347,7 @@ const updateTypeScriptDashboard = () => {
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
-    { dependency: 'posthog-js', version: '1.407.7', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.407.7' },
+    { dependency: 'posthog-js', version: '1.408.1', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.408.1' },
     { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
   ];
 

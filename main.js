@@ -1,6 +1,9 @@
 const { evolve } = require('./auto.evolution.js');
 const { visualizeMemory } = require('./memory.visualizer.js');
 
+const message = "This is a message that should be logged to the console.";
+console.log(message + " Continuing the string...");
+
 console.log('Main file loaded successfully.');
 
 function checkStatus() {

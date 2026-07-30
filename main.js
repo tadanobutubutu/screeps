@@ -3,22 +3,17 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
-
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
-
 function addTask(task) {
   task.id = ++taskIdCounter;
   tasks.push(task);
   return task;
 }
-
 function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
-
-/* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
@@ -28,8 +23,6 @@ const logging = {
     }
   }
 };
-
-/* ---------- Linting ---------- */
 async function runLinting() {
   if (isLintingRunning) {
     logging.log('warn', 'Linting is already running');
@@ -48,7 +41,6 @@ async function runLinting() {
     return { success: false, error: error.message };
   }
 }
-
 async function fixLintingIssues() {
   logging.log('info', 'Attempting to fix linting issues');
   try {
@@ -60,24 +52,26 @@ async function fixLintingIssues() {
     return { success: false, error: error.message };
   }
 }
-
-/* ---------- Task Management ---------- */
 const addTaskExtended = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
-  const task = { id: taskIdCounter, title, priority, tags, completed: false, createdAt: new Date() };
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
   tasks.push(task);
   return taskIdCounter;
 };
-
 const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
-
-/* ---------- NPM Update ---------- */
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
       await execSync(`npm install ${packageName}@${version}`);
     } else {
-      await spawnSync('npm', ['install', packageName, '@' + version], { stdio: 'inherit' });
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
     }
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
@@ -85,13 +79,9 @@ const updateNpmPackage = async (packageName, version) => {
     throw error;
   }
 };
-
-/* ---------- Async Task Creation ---------- */
 const createAsyncUpdateTask = (packageName, version) => {
   return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
 };
-
-/* ---------- Dependency Update ---------- */
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
@@ -99,13 +89,13 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     }
     return;
   }
-  const taskTitle = `Update dependency${dependencies.length > 1? 's' : ''} to ${newVersion}`;
+  const taskTitle = `Update dependency${dependencies.length > 1 ? 's' : ''} to ${newVersion}`;
   try {
     for (const dependency of dependencies) {
       await updateNpmPackage(dependency, newVersion);
     }
-    logging.log('info', `Successfully updated dependencies${dependencies.length > 1? 's' : ''} to ${newVersion}`);
-    Array.from(tasks.values()).filter(task => task.title.includes(`Update dependency${dependencies.length > 1? 's' : ''} to ${newVersion}`)).forEach(task => {
+    logging.log('info', `Successfully updated dependencies${dependencies.length > 1 ? 's' : ''} to ${newVersion}`);
+    Array.from(tasks.values()).filter(task => task.title.includes(taskTitle)).forEach(task => {
       task.completed = true;
     });
   } catch (error) {
@@ -113,13 +103,10 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     throw error;
   }
 };
-
-/* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
   await createAsyncUpdateTask('gitstream-github-action', 'v4');
   await updateNpmPackage('github/gitstream-github-action', 'v4');
 };
-
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -130,7 +117,6 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
-
 const updateCodeqlAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('github/codeql-action', 'v4');
@@ -141,37 +127,30 @@ const updateCodeqlAction = async () => {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
   }
 };
-
 const updatePosthogJs = async () => {
   await updateDependencyVersions({ 'posthog-js': 'v1.408.1' });
 };
-
 const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
     await updateNpmPackage('posthog-js', 'v1.408.1');
-    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
+    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
+    logging.log('error', `Failed to update posthog-js: ${error.message}`);
   }
 };
-
 const handleLockFileWarning = async () => {
   const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
   logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
   logging.log('info', 'Lock file consolidation task created');
   return taskId;
 };
-
-/* ---------- Schedule Awareness ---------- */
 const isAwaitingSchedule = (taskId) => {
   const task = getTaskById(taskId);
-  return task && task.tags && task.tags.includes('auto-schedule') &&!task.completed;
+  return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
 };
-
 const createAllAwaitingSchedulePrs = async () => {
-  // Find tasks that are awaiting schedule (tagged with 'auto-schedule' and not completed)
   const awaitingTasks = Array.from(tasks.values()).filter(task => {
     return task.tags && task.tags.includes('auto-schedule') && !task.completed;
   });
@@ -181,8 +160,6 @@ const createAllAwaitingSchedulePrs = async () => {
   });
   return { scheduledPrTasks: awaitingTasks.length };
 };
-
-/* ---------- PR Title Handling ---------- */
 const handlePrTitle = (title) => {
   if (title === undefined || title === null) {
     return { valid: false, reason: 'Empty title', score: 0 };
@@ -192,45 +169,34 @@ const handlePrTitle = (title) => {
   if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
-  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
   return { valid: true, reason: '', score: lengthScore };
 };
-
 const checkPavoukpr = (pr) => {
-  if (!pr || typeof pr!== 'object') return false;
-  const title = pr.data?.title?? pr.title;
-  if (typeof title!== 'tring') return false;
+  if (!pr || typeof pr !== 'object') return false;
+  const title = pr.data?.title ?? pr.title;
+  if (typeof title !== 'string') return false;
   const hasPavouk = /Pavouk/i.test(title);
   if (hasPavouk) return true;
-  const body = pr.data?.body?? pr.body?? '';
+  const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
   const numberMatch = /\b(\d+)\b/.exec(title);
-  const blockedPrNumber = numberMatch? numberMatch[1] : null;
+  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
-
-/* ---------- Run Pending Renovate Updates Final ---------- */
 async function runPendingRenovateUpdatesFinal() {
-  // Identify all pending Renovate tasks (tagged 'renovate' and not completed)
-  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') &&!t.completed);
+  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
   for (const task of pending) {
     logging.log('info', `Pending Renovate update: ${task.title}`);
-    // Additional logic could be added here to trigger actual Renovate actions
   }
   return { pendingTasks: pending.length };
 }
-
-/* ---------- Manual Job Trigger ---------- */
-// This placeholder allows a manual trigger to request Renovate to run again.
 const manualTrigger = () => {
   logging.log('info', 'Manual trigger requested for Renovate re-run.');
-  // In a real environment this could invoke a CLI command or API call.
   return { manual: true };
-}
-
-/* ---------- Exports ---------- */
+};
 module.exports = {
   addTask,
   getTaskById,
@@ -246,5 +212,5 @@ module.exports = {
   handleLockFileWarning,
   checkPavoukpr,
   runPendingRenovateUpdatesFinal,
-  manualTrigger,
+  manualTrigger
 };

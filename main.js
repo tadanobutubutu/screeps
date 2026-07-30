@@ -32,10 +32,10 @@ async function runLinting() {
   isLintingRunning = true;
   logging.log('info', 'Starting linting process');
   try {
-    await spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
+    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
     logging.log('info', 'Linting completed successfully');
-    if (Process.env.CI) {
-      if (stdio.toString().includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+    if (process.env.CI) {
+      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
     }

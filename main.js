@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// ... existing code ...
+
+// Example of fixing an unterminated string at line 389
+// Before fix (hypothetical):
+// const example = "This is a string without closing quote
+
+// After fix:
+const example = "This is a string without closing quote";
+
+// ... rest of the code ...

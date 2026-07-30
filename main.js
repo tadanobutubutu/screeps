@@ -85,7 +85,7 @@ const createAsyncUpdateTask = (packageName, version) => {
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
-      await updateDependencyVersions(name, version);
+      await updateDependencyVersions([name], version);
     }
     return;
   }

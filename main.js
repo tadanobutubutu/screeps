@@ -107,18 +107,18 @@ const updateCodeqlAction = async () => {
   }
 };
 
-const updatePosthogJs = async () => {
-  await updateDependencyVersions('posthog-js', 'v1.408.1');
+const updatePosthohJs = async () => {
+  await updateDependencyVersions('posthoh-js', 'v1.408.1');
 };
 
-const updatePosthogJsToLatest = async () => {
+const updatePosthohJsToLatest = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('posthog-js to v1.408.1');
-    await npmUpdate('posthog-js', 'v1.408.1');
-    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
+    const taskId = await createAsyncUpdateTask('posthoh-js to v1.408.1');
+    await npmUpdate('posthoh-js', 'v1.408.1');
+    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
     throw error;
   }
 };
@@ -199,7 +199,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -211,19 +211,15 @@ const checkPavoukPr = willRecreateBlockedUpdate;
 function handlePrTitleEmotion(title) {
   // Implementation would go here
 }
-
 function validateEmotion(emotion) {
   // Implementation would go here
 }
-
 function categorizeEmotion(emotion) {
   // Implementation would go here
 }
-
 function analyzeEmotionText(text) {
   // Implementation would go here
 }
-
 function createEmotionProfile(emotions) {
   // Implementation would go here
 }
@@ -234,15 +230,12 @@ function getRandomInt(min, max) {
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 function getRandomFloat(min, max) {
   return Math.random() * (max - min) + min;
 }
-
 function getRandomItem(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
-
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -255,23 +248,18 @@ function shuffleArray(array) {
 function trackStargazers() {
   // Implementation would go here
 }
-
 function identifyRunawayStargazers() {
   // Implementation would go here
 }
-
 function getStargazerStats() {
   // Implementation would go here
 }
-
 function detectStargazerAnomalies() {
   return [];
 }
-
 function analyzeStargazerGrowth() {
   // Implementation would go here
 }
-
 function trackRunawayStargazers() {
   // Implementation would go here
 }
@@ -281,7 +269,7 @@ const runPendingRenovateUpdates = async () => {
   logging.log('info', 'Running pending renovate updates');
   const updates = [
     updateTypeScript,
-    updatePosthogJs,
+    updatePosthohJs,
     updateActionsStale,
     updateLinearBotsGitstream,
   ];
@@ -308,8 +296,8 @@ const updateCodeqlActionDashboard = () => {
   logging.log('info', 'Updating codeql-action');
 };
 
-const updatePosthogJsToLatestDashboard = () => {
-  logging.log('info', 'Updating posthog-js to latest');
+const updatePosthohJsToLatestDashboard = () => {
+  logging.log('info', 'Updating posthoh-js to latest');
 };
 
 const handleLockFileWarningDashboard = () => {
@@ -324,8 +312,8 @@ const updateLinearBotsGitstreamDashboard = () => {
   logging.log('info', 'Updating linear-bots/gitstream');
 };
 
-const updatePosthogJsDashboard = () => {
-  logging.log('info', 'Updating posthog-js');
+const updatePosthohJsDashboard = () => {
+  logging.log('info', 'Updating posthoh-js');
 };
 
 const updateActionsStaleDashboard = () => {
@@ -340,7 +328,7 @@ const updateTypeScriptDashboard = () => {
 const dependencyDashboard = () => {
   const pendingSchedule = [
     { dependency: 'typescript', version: '^7.0.2', branch: 'typescript-7.x', type: 'chore(deps)', action: 'Update typescript to ^7.0.2' },
-    { dependency: 'posthog-js', version: '1.408.1', branch: 'posthog-js-1.x', type: 'fix(deps)', action: 'Update posthog-js to v1.408.1' },
+    { dependency: 'posthoh-js', version: '1.408.1', branch: 'posthoh-js-1.x', type: 'fix(deps)', action: 'Update posthoh-js to v1.408.1' },
     { dependency: 'actions/stale', version: 'v11', branch: 'actions-stale-11.x', type: 'chore(deps)', action: 'Update actions/stale to v11' },
   ];
 
@@ -387,7 +375,7 @@ const runPendingRenovateUpdatesFinal = async () => {
   logging.log('info', 'Running pending renovate updates');
   const updates = [
     updateTypeScriptDashboard,
-    updatePosthogJsDashboard,
+    updatePosthohJsDashboard,
     updateActionsStaleDashboard,
     updateLinearBotsGitstreamDashboard,
   ];
@@ -417,11 +405,11 @@ module.exports = {
   handlePrTitle,
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
-  updatePosthogJsToLatest,
+  updatePosthohJsToLatest,
   handleLockFileWarning,
   updateStaleAction,
   updateLinearBotsGitstream,
-  updatePosthogJs,
+  updatePosthohJs,
   updateActionsStale,
   updateTypeScript,
   runPendingRenovateUpdates,

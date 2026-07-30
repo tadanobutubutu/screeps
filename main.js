@@ -38,8 +38,7 @@ if (typeof window !== 'undefined') {
 
 startApp();
 
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+// Correctly comment out the following line, since it is no longer valid:
+// console.log('Safety:'); // This line is not part of the main logic
+
+// Make sure to add the "type": "module" field to your package.json to enable ES6 imports

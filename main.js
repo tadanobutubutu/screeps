@@ -1,28 +1,44 @@
-'use strict';
+use strict';
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
-
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
-
-function newFunction() {
-  return { hello: 'world' };
-}
-
-function logging(level, message) {
-  if (typeof console[level] === 'function') {
-    console[level](`[${level.toUpperCase()}] ${message}`);
-  } else {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+function newFunction() { return { hello: 'world' }; }
+const logging = {
+  log(level, message) {
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   }
+};
+function handleParsingError(code) {
+  const regex = /:(.*):\d+:\d+: Unexpected token (.*)/;
+  const match = code.match(regex);
+  if (match) {
+    logging.log('error', `Parsing error at line ${match[2]}: Unexpected token ${match[3]}`);
+    return { error: `Parsing error at line ${match[2]}: Unexpected token ${match[3]}` };
+  }
+  return { error: 'Unknown parsing error' };
 }
-
+async function checkAndFixMemoryVisualizer() {
+  const memoryVisualizerPath = path.join(__dirname, './memory.visualizer.js');
+  const memoryVisualizerCode = fs.readFileSync(memoryVisualizerPath, { encoding: 'utf8' });
+  const result = handleParsingError(memoryVisualizerCode);
+  if (!result.success) {
+    logging.log('error', `Error found in memory.visualizer.js: ${result.error}`);
+    return { success: false, error: result.error };
+  }
+  fs.writeFileSync(memoryVisualizerPath, memoryVisualizerCode.replace(/\.visualizer/g, 'Visualizer'), { encoding: 'utf8' });
+  logging.log('info', 'Memory visualizer file fixed');
+  return { success: true };
+}
 const addTask = addTaskExtended;
 const getTaskById = getTaskByIdExtended;
-
 async function runLinting() {
   if (isLintingRunning) {
     logging('warn', 'Linting is already running');
@@ -46,7 +62,6 @@ async function runLinting() {
     return { success: false, error: error.message };
   }
 }
-
 async function fixLintingIssues() {
   logging('info', 'Attempting to fix linting issues');
   try {
@@ -58,10 +73,6 @@ async function fixLintingIssues() {
     return { success: false, error: error.message };
   }
 }
-
-const addTaskExtended = addTaskExtended;
-const getTaskByIdExtended = getTaskByIdExtended;
-
 async function updateLinearBotsGitstream() {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -73,7 +84,6 @@ async function updateLinearBotsGitstream() {
       logging('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
-
     const currentVersion = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'];
     const matchFound = currentVersion.match(/^(\d+\.\d+\.\d+)$/);
     if (!matchFound) {
@@ -82,39 +92,14 @@ async function updateLinearBotsGitstream() {
       const [major, minor, patch] = currentVersion.split('.').map(Number);
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
     }
-
-    // write updated JSON back to file
     fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
-
-    // install the package
     await updateNpmPackage('github/gitstream-github-action', 'v4');
-
     logging('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
     logging('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
-
-// Alias
-updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;
-
-// updateNpmPackage helper
-async function updateNpmPackage(packageName, version) {
-  try {
-    if (packageName === 'gitstream-github-action') {
-      await execSync(`npm install ${packageName}@${version}`);
-    } else {
-      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
-    }
-    logging('info', `Updated ${packageName} to ${version}`);
-  } catch (error) {
-    logging('error', `Failed to update ${packageName}: ${error.message}`);
-    throw error;
-  }
-}
-
-// updateDependencyVersions (simplified)
 async function updateDependencyVersions(dependencies) {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
@@ -135,9 +120,15 @@ async function updateDependencyVersions(dependencies) {
     await updateNpmPackage('typescript', '7');
   }
 }
-
-// The remaining functions: runLinting, fixLintingIssues, logging, handlePrTitle, updateLinearBotsGitstream, updateLinearBotsGitstreamGithubAction can be kept as they are
-
+async function awaitScheduledUpdates() {
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    tasks.push(prTask);
+    logging('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+}
 module.exports = [
   addTask,
   getTaskById,
@@ -149,20 +140,12 @@ module.exports = [
   fixLintingIssues,
   updateDependencyVersions,
   logging,
-  handlePrTitle,
+  handleParsingError,
   updateLinearBotsGitstream,
   updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
-
-async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
-  for (const task of scheduledTasks) {
-    const prTask = createAllAwaitingSchedulePrs(task.title);
-    tasks.push(prTask);
-    logging('info', `Created PR creation task for ${task.title}`);
-  }
-  return { createdPrTasks: scheduledTasks.length };
-}
-
 module.exports.awaitScheduledUpdates = awaitScheduledUpdates;
+const updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;
+const handlePrTitle = async (params) => {};
+isLintingRunning = false;

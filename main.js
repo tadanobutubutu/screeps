@@ -150,10 +150,10 @@ const updatePosthogJsToLatest = async () => {
   try {
     const taskId = await createAsyncUpdateTask('posthog-js', 'v1.408.1');
     await updateNpmPackage('posthog-js', 'v1.408.1');
-    logging.log('info', `Successfully updated posthog-js to v1.408.1`);
+    logging.log('info', `Successfully updated posthoh-js to v1.408.1`);
     return taskId;
   } catch (error) {
-    logging.log('error', `Failed to update posthog-js: ${error.message}`);
+    logging.log('error', `Failed to update posthoh-js: ${error.message}`);
   }
 };
 
@@ -172,7 +172,9 @@ const isAwaitingSchedule = (taskId) => {
 
 const createAllAwaitingSchedulePrs = async () => {
   // Find tasks that are awaiting schedule (tagged with 'auto-schedule' and not completed)
-  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') &&!task.completed);
+  const awaitingTasks = Array.from(tasks.values()).filter(task => {
+    return task.tags && task.tags.includes('auto-schedule') && !task.completed;
+  });
   awaitingTasks.forEach(task => {
     addTaskExtended(`Create PR for ${task.title}`, 'edium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
@@ -194,7 +196,7 @@ const handlePrTitle = (title) => {
   return { valid: true, reason: '', score: lengthScore };
 };
 
-const checkPavoukPr = (pr) => {
+const checkPavoukpr = (pr) => {
   if (!pr || typeof pr!== 'object') return false;
   const title = pr.data?.title?? pr.title;
   if (typeof title!== 'tring') return false;
@@ -242,7 +244,7 @@ module.exports = {
   updateCodeqlAction,
   updatePosthogJsToLatest,
   handleLockFileWarning,
-  checkPavoukPr,
+  checkPavoukpr,
   runPendingRenovateUpdatesFinal,
   manualTrigger,
 };

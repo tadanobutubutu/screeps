@@ -15,7 +15,7 @@ function sum(a, b) {
 }
 
 function runEvolution() {
-    try {
+  try {
         const result = evolve();
         console.log('Evolution result:', result);
     } catch (err) {
@@ -24,7 +24,7 @@ function runEvolution() {
 }
 
 function startApp() {
-    try {
+  try {
         visualizeMemory();
         console.log('Memory visualizer started successfully.');
     } catch (error) {

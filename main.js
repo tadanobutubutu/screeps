@@ -31,9 +31,12 @@ async function runLinting() {
   isLintingRunning = true;
   logging.log('info', 'Starting linting process');
   try {
-    await spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
+    const { stdio } = spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
     logging.log('info', 'Linting completed successfully');
     isLintingRunning = false;
+    if (stdio.toString().includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
     return { success: true };
   } catch (error) {
     logging.log('error', `Linting failed: ${error.message}`);
@@ -111,6 +114,29 @@ const updateLinearBotsGitstream = async () => {
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+    const parsedPackageJson = JSON.parse(packageJsonData);
+    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    if (!isDependencyPresent) {
+      logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
+
+    let updated = false;
+    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+      updated = true;
+    } else {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+      updated = true;
+    }
+
+    if (updated) {
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+    }
+
     await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;

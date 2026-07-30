@@ -32,7 +32,12 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console.log(`[${level}] ${message}`);
+    const formattedMessage = `[${level}] ${message}`;
+    if (typeof console[level] === 'function') {
+      console[level](formattedMessage);
+    } else {
+      console.log(formattedMessage);
+    }
   }
 };
 
@@ -190,7 +195,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -206,7 +211,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
@@ -434,3 +439,4 @@ module.exports = {
   runPendingRenovateUpdates,
   dependencyDashboard,
 };
+```

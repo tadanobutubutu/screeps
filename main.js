@@ -2,7 +2,7 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js хөг');
+const { memoryVisualizer } = require('./memory.visualizer.js');
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -25,10 +25,10 @@ function handleParsingError(code) {
   const regex = /:(.*):\d+:\d+: Unexpected token (.*)/;
   const match = code.match(regex);
   if (match) {
-    logging.log('error', `Parsing error at line ${match[2]}: Unexpected token ${match[3]}`);
-    return { error: `Parsing error at line ${match[2]}: Unexpected token ${match[3]}` };
+    logging.log('error', `Parsing error at line ${match[1]}: Unexpected token ${match[2]}`);
+    return { success: false, error: `Parsing error at line ${match[1]}: Unexpected token ${match[2]}` };
   }
-  return { error: 'Unknown parsing error' };
+  return { success: true };
 }
 
 async function checkAndFixMemoryVisualizer() {
@@ -64,8 +64,8 @@ async function runLinting() {
   try {
     const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
     logging.log('info', 'Linting completed successfully');
-    if (process.env.CI bellLet's test when the CI environment is running
-      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+    if (process.env.CI) {
+      if (stdout && stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
     }
@@ -121,7 +121,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
     let updated = false;
-    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\dેત્ર\.\d+)$/);
+    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
     if (!matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
@@ -131,9 +131,9 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       updated = true;
     }
     if (updated) {
-      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedharacterfitted JSON, @IndentSize=2 then add the `}); (first space; the string changes from the same error)
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2));
     }
-    await updateNpmPackage('github/gitstream-github-action', 'v4');
+    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -148,18 +148,164 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     }
     return;
   }
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (Array.isArray(dependencies) && dependencies.includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
-  if (dependencies === ['posthog-js']) {
-    await updateNpmPackage('posthog-js', '1.408.2');
+  if (Array.isArray(dependencies) && dependencies.includes('posthog-js')) {
+    await updateNpmPackage('posthog-js', '1.408.3');
   }
-  if (dependencies === ['actions/stale']) {
+  if (Array.isArray(dependencies) && dependencies.includes('actions/stale')) {
     await updateNpmPackage('actions/stale', '11');
   }
-  if (dependencies === ['typescript']) {
+  if (Array.isArray(dependencies) && dependencies.includes('typescript')) {
     await updateNpmPackage('typescript', '7');
   }
+  if (Array.isArray(dependencies) && dependencies.includes('@sentry/browser')) {
+    await updateNpmPackage('@sentry/browser', '10.69.0');
+  }
+  if (Array.isArray(dependencies) && dependencies.includes('github/codeql-action')) {
+    await updateNpmPackage('github/codeql-action', 'v4');
+  }
+  if (Array.isArray(dependencies) && dependencies.includes('cimg/node')) {
+    await updateNpmPackage('cimg/node', '24.18.1');
+  }
+  if (Array.isArray(dependencies) && dependencies.includes('node')) {
+    await updateNpmPackage('node', '24.18.1');
+  }
+};
+
+const updateNodeVersionInFiles = async () => {
+  const filesToUpdate = [
+    '.circleci/config.yml',
+    '.devcontainer/devcontainer.json',
+    '.github/workflows/ai-code-maintenance.yml',
+    '.github/workflows/ai-guardian.yml',
+    '.github/workflows/auto-issue.yml',
+    '.github/workflows/deploy.yml',
+    '.github/workflows/fix-undici-lockfile.yml',
+    '.github/workflows/game-monitor-15min.yml',
+    '.github/workflows/random-experiment.yml',
+    '.github/workflows/security-autofix.yml',
+    '.github/workflows/supabase-keepalive.yml',
+    '.github/workflows/test-auto-pr.yml',
+    '.github/workflows/validate-versions.yml',
+    '.github/workflows/weekly-quality-report.yml',
+    '.gitlab-ci.yml',
+    '.travis.yml'
+  ];
+
+  for (const file of filesToUpdate) {
+    const filePath = path.join(__dirname, '..', file);
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, { encoding: 'utf8' });
+      const originalContent = content;
+      content = content.replace(/node\s*[:=]\s*['"]?24(\.\d+)?['"]?/g, 'node: 24.18.1');
+      content = content.replace(/cimg\/node\s*[:=]\s*['"]?24(\.\d+)?['"]?/g, 'cimg/node: 24.18.1');
+      content = content.replace(/node\s*:\s*['"]?20['"]?/g, 'node: 24');
+      if (content !== originalContent) {
+        fs.writeFileSync(filePath, content, { encoding: 'utf8' });
+        logging.log('info', `Updated node version in ${file}`);
+      }
+    }
+  }
+};
+
+const updatePackageJsonDependencies = async () => {
+  const packageJsonPath = path.join(__dirname, '..', 'package.json');
+  const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+  const parsedPackageJson = JSON.parse(packageJsonData);
+  let updated = false;
+
+  if (parsedPackageJson.dependencies) {
+    if (parsedPackageJson.dependencies['posthog-js'] && parsedPackageJson.dependencies['posthog-js'] !== '1.408.3') {
+      parsedPackageJson.dependencies['posthog-js'] = '1.408.3';
+      updated = true;
+    }
+    if (parsedPackageJson.dependencies['@sentry/browser'] && parsedPackageJson.dependencies['@sentry/browser'] !== '10.69.0') {
+      parsedPackageJson.dependencies['@sentry/browser'] = '10.69.0';
+      updated = true;
+    }
+  }
+
+  if (parsedPackageJson.devDependencies) {
+    if (parsedPackageJson.devDependencies['typescript'] && !parsedPackageJson.devDependencies['typescript'].includes('7')) {
+      parsedPackageJson.devDependencies['typescript'] = '^7.0.0';
+      updated = true;
+    }
+    if (parsedPackageJson.devDependencies['actions/stale'] && parsedPackageJson.devDependencies['actions/stale'] !== '11') {
+      parsedPackageJson.devDependencies['actions/stale'] = '11';
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2));
+    logging.log('info', 'Updated package.json dependencies');
+  }
+
+  const dashboardPackageJsonPath = path.join(__dirname, '..', 'dashboard', 'package.json');
+  if (fs.existsSync(dashboardPackageJsonPath)) {
+    const dashboardPackageJsonData = fs.readFileSync(dashboardPackageJsonPath, { encoding: 'utf8' });
+    const parsedDashboardPackageJson = JSON.parse(dashboardPackageJsonData);
+    let dashboardUpdated = false;
+
+    if (parsedDashboardPackageJson.devDependencies && parsedDashboardPackageJson.devDependencies['typescript'] && !parsedDashboardPackageJson.devDependencies['typescript'].includes('7')) {
+      parsedDashboardPackageJson.devDependencies['typescript'] = '^7.0.0';
+      dashboardUpdated = true;
+    }
+
+    if (dashboardUpdated) {
+      fs.writeFileSync(dashboardPackageJsonPath, JSON.stringify(parsedDashboardPackageJson, null, 2));
+      logging.log('info', 'Updated dashboard/package.json dependencies');
+    }
+  }
+};
+
+const updateGitHubActions = async () => {
+  const workflowsDir = path.join(__dirname, '..', '.github', 'workflows');
+  if (!fs.existsSync(workflowsDir)) return;
+
+  const files = fs.readdirSync(workflowsDir).filter(f => f.endsWith('.yml') || f.endsWith('.yaml'));
+  
+  for (const file of files) {
+    const filePath = path.join(workflowsDir, file);
+    let content = fs.readFileSync(filePath, { encoding: 'utf8' });
+    const originalContent = content;
+
+    content = content.replace(/actions\/stale\s*@\s*v10/g, 'actions/stale@v11');
+    content = content.replace(/github\/codeql-action\s*@\s*v3/g, 'github/codeql-action@v4');
+    content = content.replace(/linear-bots\/gitstream-github-action\s*@\s*v2/g, 'linear-bots/gitstream-github-action@v4');
+
+    if (content !== originalContent) {
+      fs.writeFileSync(filePath, content, { encoding: 'utf8' });
+      logging.log('info', `Updated GitHub Actions in ${file}`);
+    }
+  }
+};
+
+const runAllUpdates = async () => {
+  logging.log('info', 'Starting all dependency updates');
+  
+  await updateNodeVersionInFiles();
+  await updatePackageJsonDependencies();
+  await updateGitHubActions();
+  
+  await updateDependencyVersions(['posthog-js'], '1.408.3');
+  await updateDependencyVersions(['actions/stale'], '11');
+  await updateDependencyVersions(['typescript'], '7');
+  await updateDependencyVersions(['@sentry/browser'], '10.69.0');
+  await updateDependencyVersions(['github/codeql-action'], 'v4');
+  await updateDependencyVersions(['cimg/node'], '24.18.1');
+  await updateDependencyVersions(['node'], '24.18.1');
+  
+  try {
+    await updateLinearBotsGitstreamGithubAction();
+  } catch (error) {
+    logging.log('warn', `linear-bots/gitstream-github-action update skipped: ${error.message}`);
+  }
+
+  logging.log('info', 'All dependency updates completed');
+  return { success: true };
 };
 
 module.exports = [
@@ -175,7 +321,11 @@ module.exports = [
   logging,
   handleParsingError,
   updateLinearBotsGitstreamGithubAction,
-  newFunction
+  newFunction,
+  updateNodeVersionInFiles,
+  updatePackageJsonDependencies,
+  updateGitHubActions,
+  runAllUpdates
 ];
 
 async function awaitScheduledUpdates() {

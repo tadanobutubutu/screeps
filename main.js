@@ -32,14 +32,13 @@ export function startApp() {
     }
 }
 
-if (typeof window !== 'undefined') {
+if (import.meta.env.RUN_ON_BROWSER) {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
 startApp();
 
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+export { default as sum } from sum;
+export { checkStatus };
+export { runEvolution };
+export { startApp };

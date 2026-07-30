@@ -21,20 +21,9 @@ function getTaskById(id) {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+    console[level](`[${level.toUpperCase()}] ${message}`);
   }
 };
-
-/* ---------- Linting ---------- */
-function runLinting() {
-  logging.log('info', 'Running linting');
-  // Implementation would go here
-}
-
-function fixLintingIssues() {
-  logging.log('info', 'Fixing linting issues');
-  // Implementation would go here
-}
 
 /* ---------- Task Management ---------- */
 const addTaskExtended = (title, priority = "medium", tags = []) => {
@@ -206,7 +195,7 @@ const willRecreateBlockedUpdate = (pr) => {
   const body = pr.data?.body ?? pr.body ?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\d+)\b/.exec(title);
+  const numberMatch = /\b(\\d+)\b/.exec(title);
   const blockedPrNumber = numberMatch ? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;

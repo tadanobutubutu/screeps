@@ -73,71 +73,81 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;  
 };  
 
-const updateNpmPackage = async (packageName, version) => {  
-  try {  
-    if (packageName === 'gitstream-github-action') {  
-      await execSync(`npm install ${packageName}@${version}`);  
-    } else {  
-      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });  
-    }  
-    logging('info', `Updated ${packageName} to ${version}`);  
-  } catch (error) {  
-    logging('error', `Failed to update ${packageName}: ${error.message}`);  
-    throw error;  
-  }  
-};  
+async function updateLinearBotsGitstream() {
+  try {
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+    const parsedPackageJson = JSON.parse(packageJsonData);
+    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    if (!isDependencyPresent) {
+      logging('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
 
-const updateLinearBotsGitstream = async () => {  
-  try {  
-    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');  
-    const packageJsonPath = path.join(__dirname, '..', 'package.json');  
-    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });  
-    const parsedPackageJson = JSON.parse(packageJsonData);  
-    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');  
-    if (isDependencyPresent) {  
-      const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);  
-      if (matchFound === undefined || matchFound === null) {  
-        parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';  
-        const updated = true;  
-        fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });  
-      } else {  
-        parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;  
-      }  
-      await updateNpmPackage('github/gitstream-github-action', 'v4');  
-      logging('info', `Successfully updated linear-bots/gitstream-github-action to v4`);  
-      return taskId;  
-    } else {  
-      logging('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);  
-      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');  
-    }  
-  } catch (error) {  
-    logging('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);  
-  }  
-};  
+    const currentVersion = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'];
+    const matchFound = currentVersion.match(/^(\d+\.\d+\.\d+)$/);
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+    } else {
+      const [major, minor, patch] = currentVersion.split('.').map(Number);
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
+    }
 
-const updateDependencyVersions = async (dependencies, newVersion) => {  
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {  
-    for (const [name, version] of Object.entries(dependencies)) {  
-      await updateDependencyVersions([name], version);  
-    }  
-    return;  
-  }  
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {  
-    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');  
-  }  
-  if (dependencies === ['posthog-js']) {  
-    await updateNpmPackage('posthog-js', '1.408.2');  
-  }  
-  if (dependencies === ['actions/stale']) {  
-    await updateNpmPackage('actions/stale', '11');  
-  }  
-  if (dependencies === ['typescript']) {  
-    await updateNpmPackage('typescript', '7');  
-  }  
-};  
+    // write updated JSON back to file
+    fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
 
-updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;  
+    // install the package
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
 
+    logging('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+// Alias
+updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;
+
+// updateNpmPackage helper
+async function updateNpmPackage(packageName, version) {
+  try {
+    if (packageName === 'gitstream-github-action') {
+      await execSync(`npm install ${packageName}@${version}`);
+    } else {
+      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
+    }
+    logging('info', `Updated ${packageName} to ${version}`);
+  } catch (error) {
+    logging('error', `Failed to update ${packageName}: ${error.message}`);
+    throw error;
+  }
+}
+
+// updateDependencyVersions (simplified)
+async function updateDependencyVersions(dependencies) {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions([name], version);
+    }
+    return;
+  }
+  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  }
+  if (dependencies === ['posthog-js']) {
+    await updateNpmPackage('posthog-js', '1.408.2');
+  }
+  if (dependencies === ['actions/stale']) {
+    await updateNpmPackage('actions/stale', '11');
+  }
+  if (dependencies === ['typescript']) {
+    await updateNpmPackage('typescript', '7');
+  }
+}
+
+// module exports
 module.exports = [  
   addTask,  
   getTaskById,  
@@ -153,7 +163,7 @@ module.exports = [
   updateLinearBotsGitstream,  
   updateLinearBotsGitstreamGithubAction,  
   newFunction  
-];  
+];
 
 async function awaitScheduledUpdates() {  
   const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);  
@@ -165,5 +175,4 @@ async function awaitScheduledUpdates() {
   return { createdPrTasks: scheduledTasks.length };  
 }  
 
-module.exports.awaitScheduledUpdates = awaitScheduledUpdates;  
-```
+module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

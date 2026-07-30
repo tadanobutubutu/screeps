@@ -24,7 +24,8 @@ const logging = {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      }
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   }
 };
 
@@ -43,6 +44,7 @@ async function runLinting() {
     return { success: true };
   } catch (error) {
     logging.log('error', `Linting failed: ${error.message}`);
+    isLintingRunning = false;
     return { success: false, error: error.message };
   }
 }
@@ -91,7 +93,7 @@ const createAsyncUpdateTask = (packageName, version) => {
 
 /* ---------- Dependency Update ---------- */
 const updateDependencyVersions = async (dependency, newVersion) => {
-  if (typeof dependency === 'object' && !Array.isArray(dependency)) {
+  if (typeof dependency === 'object' &&!Array.isArray(dependency)) {
     for (const [name, version] of Object.entries(dependency)) {
       await updateDependencyVersions(name, version);
     }
@@ -133,7 +135,6 @@ const updateCodeqlAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update github/codeql-action: ${error.message}`);
-    throw error;
   }
 };
 
@@ -149,7 +150,6 @@ const updatePosthogJsToLatest = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update posthog-js: ${error.message}`);
-    throw error;
   }
 };
 
@@ -177,7 +177,6 @@ const updateStaleAction = async () => {
     return taskId;
   } catch (error) {
     logging.log('error', `Failed to update actions/stale: ${error.message}`);
-    throw error;
   }
 };
 
@@ -187,21 +186,20 @@ const updateTypeScript = async () => {
     logging.log('info', 'Successfully updated typescript to ^7.0.2');
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
-    throw error;
   }
 };
 
 /* ---------- Schedule Awareness ---------- */
 const isAwaitingSchedule = (taskId) => {
   const task = getTaskById(taskId);
-  return task && task.tags && task.tags.includes('auto-schedule') && !task.completed;
+  return task && task.tags && task.tags.includes('auto-schedule') &&!task.completed;
 };
 
 const createAllAwaitingSchedulePrs = async () => {
   // Find tasks that are awaiting schedule (tagged with 'auto-schedule') and not completed
-  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') && !task.completed);
+  const awaitingTasks = Array.from(tasks.values()).filter(task => task.tags && task.tags.includes('auto-schedule') &&!task.completed);
   awaitingTasks.forEach(task => {
-    addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
+    addTaskExtended(`Create PR for ${task.title}`, 'edium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
   });
   return { scheduledPrTasks: awaitingTasks.length };
@@ -214,32 +212,32 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if ( === undefined ||  === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
-  const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
+  const lengthScore = trimmedTitle.length <= 72? 100 : 50;
   return { valid: true, reason: '', score: lengthScore };
 };
 
 const checkPavoukPr = (pr) => {
-  if (!pr || typeof pr !== 'object') return false;
-  const title = pr.data?.title ?? pr.title;
-  if (typeof title !== 'string') return false;
+  if (!pr || typeof pr!== 'object') return false;
+  const title = pr.data?.title?? pr.title;
+  if (typeof title!== 'tring') return false;
   const hasPavouk = /Pavouk/i.test(title);
   if (hasPavouk) return true;
-  const body = pr.data?.body ?? pr.body ?? '';
+  const body = pr.data?.body?? pr.body?? '';
   const blockedComment = new RegExp("<!--\\s*recreate-branch=renovate", "i");
   if (blockedComment.test(body)) return true;
-  const numberMatch = /\b(\\d+)\\b/.exec(title);
-  const blockedPrNumber = numberMatch ? numberMatch[1] : null;
+  const numberMatch = /\b(\d+)\b/.exec(title);
+  const blockedPrNumber = numberMatch? numberMatch[1] : null;
   const matchesPrNumber = blockedPrNumber && parseInt(blockedPrNumber, 10) === pr.number;
   return matchesPrNumber;
 };
 
 /* ---------- Run Pending Renovate Updates Final ---------- */
 async function runPendingRenovateUpdatesFinal() {
-  // Identify all pending Renovate tasks (tagged 'renovate' and not completed)
-  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') && !t.completed);
+  // Identify all pending Renovate tasks (tagged 'enovate' and not completed)
+  const pending = Array.from(tasks.values()).filter(t => t.tags && t.tags.includes('renovate') &&!t.completed);
   for (const task of pending) {
     logging.log('info', `Pending Renovate update: ${task.title}`);
     // Additional logic could be added here to trigger actual Renovate actions
@@ -272,7 +270,6 @@ module.exports = {
   updateStaleAction,
   updateLinearBotsGitstream,
   updatePosthogJs,
-  updateActionsStale,
   updateTypeScript,
   checkPavoukPr,
   runPendingRenovateUpdatesFinal,

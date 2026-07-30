@@ -1,2 +1,2 @@
 const message = "This is a message that should be logged to the console.";
-console.log(message + " Continuing the string...
+console.log(message + " Continuing the string...");

@@ -19,7 +19,7 @@ const logging = {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      }] ${message}`);
+      console.log(`hew-${level}: ${message}`);
     }
   }
 };
@@ -60,6 +60,31 @@ async function fixLintingIssues() {
   }
 }
 
+// ADD THIS NEW FUNCTION to handle the parsing error
+function handleParsingError(code) {
+  const regex = /:(.*):\d+:\d+: Unexpected token (.*)/;
+  const match = code.match(regex);
+  if (match) {
+    logging.log('error', `Parsing error at line ${match[2]}: Unexpected token ${match[3]}`);
+    return { error: `Parsing error at line ${match[2]}: Unexpected token ${match[3]}` };
+  }
+  return { error: 'Unknown parsing error' };
+}
+
+// ADD THIS NEW FUNCTION to check and fix the memory.visualizer.js file
+async function checkAndFixMemoryVisualizer() {
+  const memoryVisualizerPath = path.join(__dirname, './memory.visualizer.js');
+  const memoryVisualizerCode = fs.readFileSync(memoryVisualizerPath, { encoding: 'utf8' });
+  const result = handleParsingError(memoryVisualizerCode);
+  if (!result.success) {
+    logging.log('error', `Error found in memory.visualizer.js: ${result.error}`);
+    return { success: false, error: result.error };
+  }
+  fs.writeFileSync(memoryVisualizerPath, memoryVisualizerCode.replace(/\.visualizer/g, 'Visualizer'), { encoding: 'utf8' });
+  logging.log('info', 'Memory visualizer file fixed');
+  return { success: true };
+}
+
 const addTaskExtended = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
   const task = {
@@ -96,14 +121,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
-    if ( === undefined ||  === null) {
+    if (isDependencyPresent === undefined || isDependencyPresent === null) {
       logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if ( === undefined ||  === null) {
+    if (matchFound === undefined || matchFound === null) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
     } else {
@@ -157,7 +182,8 @@ module.exports = [
   createAsyncUpdateTask,
   runLinting,
   fixLintingIssues,
-  updateDependencyVersions,
+  checkAndFixMemoryVisualizer, // ADD THIS TO EXPORTS
+  fixLintingIssues, // REPLACE WITH NEW FUNCTION
   logging,
   handlePrTitle,
   updateLinearBotsGitstream,

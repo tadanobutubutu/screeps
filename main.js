@@ -12,12 +12,32 @@ function newFunction() {
   return { hello: 'world' };
 }
 
-function logging(level, message) {
-  if (typeof console[level] === 'function') {
-    console[level](`[${level.toUpperACE()}] ${message}`);
-  } else {
-    console.log(`[${level.toUpperCase()}] ${message}`);
+const logging = {
+  log(level, message) {
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
   }
+};
+
+function addTaskExtended(title, priority = "medium", tags = []) {
+  taskIdCounter++;
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(task);
+  return taskIdCounter;
+}
+
+function getTaskByIdExtended(id) {
+  return tasks.find(t => t.id === id);
 }
 
 const addTask = addTaskExtended;
@@ -25,44 +45,39 @@ const getTaskById = getTaskByIdExtended;
 
 async function runLinting() {
   if (isLintingRunning) {
-    logging('warn', 'Linting is already running');
+    logging.log('warn', 'Linting is already running');
     return { success: false, reason: 'already_running' };
   }
   isLintingRunning = true;
-  logging('info', 'Starting linting process');
+  logging.log('info', 'Starting linting process');
   try {
     const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
-    logging('info', 'Linting completed successfully');
     if (process.env.CI) {
       if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
     }
-    isLintingRunning = false;
-    return { success: true };
+    logging.log('info', 'Linting completed successfully');
   } catch (error) {
-    logging('error', `Linting failed: ${error.message}`);
-    isLintingRunning = false;
-    return { success: false, error: error.message };
+    logging.log('error', `Linting failed: ${error.message}`);
   }
+  isLintingRunning = false;
+  return { success: true };
 }
 
 async function fixLintingIssues() {
-  logging('info', 'Attempting to fix linting issues');
+  logging.log('info', 'Attempting to fix linting issues');
   try {
     await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });
-    logging('info', 'Linting fixes applied');
+    logging.log('info', 'Linting fixes applied');
     return { success: true };
   } catch (error) {
-    logging('error', `Failed to fix linting issues: ${error.message}`);
+    logging.log('error', `Failed to fix linting issues: ${error.message}`);
     return { success: false, error: error.message };
   }
 }
 
-const addTaskExtended = addTaskExtended;
-const getTaskByIdExtended = getTaskByIdExtended;
-
-async function updateLinearBotsGitstream() {
+async function updateLinearBotsGitstreamGithubAction() {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
     const packageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -70,7 +85,7 @@ async function updateLinearBotsGitstream() {
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
     if (!isDependencyPresent) {
-      logging('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
@@ -89,15 +104,14 @@ async function updateLinearBotsGitstream() {
     // install the package
     await updateNpmPackage('github/gitstream-github-action', 'v4');
 
-    logging('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
-    logging('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 }
 
-// Alias
-updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 
 // updateNpmPackage helper
 async function updateNpmPackage(packageName, version) {
@@ -107,21 +121,15 @@ async function updateNpmPackage(packageName, version) {
     } else {
       await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
     }
-    logging('info', `Updated ${packageName} to ${version}`);
+    logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
-    logging('error', `Failed to update ${packageName}: ${error.message}`);
+    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
     throw error;
   }
 }
 
 // updateDependencyVersions (simplified)
 async function updateDependencyVersions(dependencies) {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
-    for (const [name, version] of Object.entries(dependencies)) {
-      await updateDependencyVersions([name], version);
-    }
-    return;
-  }
   if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
@@ -159,7 +167,7 @@ async function awaitScheduledUpdates() {
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);
-    logging('info', `Created PR creation task for ${task.title}`);
+    logging.log('info', `Created PR creation task for ${task.title}`);
   }
   return { createdPrTasks: scheduledTasks.length };
 }

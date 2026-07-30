@@ -1,66 +1,66 @@
-'use strict';  
-const { execSync, spawnSync } = require('child_process');  
-const fs = require('fs');  
-const path = require('path');  
-const { memoryVisualizer } = require('./memory.visualizer.js');  
+'use strict';
+const { execSync, spawnSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const { memoryVisualizer } = require('./memory.visualizer.js');
 
-let isLintingRunning = false;  
-let taskIdCounter = 0;  
-const tasks = [];  
+let isLintingRunning = false;
+let taskIdCounter = 0;
+const tasks = [];
 
-function newFunction() {  
-  return { hello: 'world' };  
-}  
+function newFunction() {
+  return { hello: 'world' };
+}
 
-function logging(level, message) {  
-  if (typeof console[level] === 'function') {  
-    console[level](`[${level.toUpperACE()}] ${message}`);  
-  } else {  
-    console.log(`[${level.toUpperCase()}] ${message}`);  
-  }  
-}  
+function logging(level, message) {
+  if (typeof console[level] === 'function') {
+    console[level](`[${level.toUpperACE()}] ${message}`);
+  } else {
+    console.log(`[${level.toUpperCase()}] ${message}`);
+  }
+}
 
-const addTask = addTaskExtended;  
-const getTaskById = getTaskByIdExtended;  
+const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
 
-async function runLinting() {  
-  if (isLintingRunning) {  
-    logging('warn', 'Linting is already running');  
-    return { success: false, reason: 'already_running' };  
-  }  
-  isLintingRunning = true;  
-  logging('info', 'Starting linting process');  
-  try {  
-    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });  
-    logging('info', 'Linting completed successfully');  
-    if (process.env.CI) {  
-      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {  
-        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');  
-      }  
-    }  
-    isLintingRunning = false;  
-    return { success: true };  
-  } catch (error) {  
-    logging('error', `Linting failed: ${error.message}`);  
-    isLintingRunning = false;  
-    return { success: false, error: error.message };  
-  }  
-}  
+async function runLinting() {
+  if (isLintingRunning) {
+    logging('warn', 'Linting is already running');
+    return { success: false, reason: 'already_running' };
+  }
+  isLintingRunning = true;
+  logging('info', 'Starting linting process');
+  try {
+    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
+    logging('info', 'Linting completed successfully');
+    if (process.env.CI) {
+      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+      }
+    }
+    isLintingRunning = false;
+    return { success: true };
+  } catch (error) {
+    logging('error', `Linting failed: ${error.message}`);
+    isLintingRunning = false;
+    return { success: false, error: error.message };
+  }
+}
 
-async function fixLintingIssues() {  
-  logging('info', 'Attempting to fix linting issues');  
-  try {  
-    await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });  
-    logging('info', 'Linting fixes applied');  
-    return { success: true };  
-  } catch (error) {  
-    logging('error', `Failed to fix linting issues: ${error.message}`);  
-    return { success: false, error: error.message };  
-  }  
-}  
+async function fixLintingIssues() {
+  logging('info', 'Attempting to fix linting issues');
+  try {
+    await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });
+    logging('info', 'Linting fixes applied');
+    return { success: true };
+  } catch (error) {
+    logging('error', `Failed to fix linting issues: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
 
-const addTaskExtended = addTaskExtended;  
-const getTaskByIdExtended = getTaskByIdExtended;  
+const addTaskExtended = addTaskExtended;
+const getTaskByIdExtended = getTaskByIdExtended;
 
 async function updateLinearBotsGitstream() {
   try {
@@ -137,31 +137,31 @@ async function updateDependencyVersions(dependencies) {
 }
 
 // module exports
-module.exports = [  
-  addTask,  
-  getTaskById,  
-  addTaskExtended,  
-  getTaskByIdExtended,  
-  updateNpmPackage,  
-  createAsyncUpdateTask,  
-  runLinting,  
-  fixLintingIssues,  
-  updateDependencyVersions,  
-  logging,  
-  handlePrTitle,  
-  updateLinearBotsGitstream,  
-  updateLinearBotsGitstreamGithubAction,  
-  newFunction  
+module.exports = [
+  addTask,
+  getTaskById,
+  addTaskExtended,
+  getTaskByIdExtended,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  runLinting,
+  fixLintingIssues,
+  updateDependencyVersions,
+  logging,
+  handlePrTitle,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  newFunction
 ];
 
-async function awaitScheduledUpdates() {  
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);  
-  for (const task of scheduledTasks) {  
-    const prTask = createAllAwaitingSchedulePrs(task.title);  
-    tasks.push(prTask);  
-    logging('info', `Created PR creation task for ${task.title}`);  
-  }  
-  return { createdPrTasks: scheduledTasks.length };  
-}  
+async function awaitScheduledUpdates() {
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    tasks.push(prTask);
+    logging('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+}
 
 module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

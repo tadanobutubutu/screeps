@@ -1,5 +1,3 @@
-// main.js
-
 import { evolve } from './auto.evolution.js';
 import { visualizeMemory } from './memory-visualizer.js';
 
@@ -32,18 +30,17 @@ export function startApp() {
   }
 }
 
+// Ensure the file is treated as a module by setting "type": "module" in package.json
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = sum;
+  module.exports.checkStatus = checkStatus;
+  module.exports.sum = sum;
+  module.exports.runEvolution = runEvolution;
+  module.exports.startApp = startApp;
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
 startApp();
-
-if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = sum;
-    module.exports.checkStatus = checkStatus;
-    module.exports.sum = sum;
-    module.exports.runEvolution = runEvolution;
-    module.exports.startApp = startApp;
-}
-
-// Ensure the file is treated as a module by setting "type": "module" in package.json

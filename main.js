@@ -141,6 +141,7 @@ async function updateLinearBotsGitstreamGithubAction() {
 
     if (updated) {
       fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+      logging.log('info', `Updated linear-bots/gitstream-github-action to v4`);
     }
 
     await updateNpmPackage('github/gitstream-github-action', 'v4');

@@ -100,6 +100,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       logging.log('warn', 'Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
+
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
     if (!matchFound) {
@@ -113,6 +114,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     if (updated) {
       fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
     }
+
     await updateNpmPackage('github/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
@@ -129,7 +131,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (dependencies.includes('linear-bots/gitstream-github-action')) {
+  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 

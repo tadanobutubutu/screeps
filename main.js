@@ -274,7 +274,7 @@ function analyzeStargazerGrowth() {
 }
 
 function trackRunawayStargazers() {
-  // Implementation would here
+  // Implementation would go here
 }
 
 /* ---------- Deployment ---------- */
@@ -428,4 +428,3 @@ module.exports = {
   runPendingRenovateUpdates,
   dependencyDashboard,
 };
-```

@@ -32,7 +32,7 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    }] ${message}`);
+    console.log(`[${level}] ${message}`);
   }
 };
 
@@ -165,7 +165,7 @@ const updateTypeScript = async () => {
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
     throw error;
-  };
+  }
 };
 
 /* ---------- Schedule Awareness ---------- */

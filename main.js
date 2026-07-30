@@ -21,7 +21,11 @@ function getTaskById(id) {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console[level](`[${level.toUpperCase()}] ${message}`);
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level}] ${message}`);
+    }
   }
 };
 
@@ -179,7 +183,7 @@ const handlePrTitle = (title) => {
   }
   const trimmedTitle = title.trim();
   const hasConvention = /^(feat|fix|docs|style|refactor|test|chore|ci)(\(.+\))?:.+/i.test(trimmedTitle);
-  if (hasConvention === undefined || hasConvention === null) {
+  if (!hasConvention) {
     return { valid: false, reason: 'Missing conventional commit prefix', score: 20 };
   }
   const lengthScore = trimmedTitle.length <= 72 ? 100 : 50;
@@ -265,7 +269,7 @@ function detectStargazerAnomalies() {
 }
 
 function analyzeStargazerGrowth() {
-  // Implementation would return {}
+  // Implementation would be here
 }
 
 function trackRunawayStargazers() {

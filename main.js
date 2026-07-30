@@ -131,7 +131,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 };
 
 const updateDependencyVersions = async (dependencies, newVersion) => {
-  if (typeof dependencies === 'object' &&!Array.isArray(dependencies)) {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
     }
@@ -143,7 +143,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   }
 
   if (dependencies === ['posthog-js']) {
-    await updateNpmPackage('posthog-js', '1.408.2');
+    await updateNpmPackage('posthog-js', '1.408.3');
   }
 
   if (dependencies === ['actions/stale']) {
@@ -176,7 +176,7 @@ module.exports = [
 ];
 
 async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') &&!task.completed);
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);

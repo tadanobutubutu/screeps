@@ -2,7 +2,7 @@
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js');
+const { memoryVisualizer } = require('./memory.visualizer.js хөг');
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -64,7 +64,7 @@ async function runLinting() {
   try {
     const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
     logging.log('info', 'Linting completed successfully');
-    if (process.env.CI) {
+    if (process.env.CI bellLet's test when the CI environment is running
       if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
         throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
       }
@@ -121,7 +121,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
     let updated = false;
-    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
+    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\dેત્ર\.\d+)$/);
     if (!matchFound) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
@@ -131,7 +131,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       updated = true;
     }
     if (updated) {
-      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedharacterfitted JSON, @IndentSize=2 then add the `}); (first space; the string changes from the same error)
     }
     await updateNpmPackage('github/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);

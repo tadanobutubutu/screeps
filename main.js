@@ -18,6 +18,13 @@ function getTaskById(id) {
   return tasks.find(task => task.id === id);
 }
 
+/* ---------- Logging ---------- */
+const logging = {
+  log(level, message) {
+    console.log(`[${level.toUpperCase()}] ${message}`);
+  }
+};
+
 /* ---------- Linting ---------- */
 function runLinting() {
   logging.log('info', 'Running linting');
@@ -28,13 +35,6 @@ function fixLintingIssues() {
   logging.log('info', 'Fixing linting issues');
   // Implementation would go here
 }
-
-/* ---------- Logging ---------- */
-const logging = {
-  log(level, message) {
-    }] ${message}`);
-  }
-};
 
 /* ---------- Task Management ---------- */
 const addTaskExtended = (title, priority = "medium", tags = []) => {
@@ -165,7 +165,7 @@ const updateTypeScript = async () => {
   } catch (error) {
     logging.log('error', `Failed to update typescript: ${error.message}`);
     throw error;
-  };
+  }
 };
 
 /* ---------- Schedule Awareness ---------- */

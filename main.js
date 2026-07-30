@@ -28,13 +28,14 @@ async function addTaskExtended(title, priority = "medium", tags = []) {
 }
 
 const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
 
 const logging = {
   log(level, message) {
     if (typeof console[level] === 'function') {
       console[level](`[${level.toUpperCase()}] ${message}`);
     } else {
-      console.log(`[${level.toUpperCase()}] ${message}`);
+      console.error(`[${level.toUpperCase()}] ${message}`);
     }
   }
 };
@@ -91,6 +92,41 @@ const updateNpmPackage = async (packageName, version) => {
 };
 
 /* Dependency updater ------------------------------------------------------ */
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+const updateLinearBotsGitstreamGithubAction = async () => {
+  try {
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+    const parsedPackageJson = JSON.parse(packageJsonData);
+    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    if (!isDependencyPresent) {
+      logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
+
+    let updated = false;
+    const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+      updated = true;
+    } else {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+      updated = true;
+    }
+
+    if (updated) {
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+    }
+
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
+    logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+};
+
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
@@ -125,8 +161,6 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
 };
 
 /* Task variable binding --------------------------------------------------- */
-const addTask = addTaskExtended;
-
 /* Placeholder / additional utilities ------------------------------------- */
 async function createAsyncUpdateTask(taskTitle, taskVersion) {
   if (taskTitle === 'linear-bots/gitstream-github-action') {
@@ -190,7 +224,9 @@ function createAllAwaitingSchedulePrs(taskTitle) {
 
 /* Scheduled task updater --------------------------------------------------- */
 async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
+  const scheduledTasks = tasks.filter(task =>
+    task.tags?.includes('auto-schedule') && !task.completed
+  );
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);
@@ -202,13 +238,18 @@ async function awaitScheduledUpdates() {
 /* Exports ----------------------------------------------------------------- */
 module.exports = [
   addTask,
+  getTaskById,
   addTaskExtended,
+  getTaskByIdExtended,
   updateNpmPackage,
   createAsyncUpdateTask,
   runLinting,
   fixLintingIssues,
   updateDependencyVersions,
   logging,
+  handlePrTitle,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
 

@@ -38,8 +38,8 @@ if (typeof window !== 'undefined') {
 
 startApp();
 
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+// Ensure that the following line is present to export all functions and variables
+// that are defined in the file
+export * from './auto.evolution.js';
+export * from './memory.visualizer.js';
+export { checkStatus, sum, runEvolution, startApp };

@@ -1,5 +1,5 @@
-import { evolve } from './auto.evolution.js';
-import { visualizeMemory } from './memory.visualizer.js';
+const { evolve } = require('./auto.evolution.js');
+const { visualizeMemory } = require('./memory.visualizer.js');
 
 console.log('Main file loaded successfully.');
 
@@ -8,7 +8,7 @@ export function checkStatus() {
 }
 
 export function sum(a, b) {
-    if (typeof a !== 'number' || typeof b !== 'number') {
+    if (typeof a!== 'number' || typeof b!== 'number') {
         throw new TypeError('Both arguments must be numbers');
     }
     return a + b;
@@ -32,7 +32,7 @@ export function startApp() {
     }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window!== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
 

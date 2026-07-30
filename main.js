@@ -12,57 +12,110 @@ function newFunction() {
   return { hello: 'world' };
 }
 
-const logging = {
-  log(level, message) {
-    if (typeof console[level] === 'function') {
-      console[level](`[${level.toUpperCase()}] ${message}`);
-    } else {
-      console.log(`[${level.toUpperCase()}] ${message}`);
-    }
+function logging(level, message) {
+  if (typeof console[level] === 'function') {
+    console[level](`[${level.toUpperCase()}] ${message}`);
+  } else {
+    console.log(`[${level.toUpperCase()}] ${message}`);
   }
-};
+}
 
-const getTaskById = (id) => {
-  return tasks.find(task => task.id === id);
-};
+const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
 
-const getTaskByIdExtended = (id) => {
-  return tasks.find(task => task.id === id);
-};
+async function runLinting() {
+  if (isLintingRunning) {
+    logging('warn', 'Linting is already running');
+    return { success: false, reason: 'already_running' };
+  }
+  isLintingRunning = true;
+  logging('info', 'Starting linting process');
+  try {
+    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
+    logging('info', 'Linting completed successfully');
+    if (process.env.CI) {
+      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+      }
+    }
+    isLintingRunning = false;
+    return { success: true };
+  } catch (error) {
+    logging('error', `Linting failed: ${error.message}`);
+    isLintingRunning = false;
+    return { success: false, error: error.message };
+  }
+}
 
-const updateNpmPackage = async (packageName, version) => {
+async function fixLintingIssues() {
+  logging('info', 'Attempting to fix linting issues');
+  try {
+    await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });
+    logging('info', 'Linting fixes applied');
+    return { success: true };
+  } catch (error) {
+    logging('error', `Failed to fix linting issues: ${error.message}`);
+    return { success: false, error: error.message };
+  }
+}
+
+const addTaskExtended = addTaskExtended;
+const getTaskByIdExtended = getTaskByIdExtended;
+
+async function updateLinearBotsGitstream() {
+  try {
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
+    const parsedPackageJson = JSON.parse(packageJsonData);
+    const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
+    if (!isDependencyPresent) {
+      logging('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
+      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    }
+
+    const currentVersion = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'];
+    const matchFound = currentVersion.match(/^(\d+\.\d+\.\d+)$/);
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+    } else {
+      const [major, minor, patch] = currentVersion.split('.').map(Number);
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch + 1}`;
+    }
+
+    // write updated JSON back to file
+    fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
+
+    // install the package
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
+
+    logging('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
+    return taskId;
+  } catch (error) {
+    logging('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
+  }
+}
+
+// Alias
+updateLinearBotsGitstreamGithubAction = updateLinearBotsGitstream;
+
+// updateNpmPackage helper
+async function updateNpmPackage(packageName, version) {
   try {
     if (packageName === 'gitstream-github-action') {
       await execSync(`npm install ${packageName}@${version}`);
     } else {
       await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
     }
-    logging.log('info', `Updated ${packageName} to ${version}`);
+    logging('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
-    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
+    logging('error', `Failed to update ${packageName}: ${error.message}`);
     throw error;
   }
-};
-
-async function addTaskExtended(title, priority = "medium", tags = []) {
-  taskIdCounter++;
-  const task = {
-    id: taskIdCounter,
-    title,
-    priority,
-    tags,
-    completed: false,
-    createdAt: new Date()
-  };
-  tasks.push(task);
-  return taskIdCounter;
 }
 
-async function createAsyncUpdateTask(taskTitle, taskVersion) {
-  // Implementation of createAsyncUpdateTask can be added here
-}
-
-const updateDependencyVersions = async (dependencies, newVersion) => {
+// updateDependencyVersions (simplified)
+async function updateDependencyVersions(dependencies) {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
@@ -81,7 +134,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   if (dependencies === ['typescript']) {
     await updateNpmPackage('typescript', '7');
   }
-};
+}
 
 // The remaining functions: runLinting, fixLintingIssues, logging, handlePrTitle, updateLinearBotsGitstream, updateLinearBotsGitstreamGithubAction can be kept as they are
 
@@ -107,7 +160,7 @@ async function awaitScheduledUpdates() {
   for (const task of scheduledTasks) {
     const prTask = createAllAwaitingSchedulePrs(task.title);
     tasks.push(prTask);
-    logging.log('info', `Created PR creation task for ${task.title}`);
+    logging('info', `Created PR creation task for ${task.title}`);
   }
   return { createdPrTasks: scheduledTasks.length };
 }

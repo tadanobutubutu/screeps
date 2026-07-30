@@ -36,6 +36,8 @@ if (typeof window !== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
+startApp();
+
 module.exports = sum;
 module.exports.checkStatus = checkStatus;
 module.exports.sum = sum;

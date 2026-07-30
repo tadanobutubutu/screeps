@@ -116,14 +116,14 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
 
 /* ---------- Specific Update Functions ---------- */
 const updateLinearBotsGitstream = async () => {
-  await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
-  await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+  await createAsyncUpdateTask('gitstream-github-action', 'v4');
+  await updateNpmPackage('github/gitstream-github-action', 'v4');
 };
 
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
-    const taskId = await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
-    await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
+    const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
+    await updateNpmPackage('github/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);
     return taskId;
   } catch (error) {
@@ -157,28 +157,6 @@ const updatePosthogJsToLatest = async () => {
   }
 };
 
-const updateActionsStale = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('actions/stale', 'v11');
-    await updateNpmPackage('actions/stale', 'v11');
-    logging.log('info', `Successfully updated actions/stale to v11`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update actions/stale: ${error.message}`);
-  }
-};
-
-const updateTypescript = async () => {
-  try {
-    const taskId = await createAsyncUpdateTask('typescript', 'v7');
-    await updateNpmPackage('typescript', 'v7');
-    logging.log('info', `Successfully updated typescript to v7`);
-    return taskId;
-  } catch (error) {
-    logging.log('error', `Failed to update typescript: ${error.message}`);
-  }
-};
-
 const handleLockFileWarning = async () => {
   const taskId = await createAsyncUpdateTask('Consolidate multiple npm lock files');
   logging.log('warn', 'Multiple lock files detected. Consider consolidating to a single lock file.');
@@ -198,7 +176,7 @@ const createAllAwaitingSchedulePrs = async () => {
     return task.tags && task.tags.includes('auto-schedule') && !task.completed;
   });
   awaitingTasks.forEach(task => {
-    addTaskExtended(`Create PR for ${task.title}`, 'medium', ['auto-schedule']);
+    addTaskExtended(`Create PR for ${task.title}`, 'edium', ['auto-schedule']);
     logging.log('info', `Scheduled PR creation task for ${task.title}`);
   });
   return { scheduledPrTasks: awaitingTasks.length };
@@ -265,8 +243,6 @@ module.exports = {
   updateLinearBotsGitstreamGithubAction,
   updateCodeqlAction,
   updatePosthogJsToLatest,
-  updateActionsStale,
-  updateTypescript,
   handleLockFileWarning,
   checkPavoukpr,
   runPendingRenovateUpdatesFinal,

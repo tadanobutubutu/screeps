@@ -8,7 +8,7 @@ export function checkStatus() {
 }
 
 export function sum(a, b) {
-    if (typeof a !== 'number' || typeof b !== 'number') {
+    if (typeof a!== 'number' || typeof b!== 'number') {
         throw new TypeError('Both arguments must be numbers');
     }
     return a + b;
@@ -32,14 +32,18 @@ export function startApp() {
     }
 }
 
-if (typeof window !== 'undefined') {
+if (typeof window!== 'undefined') {
     window.addEventListener('DOMContentLoaded', runEvolution);
 }
 
 startApp();
 
-module.exports = sum;
-module.exports.checkStatus = checkStatus;
-module.exports.sum = sum;
-module.exports.runEvolution = runEvolution;
-module.exports.startApp = startApp;
+// To resolve the "Unexpected token 'export'" and "Cannot use import statement" errors 
+// in Node.js environments without "type": "module", we use a conditional export.
+if (typeof module!== 'undefined' && module.exports) {
+    module.exports = sum;
+    module.exports.checkStatus = checkStatus;
+    module.exports.sum = sum;
+    module.exports.runEvolution = runEvolution;
+    module.exports.startApp = startApp;
+}

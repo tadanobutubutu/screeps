@@ -32,7 +32,7 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console[level](message);
+    console.log(`[${level}] ${message}`);
   }
 };
 
@@ -280,7 +280,7 @@ function analyzeStargazerGrowth() {
 }
 
 function trackRunawayStargazers() {
-  // Implementation would go here
+  // Implementation would here
 }
 
 /* ---------- Deployment ---------- */

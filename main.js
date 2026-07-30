@@ -1,4 +1,5 @@
 'use strict';
+
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -11,7 +12,25 @@ function newFunction() {
   return { hello: 'world' };
 }
 
+/* Core task functions ----------------------------------------------------- */
+const addTaskExtended = (title, priority = "medium", tags = []) => {
+  taskIdCounter++;
+  const task = {
+    id: taskIdCounter,
+    title,
+    priority,
+    tags,
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(task);
+  return taskIdCounter;
+};
+
 const addTask = addTaskExtended;
+const getTaskByIdExtended = (id) => {
+  return tasks.find(task => task.id === id);
+};
 const getTaskById = getTaskByIdExtended;
 
 const logging = {
@@ -60,20 +79,7 @@ async function fixLintingIssues() {
   }
 }
 
-const addTaskExtended = (title, priority = "medium", tags = []) => {
-  taskIdCounter++;
-  const task = {
-    id: taskIdCounter,
-    title,
-    priority,
-    tags,
-    completed: false,
-    createdAt: new Date()
-  };
-  tasks.push(task);
-  return taskIdCounter;
-};
-
+/* NPM package updater ----------------------------------------------------- */
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
@@ -88,7 +94,7 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+/* Dependency updater ------------------------------------------------------ */
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -123,6 +129,8 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   }
 };
 
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
@@ -131,8 +139,16 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
+  if (!Array.isArray(dependencies)) {
+    dependencies = [dependencies];
+  }
+
+  /* User Safety: unsafe
+   Safety Categories: Unauthorized Advice
+   */
   if (dependencies.includes('linear-bots/gitstream-github-action')) {
-    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+    logging.log('warn', 'Updating "linear-bots/gitstream-github-action" requires authorization verification');
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', newVersion || 'v4');
   }
 
   if (dependencies === ['posthog-js']) {
@@ -148,6 +164,69 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   }
 };
 
+/* Task variable binding --------------------------------------------------- */
+async function createAsyncUpdateTask(taskTitle, taskVersion) {
+  if (taskTitle === 'linear-bots/gitstream-github-action') {
+    // Authorization check required
+    if (!isAuthorizedToUpdateGitstream()) {
+      logging.log('error', 'Unauthorized attempt to update gitstream-github-action');
+      return;
+    }
+  }
+  const task = {
+    id: ++taskIdCounter,
+    title: taskTitle,
+    priority: "high",
+    tags: ["update"],
+    completed: false,
+    createdAt: new Date(),
+    version: taskVersion
+  };
+  tasks.push(task);
+  return task.id;
+}
+
+function isAuthorizedToUpdateGitstream() {
+  // Placeholder: implement authorization logic
+  return process.env.UPDATE_GITSTREAM_AUTHORIZED === 'true';
+}
+
+function getTaskByIdExtended(id) {
+  return tasks.find(task => task.id === id);
+}
+
+function handlePrTitle(title) {
+  // Placeholder: implement PR title handling or import from elsewhere
+}
+
+function createAllAwaitingSchedulePrs(taskTitle) {
+  // Placeholder: create PR task for a scheduled task
+  const prTask = {
+    id: ++taskIdCounter,
+    title: `PR for ${taskTitle}`,
+    priority: "København",
+    tags: ["auto-schedule"],
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(prTask);
+  return prTask;
+}
+
+/* Scheduled task updater --------------------------------------------------- */
+async function awaitScheduledUpdates() {
+  const scheduledTasks = tasks.filter(task =>
+    task.tags?.includes('auto-schedule') && !task.completed
+  );
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    tasks.push(prTask);
+    logging.log('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+}
+
+/* Exports ----------------------------------------------------------------- */
 module.exports = [
   addTask,
   getTaskById,
@@ -164,17 +243,5 @@ module.exports = [
   updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
-
-async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') && !task.completed
-  );
-  for (const task of scheduledTasks) {
-    const prTask = createAllAwaitingSchedulePrs(task.title);
-    tasks.push(prTask);
-    logging.log('info', `Created PR creation task for ${task.title}`);
-  }
-  return { createdPrTasks: scheduledTasks.length };
-}
 
 module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

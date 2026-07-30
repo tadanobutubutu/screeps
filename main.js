@@ -1,64 +1,4 @@
-'use strict';
-const { execSync, spawnSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const { memoryVisualizer } = require('./memory.visualizer.js');
-let isLintingRunning = false;
-let taskIdCounter = 0;
-const tasks = [];
-
-function newFunction() {
-  return { hello: 'world' };
-}
-
-const addTask = addTaskExtended;
-const getTaskById = getTaskByIdExtended;
-
-const logging = {
-  log(level, message) {
-    if (typeof console[level] === 'function') {
-      console[level](`[${level.toUpperCase()}] ${message}`);
-    } else {
-      }] ${message}`);
-    }
-  }
-};
-
-async function runLinting() {
-  if (isLintingRunning) {
-    logging.log('warn', 'Linting is already running');
-    return { success: false, reason: 'already_running' };
-  }
-  isLintingRunning = true;
-  logging.log('info', 'Starting linting process');
-  try {
-    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
-    logging.log('info', 'Linting completed successfully');
-    if (process.env.CI) {
-      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
-        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
-      }
-    }
-    isLintingRunning = false;
-    return { success: true };
-  } catch (error) {
-    logging.log('error', `Linting failed: ${error.message}`);
-    isLintingRunning = false;
-    return { success: false, error: error.message };
-  }
-}
-
-async function fixLintingIssues() {
-  logging.log('info', 'Attempting to fix linting issues');
-  try {
-    await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });
-    logging.log('info', 'Linting fixes applied');
-    return { success: true };
-  } catch (error) {
-    logging.log('error', `Failed to fix linting issues: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-}
+// File: src/managers/roomManager.js
 
 const addTaskExtended = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
@@ -74,21 +14,6 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;
 };
 
-const updateNpmPackage = async (packageName, version) => {
-  try {
-    if (packageName === 'gitstream-github-action') {
-      await execSync(`npm install ${packageName}@${version}`);
-    } else {
-      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
-    }
-    logging.log('info', `Updated ${packageName} to ${version}`);
-  } catch (error) {
-    logging.log('error', `Failed to update ${packageName}: ${error.message}`);
-    throw error;
-  }
-};
-
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -96,14 +21,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     const packageJsonData = fs.readFileSync(packageJsonPath, { encoding: 'utf8' });
     const parsedPackageJson = JSON.parse(packageJsonData);
     const isDependencyPresent = Object.keys(parsedPackageJson.dependencies || {}).includes('linear-bots/gitstream-github-action');
-    if ( === undefined ||  === null) {
+    if (isDependencyPresent === undefined || isDependencyPresent === null) {
       logging.log('warn', `Package "linear-bots/gitstream-github-action" not found as a dependency in the current project`);
       throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
     }
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if ( === undefined ||  === null) {
+    if (matchFound === undefined || matchFound === null) {
       parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
       updated = true;
     } else {
@@ -131,7 +56,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (dependencies === ['linear-bots/gitstream-github-action']) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 
@@ -148,6 +73,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   }
 };
 
+// Export functions unchanged
 module.exports = [
   addTask,
   getTaskById,
@@ -164,17 +90,5 @@ module.exports = [
   updateLinearBotsGitstreamGithubAction,
   newFunction
 ];
-
-async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task =>
-    task.tags?.includes('auto-schedule') && !task.completed
-  );
-  for (const task of scheduledTasks) {
-    const prTask = createAllAwaitingSchedulePrs(task.title);
-    tasks.push(prTask);
-    logging.log('info', `Created PR creation task for ${task.title}`);
-  }
-  return { createdPrTasks: scheduledTasks.length };
-}
 
 module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

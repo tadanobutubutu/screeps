@@ -143,7 +143,7 @@ const updateCodeqlAction = async () => {
 };
 
 const updatePosthogJs = async () => {
-  await updateDependencyVersions({ posthog-js: 'v1.408.1' });
+  await updateDependencyVersions({ 'posthog-js': 'v1.408.1' });
 };
 
 const updatePosthogJsToLatest = async () => {

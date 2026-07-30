@@ -13,7 +13,7 @@ function newFunction() {
 }
 
 /* Core task functions ----------------------------------------------------- */
-async function addTaskExtended(title, priority = "medium", tags = []) {
+const addTaskExtended = async (title, priority = "medium", tags = []) => {
   taskIdCounter++;
   const task = {
     id: taskIdCounter,
@@ -25,9 +25,12 @@ async function addTaskExtended(title, priority = "medium", tags = []) {
   };
   tasks.push(task);
   return taskIdCounter;
-}
+};
 
 const addTask = addTaskExtended;
+const getTaskByIdExtended = (id) => {
+  return tasks.find(task => task.id === id);
+};
 const getTaskById = getTaskByIdExtended;
 
 const logging = {
@@ -92,7 +95,6 @@ const updateNpmPackage = async (packageName, version) => {
 };
 
 /* Dependency updater ------------------------------------------------------ */
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -126,6 +128,8 @@ const updateLinearBotsGitstreamGithubAction = async () => {
     logging.log('warn', `Failed to update linear-bots/gitstream-github-action: ${error.message}`);
   }
 };
+
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 
 const updateDependencyVersions = async (dependencies, newVersion) => {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
@@ -161,7 +165,6 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
 };
 
 /* Task variable binding --------------------------------------------------- */
-/* Placeholder / additional utilities ------------------------------------- */
 async function createAsyncUpdateTask(taskTitle, taskVersion) {
   if (taskTitle === 'linear-bots/gitstream-github-action') {
     // Authorization check required
@@ -188,24 +191,12 @@ function isAuthorizedToUpdateGitstream() {
   return process.env.UPDATE_GITSTREAM_AUTHORIZED === 'true';
 }
 
-function getTaskById(id) {
-  return tasks.find(task => task.id === id);
-}
-
 function getTaskByIdExtended(id) {
   return tasks.find(task => task.id === id);
 }
 
 function handlePrTitle(title) {
   // Placeholder: implement PR title handling or import from elsewhere
-}
-
-function updateLinearBotsGitstream() {
-  // Placeholder: implement update logic or import from elsewhere
-}
-
-function updateLinearBotsGitstreamGithubAction() {
-  // Placeholder: implement update logic or import from elsewhere
 }
 
 function createAllAwaitingSchedulePrs(taskTitle) {

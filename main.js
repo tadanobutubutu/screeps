@@ -32,7 +32,11 @@ function fixLintingIssues() {
 /* ---------- Logging ---------- */
 const logging = {
   log(level, message) {
-    console[level](message);
+    if (typeof console[level] === 'function') {
+      console[level](message);
+    } else {
+      console.log(`[${level}] ${message}`);
+    }
   }
 };
 

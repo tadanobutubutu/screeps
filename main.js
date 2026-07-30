@@ -1,8 +1,10 @@
-`'use strict';
+'use strict';
+
 const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
+
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -11,55 +13,8 @@ function newFunction() {
   return { hello: 'world' };
 }
 
-const addTask = addTaskExtended;
-
-const logging = {
-  log(level, message) {
-    if (typeof console[level] === 'function') {
-      console[level](`[${level.toUpperCase()}] ${message}`);
-    } else {
-      console.log(`[${level.toUpperCase()}] ${message}`);
-    }
-  }
-};
-
-async function runLinting() {
-  if (isLintingRunning) {
-    logging.log('warn', 'Linting is already running');
-    return { success: false, reason: 'already_running' };
-  }
-  isLintingRunning = true;
-  logging.log('info', 'Starting linting process');
-  try {
-    const { stdout, stderr } = spawnSync('npm', ['run', 'lint'], { stdio: 'pipe' });
-    logging.log('info', 'Linting completed successfully');
-    if (process.env.CI) {
-      if (stdout.includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
-        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
-      }
-    }
-    isLintingRunning = false;
-    return { success: true };
-  } catch (error) {
-    logging.log('error', `Linting failed: ${error.message}`);
-    isLintingRunning = false;
-    return { success: false, error: error.message };
-  }
-}
-
-async function fixLintingIssues() {
-  logging.log('info', 'Attempting to fix linting issues');
-  try {
-    await spawnSync('npm', ['run', 'lint:fix'], { stdio: 'inherit' });
-    logging.log('info', 'Linting fixes applied');
-    return { success: true };
-  } catch (error) {
-    logging.log('error', `Failed to fix linting issues: ${error.message}`);
-    return { success: false, error: error.message };
-  }
-}
-
-const addTaskExtended = (title, priority = "medium", tags = []) => {
+/* Core task functions ----------------------------------------------------- */
+async function addTaskExtended(title, priority = "medium", tags = []) {
   taskIdCounter++;
   const task = {
     id: taskIdCounter,
@@ -71,14 +26,49 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   };
   tasks.push(task);
   return taskIdCounter;
+}
+
+async function createAsyncUpdateTask(taskTitle, taskVersion) {
+  // Dummy implementation – replace with actual async update logic
+  const task = {
+    id: ++taskIdCounter,
+    title: taskTitle,
+    priority: "high",
+    tags: ["update"],
+    completed: false,
+    createdAt: new Date(),
+    version: taskVersion
+  };
+  tasks.push(task);
+  return task.id;
+}
+
+function getTaskById(id) {
+  return tasks.find(task => task.id === id);
+}
+
+function getTaskByIdExtended(id) {
+  return tasks.find(task => task.id === agents?.id);
+}
+
+/* Logging utility ---------------------------------------------------------- */
+const logging = {
+  log(level, message) {
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
+  }
 };
 
+/* NPM package updater ----------------------------------------------------- */
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
       await execSync(`npm install ${packageName}@${version}`);
     } else {
-      await spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
+      spawnSync('npm', ['install', packageName, `@${version}`], { stdio: 'inherit' });
     }
     logging.log('info', `Updated ${packageName} to ${version}`);
   } catch (error) {
@@ -87,7 +77,8 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
-const updateDependencyVersions = async (dependencies, newVersion) => {
+/* Dependency updater ------------------------------------------------------ */
+async function updateDependencyVersions(dependencies, newVersion) {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
@@ -95,23 +86,62 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
-    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  if (!Array.isArray(dependencies)) {
+    dependencies = [dependencies];
   }
 
-  if (dependencies === ['posthog-js']) {
-    await updateNpmPackage('posthog-js', '1.408.2');
+  // Xtended check for linear-bots
+  if (dependencies.includes('linear-bots/gitstream-github-action')) {
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', newVersion || 'v4');
   }
 
-  if (dependencies === ['actions/stale']) {
-    await updateNpmPackage('actions/stale', '11');
-  }
+  // Additional logic can be added here
+}
 
-  if (dependencies === ['typescript']) {
-    await updateNpmPackage('typescript', '7');
-  }
-};
+/* Task variable binding --------------------------------------------------- */
+const addTask = addTaskExtended;
 
+/* Placeholder / additional utilities ------------------------------------- */
+async function runLinting() {
+  // Placeholder: implement linting logic or import from elsewhere
+}
+async function fixLintingIssues() {
+  // Placeholder: implement lint fix logic or import from elsewhere
+}
+function handlePrTitle(title) {
+  // Placeholder: implement PR title handling or import from elsewhere
+}
+function updateLinearBotsGitstream() {
+  // Placeholder: implement update logic or import from elsewhere
+}
+function updateLinearBotsGitstreamGithubAction() {
+  // Placeholder: implement update logic or import from elsewhere
+}
+function createAllAwaitingSchedulePrs(taskTitle) {
+  // Placeholder: create PR task for a scheduled task
+  const prTask = {
+    id: ++taskIdCounter,
+    title: `PR for ${taskTitle}`,
+    priority: " København",
+    tags: ["auto-schedule"],
+    completed: false,
+    createdAt: new Date()
+  };
+  tasks.push(prTask);
+  return prTask;
+खी;
+
+/* Scheduled task updater --------------------------------------------------- */
+async function awaitScheduledUpdates() {
+  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    logging.log('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+}
+
+/* Exports ----------------------------------------------------------------- */
 module.exports = [
   addTask,
   addTaskExtended,
@@ -119,17 +149,8 @@ module.exports = [
   createAsyncUpdateTask,
   runLinting,
   fixLintingIssues,
-  updateDependencyVersions,
   logging,
   newFunction
 ];
 
-async function awaitScheduledUpdates() {
-  const scheduledTasks = tasks.filter(task => task.tags?.includes('auto-schedule') && !task.completed);
-  for (const task of scheduledTasks) {
-    const prTask = createAllAwaitingSchedulePrs(task.title);
-    tasks.push(prTask);
-    logging.log('info', `Created PR creation task for ${task.title}`);
-  }
-  return { createdPrTasks: scheduledTasks.length };
-}`
+module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

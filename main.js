@@ -8,18 +8,11 @@ let taskIdCounter = 0;
 const tasks = [];
 
 function newFunction() {
-  // Your code here...
+  return { hello: 'world' };
 }
 
-function addTask(task) {
-  task.id = ++taskIdCounter;
-  tasks.push(task);
-  return task;
-}
-
-function getTaskById(id) {
-  return tasks.find(task => task.id === id);
-}
+const addTask = addTaskExtended;
+const getTaskById = getTaskByIdExtended;
 
 const logging = {
   log(level, message) {
@@ -39,10 +32,12 @@ async function runLinting() {
   isLintingRunning = true;
   logging.log('info', 'Starting linting process');
   try {
-    const { stdio } = spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
+    await spawnSync('npm', ['run', 'lint'], { stdio: 'inherit' });
     logging.log('info', 'Linting completed successfully');
-    if (stdio.toString().includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
-      throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+    if (Process.env.CI) {
+      if (stdio.toString().includes('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project')) {
+        throw new Error('Package "linear-bots/gitstream-github-action" not found as a dependency in the current project');
+      }
     }
     isLintingRunning = false;
     return { success: true };
@@ -79,8 +74,6 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;
 };
 
-const getTaskByIdExtended = (taskId) => tasks.find(t => t.id === taskId) || null;
-
 const updateNpmPackage = async (packageName, version) => {
   try {
     if (packageName === 'gitstream-github-action') {
@@ -95,25 +88,7 @@ const updateNpmPackage = async (packageName, version) => {
   }
 };
 
-const createAsyncUpdateTask = (packageName, version) => {
-  return addTaskExtended(`Update ${packageName} to ${version}`, 'high', ['dependency-update']);
-};
-
-const updateDependencyVersions = async (dependencies, newVersion) => {
-  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
-    for (const [name, version] of Object.entries(dependencies)) {
-      await updateDependencyVersions([name], version);
-    }
-    return;
-  }
-
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
-    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
-  }
-
-  // Add your new code or changes here as requested in the issue.
-};
-
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -148,4 +123,48 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   }
 };
 
-// Keep the rest of the code as it is...
+const updateDependencyVersions = async (dependencies, newVersion) => {
+  if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
+    for (const [name, version] of Object.entries(dependencies)) {
+      await updateDependencyVersions([name], version);
+    }
+    return;
+  }
+
+  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+    await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
+  }
+
+  // Add your new code or changes here as requested in the issue.
+};
+
+module.exports = [
+  addTask,
+  getTaskById,
+  addTaskExtended,
+  getTaskByIdExtended,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  runLinting,
+  fixLintingIssues,
+  updateDependencyVersions,
+  logging,
+  handlePrTitle,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  newFunction
+];
+
+async function awaitScheduledUpdates() {
+  const scheduledTasks = tasks.filter(task =>
+    task.tags?.includes('auto-schedule') && !task.completed
+  );
+  for (const task of scheduledTasks) {
+    const prTask = createAllAwaitingSchedulePrs(task.title);
+    tasks.push(prTask);
+    logging.log('info', `Created PR creation task for ${task.title}`);
+  }
+  return { createdPrTasks: scheduledTasks.length };
+}
+
+module.exports.awaitScheduledUpdates = awaitScheduledUpdates;

@@ -3,6 +3,44 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
+
+// ---------- Logging ----------
+const logging = {
+  log(level, message) {
+    if (typeof console[level] === 'function') {
+      console[level](`[${level.toUpperCase()}] ${message}`);
+    } else {
+      console.log(`[${level.toUpperCase()}] ${message}`);
+    }
+  }
+};
+
+// ---------- Utility Functions ----------
+function handleParsingError(code) {
+  const regex = /:(.*):\d+:\d+: Unexpected token (.*)/;
+  const match = code.match(regex);
+  if (match) {
+    logging.log('error', `Parsing error at line ${match[2]}: Unexpected token ${match[3]}`);
+    return { error: `Parsing error at line ${match[2]}: Unexpected token ${match[3]}` };
+  }
+  return { error: 'Unknown parsing error' };
+}
+
+async function checkAndFixMemoryVisualizer() {
+  const memoryVisualizerPath = path.join(__dirname, './memory.visualizer.js');
+  const memoryVisualizerCode = fs.readFileSync(memoryVisualizerPath, { encoding: 'utf8' });
+  const result = handleParsingError(memoryVisualizerCode);
+  if (result.error) {
+    logging.log('error', `Error found in memory.visualizer.js: ${result.error}`);
+    return { success: false, error: result.error };
+  }
+  const fixedCode = memoryVisualizerCode.replace(/\.visualizer/g, 'Visualizer');
+  fs.writeFileSync(memoryVisualizerPath, fixedCode, { encoding: 'utf8' });
+  logging.log('info', 'Memory visualizer file fixed');
+  return { success: true };
+}
+
+// ---------- Task Management ----------
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -11,19 +49,11 @@ function newFunction() {
   return { hello: 'world' };
 }
 
+// Export aliases that will be overridden later
 const addTask = addTaskExtended;
 const getTaskById = getTaskByIdExtended;
 
-const logging = {
-  log(level, message) {
-    if (typeof console[level] === 'function') {
-      console[level](`[${level.toUpperCase()}] ${message}`);
-    } else {
-      console.log(`] ${message}`);
-    }
-  }
-};
-
+// ---------- Core Logic ----------
 async function runLinting() {
   if (isLintingRunning) {
     logging.log('warn', 'Linting is already running');
@@ -60,6 +90,7 @@ async function fixLintingIssues() {
   }
 }
 
+// Extended task utilities
 const addTaskExtended = (title, priority = "medium", tags = []) => {
   taskIdCounter++;
   const task = {
@@ -74,7 +105,12 @@ const addTaskExtended = (title, priority = "medium", tags = []) => {
   return taskIdCounter;
 };
 
-const updateNpmPackage = async (packageName, version) => {
+function getTaskByIdExtended(id) {
+  return tasks.find(t => t.id === id);
+}
+
+// ---------- NPM Package Management ----------
+async function updateNpmPackage(packageName, version) {
   try {
     if (packageName === 'gitstream-github-action') {
       await execSync(`npm install ${packageName}@${version}`);
@@ -86,9 +122,9 @@ const updateNpmPackage = async (packageName, version) => {
     logging.log('error', `Failed to update ${packageName}: ${error.message}`);
     throw error;
   }
-};
+}
 
-const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+// ---------- LinearBots Gitstream Updates ----------
 const updateLinearBotsGitstreamGithubAction = async () => {
   try {
     const taskId = await createAsyncUpdateTask('gitstream-github-action', 'v4');
@@ -103,8 +139,14 @@ const updateLinearBotsGitstreamGithubAction = async () => {
 
     let updated = false;
     const matchFound = parsedPackageJson.dependencies['linear-bots/gitstream-github-action'].match(/^(\d+\.\d+\.\d+)$/);
-    if (matchFound) {
-      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${matchFound[1].split('.')[0]}.${matchFound[1].split('.')[1]}.${Number(matchFound[1].split('.')[2]) + 1}`;
+    if (!matchFound) {
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = 'v4';
+      updated = true;
+    } else {
+      const major = matchFound[1].split('.')[0];
+      const minor = matchFound[1].split('.')[1];
+      const patch = String(Number(matchFound[1].split('.')[2]) + 1);
+      parsedPackageJson.dependencies['linear-bots/gitstream-github-action'] = `${major}.${minor}.${patch}`;
       updated = true;
     }
 
@@ -120,7 +162,11 @@ const updateLinearBotsGitstreamGithubAction = async () => {
   }
 };
 
-const updateDependencyVersions = async (dependencies, newVersion) => {
+const updateLinearBotsGitstream = updateLinearBotsGitstreamGithubAction;
+const updateLinearBotsGitstreamGithubActionExtended = updateLinearBotsGitstream; // alias kept for compatibility
+
+// ---------- Dependency Version Updates ----------
+async function updateDependencyVersions(dependencies) {
   if (typeof dependencies === 'object' && !Array.isArray(dependencies)) {
     for (const [name, version] of Object.entries(dependencies)) {
       await updateDependencyVersions([name], version);
@@ -128,7 +174,7 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
     return;
   }
 
-  if (Object.keys(dependencies).includes('linear-bots/gitstream-github-action')) {
+  if (Object.keys(dependencies || {}).includes('linear-bots/gitstream-github-action')) {
     await createAsyncUpdateTask('linear-bots/gitstream-github-action', 'v4');
   }
 
@@ -143,25 +189,9 @@ const updateDependencyVersions = async (dependencies, newVersion) => {
   if (dependencies === ['typescript']) {
     await updateNpmPackage('typescript', '7');
   }
-};
+}
 
-module.exports = [
-  addTask,
-  getTaskById,
-  addTaskExtended,
-  getTaskByIdExtended,
-  updateNpmPackage,
-  createAsyncUpdateTask,
-  runLinting,
-  fixLintingIssues,
-  updateDependencyVersions,
-  logging,
-  handlePrTitle,
-  updateLinearBotsGitstream,
-  updateLinearBotsGitstreamGithubAction,
-  newFunction
-];
-
+// ---------- Scheduled Update Handling ----------
 async function awaitScheduledUpdates() {
   const scheduledTasks = tasks.filter(task =>
     task.tags?.includes('auto-schedule') && !task.completed
@@ -174,4 +204,24 @@ async function awaitScheduledUpdates() {
   return { createdPrTasks: scheduledTasks.length };
 }
 
+// ---------- Exports ----------
+module.exports = [
+  addTask,
+  getTaskById,
+  addTaskExtended,
+  getTaskByIdExtended,
+  updateNpmPackage,
+  createAsyncUpdateTask,
+  runLinting,
+  fixLintingIssues,
+  checkAndFixMemoryVisualizer,
+  logging,
+  handleParsingError,
+  updateLinearBotsGitstream,
+  updateLinearBotsGitstreamGithubAction,
+  newFunction,
+  awaitScheduledUpdates
+];
+
 module.exports.awaitScheduledUpdates = awaitScheduledUpdates;
+__END__

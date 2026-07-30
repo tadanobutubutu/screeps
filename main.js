@@ -3,6 +3,7 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const { memoryVisualizer } = require('./memory.visualizer.js');
+
 let isLintingRunning = false;
 let taskIdCounter = 0;
 const tasks = [];
@@ -131,7 +132,7 @@ const updateLinearBotsGitstreamGithubAction = async () => {
       updated = true;
     }
     if (updated) {
-      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2));
+      fs.writeFileSync(packageJsonPath, JSON.stringify(parsedPackageJson, null, 2), { encoding: 'utf8' });
     }
     await updateNpmPackage('linear-bots/gitstream-github-action', 'v4');
     logging.log('info', `Successfully updated linear-bots/gitstream-github-action to v4`);

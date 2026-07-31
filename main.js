@@ -1,1 +1,11 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// utils.emotions.js
+const emotions = [
+  'happy',
+  'sad',
+  'angry',
+  // ... other emotions
+  'excited',
+  // Error: Unterminated string constant
+  'bored'
+  // Missing closing quote
+];

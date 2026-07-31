@@ -1,5 +1,5 @@
 // main.js
-// This file contains the main game logic for the Screeps bot
+// This file contains the main game logic for the Screws bot
 
 module.exports = {
   main: function() {

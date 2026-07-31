@@ -1,7 +1,7 @@
 function implementLogic(input) {
   // Example: transform the input by converting it to uppercase and trimming whitespace
   if (typeof input === 'string') {
-    return input.toUpperCase().trim();
+    return input.trim().toUpperCase();
   }
   // For non-string inputs, return them unchanged
   return input;

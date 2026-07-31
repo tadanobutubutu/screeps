@@ -1,7 +1,7 @@
 // main.js
 // This file contains the main game logic for the Screws bot
 
-module.exports = {
+module. exports = {
   main: function() {
     // Main game loop logic
     let creep; // Assuming this line is causing the lint error

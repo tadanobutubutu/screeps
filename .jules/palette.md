@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-04 - [Bulk Group Actions & Copied State Coordination]
+**Learning:** For sections containing groups of interactable telemetry identifiers (such as a list of active room names), adding a bulk "Copy All" capability significantly enhances user flow and reduces mouse click wear. Consistent with individual copy elements, the bulk trigger must dynamically synchronize both its `title` and `aria-label` attributes to a clear copied success state (e.g. `すべての部屋名をコピーしました`) to prevent screen-reader and visual tooltip staterooms.
+**Action:** Always provide clear bulk copy/action alternatives for group elements, and ensure their success states have fully coordinated visual/auditory metadata.
+
 ## 2026-08-03 - [Dismissable Toast Notifications and Proper Document Localization]
 **Learning:** For dynamic, transient background/success messages displayed via a Toast component, providing an explicit, keyboard-accessible "Dismiss" (✕) button with highly visible custom focus styling and clear screen reader labels (e.g. `aria-label="通知を閉じる"`) is critical for accessibility. It prevents users from being forced to wait out a timed fade, complying with WCAG 2.2.4 (User Control). Additionally, setting the root HTML tag language matching the predominant text (e.g., `<html lang="ja">`) ensures text-to-speech synthesizers use proper pronunciation rather than phonetic distortion.
 **Action:** Always pair timed Toast notifications with a highly-visible dismiss trigger styled with a clear focus ring, and ensure document-level localization is correctly defined.

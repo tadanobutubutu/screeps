@@ -18,11 +18,6 @@ const INTENSITY_LEVELS = {
   extreme: 1.0
 };
 
-/**
- * Detect emotion from text
- * @param {string} text - Input text to analyze
- * @returns {object} Detected emotion and confidence
- */
 function detectEmotion(text) {
   if (!text || typeof text !== 'string') {
     return { emotion: 'neutral', confidence: 0 };
@@ -51,32 +46,16 @@ function detectEmotion(text) {
   };
 }
 
-/**
- * Get emotion intensity
- * @param {string} intensity - Intensity level name
- * @returns {number} Intensity value
- */
 function getEmotionIntensity(intensity) {
   return INTENSITY_LEVELS[intensity] || 0.5;
 }
 
-/**
- * Format emotion response
- * @param {object} emotionData - Emotion detection result
- * @returns {string} Formatted emotion string
- */
 function formatEmotionResponse(emotionData) {
   const { emotion, confidence } = emotionData;
   const percentage = Math.round(confidence * 100);
   return `Detected emotion: ${emotion} (${percentage}% confidence)`;
 }
 
-/**
- * Calculate emotion similarity
- * @param {string} emotion1 - First emotion
- * @param {string} emotion2 - Second emotion
- * @returns {number} Similarity score between 0 and 1
- */
 function calculateEmotionSimilarity(emotion1, emotion2) {
   if (emotion1 === emotion2) return 1.0;
   

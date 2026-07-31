@@ -18,9 +18,13 @@ const RoleManager = {
 };
 
 function cleanupMemory() {
-    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 15) {
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 15000) {
+        if (Memory.creeps) {
+            for (const name in Memory.creeps) {
+                if (!Game.creeps[name]) {
+                    delete Memory.creeps[name];
+                }
+            }
         }
         Memory.lastCleanup = Game.time;
     }

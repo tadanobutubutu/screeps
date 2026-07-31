@@ -1,17 +1,18 @@
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports = function() {
+    if (Game.time % 1000 === 0 || Game.time - Memory.lastCleanup > 15000) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
         Memory.lastCleanup = Game.time;
     }
 
-  // Existing Main game loop code...
+    // Existing Main game loop code...
 
-  // Placeholder for a new function that could be added in the future
-  function newFunction() {
-    // New function code...
+    // Placeholder for a new function that could be added in the future
+    function newFunction() {
+        // New function code...
     }
 
-  // Call the new function to demonstrate its functionality (optional)
-  newFunction();
+    // Call the new function to demonstrate its functionality (optional)
+    newFunction();
 };

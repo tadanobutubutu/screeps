@@ -28,7 +28,9 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        if (typeof RawMemory !== 'undefined') {
+            console.log(`Memory Usage: ${(RawMemory.get().length / 1024).toFixed(2)} KB`);
+        }
         return stats;
     },
 
@@ -67,9 +69,7 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
-        });
+            });
 
         return sizes;
     },
@@ -117,9 +117,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log('--- MEMORY HISTORY ---');
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`[T:${snap.tick}] Size: ${snap.size} bytes, Energy: ${snap.energy}`);
         });
 
         return snapshots;
@@ -191,9 +191,11 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
+        console.log(`--- LEADERBOARD: ${type.toUpperCase()} ---`);
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${index + 1}. ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },

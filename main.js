@@ -1,1 +1,3 @@
-// No changes requested in the issue.
+module.exports.loop = function () {
+  // Main game loop
+};

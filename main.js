@@ -1,2 +1,6 @@
-// main.js - No changes required for this Renovate dependency dashboard issue
-// This issue is a Renovate notification listing dependency updates and does not require code modifications.
+// src/managers/roomManager.js
+// Assuming the fix is changing 'let' to 'var' on line 83
+
+// If the issue is about using let, change to var:
+// From: let someVariable = value;
+// To: var someVariable = value;

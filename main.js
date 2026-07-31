@@ -7,7 +7,7 @@ const RoleManager = {
   },
 
   getRole(creep) {
-    return creep.memory ? creep.memory.role : null;
+    return creep.memory? creep.memory.role : null;
   },
 
   getCreepsByRole(role) {

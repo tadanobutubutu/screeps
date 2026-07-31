@@ -15,4 +15,3 @@ module.exports.loop = function () {
   // (Original code unchanged)
   // Call room manager
   roomManager();
-};

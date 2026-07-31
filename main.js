@@ -1,2 +1,1 @@
-// Example of a file with an unterminated string constant
-const emotion = "Happy, ";
+if (Memory.creeps && Game.time - Memory.lastCleanup > 15000) { for (const name in Memory.creeps) { if (!Game.creeps[name]) { delete Memory.creeps[name]; } } Memory.lastCleanup = Game.time; } // Existing Main game loop code... // Example of a file with an unterminated string constant const emotion = "Happy, "; function newFunction() { // New function code... } // Call the new function to demonstrate its functionality (optional) newFunction();

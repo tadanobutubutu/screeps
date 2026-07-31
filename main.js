@@ -1,11 +1,3 @@
-// main.js - No changes required for this Renovate dependency dashboard issue
-// This issue is a Renovate notification listing dependency updates and does not require code modifications.
-
-/**
- * Fixes common lint parsing errors in JavaScript files
- * @param {string} code - The JavaScript code to fix
- * @returns {string} - Fixed code
- */
 function fixLintParsingErrors(code) {
   if (!code || typeof code !== 'string') {
     return code;

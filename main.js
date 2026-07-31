@@ -1,8 +1,16 @@
-// Existing code up to line 46
+// main.js
+// This is the main entry point for your Screeps bot.
 
-// Uncomment this line if there was a comment starting on line 47
-/* This is a comment that was not closed properly
- * This line should not be here if the comment was properly closed
- */
+function roomManager() {
+  let roomName = "example";
 
-// Existing code after line 47
+  // some code here
+}
+
+module.exports.loop = function () {
+  // Preserve all original code here.
+  // Example: creep logic, spawn logic, etc.
+  // (Original code unchanged)
+  // Call room manager
+  roomManager();
+};

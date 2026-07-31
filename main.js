@@ -1,6 +1,1 @@
-// src/managers/roomManager.js
-// Assuming the fix is changing 'let' to 'var' on line 83
-
-// If the issue is about using let, change to var:
-// From: let someVariable = value;
-// To: var someVariable = value;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

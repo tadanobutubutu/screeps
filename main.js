@@ -4,5 +4,5 @@
 module.exports = {
   main: function() {
     // Main game loop logic
-    }
+  }
 };

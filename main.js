@@ -1,5 +1,5 @@
 function fixLintParsingErrors(code) {
-  if (!code || typeof code !== 'string') {
+  if (!code || typeof code!== 'tring') {
     return code;
   }
   
@@ -11,7 +11,7 @@ function fixLintParsingErrors(code) {
     // If line starts with unexpected token like "is" or other bare words
     if (/^(is|it|the|this|that|then|has|had|was|were|are|were)\s/.test(line)) {
       // Convert to comment to prevent parsing error
-      lines[i] = '// ' + lines[i].trim();
+      lines[i] = '// ' lines[i].trim();
     }
   }
   

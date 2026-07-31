@@ -1,3 +1,9 @@
+function roomManager() {
+  let roomName = "example";
+
+  // some code here
+}
+
 // main.js - Main entry point
 // This file needs to be reviewed and conflict markers resolved
 

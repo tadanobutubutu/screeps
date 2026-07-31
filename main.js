@@ -1,3 +1,4 @@
+// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 module.exports = function() {
     if (Memory.shouldCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {

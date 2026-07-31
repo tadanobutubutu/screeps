@@ -4,5 +4,8 @@
 module.exports = {
   main: function() {
     // Main game loop logic
+  },
+  random: function() {
+    return Math.random();
   }
 };

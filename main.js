@@ -1,2 +1,1 @@
-// tests/deploy.test.js
-// Fixed parsing error at line 365
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

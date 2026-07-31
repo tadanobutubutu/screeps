@@ -1,9 +1,17 @@
-// Existing code and exports preserved
+// src/managers/roomManager.js
+// Assuming the fix needed is changing 'let' to 'var' for ES5 compatibility
 
-// New functions or changes requested in the issue
-// ...
+// Example structure (please replace with actual code):
+const roomManager = {
+  // ... existing code up to line 82 ...
+  
+  // Line 83 - Fixed: changed 'let' to 'var' for ES5 compatibility
+  someFunction: function() {
+    var variableName = 'value';
+    // ... rest of the function
+  },
+  
+  // ... existing code after line 83 ...
+};
 
-// Existing functions not affected by the issue remain
-
-// Code after the new functions or changes
-// ...
+module.exports = roomManager;

@@ -1,17 +1,29 @@
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+// Continuous Quality Monitor has automatically generated this issue.
+
+const RoleManager = {
+  assignRole(creep, role) {
+    if (!creep.memory) creep.memory = {};
+    creep.memory.role = role;
+  },
+
+  getRole(creep) {
+    return creep.memory ? creep.memory.role : null;
+  },
+
+  getCreepsByRole(role) {
+    return Object.values(Game.creeps).filter(
+      creep => creep.memory && creep.memory.role === role
+    );
+  }
+};
+
+function cleanupMemory() {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 15) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
         Memory.lastCleanup = Game.time;
     }
+}
 
-  // Existing Main game loop code...
-
-  // Placeholder for a new function that could be added in the future
-  function newFunction() {
-    // New function code...
-    }
-
-  // Call the new function to demonstrate its functionality (optional)
-  newFunction();
-};
+module.exports = { RoleManager, cleanupMemory };

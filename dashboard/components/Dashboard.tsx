@@ -20,6 +20,8 @@ export default function Dashboard() {
     const [errCopyHover, setErrCopyHover] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
     const [toastCloseFocused, setToastCloseFocused] = useState(false);
+    const [copiedAllRooms, setCopiedAllRooms] = useState(false);
+    const [copyAllHover, setCopyAllHover] = useState(false);
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -120,6 +122,16 @@ export default function Dashboard() {
             setCopiedJson(true);
             setTimeout(() => setCopiedJson(false), 2000);
             showToast('生データをクリップボードにコピーしました');
+        });
+    };
+
+    const copyAllRooms = () => {
+        if (!stats?.rooms) return;
+        const roomsStr = stats.rooms.join(', ');
+        navigator.clipboard.writeText(roomsStr).then(() => {
+            setCopiedAllRooms(true);
+            setTimeout(() => setCopiedAllRooms(false), 2000);
+            showToast('すべての部屋名をクリップボードにコピーしました');
         });
     };
 
@@ -480,6 +492,45 @@ export default function Dashboard() {
                     >
                         🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}:
                     </span>
+                    {stats?.rooms?.length > 1 && (
+                        <button
+                            onClick={copyAllRooms}
+                            onMouseEnter={() => setCopyAllHover(true)}
+                            onMouseLeave={() => setCopyAllHover(false)}
+                            onFocus={() => setCopyAllHover(true)}
+                            onBlur={() => setCopyAllHover(false)}
+                            aria-label={
+                                copiedAllRooms
+                                    ? 'すべての部屋名をコピーしました'
+                                    : 'すべての部屋名をコピー'
+                            }
+                            title={
+                                copiedAllRooms
+                                    ? 'すべての部屋名をコピーしました'
+                                    : 'すべての部屋名をコピー'
+                            }
+                            style={{
+                                fontSize: '0.75rem',
+                                padding: '0.1rem 0.4rem',
+                                backgroundColor: copiedAllRooms
+                                    ? '#c6f6d5'
+                                    : copyAllHover
+                                      ? '#e2e8f0'
+                                      : '#edf2f7',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                color: copiedAllRooms ? '#22543d' : '#4a5568',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                transition: 'all 0.2s ease-in-out',
+                                transform: copyAllHover ? 'scale(1.05)' : 'scale(1)',
+                            }}
+                        >
+                            {copiedAllRooms ? '✅ すべてコピーしました' : '📋 すべてコピー'}
+                        </button>
+                    )}
                     {stats?.rooms?.length > 0 ? (
                         stats.rooms.map((room: string) => (
                             <button

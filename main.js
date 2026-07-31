@@ -25,6 +25,13 @@ function exampleFunction() {
 // Ensure that all strings are properly closed, for example:
 const emotionDescription = "Happy emotion";
 
+// Example of a new function or change that might be causing the issue
+function newDeployFunction() {
+  // Example code that could be causing the lint error
+  const result = someFunction();
+  console.log(result);
+}
+
 // Existing functions not affected by the issue remain
 
 // Code after the new functions or changes

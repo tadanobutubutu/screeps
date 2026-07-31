@@ -1,7 +1,7 @@
 /* eslint-env es6 */
 // Existing code and exports preserved
 
-// New functions or changes requested in the issue
+// New functions precies or changes requested in the issue
 // ...
 
 // Existing functions not affected by the issue remain

@@ -1,10 +1,3 @@
-<!--Updated main.js content goes here-->
-
-/**
- * Implements the required logic.
- * This function demonstrates a simple example implementation.
- * Adjust the body as needed for your specific use case.
- */
 function implementLogic(input) {
   // Example: transform the input by converting it to uppercase and trimming whitespace
   if (typeof input === 'string') {
@@ -14,7 +7,20 @@ function implementLogic(input) {
   return input;
 }
 
-/* Export the implemented function so it can be used by other modules */
-module.exports = {
-  implementLogic,
+function roomManager() {
+  let roomName = "example";
+
+  // some code here
+}
+
+module.exports.loop = function () {
+  // Game loop logic here
+  // Preserve all original code here.
+  // Example: creep logic, spawn logic, etc.
+  // (Original code unchanged)
+  // Call room manager
+  roomManager();
+  
+  // Example usage of implementLogic if needed within loop
+  // implementLogic("some input");
 };

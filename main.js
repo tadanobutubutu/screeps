@@ -1,11 +1,44 @@
-// I need the actual main.js file contents with conflict markers to help resolve the issue.
-// Please paste the complete content of main.js, specifically the sections with merge conflict markers:
-// - `<<<<<<<` (our changes)
-// - `=======` (separator)
-// - `>>>>>>>` (their changes)
+// Screeps Main Entry Point
+// This file serves as the main entry point for the Screeps game
 
-// Once you provide the full file content with conflict markers, I'll help resolve them while:
-// ✓ Preserving all existing code, exports, and functions
-// ✓ Only adding new functions or changes requested in the issue
-// ✓ Not removing or renaming any existing exports
-// ✓ Maintaining backward compatibility
+// Import game modules (if using ES modules)
+// These would typically import your game logic modules
+
+// Main game loop function - called every tick
+function loop() {
+    // Game loop logic goes here
+    // This is called by the Screeps engine every tick
+    
+    // Example structure:
+    // - Initialize any global state
+    // - Run each role's logic
+    // - Spawn new creeps as needed
+    // - Monitor and repair structures
+    // - Manage energy economy
+    
+    console.log(`Tick ${Game.time} - Running main loop`);
+    
+    // Cleanup dead creeps from memory
+    for (const name in Memory.creeps) {
+        if (!Game.creeps[name]) {
+            delete Memory.creeps[name];
+        }
+    }
+    
+    // Execute main game logic
+    // Add your game logic here
+    
+    // Monitor CPU usage
+    const cpuUsed = Game.cpu.getUsed();
+    if (cpuUsed > 10) {
+        console.log(`Warning: High CPU usage: ${cpuUsed.toFixed(2)}`);
+    }
+}
+
+// Export for testing if needed
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { loop };
+}
+
+// Register the main loop with Screeps
+module.exports.loop = loop;

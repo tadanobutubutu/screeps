@@ -18,7 +18,7 @@ let appState = {
     posthogJs: '1.409.5',
     sentryBrowser: '10.69.0',
     typescript: '7',
-  }
+  },
 };
 
 /**
@@ -36,7 +36,7 @@ function initialize() {
  * @returns {Object} Current application state
  */
 function getState() {
-  return { ...appState };
+  return {...appState };
 }
 
 /**
@@ -45,8 +45,8 @@ function getState() {
  */
 function updateDependencies(deps) {
   appState.dependencies = {
-    ...appState.dependencies,
-    ...deps,
+    ..appState.dependencies,
+    ..deps,
   };
   appState.lastUpdate = new Date().toISOString();
 }
@@ -58,7 +58,7 @@ function updateDependencies(deps) {
  */
 async function fetchData(endpoint) {
   const url = `${CONFIG.apiUrl}${endpoint}`;
-  
+
   for (let attempt = 0; attempt < CONFIG.maxRetries; attempt++) {
     try {
       const response = await fetch(url, {
@@ -68,11 +68,11 @@ async function fetchData(endpoint) {
         },
         timeout: CONFIG.timeout,
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error(`Attempt ${attempt + 1} failed:`, error.message);
@@ -95,10 +95,10 @@ function processUpdates(updates) {
     skipped: 0,
   };
 
-  updates.forEach(update => {
+  updates.forEach((update) => {
     try {
       // Validate update
-      if (!update.name || !update.version) {
+      if (!update.name ||!update.version) {
         results.skipped++;
         return;
       }
@@ -121,11 +121,11 @@ function processUpdates(updates) {
  * @returns {boolean} Validation result
  */
 function validateDependencies(deps) {
-  const requiredDeps = ['node', 'posthogJs', 'sentryBrowser', 'typescript'];
-  
-  return requiredDeps.every(dep => {
+  const requiredDeps = ['node', 'posthogJs', 'entryBrowser', 'typescript'];
+
+  return requiredDeps.every((dep) => {
     const value = deps[dep];
-    return value !== undefined && value !== null && value !== '';
+    return value!== undefined && value!== null && value!== '';
   });
 }
 

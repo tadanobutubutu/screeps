@@ -5,11 +5,11 @@
 
 /* This is a multi-line comment
    spanning several lines
-   and now properly closed */ 
+   and now properly closed */
 
 // Existing code and exports remain unchanged
-function exampleTask() {
-  return "Task executed";
+function exampleTask () {
+  return 'Task executed'
 }
 
-module.exports = { exampleTask };
+module.exports = { exampleTask }

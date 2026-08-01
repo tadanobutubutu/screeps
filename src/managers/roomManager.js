@@ -80,4 +80,28 @@ function _planSourceContainers(room) {
     for (const source of sources) {
         // 既に近くにコンテナがあるか確認
         let hasNearbyContainer = false;
-        for (let
+        for (let i = 0; i < existingContainers.length; i++) {
+            const container = existingContainers[i];
+            if (source.pos.getRangeTo(container) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) continue;
+
+        for (let i = 0; i < containerSites.length; i++) {
+            const site = containerSites[i];
+            if (source.pos.getRangeTo(site) <= 2) {
+                hasNearbyContainer = true;
+                break;
+            }
+        }
+        if (hasNearbyContainer) continue;
+
+        // 配置可能なタイルを見つけて建設サイトを作成
+        const spot = pathfinder.findNearestOpenTile(room, source.pos);
+        if (spot) {
+            room.createConstructionSite(spot.x, spot.y, STRUCTURE_CONTAINER);
+        }
+    }
+}

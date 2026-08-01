@@ -16,8 +16,6 @@ function loop () {
   // - Monitor and repair structures
   // - Manage energy economy
 
-  console.log(`Tick ${Game.time} - Running main loop`)
-
   // Cleanup dead creeps from memory
   for (const name in Memory.creeps) {
     if (!Game.creeps[name]) {
@@ -31,7 +29,7 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
-    console.log(`Warning: High CPU usage: ${cpuUsed.toFixed(2)}`)
+    }`)
   }
 
   // New function to handle additional game logic

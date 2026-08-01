@@ -29,22 +29,22 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
+    // Log or take action if CPU usage is high
   }
 
-  // New function to handle additional game logic
+  // Invoke additional game logic handler
+  handleAdditionalGameLogic()
+}
 
-  // Function to handle additional game logic
-  function handleAdditionalGameLogic () {
-    // Add additional game logic here
-    // For example, you could call functions that handle specific tasks
-    // or check for conditions that require special handling.
-  }
+// Function to handle additional game logic
+// Separated for clarity and reusability
+function handleAdditionalGameLogic () {
+  // Add additional game logic here
+  // For example, you could call functions that handle specific tasks
+  // or check for conditions that require special handling.
+}
 
-  // Export for testing if needed
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { loop }
-  }
-
-  // Register the main loop with Screeps
+// Export the main loop for Screeps engine
+if (typeof module !== 'undefined' && module.exports) {
   module.exports.loop = loop
 }

@@ -2,9 +2,9 @@
 
 // New function or changes requested in the issue...
 // Since the issue doesn't specify the exact logic for the new function `newFunction`, I will just provide a simple example:
-function newFunction() {
+function newFunction () {
   // New function logic here...
-  console.log('New function called');
+  console.log('New function called')
 }
 
 module.exports = {

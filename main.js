@@ -2,9 +2,9 @@
 
 // New function or changes requested in the issue...
 // For example, let's say the issue requested adding a new function named `newFunction`:
-function newFunction () {
+function newFunction() {
   // New function logic here...
-  }
+}
 
 module.exports = {
   // Existing exports...

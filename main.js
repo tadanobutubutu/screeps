@@ -21,3 +21,5 @@
 
 // Please paste the main. js file contents so I can help resolve any conflicts
 // and make the necessary updates to address the issue.
+*/
+let myString = "This is a string constant that should be properly terminated.";

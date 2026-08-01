@@ -4,8 +4,7 @@
 // For example, let's say the issue requested adding a new function named `newFunction`:
 function newFunction () {
   // New function logic here...
-  console.log('New function called!')
-}
+  }
 
 module.exports = {
   // Existing exports...

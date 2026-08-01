@@ -17,7 +17,7 @@ async function updateNodeJS() {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed();
   if (cpuUsed > 10) {
-    // Logic for high CPU usage could go here
+    console.log(`High CPU usage: ${cpuUsed.toFixed(2)}`);
   }
 
   // New function to handle additional game logic

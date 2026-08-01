@@ -1,2 +1,24 @@
-// Please provide the current main.js content here so I can help fix the conflicts
-// The issue mentions there are merge conflicts that need to be resolved
+// main.js - Random utility functions
+
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function getRandomFloat(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function getRandomItem(arr) {
+  if (!Array.isArray(arr) || arr.length === 0) {
+    return undefined;
+  }
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+module.exports = {
+  getRandomInt,
+  getRandomFloat,
+  getRandomItem,
+};

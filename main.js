@@ -6,7 +6,6 @@
 
 const execSync = require('child_process').execSync;
 
-// Verify if the 'node' package is already at the requested version in package.json
 async function updateNodeJS () {
   // Verify if the 'node' package is already at the requested version in package.json
   if (

@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-05 - [Accessible Dashboard Polling with User Control]
+**Learning:** For monitoring-heavy screens like game status dashboards, polling or auto-refresh capabilities should be paired with explicit user controls. Implementing a clearly labeled checkbox with specific accessible markup (`aria-label="自動更新 (60秒ごと)"`) allows users to pause the refresh cycles at will. Furthermore, matching the refresh cycle to the API's caching layer avoids redundant server queries while maintaining the most up-to-date telemetry.
+**Action:** Always provide accessible toggle switches for automated data-polling components, and verify they respect tab-navigation and status disclosure standards.
+
 ## 2026-08-04 - [Bulk Group Actions & Copied State Coordination]
 **Learning:** For sections containing groups of interactable telemetry identifiers (such as a list of active room names), adding a bulk "Copy All" capability significantly enhances user flow and reduces mouse click wear. Consistent with individual copy elements, the bulk trigger must dynamically synchronize both its `title` and `aria-label` attributes to a clear copied success state (e.g. `すべての部屋名をコピーしました`) to prevent screen-reader and visual tooltip staterooms.
 **Action:** Always provide clear bulk copy/action alternatives for group elements, and ensure their success states have fully coordinated visual/auditory metadata.

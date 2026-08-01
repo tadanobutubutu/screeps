@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Screeps Main Module
+// This is the main entry point for your Screeps AI
+
+module.exports = function() {
+    // Your screeps code here
+    this.loop = function() {
+        // Main game loop
+    };
+};

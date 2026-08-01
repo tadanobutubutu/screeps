@@ -1,13 +1,1 @@
-// Existing code...
-
-// New function or changes requested in the issue...
-// Since the issue doesn't specify the exact logic for the new function `newFunction`, I will just provide a simple example:
-function newFunction () {
-  // New function logic here...
-  console.log('New function called')
-}
-
-module.exports = {
-  // Existing exports...
-  newFunction // Adding the new function to the exports
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

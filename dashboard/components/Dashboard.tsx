@@ -12,6 +12,7 @@ export default function Dashboard() {
         [copiedJson, setCopiedJson] = useState(false),
         [detailsOpen, setDetailsOpen] = useState(false);
 
+    const [autoRefresh, setAutoRefresh] = useState(true);
     const [refreshHover, setRefreshHover] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
@@ -78,6 +79,17 @@ export default function Dashboard() {
     useEffect(() => {
         fetchStats();
     }, [fetchStats]);
+
+    // Auto-refresh interval
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const interval = setInterval(() => {
+            if (!document.hidden) {
+                fetchStats(false);
+            }
+        }, 60000);
+        return () => clearInterval(interval);
+    }, [autoRefresh, fetchStats]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -289,6 +301,36 @@ export default function Dashboard() {
                         </span>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <label
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer',
+                                color: '#4a5568',
+                                userSelect: 'none',
+                                padding: '0.2rem 0.4rem',
+                                borderRadius: '4px',
+                                transition: 'background-color 0.2s',
+                            }}
+                            title="60秒ごとに自動でデータを更新します"
+                        >
+                            <input
+                                type="checkbox"
+                                checked={autoRefresh}
+                                onChange={(e) => setAutoRefresh(e.target.checked)}
+                                style={{
+                                    cursor: 'pointer',
+                                    accentColor: '#004b73',
+                                    width: '0.9rem',
+                                    height: '0.9rem',
+                                    outline: 'none',
+                                }}
+                                aria-label="自動更新 (60秒ごと)"
+                            />
+                            <span style={{ fontWeight: 'normal' }}>自動更新</span>
+                        </label>
                         <kbd
                             className="interactive-hint"
                             tabIndex={0}
@@ -374,13 +416,13 @@ export default function Dashboard() {
                     >
                         <span>🌐 GCL: {stats?.gcl?.level}</span>
                         <span style={{ fontSize: '0.85rem' }}>
-                            {stats?.gcl?.progress && stats?.gcl?.progressTotal
+                            {stats?.gcl?.progress !== undefined && stats?.gcl?.progressTotal !== undefined
                                 ? `${formatNumber(stats.gcl.progress)} / ${formatNumber(stats.gcl.progressTotal)} (`
                                 : ''}
                             {stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'}
-                            %{stats?.gcl?.progress && stats?.gcl?.progressTotal ? ')' : ''}
+                            %{stats?.gcl?.progress !== undefined && stats?.gcl?.progressTotal !== undefined ? ')' : ''}
                         </span>
                     </div>
                     <div

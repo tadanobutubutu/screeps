@@ -237,7 +237,7 @@ function _findPrimaryTarget(creep) {
     for (let i = 0; i < needingEnergy.length; i++) {
         const s = needingEnergy[i];
         const type = s.structureType;
-        const dist = creep.pos.getRangeTo(s);
+        const dist = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(s) : 0;
 
         // 1. スポーン・エクステンションの優先探索
         if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {
@@ -274,7 +274,7 @@ function _findContainerTarget(creep) {
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store.getFreeCapacity(RESOURCE_ENERGY) > 200) {
-            const dist = creep.pos.getRangeTo(c);
+            const dist = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(c) : 0;
             if (dist < minContainerDist) {
                 minContainerDist = dist;
                 closestContainer = c;

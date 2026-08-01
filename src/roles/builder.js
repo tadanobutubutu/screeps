@@ -136,7 +136,7 @@ function _getTargetSite(creep) {
     for (let i = 0; i < sites.length; i++) {
         const site = sites[i];
         const priority = BUILD_PRIORITY[site.structureType] || 10;
-        const distance = creep.pos.getRangeTo(site);
+        const distance = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(site) : 0;
 
         if (priority < minPriority) {
             minPriority = priority;
@@ -173,7 +173,7 @@ function _repairAsBackup(creep) {
             s.structureType !== STRUCTURE_WALL &&
             s.structureType !== STRUCTURE_RAMPART
         ) {
-            const dist = creep.pos.getRangeTo(s);
+            const dist = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(s) : 0;
             if (dist < minDistance) {
                 minDistance = dist;
                 closestDamaged = s;
@@ -235,7 +235,7 @@ function _getEnergyFromDropped(creep, room) {
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY && r.amount >= 50) {
-            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            const dist = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDropDist) {
                 minDropDist = dist;
                 bestDrop = r;
@@ -266,7 +266,7 @@ function _getEnergyFromContainer(creep, room) {
     for (let i = 0; i < containers.length; i++) {
         const c = containers[i];
         if (c.store[RESOURCE_ENERGY] >= 100) {
-            const dist = creep.pos ? creep.pos.getRangeTo(c) : 0;
+            const dist = creep.pos && typeof creep.pos.getRangeTo === 'function' ? creep.pos.getRangeTo(c) : 0;
             if (dist < minContainerDist) {
                 minContainerDist = dist;
                 bestContainer = c;

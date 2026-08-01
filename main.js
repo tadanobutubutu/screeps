@@ -1,9 +1,9 @@
 // Before
 function testSomething() {
-  // ... code
-};
+    // ... code
+}
 
 // After
 function testSomething() {
-  // ... code
+    // ... code
 }

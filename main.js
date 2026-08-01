@@ -29,11 +29,8 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
-    }`)
+    // Handle high CPU usage scenario
   }
-
-  // New function to handle additional game logic
-  handleAdditionalGameLogic()
 }
 
 // Function to handle additional game logic
@@ -45,8 +42,5 @@ function handleAdditionalGameLogic () {
 
 // Export for testing if needed
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { loop }
+  module.exports = { loop, handleAdditionalGameLogic }
 }
-
-// Register the main loop with Screeps
-module.exports.loop = loop

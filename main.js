@@ -1,2 +1,3 @@
-// Please provide the current main.js content here so I can help fix the conflicts
-// The issue mentions there are merge conflicts that need to be resolved
+// main.js - placeholder (no source content was provided to apply fixes)
+// The issue reports: utils.emotions.js line 389 — Unterminated string constant
+// Please provide the actual main.js content so the fix can be applied

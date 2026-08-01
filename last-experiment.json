@@ -1,6 +1,6 @@
 {
-    "experiment": "improve-spawn-priority",
-    "description": "スポーン優先度ロジックを改善",
-    "timestamp": "2026-07-25T20:10:24.690Z",
-    "status": "applied"
+  "experiment": "add-performance-monitor",
+  "description": "パフォーマンスモニタリングを追加",
+  "timestamp": "2026-08-01T20:09:06.865Z",
+  "status": "applied"
 }

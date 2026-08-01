@@ -29,11 +29,14 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
+    // CPU usage is high, could log or take action
     console.log(`CPU usage is high: ${cpuUsed.toFixed(2)}`)
   }
 
   // New function to handle additional game logic
+  // (Additional logic placeholder)
   handleAdditionalGameLogic()
+
 }
 
 // Function to handle additional game logic
@@ -44,7 +47,7 @@ function handleAdditionalGameLogic () {
 }
 
 // Export for testing if needed
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module!== 'undefined' && module.exports) {
   module.exports = { loop }
 }
 

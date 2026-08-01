@@ -50,7 +50,7 @@ function handleAdditionalGameLogic () {
 }
 
 // Export for testing if needed
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module!== 'undefined' && module.exports) {
   module.exports.loop = loop;
   module.exports.handleAdditionalGameLogic = handleAdditionalGameLogic;
 }

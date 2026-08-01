@@ -14,8 +14,11 @@ async function updateNodeJS() {
   require('./package.json').dependencies["node"] = "24.18.1";
   require('fs').writeFileSync('./package.json', JSON.stringify(require('./package.json'), null, 2));
 
-  const execSync = require('child_process').execSync;
-  execSync('npm install --only=prod');
+  // Monitor CPU usage
+  const cpuUsed = Game.cpu.getUsed()
+  if (cpuUsed > 10) {
+    console.log(`High CPU usage: ${cpuUsed.toFixed(2)}`)
+  }
 }
 
 async function updatePostHogJS() {

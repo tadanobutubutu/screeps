@@ -1,1 +1,3 @@
-// Please paste the contents of utils.emotions.js here so I can fix the parsing error
+const emotions = require('./utils.emotions');
+
+let myString = "This is a string constant that should be properly terminated...";

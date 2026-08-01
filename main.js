@@ -34,7 +34,6 @@ function loop () {
 
   // New function to handle additional game logic
   // (Additional logic placeholder)
-
 }
 
 // Function to handle additional game logic

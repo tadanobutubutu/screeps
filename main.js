@@ -29,11 +29,10 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
-    }`)
   }
 
   // New function to handle additional game logic
-  handleAdditionalGameLogic()
+
 }
 
 // Function to handle additional game logic

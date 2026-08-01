@@ -8,4 +8,4 @@ function newFunction () {
 module.exports = {
   // Existing exports...
   newFunction // Adding the new function to the exports
-}
+};

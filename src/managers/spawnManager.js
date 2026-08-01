@@ -158,8 +158,16 @@ function _getTargetCounts(room, rcl) {
     }
 
     // 緊急モード: クリープが0の場合は最低限のハーベスターを確保
-    const totalCreeps = Object.values(result).reduce((s, v) => s + v, 0);
-    if (Object.keys(Game.creeps).length === 0) {
+    // ⚡ PERFORMANCE OPTIMIZATION: Removed unused totalCreeps variable and its O(N) reduce allocation.
+    // ⚡ PERFORMANCE OPTIMIZATION: Use O(1) loop-based early-exit instead of Object.keys(Game.creeps).length to check if empty, avoiding array allocation.
+    let hasCreeps = false;
+    for (let name in Game.creeps) {
+        if (Object.prototype.hasOwnProperty.call(Game.creeps, name)) {
+            hasCreeps = true;
+            break;
+        }
+    }
+    if (!hasCreeps) {
         result[ROLES.HARVESTER] = Math.max(result[ROLES.HARVESTER] || 0, 1);
     }
 

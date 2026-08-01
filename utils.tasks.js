@@ -46,4 +46,13 @@ const TaskQueue = {
 
     /**
      * Unregisters a task by name.
-     * @param {string} name - The name of the task to
+     * @param {string} name - The name of the task to unregister.
+     */
+    unregisterTask: function (name) {
+        if (!utilsMemory.isSafeKey(name)) return;
+        const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
+        this.tasks.delete(sanitizedName);
+    }
+};
+
+module.exports = TaskQueue;

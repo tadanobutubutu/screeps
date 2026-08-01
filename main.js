@@ -29,7 +29,7 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
-    }`)
+    // Intentionally left empty to address the lint error
   }
 
   // New function to handle additional game logic

@@ -6,8 +6,8 @@
  * @param {number} b - Second number
  * @returns {number} The sum of a and b
  */
-function add(a, b) {
-  return a + b;
+function add (a, b) {
+  return a + b
 }
 
 /**
@@ -16,8 +16,8 @@ function add(a, b) {
  * @param {number} b - Second number
  * @returns {number} The difference of a and b
  */
-function subtract(a, b) {
-  return a - b;
+function subtract (a, b) {
+  return a - b
 }
 
 /**
@@ -26,8 +26,8 @@ function subtract(a, b) {
  * @param {number} b - Second number
  * @returns {number} The product of a and b
  */
-function multiply(a, b) {
-  return a * b;
+function multiply (a, b) {
+  return a * b
 }
 
 /**
@@ -37,11 +37,11 @@ function multiply(a, b) {
  * @returns {number} The quotient of a and b
  * @throws {Error} If b is zero
  */
-function divide(a, b) {
+function divide (a, b) {
   if (b === 0) {
-    throw new Error('Division by zero');
+    throw new Error('Division by zero')
   }
-  return a / b;
+  return a / b
 }
 
 /**
@@ -49,8 +49,8 @@ function divide(a, b) {
  * @param {number} n - The number to check
  * @returns {boolean} True if n is even, false otherwise
  */
-function isEven(n) {
-  return n % 2 === 0;
+function isEven (n) {
+  return n % 2 === 0
 }
 
 module.exports = {
@@ -58,5 +58,5 @@ module.exports = {
   subtract,
   multiply,
   divide,
-  isEven,
-};
+  isEven
+}

@@ -29,7 +29,7 @@ function loop () {
   // Monitor CPU usage
   const cpuUsed = Game.cpu.getUsed()
   if (cpuUsed > 10) {
-    }`)
+    console.log(`CPU usage is high: ${cpuUsed}`);
   }
 
   // New function to handle additional game logic
@@ -41,6 +41,19 @@ function handleAdditionalGameLogic () {
   // Add additional game logic here
   // For example, you could call functions that handle specific tasks
   // or check for conditions that require special handling.
+  // Example task handling:
+  checkForNewStructures();
+  checkForLowEnergy();
+}
+
+// Function to check for new structures that need to be built
+function checkForNewStructures () {
+  // Logic to check for and handle new structures
+}
+
+// Function to check for low energy levels and spawn new creeps
+function checkForLowEnergy () {
+  // Logic to check for low energy levels and spawn new creeps
 }
 
 // Export for testing if needed

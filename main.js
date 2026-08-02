@@ -1,3 +1,5 @@
+// The updated main.js content with the provided fix...
+
 // main.js
 
 /**

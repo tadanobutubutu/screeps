@@ -1,5 +1,5 @@
 jest.mock('child_process', () => ({
-    execSync: jest.fn()
+    execSync: jest.fn(),
 }));
 
 describe('format_everything.js', () => {

@@ -125,21 +125,37 @@ function log(arg1, arg2) {
         if (!Memory.logs || !Array.isArray(Memory.logs)) {
             Memory.logs = [];
         }
-        Memory.logs.push({ level, message: redacted, tick: typeof Game !== 'undefined' ? Game.time : 0 });
+        Memory.logs.push({
+            level,
+            message: redacted,
+            tick: typeof Game !== 'undefined' ? Game.time : 0,
+        });
         if (Memory.logs.length > MAX_HISTORY) {
             Memory.logs.shift();
         }
     }
 
-    const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level) ? LOG_EMOJIS[level] : DEFAULT_EMOJI;
+    const emoji = Object.prototype.hasOwnProperty.call(LOG_EMOJIS, level)
+        ? LOG_EMOJIS[level]
+        : DEFAULT_EMOJI;
     const escaped = _escapeHTML(redacted);
-    }
+}
 
-function error(msg) { log(msg, 'error'); }
-function warn(msg) { log(msg, 'warn'); }
-function info(msg) { log(msg, 'info'); }
-function debug(msg) { log(msg, 'debug'); }
-function trace(msg) { log(msg, 'trace'); }
+function error(msg) {
+    log(msg, 'error');
+}
+function warn(msg) {
+    log(msg, 'warn');
+}
+function info(msg) {
+    log(msg, 'info');
+}
+function debug(msg) {
+    log(msg, 'debug');
+}
+function trace(msg) {
+    log(msg, 'trace');
+}
 
 function getSafeStack(stack, maxLines = 5) {
     if (stack === undefined || stack === null) return '';
@@ -148,7 +164,7 @@ function getSafeStack(stack, maxLines = 5) {
     const lines = redacted.split('\n');
     return lines
         .slice(0, maxLines)
-        .map(line => line.trim().startsWith('at ') ? '    ' + line.trim() : line)
+        .map((line) => (line.trim().startsWith('at ') ? '    ' + line.trim() : line))
         .join('\n');
 }
 

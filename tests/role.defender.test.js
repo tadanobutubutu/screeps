@@ -33,7 +33,6 @@ global.RoomPosition = class {
     }
 };
 
-
 jest.mock(
     '../src/utils/pathfinder',
     () => ({
@@ -41,7 +40,6 @@ jest.mock(
     }),
     { virtual: true }
 );
-
 
 jest.mock(
     '../src/utils/logger',
@@ -53,7 +51,6 @@ jest.mock(
     }),
     { virtual: true }
 );
-
 
 jest.mock(
     '../src/utils/cache',
@@ -147,7 +144,6 @@ describe('role.defender', () => {
     });
 });
 
-
 describe('getBody', () => {
     test('ranged = true の場合、エネルギー量に応じた遠距離ボディを返す', () => {
         expect(roleDefender.getBody(900, true)).toContain(global.RANGED_ATTACK);
@@ -173,8 +169,8 @@ describe('detectInvasion', () => {
 
     test('攻撃パーツを持つ敵がいる場合は detected: true を返す', () => {
         const mockEnemy = {
-            getActiveBodyparts: jest.fn((part) => part === global.ATTACK ? 1 : 0),
-            hitsMax: 100
+            getActiveBodyparts: jest.fn((part) => (part === global.ATTACK ? 1 : 0)),
+            hitsMax: 100,
         };
         cache.getEnemies.mockReturnValue([mockEnemy]);
         const result = roleDefender.detectInvasion({});
@@ -192,8 +188,8 @@ describe('shouldActivateSafeMode', () => {
             controller: {
                 my: true,
                 safeMode: undefined,
-                safeModeAvailable: 1
-            }
+                safeModeAvailable: 1,
+            },
         };
         // Ensure getMyCreeps is mockable
         if (!cache.getMyCreeps) {
@@ -222,8 +218,8 @@ describe('shouldActivateSafeMode', () => {
 
     test('敵が3体以上いて、ディフェンダーが足りない場合は true を返す', () => {
         const mockEnemy = {
-            getActiveBodyparts: jest.fn((part) => part === global.ATTACK ? 1 : 0),
-            hitsMax: 100
+            getActiveBodyparts: jest.fn((part) => (part === global.ATTACK ? 1 : 0)),
+            hitsMax: 100,
         };
         cache.getEnemies.mockReturnValue([mockEnemy, mockEnemy, mockEnemy]);
 
@@ -234,21 +230,20 @@ describe('shouldActivateSafeMode', () => {
 
     test('敵が3体以上いても、ディフェンダーが十分な場合は false を返す', () => {
         const mockEnemy = {
-            getActiveBodyparts: jest.fn((part) => part === global.ATTACK ? 1 : 0),
-            hitsMax: 100
+            getActiveBodyparts: jest.fn((part) => (part === global.ATTACK ? 1 : 0)),
+            hitsMax: 100,
         };
         cache.getEnemies.mockReturnValue([mockEnemy, mockEnemy, mockEnemy]);
 
         const mockDefender = {
             memory: { role: 'defender' },
-            getActiveBodyparts: jest.fn((part) => part === global.ATTACK ? 1 : 0)
+            getActiveBodyparts: jest.fn((part) => (part === global.ATTACK ? 1 : 0)),
         };
         cache.getMyCreeps.mockReturnValue([mockDefender, mockDefender, mockDefender]);
 
         expect(roleDefender.shouldActivateSafeMode(room)).toBe(false);
     });
 });
-
 
 describe('Patrol & Combat Logics', () => {
     let mockCreep;
@@ -265,7 +260,7 @@ describe('Patrol & Combat Logics', () => {
                 controller: {
                     pos: { x: 30, y: 30 },
                 },
-                visual: { line: jest.fn() }
+                visual: { line: jest.fn() },
             },
             getActiveBodyparts: jest.fn((part) => {
                 if (part === ATTACK) return 2;
@@ -280,7 +275,10 @@ describe('Patrol & Combat Logics', () => {
 
     test('敵がいない、かつランパートがある場合はランパートを巡回する', () => {
         cache.getEnemies.mockReturnValue([]);
-        cache.getMyStructures.mockReturnValue([{ pos: { x: 10, y: 10 } }, { pos: { x: 20, y: 20 } }]);
+        cache.getMyStructures.mockReturnValue([
+            { pos: { x: 10, y: 10 } },
+            { pos: { x: 20, y: 20 } },
+        ]);
 
         roleDefender.run(mockCreep);
 
@@ -290,7 +288,7 @@ describe('Patrol & Combat Logics', () => {
     test('自己修復', () => {
         cache.getEnemies.mockReturnValue([]);
         mockCreep.hits = 50;
-        mockCreep.getActiveBodyparts = jest.fn((part) => part === HEAL ? 1 : 0);
+        mockCreep.getActiveBodyparts = jest.fn((part) => (part === HEAL ? 1 : 0));
 
         roleDefender.run(mockCreep);
 

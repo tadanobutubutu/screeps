@@ -21,11 +21,7 @@ describe('patch_main.js', () => {
 
         // Verify writeFileSync was called correctly
         expect(fs.writeFileSync).toHaveBeenCalledTimes(1);
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-            'main.js',
-            expect.any(String),
-            'utf8'
-        );
+        expect(fs.writeFileSync).toHaveBeenCalledWith('main.js', expect.any(String), 'utf8');
     });
 
     it('should actually replace the old structure function if present', () => {
@@ -33,8 +29,12 @@ describe('patch_main.js', () => {
         const actualFs = jest.requireActual('fs');
         const patchScriptContent = actualFs.readFileSync('patch_main.js', 'utf8');
 
-        const oldContentMatch = patchScriptContent.match(/const oldCategorizeRoomStructures = \`([\s\S]*?)\`;/);
-        const newContentMatch = patchScriptContent.match(/const newCategorizeRoomStructures = \`([\s\S]*?)\`;/);
+        const oldContentMatch = patchScriptContent.match(
+            /const oldCategorizeRoomStructures = \`([\s\S]*?)\`;/
+        );
+        const newContentMatch = patchScriptContent.match(
+            /const newCategorizeRoomStructures = \`([\s\S]*?)\`;/
+        );
 
         if (!oldContentMatch || !newContentMatch) {
             throw new Error('Could not find old or new content in patch_main.js');
@@ -52,10 +52,6 @@ describe('patch_main.js', () => {
 
         patchScript();
 
-        expect(fs.writeFileSync).toHaveBeenCalledWith(
-            'main.js',
-            expectedFileContent,
-            'utf8'
-        );
+        expect(fs.writeFileSync).toHaveBeenCalledWith('main.js', expectedFileContent, 'utf8');
     });
 });

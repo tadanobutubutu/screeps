@@ -20,7 +20,6 @@ function secureRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
-
 const roleExplorer = {
     run: function (creep) {
         // メモリにターゲットの部屋がなければ設定（例: 隣の部屋）

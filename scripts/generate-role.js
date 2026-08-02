@@ -1,4 +1,4 @@
-const crypto = require("crypto");
+const crypto = require('crypto');
 const fs = require('fs');
 
 // 作成可能なロールのテンプレート

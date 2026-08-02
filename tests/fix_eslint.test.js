@@ -10,8 +10,10 @@ describe('fix_eslint.js', () => {
 
     it('should replace the target global comment with STRUCTURE_RAMPART included', () => {
         const filePath = 'dummy.js';
-        const originalContent = '/* global Game, Memory, Room, FIND_HOSTILE_CREEPS, FIND_SOURCES_ACTIVE, STRUCTURE_WALL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_LAB, RESOURCE_ENERGY, STRUCTURE_CONTAINER, _ */\nconst foo = 1;';
-        const expectedContent = '/* global Game, Memory, Room, FIND_HOSTILE_CREEPS, FIND_SOURCES_ACTIVE, STRUCTURE_WALL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_LAB, RESOURCE_ENERGY, STRUCTURE_CONTAINER, STRUCTURE_RAMPART, _ */\nconst foo = 1;';
+        const originalContent =
+            '/* global Game, Memory, Room, FIND_HOSTILE_CREEPS, FIND_SOURCES_ACTIVE, STRUCTURE_WALL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_LAB, RESOURCE_ENERGY, STRUCTURE_CONTAINER, _ */\nconst foo = 1;';
+        const expectedContent =
+            '/* global Game, Memory, Room, FIND_HOSTILE_CREEPS, FIND_SOURCES_ACTIVE, STRUCTURE_WALL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_LAB, RESOURCE_ENERGY, STRUCTURE_CONTAINER, STRUCTURE_RAMPART, _ */\nconst foo = 1;';
 
         fs.readFileSync.mockReturnValue(originalContent);
 

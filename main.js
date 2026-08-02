@@ -1,1 +1,1 @@
-Please paste the actual content of `main.js` including the sections between `<<<<<<<`, `=======`, and `>>>>>>>` markers so I can resolve the conflict properly.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

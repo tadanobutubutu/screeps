@@ -1,14 +1,1 @@
-// main.js - Screeps game entry point
-module.exports = {
-  loop: function() {
-    // Game loop logic will go here
-    // Example of adding a new function to test
-    function checkHealth() {
-      // Check game health logic
-    }
-  },
-  // Example of adding a new function to export for testing
-  checkHealth: function() {
-    // Check health logic
-  }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

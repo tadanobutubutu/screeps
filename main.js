@@ -1,6 +1,1 @@
-// main.js - Screeps game entry point
-module.exports = {
-  loop: function() {
-    // Game loop logic will go here
-  }
-};
+const { property } = myObject; // Assuming myObject is the variable containing the object

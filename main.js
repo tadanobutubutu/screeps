@@ -7,7 +7,7 @@ const CONFIG = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   maxRetries: 3,
   timeout: 5000
-}
+};
 
 // Application state
 const appState = {
@@ -19,35 +19,35 @@ const appState = {
     sentryBrowser: '10.69.0',
     typescript: '7'
   }
-}
+};
 
 /**
  * Initialize the application
  */
-function initialize () {
-  appState.isInitialized = true
-  appState.lastUpdate = new Date().toISOString()
-  return true
+function initialize() {
+  appState.isInitialized = true;
+  appState.lastUpdate = new Date().toISOString();
+  return true;
 }
 
 /**
  * Get current application state
  * @returns {Object} Current application state
  */
-function getState () {
-  return { ...appState }
+function getState() {
+  return { ...appState };
 }
 
 /**
  * Update application dependencies
  * @param {Object} deps - Dependencies to update
  */
-function updateDependencies (deps) {
+function updateDependencies(deps) {
   appState.dependencies = {
     ...appState.dependencies,
     ...deps
-  }
-  appState.lastUpdate = new Date().toISOString()
+  };
+  appState.lastUpdate = new Date().toISOString();
 }
 
 /**
@@ -55,8 +55,8 @@ function updateDependencies (deps) {
  * @param {string} endpoint - API endpoint
  * @returns {Promise<Object>} API response
  */
-async function fetchData (endpoint) {
-  const url = `${CONFIG.apiUrl}${endpoint}`
+async function fetchData(endpoint) {
+  const url = `${CONFIG.apiUrl}${endpoint}`;
 
   for (let attempt = 0; attempt < CONFIG.maxRetries; attempt++) {
     try {
@@ -66,17 +66,18 @@ async function fetchData (endpoint) {
           'Content-Type': 'application/json'
         },
         timeout: CONFIG.timeout
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return await response.json()
+      return await response.json();
     } catch (error) {
-      console.error(`Attempt ${attempt + 1} failed:`, error.message)
+      // eslint-disable-next-line no-console
+      console.error(`Attempt ${attempt + 1} failed:`, error.message);
       if (attempt === CONFIG.maxRetries - 1) {
-        throw error
+        throw error;
       }
     }
   }
@@ -87,31 +88,32 @@ async function fetchData (endpoint) {
  * @param {Array} updates - List of dependency updates
  * @returns {Object} Processing results
  */
-function processUpdates (updates) {
+function processUpdates(updates) {
   const results = {
     processed: 0,
     failed: 0,
     skipped: 0
-  }
+  };
 
-  updates.forEach((update) => {
+  updates.forEach(update => {
     try {
       // Validate update
       if (!update.name || !update.version) {
-        results.skipped++
-        return
+        results.skipped++;
+        return;
       }
 
       // Apply update
-      appState.dependencies[update.name] = update.version
-      results.processed++
+      appState.dependencies[update.name] = update.version;
+      results.processed++;
     } catch (error) {
-      console.error(`Failed to process update for ${update.name}:`, error)
-      results.failed++
+      // eslint-disable-next-line no-console
+      console.error(`Failed to process update for ${update.name}:`, error);
+      results.failed++;
     }
-  })
+  });
 
-  return results
+  return results;
 }
 
 /**
@@ -119,13 +121,13 @@ function processUpdates (updates) {
  * @param {Object} deps - Dependencies to validate
  * @returns {boolean} Validation result
  */
-function validateDependencies (deps) {
-  const requiredDeps = ['node', 'posthogJs', 'sentryBrowser', 'typescript']
+function validateDependencies(deps) {
+  const requiredDeps = ['node', 'posthogJs', 'sentryBrowser', 'typescript'];
 
-  return requiredDeps.every((dep) => {
-    const value = deps[dep]
-    return value !== undefined && value !== null && value !== ''
-  })
+  return requiredDeps.every(dep => {
+    const value = deps[dep];
+    return value !== undefined && value !== null && value !== '';
+  });
 }
 
 // Export functions for testing and external use
@@ -137,9 +139,9 @@ module.exports = {
   processUpdates,
   validateDependencies,
   CONFIG
-}
+};
 
 // Initialize on load if running directly
 if (require.main === module) {
-  initialize()
+  initialize();
 }

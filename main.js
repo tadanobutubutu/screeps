@@ -1,3 +1,1 @@
-// This is an unterminated comment that continues past line 47:
-someFunction();
-// ^
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

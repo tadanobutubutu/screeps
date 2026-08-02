@@ -1,6 +1,3 @@
-Here is the resolved version of the file 'main.js':
-
-```javascript
 // main.js
 // This file handles the dependency dashboard functionality
 
@@ -17,9 +14,15 @@ function getPendingUpdates() {
  * @returns {Array} Array of blocked updates
  */
 function getBlockedUpdates() {
-    // Your implementation for blocked updates here
-    // If both versions are not identical, combine the results from both
+    const currentBlockedUpdates = []; // Your implementation for blocked updates here
+    const newBlockedUpdates = []; // From origin/main
+
+    // Combine both sets of blocked updates
+    currentBlockedUpdates.push(...newBlockedUpdates);
+
+    // If both versions implement this function, use the above logic to combine them
     // or use logic to prioritize one over the other depending on the use-case
+    return currentBlockedUpdates;
 }
 
 /**
@@ -28,8 +31,12 @@ function getBlockedUpdates() {
  * @returns {boolean} Whether an update is available
  */
 function isUpdateAvailable(dependencyName) {
-    // Your implementation for checking for updates here
-    // If both versions implement this function, use the logic to determine the correct result
+    const currentImplementation = /* Your implementation for checking for updates here */; // From HEAD
+    const newImplementation = /* Implementation from origin/main */; // Return false
+
+    // Use the logic to determine the correct result
+    // If both versions implement this function, use the above logic to combine them
+    return /* The result of using the logic to determine the correct result */;
 }
 
 /**
@@ -37,9 +44,15 @@ function isUpdateAvailable(dependencyName) {
  * @returns {Object} Detected dependencies by type
  */
 function getDetectedDependencies() {
-    // Your implementation for detected dependencies here
-    // If both versions implement this function, combine the results from both
+    const currentDetected = /* Your implementation for detected dependencies here */; // From HEAD
+    const newDetected = /* The implementation from origin/main */; // Return an object with dependencies by type
+
+    // Combine both sets of detected dependencies
+    const combinedDetected = { ...currentDetected, ...newDetected };
+
+    // If both versions implement this function, use the above logic to combine them
     // or use logic to prioritize one over the other depending on the use-case
+    return combinedDetected;
 }
 
 /**
@@ -48,16 +61,6 @@ function getDetectedDependencies() {
  */
 function getPendingScheduleUpdates() {
     // ...
-}
-
-/**
- * Get blocked (manually edited) updates
- * @returns {Array} Array of blocked updates
- */
-function getBlockedUpdates() {
-    // Your implementation for blocked updates here
-    // If both versions implement this function, combine the results from both
-    // or use logic to prioritize one over the other depending on the use-case
 }
 
 /**
@@ -92,7 +95,6 @@ function getCircularDependencies() {
  */
 function isGitHubActionOutdated(actionName, currentVersion) {
     // Your implementation here
-    // If both versions implement this function, use the logic to determine the correct result
 }
 
 /**
@@ -100,9 +102,27 @@ function isGitHubActionOutdated(actionName, currentVersion) {
  * @returns {Array} Array of npm dependencies with available updates
  */
 function getNpmDependenciesWithUpdates() {
-    // Your implementation for getting npm dependencies here
-    // If both versions implement this function, combine the results from both
-    // or use logic to prioritize one over the other depending on the use-case
+    const detected = getDetectedDependencies(); // Removed HEAD part
+    const npmDeps = detected.npm || {};
+
+    const updates = [];
+
+    // Check dashboard/package.json for typescript update
+    if (npmDeps.dashboard) {
+        const pkgDeps = npmDeps.dashboard;
+        // Preserve the existing logic for checking for typescript updates
+    }
+
+    // Check root package.json for @sentry/browser and posthog-js updates
+    if (npmDeps.root) {
+        const pkgDeps = npmDeps.root;
+
+        // Preserve the existing logic for checking for @sentry/browser and posthog-js updates
+    }
+
+    // Implement any new logic from origin/main
+
+    return updates;
 }
 
 /**
@@ -111,8 +131,6 @@ function getNpmDependenciesWithUpdates() {
  */
 function getDetectedDependencyIssues() {
     // Your implementation for detected dependency issues here
-    // If both versions implement this function, combine the results from both
-    // or use logic to prioritize one over the other depending on the use-case
 }
 
 /**
@@ -124,11 +142,19 @@ function getDetectedDependencyIssues() {
  */
 async function getRemoteDependentVersion(repoOwner, repoName, dependencyName) {
     // Your implementation here
-    // If both versions implement this function, use the logic to determine the correct result
 }
 
 module.exports = {
-    // ...
+    getPendingUpdates,
+    getBlockedUpdates,
+    isUpdateAvailable,
+    getDetectedDependencies,
+    getPendingScheduleUpdates,
+    getClosedPRBlockers,
+    get failedLookups,
+    getCircularDependencies,
+    isGitHubActionOutdated,
+    getNpmDependenciesWithUpdates,
+    getDetectedDependencyIssues,
     getRemoteDependentVersion,
 };
-```

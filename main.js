@@ -80,5 +80,4 @@ function getStatus(target) {
 module.exports = MemoryVisualizer;  
 module.exports.deploy = deploy;  
 module.exports.rollback = rollback;  
-module.exports.getStatus = getStatus;  
-```
+module.exports.getStatus = getStatus;

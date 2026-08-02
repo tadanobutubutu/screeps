@@ -364,7 +364,7 @@ function getTotalBuildProgress(room) {
     let total = 0;
     for (let i = 0; i < sites.length; i++) {
         const s = sites[i];
-        total += (s.progressTotal - s.progress);
+        total += s.progressTotal - s.progress;
     }
     return total;
 }

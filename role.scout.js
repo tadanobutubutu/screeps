@@ -91,7 +91,7 @@ const roleScout = {
 
         // Reset target to find new room
         creep.memory.targetRoom = undefined;
-    }
+    },
 };
 
 module.exports = roleScout;

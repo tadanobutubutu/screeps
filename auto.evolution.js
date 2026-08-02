@@ -127,7 +127,7 @@ const autoEvolution = {
     analyzeBasicState: function () {
         // ⚡ PERFORMANCE: main.jsで準備されたグローバルコレクションを再利用。
         const rooms = global._rooms || Object.values(Game.rooms || {});
-        const myRooms = rooms.filter(room => room.controller && room.controller.my);
+        const myRooms = rooms.filter((room) => room.controller && room.controller.my);
 
         const state = {
             rcl: myRooms.length > 0 ? myRooms[0].controller.level : 0,

@@ -302,6 +302,7 @@ export default function Dashboard() {
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <label
+                            className="auto-refresh-label"
                             style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -312,7 +313,6 @@ export default function Dashboard() {
                                 userSelect: 'none',
                                 padding: '0.2rem 0.4rem',
                                 borderRadius: '4px',
-                                transition: 'background-color 0.2s',
                             }}
                             title="60秒ごとに自動でデータを更新します"
                         >
@@ -325,7 +325,6 @@ export default function Dashboard() {
                                     accentColor: '#004b73',
                                     width: '0.9rem',
                                     height: '0.9rem',
-                                    outline: 'none',
                                 }}
                                 aria-label="自動更新 (60秒ごと)"
                             />
@@ -416,13 +415,18 @@ export default function Dashboard() {
                     >
                         <span>🌐 GCL: {stats?.gcl?.level}</span>
                         <span style={{ fontSize: '0.85rem' }}>
-                            {stats?.gcl?.progress !== undefined && stats?.gcl?.progressTotal !== undefined
+                            {stats?.gcl?.progress !== undefined &&
+                            stats?.gcl?.progressTotal !== undefined
                                 ? `${formatNumber(stats.gcl.progress)} / ${formatNumber(stats.gcl.progressTotal)} (`
                                 : ''}
                             {stats?.gcl?.progressTotal
                                 ? ((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)
                                 : '0.00'}
-                            %{stats?.gcl?.progress !== undefined && stats?.gcl?.progressTotal !== undefined ? ')' : ''}
+                            %
+                            {stats?.gcl?.progress !== undefined &&
+                            stats?.gcl?.progressTotal !== undefined
+                                ? ')'
+                                : ''}
                         </span>
                     </div>
                     <div

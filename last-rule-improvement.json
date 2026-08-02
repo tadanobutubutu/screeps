@@ -1,9 +1,5 @@
 {
-  "files": [
-    "main.js"
-  ],
-  "rules": [
-    "Remove console.log"
-  ],
-  "timestamp": "2026-08-02T01:22:50.784Z"
+    "files": ["main.js"],
+    "rules": ["Remove console.log"],
+    "timestamp": "2026-08-02T01:22:50.784Z"
 }

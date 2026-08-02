@@ -21,7 +21,6 @@ function secureRandomFloat() {
     return Math.random();
 }
 
-
 // ⚡ PERFORMANCE: Per-tick cache for visual effects enablement
 let _isVfxEnabledTick = -1;
 let _isVfxEnabledValue = true;

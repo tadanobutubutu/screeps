@@ -2,13 +2,18 @@ const child_process = require('child_process');
 const fs = require('fs');
 
 jest.mock('child_process', () => ({
-    execFileSync: jest.fn()
+    execFileSync: jest.fn(),
 }));
 jest.mock('fs');
 
 describe('auto-pr-generator', () => {
     let originalEnv;
-    let githubRequest, getIssueDetails, analyzeIssueWithClaude, createFixBranch, createPullRequest, main;
+    let githubRequest,
+        getIssueDetails,
+        analyzeIssueWithClaude,
+        createFixBranch,
+        createPullRequest,
+        main;
 
     beforeEach(() => {
         originalEnv = { ...process.env };
@@ -44,7 +49,7 @@ describe('auto-pr-generator', () => {
         it('should make a request to github api and return json', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ id: 1 })
+                json: async () => ({ id: 1 }),
             });
 
             const result = await githubRequest('/test', { method: 'POST', body: { foo: 'bar' } });
@@ -55,9 +60,9 @@ describe('auto-pr-generator', () => {
                 expect.objectContaining({
                     method: 'POST',
                     headers: expect.objectContaining({
-                        Authorization: 'token fake_token'
+                        Authorization: 'token fake_token',
                     }),
-                    body: JSON.stringify({ foo: 'bar' })
+                    body: JSON.stringify({ foo: 'bar' }),
                 })
             );
         });
@@ -66,7 +71,7 @@ describe('auto-pr-generator', () => {
             global.fetch.mockResolvedValueOnce({
                 ok: false,
                 status: 404,
-                statusText: 'Not Found'
+                statusText: 'Not Found',
             });
 
             await expect(githubRequest('/test')).rejects.toThrow('GitHub API error: 404 Not Found');
@@ -77,7 +82,7 @@ describe('auto-pr-generator', () => {
         it('should fetch issue details', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ number: 123, title: 'test issue' })
+                json: async () => ({ number: 123, title: 'test issue' }),
             });
 
             const result = await getIssueDetails(123);
@@ -90,10 +95,12 @@ describe('auto-pr-generator', () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
-                    content: [{
-                        text: 'some text {"rootCause": "test cause"} more text'
-                    }]
-                })
+                    content: [
+                        {
+                            text: 'some text {"rootCause": "test cause"} more text',
+                        },
+                    ],
+                }),
             });
 
             const result = await analyzeIssueWithClaude({ title: 'test', body: 'body' });
@@ -104,8 +111,8 @@ describe('auto-pr-generator', () => {
                 expect.objectContaining({
                     method: 'POST',
                     headers: expect.objectContaining({
-                        'x-api-key': 'fake_key'
-                    })
+                        'x-api-key': 'fake_key',
+                    }),
                 })
             );
         });
@@ -113,23 +120,29 @@ describe('auto-pr-generator', () => {
         it('should throw if claude api fails', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: false,
-                status: 500
+                status: 500,
             });
 
-            await expect(analyzeIssueWithClaude({ title: 't' })).rejects.toThrow('Claude API error: 500');
+            await expect(analyzeIssueWithClaude({ title: 't' })).rejects.toThrow(
+                'Claude API error: 500'
+            );
         });
 
         it('should throw if json cannot be extracted', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
-                    content: [{
-                        text: 'no json here'
-                    }]
-                })
+                    content: [
+                        {
+                            text: 'no json here',
+                        },
+                    ],
+                }),
             });
 
-            await expect(analyzeIssueWithClaude({ title: 't' })).rejects.toThrow('Failed to extract JSON from Claude response');
+            await expect(analyzeIssueWithClaude({ title: 't' })).rejects.toThrow(
+                'Failed to extract JSON from Claude response'
+            );
         });
     });
 
@@ -139,10 +152,8 @@ describe('auto-pr-generator', () => {
             const analysis = {
                 rootCause: 'bug',
                 suggestedFix: {
-                    changes: [
-                        { file: 'src/test.js', code: 'const a = 1;' }
-                    ]
-                }
+                    changes: [{ file: 'src/test.js', code: 'const a = 1;' }],
+                },
             };
 
             fs.existsSync.mockReturnValueOnce(false); // for dir
@@ -152,8 +163,16 @@ describe('auto-pr-generator', () => {
             const result = await createFixBranch(issue, analysis);
 
             expect(result.branchName).toBe('fix/issue-123-test-issue');
-            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['fetch', 'origin'], expect.any(Object));
-            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['checkout', '-b', 'fix/issue-123-test-issue', 'origin/main'], expect.any(Object));
+            expect(child_process.execFileSync).toHaveBeenCalledWith(
+                'git',
+                ['fetch', 'origin'],
+                expect.any(Object)
+            );
+            expect(child_process.execFileSync).toHaveBeenCalledWith(
+                'git',
+                ['checkout', '-b', 'fix/issue-123-test-issue', 'origin/main'],
+                expect.any(Object)
+            );
 
             expect(fs.mkdirSync).toHaveBeenCalled();
             expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -161,15 +180,31 @@ describe('auto-pr-generator', () => {
                 'old code\n\nconst a = 1;'
             );
 
-            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['add', '-A'], expect.any(Object));
-            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['commit', '-m', expect.stringContaining('fix(#123): Test Issue')], expect.any(Object));
-            expect(child_process.execFileSync).toHaveBeenCalledWith('git', ['push', 'origin', 'fix/issue-123-test-issue'], expect.any(Object));
+            expect(child_process.execFileSync).toHaveBeenCalledWith(
+                'git',
+                ['add', '-A'],
+                expect.any(Object)
+            );
+            expect(child_process.execFileSync).toHaveBeenCalledWith(
+                'git',
+                ['commit', '-m', expect.stringContaining('fix(#123): Test Issue')],
+                expect.any(Object)
+            );
+            expect(child_process.execFileSync).toHaveBeenCalledWith(
+                'git',
+                ['push', 'origin', 'fix/issue-123-test-issue'],
+                expect.any(Object)
+            );
         });
 
         it('should throw and not proceed if branch creation fails', async () => {
-            child_process.execFileSync.mockImplementationOnce(() => { throw new Error('git fail'); });
+            child_process.execFileSync.mockImplementationOnce(() => {
+                throw new Error('git fail');
+            });
 
-            await expect(createFixBranch({ number: 1, title: 't' }, { suggestedFix: { changes: [] } })).rejects.toThrow('git fail');
+            await expect(
+                createFixBranch({ number: 1, title: 't' }, { suggestedFix: { changes: [] } })
+            ).rejects.toThrow('git fail');
         });
     });
 
@@ -177,12 +212,17 @@ describe('auto-pr-generator', () => {
         it('should create a PR', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ html_url: 'http://pr', number: 42 })
+                json: async () => ({ html_url: 'http://pr', number: 42 }),
             });
 
             const result = await createPullRequest(
                 { number: 123, title: 'Test' },
-                { severity: 'high', rootCause: 'rc', suggestedFix: { description: 'desc' }, testSuggestion: 'test' },
+                {
+                    severity: 'high',
+                    rootCause: 'rc',
+                    suggestedFix: { description: 'desc' },
+                    testSuggestion: 'test',
+                },
                 { branchName: 'fix-branch' }
             );
 
@@ -191,7 +231,7 @@ describe('auto-pr-generator', () => {
                 'https://api.github.com/repos/tadanobutubutu/screeps/pulls',
                 expect.objectContaining({
                     method: 'POST',
-                    body: expect.stringContaining('"head":"fix-branch"')
+                    body: expect.stringContaining('"head":"fix-branch"'),
                 })
             );
         });
@@ -206,7 +246,9 @@ describe('auto-pr-generator', () => {
 
             await main();
             expect(process.exit).toHaveBeenCalledWith(1);
-            expect(console.error).toHaveBeenCalledWith('❌ ISSUE_NUMBER environment variable is not set');
+            expect(console.error).toHaveBeenCalledWith(
+                '❌ ISSUE_NUMBER environment variable is not set'
+            );
         });
 
         it('should exit with 1 if GITHUB_TOKEN is missing', async () => {
@@ -223,17 +265,21 @@ describe('auto-pr-generator', () => {
         it('should process successfully', async () => {
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ number: 123, title: 'test issue', body: 'body' })
+                json: async () => ({ number: 123, title: 'test issue', body: 'body' }),
             });
             global.fetch.mockResolvedValueOnce({
                 ok: true,
                 json: async () => ({
-                    content: [{ text: '{"rootCause":"rc","severity":"low","suggestedFix":{"changes":[]}}' }]
-                })
+                    content: [
+                        {
+                            text: '{"rootCause":"rc","severity":"low","suggestedFix":{"changes":[]}}',
+                        },
+                    ],
+                }),
             });
             global.fetch.mockResolvedValueOnce({
                 ok: true,
-                json: async () => ({ number: 42, html_url: 'pr_url' })
+                json: async () => ({ number: 42, html_url: 'pr_url' }),
             });
 
             child_process.execFileSync.mockImplementation(() => {});

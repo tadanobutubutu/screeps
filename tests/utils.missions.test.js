@@ -195,7 +195,7 @@ describe('utils.missions', () => {
             return Buffer.alloc(size, 0);
         });
 
-        global.Game = { rooms: { 'W1N1': { name: 'W1N1' } }, time: 10 };
+        global.Game = { rooms: { W1N1: { name: 'W1N1' } }, time: 10 };
 
         const mission = MissionSystem.createRandomMission();
         expect(mission).toBeDefined();

@@ -4,7 +4,7 @@
 
 // Configuration constants
 const CONFIG = {
-  apiUrl: process.env.API_URL || 'https://api.example.com',
+  apiUrl: process.env.API_URL || '',
   maxRetries: 3,
   timeout: 5000
 }
@@ -56,7 +56,7 @@ function updateDependencies (deps) {
  * @returns {Promise<Object>} API response
  */
 async function fetchData (endpoint) {
-  const url = `${CONFIG.apiUrl}${endpoint}`
+  const url = CONFIG.apiUrl ? `${CONFIG.apiUrl}${endpoint}` : endpoint
 
   for (let attempt = 0; attempt < CONFIG.maxRetries; attempt++) {
     try {

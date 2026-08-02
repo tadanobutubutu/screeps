@@ -10,14 +10,6 @@ function getPendingUpdates() {
 }
 
 /**
- * Get blocked dependency updates
- * @returns {Array} Array of blocked updates
- */
-function getBlockedUpdates() {
-    return [];
-}
-
-/**
  * Check if a dependency update is available
  * @param {string} dependencyName - Name of the dependency
  * @returns {boolean} Whether an update is available
@@ -231,3 +223,4 @@ module.exports = {
     getNpmDependenciesWithUpdates,
     getDetectedDependencyIssues,
 };
+```

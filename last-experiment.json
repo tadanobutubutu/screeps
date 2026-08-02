@@ -1,6 +1,6 @@
 {
-  "experiment": "add-performance-monitor",
-  "description": "パフォーマンスモニタリングを追加",
-  "timestamp": "2026-08-01T20:09:06.865Z",
-  "status": "applied"
+    "experiment": "add-performance-monitor",
+    "description": "パフォーマンスモニタリングを追加",
+    "timestamp": "2026-08-01T20:09:06.865Z",
+    "status": "applied"
 }

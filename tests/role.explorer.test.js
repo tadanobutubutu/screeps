@@ -104,7 +104,7 @@ describe('role.explorer', () => {
     });
 
     test('picks a random exit securely when arriving at target', () => {
-        global.Game.map.describeExits.mockReturnValue({ '1': 'W1N2', '3': 'W2N1' });
+        global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
 
         // Mock Math.random to verify fallback doesn't throw and coverage hits
         const originalRandom = Math.random;

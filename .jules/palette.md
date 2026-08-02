@@ -1,14 +1,17 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
 ## 2026-08-05 - [Accessible Dashboard Polling with User Control]
+
 **Learning:** For monitoring-heavy screens like game status dashboards, polling or auto-refresh capabilities should be paired with explicit user controls. Implementing a clearly labeled checkbox with specific accessible markup (`aria-label="自動更新 (60秒ごと)"`) allows users to pause the refresh cycles at will. Furthermore, matching the refresh cycle to the API's caching layer avoids redundant server queries while maintaining the most up-to-date telemetry.
 **Action:** Always provide accessible toggle switches for automated data-polling components, and verify they respect tab-navigation and status disclosure standards.
 
 ## 2026-08-04 - [Bulk Group Actions & Copied State Coordination]
+
 **Learning:** For sections containing groups of interactable telemetry identifiers (such as a list of active room names), adding a bulk "Copy All" capability significantly enhances user flow and reduces mouse click wear. Consistent with individual copy elements, the bulk trigger must dynamically synchronize both its `title` and `aria-label` attributes to a clear copied success state (e.g. `すべての部屋名をコピーしました`) to prevent screen-reader and visual tooltip staterooms.
 **Action:** Always provide clear bulk copy/action alternatives for group elements, and ensure their success states have fully coordinated visual/auditory metadata.
 
 ## 2026-08-03 - [Dismissable Toast Notifications and Proper Document Localization]
+
 **Learning:** For dynamic, transient background/success messages displayed via a Toast component, providing an explicit, keyboard-accessible "Dismiss" (✕) button with highly visible custom focus styling and clear screen reader labels (e.g. `aria-label="通知を閉じる"`) is critical for accessibility. It prevents users from being forced to wait out a timed fade, complying with WCAG 2.2.4 (User Control). Additionally, setting the root HTML tag language matching the predominant text (e.g., `<html lang="ja">`) ensures text-to-speech synthesizers use proper pronunciation rather than phonetic distortion.
 **Action:** Always pair timed Toast notifications with a highly-visible dismiss trigger styled with a clear focus ring, and ensure document-level localization is correctly defined.
 
@@ -83,3 +86,8 @@
 
 **Learning:** Default `<details>` and `<summary>` list-style markers vary significantly across browser engines (Chrome, Firefox, Safari), resulting in visual inconsistency. Hiding the default markers using both `listStyle: 'none'` and `-webkit-details-marker` while explicitly tracking the element's expansion state via React's `onToggle` allows for a highly consistent and beautifully animated custom chevron indicator. Crucially, when overriding default summary styles, custom `:focus-visible` styles must be explicitly defined to maintain proper visual focus states for keyboard-only users.
 **Action:** Always hide default browser markers on summary tags globally, pair them with a state-driven rotating chevron element, and enforce an explicit `focus-visible` outline stylesheet rule.
+
+## 2026-08-06 - [Interactive Focus Rings & Label Wrapper Transitions]
+
+**Learning:** Silencing focus outlines using inline styles (such as `outline: 'none'`) on native form elements like checkboxes without a visible alternative creates a major accessibility blocker for keyboard navigation users. By removing inline outline overrides and setting clean `:focus-visible` rules combined with `:focus-within` on label wrappers, we ensure high keyboard focus visibility. Furthermore, utilizing pure CSS classes for transition effects (such as `:hover` on label containers) provides dynamic and highly responsive feedback without unnecessarily cluttering React component states.
+**Action:** Never silence default outline styles on interactive elements without defining explicit `:focus-visible` styles, and utilize `:focus-within` on label containers for polished keyboard visual accessibility.

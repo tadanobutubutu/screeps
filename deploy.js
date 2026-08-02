@@ -168,7 +168,9 @@ function deployTo(label, apiPath, token, modules) {
 
         const options = buildRequestOptions(apiPath, Buffer.byteLength(body), token);
 
-        const req = https.request(options, (res) => handleDeployResponse(res, label, resolve, reject));
+        const req = https.request(options, (res) =>
+            handleDeployResponse(res, label, resolve, reject)
+        );
 
         req.on('error', (e) => {
             // エラーメッセージから機密情報を除外
@@ -243,4 +245,11 @@ if (require.main === module) {
     runDeploy();
 }
 
-module.exports = { validateToken, validateFilePath, deployTo, injectEnvVars, sanitizeLog, runDeploy };
+module.exports = {
+    validateToken,
+    validateFilePath,
+    deployTo,
+    injectEnvVars,
+    sanitizeLog,
+    runDeploy,
+};

@@ -280,5 +280,5 @@ module.exports = {
     analyzeIssueWithClaude,
     createFixBranch,
     createPullRequest,
-    main
+    main,
 };

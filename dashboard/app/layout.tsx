@@ -78,6 +78,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             outline: 2px solid #004b73;
             outline-offset: 2px;
           }
+          input[type="checkbox"]:focus-visible {
+            outline: 2px solid #004b73;
+            outline-offset: 2px;
+          }
+          .auto-refresh-label {
+            transition: background-color 0.2s, box-shadow 0.2s;
+          }
+          .auto-refresh-label:hover {
+            background-color: rgba(0, 75, 115, 0.08);
+          }
+          .auto-refresh-label:focus-within {
+            background-color: rgba(0, 75, 115, 0.05);
+            box-shadow: 0 0 0 2px rgba(0, 75, 115, 0.2);
+          }
         `}</style>
             </head>
             <body>{children}</body>

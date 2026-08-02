@@ -4,27 +4,27 @@
  */
 
 // Import necessary modules
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
 // Constants
-const TASKS_FILE = path.join(__dirname, 'tasks.json');
-const DEFAULT_TASKS = [];
+const TASKS_FILE = path.join(__dirname, 'tasks.json')
+const DEFAULT_TASKS = []
 
 /**
  * Load tasks from the tasks file
  * @returns {Array} Array of task objects
  */
-function loadTasks() {
+function loadTasks () {
   try {
     if (!fs.existsSync(TASKS_FILE)) {
-      return DEFAULT_TASKS;
+      return DEFAULT_TASKS
     }
-    const data = fs.readFileSync(TASKS_FILE, 'utf8');
-    return JSON.parse(data);
+    const data = fs.readFileSync(TASKS_FILE, 'utf8')
+    return JSON.parse(data)
   } catch (error) {
-    console.error('Error loading tasks:', error.message);
-    return DEFAULT_TASKS;
+    console.error('Error loading tasks:', error.message)
+    return DEFAULT_TASKS
   }
 }
 
@@ -32,11 +32,11 @@ function loadTasks() {
  * Save tasks to the tasks file
  * @param {Array} tasks - Array of task objects to save
  */
-function saveTasks(tasks) {
+function saveTasks (tasks) {
   try {
-    fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2), 'utf8');
+    fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2), 'utf8')
   } catch (error) {
-    console.error('Error saving tasks:', error.message);
+    console.error('Error saving tasks:', error.message)
   }
 }
 
@@ -46,18 +46,18 @@ function saveTasks(tasks) {
  * @param {string} description - The description of the task
  * @returns {Object} The newly created task
  */
-function addTask(title, description) {
-  const tasks = loadTasks();
+function addTask (title, description) {
+  const tasks = loadTasks()
   const newTask = {
     id: tasks.length + 1,
     title,
     description,
     completed: false,
     createdAt: new Date().toISOString()
-  };
-  tasks.push(newTask);
-  saveTasks(tasks);
-  return newTask;
+  }
+  tasks.push(newTask)
+  saveTasks(tasks)
+  return newTask
 }
 
 /**
@@ -65,15 +65,15 @@ function addTask(title, description) {
  * @param {number} id - The ID of the task to complete
  * @returns {Object|null} The completed task or null if not found
  */
-function completeTask(id) {
-  const tasks = loadTasks();
-  const task = tasks.find(t => t.id === id);
+function completeTask (id) {
+  const tasks = loadTasks()
+  const task = tasks.find((t) => t.id === id)
   if (task) {
-    task.completed = true;
-    task.completedAt = new Date().toISOString();
-    saveTasks(tasks);
+    task.completed = true
+    task.completedAt = new Date().toISOString()
+    saveTasks(tasks)
   }
-  return task || null;
+  return task || null
 }
 
 /**
@@ -81,14 +81,14 @@ function completeTask(id) {
  * @param {number} id - The ID of the task to delete
  * @returns {boolean} Whether the task was successfully deleted
  */
-function deleteTask(id) {
-  const tasks = loadTasks();
-  const filteredTasks = tasks.filter(t => t.id !== id);
+function deleteTask (id) {
+  const tasks = loadTasks()
+  const filteredTasks = tasks.filter((t) => t.id !== id)
   if (filteredTasks.length !== tasks.length) {
-    saveTasks(filteredTasks);
-    return true;
+    saveTasks(filteredTasks)
+    return true
   }
-  return false;
+  return false
 }
 
 /**
@@ -96,12 +96,12 @@ function deleteTask(id) {
  * @param {boolean} [completed] - Filter by completion status
  * @returns {Array} Array of task objects
  */
-function getTasks(completed) {
-  const tasks = loadTasks();
+function getTasks (completed) {
+  const tasks = loadTasks()
   if (completed === undefined) {
-    return tasks;
+    return tasks
   }
-  return tasks.filter(t => t.completed === completed);
+  return tasks.filter((t) => t.completed === completed)
 }
 
 /**
@@ -110,14 +110,14 @@ function getTasks(completed) {
  * @param {Object} updates - The fields to update
  * @returns {Object|null} The updated task or null if not found
  */
-function updateTask(id, updates) {
-  const tasks = loadTasks();
-  const task = tasks.find(t => t.id === id);
+function updateTask (id, updates) {
+  const tasks = loadTasks()
+  const task = tasks.find((t) => t.id === id)
   if (task) {
-    Object.assign(task, updates);
-    saveTasks(tasks);
+    Object.assign(task, updates)
+    saveTasks(tasks)
   }
-  return task || null;
+  return task || null
 }
 
 // Export all functions
@@ -129,4 +129,4 @@ module.exports = {
   deleteTask,
   getTasks,
   updateTask
-};
+}

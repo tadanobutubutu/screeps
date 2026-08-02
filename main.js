@@ -1,7 +1,6 @@
 // main.js
 // This file handles the dependency dashboard functionality
 
-
 /**
  * Get pending dependency updates
  * @returns {Array} Array of pending dependency updates
@@ -48,23 +47,23 @@ function getPendingScheduleUpdates() {
     return [
         {
             label: 'chore(deps): update node.js to v24.18.1',
-            branch: 'main'
+            branch: 'main',
         },
         {
             label: 'fix(deps): update dependency posthog-js to v1.409.5',
-            branch: 'main'
+            branch: 'main',
         },
         {
             label: 'chore(deps): update actions/checkout action to v7',
-            branch: 'main'
+            branch: 'main',
         },
         {
             label: 'chore(deps): update actions/stale action to v11',
-            branch: 'main'
+            branch: 'main',
         },
         {
             label: 'chore(deps): update dependency typescript to v7',
-            branch: 'main'
+            branch: 'main',
         },
     ];
 }
@@ -77,7 +76,7 @@ function getBlockedUpdates() {
     return [
         {
             label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
-            branch: 'main'
+            branch: 'main',
         },
     ];
 }

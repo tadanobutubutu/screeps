@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const { getEmotion } = require('./utils.emotions.js');
+
+let emotionName = "super-excited";
+const emotion = getEmotion(emotionName);
+
+console.log(`Current emotion: ${emotion.name}`);

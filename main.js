@@ -5,3 +5,11 @@ module.exports = {
     // Game loop logic will go here
   }
 };
+
+// New function as requested in the issue
+function newFunction () {
+  // Implement new functionality
+}
+
+// Call the new function
+newFunction()

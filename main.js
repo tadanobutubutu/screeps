@@ -1,6 +1,6 @@
 // main. js - Screeps game entry point
 module.exports = {
-  loop: function() {
+  loop: function () {
     // Game loop logic will go here
   }
-};
+}

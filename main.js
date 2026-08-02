@@ -45,8 +45,8 @@ function getState() {
  */
 function updateDependencies(deps) {
   appState.dependencies = {
-    ..appState.dependencies,
-    ..deps,
+    ...appState.dependencies,
+    ...deps,
   };
   appState.lastUpdate = new Date().toISOString();
 }
@@ -98,7 +98,7 @@ function processUpdates(updates) {
   updates.forEach((update) => {
     try {
       // Validate update
-      if (!update.name ||!update.version) {
+      if (!update.name || !update.version) {
         results.skipped++;
         return;
       }
@@ -121,11 +121,11 @@ function processUpdates(updates) {
  * @returns {boolean} Validation result
  */
 function validateDependencies(deps) {
-  const requiredDeps = ['node', 'posthogJs', 'entryBrowser', 'typescript'];
+  const requiredDeps = ['node', 'posthogJs', 'sentryBrowser', 'typescript'];
 
   return requiredDeps.every((dep) => {
     const value = deps[dep];
-    return value!== undefined && value!== null && value!== '';
+    return value !== undefined && value !== null && value !== '';
   });
 }
 

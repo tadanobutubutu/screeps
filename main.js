@@ -1,5 +1,1 @@
-// main.js - Issue fix for src/managers/roomManager.js
-// The actual fix should be applied to src/managers/roomManager.js
-// This file preserved as per requirements
-
-// No changes required to main.js
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

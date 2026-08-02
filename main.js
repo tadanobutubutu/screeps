@@ -218,6 +218,11 @@ function getDetectedDependencyIssues() {
     };
 }
 
+// New function requested in the issue
+function checkRandomUpdate() {
+    console.log('Checking for random updates...');
+}
+
 module.exports = {
     getPendingUpdates,
     getBlockedUpdates,
@@ -230,4 +235,5 @@ module.exports = {
     isGitHubActionOutdated,
     getNpmDependenciesWithUpdates,
     getDetectedDependencyIssues,
+    checkRandomUpdate, // New export added
 };

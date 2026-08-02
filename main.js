@@ -25,7 +25,6 @@ let appState = {
  * Initialize the application
  */
 function initialize() {
-  console.log('Initializing application...');
   appState.isInitialized = true;
   appState.lastUpdate = new Date().toISOString();
   return true;
@@ -143,6 +142,4 @@ module.exports = {
 // Initialize on load if running directly
 if (require.main === module) {
   initialize();
-  console.log('Application initialized successfully');
-  console.log('Current dependencies:', appState.dependencies);
-}
+  }

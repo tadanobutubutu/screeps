@@ -53,7 +53,7 @@ module.exports = {
   visualizeMemory
 };
 `;
-if (!content.includes('module.exports = {')) {
+if (!content.includes('clearAllTasks')) {
     content += exportsToAdd;
 }
 

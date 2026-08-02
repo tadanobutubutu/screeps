@@ -10,11 +10,16 @@ function getPendingUpdates() {
 }
 
 /**
- * Get blocked dependency updates
+ * Get blocked (manually edited) updates
  * @returns {Array} Array of blocked updates
  */
 function getBlockedUpdates() {
-    return [];
+    return [
+        {
+            label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
+            branch: 'renovate/sentry-10.x',
+        },
+    ];
 }
 
 /**
@@ -64,19 +69,6 @@ function getPendingScheduleUpdates() {
         {
             label: 'chore(deps): update dependency typescript to v7',
             branch: 'renovate/typescript-7.x',
-        },
-    ];
-}
-
-/**
- * Get blocked (manually edited) updates
- * @returns {Array} Array of blocked updates
- */
-function getBlockedUpdates() {
-    return [
-        {
-            label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
-            branch: 'renovate/sentry-10.x',
         },
     ];
 }

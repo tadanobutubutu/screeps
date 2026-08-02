@@ -1,9 +1,1 @@
-// User Safety: safe
-
-function checkSyntax() {
-  return true;
-}
-
-module.exports = {
-  checkSyntax
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

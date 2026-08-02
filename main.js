@@ -1,4 +1,4 @@
-/**  
+/**
  * Memory Visualizer Module  
  * Tracks and visualizes memory state changes over time */  
 class MemoryVisualizer {  
@@ -42,7 +42,7 @@ class MemoryVisualizer {
     }));  
   }  
 }  
-  
+
 // Deployment Module  
 const fs = require('fs');  
 const path = require('path');  
@@ -77,7 +77,21 @@ function getStatus(target) {
   };  
 }  
 
-module.exports = MemoryVisualizer;  
-module.exports.deploy = deploy;  
-module.exports.rollback = rollback;  
-module.exports.getStatus = getStatus;
+// Main application entry point  
+function main () {  
+  console.log('Application started')  
+}  
+
+// Export for testing/compatibility  
+module.exports = {  
+  main,  
+  MemoryVisualizer,  
+  deploy,  
+  rollback,  
+  getStatus  
+};  
+
+// Run if executed directly  
+if (require.main === module) {  
+  main()  
+}

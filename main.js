@@ -57,7 +57,6 @@ function getPendingScheduleUpdates() {
 function getBlockedUpdates() {
     return [
         // Existing blocked update data
-
         // Add new blocked updates here if needed
     ];
 }
@@ -66,7 +65,6 @@ function getBlockedUpdates() {
 function getClosedPRBlockers() {
     return [
         // Existing closed PR blocker data
-
         // Add new closed PR blocker data here if needed
     ];
 }
@@ -75,7 +73,6 @@ function getClosedPRBlockers() {
 function getFailedLookups() {
     return [
         // Existing failed lookup data
-
         // Add new failed lookup data here if needed
     ];
 }

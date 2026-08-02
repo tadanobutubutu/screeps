@@ -4,13 +4,13 @@
  * Main application module
  */
 
-function main() {
+function main () {
   return {
     status: 'ok',
     message: 'Application running'
-  };
+  }
 }
 
 module.exports = {
   main
-};
+}

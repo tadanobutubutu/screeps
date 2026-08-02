@@ -15,5 +15,6 @@ module.exports = {
 
     // Existing code that may call the new function
     checkRoomStatus('E1S1');
+    const { property } = myObject; // Assuming myObject is the variable containing the object
   }
 };

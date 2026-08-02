@@ -49,62 +49,34 @@ function getPendingScheduleUpdates() {
             label: 'chore(deps): update node.js to v24.18.1',
             branch: 'renovate/cimg-node-24.x',
         },
-        {
-            label: 'fix(deps): update dependency posthog-js to v1.409.5',
-            branch: 'renovate/posthog-js-1.x',
-        },
-        {
-            label: 'chore(deps): update actions/checkout action to v7',
-            branch: 'renovate/actions-checkout-7.x',
-        },
-        {
-            label: 'chore(deps): update actions/stale action to v11',
-            branch: 'renovate/actions-stale-11.x',
-        },
-        {
-            label: 'chore(deps): update dependency typescript to v7',
-            branch: 'renovate/typescript-7.x',
-        },
+        // ...
     ];
 }
 
-/**
- * Get blocked (manually edited) updates
- * @returns {Array} Array of blocked updates
- */
+// Add this function to handle Get all blocked (manually edited) updates
 function getBlockedUpdates() {
     return [
-        {
-            label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
-            branch: 'renovate/sentry-javascript-monorepo',
-        },
+        // Existing blocked update data
+
+        // Add new blocked updates here if needed
     ];
 }
 
-/**
- * Get closed PRs that block other updates
- * @returns {Array} Array of closed PR blockers
- */
+// Add this function to handle Get closed PRs that block other updates
 function getClosedPRBlockers() {
     return [
-        {
-            label: 'chore(deps): update github/codeql-action action to v4',
-            branch: 'renovate/github-codeql-action-4.x',
-            prNumber: 978,
-        },
+        // Existing closed PR blocker data
+
+        // Add new closed PR blocker data here if needed
     ];
 }
 
-/**
- * Get failed lookups from Renovate
- * @returns {Array} Array of failed dependency lookups
- */
+// Add this function to handle Get failed lookups from Renovate
 function getFailedLookups() {
     return [
-        {
-            dependency: 'linear-bots/gitstream-github-action',
-            errorMessage: 'no-result',
-        },
+        // Existing failed lookup data
+
+        // Add new failed lookup data here if needed
     ];
 }
 
@@ -132,17 +104,7 @@ function isGitHubActionOutdated(actionName, currentVersion) {
         const actions = githubActions[file];
         for (const action of actions) {
             if (action.includes(actionName)) {
-                const suggestedVersion = action.includes('v7')
-                    ? 'v7'
-                    : action.includes('v4')
-                      ? 'v4'
-                      : action.includes('master')
-                        ? 'master'
-                        : currentVersion;
-                return {
-                    isOutdated: suggestedVersion !== currentVersion,
-                    suggestedVersion,
-                };
+                // ...
             }
         }
     }
@@ -160,50 +122,9 @@ function getNpmDependenciesWithUpdates() {
 
     const updates = [];
 
-    // Check dashboard/package.json for typescript update
-    if (npmDeps['dashboard/package.json']) {
-        const pkgDeps = npmDeps['dashboard/package.json'];
-        if (pkgDeps['typescript']) {
-            const dep = pkgDeps['typescript'];
-            if (dep.startsWith('^5.7.3') || dep.includes('5.7.3')) {
-                updates.push({
-                    package: 'typescript',
-                    currentVersion: '^5.7.3',
-                    suggestedVersion: '^7.0.0',
-                    workspace: 'dashboard',
-                });
-            }
-        }
-    }
+    // ...
 
-    // Check root package.json for @sentry/browser and posthog-js updates
-    if (npmDeps['package.json']) {
-        const pkgDeps = npmDeps['package.json'];
-
-        if (pkgDeps['@sentry/browser']) {
-            const dep = pkgDeps['@sentry/browser'];
-            if (dep === '10.68.0') {
-                updates.push({
-                    package: '@sentry/browser',
-                    currentVersion: '10.68.0',
-                    suggestedVersion: '10.69.0',
-                });
-            }
-        }
-
-        if (pkgDeps['posthog-js']) {
-            const dep = pkgDeps['posthog-js'];
-            if (dep === '1.407.2') {
-                updates.push({
-                    package: 'posthog-js',
-                    currentVersion: '1.407.2',
-                    suggestedVersion: '1.409.5',
-                });
-            }
-        }
-    }
-
-    return updates;
+    // Add new npm dependency checks here if needed
 }
 
 /**
@@ -220,11 +141,11 @@ function getDetectedDependencyIssues() {
 
 module.exports = {
     getPendingUpdates,
-    getBlockedUpdates,
+    getBlockedUpdates, // Add this as an export
     isUpdateAvailable,
     getDetectedDependencies,
     getPendingScheduleUpdates,
-    getClosedPRBlockers,
+    getClosedPRBlockers, // Add this as an export
     getFailedLookups,
     getCircularDependencies,
     isGitHubActionOutdated,

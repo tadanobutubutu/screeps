@@ -7,7 +7,7 @@
 // }
 
 // After:
-for (var i = 0; i < rooms.length; i++) {
+for (let i = 0; i < rooms.length; i++) {
   // ... some code ...
 }
 

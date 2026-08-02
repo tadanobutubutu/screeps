@@ -56,7 +56,7 @@ function updateDependencies (deps) {
  * @returns {Promise<Object>} API response
  */
 async function fetchData (endpoint) {
-  const url = `${CONFIG.apiUrl}${endpoint}`
+  const url = `${CONFIG.apiUrl}${endpoint.startsWith('/') ? endpoint : '/' + endpoint}`
 
   for (let attempt = 0; attempt < CONFIG.maxRetries; attempt++) {
     try {

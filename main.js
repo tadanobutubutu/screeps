@@ -10,14 +10,6 @@ function getPendingUpdates() {
 }
 
 /**
- * Get blocked dependency updates
- * @returns {Array} Array of blocked updates
- */
-function getBlockedUpdates() {
-    return [];
-}
-
-/**
  * Check if a dependency update is available
  * @param {string} dependencyName - Name of the dependency
  * @returns {boolean} Whether an update is available
@@ -69,7 +61,7 @@ function getPendingScheduleUpdates() {
 }
 
 /**
- * Get blocked (manually edited) updates
+ * Get blocked dependency updates
  * @returns {Array} Array of blocked updates
  */
 function getBlockedUpdates() {

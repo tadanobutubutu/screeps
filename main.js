@@ -47,23 +47,23 @@ function getPendingScheduleUpdates() {
     return [
         {
             label: 'chore(deps): update node.js to v24.18.1',
-            branch: 'renovate/cimg-node-24.x',
+            branch: 'enovate/cimg-node-24.x',
         },
         {
             label: 'fix(deps): update dependency posthog-js to v1.409.5',
-            branch: 'renovate/posthog-js-1.x',
+            branch: 'enovate/posthog-js-1.x',
         },
         {
             label: 'chore(deps): update actions/checkout action to v7',
-            branch: 'renovate/actions-checkout-7.x',
+            branch: 'enovate/actions-checkout-7.x',
         },
         {
             label: 'chore(deps): update actions/stale action to v11',
-            branch: 'renovate/actions-stale-11.x',
+            branch: 'enovate/actions-stale-11.x',
         },
         {
             label: 'chore(deps): update dependency typescript to v7',
-            branch: 'renovate/typescript-7.x',
+            branch: 'enovate/typescript-7.x',
         },
     ];
 }
@@ -76,7 +76,7 @@ function getBlockedUpdates() {
     return [
         {
             label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
-            branch: 'renovate/sentry-javascript-monorepo',
+            branch: 'enovate/sentry-javascript-monorepo',
         },
     ];
 }
@@ -89,7 +89,7 @@ function getClosedPRBlockers() {
     return [
         {
             label: 'chore(deps): update github/codeql-action action to v4',
-            branch: 'renovate/github-codeql-action-4.x',
+            branch: 'enovate/github-codeql-action-4.x',
             prNumber: 978,
         },
     ];
@@ -133,14 +133,14 @@ function isGitHubActionOutdated(actionName, currentVersion) {
         for (const action of actions) {
             if (action.includes(actionName)) {
                 const suggestedVersion = action.includes('v7')
-                    ? 'v7'
+                     'v7'
                     : action.includes('v4')
-                      ? 'v4'
+                       'v4'
                       : action.includes('master')
-                        ? 'master'
+                         'aster'
                         : currentVersion;
                 return {
-                    isOutdated: suggestedVersion !== currentVersion,
+                    isOutdated: suggestedVersion!== currentVersion,
                     suggestedVersion,
                 };
             }

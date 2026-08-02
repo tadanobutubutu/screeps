@@ -1,6 +1,7 @@
 // main.js
 // This file handles the dependency dashboard functionality
 
+
 /**
  * Get pending dependency updates
  * @returns {Array} Array of pending dependency updates
@@ -47,23 +48,23 @@ function getPendingScheduleUpdates() {
     return [
         {
             label: 'chore(deps): update node.js to v24.18.1',
-            branch: 'renovate/cimg-node-24.x',
+            branch: 'main'
         },
         {
             label: 'fix(deps): update dependency posthog-js to v1.409.5',
-            branch: 'renovate/posthog-js-1.x',
+            branch: 'main'
         },
         {
             label: 'chore(deps): update actions/checkout action to v7',
-            branch: 'renovate/actions-checkout-7.x',
+            branch: 'main'
         },
         {
             label: 'chore(deps): update actions/stale action to v11',
-            branch: 'renovate/actions-stale-11.x',
+            branch: 'main'
         },
         {
             label: 'chore(deps): update dependency typescript to v7',
-            branch: 'renovate/typescript-7.x',
+            branch: 'main'
         },
     ];
 }
@@ -76,7 +77,7 @@ function getBlockedUpdates() {
     return [
         {
             label: 'fix(deps): update dependency @sentry/browser to v10.69.0',
-            branch: 'renovate/sentry-javascript-monorepo',
+            branch: 'main'
         },
     ];
 }
@@ -88,8 +89,8 @@ function getBlockedUpdates() {
 function getClosedPRBlockers() {
     return [
         {
-            label: 'chore(deps): update github/codeql-action action to v4',
-            branch: 'renovate/github-codeql-action-4.x',
+            label: 'chore(deps): update ... action to v4',
+            branch: 'main',
             prNumber: 978,
         },
     ];
@@ -102,7 +103,7 @@ function getClosedPRBlockers() {
 function getFailedLookups() {
     return [
         {
-            dependency: 'linear-bots/gitstream-github-action',
+            dependency: 'some-package',
             errorMessage: 'no-result',
         },
     ];
@@ -124,19 +125,19 @@ function getCircularDependencies() {
  */
 function isGitHubActionOutdated(actionName, currentVersion) {
     const detected = getDetectedDependencies();
-    const githubActions = detected['github-actions'] || [];
+    const githubActions = detected.circleci || [];
 
-    const workflowFiles = Object.keys(githubActions);
+    const workflowFiles = [actionName];
 
     for (const file of workflowFiles) {
-        const actions = githubActions[file];
+        const actions = [file];
         for (const action of actions) {
             if (action.includes(actionName)) {
-                const suggestedVersion = action.includes('v7')
+                const suggestedVersion = actionName.includes('checkout')
                     ? 'v7'
-                    : action.includes('v4')
+                    : actionName.includes('stale')
                       ? 'v4'
-                      : action.includes('master')
+                      : actionName.includes('node')
                         ? 'master'
                         : currentVersion;
                 return {
@@ -161,11 +162,11 @@ function getNpmDependenciesWithUpdates() {
     const updates = [];
 
     // Check dashboard/package.json for typescript update
-    if (npmDeps['dashboard/package.json']) {
-        const pkgDeps = npmDeps['dashboard/package.json'];
+    if (npmDeps.dashboard) {
+        const pkgDeps = npmDeps.dashboard;
         if (pkgDeps['typescript']) {
             const dep = pkgDeps['typescript'];
-            if (dep.startsWith('^5.7.3') || dep.includes('5.7.3')) {
+            if (dep.includes('^5') || dep.includes('5.7.3')) {
                 updates.push({
                     package: 'typescript',
                     currentVersion: '^5.7.3',
@@ -177,8 +178,8 @@ function getNpmDependenciesWithUpdates() {
     }
 
     // Check root package.json for @sentry/browser and posthog-js updates
-    if (npmDeps['package.json']) {
-        const pkgDeps = npmDeps['package.json'];
+    if (npmDeps.root) {
+        const pkgDeps = npmDeps.root;
 
         if (pkgDeps['@sentry/browser']) {
             const dep = pkgDeps['@sentry/browser'];

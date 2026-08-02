@@ -1,4 +1,4 @@
-// The current contents of memory.visualizer.js, which are causing the lint error, are unknown due to the limited information provided in the issue. 
+// The current contents of memory.visualizer.js, which are causing the lint error, are unknown due to the limited information provided in the issue.
 
 // However, based on the error message "Parsing error: Unexpected token .", we can infer that there is likely an invalid token in the code on line 31 that Jest's parser does not recognize.
 
@@ -6,8 +6,8 @@
 
 // Example file: memory.visualizer.js
 
-function someFunction() {
-    // ... existing code ...
+function someFunction () {
+  // ... existing code ...
 }
 
 // This is a hypothetical example of a lint error that could occur at line 31.
@@ -18,9 +18,9 @@ function someFunction() {
 // }
 
 // Fix the above hypothetical error by ensuring that 'someVariable' is an object with a 'someProperty' property before accessing it:
-const someVariable = someFunction();
+const someVariable = someFunction()
 if (someVariable && typeof someVariable === 'object' && someVariable.someProperty !== undefined) {
-    console.log(someVariable.someProperty);
+  console.log(someVariable.someProperty)
 }
 
 // ... rest of the memory.visualizer.js file ...

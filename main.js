@@ -10,14 +10,6 @@ function getPendingUpdates() {
 }
 
 /**
- * Get blocked dependency updates
- * @returns {Array} Array of blocked updates
- */
-function getBlockedUpdates() {
-    return [];
-}
-
-/**
  * Check if a dependency update is available
  * @param {string} dependencyName - Name of the dependency
  * @returns {boolean} Whether an update is available
@@ -124,7 +116,7 @@ function getCircularDependencies() {
  */
 function isGitHubActionOutdated(actionName, currentVersion) {
     const detected = getDetectedDependencies();
-    const githubActions = detected.circleci || [];
+    const circleciActions = detected.circleci || [];
 
     const workflowFiles = [actionName];
 
@@ -135,9 +127,9 @@ function isGitHubActionOutdated(actionName, currentVersion) {
                 const suggestedVersion = actionName.includes('checkout')
                     ? 'v7'
                     : actionName.includes('stale')
-                      ? 'v4'
+                      ? 'v11'
                       : actionName.includes('node')
-                        ? 'master'
+                        ? 'v24.18.1'
                         : currentVersion;
                 return {
                     isOutdated: suggestedVersion !== currentVersion,
@@ -156,15 +148,15 @@ function isGitHubActionOutdated(actionName, currentVersion) {
  */
 function getNpmDependenciesWithUpdates() {
     const detected = getDetectedDependencies();
-    const npmDeps = detected['npm'] || {};
+    const npmDeps = detected.npm || {};
 
     const updates = [];
 
     // Check dashboard/package.json for typescript update
     if (npmDeps.dashboard) {
         const pkgDeps = npmDeps.dashboard;
-        if (pkgDeps['typescript']) {
-            const dep = pkgDeps['typescript'];
+        if (pkgDeps.typescript) {
+            const dep = pkgDeps.typescript;
             if (dep.includes('^5') || dep.includes('5.7.3')) {
                 updates.push({
                     package: 'typescript',

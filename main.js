@@ -20,7 +20,7 @@
 // Example of properly resolved code (no conflict markers):
 const deploy = (config) => {
   // deployment logic
-  return config;
-};
+  return config
+}
 
-module.exports = { deploy };
+module.exports = { deploy }

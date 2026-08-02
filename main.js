@@ -1,2 +1,2 @@
-// I will provide the full, corrected file here 
+// I will provide the full, corrected file here
 // once the source code is provided.

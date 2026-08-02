@@ -2,7 +2,7 @@
  * Main application entry point
  */
 
-// Configuration constants
+ // Configuration constants
 const CONFIG = {
   apiUrl: process.env.API_URL || 'https://api.example.com',
   maxRetries: 3,

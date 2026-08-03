@@ -93,8 +93,14 @@ const experiments = [
             const code = `
     // Smart Tower Targeting (Auto-added)
     const towers = Object.values(Game.structures).filter(s => s.structureType === STRUCTURE_TOWER);
+    const hostilesByRoom = {};
+    const damagedByRoom = {};
     towers.forEach(tower => {
-        const hostiles = tower.room.find(FIND_HOSTILE_CREEPS);
+        const roomName = tower.room.name;
+        if (!hostilesByRoom[roomName]) {
+            hostilesByRoom[roomName] = tower.room.find(FIND_HOSTILE_CREEPS);
+        }
+        const hostiles = hostilesByRoom[roomName];
         if (hostiles.length > 0) {
             // Target closest or strongest enemy
             const target = hostiles.sort((a, b) => {
@@ -105,9 +111,12 @@ const experiments = [
             tower.attack(target);
         } else {
             // Repair damaged structures
-            const damaged = tower.room.find(FIND_STRUCTURES, {
-                filter: s => s.hits < s.hitsMax * 0.8
-            });
+            if (!damagedByRoom[roomName]) {
+                damagedByRoom[roomName] = tower.room.find(FIND_STRUCTURES, {
+                    filter: s => s.hits < s.hitsMax * 0.8
+                });
+            }
+            const damaged = damagedByRoom[roomName];
             if (damaged.length > 0) {
                 tower.repair(damaged[0]);
             }

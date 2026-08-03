@@ -166,17 +166,19 @@ const autoTutorial = {
         const sitesCache = {};
         const sourcesCache = {};
 
+        // ⚡ PERFORMANCE OPTIMIZATION: Prepopulate construction sites globally per room to avoid redundant find checks inside the hot loop
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            sitesCache[roomName] = room.find ? room.find(FIND_CONSTRUCTION_SITES) : [];
+        }
+
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
             const creep = Game.creeps[name];
             const roomName = creep.room.name;
 
-            let targets = sitesCache[roomName];
-            if (targets === undefined) {
-                targets = creep.room.find ? creep.room.find(FIND_CONSTRUCTION_SITES) : [];
-                sitesCache[roomName] = targets;
-            }
+            let targets = sitesCache[roomName] || [];
 
             if (targets.length > 0) {
                 if (creep.store[RESOURCE_ENERGY] === 0) {
@@ -224,6 +226,11 @@ const autoTutorial = {
         const sourcesCache = {};
         const sitesCache = {};
         const hostilesCache = {};
+        // ⚡ PERFORMANCE OPTIMIZATION: Prepopulate construction sites globally per room to avoid redundant find checks inside the hot loop
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            sitesCache[roomName] = room.find ? room.find(FIND_CONSTRUCTION_SITES) : [];
+        }
 
         this._handleCreeps(sourcesCache, sitesCache);
         this._handleTowers(hostilesCache);
@@ -252,11 +259,7 @@ const autoTutorial = {
                 }
             } else {
                 // 建設サイト優先
-                let targets = sitesCache[roomName];
-                if (targets === undefined) {
-                    targets = creep.room.find ? creep.room.find(FIND_CONSTRUCTION_SITES) : [];
-                    sitesCache[roomName] = targets;
-                }
+                let targets = sitesCache[roomName] || [];
 
                 if (targets.length > 0) {
                     if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Application entry point with TestDriver integration
 
 const fs = require('fs');
@@ -87,12 +84,3 @@ module.exports = {
   loadFixture,
   setupTestDriver,
 };
-```
-
-This resolved file combines both changes from the original development and production branches:
-
-1. It imports the sample test suite if it exists. This was done by adding an if statement around the test suite load and execution part.
-
-2. It keeps the TestDriver configuration, methods, and helper functions for functional testing in the production environment.
-
-3. It integrates the TestDriver utilities and functions for functional testing with the sample test suite, so you can run the tests when the sample test suite is available.

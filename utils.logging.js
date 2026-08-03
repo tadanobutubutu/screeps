@@ -198,7 +198,45 @@ function getStats() {
     };
 }
 
+
+
+function tryCatch(fn, context, ...args) {
+    try {
+        return fn(...args);
+    } catch (e) {
+        error(`[${context}] ${e.message}`, e);
+        return undefined;
+    }
+}
+
+function getRecentLogs(count) {
+    if (!Memory.logs) return [];
+    return Memory.logs.slice(-count);
+}
+
+function getErrors() {
+    if (!Memory.logs) return [];
+    return Memory.logs.filter((log) => log.level === 'error');
+}
+
+function clear() {
+    if (Memory.logs) {
+        Memory.logs.length = 0;
+    }
+}
+
+function init() {
+    if (Memory.logs && Memory.logs.length > 100) {
+        Memory.logs = Memory.logs.slice(-100);
+    }
+}
+
 module.exports = {
+    tryCatch,
+    getRecentLogs,
+    getErrors,
+    clear,
+    init,
     LEVELS,
     setLevel,
     getLevel,

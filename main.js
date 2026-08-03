@@ -4,8 +4,8 @@
 // Previous main.js content here
 
 // Add your new modifications here. For example:
-function myFunction() {
-    // Your code here
+function myFunction () {
+  // Your code here
 }
 
 // Do not modify any lines below this comment. All existing exports should remain unchanged.

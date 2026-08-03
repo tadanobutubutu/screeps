@@ -7,8 +7,8 @@ const testDriverSDK = require('@testdriverai/sdk');
 // Configuration for TestDriver in Production
 const config = {
   environment: 'production',
-  apiUrl: 'https://api.testdriverai.com',
-  apiKey: process.env.TESTDRIVER_API_KEY || 'demo-api-key',
+  apiUrl: '',
+  apiKey: '' || 'demo-api-key',
   timeout: 30000,
   retries: 2,
 };
@@ -22,8 +22,8 @@ const testFixtures = {
   },
   admin: {
     username: 'admin@example.com',
-    password: 'AdminPassword456!',
-    apiToken: 'admin-token-67890',
+    password: '',
+    apiToken: ''
   },
 };
 
@@ -39,7 +39,7 @@ const sampleTests = [
   {
     id: 'sample-test-2',
     name: 'Login Flow Test',
-    url: 'https://app.example.com/login',
+    url: '',
     assertions: ['login form visible', 'error handling', 'success redirect'],
     credentials: testFixtures.user,
   },
@@ -135,10 +135,10 @@ async function simulateTestScenario() {
   try {
     const testResults = await driver.runAllTests();
     const report = driver.generateReport();
-    } catch (error) {
+  } catch (error) {
     console.error('Test Simulation Error:', error);
   }
 }
 
 // Uncomment the following line to run the test simulation
-// simulateTestScenario();
+// ...

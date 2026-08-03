@@ -1,3 +1,3 @@
 // ... (previous code)
-let someVariable = someFunction();
+const someVariable = someFunction()
 // ... (rest of the code)

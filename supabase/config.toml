@@ -3,7 +3,7 @@
 project_id = "screeps"
 
 [api]
-enabled = true
+enabled = false
 # Port to use for the API URL.
 port = 54321
 # Schemas to expose in your API. Tables, views and stored procedures in this schema will get API
@@ -35,7 +35,7 @@ default_pool_size = 20
 max_client_conn = 100
 
 [realtime]
-enabled = true
+enabled = false
 # Bind realtime via either IPv4 or IPv6. (default: IPv6)
 # ip_version = "IPv6"
 # The minimum JWT expiry to allow for realtime subscriptions. (default: 1000)
@@ -44,30 +44,30 @@ enabled = true
 # max_header_length = 1000000
 
 [studio]
-enabled = true
+enabled = false
 # Port to use for Supabase Studio.
 port = 54323
 # External URL of the API server that frontend connects to.
 apiUrl = "http://127.0.0.1"
 # OpenAI API Key to use for Supabase AI in the Supabase Studio.
-openAiApiKey = "env(OPENAI_API_KEY)"
+openAiApiKey = ""
 
 [inbucket]
-enabled = true
+enabled = false
 port = 54324
 smtp_port = 54325
 pop3_port = 54326
 
 [storage]
-enabled = true
+enabled = false
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
 [storage.image_transformation]
-enabled = true
+enabled = false
 
 [auth]
-enabled = true
+enabled = false
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
 site_url = "http://127.0.0.1:3000"
@@ -116,7 +116,7 @@ test_otp = {}
 enabled = false
 account_sid = ""
 message_service_sid = ""
-auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
+auth_token = ""
 
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `figma`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`,

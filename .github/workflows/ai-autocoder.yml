@@ -146,7 +146,7 @@ jobs:
                   git add "$FILE"
                 fi
               done
-              git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD"
+              git commit -m "chore: Auto-resolve conflicts via AI" && git push origin "$HEAD" || echo "Git push failed or no changes to commit"
             fi
           done
 
@@ -192,7 +192,7 @@ jobs:
                     DATA=$(echo "$RESPONSE" | jq -r ".fixes[$i].content")
                     if [ -n "$FILE" ]; then echo "$DATA" > "$FILE"; fi
                 done
-                git add -A && git commit -m "chore: Auto-fix test failures via AI" && git push origin "$HEAD_REF"
+                git add -A && git commit -m "chore: Auto-fix test failures via AI" && git push origin "$HEAD_REF" || echo "Git push failed or no changes to commit"
                 continue # 次のループで再度チェック
             fi
             

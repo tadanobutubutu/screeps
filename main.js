@@ -2,7 +2,7 @@
 // TestDriver Setup for the Repository
 // Target: Production Environment
 
-const testDriverSDK = require('@testdriverai/sdk');
+const testDriverSDK = require('@testdriverai/sdk')
 
 // Configuration for TestDriver in Production
 const config = {
@@ -10,22 +10,22 @@ const config = {
   apiUrl: '',
   apiKey: '' || 'demo-api-key',
   timeout: 30000,
-  retries: 2,
-};
+  retries: 2
+}
 
 // Example credentials/fixtures for testing
 const testFixtures = {
   user: {
     username: 'test.user@example.com',
     password: 'TestPassword123!',
-    apiToken: 'test-token-12345',
+    apiToken: 'test-token-12345'
   },
   admin: {
     username: 'admin@example.com',
     password: '',
     apiToken: ''
-  },
-};
+  }
+}
 
 // Sample Test Cases
 const sampleTests = [
@@ -34,33 +34,33 @@ const sampleTests = [
     name: 'Homepage Load Test',
     url: 'https://app.example.com',
     assertions: ['page title', 'navigation visible', 'content loaded'],
-    credentials: testFixtures.user,
+    credentials: testFixtures.user
   },
   {
     id: 'sample-test-2',
     name: 'Login Flow Test',
     url: '',
     assertions: ['login form visible', 'error handling', 'success redirect'],
-    credentials: testFixtures.user,
+    credentials: testFixtures.user
   },
   {
     id: 'sample-test-3',
     name: 'API Health Check',
     endpoint: '/health',
     assertions: ['status 200', 'response time < 500ms'],
-    auth: testFixtures.user.apiToken,
-  },
-];
+    auth: testFixtures.user.apiToken
+  }
+]
 
 // Test Driver Class
 class TestDriver {
-  constructor(config) {
-    this.config = config;
-    this.sdk = testDriverSDK || null;
-    this.results = [];
+  constructor (config) {
+    this.config = config
+    this.sdk = testDriverSDK || null
+    this.results = []
   }
 
-  async runTest(testCase) {
+  async runTest (testCase) {
     try {
       if (this.sdk) {
         // Use SDK if available
@@ -68,17 +68,17 @@ class TestDriver {
           testId: testCase.id,
           url: testCase.url,
           assertions: testCase.assertions,
-          credentials: testCase.credentials,
-        });
-        return result;
+          credentials: testCase.credentials
+        })
+        return result
       } else {
         // Fallback for demo mode without SDK
         return {
           status: 'passed',
           testId: testCase.id,
           name: testCase.name,
-          timestamp: new Date().toISOString(),
-        };
+          timestamp: new Date().toISOString()
+        }
       }
     } catch (error) {
       return {
@@ -86,39 +86,39 @@ class TestDriver {
         testId: testCase.id,
         name: testCase.name,
         error: error.message,
-        timestamp: new Date().toISOString(),
-      };
+        timestamp: new Date().toISOString()
+      }
     }
   }
 
-  async runAllTests() {
-    const results = [];
+  async runAllTests () {
+    const results = []
     for (const test of sampleTests) {
-      const result = await this.runTest(test);
-      results.push(result);
+      const result = await this.runTest(test)
+      results.push(result)
     }
-    this.results = results;
-    return results;
+    this.results = results
+    return results
   }
 
-  getResults() {
-    return this.results;
+  getResults () {
+    return this.results
   }
 
-  generateReport() {
-    const passed = this.results.filter((r) => r.status === 'passed').length;
-    const failed = this.results.filter((r) => r.status === 'failed').length;
+  generateReport () {
+    const passed = this.results.filter((r) => r.status === 'passed').length
+    const failed = this.results.filter((r) => r.status === 'failed').length
     return {
       total: this.results.length,
       passed,
       failed,
-      results: this.results,
-    };
+      results: this.results
+    }
   }
 }
 
 // Initialize TestDriver
-const driver = new TestDriver(config);
+const driver = new TestDriver(config)
 
 // Export for use in other modules
 module.exports = {
@@ -127,16 +127,16 @@ module.exports = {
   sampleTests,
   TestDriver,
   driver,
-  runTests: () => driver.runAllTests(),
-};
+  runTests: () => driver.runAllTests()
+}
 
 // New function to simulate a test scenario
-async function simulateTestScenario() {
+async function simulateTestScenario () {
   try {
-    const testResults = await driver.runAllTests();
-    const report = driver.generateReport();
+    const testResults = await driver.runAllTests()
+    const report = driver.generateReport()
   } catch (error) {
-    console.error('Test Simulation Error:', error);
+    console.error('Test Simulation Error:', error)
   }
 }
 

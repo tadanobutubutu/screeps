@@ -130,3 +130,18 @@ module.exports = {
   driver,
   runTests: () => driver.runAllTests(),
 };
+
+// New function to simulate a test scenario
+async function simulateTestScenario() {
+  try {
+    const testResults = await driver.runAllTests();
+    console.log('Test Results:', testResults);
+    const report = driver.generateReport();
+    console.log('Test Report:', report);
+  } catch (error) {
+    console.error('Test Simulation Error:', error);
+  }
+}
+
+// Uncomment the following line to run the test simulation
+// simulateTestScenario();

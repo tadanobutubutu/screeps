@@ -2,8 +2,8 @@
 
 // TestDriver configuration for production environment testing
 const TestDriverConfig = {
-  baseUrl: process.env.TEST_BASE_URL || 'https://production.example.com',
-  apiKey: process.env.TEST_API_KEY || 'test-api-key-fixture',
+  baseUrl: process.env.TESTDRIVER_BASE_URL || 'https://api.example.com',
+  apiKey: process.env.TESTDRIVER_API_KEY || 'test-api-key-fixture',
   timeout: 30000,
   retries: 2,
   environment: 'production'
@@ -14,36 +14,47 @@ class TestDriver {
   constructor(config = {}) {
     this.config = { ...TestDriverConfig, ...config };
     this.sessionId = null;
+    this.requestIdCounter = 0;
+  }
+
+  generateRequestId() {
+    return `req_${Date.now()}_${++this.requestIdCounter}`;
   }
 
   async initialize() {
-    console.log('TestDriver: Initializing session...');
-    this.sessionId = `session-${Date.now()}`;
+    console.log('... Initializing session...');
+    const requestId = this.generateRequestId();
+    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log(`Session initialized with ID: ${this.sessionId}`);
     return this;
   }
 
   async navigate(url) {
-    console.log(`TestDriver: Navigating to ${url}`);
-    return { success: true, url };
+    console.log(`... Navigating to ${url}`);
+    const requestId = this.generateRequestId();
+    return { success: true, url, requestId };
   }
 
   async click(selector) {
-    console.log(`TestDriver: Clicking element ${selector}`);
-    return { success: true, selector };
+    console.log(`... Clicking element ${selector}`);
+    const requestId = this.generateRequestId();
+    return { success: true, selector, requestId };
   }
 
   async type(selector, text) {
-    console.log(`TestDriver: Typing "${text}" into ${selector}`);
-    return { success: true, selector, text };
+    console.log(`... Typing "${text}" into ${selector}`);
+    const requestId = this.generateRequestId();
+    return { success: true, selector, text, requestId };
   }
 
   async screenshot(name = 'screenshot') {
-    console.log(`TestDriver: Taking screenshot: ${name}`);
-    return { success: true, name };
+    console.log(`... Taking screenshot: ${name}`);
+    const requestId = this.generateRequestId();
+    return { success: true, name, requestId };
   }
 
   async finish() {
-    console.log('TestDriver: Session finished');
+    console.log('... Session finished');
     return { success: true };
   }
 }

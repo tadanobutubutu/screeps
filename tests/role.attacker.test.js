@@ -47,14 +47,13 @@ describe('role.attacker', () => {
 
     test('hits < 50% && HEAL available -> moveTo HEAL', () => {
         mockCreep.hits = 40;
-        const healTarget = { getActiveBodyparts: jest.fn().mockReturnValue(1) };
+        const healTarget = {
+            getActiveBodyparts: jest.fn().mockReturnValue(1),
+            pos: { x: 10, y: 10 },
+        };
+        mockCreep.pos.x = 5;
+        mockCreep.pos.y = 5;
         mockCreep.room._myCreeps = [healTarget];
-        mockCreep.pos.findClosestByRange.mockImplementation((typeOrArray) => {
-            if (Array.isArray(typeOrArray) && typeOrArray.includes(healTarget)) {
-                return healTarget;
-            }
-            return null;
-        });
 
         roleAttacker.run(mockCreep);
 

@@ -12,7 +12,7 @@ const TestDriverConfig = {
 // TestDriver singleton instance
 class TestDriver {
   constructor (config = {}) {
-    this.config = { ...TestDriverConfig, ...config }
+    this.config = {...TestDriverConfig,...config }
     this.sessionId = null
   }
 
@@ -37,7 +37,7 @@ class TestDriver {
     return { success: true, selector, text }
   }
 
-  async screenshot (name = 'screenshot') {
+  async screenshot (name = 'creenshot') {
     console.log(`TestDriver: Taking screenshot: ${name}`)
     return { success: true, name }
   }

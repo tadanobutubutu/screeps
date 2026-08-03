@@ -15,26 +15,41 @@ const TD_CREDENTIALS = {
 
 // Function to initialize TestDriver with example credentials
 function setupTestDriver() {
-  const td = new TestDriver(TD_CREDENTIALS);
+  const td = new TestDriver({
+    credentials: TD_CREDENTIALS,
+    environment: 'production'
+  });
   td.connect();
+  return td;
 }
 
-// Function to run a sample test case
-function runSampleTest() {
-  it('should pass a simple test', async () => {
-    const td = new TestDriver(TD_CREDENTIALS);
+// Sample test cases
+describe('TestDriver Sample Tests', () => {
+  let td;
+
+  beforeAll(async () => {
+    td = setupTestDriver();
     await td.connect();
+  });
 
-    // Replace with actual test logic
-    const result = await td.run('someTestCommand');
-    expect(result).toBe('expectedResult');
-
+  afterAll(async () => {
     await td.disconnect();
   });
-}
+
+  it('should connect to the service', async () => {
+    const isConnected = await td.isConnected();
+    expect(isConnected).toBe(true);
+  });
+
+  it('should pass a simple test', async () => {
+    // Replace with actual test logic
+    const result = await td.someMethod();
+    expect(result).toBe('expectedResult');
+  });
+});
 
 // Export the setup and test functions
 module.exports = {
   setupTestDriver,
-  runSampleTest
+  TD_CREDENTIALS
 };

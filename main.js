@@ -2,11 +2,9 @@
 
 // New functions or changes requested in the issue go here:
 
-/**
- * Represents the Autonomous Efficiency role.
- * This role is designed to optimize resource allocation and task flow 
- * to maximize the overall efficiency of the creep production system.
- */
+// Represents the Autonomous Efficiency role.
+// This role is designed to optimize resource allocation and task flow 
+// to maximize the overall efficiency of the creep production system.
 function autonomousEfficiency() {
   return {
     role: 'autonomous_efficiency',

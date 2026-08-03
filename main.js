@@ -1,4 +1,3 @@
-// Current main.js content:
 // TestDriver Setup for the Repository
 // Target: Production Environment
 
@@ -142,3 +141,6 @@ async function simulateTestScenario() {
 
 // Uncomment the following line to run the test simulation
 // ...
+=======
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+>>>>>>> origin/main

@@ -19,7 +19,7 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'odule',
+    sourceType: 'module',
   },
   extends: 'eslint:recommended',
   rules: {

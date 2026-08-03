@@ -48,8 +48,22 @@ describe('TestDriver Sample Tests', () => {
   });
 });
 
+// Function to run a sample test case
+async function runSampleTest() {
+  const td = new TestDriver(TD_CREDENTIALS);
+  await td.connect();
+
+  // Replace with actual test logic
+  const result = await td.run('someTestCommand');
+  expect(result).toBe('expectedResult');
+
+  await td.disconnect();
+}
+
 // Export the setup and test functions
 module.exports = {
   setupTestDriver,
-  TD_CREDENTIALS
+  TD_CREDENTIALS,
+  runSampleTest
 };
+```

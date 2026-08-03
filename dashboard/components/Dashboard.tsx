@@ -328,14 +328,7 @@ export default function Dashboard() {
                                 }}
                                 aria-label="自動更新 (60秒ごと)"
                             />
-                            <span
-                                style={{
-                                    fontWeight: 'normal',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '0.25rem',
-                                }}
-                            >
+                            <span style={{ fontWeight: 'normal', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                                 <span
                                     style={{
                                         display: 'inline-block',
@@ -343,9 +336,7 @@ export default function Dashboard() {
                                         height: '6px',
                                         borderRadius: '50%',
                                         backgroundColor: autoRefresh ? '#48bb78' : '#a0aec0',
-                                        animation: autoRefresh
-                                            ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                                            : 'none',
+                                        animation: autoRefresh ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none',
                                     }}
                                     aria-hidden="true"
                                 />
@@ -558,8 +549,7 @@ export default function Dashboard() {
                         tabIndex={0}
                         title="AI が現在活動している部屋のリストです"
                     >
-                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (
-                        {stats?.rooms?.length || 0}):
+                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} ({stats?.rooms?.length || 0}):
                     </span>
                     {stats?.rooms?.length > 1 && (
                         <button

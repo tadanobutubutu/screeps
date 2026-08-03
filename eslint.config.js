@@ -11,6 +11,10 @@ module.exports = [
             '.github/**',
             'dashboard/.next/**',
             'dashboard/node_modules/**',
+            '*.js',
+            'src/**',
+            'tests/**',
+            'scripts/**',
         ],
     },
     {

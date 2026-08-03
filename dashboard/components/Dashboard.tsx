@@ -328,7 +328,29 @@ export default function Dashboard() {
                                 }}
                                 aria-label="自動更新 (60秒ごと)"
                             />
-                            <span style={{ fontWeight: 'normal' }}>自動更新</span>
+                            <span
+                                style={{
+                                    fontWeight: 'normal',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem',
+                                }}
+                            >
+                                <span
+                                    style={{
+                                        display: 'inline-block',
+                                        width: '6px',
+                                        height: '6px',
+                                        borderRadius: '50%',
+                                        backgroundColor: autoRefresh ? '#48bb78' : '#a0aec0',
+                                        animation: autoRefresh
+                                            ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                                            : 'none',
+                                    }}
+                                    aria-hidden="true"
+                                />
+                                自動更新
+                            </span>
                         </label>
                         <kbd
                             className="interactive-hint"
@@ -431,7 +453,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
-                        aria-label="GCL Progress"
+                        aria-label="GCLの進捗"
                         aria-valuenow={stats?.gcl?.progress || 0}
                         aria-valuemin={0}
                         aria-valuemax={stats?.gcl?.progressTotal || 100}
@@ -483,7 +505,7 @@ export default function Dashboard() {
                     </div>
                     <div
                         role="progressbar"
-                        aria-label="CPU Usage Progress"
+                        aria-label="CPU使用率"
                         aria-valuenow={stats?.cpuUsed || 0}
                         aria-valuemin={0}
                         aria-valuemax={100}
@@ -536,7 +558,8 @@ export default function Dashboard() {
                         tabIndex={0}
                         title="AI が現在活動している部屋のリストです"
                     >
-                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'}:
+                        🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (
+                        {stats?.rooms?.length || 0}):
                     </span>
                     {stats?.rooms?.length > 1 && (
                         <button

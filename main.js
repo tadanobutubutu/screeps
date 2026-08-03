@@ -1,4 +1,3 @@
-// Current main.js content:
 // TestDriver Setup for the Repository
 // Target: Production Environment
 

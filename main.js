@@ -1,31 +1,7 @@
-// Original code in main.js
-
-// Some existing code with conflict markers:
-// <<<<<<< HEAD
-// module.exports = {
-//   // existing functions and exports
-// };
-// =======
-// module.exports = {
-//   // conflicting changes
-// };
-// >>>>>>> branch-name
-
-// <<<<<<< HEAD
-// function existingFunction() {
-//   // existing logic
-// }
-// >>>>>>> branch-name
-
-// <<<<<<< HEAD
-// const existingExport = 'value';
-// >>>>>>> branch-name
-
 // Updated code with new TestDriver setup and example tests
 
 module.exports = {
-  // existing functions and exports
-  // No changes here as per the rules
+  // existing functions and exports (preserved)
 
   // New TestDriver setup (this would be a new function, so it should be exported if it's meant to be used outside this file)
   setupTestDriver: function() {

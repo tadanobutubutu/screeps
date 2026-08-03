@@ -3,7 +3,7 @@
 // const posthog = require('posthog-js');
 
 // Update the require statement to use the new version:
-const posthog = require('posthog-js');
+const posthog = require('posthog-js')
 
 // ... rest of your code ...
 

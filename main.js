@@ -2,13 +2,14 @@
 // TestDriver Setup for the Repository
 // Target: Production Environment
 
+
 const testDriverSDK = require('@testdriverai/sdk');
 
 // Configuration for TestDriver in Production
 const config = {
   environment: 'production',
-  apiUrl: 'https://api.testdriverai.com',
-  apiKey: process.env.TESTDRIVER_API_KEY || 'demo-api-key',
+  apiUrl: 'https://api.example.com',
+  apiKey: 'demo-api-key' || 'demo-api-key',
   timeout: 30000,
   retries: 2,
 };
@@ -22,7 +23,7 @@ const testFixtures = {
   },
   admin: {
     username: 'admin@example.com',
-    password: 'AdminPassword456!',
+    password: 'AdminPassword123!',
     apiToken: 'admin-token-67890',
   },
 };
@@ -135,10 +136,11 @@ async function simulateTestScenario() {
   try {
     const testResults = await driver.runAllTests();
     const report = driver.generateReport();
-    } catch (error) {
+    return { testResults, report };
+  } catch (error) {
     console.error('Test Simulation Error:', error);
   }
 }
 
 // Uncomment the following line to run the test simulation
-// simulateTestScenario();
+// ...

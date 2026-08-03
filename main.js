@@ -20,17 +20,15 @@ function setupTestDriver() {
 }
 
 // Function to run a sample test case
-function runSampleTest() {
-  it('should pass a simple test', async () => {
-    const td = new TestDriver(TD_CREDENTIALS);
-    await td.connect();
+async function runSampleTest() {
+  const td = new TestDriver(TD_CREDENTIALS);
+  await td.connect();
 
-    // Replace with actual test logic
-    const result = await td.run('someTestCommand');
-    expect(result).toBe('expectedResult');
+  // Replace with actual test logic
+  const result = await td.run('someTestCommand');
+  expect(result).toBe('expectedResult');
 
-    await td.disconnect();
-  });
+  await td.disconnect();
 }
 
 // Export the setup and test functions

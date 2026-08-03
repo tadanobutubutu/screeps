@@ -26,6 +26,7 @@ global.RoomPosition = class {
 const mockCache = {
     getSources: jest.fn(),
     getSpawns: jest.fn(),
+    get: jest.fn((key, fn) => fn()),
 };
 
 jest.mock('../src/utils/cache', () => mockCache, { virtual: true });

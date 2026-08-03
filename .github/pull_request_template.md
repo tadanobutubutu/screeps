@@ -4,7 +4,7 @@
 
 ## 🎯 関連Issue
 
-<!-- Closes #XXX -->
+<!-- Closes #<issue_number> -->
 
 ## 🧪 テスト方法
 

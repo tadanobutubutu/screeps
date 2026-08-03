@@ -20,5 +20,3 @@ function autonomousEfficiency() {
 }
 
 //... (add more new functions or changes if applicable)
-
-// Make sure to preserve any conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) if they exist in your original `main.js` file.

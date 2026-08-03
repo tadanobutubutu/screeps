@@ -12,25 +12,16 @@ const TestDriverConfig = {
   environment: 'production'
 };
 
-// TestDriver singleton instance
-class TestDriver {
-  constructor(config = {}) {
-    this.config = { ...TestDriverConfig, ...config };
-    this.sessionId = null;
-    this.requestIdCounter = 0;
-  }
+// Import sample test suite
+const testSuite = require('./tests/sample_test_suite')
 
-  generateRequestId() {
-    return `req_${Date.now()}_${++this.requestIdCounter}`;
-  }
+//... rest of the main.js code
 
-  async initialize() {
-    console.log('... Initializing session...');
-    const requestId = this.generateRequestId();
-    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    console.log(`Session initialized with ID: ${this.sessionId}`);
-    return this;
-  }
+// Import the TestDriver utilities
+const { TestDriver, TestDriverConfig } = module.exports
+
+// Create an instance of TestDriver
+const testDriver = new TestDriver(TestDriverConfig)
 
   async navigate(url) {
     console.log(`... Navigating to ${url}`);
@@ -50,7 +41,7 @@ class TestDriver {
     return { success: true, selector, text, requestId };
   }
 
-  async screenshot(name = 'screenshot') {
+  async screenshot(name = 'creenshot') {
     console.log(`... Taking screenshot: ${name}`);
     const requestId = this.generateRequestId();
     return { success: true, name, requestId };
@@ -88,3 +79,9 @@ module.exports = {
   loadFixture,
   setupTestDriver,
 };
+
+// Run the sample test suite
+testSuite(testDriver).then(() => {
+  console.log('Test suite completed')
+  testDriver.finish().then(() => process.exit(0))
+})

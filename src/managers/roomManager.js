@@ -266,9 +266,10 @@ function _getNeededExtensionCount(room) {
     if (!controller) return 0;
 
     const level = controller.level;
-    const maxExtensions = (global.CONTROLLER_STRUCTURES && global.CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION])
-        ? (global.CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level] || 0)
-        : 0;
+    const maxExtensions =
+        global.CONTROLLER_STRUCTURES && global.CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION]
+            ? global.CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level] || 0
+            : 0;
     if (maxExtensions === 0) return 0;
 
     const extensions = cache.getMyStructures(room, STRUCTURE_EXTENSION) || [];
@@ -298,7 +299,12 @@ function _getNeededExtensionCount(room) {
  */
 function _checkSafeMode(room) {
     const controller = room.controller;
-    if (!controller || !controller.my || controller.safeMode || controller.safeModeAvailable === 0) {
+    if (
+        !controller ||
+        !controller.my ||
+        controller.safeMode ||
+        controller.safeModeAvailable === 0
+    ) {
         return;
     }
 
@@ -309,8 +315,8 @@ function _checkSafeMode(room) {
         if (
             e &&
             (e.getActiveBodyparts(ATTACK) > 0 ||
-             e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
-             e.getActiveBodyparts(CLAIM) > 0)
+                e.getActiveBodyparts(RANGED_ATTACK) > 0 ||
+                e.getActiveBodyparts(CLAIM) > 0)
         ) {
             hostileCount++;
         }
@@ -378,9 +384,10 @@ function _manageLinkNetwork(room) {
             if (senderEnergy < 400) continue;
 
             const targetEnergy = virtualEnergy.get(target) || 0;
-            const targetCapacity = typeof target.store.getCapacity === 'function'
-                ? target.store.getCapacity(RESOURCE_ENERGY)
-                : (target.store.getCapacity || 800);
+            const targetCapacity =
+                typeof target.store.getCapacity === 'function'
+                    ? target.store.getCapacity(RESOURCE_ENERGY)
+                    : target.store.getCapacity || 800;
             const targetFree = targetCapacity - targetEnergy;
             if (targetFree <= 0) continue;
 
@@ -419,9 +426,9 @@ function getStats(room) {
         rcl: controller ? controller.level : 0,
         energy: room.energyAvailable || 0,
         energyCapacity: room.energyCapacityAvailable || 0,
-        controllerProgress: controller ? (controller.progress || 0) : 0,
+        controllerProgress: controller ? controller.progress || 0 : 0,
         safeMode: controller ? !!controller.safeMode : false,
-        storageEnergy: (storage && storage.store) ? (storage.store[RESOURCE_ENERGY] || 0) : 0,
+        storageEnergy: storage && storage.store ? storage.store[RESOURCE_ENERGY] || 0 : 0,
         creepCounts: Object.create(null),
     };
 
@@ -445,7 +452,9 @@ function getStats(room) {
  */
 function showStats(room) {
     const stats = getStats(room);
-    logger.info(`[RoomManager] Room: ${stats.name}, RCL: ${stats.rcl}, Energy: ${stats.energy}/${stats.energyCapacity}`);
+    logger.info(
+        `[RoomManager] Room: ${stats.name}, RCL: ${stats.rcl}, Energy: ${stats.energy}/${stats.energyCapacity}`
+    );
 }
 
 /**
@@ -454,11 +463,11 @@ function showStats(room) {
  */
 function showVisuals(room) {
     if (!room || !room.controller) return;
-    room.visual.text(
-        `RCL: ${room.controller.level}`,
-        25, 2,
-        { color: '#ffffff', font: 1, align: 'center' }
-    );
+    room.visual.text(`RCL: ${room.controller.level}`, 25, 2, {
+        color: '#ffffff',
+        font: 1,
+        align: 'center',
+    });
 }
 
 module.exports = {

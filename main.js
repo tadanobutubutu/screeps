@@ -61,7 +61,6 @@ class TestDriver {
   }
 
   async runTest(testCase) {
-    console.log(`Running test: ${testCase.name}`);
     try {
       if (this.sdk) {
         // Use SDK if available
@@ -135,10 +134,8 @@ module.exports = {
 async function simulateTestScenario() {
   try {
     const testResults = await driver.runAllTests();
-    console.log('Test Results:', testResults);
     const report = driver.generateReport();
-    console.log('Test Report:', report);
-  } catch (error) {
+    } catch (error) {
     console.error('Test Simulation Error:', error);
   }
 }

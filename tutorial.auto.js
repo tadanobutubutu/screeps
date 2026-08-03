@@ -101,6 +101,13 @@ const autoTutorial = {
      */
     step2_harvestEnergy: function () {
         const sourcesCache = {};
+        // ⚡ PERFORMANCE OPTIMIZATION: Pre-fetch sources outside the creep loop
+        // to avoid expensive checks and branch evaluations inside the hot loop.
+        for (let r in Game.rooms) {
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
+            sourcesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_SOURCES) : [];
+        }
+
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
@@ -109,11 +116,7 @@ const autoTutorial = {
 
             if (creep.store.getFreeCapacity() > 0) {
                 let sources = sourcesCache[roomName];
-                if (sources === undefined) {
-                    sources = creep.room.find ? creep.room.find(FIND_SOURCES) : [];
-                    sourcesCache[roomName] = sources;
-                }
-                if (sources.length > 0) {
+                if (sources && sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(sources[0]);
                     }
@@ -132,6 +135,12 @@ const autoTutorial = {
      */
     step3_upgradeController: function () {
         const sourcesCache = {};
+        // ⚡ PERFORMANCE OPTIMIZATION: Pre-fetch sources outside the creep loop
+        for (let r in Game.rooms) {
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
+            sourcesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_SOURCES) : [];
+        }
+
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
@@ -140,11 +149,7 @@ const autoTutorial = {
 
             if (creep.store[RESOURCE_ENERGY] === 0) {
                 let sources = sourcesCache[roomName];
-                if (sources === undefined) {
-                    sources = creep.room.find ? creep.room.find(FIND_SOURCES) : [];
-                    sourcesCache[roomName] = sources;
-                }
-                if (sources.length > 0) {
+                if (sources && sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(sources[0]);
                     }
@@ -166,6 +171,13 @@ const autoTutorial = {
         const sitesCache = {};
         const sourcesCache = {};
 
+        // ⚡ PERFORMANCE OPTIMIZATION: Pre-fetch targets outside the creep loop
+        for (let r in Game.rooms) {
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
+            sitesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_CONSTRUCTION_SITES) : [];
+            sourcesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_SOURCES) : [];
+        }
+
         // ⚡ PERFORMANCE OPTIMIZATION: Use for...in loop to avoid Object.values array allocation and reduce overhead
         for (let name in Game.creeps) {
             if (!Object.prototype.hasOwnProperty.call(Game.creeps, name)) continue;
@@ -173,20 +185,10 @@ const autoTutorial = {
             const roomName = creep.room.name;
 
             let targets = sitesCache[roomName];
-            if (targets === undefined) {
-                targets = creep.room.find ? creep.room.find(FIND_CONSTRUCTION_SITES) : [];
-                sitesCache[roomName] = targets;
-            }
-
-            if (targets.length > 0) {
+            if (targets && targets.length > 0) {
                 if (creep.store[RESOURCE_ENERGY] === 0) {
                     let sources = sourcesCache[roomName];
-                    if (sources === undefined) {
-                        sources = creep.room.find ? creep.room.find(FIND_SOURCES) : [];
-                        sourcesCache[roomName] = sources;
-                    }
-
-                    if (sources.length > 0) {
+                    if (sources && sources.length > 0) {
                         if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                             creep.moveTo(sources[0]);
                         }
@@ -225,6 +227,14 @@ const autoTutorial = {
         const sitesCache = {};
         const hostilesCache = {};
 
+        // ⚡ PERFORMANCE OPTIMIZATION: Pre-fetch arrays outside loops
+        for (let r in Game.rooms) {
+            if (!Object.prototype.hasOwnProperty.call(Game.rooms, r)) continue;
+            sourcesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_SOURCES) : [];
+            sitesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_CONSTRUCTION_SITES) : [];
+            hostilesCache[r] = Game.rooms[r].find ? Game.rooms[r].find(FIND_HOSTILE_CREEPS) : [];
+        }
+
         this._handleCreeps(sourcesCache, sitesCache);
         this._handleTowers(hostilesCache);
         this._handleSpawns();
@@ -241,11 +251,7 @@ const autoTutorial = {
             // エネルギーが空
             if (creep.store[RESOURCE_ENERGY] === 0) {
                 let sources = sourcesCache[roomName];
-                if (sources === undefined) {
-                    sources = creep.room.find ? creep.room.find(FIND_SOURCES) : [];
-                    sourcesCache[roomName] = sources;
-                }
-                if (sources.length > 0) {
+                if (sources && sources.length > 0) {
                     if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(sources[0]);
                     }
@@ -253,12 +259,7 @@ const autoTutorial = {
             } else {
                 // 建設サイト優先
                 let targets = sitesCache[roomName];
-                if (targets === undefined) {
-                    targets = creep.room.find ? creep.room.find(FIND_CONSTRUCTION_SITES) : [];
-                    sitesCache[roomName] = targets;
-                }
-
-                if (targets.length > 0) {
+                if (targets && targets.length > 0) {
                     if (creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
                         creep.moveTo(targets[0]);
                     }
@@ -284,12 +285,7 @@ const autoTutorial = {
         for (const tower of towers) {
             const roomName = tower.room.name;
             let hostiles = hostilesCache[roomName];
-            if (hostiles === undefined) {
-                hostiles = tower.room.find ? tower.room.find(FIND_HOSTILE_CREEPS) : [];
-                hostilesCache[roomName] = hostiles;
-            }
-
-            if (hostiles.length > 0) {
+            if (hostiles && hostiles.length > 0) {
                 tower.attack(hostiles[0]);
             }
         }

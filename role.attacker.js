@@ -26,14 +26,28 @@ const roleAttacker = {
         if (creep.hits < creep.hitsMax * 0.5) {
             // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
             const myCreeps = creep.room._myCreeps || creep.room.find(FIND_MY_CREEPS);
-            const healers = [];
+            let healTarget = null;
+            let minRange = Infinity;
             for (let i = 0; i < myCreeps.length; i++) {
-                if (myCreeps[i].getActiveBodyparts(HEAL) > 0) {
-                    healers.push(myCreeps[i]);
+                const c = myCreeps[i];
+                if (c.getActiveBodyparts(HEAL) > 0) {
+                    let range;
+                    if (creep.pos && typeof creep.pos.getRangeTo === 'function') {
+                        range = creep.pos.getRangeTo(c);
+                    } else if (creep.pos && c.pos) {
+                        range = Math.max(
+                            Math.abs(creep.pos.x - c.pos.x),
+                            Math.abs(creep.pos.y - c.pos.y)
+                        );
+                    } else {
+                        range = Infinity;
+                    }
+                    if (range < minRange) {
+                        minRange = range;
+                        healTarget = c;
+                    }
                 }
             }
-
-            const healTarget = healers.length > 0 ? creep.pos.findClosestByRange(healers) : null;
             if (healTarget) {
                 creep.moveTo(healTarget, PATH_STYLE_HEAL);
                 return;

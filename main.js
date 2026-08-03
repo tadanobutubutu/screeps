@@ -1,4 +1,3 @@
-// Current main.js content:
 // TestDriver Setup for the Repository
 // Target: Production Environment
 
@@ -135,7 +134,7 @@ async function simulateTestScenario() {
   try {
     const testResults = await driver.runAllTests();
     const report = driver.generateReport();
-    } catch (error) {
+  } catch (error) {
     console.error('Test Simulation Error:', error);
   }
 }

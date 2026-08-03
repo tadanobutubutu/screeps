@@ -203,4 +203,9 @@ describe('utils.logging', () => {
         expect(lastLog.level).toBe('error');
         expect(lastLog.message).toBe('test message');
     });
+
+    test('getLevel returns the current level', () => {
+        utilsLogging.setLevel('error');
+        expect(utilsLogging.getLevel()).toBe(0);
+    });
 });

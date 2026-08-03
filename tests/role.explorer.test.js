@@ -125,4 +125,71 @@ describe('role.explorer', () => {
 
         Math.random = originalRandom;
     });
+
+    test('falls back to Math.random when crypto.randomBytes throws an error', () => {
+        global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
+
+        // Mock crypto to throw an error
+        const crypto = require('crypto');
+        const originalRandomBytes = crypto.randomBytes;
+        crypto.randomBytes = jest.fn().mockImplementation(() => {
+            throw new Error('Simulated crypto error');
+        });
+
+        const originalRandom = Math.random;
+        Math.random = jest.fn().mockReturnValue(0.9);
+
+        const creep = {
+            memory: { targetRoom: 'W1N1' }, // we are already here
+            say: jest.fn(),
+            moveTo: jest.fn(),
+            room: { name: 'W1N1' },
+            pos: { x: 25, y: 25 }, // at center
+        };
+
+        expect(() => roleExplorer.run(creep)).not.toThrow();
+        expect(creep.say).toHaveBeenCalledWith('👀 scouting');
+        expect(creep.memory.targetRoom).toBeDefined();
+        expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
+        expect(Math.random).toHaveBeenCalled(); // Verify fallback was reached
+
+        Math.random = originalRandom;
+        crypto.randomBytes = originalRandomBytes;
+    });
+
+    test('falls back to Math.random when require("crypto") throws an error', () => {
+        global.Game.map.describeExits.mockReturnValue({ 1: 'W1N2', 3: 'W2N1' });
+
+        // Force require('crypto') to throw by using jest.doMock
+        jest.resetModules();
+        jest.doMock('crypto', () => {
+            throw new Error('Simulated module not found');
+        });
+
+        // Re-require the module under test so it uses the mocked crypto
+        const roleExplorerMocked = require('../role.explorer');
+
+        const originalRandom = Math.random;
+        Math.random = jest.fn().mockReturnValue(0.9);
+
+        const creep = {
+            memory: { targetRoom: 'W1N1' }, // we are already here
+            say: jest.fn(),
+            moveTo: jest.fn(),
+            room: { name: 'W1N1' },
+            pos: { x: 25, y: 25 }, // at center
+        };
+
+        expect(() => roleExplorerMocked.run(creep)).not.toThrow();
+        expect(creep.say).toHaveBeenCalledWith('👀 scouting');
+        expect(creep.memory.targetRoom).toBeDefined();
+        expect(['W1N2', 'W2N1']).toContain(creep.memory.targetRoom);
+        expect(Math.random).toHaveBeenCalled(); // Verify fallback was reached
+
+        Math.random = originalRandom;
+
+        // Cleanup
+        jest.dontMock('crypto');
+        jest.resetModules();
+    });
 });

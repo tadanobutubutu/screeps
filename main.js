@@ -1,8 +1,8 @@
 // Main game entry point
-var loop = function() {
-    // Your game logic here
-};
+const loop = function () {
+  // Your game logic here
+}
 
 module.exports = {
-    loop: loop
-};
+  loop
+}

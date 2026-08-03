@@ -203,4 +203,31 @@ describe('utils.logging', () => {
         expect(lastLog.level).toBe('error');
         expect(lastLog.message).toBe('test message');
     });
+
+    describe('setLevel', () => {
+        test('sets valid numeric level', () => {
+            utilsLogging.setLevel(1);
+            expect(utilsLogging.getLevel()).toBe(1);
+        });
+
+        test('sets valid string level', () => {
+            utilsLogging.setLevel('error');
+            expect(utilsLogging.getLevel()).toBe(0);
+        });
+
+        test('falls back to info for invalid type', () => {
+            utilsLogging.setLevel({});
+            expect(utilsLogging.getLevel()).toBe(2);
+        });
+
+        test('falls back to info for invalid numeric value', () => {
+            utilsLogging.setLevel(99);
+            expect(utilsLogging.getLevel()).toBe(2);
+        });
+
+        test('falls back to info for invalid string value', () => {
+            utilsLogging.setLevel('invalid');
+            expect(utilsLogging.getLevel()).toBe(2);
+        });
+    });
 });

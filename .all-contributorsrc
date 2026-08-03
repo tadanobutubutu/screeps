@@ -1,45 +1,67 @@
 {
-    "projectName": "screeps",
-    "projectOwner": "tadanobutubutu",
-    "repoType": "github",
-    "repoHost": "https://github.com",
-    "files": ["README.md"],
-    "imageSize": 100,
-    "commit": true,
-    "commitConvention": "gitmoji",
-    "contributors": [
-        {
-            "login": "tadanobutubutu",
-            "name": "tadanobutubutu",
-            "avatar_url": "https://avatars.githubusercontent.com/u/58510538",
-            "profile": "https://github.com/tadanobutubutu",
-            "contributions": ["code", "doc", "infra", "maintenance"]
-        },
-        {
-            "login": "renovate[bot]",
-            "name": "renovate[bot]",
-            "avatar_url": "https://avatars.githubusercontent.com/in/2740?v=4",
-            "profile": "https://github.com/apps/renovate",
-            "contributions": ["bug"]
-        },
-        {
-            "login": "automaintainer-bot[bot]",
-            "name": "automaintainer-bot[bot]",
-            "avatar_url": "https://avatars.githubusercontent.com/in/1414200?v=4",
-            "profile": "https://github.com/apps/automaintainer-bot",
-            "contributions": ["bug"]
-        },
-        {
-            "login": "astroloja[bot]",
-            "name": "astroloja[bot]",
-            "avatar_url": "https://avatars.githubusercontent.com/in/294505?v=4",
-            "profile": "https://github.com/apps/astroloja",
-            "contributions": ["bug"]
-        }
-    ],
-    "contributorsPerLine": 7,
-    "linkToUsage": true,
-    "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square)](#contributors)",
-    "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"<%= contributor.name %>\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
-    "skipCi": false
+  "projectName": "screeps",
+  "projectOwner": "tadanobutubutu",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "gitmoji",
+  "contributors": [
+    {
+      "login": "tadanobutubutu",
+      "name": "tadanobutubutu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58510538",
+      "profile": "https://github.com/tadanobutubutu",
+      "contributions": [
+        "code",
+        "doc",
+        "infra",
+        "maintenance"
+      ]
+    },
+    {
+      "login": "renovate[bot]",
+      "name": "renovate[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/in/2740?v=4",
+      "profile": "https://github.com/apps/renovate",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "automaintainer-bot[bot]",
+      "name": "automaintainer-bot[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/in/1414200?v=4",
+      "profile": "https://github.com/apps/automaintainer-bot",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "astroloja[bot]",
+      "name": "astroloja[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/in/294505?v=4",
+      "profile": "https://github.com/apps/astroloja",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "testdriverai[bot]",
+      "name": "testdriverai[bot]",
+      "avatar_url": "https://avatars.githubusercontent.com/in/4088577?v=4",
+      "profile": "https://github.com/apps/testdriverai",
+      "contributions": [
+        "bug"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "linkToUsage": true,
+  "badgeTemplate": "[![All Contributors](https://img.shields.io/badge/all_contributors-<%= contributors.length %>-orange.svg?style=flat-square)](#contributors)",
+  "contributorTemplate": "<a href=\"<%= contributor.profile %>\"><img src=\"<%= contributor.avatar_url %>\" width=\"<%= options.imageSize %>px;\" alt=\"<%= contributor.name %>\"/><br /><sub><b><%= contributor.name %></b></sub></a>",
+  "skipCi": false
 }

@@ -2,8 +2,8 @@
 
 // New functions or changes requested in the issue go here:
 
-function newFunction() {
-    // Implement the new function here
+function newFunction () {
+  // Implement the new function here
 }
 
 // ... (add more new functions or changes if applicable)

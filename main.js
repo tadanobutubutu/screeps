@@ -11,7 +11,7 @@ function autonomousEfficiency() {
   return {
     role: 'autonomous_efficiency',
     description: 'Optimizes resource allocation and task flow for maximum efficiency.',
-    capabilities: ['resource_optimization', 'task_prioritization', 'efficiency_scaling'],
+    capabilities: ['task_prioritization', 'efficiency_scaling'],
     calculateEfficiency: (resourceInput, taskLoad) => {
       // Logic to determine the efficiency multiplier based on current state
       return (resourceInput / taskLoad) * 1.5;

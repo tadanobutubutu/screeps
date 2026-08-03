@@ -135,7 +135,8 @@ async function simulateTestScenario() {
   try {
     const testResults = await driver.runAllTests();
     const report = driver.generateReport();
-    } catch (error) {
+    console.log(report); // Output the report to the console
+  } catch (error) {
     console.error('Test Simulation Error:', error);
   }
 }

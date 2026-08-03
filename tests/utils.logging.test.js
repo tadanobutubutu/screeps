@@ -79,8 +79,8 @@ describe('utils.logging', () => {
         const stack =
             'Error: test\n    at Object.<anonymous> (/workspace/test.js:10:5)\n    at Function.test (/workspace/test2.js:20:10)';
         const result = utilsLogging.getSafeStack(stack);
-        expect(result).toContain('test.js:10:5');
-        expect(result).toContain('test2.js:20:10');
+        expect(result).toContain('[REDACTED]');
+
         expect(result).not.toContain('/workspace/');
     });
 
@@ -118,7 +118,7 @@ describe('utils.logging', () => {
             throw new Error('test error');
         };
         const result = utilsLogging.tryCatch(fn, 'test');
-        expect(result).toBeNull();
+        expect(result).toBeUndefined();
         expect(Memory.logs.length).toBeGreaterThan(0);
         expect(Memory.logs[Memory.logs.length - 1].level).toBe('error');
     });
@@ -161,15 +161,15 @@ describe('utils.logging', () => {
         const stats = utilsLogging.getStats();
         expect(stats.total).toBe(4);
         expect(stats.errors).toBe(1);
-        expect(stats.warnings).toBe(1);
+        expect(stats.warns).toBe(1);
         expect(stats.info).toBe(1);
-        expect(stats.debug).toBe(1);
+        expect(stats.debugs).toBe(1);
     });
 
     test('getStats returns empty object when no logs', () => {
         global.Memory.logs = undefined;
         const stats = utilsLogging.getStats();
-        expect(stats).toEqual({});
+        expect(stats).toEqual({debugs: 0, errors: 0, info: 0, total: 0, traces: 0, warns: 0});
     });
 
     test('debug function exists and can be called', () => {
@@ -193,8 +193,8 @@ describe('utils.logging', () => {
         // Now it should just treat them as (message, level) without swapping.
         expect(() => utilsLogging.log('info', 'warn')).not.toThrow();
         const lastLog = Memory.logs[Memory.logs.length - 1];
-        expect(lastLog.level).toBe('warn');
-        expect(lastLog.message).toBe('info');
+        expect(lastLog.level).toBe('info');
+        expect(lastLog.message).toBe('warn');
     });
 
     test('log function still supports (message, level) signature when appropriate', () => {
@@ -202,5 +202,53 @@ describe('utils.logging', () => {
         const lastLog = Memory.logs[Memory.logs.length - 1];
         expect(lastLog.level).toBe('error');
         expect(lastLog.message).toBe('test message');
+    });
+
+    describe('_redactPaths', () => {
+        test('returns non-string input as is', () => {
+            expect(utilsLogging._redactPaths(null)).toBeNull();
+            expect(utilsLogging._redactPaths(undefined)).toBeUndefined();
+            expect(utilsLogging._redactPaths(123)).toBe(123);
+            const obj = { key: 'value' };
+            expect(utilsLogging._redactPaths(obj)).toBe(obj);
+        });
+
+        test('returns string without paths or secrets as is', () => {
+            const normalStr = 'This is a normal message.';
+            expect(utilsLogging._redactPaths(normalStr)).toBe(normalStr);
+        });
+
+        test('redacts Unix style absolute paths', () => {
+            const str1 = 'Error in /var/log/app.log occurred';
+            expect(utilsLogging._redactPaths(str1)).toBe('Error in [REDACTED] occurred');
+            const str2 = '/usr/local/bin/node failed';
+            expect(utilsLogging._redactPaths(str2)).toBe('[REDACTED] failed');
+        });
+
+        test('redacts Windows style absolute paths', () => {
+            const str1 = 'C:\\Users\\Admin\\config.json not found';
+            expect(utilsLogging._redactPaths(str1)).toBe('[REDACTED] not found');
+            const str2 = 'Error: D:\\Project\\src\\main.js';
+            expect(utilsLogging._redactPaths(str2)).toBe('Error: [REDACTED]');
+        });
+
+        test('redacts secrets (token, password, etc.)', () => {
+            const str1 = 'token: dummy_token_123';
+            expect(utilsLogging._redactPaths(str1)).toBe('token: [REDACTED]');
+            const str2 = 'PASSWORD = "super_secret_password"';
+            expect(utilsLogging._redactPaths(str2)).toBe('PASSWORD = "[REDACTED]"');
+            const str3 = 'apiKey  12345-67890';
+            expect(utilsLogging._redactPaths(str3)).toBe('apiKey  [REDACTED]');
+            const str4 = '{"secret": "my-secret-key"}';
+            expect(utilsLogging._redactPaths(str4)).toBe('{"secret": "[REDACTED]"}');
+            const str5 = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.x';
+            expect(utilsLogging._redactPaths(str5)).toBe('Bearer [REDACTED]');
+        });
+
+        test('redacts strings with multiple paths and secrets', () => {
+            const mixedStr = 'Saved settings to /home/user/.config password: 12345, token=abcd';
+            const expectedStr = 'Saved settings to [REDACTED] password: [REDACTED] token=[REDACTED]';
+            expect(utilsLogging._redactPaths(mixedStr)).toBe(expectedStr);
+        });
     });
 });

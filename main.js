@@ -1,5 +1,6 @@
 // Existing code – preserved as‑is (none present in the provided snippet)
 
+
 // ==== Functions added to address the Dependency Dashboard issue ====
 
 /**
@@ -26,10 +27,10 @@ function generateDashboardSummary() {
  */
 function formatDashboardReport(summary) {
   const lines = [];
-  if (summary.pendingUpdates && summary.pendingUpdates.length > 0) {
+  if (summary && summary.pendingUpdates && summary.pendingUpdates.length > 0) {
     lines.push(`• Pending updates: ${summary.pendingUpdates.length}`);
   }
-  if (summary.securityAlerts && summary.securityAlerts.length > 0) {
+  if (summary && summary.securityAlerts && summary.securityAlerts.length > 0) {
     lines.push(`• Security alerts: ${summary.securityAlerts.length}`);
   }
   return lines.join('\n');
@@ -50,7 +51,6 @@ function getDashboardData() {
 }
 
 // Export the new functionality while preserving any existing exports.
-// (There were no existing exports in the provided snippet.)
 module.exports = {
   generateDashboardSummary,
   formatDashboardReport,

@@ -1,7 +1,3 @@
-// Existing code – preserved as‑is (none present in the provided snippet)
-
-// ==== Functions added to address the Dependency Dashboard issue ====
-
 /**
  * Generates a summary of pending dependency updates and security alerts.
  * This function is intended to be used by the dashboard to report on
@@ -14,12 +10,12 @@ function generateDashboardSummary() {
   // For now we return a placeholder structure.
   return {
     pendingUpdates: [], // List of dependency updates awaiting scheduling
-    securityAlerts: [], // Security issues detected by Renovate or other tools
+    securityAlerts: [] // Security issues detected by Renovate or other tools
   };
 }
 
 /**
- * Helper to format a human‑readable string from the dashboard summary.
+ * Helper to format a human-readable string from the dashboard summary.
  *
  * @param {Object} summary - The object returned by generateDashboardSummary
  * @returns {string} Formatted summary text.

@@ -362,7 +362,7 @@ describe('deploy.js', () => {
                     if (evt === 'error') {
                         cb(new Error('PTR request failed'));
                     }
-                }), setTimeout: jest.fn(), write: jest.fn(), end: jest.fn(), destroy: jest.fn(); };
+                }), setTimeout: jest.fn(), write: jest.fn(), end: jest.fn(), destroy: jest.fn() };
                 return req;
             });
             const { runDeploy } = require('../deploy');

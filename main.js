@@ -1,3 +1,1 @@
-// main.js - Dependency Dashboard issue (Renovate)
-// No code changes required for this issue.
-// This is a Renovate dependency dashboard notification.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

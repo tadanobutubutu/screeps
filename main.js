@@ -60,6 +60,7 @@ module.exports = function() {
             }
         }
     }
+
     // New function added as per the issue requirements
     function checkForNewDependency() {
         // Example function that checks for a new dependency or condition

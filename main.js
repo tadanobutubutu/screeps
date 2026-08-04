@@ -1,14 +1,10 @@
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 
-
-// Add .mjs extension to the main.js file
+ // Add .mjs extension to the main.js file
 const { Worker } = require('worker_threads');
-
-// Detect message channel
 const { MessageChannel, parentPort } = require('worker_threads');
 
-// Add gitstreamChecks functionality
 async function checkGitstreamVersion() {
   let child = null;
   try {
@@ -38,7 +34,6 @@ async function checkGitstreamVersion() {
   }
 }
 
-// All existing exports preserved below
 module.exports = function initialize() {
   try {
     main_loop();

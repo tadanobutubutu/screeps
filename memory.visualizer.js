@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Memory total size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -67,7 +67,8 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
+            console.log(
+                `${index + 1}. [${item.type}] ${item.name}: ${(item.size / 1024).toFixed(2)} KB`
             );
         });
 
@@ -117,9 +118,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`Memory History (last ${ticks} ticks):`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`Time=${snap.time}, CPU=${snap.cpu}, Energy=${snap.energy}`);
         });
 
         return snapshots;
@@ -193,7 +194,8 @@ const memoryVisualizer = {
 
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -251,7 +253,8 @@ const memoryVisualizer = {
 
         const diary = Memory.creeps[creepName].diary;
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -323,7 +326,8 @@ const memoryVisualizer = {
             ) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                }
+                console.log(`${roomName}: Owner=${owner}, Sources=${info.sources}`);
+            }
         }
     },
 
@@ -388,7 +392,8 @@ const memoryVisualizer = {
             Memory.backups.shift();
         }
 
-        },
+        return backup;
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

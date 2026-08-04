@@ -9,9 +9,12 @@ module.exports = {
 
     // New function for the required dependency
     function performAction () {
-      // Implement the functionality required by the new dependency here.
-      // Example placeholder for the new functionality:
-      // Add the actual implementation here.
+      for (const creep of Object.values(Game.creeps)) {
+        const hostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+        if (hostile) {
+          creep.attack(hostile)
+        }
+      }
     }
 
     // Call the new function if needed

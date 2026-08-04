@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+module.exports.loop = function () {
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        if (creep.spawning) {
+            continue;
+        }
+    }
+};

@@ -10,13 +10,13 @@
  *
  * @returns {Object} An object containing arrays of pending updates and alerts.
  */
-function generateDashboardSummary() {
+function generateDashboardSummary () {
   // In a real implementation this would query Renovate data or package manifests.
   // For now we return a placeholder structure.
   return {
     pendingUpdates: [], // List of dependency updates awaiting scheduling
-    securityAlerts: [], // Security issues detected by Renovate or other tools
-  };
+    securityAlerts: [] // Security issues detected by Renovate or other tools
+  }
 }
 
 /**
@@ -25,15 +25,15 @@ function generateDashboardSummary() {
  * @param {Object} summary - The object returned by generateDashboardSummary
  * @returns {string} Formatted summary text.
  */
-function formatDashboardReport(summary) {
-  const lines = [];
+function formatDashboardReport (summary) {
+  const lines = []
   if (summary.pendingUpdates && summary.pendingUpdates.length > 0) {
-    lines.push(`• Pending updates: ${summary.pendingUpdates.length}`);
+    lines.push(`• Pending updates: ${summary.pendingUpdates.length}`)
   }
   if (summary.securityAlerts && summary.securityAlerts.length > 0) {
-    lines.push(`• Security alerts: ${summary.securityAlerts.length}`);
+    lines.push(`• Security alerts: ${summary.securityAlerts.length}`)
   }
-  return lines.join('\n');
+  return lines.join('\n')
 }
 
 /**
@@ -41,13 +41,13 @@ function formatDashboardReport(summary) {
  *
  * @returns {Object} Contains the raw summary and a formatted report.
  */
-function getDashboardData() {
-  const raw = generateDashboardSummary();
-  const formatted = formatDashboardReport(raw);
+function getDashboardData () {
+  const raw = generateDashboardSummary()
+  const formatted = formatDashboardReport(raw)
   return {
     raw,
-    formatted,
-  };
+    formatted
+  }
 }
 
 // Export the new functionality while preserving any existing exports.
@@ -55,5 +55,5 @@ function getDashboardData() {
 module.exports = {
   generateDashboardSummary,
   formatDashboardReport,
-  getDashboardData,
-};
+  getDashboardData
+}

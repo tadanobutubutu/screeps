@@ -21,7 +21,7 @@ function generateDashboardSummary() {
 /**
  * Helper to format a human‑readable string from the dashboard summary.
  *
- * @param {Object} summary - The object returned by generateDashboardSummary
+ * @param {Object} summary - The object returned by generateDashboardReport
  * @returns {string} Formatted summary text.
  */
 function formatDashboardReport(summary) {

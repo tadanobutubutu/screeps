@@ -1,6 +1,7 @@
 // Existing code – preserved as‑is (none present in the provided snippet)
 
 // ==== Functions added to address the Dependency Dashboard issue ====
+
 /**
  * Generates a summary of pending dependency updates and security alerts.
  * This function is intended to be used by the dashboard to report on
@@ -20,15 +21,15 @@ function generateDashboardSummary() {
 /**
  * Helper to format a human‑readable string from the dashboard summary.
  *
- * @param {Object} summary - The object returned by {@link generateDashboardSummary}.
+ * @param {Object} summary - The object returned by generateDashboardSummary
  * @returns {string} Formatted summary text.
  */
 function formatDashboardReport(summary) {
   const lines = [];
-  if (summary.pendingUpdates.length > 0) {
+  if (summary.pendingUpdates && summary.pendingUpdates.length > 0) {
     lines.push(`• Pending updates: ${summary.pendingUpdates.length}`);
   }
-  if (summary.securityAlerts.length > 0) {
+  if (summary.securityAlerts && summary.securityAlerts.length > 0) {
     lines.push(`• Security alerts: ${summary.securityAlerts.length}`);
   }
   return lines.join('\n');

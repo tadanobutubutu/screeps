@@ -25,7 +25,9 @@ async function checkGitstreamVersion() {
 
     const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Add a semicolon to close the if statement
+      ;
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

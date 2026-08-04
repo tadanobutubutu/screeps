@@ -1,9 +1,3 @@
-// main.js - Dependency Dashboard issue (Renovate)
-// No code changes required for this issue.
-// This is a Renovate dependency dashboard notification.
-
-// Screeps main.js - Entry point for the game loop
-
 module.exports = loop = function() {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {

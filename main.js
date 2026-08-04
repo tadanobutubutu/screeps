@@ -1,5 +1,5 @@
 // Keep all existing content above here
- // ... (rest of the original main.js content remains unchanged)
+ //... (rest of the original main.js content remains unchanged)
 
  const { Worker } = require('worker_threads');
  const { MessageChannel, parentPort } = require('worker_threads');
@@ -7,7 +7,7 @@
  async function checkGitstreamVersion() {
    let child = null;
    try {
-     child = new Worker(__filename, { type: 'module' });
+     child = new Worker(__filename, { type: 'odule' });
      child.on('error', (error) => {
        console.error('Child process error:', error);
      });

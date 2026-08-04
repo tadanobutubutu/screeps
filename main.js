@@ -49,4 +49,14 @@ module.exports.loop = function () {
       }
     }
   }
+  // New function added as per the issue requirements
+  function checkForNewDependency() {
+    // Example function that checks for a new dependency or condition
+    // This is just a placeholder and should be replaced with the actual logic
+    if (Game.cpu.getUsed() < 1000) {
+      console.log('Checking for new dependency...');
+      // Add the logic to check for new dependencies here
+    }
+  }
+  checkForNewDependency();
 };

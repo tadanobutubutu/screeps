@@ -1,7 +1,6 @@
 module.exports = {
   loop: function () {
     for (const creep of Object.values(Game.creeps)) {
-      const creep = Game.creeps[name]
       if (creep.spawning) {
         creep.say('🔄 Spawning')
         continue

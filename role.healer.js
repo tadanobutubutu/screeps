@@ -15,7 +15,7 @@ const roleHealer = {
         }
 
         // ⚡ PERFORMANCE: If no cached target, find one using pre-warmed cache or fallback
-        if (!damagedCreep) {
+        if ( === undefined ||  === null) {
             const injured = creep.room && creep.room._injuredCreeps;
             if (Array.isArray(injured)) {
                 damagedCreep = creep.pos.findClosestByRange(injured);

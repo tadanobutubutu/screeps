@@ -1,10 +1,9 @@
 {
   "files": [
-    "main.js"
+    "role.healer.js"
   ],
   "rules": [
-    "Remove console.log",
-    "Optimize Game.creeps loop"
+    "Strict undefined check"
   ],
-  "timestamp": "2026-08-04T01:14:27.049Z"
+  "timestamp": "2026-08-04T08:12:22.659Z"
 }

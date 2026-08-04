@@ -1,5 +1,10 @@
 # Bolt Learnings
 
+## 2026-08-03 - Target ID Caching and Pre-warmed Room Arrays in Healer Roles
+
+**Learning:** Periodically calling `findClosestByRange` with custom filter functions (e.g. `c => c.hits < c.hitsMax`) on every tick inside active healer roles imposes substantial CPU overhead. Caching the target ID (`healTargetId`) avoids redundant searches. Moreover, utilizing pre-calculated room-level caches (`room._injuredCreeps` and `room._defenders`) completely bypasses room-wide filtered searches.
+**Action:** Implemented memory-based target ID caching and prioritized pre-warmed room caches with graceful fallback behavior in healer roles.
+
 ## 2026-06-05 - $O(1)$ Cache Size Tracking and FIFO Eviction
 
 **Learning:** Using `Object.keys(cache).length` and `Object.keys(cache)[0]` for capacity management and FIFO eviction leads to $O(N)$ CPU overhead on every cache miss or insertion. In high-frequency environments like Screeps, this scales poorly as the cache grows toward `MAX_CACHE_ENTRIES`.  

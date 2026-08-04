@@ -1,47 +1,47 @@
 // Keep all existing content above here
-//... (rest of the original main.js content remains unchanged)
+// ... (rest of the original main.js content remains unchanged)
 
 // Add.mjs extension to the main.js file
-const { Worker } = require('worker_threads');
+const { Worker } = require('worker_threads')
 
 // Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads');
+const { MessageChannel, parentPort } = require('worker_threads')
 
 // Add gitstreamChecks functionality
-async function checkGitstreamVersion() {
+async function checkGitstreamVersion () {
   try {
-    const child = new Worker(__filename, { type: 'odule' });
+    const child = new Worker(__filename, { type: 'odule' })
     child.on('error', (error) => {
-      console.error('Child process error:', error);
-    });
+      console.error('Child process error:', error)
+    })
 
     const { stdout } = await new Promise((resolve, reject) => {
       child.on('message', (message) => {
-        if (message.error) reject(message.error);
-        else resolve(message.stdout);
-      });
-      child.postMessage({ command: 'gitstreamChecks' });
-    });
+        if (message.error) reject(message.error)
+        else resolve(message.stdout)
+      })
+      child.postMessage({ command: 'gitstreamChecks' })
+    })
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2'
     if (parseFloat(version) < 4) {
       // Code that should be executed if version is less than 4
     }
   } catch (error) {
-    console.error('Gitstream check failed:', error);
+    console.error('Gitstream check failed:', error)
   } finally {
-    child.terminate();
+    child.terminate()
   }
 }
 
 // Add the new function to the existing exports
-module.exports = function initialize() {
+module.exports = function initialize () {
   try {
-    main_loop();
-    const lastTime = Game.time;
-    checkSettings();
-    checkGitstreamVersion(); // Call the new function
+    main_loop()
+    const lastTime = Game.time
+    checkSettings()
+    checkGitstreamVersion() // Call the new function
   } catch (error) {
-    console.error('Initialization failed:', error);
+    console.error('Initialization failed:', error)
   }
-};
+}

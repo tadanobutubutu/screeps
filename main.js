@@ -25,6 +25,7 @@ async function checkGitstreamVersion() {
 
     const version = stdout || '2';
     if (parseFloat(version) < 4) {
+      // Code that should be executed if version is less than 4
     }
   } catch (error) {
     console.error('Gitstream check failed:', error);

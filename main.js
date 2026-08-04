@@ -23,9 +23,9 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = stdout || '2';
     if (parseFloat(version) < 4) {
-      }
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {
@@ -36,7 +36,7 @@ async function checkGitstreamVersion() {
 // All existing exports preserved below
 module.exports = function initialize() {
   try {
-    main_loop();
+    main_Loop();
     const lastTime = Game.time;
     checkSettings();
   } catch (error) {

@@ -1,6 +1,6 @@
 // Screeps main.js - Entry point for the game loop
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+    if (Game.cpu.used || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }
         }
@@ -17,18 +17,18 @@
       }
 
       if (creep.store.getFreeCapacity() > 0) {
-        const sources = room.find(FIND_SOURCES_ACTIVE);
+        const sources = room.find(FIND_SOURCES);
         if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
           creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
         }
       } else {
-        const targets = room.find(FIND_STRUCTURES, {
+        const targets = creep.room.find(FIND_MY_STRUCTURES, {
           filter: (structure) => {
             return (
               structure.structureType === STRUCTURE_EXTENSION ||
               structure.structureType === STRUCTURE_SPAWN ||
               structure.structureType === STRUCTURE_TOWER
-            ) && structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+            ) && structure.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
           },
         });
         if (targets.length > 0) {
@@ -47,7 +47,7 @@
             });
             if (repairTargets.length > 0) {
               if (creep.repair(repairTargets[0]) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(repairTargets[0], { visualizePathStyle: { stroke: '#0000ff' } });
+                creep.moveTo(repairTargets[0], { visualizePathStyle: { stroke: '#00ff00' } });
               }
             }
           }
@@ -64,4 +64,3 @@
     }
   }
   checkForNewDependency();
-};

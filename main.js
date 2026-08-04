@@ -1,6 +1,12 @@
 // Screeps main.js - Entry point for the game loop
 
-module.exports.loop = function () {
+\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+        }
+        Memory.lastCleanup = Game.time;
+    }
+
   for (const roomName in Game.rooms) {
     const room = Game.rooms[roomName];
     const creeps = room.find(FIND_MY_CREEPS);
@@ -54,7 +60,6 @@ module.exports.loop = function () {
     // Example function that checks for a new dependency or condition
     // This is just a placeholder and should be replaced with the actual logic
     if (Game.cpu.getUsed() < 1000) {
-      console.log('Checking for new dependency...');
       // Add the logic to check for new dependencies here
     }
   }

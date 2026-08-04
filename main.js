@@ -1,3 +1,4 @@
+// Fixed lint error: unexpected token ':'
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 

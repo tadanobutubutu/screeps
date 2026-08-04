@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-07 - [Dynamic Search Filtering & Bulk Actions Coordination]
+
+**Learning:** When adding client-side search or filter inputs to groups of dynamic telemetry items (such as a list of active Screeps rooms), any adjacent bulk actions (such as "Copy All") must be contextually updated to reflect the filter state. Dynamically changing the action's behavior to copy only the filtered subset, and synchronizing its labels, tooltips, ARIA descriptors, and completion toasts, prevents user confusion and satisfies WCAG 2.1.1 (Keyboard Accessibility) and 2.4.4 (Link Purpose/Context).
+**Action:** When implementing any search or filter component, always review and dynamically coordinate adjacent bulk actions to operate strictly on the filtered subset of visible data, updating all accessibility labels in sync.
+
 ## 2026-08-05 - [Accessible Dashboard Polling with User Control]
 
 **Learning:** For monitoring-heavy screens like game status dashboards, polling or auto-refresh capabilities should be paired with explicit user controls. Implementing a clearly labeled checkbox with specific accessible markup (`aria-label="自動更新 (60秒ごと)"`) allows users to pause the refresh cycles at will. Furthermore, matching the refresh cycle to the API's caching layer avoids redundant server queries while maintaining the most up-to-date telemetry.
@@ -37,7 +42,7 @@
 **Action:**
 
 - エラーやログなどの一時的な技術データには「コピー」ボタンを含める。
-- 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）を使用する。
+- 「コピー完了」のフィードバックには成功を示す緑色（`#1e7e34`）使用する。
 - ボタンには明確なARIAラベル（例：`aria-label={copied ? "コピー済み" : "エラーをコピー"}`）を付与する。
 
 ## 2025-05-23 - [Accessible Progress Indicators]

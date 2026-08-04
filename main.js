@@ -1,6 +1,3 @@
-// Existing code – preserved as‑is (none present in the provided snippet)
-
-
 // ==== Functions added to address the Dependency Dashboard issue ====
 
 /**

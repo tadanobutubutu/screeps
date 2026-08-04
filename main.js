@@ -1,5 +1,5 @@
 // Keep all existing content above here
-// ... (rest of the original main. js content remains unchanged)
+// ... (rest of the original main.js content remains unchanged)
 
 
 // Add .mjs extension to the main.js file

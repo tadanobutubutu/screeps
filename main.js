@@ -1,5 +1,3 @@
-// Screeps main.js - Entry point for the game loop
-
 module.exports = loop = function() {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {

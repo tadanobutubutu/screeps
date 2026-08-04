@@ -23,9 +23,10 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = stdout || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Version check logic here
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

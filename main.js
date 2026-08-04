@@ -1,7 +1,1 @@
-// tests/utils/logging.test.js
-describe('Logging utility', () => {
-  it('should log a message', () => {
-    console.log('This is a test message');
-    // ... rest of the test code
-  });
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

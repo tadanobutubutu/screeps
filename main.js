@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Screeps main.js - Entry point for the game loop
 
 module.exports = function() {
@@ -70,4 +67,3 @@ module.exports = function() {
     }
     checkForNewDependency();
 };
-```

@@ -25,8 +25,7 @@ async function checkGitstreamVersion() {
 
     const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      console.log('Gitstream version <4.0.0 detected. Upgrade recommended.');
-    }
+      }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

@@ -25,7 +25,12 @@ async function checkGitstreamVersion() {
 
     const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Your fix for the lint error should be here. Without the exact error message, I can't provide the exact fix.
+      // For example, if the error is due to a missing semicolon, you would add one at the end of the if statement.
+      // if (parseFloat(version) < 4) {
+      //   // ... (rest of the code)
+      // }
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

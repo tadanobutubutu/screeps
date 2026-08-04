@@ -138,9 +138,10 @@ export default function Dashboard() {
         });
     };
 
-    const filteredRooms = stats?.rooms?.filter((room: string) =>
-        room.toLowerCase().includes(roomQuery.toLowerCase())
-    ) || [];
+    const filteredRooms =
+        stats?.rooms?.filter((room: string) =>
+            room.toLowerCase().includes(roomQuery.toLowerCase())
+        ) || [];
 
     const copyAllRooms = () => {
         if (filteredRooms.length === 0) return;
@@ -148,7 +149,11 @@ export default function Dashboard() {
         navigator.clipboard.writeText(roomsStr).then(() => {
             setCopiedAllRooms(true);
             setTimeout(() => setCopiedAllRooms(false), 2000);
-            showToast(roomQuery ? 'フィルター結果の部屋名をコピーしました' : 'すべての部屋名をコピーしました');
+            showToast(
+                roomQuery
+                    ? 'フィルター結果の部屋名をコピーしました'
+                    : 'すべての部屋名をコピーしました'
+            );
         });
     };
 
@@ -575,13 +580,21 @@ export default function Dashboard() {
                             onBlur={() => setCopyAllHover(false)}
                             aria-label={
                                 copiedAllRooms
-                                    ? (roomQuery ? 'フィルター結果をコピーしました' : 'すべての部屋名をコピーしました')
-                                    : (roomQuery ? 'フィルター結果をコピー' : 'すべての部屋名をコピー')
+                                    ? roomQuery
+                                        ? 'フィルター結果をコピーしました'
+                                        : 'すべての部屋名をコピーしました'
+                                    : roomQuery
+                                      ? 'フィルター結果をコピー'
+                                      : 'すべての部屋名をコピー'
                             }
                             title={
                                 copiedAllRooms
-                                    ? (roomQuery ? 'フィルター結果をコピーしました' : 'すべての部屋名をコピーしました')
-                                    : (roomQuery ? 'フィルター結果をコピー' : 'すべての部屋名をコピー')
+                                    ? roomQuery
+                                        ? 'フィルター結果をコピーしました'
+                                        : 'すべての部屋名をコピーしました'
+                                    : roomQuery
+                                      ? 'フィルター結果をコピー'
+                                      : 'すべての部屋名をコピー'
                             }
                             style={{
                                 fontSize: '0.75rem',
@@ -602,7 +615,11 @@ export default function Dashboard() {
                                 transform: copyAllHover ? 'scale(1.05)' : 'scale(1)',
                             }}
                         >
-                            {copiedAllRooms ? '✅ コピーしました' : (roomQuery ? '📋 結果をコピー' : '📋 すべてコピー')}
+                            {copiedAllRooms
+                                ? '✅ コピーしました'
+                                : roomQuery
+                                  ? '📋 結果をコピー'
+                                  : '📋 すべてコピー'}
                         </button>
                     )}
                     {stats?.rooms?.length > 3 && (
@@ -637,7 +654,14 @@ export default function Dashboard() {
                         />
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
-                        <span style={{ fontSize: '0.75rem', color: '#e53e3e', display: 'inline-flex', alignItems: 'center' }}>
+                        <span
+                            style={{
+                                fontSize: '0.75rem',
+                                color: '#e53e3e',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                            }}
+                        >
                             一致なし
                             <button
                                 onClick={() => setRoomQuery('')}
@@ -656,46 +680,48 @@ export default function Dashboard() {
                             </button>
                         </span>
                     )}
-                    {filteredRooms.length > 0 ? (
-                        filteredRooms.map((room: string) => (
-                            <button
-                                key={room}
-                                onClick={() => copyRoom(room)}
-                                onMouseEnter={() => setHoveredRoom(room)}
-                                onMouseLeave={() => setHoveredRoom(null)}
-                                onFocus={() => setHoveredRoom(room)}
-                                onBlur={() => setHoveredRoom(null)}
-                                aria-label={
-                                    copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
-                                }
-                                title={
-                                    copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
-                                }
-                                style={{
-                                    fontSize: '0.75rem',
-                                    backgroundColor:
-                                        copiedRoom === room
-                                            ? '#c6f6d5'
-                                            : hoveredRoom === room
-                                              ? '#e2e8f0'
-                                              : '#edf2f7',
-                                    padding: '0.1rem 0.4rem',
-                                    borderRadius: '4px',
-                                    border: '1px solid #cbd5e0',
-                                    color: copiedRoom === room ? '#22543d' : '#2d3748',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s ease-in-out',
-                                    transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
-                                    boxShadow:
-                                        hoveredRoom === room ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
-                                }}
-                            >
-                                {copiedRoom === room ? `✅ ${room}` : room}
-                            </button>
-                        ))
-                    ) : (
-                        !roomQuery && <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>なし</span>
-                    )}
+                    {filteredRooms.length > 0
+                        ? filteredRooms.map((room: string) => (
+                              <button
+                                  key={room}
+                                  onClick={() => copyRoom(room)}
+                                  onMouseEnter={() => setHoveredRoom(room)}
+                                  onMouseLeave={() => setHoveredRoom(null)}
+                                  onFocus={() => setHoveredRoom(room)}
+                                  onBlur={() => setHoveredRoom(null)}
+                                  aria-label={
+                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                  }
+                                  title={
+                                      copiedRoom === room ? 'コピー済み' : `部屋名 ${room} をコピー`
+                                  }
+                                  style={{
+                                      fontSize: '0.75rem',
+                                      backgroundColor:
+                                          copiedRoom === room
+                                              ? '#c6f6d5'
+                                              : hoveredRoom === room
+                                                ? '#e2e8f0'
+                                                : '#edf2f7',
+                                      padding: '0.1rem 0.4rem',
+                                      borderRadius: '4px',
+                                      border: '1px solid #cbd5e0',
+                                      color: copiedRoom === room ? '#22543d' : '#2d3748',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s ease-in-out',
+                                      transform: hoveredRoom === room ? 'scale(1.06)' : 'scale(1)',
+                                      boxShadow:
+                                          hoveredRoom === room
+                                              ? '0 2px 4px rgba(0,0,0,0.1)'
+                                              : 'none',
+                                  }}
+                              >
+                                  {copiedRoom === room ? `✅ ${room}` : room}
+                              </button>
+                          ))
+                        : !roomQuery && (
+                              <span style={{ color: '#a0aec0', fontStyle: 'italic' }}>なし</span>
+                          )}
                 </div>
             </div>
             <details

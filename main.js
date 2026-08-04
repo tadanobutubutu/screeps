@@ -9,8 +9,9 @@ const { MessageChannel, parentPort } = require('worker_threads');
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion() {
+  let child;
   try {
-    const child = new Worker(__filename, { type: 'module' });
+    child = new Worker(__filename, { type: 'module' });
     child.on('error', (error) => {
       console.error('Child process error:', error);
     });
@@ -23,13 +24,18 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = stdout || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Handle version check
+    }
+    return version;
   } catch (error) {
     console.error('Gitstream check failed:', error);
+    throw error;
   } finally {
-    child.terminate();
+    if (child) {
+      child.terminate();
+    }
   }
 }
 
@@ -39,7 +45,9 @@ module.exports = function initialize() {
     main_loop();
     const lastTime = Game.time;
     checkSettings();
+    return true;
   } catch (error) {
     console.error('Initialization failed:', error);
+    return false;
   }
 };

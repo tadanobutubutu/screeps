@@ -1,8 +1,9 @@
-// Screeps main.js - Entry point for the game loop
 module.exports = loop = function() {
-    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 15000) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }
@@ -17,9 +18,11 @@ module.exports = loop = function() {
             }
 
             if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
-                const sources = room.find(FIND_SOURCES);
-                if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                const sources = room.find(FIND_SOURCES_ACTIVE);
+                if (sources.length > 0) {
+                    if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(sources[0], { visualizePathStyle: { stroke: '#ffaa00' } });
+                    }
                 }
             } else {
                 const targets = room.find(FIND_STRUCTURES, {
@@ -47,7 +50,7 @@ module.exports = loop = function() {
                         });
                         if (repairTargets.length > 0) {
                             if (creep.repair(repairTargets[0]) === ERR_NOT_IN_RANGE) {
-                                creep.moveTo(repairTargets[0], { visualizePathStyle: { stroke: '#0000ff' } });
+                                creep.moveTo(repairTargets[0], { visualizePathStyle: { stroke: '#00ff00' } });
                             }
                         }
                     }
@@ -55,6 +58,7 @@ module.exports = loop = function() {
             }
         }
     }
+
     // New function added as per the issue requirements
     function checkForNewDependency() {
         // Example function that checks for a new dependency or condition

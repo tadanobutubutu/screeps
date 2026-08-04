@@ -1,6 +1,7 @@
 // Screeps main.js - Entry point for the game loop
 
-    if (typeof Memory.lastCleanup === 'undefined' || Game.time - Memory.lastCleanup > 15000) {
+module.exports = function() {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 15000) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) {
                 delete Memory.creeps[name];
@@ -11,7 +12,7 @@
 
     for (const roomName in Game.rooms) {
         const room = Game.rooms[roomName];
-        const creeps = Object.values(Game.creeps).filter(creep => creep.room.name === roomName);
+        const creeps = room.find(FIND_MY_CREEPS);
 
         for (const creep of creeps) {
             if (creep.spawning) {
@@ -57,6 +58,7 @@
             }
         }
     }
+
     // New function added as per the issue requirements
     function checkForNewDependency() {
         // Example function that checks for a new dependency or condition
@@ -65,4 +67,6 @@
             // Add the logic to check for new dependencies here
         }
     }
+
     checkForNewDependency();
+};

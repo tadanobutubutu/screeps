@@ -25,7 +25,8 @@ async function checkGitstreamVersion() {
 
     const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Fixing the Unterminated comment error by closing the comment
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

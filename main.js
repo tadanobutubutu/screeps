@@ -9,8 +9,9 @@ const { MessageChannel, parentPort } = require('worker_threads');
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion() {
+  let child;
   try {
-    const child = new Worker(__filename, { type: 'module' });
+    child = new Worker(__filename, { type: 'module' });
     child.on('error', (error) => {
       console.error('Child process error:', error);
     });
@@ -23,13 +24,16 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = stdout || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Handle version check
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {
-    child.terminate();
+    if (child) {
+      child.terminate();
+    }
   }
 }
 

@@ -66,5 +66,6 @@ module.exports = loop = function() {
             // Add the logic to check for new dependencies here
         }
     }
+
     checkForNewDependency();
 };

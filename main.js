@@ -1,5 +1,5 @@
 module.exports = {
   generateDashboardSummary,
   formatDashboardReport,
-  getDashboardData,
-};
+  getDashboardData
+}

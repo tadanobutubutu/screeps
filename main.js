@@ -40,6 +40,12 @@ module.exports = function initialize() {
     main_loop();
     const lastTime = Game.time;
     checkSettings();
+    // Run gitstream version check
+    checkGitstreamVersion().then(() => {
+      // optional: further logic after version check
+    }).catch(err => {
+      console.error('Gitstream check failed:', err);
+    });
   } catch (error) {
     console.error('Initialization failed:', error);
   }

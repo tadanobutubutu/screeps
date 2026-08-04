@@ -106,4 +106,54 @@ describe('role.healer', () => {
         expect(mockCreep.heal).not.toHaveBeenCalled();
         expect(mockCreep.moveTo).not.toHaveBeenCalled();
     });
+
+    test('⚡ [Bolt Perf] Game.getObjectByIdでキャッシュされたターゲットを使用する', () => {
+        const cachedCreep = { id: 'creep123', hits: 50, hitsMax: 100 };
+        mockCreep.memory.healTargetId = 'creep123';
+        global.Game.getObjectById = jest.fn().mockReturnValue(cachedCreep);
+
+        roleHealer.run(mockCreep);
+
+        expect(global.Game.getObjectById).toHaveBeenCalledWith('creep123');
+        expect(mockCreep.heal).toHaveBeenCalledWith(cachedCreep);
+        expect(mockCreep.pos.findClosestByRange).not.toHaveBeenCalled();
+    });
+
+    test('⚡ [Bolt Perf] キャッシュされたターゲットが回復していた場合は削除して新規に探す', () => {
+        const cachedCreep = { id: 'creep123', hits: 100, hitsMax: 100 };
+        const newDamagedCreep = { id: 'creep456', hits: 80, hitsMax: 100 };
+        mockCreep.memory.healTargetId = 'creep123';
+        global.Game.getObjectById = jest.fn().mockReturnValue(cachedCreep);
+        mockCreep.pos.findClosestByRange.mockReturnValue(newDamagedCreep);
+
+        roleHealer.run(mockCreep);
+
+        expect(global.Game.getObjectById).toHaveBeenCalledWith('creep123');
+        expect(mockCreep.memory.healTargetId).toBe('creep456');
+        expect(mockCreep.heal).toHaveBeenCalledWith(newDamagedCreep);
+    });
+
+    test('⚡ [Bolt Perf] room._injuredCreepsのキャッシュ配列が存在する場合は優先して検索する', () => {
+        const injuredArray = [{ id: 'creep_inj_1', hits: 60, hitsMax: 100 }];
+        mockCreep.room = { _injuredCreeps: injuredArray };
+        mockCreep.pos.findClosestByRange.mockReturnValue(injuredArray[0]);
+
+        roleHealer.run(mockCreep);
+
+        expect(mockCreep.pos.findClosestByRange).toHaveBeenCalledWith(injuredArray);
+        expect(mockCreep.heal).toHaveBeenCalledWith(injuredArray[0]);
+    });
+
+    test('⚡ [Bolt Perf] room._defendersのキャッシュ配列が存在する場合は優先して検索する', () => {
+        const defendersArray = [{ id: 'def_1', memory: { role: 'defender' } }];
+        mockCreep.room = { _defenders: defendersArray };
+        mockCreep.pos.findClosestByRange
+            .mockReturnValueOnce(null) // no damaged creep
+            .mockReturnValueOnce(defendersArray[0]); // returns defender
+
+        roleHealer.run(mockCreep);
+
+        expect(mockCreep.pos.findClosestByRange).toHaveBeenLastCalledWith(defendersArray);
+        expect(mockCreep.moveTo).toHaveBeenCalledWith(defendersArray[0]);
+    });
 });

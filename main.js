@@ -38,12 +38,16 @@ async function checkGitstreamVersion () {
 }
 
 // All existing exports preserved below
-module.exports = function initialize () {
+function initialize () {
   try {
     main_loop()
     const lastTime = Game.time
     checkSettings()
+    // Optionally run the Gitstream version check
+    checkGitstreamVersion()
   } catch (error) {
     console.error('Initialization failed:', error)
   }
 }
+
+module.exports = initialize

@@ -9,17 +9,17 @@
  *
  * @returns {Object} An object containing arrays of pending updates and alerts.
  */
-function generateDashboardSummary () {
+function generateDashboardSummary() {
   // In a real implementation this would query Renovate data or package manifests.
   // For now we return a placeholder structure.
   return {
     pendingUpdates: [], // List of dependency updates awaiting scheduling
     securityAlerts: [] // Security issues detected by Renovate or other tools
-  }
+  };
 }
 
 /**
- * Helper to format a human‑readable string from the dashboard summary.
+ * Helper to format a human-readable string from the dashboard summary.
  *
  * @param {Object} summary - The object returned by generateDashboardReport
  * @returns {string} Formatted summary text.

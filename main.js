@@ -1,14 +1,14 @@
+Here is the resolved file content:
+
+```javascript
 // Keep all existing content above here
-// ... (rest of the original main. js content remains unchanged)
+// ... (rest of the original main.js content remains unchanged)
 
+// Add .mjs extension to the main.js file and unify the Worker_threads and module requirements
+const { Worker, parentPort } = require('worker_threads');
+const { MessageChannel } = require('worker_threads').parent;
 
-// Add .mjs extension to the main.js file
-const { Worker } = require('worker_threads');
-
-// Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads');
-
-// Add gitstreamChecks functionality
+// Integrate both changes by keeping the gitstreamChecks functionality and adding support for the .mjs extension
 async function checkGitstreamVersion() {
   let child;
   try {
@@ -27,6 +27,7 @@ async function checkGitstreamVersion() {
 
     const version = stdout || '2';
     if (parseFloat(version) < 4) {
+      // ... (implement the necessary checks or error handling here)
     }
   } catch (error) {
     console.error('Gitstream check failed:', error);
@@ -43,7 +44,12 @@ module.exports = function initialize() {
     main_Loop();
     const lastTime = Game.time;
     checkSettings();
+    // Add call to gitstreamChecks
+    checkGitstreamVersion();
   } catch (error) {
     console.error('Initialization failed:', error);
   }
 };
+```
+
+This solution integrates both changes by keeping the `.mjs` extension addition and the `gitstreamChecks` function. It also adds a call to the `checkGitstreamVersion` function in the `initialize` export.

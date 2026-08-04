@@ -25,7 +25,8 @@ async function checkGitstreamVersion() {
 
     const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Fixing the unterminated comment here
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

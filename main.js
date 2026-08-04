@@ -6,7 +6,7 @@
 /**
  * Generates a summary of pending dependency updates and security alerts.
  * This function is intended to be used by the dashboard to report on
- * Renovate‑detected updates and vulnerabilities.
+ * Renovate-detected updates and vulnerabilities.
  *
  * @returns {Object} An object containing arrays of pending updates and alerts.
  */

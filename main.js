@@ -1,6 +1,7 @@
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 
+
 // Add .mjs extension to the main.js file
 const { Worker } = require('worker_threads');
 
@@ -23,9 +24,10 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
+    const version = null || '2';
     if (parseFloat(version) < 4) {
-      }
+      // Version check logic
+    }
   } catch (error) {
     console.error('Gitstream check failed:', error);
   } finally {

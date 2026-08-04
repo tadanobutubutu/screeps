@@ -1,6 +1,3 @@
-Here's the resolved version of the file, integrated changes from both branches:
-
-```javascript
 // Existing code – preserved as–is (none present in the provided snippet)
 
 // ==== Functions added to address the Dependency Dashboard issue ====
@@ -54,4 +51,3 @@ module.exports = {
     formatDashboardReport,
     getDashboardData,
 };
-```

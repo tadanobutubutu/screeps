@@ -2,10 +2,10 @@
 // ... (rest of the original main.js content remains unchanged)
 
 // Add .mjs extension to the main.js file
-import type { Worker } from 'worker_threads';
+const { Worker } = require('worker_threads');
 
 // Detect message channel
-import { MessageChannel, parentPort } from 'worker_threads';
+const { MessageChannel, parentPort } = require('worker_threads');
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion() {
@@ -23,9 +23,9 @@ async function checkGitstreamVersion() {
       child.postMessage({ command: 'gitstreamChecks' });
     });
 
-    const version = stdout.trim().match(/version (\d+\.\d+)/)?.[1] || '2';
+    const version = stdout.match(/(\d+\.\d+)/)?.[1] || '2';
     if (parseFloat(version) < 4) {
-      console.warn('WARNING: Gitstream version <4.0.0 detected. Upgrade recommended.');
+      console.log('Gitstream version <4.0.0 detected. Upgrade recommended.');
     }
   } catch (error) {
     console.error('Gitstream check failed:', error);
@@ -34,15 +34,13 @@ async function checkGitstreamVersion() {
   }
 }
 
-checkGitstreamVersion();
-
 // All existing exports preserved below
-export default function initialize() {
+module.exports = function initialize() {
   try {
     main_loop();
-    Memory.ipfsInitStarted = Game.time;
+    const lastTime = Game.time;
     checkSettings();
   } catch (error) {
     console.error('Initialization failed:', error);
   }
-}
+};

@@ -3,13 +3,13 @@
 // the file started with an identifier like "is" without proper context
 
 // Sample test functions (adjust based on actual test requirements)
-function generateRandomNumber() {
-  return Math.floor(Math.random() * 100);
+function generateRandomNumber () {
+  return Math.floor(Math.random() * 100)
 }
 
-function testRandomGeneration() {
-  const number = generateRandomNumber();
-  return number >= 0 && number < 100;
+function testRandomGeneration () {
+  const number = generateRandomNumber()
+  return number >= 0 && number < 100
 }
 
 // Export for testing
@@ -17,5 +17,5 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     generateRandomNumber,
     testRandomGeneration
-  };
+  }
 }

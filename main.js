@@ -1,7 +1,7 @@
 // Keep all existing content above here
-// ... (rest of the original main.js content remains unchanged)
+//... (rest of the original main.js content remains unchanged)
 
-// Add .mjs extension to the main.js file
+// Add.mjs extension to the main.js file
 const { Worker } = require('worker_threads');
 
 // Detect message channel
@@ -10,7 +10,7 @@ const { MessageChannel, parentPort } = require('worker_threads');
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion() {
   try {
-    const child = new Worker(__filename, { type: 'module' });
+    const child = new Worker(__filename, { type: 'odule' });
     child.on('error', (error) => {
       console.error('Child process error:', error);
     });

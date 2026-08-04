@@ -1,7 +1,3 @@
-// Existing code – preserved as‑is (none present in the provided snippet)
-
-// ==== Functions added to address the Dependency Dashboard issue ====
-
 /**
  * Generates a summary of pending dependency updates and security alerts.
  * This function is intended to be used by the dashboard to report on
@@ -50,7 +46,6 @@ function getDashboardData() {
 }
 
 // Export the new functionality while preserving any existing exports.
-// (There were no existing exports in the provided snippet.)
 module.exports = {
   generateDashboardSummary,
   formatDashboardReport,

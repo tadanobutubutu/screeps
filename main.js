@@ -1,49 +1,48 @@
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 
-
 // Add .mjs extension to the main.js file
-const { Worker } = require('worker_threads');
+const { Worker } = require('worker_threads')
 
 // Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads');
+const { MessageChannel, parentPort } = require('worker_threads')
 
 // Add gitstreamChecks functionality
-async function checkGitstreamVersion() {
-  let child;
+async function checkGitstreamVersion () {
+  let child
   try {
-    child = new Worker(__filename, { type: 'module' });
+    child = new Worker(__filename, { type: 'module' })
     child.on('error', (error) => {
-      console.error('Child process error:', error);
-    });
+      console.error('Child process error:', error)
+    })
 
     const { stdout } = await new Promise((resolve, reject) => {
       child.on('message', (message) => {
-        if (message.error) reject(message.error);
-        else resolve(message.stdout);
-      });
-      child.postMessage({ command: 'gitstreamChecks' });
-    });
+        if (message.error) reject(message.error)
+        else resolve(message.stdout)
+      })
+      child.postMessage({ command: 'gitstreamChecks' })
+    })
 
-    const version = stdout || '2';
+    const version = stdout || '2'
     if (parseFloat(version) < 4) {
     }
   } catch (error) {
-    console.error('Gitstream check failed:', error);
+    console.error('Gitstream check failed:', error)
   } finally {
     if (child) {
-      child.terminate();
+      child.terminate()
     }
   }
 }
 
 // All existing exports preserved below
-module.exports = function initialize() {
+module.exports = function initialize () {
   try {
-    main_Loop();
-    const lastTime = Game.time;
-    checkSettings();
+    main_Loop()
+    const lastTime = Game.time
+    checkSettings()
   } catch (error) {
-    console.error('Initialization failed:', error);
+    console.error('Initialization failed:', error)
   }
-};
+}

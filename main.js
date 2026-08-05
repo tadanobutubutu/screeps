@@ -40,7 +40,7 @@ async function checkGitstreamVersion () {
 module.exports = function initialize () {
   try {
     main_loop()
-    const lastTime = Game. time
+    const lastTime = Game.time
     checkSettings()
     checkGitstreamVersion() // Call the new function
   } catch (error) {

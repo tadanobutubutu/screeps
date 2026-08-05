@@ -13,10 +13,13 @@ const roleHarvester = {
         filter: (structure) => {
           return (
             (structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER ||
-                            structure.structureType === STRUCTURE_CONTAINER) &&
-                        structure.energy < structure.energyCapacity
+             structure.structureType === STRUCTURE_SPAWN ||
+             structure.structureType === STRUCTURE_TOWER ||
+             structure.structureType === STRUCTURE_CONTAINER ||
+             structure.structureType === STRUCTURE_CONSTRUCTION_SITE ||
+             structure.structureType === STRUCTURE_UPGRADER ||
+             structure.structureType === STRUCTURE_LAB) &&
+            structure.energy < structure.energyCapacity
           )
         }
       })
@@ -42,6 +45,15 @@ const roleUpgrader = {
       }
     } else if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
       creep.moveTo(creep.room.controller)
+    } else {
+      const lab = creep.pos.findClosestByRange(FIND_STRUCTURES, {
+        filter: (structure) => {
+          return structure.structureType === STRUCTURE_LAB
+        }
+      })
+      if (lab && (creep.upgrade(lab) === ERR_NOT_IN_RANGE)) {
+        creep.moveTo(lab)
+      }
     }
   }
 }
@@ -72,6 +84,10 @@ const roleBuilder = {
         if (targets.length) {
           if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
             creep.moveTo(targets[0])
+          }
+        } else if (creep.memory.targetContainer) {
+          if (creep.withdraw(creep.memory.targetContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(creep.memory.targetContainer)
           }
         }
       }
@@ -112,14 +128,14 @@ module.exports.loop = function () {
 
   if (upgraders.length < 2) {
     const newName = 'Upgrader' + Game.time
-    Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE, CARRY_ENERGY_3], newName, {
       memory: { role: 'upgrader' }
     })
   }
 
   if (builders.length < 2) {
     const newName = 'Builder' + Game.time
-    Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE, CARRY_ENERGY_5], newName, {
       memory: { role: 'builder' }
     })
   }

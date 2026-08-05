@@ -10,12 +10,12 @@ const roleHarvester = {
       }
     } else {
       const targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
+        filter: function(structure) {
           return (
             (structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER) &&
-                        structure.energy < structure.energyCapacity
+              structure.structureType === STRUCTURE_SPAWN ||
+              structure.structureType === STRUCTURE_TOWER) &&
+            structure.energy < structure.energyCapacity
           )
         }
       })
@@ -26,7 +26,7 @@ const roleHarvester = {
       }
     }
   }
-}
+};
 
 const roleUpgrader = {
   run: function (creep) {
@@ -41,7 +41,7 @@ const roleUpgrader = {
       }
     }
   }
-}
+};
 
 const roleBuilder = {
   run: function (creep) {
@@ -59,59 +59,58 @@ const roleBuilder = {
       }
     }
   }
-}
+};
 
 // Main loop
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
-        }
-        Memory.lastCleanup = Game.time;
-    }
-
-  // Clean up dead creeps from memory
+if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
   for (const name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name]
-    }
+    if (!Game.creeps[name]) { delete Memory.creeps[name]; }
   }
+  Memory.lastCleanup = Game.time;
+}
 
-  // Count roles
-  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester')
-  const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader')
-  const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder')
-
-  // Spawn logic
-  if (harvesters.length < 2) {
-    const newName = 'Harvester' + Game.time
-    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'harvester' }
-    })
+// Clean up dead creeps from memory
+for (const name in Memory.creeps) {
+  if (!Game.creeps[name]) {
+    delete Memory.creeps[name]
   }
+}
 
-  if (upgraders.length < 2) {
-    const newName = 'Upgrader' + Game.time
-    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'upgrader' }
-    })
-  }
+// Count roles
+const harvesters = _.filter(Game.creeps, creep => creep.memory.role === 'harvester');
+const upgraders = _.filter(Game.creeps, creep => creep.memory.role === 'upgrader');
+const builders = _.filter(Game.creeps, creep => creep.memory.role === 'builder');
 
-  if (builders.length < 2) {
-    const newName = 'Builder' + Game.time
-    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
-      memory: { role: 'builder' }
-    })
-  }
+// Spawn logic
+if (harvesters.length < 2) {
+  const newName = 'Harvester' + Game.time
+  Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
+    memory: { role: 'harvester' }
+  })
+}
 
-  // Run roles
-  for (const creep of Object.values(Game.creeps)) {
-    const creep = Game.creeps[name]
-    if (creep.memory.role === 'harvester') {
-      roleHarvester.run(creep)
-    } else if (creep.memory.role === 'upgrader') {
-      roleUpgrader.run(creep)
-    } else if (creep.memory.role === 'builder') {
-      roleBuilder.run(creep)
-    }
+if (upgraders.length < 2) {
+  const newName = 'Upgrader' + Game.time
+  Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
+    memory: { role: 'upgrader' }
+  })
+}
+
+if (builders.length < 2) {
+  const newName = 'Builder' + Game.time
+  Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
+    memory: { role: 'builder' }
+  })
+}
+
+// Run roles
+for (const creep of Object.values(Game.creeps)) {
+  const creep = Game.creeps[name]
+  if (creep.memory.role === 'harvester') {
+    roleHarvester.run(creep)
+  } else if (creep.memory.role === 'upgrader') {
+    roleUpgrader.run(creep)
+  } else if (creep.memory.role === 'builder') {
+    roleBuilder.run(creep)
   }
 }

@@ -623,35 +623,92 @@ export default function Dashboard() {
                         </button>
                     )}
                     {stats?.rooms?.length > 3 && (
-                        <input
-                            type="text"
-                            value={roomQuery}
-                            onChange={(e) => setRoomQuery(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                    setRoomQuery('');
-                                }
-                            }}
-                            placeholder="部屋を検索..."
-                            aria-label="部屋名で検索"
+                        <div
                             style={{
-                                fontSize: '0.75rem',
-                                padding: '0.15rem 0.4rem',
-                                border: '1px solid #cbd5e0',
-                                borderRadius: '4px',
-                                outline: 'none',
-                                transition: 'all 0.2s ease-in-out',
-                                width: '100px',
+                                position: 'relative',
+                                display: 'inline-flex',
+                                alignItems: 'center',
                             }}
-                            onFocus={(e) => {
-                                e.currentTarget.style.borderColor = '#004b73';
-                                e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 75, 115, 0.2)';
-                            }}
-                            onBlur={(e) => {
-                                e.currentTarget.style.borderColor = '#cbd5e0';
-                                e.currentTarget.style.boxShadow = 'none';
-                            }}
-                        />
+                        >
+                            <input
+                                type="text"
+                                value={roomQuery}
+                                onChange={(e) => setRoomQuery(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') {
+                                        setRoomQuery('');
+                                    }
+                                }}
+                                placeholder="部屋を検索..."
+                                aria-label="部屋名で検索"
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: roomQuery
+                                        ? '0.15rem 1.4rem 0.15rem 0.4rem'
+                                        : '0.15rem 0.4rem',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    outline: 'none',
+                                    transition: 'all 0.2s ease-in-out',
+                                    width: '100px',
+                                }}
+                                onFocus={(e) => {
+                                    e.currentTarget.style.borderColor = '#004b73';
+                                    e.currentTarget.style.boxShadow =
+                                        '0 0 0 2px rgba(0, 75, 115, 0.2)';
+                                }}
+                                onBlur={(e) => {
+                                    e.currentTarget.style.borderColor = '#cbd5e0';
+                                    e.currentTarget.style.boxShadow = 'none';
+                                }}
+                            />
+                            {roomQuery && (
+                                <button
+                                    onClick={() => setRoomQuery('')}
+                                    aria-label="検索キーワードをクリア"
+                                    title="検索をクリア"
+                                    style={{
+                                        position: 'absolute',
+                                        right: '4px',
+                                        background: 'none',
+                                        border: 'none',
+                                        color: '#718096',
+                                        cursor: 'pointer',
+                                        padding: '0.1rem',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '0.7rem',
+                                        lineHeight: 1,
+                                        borderRadius: '50%',
+                                        width: '14px',
+                                        height: '14px',
+                                        transition: 'background-color 0.1s, color 0.1s',
+                                        outline: 'none',
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
+                                        e.currentTarget.style.color = '#2d3748';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                        e.currentTarget.style.color = '#718096';
+                                    }}
+                                    onFocus={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#cbd5e0';
+                                        e.currentTarget.style.color = '#2d3748';
+                                        e.currentTarget.style.outline = '1px solid #004b73';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.currentTarget.style.backgroundColor = 'transparent';
+                                        e.currentTarget.style.color = '#718096';
+                                        e.currentTarget.style.outline = 'none';
+                                    }}
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span

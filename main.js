@@ -103,28 +103,28 @@ module.exports.loop = function () {
   // Spawn logic
   if (harvesters.length < 2) {
     const newName = 'Harvester' + Game.time
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'harvester' }
     })
   }
 
   if (upgraders.length < 2) {
     const newName = 'Upgrader' + Game.time
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'upgrader' }
     })
   }
 
   if (builders.length < 2) {
     const newName = 'Builder' + Game.time
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'builder' }
     })
   }
 
   if (healers.length < 1) {
     const newName = 'Healer' + Game.time
-    Game.spawns['Spawn1'].spawnCreep([MOVE, HEAL], newName, {
+    Game.spawns.Spawn1.spawnCreep([MOVE, HEAL], newName, {
       memory: { role: 'healer' }
     })
   }

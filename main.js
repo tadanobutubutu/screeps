@@ -1,10 +1,12 @@
 const assert = require('assert');
 
+// Main.js - Module entry point
+
+// utils/tasks.js
+
 function isRandom(value, min, max) {
   return value >= min && value <= max;
 }
-
-// utils.tasks.js
 
 /**
  * Task utility functions for the application

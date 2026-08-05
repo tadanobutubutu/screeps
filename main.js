@@ -13,9 +13,9 @@ const roleHarvester = {
         filter: (structure) => {
           return (
             (structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER) &&
-                        structure.energy < structure.energyCapacity
+              structure.structureType === STRUCTURE_SPAWN ||
+              structure.structureType === STRUCTURE_TOWER) &&
+            structure.energy < structure.energyCapacity
           )
         }
       })
@@ -36,7 +36,7 @@ const roleUpgrader = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) { // Fixed typo here
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller)
       }
     }
@@ -69,13 +69,6 @@ if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
     Memory.lastCleanup = Game.time;
 }
 
-// Clean up dead creeps from memory
-for (const name in Memory.creeps) {
-  if (!Game.creeps[name]) {
-    delete Memory.creeps[name]
-  }
-}
-
 // Count roles
 const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester')
 const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader')
@@ -105,7 +98,6 @@ if (builders.length < 2) {
 
 // Run roles
 for (const creep of Object.values(Game.creeps)) {
-  const creep = Game.creeps[creep.name]
   if (creep.memory.role === 'harvester') {
     roleHarvester.run(creep)
   } else if (creep.memory.role === 'upgrader') {

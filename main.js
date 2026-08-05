@@ -47,8 +47,7 @@ function isRandom(value, min, max) {
  */
 
 /**
- * Default task configuration
- */
+ * Default task configuration */
 const DEFAULT_CONFIG = {
   timeout: 5000,
   retries: 3,
@@ -113,6 +112,29 @@ function getHealth() {
   return { status: 'ok' };
 }
 
+var roleHealer = {
+    /** @param {Creep} creep **/
+    run: function(creep) {
+        // Heal self if damaged
+        if (creep.hits < creep.hitsMax) {
+            creep.heal(creep);
+        }
+        
+        // Find wounded allies to heal
+        var target = creep.pos.findClosestByRange(FIND_CREEPS, {
+            filter: function(ally) {
+                return ally.hits < ally.hitsMax && ally.my;
+            }
+        });
+        
+        if (target) {
+            if (creep.heal(target) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#00ff00'}});
+            }
+        }
+    }
+};
+
 // Export utility functions and tutorial
 module.exports = {
   tutorial,
@@ -122,5 +144,6 @@ module.exports = {
   updateTask,
   deleteTask,
   DEFAULT_CONFIG,
-  getHealth
+  getHealth,
+  roleHealer
 };

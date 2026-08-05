@@ -1,14 +1,1 @@
-// Existing code and exports (preserved)
-
-// New function or changes
-function newFunction() {
-  // Add new functionality here
-}
-
-// Add other changes requested in the issue if necessary
-
-// End of new function or changes
-
-module.exports = {
-  newFunction,
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -1,5 +1,12 @@
 const assert = require('assert');
 
+// Main.js - Module entry point
+// utils/tasks.js
+
+function isRandom(value, min, max) {
+  return value >= min && value <= max;
+}
+
 /**
  * Task utility functions for the application
  */
@@ -67,17 +74,17 @@ function deleteTask(tasks, taskId) {
   return tasks.filter(task => task.id !== taskId);
 }
 
-// Custom utility function
-function isRandom(value, min, max) {
-  return value >= min && value <= max;
+function getHealth() {
+  return { status: 'ok' };
 }
 
 // Export utility functions
 module.exports = {
+  isRandom,
   executeTask,
   createTask,
   updateTask,
   deleteTask,
   DEFAULT_CONFIG,
-  isRandom
+  getHealth
 };

@@ -106,7 +106,7 @@ function updateTask(task, updates) {
  * @returns {Array} Filtered tasks array
  */
 function deleteTask(tasks, taskId) {
-  return tasks.filter(task => task.id !== taskId);
+  return tasks.filter(task => task.id!== taskId);
 }
 
 function getHealth() {

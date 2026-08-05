@@ -643,7 +643,9 @@ export default function Dashboard() {
                                 aria-label="部屋名で検索"
                                 style={{
                                     fontSize: '0.75rem',
-                                    padding: roomQuery ? '0.15rem 1.4rem 0.15rem 0.4rem' : '0.15rem 0.4rem',
+                                    padding: roomQuery
+                                        ? '0.15rem 1.4rem 0.15rem 0.4rem'
+                                        : '0.15rem 0.4rem',
                                     border: '1px solid #cbd5e0',
                                     borderRadius: '4px',
                                     outline: 'none',
@@ -652,7 +654,8 @@ export default function Dashboard() {
                                 }}
                                 onFocus={(e) => {
                                     e.currentTarget.style.borderColor = '#004b73';
-                                    e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 75, 115, 0.2)';
+                                    e.currentTarget.style.boxShadow =
+                                        '0 0 0 2px rgba(0, 75, 115, 0.2)';
                                 }}
                                 onBlur={(e) => {
                                     e.currentTarget.style.borderColor = '#cbd5e0';

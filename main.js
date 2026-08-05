@@ -75,6 +75,10 @@ function deleteTask(tasks, taskId) {
   return tasks.filter(task => task.id !== taskId);
 }
 
+function getHealth() {
+  return { status: 'ok' };
+}
+
 // Export utility functions
 module.exports = {
   isRandom,
@@ -82,5 +86,6 @@ module.exports = {
   createTask,
   updateTask,
   deleteTask,
-  DEFAULT_CONFIG
+  DEFAULT_CONFIG,
+  getHealth
 };

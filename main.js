@@ -2,16 +2,13 @@
 // ... (rest of the original main.js content remains unchanged)
 
 // Add.mjs extension to the main.js file
-const { Worker } = require('worker_threads')
-
-// Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads')
+const { Worker, parentPort } = require('worker_threads')
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion () {
   let child
   try {
-    child = new Worker(__filename, { type: 'module' })
+    child = new Worker(__filename)
     child.on('error', (error) => {
       console.error('Child process error:', error)
     })

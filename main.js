@@ -36,7 +36,7 @@ const roleUpgrader = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller)
       }
     }
@@ -62,12 +62,13 @@ const roleBuilder = {
 }
 
 // Main loop
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
-        }
-        Memory.lastCleanup = Game.time;
+module.exports.loop = function () {
+  if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+    for (const name in Memory.creeps) {
+      if (!Game.creeps[name]) { delete Memory.creeps[name]; }
     }
+    Memory.lastCleanup = Game.time;
+  }
 
   // Clean up dead creeps from memory
   for (const name in Memory.creeps) {
@@ -104,7 +105,7 @@ const roleBuilder = {
   }
 
   // Run roles
-  for (const creep of Object.values(Game.creeps)) {
+  for (const name in Game.creeps) {
     const creep = Game.creeps[name]
     if (creep.memory.role === 'harvester') {
       roleHarvester.run(creep)

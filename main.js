@@ -15,7 +15,7 @@ const roleHarvester = {
             (structure.structureType === STRUCTURE_EXTENSION ||
                             structure.structureType === STRUCTURE_SPAWN ||
                             structure.structureType === STRUCTURE_TOWER) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+                        structure.energy < structure.energyCapacity
           )
         }
       })
@@ -36,7 +36,7 @@ const roleUpgrader = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) {
         creep.moveTo(creep.room.controller)
       }
     }
@@ -78,21 +78,21 @@ module.exports.loop = function () {
   // Spawn logic
   if (harvesters.length < 2) {
     const newName = 'Harvester' + Game.time
-    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'harvester' }
     })
   }
 
   if (upgraders.length < 2) {
     const newName = 'Upgrader' + Game.time
-    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'upgrader' }
     })
   }
 
   if (builders.length < 2) {
     const newName = 'Builder' + Game.time
-    Game.spawns.Spawn1.spawnCreep([WORK, CARRY, MOVE], newName, {
+    Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'builder' }
     })
   }

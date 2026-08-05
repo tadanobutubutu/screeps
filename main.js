@@ -1,7 +1,1 @@
-function someFunction() {
-  let value = 5;
-  // Corrected the inequality operator typo
-  if (value !== 0) {
-    // Some code here
-  }
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

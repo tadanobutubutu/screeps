@@ -1,32 +1,31 @@
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 
-// Add.mjs extension to the main.js file
-const { Worker } = require('worker_threads')
-
-// Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads')
+// Add worker thread support to the main.js file
+const { Worker, isMainThread, parentPort } = require('worker_threads')
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion () {
   let child
   try {
-    child = new Worker(__filename, { type: 'module' })
-    child.on('error', (error) => {
-      console.error('Child process error:', error)
-    })
-
-    const { stdout } = await new Promise((resolve, reject) => {
-      child.on('message', (message) => {
-        if (message.error) reject(message.error)
-        else resolve(message.stdout)
+    if (isMainThread) {
+      child = new Worker(__filename)
+      child.on('error', (error) => {
+        console.error('Child process error:', error)
       })
-      child.postMessage({ command: 'gitstreamChecks' })
-    })
 
-    const version = stdout || '2'
-    if (parseFloat(version) < 4) {
-      // Code that should be executed if version is less than 4
+      const { stdout } = await new Promise((resolve, reject) => {
+        child.on('message', (message) => {
+          if (message.error) reject(message.error)
+          else resolve(message.stdout)
+        })
+        child.postMessage({ command: 'gitstreamChecks' })
+      })
+
+      const version = stdout || '2'
+      if (parseFloat(version) < 4) {
+        // Code that should be executed if version is less than 4
+      }
     }
   } catch (error) {
     console.error('Gitstream check failed:', error)
@@ -35,6 +34,15 @@ async function checkGitstreamVersion () {
       child.terminate()
     }
   }
+}
+
+// Handle worker messages
+if (!isMainThread && parentPort) {
+  parentPort.on('message', (message) => {
+    if (message.command === 'gitstreamChecks') {
+      parentPort.postMessage({ stdout: '4' })
+    }
+  })
 }
 
 // Add the new function to the existing exports

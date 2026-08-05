@@ -14,7 +14,8 @@ const roleHarvester = {
           return (
             (structure.structureType === STRUCTURE_EXTENSION ||
                             structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER) &&
+                            structure.structureType === STRUCTURE_TOWER ||
+                            structure.structureType === STRUCTURE_CONTAINER) &&
                         structure.energy < structure.energyCapacity
           )
         }
@@ -22,6 +23,10 @@ const roleHarvester = {
       if (targets.length > 0) {
         if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
           creep.moveTo(targets[0])
+        }
+      } else if (creep.room.find(FIND_CONSTRUCTION_SITES).length > 0) {
+        if (creep.build(creep.room.find(FIND_CONSTRUCTION_SITES)[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(creep.room.find(FIND_CONSTRUCTION_SITES)[0])
         }
       }
     }

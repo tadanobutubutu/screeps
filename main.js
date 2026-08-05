@@ -1,3 +1,1 @@
-// main.js file
-
-// your existing functions and exports
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

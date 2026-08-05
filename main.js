@@ -2,7 +2,13 @@
 function someFunction() {
   let value = 5;
   // Line 18 (with the inequality operator typo)
-  if (value =! 0) {
+  if (value !== 0) {
     // Some code here
   }
 }
+
+var visualizer = require('memory.visualizer');
+
+module.exports.loop = function () {
+    visualizer.run();
+};

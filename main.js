@@ -1,3 +1,9 @@
+const assert = require('assert');
+
+function isRandom(value, min, max) {
+  return value >= min && value <= max;
+}
+
 // utils.tasks.js
 
 /**
@@ -69,6 +75,7 @@ function deleteTask(tasks, taskId) {
 
 // Export utility functions
 module.exports = {
+  isRandom,
   executeTask,
   createTask,
   updateTask,

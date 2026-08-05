@@ -3,13 +3,8 @@ const { getEmotionColor } = require('./utils.emotions.js');
 const assert = require('assert');
 
 // utils/tasks.js
-
 /**
  * Task utility functions for the application
- */
-
-/**
- * Default task configuration
  */
 const DEFAULT_CONFIG = {
   timeout: 5000,
@@ -21,14 +16,8 @@ function isRandom(value, min, max) {
   return value >= min && value <= max;
 }
 
-/**
- * Executes a task with the given options
- * @param {Object} options - Task options
- * @param {Function} callback - Task callback
- */
 function executeTask(options, callback) {
   const config = Object.assign({}, DEFAULT_CONFIG, options);
-  
   try {
     const result = callback(config);
     return { success: true, data: result };
@@ -75,22 +64,46 @@ function deleteTask(tasks, taskId) {
   return tasks.filter(task => task.id !== taskId);
 }
 
-function getHealth() {
-  return { status: 'ok' };
-}
+/**
+ * Role for healing creeps.
+ * Heals self if damaged and then heals the closest wounded allied creep. Also, it contains an additional IF condition to heal creeps with the 'healer' role.
+ */
+const roleHealer = {
+    /** @param {Creep} creep **/
+    run: function(creep) {
+        // Heal self if damaged
+        if (creep.hits < creep.hitsMax || creep.memory.role === 'healer') {
+            creep.heal(creep);
+        }
 
-// Export utility functions
+        // Find wounded allies to heal
+        var target = creep.pos.findClosestByRange(FIND_CREEPS, {
+            filter: function(ally) {
+                return ally.hits < ally.hitsMax && ally.my && ally.memory.role !== 'healer';
+            }
+        });
+
+        if (target) {
+            if (creep.heal(target) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(target, {visualizePathStyle: {stroke: '#00ff00'}});
+            }
+        }
+    }
+};
+
+// Export utility functions and roleHealer
 module.exports = {
-  isRandom,
   executeTask,
   createTask,
   updateTask,
   deleteTask,
   DEFAULT_CONFIG,
+  isRandom,
   getHealth,
   loop: function() {
     console.log('Game tick: ' + Game.time);
     console.log('Current emotion: ' + emotion);
     console.log('Emotion color: ' + getEmotionColor(emotion));
-  }
+  },
+  roleHealer
 };

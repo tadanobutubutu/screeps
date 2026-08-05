@@ -1,11 +1,10 @@
 // Keep all existing content above here
 // ... (rest of the original main.js content remains unchanged)
 
-// Add.mjs extension to the main.js file
-const { Worker } = require('worker_threads')
+// Add. mjs extension to the main. js file
+const { Worker, MessageChannel } = require('worker_threads')
 
 // Detect message channel
-const { MessageChannel, parentPort } = require('worker_threads')
 
 // Add gitstreamChecks functionality
 async function checkGitstreamVersion () {
@@ -41,7 +40,7 @@ async function checkGitstreamVersion () {
 module.exports = function initialize () {
   try {
     main_loop()
-    const lastTime = Game.time
+    const lastTime = Game. time
     checkSettings()
     checkGitstreamVersion() // Call the new function
   } catch (error) {

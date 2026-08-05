@@ -5,7 +5,8 @@ module.exports = {
     // New function to be added to the main loop
     function newFunction() {
       // Implementation of the new function
-      }
+      // ...
+    }
 
     // Call the new function inside the loop
     newFunction();

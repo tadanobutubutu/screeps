@@ -5,3 +5,8 @@ function someFunction() {
     // Some code here
   }
 }
+
+// New function as per the issue
+function anotherFunction() {
+  console.log('This is a new function.');
+}

@@ -36,7 +36,7 @@ const roleUpgrader = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) { // Fix typo here
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RANGE) {
         creep.moveTo(creep.room.controller)
       }
     }
@@ -104,13 +104,13 @@ if (builders.length < 2) {
 }
 
 // Run roles
-for (const creep of Object.values(Game.creeps)) {
-  const creep = Game.creeps[creep.name] // Fixing the reference to the creep object
-  if (creep.memory.role === 'harvester') {
-    roleHarvester.run(creep)
-  } else if (creep.memory.role === 'upgrader') {
-    roleUpgrader.run(creep)
-  } else if (creep.memory.role === 'builder') {
-    roleBuilder.run(creep)
+for (const creep in Game.creeps) {
+  const creepObj = Game.creeps[creep]
+  if (creepObj.memory.role === 'harvester') {
+    roleHarvester.run(creepObj)
+  } else if (creepObj.memory.role === 'upgrader') {
+    roleUpgrader.run(creepObj)
+  } else if (creepObj.memory.role === 'builder') {
+    roleBuilder.run(creepObj)
   }
 }

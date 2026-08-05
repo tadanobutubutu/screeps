@@ -3,8 +3,7 @@
     "main.js"
   ],
   "rules": [
-    "Optimize Game.creeps loop",
-    "Add memory cleanup"
+    "Remove console.log"
   ],
-  "timestamp": "2026-08-05T08:10:59.604Z"
+  "timestamp": "2026-08-05T19:08:14.030Z"
 }

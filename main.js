@@ -9,6 +9,11 @@
     loop: function() {
       // Main game loop
       console.log('Screeps running');
+    },
+    // New function as per the issue
+    newFunction: function() {
+      // Example of a new function
+      console.log('New function executed');
     }
   };
   
@@ -20,6 +25,6 @@
   // Assign to global scope if in Screeps environment
   if (typeof globalThis.loop !== 'undefined' || 
       (typeof module === 'undefined' && typeof loop === 'undefined')) {
-    // Screeps expects 'module' or global 'loop' function
+    globalThis.loop = main.loop;
   }
 })();

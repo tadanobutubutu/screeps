@@ -1,1 +1,1 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function myFunction() { console.log('Updated'); } module.exports = { loop: function() { console.log('Updated'); }

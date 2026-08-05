@@ -1,7 +1,3 @@
-// This is an invalid comment because it is not properly closed
-
-const assert = require('assert');
-
 // Main.js - Module entry point
 
 // utils/tasks.js
@@ -97,6 +93,3 @@ module.exports = {
   getHealth,
   getUnitHealth // Include the function added in 'origin/main'
 };
-```
-
-This resolved file preserves both changes, adds the `getUnitHealth` function, and keeps the same style and comments as much as possible. The potential issue in the original comment is also resolved.

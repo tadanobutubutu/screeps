@@ -9,6 +9,15 @@
     loop: function() {
       // Main game loop
       console.log('Screeps running');
+      
+      // New function requested in the issue (e.g., new game logic or utility function)
+      function newGameFunction() {
+        // Example: Do something new in the game loop
+        console.log('New game function running');
+      }
+      
+      // Call the new function within the loop
+      newGameFunction();
     }
   };
   
@@ -21,5 +30,6 @@
   if (typeof globalThis.loop !== 'undefined' || 
       (typeof module === 'undefined' && typeof loop === 'undefined')) {
     // Screeps expects 'module' or global 'loop' function
+    globalThis.loop = main.loop;
   }
 })();

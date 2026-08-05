@@ -35,9 +35,12 @@ const tutorial = {
   }
 };
 
-// utils tasks.js
+// Main.js - Module entry point
+// utils/tasks.js
 
-const assert = require('assert');
+function isRandom(value, min, max) {
+  return value >= min && value <= max;
+}
 
 /**
  * Task utility functions for the application
@@ -106,6 +109,10 @@ function deleteTask(tasks, taskId) {
   return tasks.filter(task => task.id !== taskId);
 }
 
+function getHealth() {
+  return { status: 'ok' };
+}
+
 // Export utility functions and tutorial
 module.exports = {
   tutorial,
@@ -114,5 +121,6 @@ module.exports = {
   createTask,
   updateTask,
   deleteTask,
-  DEFAULT_CONFIG
+  DEFAULT_CONFIG,
+  getHealth
 };

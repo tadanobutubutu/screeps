@@ -1,6 +1,3 @@
-// Screeps AI Entry Point
-
-// Module definitions
 const roleHarvester = {
   run: function (creep) {
     if (creep.carry.energy === 0) {
@@ -61,6 +58,34 @@ const roleBuilder = {
   }
 }
 
+const roleMaintenance = {
+  run: function (creep) {
+    const targets = creep.room.find(FIND_STRUCTURES, {
+      filter: (structure) => {
+        return (
+          structure.hits < structure.hitsMax / 2 ||
+          (structure.structureType === STRUCTURE_WALL && structure.hits < 5000) ||
+          (structure.structureType === STRUCTURE_RAMPART && structure.hits < 10000)
+        )
+      }
+    })
+    if (targets.length) {
+      if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+        creep.moveTo(targets[0])
+      }
+    } else {
+      const targets = creep.room.find(FIND_STRUCTURES, {
+        filter: (structure) => structure.hits < structure.hitsMax / 4
+      })
+      if (targets.length) {
+        if (creep.repair(targets[0]) === ERR_NOT_IN_RANGE) {
+          creep.moveTo(targets[0])
+        }
+      }
+    }
+  }
+}
+
 // Main loop
 module.exports.loop = function () {
   if (!Memory.creeps || !Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
@@ -77,30 +102,40 @@ module.exports.loop = function () {
     }
   }
 
-  // Count roles
-  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester')
-  const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader')
-  const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder')
+  // Dynamic role thresholds
+  const energy = Game.getResourceRoomResources('energy').amount
+  const neededHarvesters = Math.min(5, Math.floor(energy / 500 + 1))
+  const neededUpgraders = Math.min(3, Math.ceil(energy / 1000))
+  const neededBuilders = Math.min(3, Math.ceil(Game.getRoomCreepCount('builder') / 200))
 
   // Spawn logic
-  if (harvesters.length < 2) {
+  if (harvesters.length < neededHarvesters) {
     const newName = 'Harvester' + Game.time
     Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'harvester' }
     })
   }
 
-  if (upgraders.length < 2) {
+  if (upgraders.length < neededUpgraders) {
     const newName = 'Upgrader' + Game.time
     Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'upgrader' }
     })
   }
 
-  if (builders.length < 2) {
+  if (builders.length < neededBuilders) {
     const newName = 'Builder' + Game.time
     Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'builder' }
+    })
+  }
+
+  // Maintenance spawning logic (optional, based on energy scarcity)
+  const maintenanceThreshold = Math.min(2, Math.floor(energy / 2000))
+  if (maintenanceCreeps.length < maintenanceThreshold) {
+    const newName = 'Maintenance' + Game.time
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {
+      memory: { role: 'maintenance' }
     })
   }
 
@@ -113,6 +148,8 @@ module.exports.loop = function () {
       roleUpgrader.run(creep)
     } else if (creep.memory.role === 'builder') {
       roleBuilder.run(creep)
+    } else if (creep.memory.role === 'maintenance') {
+      roleMaintenance.run(creep)
     }
   }
 }

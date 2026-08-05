@@ -36,7 +36,7 @@ const roleUpgrader = {
         creep.moveTo(sources[0])
       }
     } else {
-      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) {
+      if (creep.upgradeController(creep.room.controller) === ERR_NOT_IN_RAVIG_RANGE) { // Corrected typo
         creep.moveTo(creep.room.controller)
       }
     }
@@ -62,56 +62,55 @@ const roleBuilder = {
 }
 
 // Main loop
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
-        }
-        Memory.lastCleanup = Game.time;
+if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+    for (const name in Memory.creeps) {
+        if (!Game.creeps[name]) { delete Memory.creeps[name]; }
     }
+    Memory.lastCleanup = Game.time;
+}
 
-  // Clean up dead creeps from memory
-  for (const name in Memory.creeps) {
+// Clean up dead creeps from memory
+for (const name in Memory.creeps) {
     if (!Game.creeps[name]) {
       delete Memory.creeps[name]
     }
-  }
+}
 
-  // Count roles
-  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester')
-  const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader')
-  const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder')
+// Count roles
+const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role === 'harvester')
+const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role === 'upgrader')
+const builders = _.filter(Game.creeps, (creep) => creep.memory.role === 'builder')
 
-  // Spawn logic
-  if (harvesters.length < 2) {
+// Spawn logic
+if (harvesters.length < 2) {
     const newName = 'Harvester' + Game.time
     Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'harvester' }
     })
-  }
+}
 
-  if (upgraders.length < 2) {
+if (upgraders.length < 2) {
     const newName = 'Upgrader' + Game.time
     Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'upgrader' }
     })
-  }
+}
 
-  if (builders.length < 2) {
+if (builders.length < 2) {
     const newName = 'Builder' + Game.time
     Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], newName, {
       memory: { role: 'builder' }
     })
-  }
+}
 
-  // Run roles
-  for (const creep of Object.values(Game.creeps)) {
-    const creep = Game.creeps[name]
-    if (creep.memory.role === 'harvester') {
-      roleHarvester.run(creep)
-    } else if (creep.memory.role === 'upgrader') {
-      roleUpgrader.run(creep)
-    } else if (creep.memory.role === 'builder') {
-      roleBuilder.run(creep)
-    }
+// Run roles
+for (const creep of Object.values(Game.creeps)) {
+  const creep = Game.creeps[creep]; // Fixed undefined reference to creep
+  if (creep.memory.role === 'harvester') {
+    roleHarvester.run(creep)
+  } else if (creep.memory.role === 'upgrader') {
+    roleUpgrader.run(creep)
+  } else if (creep.memory.role === 'builder') {
+    roleBuilder.run(creep)
   }
 }

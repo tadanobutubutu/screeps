@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // utils.tasks.js
 
 /**
@@ -20,7 +23,7 @@ const DEFAULT_CONFIG = {
  */
 function executeTask(options, callback) {
   const config = Object.assign({}, DEFAULT_CONFIG, options);
-  
+
   try {
     const result = callback(config);
     return { success: true, data: result };
@@ -69,23 +72,23 @@ function deleteTask(tasks, taskId) {
 
 /**
  * Role for healing creeps.
- * Heals self if damaged and then heals the closest wounded allied creep.
+ * Heals self if damaged and then heals the closest wounded allied creep. Also, it contains an additional IF condition to heal creeps with the 'healer' role.
  */
 const roleHealer = {
     /** @param {Creep} creep **/
     run: function(creep) {
         // Heal self if damaged
-        if (creep.hits < creep.hitsMax) {
+        if (creep.hits < creep.hitsMax || creep.memory.role === 'healer') {
             creep.heal(creep);
         }
-        
+
         // Find wounded allies to heal
         var target = creep.pos.findClosestByRange(FIND_CREEPS, {
             filter: function(ally) {
-                return ally.hits < ally.hitsMax && ally.my;
+                return ally.hits < ally.hitsMax && ally.my && ally.memory.role !== 'healer';
             }
         });
-        
+
         if (target) {
             if (creep.heal(target) === ERR_NOT_IN_RANGE) {
                 creep.moveTo(target, {visualizePathStyle: {stroke: '#00ff00'}});
@@ -103,3 +106,6 @@ module.exports = {
   DEFAULT_CONFIG,
   roleHealer
 };
+```
+
+In this resolution, I kept both changes. The first change was about adding a condition to heal the creep with the 'healer' role added. The second change was about filtering the wounded allies by not selecting creeps with the 'healer' role. To reconcile these two changes, I added an additional condition in `roleHealer.run` function to check if the creep hits are low or if the creep has the 'healer' role. Also, I filtered the wounded allies to exclude creeps with the 'healer' role in the `findClosestByRange` call. I preserved comments and style in this solution.

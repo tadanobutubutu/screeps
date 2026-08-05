@@ -1,10 +1,39 @@
-// Existing code and exports (preserved)
+// src/managers/roomManager.js
 
-// New function or changes
-function newFunction() {
-  // Add new functionality here
+const rooms = new Map();
+
+function createRoom(roomId, roomData) {
+  if (rooms.has(roomId)) {
+    throw new Error(`Room with id ${roomId} already exists`);
+  }
+  rooms.set(roomId, roomData);
+  return roomData;
 }
 
-// Add other changes requested in the issue if necessary
+function getRoom(roomId) {
+  return rooms.get(roomId);
+}
 
-// End of new function or changes
+function updateRoom(roomId, roomData) {
+  if (!rooms.has(roomId)) {
+    throw new Error(`Room with id ${roomId} does not exist`);
+  }
+  rooms.set(roomId, roomData);
+  return roomData;
+}
+
+function deleteRoom(roomId) {
+  return rooms.delete(roomId);
+}
+
+function listRooms() {
+  return Array.from(rooms.values());
+}
+
+module.exports = {
+  createRoom,
+  getRoom,
+  updateRoom,
+  deleteRoom,
+  listRooms,
+};

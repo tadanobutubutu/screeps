@@ -1,15 +1,18 @@
-// main.js (updated)
+// test_andom.js
 
-// Leave the existing code here (before the conflict markers)
+describe('random module', () => {
+    test('should generate a random number', () => {
+        const result = Math.random();
+        expect(result).toBeDefined();
+        expect(result).toBeGreaterThanOrEqual(0);
+        expect(result).toBeLessThan(1);
+    });
 
-// New functions or changes requested in the issue
-// None provided in the issue body, so no new code will be added here.
-
-// ...
-// Existing code that follows after the conflict markers
-// Make sure to include all the functions and exports
-// Don't remove or rename any existing exports
-
-// Example of existing code (this is just a placeholder and should be replaced with the actual code):
-// export function exampleFunction() {
-//     // }
+    test('should generate random integer in range', () => {
+        const min = 1;
+        const max = 10;
+        const result = Math.floor(Math.random() * (max - min + 1)) + min;
+        expect(result).toBeGreaterThanOrEqual(min);
+        expect(result).toBeLessThanOrEqual(max);
+    });
+});

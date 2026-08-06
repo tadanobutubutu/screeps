@@ -107,6 +107,11 @@ function checkForFailedLookups() {
   ];
 }
 
+function getLatestNodeVersion() {
+  // Dummy implementation to get the latest Node.js version
+  return '16.14.0';
+}
+
 module.exports = {
   dependencies,
   getPendingUpdates,
@@ -117,5 +122,6 @@ module.exports = {
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,
-  checkForFailedLookups
+  checkForFailedLookups,
+  getLatestNodeVersion
 };

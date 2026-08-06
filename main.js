@@ -1,6 +1,10 @@
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+module.exports.loop = function() {
+    // Memory cleanup every 15000 ticks
+    if (Game.time - Memory.lastCleanup > 15000) {
         for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            if (Object.prototype.hasOwnProperty.call(Memory.creeps, name) && !Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
         }
         Memory.lastCleanup = Game.time;
     }

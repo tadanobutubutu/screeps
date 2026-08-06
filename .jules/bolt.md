@@ -87,3 +87,8 @@
 - 🧪 **Testing Improvement:** When creating test suites for script files that run logic in the global scope directly on load (e.g., `patch_main.js`), refactoring the main execution logic into a named function and exporting it (e.g., `module.exports = runPatch;`) prevents unintended automatic execution when required by the test framework (e.g., Jest). The script can still support direct execution by checking `if (require.main === module)`.
 
 - **Tower Target Optimization:** In `findTowerTargets` (`utils.defense.js`), iterating over all structures to filter for damaged ones can be expensive. Replacing multiple `.filter()` calls with a single `for` loop eliminates intermediate array allocations and reduces loop iterations by half.
+
+## 2026-08-04 - Caching Static Terrain Mining Spots in Miner Roles
+
+**Learning:** Periodically scanning the surrounding terrain coordinates of a source to determine the available mining spots (or terrain wall tiles) on every miner assignment loop introduces redundant CPU and lookup overhead. Since the map terrain and source coordinates are completely static, caching this calculated count per source ID avoids redundant `getTerrain()` calls.
+**Action:** Implemented a persistent module-level dictionary (`_miningSpotsCache`) inside `src/roles/miner.js` to cache the mining spot counts.

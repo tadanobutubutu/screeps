@@ -143,12 +143,18 @@ function _findBestSource(sources, minerCounts) {
     return bestSource;
 }
 
+// Persistent module-level cache for mining spot counts by source ID to avoid redundant terrain scanning
+const _miningSpotsCache = Object.create(null);
+
 /**
  * ソース周囲の採掘可能スポット数を計算する
  * @param {Source} source
  * @returns {number} 1〜3
  */
 function _countMiningSpots(source) {
+    if (_miningSpotsCache[source.id] !== undefined) {
+        return _miningSpotsCache[source.id];
+    }
     const room = source.room;
     const terrain = room.getTerrain();
     let count = 0;
@@ -169,7 +175,9 @@ function _countMiningSpots(source) {
         }
     }
 
-    return Math.min(count, 3);
+    const result = Math.min(count, 3);
+    _miningSpotsCache[source.id] = result;
+    return result;
 }
 
 // ============================================================

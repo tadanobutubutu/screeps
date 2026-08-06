@@ -12,5 +12,4 @@
 
 // Example of existing code (this is just a placeholder and should be replaced with the actual code):
 // export function exampleFunction() {
-//     console.log('Example function from main.js');
-// }
+//     // }

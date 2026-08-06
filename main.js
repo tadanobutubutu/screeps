@@ -22,8 +22,11 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/github-script',
     'actions/upload-artifact',
+    'actions/github-script',
+    'actions/dependency-review-action',
+    'actions/first-interaction',
+    'actions/stale',
     'actions/labeler'
   ],
   circleci: [
@@ -64,9 +67,55 @@ function validateDependencyConfig(config) {
   return true;
 }
 
+function getSecurityUpdates() {
+  return getPendingUpdates().security;
+}
+
+function getAwaitingScheduleUpdates() {
+  return getPendingUpdates().awaitingSchedule;
+}
+
+function getBlockedPRs() {
+  return [
+    { name: 'actions/checkout', prNumber: 978, reason: 'Blocked by existing closed PR' }
+  ];
+}
+
+function getDependencySummary() {
+  const updates = getPendingUpdates();
+  return {
+    totalPending: updates.awaitingSchedule.length + updates.security.length,
+    securityCount: updates.security.length,
+    scheduledCount: updates.awaitingSchedule.length,
+    blockedCount: getBlockedPRs().length
+  };
+}
+
+function getAllDetectedDependencies() {
+  return {
+    npm: dependencies.npm.length,
+    actions: dependencies.actions.length,
+    circleci: dependencies.circleci.length,
+    gitlabci: dependencies.gitlabci.length,
+    total: Object.values(dependencies).reduce((sum, arr) => sum + arr.length, 0)
+  };
+}
+
+function checkForFailedLookups() {
+  return [
+    { package: 'github-tags', error: 'Failed to look up github-tags package', suggestion: 'no-result' }
+  ];
+}
+
 module.exports = {
   dependencies,
   getPendingUpdates,
   checkDependencyUpdates,
-  validateDependencyConfig
+  validateDependencyConfig,
+  getSecurityUpdates,
+  getAwaitingScheduleUpdates,
+  getBlockedPRs,
+  getDependencySummary,
+  getAllDetectedDependencies,
+  checkForFailedLookups
 };

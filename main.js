@@ -1,8 +1,7 @@
-// main.js - Screeps game entry point
-// No changes required for the Dependency Dashboard issue.
-// This issue is an automated Renovate dependency update dashboard
-// and does not require modifications to game logic.
-
-module.exports = {
-  // Preserve existing exports and functions
-};
+// Initialize the function
+function healSomethingIfNeeded() {
+  // Your existing code here, possibly with the fix for the unknown comparison operator
+  if (target.hitPoints === 100) {
+    // Your existing code here that gets executed when target.hitPoints === 100
+  }
+}

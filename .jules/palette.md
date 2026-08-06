@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-08 - [Keyboard Shortcut Hint & Focus for Input Navigation]
+
+**Learning:** When introducing keyboard shortcuts for interactive form controls (such as using `Alt + S` to focus a search input), we must display a corresponding, accessible `<kbd>` badge adjacent to the element. Equipping the badge with explicit `tabIndex={0}`, descriptive `title`, and highly clear ARIA descriptors (e.g., `aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"`) makes keyboard shortcuts easily discoverable for both visual and screen-reader users, fully satisfying WCAG 2.1.1 (Keyboard Accessibility).
+**Action:** Always document keyboard shortcuts with a highly visible `<kbd>` component next to the targeted control, pairing it with consistent focusable hints and comprehensive screen-reader metadata.
+
 ## 2026-08-07 - [Dynamic Search Filtering & Bulk Actions Coordination]
 
 **Learning:** When adding client-side search or filter inputs to groups of dynamic telemetry items (such as a list of active Screeps rooms), any adjacent bulk actions (such as "Copy All") must be contextually updated to reflect the filter state. Dynamically changing the action's behavior to copy only the filtered subset, and synchronizing its labels, tooltips, ARIA descriptors, and completion toasts, prevents user confusion and satisfies WCAG 2.1.1 (Keyboard Accessibility) and 2.4.4 (Link Purpose/Context).

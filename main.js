@@ -4,8 +4,8 @@ const dependencies = {
   npm: [
     '@supabase/supabase-js',
     'next',
-    'react',
-    'react-dom',
+    'eact',
+    'eact-dom',
     '@types/node',
     '@types/react',
     'postcss',
@@ -61,7 +61,7 @@ function checkDependencyUpdates() {
 }
 
 function validateDependencyConfig(config) {
-  if (!config || typeof config !== 'object') {
+  if (!config || typeof config!== 'object') {
     throw new Error('Invalid configuration');
   }
   return true;

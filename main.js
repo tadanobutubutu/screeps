@@ -1,16 +1,10 @@
-// main.js (updated)
+exports = ['createCreep', 'createSpawn'];
 
-// Leave the existing code here (before the conflict markers)
+// Example function (remains as-is as placeholder)
+export function createCreep() {
+	// Logic for creating creeps
+}
 
-
-// New functions or changes requested in the issue
-// None provided in the issue body, so no new code will be added here.
-
-// ...
-// Existing code that follows after the conflict markers
-// Make sure to include all the functions and exports
-// Don'd remove or rename any existing exports
-
-// Example of existing code (this is just a placeholder and should be replaced with the actual code):
-// export function exampleFunction() {
-//     // }
+export function createSpawn() {
+	// Logic for spawning creeps
+}

@@ -1,5 +1,3 @@
-// Dependency Dashboard Management
-
 const dependencies = {
   npm: [
     '@supabase/supabase-js',
@@ -35,8 +33,7 @@ const dependencies = {
 };
 
 const { version } = require('node'); // Added functionality to check Node version
-
-// Added logging of Node version
+console.log('Node.js version:', version); // Added logging of Node version
 
 function getPendingUpdates() {
   return {

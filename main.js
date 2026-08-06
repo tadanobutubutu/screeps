@@ -39,7 +39,7 @@ const dependencies = {
 
 const { version } = require('node'); // Added functionality to check Node version
 
-console.log(`Node version: ${version}`); // Added logging of Node version
+// Added logging of Node version
 
 function getPendingUpdates() {
   return {

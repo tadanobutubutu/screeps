@@ -37,7 +37,7 @@ const dependencies = {
   ]
 };
 
-const { version } = require('node'); // Added functionality to check Node version
+const { version } = process;
 
 // Added logging of Node version
 

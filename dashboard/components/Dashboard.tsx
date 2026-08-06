@@ -26,6 +26,7 @@ export default function Dashboard() {
     const [roomQuery, setRoomQuery] = useState('');
 
     const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const showToast = (msg: string) => {
         if (toastTimeoutRef.current) {
@@ -94,20 +95,22 @@ export default function Dashboard() {
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Only trigger if no input/textarea is focused and Alt+R is pressed
-            // Using Alt+R to comply with WCAG 2.1.4 (avoiding single-key shortcuts)
+            // Using Alt key combinations to comply with WCAG 2.1.4 (avoiding single-key shortcuts)
             if (
                 e.altKey &&
-                e.key.toLowerCase() === 'r' &&
-                !refreshing &&
                 !(
                     e.target instanceof HTMLInputElement ||
                     e.target instanceof HTMLTextAreaElement ||
                     (e.target as HTMLElement).isContentEditable
                 )
             ) {
-                e.preventDefault();
-                fetchStats(true);
+                if (e.key.toLowerCase() === 'r' && !refreshing) {
+                    e.preventDefault();
+                    fetchStats(true);
+                } else if (e.key.toLowerCase() === 's') {
+                    e.preventDefault();
+                    searchInputRef.current?.focus();
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -628,9 +631,29 @@ export default function Dashboard() {
                                 position: 'relative',
                                 display: 'inline-flex',
                                 alignItems: 'center',
+                                gap: '0.35rem',
                             }}
                         >
+                            <kbd
+                                className="interactive-hint"
+                                tabIndex={0}
+                                aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"
+                                title="Alt + S キーで検索入力にフォーカスできます"
+                                style={{
+                                    backgroundColor: '#f7fafc',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    padding: '0.1rem 0.4rem',
+                                    fontSize: '0.7rem',
+                                    color: '#4a5568',
+                                    boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                                    cursor: 'help',
+                                }}
+                            >
+                                Alt + S
+                            </kbd>
                             <input
+                                ref={searchInputRef}
                                 type="text"
                                 value={roomQuery}
                                 onChange={(e) => setRoomQuery(e.target.value)}

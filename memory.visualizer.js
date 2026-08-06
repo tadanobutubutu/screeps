@@ -5,10 +5,6 @@
 const utilsMemory = require('./utils.memory');
 const cache = require('./src/utils/cache');
 
-/**
- * セキュリティ: メモリDoSを防ぐためのメモリ消費構造の制限。
- * Screepsのメモリは2MBに制限されており、制限のないオブジェクトはAIをクラッシュさせる可能性があります。
- */
 const MAX_EXPLORED_ROOMS = 100;
 const MAX_ROOM_DATA = 50;
 const MAX_DIARY_MESSAGE_LENGTH = 200;
@@ -27,8 +23,6 @@ const memoryVisualizer = {
             flags: Object.keys(Memory.flags || {}).length,
             spawns: Object.keys(Memory.spawns || {}).length,
         };
-
-        .toFixed(2)} KB`);
         return stats;
     },
 
@@ -65,12 +59,6 @@ const memoryVisualizer = {
         }
 
         sizes.sort((a, b) => b.size - a.size);
-
-        sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
-        });
-
         return sizes;
     },
 
@@ -96,11 +84,11 @@ const memoryVisualizer = {
 
         const snapshot = {
             time: Game.time,
-            gcl: Game.gcl.level,
-            cpu: Game.cpu.getUsed(),
-            bucket: Game.cpu.bucket,
-            creeps: Object.keys(Game.creeps).length,
-            energy: Object.values(Game.rooms).reduce((sum, room) => {
+            gcl: Game.gcl ? Game.gcl.level : 1,
+            cpu: Game.cpu ? Game.cpu.getUsed() : 0,
+            bucket: Game.cpu ? Game.cpu.bucket : 0,
+            creeps: Object.keys(Game.creeps || {}).length,
+            energy: Object.values(Game.rooms || {}).reduce((sum, room) => {
                 return sum + (room.energyAvailable || 0);
             }, 0),
         };
@@ -114,14 +102,7 @@ const memoryVisualizer = {
 
     showHistory: function (ticks = 10) {
         this.initTimeMachine();
-
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
-
-        :`);
-        snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
-        });
-
         return snapshots;
     },
 
@@ -191,10 +172,6 @@ const memoryVisualizer = {
             .sort((a, b) => b[1] - a[1])
             .slice(0, limit);
 
-        sorted.forEach((entry, index) => {
-            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
-
         return sorted;
     },
 
@@ -207,7 +184,7 @@ const memoryVisualizer = {
             return;
         }
 
-        if (!Memory.creeps[creepName]?.diary) {
+        if (!Memory.creeps[creepName].diary) {
             Memory.creeps[creepName].diary = {
                 entries: [],
                 maxEntries: 20,
@@ -223,7 +200,7 @@ const memoryVisualizer = {
 
         this.initDiary(creepName);
 
-        if (!Memory.creeps[creepName]?.diary) {
+        if (!Memory.creeps[creepName] || !Memory.creeps[creepName].diary) {
             return;
         }
 
@@ -245,14 +222,11 @@ const memoryVisualizer = {
 
     readDiary: function (creepName) {
         // Security: Validate creepName to prevent prototype pollution
-        if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName]?.diary) {
+        if (!utilsMemory.isSafeKey(creepName) || !Memory.creeps[creepName] || !Memory.creeps[creepName].diary) {
             return [];
         }
 
         const diary = Memory.creeps[creepName].diary;
-        diary.entries.forEach((entry) => {
-            });
-
         return diary.entries;
     },
 
@@ -315,16 +289,6 @@ const memoryVisualizer = {
 
     showMap: function () {
         this.initMemoryMap();
-
-        for (const roomName in Memory.map.rooms) {
-            if (
-                utilsMemory.isSafeKey(roomName) &&
-                Object.prototype.hasOwnProperty.call(Memory.map.rooms, roomName)
-            ) {
-                const info = Memory.map.rooms[roomName];
-                const owner = info.controller?.owner ?? 'Unclaimed';
-                }
-        }
     },
 
     /**
@@ -348,7 +312,7 @@ const memoryVisualizer = {
             }
         }
 
-        if (Memory.map?.rooms) {
+        if (Memory.map && Memory.map.rooms) {
             for (const roomName in Memory.map.rooms) {
                 if (
                     utilsMemory.isSafeKey(roomName) &&
@@ -387,8 +351,7 @@ const memoryVisualizer = {
         if (Memory.backups.length > 5) {
             Memory.backups.shift();
         }
-
-        },
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

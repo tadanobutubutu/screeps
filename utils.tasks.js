@@ -46,4 +46,48 @@ const TaskQueue = {
 
     /**
      * Unregisters a task by name.
-     * @param {string} name - The name of the task to
+     * @param {string} name - The name of the task to remove.
+     */
+    removeTask: function (name) {
+        if (!name || typeof name !== 'string') return;
+        const sanitizedName = name.substring(0, MAX_TASK_NAME_LENGTH);
+        this.tasks.delete(sanitizedName);
+    },
+
+    /**
+     * Runs all registered tasks whose intervals align with Game.time and conditions are met.
+     */
+    run: function () {
+        for (const [name, task] of this.tasks.entries()) {
+            if (task.failures >= MAX_TASK_FAILURES) {
+                continue;
+            }
+
+            if (Game.time % task.interval !== 0 && task.interval !== 1) {
+                continue;
+            }
+
+            if (task.condition && typeof task.condition === 'function') {
+                try {
+                    if (!task.condition()) {
+                        continue;
+                    }
+                } catch (e) {
+                    continue;
+                }
+            }
+
+            try {
+                task.action();
+            } catch (e) {
+                task.failures++;
+                logger.error(`Error running periodic task ${name}: ${e.message}`);
+                if (task.failures >= MAX_TASK_FAILURES) {
+                    logger.error(`Task ${name} failed 5 times and has been disabled`);
+                }
+            }
+        }
+    }
+};
+
+module.exports = TaskQueue;

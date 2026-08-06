@@ -2,11 +2,6 @@
 function main() {
   }
 
-// Export for testing
-module.exports = {
-  main
-};
-
 // New function or change requested in the issue (assuming an example function)
 function updateDependencyStatus() {
   }

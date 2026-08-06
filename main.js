@@ -22,9 +22,6 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/upload-artifact',
-    'actions/github-script',
-    'actions/dependency-review-action',
     'actions/first-interaction',
     'actions/stale',
     'actions/labeler'
@@ -68,11 +65,15 @@ function validateDependencyConfig(config) {
 }
 
 function getSecurityUpdates() {
-  return getPendingUpdates().security;
+  const pending = getPendingUpdates();
+  return pending.security;
 }
 
-function getAwaitingScheduleUpdates() {
-  return getPendingUpdates().awaitingSchedule;
+function validateDependencyUpdate(update) {
+  if (!update || typeof update !== 'object') {
+    throw new Error('Invalid update object');
+  }
+  return true;
 }
 
 function getBlockedPRs() {
@@ -83,21 +84,23 @@ function getBlockedPRs() {
 
 function getDependencySummary() {
   const updates = getPendingUpdates();
+  const blocked = getBlockedPRs();
   return {
     totalPending: updates.awaitingSchedule.length + updates.security.length,
     securityCount: updates.security.length,
     scheduledCount: updates.awaitingSchedule.length,
-    blockedCount: getBlockedPRs().length
+    blockedCount: blocked.length
   };
 }
 
 function getAllDetectedDependencies() {
+  const allDeps = [dependencies.npm, dependencies.actions, dependencies.circleci, dependencies.gitlabci];
   return {
     npm: dependencies.npm.length,
     actions: dependencies.actions.length,
     circleci: dependencies.circleci.length,
     gitlabci: dependencies.gitlabci.length,
-    total: Object.values(dependencies).reduce((sum, arr) => sum + arr.length, 0)
+    total: allDeps.reduce((sum, arr) => sum + arr.length, 0)
   };
 }
 
@@ -113,7 +116,7 @@ module.exports = {
   checkDependencyUpdates,
   validateDependencyConfig,
   getSecurityUpdates,
-  getAwaitingScheduleUpdates,
+  validateDependencyUpdate,
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,

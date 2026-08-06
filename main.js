@@ -1,15 +1,23 @@
-// main.js (updated)
+// role.healer.js
+var roleHealer = {
+    /** @param {Creep} creep **/
+    run: function(creep) {
+        if(creep.hits < creep.hitsMax) {
+            creep.heal(creep);
+        }
+        
+        var target = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+            filter: function(object) {
+                return object.hits < object.hitsMax;
+            }
+        });
+        
+        if(target) {
+            if(creep.heal(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target);
+            }
+        }
+    }
+};
 
-// Leave the existing code here (before the conflict markers)
-
-// New functions or changes requested in the issue
-// None provided in the issue body, so no new code will be added here.
-
-// ...
-// Existing code that follows after the conflict markers
-// Make sure to include all the functions and exports
-// Don't remove or rename any existing exports
-
-// Example of existing code (this is just a placeholder and should be replaced with the actual code):
-// export function exampleFunction() {
-//     // }
+module.exports = roleHealer;

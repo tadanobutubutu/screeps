@@ -1,9 +1,5 @@
 {
-  "files": [
-    "main.js"
-  ],
-  "rules": [
-    "Add memory cleanup"
-  ],
-  "timestamp": "2026-08-06T01:14:21.482Z"
+    "files": ["main.js"],
+    "rules": ["Add memory cleanup"],
+    "timestamp": "2026-08-06T01:14:21.482Z"
 }

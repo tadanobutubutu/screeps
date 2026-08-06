@@ -41,9 +41,54 @@ const TaskQueue = {
             return;
         }
 
-        this.tasks.set(sanitizedName, { name: sanitizedName, interval, action, condition, failures: 0 });
+        this.tasks.set(sanitizedName, {
+            name: sanitizedName,
+            interval,
+            action,
+            condition,
+            failures: 0,
+        });
     },
 
     /**
      * Unregisters a task by name.
-     * @param {string} name - The name of the task to
+     * @param {string} name - The name of the task to unregister.
+     */
+    unregisterTask: function (name) {
+        if (!utilsMemory.isSafeKey(name)) return;
+        const sanitizedName = String(name).substring(0, MAX_TASK_NAME_LENGTH);
+        this.tasks.delete(sanitizedName);
+    },
+
+    /**
+     * Executes all registered tasks if conditions are met.
+     */
+    executeTasks: function () {
+        for (const [name, task] of this.tasks.entries()) {
+            if (task.failures >= MAX_TASK_FAILURES) {
+                logger.error(`TaskQueue: Task ${name} exceeded maximum failures. Removing.`);
+                this.tasks.delete(name);
+                continue;
+            }
+
+            if (Game.time % task.interval !== 0) {
+                continue;
+            }
+
+            try {
+                if (task.condition && typeof task.condition === 'function' && !task.condition()) {
+                    continue;
+                }
+
+                if (task.action && typeof task.action === 'function') {
+                    task.action();
+                }
+            } catch (e) {
+                task.failures++;
+                logger.error(`TaskQueue: Error executing task ${name}: ${e.message}`);
+            }
+        }
+    },
+};
+
+module.exports = TaskQueue;

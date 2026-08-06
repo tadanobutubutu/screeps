@@ -198,8 +198,6 @@ function getStats() {
     };
 }
 
-
-
 function tryCatch(fn, context, ...args) {
     try {
         return fn(...args);

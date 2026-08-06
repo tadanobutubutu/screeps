@@ -107,6 +107,15 @@ function checkForFailedLookups() {
   ];
 }
 
+function updateNodeVersion() {
+  const currentVersion = version;
+  const newVersion = '24.19.0'; // Example new version, should be set based on actual logic
+
+  console.log(`Current Node.js version: ${currentVersion}`);
+  console.log(`New Node.js version: ${newVersion}`);
+  // Here you would include logic to update Node.js version, such as running a script
+}
+
 module.exports = {
   dependencies,
   getPendingUpdates,
@@ -117,5 +126,6 @@ module.exports = {
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,
-  checkForFailedLookups
+  checkForFailedLookups,
+  updateNodeVersion
 };

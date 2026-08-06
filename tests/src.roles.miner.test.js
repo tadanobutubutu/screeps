@@ -1003,5 +1003,44 @@ describe('src/roles/miner', () => {
             miner.run(creep);
             expect(creep.repair).toHaveBeenCalledWith(container);
         });
+
+        test('_countMiningSpots caches terrain results by source ID to avoid redundant getTerrain calls', () => {
+            const source1 = { id: 'cache_test_s1', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            cache.getSources.mockReturnValue([source1]);
+            cache.getMyCreeps.mockReturnValue([]);
+            cache.isSafeKey.mockReturnValue(true);
+
+            const mockTerrain = {
+                get: jest.fn().mockReturnValue(0),
+            };
+            roomMock.getTerrain.mockReturnValue(mockTerrain);
+
+            const creep1 = {
+                name: 'c1',
+                memory: {},
+                room: roomMock,
+                pos: new RoomPosition(0, 0, 'W0N0'),
+                harvest: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+            global.Game.getObjectById.mockReturnValue(null);
+            cache.getContainers.mockReturnValue([]);
+
+            miner.run(creep1);
+            expect(roomMock.getTerrain).toHaveBeenCalledTimes(1);
+
+            // Run assignment again with a second creep
+            const creep2 = {
+                name: 'c2',
+                memory: {},
+                room: roomMock,
+                pos: new RoomPosition(0, 0, 'W0N0'),
+                harvest: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+            miner.run(creep2);
+            // getTerrain should not have been called a second time because of the cache!
+            expect(roomMock.getTerrain).toHaveBeenCalledTimes(1);
+        });
     });
 });

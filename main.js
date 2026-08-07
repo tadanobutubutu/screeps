@@ -18,7 +18,7 @@ const dependencies = {
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package.json
+// Function to update dependency version in package. json
 function updateDependency(dependency, newVersion) {
   // Existing function code
   //...
@@ -39,8 +39,7 @@ function resolveMergeConflicts() {
 // New function to process the update actions
 function executeUpdate() {
   updateAllDependencies();
-  resolveMergeConflicts();
-  }
+}
 
 // Main execution
 executeUpdate();

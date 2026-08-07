@@ -1,8 +1,8 @@
-// Existing imports and code would remain here // ... (all existing code before the updates)
+// Existing imports and code would remain here //... (all existing code before the updates)
 
 function updateNodeVersion(newVersion) {
   console.log(`Updating Node.js to version ${newVersion}`);
-  // In a real implementation you might update .nvmrc, package.json engines, etc.
+  // In a real implementation you might update.nvmrc, package.json engines, etc.
 }
 
 function updateTypeScriptVersion(newVersion) {
@@ -70,7 +70,7 @@ function deleteRoom(roomId) {
 }
 function addUserToRoom(roomId, userId) {
   const room = rooms.get(roomId);
-  if (room && !room.users.includes(userId)) {
+  if (room &&!room.users.includes(userId)) {
     room.users.push(userId);
     return true;
   }
@@ -89,7 +89,7 @@ function removeUserFromRoom(roomId, userId) {
 }
 function getRoomUsers(roomId) {
   const room = rooms.get(roomId);
-  return room ? room.users : [];
+  return room? room.users : [];
 }
 function clearAllRooms() {
   rooms.clear();
@@ -158,9 +158,9 @@ function clearAllRooms() {
     wrapper.appendChild(title);
     const statsDiv = document.createElement('div');
     statsDiv.className = 'emory-stats';
-    statsDiv.innerHTML = '<p>Used: ' + this.formatBytes(stats.used) + '</p>' +
-      '<p>Total: ' + this.formatBytes(stats.total) + '</p>' +
-      '<p>Percentage: ' + stats.percentage + '%</p>';
+    statsDiv.innerHTML = '<p>Used: ' this.formatBytes(stats.used) + '</p>' +
+      '<p>Total: ' this.formatBytes(stats.total) + '</p>' +
+      '<p>Percentage: ' stats.percentage + '%</p>';
     wrapper.appendChild(statsDiv);
     const barContainer = document.createElement('div');
     barContainer.className = 'emory-bar-container';
@@ -195,7 +195,7 @@ function clearAllRooms() {
 }
 
 // Export all exported symbols
-if (typeof module !== 'undefined' && module.exports) {
+if (typeof module!== 'undefined' && module.exports) {
   module.exports = {
     MemoryVisualizer,
     updateNodeVersion,
@@ -211,6 +211,7 @@ if (typeof module !== 'undefined' && module.exports) {
     addUserToRoom,
     removeUserFromRoom,
     getRoomUsers,
-    clearAllRooms
+    clearAllRooms,
+    utilsemotionsfix
   };
 }

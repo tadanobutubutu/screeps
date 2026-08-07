@@ -3,7 +3,7 @@
  * This script handles dependency updates for the repository.
  */
 
-const { readFileSync, writeFileSync } = require('fs');
+const { readFileSync, writeFileSync, existsSync } = require('fs');
 const path = require('path');
 
 // Dependency updates
@@ -18,6 +18,11 @@ const dependencies = {
 
 // Function to update dependency version in package.json
 function updateDependency(packageJsonPath, dependency, newVersion) {
+  if (!existsSync(packageJsonPath)) {
+    console.error(`Package.json file does not exist at path: ${packageJsonPath}`);
+    return;
+  }
+  
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -37,6 +42,11 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
 // Function to update package.json dependencies
 function updateAllDependencies() {
   const packageJsonPath = path.join(__dirname, 'package.json');
+  if (!existsSync(packageJsonPath)) {
+    console.error(`Package.json file does not exist at path: ${packageJsonPath}`);
+    return;
+  }
+  
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
@@ -46,9 +56,8 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
-      console.log(`Updated ${dep} to ${newVersion}`);
+    } else {
+      console.log(`Dependency ${dep} not found in package.json`);
     }
   }
   
@@ -57,6 +66,11 @@ function updateAllDependencies() {
 
 // Function to handle conflict markers in main.js
 function resolveConflictMarkers(filePath) {
+  if (!existsSync(filePath)) {
+    console.error(`File does not exist at path: ${filePath}`);
+    return;
+  }
+  
   let content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts

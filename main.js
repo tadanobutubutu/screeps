@@ -24,7 +24,7 @@ function updateDependency(dependency, newVersion) {
   //...
 }
 
-// Function to update package.json dependencies
+// Function to update package.dependencies
 function updateAllDependencies() {
   // Existing function code
   //...
@@ -39,8 +39,8 @@ function resolveMergeConflicts() {
 // New function to process the update actions
 function executeUpdate() {
   updateAllDependencies();
-  resolveMergeConflicts();
-  }
+  // Process update logic here
+}
 
 // Main execution
 executeUpdate();

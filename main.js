@@ -22,9 +22,6 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/upload-artifact',
-    'actions/github-script',
-    'actions/dependency-review-action',
     'actions/first-interaction',
     'actions/stale',
     'actions/labeler'
@@ -68,11 +65,8 @@ function validateDependencyConfig(config) {
 }
 
 function getSecurityUpdates() {
-  return getPendingUpdates().security;
-}
-
-function getAwaitingScheduleUpdates() {
-  return getPendingUpdates().awaitingSchedule;
+  const updates = getPendingUpdates();
+  return updates.security || [];
 }
 
 function getBlockedPRs() {
@@ -83,10 +77,12 @@ function getBlockedPRs() {
 
 function getDependencySummary() {
   const updates = getPendingUpdates();
+  const pending = updates.awaitingSchedule || [];
+  const security = updates.security || [];
   return {
-    totalPending: updates.awaitingSchedule.length + updates.security.length,
-    securityCount: updates.security.length,
-    scheduledCount: updates.awaitingSchedule.length,
+    totalPending: pending.length + security.length,
+    securityCount: security.length,
+    scheduledCount: pending.length,
     blockedCount: getBlockedPRs().length
   };
 }
@@ -113,7 +109,6 @@ module.exports = {
   checkDependencyUpdates,
   validateDependencyConfig,
   getSecurityUpdates,
-  getAwaitingScheduleUpdates,
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,

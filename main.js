@@ -46,7 +46,7 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
+    } else if (packageJson.pengens && packageJson.pengens[dep]) { // Corrected typo here
       packageJson.pengens[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
@@ -62,7 +62,7 @@ function resolveConflictMarkers(filePath) {
   // Handle conflict markers from merge conflicts
   content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return `${group1}\n${content1}\n${content2}\n${group3}`;
   });
   
   writeFileSync(filePath, content);

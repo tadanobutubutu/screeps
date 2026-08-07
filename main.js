@@ -2,7 +2,6 @@
  * Dependency Dashboard Update
  * This script handles dependency updates for the repository.
  */
-
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
@@ -17,7 +16,8 @@ const dependencies = {
 };
 
 // Function to update dependency version in package.json
-function updateDependency(packageJsonPath, dependency, newVersion) {
+function updateDependencyInPackageJson(dependency, newVersion) {
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -25,7 +25,7 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
   } else if (packageJson.devDependencies && packageJson.devDependencies[dependency]) {
     packageJson.devDependencies[dependency] = newVersion;
   } else {
-    console.log(`Dependency ${dependency} not found in package.json`);
+    console.log(`Dependency ${dependency} not found in package.`);
     return null;
   }
   
@@ -43,11 +43,11 @@ function updateAllDependencies() {
     if (packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies[dep]) {
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
+    } else if (packageJson.peerDependencies && packageJson.peerDependencies[dep]) {
+      packageJson.peerDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
   }
@@ -56,20 +56,20 @@ function updateAllDependencies() {
 }
 
 // Function to handle conflict markers in main.js
-function resolveConflictMarkers(filePath) {
-  let content = readFileSync(filePath, 'utf8');
+function handleConflictMarkers() {
+  const content = readFileSync(path.join(__dirname, 'main.js'), 'utf8');
   
   // Handle conflict markers from merge conflicts
   content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return group2;
   });
   
-  writeFileSync(filePath, content);
+  writeFileSync(path.join(__dirname, 'main.js'), content);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-resolveConflictMarkers(path.join(__dirname, 'main.js'));
+handleConflictMarkers();
 console.log('Dependency updates complete.');

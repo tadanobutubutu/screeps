@@ -37,6 +37,7 @@ const dependencies = {
 const { version } = require('node'); // Added functionality to check Node version
 
 // Added logging of Node version
+console.log(`Current Node version: ${version}`);
 
 function getPendingUpdates() {
   return {
@@ -102,7 +103,7 @@ function getAllDetectedDependencies() {
 
 function checkForFailedLookups() {
   return [
-    { package: 'github-tags', error: 'Failed to look up github-tags package', suggestion: 'no-result' }
+    { package: 'github-_tags', error: 'Failed to look up github-_tags package', suggestion: 'no-result' }
   ];
 }
 

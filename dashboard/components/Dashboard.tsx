@@ -308,6 +308,7 @@ export default function Dashboard() {
                             className="interactive-hint"
                             tabIndex={0}
                             title="最後にデータが更新された時間です"
+                            aria-label="最後にデータが更新された時間です"
                             style={{ fontSize: '0.8rem', color: '#718096' }}
                         >
                             🕒 {lastUpdated.toLocaleTimeString()}
@@ -440,6 +441,7 @@ export default function Dashboard() {
                     className="interactive-hint"
                     tabIndex={0}
                     title={`GCL ${stats?.gcl?.level || 0} 進捗: ${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0}`}
+                    aria-label={`GCL ${stats?.gcl?.level || 0} 進捗: ${stats?.gcl?.progress || 0} / ${stats?.gcl?.progressTotal || 0}`}
                 >
                     <div
                         style={{
@@ -501,6 +503,7 @@ export default function Dashboard() {
                     className="interactive-hint"
                     tabIndex={0}
                     title={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)`}
+                    aria-label={`CPU 使用率: ${stats?.cpuUsed?.toFixed(2) || '0.00'} / 100 (Screeps の基本制限: 100)`}
                 >
                     <div
                         style={{
@@ -551,6 +554,7 @@ export default function Dashboard() {
                         <p
                             className="interactive-hint"
                             title="グローバルパワーレベル (GPL) です"
+                            aria-label="グローバルパワーレベル (GPL) です"
                             tabIndex={0}
                             style={{ margin: 0 }}
                         >
@@ -570,6 +574,7 @@ export default function Dashboard() {
                         className="interactive-hint"
                         tabIndex={0}
                         title="AI が現在活動している部屋のリストです"
+                        aria-label="AI が現在活動している部屋のリストです"
                     >
                         🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (
                         {stats?.rooms?.length || 0}):
@@ -662,7 +667,7 @@ export default function Dashboard() {
                                         setRoomQuery('');
                                     }
                                 }}
-                                placeholder="部屋を検索..."
+                                placeholder="部屋を検索... (Escでクリア)"
                                 aria-label="部屋名で検索"
                                 style={{
                                     fontSize: '0.75rem',
@@ -811,6 +816,7 @@ export default function Dashboard() {
                 <summary
                     className="interactive-hint"
                     title="生データを JSON 形式で表示/非表示にします"
+                    aria-label="生データを JSON 形式で表示/非表示にします"
                     style={{
                         color: '#4a5568',
                         padding: '0.2rem 0',

@@ -30,7 +30,7 @@ function updateAllDependencies() {
   //...
 }
 
-// Function to handle conflict markers in main.js
+// New function to handle conflict markers in main.js
 function resolveMergeConflicts() {
   // Existing function code
   //...

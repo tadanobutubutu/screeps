@@ -54,21 +54,125 @@ function checkDependencyStatus() {
     };
 }
 
+const utilsemotionsfix = {
+  // This is a placeholder for the actual fix needed in utils.emotions.js
+  // The actual fix would involve properly terminating any unterminated string
+  // Example:
+  // Before: const str = "This is an unterminated string
+  // After:  const str = "This is a properly terminated string"
+};
+
 // New function added to the main.js file
 function newFeatureFunction() {
   // Function implementation would go here
 }
 
+// src/manager/roomManager.js
+
+const rooms = new Map();
+
 // Export modules and functions
+const exportsObj = {
+  MemoryVisualizer,
+  updateNodeVersion,
+  updateTypeScriptVersion,
+  updatePosthogJsVersion,
+  updateUndiciVersion,
+  handleDependencyUpdates,
+  checkDependencyStatus,
+  newFeatureFunction
+};
+
+module.exports = {
+  ..exportsObj,
+  createRoom(roomId) {
+    if (!rooms.has(roomId)) {
+      rooms.set(roomId, {
+        id: roomId,
+        users: [],
+        createdAt: new Date()
+      });
+    }
+    return rooms.get(roomId);
+  },
+
+  getRoom(roomId) {
+    return rooms.get(roomId);
+  },
+
+  deleteRoom(roomId) {
+    return rooms.delete(roomId);
+  },
+
+  addUserToRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room &&!room.users.includes(userId)) {
+      room.users.push(userId);
+      return true;
+    }
+    return false;
+  },
+
+  removeUserFromRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      const index = room.users.indexOf(userId);
+      if (index > -1) {
+        room.users.splice(index, 1);
+        return true;
+      }
+    }
+    return false;
+  },
+
+  getRoomUsers(roomId) {
+    const room = rooms.get(roomId);
+    return room? room.users : [];
+  },
+
+  clearAllRooms() {
+    rooms.clear();
+  },
+
+  // Wrapper for dependency-related functions to maintain parity with standalone functions
+  updateNodeVersion_managed(newVersion) {
+    updateNodeVersion(newVersion);
+  },
+
+  updateTypeScriptVersion_managed(newVersion) {
+    updateTypeScriptVersion(newVersion);
+  },
+
+  updatePosthogJsVersion_managed(newVersion) {
+    updatePosthogJsVersion(newVersion);
+  },
+
+  updateUndiciVersion_managed(newVersion) {
+    updateUndiciVersion(newVersion);
+  },
+
+  // Function to handle dependency updates
+  handleDependencyUpdates_managed(updates) {
+    handleDependencyUpdates(updates);
+  },
+
+  // Function to check dependency status
+  checkDependencyStatus_managed() {
+    return checkDependencyStatus();
+  },
+
+  // New feature function
+  newFeatureFunction_managed() {
+    newFeatureFunction();
+  }
+};
+
+// Compatibility layer for CJS/ESM style imports in different environments
 if (typeof module!== 'undefined' && module.exports) {
-    module.exports = {
-        MemoryVisualizer,
-        updateNodeVersion,
-        updateTypeScriptVersion,
-        updatePosthogJsVersion,
-        updateUndiciVersion,
-        handleDependencyUpdates,
-        checkDependencyStatus,
-        newFeatureFunction
-    };
+    module.exports = exportsObj;
 }
+
+// Continue with the rest of the main.js file
+//...
+// Existing code, exports, and functions from current main.js
+//...

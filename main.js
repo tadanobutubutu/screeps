@@ -1,42 +1,77 @@
-// role.healer.js - Fixed version with corrected syntax error
+// Room Manager - Manages room-related operations
 
-var roleHealer = {
-    /** @param {Creep} creep **/
-    run: function(creep) {
-        // Find damaged creeps in range
-        var damagedCreep = creep.pos.findClosestByRange(FIND_CREEPS, {
-            filter: function(creep) {
-                return creep.hits < creep.hitsMax;  // Fixed: was using === instead of <
-            }
-        });
+const rooms = new Map();
 
-        if (damagedCreep) {
-            if (creep.heal(damagedCreep) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(damagedCreep);
-            }
-        }
-        
-        // Heal self if needed
-        if (creep.hits < creep.hitsMax) {
-            creep.heal(creep);
-        }
-    }
+/**
+ * Creates a new room
+ * @param {string} roomId - Unique identifier for the room
+ * @param {Object} options - Room configuration options
+ * @returns {Object} The created room object
+ */
+function createRoom(roomId, options = {}) {
+  if (rooms.has(roomId)) {
+    return rooms.get(roomId);
+  }
+  
+  const room = {
+    id: roomId,
+    name: options.name || `Room ${roomId}`,
+    capacity: options.capacity || 10,
+    createdAt: new Date(),
+    users: [],
+    isActive: true,
+  };
+  
+  rooms.set(roomId, room);
+  return room;
+}
+
+/**
+ * Gets a room by its ID
+ * @param {string} roomId - The room ID to look up
+ * @returns {Object|null} The room object or null if not found
+ */
+function getRoom(roomId) {
+  return rooms.get(roomId) || null;
+}
+
+/**
+ * Deletes a room by its ID
+ * @param {string} roomId - The room ID to delete
+ * @returns {boolean} True if deleted, false if not found
+ */
+function deleteRoom(roomId) {
+  return rooms.delete(roomId);
+}
+
+/**
+ * Gets all active rooms
+ * @returns {Array} Array of all active room objects
+ */
+function getAllRooms() {
+  return Array.from(rooms.values()).filter(room => room.isActive);
+}
+
+/**
+ * Updates a room's properties
+ * @param {string} roomId - The room ID to update
+ * @param {Object} updates - Properties to update
+ * @returns {Object|null} Updated room or null if not found
+ */
+function updateRoom(roomId, updates) {
+  const room = rooms.get(roomId);
+  if (!room) {
+    return null;
+  }
+  
+  Object.assign(room, updates);
+  return room;
+}
+
+module.exports = {
+  createRoom,
+  getRoom,
+  deleteRoom,
+  getAllRooms,
+  updateRoom,
 };
-
-module.exports = roleHealer;
-
-// In utils.tasks.js around line 47
-// Make sure all comments are properly terminated with */ if they're block comments
-// For example:
-// /* This is a proper block comment */
-// Instead of:
-// /* This is an unterminated comment
-
-// If it's a line comment, make sure it doesn't have any trailing */ characters
-// For example:
-// // This is a proper line comment
-// Instead of:
-// // This is a line comment */
-
-// The exact fix will depend on the specific content around line 47
-// Please check the actual file content and ensure all comments are properly closed

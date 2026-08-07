@@ -55,21 +55,7 @@ function updateAllDependencies() {
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
 
-// Function to handle conflict markers in main.js
-function handleConflictMarkers() {
-  let content = readFileSync('main.js', 'utf8');
-  
-  // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
-    // Resolve conflicts by taking the content from the right side
-    return group2;
-  });
-  
-  writeFileSync('main.js', content);
-}
-
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-handleConflictMarkers();
 console.log('Dependency updates complete.');

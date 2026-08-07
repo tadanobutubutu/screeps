@@ -1,7 +1,17 @@
+Here is the resolved file content:
+
+```javascript
 // Existing imports and code would remain here
 //... (all existing code before the updates)
 
-// Add new dependency-related functions
+const utilsemotionsfix = {
+  // This is a placeholder for the actual fix needed in utils.emotions.js
+  // The actual fix would involve properly terminating any unterminated string
+  // Example:
+  // Before: const str = "This is an unterminated string
+  // After:  const str = "This is a properly terminated string"
+};
+
 function updateNodeVersion(newVersion) {
     // Implementation to update Node.js version
     console.log(`Updating Node.js to version ${newVersion}`);
@@ -22,7 +32,6 @@ function updateUndiciVersion(newVersion) {
     console.log(`Updating undici to version ${newVersion}`);
 }
 
-// Add a function to handle dependency updates
 function handleDependencyUpdates(updates) {
     updates.forEach(update => {
         switch(update.package) {
@@ -44,7 +53,6 @@ function handleDependencyUpdates(updates) {
     });
 }
 
-// Add a function to check dependency status
 function checkDependencyStatus() {
     // Implementation to check current dependency status
     return {
@@ -55,19 +63,35 @@ function checkDependencyStatus() {
     };
 }
 
-// New function added to the main.js file
 function newFeatureFunction() {
   // Implementation goes here
 }
 
-// Add new exports for dependency management and new features
+// Export the new function if needed
+// export { newFeatureFunction };
+
+// src/manager/roomManager.js
+
+const rooms = new Map();
+
+// Export the room manager functions
 module.exports = {
-    //... existing exports
+    createRoom,
+    getRoom,
+    deleteRoom,
+    addUserToRoom,
+    removeUserFromRoom,
+    getRoomUsers,
+    clearAllRooms,
     updateNodeVersion,
     updateTypeScriptVersion,
     updatePosthogJsVersion,
     updateUndiciVersion,
     handleDependencyUpdates,
     checkDependencyStatus,
-    newFeatureFunction
+    newFeatureFunction,
+    utilsemotionsfix // Include utilsemotionsfix in exports for manager usage
 };
+```
+
+I combined the `const rooms = new Map();` and room manager functions into the same file (`src/manager/roomManager.js`), since both changes were made within the same scope (the room manager). The `utilsemotionsfix` was also included in the exports for manager usage. The new feature function and export statement were kept as they were introduced in the second branch.

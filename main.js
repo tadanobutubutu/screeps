@@ -15,45 +15,61 @@ const dependencies = {
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package.json, handle conflicts, and print log messages
-function updateAndlogDependency(dependency, newVersion) {
+// Function to update dependency version in package.json
+function updateDependency(dependency, newVersion) {
   const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-
+  
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
     packageJson.dependencies[dependency] = newVersion;
-    console.log(`Updated ${dependency} to ${newVersion}`);
-    const updatedContent = JSON.stringify(packageJson, null, 2);
-    writeFileSync(packageJsonPath, updatedContent);
-
-    // process conflict markers if exist
-    processConflictMarkers(packageJsonPath);
-
-    return updatedContent;
   } else if (packageJson.devDependencies && packageJson.devDependencies[dependency]) {
     packageJson.devDependencies[dependency] = newVersion;
-    console.log(`Updated ${dependency} to ${newVersion}`);
-    const updatedContent = JSON.stringify(packageJson, null, 2);
-    writeFileSync(packageJsonPath, updatedContent);
-
-    // process conflict markers if exist
-    processConflictMarkers(packageJsonPath);
-
-    return updatedContent;
   } else {
     console.log(`Dependency ${dependency} not found in package.json`);
     return null;
   }
+  
+  const updatedContent = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, updatedContent);
+  return updatedContent;
 }
 
-// Function to update all dependencies and handle conflicts
+// Function to update package.json dependencies
 function updateAllDependencies() {
+  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+  
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    updateAndlogDependency(dep, newVersion);
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
+      packageJson.dependencies[dep] = newVersion;
+      console.log(`Updated ${dep} to ${newVersion}`);
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
+      packageJson.devDependencies[dep] = newVersion;
+      console.log(`Updated ${dep} to ${newVersion}`);
+    } else {
+      console.log(`Dependency ${dep} not found in package.json`);
+    }
   }
+  
+  const updatedContent = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, updatedContent);
+}
+
+// Function to handle conflict markers in main.js
+function processConflictMarkers(filePath) {
+  const content = readFileSync(filePath, 'utf8');
+  
+  // Handle conflict markers from merge conflicts
+  const updatedContent = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
+    // Resolve conflicts by taking the content from the right side
+    return content2;
+  });
+  
+  writeFileSync(filePath, updatedContent);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
+processConflictMarkers(__filename);
 console.log('Dependency updates complete.');

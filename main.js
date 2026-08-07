@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 const dependencies = {
   npm: [
     '@supabase/supabase-js',
@@ -112,6 +109,3 @@ module.exports = {
   getAllDetectedDependencies,
   checkForFailedLookups
 };
-```
-
-This resolved conflict by combining both changes that added logging of Node version, while preserving the existing functionality and style of the file.

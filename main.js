@@ -38,11 +38,9 @@ function resolveMergeConflicts() {
 
 // New function to process the update actions
 function executeUpdate() {
-  console.log('Starting dependency updates...');
   updateAllDependencies();
   resolveMergeConflicts();
-  console.log('Dependency updates complete.');
-}
+  }
 
 // Main execution
 executeUpdate();

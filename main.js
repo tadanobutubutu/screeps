@@ -22,9 +22,6 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/upload-artifact',
-    'actions/github-script',
-    'actions/dependency-review-action',
     'actions/first-interaction',
     'actions/stale',
     'actions/labeler'
@@ -37,9 +34,7 @@ const dependencies = {
   ]
 };
 
-const { version } = require('node'); // Added functionality to check Node version
-
-// Added logging of Node version
+const { version } = require('node');
 
 function getPendingUpdates() {
   return {
@@ -68,11 +63,13 @@ function validateDependencyConfig(config) {
 }
 
 function getSecurityUpdates() {
-  return getPendingUpdates().security;
+  const updates = getPendingUpdates();
+  return updates.security || [];
 }
 
-function getAwaitingScheduleUpdates() {
-  return getPendingUpdates().awaitingSchedule;
+function getScheduledUpdates() {
+  const updates = getPendingUpdates();
+  return updates.awaitingSchedule || [];
 }
 
 function getBlockedPRs() {
@@ -92,12 +89,13 @@ function getDependencySummary() {
 }
 
 function getAllDetectedDependencies() {
+  const allDeps = [dependencies.npm, dependencies.actions, dependencies.circleci, dependencies.gitlabci];
   return {
     npm: dependencies.npm.length,
     actions: dependencies.actions.length,
     circleci: dependencies.circleci.length,
     gitlabci: dependencies.gitlabci.length,
-    total: Object.values(dependencies).reduce((sum, arr) => sum + arr.length, 0)
+    total: allDeps.reduce((sum, arr) => sum + arr.length, 0)
   };
 }
 
@@ -113,7 +111,7 @@ module.exports = {
   checkDependencyUpdates,
   validateDependencyConfig,
   getSecurityUpdates,
-  getAwaitingScheduleUpdates,
+  getScheduledUpdates,
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,

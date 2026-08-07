@@ -46,7 +46,7 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
+    } else if (packageJson.pengens && packageJson.pengens[dep]) { // Fixed typo here
       packageJson.pengens[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }

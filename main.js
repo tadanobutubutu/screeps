@@ -17,7 +17,8 @@ const dependencies = {
 };
 
 // Function to update dependency version in package.json
-function updateDependency(packageJsonPath, dependency, newVersion) {
+function updateDependency(dependency, newVersion) {
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -40,29 +41,31 @@ function updateAllDependencies() {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies[dep]) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies[dep]) {
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens && packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
+    } else if (packageJson.peerDependencies && packageJson.peerDependencies[dep]) {
+      packageJson.peerDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
   }
   
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+  const updatedContent = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, updatedContent);
 }
 
 // Function to handle conflict markers in main.js
-function resolveConflictMarkers(filePath) {
+function resolveConflicts(filePath) {
+  const fs = require('fs');
   let content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
+  content = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return content2;
   });
   
   writeFileSync(filePath, content);
@@ -71,5 +74,5 @@ function resolveConflictMarkers(filePath) {
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-resolveConflictMarkers(path.join(__dirname, 'main.js'));
+resolveConflicts(path.join(__dirname, 'main.js'));
 console.log('Dependency updates complete.');

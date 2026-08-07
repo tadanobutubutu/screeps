@@ -56,8 +56,9 @@ function updateAllDependencies() {
 }
 
 // Function to handle conflict markers in main.js
-function processConflictMarkers(filePath) {
-  const content = readFileSync(filePath, 'utf8');
+function resolveMergeConflicts() {
+  const mainJsPath = path.join(__dirname, 'main.js');
+  const content = readFileSync(mainJsPath, 'utf8');
   
   // Handle conflict markers from merge conflicts
   const updatedContent = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
@@ -65,11 +66,11 @@ function processConflictMarkers(filePath) {
     return content2;
   });
   
-  writeFileSync(filePath, updatedContent);
+  writeFileSync(mainJsPath, updatedContent);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-processConflictMarkers(__filename);
+resolveMergeConflicts();
 console.log('Dependency updates complete.');

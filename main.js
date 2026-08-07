@@ -107,6 +107,14 @@ function checkForFailedLookups() {
   ];
 }
 
+// Fixing the lint error by ending the comment properly
+/*
+ * Function to log Node version
+ */
+function logNodeVersion() {
+  console.log(`Node.js version: ${version}`);
+}
+
 module.exports = {
   dependencies,
   getPendingUpdates,
@@ -117,5 +125,6 @@ module.exports = {
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,
-  checkForFailedLookups
+  checkForFailedLookups,
+  logNodeVersion // Added the new function to export
 };

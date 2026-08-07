@@ -39,8 +39,8 @@ function resolveMergeConflicts() {
 // New function to process the update actions
 function executeUpdate() {
   updateAllDependencies();
-  resolveMergeConflicts();
-  }
+  //...
+}
 
 // Main execution
 executeUpdate();

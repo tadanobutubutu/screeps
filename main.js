@@ -24,13 +24,13 @@ function updateDependency(dependency, newVersion) {
   //...
 }
 
-// Function to update package.json dependencies
+// Function to update package. json dependencies
 function updateAllDependencies() {
   // Existing function code
   //...
 }
 
-// Function to handle conflict markers in main.js
+// Function to handle conflict markers in main. js
 function resolveMergeConflicts() {
   // Existing function code
   //...

@@ -41,7 +41,7 @@ function updateAllDependencies() {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies[dep]) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
@@ -50,27 +50,30 @@ function updateAllDependencies() {
     } else if (packageJson.penguins && packageJson.penguins[dep]) {
       packageJson.penguins[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
+    } else {
+      console.log(`Dependency ${dep} not found in package.json`);
     }
   }
   
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+  const updatedContent = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, updatedContent);
 }
 
 // Function to handle conflict markers in main.js
-function handleConflictMarkers() {
-  let content = readFileSync(__filename, 'utf8');
+function handleConflictMarkers(filePath) {
+  const content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< .*?\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> .*?\n/g, (match, ours, theirs) => {
+  const updatedContent = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return ours + theirs;
+    return content2;
   });
   
-  writeFileSync(__filename, content);
+  writeFileSync(filePath, updatedContent);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-handleConflictMarkers();
+handleConflictMarkers('main.js');
 console.log('Dependency updates complete.');

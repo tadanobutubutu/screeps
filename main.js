@@ -198,6 +198,13 @@ function clearAllRooms() {
     rooms.clear();
 }
 
+// utilsemotionsfix – placeholder implementation (assumed to be defined elsewhere)
+function utilsemotionsfix() {
+    // Placeholder: currently does nothing.
+    // Could be used to fix UI emotions-related logic.
+    console.log('utilsemotionsfix called');
+}
+
 // Export all exported symbols
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
@@ -215,6 +222,7 @@ if (typeof module !== 'undefined' && module.exports) {
         addUserToRoom,
         removeUserFromRoom,
         getRoomUsers,
-        clearAllRooms
+        clearAllRooms,
+        utilsemotionsfix
     };
 }

@@ -10,14 +10,15 @@ const path = require('path');
 const dependencies = {
   'typescript': '^7.0.0',
   'undici': 'v8.9.0',
-  'node.js': 'v24.19.0',
+  'node.': 'v24.19.0',
   'posthog-js': '1.413.3',
   'actions/checkout': 'v7',
   'postcss': '>=8.5.14',
 };
 
 // Function to update dependency version in package.json
-function updateDependency(packageJsonPath, dependency, newVersion) {
+function updateDependency(dependency, newVersion) {
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -36,18 +37,18 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
 
 // Function to update package.json dependencies
 function updateAllDependencies() {
-  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies[dep]) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies[dep]) {
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
+    } else if (packageJson.peerDependencies && packageJson.peerDependencies[dep]) {
+      packageJson.peerDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
   }
@@ -56,20 +57,20 @@ function updateAllDependencies() {
 }
 
 // Function to handle conflict markers in main.js
-function resolveConflictMarkers(filePath) {
-  let content = readFileSync(filePath, 'utf8');
+function resolveConflicts() {
+  let content = readFileSync(path.join(process.cwd(), 'main.js'), 'utf8');
   
   // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
+  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return content2;
   });
   
-  writeFileSync(filePath, content);
+  writeFileSync(path.join(process.cwd(), 'main.js'), content);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-resolveConflictMarkers(path.join(__dirname, 'main.js'));
+resolveConflicts();
 console.log('Dependency updates complete.');

@@ -22,9 +22,6 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/upload-artifact',
-    'actions/github-script',
-    'actions/dependency-review-action',
     'actions/first-interaction',
     'actions/stale',
     'actions/labeler'
@@ -68,11 +65,24 @@ function validateDependencyConfig(config) {
 }
 
 function getSecurityUpdates() {
-  return getPendingUpdates().security;
+  const updates = getPendingUpdates();
+  return updates.security;
 }
 
-function getAwaitingScheduleUpdates() {
-  return getPendingUpdates().awaitingSchedule;
+function getAllDetectedDependencies() {
+  return {
+    npm: dependencies.npm.length,
+    actions: dependencies.actions.length,
+    circleci: dependencies.circleci.length,
+    gitlabci: dependencies.gitlabci.length,
+    total: [dependencies.npm, dependencies.actions, dependencies.circleci, dependencies.gitlabci].reduce((sum, arr) => sum + arr.length, 0)
+  };
+}
+
+function checkForFailedLookups() {
+  return [
+    { package: 'github-tags', error: 'Failed to look up github-tags package', suggestion: 'no-result' }
+  ];
 }
 
 function getBlockedPRs() {
@@ -91,31 +101,14 @@ function getDependencySummary() {
   };
 }
 
-function getAllDetectedDependencies() {
-  return {
-    npm: dependencies.npm.length,
-    actions: dependencies.actions.length,
-    circleci: dependencies.circleci.length,
-    gitlabci: dependencies.gitlabci.length,
-    total: Object.values(dependencies).reduce((sum, arr) => sum + arr.length, 0)
-  };
-}
-
-function checkForFailedLookups() {
-  return [
-    { package: 'github-tags', error: 'Failed to look up github-tags package', suggestion: 'no-result' }
-  ];
-}
-
 module.exports = {
   dependencies,
   getPendingUpdates,
   checkDependencyUpdates,
   validateDependencyConfig,
   getSecurityUpdates,
-  getAwaitingScheduleUpdates,
+  getAllDetectedDependencies,
   getBlockedPRs,
   getDependencySummary,
-  getAllDetectedDependencies,
   checkForFailedLookups
 };

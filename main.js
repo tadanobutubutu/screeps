@@ -17,7 +17,8 @@ const dependencies = {
 };
 
 // Function to update dependency version in package.json
-function updateDependency(packageJsonPath, dependency, newVersion) {
+function updateDependency(dependency, newVersion) {
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -36,19 +37,18 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
 
 // Function to update package.json dependencies
 function updateAllDependencies() {
-  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies[dep]) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies[dep]) {
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
-      console.log(`Updated ${dep} to ${newVersion}`);
+    } else {
+      console.log(`${dep} not found in package.json`);
     }
   }
   
@@ -56,13 +56,13 @@ function updateAllDependencies() {
 }
 
 // Function to handle conflict markers in main.js
-function resolveConflictMarkers(filePath) {
+function resolveConflicts(filePath) {
   let content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts
   content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return content2;
   });
   
   writeFileSync(filePath, content);
@@ -71,5 +71,5 @@ function resolveConflictMarkers(filePath) {
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-resolveConflictMarkers(path.join(__dirname, 'main.js'));
+resolveConflicts(path.join(process.cwd(), 'main.js'));
 console.log('Dependency updates complete.');

@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-09 - [Dynamic Attribute Synchronization & Keyboard Hints]
+**Learning:** When using components that display interactive info/tooltips via a `title` attribute, duplicating the description in an explicit `aria-label` attribute guarantees that screen readers vocalize the dynamic metadata. Additionally, indicating keyboard controls (e.g. 'Esc' to clear a search input) directly inside the `placeholder` text greatly improves feature discoverability.
+**Action:** Always provide matching `aria-label` tags for hover-only tooltips on non-standard interactive structures, and explicitly hint at keyboard shortcuts inside placeholder text.
+
 ## 2026-08-08 - [Keyboard Shortcut Hint & Focus for Input Navigation]
 
 **Learning:** When introducing keyboard shortcuts for interactive form controls (such as using `Alt + S` to focus a search input), we must display a corresponding, accessible `<kbd>` badge adjacent to the element. Equipping the badge with explicit `tabIndex={0}`, descriptive `title`, and highly clear ARIA descriptors (e.g., `aria-label="キーボードショートカット Alt + S キーで部屋の検索入力にフォーカスできます"`) makes keyboard shortcuts easily discoverable for both visual and screen-reader users, fully satisfying WCAG 2.1.1 (Keyboard Accessibility).

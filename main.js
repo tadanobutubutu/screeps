@@ -15,11 +15,12 @@ const dependencies = {
   'node.js': 'v24.19.0',
   'posthog-js': '1.413.3',
   'actions/checkout': 'v7',
+  'actions/checkbox': 'v7',
   'postcss': '>=8.5.14',
 };
 
 // Function to update dependency version in package.json
-function updateDependency(dependency, newVersion) {
+ function updateDependency(dependency, newVersion) {
   // Existing function code
   //...
 }

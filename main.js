@@ -40,7 +40,7 @@ function resolveMergeConflicts() {
 function executeUpdate() {
   updateAllDependencies();
   resolveMergeConflicts();
-  }
+}
 
 // Main execution
 executeUpdate();

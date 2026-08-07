@@ -152,27 +152,27 @@ function clearAllRooms() {
     container.innerHTML = '';
     const stats = this.getStatistics();
     const wrapper = document.createElement('div');
-    wrapper.className = 'emory-visualizer';
+    wrapper.className = 'memory-visualizer';
     const title = document.createElement('h3');
     title.textContent = 'Memory Usage';
     wrapper.appendChild(title);
     const statsDiv = document.createElement('div');
-    statsDiv.className = 'emory-stats';
-    statsDiv.innerHTML = '<p>Used: ' this.formatBytes(stats.used) + '</p>' +
-      '<p>Total: ' this.formatBytes(stats.total) + '</p>' +
-      '<p>Percentage: ' stats.percentage + '%</p>';
+    statsDiv.className = 'memory-stats';
+    statsDiv.innerHTML = '<p>Used: ' + this.formatBytes(stats.used) + '</p>' +
+      '<p>Total: ' + this.formatBytes(stats.total) + '</p>' +
+      '<p>Percentage: ' + stats.percentage + '%</p>';
     wrapper.appendChild(statsDiv);
     const barContainer = document.createElement('div');
-    barContainer.className = 'emory-bar-container';
+    barContainer.className = 'memory-bar-container';
     const bar = document.createElement('div');
-    bar.className = 'emory-bar';
+    bar.className = 'memory-bar';
     bar.style.width = stats.percentage + '%';
     if (stats.percentage > 90) {
-      bar.className += 'emory-bar-critical';
+      bar.className += ' memory-bar-critical';
     } else if (stats.percentage > 70) {
-      bar.className += 'emory-bar-warning';
+      bar.className += ' memory-bar-warning';
     } else {
-      bar.className += 'emory-bar-normal';
+      bar.className += ' memory-bar-normal';
     }
     barContainer.appendChild(bar);
     wrapper.appendChild(barContainer);
@@ -211,7 +211,6 @@ if (typeof module!== 'undefined' && module.exports) {
     addUserToRoom,
     removeUserFromRoom,
     getRoomUsers,
-    clearAllRooms,
-    utilsemotionsfix
+    clearAllRooms
   };
 }

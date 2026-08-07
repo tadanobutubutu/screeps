@@ -14,7 +14,7 @@ const dependencies = {
   'undici': 'v8.9.0',
   'node.js': 'v24.19.0',
   'posthog-js': '1.413.3',
-  'actions/checkout': 'v7',
+  'actions/checkbox': 'v7',
   'postcss': '>=8.5.14',
 };
 
@@ -39,8 +39,7 @@ function resolveMergeConflicts() {
 // New function to process the update actions
 function executeUpdate() {
   updateAllDependencies();
-  resolveMergeConflicts();
-  }
+}
 
 // Main execution
 executeUpdate();

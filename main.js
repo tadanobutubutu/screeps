@@ -2,9 +2,10 @@
  * Dependency Dashboard Update
  * This script handles dependency updates for the repository.
  */
-
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
+
+const fs = require('fs'); // Added for fs.watchFile
 
 // Dependency updates
 const dependencies = {
@@ -19,7 +20,6 @@ const dependencies = {
 // Function to update dependency version in package.json
 function updateDependency(packageJsonPath, dependency, newVersion) {
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
     packageJson.dependencies[dependency] = newVersion;
   } else if (packageJson.devDependencies && packageJson.devDependencies[dependency]) {
@@ -28,7 +28,6 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
     console.log(`Dependency ${dependency} not found in package.json`);
     return null;
   }
-  
   const updatedContent = JSON.stringify(packageJson, null, 2);
   writeFileSync(packageJsonPath, updatedContent);
   return updatedContent;
@@ -38,7 +37,6 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
 function updateAllDependencies() {
   const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  
   for (const [dep, newVersion] of Object.entries(dependencies)) {
     if (packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
@@ -46,27 +44,35 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
+    } else if (packageJson.pengens && packageJson.pengens[dep]) {
       packageJson.pengens[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
   }
-  
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
 
 // Function to handle conflict markers in main.js
 function resolveConflictMarkers(filePath) {
   let content = readFileSync(filePath, 'utf8');
-  
   // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
+  const regex = /<<<<<<< (.*?)\n((?:.*?)|[\s\S]*?)\n=======\n((?:.*?)|[\s\S]*?)\n>>>>>>> (.*?)\n/g;
+  content = content.replace(regex, (match, group1, content1, group2, group3) => {
     // Resolve conflicts by taking the content from the right side
     return `${group1}\n${content1}\n${group2}\n${group3}`;
   });
-  
   writeFileSync(filePath, content);
 }
+
+// Function to monitor and log file changes
+function monitorFileChanges(filePath) {
+  fs.watchFile(filePath, { persistent: true }, () => {
+    console.log(`File ${filePath} has been modified`);
+  });
+}
+
+// Start monitoring the main.js file
+monitorFileChanges(path.join(__dirname, 'main.js'));
 
 // Main execution
 console.log('Starting dependency updates...');

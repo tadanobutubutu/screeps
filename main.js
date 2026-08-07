@@ -194,6 +194,27 @@ function clearAllRooms() {
   }
 }
 
+// New functions for handling Renovate updates
+function updateOSVScannerActionVersion(newVersion) {
+  console.log(`Updating google/osv-scanner-action to version ${newVersion}`);
+  // Implementation would update the workflow file
+}
+
+function updateCheckoutActionVersion(newVersion) {
+  console.log(`Updating actions/checkout action to version ${newVersion}`);
+  // Implementation would update the workflow files
+}
+
+function updateGitHubCodeQLActionVersion(newVersion) {
+  console.log(`Updating github/codeql-action to version ${newVersion}`);
+  // Implementation would update the workflow files
+}
+
+function updateGitStreamActionVersion(newVersion) {
+  console.log(`Updating linear-bots/gitstream-github-action to version ${newVersion}`);
+  // Implementation would update the workflow files
+}
+
 // Export all exported symbols
 if (typeof module!== 'undefined' && module.exports) {
   module.exports = {
@@ -202,6 +223,10 @@ if (typeof module!== 'undefined' && module.exports) {
     updateTypeScriptVersion,
     updatePosthogJsVersion,
     updateUndiciVersion,
+    updateOSVScannerActionVersion,
+    updateCheckoutActionVersion,
+    updateGitHubCodeQLActionVersion,
+    updateGitStreamActionVersion,
     handleDependencyUpdates,
     checkDependencyStatus,
     newFeatureFunction,

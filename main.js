@@ -47,6 +47,9 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
+    } else if (packageJson.penguins && packageJson.penguins[dep]) {
+      packageJson.penguins[dep] = newVersion;
+      console.log(`Updated ${dep} to ${newVersion}`);
     } else {
       console.log(`Dependency ${dep} not found in package.json`);
     }

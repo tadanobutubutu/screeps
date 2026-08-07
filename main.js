@@ -15,7 +15,7 @@ const dependencies = {
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package. json
+// Function to update dependency version in package.json
 function updateDependency(dependency, newVersion) {
   const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
@@ -55,7 +55,7 @@ function updateAllDependencies() {
   writeFileSync(packageJsonPath, updatedContent);
 }
 
-// Function to handle conflict markers in main. js
+// Function to handle conflict markers in main.js
 function processConflictMarkers(filePath) {
   const content = readFileSync(filePath, 'utf8');
   

@@ -41,7 +41,7 @@ module.exports = {
 
   addUserToRoom(roomId, userId) {
     const room = rooms.get(roomId);
-    if (room &&!room.users.includes(userId)) {
+    if (room && !room.users.includes(userId)) {
       room.users.push(userId);
       return true;
     }
@@ -62,7 +62,7 @@ module.exports = {
 
   getRoomUsers(roomId) {
     const room = rooms.get(roomId);
-    return room? room.users : [];
+    return room ? room.users : [];
   },
 
   clearAllRooms() {
@@ -93,7 +93,7 @@ module.exports = {
   // Function to handle dependency updates
   handleDependencyUpdates(updates) {
     updates.forEach(update => {
-      switch(update.package) {
+      switch (update.package) {
         case 'node':
           this.updateNodeVersion(update.version);
           break;

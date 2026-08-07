@@ -2,7 +2,6 @@
  * Dependency Dashboard Update
  * This script handles dependency updates for the repository.
  */
-
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
@@ -16,9 +15,9 @@ const dependencies = {
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package.json
+// Function to update dependency version in package. json
 function updateDependency(dependency, newVersion) {
-  const packageJsonPath = path.join(process.cwd(), 'package.json');
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
@@ -37,7 +36,7 @@ function updateDependency(dependency, newVersion) {
 
 // Function to update package.json dependencies
 function updateAllDependencies() {
-  const packageJsonPath = path.join(process.cwd(), 'package.json');
+  const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
@@ -56,8 +55,8 @@ function updateAllDependencies() {
   writeFileSync(packageJsonPath, updatedContent);
 }
 
-// Function to handle conflict markers in main.js
-function handleConflictMarkers(filePath) {
+// Function to handle conflict markers in main. js
+function processConflictMarkers(filePath) {
   const content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts
@@ -72,5 +71,5 @@ function handleConflictMarkers(filePath) {
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-handleConflictMarkers('main.js');
+processConflictMarkers(__filename);
 console.log('Dependency updates complete.');

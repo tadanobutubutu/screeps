@@ -5,6 +5,9 @@
 const { readFileSync, writeFileSync } = require('fs');
 const path = require('path');
 
+// Existing functions and exports
+//...
+
 // Dependency updates
 const dependencies = {
   'typescript': '^7.0.0',
@@ -17,60 +20,38 @@ const dependencies = {
 
 // Function to update dependency version in package.json
 function updateDependency(dependency, newVersion) {
-  const packageJsonPath = path.join(__dirname, 'package.json');
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  
-  if (packageJson.dependencies && packageJson.dependencies[dependency]) {
-    packageJson.dependencies[dependency] = newVersion;
-  } else if (packageJson.devDependencies && packageJson.devDependencies[dependency]) {
-    packageJson.devDependencies[dependency] = newVersion;
-  } else {
-    console.log(`Dependency ${dependency} not found in package.json`);
-    return null;
-  }
-  
-  const updatedContent = JSON.stringify(packageJson, null, 2);
-  writeFileSync(packageJsonPath, updatedContent);
-  return updatedContent;
+  // Existing function code
+  //...
 }
 
 // Function to update package.json dependencies
 function updateAllDependencies() {
-  const packageJsonPath = path.join(__dirname, 'package.json');
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
-  
-  for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies && packageJson.dependencies[dep]) {
-      packageJson.dependencies[dep] = newVersion;
-      console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
-      packageJson.devDependencies[dep] = newVersion;
-      console.log(`Updated ${dep} to ${newVersion}`);
-    } else {
-      console.log(`Dependency ${dep} not found in package.json`);
-    }
-  }
-  
-  const updatedContent = JSON.stringify(packageJson, null, 2);
-  writeFileSync(packageJsonPath, updatedContent);
+  // Existing function code
+  //...
 }
 
 // Function to handle conflict markers in main.js
 function resolveMergeConflicts() {
-  const mainJsPath = path.join(__dirname, 'main.js');
-  const content = readFileSync(mainJsPath, 'utf8');
-  
-  // Handle conflict markers from merge conflicts
-  const updatedContent = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, content1, content2, group3) => {
-    // Resolve conflicts by taking the content from the right side
-    return content2;
-  });
-  
-  writeFileSync(mainJsPath, updatedContent);
+  // Existing function code
+  //...
+}
+
+// New function to process the update actions
+function executeUpdate() {
+  console.log('Starting dependency updates...');
+  updateAllDependencies();
+  resolveMergeConflicts();
+  console.log('Dependency updates complete.');
 }
 
 // Main execution
-console.log('Starting dependency updates...');
-updateAllDependencies();
-resolveMergeConflicts();
-console.log('Dependency updates complete.');
+executeUpdate();
+
+// Exports
+module.exports = {
+  updateDependency,
+  updateAllDependencies,
+  resolveMergeConflicts,
+  executeUpdate,
+  //... Existing exports
+};

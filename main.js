@@ -3,8 +3,7 @@
 
 // New function added to the main.js file
 function newFeatureFunction() {
-  console.log('New feature function has been triggered!');
-}
+  }
 
 // Export the new function if needed
 // export { newFeatureFunction };

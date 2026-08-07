@@ -1,11 +1,12 @@
 // Dependency Dashboard Management
-
 const dependencies = {
   npm: [
     '@supabase/supabase-js',
     'next',
     'eact',
     'eact-dom',
+    'react',
+    'react-dom',
     '@types/node',
     '@types/react',
     'postcss',
@@ -38,8 +39,7 @@ const dependencies = {
 };
 
 const { version } = require('node'); // Added functionality to check Node version
-
-// Added logging of Node version
+console.log('Node.js version:', version); // Added logging of Node version
 
 function getPendingUpdates() {
   return {
@@ -61,7 +61,7 @@ function checkDependencyUpdates() {
 }
 
 function validateDependencyConfig(config) {
-  if (!config || typeof config!== 'object') {
+  if (!config || typeof config !== 'object') {
     throw new Error('Invalid configuration');
   }
   return true;
@@ -84,7 +84,7 @@ function getBlockedPRs() {
 function getDependencySummary() {
   const updates = getPendingUpdates();
   return {
-    totalPending: updates.awaitingSchedule.length + updates.security.length,
+    totalPending: updates.awaitingSchedule.length + updates.security.length + getBlockedPRs().length,
     securityCount: updates.security.length,
     scheduledCount: updates.awaitingSchedule.length,
     blockedCount: getBlockedPRs().length
@@ -107,7 +107,6 @@ function checkForFailedLookups() {
   ];
 }
 
-// New function requested in the issue, assuming it's related to emotions.js
 function analyzeEmotions(text) {
   // Placeholder for emotion analysis logic
   // This function is just a stub and does not perform any real emotion analysis

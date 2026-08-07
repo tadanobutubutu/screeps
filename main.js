@@ -10,15 +10,15 @@ const path = require('path');
 const dependencies = {
   'typescript': '^7.0.0',
   'undici': 'v8.9.0',
-  'node.js': 'v24.19.0',
+  'node. js': 'v24.19.0',
   'posthog-js': '1.413.3',
   'actions/checkout': 'v7',
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package.json
-function updateDependency(packageJsonPath, dependency, newVersion) {
-  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
+// Function to update dependency version in package. json
+function updateDependency(dependency, newVersion) {
+  const packageJson = JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
     packageJson.dependencies[dependency] = newVersion;
@@ -30,11 +30,11 @@ function updateDependency(packageJsonPath, dependency, newVersion) {
   }
   
   const updatedContent = JSON.stringify(packageJson, null, 2);
-  writeFileSync(packageJsonPath, updatedContent);
+  writeFileSync(path.join(__dirname, 'package.json'), updatedContent);
   return updatedContent;
 }
 
-// Function to update package.json dependencies
+// Function to update package. json dependencies
 function updateAllDependencies() {
   const packageJsonPath = path.join(__dirname, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
@@ -46,8 +46,8 @@ function updateAllDependencies() {
     } else if (packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
+    } else if (packageJson.optionalDependencies[dep]) {
+      packageJson.optionalDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
     }
   }
@@ -55,21 +55,21 @@ function updateAllDependencies() {
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
 }
 
-// Function to handle conflict markers in main.js
-function resolveConflictMarkers(filePath) {
-  let content = readFileSync(filePath, 'utf8');
+// Function to handle conflict markers in main. js
+function resolveConflicts() {
+  let content = readFileSync(path.join(__dirname, 'main.js'), 'utf8');
   
   // Handle conflict markers from merge conflicts
   content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
     // Resolve conflicts by taking the content from the right side
-    return `${group1}\n${content1}\n${group2}\n${group3}`;
+    return content2;
   });
   
-  writeFileSync(filePath, content);
+  writeFileSync(path.join(__dirname, 'main.js'), content);
 }
 
 // Main execution
 console.log('Starting dependency updates...');
 updateAllDependencies();
-resolveConflictMarkers(path.join(__dirname, 'main.js'));
+resolveConflicts();
 console.log('Dependency updates complete.');

@@ -22,9 +22,6 @@ const dependencies = {
     'actions/checkout',
     'actions/setup-node',
     'actions/setup-python',
-    'actions/upload-artifact',
-    'actions/github-script',
-    'actions/dependency-review-action',
     'actions/first-interaction',
     'actions/stale',
     'actions/labeler'
@@ -68,11 +65,13 @@ function validateDependencyConfig(config) {
 }
 
 function getSecurityUpdates() {
-  return getPendingUpdates().security;
+  const updates = getPendingUpdates();
+  return updates.security || [];
 }
 
-function getAwaitingScheduleUpdates() {
-  return getPendingUpdates().awaitingSchedule;
+function hasSecurityUpdates() {
+  const securityUpdates = getSecurityUpdates();
+  return securityUpdates.length > 0;
 }
 
 function getBlockedPRs() {
@@ -97,7 +96,7 @@ function getAllDetectedDependencies() {
     actions: dependencies.actions.length,
     circleci: dependencies.circleci.length,
     gitlabci: dependencies.gitlabci.length,
-    total: Object.values(dependencies).reduce((sum, arr) => sum + arr.length, 0)
+    total: [dependencies.npm, dependencies.actions, dependencies.circleci, dependencies.gitlabci].reduce((sum, arr) => sum + arr.length, 0)
   };
 }
 
@@ -113,7 +112,7 @@ module.exports = {
   checkDependencyUpdates,
   validateDependencyConfig,
   getSecurityUpdates,
-  getAwaitingScheduleUpdates,
+  hasSecurityUpdates,
   getBlockedPRs,
   getDependencySummary,
   getAllDetectedDependencies,

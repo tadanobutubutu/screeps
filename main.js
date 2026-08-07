@@ -20,7 +20,7 @@ const dependencies = {
 };
 
 // Function to update dependency version in package.json
- function updateDependency(dependency, newVersion) {
+function updateDependency(dependency, newVersion) {
   // Existing function code
   //...
 }

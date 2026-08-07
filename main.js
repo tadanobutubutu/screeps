@@ -14,11 +14,11 @@ const dependencies = {
   'undici': 'v8.9.0',
   'node.js': 'v24.19.0',
   'posthog-js': '1.413.3',
-  'actions/checkout': 'v7',
+  'actions-checkout': 'v7',
   'postcss': '>=8.5.14',
 };
 
-// Function to update dependency version in package.json
+// Function to update dependency version in package. json
 function updateDependency(dependency, newVersion) {
   // Existing function code
   //...
@@ -39,8 +39,8 @@ function resolveMergeConflicts() {
 // New function to process the update actions
 function executeUpdate() {
   updateAllDependencies();
-  resolveMergeConflicts();
-  }
+  //...
+}
 
 // Main execution
 executeUpdate();

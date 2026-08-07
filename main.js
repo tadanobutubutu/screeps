@@ -17,14 +17,16 @@ const dependencies = {
 };
 
 // Function to update dependency version in package.json
-function updateDependencyVersion(dependency, newVersion) {
-  const packageJsonPath = path.join(__dirname, 'package.json');
+function updateDependency(dependency, newVersion) {
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   if (packageJson.dependencies && packageJson.dependencies[dependency]) {
     packageJson.dependencies[dependency] = newVersion;
   } else if (packageJson.devDependencies && packageJson.devDependencies[dependency]) {
     packageJson.devDependencies[dependency] = newVersion;
+  } else if (packageJson.penguins && packageJson.penguins[dependency]) {
+    packageJson.penguins[dependency] = newVersion;
   } else {
     console.log(`Dependency ${dependency} not found in package.json`);
     return null;
@@ -37,37 +39,39 @@ function updateDependencyVersion(dependency, newVersion) {
 
 // Function to update package.json dependencies
 function updateAllDependencies() {
-  const packageJsonPath = path.join(__dirname, 'package.json');
+  const packageJsonPath = path.join(process.cwd(), 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   
   for (const [dep, newVersion] of Object.entries(dependencies)) {
-    if (packageJson.dependencies[dep]) {
+    if (packageJson.dependencies && packageJson.dependencies[dep]) {
       packageJson.dependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.devDependencies[dep]) {
+    } else if (packageJson.devDependencies && packageJson.devDependencies[dep]) {
       packageJson.devDependencies[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
-    } else if (packageJson.pengens[dep]) {
-      packageJson.pengens[dep] = newVersion;
+    } else if (packageJson.penguins && packageJson.penguins[dep]) {
+      packageJson.penguins[dep] = newVersion;
       console.log(`Updated ${dep} to ${newVersion}`);
+    } else {
+      console.log(`Dependency ${dep} not found in package.json`);
     }
   }
   
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+  const updatedContent = JSON.stringify(packageJson, null, 2);
+  writeFileSync(packageJsonPath, updatedContent);
 }
 
 // Function to handle conflict markers in main.js
-function resolveConflictMarkers() {
-  const mainJsPath = path.join(__dirname, 'main.js');
-  let content = readFileSync(mainJsPath, 'utf8');
+function resolveConflictMarkers(filePath = path.join(__dirname, 'main.js')) {
+  const content = readFileSync(filePath, 'utf8');
   
   // Handle conflict markers from merge conflicts
-  content = content.replace(/<<<<<<< (.*?)\n((?:[^]|\n)*?)=======\n((?:[^]|\n)*?)>>>>>>> (.*?)\n/g, (match, group1, content1, group2, group3) => {
-    // Resolve conflicts by taking the content from the right side
-    return group3;
+  const updatedContent = content.replace(/<<<<<<< (.*?)\n([\s\S]*?)=======\n([\s\S]*?)>>>>>>> (.*?)\n/g, (match, group1, left, right, group3) => {
+    // Resolve conflicts by taking the content after === (right side)
+    return right;
   });
   
-  writeFileSync(mainJsPath, content);
+  writeFileSync(filePath, updatedContent);
 }
 
 // Main execution

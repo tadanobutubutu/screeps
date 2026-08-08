@@ -47,11 +47,9 @@ module.exports = {
     formatDependencies,
     // Add any new functions here
     updateNodeVersion,
-    updateTypeScriptVersion,
     updatePosthogVersion,
-    updateGitHubActionsCheckout,
-    updateOSVScannerAction,
-    updateCodeQLAction
+    updateCodeQLAction,
+    updateOSVScannerAction
 };
 
 /**
@@ -67,7 +65,7 @@ function updateNodeVersion(newVersion) {
  * Update TypeScript version
  * @param {string} newVersion - New TypeScript version
  */
-function updateTypeScriptVersion(newVersion) {
+function updateTypescriptVersion(newVersion) {
     // Implementation for updating TypeScript version
     // Actual implementation would go here
 }
@@ -85,7 +83,7 @@ function updatePosthogVersion(newVersion) {
  * Update GitHub Actions Checkout version
  * @param {string} newVersion - New GitHub Actions Checkout version
  */
-function updateGitHubActionsCheckout(newVersion) {
+function updateActionsCheckout(newVersion) {
     // Implementation for updating GitHub Actions Checkout version
     // Actual implementation would go here
 }

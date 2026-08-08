@@ -1,4 +1,3 @@
-// main.js
 const { getDependencies } = require('./dependencies');
 const { updateDependencies } = require('./updates');
 

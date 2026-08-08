@@ -105,7 +105,7 @@ function checkOsvScannerAction() {
   return true;
 }
 
-// 7. Update github/codeql-action to v4
+// 7. Update ... to v4
 // This would be handled in workflow files, but we'll add a check
 
 function checkCodeQLAction() {

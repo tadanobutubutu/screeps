@@ -1,10 +1,1 @@
-const RoomManager = {
-  // Room management functions
-  init() {
-    // Initialization code
-  },
-
-  // Other existing room management methods...
-};
-
-module.exports = RoomManager;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

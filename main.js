@@ -1,16 +1,10 @@
-const posthog = require('posthog-js');
-
-const bot = {
+const RoomManager = {
+  // Room management functions
   init() {
-    posthog.capture('app', { app: 'screeps' });
-    posthog.enableGlobalErrorTracking();
+    // Initialization code
   },
 
-  log(message) {
-    posthog.capture('user', { message });
-  },
-
-  // ... existing functions and code preserved from original main.js
+  // Other existing room management methods...
 };
 
-module.exports = bot;
+module.exports = RoomManager;

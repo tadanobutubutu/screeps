@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const posthog = require('posthog-js');
+
+const bot = {
+  init() {
+    posthog.capture('app', { app: 'screeps' });
+    posthog.enableGlobalErrorTracking();
+  },
+
+  log(message) {
+    posthog.capture('user', { message });
+  },
+
+  // ... existing functions and code preserved from original main.js
+};
+
+module.exports = bot;

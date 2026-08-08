@@ -13,4 +13,13 @@ const bot = {
   // ... existing functions and code preserved from original main.js
 };
 
+// Add minimal test configuration for Jest coverage
+if (process.env.NODE_ENV === 'test') {
+  // Mock posthog for testing purposes
+  jest.mock('posthog-js', () => ({
+    capture: jest.fn(),
+    enableGlobalErrorTracking: jest.fn()
+  }));
+}
+
 module.exports = bot;

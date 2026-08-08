@@ -3,7 +3,6 @@ const posthog = require('posthog-js');
 const bot = {
   init() {
     posthog.capture('app', { app: 'screeps' });
-    posthog.enableGlobalErrorTracking();
   },
 
   log(message) {

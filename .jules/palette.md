@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-10 - [Reconciliation Key forcing for React Transition/Animation Reset]
+**Learning:** In React-based visual notification or transient dialog components, consecutive text updates without a complete unmount of the wrapper container prevent CSS animation keyframes (such as a shrinking progress bar or entry animations) from replaying. Forcing element recreation using a distinct `key` attribute bound directly to the dynamic message content ensures the animation lifecycle is deterministically restarted.
+**Action:** Always assign a unique, message-bound `key` to transient animation wrappers to guarantee consistent visual and motion behavior across consecutive state changes.
+
 ## 2026-08-09 - [Dynamic Attribute Synchronization & Keyboard Hints]
 **Learning:** When using components that display interactive info/tooltips via a `title` attribute, duplicating the description in an explicit `aria-label` attribute guarantees that screen readers vocalize the dynamic metadata. Additionally, indicating keyboard controls (e.g. 'Esc' to clear a search input) directly inside the `placeholder` text greatly improves feature discoverability.
 **Action:** Always provide matching `aria-label` tags for hover-only tooltips on non-standard interactive structures, and explicitly hint at keyboard shortcuts inside placeholder text.

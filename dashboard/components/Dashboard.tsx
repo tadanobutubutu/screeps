@@ -13,6 +13,7 @@ export default function Dashboard() {
         [detailsOpen, setDetailsOpen] = useState(false);
 
     const [autoRefresh, setAutoRefresh] = useState(true);
+    const [searchFocused, setSearchFocused] = useState(false);
     const [refreshHover, setRefreshHover] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
     const [jsonHover, setJsonHover] = useState(false);
@@ -678,14 +679,16 @@ export default function Dashboard() {
                                     borderRadius: '4px',
                                     outline: 'none',
                                     transition: 'all 0.2s ease-in-out',
-                                    width: '100px',
+                                    width: searchFocused || roomQuery ? '160px' : '100px',
                                 }}
                                 onFocus={(e) => {
+                                    setSearchFocused(true);
                                     e.currentTarget.style.borderColor = '#004b73';
                                     e.currentTarget.style.boxShadow =
                                         '0 0 0 2px rgba(0, 75, 115, 0.2)';
                                 }}
                                 onBlur={(e) => {
+                                    setSearchFocused(false);
                                     e.currentTarget.style.borderColor = '#cbd5e0';
                                     e.currentTarget.style.boxShadow = 'none';
                                 }}
@@ -894,6 +897,7 @@ export default function Dashboard() {
             </details>
             {toastMsg && (
                 <div
+                    key={toastMsg}
                     aria-live="polite"
                     style={{
                         position: 'fixed',
@@ -901,7 +905,7 @@ export default function Dashboard() {
                         right: '2rem',
                         backgroundColor: '#004b73',
                         color: 'white',
-                        padding: '0.75rem 1.5rem',
+                        padding: '0.75rem 1.5rem 1rem 1.5rem',
                         borderRadius: '8px',
                         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                         fontSize: '0.9rem',
@@ -911,6 +915,7 @@ export default function Dashboard() {
                         alignItems: 'center',
                         gap: '0.75rem',
                         animation: 'bounce 0.5s ease-in-out',
+                        overflow: 'hidden',
                     }}
                 >
                     <span>✨</span>
@@ -948,6 +953,16 @@ export default function Dashboard() {
                     >
                         ✕
                     </button>
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            height: '3px',
+                            backgroundColor: '#319795',
+                            animation: 'shrinkWidth 2.5s linear forwards',
+                        }}
+                    />
                 </div>
             )}
         </main>

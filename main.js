@@ -23,14 +23,14 @@ function checkNodeVersion() {
   const requiredVersion = 'v24.19.0';
 
   if (currentVersion !== requiredVersion) {
-    console.warn(`Warning: Node.js version ${currentVersion} is not the recommended version ${requiredVersion}`);
+    console.warn(`Warning: Node. js version ${currentVersion} is not the recommended version ${requiredVersion}`);
   }
 
   return currentVersion;
 }
 
 // 2. Update TypeScript to v7
-// This would be handled in package.json, but we'll add a version check
+// This would be handled in package. json, but we'll add a version check
 
 function checkTypeScriptVersion() {
   try {
@@ -50,7 +50,7 @@ function checkTypeScriptVersion() {
 }
 
 // 3. Update posthog-js to v1.414.0
-// This would be handled in package.json, but we'll add a version check
+// This would be handled in package. json, but we'll add a version check
 
 function checkPostHogVersion() {
   try {
@@ -70,7 +70,7 @@ function checkPostHogVersion() {
 }
 
 // 4. Update undici to v8.9.0
-// This would be handled in package.json, but we'll add a version check
+// This would be handled in package. json, but we'll add a version check
 
 function checkUndiciVersion() {
   try {
@@ -105,7 +105,7 @@ function checkOsvScannerAction() {
   return true;
 }
 
-// 7. Update github/codeql-action to v4
+// 7. Update ... to v4
 // This would be handled in workflow files, but we'll add a check
 
 function checkCodeQLAction() {

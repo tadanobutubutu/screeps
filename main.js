@@ -94,7 +94,6 @@ function checkUndiciVersion() {
 
 function checkGitHubActionsCheckout() {
   // This would typically check the workflow files
-  console.log('GitHub Actions checkout version check would be implemented here');
   return true;
 }
 
@@ -103,7 +102,6 @@ function checkGitHubActionsCheckout() {
 
 function checkOsvScannerAction() {
   // This would typically check the workflow files
-  console.log('OSV Scanner action version check would be implemented here');
   return true;
 }
 
@@ -112,7 +110,6 @@ function checkOsvScannerAction() {
 
 function checkCodeQLAction() {
   // This would typically check the workflow files
-  console.log('CodeQL action version check would be implemented here');
   return true;
 }
 

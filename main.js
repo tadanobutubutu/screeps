@@ -55,11 +55,11 @@ module.exports = {
 };
 
 /**
- * Update Node.js version
- * @param {string} newVersion - New Node.js version
+ * Update Node.less version
+ * @param {string} newVersion - New Node.less version
  */
 function updateNodeVersion(newVersion) {
-    // Implementation for updating Node.js version
+    // Implementation for updating Node.less version
     // Actual implementation would go here
 }
 

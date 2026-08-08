@@ -7,25 +7,25 @@
 
 /**
  * Updated Node.js version (v24.19.0)
- * This would typically be in your package. json or similar config
+ * This would typically be in your package.json or similar config
  */
 const NODE_VERSION = '24.19.0';
 
 /**
  * Updated TypeScript version (v7)
- * This would typically be in your package. json or tsconfig.json
+ * This would typically be in your package.json or tsconfig.json
  */
 const TYPESCRIPT_VERSION = '7.0.0';
 
 /**
  * Updated posthog-js version (v1.414.0)
- * This would typically be in your package. json
+ * This would typically be in your package.json
  */
 const POSTHOG_VERSION = '1.414.0';
 
 /**
  * Updated undici version (v8.9.0)
- * This would typically be in your package. json
+ * This would typically be in your package.json
  */
 const UNDICI_VERSION = '8.9.0';
 

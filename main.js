@@ -32,6 +32,27 @@ function updateUndici(newVersion) {
   // Additional update logic would go here
 }
 
+// New function to handle GitHub Actions updates
+function updateGitHubActions(actionName, newVersion) {
+  // Implementation for updating GitHub Actions
+  console.log(`Updating GitHub Action ${actionName} to version ${newVersion}`);
+  // Additional update logic would go here
+}
+
+// New function to handle CircleCI updates
+function updateCircleCI(image, newVersion) {
+  // Implementation for updating CircleCI
+  console.log(`Updating CircleCI image ${image} to version ${newVersion}`);
+  // Additional update logic would go here
+}
+
+// New function to handle Travis CI updates
+function updateTravisCI(version) {
+  // Implementation for updating Travis CI
+  console.log(`Updating Travis CI to version ${version}`);
+  // Additional update logic would go here
+}
+
 // Existing exports would remain here
 // [PRESERVED EXISTING EXPORTS]
 
@@ -42,5 +63,8 @@ module.exports = {
   updateTypeScriptVersion,
   updatePosthogJs,
   updateUndici,
+  updateGitHubActions,
+  updateCircleCI,
+  updateTravisCI,
   // Additional new exports would go here
 };

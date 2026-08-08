@@ -29,6 +29,24 @@ const POSTHOG_VERSION = '1.414.0';
  */
 const UNDICI_VERSION = '8.9.0';
 
+/**
+ * Updated actions/checkout version (v7)
+ * This would typically be in your GitHub Actions workflows
+ */
+const CHECKOUT_VERSION = 'v7';
+
+/**
+ * Updated google/osv-scanner-action version (v2.5.0)
+ * This would typically be in your GitHub Actions workflows
+ */
+const OSV_SCANNER_VERSION = 'v2.5.0';
+
+/**
+ * Updated github/codeql-action version (v4)
+ * This would typically be in your GitHub Actions workflows
+ */
+const CODEQL_VERSION = 'v4';
+
 // Your existing code would go here
 // Make sure to preserve all existing exports and functions
 
@@ -38,6 +56,9 @@ function checkDependencies() {
   console.log(`Using TypeScript ${TYPESCRIPT_VERSION}`);
   console.log(`Using posthog-js ${POSTHOG_VERSION}`);
   console.log(`Using undici ${UNDICI_VERSION}`);
+  console.log(`Using actions/checkout ${CHECKOUT_VERSION}`);
+  console.log(`Using google/osv-scanner-action ${OSV_SCANNER_VERSION}`);
+  console.log(`Using github/codeql-action ${CODEQL_VERSION}`);
 }
 
 // Keep all your existing exports
@@ -45,4 +66,11 @@ module.exports = {
   // ... your existing exports
   checkDependencies,
   // ... other existing exports
+  NODE_VERSION,
+  TYPESCRIPT_VERSION,
+  POSTHOG_VERSION,
+  UNDICI_VERSION,
+  CHECKOUT_VERSION,
+  OSV_SCANNER_VERSION,
+  CODEQL_VERSION
 };

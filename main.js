@@ -60,7 +60,6 @@ module.exports = {
  */
 function updateNodeVersion(newVersion) {
     // Implementation for updating Node.js version
-    console.log(`Updating Node.js to version ${newVersion}`);
     // Actual implementation would go here
 }
 
@@ -70,7 +69,6 @@ function updateNodeVersion(newVersion) {
  */
 function updateTypeScriptVersion(newVersion) {
     // Implementation for updating TypeScript version
-    console.log(`Updating TypeScript to version ${newVersion}`);
     // Actual implementation would go here
 }
 
@@ -80,7 +78,6 @@ function updateTypeScriptVersion(newVersion) {
  */
 function updatePosthogVersion(newVersion) {
     // Implementation for updating Posthog version
-    console.log(`Updating Posthog to version ${newVersion}`);
     // Actual implementation would go here
 }
 
@@ -90,7 +87,6 @@ function updatePosthogVersion(newVersion) {
  */
 function updateGitHubActionsCheckout(newVersion) {
     // Implementation for updating GitHub Actions Checkout version
-    console.log(`Updating GitHub Actions Checkout to version ${newVersion}`);
     // Actual implementation would go here
 }
 
@@ -100,7 +96,6 @@ function updateGitHubActionsCheckout(newVersion) {
  */
 function updateOSVScannerAction(newVersion) {
     // Implementation for updating OSV Scanner Action version
-    console.log(`Updating OSV Scanner Action to version ${newVersion}`);
     // Actual implementation would go here
 }
 
@@ -110,6 +105,5 @@ function updateOSVScannerAction(newVersion) {
  */
 function updateCodeQLAction(newVersion) {
     // Implementation for updating CodeQL Action version
-    console.log(`Updating CodeQL Action to version ${newVersion}`);
     // Actual implementation would go here
 }

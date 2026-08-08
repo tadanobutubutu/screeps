@@ -41,19 +41,6 @@ function formatDependencies(dependencies) {
         .join('\n');
 }
 
-// Export all functions for testing
-module.exports = {
-    main,
-    formatDependencies,
-    // Add any new functions here
-    updateNodeVersion,
-    updateTypeScriptVersion,
-    updatePosthogVersion,
-    updateGitHubActionsCheckout,
-    updateOSVScannerAction,
-    updateCodeQLAction
-};
-
 /**
  * Update Node.js version
  * @param {string} newVersion - New Node.js version
@@ -107,3 +94,15 @@ function updateCodeQLAction(newVersion) {
     // Implementation for updating CodeQL Action version
     // Actual implementation would go here
 }
+
+// Export all functions for testing
+module.exports = {
+    main,
+    formatDependencies,
+    updateNodeVersion,
+    updateTypeScriptVersion,
+    updatePosthogVersion,
+    updateGitHubActionsCheckout,
+    updateOSVScannerAction,
+    updateCodeQLAction
+};

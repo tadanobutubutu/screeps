@@ -49,17 +49,16 @@ module.exports = {
     updateNodeVersion,
     updateTypeScriptVersion,
     updatePosthogVersion,
-    updateGitHubActionsCheckout,
     updateOSVScannerAction,
     updateCodeQLAction
 };
 
 /**
- * Update Node.js version
- * @param {string} newVersion - New Node.js version
+ * Update Node. js version
+ * @param {string} newVersion - New Node. js version
  */
 function updateNodeVersion(newVersion) {
-    // Implementation for updating Node.js version
+    // Implementation for updating Node. js version
     // Actual implementation would go here
 }
 
@@ -84,15 +83,6 @@ function updatePosthogVersion(newVersion) {
 /**
  * Update GitHub Actions Checkout version
  * @param {string} newVersion - New GitHub Actions Checkout version
- */
-function updateGitHubActionsCheckout(newVersion) {
-    // Implementation for updating GitHub Actions Checkout version
-    // Actual implementation would go here
-}
-
-/**
- * Update OSV Scanner Action version
- * @param {string} newVersion - New OSV Scanner Action version
  */
 function updateOSVScannerAction(newVersion) {
     // Implementation for updating OSV Scanner Action version

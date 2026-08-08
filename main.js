@@ -45,7 +45,6 @@ function formatDependencies(dependencies) {
 module.exports = {
     main,
     formatDependencies,
-    // Add any new functions here
     updateNodeVersion,
     updateTypeScriptVersion,
     updatePosthogVersion,

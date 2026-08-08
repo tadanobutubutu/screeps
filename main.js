@@ -1,16 +1,17 @@
 const posthog = require('posthog-js');
 
-const bot = {
+const bot = {  
   init() {
     posthog.capture('app', { app: 'screeps' });
     posthog.enableGlobalErrorTracking();
   },
-
+  
   log(message) {
     posthog.capture('user', { message });
   },
+  
 
-  // ... existing functions and code preserved from original main.js
+  // Role-specific functions go here (will be added as per issue requirements)
 };
 
 module.exports = bot;

@@ -11,6 +11,11 @@ const bot = {
   },
 
   // ... existing functions and code preserved from original main.js
+
+  // Adding a testable version of the bot object
+  getBotInstance() {
+    return this;
+  }
 };
 
 module.exports = bot;

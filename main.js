@@ -40,10 +40,7 @@ function formatDependencies(dependencies) {
         .join('\n');
 }
 
-/**
- * Update Node.js version
- * @param {string} newVersion - New Node.js version
- */
+// Update Node.js version
 function updateNodeVersion(newVersion) {
     // Implementation for updating Node.js version
     // Actual implementation would go here

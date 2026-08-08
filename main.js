@@ -48,7 +48,10 @@ module.exports = {
     // Add any new functions here
     updateNodeVersion,
     updateTypeScriptVersion,
-    updatePosthogVersion
+    updatePosthogVersion,
+    updateGitHubActionsCheckout,
+    updateOSVScannerAction,
+    updateCodeQLAction
 };
 
 /**
@@ -78,5 +81,35 @@ function updateTypeScriptVersion(newVersion) {
 function updatePosthogVersion(newVersion) {
     // Implementation for updating Posthog version
     console.log(`Updating Posthog to version ${newVersion}`);
+    // Actual implementation would go here
+}
+
+/**
+ * Update GitHub Actions Checkout version
+ * @param {string} newVersion - New GitHub Actions Checkout version
+ */
+function updateGitHubActionsCheckout(newVersion) {
+    // Implementation for updating GitHub Actions Checkout version
+    console.log(`Updating GitHub Actions Checkout to version ${newVersion}`);
+    // Actual implementation would go here
+}
+
+/**
+ * Update OSV Scanner Action version
+ * @param {string} newVersion - New OSV Scanner Action version
+ */
+function updateOSVScannerAction(newVersion) {
+    // Implementation for updating OSV Scanner Action version
+    console.log(`Updating OSV Scanner Action to version ${newVersion}`);
+    // Actual implementation would go here
+}
+
+/**
+ * Update CodeQL Action version
+ * @param {string} newVersion - New CodeQL Action version
+ */
+function updateCodeQLAction(newVersion) {
+    // Implementation for updating CodeQL Action version
+    console.log(`Updating CodeQL Action to version ${newVersion}`);
     // Actual implementation would go here
 }

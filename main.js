@@ -3,21 +3,11 @@ function myFunction() {
   // ... some code ...
 }
 
-// Conflicting changes from different branches
-//<<<<<<< HEAD
-function myFunction() {
-  // ... new code from branch HEAD ...
-}
+// Conflicting changes from different branches resolved:
+// Keeping both branch implementations merged together
 
-// Conflicting changes from another branch
-//======= other-branch
 function myFunction() {
-  // ... new code from branch other-branch ...
-}
-
-// Resolved code
-function myFunction() {
-  // ... some code ...
+  // ... some code from original ...
   // ... new code from branch HEAD ...
   // ... new code from branch other-branch ...
 }

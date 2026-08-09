@@ -8,8 +8,6 @@
 function updateNodeVersion(newVersion) {
   // Implementation for updating Node.js version
   const currentVersion = process.version;
-  console.log(`Updating Node.js from ${currentVersion} to v${newVersion}`);
-  
   // Update logic for Node.js version across configuration files
   const versionString = `v${newVersion}`;
   
@@ -24,8 +22,6 @@ function updateNodeVersion(newVersion) {
 // New function to handle TypeScript version updates
 function updateTypeScript(newVersion) {
   // Implementation for updating TypeScript version
-  console.log(`Updating TypeScript to v${newVersion}`);
-  
   // Update logic for TypeScript version in package.json
   const versionString = `^${newVersion}.0.0`;
   
@@ -39,8 +35,6 @@ function updateTypeScript(newVersion) {
 // New function to handle posthog-js updates
 function updatePosthogJs(newVersion) {
   // Implementation for updating posthog-js
-  console.log(`Updating posthog-js to v${newVersion}`);
-  
   return {
     dependency: 'posthog-js',
     to: `^${newVersion}`,
@@ -51,8 +45,6 @@ function updatePosthogJs(newVersion) {
 // New function to handle undici updates
 function updateUndici(newVersion, isSecurity = false) {
   // Implementation for updating undici
-  console.log(`Updating undici to v${newVersion}${isSecurity ? ' [security]' : ''}`);
-  
   return {
     dependency: 'undici',
     to: `>=${newVersion}`,
@@ -64,8 +56,6 @@ function updateUndici(newVersion, isSecurity = false) {
 // New function to handle GitHub Actions updates
 function updateGitHubActions(action, newVersion) {
   // Implementation for updating GitHub Actions
-  console.log(`Updating ${action} to v${newVersion}`);
-  
   const actionUpdates = {
     'actions/checkout': { from: 'v4', to: `v${newVersion}` },
     'actions/setup-node': { to: `v${newVersion}` },
@@ -100,8 +90,6 @@ function updateCircleCI(image, newVersion) {
   // Implementation for updating CircleCI
   // Additional update logic would go here
   
-  console.log(`Updating CircleCI ${image} to v${newVersion}`);
-  
   // Extract image name and current version
   const versionMatch = image.match(/(.+?)\s*([\d.]+)/);
   
@@ -127,8 +115,6 @@ function updateCircleCI(image, newVersion) {
 // New function to handle Travis CI updates
 function updateTravisCI(language, newVersion) {
   // Implementation for updating Travis CI
-  console.log(`Updating Travis CI ${language} to v${newVersion}`);
-  
   return {
     dependency: language,
     to: newVersion,
@@ -139,8 +125,6 @@ function updateTravisCI(language, newVersion) {
 // New function to handle Python updates
 function updatePython(newVersion) {
   // Implementation for updating Python version
-  console.log(`Updating Python to v${newVersion}`);
-  
   return {
     dependency: 'python',
     to: newVersion,
@@ -151,8 +135,6 @@ function updatePython(newVersion) {
 // New function to handle pnpm updates
 function updatePnpm(newVersion) {
   // Implementation for updating pnpm version
-  console.log(`Updating pnpm to v${newVersion}`);
-  
   return {
     dependency: 'pnpm',
     to: newVersion,
@@ -163,8 +145,6 @@ function updatePnpm(newVersion) {
 // New function to handle npm package updates
 function updateNpmPackage(packageName, newVersion) {
   // Implementation for updating npm packages
-  console.log(`Updating ${packageName} to v${newVersion}`);
-  
   return {
     dependency: packageName,
     to: newVersion,

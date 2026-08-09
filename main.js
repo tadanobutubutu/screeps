@@ -11,19 +11,19 @@ function updateNodeVersion(newVersion) {
 }
 
 // New function to handle TypeScript version updates
-function updateTypeScript(newVersion) {
+function updateTypeScript() {
   // Implementation for updating TypeScript version
   // Additional update logic would go here
 }
 
 // New function to handle posthog-js updates
-function updatePosthogJs(newVersion) {
+function updatePosthogJs() {
   // Implementation for updating posthog-js
   // Additional update logic would go here
 }
 
 // New function to handle undici updates
-function updateUndici(newVersion) {
+function updateUndici() {
   // Implementation for updating undici
   // Additional update logic would go here
 }
@@ -37,12 +37,18 @@ function updateGitHubActions(newVersion) {
 // New function to handle CircleCI updates
 function updateCircleCI(image, newVersion) {
   // Implementation for updating CircleCI
-  // Additional update logic would go here
+  // Additional update logic would have here
 }
 
 // New function to handle Travis CI updates
 function updateTravisCI(newVersion) {
   // Implementation for updating Travis CI
+  // Additional update logic would go here
+}
+
+// New function to handle healer role updates
+function updateHealerRole(newConfig) {
+  // Implementation for updating healer role configuration
   // Additional update logic would go here
 }
 
@@ -59,5 +65,6 @@ module.exports = {
   updateGitHubActions,
   updateCircleCI,
   updateTravisCI,
+  updateHealerRole,
   // Additional new exports would go here
 };

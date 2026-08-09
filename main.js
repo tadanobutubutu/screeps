@@ -23,7 +23,7 @@ function updateNodeVersion(newVersion) {
 function updateTypeScript(newVersion) {
   // Implementation for updating TypeScript version
   // Update logic for TypeScript version in package.json
-  const versionString = `^${newVersion}.0.0`;
+  const versionString = `^${newVersion}`;
   
   return {
     dependency: 'typescript',
@@ -60,16 +60,16 @@ function updateGitHubActions(action, newVersion) {
     'actions/checkout': { from: 'v4', to: `v${newVersion}` },
     'actions/setup-node': { to: `v${newVersion}` },
     'actions/setup-python': { to: `v${newVersion}` },
+    'actions/cache': { to: `v${newVersion}` },
     'actions/upload-artifact': { to: `v${newVersion}` },
-    'actions/github-script': { to: `v${newVersion}` },
     'gitleaks/gitleaks-action': { to: `v${newVersion}` },
-    'actions/dependency-review-action': { to: `v${newVersion}` },
+    'aws-actions/configure-aws-credentials': { to: `v${newVersion}` },
     'actions/labeler': { to: `v${newVersion}` },
     'actions/stale': { to: `v${newVersion}` },
     'actions/first-interaction': { to: `v${newVersion}` },
     'release-drafter/release-drafter': { to: `v${newVersion}` },
     'pnpm/action-setup': { to: `v${newVersion}` },
-    'aquasecurity/trivy-action': { to: `v${newVersion}` },
+    'docker/login-action': { to: `v${newVersion}` },
     'google/osv-scanner-action': { to: `v${newVersion}` },
     'pozil/auto-assign-issue': { to: `v${newVersion}` },
     'kentaro-m/auto-assign-action': { to: `v${newVersion}` },
@@ -91,7 +91,8 @@ function updateCircleCI(image, newVersion) {
   // Additional update logic would go here
   
   // Extract image name and current version
-  const versionMatch = image.match(/(.+?)\s*([\d.]+)/);
+  const versionRegex = /^(.+?):(.+)$/;
+  const versionMatch = image.match(versionRegex);
   
   if (versionMatch) {
     const imageName = versionMatch[1];

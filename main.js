@@ -11,25 +11,25 @@ function updateNodeVersion(newVersion) {
 }
 
 // New function to handle TypeScript version updates
-function updateTypeScript(newVersion) {
+function updateTypeScript() {
   // Implementation for updating TypeScript version
   // Additional update logic would go here
 }
 
 // New function to handle posthog-js updates
-function updatePosthogJs(newVersion) {
+function updatePosthogJs() {
   // Implementation for updating posthog-js
   // Additional update logic would go here
 }
 
 // New function to handle undici updates
-function updateUndici(newVersion) {
+function updateUndici() {
   // Implementation for updating undici
   // Additional update logic would go here
 }
 
 // New function to handle GitHub Actions updates
-function updateGitHubActions(actionName, newVersion) {
+function updateGitHubActions(newVersion) {
   // Implementation for updating GitHub Actions
   // Additional update logic would go here
 }
@@ -41,7 +41,7 @@ function updateCircleCI(image, newVersion) {
 }
 
 // New function to handle Travis CI updates
-function updateTravisCI(version) {
+function updateTravisCI() {
   // Implementation for updating Travis CI
   // Additional update logic would go here
 }

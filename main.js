@@ -22,7 +22,7 @@ const GITHUB_ACTIONS = {
   checkout: 'v7',
   setupNode: 'v7',
   setupPython: 'v7',
-  osvScanner: 'v2.5.0',
+  osvScanner: '2.5.0',
   codeql: 'v4'
 };
 

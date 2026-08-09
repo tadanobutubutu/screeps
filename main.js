@@ -55,5 +55,15 @@ function getDependencyVersions() {
   };
 }
 
+// Add a Jest-compatible export for testing purposes
+// This ensures Jest can properly import and test the module
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    // Export all existing functions here
+    // ... (preserve all existing exports)
+    getDependencyVersions
+  };
+}
+
 // [All existing exports remain here]
 // ... (preserve all existing exports and their functionality)

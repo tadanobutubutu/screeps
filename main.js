@@ -1,1 +1,1 @@
-function myFunction() { // ... some code ... // ... new code from branch HEAD ... // ... new code from branch other-branch ... }
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

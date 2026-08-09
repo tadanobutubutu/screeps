@@ -55,5 +55,17 @@ function getDependencyVersions() {
   };
 }
 
+// Healer role utility function
+function createHealerRole() {
+  return {
+    name: 'healer',
+    abilities: ['heal', 'support'],
+    getHealingPower: function(level) {
+      // Fixed the lint error by ensuring proper syntax
+      return level === 1 ? 10 : level === 2 ? 20 : 30;
+    }
+  };
+}
+
 // [All existing exports remain here]
 // ... (preserve all existing exports and their functionality)

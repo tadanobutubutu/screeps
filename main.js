@@ -29,7 +29,7 @@ function updateUndici(newVersion) {
 }
 
 // New function to handle GitHub Actions updates
-function updateGitHubActions(actionName, newVersion) {
+function updateGitHubActions(newVersion) {
   // Implementation for updating GitHub Actions
   // Additional update logic would go here
 }
@@ -41,7 +41,7 @@ function updateCircleCI(image, newVersion) {
 }
 
 // New function to handle Travis CI updates
-function updateTravisCI(version) {
+function updateTravisCI(newVersion) {
   // Implementation for updating Travis CI
   // Additional update logic would go here
 }

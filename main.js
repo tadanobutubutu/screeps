@@ -4,13 +4,13 @@
 // Existing imports and code would remain here
 // [PRESERVED EXISTING CODE]
 
-// New function to handle Node.js version updates
+// New function to handle Node. js version updates
 function updateNodeVersion(newVersion) {
-  // Implementation for updating Node.js version
+  // Implementation for updating Node. js version
   const currentVersion = process.version;
-  // Update logic for Node.js version across configuration files
+  // Update logic for Node. js version across configuration files
   const versionString = `v${newVersion}`;
-  
+
   return {
     dependency: 'node',
     from: currentVersion,
@@ -22,9 +22,9 @@ function updateNodeVersion(newVersion) {
 // New function to handle TypeScript version updates
 function updateTypeScript(newVersion) {
   // Implementation for updating TypeScript version
-  // Update logic for TypeScript version in package.json
-  const versionString = `^${newVersion}.0.0`;
-  
+  // Update logic for TypeScript version in package. json
+  const versionString = newVersion;
+
   return {
     dependency: 'typescript',
     to: versionString,
@@ -32,11 +32,11 @@ function updateTypeScript(newVersion) {
   };
 }
 
-// New function to handle posthog-js updates
+// New function to handle posthog- js updates
 function updatePosthogJs(newVersion) {
-  // Implementation for updating posthog-js
+  // Implementation for updating posthog- js
   return {
-    dependency: 'posthog-js',
+    dependency: 'posthog- js',
     to: `^${newVersion}`,
     updated: true
   };
@@ -57,27 +57,27 @@ function updateUndici(newVersion, isSecurity = false) {
 function updateGitHubActions(action, newVersion) {
   // Implementation for updating GitHub Actions
   const actionUpdates = {
-    'actions/checkout': { from: 'v4', to: `v${newVersion}` },
-    'actions/setup-node': { to: `v${newVersion}` },
-    'actions/setup-python': { to: `v${newVersion}` },
-    'actions/upload-artifact': { to: `v${newVersion}` },
-    'actions/github-script': { to: `v${newVersion}` },
-    'gitleaks/gitleaks-action': { to: `v${newVersion}` },
-    'actions/dependency-review-action': { to: `v${newVersion}` },
-    'actions/labeler': { to: `v${newVersion}` },
-    'actions/stale': { to: `v${newVersion}` },
-    'actions/first-interaction': { to: `v${newVersion}` },
-    'release-drafter/release-drafter': { to: `v${newVersion}` },
-    'pnpm/action-setup': { to: `v${newVersion}` },
-    'aquasecurity/trivy-action': { to: `v${newVersion}` },
-    'google/osv-scanner-action': { to: `v${newVersion}` },
-    'pozil/auto-assign-issue': { to: `v${newVersion}` },
-    'kentaro-m/auto-assign-action': { to: `v${newVersion}` },
-    'JAIPilot/jaipilot-cli': { to: `v${newVersion}` },
-    'micnncim/action-label-syncer': { to: `v${newVersion}` },
-    'HelicanHQ/tagline-release-agent-action': { to: `v${newVersion}` }
+    'actions/ checkout': { from: 'v4', to: `v${newVersion}` },
+    'actions/ setup-node': { to: `v${newVersion}` },
+    'actions/ setup-python': { to: `v${newVersion}` },
+    'actions/ cache': { to: `v${newVersion}` },
+    'actions/ upload-artifact': { to: `v${newVersion}` },
+    'gitleaks/ gitleaks-action': { to: `v${newVersion}` },
+    'actions/ download-artifact': { to: `v${newVersion}` },
+    'actions/ labeler': { to: `v${newVersion}` },
+    'actions/ stale': { to: `v${newVersion}` },
+    'actions/ first-interaction': { to: `v${newVersion}` },
+    'release-drafter/ release-drafter': { to: `v${newVersion}` },
+    'pnpm/ action-setup': { to: `v${newVersion}` },
+    'docker/ login-action': { to: `v${newVersion}` },
+    'google/ osv-scanner-action': { to: `v${newVersion}` },
+    'pozil/ auto-assign-issue': { to: `v${newVersion}` },
+    'kentaro-m/ auto-assign-action': { to: `v${newVersion}` },
+    'JAIPilot/ jaipilot-cli': { to: `v${newVersion}` },
+    'micnncim/ action-label-syncer': { to: `v${newVersion}` },
+    'HelicanHQ/ tagline-release-agent-action': { to: `v${newVersion}` }
   };
-  
+
   return {
     dependency: action,
     ...actionUpdates[action],
@@ -89,14 +89,14 @@ function updateGitHubActions(action, newVersion) {
 function updateCircleCI(image, newVersion) {
   // Implementation for updating CircleCI
   // Additional update logic would go here
-  
+
   // Extract image name and current version
-  const versionMatch = image.match(/(.+?)\s*([\d.]+)/);
-  
+  const versionMatch = image.match(/(.+):(.+)/);
+
   if (versionMatch) {
     const imageName = versionMatch[1];
     const currentVersion = versionMatch[2];
-    
+
     return {
       dependency: imageName,
       from: currentVersion,
@@ -104,7 +104,7 @@ function updateCircleCI(image, newVersion) {
       updated: true
     };
   }
-  
+
   return {
     dependency: image,
     to: newVersion,

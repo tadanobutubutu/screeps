@@ -10,7 +10,7 @@ function updateNodeVersion(newVersion) {
   const currentVersion = process.version;
   // Update logic for Node.js version across configuration files
   const versionString = `v${newVersion}`;
-  
+
   return {
     dependency: 'node',
     from: currentVersion,
@@ -23,7 +23,7 @@ function updateNodeVersion(newVersion) {
 function updateTypeScript(newVersion) {
   // Implementation for updating TypeScript version
   // Update logic for TypeScript version in package.json
-  const versionString = `^${newVersion}`;
+  const versionString = `^${newVersion}.0.0`;
   
   return {
     dependency: 'typescript',
@@ -77,7 +77,7 @@ function updateGitHubActions(action, newVersion) {
     'micnncim/action-label-syncer': { to: `v${newVersion}` },
     'HelicanHQ/tagline-release-agent-action': { to: `v${newVersion}` }
   };
-  
+
   return {
     dependency: action,
     ...actionUpdates[action],
@@ -89,15 +89,13 @@ function updateGitHubActions(action, newVersion) {
 function updateCircleCI(image, newVersion) {
   // Implementation for updating CircleCI
   // Additional update logic would go here
-  
+
   // Extract image name and current version
-  const versionRegex = /^(.+?):(.+)$/;
-  const versionMatch = image.match(versionRegex);
-  
+  const versionMatch = image.match(/^(.+?):(.+)$/);
   if (versionMatch) {
     const imageName = versionMatch[1];
     const currentVersion = versionMatch[2];
-    
+
     return {
       dependency: imageName,
       from: currentVersion,
@@ -105,7 +103,7 @@ function updateCircleCI(image, newVersion) {
       updated: true
     };
   }
-  
+
   return {
     dependency: image,
     to: newVersion,

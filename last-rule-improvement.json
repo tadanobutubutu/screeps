@@ -1,9 +1,9 @@
 {
   "files": [
-    "utils.logging.js"
+    "main.js"
   ],
   "rules": [
     "Remove console.log"
   ],
-  "timestamp": "2026-08-08T12:19:38.305Z"
+  "timestamp": "2026-08-09T00:41:54.813Z"
 }

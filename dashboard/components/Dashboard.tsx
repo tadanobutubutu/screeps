@@ -111,6 +111,9 @@ export default function Dashboard() {
                 } else if (e.key.toLowerCase() === 's') {
                     e.preventDefault();
                     searchInputRef.current?.focus();
+                } else if (e.key.toLowerCase() === 'd') {
+                    e.preventDefault();
+                    setDetailsOpen((prev) => !prev);
                 }
             }
         };
@@ -812,89 +815,117 @@ export default function Dashboard() {
                           )}
                 </div>
             </div>
-            <details
-                onToggle={(e) => setDetailsOpen((e.target as HTMLDetailsElement).open)}
-                style={{ border: 'none' }}
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '0.5rem',
+                }}
             >
-                <summary
+                <kbd
                     className="interactive-hint"
-                    title="生データを JSON 形式で表示/非表示にします"
-                    aria-label="生データを JSON 形式で表示/非表示にします"
+                    tabIndex={0}
+                    aria-label="キーボードショートカット Alt + D キーで生データの表示・非表示を切り替えられます"
+                    title="Alt + D キーで表示・非表示を切り替えられます"
                     style={{
+                        backgroundColor: '#f7fafc',
+                        border: '1px solid #cbd5e0',
+                        borderRadius: '4px',
+                        padding: '0.1rem 0.4rem',
+                        fontSize: '0.7rem',
                         color: '#4a5568',
-                        padding: '0.2rem 0',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.4rem',
+                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)',
+                        cursor: 'help',
+                        marginTop: '0.15rem',
                     }}
                 >
-                    <span
+                    Alt + D
+                </kbd>
+                <details
+                    open={detailsOpen}
+                    onToggle={(e) => setDetailsOpen((e.target as HTMLDetailsElement).open)}
+                    style={{ border: 'none' }}
+                >
+                    <summary
+                        className="interactive-hint"
+                        title="生データを JSON 形式で表示/非表示にします"
+                        aria-label="生データを JSON 形式で表示/非表示にします"
                         style={{
-                            display: 'inline-block',
-                            transition: 'transform 0.2s ease-in-out',
-                            transform: detailsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                            fontSize: '0.75rem',
+                            color: '#4a5568',
+                            padding: '0.2rem 0',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
                         }}
                     >
-                        ▶
-                    </span>
-                    <span>生データを確認</span>
-                </summary>
-                <div
-                    style={{
-                        marginTop: '0.5rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                    }}
-                >
-                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                        <button
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                copyRawData();
-                            }}
-                            onMouseEnter={() => setJsonHover(true)}
-                            onMouseLeave={() => setJsonHover(false)}
-                            onFocus={() => setJsonHover(true)}
-                            onBlur={() => setJsonHover(false)}
-                            aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
-                            title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                        <span
                             style={{
+                                display: 'inline-block',
+                                transition: 'transform 0.2s ease-in-out',
+                                transform: detailsOpen ? 'rotate(90deg)' : 'rotate(0deg)',
                                 fontSize: '0.75rem',
-                                padding: '0.3rem 0.6rem',
-                                backgroundColor: copiedJson
-                                    ? '#155d27'
-                                    : jsonHover
-                                      ? '#e2e8f0'
-                                      : '#edf2f7',
-                                border: '1px solid #cbd5e0',
-                                borderRadius: '4px',
-                                color: copiedJson ? 'white' : '#4a5568',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s ease-in-out',
-                                transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
-                                boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
                             }}
                         >
-                            {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
-                        </button>
-                    </div>
-                    <pre
+                            ▶
+                        </span>
+                        <span>生データを確認</span>
+                    </summary>
+                    <div
                         style={{
-                            backgroundColor: '#f7fafc',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            margin: 0,
-                            overflow: 'auto',
+                            marginTop: '0.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.5rem',
                         }}
                     >
-                        {JSON.stringify(stats, null, 2)}
-                    </pre>
-                </div>
-            </details>
+                        <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    copyRawData();
+                                }}
+                                onMouseEnter={() => setJsonHover(true)}
+                                onMouseLeave={() => setJsonHover(false)}
+                                onFocus={() => setJsonHover(true)}
+                                onBlur={() => setJsonHover(false)}
+                                aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
+                                title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: '0.3rem 0.6rem',
+                                    backgroundColor: copiedJson
+                                        ? '#155d27'
+                                        : jsonHover
+                                          ? '#e2e8f0'
+                                          : '#edf2f7',
+                                    border: '1px solid #cbd5e0',
+                                    borderRadius: '4px',
+                                    color: copiedJson ? 'white' : '#4a5568',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s ease-in-out',
+                                    transform: jsonHover ? 'scale(1.05)' : 'scale(1)',
+                                    boxShadow: jsonHover ? '0 2px 4px rgba(0,0,0,0.1)' : 'none',
+                                }}
+                            >
+                                {copiedJson ? '✅ コピー済み' : '📋 JSONをコピー'}
+                            </button>
+                        </div>
+                        <pre
+                            style={{
+                                backgroundColor: '#f7fafc',
+                                padding: '1rem',
+                                borderRadius: '4px',
+                                margin: 0,
+                                overflow: 'auto',
+                            }}
+                        >
+                            {JSON.stringify(stats, null, 2)}
+                        </pre>
+                    </div>
+                </details>
+            </div>
             {toastMsg && (
                 <div
                     key={toastMsg}

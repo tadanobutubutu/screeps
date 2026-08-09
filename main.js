@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 // main.js
 // This file contains all the existing functionality while incorporating the dependency updates
 
@@ -155,6 +156,58 @@ function updateNpmPackage(packageName, newVersion) {
 // Existing exports would remain here
 // [PRESERVED EXISTING EXPORTS]
 
+let tasks = [];
+let taskIdCounter = 0;
+
+function addTask(title, priority = 'medium', tags = []) {
+  taskIdCounter++;
+  const task = { id: taskIdCounter, title, priority, tags, completed: false };
+  tasks.push(task);
+  return taskIdCounter;
+}
+
+function clearAllTasks() {
+  tasks = [];
+}
+
+function resetTaskIdCounter() {
+  taskIdCounter = 0;
+}
+
+function getTaskCount() {
+  return tasks.length;
+}
+
+function getTasksSortedByTitle() {
+  return [...tasks].sort((a, b) => a.title.localeCompare(b.title));
+}
+
+function getTasksSortedAlphabetically(asc = true) {
+  return [...tasks].sort((a, b) => {
+    const titleA = a.title.toLowerCase();
+    const titleB = b.title.toLowerCase();
+    if (asc) return titleA.localeCompare(titleB);
+    return titleB.localeCompare(titleA);
+  });
+}
+
+function getIncompleteTasks() {
+  return tasks.filter(t => !t.completed);
+}
+
+function getCompletedTasks() {
+  return tasks.filter(t => t.completed);
+}
+
+function completeTask(id) {
+  const t = tasks.find(x => x.id === id);
+  if (t) t.completed = true;
+}
+
+function removeTask(id) {
+  tasks = tasks.filter(t => t.id !== id);
+}
+
 // New exports for dependency management
 module.exports = {
   // Existing exports...
@@ -168,5 +221,15 @@ module.exports = {
   updatePython,
   updatePnpm,
   updateNpmPackage,
+  addTask,
+  clearAllTasks,
+  resetTaskIdCounter,
+  getTaskCount,
+  getTasksSortedByTitle,
+  getTasksSortedAlphabetically,
+  getIncompleteTasks,
+  getCompletedTasks,
+  completeTask,
+  removeTask,
   // Additional new exports would go here
 };

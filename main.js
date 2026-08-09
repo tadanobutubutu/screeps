@@ -53,7 +53,7 @@ function getDependencyVersions() {
     circleci: CIRCLECI_NODE_VERSION,
     travis: TRAVIS_NODE_VERSION
   };
-}
+};
 
 // [All existing exports remain here]
 // ... (preserve all existing exports and their functionality)

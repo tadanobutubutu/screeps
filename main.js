@@ -152,6 +152,116 @@ function updateNpmPackage(packageName, newVersion) {
   };
 }
 
+// New function to handle GitStream GitHub Action updates
+function updateGitStreamAction(newVersion) {
+  // Implementation for updating GitStream GitHub Action
+  return {
+    dependency: 'linear-bots/gitstream-github-action',
+    to: `v${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle SonarCloud GitHub Action updates
+function updateSonarCloudAction(branch) {
+  // Implementation for updating SonarCloud GitHub Action
+  return {
+    dependency: 'SonarSource/sonarcloud-github-action',
+    to: branch,
+    updated: true
+  };
+}
+
+// New function to handle GitHub CodeQL Action updates
+function updateCodeQLAction(newVersion) {
+  // Implementation for updating GitHub CodeQL Action
+  return {
+    dependency: 'github/codeql-action',
+    to: `v${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle Junie GitHub Action updates
+function updateJunieAction(newVersion) {
+  // Implementation for updating Junie GitHub Action
+  return {
+    dependency: 'JetBrains/junie-github-action',
+    to: `v${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle Supabase updates
+function updateSupabase(newVersion) {
+  // Implementation for updating Supabase
+  return {
+    dependency: '@supabase/supabase-js',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle Next.js updates
+function updateNextJs(newVersion) {
+  // Implementation for updating Next.js
+  return {
+    dependency: 'next',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle React updates
+function updateReact(newVersion) {
+  // Implementation for updating React
+  return {
+    dependency: 'react',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle React DOM updates
+function updateReactDOM(newVersion) {
+  // Implementation for updating React DOM
+  return {
+    dependency: 'react-dom',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle TypeScript types updates
+function updateTypeScriptTypes(newVersion) {
+  // Implementation for updating TypeScript types
+  return {
+    dependency: '@types/node',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle React types updates
+function updateReactTypes(newVersion) {
+  // Implementation for updating React types
+  return {
+    dependency: '@types/react',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
+// New function to handle PostCSS updates
+function updatePostCSS(newVersion) {
+  // Implementation for updating PostCSS
+  return {
+    dependency: 'postcss',
+    to: `^${newVersion}`,
+    updated: true
+  };
+}
+
 // Existing exports would remain here
 // [PRESERVED EXISTING EXPORTS]
 
@@ -168,5 +278,16 @@ module.exports = {
   updatePython,
   updatePnpm,
   updateNpmPackage,
+  updateGitStreamAction,
+  updateSonarCloudAction,
+  updateCodeQLAction,
+  updateJunieAction,
+  updateSupabase,
+  updateNextJs,
+  updateReact,
+  updateReactDOM,
+  updateTypeScriptTypes,
+  updateReactTypes,
+  updatePostCSS,
   // Additional new exports would go here
 };

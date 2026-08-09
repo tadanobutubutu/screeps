@@ -1,9 +1,3 @@
-// Original code
-function myFunction() {
-  // ... some code ...
-}
-
-// Resolved code
 function myFunction() {
   // ... some code ...
   // ... new code from branch HEAD ...

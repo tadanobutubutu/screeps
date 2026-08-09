@@ -37,7 +37,7 @@ function updateGitHubActions(actionName, newVersion) {
 // New function to handle CircleCI updates
 function updateCircleCI(image, newVersion) {
   // Implementation for updating CircleCI
-  // Additional update logic would go here
+  // Additional update logic would go have here
 }
 
 // New function to handle Travis CI updates

@@ -1,27 +1,12 @@
-// Original code
-function myFunction() {
-  // ... some code ...
+// utils.emotions.js
+// ... existing code ...
+
+// Example fix for unterminated string (adjust based on actual code)
+function processEmotions(emotionString) {
+  // Ensure all strings are properly terminated
+  const sanitizedString = emotionString.replace(/([^\\])"/g, '$1\\"');
+
+  // ... rest of the function ...
 }
 
-// Conflicting changes from different branches
-//<<<<<<< HEAD
-function myFunction() {
-  // ... new code from branch HEAD ...
-}
-
-// Conflicting changes from another branch
-//======= other-branch
-function myFunction() {
-  // ... new code from branch other-branch ...
-}
-
-// Resolved code
-function myFunction() {
-  // ... some code ...
-  // ... new code from branch HEAD ...
-  // ... new code from branch other-branch ...
-}
-
-// Fix for the lint error - assuming line 31 had an unexpected dot
-// This is a placeholder - you should replace with the actual fix needed
-// For example, if line 31 was something like "someObject..property", it should be "someObject.property"
+// ... rest of existing code ...

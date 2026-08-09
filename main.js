@@ -12,7 +12,7 @@ function updateNodeVersion(newVersion) {
 }
 
 // New function to handle TypeScript version updates
-function updateTypeScriptVersion(newVersion) {
+function updateTypeScript(newVersion) {
   // Implementation for updating TypeScript version
   console.log(`Updating TypeScript to version ${newVersion}`);
   // Additional update logic would go here
@@ -60,7 +60,7 @@ function updateTravisCI(version) {
 module.exports = {
   // Existing exports...
   updateNodeVersion,
-  updateTypeScriptVersion,
+  updateTypeScript,
   updatePosthogJs,
   updateUndici,
   updateGitHubActions,

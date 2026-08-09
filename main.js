@@ -1,13 +1,1 @@
-// Original code
-function myFunction() {
-  // ... some code ...
-}
-
-// Conflicting changes from different branches resolved:
-// Keeping both branch implementations merged together
-
-function myFunction() {
-  // ... some code from original ...
-  // ... new code from branch HEAD ...
-  // ... new code from branch other-branch ...
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

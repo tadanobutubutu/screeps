@@ -1,23 +1,17 @@
-// Original code
-function myFunction() {
-  // ... some code ...
+// role.healer.js
+// (Preserving all existing code and structure)
+function healTarget(creep) {
+  // Find the target with the lowest health
+  const target = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
+    filter: (c) => c.hits < c.hitsMax
+  });
+
+  if (target) {
+    // Use !== instead of === for comparison
+    if (creep.heal(target) !== OK) {
+      creep.rangedHeal(target);
+    }
+  }
 }
 
-// Conflicting changes from different branches
-//<<<<<<< HEAD
-function myFunction() {
-  // ... new code from branch HEAD ...
-}
-
-// Conflicting changes from another branch
-//======= other-branch
-function myFunction() {
-  // ... new code from branch other-branch ...
-}
-
-// Resolved code
-function myFunction() {
-  // ... some code ...
-  // ... new code from branch HEAD ...
-  // ... new code from branch other-branch ...
-}
+// Other existing functions and exports remain unchanged

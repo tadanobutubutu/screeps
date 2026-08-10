@@ -1,29 +1,38 @@
-// main.js
-// Preserving all existing code and exports as per your requirements
+// utils.tasks.js
+// This file contains task-related utility functions
 
-// Example of existing code that should remain unchanged
-const existingFunction = () => {
-  // Some existing functionality
-};
-
-// Example of new code that would be added for the dependency updates
-const updatedDependencies = {
-  node: '24',
-  undici: '^8.9.0', // Update to the latest version
-  lodash: '^4.18.1',
-  tmp: '^0.2.4',
-  supabase: '^2.112.2'
-};
-
-// Example of new function that might be added for the dependency updates
-function updateDependencies() {
-  // Implementation would go here
-  console.log('Dependencies updated:', updatedDependencies);
+/**
+ * Executes a series of tasks in sequence
+ * @param {Array<Function>} tasks - Array of task functions to execute
+ * @returns {Promise} Resolves when all tasks are complete
+ */
+async function runTasks(tasks) {
+  for (const task of tasks) {
+    await task();
+  }
 }
 
-// Preserving all existing exports
+/**
+ * Creates a new task with the given name and function
+ * @param {string} name - Name of the task
+ * @param {Function} fn - Task function to execute
+ * @returns {Object} Task object
+ */
+function createTask(name, fn) {
+  return {
+    name,
+    execute: fn
+  };
+}
+
+// Example usage:
+// const tasks = [
+//   createTask('task1', async () => { /* task logic */ }),
+//   createTask('task2', async () => { /* task logic */ })
+// ];
+// await runTasks(tasks);
+
 module.exports = {
-  existingFunction,
-  updateDependencies,
-  // All other existing exports should remain here
+  runTasks,
+  createTask
 };

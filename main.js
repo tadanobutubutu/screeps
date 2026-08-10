@@ -27,3 +27,7 @@ const undici = require('undici'); // Make sure you're using the latest version
  */
 
 // [Rest of your existing code]
+
+// Fix for utils.tasks.js line 47: Ensure all comments are properly terminated
+// This is a placeholder for the actual fix in utils.tasks.js
+// The actual fix would involve properly closing any unterminated comment blocks

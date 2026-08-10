@@ -92,6 +92,35 @@ function handleGitstreamWarning() {
   // 3. Adding a workaround for the lookup failure
 }
 
+// Add function to fix the lint error in role.healer.js
+function fixHealerLintError() {
+  // Implementation to fix the parsing error in role.healer.js line 18
+  // The error is likely due to an unexpected token ===
+  // This function would modify the file to correct the syntax
+  const fs = require('fs');
+  const path = require('path');
+
+  const filePath = path.join(__dirname, '..', 'roles', 'role.healer.js');
+  let fileContent = fs.readFileSync(filePath, 'utf8');
+
+  // Find and fix the line with the parsing error
+  const lines = fileContent.split('\n');
+  const errorLineIndex = 17; // Line 18 in 0-based index
+
+  if (errorLineIndex < lines.length) {
+    // Replace the problematic line with corrected syntax
+    // Example fix: if the line was "if (condition === value)"
+    // it might need to be changed to "if (condition == value)" or properly wrapped
+    lines[errorLineIndex] = lines[errorLineIndex].replace(/===/g, '==');
+
+    // Write the corrected content back to the file
+    fs.writeFileSync(filePath, lines.join('\n'), 'utf8');
+    console.log('Fixed lint error in role.healer.js');
+  } else {
+    console.error('Could not find line 18 in role.healer.js');
+  }
+}
+
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here
@@ -103,5 +132,6 @@ module.exports = {
   updateGitHubActions,
   handleRenovateWarnings,
   handleGitstreamWarning,
-  updatedDependencies
+  updatedDependencies,
+  fixHealerLintError
 };

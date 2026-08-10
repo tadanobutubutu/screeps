@@ -4,7 +4,11 @@
 // Add new dependency updates
 const updatedDependencies = {
   typescript: "7.0.0",
-  undici: "8.9.0" // Security update
+  undici: "8.9.0",
+  node: "24",
+  python: "3.14",
+  pnpm: "11",
+  posthogJs: "1.415.0"
 };
 
 // Add function to handle dependency updates, prioritizing security updates
@@ -13,7 +17,6 @@ function applyDependencyUpdates() {
   if (updatedDependencies.undici) {
     console.log(`Updating undici to version ${updatedDependencies.undici} (security update)`);
   }
-
   if (updatedDependencies.typescript) {
     console.log(`Updating typescript to version ${updatedDependencies.typescript}`);
   }
@@ -27,7 +30,7 @@ function checkSecurityVulnerabilities() {
   }
 }
 
-// Add function to manage GitHub actions updates, excluding the blocked PR
+// Add function to manage GitHub actions updates
 function updateGitHubActions() {
   // Implementation for updating GitHub actions
   // Update actions to v7 versions as detected
@@ -39,7 +42,11 @@ function updateGitHubActions() {
   ];
 }
 
-// functionality for handling Renovate warnings about multiple npm lock files remains
+// Add function to handle Renovate warnings
+function handleRenovateWarnings() {
+  // Implementation for Renovate warnings
+  // Handle the deprecated warning about multiple npm lock files
+}
 
 // Preserve all existing exports
 module.exports = {
@@ -50,5 +57,6 @@ module.exports = {
   applyDependencyUpdates,
   checkSecurityVulnerabilities,
   updateGitHubActions,
+  handleRenovateWarnings,
   updatedDependencies
 };

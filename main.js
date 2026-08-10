@@ -66,7 +66,7 @@ function updateGitHubActions() {
   ];
 
   // Update all GitHub Actions to their latest versions
-  actionsToUpdate.forEach(action => {
+  actionsToUpdate.forEach((action) => {
     // Update each action in workflow files
   });
 

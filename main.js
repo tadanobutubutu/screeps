@@ -15,7 +15,7 @@ const updatedDependencies = {
   supabase: '^2.112.2'
 };
 
-// Example of new function that might be added for the dependency updates
+/* Example of new function that might be added for the dependency updates */
 function updateDependencies() {
   // Implementation would go here
   console.log('Dependencies updated:', updatedDependencies);

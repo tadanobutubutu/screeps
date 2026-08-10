@@ -1,14 +1,1 @@
-// tutorial.auto.js
-// This file is auto-generated and should not be manually edited
-// It contains tutorial content for the project
-
-module.exports = {
-  // Example tutorial content structure
-  tutorials: [
-    {
-      id: 'getting-started',
-      title: 'Getting Started',
-      content: 'Welcome to the tutorial!'
-    }
-  ]
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

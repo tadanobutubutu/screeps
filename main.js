@@ -107,7 +107,7 @@ function updateGitHubActions(actionsToUpdate) {
   // Special handling for codeql-action which has a v4 update available
   // Update codeql-action to v4
   console.log('Updating codeql-action to v4');
-  
+
   // Handle other specific actions
   console.log('Updating release-drafter/release-drafter to v7');
   console.log('Updating gitleaks/gitleaks-action to v3');
@@ -121,12 +121,12 @@ function handleRenovateWarnings() {
   // Implementation for handling Renovate warnings
   // Handle the deprecated warning about multiple npm lock files
   console.log('Handling Renovate warnings...');
-  
+
   // Add logic to check for and resolve multiple lock file issues
   // Detect multiple lock files (package-lock.json, yarn.lock, pnpm-lock.yaml)
   // Consolidate to a single lock file manager (preferably pnpm)
   // Remove conflicting lock files
-  
+
   console.log('Resolving multiple npm lock files issue...');
   console.log('Support for multiple npm lock files is deprecated');
   console.log('Consolidating to single lock file format');
@@ -140,10 +140,10 @@ function handleGitstreamWarning() {
   // 1. Updating the action reference
   // 2. Removing the problematic configuration
   // 3. Adding a workaround for the lookup failure
-  
+
   console.log('Handling gitstream.yml warning...');
   console.log('Failed to look up linear-bots/gitstream-github-action');
-  
+
   // Options to resolve:
   // 1. Update to a specific version tag
   // 2. Use a different gitstream action
@@ -160,12 +160,12 @@ function handleJestTestExecution() {
     console.log('Running Jest tests...');
     // This is a placeholder for the actual implementation
     // The exact implementation would depend on the test requirements
-    
+
     // Jest configuration should include:
     // - coverage: true
     // - coverageReporters: ['json', 'lcov', 'text', 'clover']
     // - outputFile: 'test-results/jest-results.json'
-    
+
     return {
       success: true,
       message: 'Jest tests executed successfully'

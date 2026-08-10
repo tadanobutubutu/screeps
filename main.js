@@ -41,6 +41,7 @@ function applyDependencyUpdates() {
 
   // Update posthog-js
   if (updatedDependencies.posthogJs) {
+    // Update package.json
     // Update package.dependencyUpdates
   }
 }
@@ -61,7 +62,9 @@ function updateGitHubActions() {
   const actionsToUpdate = [
     "actions/checkout",
     "actions/setup-node",
-    "actions/setup-python"
+    "actions/setup-python",
+    "actions/cache",
+    "actions/github-script"
   ];
 
   // Update all GitHub Actions to their latest versions

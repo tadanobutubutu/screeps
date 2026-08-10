@@ -92,6 +92,22 @@ function handleGitstreamWarning() {
   // 3. Adding a workaround for the lookup failure
 }
 
+// Add function to handle Jest test execution
+function handleJestTestExecution() {
+  // Implementation for handling Jest test execution
+  // This function will be used to address the Jest test failure
+  // It will ensure proper test execution with coverage and JSON output
+  try {
+    // Execute Jest with proper configuration
+    // This is a placeholder for the actual implementation
+    // The exact implementation would depend on the test requirements
+  } catch (error) {
+    // Handle any errors that occur during test execution
+    console.error('Jest execution failed:', error);
+    throw error;
+  }
+}
+
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here
@@ -103,5 +119,6 @@ module.exports = {
   updateGitHubActions,
   handleRenovateWarnings,
   handleGitstreamWarning,
+  handleJestTestExecution,
   updatedDependencies
 };

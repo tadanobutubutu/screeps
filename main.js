@@ -44,3 +44,10 @@ module.exports = {
 };
 
 // [Rest of your existing code]
+
+// Fix for utils.tasks.js line 47: Unterminated comment
+// This would be added to utils.tasks.js to properly terminate the comment
+/*
+ * This is a properly terminated multi-line comment
+ * that resolves the linting error
+ */

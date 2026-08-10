@@ -17,7 +17,6 @@ const updatedDependencies = {
 
 // Example of new function that might be added for the dependency updates
 function updateDependencies() {
-  console.log('Updating dependencies to latest versions');
   // Implementation would go here
 }
 

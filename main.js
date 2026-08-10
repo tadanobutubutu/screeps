@@ -62,6 +62,8 @@ function updateGitHubActions() {
     "actions/checkout",
     "actions/setup-node",
     "actions/setup-python",
+    "actions/cache",
+    // ... other actions
     "actions/github-script"
   ];
 

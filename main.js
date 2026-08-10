@@ -27,3 +27,16 @@ const undici = require('undici'); // Make sure you're using the latest version
  */
 
 // [Rest of your existing code]
+
+// New function to handle the Jest test failure
+function handleJestTestFailure(error) {
+  console.error('Jest test execution failed:', error);
+  // Add any additional error handling or logging here
+}
+
+// Example usage of the new function
+try {
+  // Your existing test code here
+} catch (error) {
+  handleJestTestFailure(error);
+}

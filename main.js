@@ -61,7 +61,8 @@ function updateGitHubActions() {
   const actionsToUpdate = [
     "actions/checkout",
     "actions/setup-node",
-    "actions/setup-python"
+    "actions/setup-python",
+    "actions/github-script"
   ];
 
   // Update all GitHub Actions to their latest versions

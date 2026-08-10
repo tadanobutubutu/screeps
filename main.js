@@ -1,7 +1,3 @@
-// main.js
-// Preserving all existing code and exports
-
-// Add new dependency updates
 const updatedDependencies = {
   typescript: "7.0.0",
   undici: "8.9.0",
@@ -20,7 +16,7 @@ function applyDependencyUpdates() {
 function checkSecurityVulnerabilities() {
   // Implementation for security checks
   // Check undici for security issues (marked as [security] update)
-  if (updatedDependencies.undichi) {
+  if (updatedDependencies.undici) {
   }
 }
 

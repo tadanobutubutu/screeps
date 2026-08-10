@@ -20,7 +20,7 @@ function applyDependencyUpdates() {
 function checkSecurityVulnerabilities() {
   // Implementation for security checks
   // Check undici for security issues (marked as [security] update)
-  if (updatedDependencies.undici) {
+  if (updatedDependencies.undichi) {
   }
 }
 

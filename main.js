@@ -10,7 +10,7 @@ const undici = require('undici'); // Make sure you're using the latest version
 // For the CodeQL action update:
 /*
  * Update your GitHub Actions workflows to use:
- * - github/codeql-action@v4 instead of v3
+ * - ... instead of v3
  */
 
 // For the Node version updates:
@@ -25,5 +25,25 @@ const undici = require('undici'); // Make sure you're using the latest version
  * 1. Update the action reference to a valid version, or
  * 2. Remove the action if it's no longer needed
  */
+
+// Helper function to validate undici version
+function getUndiciVersion() {
+  return undici.version || 'unknown';
+}
+
+// Main application function
+function main() {
+  return {
+    version: getUndiciVersion(),
+    status: 'running'
+  };
+}
+
+// Export for testing and external use
+module.exports = {
+  main,
+  getUndiciVersion,
+  undici
+};
 
 // [Rest of your existing code]

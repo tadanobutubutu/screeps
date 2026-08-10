@@ -16,15 +16,15 @@ function applyDependencyUpdates() {
   // Implementation for applying dependency updates
   // Update TypeScript to v7
   if (updatedDependencies.typescript) {
-    // Update package.json and related files
+    // Update package. json and related files
   }
 
   // Update undici to v8.9.0
   if (updatedDependencies.undici) {
-    // Update package.json and related files
+    // Update package. json and related files
   }
 
-  // Update Node.js version references
+  // Update Node. js version references
   if (updatedDependencies.node) {
     // Update .circleci, .devcontainer, and other config files
   }
@@ -36,12 +36,12 @@ function applyDependencyUpdates() {
 
   // Update pnpm version
   if (updatedDependencies.pnpm) {
-    // Update pnpm-workspace.yaml and related files
+    // Update pnpm-workspace. yaml and related files
   }
 
-  // Update posthog-js
+  // Update posthog- js
   if (updatedDependencies.posthogJs) {
-    // Update package.json
+    // Update package. json
   }
 }
 
@@ -61,9 +61,7 @@ function updateGitHubActions() {
   const actionsToUpdate = [
     "actions/checkout",
     "actions/setup-node",
-    "actions/setup-python",
-    "actions/upload-artifact",
-    "actions/github-script"
+    "actions/setup-python"
   ];
 
   // Update all GitHub Actions to their latest versions
@@ -72,7 +70,7 @@ function updateGitHubActions() {
   });
 
   // Special handling for codeql-action which has a v4 update available
-  // Update github/codeql-action to v4
+  // Update codeql-action to v4
 }
 
 // Add function to handle Renovate warnings
@@ -82,10 +80,10 @@ function handleRenovateWarnings() {
   // Add logic to check for and resolve multiple lock file issues
 }
 
-// Add function to handle the gitstream.yml warning
+// Add function to handle the gitstream. yml warning
 function handleGitstreamWarning() {
-  // Implementation for handling the gitstream.yml warning
-  // Address the issue with linear-bots/gitstream-github-action
+  // Implementation for handling the gitstream. yml warning
+  // Address the issue with linear- bots/gitstream-github-action
   // This might involve either:
   // 1. Updating the action reference
   // 2. Removing the problematic configuration
@@ -95,7 +93,7 @@ function handleGitstreamWarning() {
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here
-  // ... (all original exports)
+  // all original exports
 
   // Add new exports
   applyDependencyUpdates,

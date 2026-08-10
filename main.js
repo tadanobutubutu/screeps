@@ -27,3 +27,13 @@ const undici = require('undici'); // Make sure you're using the latest version
  */
 
 // [Rest of your existing code]
+
+// Assuming the issue is in role.healer.js and the problem is at line 18
+// We will add the fix here
+
+// Example fix for the issue
+if (condition === true) {
+    // Your code here
+} else {
+    // Your code here
+}

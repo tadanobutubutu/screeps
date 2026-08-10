@@ -234,10 +234,14 @@ function _findPrimaryTarget(creep) {
     let closestTower = null;
     let minTowerDist = Infinity;
 
+    const getX = (obj) => obj && (obj.pos ? obj.pos.x : obj.x) || 0;
+    const getY = (obj) => obj && (obj.pos ? obj.pos.y : obj.y) || 0;
     for (let i = 0; i < needingEnergy.length; i++) {
         const s = needingEnergy[i];
         const type = s.structureType;
-        const dist = creep.pos.getRangeTo(s);
+        const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function')
+            ? creep.pos.getRangeTo(s)
+            : Math.max(Math.abs(getX(creep) - getX(s)), Math.abs(getY(creep) - getY(s)));
 
         // 1. スポーン・エクステンションの優先探索
         if (type === STRUCTURE_SPAWN || type === STRUCTURE_EXTENSION) {

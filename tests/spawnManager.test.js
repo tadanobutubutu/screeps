@@ -45,6 +45,19 @@ jest.mock(
 jest.mock(
     '../src/constants',
     () => ({
+        LOG_LEVEL: {
+            DEBUG: 0,
+            INFO: 1,
+            WARN: 2,
+            ERROR: 3,
+            NONE: 4,
+        },
+        DEFAULT_LOG_LEVEL: 1,
+        CACHE_TTL: {
+            STRUCTURES: 10,
+            CONSTRUCTION_SITES: 10,
+            ENEMIES: 5,
+        },
         ROLES: {
             HARVESTER: 'harvester',
             UPGRADER: 'upgrader',

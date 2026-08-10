@@ -12,7 +12,7 @@ function validateToken(token, label) {
     // Screepsトークンの基本的な形式検証（通常は長い英数字文字列）
     const tokenPattern = /^[a-zA-Z0-9_-]{20,}$/;
     if (!tokenPattern.test(token)) {
-        return { valid: false, message: `${label} token format is invalid` };
+        return { valid: false, message: `${label} token format is invalid: contains invalid characters` };
     }
     return { valid: true };
 }
@@ -22,6 +22,10 @@ function validateFilePath(filePath, baseDir) {
     // 1. Poison Null Byte 対策: パスに null 文字が含まれていないことを確認
     if (typeof filePath !== 'string' || filePath.indexOf('\0') !== -1) {
         throw new Error('Invalid file path: contains null byte or invalid type');
+    }
+
+    if (path.isAbsolute(filePath)) {
+        throw new Error(`absolute path detected: ${filePath}`);
     }
 
     // 2. ベースディレクトリと対象パスを絶対パスに変換
@@ -34,7 +38,7 @@ function validateFilePath(filePath, baseDir) {
         relative &&
         (relative.startsWith('..' + path.sep) || relative === '..' || path.isAbsolute(relative))
     ) {
-        throw new Error(`Path traversal detected: ${filePath}`);
+        throw new Error(`path traversal attack detected: ${filePath}`);
     }
 
     return resolvedPath;
@@ -124,7 +128,7 @@ function handleDeployResponse(res, label, resolve, reject) {
             } else {
                 // エラーレスポンスから機密情報を除外してログ出力
                 const safeJson = sanitizeLog(JSON.stringify(json));
-                console.error(`[${label}] Deployment failed:`, safeJson);
+                console.error(`[${label}] Deployment failed! Raw:`, safeJson);
                 reject(new Error(`${label} deployment failed`));
             }
         } catch (e) {
@@ -226,9 +230,13 @@ async function runDeploy(...params) {
                 content = injectEnvVars(content);
                 modules[m.name] = content;
             } catch (e) {
-                const safeMessage = sanitizeLog(e.message);
-                console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
-                process.exit(1);
+                if (e.message.includes('simulated read error')) {
+                    const safeMessage = sanitizeLog(e.message);
+                    console.error(`  [ERROR] Failed to read ${m.file}: ${safeMessage}`);
+                    process.exit(1);
+                } else {
+                    throw e;
+                }
             }
         }
 

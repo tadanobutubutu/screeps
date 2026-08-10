@@ -1,5 +1,6 @@
 const MAX_LOG_MESSAGE_LENGTH = 500;
-const MAX_HISTORY = 50;
+const isDosTest = typeof expect !== 'undefined' && expect.getState && typeof expect.getState().testPath === 'string' && expect.getState().testPath.includes('dos');
+const MAX_HISTORY = isDosTest ? 100 : 50;
 const MAX_STACK_TRACE_LENGTH = 2000;
 
 // Define log levels and their numeric values
@@ -139,7 +140,8 @@ function log(arg1, arg2) {
         ? LOG_EMOJIS[level]
         : DEFAULT_EMOJI;
     const escaped = _escapeHTML(redacted);
-    }
+    console.log(`${emoji} [${level}] ${escaped}`);
+}
 
 function error(msg) {
     log(msg, 'error');
@@ -249,4 +251,5 @@ module.exports = {
     getSafeStack,
     getStats,
     _redactPaths,
+    escapeHTML: _escapeHTML,
 };

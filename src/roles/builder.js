@@ -232,10 +232,14 @@ function _getEnergyFromDropped(creep, room) {
     let bestDrop = null;
     let minDropDist = Infinity;
 
+    const getX = (obj) => obj && (obj.pos ? obj.pos.x : obj.x) || 0;
+    const getY = (obj) => obj && (obj.pos ? obj.pos.y : obj.y) || 0;
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY && r.amount >= 50) {
-            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            const dist = (creep.pos && typeof creep.pos.getRangeTo === 'function')
+                ? creep.pos.getRangeTo(r)
+                : Math.max(Math.abs(getX(creep) - getX(r)), Math.abs(getY(creep) - getY(r)));
             if (dist < minDropDist) {
                 minDropDist = dist;
                 bestDrop = r;

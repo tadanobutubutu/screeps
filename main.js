@@ -1,29 +1,43 @@
-// main.js
-// [Your existing code here]
+// tutorial.auto.js
+// Automated tutorial configuration and utilities
 
-// Example of how you might handle dependency updates
-// This would be added to your existing codebase
+// Configuration for tutorial automation
+const tutorialConfig = {
+  autoUpdate: true,
+  verbose: false,
+  // Add your tutorial automation settings here
+};
 
-// For the undici vulnerability update:
-const undici = require('undici'); // Make sure you're using the latest version
+// Tutorial state management
+let tutorialState = {
+  currentStep: 0,
+  completed: false,
+};
 
-// For the CodeQL action update:
-/*
- * Update your GitHub Actions workflows to use:
- * - github/codeql-action@v4 instead of v3
- */
+// Function to advance tutorial steps
+function advanceStep() {
+  tutorialState.currentStep += 1;
+  return tutorialState.currentStep;
+}
 
-// For the Node version updates:
-/*
- * Update your devcontainer.json and other config files to use Node 24
- * instead of older versions
- */
+// Function to complete tutorial
+function completeTutorial() {
+  tutorialState.completed = true;
+  return tutorialState;
+}
 
-// For the gitstream.yml issue:
-/*
- * Either:
- * 1. Update the action reference to a valid version, or
- * 2. Remove the action if it's no longer needed
- */
+// Reset tutorial state
+function resetTutorial() {
+  tutorialState.currentStep = 0;
+  tutorialState.completed = false;
+  return tutorialState;
+}
 
-// [Rest of your existing code]
+// Export utilities for testing and external use
+module.exports = {
+  config: tutorialConfig,
+  state: tutorialState,
+  advanceStep,
+  completeTutorial,
+  resetTutorial,
+};

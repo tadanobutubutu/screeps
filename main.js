@@ -46,7 +46,7 @@ function handleRenovateWarnings() {
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here
-  // ... (all original exports)
+  //... (all original exports)
 
   // Add new exports
   applyDependencyUpdates,

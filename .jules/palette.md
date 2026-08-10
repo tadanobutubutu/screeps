@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-11 - [Polished Label focus-within & Hover Feedback]
+**Learning:** Standard interactive inline/native controls (such as checkbox/radio form elements) lack distinct highlight styling on focus or hover. Elevating the parent label element container with transitional background colors and high-contrast `:focus-within` styled focus outlines dramatically improves user discovery, satisfies keyboard-only accessibility requirements (WCAG 2.1.1), and ensures screen readers/focus outline targets are perfectly aligned with visual cues.
+**Action:** When designing checkbox or other standard input toggle controls, wrap the inputs inside responsive `<label>` containers configured to highlight focus/hover state changes elegantly using state-driven/class-driven transitions.
+
 ## 2026-08-10 - [Reconciliation Key forcing for React Transition/Animation Reset]
 **Learning:** In React-based visual notification or transient dialog components, consecutive text updates without a complete unmount of the wrapper container prevent CSS animation keyframes (such as a shrinking progress bar or entry animations) from replaying. Forcing element recreation using a distinct `key` attribute bound directly to the dynamic message content ensures the animation lifecycle is deterministically restarted.
 **Action:** Always assign a unique, message-bound `key` to transient animation wrappers to guarantee consistent visual and motion behavior across consecutive state changes.

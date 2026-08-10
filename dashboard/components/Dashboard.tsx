@@ -13,6 +13,8 @@ export default function Dashboard() {
         [detailsOpen, setDetailsOpen] = useState(false);
 
     const [autoRefresh, setAutoRefresh] = useState(true);
+    const [autoRefreshHover, setAutoRefreshHover] = useState(false);
+    const [autoRefreshFocused, setAutoRefreshFocused] = useState(false);
     const [searchFocused, setSearchFocused] = useState(false);
     const [refreshHover, setRefreshHover] = useState(false);
     const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
@@ -321,6 +323,8 @@ export default function Dashboard() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <label
                             className="auto-refresh-label"
+                            onMouseEnter={() => setAutoRefreshHover(true)}
+                            onMouseLeave={() => setAutoRefreshHover(false)}
                             style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -329,8 +333,16 @@ export default function Dashboard() {
                                 cursor: 'pointer',
                                 color: '#4a5568',
                                 userSelect: 'none',
-                                padding: '0.2rem 0.4rem',
+                                padding: '0.25rem 0.5rem',
                                 borderRadius: '4px',
+                                transition: 'all 0.2s ease-in-out',
+                                backgroundColor: autoRefreshFocused
+                                    ? 'rgba(0, 75, 115, 0.1)'
+                                    : autoRefreshHover
+                                      ? '#edf2f7'
+                                      : 'transparent',
+                                outline: autoRefreshFocused ? '2px solid #004b73' : 'none',
+                                outlineOffset: '1px',
                             }}
                             title="60秒ごとに自動でデータを更新します"
                         >
@@ -338,6 +350,8 @@ export default function Dashboard() {
                                 type="checkbox"
                                 checked={autoRefresh}
                                 onChange={(e) => setAutoRefresh(e.target.checked)}
+                                onFocus={() => setAutoRefreshFocused(true)}
+                                onBlur={() => setAutoRefreshFocused(false)}
                                 style={{
                                     cursor: 'pointer',
                                     accentColor: '#004b73',

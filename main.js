@@ -61,9 +61,7 @@ function updateGitHubActions() {
   const actionsToUpdate = [
     "actions/checkout",
     "actions/setup-node",
-    "actions/setup-python",
-    "actions/upload-artifact",
-    "actions/github-script"
+    "actions/setup-python"
   ];
 
   // Update all GitHub Actions to their latest versions
@@ -72,7 +70,7 @@ function updateGitHubActions() {
   });
 
   // Special handling for codeql-action which has a v4 update available
-  // Update github/codeql-action to v4
+  // Update codeql-action to v4
 }
 
 // Add function to handle Renovate warnings

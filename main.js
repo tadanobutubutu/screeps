@@ -1,29 +1,13 @@
 // main.js
 // [Existing code above conflict markers]
 
-// ===== Conflict Resolution Section =====
-// [Preserve all existing code and exports]
-// [Add new functions or changes requested in the issue]
-
-// Example of how to handle conflicts:
-// <<<<<<< HEAD
-// Existing code
-// =======
-// New code from Renovate
-// >>>>>>> renovate/dependency-update
-
-// [Ensure all existing exports remain unchanged]
-// [Add any new required imports or dependencies]
-
-// ===== End of Conflict Resolution =====
-
-// [Rest of existing code below conflict markers]
+// ===== Dependency and Security Update Utilities =====
 
 // Add function to apply dependency updates
 function applyDependencyUpdates(updatedDependencies) {
   // Update Python version references
   if (updatedDependencies.python) {
-    // Update.devcontainer and workflow files
+    // Update .devcontainer and workflow files
   }
 
   // Update pnpm version
@@ -33,7 +17,7 @@ function applyDependencyUpdates(updatedDependencies) {
 
   // Update posthog-js
   if (updatedDependencies.posthogJs) {
-    // Update package..json
+    // Update package.json
   }
 }
 
@@ -99,6 +83,8 @@ function handleJestTestExecution() {
     throw error;
   }
 }
+
+// [Rest of existing code below conflict markers]
 
 // Preserve all existing exports
 module.exports = {

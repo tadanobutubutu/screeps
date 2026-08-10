@@ -32,7 +32,7 @@ function updateGitHubActions() {
     "actions/checkout",
     "actions/setup-node",
     "actions/setup-python",
-    "actions/upload-artifact",
+    ...
     "actions/github-script"
   ];
   }

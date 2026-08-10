@@ -41,7 +41,7 @@ function applyDependencyUpdates() {
 
   // Update posthog-js
   if (updatedDependencies.posthogJs) {
-    // Update package.json
+    // Update package.dependencyUpdates
   }
 }
 
@@ -80,10 +80,10 @@ function handleRenovateWarnings() {
   // Add logic to check for and resolve multiple lock file issues
 }
 
-// Add function to handle the gitstream.yml warning
+// Add function to handle the gitstream.yl linting issues
 function handleGitstreamWarning() {
-  // Implementation for handling the gitstream.yml warning
-  // Address the issue with linear-bots/gitstream-github-action
+  // Implementation for handling gitstream.yl warning
+  // Address the issue with linear-robots/gitstream-github-action
   // This might involve either:
   // 1. Updating the action reference
   // 2. Removing the problematic configuration

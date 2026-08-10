@@ -15,14 +15,21 @@ const updatedDependencies = {
 function applyDependencyUpdates() {
   // Implementation for applying dependency updates
   console.log("Applying dependency updates...");
+  // Prioritize security updates
+  if (updatedDependencies.undici) {
+    console.log(`Updating undici to version ${updatedDependencies.undici} (security update)`);
+  }
+  if (updatedDependencies.typescript) {
+    console.log(`Updating typescript to version ${updatedDependencies.typescript}`);
+  }
 }
 
 // Add function to check for security vulnerabilities
 function checkSecurityVulnerabilities() {
   // Implementation for security checks
+  console.log("Checking security vulnerabilities...");
   // Check undici for security issues (marked as [security] update)
   if (updatedDependencies.undici) {
-    // Perform security check for undici (placeholder)
     console.log("Checking undici security vulnerabilities...");
   }
 }

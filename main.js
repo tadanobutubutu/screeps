@@ -1,3 +1,5 @@
+window.__Screeps = {};
+
 // main.js
 // Preserving all existing code and exports
 

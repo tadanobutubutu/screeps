@@ -15,16 +15,16 @@ function applyDependencyUpdates(updatedDependencies) {
 
   // Update pnpm version
   if (updatedDependencies.pnpm) {
-    // Update pnpm-workspace.yaml and related files
+    // Update pnpm-workspace..yaml and related files
     console.log('Updating pnpm to version:', updatedDependencies.pnpm);
     // Update pnpm-workspace.yaml
     // Update workflow files with pnpm version
   }
 
   // Update posthog-js
-  if (updatedDependencies.posthogJs) {
+  if (updatedDependencies.posthog) {
     // Update package.json
-    console.log('Updating posthog-js to:', updatedDependencies.posthogJs);
+    console.log('Updating posthog-js to:', updatedDependencies.posthog);
     // Update package.json dependencies
   }
 
@@ -83,7 +83,7 @@ function checkSecurityVulnerabilities(dependencies) {
 }
 
 // Add function to manage GitHub actions updates
-function updateGitHubActions(actionsToUpdate) {
+function updateGitHubActions() {
   // Implementation for updating GitHub actions
   // Update actions to v7 versions as detected
   const actionsToUpdateList = [
@@ -91,8 +91,9 @@ function updateGitHubActions(actionsToUpdate) {
     "actions/setup-node",
     "actions/setup-python",
     "actions/cache",
-    "actions/github-script",
     "actions/upload-artifact",
+    "actions/download-artifact",
+    "actions/github-script",
     "actions/labeler",
     "actions/first-interaction",
     "actions/stale"
@@ -142,7 +143,7 @@ function handleGitstreamWarning() {
   // 3. Adding a workaround for the lookup failure
 
   console.log('Handling gitstream.yml warning...');
-  console.log('Failed to look up linear-bots/gitstream-github-action');
+  console.log('Failed to look up linear-bots/gitstream-github-action package');
 
   // Options to resolve:
   // 1. Update to a specific version tag

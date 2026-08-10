@@ -14,7 +14,7 @@ const updatedDependencies = {
 // Add function to handle dependency updates
 function applyDependencyUpdates() {
   // Implementation for applying dependency updates
-  }
+}
 
 // Add function to check for security vulnerabilities
 function checkSecurityVulnerabilities() {
@@ -35,13 +35,13 @@ function updateGitHubActions() {
     "actions/upload-artifact",
     "actions/github-script"
   ];
-  }
+}
 
 // Add function to handle Renovate warnings
 function handleRenovateWarnings() {
   // Implementation for handling Renovate warnings
   // Handle the deprecated warning about multiple npm lock files
-  }
+}
 
 // Preserve all existing exports
 module.exports = {

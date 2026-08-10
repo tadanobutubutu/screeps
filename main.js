@@ -10,7 +10,7 @@ const undici = require('undici'); // Make sure you're using the latest version
 // For the CodeQL action update:
 /*
  * Update your GitHub Actions workflows to use:
- * - github/codeql-action@v4 instead of v3
+ * - ... instead of v3
  */
 
 // For the Node version updates:
@@ -26,4 +26,13 @@ const undici = require('undici'); // Make sure you're using the latest version
  * 2. Remove the action if it's no longer needed
  */
 
+// Import room manager module
+const roomManager = require('./src/managers/roomManager');
+
 // [Rest of your existing code]
+
+// Export room manager for use in other modules
+module.exports = {
+  roomManager,
+  undici
+};

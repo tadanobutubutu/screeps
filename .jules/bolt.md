@@ -1,15 +1,1 @@
-2024-05-24
-
-## ⚡ Bolt: Centralize cache logic in role.attacker.js
-
-💡 What (optimization)
-Replaced scattered inline cache fallback logic with calls to the centralized `src/utils/cache.js` manager in `role.attacker.js`.
-
-🎯 Why (problem solved)
-Scattered inline `room.find` calls when the `room._myCreeps` object wasn't warmed up wasted CPU cycles, especially since those calls didn't actually populate a reusable cache structure for subsequent calls in the same tick. The centralized cache manager abstracts these lookups and guarantees the data is both saved to the cache upon generation and properly TTL'd.
-
-📊 Impact (expected performance improvement)
-Benchmark execution time on simulated ticks decreased by >50% (from 302ms down to 129ms per 100,000 tick evaluations), representing a huge CPU reduction under heavy loop conditions.
-
-🧪 Measurement (how to verify)
-Measure tick completion times with multiple attackers spawned, or run the created local micro-benchmark. Verify behavior using `npm test tests/role.attacker.test.js`.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0001 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-11T19:27:10.918Z"},"status":402}}

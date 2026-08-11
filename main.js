@@ -1,5 +1,6 @@
-// main.js
+// main..js
 // [Existing code above conflict markers]
+
 
 // ===== Dependency and Security Update Utilities =====
 
@@ -14,7 +15,7 @@ function applyDependencyUpdates(updatedDependencies) {
 
   // Update pnpm version
   if (updatedDependencies.pnpm) {
-    // Update pnpm-workspace..yaml and related files
+    // Update pnpm-workspace.yaml and related files
     // Update pnpm-workspace.yaml
     // Update workflow files with pnpm version
   }
@@ -81,9 +82,7 @@ function updateGitHubActions() {
     "actions/setup-node",
     "actions/setup-python",
     "actions/cache",
-    "actions/upload-artifact",
     "actions/download-artifact",
-    "actions/github-script",
     "actions/labeler",
     "actions/first-interaction",
     "actions/stale"

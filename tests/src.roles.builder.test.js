@@ -36,9 +36,9 @@ const mockCache = {
     invalidate: jest.fn(),
 };
 
-jest.mock('../../../src/utils/cache', () => mockCache, { virtual: true });
+jest.mock('../src/utils/cache', () => mockCache, { virtual: true });
 jest.mock(
-    '../../../src/utils/pathfinder',
+    '../src/utils/pathfinder',
     () => ({
         moveTo: jest.fn(),
         closest: jest.fn(),
@@ -46,7 +46,7 @@ jest.mock(
     { virtual: true }
 );
 jest.mock(
-    '../../../src/utils/logger',
+    '../src/utils/logger',
     () => ({
         info: jest.fn(),
         warn: jest.fn(),
@@ -55,15 +55,15 @@ jest.mock(
     { virtual: true }
 );
 jest.mock(
-    '../../../src/constants',
+    '../src/constants',
     () => ({
         MEMORY_KEYS: { WORKING: 'working', TARGET_ID: 'targetId' },
     }),
     { virtual: true }
 );
 
-const pathfinder = require('../../../src/utils/pathfinder');
-const builder = require('../../../src/roles/builder');
+const pathfinder = require('../src/utils/pathfinder');
+const builder = require('../src/roles/builder');
 
 describe('src/roles/builder', () => {
     beforeEach(() => {

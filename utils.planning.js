@@ -55,26 +55,19 @@ module.exports = {
         let bestPos = null;
         let bestScore = Infinity;
 
-        for (let i = 0; i < openSpaces.length; i++) {
-            const space = openSpaces[i];
+        openSpaces.forEach((space) => {
             const pos = new RoomPosition(space.x, space.y, room.name);
 
             // Calculate distance score (lower is better)
             const controllerDist = pos.getRangeTo(controller);
-            let sourceDist = Infinity;
-            for (let j = 0; j < sources.length; j++) {
-                const dist = pos.getRangeTo(sources[j]);
-                if (dist < sourceDist) {
-                    sourceDist = dist;
-                }
-            }
+            const sourceDist = Math.min(...sources.map((s) => pos.getRangeTo(s)));
             const score = controllerDist * 2 + sourceDist;
 
             if (score < bestScore) {
                 bestScore = score;
                 bestPos = pos;
             }
-        }
+        });
 
         return bestPos;
     },

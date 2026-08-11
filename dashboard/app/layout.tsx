@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               transition: none !important;
             }
           }
-          button:focus-visible, kbd:focus-visible {
+          button:focus-visible, kbd:focus-visible, pre:focus-visible {
             outline: 2px solid #004b73;
             outline-offset: 2px;
           }

@@ -26,15 +26,6 @@ function getDependencyDashboard() {
   };
 }
 
-// Add new function to existing exports
-module.exports = {
-  // ... all existing exports preserved
-  getDependencyDashboard, // New export added
-  // ... any other existing exports
-  app,
-  handleRenovateUpdates,
-};
-
 // New function to handle Renovate updates
 function handleRenovateUpdates() {
   // Implementation for handling Renovate updates
@@ -44,4 +35,12 @@ function handleRenovateUpdates() {
   };
 }
 
-// Preserve all existing code and only add new functionality
+// Merge exports: keep all existing exports and add new ones
+module.exports = {
+  // ... all existing exports preserved
+  getDependencyDashboard,
+  // ... any other existing exports
+  app,
+  handleRenovateUpdates,
+  // ... any other existing exports
+};

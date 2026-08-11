@@ -1042,5 +1042,77 @@ describe('src/roles/miner', () => {
             // getTerrain should not have been called a second time because of the cache!
             expect(roomMock.getTerrain).toHaveBeenCalledTimes(1);
         });
+
+        test('_findBestSource covers unsafe key branch AND empty sources coverage', () => {
+            const source1 = { id: 'unsafe_s', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            const source2 = { id: 'safe_s', room: roomMock, pos: new RoomPosition(10, 10, 'W0N0') };
+
+            let callCount = 0;
+            cache.getSources.mockImplementation(() => {
+                callCount++;
+                if (callCount === 1) {
+                    return [source1, source2];
+                }
+                return []; // force sources.length to be 0 on fallback if somehow called again
+            });
+            const mockTerrain = {
+                get: jest.fn().mockReturnValue(0), // all spots free
+            };
+            roomMock.getTerrain.mockReturnValue(mockTerrain);
+
+            const creeps = [
+                { memory: { role: 'miner', sourceId: 'unsafe_s' } }
+            ];
+            cache.getMyCreeps.mockReturnValue(creeps);
+
+            // source1 is unsafe, source2 is safe
+            cache.isSafeKey.mockImplementation(id => id === 'safe_s');
+
+            global.Game.getObjectById.mockReturnValue(null);
+
+            const creep = {
+                name: 'miner_unsafe_test',
+                memory: {},
+                room: roomMock,
+                pos: new RoomPosition(0, 0, 'W0N0'),
+                harvest: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            miner.run(creep);
+            expect(creep.memory.sourceId).toBe('unsafe_s');
+        });
+
+        test('_mineToContainer covers unknown harvest result branch', () => {
+            const source = { id: 'src_unknown', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            global.Game.getObjectById.mockReturnValue(source);
+
+            const container = {
+                structureType: global.STRUCTURE_CONTAINER,
+                pos: new RoomPosition(5, 5, 'W0N0'),
+                hits: 100,
+                hitsMax: 100,
+            };
+            source.pos.getRangeTo = jest.fn().mockReturnValue(1);
+
+            cache.getContainers.mockReturnValue([container]);
+            cache.getSources.mockReturnValue([source]);
+
+            const creep = {
+                name: 'miner_unknown_harvest',
+                memory: { sourceId: 'src_unknown' },
+                room: roomMock,
+                pos: new RoomPosition(5, 5, 'W0N0'),
+                harvest: jest.fn().mockReturnValue(-15), // Unknown error code
+                repair: jest.fn(),
+                say: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            miner.run(creep);
+            expect(creep.harvest).toHaveBeenCalledWith(source);
+            expect(creep.repair).not.toHaveBeenCalled();
+            expect(creep.say).not.toHaveBeenCalled();
+        });
     });
 });

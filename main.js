@@ -16,16 +16,17 @@ function getDependencyDashboard() {
   };
 }
 
-// Add new function to existing exports
-module.exports = {
-  // ... all existing exports preserved
-  getDependencyDashboard, // New export added
-  // ... any other existing exports
-};
-
 // New function to handle Renovate updates
 function handleRenovateUpdates() {
   // Implementation for handling Renovate updates
 }
 
-// Preserve all existing code and only add new functionality
+// Add new functions to existing exports
+module.exports = {
+  // ... all existing exports preserved
+  getDependencyDashboard, // New export added
+  handleRenovateUpdates, // Added from origin/main
+  // ... any other existing exports
+};
+
+// Preserve all existing code and add new functionality

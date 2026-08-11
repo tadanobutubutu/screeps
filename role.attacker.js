@@ -87,9 +87,13 @@ const roleAttacker = {
         if (hostileStructure === undefined || hostileStructure === null) {
             let hostileStructures;
             const allStructures = cache.getStructures(creep.room);
-            hostileStructures = allStructures.filter(
-                (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
-            );
+            if (allStructures) {
+                hostileStructures = allStructures.filter(
+                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
+                );
+            } else {
+                hostileStructures = [];
+            }
 
             hostileStructure = creep.pos.findClosestByRange(hostileStructures);
 

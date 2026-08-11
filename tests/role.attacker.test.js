@@ -11,6 +11,7 @@ global.ERR_NOT_IN_RANGE = -9;
 global.FIND_MY_CREEPS = 1;
 global.FIND_HOSTILE_CREEPS = 2;
 global.FIND_HOSTILE_STRUCTURES = 3;
+global.FIND_STRUCTURES = 104;
 global.HEAL = 'heal';
 global.STRUCTURE_INVADER_CORE = 'invaderCore';
 global.STRUCTURE_TOWER = 'tower';
@@ -95,9 +96,12 @@ describe('role.attacker', () => {
     test('Priority 2: Attack hostile structures in range', () => {
         const hostileStructure = { structureType: global.STRUCTURE_TOWER };
         mockCreep.room.find.mockReturnValue([hostileStructure]);
+
+        // mock cache.getStructures to return array and filter it
+        const cache = require('../src/utils/cache');
+        jest.spyOn(cache, 'getStructures').mockReturnValue([hostileStructure]);
+
         mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
-            if (type === global.FIND_HOSTILE_STRUCTURES && opts.filter(hostileStructure))
-                return hostileStructure;
             if (Array.isArray(type) && type.includes(hostileStructure)) return hostileStructure;
             return null;
         });
@@ -112,9 +116,12 @@ describe('role.attacker', () => {
         const hostileStructure = { structureType: global.STRUCTURE_SPAWN };
         mockCreep.room.find.mockReturnValue([hostileStructure]);
         mockCreep.attack.mockReturnValue(global.ERR_NOT_IN_RANGE);
+
+        // mock cache.getStructures to return array and filter it
+        const cache = require('../src/utils/cache');
+        jest.spyOn(cache, 'getStructures').mockReturnValue([hostileStructure]);
+
         mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
-            if (type === global.FIND_HOSTILE_STRUCTURES && opts.filter(hostileStructure))
-                return hostileStructure;
             if (Array.isArray(type) && type.includes(hostileStructure)) return hostileStructure;
             return null;
         });

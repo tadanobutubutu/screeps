@@ -92,12 +92,13 @@ function updateGitHubActions() {
   // Update all GitHub Actions to their latest versions
   actionsToUpdateList.forEach(action => {
     // Update each action in workflow files
-    });
+    // Add the necessary code to update the actions
+  });
 
   // Special handling for codeql-action which has a v4 update available
   // Update codeql-action to v4
   // Handle other specific actions
-  }
+}
 
 // Add function to handle Renovate warnings
 function handleRenovateWarnings() {
@@ -107,8 +108,7 @@ function handleRenovateWarnings() {
   // Detect multiple lock files (package-lock.json, yarn.lock, pnpm-lock.yaml)
   // Consolidate to a single lock file manager (preferably pnpm)
   // Remove conflicting lock files
-
-  }
+}
 
 // Add function to handle the gitstream.yml warning
 function handleGitstreamWarning() {
@@ -154,7 +154,7 @@ function handleJestTestExecution() {
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here
-  //... (all original exports)
+  // ... (all original exports)
 
   // Add new exports
   applyDependencyUpdates,

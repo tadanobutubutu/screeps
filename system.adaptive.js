@@ -1,7 +1,11 @@
 // system.adaptive.js
 // Merge conflicts resolved – current branch version retained
 
-export default class SystemAdaptive {
+class SystemAdaptive {
+    static isEnabled() {
+        return true;
+    }
+
     constructor(options = {}) {
         this.options = options;
     }
@@ -15,3 +19,7 @@ export default class SystemAdaptive {
         return this.options;
     }
 }
+
+module.exports = { SystemAdaptive };
+
+module.exports.isEnabled = () => true;

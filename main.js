@@ -31,7 +31,7 @@ function applyDependencyUpdates(updatedDependencies) {
   }
 
   // Update @sentry/browser
-  if (updatedDependencies.sentryBrowser) {
+  if (updatedDependencies['@sentry/browser']) {
     // Update package.json dependencies
   }
 
@@ -81,9 +81,7 @@ function updateGitHubActions() {
     "actions/setup-node",
     "actions/setup-python",
     "actions/cache",
-    "actions/upload-artifact",
     "actions/download-artifact",
-    "actions/github-script",
     "actions/labeler",
     "actions/first-interaction",
     "actions/stale"

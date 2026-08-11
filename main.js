@@ -22,26 +22,6 @@ function processEmotion(emotion) {
 
 // Room Manager Module
 // Handles room creation, management, and deletion
-
-const emotionString = "This is a properly terminated string";
-
-// Tutorial automation functions
-function getNextStep(userId) {
-  return tutorialData.getNextStep(userId);
-}
-
-function completeStep(userId, stepId) {
-  return tutorialData.completeStep(userId, stepId);
-}
-
-function getProgress(userId) {
-  return tutorialData.getProgress(userId);
-}
-
-function resetTutorial(userId) {
-  return tutorialData.resetTutorial(userId);
-}
-
 const rooms = new Map();
 
 const DEFAULT_OPTIONS = {
@@ -119,6 +99,25 @@ function getRoomCount() {
 
 function clearAllRooms() {
   rooms.clear();
+}
+
+// Tutorial automation functions
+const emotionString = "This is a properly terminated string";
+
+function getNextStep(userId) {
+  return tutorialData.getNextStep(userId);
+}
+
+function completeStep(userId, stepId) {
+  return tutorialData.completeStep(userId, stepId);
+}
+
+function getProgress(userId) {
+  return tutorialData.getProgress(userId);
+}
+
+function resetTutorial(userId) {
+  return tutorialData.resetTutorial(userId);
 }
 
 // Export the combined API

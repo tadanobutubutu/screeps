@@ -35,6 +35,11 @@ const Sentry = require('@sentry/browser');
 // Fixed version:
 /* This is a comment that was properly terminated */
 
+// Ensure all exports are properly defined
+const roomManager = require('./roomManager');
+const testRandomFunction = require('./testRandomFunction');
+const tutorial = require('./tutorial');
+
 module.exports = {
   existingFunction,
   // other exports

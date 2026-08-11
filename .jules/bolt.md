@@ -1,4 +1,1 @@
-💡 What: Refactored role.attacker.js to use the unified cache manager for hostile creeps instead of falling back to a direct room.find query.
-🎯 Why: Reduces CPU usage by eliminating redundant find(FIND_HOSTILE_CREEPS) queries when multiple attacker creeps evaluate targets in the same tick.
-📊 Impact: Baseline measurement showed ~28ms for 10,000 runs, optimized measurement utilizing cache.getEnemies showed ~11ms. (Over 50% CPU reduction on target lookup).
-🧪 Measurement: Ran localized mock benchmark script comparing inline fallback logic vs cache.getEnemies() integration.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0002 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-11T18:51:46.778Z"},"status":402}}

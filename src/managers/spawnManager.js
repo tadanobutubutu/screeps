@@ -1,3 +1,4 @@
+const ErrorHandler = require('../utils/ErrorHandler');
 /**
  * src/managers/spawnManager.js
  * クリープスポーン管理モジュール
@@ -75,7 +76,7 @@ function run(spawn) {
             }
         }
     } catch (e) {
-        logger.error('[SpawnManager] スポーンエラー', e);
+        ErrorHandler.logError(e, `Spawn ${spawn.name} operation`);
     }
 }
 

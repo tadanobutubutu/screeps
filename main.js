@@ -1,3 +1,8 @@
+const tutorialData = require('./tutorial.data');
+
+// utils.tasks.js
+// [Preserve all existing code above line 47]
+
 // utils.emotions.js
 // ... (all existing code before line 389)
 
@@ -17,7 +22,6 @@ function processEmotion(emotion) {
 
 // Room Manager Module
 // Handles room creation, management, and deletion
-
 const rooms = new Map();
 
 const DEFAULT_OPTIONS = {
@@ -97,7 +101,33 @@ function clearAllRooms() {
   rooms.clear();
 }
 
+// Tutorial automation functions
+const emotionString = "This is a properly terminated string";
+
+function getNextStep(userId) {
+  return tutorialData.getNextStep(userId);
+}
+
+function completeStep(userId, stepId) {
+  return tutorialData.completeStep(userId, stepId);
+}
+
+function getProgress(userId) {
+  return tutorialData.getProgress(userId);
+}
+
+function resetTutorial(userId) {
+  return tutorialData.resetTutorial(userId);
+}
+
+// Export the combined API
 module.exports = {
+  getNextStep,
+  completeStep,
+  getProgress,
+  resetTutorial,
+  someExistingFunction,
+  emotionString,
   Room,
   createRoom,
   getRoom,
@@ -106,4 +136,4 @@ module.exports = {
   getAllRooms,
   getRoomCount,
   clearAllRooms
-}
+};

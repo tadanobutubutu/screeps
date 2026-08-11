@@ -92,3 +92,4 @@
 
 **Learning:** Periodically scanning the surrounding terrain coordinates of a source to determine the available mining spots (or terrain wall tiles) on every miner assignment loop introduces redundant CPU and lookup overhead. Since the map terrain and source coordinates are completely static, caching this calculated count per source ID avoids redundant `getTerrain()` calls.
 **Action:** Implemented a persistent module-level dictionary (`_miningSpotsCache`) inside `src/roles/miner.js` to cache the mining spot counts.
+- 2025-02-12: Optimized array allocations in `utils.planning.js:findBestSpawnPosition`. By replacing `openSpaces.forEach` and `Math.min(...sources.map())` with standard nested `for` loops, we avoid unnecessary closure and array allocations on every iteration, leading to a measurably faster execution inside the hot path.

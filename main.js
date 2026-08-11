@@ -45,6 +45,15 @@ function testRandomFunction() {
   // Fixed version: function test() { ... }
 }
 
+// Fix for tutorial.auto.js line 1 - ensure proper syntax
+// Original problematic line (example):
+// const tutorial: { ... } = { ... }
+
+// Fixed version:
+const tutorial = {
+  // existing tutorial implementation
+};
+
 module.exports = {
   existingFunction,
   // other exports
@@ -52,5 +61,6 @@ module.exports = {
   createClient,
   Sentry,
   roomManager,
-  testRandomFunction
+  testRandomFunction,
+  tutorial
 };

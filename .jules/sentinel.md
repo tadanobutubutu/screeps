@@ -1,4 +1,13 @@
-## 2026-08-11 - [Harden Console Logging Output and Prototype Pollution Protection]
-**Vulnerability:** The console logger was missing the actual output execution line (`console.log`), resulting in silent failure where sanitized, redacted, and HTML-escaped logs were not printed. This crippled security logging visibility, making it impossible to audit potential console injection attacks or log-based information disclosure.
-**Learning:** Over-reliance on regex redaction and sanitization blocks can occasionally result in developers or automated tools accidentally stripping or omitting final output sinks during refactoring.
-**Prevention:** Always cover core logging behaviors with regression tests that explicitly assert console output is printed with correct arguments (including safe emoji and escaped strings), and prevent prototype pollution by creating the lookup maps using `Object.create(null)` to bypass standard object inheritance.
+## 2024-05-27
+
+*   **Task:** Fix Command Injection via `execSync` in `scripts/check_repo_health.js`
+*   **Context:** `scripts/check_repo_health.js` was using `child_process.execSync` to run `eslint` and `jest` commands via `npx` and package manager binaries. The command string was constructed using template literals, which can lead to shell injection if any part of the constructed string is user-controlled.
+*   **Vulnerability:** Command Injection. An attacker could potentially inject arbitrary shell commands if they can control the inputs that construct the `command` string passed to `execSync`.
+*   **Severity:** High
+*   **Impact:** Arbitrary code execution on the host machine running the health check script. This could lead to a full system compromise.
+*   **Fix:**
+    1.  Replaced `execSync` with `execFileSync`.
+    2.  Modified the `runCommand` function to accept `command` and an array of `args` instead of a single concatenated string.
+    3.  Updated the calls to `runCommand` for both ESLint and Jest to explicitly separate the executable and its arguments.
+    4.  Handled cross-platform execution on Windows by appending `.cmd` to `npx` and the package manager executable when running via `execFileSync`.
+*   **Verification:** Ran `pnpm test` and `git diff` to ensure functionality is retained and the vulnerability is mitigated.

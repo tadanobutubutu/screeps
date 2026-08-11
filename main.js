@@ -1,11 +1,1 @@
-// test_random.js
-const { randomFunction } = require('../main.js');
-
-describe('randomFunction', () => {
-  it('should return a random number', () => {
-    const result = randomFunction();
-    expect(typeof result).toBe('number');
-  });
-
-  // Add more test cases as needed
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

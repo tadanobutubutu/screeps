@@ -1,18 +1,1 @@
-// main.js - Main application entry point
-// This is a placeholder structure
-
-const someFunction = () => {
-  return 'Hello World';
-};
-
-const anotherFunction = (param) => {
-  if (!param) {
-    throw new Error('Parameter required');
-  }
-  return param * 2;
-};
-
-module.exports = {
-  someFunction,
-  anotherFunction
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

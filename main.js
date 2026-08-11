@@ -14,7 +14,7 @@ function applyDependencyUpdates(updatedDependencies) {
 
   // Update pnpm version
   if (updatedDependencies.pnpm) {
-    // Update pnpm-workspace..yaml and related files
+    // Update pnpm-workspace.yaml and related files
     // Update pnpm-workspace.yaml
     // Update workflow files with pnpm version
   }
@@ -31,7 +31,7 @@ function applyDependencyUpdates(updatedDependencies) {
   }
 
   // Update @sentry/browser
-  if (updatedDependencies.sentryBrowser) {
+  if (updatedDependencies['@sentry/browser']) {
     // Update package.json dependencies
   }
 
@@ -76,21 +76,20 @@ function checkSecurityVulnerabilities(dependencies) {
 function updateGitHubActions() {
   // Implementation for updating GitHub actions
   // Update actions to v7 versions as detected
-  const actionsToUpdateList = [
+  const actionsToUpdate = [
     "actions/checkout",
     "actions/setup-node",
     "actions/setup-python",
     "actions/cache",
     "actions/upload-artifact",
     "actions/download-artifact",
-    "actions/github-script",
     "actions/labeler",
     "actions/first-interaction",
     "actions/stale"
   ];
 
   // Update all GitHub Actions to their latest versions
-  actionsToUpdateList.forEach(action => {
+  actionsToUpdate.forEach(action => {
     // Update each action in workflow files
     // Add the necessary code to update the actions
   });

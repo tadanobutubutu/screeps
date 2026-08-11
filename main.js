@@ -31,7 +31,7 @@ function applyDependencyUpdates(updatedDependencies) {
   }
 
   // Update @sentry/browser
-  if (updatedDependencies.sentryBrowser) {
+  if (updatedDependencies.sentry) {
     // Update package.json dependencies
   }
 
@@ -73,7 +73,7 @@ function checkSecurityVulnerabilities(dependencies) {
 }
 
 // Add function to manage GitHub actions updates
-function updateGitHubActions() {
+function updateGitHubActions(actionsToUpdate) {
   // Implementation for updating GitHub actions
   // Update actions to v7 versions as detected
   const actionsToUpdateList = [
@@ -83,14 +83,13 @@ function updateGitHubActions() {
     "actions/cache",
     "actions/upload-artifact",
     "actions/download-artifact",
-    "actions/github-script",
     "actions/labeler",
     "actions/first-interaction",
     "actions/stale"
   ];
 
   // Update all GitHub Actions to their latest versions
-  actionsToUpdateList.forEach(action => {
+  actionsToUpdate.forEach(action => {
     // Update each action in workflow files
     // Add the necessary code to update the actions
   });

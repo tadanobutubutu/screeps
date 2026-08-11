@@ -1,6 +1,1 @@
-## 2025-02-12
-
-*   **Optimization:** Caching `room.memory._sourcesCount` to a per-tick local variable `room._sourcesCount` inside `analyzeBottlenecks()`.
-*   **Problem:** Screeps' `Memory` parsing/deserialization is CPU expensive. Calling `room.memory._sourcesCount` inside the `analyzeBottlenecks` loop incurred proxy traversal and JSON serialization costs every tick across all rooms, even though it was an invariant value intended to avoid `room.find(FIND_SOURCES)`.
-*   **Solution:** Extracted `room.memory._sourcesCount` into `room._sourcesCount` (a property on the tick-specific `Room` object). If missing, it falls back to `Memory`, and if that's missing, it computes it via `room.find`.
-*   **Impact:** Eliminated `Memory` proxy overhead inside the hot loop, reducing execution time from ~4.7ms to ~4.1ms per 1000 ticks in benchmarks.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0001 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-11T19:40:07.823Z"},"status":402}}

@@ -1,5 +1,9 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-12 - [Accessible Keyboard-Navigable Scrollable Containers]
+**Learning:** Scrollable non-interactive containers (such as `<pre>` code logs or dynamic JSON blocks) must be accessible to keyboard-only and screen-reader users by adding `tabIndex={0}` and a descriptive `aria-label`. This allows users to easily focus on and scroll through extensive content using arrow/navigation keys, satisfying WCAG 2.1.1 (Keyboard Accessibility).
+**Action:** Always equip any scrollable visual wrapper with `tabIndex={0}`, standard `focus-visible` styling, and a descriptive `aria-label` attribute.
+
 ## 2026-08-11 - [Polished Label focus-within & Hover Feedback]
 **Learning:** Standard interactive inline/native controls (such as checkbox/radio form elements) lack distinct highlight styling on focus or hover. Elevating the parent label element container with transitional background colors and high-contrast `:focus-within` styled focus outlines dramatically improves user discovery, satisfies keyboard-only accessibility requirements (WCAG 2.1.1), and ensures screen readers/focus outline targets are perfectly aligned with visual cues.
 **Action:** When designing checkbox or other standard input toggle controls, wrap the inputs inside responsive `<label>` containers configured to highlight focus/hover state changes elegantly using state-driven/class-driven transitions.

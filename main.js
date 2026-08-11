@@ -11,7 +11,7 @@ function getDependencyDashboard() {
       typescript: 'v7',
       '@sentry/browser': 'v10.70.0',
       undici: 'v8.9.0',
-      'github/codeql-action': 'v4',
+      someOtherDep: 'v4',
     },
   };
 }
@@ -26,6 +26,6 @@ module.exports = {
 // New function to handle Renovate updates
 function handleRenovateUpdates() {
   // Implementation for handling Renovate updates
-  }
+}
 
 // Preserve all existing code and only add new functionality

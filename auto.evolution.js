@@ -225,11 +225,14 @@ const autoEvolution = {
             // ⚡ PERFORMANCE: main.jsのwarmRoomCacheで計算済みのroleCountsを使用。O(1) lookup。
             const harvestersCount = room._roleCounts ? room._roleCounts.harvester : 0;
 
-            // ⚡ PERFORMANCE: ソース数は不変なため、RoomMemoryにキャッシュして毎ティックのfind(FIND_SOURCES)を回避。
-            if (room.memory._sourcesCount === undefined) {
-                room.memory._sourcesCount = room.find(FIND_SOURCES).length;
+            // ⚡ PERFORMANCE: ルームのローカルキャッシュを利用し、Memoryアクセスと毎ティックのfindを回避
+            if (room._sourcesCount === undefined) {
+                if (room.memory._sourcesCount === undefined) {
+                    room.memory._sourcesCount = room.find(FIND_SOURCES).length;
+                }
+                room._sourcesCount = room.memory._sourcesCount;
             }
-            const sourcesCount = room.memory._sourcesCount;
+            const sourcesCount = room._sourcesCount;
 
             if (harvestersCount < sourcesCount * 2) {
                 bottlenecks.push({

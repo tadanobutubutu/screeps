@@ -1,3 +1,11 @@
-🎯 **What:** Replaced predictable `Math.random()` calls with a `secureRandomFloat()` function in `visual.effects.js`.
-⚠️ **Risk:** The application was using `Math.random()` for visual effects particle generation. `Math.random()` relies on a predictable PRNG, which could allow attackers to predict future values or PRNG states, potentially enabling exploits or predictability in the system.
-🛡️ **Solution:** Implemented `secureRandomFloat()` which attempts to use Node's `crypto.randomBytes()` to generate cryptographically secure random numbers. A fallback to `Math.random()` was retained to ensure the system doesn't crash in restricted environments (like the Screeps sandbox) where the `crypto` module might be unavailable.
+🎯 **What:** The testing gap addressed
+Added a test suite for `fix_syntax.js` to ensure the core string manipulation, markdown stripping, and error-recovery behaviors are tested effectively. During test creation, a critical edge-case was identified and patched where valid Javascript without markdown would be improperly truncated.
+
+📊 **Coverage:** What scenarios are now tested
+- Handling code wrapped in standard ```javascript markdown blocks
+- Properly removing everything trailing the final parsed closing brace `}`
+- Gracefully trimming files that don't contain any closing braces
+- Correctly detecting and preserving files without any markdown blocks.
+
+✨ **Result:** The improvement in test coverage
+The code correctly handles edge cases, ensures reliable error recovery behavior, and prevents truncating valid input during automated repair processes. Test coverage for the file goes from 0% to fully covering its logic loops.

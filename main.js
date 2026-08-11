@@ -1,31 +1,28 @@
-// Existing imports and code from main.js
-// ... (all original content preserved)
+// role.healer.js
+// Healer role implementation for game entities
 
-// New functionality for the Dependency Dashboard
-function getDependencyDashboard() {
-  // Implementation for dependency dashboard
-  return {
-    // Dashboard data structure
-    dependencies: {
-      posthog: 'v1.415.1',
-      typescript: 'v7',
-      '@sentry/browser': 'v10.70.0',
-      undici: 'v8.9.0',
-      'github/codeql-action': 'v4',
-    },
-  };
+function findHurtFriend(creep) {
+  const friends = creep.room.find(FIND_MY_CREEPS);
+  for (const friend of friends) {
+    if (friend.hits < friend.hitsMax) {
+      return friend;
+    }
+  }
+  return null;
 }
 
-// Add new function to existing exports
-module.exports = {
-  // ... all existing exports preserved
-  getDependencyDashboard, // New export added
-  // ... any other existing exports
-};
-
-// New function to handle Renovate updates
-function handleRenovateUpdates() {
-  // Implementation for handling Renovate updates
+function heal(creep) {
+  const target = findHurtFriend(creep);
+  if (target) {
+    if (creep.heal(target) === ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
+    }
+    return true;
   }
+  return false;
+}
 
-// Preserve all existing code and only add new functionality
+module.exports = {
+  findHurtFriend,
+  heal
+};

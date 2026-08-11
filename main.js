@@ -81,7 +81,6 @@ function updateGitHubActions() {
     "actions/setup-node",
     "actions/setup-python",
     "actions/cache",
-    "actions/upload-artifact",
     "actions/download-artifact",
     "actions/labeler",
     "actions/first-interaction",

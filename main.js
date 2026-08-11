@@ -22,6 +22,7 @@ function processEmotion(emotion) {
 
 // Room Manager Module
 // Handles room creation, management, and deletion
+
 const rooms = new Map();
 
 const DEFAULT_OPTIONS = {
@@ -122,6 +123,7 @@ function resetTutorial(userId) {
 
 // Export the combined API
 module.exports = {
+  Healer,
   getNextStep,
   completeStep,
   getProgress,

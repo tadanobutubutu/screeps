@@ -704,3 +704,123 @@ describe('getBody', () => {
         expect(harvester.getBody(0)).toEqual([WORK, CARRY, MOVE]);
     });
 });
+
+describe('_findPrimaryTarget', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('スポーン・エクステンションが最も優先される', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+        const spawn = { structureType: global.STRUCTURE_SPAWN };
+        const tower = {
+            structureType: global.STRUCTURE_TOWER,
+            store: { getFreeCapacity: jest.fn().mockReturnValue(300) },
+        };
+
+        mockCache.getStructuresNeedingEnergy.mockReturnValue([spawn, tower]);
+
+        const result = harvester._findPrimaryTarget(creep);
+
+        expect(result).toBe(spawn);
+    });
+
+    test('スポーン・エクステンションがない場合、タワー（空き容量>200）が優先される', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+        const tower = {
+            structureType: global.STRUCTURE_TOWER,
+            store: { getFreeCapacity: jest.fn().mockReturnValue(300) },
+        };
+
+        mockCache.getStructuresNeedingEnergy.mockReturnValue([tower]);
+
+        const result = harvester._findPrimaryTarget(creep);
+
+        expect(result).toBe(tower);
+    });
+
+    test('何も見つからなければnullを返す', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+
+        mockCache.getStructuresNeedingEnergy.mockReturnValue([]);
+
+        const result = harvester._findPrimaryTarget(creep);
+
+        expect(result).toBeNull();
+    });
+});
+
+describe('_findContainerTarget', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('空き容量が200より大きいコンテナを返す', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+        const container = { store: { getFreeCapacity: jest.fn().mockReturnValue(300) } };
+
+        mockCache.getContainers.mockReturnValue([container]);
+
+        const result = harvester._findContainerTarget(creep);
+
+        expect(result).toBe(container);
+    });
+
+    test('見つからない場合はnullを返す', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+
+        mockCache.getContainers.mockReturnValue([]);
+
+        const result = harvester._findContainerTarget(creep);
+
+        expect(result).toBeNull();
+    });
+});
+
+describe('_findStorageTarget', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('空き容量が0より大きいストレージを返す', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+        const storage = { store: { getFreeCapacity: jest.fn().mockReturnValue(100) } };
+
+        mockCache.getStorage.mockReturnValue(storage);
+
+        const result = harvester._findStorageTarget(creep);
+
+        expect(result).toBe(storage);
+    });
+
+    test('見つからない場合はnullを返す', () => {
+        const creep = {
+            pos: { getRangeTo: jest.fn().mockReturnValue(5) },
+            room: {},
+        };
+
+        mockCache.getStorage.mockReturnValue(null);
+
+        const result = harvester._findStorageTarget(creep);
+
+        expect(result).toBeNull();
+    });
+});

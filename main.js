@@ -130,6 +130,7 @@ module.exports = {
   resetTutorial,
   someExistingFunction,
   emotionString,
+  processEmotion,
   Room,
   createRoom,
   getRoom,

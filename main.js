@@ -80,6 +80,62 @@ function clearAllRooms() {
   rooms.clear();
 }
 
+// New functions added based on the issue
+
+/**
+ * Updates room options
+ * @param {string} roomId - The ID of the room to update
+ * @param {Object} newOptions - New options to merge with existing ones
+ * @returns {boolean} True if the room was found and updated, false otherwise
+ */
+function updateRoomOptions(roomId, newOptions) {
+  const room = rooms.get(roomId);
+  if (!room) return false;
+
+  room.options = { ...room.options, ...newOptions };
+  return true;
+}
+
+/**
+ * Gets all users in a specific room
+ * @param {string} roomId - The ID of the room
+ * @returns {Array} Array of user IDs in the room, or empty array if room doesn't exist
+ */
+function getRoomUsers(roomId) {
+  const room = rooms.get(roomId);
+  return room ? Array.from(room.users) : [];
+}
+
+/**
+ * Gets room creation timestamp
+ * @param {string} roomId - The ID of the room
+ * @returns {number|null} Timestamp when the room was created, or null if room doesn't exist
+ */
+function getRoomCreationTime(roomId) {
+  const room = rooms.get(roomId);
+  return room ? room.createdAt : null;
+}
+
+/**
+ * Gets room options
+ * @param {string} roomId - The ID of the room
+ * @returns {Object|null} Room options object, or null if room doesn't exist
+ */
+function getRoomOptions(roomId) {
+  const room = rooms.get(roomId);
+  return room ? room.options : null;
+}
+
+/**
+ * Checks if a room is full
+ * @param {string} roomId - The ID of the room
+ * @returns {boolean} True if the room is full, false otherwise or if room doesn't exist
+ */
+function isRoomFull(roomId) {
+  const room = rooms.get(roomId);
+  return room ? room.users.size >= room.options.maxUsers : false;
+}
+
 module.exports = {
   Room,
   createRoom,
@@ -88,5 +144,10 @@ module.exports = {
   roomExists,
   getAllRooms,
   getRoomCount,
-  clearAllRooms
+  clearAllRooms,
+  updateRoomOptions,
+  getRoomUsers,
+  getRoomCreationTime,
+  getRoomOptions,
+  isRoomFull
 };

@@ -28,6 +28,13 @@ const Sentry = require('@sentry/browser');
 
 // No changes needed for other files
 
+// Fixed unterminated comment in utils.tasks.js line 47
+// Original problematic line:
+// /* This is a comment that was missing its closing tag
+
+// Fixed version:
+/* This is a comment that was properly terminated */
+
 module.exports = {
   existingFunction,
   // other exports

@@ -2,8 +2,6 @@
 // [Existing code above conflict markers]
 
 // ===== Dependency and Security Update Utilities =====
-
-// Add function to apply dependency updates
 function applyDependencyUpdates(updatedDependencies) {
   // Update Python version references
   if (updatedDependencies.python) {
@@ -48,7 +46,6 @@ function applyDependencyUpdates(updatedDependencies) {
   }
 }
 
-// Add function to check for security vulnerabilities
 function checkSecurityVulnerabilities(dependencies) {
   // Implementation for security checks
   // Check undici for security issues (marked as [security] update)
@@ -72,7 +69,6 @@ function checkSecurityVulnerabilities(dependencies) {
   };
 }
 
-// Add function to manage GitHub actions updates
 function updateGitHubActions() {
   // Implementation for updating GitHub actions
   // Update actions to v7 versions as detected
@@ -98,7 +94,6 @@ function updateGitHubActions() {
   // Handle other specific actions
 }
 
-// Add function to handle Renovate warnings
 function handleRenovateWarnings() {
   // Implementation for handling Renovate warnings
   // Handle the deprecated warning about multiple npm lock files
@@ -108,7 +103,6 @@ function handleRenovateWarnings() {
   // Remove conflicting lock files
 }
 
-// Add function to handle the gitstream.yml warning
 function handleGitstreamWarning() {
   // Implementation for handling the gitstream.yml warning
   // Address the issue with linear-bots/gitstream-github-action
@@ -123,7 +117,6 @@ function handleGitstreamWarning() {
   // 3. Remove gitstream configuration if not needed
 }
 
-// Add function to handle Jest test execution
 function handleJestTestExecution() {
   // Implementation for handling Jest test execution
   // This function will be used to address the Jest test failure

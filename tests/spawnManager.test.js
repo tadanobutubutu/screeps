@@ -148,6 +148,27 @@ describe('spawnManager', () => {
             expect(() => spawnManager.run(mockSpawn)).not.toThrow();
         });
 
+        test('スポーン処理中に例外が発生した場合、エラーログが出力される', () => {
+            const logger = require('../src/utils/logger');
+
+            // Mock logger.error to verify it is called
+            jest.spyOn(logger, 'error').mockImplementation(() => {});
+
+            // Force _trySpawn inside run to throw by making spawnCreep throw
+            // Also need to ensure the queue is not empty, which happens naturally
+            // since energy is 300 and we have no creeps.
+            mockSpawn.spawnCreep.mockImplementation(() => {
+                throw new Error('Test Spawn Error');
+            });
+
+            spawnManager.run(mockSpawn);
+
+            expect(logger.error).toHaveBeenCalledWith('[SpawnManager] スポーンエラー', expect.any(Error));
+
+            logger.error.mockRestore();
+        });
+
+
         test('スポーン中は実行されない', () => {
             mockSpawn.spawning = { name: 'creep1' };
             expect(() => spawnManager.run(mockSpawn)).not.toThrow();

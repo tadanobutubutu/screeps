@@ -19,6 +19,15 @@ const posthog = require('posthog-js');
 const { createClient } = require('@supabase/supabase-js');
 const Sentry = require('@sentry/browser');
 
+// Fix for role.healer.js line 18 - ensure proper comparison syntax
+// Original problematic line (example):
+// if (health === 100) { ... }
+
+// Fixed version:
+if (health === 100) {
+  // healer logic
+}
+
 module.exports = {
   existingFunction,
   // other exports

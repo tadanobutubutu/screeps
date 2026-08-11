@@ -202,7 +202,7 @@ function _safeStringify(obj, maxLength = 500) {
         const redacted = _redactPaths(str);
         return redacted.substring(0, maxLength);
     } catch (e) {
-        return '[Unstringifiable Object]';
+        return `[Unserializable Data: ${e.message}]`;
     }
 }
 

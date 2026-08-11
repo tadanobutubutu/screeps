@@ -185,6 +185,26 @@ describe('logger', () => {
         });
     });
 
+
+    describe('_safeStringify', () => {
+        test('catches errors during stringification and returns fallback', () => {
+            // Create an object that throws an error when stringified
+            const obj = {
+                get prop() {
+                    throw new Error('Test serialization error');
+                }
+            };
+
+            logger.info('Test', obj);
+
+            // Check that the error was caught and fallback was used
+            expect(console.log).toHaveBeenCalled();
+            const calls = console.log.mock.calls.map((call) => call[0]);
+            const hasFallback = calls.some((msg) => msg.includes('[Unserializable Data: Test serialization error]'));
+            expect(hasFallback).toBe(true);
+        });
+    });
+
     describe('_redactPaths', () => {
         test('文字列以外の入力はそのまま返す', () => {
             expect(logger._redactPaths(null)).toBeNull();

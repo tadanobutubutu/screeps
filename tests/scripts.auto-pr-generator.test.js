@@ -147,6 +147,20 @@ describe('auto-pr-generator', () => {
     });
 
     describe('createFixBranch', () => {
+        it('should throw Error and stop if file path is outside cwd', async () => {
+            const issue = { number: 123, title: 'Test Issue' };
+            const analysis = {
+                rootCause: 'bug',
+                suggestedFix: {
+                    changes: [{ file: '../etc/passwd', code: 'malicious' }],
+                },
+            };
+
+            await expect(createFixBranch(issue, analysis)).rejects.toThrow(
+                'Path traversal attempt detected: ../etc/passwd'
+            );
+        });
+
         it('should create branch, write files, and commit', async () => {
             const issue = { number: 123, title: 'Test Issue' };
             const analysis = {

@@ -97,6 +97,33 @@ describe('towerManager', () => {
     });
 
     describe('run', () => {
+        test('_runTower throws an error and is caught', () => {
+            const logger = require('../src/utils/logger');
+            const originalError = logger.error;
+            logger.error = jest.fn();
+
+            const mockEnemy = {
+                id: 'enemy1',
+                hits: 100,
+                hitsMax: 100,
+                pos: { x: 10, y: 10 },
+                getActiveBodyparts: jest.fn().mockReturnValue(0),
+            };
+            cache.getEnemies.mockReturnValue([mockEnemy]);
+
+            mockTower.attack.mockImplementation(() => {
+                throw new Error('Test error in _runTower');
+            });
+
+            expect(() => towerManager.run(mockRoom)).not.toThrow();
+            expect(logger.error).toHaveBeenCalledWith(
+                '[TowerManager] タワーエラー',
+                expect.any(Error)
+            );
+
+            logger.error = originalError;
+        });
+
         test('タワーがない場合は何もしない', () => {
             cache.getMyStructures.mockReturnValue([]);
             expect(() => towerManager.run(mockRoom)).not.toThrow();

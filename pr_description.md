@@ -1,3 +1,0 @@
-💡 **What:** Replaced the intermediate `healers` array allocation and `findClosestByRange` call with a single-pass loop in `role.attacker.js`.
-🎯 **Why:** To reduce garbage collection pressure and improve tick execution time by avoiding redundant O(N) array object creations and distance re-calculations during hot-path healing evaluation.
-📊 **Measured Improvement:** The benchmark script time improved from ~308ms down to ~49ms (over 100,000 iterations), effectively increasing execution speed by ~84%.

@@ -1,4 +1,4 @@
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -22,9 +22,9 @@ function addIssue(issue) {
     report.issues.push(issue);
 }
 
-function runCommand(command) {
+function runCommand(command, args) {
     try {
-        execSync(command, { stdio: 'pipe', encoding: 'utf8' });
+        execFileSync(command, args, { stdio: 'pipe', encoding: 'utf8' });
         return { ok: true };
     } catch (error) {
         return {
@@ -49,8 +49,9 @@ function readJsonFile(filePath) {
 
 // 1. ESLint 静的解析（--fix なし、出力ファイル経由で確実にパース）
 console.log('ESLint を実行中...');
-const eslintCmd = `npx eslint . --format json --output-file "${ESLINT_REPORT}"`;
-const eslintResult = runCommand(eslintCmd);
+const eslintCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const eslintArgs = ['eslint', '.', '--format', 'json', '--output-file', ESLINT_REPORT];
+const eslintResult = runCommand(eslintCmd, eslintArgs);
 const eslintData = readJsonFile(ESLINT_REPORT);
 
 if (eslintData && Array.isArray(eslintData)) {
@@ -87,8 +88,16 @@ if (report.issues.filter((i) => i.type === 'lint').length === 0 && eslintResult.
 
 // 2. Jest テスト + カバレッジ（npm scripts 経由でプロジェクト設定と一致）
 console.log('Jest テストとカバレッジを実行中...');
-const jestCmd = `${PKG_MANAGER} run test:coverage -- --json --outputFile="${JEST_REPORT}" --coverageReporters=json-summary`;
-const jestResult = runCommand(jestCmd);
+const jestCmd = process.platform === 'win32' ? `${PKG_MANAGER}.cmd` : PKG_MANAGER;
+const jestArgs = [
+    'run',
+    'test:coverage',
+    '--',
+    '--json',
+    `--outputFile=${JEST_REPORT}`,
+    '--coverageReporters=json-summary',
+];
+const jestResult = runCommand(jestCmd, jestArgs);
 const jestData = readJsonFile(JEST_REPORT);
 
 if (jestData && Array.isArray(jestData.testResults)) {

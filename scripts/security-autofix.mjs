@@ -3,16 +3,16 @@
  * Security autofix helper: audit, apply safe fixes, summarize remaining alerts.
  * Used by .github/workflows/security-autofix.yml (free npm audit only).
  */
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 
-function run(cmd, opts = {}) {
-    return execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], ...opts });
+function run(cmd, args = [], opts = {}) {
+    return execFileSync(cmd, args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], ...opts });
 }
 
-function safeRun(cmd) {
+function safeRun(cmd, args = []) {
     try {
-        return { ok: true, out: run(cmd) };
+        return { ok: true, out: run(cmd, args) };
     } catch (err) {
         return {
             ok: false,
@@ -23,7 +23,7 @@ function safeRun(cmd) {
 }
 
 function parseAudit() {
-    const res = safeRun('npm audit --json');
+    const res = safeRun('npm', ['audit', '--json']);
     if (!res.ok) {
         return { error: res.err, vulnerabilities: {} };
     }
@@ -61,13 +61,13 @@ function listActionable(audit) {
 const before = parseAudit();
 const beforeCounts = countSeverities(before);
 
-const fix = safeRun('npm audit fix');
-const fixForce = safeRun('npm audit fix --force');
+const fix = safeRun('npm', ['audit', 'fix']);
+const fixForce = safeRun('npm', ['audit', 'fix', '--force']);
 
 const after = parseAudit();
 const afterCounts = countSeverities(after);
 
-const lockRegen = safeRun('npm install --package-lock-only');
+const lockRegen = safeRun('npm', ['install', '--package-lock-only']);
 
 const report = {
     generatedAt: new Date().toISOString(),

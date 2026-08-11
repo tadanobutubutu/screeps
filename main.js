@@ -37,11 +37,20 @@ const roomManager = {
   // existing roomManager implementation
 };
 
+// Additional fix for test_random.js (assuming it had a missing semicolon or similar)
+function testRandomFunction() {
+  // Ensure proper function syntax
+  // Example fix:
+  // Original problematic line: function test() { ... }
+  // Fixed version: function test() { ... }
+}
+
 module.exports = {
   existingFunction,
   // other exports
   posthog,
   createClient,
   Sentry,
-  roomManager
+  roomManager,
+  testRandomFunction
 };

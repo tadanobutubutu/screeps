@@ -151,8 +151,6 @@ function handleJestTestExecution() {
   }
 }
 
-// [Rest of existing code below conflict markers]
-
 // Preserve all existing exports
 module.exports = {
   // Existing exports remain here

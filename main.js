@@ -1,31 +1,38 @@
-// Existing imports and code from main.js
-// ... (all original content preserved)
+// utils.tasks.js
 
-// New functionality for the Dependency Dashboard
-function getDependencyDashboard() {
-  // Implementation for dependency dashboard
-  return {
-    // Dashboard data structure
-    dependencies: {
-      posthog: 'v1.415.1',
-      typescript: 'v7',
-      '@sentry/browser': 'v10.70.0',
-      undici: 'v8.9.0',
-      'github/codeql-action': 'v4',
-    },
-  };
+// Helper function to format task output
+function formatTaskOutput(tasks) {
+  return tasks.map(task => {
+    return {
+      id: task.id,
+      name: task.name,
+      status: task.status,
+    };
+  });
 }
 
-// Add new function to existing exports
-module.exports = {
-  // ... all existing exports preserved
-  getDependencyDashboard, // New export added
-  // ... any other existing exports
-};
-
-// New function to handle Renovate updates
-function handleRenovateUpdates() {
-  // Implementation for handling Renovate updates
+// Function to validate task data
+function validateTaskData(task) {
+  if (!task || typeof task !== 'object') {
+    return false;
   }
+  return true;
+}
 
-// Preserve all existing code and only add new functionality
+// Main function to process tasks
+function processTasks(tasks) {
+  const validTasks = tasks.filter(validateTaskData);
+  return formatTaskOutput(validTasks);
+}
+
+/*
+ * Multi-line comment describing the export structure
+ * This is a properly terminated multi-line comment
+ */
+
+// Export the module
+module.exports = {
+  formatTaskOutput,
+  validateTaskData,
+  processTasks,
+};

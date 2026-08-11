@@ -26,6 +26,11 @@ module.exports = {
 // New function to handle Renovate updates
 function handleRenovateUpdates() {
   // Implementation for handling Renovate updates
-  }
+}
+
+module.exports = {
+  ...module.exports, // Preserve existing exports
+  handleRenovateUpdates, // Add new export
+};
 
 // Preserve all existing code and only add new functionality

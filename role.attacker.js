@@ -1,3 +1,4 @@
+const cache = require('./src/utils/cache');
 /**
  * role.attacker.js
  * Attacker creep role: attacks hostile creeps and structures.
@@ -25,7 +26,7 @@ const roleAttacker = {
         // Heal self if damaged and healer not available
         if (creep.hits < creep.hitsMax * 0.5) {
             // ⚡ PERFORMANCE: Use pre-warmed cache to avoid expensive room.find inside findClosestByRange
-            const myCreeps = creep.room._myCreeps || creep.room.find(FIND_MY_CREEPS);
+            const myCreeps = cache.getMyCreeps(creep.room);
             let healTarget = null;
             let minRange = Infinity;
             for (let i = 0; i < myCreeps.length; i++) {
@@ -56,7 +57,7 @@ const roleAttacker = {
 
         // Priority 1: Attack hostile creeps in range
         // ⚡ PERFORMANCE: Use pre-warmed room cache for hostile creeps.
-        const hostiles = creep.room._hostileCreeps || creep.room.find(FIND_HOSTILE_CREEPS);
+        const hostiles = cache.getEnemies(creep.room);
         if (hostiles.length > 0) {
             // ⚡ PERFORMANCE: Cache target ID to avoid re-searching every tick
             let hostileCreep = Game.getObjectById(creep.memory.targetId);
@@ -85,15 +86,10 @@ const roleAttacker = {
 
         if (hostileStructure === undefined || hostileStructure === null) {
             let hostileStructures;
-            if (creep.room._allStructures) {
-                hostileStructures = creep.room._allStructures.filter(
-                    (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
-                );
-            } else {
-                hostileStructures = creep.room.find(FIND_HOSTILE_STRUCTURES, {
-                    filter: STRUCTURE_FILTER,
-                });
-            }
+            const allStructures = cache.getStructures(creep.room);
+            hostileStructures = allStructures.filter(
+                (s) => !s.my && s.structureType && STRUCTURE_FILTER(s)
+            );
 
             hostileStructure = creep.pos.findClosestByRange(hostileStructures);
 

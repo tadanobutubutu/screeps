@@ -11,6 +11,7 @@ global.ERR_NOT_IN_RANGE = -9;
 global.FIND_MY_CREEPS = 1;
 global.FIND_HOSTILE_CREEPS = 2;
 global.FIND_HOSTILE_STRUCTURES = 3;
+global.FIND_STRUCTURES = 104;
 global.HEAL = 'heal';
 global.STRUCTURE_INVADER_CORE = 'invaderCore';
 global.STRUCTURE_TOWER = 'tower';

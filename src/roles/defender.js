@@ -399,11 +399,3 @@ module.exports = {
     detectInvasion,
     shouldActivateSafeMode,
 };
-
-
-// テスト用の内部関数エクスポート
-if (process.env.NODE_ENV === 'test') {
-    module.exports._attack = _attack;
-    module.exports._selectTarget = _selectTarget;
-    module.exports._patrol = _patrol;
-}

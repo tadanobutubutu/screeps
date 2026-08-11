@@ -361,7 +361,4 @@ module.exports = {
     _deliver,
     _findEnergyTarget,
     _upgradeAsBackup,
-    _findPrimaryTarget,
-    _findContainerTarget,
-    _findStorageTarget,
 };

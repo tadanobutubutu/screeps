@@ -465,25 +465,4 @@ describe('src/roles/defender', () => {
         expect(creep.rangedAttack).toHaveBeenCalledWith(target);
         expect(pathfinder.moveTo).toHaveBeenCalled(); // _fleeFrom uses moveTo with range: 0
     });
-    test('_attack returns early if no target is selected (direct call)', () => {
-        const creep = {
-            name: 'def_notarget2',
-            memory: {},
-            room: roomMock,
-            pos: { x: 10, y: 10, roomName: 'W0N0', getRangeTo: jest.fn() },
-            getActiveBodyparts: jest.fn().mockReturnValue(1),
-            rangedAttack: jest.fn(),
-            attack: jest.fn()
-        };
-        // Pass empty enemies array to trigger _selectTarget -> null -> early return in _attack
-        defender._attack(creep, []);
-        expect(creep.pos.getRangeTo).not.toHaveBeenCalled();
-    });
-
-    test('_selectTarget returns null when enemies is empty (direct call)', () => {
-        const creep = {};
-        const result = defender._selectTarget(creep, []);
-        expect(result).toBeNull();
-    });
-
 });

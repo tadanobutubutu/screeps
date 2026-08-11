@@ -153,14 +153,7 @@ async function createFixBranch(issue, analysis) {
 
     // ファイルを修正
     for (const change of analysis.suggestedFix.changes) {
-        const filePath = path.resolve(process.cwd(), change.file);
-
-        // パストラバーサル対策: process.cwd() の外に書き込まれないようにする
-        if (!filePath.startsWith(process.cwd() + path.sep) && filePath !== process.cwd()) {
-            console.error(`❌ Security Error: Invalid file path detected: ${change.file}`);
-            throw new Error(`Path traversal attempt detected: ${change.file}`);
-        }
-
+        const filePath = path.join(process.cwd(), change.file);
         const fileDir = path.dirname(filePath);
 
         // ディレクトリが存在しない場合は作成

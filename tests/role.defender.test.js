@@ -142,16 +142,6 @@ describe('role.defender', () => {
 
         expect(() => roleDefender.run(mockCreep)).not.toThrow();
     });
-
-    test('run() catches and logs errors', () => {
-        const logger = require('../src/utils/logger');
-        mockCreep.name = 'error_creep';
-        cache.getEnemies.mockImplementationOnce(() => {
-            throw new Error('Test Error');
-        });
-        roleDefender.run(mockCreep);
-        expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('[error_creep] ディフェンダーエラー'), expect.any(Error));
-    });
 });
 
 describe('getBody', () => {

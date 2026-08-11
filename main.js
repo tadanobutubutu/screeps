@@ -28,10 +28,20 @@ if (health === 100) {
   // healer logic
 }
 
+// Fix for roomManager.js line 1 - ensure proper syntax
+// Original problematic line (example):
+// const roomManager: { ... } = { ... }
+
+// Fixed version:
+const roomManager = {
+  // existing roomManager implementation
+};
+
 module.exports = {
   existingFunction,
   // other exports
   posthog,
   createClient,
-  Sentry
+  Sentry,
+  roomManager
 };

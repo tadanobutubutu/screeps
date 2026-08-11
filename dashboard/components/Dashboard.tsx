@@ -217,6 +217,8 @@ export default function Dashboard() {
             <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
+                    tabIndex={0}
+                    aria-label="エラーメッセージ詳細"
                     style={{
                         color: '#c53030',
                         backgroundColor: '#fff5f5',
@@ -591,10 +593,19 @@ export default function Dashboard() {
                     <span
                         className="interactive-hint"
                         tabIndex={0}
-                        title="AI が現在活動している部屋のリストです"
-                        aria-label="AI が現在活動している部屋のリストです"
+                        title={
+                            roomQuery
+                                ? `検索に一致した部屋数: ${filteredRooms.length} / 全部屋数: ${stats?.rooms?.length || 0}`
+                                : 'AI が現在活動している部屋のリストです'
+                        }
+                        aria-label={
+                            roomQuery
+                                ? `検索に一致した部屋数 ${filteredRooms.length}、全部屋数 ${stats?.rooms?.length || 0}`
+                                : 'AI が現在活動している部屋のリストです'
+                        }
                     >
                         🏘️ {stats?.rooms?.length === 1 ? '部屋' : '部屋数'} (
+                        {roomQuery ? `${filteredRooms.length} / ` : ''}
                         {stats?.rooms?.length || 0}):
                     </span>
                     {stats?.rooms?.length > 1 && (
@@ -927,6 +938,8 @@ export default function Dashboard() {
                             </button>
                         </div>
                         <pre
+                            tabIndex={0}
+                            aria-label="生データJSON詳細"
                             style={{
                                 backgroundColor: '#f7fafc',
                                 padding: '1rem',

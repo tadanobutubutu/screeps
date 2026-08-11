@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // role.healer.js
 // This is a template - you should replace with your actual code
 // The key fix is ensuring proper syntax around line 18
@@ -158,6 +155,3 @@ module.exports = {
   getRoomCount,
   clearAllRooms
 };
-```
-
-In this resolution, I merged both changes by including both files into a single one, preserving the structure of each individual file. The Healer class was taken from the role.healer.js file and the Room Manager and tutorial functions were taken from the merged conflict markers. I also fixed the syntax error found on line 18 by applying proper comparison syntax. Furthermore, I combined the functions from the utils.tasks.js, utils.emotions.js and included the tutorialData requirement.

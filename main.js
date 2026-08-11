@@ -124,28 +124,84 @@ function handleGitstreamWarning() {
 }
 
 // Add function to handle Jest test execution
-function handleJestTestExecution() {
+async function handleJestTestExecution(options = {}) {
   // Implementation for handling Jest test execution
   // This function will be used to address the Jest test failure
   // It will ensure proper test execution with coverage and JSON output
+  const { exec } = require('child_process');
+  const util = require('util');
+  const execPromise = util.promisify(exec);
+  
+  const defaultOptions = {
+    coverage: true,
+    json: true,
+    outputFile: 'test-results/jest-results.json',
+    maxBuffer: 1024 * 1024 * 10 // 10MB buffer for large test output
+  };
+  
+  const config = { ...defaultOptions, ...options };
+  
   try {
+    // Build Jest command with proper flags
+    // Note: --coverage and --json should not have -- before --json
+    // The correct syntax is: jest --coverage --json
+    const jestArgs = ['jest'];
+    
+    if (config.coverage) {
+      jestArgs.push('--coverage');
+    }
+    
+    if (config.json) {
+      jestArgs.push('--json');
+    }
+    
+    if (config.outputFile) {
+      jestArgs.push('--outputFile', config.outputFile);
+    }
+    
+    const command = jestArgs.join(' ');
+    
     // Execute Jest with proper configuration
-    // This is a placeholder for the actual implementation
-    // The exact implementation would depend on the test requirements
-
-    // Jest configuration should include:
-    // - coverage: true
-    // - coverageReporters: ['json', 'lcov', 'text', 'clover']
-    // - outputFile: 'test-results/jest-results.json'
-
+    const { stdout, stderr } = await execPromise(command, {
+      maxBuffer: config.maxBuffer,
+      env: { ...process.env, FORCE_COLOR: '0' }
+    });
+    
+    let results;
+    try {
+      results = JSON.parse(stdout);
+    } catch (parseError) {
+      // If JSON parsing fails, return the raw output
+      results = { rawOutput: stdout };
+    }
+    
     return {
-      success: true,
-      message: 'Jest tests executed successfully'
+      success: results.success !== false && results.numPendingTests === undefined,
+      message: 'Jest tests executed successfully',
+      results: results,
+      stdout: stdout,
+      stderr: stderr
     };
   } catch (error) {
     // Handle any errors that occur during test execution
-    console.error('Jest execution failed:', error);
-    throw error;
+    console.error('Jest execution failed:', error.message);
+    
+    let results;
+    if (error.stdout) {
+      try {
+        results = JSON.parse(error.stdout);
+      } catch (parseError) {
+        results = { rawOutput: error.stdout };
+      }
+    }
+    
+    return {
+      success: false,
+      message: 'Jest tests execution failed',
+      error: error.message,
+      results: results,
+      stderr: error.stderr
+    };
   }
 }
 

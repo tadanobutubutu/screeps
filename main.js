@@ -1,12 +1,1 @@
-// In utils.emotions.js, around line 389
-// The issue is likely a missing closing quote for a string
-// Here's the corrected version:
-
-// Before (problematic):
-// const emotionString = "This is an unterminated string;
-
-// After (fixed):
-const emotionString = "This is a properly terminated string";
-
-// All other existing code in main.js remains unchanged
-// including all exports and functions
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

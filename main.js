@@ -21,10 +21,16 @@ function getUpdatedDependency(dependencyName) {
   return updatedDependencies[dependencyName] || null;
 }
 
+// Function to get all updated dependencies
+function getAllUpdatedDependencies() {
+  return { ...updatedDependencies };
+}
+
 // Example of preserving existing exports
 module.exports = {
   existingFunction,
   getUpdatedDependency,
+  getAllUpdatedDependencies,
   // ... other existing exports
 };
 
@@ -33,12 +39,24 @@ class DependencyManager {
   constructor() {
     this.dependencies = {
       // ... existing dependencies
+      posthogJs: '1.416.0',
+      typescript: '7.0.0',
+      sentryBrowser: '10.70.0',
+      undici: '8.9.0'
     };
   }
 
   updateDependency(name, version) {
     this.dependencies[name] = version;
     // Additional update logic
+  }
+
+  getDependency(name) {
+    return this.dependencies[name];
+  }
+
+  getAllDependencies() {
+    return { ...this.dependencies };
   }
 }
 

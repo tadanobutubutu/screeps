@@ -2,10 +2,10 @@
 const { posthog } = require('posthog-js');
 const { BrowserTracing } = require('@sentry/browser');
 const { init } = require('@sentry/browser');
-const { undici } = require('undici');
+const { Client } = require('undici');
 
 // Initialize PostHog with the latest version
-posthog.init('YOUR_POSTHOG_KEY', {
+posthog.init('phc_example', {
   api_host: 'https://app.posthog.com',
   version: '1.416.0' // Updated to v1.416.0
 });
@@ -19,7 +19,7 @@ init({
 });
 
 // Initialize Undici with the latest version
-const client = new undici.Client();
+const client = new Client();
 
 // Room manager functionality
 class RoomManager {
@@ -61,11 +61,3 @@ function handleDependencyUpdates() {
 }
 
 // Keep all existing code and only add the new functionality
-
-// Add this function to handle the equality comparison issue
-function compareValues(a, b) {
-  return a === b;
-}
-
-// Add this to the exports if needed
-module.exports.compareValues = compareValues;

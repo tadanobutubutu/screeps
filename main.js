@@ -22,15 +22,15 @@ var roleHealer = {
     }
 };
 
-module.exports = roleHealer;
+const emotionString = "This is a properly terminated string"; // Fixed unterminated string issue
 
-// utils.emotions.js
-// ... (previous code remains unchanged until line 389)
+function randomFunction() {
+    // Return a random number between 0 (inclusive) and 1 (exclusive)
+    return Math.random();
+}
 
-// Before (problematic line):
-// const emotionString = "This is an unterminated string;
-
-// After (fixed line):
-const emotionString = "This is a properly terminated string";
-
-// ... (rest of the file remains unchanged)
+module.exports = {
+    roleHealer,
+    emotionString,
+    randomFunction
+};

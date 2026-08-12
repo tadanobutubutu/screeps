@@ -1,4 +1,4 @@
-const { describe, it, expect, test } = require('jest');
+const { describe, it, expect } = require('jest');
 
 describe('Random number generation', () => {
   it('should generate a random number within the specified range', () => {
@@ -14,6 +14,7 @@ describe('Random number generation', () => {
     const secondNumber = Math.floor(Math.random() * 100);
     expect(firstNumber).toBeGreaterThanOrEqual(0);
     expect(secondNumber).toBeGreaterThanOrEqual(0);
+    expect(secondNumber).toBeLessThan(100);
   });
 });
 

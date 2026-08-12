@@ -34,6 +34,6 @@ module.exports = {
 
 // Add any new functions or updates requested in the issue
 function handleDependencyUpdates() {
-  }
+}
 
 // Keep all existing code and only add the new functionality

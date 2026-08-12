@@ -16,13 +16,13 @@ describe('Random number generation', () => {
     expect(firstNumber).toBeDefined();
     expect(secondNumber).toBeDefined();
   });
-});
 
-// Add new test for updated dependencies
-describe('Dependency updates', () => {
-  it('should have updated dependencies', () => {
-    // This test will be implemented when the actual dependency updates are applied
-    // to the package. json and other configuration files
-    expect(true).toBe(true);
+  // New test for updated dependencies
+  describe('Dependency updates', () => {
+    it('should have updated dependencies', () => {
+      // This test will be implemented when the actual dependency updates are applied
+      // to the package.json and other configuration files
+      expect(true).toBe(true);
+    });
   });
 });

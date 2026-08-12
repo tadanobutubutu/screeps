@@ -34,7 +34,6 @@ module.exports = {
 
 // Add any new functions or updates requested in the issue
 function handleDependencyUpdates() {
-  console.log('Handling dependency updates for posthog-js, @sentry/browser, and undici');
-}
+  }
 
 // Keep all existing code and only add the new functionality

@@ -25,3 +25,12 @@ describe('Dependency updates', () => {
     expect(true).toBe(true);
   });
 });
+
+// Add configuration for Jest coverage reporting
+const jestConfig = {
+  coverageReporters: ['json-summary', 'text', 'lcov'],
+  coverageDirectory: 'coverage',
+  collectCoverageFrom: ['**/*.js', '!**/node_modules/**', '!**/tests/**'],
+};
+
+module.exports = jestConfig;

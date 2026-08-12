@@ -1,5 +1,4 @@
 // main.js
-// [Your existing code here]
 
 /**
  * New function to handle dependency updates

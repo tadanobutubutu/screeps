@@ -7,7 +7,7 @@ const { undici } = require('undici');
 // Initialize PostHog with the latest version
 posthog.init('YOUR_POSTHOG_KEY', {
   api_host: 'https://app.posthog.com',
-  version: '1.415.7'
+  version: '1.416.0' // Updated to v1.416.0
 });
 
 // Initialize Sentry with the latest version
@@ -15,7 +15,7 @@ init({
   dsn: 'YOUR_SENTRY_DSN',
   integrations: [new BrowserTracing()],
   tracesSampleRate: 1.0,
-  version: '10.70.0'
+  version: '10.70.0' // Updated to v10.70.0
 });
 
 // Initialize Undici with the latest version

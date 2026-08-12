@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// role.healer.js
+function heal(health) {
+  if (health < 0) {
+    health = 0; // Fix: Add semicolon here
+  }
+  console.log(`Health: ${health}`);
+}

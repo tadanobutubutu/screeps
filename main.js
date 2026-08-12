@@ -29,6 +29,9 @@ module.exports = {
   },
   anotherExistingFunction: function() {
     // existing implementation
+  },
+  compareValues: function(a, b) {
+    return a === b;
   }
 };
 

@@ -1,22 +1,34 @@
-// main.js
-// [Your existing code here]
+// role.healer.js
 
-// Add any new functions or changes requested in the issue
-// For example, if there's a new feature to add:
-
-/**
- * New function to handle dependency updates
- * @param {string} dependencyName - Name of the dependency to update
- * @param {string} version - Version to update to
- */
-function updateDependency(dependencyName, version) {
-  // Implementation for updating dependencies
-  console.log(`Updating ${dependencyName} to version ${version}`);
-  // Add actual update logic here
-}
-
-// Preserve all existing exports
-module.exports = {
-  // Your existing exports here
-  updateDependency // Add new exports as needed
+var roleHealer = {
+    /** @param {Creep} creep **/
+    run: function(creep) {
+        // Find damaged creep in range
+        var damagedCreep = creep.pos.findClosestByRange(FIND_MY_CRESTS, {
+            filter: function(c) {
+                return c.hits < c.hitsMax;
+            }
+        });
+        
+        if (damagedCreep) {
+            if (creep.heal(damagedCreep) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(damagedCreep);
+            }
+        }
+        
+        // If no damaged creeps, assist nearest healer
+        if (!damagedCreep) {
+            var nearestHealer = creep.pos.findClosestByRange(FIND_MY_CRESTS, {
+                filter: function(c) {
+                    return c.getActiveBodyparts(HEAL) > 0 && c.memory.role === 'healer';
+                }
+            });
+            
+            if (nearestHealer && creep.pos.getRangeTo(nearestHealer) > 3) {
+                creep.moveTo(nearestHealer);
+            }
+        }
+    }
 };
+
+module.exports = roleHealer;

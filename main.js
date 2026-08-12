@@ -1,4 +1,4 @@
-// test_random.1.js
+// test_random.js
 const { describe, it, expect } = require('jest');
 
 describe('Random number generation', () => {

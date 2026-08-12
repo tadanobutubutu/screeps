@@ -1,22 +1,52 @@
-// main.js
-// [Your existing code here]
+// src/managers/roomManager.js
+const { Room } = require('../models/room'); // Example import
 
-// Add any new functions or changes requested in the issue
-// For example, if there's a new feature to add:
+class RoomManager {
+  constructor() {
+    this.rooms = new Map();
+  }
 
-/**
- * New function to handle dependency updates
- * @param {string} dependencyName - Name of the dependency to update
- * @param {string} version - Version to update to
- */
-function updateDependency(dependencyName, version) {
-  // Implementation for updating dependencies
-  console.log(`Updating ${dependencyName} to version ${version}`);
-  // Add actual update logic here
+  /**
+   * Creates a new room
+   * @param {string} roomId - Unique identifier for the room
+   * @param {Object} options - Room configuration options
+   * @returns {Room} The created room instance
+   */
+  createRoom(roomId, options = {}) {
+    if (this.rooms.has(roomId)) {
+      throw new Error(`Room ${roomId} already exists`);
+    }
+
+    const room = new Room(roomId, options);
+    this.rooms.set(roomId, room);
+    return room;
+  }
+
+  /**
+   * Gets a room by ID
+   * @param {string} roomId - Room identifier
+   * @returns {Room|null} The room instance or null if not found
+   */
+  getRoom(roomId) {
+    return this.rooms.get(roomId) || null;
+  }
+
+  /**
+   * Removes a room by ID
+   * @param {string} roomId - Room identifier
+   * @returns {boolean} True if room was removed, false if not found
+   */
+  removeRoom(roomId) {
+    return this.rooms.delete(roomId);
+  }
+
+  /**
+   * Gets all active rooms
+   * @returns {Array<Room>} Array of all active rooms
+   */
+  getAllRooms() {
+    return Array.from(this.rooms.values());
+  }
 }
 
-// Preserve all existing exports
-module.exports = {
-  // Your existing exports here
-  updateDependency // Add new exports as needed
-};
+module.exports = RoomManager;

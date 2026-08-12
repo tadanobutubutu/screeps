@@ -2,10 +2,10 @@
 const { posthog } = require('posthog-js');
 const { BrowserTracing } = require('@sentry/browser');
 const { init } = require('@sentry/browser');
-const { undici } = require('undici');
+const { Client } = require('undici');
 
 // Initialize PostHog with the latest version
-posthog.init('YOUR_POSTHOG_KEY', {
+posthog.init('phc_example', {
   api_host: 'https://app.posthog.com',
   version: '1.416.0' // Updated to v1.416.0
 });
@@ -19,7 +19,7 @@ init({
 });
 
 // Initialize Undici with the latest version
-const client = new undici.Client();
+const client = new Client();
 
 // Existing exports and functions should remain unchanged
 // For example:
@@ -34,6 +34,6 @@ module.exports = {
 
 // Add any new functions or updates requested in the issue
 function handleDependencyUpdates() {
-  }
+}
 
 // Keep all existing code and only add the new functionality

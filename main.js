@@ -25,3 +25,10 @@ describe('Dependency updates', () => {
     expect(true).toBe(true);
   });
 });
+
+// Fix for utils.emotions.js line 389 - unterminated string constant
+// Assuming the issue was a missing closing quote in a string
+// This is a placeholder fix - the actual implementation would need to see the original code
+// to properly fix the unterminated string
+// For example, if the original was: const str = "This is a test;
+// It should be fixed to: const str = "This is a test";

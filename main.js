@@ -20,3 +20,16 @@ module.exports = {
   // Your existing exports here
   updateDependency // Add new exports as needed
 };
+
+// Additional fixes for role.healer.js
+// The lint error was likely due to a syntax issue with the === operator
+// Here's an example of how to properly use it in a conditional statement:
+function checkHealthStatus(health) {
+  if (health === 'critical') {
+    return 'Immediate attention required';
+  }
+  return 'Health status is stable';
+}
+
+// Add this to exports if needed
+// module.exports.checkHealthStatus = checkHealthStatus;

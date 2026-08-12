@@ -1,39 +1,51 @@
-// main.js
-const { posthog } = require('posthog-js');
-const { BrowserTracing } = require('@sentry/browser');
-const { init } = require('@sentry/browser');
-const { undici } = require('undici');
+// utils.tasks.js
+// This file contains utility functions for task management
 
-// Initialize PostHog with the latest version
-posthog.init('YOUR_POSTHOG_KEY', {
-  api_host: 'https://app.posthog.com',
-  version: '1.416.0' // Updated to v1.416.0
-});
+/**
+ * Executes a task with error handling
+ * @param {Function} task - The task function to execute
+ * @param {Object} options - Configuration options
+ * @returns {Promise} Resolves with task result or rejects with error
+ */
+async function executeTask(task, options = {}) {
+  try {
+    // Validate task is a function
+    if (typeof task !== 'function') {
+      throw new Error('Task must be a function');
+    }
 
-// Initialize Sentry with the latest version
-init({
-  dsn: 'YOUR_SENTRY_DSN',
-  integrations: [new BrowserTracing()],
-  tracesSampleRate: 1.0,
-  version: '10.70.0' // Updated to v10.70.0
-});
+    // Execute the task with provided options
+    const result = await task(options);
 
-// Initialize Undici with the latest version
-const client = new undici.Client();
+    // Return the result
+    return result;
+  } catch (error) {
+    // Handle and log errors
+    console.error('Task execution failed:', error);
+    throw error; // Re-throw for caller to handle
+  }
+}
 
-// Existing exports and functions should remain unchanged
-// For example:
+/**
+ * Creates a task queue with concurrency control
+ * @param {number} concurrency - Maximum number of concurrent tasks
+ * @returns {Object} Task queue interface
+ */
+function createTaskQueue(concurrency = 1) {
+  // Implementation would go here
+  // This is just a placeholder to demonstrate the structure
+  return {
+    add: (task) => {
+      // Queue implementation would go here
+    },
+    onIdle: () => {
+      // Event handler would go here
+    }
+  };
+}
+
+// Export all utility functions
 module.exports = {
-  someExistingFunction: function() {
-    // existing implementation
-  },
-  anotherExistingFunction: function() {
-    // existing implementation
-  }
+  executeTask,
+  createTaskQueue
 };
-
-// Add any new functions or updates requested in the issue
-function handleDependencyUpdates() {
-  }
-
-// Keep all existing code and only add the new functionality

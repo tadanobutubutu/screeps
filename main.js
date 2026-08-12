@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-=========================================
-
 const emotionString = "This is a properly terminated string"; // Fixed unterminated string issue
 
 function randomFunction() {
@@ -12,4 +9,3 @@ function randomFunction() {
 module.exports = {
     randomFunction,
 };
->>>>>>>> origin/main

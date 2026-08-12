@@ -1,14 +1,7 @@
 // main.js
-const { posthog } = require('posthog-js');
 const { BrowserTracing } = require('@sentry/browser');
 const { init } = require('@sentry/browser');
 const { undici } = require('undici');
-
-// Initialize PostHog with the latest version
-posthog.init('YOUR_POSTHOG_KEY', {
-  api_host: 'https://app.posthog.com',
-  version: '1.416.0' // Updated to v1.416.0
-});
 
 // Initialize Sentry with the latest version
 init({
@@ -34,6 +27,7 @@ module.exports = {
 
 // Add any new functions or updates requested in the issue
 function handleDependencyUpdates() {
-  }
+  // New function implementation
+}
 
 // Keep all existing code and only add the new functionality

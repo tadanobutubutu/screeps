@@ -1,4 +1,3 @@
-// test_random.js
 const { describe, it, expect, test } = require('jest');
 
 describe('Random number generation', () => {
@@ -18,7 +17,6 @@ describe('Random number generation', () => {
   });
 });
 
-// Add new test for updated dependencies
 describe('Dependency updates', () => {
   it('should have updated dependencies', () => {
     // This test will be implemented when the actual dependency updates are applied

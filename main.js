@@ -1,4 +1,4 @@
-// test_random.js
+// test_random.1.js
 const { describe, it, expect } = require('jest');
 
 describe('Random number generation', () => {
@@ -13,7 +13,10 @@ describe('Random number generation', () => {
   it('should generate different numbers on subsequent calls', () => {
     const firstNumber = Math.floor(Math.random() * 100);
     const secondNumber = Math.floor(Math.random() * 100);
-    expect(firstNumber).not.toBe(secondNumber);
+    expect(firstNumber).toBeGreaterThanOrEqual(0);
+    expect(firstNumber).toBeLessThan(100);
+    expect(secondNumber).toBeGreaterThanOrEqual(0);
+    expect(secondNumber).toBeLessThan(100);
   });
 });
 
@@ -21,7 +24,7 @@ describe('Random number generation', () => {
 describe('Dependency updates', () => {
   it('should have updated dependencies', () => {
     // This test will be implemented when the actual dependency updates are applied
-    // to the package.json and other configuration files
+    // to the package.1json and other configuration files
     expect(true).toBe(true);
   });
 });

@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// utils.emotions.js
+// ... (previous code remains unchanged until line 389)
+
+// Before (problematic line):
+// const emotionString = "This is an unterminated string;
+
+// After (fixed line):
+const emotionString = "This is a properly terminated string";
+
+// ... (rest of the file remains unchanged)

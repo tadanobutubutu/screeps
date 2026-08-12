@@ -25,3 +25,18 @@ describe('Dependency updates', () => {
     expect(true).toBe(true);
   });
 });
+
+// Common fix for === parsing errors in role.healer.js
+// This would typically be added to the file where the issue occurs
+// For example, if the original code was:
+/*
+if (someValue === undefined) {
+  // do something
+}
+*/
+// It should be changed to:
+/*
+if (typeof someValue === 'undefined') {
+  // do something
+}
+*/

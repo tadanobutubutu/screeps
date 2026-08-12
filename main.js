@@ -1,5 +1,3 @@
-Here is the resolved file content:
-
 // test_random.js
 
 const { describe, it, expect } = require('jest');

@@ -1,16 +1,16 @@
-const fs = require('fs')
-const crypto = require('crypto')
+const fs = require('fs');
+const crypto = require('crypto');
 
 // 実験カタログ
 const experiments = [
-  {
-    name: 'add-performance-monitor',
-    description: 'パフォーマンスモニタリングを追加',
-    apply: () => {
-      const main = fs.readFileSync('main.js', 'utf8')
-      if (main.includes('Performance Monitor')) return false
+    {
+        name: 'add-performance-monitor',
+        description: 'パフォーマンスモニタリングを追加',
+        apply: () => {
+            const main = fs.readFileSync('main.js', 'utf8');
+            if (main.includes('Performance Monitor')) return false;
 
-      const code = `
+            const code = `
     // Performance Monitor (Auto-added)
     if (Game.time % 100 === 0) {
         const used = JSON.stringify(Memory).length;
@@ -18,23 +18,23 @@ const experiments = [
         console.log(\`📊 Memory: \${(used/1024).toFixed(2)}KB / \${(limit/1024).toFixed(2)}KB (\${(used/limit*100).toFixed(1)}%)\`);
         console.log(\`⚡ CPU: \${Game.cpu.getUsed().toFixed(2)} / \${Game.cpu.limit}\`);
     }
-`
-      const updated = main.replace(
-        /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+`;
+            const updated = main.replace(
+                /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
                 `$1${code}`
-      )
-      fs.writeFileSync('main.js', updated)
-      return true
-    }
-  },
-  {
-    name: 'optimize-pathfinding-cache',
-    description: '経路探索キャッシュを最適化',
-    apply: () => {
-      const main = fs.readFileSync('main.js', 'utf8')
-      if (main.includes('pathCache')) return false
+            );
+            fs.writeFileSync('main.js', updated);
+            return true;
+        },
+    },
+    {
+        name: 'optimize-pathfinding-cache',
+        description: '経路探索キャッシュを最適化',
+        apply: () => {
+            const main = fs.readFileSync('main.js', 'utf8');
+            if (main.includes('pathCache')) return false;
 
-      const code = `
+            const code = `
     // Path Cache Cleanup (Auto-added)
     if (!Memory.pathCache) Memory.pathCache = {};
     if (Game.time % 1000 === 0) {
@@ -45,23 +45,23 @@ const experiments = [
             console.log(\`🧼 Cleaned \${oldPaths.length} old cached paths\`);
         }
     }
-`
-      const updated = main.replace(
-        /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+`;
+            const updated = main.replace(
+                /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
                 `$1${code}`
-      )
-      fs.writeFileSync('main.js', updated)
-      return true
-    }
-  },
-  {
-    name: 'improve-spawn-priority',
-    description: 'スポーン優先度ロジックを改善',
-    apply: () => {
-      const main = fs.readFileSync('main.js', 'utf8')
-      if (main.includes('spawnPriority')) return false
+            );
+            fs.writeFileSync('main.js', updated);
+            return true;
+        },
+    },
+    {
+        name: 'improve-spawn-priority',
+        description: 'スポーン優先度ロジックを改善',
+        apply: () => {
+            const main = fs.readFileSync('main.js', 'utf8');
+            if (main.includes('spawnPriority')) return false;
 
-      const code = `
+            const code = `
     // Smart Spawn Priority (Auto-added)
     if (!Memory.spawnPriority) {
         Memory.spawnPriority = ['harvester', 'upgrader', 'builder', 'repairer'];
@@ -74,23 +74,23 @@ const experiments = [
         });
         Memory.spawnPriority.sort((a, b) => (counts[a] || 0) - (counts[b] || 0));
     }
-`
-      const updated = main.replace(
-        /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+`;
+            const updated = main.replace(
+                /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
                 `$1${code}`
-      )
-      fs.writeFileSync('main.js', updated)
-      return true
-    }
-  },
-  {
-    name: 'add-tower-optimization',
-    description: 'タワーのターゲット選択を最適化',
-    apply: () => {
-      const main = fs.readFileSync('main.js', 'utf8')
-      if (main.includes('towerTargeting')) return false
+            );
+            fs.writeFileSync('main.js', updated);
+            return true;
+        },
+    },
+    {
+        name: 'add-tower-optimization',
+        description: 'タワーのターゲット選択を最適化',
+        apply: () => {
+            const main = fs.readFileSync('main.js', 'utf8');
+            if (main.includes('towerTargeting')) return false;
 
-      const code = `
+            const code = `
     // Smart Tower Targeting (Auto-added)
     const towers = Object.values(Game.structures).filter(s => s.structureType === STRUCTURE_TOWER);
     const hostilesByRoom = {};
@@ -122,23 +122,23 @@ const experiments = [
             }
         }
     });
-`
-      const updated = main.replace(
-        /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+`;
+            const updated = main.replace(
+                /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
                 `$1${code}`
-      )
-      fs.writeFileSync('main.js', updated)
-      return true
-    }
-  },
-  {
-    name: 'add-energy-efficiency',
-    description: 'エネルギー効率トラッキング',
-    apply: () => {
-      const main = fs.readFileSync('main.js', 'utf8')
-      if (main.includes('energyEfficiency')) return false
+            );
+            fs.writeFileSync('main.js', updated);
+            return true;
+        },
+    },
+    {
+        name: 'add-energy-efficiency',
+        description: 'エネルギー効率トラッキング',
+        apply: () => {
+            const main = fs.readFileSync('main.js', 'utf8');
+            if (main.includes('energyEfficiency')) return false;
 
-      const code = `
+            const code = `
     // Energy Efficiency Tracking (Auto-added)
     if (Game.time % 1000 === 0) {
         const rooms = Object.values(Game.rooms).filter(r => r.controller && r.controller.my);
@@ -149,47 +149,47 @@ const experiments = [
             console.log(\`⚡ Room \${room.name}: \${efficiency}% energy efficiency\`);
         });
     }
-`
-      const updated = main.replace(
-        /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
+`;
+            const updated = main.replace(
+                /(module\.exports\.loop\s*=\s*function\s*\(\s*\)\s*{)/,
                 `$1${code}`
-      )
-      fs.writeFileSync('main.js', updated)
-      return true
-    }
-  }
-]
+            );
+            fs.writeFileSync('main.js', updated);
+            return true;
+        },
+    },
+];
 
 // ランダムに1つ選択
-const selected = experiments[crypto.randomInt(0, experiments.length)]
-console.log(`🎲 Selected experiment: ${selected.name}`)
-console.log(`📝 Description: ${selected.description}`)
+const selected = experiments[crypto.randomInt(0, experiments.length)];
+console.log(`🎲 Selected experiment: ${selected.name}`);
+console.log(`📝 Description: ${selected.description}`);
 
-const success = selected.apply()
+const success = selected.apply();
 
 if (success) {
-  const report = {
-    experiment: selected.name,
-    description: selected.description,
-    timestamp: new Date().toISOString(),
-    status: 'applied'
-  }
-  fs.writeFileSync('last-experiment.json', JSON.stringify(report, null, 2))
-  console.log('✅ Experiment applied successfully!')
-} else {
-  console.log('⚠️ Experiment already exists or not applicable')
-  fs.writeFileSync(
-    'last-experiment.json',
-    JSON.stringify(
-      {
+    const report = {
         experiment: selected.name,
         description: selected.description,
         timestamp: new Date().toISOString(),
-        status: 'skipped'
-      },
-      null,
-      2
-    )
-  )
-  process.exit(0)
+        status: 'applied',
+    };
+    fs.writeFileSync('last-experiment.json', JSON.stringify(report, null, 2));
+    console.log('✅ Experiment applied successfully!');
+} else {
+    console.log('⚠️ Experiment already exists or not applicable');
+    fs.writeFileSync(
+        'last-experiment.json',
+        JSON.stringify(
+            {
+                experiment: selected.name,
+                description: selected.description,
+                timestamp: new Date().toISOString(),
+                status: 'skipped',
+            },
+            null,
+            2
+        )
+    );
+    process.exit(0);
 }

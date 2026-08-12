@@ -22,9 +22,9 @@ describe('Random number generation', () => {
 
 // Add new test for updated dependencies
 describe('Dependency updates', () => {
-  it('should have updated dependencies', () => {
+  it('should have updated dependencies', () =>
     // This test will be implemented when the actual dependency updates are applied
     // to the package.1json and other configuration files
     expect(true).toBe(true);
-  });
+  );
 });

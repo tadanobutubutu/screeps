@@ -1,27 +1,54 @@
-// test_random.js
-const { describe, it, expect } = require('jest');
+// src/managers/roomManager.js
+class RoomManager {
+  constructor() {
+    this.rooms = new Map();
+  }
 
-describe('Random number generation', () => {
-  it('should generate a random number within the specified range', () => {
-    const min = 1;
-    const max = 10;
-    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    expect(randomNumber).toBeGreaterThanOrEqual(min);
-    expect(randomNumber).toBeLessThanOrEqual(max);
-  });
+  createRoom(roomId) {
+    if (!this.rooms.has(roomId)) {
+      this.rooms.set(roomId, {
+        id: roomId,
+        createdAt: new Date(),
+        participants: []
+      });
+      return true;
+    }
+    return false;
+  }
 
-  it('should generate different numbers on subsequent calls', () => {
-    const firstNumber = Math.floor(Math.random() * 100);
-    const secondNumber = Math.floor(Math.random() * 100);
-    expect(firstNumber).not.toBe(secondNumber);
-  });
-});
+  getRoom(roomId) {
+    return this.rooms.get(roomId) || null;
+  }
 
-// Add new test for updated dependencies
-describe('Dependency updates', () => {
-  it('should have updated dependencies', () => {
-    // This test will be implemented when the actual dependency updates are applied
-    // to the package.json and other configuration files
-    expect(true).toBe(true);
-  });
-});
+  deleteRoom(roomId) {
+    return this.rooms.delete(roomId);
+  }
+
+  addParticipant(roomId, participant) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      room.participants.push(participant);
+      return true;
+    }
+    return false;
+  }
+
+  removeParticipant(roomId, participantId) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      room.participants = room.participants.filter(p => p.id !== participantId);
+      return true;
+    }
+    return false;
+  }
+
+  getRoomCount() {
+    return this.rooms.size;
+  }
+
+  clearAllRooms() {
+    this.rooms.clear();
+  }
+}
+
+module.exports = { RoomManager };

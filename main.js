@@ -1,8 +1,8 @@
-Remove conflict markers and preserve both logical changes:
-
 // main.js
 // [Your existing code here]
 
+=======
+// main.js
 
 /**
  * New function to handle dependency updates

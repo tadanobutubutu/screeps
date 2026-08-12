@@ -1,4 +1,3 @@
-// src/managers/roomManager.js
 class RoomManager {
   constructor() {
     this.rooms = new Map();
@@ -9,12 +8,9 @@ class RoomManager {
       this.rooms.set(roomId, {
         id: roomId,
         createdAt: new Date(),
-        participants: []
+        participants: [],
+        creepCount: 0
       });
-
-      // Add function to track number of creeps in room
-      this.rooms.get(roomId).creepCount = 0;
-
       return true;
     }
     return false;
@@ -24,7 +20,6 @@ class RoomManager {
     const room = this.rooms.get(roomId);
     if (room) {
       if (room.creepCount) {
-        // Update function to include last scout update time
         room.lastScoutUpdate = new Date();
       }
     }
@@ -50,7 +45,6 @@ class RoomManager {
     if (room) {
       room.participants = room.participants.filter(p => p.id !== participantId);
       if (!room.participants.length) {
-        // Clear room if no more participants
         this.rooms.delete(roomId);
       } else {
         room.creepCount--;
@@ -111,5 +105,5 @@ describe('Dependency updates', () => {
     // This test will be implemented when the actual dependency updates are applied
     // to the package.1json and other configuration files
     expect(true).toBe(true);
-  );
-});
+  });
+}

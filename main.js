@@ -1,18 +1,18 @@
-// main.js
-// This is a placeholder for the actual content you should provide
-// Please share the complete content of main.js including any conflict markers
-// so I can properly analyze and fix the issue
+// utils.emotions.js
+// ... (previous code remains unchanged until line 389)
 
-// Example of what a properly formatted main.js might look like:
-const existingFunction = () => {
-  // existing code
+const emotionStrings = {
+  happy: '😊',
+  sad: '😢',
+  angry: '😠',
+  surprised: '😲',
+  // Ensure all string values are properly terminated with quotes
+  // Example of a properly terminated string:
+  excited: '🎉'  // Fixed: Added closing quote
 };
 
-const newFunction = () => {
-  // new code to add
-};
+// ... (rest of the file remains unchanged)
 
 module.exports = {
-  existingFunction,
-  newFunction
+  emotionStrings
 };

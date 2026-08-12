@@ -1,27 +1,65 @@
-// test_random.js
-const { describe, it, expect } = require('jest');
+// src/managers/roomManager.js
+const { v4: uuidv4 } = require('uuid');
 
-describe('Random number generation', () => {
-  it('should generate a random number within the specified range', () => {
-    const min = 1;
-    const max = 10;
-    const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    expect(randomNumber).toBeGreaterThanOrEqual(min);
-    expect(randomNumber).toBeLessThanOrEqual(max);
-  });
+class RoomManager {
+  constructor() {
+    this.rooms = new Map();
+  }
 
-  it('should generate different numbers on subsequent calls', () => {
-    const firstNumber = Math.floor(Math.random() * 100);
-    const secondNumber = Math.floor(Math.random() * 100);
-    expect(firstNumber).not.toBe(secondNumber);
-  });
-});
+  createRoom(name) {
+    const roomId = uuidv4();
+    this.rooms.set(roomId, {
+      id: roomId,
+      name,
+      participants: new Set(),
+      messages: []
+    });
+    return roomId;
+  }
 
-// Add new test for updated dependencies
-describe('Dependency updates', () => {
-  it('should have updated dependencies', () => {
-    // This test will be implemented when the actual dependency updates are applied
-    // to the package.json and other configuration files
-    expect(true).toBe(true);
-  });
-});
+  joinRoom(roomId, userId) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+    room.participants.add(userId);
+    return room;
+  }
+
+  leaveRoom(roomId, userId) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+    room.participants.delete(userId);
+    return room;
+  }
+
+  addMessage(roomId, userId, content) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      throw new Error('Room not found');
+    }
+    if (!room.participants.has(userId)) {
+      throw new Error('User not in room');
+    }
+    const message = {
+      id: uuidv4(),
+      userId,
+      content,
+      timestamp: new Date()
+    };
+    room.messages.push(message);
+    return message;
+  }
+
+  getRoom(roomId) {
+    return this.rooms.get(roomId);
+  }
+
+  getAllRooms() {
+    return Array.from(this.rooms.values());
+  }
+}
+
+module.exports = RoomManager;

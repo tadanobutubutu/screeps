@@ -1,8 +1,3 @@
-// main.js
-
-// Add any new functions or changes requested in the issue
-// For example, if there's a new feature to add:
-
 /**
  * New function to handle dependency updates
  * @param {string} dependencyName - Name of the dependency to update

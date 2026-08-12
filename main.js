@@ -37,3 +37,11 @@ function handleDependencyUpdates() {
 }
 
 // Keep all existing code and only add the new functionality
+
+// Add this function to handle the equality comparison issue
+function compareValues(a, b) {
+  return a === b;
+}
+
+// Add this to the exports if needed
+module.exports.compareValues = compareValues;

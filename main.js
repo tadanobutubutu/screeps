@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// src/managers/roomManager.js
+class RoomManager {
+  constructor() {
+    // Initialize room manager
+  }
+
+  // Add your room management methods here
+  createRoom(roomData) {
+    // Implementation
+  }
+
+  getRoom(roomId) {
+    // Implementation
+  }
+
+  // ... other methods
+}
+
+// Export the class
+module.exports = RoomManager;

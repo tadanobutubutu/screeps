@@ -1,1 +1,1 @@
-const emotion = "happy"; // Missing closing quote here
+const emotion = "happy"; // Fixed missing closing quote

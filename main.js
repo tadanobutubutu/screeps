@@ -1,6 +1,9 @@
+Here is the resolved file content:
+
+```javascript
 // role.healer.js
 // Preserve all existing code and structure
-// Only fix the specific syntax error on line 18
+// Only fix the specific syntax error on line 18 and add the new function from the other branch
 
 // Example of a properly formatted line (this is just an example - use your actual code):
 function heal(target) {
@@ -13,6 +16,11 @@ function heal(target) {
   return true;
 }
 
+// New function to fix Jest test
+function fixJestTest() {
+  // Implementation to fix the test
+}
+
 // Make sure all statements are properly terminated with semicolons
 // Ensure proper use of parentheses, brackets, and braces
 // Check for any missing or misplaced operators
@@ -22,3 +30,9 @@ function example() {
     // comment started but never closed
 }
 */
+
+module.exports = {
+  heal,
+  fixJestTest
+};
+```

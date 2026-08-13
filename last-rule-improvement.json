@@ -1,9 +1,5 @@
 {
-  "files": [
-    "main.js"
-  ],
-  "rules": [
-    "Strict undefined check"
-  ],
-  "timestamp": "2026-08-13T00:52:15.384Z"
+    "files": ["main.js"],
+    "rules": ["Strict undefined check"],
+    "timestamp": "2026-08-13T00:52:15.384Z"
 }

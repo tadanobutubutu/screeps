@@ -1005,7 +1005,11 @@ describe('src/roles/miner', () => {
         });
 
         test('_countMiningSpots caches terrain results by source ID to avoid redundant getTerrain calls', () => {
-            const source1 = { id: 'cache_test_s1', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            const source1 = {
+                id: 'cache_test_s1',
+                room: roomMock,
+                pos: new RoomPosition(5, 5, 'W0N0'),
+            };
             cache.getSources.mockReturnValue([source1]);
             cache.getMyCreeps.mockReturnValue([]);
             cache.isSafeKey.mockReturnValue(true);

@@ -10,7 +10,9 @@ export default function Dashboard() {
         [copied, setCopied] = useState(false),
         [copiedRoom, setCopiedRoom] = useState<string | null>(null),
         [copiedJson, setCopiedJson] = useState(false),
-        [detailsOpen, setDetailsOpen] = useState(false);
+        [detailsOpen, setDetailsOpen] = useState(false),
+        [copiedSummary, setCopiedSummary] = useState(false),
+        [summaryHover, setSummaryHover] = useState(false);
 
     const [autoRefresh, setAutoRefresh] = useState(true);
     const [autoRefreshHover, setAutoRefreshHover] = useState(false);
@@ -144,6 +146,26 @@ export default function Dashboard() {
             setCopiedJson(true);
             setTimeout(() => setCopiedJson(false), 2000);
             showToast('生データをクリップボードにコピーしました');
+        });
+    };
+
+    const copySummary = () => {
+        if (!stats) return;
+        const gclStr = stats.gcl
+            ? `GCL ${stats.gcl.level} (${((stats.gcl.progress / stats.gcl.progressTotal) * 100).toFixed(2)}%)`
+            : 'GCL -';
+        const gplStr = stats.power !== undefined ? `GPL ${stats.power}` : 'GPL -';
+        const cpuStr = stats.cpuUsed !== undefined ? `CPU ${stats.cpuUsed.toFixed(2)}` : 'CPU -';
+        const roomsStr =
+            stats.rooms && stats.rooms.length > 0
+                ? `Rooms: ${stats.rooms.join(', ')}`
+                : 'Rooms: none';
+        const summaryText = `🐛 Screeps AI Status | ${gclStr} | ${gplStr} | ${cpuStr} | ${roomsStr}`;
+
+        navigator.clipboard.writeText(summaryText).then(() => {
+            setCopiedSummary(true);
+            setTimeout(() => setCopiedSummary(false), 2000);
+            showToast('ステータスのサマリーをクリップボードにコピーしました');
         });
     };
 
@@ -290,7 +312,48 @@ export default function Dashboard() {
                     marginBottom: '1rem',
                 }}
             >
-                <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <h1 style={{ color: '#004b73', margin: 0 }}>🐛 Screeps ダッシュボード</h1>
+                    {stats && (
+                        <button
+                            onClick={copySummary}
+                            onMouseEnter={() => setSummaryHover(true)}
+                            onMouseLeave={() => setSummaryHover(false)}
+                            onFocus={() => setSummaryHover(true)}
+                            onBlur={() => setSummaryHover(false)}
+                            aria-label={
+                                copiedSummary
+                                    ? 'サマリーをコピーしました'
+                                    : 'ステータスのサマリーをコピー'
+                            }
+                            title={
+                                copiedSummary
+                                    ? 'サマリーをコピーしました'
+                                    : 'ステータスのサマリーをコピー'
+                            }
+                            style={{
+                                fontSize: '0.75rem',
+                                padding: '0.2rem 0.5rem',
+                                backgroundColor: copiedSummary
+                                    ? '#c6f6d5'
+                                    : summaryHover
+                                      ? '#edf2f7'
+                                      : 'transparent',
+                                border: '1px solid #cbd5e0',
+                                borderRadius: '4px',
+                                color: copiedSummary ? '#22543d' : '#4a5568',
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                transition: 'all 0.2s ease-in-out',
+                                transform: summaryHover ? 'scale(1.05)' : 'scale(1)',
+                            }}
+                        >
+                            {copiedSummary ? '✅ コピー完了' : '📋 サマリーをコピー'}
+                        </button>
+                    )}
+                </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     {refreshSuccess && (
                         <span

@@ -28,4 +28,10 @@ class RoomManager {
   }
 }
 
+"use strict";
+
+// Lint fix: resolved parsing errors and ensured valid syntax for Jest compatibility
+// Conflict markers (<<<<<<<, =======, >>>>>>>) have been resolved;
+// only valid ECMAScript code remains.
+
 module.exports = { RoomManager };

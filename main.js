@@ -1,10 +1,1 @@
-// Example of a properly formatted test_random.js
-const { randomFunction } = require('../main.js');
-
-describe('randomFunction tests', () => {
-  it('should do something', () => {
-    expect(randomFunction()).toBeDefined();
-  });
-
-  // Add more test cases here
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

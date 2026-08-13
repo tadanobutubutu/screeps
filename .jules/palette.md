@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-13 - [Headless Clipboard Permissions for Automated UX Verification]
+
+**Learning:** Headless browser engines (like Chromium used in Playwright) block access to the native clipboard API (`navigator.clipboard.writeText`) by default, preventing simulated "click to copy" actions from successfully executing. Granting explicit `['clipboard-read', 'clipboard-write']` permissions at the browser context level enables full validation of copied telemetry states and corresponding toast notifications without throwing security exceptions.
+**Action:** When writing Playwright or other browser verification scripts for copy-to-clipboard elements, always declare context-level clipboard permissions explicitly to ensure reliable automated visual tests.
+
 ## 2026-08-12 - [Accessible Keyboard-Navigable Scrollable Containers]
 
 **Learning:** Scrollable non-interactive containers (such as `<pre>` code logs or dynamic JSON blocks) must be accessible to keyboard-only and screen-reader users by adding `tabIndex={0}` and a descriptive `aria-label`. This allows users to easily focus on and scroll through extensive content using arrow/navigation keys, satisfying WCAG 2.1.1 (Keyboard Accessibility).

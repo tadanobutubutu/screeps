@@ -15,7 +15,6 @@ const validateDependencyVersions = (dependencies) => {
     }
 };
 module.exports = {
-    // ... (existing exports remain unchanged)
     emotionStrings,
     updateDependencies,
     validateDependencyVersions

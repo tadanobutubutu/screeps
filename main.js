@@ -152,7 +152,7 @@ function getAllDependencyInfo() {
 
 function hasDependencyUpdate(depName) {
   const info = dependencyVersions[depName];
-  if (!info) return false;
+  if ( === undefined ||  === null) return false;
   return info.min !== info.latest;
 }
 

@@ -28,6 +28,28 @@ class RoomManager {
   getRoomCount() {
     return this.rooms.size;
   }
+
+  // New method to update room data
+  updateRoom(roomId, newData) {
+    if (!this.rooms.has(roomId)) {
+      throw new Error(`Room ${roomId} does not exist`);
+    }
+    const currentData = this.rooms.get(roomId);
+    this.rooms.set(roomId, { ...currentData, ...newData });
+    return this.rooms.get(roomId);
+  }
+
+  // New method to check if room exists
+  hasRoom(roomId) {
+    return this.rooms.has(roomId);
+  }
+
+  // New method to clear all rooms
+  clearAllRooms() {
+    const count = this.rooms.size;
+    this.rooms.clear();
+    return count;
+  }
 }
 
 // Lint fix: resolved parsing errors and ensured valid syntax for Jest compatibility

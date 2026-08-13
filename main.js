@@ -16,3 +16,9 @@ function heal(target) {
 // Make sure all statements are properly terminated with semicolons
 // Ensure proper use of parentheses, brackets, and braces
 // Check for any missing or misplaced operators
+
+/*
+function example() {
+    // comment started but never closed
+}
+*/

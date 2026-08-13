@@ -16,6 +16,9 @@ module.exports = {
   updatedDependencies,
   // Add new functions or updates here
   getUpdatedDependencies: () => updatedDependencies,
+  // New functions added for the issue
+  handleDependencyUpdates,
+  checkForSpecificUpdates,
   // ... rest of existing code
 };
 

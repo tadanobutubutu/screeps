@@ -16,6 +16,8 @@ module.exports = {
   updatedDependencies,
   // Add new functions or updates here
   getUpdatedDependencies: () => updatedDependencies,
+  hasUpdatedDependency: (dependencyName) => updatedDependencies[dependencyName] !== undefined,
+  checkDependency: (dependencyName) => updatedDependencies[dependencyName] !== undefined,
   // ... rest of existing code
   handleDependencyUpdates,
   checkForSpecificUpdates
@@ -29,6 +31,10 @@ function handleDependencyUpdates() {
 }
 
 // Add function to check for specific dependency updates
+function checkDependency(dependencyName) {
+  return updatedDependencies[dependencyName] !== undefined;
+}
+
 function hasUpdatedDependency(dependencyName) {
   return updatedDependencies[dependencyName] !== undefined;
 }

@@ -1,7 +1,1 @@
-// Main application file
-
-function main() {
-  console.log('Application started');
-}
-
-module.exports = { main };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

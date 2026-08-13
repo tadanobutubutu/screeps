@@ -56,21 +56,21 @@ class DependencyManager {
       type: 'fix',
       status: 'awaiting-schedule'
     });
-    
+
     this.pendingUpdates.set('typescript', {
       currentVersion: '^5.7.3',
       newVersion: '^7.0.0',
       type: 'chore',
       status: 'awaiting-schedule'
     });
-    
+
     this.pendingUpdates.set('@sentry/browser', {
       currentVersion: '10.69.0',
       newVersion: '10.70.0',
       type: 'fix',
       status: 'pr-edited-blocked'
     });
-    
+
     this.pendingUpdates.set('undici', {
       currentVersion: '>=6.24.0',
       newVersion: '8.9.0',
@@ -152,7 +152,7 @@ function getAllDependencyInfo() {
 
 function hasDependencyUpdate(depName) {
   const info = dependencyVersions[depName];
-  if ( === undefined ||  === null) return false;
+  if (info === undefined || info === null) return false;
   return info.min !== info.latest;
 }
 

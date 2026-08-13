@@ -26,5 +26,10 @@ function handleDependencyUpdates() {
   // Add specific update logic here
 }
 
+// Add function to check for specific dependency updates
+function checkForSpecificUpdates(dependencyName) {
+  return updatedDependencies[dependencyName] !== undefined;
+}
+
 // Preserve all existing event listeners and other functionality
 // ... rest of the original code

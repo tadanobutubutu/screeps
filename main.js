@@ -1,7 +1,8 @@
+"use strict";
+
 // main.js - Module entry point
 // This file typically contains the main logic for the project
-
-// Conflict resolution: Removed conflict markers and merged changes
+// Lint fix: resolved parsing errors and ensured valid syntax for Jest compatibility
 
 const main = () => {
   console.log('Application started');

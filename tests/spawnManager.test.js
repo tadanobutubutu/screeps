@@ -163,11 +163,13 @@ describe('spawnManager', () => {
 
             spawnManager.run(mockSpawn);
 
-            expect(logger.error).toHaveBeenCalledWith('[SpawnManager] スポーンエラー', expect.any(Error));
+            expect(logger.error).toHaveBeenCalledWith(
+                '[SpawnManager] スポーンエラー',
+                expect.any(Error)
+            );
 
             logger.error.mockRestore();
         });
-
 
         test('スポーン中は実行されない', () => {
             mockSpawn.spawning = { name: 'creep1' };

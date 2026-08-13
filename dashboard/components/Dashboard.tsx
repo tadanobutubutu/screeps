@@ -915,7 +915,9 @@ export default function Dashboard() {
                                 onMouseLeave={() => setJsonHover(false)}
                                 onFocus={() => setJsonHover(true)}
                                 onBlur={() => setJsonHover(false)}
-                                aria-label={copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'}
+                                aria-label={
+                                    copiedJson ? 'コピー済み' : '生データをJSONとしてコピー'
+                                }
                                 title={copiedJson ? 'コピー済み' : 'JSONをコピー'}
                                 style={{
                                     fontSize: '0.75rem',

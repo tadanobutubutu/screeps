@@ -2,12 +2,12 @@
 
 // New function to update posthog-js
 async function initPosthog(options) {
-  if (posthogInitialised) return;
+    if (posthogInitialised) return;
 
-  // Existing initialisation code...
+    // Existing initialisation code...
 
-  // Add the new posthog instance to the global scope
-  window.posthog = initInstance;
+    // Add the new posthog instance to the global scope
+    window.posthog = initInstance;
 }
 
 // Call the new function and initialise posthog-js

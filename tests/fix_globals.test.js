@@ -10,8 +10,10 @@ describe('fix_globals.js', () => {
 
     it('should replace the target global comment with ERR_FULL included', () => {
         const filePath = 'dummy.js';
-        const originalContent = "export default {\n  rules: {},\n  globals: {\n    ERR_BUSY: 'readonly'\n  }\n};";
-        const expectedContent = "export default {\n  rules: {},\n  globals: {\n    ERR_BUSY: 'readonly',\n        ERR_FULL: 'readonly'\n  }\n};";
+        const originalContent =
+            "export default {\n  rules: {},\n  globals: {\n    ERR_BUSY: 'readonly'\n  }\n};";
+        const expectedContent =
+            "export default {\n  rules: {},\n  globals: {\n    ERR_BUSY: 'readonly',\n        ERR_FULL: 'readonly'\n  }\n};";
 
         fs.readFileSync.mockReturnValue(originalContent);
 
@@ -23,7 +25,7 @@ describe('fix_globals.js', () => {
 
     it('should not modify the content if the target global comment is not found', () => {
         const filePath = 'dummy.js';
-        const originalContent = "export default {\n  rules: {}\n};";
+        const originalContent = 'export default {\n  rules: {}\n};';
 
         fs.readFileSync.mockReturnValue(originalContent);
 

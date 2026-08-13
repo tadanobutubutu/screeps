@@ -127,30 +127,34 @@ module.exports = {
             return [];
         }
 
-        return cache.get(`road_network_${room.name}`, () => {
-            const sources = cache.getSources(room);
-            const roadPositions = [];
+        return cache.get(
+            `road_network_${room.name}`,
+            () => {
+                const sources = cache.getSources(room);
+                const roadPositions = [];
 
-            // Roads to sources
-            sources.forEach((source) => {
-                if (spawn && spawn.pos) {
-                    const path = spawn.pos.findPathTo(source, { ignoreCreeps: true });
+                // Roads to sources
+                sources.forEach((source) => {
+                    if (spawn && spawn.pos) {
+                        const path = spawn.pos.findPathTo(source, { ignoreCreeps: true });
+                        path.forEach((step) => {
+                            roadPositions.push(new RoomPosition(step.x, step.y, room.name));
+                        });
+                    }
+                });
+
+                // Road to controller
+                if (controller && spawn && spawn.pos) {
+                    const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
                     path.forEach((step) => {
                         roadPositions.push(new RoomPosition(step.x, step.y, room.name));
                     });
                 }
-            });
 
-            // Road to controller
-            if (controller && spawn && spawn.pos) {
-                const path = spawn.pos.findPathTo(controller, { ignoreCreeps: true });
-                path.forEach((step) => {
-                    roadPositions.push(new RoomPosition(step.x, step.y, room.name));
-                });
-            }
-
-            return roadPositions;
-        }, 1000); // Cache the road network for 1000 ticks
+                return roadPositions;
+            },
+            1000
+        ); // Cache the road network for 1000 ticks
     },
 
     // Display planning info

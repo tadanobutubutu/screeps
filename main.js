@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// tutorial.auto.js
+// Make sure there are no syntax errors at the very beginning
+// Common fixes:
+// - Remove any trailing commas in objects/arrays if not supported
+// - Ensure proper semicolons
+// - Verify all imports/exports are correct
+
+// Your actual content here

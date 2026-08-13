@@ -29,7 +29,7 @@ function handleDependencyUpdates() {
 }
 
 // Add function to check for specific dependency updates
-function checkForSpecificUpdates(dependencyName) {
+function hasUpdatedDependency(dependencyName) {
   return updatedDependencies[dependencyName] !== undefined;
 }
 

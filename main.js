@@ -31,5 +31,12 @@ function checkForSpecificUpdates(dependencyName) {
   return updatedDependencies[dependencyName] !== undefined;
 }
 
+// Add function to handle room management updates
+function updateRoomManager() {
+  // Implementation for updating room manager
+  console.log('Updating room manager...');
+  // Add specific update logic here
+}
+
 // Preserve all existing event listeners and other functionality
 // ... rest of the original code

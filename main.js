@@ -1,8 +1,1 @@
-// In utils.tasks.js around line 47
-// Before (problematic):
-/* This is an unterminated comment
-   that needs to be fixed
-
-// After (fixed):
-/* This is a properly terminated comment
-   that needs to be fixed */
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

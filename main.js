@@ -37,7 +37,5 @@ function getDependencyDashboard() {
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports
-  ...existingExports,
-  // New exports
   getDependencyDashboard
 };

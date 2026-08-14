@@ -1,15 +1,15 @@
-// Existing code from current main.js (preserved exactly as is)
 const existingFunction = () => {
   // ... existing implementation
 };
 
-// New functions added from Renovate updates
 const newFunction = () => {
   // Implementation from Renovate update
 };
 
-// Preserve all existing exports
 module.exports = {
+  // Existing exports
+  getDependencyDashboard,
+  // New functions
   existingFunction,
   newFunction,
   // ... all other existing exports

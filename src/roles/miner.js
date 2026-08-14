@@ -184,21 +184,37 @@ function _countMiningSpots(source) {
 // コンテナ採掘ロジック
 // ============================================================
 
+// Persistent module-level cache for static source-to-container ID mapping
+const _sourceContainerIdCache = Object.create(null);
+
 /**
  * ソース付近のコンテナを探す
  * @param {Source} source
  * @returns {StructureContainer|null}
  */
 function _findSourceContainer(source) {
+    const cachedId = _sourceContainerIdCache[source.id];
+    if (cachedId !== undefined) {
+        if (cachedId === null) return null;
+        const container = Game.getObjectById(cachedId);
+        if (container) {
+            return container;
+        }
+        // If container no longer exists, invalidate cache and scan
+        delete _sourceContainerIdCache[source.id];
+    }
+
     const room = source.room;
     const containers = cache.getContainers(room);
 
     for (let i = 0; i < containers.length; i++) {
         const s = containers[i];
         if (source.pos.getRangeTo(s) <= CONTAINER_SEARCH_RANGE) {
+            _sourceContainerIdCache[source.id] = s.id;
             return s;
         }
     }
+    _sourceContainerIdCache[source.id] = null;
     return null;
 }
 

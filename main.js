@@ -11,7 +11,7 @@ function getDependencyDashboard() {
 }
 
 const existingFunction = () => {
-  // ... existing implementation
+  //... existing implementation
 };
 
 const newFunction = () => {
@@ -23,5 +23,5 @@ module.exports = {
   existingFunction,
   newFunction,
   getDependencyDashboard,
-  // ... all other existing exports
+  //... all other existing exports
 };

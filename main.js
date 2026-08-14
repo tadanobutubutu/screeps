@@ -1,23 +1,8 @@
 // main.js
-// [Existing code above conflict markers]
-
-// [Conflict resolution section]
-// Preserve all existing code and exports
-// Add new functionality requested in the issue
-
-// Example of how to handle conflicts (this is just illustrative):
-// <<<<<<< HEAD
-// Existing code from current branch
-// =======
-// New code from incoming changes
-// >>>>>>> renovate/dependency-update
-
-// [Existing code below conflict markers]
 
 // New functionality requested in the issue
-// For example, if the issue mentions adding a dependency dashboard feature:
+// Implementation for dependency dashboard
 function getDependencyDashboard() {
-  // Implementation for dependency dashboard
   return {
     // Dashboard data structure
     dependencies: [
@@ -34,10 +19,7 @@ function getDependencyDashboard() {
   };
 }
 
-// Export all existing functions and add new ones
+// Export all functions
 module.exports = {
-  // Existing exports
-  ...existingExports,
-  // New exports
   getDependencyDashboard
 };

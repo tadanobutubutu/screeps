@@ -7,13 +7,22 @@ app.get('/', (req, res) => {
 });
 
 // New function to update posthog-js
+let posthogInitialised = false;
+
+function initInstance() {
+    // Placeholder for PostHog initialization instance
+    return {
+        // Add PostHog methods and properties as needed
+    };
+}
+
 async function initPosthog(options) {
     if (posthogInitialised) return;
 
     // Existing initialisation code...
 
     // Add the new posthog instance to the global scope
-    window.preshóg = initInstance;
+    window.posthog = initInstance;
 
     // Check if posthog has been injected into the global scope by another function (possibly in the same or different file)
     if (typeof posthog !== 'undefined') {
@@ -26,6 +35,8 @@ async function initPosthog(options) {
         // Initialize PostHog as usual
         // (insert the existing initialisation code here)
     }
+
+    posthogInitialised = true;
 }
 
 // Call the new function and initialise posthog-js

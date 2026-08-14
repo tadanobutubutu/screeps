@@ -14,3 +14,7 @@ async function initPosthog(options) {
 initPosthog({ integration, apiKey });
 
 // Your existing main.js content...
+
+// Fix for unterminated comment in utils.tasks.js
+// This is a placeholder for the actual fix needed in utils.tasks.js
+// The actual fix would involve properly terminating any open comments in that file

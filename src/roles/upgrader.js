@@ -52,15 +52,18 @@ function run(creep) {
 function _updateWorkingState(creep) {
     const energy = creep.store[RESOURCE_ENERGY];
     const capacity = creep.store.getCapacity(RESOURCE_ENERGY);
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
 
     if (creep.memory[MEMORY_KEYS.WORKING] && energy === 0) {
         creep.memory[MEMORY_KEYS.WORKING] = false;
         creep.say('⚡ 補充');
+        delete creep.memory[targetKey];
     }
 
     if (!creep.memory[MEMORY_KEYS.WORKING] && energy === capacity) {
         creep.memory[MEMORY_KEYS.WORKING] = true;
         creep.say('🔋 強化');
+        delete creep.memory[targetKey];
     }
 }
 
@@ -75,6 +78,49 @@ function _updateWorkingState(creep) {
  */
 function _getEnergy(creep) {
     const room = creep.room;
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
+
+    // ⚡ PERFORMANCE OPTIMIZATION: Check if cached energy target is still valid to avoid per-tick scans
+    const targetId = creep.memory[targetKey];
+    if (targetId) {
+        const target = Game.getObjectById(targetId);
+        if (target) {
+            let isValid = false;
+            if (target.structureType === STRUCTURE_STORAGE) {
+                isValid = target.store[RESOURCE_ENERGY] >= 1000;
+            } else if (target.structureType === STRUCTURE_LINK) {
+                isValid = target.store[RESOURCE_ENERGY] >= 200;
+            } else if (target.structureType === STRUCTURE_CONTAINER) {
+                isValid =
+                    target.store[RESOURCE_ENERGY] >= 100 &&
+                    (!room.controller || target.pos.getRangeTo(room.controller) <= 5);
+            } else if (target.amount !== undefined) {
+                // Dropped resource
+                isValid = target.resourceType === RESOURCE_ENERGY && target.amount >= 50;
+            } else if (target.energy !== undefined) {
+                // Source
+                isValid = target.energy > 0;
+            }
+
+            if (isValid) {
+                if (target.store !== undefined) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else if (target.amount !== undefined) {
+                    if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                }
+                return;
+            }
+        }
+        delete creep.memory[targetKey];
+    }
 
     if (_getEnergyFromStorage(creep, room)) return;
     if (_getEnergyFromLink(creep, room)) return;
@@ -91,7 +137,9 @@ function _getEnergy(creep) {
  */
 function _getEnergyFromStorage(creep, room) {
     const storage = cache.getStorage(room);
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     if (storage && storage.store[RESOURCE_ENERGY] >= 1000) {
+        creep.memory[targetKey] = storage.id;
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
@@ -108,6 +156,7 @@ function _getEnergyFromStorage(creep, room) {
  */
 function _getEnergyFromLink(creep, room) {
     const links = cache.getLinks(room);
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestLink = null;
     let minDistance = Infinity;
@@ -122,6 +171,7 @@ function _getEnergyFromLink(creep, room) {
         }
     }
     if (bestLink) {
+        creep.memory[targetKey] = bestLink.id;
         if (creep.withdraw(bestLink, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestLink, { range: 1 });
         }
@@ -139,6 +189,7 @@ function _getEnergyFromLink(creep, room) {
 function _getEnergyFromContainer(creep, room) {
     const containers = cache.getContainers(room);
     const controller = room.controller;
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     if (controller) {
         // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
         let bestContainer = null;
@@ -157,6 +208,7 @@ function _getEnergyFromContainer(creep, room) {
             }
         }
         if (bestContainer) {
+            creep.memory[targetKey] = bestContainer.id;
             if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                 pathfinder.moveTo(creep, bestContainer, { range: 1 });
             }
@@ -174,6 +226,7 @@ function _getEnergyFromContainer(creep, room) {
  */
 function _getEnergyFromDropped(creep, room) {
     const dropped = cache.getDroppedResources(room);
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     // ⚡ PERFORMANCE: Use single-pass for loop to avoid filter array allocation and find closest.
     let bestDrop = null;
     let minDistance = Infinity;
@@ -188,6 +241,7 @@ function _getEnergyFromDropped(creep, room) {
         }
     }
     if (bestDrop) {
+        creep.memory[targetKey] = bestDrop.id;
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
@@ -204,7 +258,9 @@ function _getEnergyFromDropped(creep, room) {
  */
 function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
+    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
     if (source) {
+        creep.memory[targetKey] = source.id;
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }

@@ -1,43 +1,95 @@
-// main.js
-// [Existing code above conflict markers]
+// src/managers/roomManager.js
 
-// [Conflict resolution section]
-// Preserve all existing code and exports
-// Add new functionality requested in the issue
+const rooms = new Map();
 
-// Example of how to handle conflicts (this is just illustrative):
-// <<<<<<< HEAD
-// Existing code from current branch
-// =======
-// New code from incoming changes
-// >>>>>>> renovate/dependency-update
-
-// [Existing code below conflict markers]
-
-// New functionality requested in the issue
-// For example, if the issue mentions adding a dependency dashboard feature:
-function getDependencyDashboard() {
-  // Implementation for dependency dashboard
-  return {
-    // Dashboard data structure
-    dependencies: [
-      // List of dependencies from the issue
-      { name: 'posthog-js', version: '1.417.0' },
-      { name: 'typescript', version: '7.0.0' },
-      // ... other dependencies
-    ],
-    updates: [
-      // Update information from the issue
-      { name: '@sentry/browser', version: '10.70.0', status: 'blocked' },
-      // ... other updates
-    ]
+/**
+ * Creates a new room
+ * @param {string} roomId - Unique identifier for the room
+ * @param {Object} options - Room configuration options
+ * @returns {Object} The created room
+ */
+function createRoom(roomId, options = {}) {
+  if (rooms.has(roomId)) {
+    throw new Error(`Room ${roomId} already exists`);
+  }
+  
+  const room = {
+    id: roomId,
+    createdAt: new Date(),
+    participants: [],
+    ...options
   };
+  
+  rooms.set(roomId, room);
+  return room;
 }
 
-// Export all existing functions and add new ones
+/**
+ * Gets a room by ID
+ * @param {string} roomId - Unique identifier for the room
+ * @returns {Object|null} The room or null if not found
+ */
+function getRoom(roomId) {
+  return rooms.get(roomId) || null;
+}
+
+/**
+ * Deletes a room
+ * @param {string} roomId - Unique identifier for the room
+ * @returns {boolean} True if deleted, false if not found
+ */
+function deleteRoom(roomId) {
+  return rooms.delete(roomId);
+}
+
+/**
+ * Gets all rooms
+ * @returns {Array} Array of all rooms
+ */
+function getAllRooms() {
+  return Array.from(rooms.values());
+}
+
+/**
+ * Joins a room
+ * @param {string} roomId - Unique identifier for the room
+ * @param {string} participantId - Identifier for the participant
+ * @returns {Object|null} The updated room or null if not found
+ */
+function joinRoom(roomId, participantId) {
+  const room = rooms.get(roomId);
+  if (!room) {
+    return null;
+  }
+  
+  if (!room.participants.includes(participantId)) {
+    room.participants.push(participantId);
+  }
+  
+  return room;
+}
+
+/**
+ * Leaves a room
+ * @param {string} roomId - Unique identifier for the room
+ * @param {string} participantId - Identifier for the participant
+ * @returns {Object|null} The updated room or null if not found
+ */
+function leaveRoom(roomId, participantId) {
+  const room = rooms.get(roomId);
+  if (!room) {
+    return null;
+  }
+  
+  room.participants = room.participants.filter(id => id !== participantId);
+  return room;
+}
+
 module.exports = {
-  // Existing exports
-  ...existingExports,
-  // New exports
-  getDependencyDashboard
+  createRoom,
+  getRoom,
+  deleteRoom,
+  getAllRooms,
+  joinRoom,
+  leaveRoom
 };

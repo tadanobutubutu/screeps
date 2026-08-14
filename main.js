@@ -1,16 +1,14 @@
-// Your existing main.js content...
+// utils.emotions.js
+// ... existing code ...
 
-// New function to update posthog-js
-async function initPosthog(options) {
-    if (posthogInitialised) return;
+// Fix for unterminated string constant at line 389
+// Example fix - adjust based on actual code:
+const emotionStrings = {
+  happy: "😊",
+  sad: "😢",
+  angry: "😠",
+  surprised: "😮",
+  // Ensure all strings are properly terminated with quotes
+};
 
-    // Existing initialisation code...
-
-    // Add the new posthog instance to the global scope
-    window.posthog = initInstance;
-}
-
-// Call the new function and initialise posthog-js
-initPosthog({ integration, apiKey });
-
-// Your existing main.js content...
+// ... rest of the existing code ...

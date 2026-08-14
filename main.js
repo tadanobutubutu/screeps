@@ -25,6 +25,7 @@ async function initPosthog(options) {
     } else {
         // Initialize PostHog as usual
         // (insert the existing initialisation code here)
+        return;
     }
 }
 
@@ -32,5 +33,3 @@ async function initPosthog(options) {
 initPosthog({ integration, apiKey });
 
 module.exports = app;
-```
-I modified the `initPosthog` function to check if `posthog` has already been defined in the global scope by other means. This way, we avoid potential conflicts when both versions of the code try to initialize PostHog. If an unexpected `posthog` instance is detected, an error message is logged, but the overall functionality is preserved as much as possible to maintain compatibility.

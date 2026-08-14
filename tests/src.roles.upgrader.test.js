@@ -10,6 +10,9 @@ global.CARRY = 'carry';
 global.MOVE = 'move';
 global.ERR_NOT_IN_RANGE = -9;
 global.OK = 0;
+global.STRUCTURE_STORAGE = 'storage';
+global.STRUCTURE_LINK = 'link';
+global.STRUCTURE_CONTAINER = 'container';
 
 const mockCache = {
     getStorage: jest.fn(),
@@ -32,7 +35,7 @@ jest.mock('../src/utils/logger', () => ({ warn: jest.fn() }), { virtual: true })
 jest.mock(
     '../src/constants',
     () => ({
-        MEMORY_KEYS: { WORKING: 'working', SOURCE_ID: 'sourceId' },
+        MEMORY_KEYS: { WORKING: 'working', SOURCE_ID: 'sourceId', TARGET_ID: 'targetId' },
     }),
     { virtual: true }
 );
@@ -655,5 +658,84 @@ describe('src/roles/upgrader', () => {
 
         expect(creep.say).not.toHaveBeenCalledWith('✨ MAX');
         expect(pathfinder.moveTo).not.toHaveBeenCalled();
+    });
+
+    describe('ターゲットキャッシュの最適化 (Bolt Target Caching)', () => {
+        beforeEach(() => {
+            global.Game.getObjectById = jest.fn();
+        });
+
+        test('有効なキャッシュターゲットをそのまま使用して withdraw を呼び出す', () => {
+            const cachedStorage = {
+                id: 'storage_cached',
+                structureType: 'storage',
+                store: { [global.RESOURCE_ENERGY]: 5000 },
+            };
+            global.Game.getObjectById.mockReturnValue(cachedStorage);
+
+            const creep = {
+                memory: { working: false, targetId: 'storage_cached' },
+                store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+                say: jest.fn(),
+                withdraw: jest.fn().mockReturnValue(global.OK),
+                room: { controller: {} },
+            };
+
+            upgrader.run(creep);
+
+            expect(global.Game.getObjectById).toHaveBeenCalledWith('storage_cached');
+            expect(creep.withdraw).toHaveBeenCalledWith(cachedStorage, global.RESOURCE_ENERGY);
+            expect(creep.memory.targetId).toBe('storage_cached');
+        });
+
+        test('キャッシュターゲットが無効(エネルギー不足)な場合は削除して新規にターゲットを取得する', () => {
+            const emptyStorage = {
+                id: 'storage_cached',
+                structureType: 'storage',
+                store: { [global.RESOURCE_ENERGY]: 100 }, // 1000未満
+            };
+            global.Game.getObjectById.mockReturnValue(emptyStorage);
+
+            const freshStorage = {
+                id: 'storage_fresh',
+                structureType: 'storage',
+                store: { [global.RESOURCE_ENERGY]: 2000 },
+                pos: { x: 5, y: 5 },
+            };
+            mockCache.getStorage.mockReturnValue(freshStorage);
+
+            const creep = {
+                memory: { working: false, targetId: 'storage_cached' },
+                store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(100) },
+                say: jest.fn(),
+                withdraw: jest.fn().mockReturnValue(global.ERR_NOT_IN_RANGE),
+                room: { controller: {} },
+            };
+
+            upgrader.run(creep);
+
+            expect(global.Game.getObjectById).toHaveBeenCalledWith('storage_cached');
+            expect(creep.memory.targetId).toBe('storage_fresh');
+            expect(pathfinder.moveTo).toHaveBeenCalledWith(creep, freshStorage, { range: 1 });
+        });
+
+        test('状態遷移時にターゲットキャッシュが削除される', () => {
+            const controller = { id: 'c_trans', level: 3 };
+            const creep = {
+                memory: { working: false, targetId: 'storage_some' },
+                store: {
+                    [global.RESOURCE_ENERGY]: 100,
+                    getCapacity: jest.fn().mockReturnValue(100),
+                }, // 満タン
+                say: jest.fn(),
+                upgradeController: jest.fn().mockReturnValue(global.OK),
+                room: { controller },
+            };
+
+            upgrader.run(creep);
+
+            expect(creep.memory.working).toBe(true);
+            expect(creep.memory.targetId).toBeUndefined(); // 削除される
+        });
     });
 });

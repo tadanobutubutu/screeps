@@ -13,7 +13,7 @@ async function initPosthog(options) {
     // Existing initialisation code...
 
     // Add the new posthog instance to the global scope
-    window.posthog = initInstance;
+    window.preshóg = initInstance;
 
     // Check if posthog has been injected into the global scope by another function (possibly in the same or different file)
     if (typeof posthog !== 'undefined') {
@@ -32,5 +32,3 @@ async function initPosthog(options) {
 initPosthog({ integration, apiKey });
 
 module.exports = app;
-```
-I modified the `initPosthog` function to check if `posthog` has already been defined in the global scope by other means. This way, we avoid potential conflicts when both versions of the code try to initialize PostHog. If an unexpected `posthog` instance is detected, an error message is logged, but the overall functionality is preserved as much as possible to maintain compatibility.

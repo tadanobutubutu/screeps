@@ -5,15 +5,6 @@
 // Preserve all existing code and exports
 // Add new functionality requested in the issue
 
-// Example of how to handle conflicts (this is just illustrative):
-// <<<<<<< HEAD
-// Existing code from current branch
-// =======
-// New code from incoming changes
-// >>>>>>> renovate/dependency-update
-
-// [Existing code below conflict markers]
-
 // New functionality requested in the issue
 // For example, if the issue mentions adding a dependency dashboard feature:
 function getDependencyDashboard() {
@@ -37,7 +28,7 @@ function getDependencyDashboard() {
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports
-  ...existingExports,
+  // ...existingExports,
   // New exports
   getDependencyDashboard
 };

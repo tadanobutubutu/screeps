@@ -6,8 +6,10 @@ const newFunction = () => {
   // Implementation from Renovate update
 };
 
-// Preserve all existing exports
 module.exports = {
+  // Existing exports
+  getDependencyDashboard,
+  // New functions
   existingFunction,
   newFunction,
   // ... all other existing exports

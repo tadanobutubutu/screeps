@@ -6,11 +6,8 @@
 // Add new functionality requested in the issue
 
 // Example of how to handle conflicts (this is just illustrative):
-// <<<<<<< HEAD
 // Existing code from current branch
-// =======
 // New code from incoming changes
-// >>>>>>> renovate/dependency-update
 
 // [Existing code below conflict markers]
 

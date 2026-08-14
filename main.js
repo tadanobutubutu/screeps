@@ -1,6 +1,3 @@
-Here is the resolved version of the file 'main.js':
-
-```javascript
 // test_random.js
 // This file contains tests for random number generation functions
 
@@ -21,6 +18,3 @@ describe('Random number generation', () => {
     expect(result1).not.toBe(result2);
   });
 });
-```
-
-In this resolution, I combined both changes by adjusting the `require` statement to match the correct path of the `generateRandomNumber` function in the updated repository structure. The test cases remain the same as they do not conflict with each other and both are required to verify the functionality.

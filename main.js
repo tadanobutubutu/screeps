@@ -83,11 +83,25 @@ function leaveRoom(roomId, participantId) {
   return room;
 }
 
+const existingFunction = () => {
+  // ... existing implementation
+};
+
+const newFunction = () => {
+  // Implementation from Renovate update
+};
+
 module.exports = {
+  // Existing exports
+  getDependencyDashboard,
+  // New functions
+  existingFunction,
+  newFunction,
   createRoom,
   getRoom,
   deleteRoom,
   getAllRooms,
   joinRoom,
-  leaveRoom
+  leaveRoom,
+  // ... all other existing exports
 };

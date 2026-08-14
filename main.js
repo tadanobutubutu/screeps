@@ -1,6 +1,7 @@
 // main.js
 // [Existing code above conflict markers]
 
+
 // [Conflict resolution section]
 // Preserve all existing code and exports
 // Add new functionality requested in the issue

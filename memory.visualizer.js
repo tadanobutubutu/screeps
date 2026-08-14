@@ -6,7 +6,7 @@ const utilsMemory = require('./utils.memory');
 const cache = require('./src/utils/cache');
 
 /**
- * セキュリティ: メモリDoSを防ぐためのメモリ消費構造の制限。
+ * セキュリティ: メモリDoSを防ぐためのメモリ消費構造 of 制限。
  * Screepsのメモリは2MBに制限されており、制限のないオブジェクトはAIをクラッシュさせる可能性があります。
  */
 const MAX_EXPLORED_ROOMS = 100;
@@ -28,7 +28,7 @@ const memoryVisualizer = {
             spawns: Object.keys(Memory.spawns || {}).length,
         };
 
-        .toFixed(2)} KB`);
+        console.log(`Total Size: ${(stats.totalSize / 1024).toFixed(2)} KB`);
         return stats;
     },
 
@@ -67,8 +67,7 @@ const memoryVisualizer = {
         sizes.sort((a, b) => b.size - a.size);
 
         sizes.slice(0, limit).forEach((item, index) => {
-            .toFixed(2)} KB)`
-            );
+            console.log(`${index + 1}. [${item.type}] ${item.name}: ${(item.size / 1024).toFixed(2)} KB`);
         });
 
         return sizes;
@@ -117,9 +116,9 @@ const memoryVisualizer = {
 
         const snapshots = Memory.timeMachine.snapshots.slice(-ticks);
 
-        :`);
+        console.log(`History:`);
         snapshots.forEach((snap) => {
-            }, Energy=${snap.energy}`);
+            console.log(`Time=${snap.time}, CPU=${snap.cpu}, Energy=${snap.energy}`);
         });
 
         return snapshots;
@@ -193,7 +192,8 @@ const memoryVisualizer = {
 
         sorted.forEach((entry, index) => {
             const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '  ';
-            });
+            console.log(`${medal} ${entry[0]}: ${entry[1]}`);
+        });
 
         return sorted;
     },
@@ -251,7 +251,8 @@ const memoryVisualizer = {
 
         const diary = Memory.creeps[creepName].diary;
         diary.entries.forEach((entry) => {
-            });
+            console.log(`[T:${entry.time}] ${entry.message}`);
+        });
 
         return diary.entries;
     },
@@ -323,7 +324,8 @@ const memoryVisualizer = {
             ) {
                 const info = Memory.map.rooms[roomName];
                 const owner = info.controller?.owner ?? 'Unclaimed';
-                }
+                console.log(`Room: ${roomName}, Owner: ${owner}, Sources: ${info.sources}`);
+            }
         }
     },
 
@@ -387,8 +389,7 @@ const memoryVisualizer = {
         if (Memory.backups.length > 5) {
             Memory.backups.shift();
         }
-
-        },
+    },
 
     restore: function (index = 0) {
         if (!Memory.backups || Memory.backups.length === 0) {

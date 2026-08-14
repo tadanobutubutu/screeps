@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 function secureRandom() {
     try {
         const crypto = require('crypto');
@@ -19,6 +16,3 @@ function secureRandom() {
 }
 
 module.exports = { secureRandom };
-```
-
-This resolved version of `test_random.js` allows the bot to generate secure random numbers using either the built-in `Math.random()` function or the `crypto.randomBytes()` method if available. The `crypto` module function is given priority since it provides more secure random numbers. If there's an error while requiring the `crypto` module, the function falls back to the `Math.random()` implementation.

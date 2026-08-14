@@ -1,7 +1,7 @@
 // system.adaptive.js
 // Merge conflicts resolved – current branch version retained
 
-export default class SystemAdaptive {
+class SystemAdaptive {
     constructor(options = {}) {
         this.options = options;
     }
@@ -15,3 +15,35 @@ export default class SystemAdaptive {
         return this.options;
     }
 }
+
+SystemAdaptive.MODE = {
+    NORMAL: 'normal',
+    EMERGENCY: 'emergency',
+};
+
+SystemAdaptive.init = function () {
+    if (!global.Memory) {
+        global.Memory = {};
+    }
+    if (!global.Memory.adaptive) {
+        global.Memory.adaptive = {};
+    }
+    const mem = global.Memory.adaptive;
+    if (mem.currentMode === undefined) {
+        mem.currentMode = SystemAdaptive.MODE.NORMAL;
+    }
+    if (mem.stats === undefined) {
+        mem.stats = {};
+    }
+    if (mem.stats.normalCount === undefined) {
+        mem.stats.normalCount = 0;
+    }
+    if (mem.stats.emergencyCount === undefined) {
+        mem.stats.emergencyCount = 0;
+    }
+    if (mem.modeHistory === undefined) {
+        mem.modeHistory = [];
+    }
+};
+
+module.exports = SystemAdaptive;

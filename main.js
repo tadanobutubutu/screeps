@@ -1,5 +1,6 @@
 // Your existing main.js content...
 
+
 // New function to update posthog-js
 async function initPosthog(options) {
     if (posthogInitialised) return;

@@ -1,5 +1,3 @@
-// src/managers/roomManager.js
-
 const rooms = new Map();
 
 /**

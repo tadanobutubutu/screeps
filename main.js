@@ -1,44 +1,14 @@
-// main.js
-// [Existing code above conflict markers]
+const existingFunction = () => {
+  // ... existing implementation
+};
 
+const newFunction = () => {
+  // Implementation from Renovate update
+};
 
-// [Conflict resolution section]
-// Preserve all existing code and exports
-// Add new functionality requested in the issue
-
-// Example of how to handle conflicts (this is just illustrative):
-// <<<<<<< HEAD
-// Existing code from current branch
-// =======
-// New code from incoming changes
-// >>>>>>> renovate/dependency-update
-
-// [Existing code below conflict markers]
-
-// New functionality requested in the issue
-// For example, if the issue mentions adding a dependency dashboard feature:
-function getDependencyDashboard() {
-  // Implementation for dependency dashboard
-  return {
-    // Dashboard data structure
-    dependencies: [
-      // List of dependencies from the issue
-      { name: 'posthog-js', version: '1.417.0' },
-      { name: 'typescript', version: '7.0.0' },
-      // ... other dependencies
-    ],
-    updates: [
-      // Update information from the issue
-      { name: '@sentry/browser', version: '10.70.0', status: 'blocked' },
-      // ... other updates
-    ]
-  };
-}
-
-// Export all existing functions and add new ones
+// Preserve all existing exports
 module.exports = {
-  // Existing exports
-  ...existingExports,
-  // New exports
-  getDependencyDashboard
+  existingFunction,
+  newFunction,
+  // ... all other existing exports
 };

@@ -1,13 +1,1 @@
-// utils.emotions.js
-// [Existing code above line 389]
-
-// Fix for unterminated string constant at line 389
-const emotionStrings = {
-  happy: "😊",
-  sad: "😢",
-  angry: "😠",
-  surprised: "😮",
-  // Ensure all strings are properly terminated
-};
-
-// [Existing code below line 389]
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -13,7 +13,7 @@ async function initPosthog(options) {
     // Existing initialisation code...
 
     // Add the new posthog instance to the global scope
-    window.posthog = initInstance;
+    window.preshóg = initInstance;
 
     // Check if posthog has been injected into the global scope by another function (possibly in the same or different file)
     if (typeof posthog !== 'undefined') {

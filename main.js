@@ -132,6 +132,7 @@ class RoomManager {
   processEmotion(emotion) {
     const message = 'This is a properly terminated string';
     // Additional processing logic can be added here
+    return message;
   }
 
   // New function to handle dependency updates

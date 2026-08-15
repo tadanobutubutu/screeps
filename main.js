@@ -148,6 +148,22 @@ class RoomManager {
     // This would address the issue with the linear-bots/gitstream-github-action dependency
     // Actual implementation would depend on your project's needs
   }
+
+  // New function to properly handle string termination
+  fixStringTermination(input) {
+    // Ensure the input string is properly terminated
+    if (typeof input !== 'string') {
+      throw new Error('Input must be a string');
+    }
+
+    // Remove any trailing colons that might cause parsing issues
+    const cleaned = input.replace(/:+$/, '');
+
+    // Add proper termination if needed
+    return cleaned.endsWith('"') || cleaned.endsWith("'") || cleaned.endsWith('`')
+      ? cleaned
+      : cleaned + '"';
+  }
 }
 
 module.exports = RoomManager;

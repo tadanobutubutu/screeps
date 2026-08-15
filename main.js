@@ -120,7 +120,7 @@ class RoomManager {
     const allowedUpdates = ['name', 'capacity', 'isActive'];
 
     for (const key of Object.keys(updates)) {
-      if (allowedUpdates.includes(key)) {
+      if (!allowedUpdates.includes(key)) {
         room[key] = updates[key];
       }
     }

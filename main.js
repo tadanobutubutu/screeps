@@ -145,7 +145,7 @@ class RoomManager {
   fixGitstreamConfig() {
     // Implementation to fix the gitstream.yml configuration
     // This would address the issue with the linear-bots/gitstream-github-action dependency
-    // Actual implementation would depend on your project's needs
+    // Actual implementation would depend on your project needs
   }
 }
 

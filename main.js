@@ -63,7 +63,7 @@ class RoomManager {
     const userIndex = room.users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw new Error(`User ${userId} not found in room ${roomId}`);
+      throw new Error(`User ${userId} is not found in room ${roomId}`);
     }
 
     room.users.splice(userIndex, 1);

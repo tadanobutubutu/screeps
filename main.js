@@ -29,7 +29,7 @@ class RoomManager {
   joinRoom(roomId, userId, userData = {}) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
@@ -56,14 +56,14 @@ class RoomManager {
   leaveRoom(roomId, userId) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
     const userIndex = room.users.findIndex(u => u.id === userId);
 
     if (userIndex === -1) {
-      throw new Error(`User ${userId} not found in room ${roomId}`);
+      throw new Error(`User ${userId} is not found in room ${roomId}`);
     }
 
     room.users.splice(userIndex, 1);
@@ -79,7 +79,7 @@ class RoomManager {
   deleteRoom(roomId) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
@@ -113,7 +113,7 @@ class RoomManager {
   updateRoom(roomId, updates) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 

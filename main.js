@@ -1,3 +1,4 @@
+// src/managers/roomManager.js
 const { existingFunction } = require('./existing-module'); // Preserve all existing code and exports
 
 // ... (rest of your existing code remains unchanged)

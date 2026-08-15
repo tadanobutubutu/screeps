@@ -460,7 +460,14 @@ function getBody(energy) {
 function countDamagedStructures(room) {
     const rcl = room.controller ? room.controller.level : 1;
     const wallTarget = WALL_HP_TARGET[rcl] || WALL_HP_TARGET[1];
-    return cache.getStructures(room).filter((s) => _needsRepair(s, room, wallTarget)).length;
+    const structures = cache.getStructures(room);
+    let count = 0;
+    for (let i = 0; i < structures.length; i++) {
+        if (_needsRepair(structures[i], room, wallTarget)) {
+            count++;
+        }
+    }
+    return count;
 }
 
 module.exports = { run, getBody, countDamagedStructures, REPAIR_PRIORITY };

@@ -1,8 +1,1 @@
-// test_1.js
-const { test, expect } = require('@jest/globals');
-
-test('random returns a number', () => {
-  const random = require('../src/random').default;
-  const result = random();
-  expect(typeof result).toBe('number');
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

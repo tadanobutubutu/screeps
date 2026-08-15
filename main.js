@@ -1,12 +1,1 @@
-// Example fix for unterminated string
-function processEmotion(emotion) {
-  // ... other code ...
-
-  // Line 389 - before fix:
-  // const message = 'This is an unterminated string;
-
-  // After fix:
-  const message = 'This is a properly terminated string';
-
-  // ... rest of the function ...
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

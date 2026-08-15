@@ -131,7 +131,7 @@ class RoomManager {
   // New function to fix the unterminated string issue
   processEmotion(emotion) {
     const message = 'This is a properly terminated string';
-    // ... rest of the function ...
+    // Additional processing logic can be added here
   }
 }
 

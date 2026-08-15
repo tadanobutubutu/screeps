@@ -1,13 +1,1 @@
-// utils.emotions.js
-// ... (all existing code up to line 389)
-
-// Fixed line 389 - added missing closing quote
-const emotionStrings = {
-  happy: "😊",
-  sad: "😢",
-  angry: "😠",
-  surprised: "😮",
-  // ... rest of the existing code
-};
-
-// ... rest of the file remains unchanged
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

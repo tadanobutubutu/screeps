@@ -132,8 +132,6 @@ class RoomManager {
 module.exports = RoomManager;
 
 // Test file for RoomManager
-const RoomManager = require('./main');
-
 describe('RoomManager', () => {
   let roomManager;
 

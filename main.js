@@ -2,6 +2,7 @@
 
 // Preserve all existing code and exports
 const { existingFunction } = require('./some-module');
+const { posthog } = require('posthog-js');
 
 // ... (rest of your existing code remains unchanged)
 

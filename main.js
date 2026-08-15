@@ -12,7 +12,7 @@ const exampleFunction = (param1, param2) => {
 
 function processEmotion(emotion) {
   // ... other code ...
-  const message = 'This is a properly termatted string';
+  const message = 'This is a properly formatted string';
   // ... rest of the function ...
 }
 
@@ -22,7 +22,7 @@ const emotionDescriptions = {
   sad: "Feeling sorrow or unhappiness",
   angry: "Feeling frustration or irritation",
   surprised: "Feeling astonished or shocked",
-  happy: '', // Ensure all strings are properly terminated
+  // Ensure all strings are properly terminated
 };
 
 // Add any new functions or changes requested in the issue

@@ -133,7 +133,7 @@ class RoomManager {
   }
 
   getAllRooms() {
-    return Array.from(this.rooms.values());
+    return [...this.rooms.values()];
   }
 
   getActiveRooms() {

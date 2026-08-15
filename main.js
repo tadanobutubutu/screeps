@@ -150,7 +150,7 @@ class RoomManager {
     const allowedUpdates = ['name', 'capacity', 'isActive'];
 
     for (const key of Object.keys(updates)) {
-      if (!allowedUpdates.includes(key)) {
+      if (allowedUpdates.includes(key)) {
         room[key] = updates[key];
       }
     }
@@ -161,6 +161,7 @@ class RoomManager {
   processEmotion(emotion) {
     const message = 'This is a properly terminated string';
     // Additional processing logic can be added here
+    return message;
   }
 
   updateDependencies(dependencies) {

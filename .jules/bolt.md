@@ -5,3 +5,7 @@
 ## 2026-08-14 - Persistent Source-to-Container Cache for Miner Role
 **Learning:** Scanning for nearby containers near static energy sources on every single tick in miner role loops consumes redundant CPU. Since source-to-container spatial associations are entirely static, caching the mapped container ID directly in a persistent module-level dictionary avoids repeated room-wide scans and distance calculations.
 **Action:** Cache static structure mappings (e.g., container or source assignments) in persistent module-level lookups using Game.getObjectById to resolve references tick-by-tick.
+
+## 2026-08-15 - Single-Pass Loop Optimization for Structure Counting
+**Learning:** Using `Array.prototype.filter` to count matching objects (e.g., damaged structures in `countDamagedStructures`) allocates intermediate arrays and callback closures on every invocation. Replacing `.filter(...).length` with a standard single-pass `for` loop eliminates array allocation overhead and closure creation in tick routines.
+**Action:** Use single-pass `for` loops instead of `.filter().length` when only the count or aggregate total of matching elements is required.

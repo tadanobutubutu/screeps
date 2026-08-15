@@ -843,7 +843,12 @@ export default function Dashboard() {
                         >
                             一致なし
                             <button
-                                onClick={() => setRoomQuery('')}
+                                onClick={() => {
+                                    setRoomQuery('');
+                                    searchInputRef.current?.focus();
+                                }}
+                                aria-label="検索フィルターをクリア"
+                                title="検索をクリア"
                                 style={{
                                     marginLeft: '0.25rem',
                                     fontSize: '0.75rem',
@@ -852,7 +857,8 @@ export default function Dashboard() {
                                     border: 'none',
                                     cursor: 'pointer',
                                     textDecoration: 'underline',
-                                    padding: 0,
+                                    padding: '0.1rem 0.2rem',
+                                    borderRadius: '2px',
                                 }}
                             >
                                 クリア

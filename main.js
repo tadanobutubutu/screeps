@@ -29,7 +29,7 @@ class RoomManager {
   joinRoom(roomId, userId, userData = {}) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
@@ -56,7 +56,7 @@ class RoomManager {
   leaveRoom(roomId, userId) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
@@ -79,7 +79,7 @@ class RoomManager {
   deleteRoom(roomId) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
@@ -113,14 +113,14 @@ class RoomManager {
   updateRoom(roomId, updates) {
     const room = this.rooms.get(roomId);
 
-    if ( === undefined ||  === null) {
+    if (room === undefined || room === null) {
       throw new Error(`Room ${roomId} not found`);
     }
 
     const allowedUpdates = ['name', 'capacity', 'isActive'];
 
     for (const key of Object.keys(updates)) {
-      if (allowedUpdates.includes(key)) {
+      if (!allowedUpdates.includes(key)) {
         room[key] = updates[key];
       }
     }

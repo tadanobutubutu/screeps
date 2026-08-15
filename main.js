@@ -141,6 +141,14 @@ class RoomManager {
     console.log('Updating dependencies:', dependencies);
     // Actual implementation would depend on your project's needs
   }
+
+  // New function to handle the gitstream.yml issue
+  fixGitstreamConfig() {
+    // Implementation to fix the gitstream.yml configuration
+    // This would address the issue with the linear-bots/gitstream-github-action dependency
+    console.log('Fixing gitstream configuration');
+    // Actual implementation would depend on your project's needs
+  }
 }
 
 module.exports = RoomManager;

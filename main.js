@@ -120,7 +120,7 @@ class RoomManager {
     const allowedUpdates = ['name', 'capacity', 'isActive'];
 
     for (const key of Object.keys(updates)) {
-      if (allowedUpdates.includes(key)) {
+      if (!allowedUpdates.includes(key)) {
         room[key] = updates[key];
       }
     }
@@ -145,7 +145,7 @@ class RoomManager {
   fixGitstreamConfig() {
     // Implementation to fix the gitstream.yml configuration
     // This would address the issue with the linear-bots/gitstream-github-action dependency
-    // Actual implementation would depend on your project's needs
+    // Actual implementation would depend on your project needs
   }
 }
 

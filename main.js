@@ -16,3 +16,12 @@ const exampleFunction = (param1, param2) => {
 // while preserving all existing code
 
 // Make sure all colons are properly used in valid JavaScript syntax
+
+module.exports = {
+  preset: '@babel/preset-env',
+  testEnvironment: 'jest-environment-node',
+  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
+  transform: {
+    '^.+\\.(js|jsx)$': 'babel-jest',
+  },
+};

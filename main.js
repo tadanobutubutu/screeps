@@ -1,4 +1,3 @@
-// Import existing functions (preserve all existing imports)
 import existingFunction from './existing-module';
 
 // Add any new imports here if needed

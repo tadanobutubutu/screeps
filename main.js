@@ -1,34 +1,62 @@
-// main.js
-// Preserve all existing code, exports, and functions
-// Only add new functions or changes requested in the issue
+// src/managers/roomManager.js
 
-// Example of how to preserve existing code while adding new functionality
-// (This is a template - actual implementation would depend on your specific code)
+const rooms = new Map();
 
-/**
- * Existing function - DO NOT MODIFY
- * @param {*} param1
- * @param {*} param2
- */
-function existingFunction(param1, param2) {
-  // Preserve original implementation
-  return param1 + param2;
+class RoomManager {
+  static getInstance() {
+    if (!RoomManager.instance) {
+      RoomManager.instance = new RoomManager();
+    }
+    return RoomManager.instance;
+  }
+
+  createRoom(roomId, options = {}) {
+    if (rooms.has(roomId)) {
+      return rooms.get(roomId);
+    }
+    const room = {
+      id: roomId,
+      users: new Set(),
+      createdAt: new Date(),
+      ...options
+    };
+    rooms.set(roomId, room);
+    return room;
+  }
+
+  getRoom(roomId) {
+    return rooms.get(roomId);
+  }
+
+  deleteRoom(roomId) {
+    return rooms.delete(roomId);
+  }
+
+  addUserToRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.add(userId);
+      return true;
+    }
+    return false;
+  }
+
+  removeUserFromRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.delete(userId);
+      return true;
+    }
+    return false;
+  }
+
+  getRooms() {
+    return Array.from(rooms.values());
+  }
+
+  getRoomCount() {
+    return rooms.size;
+  }
 }
 
-// Example of adding a new function (only if requested in the issue)
-function newFunctionAddedForRenovateUpdate() {
-  // Implementation for the Renovate update
-  // This would be the new code you need to add
-}
-
-// Preserve all existing exports
-module.exports = {
-  existingFunction,
-  // Add new exports if needed
-  newFunctionAddedForRenovateUpdate
-};
-
-// If there are conflict markers in your actual code, they should be resolved by:
-// 1. Keeping the code you want to keep
-// 2. Removing the conflict markers (<<<<<<<, =======, >>>>>>>)
-// 3. Merging any changes from both versions if needed
+module.exports = RoomManager;

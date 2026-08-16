@@ -1,4 +1,5 @@
-// main.js
+'use strict';
+
 // [PRESERVED] All existing code and exports remain unchanged
 
 // Add any new functions or changes requested in the issue

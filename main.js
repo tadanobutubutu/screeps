@@ -1,5 +1,4 @@
-// Import existing functions (preserve all existing imports)
-const existingFunction = require('./existingModule');
+const existingModule = require('./existingModule');
 
 // Add any new imports here if needed
 

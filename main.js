@@ -1,8 +1,1 @@
-// Preserve all existing functions and exports
-module.exports = {};
-
-// Add new functions or changes requested in the issue here
-// For example:
-module.exports.newFunction = function() {
-  // new functionality
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

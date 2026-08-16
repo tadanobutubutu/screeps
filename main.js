@@ -16,3 +16,29 @@ function visualizeMemory(data) {
 
   return message;
 }
+
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive).
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} Random integer in range [min, max]
+ */
+function randomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Returns a random element from an array.
+ * @param {Array} arr - Array to choose from
+ * @returns {*} Random element from array
+ */
+function randomChoice(arr) {
+  if (!arr.length) return undefined;
+  return arr[randomInt(0, arr.length - 1)];
+}
+
+module.exports = {
+  visualizeMemory,
+  randomInt,
+  randomChoice
+};

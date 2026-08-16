@@ -1,9 +1,1 @@
-// Example of how a properly formatted test_random.js might look
-const { describe, it, expect } = require('@jest/globals');
-const { randomFunction } = require('../main.js');
-
-describe('randomFunction tests', () => {
-  it('should do something', () => {
-    expect(randomFunction()).toBeDefined();
-  });
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

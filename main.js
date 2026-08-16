@@ -1,18 +1,8 @@
-// Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
+// In utils.tasks.js around line 47
+// Find the comment that looks like this:
+/* This is an unterminated comment
 
-// Add any new imports here if needed
-
-// Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
-
-// Add new functions or changes requested in the issue here
-// For example:
-export function newFunction() {
-  // new functionality
-}
-
-// Preserve all existing exports
-export { existingFunction };
+// And fix it by either:
+/* This is a properly terminated comment */  // Option 1
+// Or change to single-line comments:       // Option 2
+// This is now a single-line comment

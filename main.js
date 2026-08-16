@@ -1,18 +1,8 @@
-// Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
-
-// Add any new imports here if needed
-
 // Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
+module.exports = {};
 
 // Add new functions or changes requested in the issue here
 // For example:
-export function newFunction() {
+module.exports.newFunction = function() {
   // new functionality
-}
-
-// Preserve all existing exports
-export { existingFunction };
+};

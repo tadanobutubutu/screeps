@@ -1,18 +1,19 @@
 // Import existing functions (preserve all existing imports)
 import existingFunction from './existing-module';
 
-// Add any new imports here if needed
-
-// Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
-
-// Add new functions or changes requested in the issue here
-// For example:
+// Create a new file for the change requested in the issue (e.g., utils.emotions-mod.js)
+// Add the new function or changes requested in the issue here
 export function newFunction() {
-  // new functionality
+  // Handle the unterminated string constant error and wrap it properly
+  const emotion = 'long string here, without a quote at the end';
+  return `${emotion}`;
 }
 
-// Preserve all existing exports
+// Preserve all existing functions and exports from main.js
 export { existingFunction };
+
+// Import the new function from the separate file
+import newFunctionFromUtils from './utils.emotions-mod';
+
+// Add the new function as a property to the existing exports (so it can be accessed directly)
+export const newFunction = newFunctionFromUtils;

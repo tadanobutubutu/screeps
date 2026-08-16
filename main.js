@@ -1,11 +1,1 @@
-// Preserve all existing imports and statements in test_random.js (if any)
-
-describe('Test Random Function', () => {
-  // Your existing test cases
-
-  it('Tests a random function (modified)', () => {
-    // Your existing test case for the random function
-  });
-
-  // Add any new test cases here if needed
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -1,18 +1,16 @@
 // Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
+import type { existingFunction as existingFunctionType } from './existing-module';
 
-// Add any new imports here if needed
+// Declare the new function
+declare function newFunction(): void;
+
+// Make existingFunction a global variable to be accessible in tests
+declare let existingFunction: existingFunctionType;
 
 // Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
+export { existingFunction as existingFunction };
 
 // Add new functions or changes requested in the issue here
-// For example:
 export function newFunction() {
   // new functionality
 }
-
-// Preserve all existing exports
-export { existingFunction };

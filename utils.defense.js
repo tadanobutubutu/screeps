@@ -3,29 +3,42 @@ const cache = require('./src/utils/cache');
 const DefenseManager = {
     findTowerTargets(room) {
         const towers = cache.getMyStructures(room, STRUCTURE_TOWER);
+        if (!towers || towers.length === 0) return;
 
         const hostiles = cache.getEnemies(room);
+        if (hostiles && hostiles.length > 0) {
+            const primaryHostile = hostiles[0];
+            for (let i = 0; i < towers.length; i++) {
+                towers[i].attack(primaryHostile);
+            }
+            return;
+        }
+
+        // ⚡ PERFORMANCE: Lazily evaluate repair targets only when no hostiles are present.
+        // Uses a single-pass loop with early termination to avoid unnecessary room structure iterations
+        // and array allocations.
         const allStructures = cache.getStructures(room);
-        const damagedStructures = [];
-        const damagedWalls = [];
+        let firstDamagedStructure = null;
+        let firstDamagedWall = null;
+
         for (let i = 0; i < allStructures.length; i++) {
             const s = allStructures[i];
             if (s.structureType === STRUCTURE_WALL) {
-                if (s.hits < 100000) damagedWalls.push(s);
-            } else {
-                if (s.hits && s.hits < s.hitsMax) damagedStructures.push(s);
+                if (!firstDamagedWall && s.hits < 100000) {
+                    firstDamagedWall = s;
+                }
+            } else if (!firstDamagedStructure && s.hits && s.hits < s.hitsMax) {
+                firstDamagedStructure = s;
             }
+            if (firstDamagedStructure && firstDamagedWall) break;
         }
 
-        towers.forEach((tower) => {
-            if (hostiles.length > 0) {
-                tower.attack(hostiles[0]);
-            } else if (damagedStructures.length > 0) {
-                tower.repair(damagedStructures[0]);
-            } else if (damagedWalls.length > 0) {
-                tower.repair(damagedWalls[0]);
+        const repairTarget = firstDamagedStructure || firstDamagedWall;
+        if (repairTarget) {
+            for (let i = 0; i < towers.length; i++) {
+                towers[i].repair(repairTarget);
             }
-        });
+        }
     },
 
     getDefenseStatus(room) {

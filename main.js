@@ -1,8 +1,1 @@
-Here is the resolved `main.js` file:
-
-```javascript
-// Incorrect code with an unexpected semicolon at the end of the function removed
-function exampleFunction() {
-  // ... some code ...
-}
-```
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

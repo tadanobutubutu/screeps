@@ -1,11 +1,1 @@
-// utils.tasks.js
-// ... existing code ...
-
-/* This is a properly terminated multi-line comment
-   that was causing the lint error
-   because it was missing the closing */
-function someFunction() {
-  // function implementation
-}
-
-// ... rest of the file ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

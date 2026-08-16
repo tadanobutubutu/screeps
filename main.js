@@ -27,7 +27,7 @@ function updateDependencies() {
 
   // TypeScript update would be handled in your build configuration
   // Undici update would be handled in your package configuration
-  
+
   return {
     sentry: sentryBrowser,
     posthog: posthog,

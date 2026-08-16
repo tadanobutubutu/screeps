@@ -1,3 +1,4 @@
+// health-fp:lint:tutorial.auto.js:1:unknown
 // Import existing functions (preserve all existing imports)
 import existingFunction from './existing-module';
 

@@ -1,3 +1,8 @@
+// Declare the file as a module
+// This is necessary to use the import statement
+// If package.json already has "type": "module", this line can be omitted
+// #!/usr/bin/env node -- experimental-modules
+
 // Import existing functions (preserve all existing imports)
 import existingFunction from './existing-module';
 

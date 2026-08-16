@@ -1,20 +1,62 @@
-// tutorial.auto.js
-// This file was automatically generated - do not modify directly
-// Any changes should be made to the source template
+// src/managers/roomManager.js
 
-// Ensure there are no syntax errors in this file
-// Common issues to check:
-// 1. No trailing commas in objects/arrays
-// 2. Properly closed brackets/parentheses
-// 3. No invalid characters at the start of the file
+const rooms = new Map();
 
-// If you see the original error, please provide the actual content
-// of this file so I can give a more specific solution
+class RoomManager {
+  static getInstance() {
+    if (!RoomManager.instance) {
+      RoomManager.instance = new RoomManager();
+    }
+    return RoomManager.instance;
+  }
 
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+  createRoom(roomId, options = {}) {
+    if (rooms.has(roomId)) {
+      return rooms.get(roomId);
+    }
+    const room = {
+      id: roomId,
+      users: new Set(),
+      createdAt: new Date(),
+      ...options
+    };
+    rooms.set(roomId, room);
+    return room;
+  }
 
-// Placeholder - needs to be replaced with actual main.js content
-// eslint-disable-next-line no-unused-vars
-function placeholder() {
-  // TODO: Replace this placeholder with actual implementation
+  getRoom(roomId) {
+    return rooms.get(roomId);
+  }
+
+  deleteRoom(roomId) {
+    return rooms.delete(roomId);
+  }
+
+  addUserToRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.add(userId);
+      return true;
+    }
+    return false;
+  }
+
+  removeUserFromRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.delete(userId);
+      return true;
+    }
+    return false;
+  }
+
+  getRooms() {
+    return Array.from(rooms.values());
+  }
+
+  getRoomCount() {
+    return rooms.size;
+  }
 }
+
+module.exports = RoomManager;

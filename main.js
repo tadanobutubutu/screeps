@@ -40,9 +40,9 @@ function getDependencyVersion(packageName) {
   // Implementation would depend on your package manager
   // This is a placeholder function
   const versions = {
-    'posthog-js': '1.414.0',
-    '@sentry/browser': '10.69.0',
-    'undici': '8.8.0'
+    'posthog-js': '1.417.1',
+    '@sentry/browser': '10.70.0',
+    'undici': '8.9.0'
   };
   return versions[packageName] || '0.0.0';
 }

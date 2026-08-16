@@ -1,7 +1,62 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// src/managers/roomManager.js
 
-// Placeholder - needs to be replaced with actual main.js content
-// eslint-disable-next-line no-unused-vars
-function placeholder() {
-  // TODO: Replace this placeholder with actual implementation
+const rooms = new Map();
+
+class RoomManager {
+  static getInstance() {
+    if (!RoomManager.instance) {
+      RoomManager.instance = new RoomManager();
+    }
+    return RoomManager.instance;
+  }
+
+  createRoom(roomId, options = {}) {
+    if (rooms.has(roomId)) {
+      return rooms.get(roomId);
+    }
+    const room = {
+      id: roomId,
+      users: new Set(),
+      createdAt: new Date(),
+      ...options
+    };
+    rooms.set(roomId, room);
+    return room;
+  }
+
+  getRoom(roomId) {
+    return rooms.get(roomId);
+  }
+
+  deleteRoom(roomId) {
+    return rooms.delete(roomId);
+  }
+
+  addUserToRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.add(userId);
+      return true;
+    }
+    return false;
+  }
+
+  removeUserFromRoom(roomId, userId) {
+    const room = rooms.get(roomId);
+    if (room) {
+      room.users.delete(userId);
+      return true;
+    }
+    return false;
+  }
+
+  getRooms() {
+    return Array.from(rooms.values());
+  }
+
+  getRoomCount() {
+    return rooms.size;
+  }
 }
+
+module.exports = RoomManager;

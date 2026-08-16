@@ -1,18 +1,23 @@
 // Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
+const existingFunction = require('./existingModule');
 
 // Add any new imports here if needed
 
 // Preserve all existing functions and exports
-export function existingFunction() {
+function existingFunction() {
   // existing implementation
+  return 'existing';
 }
 
 // Add new functions or changes requested in the issue here
 // For example:
-export function newFunction() {
+function newFunction() {
   // new functionality
+  return 'new';
 }
 
 // Preserve all existing exports
-export { existingFunction };
+module.exports = {
+  existingFunction,
+  newFunction
+};

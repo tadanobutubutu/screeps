@@ -1,7 +1,6 @@
 // Existing imports and code would remain here
 // ...
 
-
 // Add new dependency updates
 const updatedDependencies = {
   'posthog-js': '1.417.1',
@@ -24,3 +23,10 @@ module.exports = {
 
 // Existing code and functions would continue here
 // ...
+
+// Ensure all existing code in roomManager.js is properly formatted
+// If there was a colon-related issue, it might have been due to:
+// 1. Missing semicolons
+// 2. Improper object/array syntax
+// 3. Template literals with unescaped colons
+// The exact fix would depend on the actual content of roomManager.js

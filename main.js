@@ -4,7 +4,7 @@ import existingFunction from './existing-module';
 // Add any new imports here if needed
 
 // Preserve all existing functions and exports
-export function existingFunction() {
+function existingFunctionImpl() {
   // existing implementation
 }
 
@@ -13,6 +13,9 @@ export function existingFunction() {
 export function newFunction() {
   // new functionality
 }
+
+// Export the existing function with a different name to avoid conflicts
+export { existingFunctionImpl as existingFunction };
 
 // Preserve all existing exports
 export { existingFunction };

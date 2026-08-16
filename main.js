@@ -1,18 +1,6 @@
-// Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
+// utils.tasks.js - Line 47 likely has an issue like:
+// /* Some description
+// or // TODO: uncompleted comment
+// or similar
 
-// Add any new imports here if needed
-
-// Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
-
-// Add new functions or changes requested in the issue here
-// For example:
-export function newFunction() {
-  // new functionality
-}
-
-// Preserve all existing exports
-export { existingFunction };
+// The fix would be to either complete the comment or use proper JSDoc syntax

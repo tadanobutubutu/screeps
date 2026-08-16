@@ -1,18 +1,51 @@
-// Import existing functions (preserve all existing imports)
-import existingFunction from './existing-module';
+// Memory Visualizer Module
 
-// Add any new imports here if needed
+const MemoryVisualizer = {
+    // Visualize memory usage patterns
+    visualize: function() {
+        const memory = Memory;
+        const usage = {
+            creeps: Object.keys(memory.creeps || {}).length,
+            rooms: Object.keys(memory.rooms || {}).length
+        };
+        return usage;
+    },
 
-// Preserve all existing functions and exports
-export function existingFunction() {
-  // existing implementation
-}
+    // Get memory statistics
+    getStats: function() {
+        const stats = {
+            totalCreeps: 0,
+            totalRooms: 0
+        };
+        
+        if (Memory.creeps) {
+            stats.totalCreeps = Object.keys(Memory.creeps).length;
+        }
+        if (Memory.rooms) {
+            stats.totalRooms = Object.keys(Memory.rooms).length;
+        }
+        
+        return stats;
+    },
 
-// Add new functions or changes requested in the issue here
-// For example:
-export function newFunction() {
-  // new functionality
-}
+    // Clear old memory entries
+    cleanup: function() {
+        const threshold = 1000;
+        let cleaned = 0;
+        
+        for (const roomName in Memory.rooms) {
+            const roomMemory = Memory.rooms[roomName];
+            if (roomMemory && roomMemory.lastAccessed) {
+                const lastAccess = roomMemory.lastAccessed;
+                if (Game.time - lastAccess > threshold) {
+                    delete Memory.rooms[roomName];
+                    cleaned++;
+                }
+            }
+        }
+        
+        return cleaned;
+    }
+};
 
-// Preserve all existing exports
-export { existingFunction };
+module.exports = MemoryVisualizer;

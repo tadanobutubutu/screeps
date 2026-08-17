@@ -1,8 +1,6 @@
 // Existing code would be preserved here
 // ... (all current exports and functions remain unchanged)
 
-
-// New function to handle dependency updates
 function handleDependencyUpdates() {
   // Handle rate-limited updates
   const rateLimitedUpdates = [
@@ -13,12 +11,15 @@ function handleDependencyUpdates() {
   // Handle pending status checks
   const pendingChecks = [
     { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
+    { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/major-webpack-monorepo', package: 'webpack', version: 'v4' }
+    { branch: 'renovate/major-webpack-monorepo', package: 'webpack', version: 'v4' },
+    { branch: 'renovate/major-angular-monorepo', package: 'angular', version: 'v4' },
+    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
   ];
 
   return {
@@ -29,14 +30,16 @@ function handleDependencyUpdates() {
 }
 
 // New function to handle dependency lookup failures
-function handleDependencyLookupFailures() {
+function handleFailedLookups() {
   const failedLookups = [
-    { package: 'some-package', reason: 'no-result' }
+    { package: 'some-package', reason: 'no-result' },
+    { package: 'unknown-package', reason: 'no-result' },
+    { package: 'unknown-pkg', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: ['config.yml', 'package.json']
+    affectedFiles: ['config.yml', 'package.json', 'file1.js', 'file2.js']
   };
 }
 
@@ -47,7 +50,12 @@ function getDetectedDependencies() {
     devcontainer: [
       'python 3.14',
       'node 20.2',
-      'node 24'
+      'node 24',
+      'node 20.3.14',
+      'node 18.2',
+      'node 24',
+      'dejavu 3.14',
+      'ubuntu 2'
     ],
     githubActions: [
       'actions/checkout v4',
@@ -72,6 +80,6 @@ module.exports = {
 
   // New exports
   handleDependencyUpdates,
-  handleDependencyLookupFailures,
+  handleFailedLookups,
   getDetectedDependencies
 };

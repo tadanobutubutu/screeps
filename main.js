@@ -31,5 +31,18 @@ function validateTemplates() {
   });
 }
 
+// New function to check for unterminated template literals in the entire file
+function checkAllTemplateLiterals() {
+  // This would need to be implemented with actual file parsing
+  // For now, we'll just provide a placeholder that would be implemented
+  // with a proper AST parser in a real scenario
+  console.log('Template literal validation would be implemented here');
+}
+
+// Helper function to escape backticks in template literals
+function escapeTemplateLiteral(str) {
+  return str.replace(/`/g, '\\`');
+}
+
 // Preserve all existing exports and functions
 // Ensure no new syntax errors are introduced

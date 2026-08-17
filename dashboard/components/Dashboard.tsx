@@ -656,6 +656,8 @@ export default function Dashboard() {
                     <span
                         className="interactive-hint"
                         tabIndex={0}
+                        role="status"
+                        aria-live="polite"
                         title={
                             roomQuery
                                 ? `検索に一致した部屋数: ${filteredRooms.length} / 全部屋数: ${stats?.rooms?.length || 0}`
@@ -674,45 +676,57 @@ export default function Dashboard() {
                     {stats?.rooms?.length > 1 && (
                         <button
                             onClick={copyAllRooms}
+                            disabled={filteredRooms.length === 0}
                             onMouseEnter={() => setCopyAllHover(true)}
                             onMouseLeave={() => setCopyAllHover(false)}
                             onFocus={() => setCopyAllHover(true)}
                             onBlur={() => setCopyAllHover(false)}
                             aria-label={
-                                copiedAllRooms
-                                    ? roomQuery
-                                        ? 'フィルター結果をコピーしました'
-                                        : 'すべての部屋名をコピーしました'
-                                    : roomQuery
-                                      ? 'フィルター結果をコピー'
-                                      : 'すべての部屋名をコピー'
+                                filteredRooms.length === 0
+                                    ? 'コピー対象の部屋がありません'
+                                    : copiedAllRooms
+                                      ? roomQuery
+                                          ? 'フィルター結果をコピーしました'
+                                          : 'すべての部屋名をコピーしました'
+                                      : roomQuery
+                                        ? 'フィルター結果をコピー'
+                                        : 'すべての部屋名をコピー'
                             }
                             title={
-                                copiedAllRooms
-                                    ? roomQuery
-                                        ? 'フィルター結果をコピーしました'
-                                        : 'すべての部屋名をコピーしました'
-                                    : roomQuery
-                                      ? 'フィルター結果をコピー'
-                                      : 'すべての部屋名をコピー'
+                                filteredRooms.length === 0
+                                    ? 'コピー対象の部屋がありません'
+                                    : copiedAllRooms
+                                      ? roomQuery
+                                          ? 'フィルター結果をコピーしました'
+                                          : 'すべての部屋名をコピーしました'
+                                      : roomQuery
+                                        ? 'フィルター結果をコピー'
+                                        : 'すべての部屋名をコピー'
                             }
                             style={{
                                 fontSize: '0.75rem',
                                 padding: '0.1rem 0.4rem',
-                                backgroundColor: copiedAllRooms
-                                    ? '#c6f6d5'
-                                    : copyAllHover
-                                      ? '#e2e8f0'
-                                      : '#edf2f7',
+                                backgroundColor: filteredRooms.length === 0
+                                    ? '#edf2f7'
+                                    : copiedAllRooms
+                                      ? '#c6f6d5'
+                                      : copyAllHover
+                                        ? '#e2e8f0'
+                                        : '#edf2f7',
                                 border: '1px solid #cbd5e0',
                                 borderRadius: '4px',
-                                color: copiedAllRooms ? '#22543d' : '#4a5568',
-                                cursor: 'pointer',
+                                color: filteredRooms.length === 0
+                                    ? '#a0aec0'
+                                    : copiedAllRooms
+                                      ? '#22543d'
+                                      : '#4a5568',
+                                cursor: filteredRooms.length === 0 ? 'not-allowed' : 'pointer',
+                                opacity: filteredRooms.length === 0 ? 0.6 : 1,
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '0.2rem',
                                 transition: 'all 0.2s ease-in-out',
-                                transform: copyAllHover ? 'scale(1.05)' : 'scale(1)',
+                                transform: copyAllHover && filteredRooms.length > 0 ? 'scale(1.05)' : 'scale(1)',
                             }}
                         >
                             {copiedAllRooms
@@ -756,7 +770,11 @@ export default function Dashboard() {
                                 onChange={(e) => setRoomQuery(e.target.value)}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Escape') {
-                                        setRoomQuery('');
+                                        if (roomQuery) {
+                                            setRoomQuery('');
+                                        } else {
+                                            searchInputRef.current?.blur();
+                                        }
                                     }
                                 }}
                                 placeholder="部屋を検索... (Escでクリア)"

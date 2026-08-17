@@ -9,7 +9,7 @@ const roleMiner = require('./role.miner');
 const roleAutonomous = {
     run: function(creep) {
         // Autonomous behavior: prioritize tasks based on room needs
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+        if (creep.memory.working && creep.carry.energy == 0) {
             creep.memory.working = false;
         }
         if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
@@ -20,9 +20,7 @@ const roleAutonomous = {
             // Prioritize tasks based on room needs
             const room = creep.room;
             const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-            const damagedStructures = room.find(FIND_STRUCTURES, {
-                filter: structure => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL
-            });
+            const damagedStructures = room.find(FIND_STRUCTURES).filter(structure => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL);
 
             // If there are construction sites, build them
             if (constructionSites.length > 0) {
@@ -52,7 +50,7 @@ const roleAutonomous = {
     }
 };
 
-module.exports = function () {
+module.exports.loop = function() {
     if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
         for (const name in Memory.creeps) {
             if (!Game.creeps[name]) { delete Memory.creeps[name]; }

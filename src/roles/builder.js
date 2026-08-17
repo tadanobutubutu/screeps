@@ -212,8 +212,41 @@ function _repairAsBackup(creep) {
 function _getEnergy(creep) {
     const room = creep.room;
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations.
-    // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
+    // ⚡ PERFORMANCE OPTIMIZATION: Check cached target ID to bypass per-tick room scans
+    const targetId = creep.memory[MEMORY_KEYS.TARGET_ID];
+    if (targetId) {
+        const target = Game.getObjectById(targetId);
+        if (target) {
+            let isValid = false;
+            if (target.amount !== undefined) {
+                isValid = target.resourceType === RESOURCE_ENERGY && target.amount >= 50;
+            } else if (target.structureType === STRUCTURE_CONTAINER) {
+                isValid = target.store && target.store[RESOURCE_ENERGY] >= 100;
+            } else if (target.structureType === STRUCTURE_STORAGE) {
+                isValid = target.store && target.store[RESOURCE_ENERGY] >= 500;
+            } else if (target.energy !== undefined) {
+                isValid = target.energy > 0;
+            }
+
+            if (isValid) {
+                if (target.amount !== undefined) {
+                    if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else if (target.structureType !== undefined) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                }
+                return;
+            }
+        }
+        delete creep.memory[MEMORY_KEYS.TARGET_ID];
+    }
 
     if (_getEnergyFromDropped(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
@@ -235,7 +268,7 @@ function _getEnergyFromDropped(creep, room) {
     for (let i = 0; i < dropped.length; i++) {
         const r = dropped[i];
         if (r.resourceType === RESOURCE_ENERGY && r.amount >= 50) {
-            const dist = creep.pos ? creep.pos.getRangeTo(r) : 0;
+            const dist = creep.pos && typeof creep.pos.getRangeTo === "function" ? creep.pos.getRangeTo(r) : 0;
             if (dist < minDropDist) {
                 minDropDist = dist;
                 bestDrop = r;
@@ -244,6 +277,7 @@ function _getEnergyFromDropped(creep, room) {
     }
 
     if (bestDrop) {
+        creep.memory[MEMORY_KEYS.TARGET_ID] = bestDrop.id;
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
@@ -275,6 +309,7 @@ function _getEnergyFromContainer(creep, room) {
     }
 
     if (bestContainer) {
+        creep.memory[MEMORY_KEYS.TARGET_ID] = bestContainer.id;
         if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
@@ -292,6 +327,7 @@ function _getEnergyFromContainer(creep, room) {
 function _getEnergyFromStorage(creep, room) {
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 500) {
+        creep.memory[MEMORY_KEYS.TARGET_ID] = storage.id;
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
@@ -309,6 +345,7 @@ function _getEnergyFromStorage(creep, room) {
 function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
     if (source) {
+        creep.memory[MEMORY_KEYS.TARGET_ID] = source.id;
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }

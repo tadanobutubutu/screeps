@@ -1091,4 +1091,82 @@ describe('src/roles/builder', () => {
         expect(builder.BUILD_PRIORITY[global.STRUCTURE_EXTENSION]).toBe(2);
         expect(builder.BUILD_PRIORITY[global.STRUCTURE_SPAWN]).toBe(3);
     });
+    describe("ターゲットキャッシュの最適化 (Bolt Target Caching)", () => {
+        test("有効なキャッシュターゲットをそのまま使用して withdraw を呼び出す", () => {
+            const cachedContainer = {
+                id: "c_cached",
+                structureType: global.STRUCTURE_CONTAINER,
+                store: { [global.RESOURCE_ENERGY]: 300 },
+            };
+            global.Game.getObjectById.mockReturnValue(cachedContainer);
+
+            const creep = {
+                memory: { working: false, targetId: "c_cached" },
+                store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+                say: jest.fn(),
+                withdraw: jest.fn().mockReturnValue(global.OK),
+                room: { name: "W0N0" },
+            };
+
+            builder.run(creep);
+
+            expect(creep.withdraw).toHaveBeenCalledWith(cachedContainer, global.RESOURCE_ENERGY);
+            expect(mockCache.getContainers).not.toHaveBeenCalled();
+        });
+
+        test("キャッシュターゲットが無効(エネルギー不足)な場合は削除して新規にターゲットを取得する", () => {
+            const emptyContainer = {
+                id: "c_empty",
+                structureType: global.STRUCTURE_CONTAINER,
+                store: { [global.RESOURCE_ENERGY]: 0 },
+            };
+            const validContainer = {
+                id: "c_valid",
+                structureType: global.STRUCTURE_CONTAINER,
+                store: { [global.RESOURCE_ENERGY]: 200 },
+            };
+            global.Game.getObjectById.mockReturnValue(emptyContainer);
+            mockCache.getDroppedResources.mockReturnValue([]);
+            mockCache.getContainers.mockReturnValue([validContainer]);
+
+            const creep = {
+                memory: { working: false, targetId: "c_empty" },
+                store: { [global.RESOURCE_ENERGY]: 0, getCapacity: jest.fn().mockReturnValue(50) },
+                say: jest.fn(),
+                withdraw: jest.fn().mockReturnValue(global.OK),
+                room: { name: "W0N0" },
+                pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+            };
+
+            builder.run(creep);
+
+            expect(creep.memory.targetId).toBe("c_valid");
+            expect(creep.withdraw).toHaveBeenCalledWith(validContainer, global.RESOURCE_ENERGY);
+        });
+
+        test("採掘から建設状態遷移時にターゲットキャッシュが削除される", () => {
+            const site = {
+                id: "s_build",
+                structureType: global.STRUCTURE_ROAD,
+                progress: 0,
+                progressTotal: 100,
+                pos: { x: 5, y: 5, getRangeTo: jest.fn().mockReturnValue(1) },
+            };
+            mockCache.getConstructionSites.mockReturnValue([site]);
+
+            const creep = {
+                memory: { working: false, targetId: "c_old_energy" },
+                store: { [global.RESOURCE_ENERGY]: 50, getCapacity: jest.fn().mockReturnValue(50) },
+                say: jest.fn(),
+                build: jest.fn().mockReturnValue(global.OK),
+                room: { visual: { text: jest.fn() }, name: "W0N0" },
+                pos: { getRangeTo: jest.fn().mockReturnValue(1) },
+            };
+
+            builder.run(creep);
+
+            expect(creep.memory.working).toBe(true);
+            expect(creep.memory.targetId).toBe("s_build");
+        });
+    });
 });

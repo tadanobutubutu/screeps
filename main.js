@@ -2,8 +2,9 @@
 // Preserve all existing imports and functions
 // Add new dependency updates as needed
 
+
 // Example of how to handle the dependency updates mentioned in the issue
-// This is a template - you'll need to replace with actual code from your file
+// This is a template - you may need to replace with actual code from your file
 
 // Existing code would be preserved here
 // ...
@@ -23,10 +24,10 @@ function updateDependencies() {
 
   // Initialize with updated versions
   sentryBrowser.init({ dsn: 'your-dsn-here' });
-  posthog.init('phc_your-project-api-key', { api_host: 'https://app.posthog.com' });
+  posthog.init('your-posthog-api-key', { api_host: 'https://app.posthog.com' });
 
   // TypeScript update would be handled in your build configuration
-  // Undidi update would be handled in your package configuration
+  // Undici update would be handled in your package configuration
 
   return {
     sentry: sentryBrowser,

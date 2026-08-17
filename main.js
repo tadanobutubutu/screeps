@@ -5,19 +5,21 @@
 function handleDependencyUpdates() {
   // Handle rate-limited updates
   const rateLimitedUpdates = [
-    { branch: 'renovate/major-eslint-monorepo', package: 'eslint', version: 'v10' },
-    { branch: 'renovate/major-react-monorepo', package: 'react', version: 'v19' }
+    { branch: 'renovate/renovate-35.x', package: '@renovatebot/testing', version: 'v35.0.0' },
+    { branch: 'renovate/major-eslint-', package: 'eslint', version: 'v10' },
+    { branch: 'renovate/major-react-', package: 'react', version: 'v19' },
+    { branch: 'renovate/major-jest-', package: 'jest', version: 'v30' }
   ];
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/typescript-7.x', package: 'typescript', version: 'v7' },
-    { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
+    { branch: 'renovate/major-typescript-', package: 'typescript', version: 'v7' },
+    { branch: 'renovate/major-jest-', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/github-codeql-action-4.x', package: 'github/codeql-action', version: 'v4' }
+    { branch: 'renovate/all-', package: 'all', version: 'v4' }
   ];
 
   return {
@@ -30,12 +32,12 @@ function handleDependencyUpdates() {
 // New function to handle dependency lookup failures
 function handleDependencyLookupFailures() {
   const failedLookups = [
-    { package: 'linear-bots/gitstream-github-action', reason: 'no-result' }
+    { package: 'some-package', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: ['.github/workflows/gitstream.yml']
+    affectedFiles: []
   };
 }
 
@@ -44,8 +46,8 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
-      'mcr.microsoft.com/devcontainers/python 3.14',
-      'ghcr.io/devcontainers/features/node 2',
+      'custom-3.14.1',
+      'custom-2.0',
       'node 24'
     ],
     githubActions: [

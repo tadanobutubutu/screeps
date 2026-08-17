@@ -11,12 +11,14 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
+    { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
     { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
+    { branch: 'renovate/major-angular-monorepo', package: 'angular', version: 'v4' },
     { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
   ];
 
@@ -28,14 +30,15 @@ function handleDependencyUpdates() {
 }
 
 // New function to handle dependency lookup failures
-function handleDependencyLookupFailures() {
+function handleFailedLookups() {
   const failedLookups = [
+    { package: 'unknown-package', reason: 'no-result' },
     { package: 'unknown-pkg', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: []
+    affectedFiles: ['file1.js', 'file2.js']
   };
 }
 
@@ -44,9 +47,11 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
+      'node 20.3.14',
+      'node 18.2',
+      'node 24',
       'dejavu 3.14',
-      'ubuntu 2',
-      'node 24'
+      'ubuntu 2'
     ],
     githubActions: [],
     gitlabci: ['node 24'],
@@ -62,6 +67,6 @@ module.exports = {
 
   // New exports
   handleDependencyUpdates,
-  handleDependencyLookupFailures,
+  handleFailedLookups,
   getDetectedDependencies
 };

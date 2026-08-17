@@ -11,13 +11,13 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
+    { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/some-closed-branch', package: 'some-package', version: 'v4' }
+    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
   ];
 
   return {
@@ -30,12 +30,12 @@ function handleDependencyUpdates() {
 // New function to handle dependency lookup failures
 function handleDependencyLookupFailures() {
   const failedLookups = [
-    { package: 'failed-package', reason: 'no-result' }
+    { package: 'unknown-pkg', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: ['affected-file-1.js', 'affected-file-2.js']
+    affectedFiles: []
   };
 }
 
@@ -44,19 +44,13 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
-      'debian:buster-slim',
-      'ubuntu:24.04',
+      'dejavu 3.14',
+      'ubuntu 2',
       'node 24'
     ],
-    githubActions: [
-      // List of all GitHub Actions dependencies from the issue
-      // ... (full list would be included here)
-    ],
+    githubActions: [],
     gitlabci: ['node 24'],
-    npm: [
-      // List of all npm dependencies from the issue
-      // ... (full list would be included here)
-    ],
+    npm: [],
     travis: ['node 20', 'node 24']
   };
 }

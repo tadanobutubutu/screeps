@@ -26,7 +26,7 @@ function updateDependencies() {
   posthog.init('phc_your-project-api-key', { api_host: 'https://app.posthog.com' });
 
   // TypeScript update would be handled in your build configuration
-  // Undici update would be handled in your package configuration
+  // Undidi update would be handled in your package configuration
 
   return {
     sentry: sentryBrowser,

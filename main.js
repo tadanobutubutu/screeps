@@ -10,8 +10,7 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
-    { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
+    { branch: 'some-branch', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
@@ -19,7 +18,8 @@ function handleDependencyUpdates() {
   const closedPRs = [
     { branch: 'renovate/major-webpack-monorepo', package: 'webpack', version: 'v4' },
     { branch: 'renovate/major-angular-monorepo', package: 'angular', version: 'v4' },
-    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
+    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' },
+    { branch: 'some-branch', package: 'some-package', version: 'v4' }
   ];
 
   return {
@@ -30,7 +30,7 @@ function handleDependencyUpdates() {
 }
 
 // New function to handle dependency lookup failures
-function handleFailedLookups() {
+function handleDependencyLookupFailures() {
   const failedLookups = [
     { package: 'some-package', reason: 'no-result' },
     { package: 'unknown-package', reason: 'no-result' },
@@ -53,9 +53,10 @@ function getDetectedDependencies() {
       'node 24',
       'node 20.3.14',
       'node 18.2',
-      'node 24',
       'dejavu 3.14',
-      'ubuntu 2'
+      'ubuntu 2',
+      'some-image 3.14',
+      'some-image 2'
     ],
     githubActions: [
       'actions/checkout v4',
@@ -80,6 +81,6 @@ module.exports = {
 
   // New exports
   handleDependencyUpdates,
-  handleFailedLookups,
+  handleDependencyLookupFailures,
   getDetectedDependencies
 };

@@ -13,9 +13,9 @@
     "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "jest": "^29.6.1",
+    "jest": "^30.0.0",
     "eslint": "^8.47.0",
-    "babel-jest": "^29.6.1"
+    "babel-jest": "^30.0.0"
   },
   "author": "Your Name",
   "license": "MIT"

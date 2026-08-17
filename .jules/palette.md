@@ -1,5 +1,10 @@
 # Palette's Journal - Screeps Dashboard UX/Accessibility
 
+## 2026-08-14 - [Live Region & Dynamic Disabled States for Search Filters]
+
+**Learning:** Adding `role="status"` and `aria-live="polite"` to filter result counters enables screen reader users to receive real-time auditory updates as search results change. Furthermore, dynamically setting `disabled` states alongside clear descriptive `aria-label` / `title` messages (e.g., "コピー対象の部屋がありません") on dependent bulk triggers when no matching items exist prevents confusing empty actions and reinforces clear UI boundary constraints.
+**Action:** Always wrap dynamic filter result counters in polite live regions, and disable dependent group actions with clear descriptive accessibility labels when search query matches are empty.
+
 ## 2026-08-13 - [Headless Clipboard Permissions for Automated UX Verification]
 
 **Learning:** Headless browser engines (like Chromium used in Playwright) block access to the native clipboard API (`navigator.clipboard.writeText`) by default, preventing simulated "click to copy" actions from successfully executing. Granting explicit `['clipboard-read', 'clipboard-write']` permissions at the browser context level enables full validation of copied telemetry states and corresponding toast notifications without throwing security exceptions.

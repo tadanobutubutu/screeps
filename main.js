@@ -23,7 +23,7 @@ function updateDependencies() {
 
   // Initialize with updated versions
   sentryBrowser.init({ dsn: 'your-dsn-here' });
-  posthog.init('phc_your-project-api-key', { api_host: 'https://app.posthog.com' });
+  posthog.init({ api_host: 'https://app.posthog.com' });
 
   // TypeScript update would be handled in your build configuration
   // Undidi update would be handled in your package configuration

@@ -9,3 +9,4 @@ export function newFunction() {
 }
 
 // ... (Preserve existing exports and functions)
+export { myExistingFunction1, myExistingFunction2 };

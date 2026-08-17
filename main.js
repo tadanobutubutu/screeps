@@ -35,13 +35,13 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
+    { branch: 'some-branch', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
+    { branch: 'some-branch', package: 'some-package', version: 'v4' }
   ];
 
   return {
@@ -54,7 +54,7 @@ function handleDependencyUpdates() {
 // New function to handle dependency lookup failures
 function handleDependencyLookupFailures() {
   const failedLookups = [
-    { package: 'unknown-pkg', reason: 'no-result' }
+    { package: 'some-package', reason: 'no-result' }
   ];
 
   return {
@@ -68,8 +68,8 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
-      'dejavu 3.14',
-      'ubuntu 2',
+      'some-image 3.14',
+      'some-image 2',
       'node 24'
     ],
     githubActions: [],

@@ -11,13 +11,13 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/typescript-7.x', package: 'typescript', version: 'v7' },
+    { branch: 'some-branch', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/github-codeql-action-4.x', package: 'github/codeql-action', version: 'v4' }
+    { branch: 'some-branch', package: 'some-package', version: 'v4' }
   ];
 
   return {
@@ -30,12 +30,12 @@ function handleDependencyUpdates() {
 // New function to handle dependency lookup failures
 function handleDependencyLookupFailures() {
   const failedLookups = [
-    { package: 'linear-bots/gitstream-github-action', reason: 'no-result' }
+    { package: 'some-package', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: ['.github/workflows/gitstream.yml']
+    affectedFiles: []
   };
 }
 
@@ -44,19 +44,13 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
-      'mcr.microsoft.com/devcontainers/python 3.14',
-      'ghcr.io/devcontainers/features/node 2',
+      'some-image 3.14',
+      'some-image 2',
       'node 24'
     ],
-    githubActions: [
-      // List of all GitHub Actions dependencies from the issue
-      // ... (full list would be included here)
-    ],
+    githubActions: [],
     gitlabci: ['node 24'],
-    npm: [
-      // List of all npm dependencies from the issue
-      // ... (full list would be included here)
-    ],
+    npm: [],
     travis: ['node 20', 'node 24']
   };
 }

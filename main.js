@@ -44,3 +44,54 @@ module.exports = {
   // ...existing exports,
   updateDependencies
 };
+
+// New function to handle Jest updates
+function runJestTests() {
+  const jest = require('jest');
+  // Configure Jest for v30
+  const config = {
+    testEnvironment: 'node',
+    // Add any other Jest configuration needed for v30
+  };
+
+  // Run tests
+  jest.run(config);
+}
+
+// New function to handle ESLint updates
+function runESLint() {
+  const eslint = require('eslint');
+  // Initialize ESLint with v10 configuration
+  const linter = new eslint.ESLint({
+    overrideConfigFile: 'eslint.config.js',
+    useEslintrc: false
+  });
+
+  // Run linting
+  return linter.lintFiles(['.']);
+}
+
+// New function to handle Express updates
+function setupExpressApp() {
+  const express = require('express');
+  const app = express();
+
+  // Configure Express v5
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: true }));
+
+  return app;
+}
+
+// New function to handle React updates
+function createReactApp() {
+  const react = require('react');
+  const reactDom = require('react-dom');
+
+  // Create a basic React component for v19
+  const App = () => {
+    return react.createElement('div', null, 'Hello, React 19!');
+  };
+
+  return App;
+}

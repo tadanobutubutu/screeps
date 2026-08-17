@@ -1,2 +1,1 @@
-// In utils.emotions.js (around line 389)
-const exampleString = "This is a properly terminated string"; // Example fix
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

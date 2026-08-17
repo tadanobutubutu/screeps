@@ -53,65 +53,64 @@ const roleAutonomous = {
     }
 };
 
-\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
-        for (const name in Memory.creeps) {
-            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
-        }
-        Memory.lastCleanup = Game.time;
-    }
-
-    // Clear memory of dead creeps
+if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
     for (const name in Memory.creeps) {
-        if (!Game.creeps[name]) {
-            delete Memory.creeps[name];
-        }
+        if (!Game.creeps[name]) { delete Memory.creeps[name]; }
     }
+    Memory.lastCleanup = Game.time;
+}
 
-    // Run all creeps
-    for (const creep of Object.values(Game.creeps)) {
-        const creep = Game.creeps[name];
-        if (creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if (creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-        if (creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
-        }
-        if (creep.memory.role == 'repairer') {
-            roleRepairer.run(creep);
-        }
-        if (creep.memory.role == 'defender') {
-            roleDefender.run(creep);
-        }
-        if (creep.memory.role == 'miner') {
-            roleMiner.run(creep);
-        }
-        // Add new autonomous role
-        if (creep.memory.role == 'autonomous') {
-            roleAutonomous.run(creep);
-        }
+// Clear memory of dead creeps
+for (const name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+        delete Memory.creeps[name];
     }
+}
 
-    // Spawn new creeps if needed
-    const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-    const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-    const repairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
-    const defenders = _.filter(Game.creeps, (creep) => creep.memory.role == 'defender');
-    const miners = _.filter(Game.creeps, (creep) => creep.memory.role == 'miner');
-    const autonomouses = _.filter(Game.creeps, (creep) => creep.memory.role == 'autonomous');
-
-    // Spawn logic remains the same for other roles
-    // ... (existing spawn logic)
-
-    // Example spawn logic for autonomous creeps
-    if (autonomouses.length < 2) {
-        const newName = 'Autonomous' + Game.time;
-        Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {memory: {role: 'autonomous'}});
+// Run all creeps
+for (const name in Game.creeps) {
+    const creep = Game.creeps[name];
+    if (creep.memory.role == 'harvester') {
+        roleHarvester.run(creep);
     }
-};
+    if (creep.memory.role == 'upgrader') {
+        roleUpgrader.run(creep);
+    }
+    if (creep.memory.role == 'builder') {
+        roleBuilder.run(creep);
+    }
+    if (creep.memory.role == 'repairer') {
+        roleRepairer.run(creep);
+    }
+    if (creep.memory.role == 'defender') {
+        roleDefender.run(creep);
+    }
+    if (creep.memory.role == 'miner') {
+        roleMiner.run(creep);
+    }
+    // Add new autonomous role
+    if (creep.memory.role == 'autonomous') {
+        roleAutonomous.run(creep);
+    }
+}
+
+// Spawn new creeps if needed
+const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+const repairers = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
+const defenders = _.filter(Game.creeps, (creep) => creep.memory.role == 'defender');
+const miners = _.filter(Game.creeps, (creep) => creep.memory.role == 'miner');
+const autonomouses = _.filter(Game.creeps, (creep) => creep.memory.role == 'autonomous');
+
+// Spawn logic remains the same for other roles
+// ... (existing spawn logic)
+
+// Example spawn logic for autonomous creeps
+if (autonomouses.length < 2) {
+    const newName = 'Autonomous' + Game.time;
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], newName, {memory: {role: 'autonomous'}});
+}
 
 // Preserve all existing exports
 module.exports.roleHarvester = roleHarvester;

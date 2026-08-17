@@ -8,7 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^5.0.0",
     "react": "^18.2.0",
     "lodash": "^4.17.21"
   },

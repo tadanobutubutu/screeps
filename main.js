@@ -2,37 +2,65 @@
 // Preserve all existing imports and functions
 // Add new dependency updates as needed
 
-// Example of how to handle the dependency updates mentioned in the issue
-// This is a template - you will need to replace with actual code from your file
-
 // Existing code would be preserved here
 // ...
 
 // Add new functions or updates for the dependency changes
 function updateDependencies() {
-  // Handle updates for @sentry/browser to v10.70.0
-  // Handle updates for posthog-js to v1.417.1
-  // Handle updates for typescript to v7.x
-  // Handle updates for undici to v8.9.0
+  // Existing dependency updates would be preserved here
+  // ...
 
-  // Example implementation:
-  const sentryBrowser = require('@sentry/browser');
-  const posthog = require('posthog-js');
-  const typescript = require('typescript');
-  const undici = require('undici');
+  // Handle updates for jest to v30
+  const jest = require('jest');
+  // Jest v30 may have breaking changes, so ensure your tests are compatible
+
+  // Handle updates for eslint to v10
+  const eslint = require('eslint');
+  // Eslint v10 may have breaking changes, so ensure your linters are compatible
+
+  // Handle updates for babel-jest to v30
+  const babelJest = require('babel-jest');
+  // Babel-Jest v30 may have breaking changes, so ensure your transpilation is compatible
 
   // Initialize with updated versions
+  const sentryBrowser = require('@sentry/browser');
   sentryBrowser.init({ dsn: 'your-dsn-here' });
+  
+  const posthog = require('posthog-js');
   posthog.init('{your_posthog_project_id}', { api_host: 'https://app.posthog.com' });
 
   // TypeScript update would be handled in your build configuration
   // Undici update would be handled in your package configuration
 
+  // Example implementation for updating jest, eslint, and babel-jest
+  // You should replace the configuration with the actual one used in your project
+  const jestConfig = {
+    // ... existing jest configuration
+    transform: {
+      '^.+\\.jsx?$': 'babel-jest',
+    },
+  };
+
+  // Initialize ESLint
+  const eslintConfig = {
+    // ... existing ESLint configuration
+  };
+
+  // Initialize Babel-Jest
+  const babelJestConfig = {
+    // ... existing Babel-Jest configuration
+  };
+
   return {
-    sentry: sentryBrowser,
-    posthog: posthog,
-    typescript: typescript,
-    undici: undici
+    // ... other dependencies
+    jest,
+    eslint,
+    babelJest,
+    sentryBrowser,
+    posthog,
+    jestConfig,
+    eslintConfig,
+    babelJestConfig,
   };
 }
 

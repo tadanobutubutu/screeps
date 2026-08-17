@@ -13,13 +13,15 @@ function handleDependencyUpdates() {
   const pendingChecks = [
     { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
     { branch: 'renovate/pending-typescript', package: 'typescript', version: 'v7' },
+    { branch: 'some-branch', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
     { branch: 'renovate/some-closed-branch', package: 'some-package', version: 'v4' },
-    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' }
+    { branch: 'renovate/closed-pr-branch', package: 'closed-pkg', version: 'v4' },
+    { branch: 'some-branch', package: 'some-package', version: 'v4' }
   ];
 
   return {
@@ -33,7 +35,8 @@ function handleDependencyUpdates() {
 function handleDependencyLookupFailures() {
   const failedLookups = [
     { package: 'failed-package', reason: 'no-result' },
-    { package: 'unknown-pkg', reason: 'no-result' }
+    { package: 'unknown-pkg', reason: 'no-result' },
+    { package: 'some-package', reason: 'no-result' }
   ];
 
   return {
@@ -51,6 +54,8 @@ function getDetectedDependencies() {
       'ubuntu:24.04',
       'dejavu 3.14',
       'ubuntu 2',
+      'some-image 3.14',
+      'some-image 2',
       'node 24'
     ],
     githubActions: [],

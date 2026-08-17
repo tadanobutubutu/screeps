@@ -1,9 +1,10 @@
 {
   "files": [
-    "utils.logging.js"
+    "main.js"
   ],
   "rules": [
-    "Remove console.log"
+    "Optimize Game.creeps loop",
+    "Add memory cleanup"
   ],
-  "timestamp": "2026-08-16T12:12:39.459Z"
+  "timestamp": "2026-08-17T06:26:25.176Z"
 }

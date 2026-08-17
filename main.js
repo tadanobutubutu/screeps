@@ -53,7 +53,13 @@ const roleAutonomous = {
     }
 };
 
-module.exports.loop = function () {
+\n    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+        }
+        Memory.lastCleanup = Game.time;
+    }
+
     // Clear memory of dead creeps
     for (const name in Memory.creeps) {
         if (!Game.creeps[name]) {
@@ -62,7 +68,7 @@ module.exports.loop = function () {
     }
 
     // Run all creeps
-    for (const name in Game.creeps) {
+    for (const creep of Object.values(Game.creeps)) {
         const creep = Game.creeps[name];
         if (creep.memory.role == 'harvester') {
             roleHarvester.run(creep);

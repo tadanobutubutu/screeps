@@ -1,4 +1,3 @@
-// main.js
 const roleHarvester = require('./role.harvester');
 const roleUpgrader = require('./role.upgrader');
 const roleBuilder = require('./role.builder');
@@ -10,7 +9,7 @@ const roleMiner = require('./role.miner');
 const roleAutonomous = {
     run: function(creep) {
         // Autonomous behavior: prioritize tasks based on room needs
-        if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
+        if (creep.memory.working && creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
             creep.memory.working = false;
         }
         if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {

@@ -23,10 +23,20 @@ module.exports = {
 // Add new functions or updates as needed
 function newFeatureForReact19() {
   // Implementation for React 19 compatibility
+  // React 19 introduces new features like:
+  // - Server Components
+  // - Actions
+  // - Improved Suspense
+  // Add any necessary compatibility code here
 }
 
 function newFeatureForJest30() {
   // Implementation for Jest 30 compatibility
+  // Jest 30 introduces:
+  // - New snapshot format
+  // - Improved TypeScript support
+  // - New test.each API
+  // Add any necessary compatibility code here
 }
 
 // Update any existing code that needs to work with the new versions
@@ -40,6 +50,7 @@ test('example test', () => {
 // After (Jest 30)
 test('example test', () => {
   // updated implementation for Jest 30
+  // Example: Add new Jest 30 features if needed
 });
 */
 

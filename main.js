@@ -2,7 +2,6 @@
 // Preserve all existing imports and functions
 // Add new dependency updates as needed
 
-
 // Example of how to handle the dependency updates mentioned in the issue
 // This is a template - you may need to replace with actual code from your file
 

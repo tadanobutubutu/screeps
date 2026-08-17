@@ -1,12 +1,12 @@
-// main.js
+Here's the resolved file content:
+
+```javascript
 const roleHarvester = require('./role.harvester');
 const roleUpgrader = require('./role.upgrader');
 const roleBuilder = require('./role.builder');
 const roleRepairer = require('./role.repairer');
 const roleDefender = require('./role.defender');
 const roleMiner = require('./role.miner');
-
-// New autonomous efficiency role
 const roleAutonomous = {
     run: function(creep) {
         // Autonomous behavior: prioritize tasks based on room needs
@@ -21,9 +21,7 @@ const roleAutonomous = {
             // Prioritize tasks based on room needs
             const room = creep.room;
             const constructionSites = room.find(FIND_CONSTRUCTION_SITES);
-            const damagedStructures = room.find(FIND_STRUCTURES, {
-                filter: structure => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL
-            });
+            const damagedStructures = room.find(FIND_STRUCTURES).filter(structure => structure.hits < structure.hitsMax && structure.structureType != STRUCTURE_WALL);
 
             // If there are construction sites, build them
             if (constructionSites.length > 0) {
@@ -50,49 +48,52 @@ const roleAutonomous = {
                 creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
             }
         }
+
+        // Clear memory of dead creeps
+        if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+            for (const name in Memory.creeps) {
+                if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+            }
+            Memory.lastCleanup = Game.time;
+        }
     }
 };
 
-if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
-    for (const name in Memory.creeps) {
-        if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+module.exports.loop = function() {
+    if (!Memory.lastCleanup || Game.time - Memory.lastCleanup > 1500) {
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) { delete Memory.creeps[name]; }
+        }
+        Memory.lastCleanup = Game.time;
     }
-    Memory.lastCleanup = Game.time;
-}
 
-// Clear memory of dead creeps
-for (const name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-        delete Memory.creeps[name];
+    // Run all creeps
+    for (const name in Game.creeps) {
+        const creep = Game.creeps[name];
+        if (creep.memory.role == 'harvester') {
+            roleHarvester.run(creep);
+        }
+        if (creep.memory.role == 'upgrader') {
+            roleUpgrader.run(creep);
+        }
+        if (creep.memory.role == 'builder') {
+            roleBuilder.run(creep);
+        }
+        if (creep.memory.role == 'repairer') {
+            roleRepairer.run(creep);
+        }
+        if (creep.memory.role == 'defender') {
+            roleDefender.run(creep);
+        }
+        if (creep.memory.role == 'miner') {
+            roleMiner.run(creep);
+        }
+        // Add new autonomous role
+        if (creep.memory.role == 'autonomous') {
+            roleAutonomous.run(creep);
+        }
     }
-}
-
-// Run all creeps
-for (const name in Game.creeps) {
-    const creep = Game.creeps[name];
-    if (creep.memory.role == 'harvester') {
-        roleHarvester.run(creep);
-    }
-    if (creep.memory.role == 'upgrader') {
-        roleUpgrader.run(creep);
-    }
-    if (creep.memory.role == 'builder') {
-        roleBuilder.run(creep);
-    }
-    if (creep.memory.role == 'repairer') {
-        roleRepairer.run(creep);
-    }
-    if (creep.memory.role == 'defender') {
-        roleDefender.run(creep);
-    }
-    if (creep.memory.role == 'miner') {
-        roleMiner.run(creep);
-    }
-    // Add new autonomous role
-    if (creep.memory.role == 'autonomous') {
-        roleAutonomous.run(creep);
-    }
-}
+};
 
 // Spawn new creeps if needed
 const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
@@ -120,3 +121,6 @@ module.exports.roleRepairer = roleRepairer;
 module.exports.roleDefender = roleDefender;
 module.exports.roleMiner = roleMiner;
 module.exports.roleAutonomous = roleAutonomous;
+```
+
+This resolved file combines the autonomous behavior added separately in both conflicts, adds the removal of dead memory entries after 1500 ticks, and integrates the roles run method to run all creeps together. Additionally, it preserves the existing spawning logic and exports for the other roles.

@@ -11,13 +11,13 @@ function handleDependencyUpdates() {
 
   // Handle pending status checks
   const pendingChecks = [
-    { branch: 'renovate/typescript-7.x', package: 'typescript', version: 'v7' },
+    { branch: 'renovate/major-typescript-monorepo', package: 'typescript', version: 'v7' },
     { branch: 'renovate/major-jest-monorepo', package: 'jest', version: 'v30' }
   ];
 
   // Handle closed PRs
   const closedPRs = [
-    { branch: 'renovate/github-codeql-action-4.x', package: 'github/codeql-action', version: 'v4' }
+    { branch: 'renovate/closed-branch', package: 'closed-package', version: 'v4' }
   ];
 
   return {
@@ -30,12 +30,12 @@ function handleDependencyUpdates() {
 // New function to handle dependency lookup failures
 function handleDependencyLookupFailures() {
   const failedLookups = [
-    { package: 'linear-bots/gitstream-github-action', reason: 'no-result' }
+    { package: 'failed-package', reason: 'no-result' }
   ];
 
   return {
     failedLookups: failedLookups,
-    affectedFiles: ['.github/workflows/gitstream.yml']
+    affectedFiles: []
   };
 }
 
@@ -44,8 +44,8 @@ function getDetectedDependencies() {
   return {
     circleci: ['cimg/node 24.19.0'],
     devcontainer: [
-      'mcr.microsoft.com/devcontainers/python 3.14',
-      'ghcr.io/devcontainers/features/node 2',
+      '3.14',
+      '2',
       'node 24'
     ],
     githubActions: [

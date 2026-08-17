@@ -28,9 +28,9 @@ function handleTypeScript7Update() {
 
 // Update server configuration for Node 24 compatibility
 app.listen(port, () => {
-    });
+    // Server is up and listening
+});
 
-// Export all existing functions
 module.exports = {
     // Existing exports...
     handleReact19Update,

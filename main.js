@@ -24,15 +24,15 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
   if (loading) {
     return (
-      <main className="dashboard-container">
-        <LoadingSpinner />
+      <main className="dashboard-container" aria-busy="true">
+        <LoadingSpinner aria-label="Loading dashboard data" />
       </main>
     );
   }
 
   if (error) {
     return (
-      <main className="dashboard-container">
+      <main className="dashboard-container" role="alert">
         <ErrorDisplay message={error} />
       </main>
     );
@@ -47,23 +47,32 @@ export const Dashboard: React.FC<DashboardProps> = () => {
   }
 
   return (
-    <main className="dashboard-container">
-      <div className="dashboard-header">
+    <main className="dashboard-container" lang="en">
+      <div className="dashboard-header" role="banner">
         <h1>Dashboard</h1>
-        <div className="dashboard-tabs">
+        <div className="dashboard-tabs" role="tablist" aria-label="Dashboard navigation">
           <button
+            role="tab"
+            aria-selected={activeTab === 'overview'}
+            aria-controls="overview-tab"
             className={activeTab === 'overview' ? 'active' : ''}
             onClick={() => setActiveTab('overview')}
           >
             Overview
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'analytics'}
+            aria-controls="analytics-tab"
             className={activeTab === 'analytics' ? 'active' : ''}
             onClick={() => setActiveTab('analytics')}
           >
             Analytics
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'actions'}
+            aria-controls="actions-tab"
             className={activeTab === 'actions' ? 'active' : ''}
             onClick={() => setActiveTab('actions')}
           >
@@ -72,19 +81,19 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         </div>
       </div>
 
-      <div className="dashboard-content">
+      <div className="dashboard-content" role="main">
         {activeTab === 'overview' && (
-          <section className="dashboard-section">
+          <section className="dashboard-section" id="overview-tab" role="tabpanel" aria-labelledby="overview-tab">
             <DashboardStats data={data.stats} />
           </section>
         )}
         {activeTab === 'analytics' && (
-          <section className="dashboard-section">
+          <section className="dashboard-section" id="analytics-tab" role="tabpanel" aria-labelledby="analytics-tab">
             <DashboardCharts data={data.charts} />
           </section>
         )}
         {activeTab === 'actions' && (
-          <section className="dashboard-section">
+          <section className="dashboard-section" id="actions-tab" role="tabpanel" aria-labelledby="actions-tab">
             <DashboardActions data={data.actions} />
           </section>
         )}

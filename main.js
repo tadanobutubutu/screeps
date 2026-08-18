@@ -69,6 +69,77 @@ filesToFix.forEach(file => {
 });
 console.log('\n✨ Done! Review the changes and ensure tests still pass.');
 
+/**
+ * Updates dependencies in package.json to the latest versions
+ * based on the Renovate dashboard updates
+ */
+const updateDependencies = () => {
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+        // Update dependencies
+        const dependencyUpdates = {
+            'react': '^19.0.0',
+            'jest': '^30.0.0',
+            'eslint': '^10.0.0',
+            'babel-jest': '^30.0.0'
+        };
+
+        let hasChanges = false;
+
+        for (const [dep, version] of Object.entries(dependencyUpdates)) {
+            if (packageJson.dependencies && packageJson.dependencies[dep] !== version) {
+                packageJson.dependencies[dep] = version;
+                hasChanges = true;
+                console.log(`🔄 Updated ${dep} to ${version}`);
+            }
+        }
+
+        if (hasChanges) {
+            fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
+            console.log('✅ Updated package.json dependencies');
+        } else {
+            console.log('ℹ️ No dependency updates needed in package.json');
+        }
+
+        return hasChanges;
+    } catch (error) {
+        console.error('❌ Error updating dependencies:', error.message);
+        return false;
+    }
+};
+
+/**
+ * Updates TypeScript version in package.json
+ */
+const updateTypeScript = () => {
+    try {
+        const packageJsonPath = path.join(process.cwd(), 'package.json');
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+        const newVersion = '^7.0.0';
+
+        if (packageJson.dependencies && packageJson.dependencies.typescript !== newVersion) {
+            packageJson.dependencies.typescript = newVersion;
+            fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n', 'utf8');
+            console.log(`🔄 Updated TypeScript to ${newVersion}`);
+            return true;
+        }
+
+        console.log('ℹ️ TypeScript version is already up to date');
+        return false;
+    } catch (error) {
+        console.error('❌ Error updating TypeScript:', error.message);
+        return false;
+    }
+};
+
+// Execute dependency updates
+console.log('\n🔧 Updating dependencies based on Renovate recommendations...\n');
+updateDependencies();
+updateTypeScript();
+
 /** *
  * REFERENCE SECTION: Accessibility Templates
  * Below is a template showing how to fix the REACT_027 issue (Table Scope)

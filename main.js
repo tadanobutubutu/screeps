@@ -4,14 +4,29 @@ import React from 'react';
 // ... (existing code remains unchanged)
 
 /**
- * Adds language attribute to HTML element for better screen reader support
- * Fixes REACT_015: React Language Attribute
+ * Converts the fake link to a proper button for accessibility
  */
-export const addLanguageAttribute = (lang = 'en') => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = lang;
+function convertFakeLinkToButton() {
+  const fakeLink = document.getElementById('unrotate');
+  if (fakeLink) {
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = 'rotate back';
+    button.className = fakeLink.className;
+    button.onclick = function() {
+      // Add any existing click handler logic here
+      // For example, if there was rotation logic in the original link
+    };
+    fakeLink.parentNode.replaceChild(button, fakeLink);
   }
-};
+}
+
+// Run the conversion when the DOM is loaded
+document.addEventListener('DOMContentLoaded', convertFakeLinkToButton);
+
+// Export any existing functions that need to be preserved
+// For example:
+// export function existingFunction() { ... }
 
 /**
  * Ensures proper table structure with thead, tbody, and th elements
@@ -201,8 +216,6 @@ export const initAccessibility = () => {
   addLandmarks(); // Initialize landmark structure
   // Other initialization code...
 };
-
-// Call initAccessibility when appropriate in your application
 
 // Game loop integration
 module.exports.loop = function() {

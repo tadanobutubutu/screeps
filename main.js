@@ -21,7 +21,28 @@ export default function RootLayout({
           aria-label="Home icon"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* Assuming that the root layout also contains the table and thus the issue might be related to the table structure */}
+        <table>
+          <thead>
+            {/* Example of adding the scope attribute to a <th> element */}
+            <tr>
+              <th scope="col">Column Header 1</th>
+              <th scope="col">Column Header 2</th>
+              {/* ... other columns ... */}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Data 1</td>
+              <td>Data 2</td>
+              {/* ... other data cells ... */}
+            </tr>
+            {/* ... other rows ... */}
+          </tbody>
+        </table>
+        {children}
+      </body>
     </html>
   );
 }

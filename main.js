@@ -43,6 +43,53 @@ function checkDependencyCompatibility() {
 // New export for compatibility checking
 module.exports.checkDependencyCompatibility = checkDependencyCompatibility;
 
+// Accessibility utility functions
+function ensureLanguageAttribute(element, lang = 'en') {
+  if (!element.getAttribute('lang')) {
+    element.setAttribute('lang', lang);
+  }
+}
+
+function ensureTableStructure(table) {
+  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+    console.warn('Table should have thead and tbody elements');
+  }
+}
+
+function ensureLandmarks(container) {
+  const landmarks = ['header', 'main', 'footer', 'nav', 'aside'];
+  landmarks.forEach(landmark => {
+    if (!container.querySelector(landmark)) {
+      console.warn(`Consider adding a ${landmark} landmark for better accessibility`);
+    }
+  });
+}
+
+function ensureSvgAccessibleName(svg) {
+  if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    console.warn('SVG should have an accessible name');
+  }
+}
+
+function ensureUniqueLandmarks(container) {
+  const landmarks = ['header', 'main', 'footer', 'nav', 'aside'];
+  landmarks.forEach(landmark => {
+    const elements = container.querySelectorAll(landmark);
+    if (elements.length > 1) {
+      console.warn(`Multiple ${landmark} elements found - consider using unique landmarks`);
+    }
+  });
+}
+
+function ensureNoFakeLinks(container) {
+  const links = container.querySelectorAll('a');
+  links.forEach(link => {
+    if (!link.getAttribute('href') && !link.getAttribute('role')) {
+      console.warn('Potential fake link detected - consider adding href or role');
+    }
+  });
+}
+
 // Main execution function
 function main() {
   // Existing main functionality would be here
@@ -52,6 +99,27 @@ function main() {
   applyDependencyUpdates();
   const compatibility = checkDependencyCompatibility();
   console.log('Dependency compatibility:', compatibility);
+
+  // Accessibility checks
+  if (typeof document !== 'undefined') {
+    // Check for language attribute
+    ensureLanguageAttribute(document.documentElement);
+
+    // Check tables
+    document.querySelectorAll('table').forEach(ensureTableStructure);
+
+    // Check landmarks
+    ensureLandmarks(document.body);
+
+    // Check SVGs
+    document.querySelectorAll('svg').forEach(ensureSvgAccessibleName);
+
+    // Check unique landmarks
+    ensureUniqueLandmarks(document.body);
+
+    // Check for fake links
+    ensureNoFakeLinks(document.body);
+  }
 }
 
 // Run main function if this file is executed directly

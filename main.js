@@ -24,7 +24,7 @@ export const createAccessibleTable = (headers, data) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -71,6 +71,29 @@ export const createAccessibleSVG = (svgContent, title, desc) => {
       <title>{title}</title>
       <desc>{desc}</desc>
       {svgContent}
+    </svg>
+  );
+};
+
+/**
+ * Creates an accessible SVG icon for favicon/metadata use
+ * Fixes REACT_041: React SVG Accessible Name (app/layout.tsx and dashboard/app/layout.tsx)
+ */
+export const createAccessibleFaviconSvg = (svgElement, iconTitle = 'Site icon') => {
+  if (!svgElement) return null;
+  
+  // If it's already a React element, clone it with accessible props
+  if (React.isValidElement(svgElement)) {
+    return React.cloneElement(svgElement, {
+      'aria-label': iconTitle,
+      role: 'img'
+    });
+  }
+  
+  // Return SVG with aria-label for screen readers
+  return (
+    <svg aria-hidden="false" aria-label={iconTitle} role="img">
+      {svgElement}
     </svg>
   );
 };

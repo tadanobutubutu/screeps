@@ -12,24 +12,6 @@ import { jest } from '@jest/globals';
 // Preserve existing Lambda functions from updated dependencies
 const existingLambdaFuncs = // ... existing implementation
 
-// Layout component from HEAD branch, rendered within the application
-const Layout = ({ children }) => {
-  return (
-    <body>
-      <div className="layout">
-        <header>
-          <nav>
-            {/* Navigation menu */}
-          </nav>
-        </header>
-
-        {/* Add a main landmark for the primary content */}
-        <main>{children}</main>
-      </div>
-    </body>
-  );
-};
-
 // Preserve existing function exports
 export const existingFunction = () => {
   // Existing implementation
@@ -42,7 +24,7 @@ export const handleReactUpdate = () => {
 
 // Implementation for Jest 30 updates (merged from both branches)
 export const handleJestUpdate = () => {
-  // Implementation for Jest 30 updates (use merged changes if both were added)
+  // Implementation for Jest 30 updates (use merged changes if both were added);
 };
 
 // Implementation for ESLint 10 updates (merged from both branches)

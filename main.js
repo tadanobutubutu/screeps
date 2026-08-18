@@ -19,3 +19,14 @@ const ExampleComponent = () => {
 };
 
 export default ExampleComponent;
+
+// New component for the rotation button
+const RotationButton = ({ onClick }) => {
+  return (
+    <button id="unrotate" onClick={onClick}>
+      rotate back
+    </button>
+  );
+};
+
+export { RotationButton };

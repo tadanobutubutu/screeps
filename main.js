@@ -30,11 +30,11 @@ export const MainLayout = ({ children }) => {
           </ul>
         </nav>
       </header>
-      
+
       <main role="main" id="main-content">
         {children}
       </main>
-      
+
       <footer role="contentinfo">
         <p>&copy; 2024 Accessible App</p>
       </footer>
@@ -70,7 +70,7 @@ export const AccessibleTable = ({ data, caption }) => {
 // Accessible SVG Component - Fix for REACT_041
 export const AccessibleIcon = ({ children, label, className }) => {
   return (
-    <svg 
+    <svg
       className={className}
       aria-label={label}
       role="img"
@@ -88,7 +88,7 @@ export const AccessibleIcon = ({ children, label, className }) => {
 // Alternative SVG with title element - Fix for REACT_041
 export const AccessibleSVGWithTitle = ({ title, children, className }) => {
   return (
-    <svg 
+    <svg
       className={className}
       role="img"
       width="24"
@@ -106,8 +106,8 @@ export const AccessibleSVGWithTitle = ({ title, children, className }) => {
 // Use button for actions, not styled links
 export const ActionButton = ({ onClick, children, disabled = false }) => {
   return (
-    <button 
-      type="button" 
+    <button
+      type="button"
       onClick={onClick}
       disabled={disabled}
     >
@@ -134,12 +134,12 @@ export const AccessibleForm = ({ onSubmit, children }) => {
   );
 };
 
-export const AccessibleInput = ({ 
-  id, 
-  label, 
-  type = 'text', 
+export const AccessibleInput = ({
+  id,
+  label,
+  type = 'text',
   error,
-  required = false 
+  required = false
 }) => {
   return (
     <div className="form-group">
@@ -172,6 +172,14 @@ export const ContentSection = ({ children, className }) => {
   );
 };
 
+// New function to set the HTML lang attribute
+// This should be called in your app's entry point (like _app.js in Next.js)
+export const setHtmlLangAttribute = (lang = 'en') => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lang;
+  }
+};
+
 export default {
   MainLayout,
   AccessibleTable,
@@ -181,5 +189,6 @@ export default {
   NavLink,
   AccessibleForm,
   AccessibleInput,
-  ContentSection
+  ContentSection,
+  setHtmlLangAttribute
 };

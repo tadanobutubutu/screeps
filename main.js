@@ -3,7 +3,7 @@ import React from 'react';
 
 const ExampleComponent = () => {
   return (
-    <table>
+    <table lang="en">
       <thead>
         <tr>
           <th scope="col">Column 1</th>

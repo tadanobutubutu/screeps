@@ -16,7 +16,7 @@
 //
 // This keeps the module importable and satisfies the Jest test suite.
 
-module.exports = {
+module. exports = {
   /**
    * Main entry point for the Screeps bot.
    * The original logic has been omitted for brevity.

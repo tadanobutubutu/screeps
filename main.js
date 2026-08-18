@@ -156,6 +156,99 @@ const fixMultipleMainLandmarks = (filePath) => {
     }
 };
 
+/**
+ * Fixes table structure issues by adding proper scope attributes
+ *
+ * Issue: REACT_027 - React Table Structure
+ * Affected files: components/DataTable.tsx, dashboard/components/DataTable.tsx
+ * Fix: Add scope attributes to table headers
+ */
+const fixTableStructure = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Pattern to match table headers without scope
+        const headerPattern = /<th([^>]*)>([\s\S]*?)<\/th>/gi;
+
+        content = content.replace(headerPattern, (match, attrs, content) => {
+            // Check if scope is already present
+            if (attrs.includes('scope=')) {
+                return match;
+            }
+
+            hasChanges = true;
+            // Determine scope based on context (simplified approach)
+            // This is a basic implementation - may need refinement for complex tables
+            const isRowHeader = content.trim().length > 0; // Simple heuristic
+            const scopeValue = isRowHeader ? 'row' : 'col';
+
+            // Add scope attribute
+            const newAttrs = attrs.trim() + ` scope="${scopeValue}"`;
+            return `<th${newAttrs}>${content}</th>`;
+        });
+
+        if (hasChanges) {
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Fixed table structure in: ${filePath}`);
+            return true;
+        }
+
+        console.log(`ℹ️ No table structure fixes needed in: ${filePath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ Error processing ${filePath}:`, error.message);
+        return false;
+    }
+};
+
+/**
+ * Fixes fake link issues by replacing <div> with proper <a> tags
+ *
+ * Issue: REACT_036 - React Fake Link
+ * Affected files: components/Link.tsx, dashboard/components/Link.tsx
+ * Fix: Replace div-based links with proper anchor tags
+ */
+const fixFakeLinks = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Pattern to match div elements that look like links
+        const fakeLinkPattern = /<div([^>]*?)(?:onClick|role=["']button["']|className=["'][^"']*link[^"']*["'])[^>]*>([\s\S]*?)<\/div>/gi;
+
+        content = content.replace(fakeLinkPattern, (match, attrs, children) => {
+            // Extract href if available
+            const hrefMatch = attrs.match(/href=["']([^"']*)["']/);
+            const href = hrefMatch ? ` href="${hrefMatch[1]}"` : '';
+
+            // Extract onClick handler if available
+            const onClickMatch = attrs.match(/onClick={([^}]*)}/);
+            const onClick = onClickMatch ? ` onClick={${onClickMatch[1]}}` : '';
+
+            // Preserve other attributes
+            const otherAttrs = attrs.replace(/href=["'][^"']*["']/, '')
+                                   .replace(/onClick={[^}]*}/, '')
+                                   .replace(/role=["']button["']/, '');
+
+            hasChanges = true;
+            return `<a${otherAttrs}${href}${onClick}>${children}</a>`;
+        });
+
+        if (hasChanges) {
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Fixed fake links in: ${filePath}`);
+            return true;
+        }
+
+        console.log(`ℹ️ No fake link fixes needed in: ${filePath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ Error processing ${filePath}:`, error.message);
+        return false;
+    }
+};
+
 // Files to fix based on the issue report
 const filesToFix = [
     'app/layout.tsx',
@@ -168,6 +261,18 @@ const filesToFix = [
 const dashboardFiles = [
     'components/Dashboard.tsx',
     'dashboard/components/Dashboard.tsx'
+];
+
+// Files for REACT_027 - Table Structure
+const tableFiles = [
+    'components/DataTable.tsx',
+    'dashboard/components/DataTable.tsx'
+];
+
+// Files for REACT_036 - Fake Links
+const linkFiles = [
+    'components/Link.tsx',
+    'dashboard/components/Link.tsx'
 ];
 
 // Execute fixes
@@ -198,6 +303,26 @@ dashboardFiles.forEach(file => {
     const fullPath = path.join(process.cwd(), file);
     if (fs.existsSync(fullPath)) {
         fixMultipleMainLandmarks(fullPath);
+    } else {
+        console.log(`⚠️ File not found: ${file}`);
+    }
+});
+
+console.log('\n🔧 Fixing React Table Structure (REACT_027) issues...\n');
+tableFiles.forEach(file => {
+    const fullPath = path.join(process.cwd(), file);
+    if (fs.existsSync(fullPath)) {
+        fixTableStructure(fullPath);
+    } else {
+        console.log(`⚠️ File not found: ${file}`);
+    }
+});
+
+console.log('\n🔧 Fixing React Fake Links (REACT_036) issues...\n');
+linkFiles.forEach(file => {
+    const fullPath = path.join(process.cwd(), file);
+    if (fs.existsSync(fullPath)) {
+        fixFakeLinks(fullPath);
     } else {
         console.log(`⚠️ File not found: ${file}`);
     }

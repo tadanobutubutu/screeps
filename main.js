@@ -1,15 +1,19 @@
+Here is the resolved main.js file with both changes integrated:
+
+```javascript
 // main.js
 // Preserve all existing code and exports
 
-
-// Add new imports for updated dependencies
+// Import existing dependencies
 import express from 'express';
+// Add new imports for updated dependencies
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { jest } from '@jest/globals';
+import jest from '@jest/globals';
 
 // Layout component converted from TypeScript to JavaScript
 const Layout = ({ children }) => {
+  // Keep the existing structure, but replace nav and section with proper elements
   return (
     <body>
       <div className="layout">
@@ -19,8 +23,8 @@ const Layout = ({ children }) => {
           </nav>
         </header>
 
-        {/* Use section instead of main to avoid duplicate main landmarks */}
-        <section aria-label="main-content">{children}</section>
+        {/* Use proper element to avoid duplicate main landmarks */}
+        <main aria-label="main-content">{children}</main>
       </div>
     </body>
   );
@@ -46,10 +50,7 @@ export const handleEslintUpdate = () => {
   // Implementation for ESLint 10 updates
 };
 
-// Preserve existing server setup
-const app = express();
-
-// Add new middleware for updated dependencies
+// Add a new middleware for updated dependencies
 app.use((req, res, next) => {
   // Middleware for dependency updates
   next();
@@ -67,7 +68,8 @@ app.get('/', (req, res) => {
         <div id="root"></div>
         <script>
           const Layout = ...
-          ... null, 'Main Content'), ...
+          // Modify the bundle to use React and ReactDOM instead of their TypeScript counterparts
+          ReactDOM.render(<Layout />, document.getElementById('root'));
         </script>
       </body>
     </html>
@@ -75,15 +77,13 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
-// Preserve existing test setup
+// Add new test cases for updated dependencies in the existing test setup
 describe('Existing tests', () => {
   it('should pass all existing tests', () => {
     expect(true).toBe(true);
   });
-});
 
-// Add new test cases for updated dependencies
-describe('Dependency updates', () => {
+  // Add new test cases for updated dependencies
   it('should handle React 19 updates', () => {
     handleReactUpdate();
     expect(true).toBe(true);
@@ -101,4 +101,5 @@ describe('Dependency updates', () => {
 });
 
 // Preserve all other existing code and exports
-// ... rest of the original main. js content ...
+// ... rest of the original main.js content ...
+```

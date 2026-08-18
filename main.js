@@ -1,5 +1,6 @@
-// [Your existing main.js content here]
-// ... (all your current code remains unchanged)
+import React from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import App from './App';
 
 // Add the following function to handle the table header scope attributes
 function updateTableHeaders() {
@@ -37,17 +38,6 @@ function replaceFakeLinks() {
   });
 }
 
-// Call the functions when the DOM is fully loaded
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    updateTableHeaders();
-    replaceFakeLinks();
-  });
-}
-
-// [Rest of your existing main.js content here]
-// ... (all your current code remains unchanged)
-
 // Add this function to ensure only one main element exists
 function ensureSingleMainElement() {
   // Check if there are multiple main elements
@@ -69,13 +59,6 @@ function ensureSingleMainElement() {
       parent.replaceChild(wrapper, mainElements[i]);
     }
   }
-}
-
-// Add the single main element check to DOMContentLoaded
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureSingleMainElement();
-  });
 }
 
 // Add this function to ensure all content is wrapped in a main element
@@ -104,9 +87,25 @@ function ensureMainLandmark() {
   }
 }
 
-// Add the main landmark check to DOMContentLoaded
+// Run accessibility enhancements after React hydration
+function runAccessibilityEnhancements() {
+  updateTableHeaders();
+  replaceFakeLinks();
+  ensureSingleMainElement();
+  ensureMainLandmark();
+}
+
+// Set document language and hydrate React app
+document.documentElement.setAttribute('lang', 'en');
+hydrateRoot(
+  document.documentElement,
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Run accessibility enhancements after hydration completes
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    ensureMainLandmark();
-  });
+  // Use setTimeout to run after React hydration and browser paint
+  setTimeout(runAccessibilityEnhancements, 0);
 }

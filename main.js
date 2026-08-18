@@ -7,6 +7,24 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { jest } from '@jest/globals';
 
+// Layout component converted from TypeScript to JavaScript
+const Layout = ({ children }) => {
+  return (
+    <body>
+      <div className="layout">
+        <header>
+          <nav>
+            {/* Navigation menu */}
+          </nav>
+        </header>
+
+        {/* Add a main landmark for the primary content */}
+        <main>{children}</main>
+      </div>
+    </body>
+  );
+};
+
 // Preserve existing exports
 export const existingFunction = () => {
   // Existing implementation
@@ -35,6 +53,26 @@ const app = createServer();
 app.use((req, res, next) => {
   // Middleware for dependency updates
   next();
+});
+
+// Add route to serve the Layout component
+app.get('/', (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>App Layout</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script>
+          const Layout = ${Layout.toString()};
+          ReactDOM.render(React.createElement(Layout, null, 'Main Content'), document.getElementById('root'));
+        </script>
+      </body>
+    </html>
+  `;
+  res.send(html);
 });
 
 // Preserve existing test setup

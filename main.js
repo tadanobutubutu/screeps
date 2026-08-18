@@ -68,3 +68,12 @@ export function DependencyGraphPage({ children }) {
     </div>
   );
 }
+
+// New component for the rotate back button
+export function RotateBackButton({ onClick }) {
+  return (
+    <button id="unrotate" onClick={onClick} className="rotate-back-button">
+      rotate back
+    </button>
+  );
+}

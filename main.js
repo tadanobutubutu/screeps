@@ -17,3 +17,15 @@ function helper() {
 
 // Exported functions – keep the original exports unchanged
 export { calculateScore, processData };
+
+// New function to handle dashboard rendering logic
+function renderDashboardContent(status, errorContent, successContent) {
+  return (
+    <main>
+      {status === 'error' ? errorContent : successContent}
+    </main>
+  );
+}
+
+// Export the new function
+export { renderDashboardContent };

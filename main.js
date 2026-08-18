@@ -13,7 +13,21 @@ const MyComponent = () => {
   // Component logic...
   return (
     <div>
-      {/* ... */}
+      {/* Add lang attribute to support screen readers */}
+      <html lang="en">
+        {/* Add proper landmark structure */}
+        <body>
+          <header role="banner">
+            {/* Header content */}
+          </header>
+          <main role="main">
+            {/* Main content */}
+          </main>
+          <footer role="contentinfo">
+            {/* Footer content */}
+          </footer>
+        </body>
+      </html>
     </div>
   );
 };

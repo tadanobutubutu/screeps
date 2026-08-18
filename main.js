@@ -30,14 +30,8 @@ function add(a, b) {
   return a + b;
 }
 
-// ... (existing code) ...
-
 // chore(deps): update dependency eslint to v10
 // Assuming you have ESLint rules that might need updating
 // This would be done in a separate step, not directly in the code
 
 // ... (existing code) ...
-
-// ... (existing code) ...
-
-// Updated main.js with conflict markers

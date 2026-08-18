@@ -28,9 +28,10 @@ export default function RootLayout({
 }
 
 // Add helper function for accessible tables (REACT_027)
-export const renderAccessibleTable = (headers: string[], rows: any[][]) => {
+export const renderAccessibleTable = (headers: string[], rows: any[][], caption?: string) => {
   return (
     <table>
+      {caption && <caption>{caption}</caption>}
       <thead>
         <tr>
           {headers.map((header, index) => (
@@ -58,13 +59,15 @@ export const AccessibleSVG = ({
   title,
   description,
   children,
+  ...props
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  [key: string]: any;
 }) => {
   return (
-    <svg aria-hidden="true" focusable="false">
+    <svg aria-hidden="true" focusable="false" {...props}>
       <title>{title}</title>
       <desc>{description}</desc>
       {children}
@@ -76,15 +79,36 @@ export const AccessibleSVG = ({
 export const AccessibleLink = ({
   href,
   children,
+  ariaLabel,
   ...props
 }: {
   href: string;
   children: React.ReactNode;
+  ariaLabel?: string;
   [key: string]: any;
 }) => {
   return (
-    <a href={href} {...props}>
+    <a href={href} aria-label={ariaLabel} {...props}>
       {children}
     </a>
+  );
+};
+
+// Add helper function for landmarks (REACT_017, REACT_025)
+export const createLandmark = ({
+  role,
+  ariaLabel,
+  children,
+  className = '',
+}: {
+  role: 'main' | 'navigation' | 'complementary' | 'search' | 'contentinfo' | 'banner';
+  ariaLabel: string;
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  return (
+    <section role={role} aria-label={ariaLabel} className={className}>
+      {children}
+    </section>
   );
 };

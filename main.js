@@ -56,14 +56,44 @@ function ensureUniqueLandmarks() {
 }
 
 // Fix for REACT_036: React Fake Link
-// Replace fake links with proper <a> elements
+// Replace fake links with proper <button> elements for in-page actions
 function replaceFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
-    if (!link.tagName.toLowerCase() === 'a') {
-      console.warn('Fake link detected. Consider using proper <a> elements.');
+    if (link.id === 'unrotate') {
+      const button = document.createElement('button');
+      button.id = link.id;
+      button.textContent = link.textContent;
+      button.className = link.className;
+      button.setAttribute('aria-label', link.getAttribute('aria-label') || 'Rotate back');
+
+      // Copy any event listeners from the original link
+      const clone = link.cloneNode(true);
+      const listeners = getEventListeners(link);
+      Object.keys(listeners).forEach(eventType => {
+        listeners[eventType].forEach(listener => {
+          button.addEventListener(eventType, listener.listener);
+        });
+      });
+
+      link.parentNode.replaceChild(button, link);
     }
   });
+}
+
+// Helper function to get event listeners (simplified version)
+function getEventListeners(element) {
+  const listeners = {};
+  const events = ['click', 'keydown', 'focus', 'blur'];
+  events.forEach(eventType => {
+    const eventListeners = [];
+    const handler = element[`on${eventType}`];
+    if (handler) {
+      eventListeners.push({ listener: handler });
+    }
+    listeners[eventType] = eventListeners;
+  });
+  return listeners;
 }
 
 // Initialize accessibility enhancements

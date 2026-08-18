@@ -34,6 +34,23 @@ export const DependencyGraphTable = () => (
   </table>
 );
 
+// Add a function to render the HTML structure with language attribute
+export const renderDependencyGraphHTML = () => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dependency Graph</title>
+      </head>
+      <body>
+        <div id="root"></div>
+      </body>
+    </html>
+  `;
+};
+
 const Dashboard: React.FC = () => {
   // Code from the patch branch
   const dispatch = useDispatch();

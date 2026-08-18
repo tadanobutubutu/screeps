@@ -5,7 +5,8 @@ import App from './App';
 import './index.css';
 
 // Existing code remains unchanged
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
+
 root.render(
   <React.StrictMode>
     <App />
@@ -13,28 +14,22 @@ root.render(
 );
 
 // New function to handle main content rendering
-export function renderMainContent(content) {
-  return (
-    <main className="main-content">
-      {content}
-    </main>
-  );
-}
+export function renderMainContent(content) {}
 
 // New component for dashboard layout
 export function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-container">
-      <header className="dashboard-header">
+    <>
+      <header className="dashboard-header" role="banner">
         {/* Header content */}
       </header>
-      <main className="dashboard-main">
+      <main className="dashboard-main" role="main">
         {children}
       </main>
-      <footer className="dashboard-footer">
+      <footer className="dashboard-footer" role="contentinfo">
         {/* Footer content */}
       </footer>
-    </div>
+    </>
   );
 }
 
@@ -42,13 +37,13 @@ export function DashboardLayout({ children }) {
 export function DocPageLayout({ children }) {
   return (
     <div className="doc-page">
-      <header className="doc-header">
+      <header className="doc-header" role="banner">
         {/* Documentation header */}
       </header>
-      <main className="doc-main">
+      <main className="doc-main" role="main">
         {children}
       </main>
-      <footer className="doc-footer">
+      <footer className="doc-footer" role="contentinfo">
         {/* Documentation footer */}
       </footer>
     </div>
@@ -58,13 +53,13 @@ export function DocPageLayout({ children }) {
 // New function for dependency graph page
 export function DependencyGraphPage({ children }) {
   return (
-    <div className="dependency-graph-page">
-      <header className="graph-header">
+    <>
+      <header className="graph-header" role="banner">
         {/* Graph header */}
       </header>
-      <main className="graph-main">
+      <main className="graph-main" role="main">
         {children}
       </main>
-    </div>
+    </>
   );
 }

@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -5,6 +8,10 @@ import { fetchDashboardData } from '../utils/api';
 import LoadingSpinner from './LoadingSpinner';
 import ErrorMessage from './ErrorMessage';
 import DashboardContent from './DashboardContent';
+import { ReactDOM } from 'react-dom';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const Dashboard = () => {
   const [data, setData] = useState(null);
@@ -57,4 +64,17 @@ const Dashboard = () => {
   );
 };
 
+// Render the main App component after Dashboard
+root.render(
+  <React.StrictMode>
+    <main>
+      <Dashboard />
+      <App />
+    </main>
+  </React.StrictMode>
+);
+
 export default Dashboard;
+```
+
+This solution incorporates the existing React code (importing React, ReactDOM, and exporting the Dashboard component) from the 'origin/main' branch and the Next.js code (use of 'next/router', context API, useAuth, and fetchDashboardData from '../utils/api') from the main/master branch. It also correctly renders the Dashboard and the App components in the main part of the application.

@@ -72,3 +72,10 @@ export const AccessibleLink = ({ href, children, ...props }) => {
 
 // Preserve all existing exports
 // ... (your original exports here) ...
+
+// Additional fix for favicon SVG accessibility
+export const Favicon = ({ name = "Application Icon", ...props }) => (
+  <svg {...props} aria-hidden="true">
+    <title>{name}</title>
+  </svg>
+);

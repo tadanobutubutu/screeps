@@ -24,7 +24,7 @@ export const createAccessibleTable = (headers, data) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...</th>
           ))}
         </tr>
       </thead>

@@ -51,7 +51,7 @@ export function DocPageLayout({ children }) {
       <footer className="doc-footer">
         {/* Documentation footer */}
       </footer>
-    </div>
+      </div>
   );
 }
 

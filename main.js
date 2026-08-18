@@ -1,4 +1,3 @@
-// main.js
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -33,9 +32,10 @@ function handleTypeScript7Updates() {
 // Update existing functions to be compatible with new dependencies
 function updateDependencies() {
     // Update existing dependency handling logic
+    handleJest30Updates();
     handleESLint10Updates();
     handleTypeScript7Updates();
-    handleJest30Updates();
+    handleReact19Updates(); // Added React 19 compatibility call
 }
 
 // Start server

@@ -58,3 +58,17 @@ function main() {
 if (require.main === module) {
   main();
 }
+
+// Accessibility utility function to ensure main content landmark
+function ensureMainLandmark(content) {
+  // Check if content already has a main landmark
+  if (content.includes('<main>') || content.includes('<main ')) {
+    return content;
+  }
+
+  // Wrap content in main landmark if not present
+  return `<main>${content}</main>`;
+}
+
+// Export accessibility utility
+module.exports.ensureMainLandmark = ensureMainLandmark;

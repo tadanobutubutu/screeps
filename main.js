@@ -107,7 +107,7 @@ export const createDecorativeSVG = (svgContent) => {
 };
 
 /**
- * Creates proper link elements instead of fake links
+ * Adds proper link elements instead of fake links
  * Fixes REACT_036: React Fake Link
  */
 export const createProperLink = (href, text, isExternal = false) => {

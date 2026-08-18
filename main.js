@@ -55,9 +55,33 @@ function enhanceSVGAccessibility() {
 }
 
 // Fix for REACT_025: React Unique Landmarks
+// Ensure only one main landmark exists
+function ensureUniqueMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main elements found. Only the first one will be kept.');
+    // Keep the first main element and remove others
+    for (let i = 1; i < mainElements.length; i++) {
+      const element = mainElements[i];
+      const section = document.createElement('section');
+      // Copy all attributes
+      for (let attr of element.attributes) {
+        section.setAttribute(attr.name, attr.value);
+      }
+      // Move all children
+      while (element.firstChild) {
+        section.appendChild(element.firstChild);
+      }
+      // Replace main with section
+      element.parentNode.replaceChild(section, element);
+    }
+  }
+}
+
+// Fix for REACT_025: React Unique Landmarks
 // Ensure landmarks are unique
 function ensureUniqueLandmarks() {
-  const landmarks = ['main', 'navigation', 'search', 'region'];
+  const landmarks = ['navigation', 'search', 'region'];
   landmarks.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
@@ -81,7 +105,8 @@ function replaceFakeLinks() {
 function initAccessibility() {
   addLandmarks();
   enhanceSVGAccessibility();
-  ensureUniqueLandmarks();
+  ensureUniqueMainLandmark(); // New function for main landmark
+  ensureUniqueLandmarks(); // Existing function for other landmarks
   replaceFakeLinks();
 
   // Enhance all tables on the page

@@ -1,7 +1,20 @@
-// main.js
-import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import './index.css';
+import { createAccessibleSvg } from './createAccessibleSvg'; // Import the createAccessibleSvg function
 
-// Preserve all existing imports and functions
+// Add this function to create an accessible SVG element
+function createAccessibleSvg(props) {
+  return (
+    <svg
+      {...props}
+      aria-hidden={props['aria-hidden'] || "true"}
+      role={props.role || "img"}
+    >
+      {props.children}
+  </svg>
+  );
+}
 
 // Example of adding language attribute to root element
 function App() {
@@ -44,7 +57,7 @@ function addLandmarks() {
   });
 }
 
-// Example of proper table structure
+// Example of a proper table structure
 function DataTable({ data }) {
   return (
     <table>
@@ -111,16 +124,16 @@ function ensureUniqueLandmarks() {
   }
 }
 
-// Example of accessible SVG
+// Example of an accessible SVG
 function Icon() {
   return (
     <svg aria-label="Example icon" width="24" height="24">
       {/* SVG content */}
-    </svg>
+  </svg>
   );
 }
 
-// Example of proper link
+// Example of a proper link
 function ButtonLink() {
   return (
     <a href="/destination" role="button">
@@ -131,5 +144,19 @@ function ButtonLink() {
 
 // Preserve all existing exports
 export default App;
-export { DataTable, Layout, Icon, ButtonLink, addLandmarks, ensureUniqueLandmarks };
+export { DataTable, Layout, createAccessibleSvg, Icon, ButtonLink, addLandmarks, ensureUniqueLandmarks };
 // ... any other existing exports
+
+// Main render function
+function main() {
+  const container = document.getElementById('root');
+  if (!container) {
+    throw new Error('Root container not found');
+  }
+
+  const root = createRoot(container);
+  root.render(<App />);
+}
+
+// Starting the application
+main();

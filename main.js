@@ -18,9 +18,37 @@ function updateTableHeaders() {
   });
 }
 
-// Call the function when the DOM is fully loaded
+// Add function to handle fake links
+function handleFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    // Convert fake links to buttons for better accessibility
+    const button = document.createElement('button');
+    button.id = link.id;
+    button.className = link.className;
+    button.textContent = link.textContent;
+    button.type = 'button';
+
+    // Copy all event listeners from the link to the button
+    const clone = link.cloneNode(true);
+    const listeners = getEventListeners(link);
+    Object.keys(listeners).forEach(eventType => {
+      listeners[eventType].forEach(listener => {
+        button.addEventListener(eventType, listener.listener, listener.options);
+      });
+    });
+
+    // Replace the link with the button
+    link.parentNode.replaceChild(button, link);
+  });
+}
+
+// Call the functions when the DOM is fully loaded
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', updateTableHeaders);
+  document.addEventListener('DOMContentLoaded', () => {
+    updateTableHeaders();
+    handleFakeLinks();
+  });
 }
 
 // [Rest of your existing main.js content here]

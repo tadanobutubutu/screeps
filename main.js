@@ -1,8 +1,18 @@
-// Please paste the actual contents of main.js with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) here.
-// Without seeing the specific code structure in main.js, I cannot generate the correct fix. 
+// Set language attribute on HTML element for accessibility
+document.documentElement.lang = 'en';
 
-// Example structure you might need to update (hypothetical):
-// <th scope="col">...</th>
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-// Once you provide the real code, I'll add scope="col" to all <th> elements that are missing it,
-// preserving all existing exports, functions, and logic.
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// If you need this for reportWebVitals
+reportWebVitals();

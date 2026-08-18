@@ -148,3 +148,18 @@ if (typeof document !== 'undefined') {
     makeSVGsAccessible();
   });
 }
+
+// Add this function to ensure the HTML element has a lang attribute
+function ensureHtmlLangAttribute() {
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Add the HTML lang attribute check to DOMContentLoaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureHtmlLangAttribute();
+  });
+}

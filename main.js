@@ -101,22 +101,22 @@ function handleRotation() {
 
 // New function to create a main landmark element
 function createMainLandmark(children) {
-  return react.createElement('main', null, children);
+  return react.createElement('main', { role: 'main' }, children);
 }
 
 // New function to create a header landmark element
 function createHeaderLandmark(children) {
-  return react.createElement('header', null, children);
+  return react.createElement('header', { role: 'banner' }, children);
 }
 
 // New function to create a footer landmark element
 function createFooterLandmark(children) {
-  return react.createElement('footer', null, children);
+  return react.createElement('footer', { role: 'contentinfo' }, children);
 }
 
 // New function to create a navigation landmark element
 function createNavLandmark(children) {
-  return react.createElement('nav', null, children);
+  return react.createElement('nav', { role: 'navigation' }, children);
 }
 
 // New function to create an HTML element with lang attribute
@@ -130,7 +130,7 @@ function renderSingleMainLandmark(content, errorContent) {
   return react.createElement(
     'div',
     null,
-    react.createElement('main', null, errorContent ? errorContent : content)
+    react.createElement('main', { role: 'main' }, errorContent ? errorContent : content)
   );
 }
 

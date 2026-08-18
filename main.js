@@ -57,4 +57,16 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
     );
 };
 
+// Update the existing HTML content to use a <button> instead of an <a> tag
+const DocsDependencyGraph = () => {
+    return (
+        <div>
+            {/* ... other components ... */}
+            <button id="unrotate" onClick={() => window.location.hash = ''}>rotate back</button>
+            {/* ... other components ... */}
+        </div>
+    );
+};
+
 export default ErrorBoundary;
+export { DocsDependencyGraph };

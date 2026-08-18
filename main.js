@@ -1,7 +1,6 @@
 // [Your existing main.js content here]
 // ... (all your current code remains unchanged)
 
-// Add the following function to handle the table header scope attributes
 function updateTableHeaders() {
   // This function would be called after the DOM is loaded
   // to add scope attributes to table headers
@@ -18,7 +17,6 @@ function updateTableHeaders() {
   });
 }
 
-// Add function to replace fake links with proper buttons
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {

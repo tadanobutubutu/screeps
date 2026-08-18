@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000;
 // Existing exports and functions should remain unchanged
 // ...
 
+
 // New function to handle React 19 updates
 function handleReact19Update() {
     // Implementation for React 19 compatibility
@@ -28,7 +29,7 @@ function handleTypeScript7Update() {
 
 // Update server configuration for Node 24 compatibility
 app.listen(port, () => {
-    });
+});
 
 // Export all existing functions
 module.exports = {

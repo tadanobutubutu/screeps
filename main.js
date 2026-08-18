@@ -1,9 +1,5 @@
-// Current main.js content with conflict markers removed for clarity
+import React, { useEffect } from 'react';
 
-// Existing code and functions (to be preserved)
-// ...
-
-// Add the new function or change requested in the issue
 function updateLanguageAttribute() {
   const htmlElement = document.querySelector('html');
   if (htmlElement) {
@@ -11,7 +7,19 @@ function updateLanguageAttribute() {
   }
 }
 
-// Call the function to update the language attribute
-updateLanguageAttribute();
+export default function Main({ children }) {
+  useEffect(() => {
+    updateLanguageAttribute();
+  }, []);
 
-// ... (rest of the main.js content)
+  return (
+    <body className="min-h-screen flex flex-col">
+      <main className="flex-1">{children}</main>
+    </body>
+  );
+}
+
+// Preserve any other existing exports or functions
+// Example:
+// export function someOtherFunction() { ... }
+// export const someVariable = ...;

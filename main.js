@@ -1,3 +1,5 @@
+Remove the non-code content from origin/main branch and merge the HEAD's dependency updates:
+
 // Original content of main.js before conflict
 
 // ... (existing code) ...
@@ -39,5 +41,3 @@ function add(a, b) {
 // ... (existing code) ...
 
 // ... (existing code) ...
-
-// Updated main.js with conflict markers

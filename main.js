@@ -24,7 +24,7 @@ export const createAccessibleTable = (headers, data) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} ...
+            <th key={index} scope="col">{header}</th>
           ))}
         </tr>
       </thead>
@@ -100,6 +100,48 @@ export const createProperLink = (href, text, isExternal = false) => {
     >
       {text}
     </a>
+  );
+};
+
+/**
+ * Adds proper scope to table headers for better screen reader interpretation
+ * Fixes REACT_027: React Table Structure
+ */
+export const enhanceTableHeaders = (headers) => {
+  return headers.map((header, index) => ({
+    ...header,
+    scope: 'col',
+    key: `header-${index}`
+  }));
+};
+
+/**
+ * Creates an accessible button component
+ * Fixes REACT_036: React Fake Link (for button-like elements)
+ */
+export const createAccessibleButton = (onClick, text, type = 'button', disabled = false) => {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      aria-disabled={disabled}
+    >
+      {text}
+    </button>
+  );
+};
+
+/**
+ * Adds proper ARIA attributes to form elements
+ * Fixes REACT_017: React Landmarks (for forms)
+ */
+export const createAccessibleForm = (children, formId, formName) => {
+  return (
+    <form id={formId} name={formName} aria-labelledby={`${formId}-title`}>
+      <h2 id={`${formId}-title`}>{formName}</h2>
+      {children}
+    </form>
   );
 };
 

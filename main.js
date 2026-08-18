@@ -28,8 +28,7 @@ function handleTypeScript7Update() {
 
 // Update server configuration for Node 24 compatibility
 app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+    });
 
 // Export all existing functions
 module.exports = {

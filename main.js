@@ -36,6 +36,20 @@ function enhanceTables() {
 
 // REACT_017: Add proper landmarks
 function addLandmarks() {
+  // Add main landmark if not present
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    const body = document.querySelector('body');
+    if (body) {
+      // Move all existing content into the main element
+      while (body.firstChild) {
+        mainElement.appendChild(body.firstChild);
+      }
+      body.appendChild(mainElement);
+    }
+  }
+
+  // Ensure main has proper role
   const mainContent = document.querySelector('main');
   if (mainContent && !mainContent.getAttribute('role')) {
     mainContent.setAttribute('role', 'main');

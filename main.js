@@ -164,6 +164,30 @@ export const createAccessibleForm = (children, formId, formName) => {
   );
 };
 
+/**
+ * Creates an accessible table header with proper scope attribute
+ * Fixes REACT_027: React Table Structure
+ */
+export const createAccessibleTableHeader = (content, scope = 'col') => {
+  return <th scope={scope}>{content}</th>;
+};
+
+/**
+ * Creates an accessible table row with proper scope for headers
+ * Fixes REACT_027: React Table Structure
+ */
+export const createAccessibleTableRow = (cells, isHeader = false, scope = 'col') => {
+  return (
+    <tr>
+      {cells.map((cell, index) => (
+        isHeader
+          ? <th key={index} scope={scope}>{cell}</th>
+          : <td key={index}>{cell}</td>
+      ))}
+    </tr>
+  );
+};
+
 // Initialize accessibility features when component mounts
 export const initAccessibility = () => {
   addLanguageAttribute();

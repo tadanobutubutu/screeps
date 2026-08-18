@@ -88,3 +88,12 @@ export const AccessibleLink = ({
     </a>
   );
 };
+
+// Add helper component to ensure single main landmark
+export const SingleMainLandmark = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div role="main" aria-label="Main content">
+      {children}
+    </div>
+  );
+};

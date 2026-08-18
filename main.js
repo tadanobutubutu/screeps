@@ -48,6 +48,9 @@ const Dashboard: React.FC = () => {
   return (
     <main className="dashboard-container">
       <h1>Dashboard</h1>
+      <button className="rotate-button">
+        <span>rotate back</span>
+      </button>
       {/* Dashboard content */}
     </main>
   );

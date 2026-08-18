@@ -62,6 +62,18 @@ export const addLandmarks = (children) => {
 };
 
 /**
+ * Creates a single main content container that can be used in different states
+ * Fixes REACT_025: React Unique Landmarks
+ */
+export const createMainContent = (children, isError = false) => {
+  return (
+    <main role="main" aria-label={isError ? "Error content" : "Main content"}>
+      {children}
+    </main>
+  );
+};
+
+/**
  * Adds accessible names to SVG elements
  * Fixes REACT_041: React SVG Accessible Name
  */

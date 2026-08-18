@@ -117,6 +117,18 @@ export const createAccessibleFakeLink = (text, onClick) => {
   );
 };
 
+/**
+ * Creates a single main landmark with conditional content
+ * Fixes REACT_025: React Unique Landmarks
+ */
+export const createSingleMainLandmark = ({ isError, errorContent, successContent }) => {
+  return (
+    <main role="main" aria-label={isError ? "Error content" : "Main content"}>
+      {isError ? errorContent : successContent}
+    </main>
+  );
+};
+
 // Example of how to use these functions in a component
 export const AccessibleComponent = () => {
   const tableData = [{ col1: 'Data 1', col2: 'Data 2' }];

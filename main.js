@@ -17,6 +17,9 @@ configure({
     '^.+\\.tsx?$': 'babel-jest',
   },
   // ... (existing configuration) ...
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['json', 'lcov', 'text', 'clover'],
 });
 
 // chore(deps): update dependency react to v19

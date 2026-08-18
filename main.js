@@ -45,7 +45,7 @@ function checkDependencyCompatibility() {
 }
 
 // New export for compatibility checking
-module.exports.checkDependencyCompatibility = checkDependencyCompatibility;
+const compatibilityResult = checkDependencyCompatibility();
 
 // Main execution function
 function main() {
@@ -54,7 +54,7 @@ function main() {
 
   // New dependency management flow
   applyDependencyUpdates();
-  const compatibility = checkDependencyCompatibility();
+  const compatibility = compatibilityResult;
   console.log('Dependency compatibility:', compatibility);
 }
 

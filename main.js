@@ -3,19 +3,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-// Existing code (preserved as-is)
+// Existing code preserved
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <main>
+      <App />
+    </main>
   </React.StrictMode>
 );
 
-// New function to wrap content in main landmark
-function wrapWithMain(content) {
-  return <main>{content}</main>;
-}
-
-// Export all existing functions and add new ones
-export { wrapWithMain };
-// Keep all other existing exports
+// Any other existing exports or functions remain unchanged
+// ...

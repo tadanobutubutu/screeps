@@ -26,4 +26,29 @@ const TableComponent = () => {
   );
 };
 
+const TablePage = ({ isLoading, error }) => {
+  if (error) {
+    return (
+      <article role="alert">
+        <h1>Error</h1>
+        <p>{error}</p>
+      </article>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div>Loading...</div>
+    );
+  }
+
+  return (
+    <main>
+      <h1>Table View</h1>
+      <TableComponent />
+    </main>
+  );
+};
+
+export { TableComponent, TablePage };
 export default TableComponent;

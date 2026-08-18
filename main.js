@@ -1,4 +1,3 @@
-tsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 
@@ -16,3 +15,23 @@ const Layout: React.FC = () => {
 };
 
 export default Layout;
+
+// Additional function to handle table headers with proper scope attributes
+const TableHeader: React.FC<{ children: React.ReactNode; scope: 'col' | 'row' }> = ({ children, scope }) => {
+  return (
+    <th scope={scope}>
+      <div>{children}</div>
+    </th>
+  );
+};
+
+// Helper function to generate table headers with proper scope
+const generateTableHeaders = (headers: string[], scope: 'col' | 'row' = 'col') => {
+  return headers.map((header, index) => (
+    <TableHeader key={index} scope={scope}>
+      {header}
+    </TableHeader>
+  ));
+};
+
+export { TableHeader, generateTableHeaders };

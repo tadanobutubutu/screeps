@@ -63,9 +63,9 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
     }
 
     return (
-        <div>
-            <section>{children}</section>
-        </div>
+        <section>
+            {children}
+        </section>
     );
 };
 
@@ -87,7 +87,9 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        {children}
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   )

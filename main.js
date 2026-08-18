@@ -21,3 +21,42 @@ const MyComponent = () => {
 export default MyComponent;
 
 // existing code...
+
+// Fix for Dashboard component to ensure only one <main> element
+const Dashboard = ({ isError, children }) => {
+  return (
+    <div>
+      {isError ? (
+        <section className="error-state">
+          {/* Error content */}
+        </section>
+      ) : (
+        <main>
+          {/* Main content */}
+          {children}
+        </main>
+      )}
+    </div>
+  );
+};
+
+// If the Dashboard component is already defined elsewhere, you would modify it to ensure only one <main>
+// For example, if it's a conditional render, you might need to structure it like this:
+/*
+const Dashboard = ({ isError, children }) => {
+  if (isError) {
+    return (
+      <section className="error-state">
+        {/* Error content *}
+      </section>
+    );
+  }
+
+  return (
+    <main>
+      {/* Main content *}
+      {children}
+    </main>
+  );
+};
+*/

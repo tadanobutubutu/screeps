@@ -25,3 +25,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Export for module usage if needed
 module.exports = { unrotate, generateTableHeaders };
+```

@@ -6,7 +6,7 @@ const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 root.render(
   <React.StrictMode>
-    <main>
+    <main role="main" lang="en">
       <App />
     </main>
   </React.StrictMode>

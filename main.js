@@ -314,6 +314,53 @@ const fixLanguageAttribute = (filePath) => {
     }
 };
 
+/**
+ * Fixes fake links in HTML documents by replacing <a href="#"> with proper <button> elements
+ *
+ * Issue: REACT_036 - React Fake Link
+ * Affected files: docs/dependency-graph.html
+ * Fix: Replace hash-only links with proper buttons
+ */
+const fixFakeLinksInHTML = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Pattern to match <a href="#"> links
+        const fakeLinkPattern = /<a\s+([^>]*?)href=["']#["']([^>]*?)>([\s\S]*?)<\/a>/gi;
+
+        content = content.replace(fakeLinkPattern, (match, attrs1, attrs2, children) => {
+            // Extract id if available
+            const idMatch = attrs1.match(/id=["']([^"']*)["']/) || attrs2.match(/id=["']([^"']*)["']/);
+            const id = idMatch ? ` id="${idMatch[1]}"` : '';
+
+            // Extract onclick if available
+            const onclickMatch = attrs1.match(/onclick=["']([^"']*)["']/) || attrs2.match(/onclick=["']([^"']*)["']/);
+            const onclick = onclickMatch ? ` onclick="${onclickMatch[1]}"` : '';
+
+            // Preserve other attributes
+            const otherAttrs = (attrs1 + attrs2).replace(/href=["']#["']/, '')
+                                             .replace(/id=["'][^"']*["']/, '')
+                                             .replace(/onclick=["'][^"']*["']/, '');
+
+            hasChanges = true;
+            return `<button${otherAttrs}${id}${onclick}>${children}</button>`;
+        });
+
+        if (hasChanges) {
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Fixed fake links in HTML: ${filePath}`);
+            return true;
+        }
+
+        console.log(`ℹ️ No fake link fixes needed in HTML: ${filePath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ Error processing HTML fake links in ${filePath}:`, error.message);
+        return false;
+    }
+};
+
 // Files to fix based on the issue report
 const filesToFix = [
     'app/layout.tsx',
@@ -392,6 +439,16 @@ linkFiles.forEach(file => {
         console.log(`⚠️ File not found: ${file}`);
     }
 });
+
+// Add HTML-specific fake link fix for dependency-graph.html
+console.log('\n🔧 Fixing HTML Fake Links (REACT_036) issues...\n');
+const htmlFakeLinkFile = 'docs/dependency-graph.html';
+const fullHtmlFakeLinkPath = path.join(process.cwd(), htmlFakeLinkFile);
+if (fs.existsSync(fullHtmlFakeLinkPath)) {
+    fixFakeLinksInHTML(fullHtmlFakeLinkPath);
+} else {
+    console.log(`⚠️ File not found: ${htmlFakeLinkFile}`);
+}
 
 console.log('\n🔧 Fixing React Language Attribute (REACT_015) issues...\n');
 filesToFix.forEach(file => {

@@ -25,4 +25,4 @@ function makeSvgAccessible(svgElement, isDecorative) {
 // });
 
 // Preserve all existing exports and functionality
-// ... rest of your existing main.js code ...
+// ... rest of your existing main.js code

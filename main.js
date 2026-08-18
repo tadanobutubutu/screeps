@@ -23,13 +23,12 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!session) {
-      router.push('/login');
       return;
     }
 
     const fetchData = async () => {
       try {
-        const data = await getUserData(session.user?.email);
+        const data = await getUserData();
         setUserData(data);
       } catch (err) {
         setError('Failed to load user data. Please try again later.');
@@ -55,12 +54,12 @@ export const Dashboard: React.FC = () => {
       <section className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-2xl font-bold mb-4">Error</h1>
         <p className="text-red-500 mb-6">{error}</p>
-        <button
-          onClick={() => window.location.reload()}
+        <a
+          href={typeof window !== 'undefined' ? window.location.href : '#'}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Try Again
-        </button>
+        </a>
       </section>
     );
   }
@@ -70,12 +69,12 @@ export const Dashboard: React.FC = () => {
       <section className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-2xl font-bold mb-4">No Data Available</h1>
         <p className="mb-6">We couldn't find any data for your account.</p>
-        <button
-          onClick={() => window.location.reload()}
+        <a
+          href={typeof window !== 'undefined' ? window.location.href : '#'}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Refresh
-        </button>
+        </a>
       </section>
     );
   }

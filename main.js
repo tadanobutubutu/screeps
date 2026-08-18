@@ -81,5 +81,19 @@ const FaviconSVG = () => (
     </svg>
 );
 
+// Add the HTML document with lang attribute
+const DependencyGraphHTML = () => {
+    return (
+        <html lang="en">
+            <head>
+                <title>Dependency Graph</title>
+            </head>
+            <body>
+                <DocsDependencyGraph />
+            </body>
+        </html>
+    );
+};
+
 export default ErrorBoundary;
-export { DocsDependencyGraph, FaviconSVG };
+export { DocsDependencyGraph, FaviconSVG, DependencyGraphHTML };

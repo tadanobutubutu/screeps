@@ -50,7 +50,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 
     return (
         <div>
-            <main>{children}</main>
+            <section>{children}</section>
         </div>
     );
 };

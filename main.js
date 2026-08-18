@@ -3,7 +3,7 @@ import './globals.css'
 import React, { useState } from 'react'
 
 const handleUnrotate = () => {
-    const image = document.querySelector('.rotatable-image')
+    const image = document.getElementById('rotatable-image')
     if (image) {
         image.style.transform = 'rotate(0deg)'
     }
@@ -32,14 +32,14 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidMount() {
-        const unrotateBtn = document.getElementById('unrotate')
+        const unrotateBtn = document.getElementById('unrotate-btn')
         if (unrotateBtn) {
             unrotateBtn.addEventListener('click', handleUnrotate)
         }
     }
 
     componentWillUnmount() {
-        const unrotateBtn = document.getElementById('unrotate')
+        const unrotateBtn = document.getElementById('unrotate-btn')
         if (unrotateBtn) {
             unrotateBtn.removeEventListener('click', handleUnrotate)
         }
@@ -71,9 +71,10 @@ class ErrorBoundary extends React.Component {
                     >
                         {this.state.error && this.state.error.toString()}
                         <br />
-                        {this.state.errorInfo.componentStack}
+                        {this.state.errorInfo && this.state.errorInfo.componentStack}
                     </pre>
                     <button
+                        id="reload-btn"
                         onClick={this.handleReload}
                         style={{
                             backgroundColor: '#004b73',
@@ -86,16 +87,11 @@ class ErrorBoundary extends React.Component {
                     >
                         🔄 ページを再読み込み
                     </button>
-                    {this.props.fallback}
                 </section>
             )
         }
 
-        return (
-            <div>
-                <section>{this.props.children}</section>
-            </div>
-        )
+        return this.props.children
     }
 }
 

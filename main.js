@@ -1,22 +1,31 @@
-// Since the issue is related to the HTML `<html>` tag and not JavaScript code, the main.js file should not contain any HTML tags. However, if there is a requirement to include the `<html>` tag for some reason, it should be placed outside of the JavaScript code, for example, in the HTML file that the main.js file is linked to.
+import React from 'react';
 
-// Below is the main.js file content assuming it should not contain any HTML tags and that the HTML structure is defined in an external HTML file.
+const Dashboard = () => {
+  // ... other component logic ...
 
-const MyTableComponent = () => {
+  // Assuming you have error and success states that return different content
+  const renderContent = () => {
+    // ... logic to determine the current state and return the appropriate component
+    if (errorState) {
+      // Render error content
+      return <ErrorComponent />;
+    } else if (successState) {
+      // Render success content
+      return <SuccessComponent />;
+    } else {
+      // Render default content
+      return <DefaultComponent />;
+    }
+  };
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* Table rows would go here */}
-      </tbody>
-    </table>
+    <div>
+      {/* This should be the only <main> element in the DOM */}
+      <main>
+        {renderContent()}
+      </main>
+    </div>
   );
 };
 
-export default MyTableComponent;
+export default Dashboard;

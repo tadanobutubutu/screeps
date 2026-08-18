@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRouter } from 'react';
 import { useAuth, Html, Head, Main, NextScript } from 'next/document';
 import { getDashboardData, DashboardData } from '../lib/api';
 
-// Import React from the first branch, but keep the rest of the functionalities and imports from the second branch
-
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,12 +30,10 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [user, router]);
 
-  // Keep the loading content and loading styles from the first branch
   if (loading) {
     return (
       <Html lang="en">
         <Head>
-          {/* Add aria-label or title element to make SVG accessible */}
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" aria-label="Website icon" />
         </Head>
         <body>
@@ -62,7 +58,6 @@ const Dashboard: React.FC = () => {
     return (
       <Html lang="en">
         <Head>
-          {/* Add aria-label or title element to make SVG accessible */}
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" aria-label="Website icon" />
         </Head>
         <body>
@@ -92,10 +87,11 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  // Keep the rendered dashboard content and styles from the second branch
   return (
     <Html lang="en">
-      <Head />
+      <Head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" aria-label="Website icon" />
+      </Head>
       <body>
         <Main />
         <NextScript />

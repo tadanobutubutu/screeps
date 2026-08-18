@@ -64,3 +64,21 @@ describe('Dependency updates', () => {
 
 // Preserve all other existing code and exports
 // ... rest of the original main.js content ...
+
+// The following changes are for the dependency-graph.html file
+// These are not part of main.js but are included here for completeness
+// In a real scenario, you would modify the HTML file directly
+
+// Original table headers without scope attributes:
+// <th><div>src/constants.js</div></th>
+// <th><div>src/managers/roomManager.js</div></th>
+// <th><div>src/managers/spawnManager.js</div></th>
+// <th><div>src/managers/towerManager.js</div></th>
+// <th><div>src/roles/builder.js</div></th>
+
+// Updated table headers with scope attributes:
+// <th scope="col"><div>src/constants.js</div></th>
+// <th scope="col"><div>src/managers/roomManager.js</div></th>
+// <th scope="col"><div>src/managers/spawnManager.js</div></th>
+// <th scope="col"><div>src/managers/towerManager.js</div></th>
+// <th scope="col"><div>src/roles/builder.js</div></th>

@@ -19,8 +19,8 @@ const Layout = ({ children }) => {
           </nav>
         </header>
 
-        {/* Add a main landmark for the primary content */}
-        <main>{children}</main>
+        {/* Use section instead of main to avoid duplicate main landmarks */}
+        <section aria-label="main-content">{children}</section>
       </div>
     </body>
   );
@@ -66,8 +66,8 @@ app.get('/', (req, res) => {
       <body>
         <div id="root"></div>
         <script>
-          const Layout = ${Layout.toString()};
-          ReactDOM.render(React.createElement(Layout, null, 'Main Content'), document.getElementById('root'));
+          const Layout = ...
+          ... null, 'Main Content'), ...
         </script>
       </body>
     </html>

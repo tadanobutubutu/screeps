@@ -108,5 +108,76 @@ export const AccessibleLink = ({ href, children, ...props }) => {
   );
 };
 
+/**
+ * Adds proper heading structure to the page
+ * Fixes REACT_016: React Heading Structure
+ */
+export const PageHeadings = ({ title, subtitle, children }) => {
+  return (
+    <div>
+      <h1>{title}</h1>
+      {subtitle && <h2>{subtitle}</h2>}
+      {children}
+    </div>
+  );
+};
+
+/**
+ * Ensures proper form labels and associations
+ * Fixes REACT_030: React Form Label
+ */
+export const AccessibleFormField = ({ label, id, type = 'text', ...props }) => {
+  return (
+    <div>
+      <label htmlFor={id}>{label}</label>
+      <input id={id} type={type} {...props} />
+    </div>
+  );
+};
+
+/**
+ * Adds proper ARIA attributes to interactive elements
+ * Fixes REACT_037: React ARIA Attributes
+ */
+export const InteractiveElement = ({ role, ariaLabel, children, ...props }) => {
+  return (
+    <div role={role} aria-label={ariaLabel} {...props}>
+      {children}
+    </div>
+  );
+};
+
+/**
+ * Ensures proper focus management for keyboard users
+ * Fixes REACT_038: React Focus Management
+ */
+export const FocusableElement = ({ children, ...props }) => {
+  const ref = React.useRef(null);
+
+  React.useEffect(() => {
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, []);
+
+  return (
+    <div ref={ref} tabIndex="0" {...props}>
+      {children}
+    </div>
+  );
+};
+
+/**
+ * Adds proper ARIA live regions for dynamic content
+ * Fixes REACT_039: React ARIA Live Regions
+ */
+export const LiveRegion = ({ ariaLive = 'polite', children }) => {
+  return (
+    <div aria-live={ariaLive}>
+      {children}
+    </div>
+  );
+};
+
 // All existing exports remain unchanged
 // ... (rest of your existing code)

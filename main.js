@@ -2,7 +2,7 @@ import React from 'react';
 
 const TableComponent = () => {
   return (
-    <table>
+    <table aria-label="User information table">
       <thead>
         <tr>
           <th scope="col">ID</th>
@@ -26,4 +26,14 @@ const TableComponent = () => {
   );
 };
 
+const App = () => {
+  return (
+    <div role="main">
+      <h1>User Information</h1>
+      <TableComponent />
+    </div>
+  );
+};
+
 export default TableComponent;
+export { App };

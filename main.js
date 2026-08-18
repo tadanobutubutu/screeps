@@ -88,3 +88,20 @@ export const AccessibleLink = ({
     </a>
   );
 };
+
+// Add helper function for accessible main landmark (REACT_017)
+export const MainLandmark = ({
+  children,
+  className = '',
+  ariaLabel = 'Main content',
+}: {
+  children: React.ReactNode;
+  className?: string;
+  ariaLabel?: string;
+}) => {
+  return (
+    <main role="main" className={className} aria-label={ariaLabel}>
+      {children}
+    </main>
+  );
+};

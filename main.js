@@ -1,46 +1,17 @@
-// main.js
-import React from 'react';
+// pages/_document.js - Fix for REACT_015 (Language Attribute)
+import { Html, Head, Main, NextScript } from 'next/document';
 
-// Preserve all existing imports and functions
-
-// Example of adding language attribute to root element
-function App() {
+export default function Document() {
   return (
-    <div lang="en" role="main"> {/* Added lang and role attributes */}
-      {/* Your existing content */}
-
-      {/* Example of proper table structure */}
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Header 1</th>
-            <th scope="col">Header 2</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Data 1</td>
-            <td>Data 2</td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Example of accessible SVG */}
-      <svg aria-label="Chart" width="100" height="100">
-        {/* SVG content */}
-      </svg>
-
-      {/* Example of proper navigation landmark */}
-      <nav role="navigation" aria-label="Main navigation">
-        {/* Navigation content */}
-      </nav>
-
-      {/* Example of proper link (replace fake links) */}
-      <a href="/about">About Us</a>
-    </div>
+    <Html lang="en">
+      <Head />
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
   );
 }
+```
 
-// Preserve all existing exports
-export default App;
-export { /* other existing exports */ };
+The conflict involved two different approaches: a standard React `App` component in `main.js` and a Next.js `_document.js` structure. The Next.js version (origin/main) properly sets the `lang` attribute on the root `<html>` element, which is the correct semantic location for global document attributes. The HEAD version incorrectly placed `lang="en"` on a `<div>`, which only affects that element rather than the entire document. The Next.js approach is more appropriate for React frameworks like Next.js, where document-level attributes should be managed in `_document.js`.

@@ -23,5 +23,13 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', updateTableHeaders);
 }
 
+// Add language attribute to the HTML element
+if (typeof document !== 'undefined') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
 // [Rest of your existing main.js content here]
 // ... (all your current code remains unchanged)

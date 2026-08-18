@@ -46,7 +46,16 @@ function addLandmarks() {
 function enhanceSVGAccessibility() {
   const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
   svgs.forEach(svg => {
-    if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+    // Check if SVG is in the favicon context (common for decorative SVGs)
+    const isFavicon = svg.closest('link[rel="icon"]') || svg.closest('link[rel="shortcut icon"]');
+
+    if (isFavicon) {
+      // For favicon SVGs, mark as decorative if no accessible name exists
+      if (!svg.querySelector('title') && !svg.querySelector('desc') && !svg.getAttribute('aria-label')) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    } else if (!svg.querySelector('title') && !svg.querySelector('desc') && !svg.getAttribute('aria-label')) {
+      // For other SVGs, add a default title if no accessible name exists
       const title = document.createElement('title');
       title.textContent = 'Graphic element';
       svg.prepend(title);

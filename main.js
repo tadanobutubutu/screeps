@@ -19,3 +19,18 @@ const ExampleComponent = () => {
 };
 
 export default ExampleComponent;
+
+// New component for accessible SVG
+const AccessibleSvg = ({ isDecorative, label, children }) => {
+  if (isDecorative) {
+    return <svg aria-hidden="true">{children}</svg>;
+  }
+  return (
+    <svg aria-label={label}>
+      <title>{label}</title>
+      {children}
+    </svg>
+  );
+};
+
+export { AccessibleSvg };

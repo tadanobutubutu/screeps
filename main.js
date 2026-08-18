@@ -48,7 +48,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
         );
     }
 
-    return <main>{children}</main>;
+    return <section>{children}</section>;
 };
 
 export default ErrorBoundary;

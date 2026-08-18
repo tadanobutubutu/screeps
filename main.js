@@ -3,8 +3,10 @@ import { hydrateRoot } from 'react-dom/client';
 import App from './App';
 
 hydrateRoot(
-  document.documentElement.setAttribute('lang', 'en'),
+  document.getElementById('root'),
   <React.StrictMode>
-    <App />
+    <main>
+      <App />
+    </main>
   </React.StrictMode>
 );

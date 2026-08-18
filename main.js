@@ -18,9 +18,31 @@ function updateTableHeaders() {
   });
 }
 
-// Call the function when the DOM is fully loaded
+// Add function to replace fake links with proper buttons
+function replaceFakeLinks() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    if (link.id === 'unrotate') {
+      const button = document.createElement('button');
+      button.id = link.id;
+      button.textContent = link.textContent;
+      button.className = link.className;
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Add your rotation logic here
+        console.log('Rotation triggered');
+      });
+      link.parentNode.replaceChild(button, link);
+    }
+  });
+}
+
+// Call the functions when the DOM is fully loaded
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', updateTableHeaders);
+  document.addEventListener('DOMContentLoaded', () => {
+    updateTableHeaders();
+    replaceFakeLinks();
+  });
 }
 
 // [Rest of your existing main.js content here]

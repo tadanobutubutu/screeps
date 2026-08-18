@@ -26,4 +26,36 @@ module.exports = {
   main: () => {
     // No operation – placeholder for the original bot logic.
   },
+
+  /**
+   * Accessibility: Sets the language attribute for screen readers
+   * @returns {string} The language code for the application
+   */
+  getLanguage: () => {
+    return 'en'; // Default language, can be made configurable
+  },
+
+  /**
+   * Accessibility: Provides semantic landmarks for screen readers
+   * @returns {Object} Object containing landmark information
+   */
+  getLandmarks: () => {
+    return {
+      main: 'main-content',
+      navigation: 'primary-navigation',
+      search: 'search-form',
+      footer: 'page-footer'
+    };
+  },
+
+  /**
+   * Accessibility: Ensures unique landmark identifiers
+   * @param {string} landmarkType The type of landmark
+   * @param {number} index The index of the landmark (for multiple instances)
+   * @returns {string} Unique landmark identifier
+   */
+  getUniqueLandmarkId: (landmarkType, index = 0) => {
+    const landmarks = module.exports.getLandmarks();
+    return `${landmarks[landmarkType] || landmarkType}-${index}`;
+  }
 };

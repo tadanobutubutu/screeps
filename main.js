@@ -1,13 +1,19 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
+import { jest } from '@jest/globals';
+import eslint from 'eslint';
 import { AccessibleTable, AccessibleIcon, AccessibleIconWithTitle, MainContent, Navigation, SiteFooter, ActionButton, RealLink } from './accessibilityComponents';
 
-constexistingFunction = () => {
+const existingFunction = () => {
   // Some existing functionality
 };
 
 const anotherExistingFunction = () => {
   // Another existing function
+};
+
+const existingFunctionFromOrigin = () => {
+  // ... existing implementation
 };
 
 export function renderMainContent(content) {
@@ -95,8 +101,27 @@ const App = () => {
 
 const rootElement = document.getElementById('root');
 if (rootElement) {
-  const root = createRoot(rootElement);
+  const root = ReactDOM.createRoot(rootElement);
   root.render(<App />);
 } else {
   console.error('No root element found. Please add <div id="root"></div> to your HTML.');
 }
+
+export const getTypeScriptVersion = () => { return '7.0.0'; };
+export const runEslint = async (files) => {
+  const linter = new eslint.ESLint();
+  const results = await linter.lintFiles(files);
+  return results;
+};
+export const createTestEnvironment = () => {
+  return { jest, test: jest.it, describe: jest.describe, expect: jest.expect, beforeAll: jest.beforeAll, afterAll: jest.afterAll };
+};
+export const renderApp = (component) => {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <React.StrictMode>
+      {component}
+    </React.StrictMode>
+  );
+};
+export { existingFunctionFromOrigin };

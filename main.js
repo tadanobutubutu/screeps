@@ -1,1 +1,31 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// app/layout.tsx
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Screeps',
+  description: 'Screeps is a MMO sandbox game for programmers',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+      {
+        url: '/favicon.ico',
+        type: 'image/x-icon',
+      },
+    ],
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}

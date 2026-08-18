@@ -51,10 +51,73 @@ const fixSVGAccessibility = (filePath) => {
     }
 };
 
+/**
+ * Fixes React Landmarks by adding <main> tags to primary content
+ *
+ * Issue: REACT_017 - React Landmarks
+ * Affected files: app/layout.tsx, dashboard/app/layout.tsx, docs/dependency-graph.html, docs/index.html
+ * Fix: Wrap primary content in <main> tags
+ */
+const fixReactLandmarks = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Check if file is a React component (.tsx) or HTML (.html)
+        const isReact = filePath.endsWith('.tsx');
+        const isHTML = filePath.endsWith('.html');
+
+        if (isReact) {
+            // For React components, look for <body> and wrap children in <main>
+            const reactPattern = /(<body[^>]*>)([\s\S]*?)<\/body>/i;
+            content = content.replace(reactPattern, (match, openingTag, children) => {
+                // Check if <main> already exists
+                if (children.includes('<main') || children.includes('</main>')) {
+                    return match;
+                }
+
+                hasChanges = true;
+                // Wrap children in <main> with appropriate className if present
+                const classMatch = openingTag.match(/className=["']([^"']*)["']/);
+                const className = classMatch ? ` className="${classMatch[1]}"` : '';
+
+                return `${openingTag}\n            <main${className}>${children.trim()}</main>\n        </body>`;
+            });
+        } else if (isHTML) {
+            // For HTML files, look for <body> and wrap content in <main>
+            const htmlPattern = /(<body[^>]*>)([\s\S]*?)<\/body>/i;
+            content = content.replace(htmlPattern, (match, openingTag, children) => {
+                // Check if <main> already exists
+                if (children.includes('<main') || children.includes('</main>')) {
+                    return match;
+                }
+
+                hasChanges = true;
+                // Wrap children in <main>
+                return `${openingTag}\n    <main>\n        ${children.trim()}\n    </main>\n</body>`;
+            });
+        }
+
+        if (hasChanges) {
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Fixed React Landmarks in: ${filePath}`);
+            return true;
+        }
+
+        console.log(`ℹ️ No changes needed in: ${filePath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ Error processing ${filePath}:`, error.message);
+        return false;
+    }
+};
+
 // Files to fix based on the issue report
 const filesToFix = [
     'app/layout.tsx',
-    'dashboard/app/layout.tsx'
+    'dashboard/app/layout.tsx',
+    'docs/dependency-graph.html',
+    'docs/index.html'
 ];
 
 // Execute fixes
@@ -62,11 +125,24 @@ console.log('🔧 Fixing React SVG Accessible Name (REACT_041) issues...\n');
 filesToFix.forEach(file => {
     const fullPath = path.join(process.cwd(), file);
     if (fs.existsSync(fullPath)) {
-        fixSVGAccessibility(fullPath);
+        if (file.endsWith('.tsx') || file.endsWith('.html')) {
+            fixSVGAccessibility(fullPath);
+        }
     } else {
         console.log(`⚠️ File not found: ${file}`);
     }
 });
+
+console.log('\n🔧 Fixing React Landmarks (REACT_017) issues...\n');
+filesToFix.forEach(file => {
+    const fullPath = path.join(process.cwd(), file);
+    if (fs.existsSync(fullPath)) {
+        fixReactLandmarks(fullPath);
+    } else {
+        console.log(`⚠️ File not found: ${file}`);
+    }
+});
+
 console.log('\n✨ Done! Review the changes and ensure tests still pass.');
 
 /**

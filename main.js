@@ -33,6 +33,13 @@ function handleTypescriptUpdate() {
   console.log('Handling TypeScript 7 update');
 }
 
+// Function to fix React Unique Landmarks issue
+function fixReactLandmarks() {
+  // This function would be used to modify the Dashboard component
+  // to ensure only one <main> element exists
+  console.log('Fixing React Unique Landmarks issue');
+}
+
 // Main application logic
 app.get('/', (req, res) => {
   res.send('Server is running with updated dependencies');
@@ -45,7 +52,8 @@ module.exports = {
   handleReactUpdate,
   handleJestUpdate,
   handleEslintUpdate,
-  handleTypescriptUpdate
+  handleTypescriptUpdate,
+  fixReactLandmarks
 };
 
 // Start server

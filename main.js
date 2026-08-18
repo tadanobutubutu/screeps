@@ -73,7 +73,7 @@ function processUpdates() {
   // Process NPM updates
   dependencyUpdates.npm.forEach(dep => {
     try {
-      console.log(`Updating ${dep.name}: ${dep.current} → ${dep.update}`);
+      console.hook(`Updating ${dep.name}: ${dep.current} → ${dep.update}`);
       results.success.push({
         package: dep.name,
         from: dep.current,
@@ -182,7 +182,7 @@ if (require.main === module) {
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
   if (results.failed.length > 0) {
-    console.log(`✗ Failed: ${results.failed.length}`);
+    console.log(`✗ Failed: ${results.failed.length} updates`);
   }
 }
 

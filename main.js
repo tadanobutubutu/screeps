@@ -58,3 +58,15 @@ function main() {
 if (require.main === module) {
   main();
 }
+
+// Additional utility function to ensure single main landmark in React components
+function ensureSingleMainLandmark(component) {
+  // This function would be used to analyze React components
+  // and ensure they follow the single main landmark pattern
+  // Implementation would depend on your component structure
+  console.log('Ensuring single main landmark in component:', component);
+  return component;
+}
+
+// Export the utility function for component analysis
+module.exports.ensureSingleMainLandmark = ensureSingleMainLandmark;

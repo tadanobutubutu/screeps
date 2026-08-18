@@ -91,6 +91,18 @@ export const createProperLink = (href, text, isExternal = false) => {
   );
 };
 
+/**
+ * Creates a button element for in-page actions
+ * Fixes REACT_036: React Fake Link
+ */
+export const createActionButton = (onClick, text, type = 'button') => {
+  return (
+    <button type={type} onClick={onClick}>
+      {text}
+    </button>
+  );
+};
+
 // Initialize accessibility features when component mounts
 export const initAccessibility = () => {
   addLanguageAttribute();

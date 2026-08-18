@@ -1,43 +1,11 @@
-// Original content of main.js before conflict
+// Content would be utils.emotions.js with fixed string constants
+// Common issues that cause "Unterminated string constant":
+// 1. Missing closing quote
+// 2. UnescapedQuotes in strings
+// 3. Multiline strings without proper escaping
 
-// ... (existing code) ...
-
-// New content for main.js after conflict resolution
-
-// chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
-// Updating the Jest version and related packages
-import { configure } from 'jest';
-
-configure({
-  // ... (existing configuration) ...
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest',
-    '^.+\\.tsx?$': 'babel-jest',
-  },
-  // ... (existing configuration) ...
-});
-
-// chore(deps): update dependency react to v19
-// Assuming you have a component that uses React
-const MyComponent = () => {
-  // ... (existing code) ...
-  return <div>Hello, world!</div>;
-};
-
-// chore(deps): update dependency typescript to v7
-// Assuming you have TypeScript code
-function add(a: number, b: number): number {
-  return a + b;
-}
-
-// ... (existing code) ...
-
-// chore(deps): update dependency eslint to v10
-// Assuming you have ESLint rules that might need updating
-// This would be done in a separate step, not directly in the code
-
-// ... (existing code) ...
-
-// ... (existing code) ...
-
-// Updated main.js with conflict markers
+// Example fixed code pattern (line 389 area):
+const someString = "This is a properly terminated string constant";
+// or if the original had something like:
+// const someString = "This string was missing closing quote
+// It should be: const someString = "This string is now properly terminated";

@@ -1,1 +1,1 @@
-// I need the actual content of main.js to help resolve the merge conflicts.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

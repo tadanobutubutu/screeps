@@ -14,11 +14,20 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 
     if (hasError) {
         return (
-            <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    tabIndex={0}
-                    aria-label="エラーメッセージ詳細"
+            <section
+                lang="ja"
+                aria-labelledby="error-heading"
+                style={{ padding: '2rem', fontFamily: 'monospace' }}
+            >
+                <h1
+                    id="error-heading"
+                    style={{ color: '#b71c1c' }}
+                >
+                    ⚠️ エラー
+                </h1>
+                <div
+                    role="alert"
+                    aria-live="assertive"
                     style={{
                         color: '#c53030',
                         backgroundColor: '#fff5f5',
@@ -27,10 +36,15 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                         overflow: 'auto',
                     }}
                 >
-                    {error && error.toString()}
-                    <br />
-                    {errorInfo.componentStack}
-                </pre>
+                    <pre
+                        tabIndex={0}
+                        aria-label="エラーメッセージ詳細"
+                    >
+                        {error && error.toString()}
+                        <br />
+                        {errorInfo.componentStack}
+                    </pre>
+                </div>
                 <button
                     onClick={() => window.location.reload()}
                     style={{
@@ -48,7 +62,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
         );
     }
 
-    return <main>{children}</main>;
+    return <main lang="ja">{children}</main>;
 };
 
 export default ErrorBoundary;

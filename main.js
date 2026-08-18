@@ -17,11 +17,20 @@ function enhanceTableAccessibility(tableElement) {
 // Fix for REACT_017: React Landmarks
 // Add proper ARIA landmarks
 function addLandmarks() {
-  const mainContent = document.querySelector('main');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
+  // Check if main landmark exists, if not add it
+  if (!document.querySelector('main')) {
+    const mainContent = document.querySelector('[role="main"]') || document.body.firstElementChild;
+    if (mainContent) {
+      const mainElement = document.createElement('main');
+      while (mainContent.firstChild) {
+        mainElement.appendChild(mainContent.firstChild);
+      }
+      mainContent.parentNode.insertBefore(mainElement, mainContent);
+      mainContent.remove();
+    }
   }
 
+  // Ensure all nav elements have proper ARIA labels
   const navElements = document.querySelectorAll('nav');
   navElements.forEach(nav => {
     if (!nav.getAttribute('aria-label')) {

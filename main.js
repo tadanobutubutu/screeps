@@ -30,7 +30,7 @@ export const renderApp = (component) => {
   const root = ReactDOM.createRoot(document.getElementById('root'));
   root.render(
     <React.StrictMode>
-      {component}
+      <main>{component}</main>
     </React.StrictMode>
   );
 };
@@ -57,4 +57,52 @@ export const runEslint = async (files) => {
 // New function for TypeScript v7 compatibility
 export const getTypeScriptVersion = () => {
   return '7.0.0';
+};
+
+// New component for dashboard layout
+export const DashboardLayout = ({ children }) => {
+  return (
+    <body>
+      <main>{children}</main>
+    </body>
+  );
+};
+
+// New component for docs layout
+export const DocsLayout = ({ children }) => {
+  return (
+    <main>
+      {children}
+    </main>
+  );
+};
+
+// New component for index page
+export const IndexPage = () => {
+  return (
+    <main>
+      <div className="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>
+          This repository is fully optimized with automated tools. Explore the generated
+          reports below:
+        </p>
+        <div className="links">
+          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+// New component for dependency graph
+export const DependencyGraph = () => {
+  return (
+    <main>
+      <table id="table-rotated">
+        {/* Table content would go here */}
+      </table>
+    </main>
+  );
 };

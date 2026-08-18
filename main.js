@@ -50,38 +50,35 @@ const Dashboard: React.FC = () => {
     }
   }, [data]);
 
-  if (loading) {
-    return (
-      <main aria-busy="true" aria-label="Loading dashboard">
-        <div className="loading-spinner" role="status">Loading...</div>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="error-state" role="alert">
-        <h2>Error Loading Dashboard</h2>
-        <p>{error}</p>
-      </main>
-    );
-  }
-
-  if (!dashboardData) {
-    return (
-      <main className="no-data" role="status">
-        <h2>No Data Available</h2>
-        <p>Please try again later.</p>
-      </main>
-    );
-  }
-
-  // End of code from the patch branch
-
+  // Render all states within a single main element
   return (
     <main className="dashboard-container" lang="en">
-      <h1>Dashboard</h1>
-      {/* Dashboard content */}
+      {loading && (
+        <div aria-busy="true" aria-label="Loading dashboard">
+          <div className="loading-spinner" role="status">Loading...</div>
+        </div>
+      )}
+
+      {error && (
+        <div className="error-state" role="alert">
+          <h2>Error Loading Dashboard</h2>
+          <p>{error}</p>
+        </div>
+      )}
+
+      {!dashboardData && !loading && !error && (
+        <div className="no-data" role="status">
+          <h2>No Data Available</h2>
+          <p>Please try again later.</p>
+        </div>
+      )}
+
+      {dashboardData && (
+        <>
+          <h1>Dashboard</h1>
+          {/* Dashboard content */}
+        </>
+      )}
     </main>
   );
 };

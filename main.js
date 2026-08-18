@@ -10,6 +10,8 @@ const Layout: React.FC = () => {
       </header>
       <main className="flex-1">
         <Outlet />
+        {/* Adding a button for the 'rotate back' action */}
+        <button id="unrotate" onClick={() => {/* Implement the rotate back logic here */}}>rotate back</button>
       </main>
     </div>
   );

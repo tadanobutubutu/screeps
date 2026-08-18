@@ -12,10 +12,10 @@ const handleUnrotate = () => {
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props)
-        this.state = { 
-            error: null, 
-            errorInfo: null, 
-            hasError: false 
+        this.state = {
+            error: null,
+            errorInfo: null,
+            hasError: false
         }
         this.handleReload = this.handleReload.bind(this)
     }
@@ -109,11 +109,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        {children}
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   )

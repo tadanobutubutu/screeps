@@ -1,1 +1,22 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+import React from 'react';
+import './styles.css';
+
+const Layout: React.FC = ({ children }) => {
+  return (
+    <body>
+      <div className="layout">
+        <header>
+          <nav>
+            <!-- Navigation menu -->
+          </nav>
+        </header>
+
+        {/* Add a main landmark for the primary content */}
+        <main>{children}</main>
+      </div>
+    </body>
+  );
+};
+
+export default Layout;

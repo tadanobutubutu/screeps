@@ -8,9 +8,9 @@ document.documentElement.lang = 'en';
 // Fix for REACT_027: React Table Structure
 // Ensure tables have proper structure with <thead>, <tbody>, and <th> elements
 function enhanceTableAccessibility(tableElement) {
-  if (!tableElement.querySelector('thead') || !tableElement.querySelector('tbody')) {
+  if (!tableElement) {
     console.warn('Table structure needs improvement for better accessibility');
-    // You might want to restructure the table here if needed
+    return;
   }
 
   // Add scope attributes to table headers
@@ -18,9 +18,9 @@ function enhanceTableAccessibility(tableElement) {
   headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
       // Determine if this is a row or column header based on context
-      const isRowHeader = header.parentElement.tagName.toLowerCase() === 'thead' &&
-                         header.parentElement.parentElement.tagName.toLowerCase() === 'table';
-      header.setAttribute('scope', isRowHeader ? 'row' : 'col');
+      const parentThead = header.closest('thead');
+      const isColumnHeader = parentThead !== null;
+      header.setAttribute('scope', isColumnHeader ? 'col' : 'row');
     }
   });
 }
@@ -29,13 +29,13 @@ function enhanceTableAccessibility(tableElement) {
 // Add proper ARIA landmarks
 function addLandmarks() {
   const mainContent = document.querySelector('main');
-  if (mainContent && !mainContent.getAttribute('role')) {
+  if (mainContent && !mainContent.hasAttribute('role')) {
     mainContent.setAttribute('role', 'main');
   }
 
   const navElements = document.querySelectorAll('nav');
   navElements.forEach(nav => {
-    if (!nav.getAttribute('aria-label')) {
+    if (!nav.hasAttribute('aria-label')) {
       nav.setAttribute('aria-label', 'Main navigation');
     }
   });
@@ -43,10 +43,10 @@ function addLandmarks() {
 
 // Fix for REACT_041: React SVG Accessible Name
 // Add title/desc to SVGs
-function enhanceSVGAccessibility() {
-  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+function enhanceSvgAccessibility() {
+  const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+    if (!svg.querySelector('title') && !svg.hasAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.textContent = 'Graphic element';
       svg.prepend(title);
@@ -61,7 +61,7 @@ function ensureUniqueLandmarks() {
   landmarks.forEach(role => {
     const elements = document.querySelectorAll(`[role="${role}"]`);
     if (elements.length > 1) {
-      console.warn(`Multiple elements with role="${role}" found. Consider making them unique.`);
+      console.warn(`${elements.length} elements with role="${role}" found. Consider making them unique.`);
     }
   });
 }
@@ -69,9 +69,9 @@ function ensureUniqueLandmarks() {
 // Fix for REACT_036: React Fake Link
 // Replace fake links with proper <a> elements
 function replaceFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
+  const fakeLinks = document.querySelectorAll('[role="link"][tabindex="0"]');
   fakeLinks.forEach(link => {
-    if (!link.tagName.toLowerCase() === 'a') {
+    if (link.tagName !== 'a') {
       console.warn('Fake link detected. Consider using proper <a> elements.');
     }
   });
@@ -80,7 +80,7 @@ function replaceFakeLinks() {
 // Initialize accessibility enhancements
 function initAccessibility() {
   addLandmarks();
-  enhanceSVGAccessibility();
+  enhanceSvgAccessibility();
   ensureUniqueLandmarks();
   replaceFakeLinks();
 

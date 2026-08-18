@@ -117,26 +117,7 @@ export const preventFakeLinks = (element) => {
   return element;
 };
 
-// Example of how to use these functions in your components
-export const AccessibleComponent = ({ children }) => {
-  // Apply accessibility enhancements
-  const enhancedChildren = React.Children.map(children, (child) => {
-    child = ensureLanguageAttributes(child);
-    child = addLandmarks(child);
-    child = makeSvgAccessible(child);
-    child = preventFakeLinks(child);
-
-    if (child.type === 'table') {
-      child = enhanceTableAccessibility(child);
-    }
-
-    return child;
-  });
-
-  return <div>{enhancedChildren}</div>;
-};
-
-// New utility for single main landmark
+// New functions for managing new accessibility utilities
 export const ensureSingleMainLandmark = (component) => {
   console.log('Ensuring single main landmark in component:', component);
   return component;
@@ -160,9 +141,27 @@ export function applyDependencyUpdates() {
 // Additional export for compatibility (if needed)
 // ... (rest of your existing exports)
 
-export default {
-  // Default export can be used for bundlers that require it
-  // Include all exported utilities if desired
+// Improvements for accessible components
+export const AccessibleComponent = ({ children }) => {
+  // Apply accessibility enhancements
+  const enhancedChildren = React.Children.map(children, (child) => {
+    child = ensureLanguageAttributes(child);
+    child = addLandmarks(child);
+    child = makeSvgAccessible(child);
+    child = preventFakeLinks(child);
+
+    if (child.type === 'table') {
+      child = enhanceTableAccessibility(child);
+    }
+
+    return child;
+  });
+
+  return <div>{enhancedChildren}</div>;
+};
+
+// Exports for accessibility utilities
+export {
   ensureLanguageAttributes,
   enhanceTableAccessibility,
   addLandmarks,

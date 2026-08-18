@@ -67,12 +67,23 @@ function ensureUniqueLandmarks() {
 }
 
 // Fix for REACT_036: React Fake Link
-// Replace fake links with proper <a> elements
+// Replace fake links with proper <button> elements for in-page actions
 function replaceFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
-    if (!link.tagName.toLowerCase() === 'a') {
-      console.warn('Fake link detected. Consider using proper <a> elements.');
+    // Only replace if it's an in-page action (href="#")
+    if (link.getAttribute('href') === '#') {
+      const button = document.createElement('button');
+      // Copy all attributes from the link to the button
+      Array.from(link.attributes).forEach(attr => {
+        button.setAttribute(attr.name, attr.value);
+      });
+      // Remove href to prevent default behavior
+      button.removeAttribute('href');
+      // Replace the link with the button
+      link.parentNode.replaceChild(button, link);
+      // Add ARIA role for better semantics
+      button.setAttribute('role', 'button');
     }
   });
 }

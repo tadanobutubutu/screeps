@@ -1,7 +1,6 @@
-// ErrorBoundary.jsx
 import React, { useState } from 'react';
 
-const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
+export default function ErrorBoundary({ children, fallback: FallbackComponent }) {
     const [error, setError] = useState(null);
     const [errorInfo, setErrorInfo] = useState(null);
     const [hasError, setHasError] = useState(false);
@@ -13,8 +12,6 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
     };
 
     const handleReload = () => {
-        // This 'handleReload' method was introduced in the second version.
-        // It's added here to ensure all functionality is preserved from both versions.
         window.location.reload();
     };
 
@@ -23,7 +20,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
             <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
-                    tabIndex={0}
+                    tabIndex="0"
                     aria-label="エラーメッセージ詳細"
                     style={{
                         color: '#c53030',
@@ -34,12 +31,11 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                     }}
                 >
                     {error && error.toString()}
-                    <br />
-                    {errorInfo.componentStack}
+                    < br />
+                    {errorInfo && errorInfo.componentStack}
                 </pre>
-                {/* The 'button' element was included in the first version.*/}
                 <button
-                    onClick={handleReload}
+                    onClick={() => componentDidCatch(error, errorInfo)}
                     style={{
                         backgroundColor: '#004b73',
                         color: 'white',
@@ -51,7 +47,6 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                 >
                     🔄 ページを再読み込み
                 </button>
-                {/* The following section was added in the second version.*/}
                 {FallbackComponent}
             </section>
         );
@@ -62,6 +57,4 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
             <section>{children}</section>
         </div>
     );
-};
-
-export default ErrorBoundary;
+}

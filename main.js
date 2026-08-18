@@ -28,6 +28,17 @@ export const handleEslintUpdate = () => {
   console.log('ESLint 10 update handled');
 };
 
+// Add function to handle the fake link issue
+export const handleFakeLink = (elementId, callback) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (callback) callback();
+    });
+  }
+};
+
 // Preserve existing server setup
 const app = createServer();
 
@@ -59,6 +70,35 @@ describe('Dependency updates', () => {
   it('should handle ESLint 10 updates', () => {
     handleEslintUpdate();
     expect(true).toBe(true);
+  });
+});
+
+// Add test for fake link handler
+describe('Fake link handler', () => {
+  it('should properly handle fake links', () => {
+    // Create a test element
+    const testElement = document.createElement('a');
+    testElement.id = 'test-link';
+    testElement.href = '#';
+    document.body.appendChild(testElement);
+
+    let clicked = false;
+    handleFakeLink('test-link', () => {
+      clicked = true;
+    });
+
+    // Simulate click
+    const event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    testElement.dispatchEvent(event);
+
+    expect(clicked).toBe(true);
+
+    // Clean up
+    document.body.removeChild(testElement);
   });
 });
 

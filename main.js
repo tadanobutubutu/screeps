@@ -76,12 +76,26 @@ export const AccessibleSVG = ({
 export const AccessibleLink = ({
   href,
   children,
+  onClick,
   ...props
 }: {
   href: string;
   children: React.ReactNode;
+  onClick?: () => void;
   [key: string]: any;
 }) => {
+  if (href === '#') {
+    return (
+      <button
+        onClick={onClick}
+        {...props}
+        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', ...props.style }}
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <a href={href} {...props}>
       {children}

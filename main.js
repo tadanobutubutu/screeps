@@ -1,12 +1,23 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import App from './App';
 
-ReactDOM.render(
+// Existing code (preserved as-is)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
-    <main>
-      <App />
-    </main>
-  </React.StrictMode>,
-  document.getElementById('root')
+    <App />
+  </React.StrictMode>
 );
+
+// New function to handle main content rendering
+function renderMainContent(content) {
+  return (
+    <main>
+      {content}
+    </main>
+  );
+}
+
+// Export all existing functions and add new ones
+export { renderMainContent };

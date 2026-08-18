@@ -1,10 +1,11 @@
-// main.js
 import React from 'react';
 import { Dashboard } from './components/Dashboard';
+import ReactDOM from 'react-dom/client';
+import AdditionalComponent from './components/AdditionalComponent';
 
 // ... (preserve all existing imports and code above)
 
-export function App() {
+export default function App() {
   return (
     <div className="app">
       <Dashboard />
@@ -12,5 +13,21 @@ export function App() {
     </div>
   );
 }
+
+// Ensure both components are rendered
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container);
+
+root.render(
+  <React.StrictMode>
+    <main role="main" lang="en">
+      <App />
+    </main>
+
+    <div id="additional-component">
+      <AdditionalComponent />
+    </div>
+  </React.StrictMode>
+);
 
 // ... (preserve all other existing exports and code below)

@@ -21,12 +21,12 @@ configure({
 // Assuming you have a component that uses React
 const MyComponent = () => {
   // ... (existing code) ...
-  return <div>Hello, world!</div>;
+  return React.createElement('div', null, 'Hello, world!');
 };
 
 // chore(deps): update dependency typescript to v7
 // Assuming you have TypeScript code
-function add(a: number, b: number): number {
+function add(a, b) {
   return a + b;
 }
 

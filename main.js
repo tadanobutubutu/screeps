@@ -1,14 +1,19 @@
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 // Existing code (preserved)
-const App = () => {
+const AppComponent = () => {
   // ... existing app code ...
 };
 
 const root = createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
 // New accessibility fixes for SVGs
 const FaviconSVG = () => (
@@ -28,10 +33,15 @@ const Layout = ({ children }) => {
   return (
     <div>
       <FaviconSVG />
-      {children}
+      <main>{children}</main>
     </div>
   );
 };
 
-// Export all existing functions (preserved)
-export { App, Layout, /* other existing exports */ };
+// New function to wrap content in main landmark
+function wrapWithMain(content) {
+  return <main>{content}</main>;
+}
+
+// Export all existing functions and add new ones
+export { AppComponent as App, Layout, wrapWithMain, /* other existing exports */ };

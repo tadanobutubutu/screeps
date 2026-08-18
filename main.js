@@ -68,9 +68,16 @@ export const addLandmarks = () => {
  * Ensures SVG elements have accessible names
  * Fixes REACT_041: React SVG Accessible Name
  */
-export const createAccessibleSVG = (title, description) => {
+export const createAccessibleSVG = (title, description, isDecorative = false) => {
+  if (isDecorative) {
+    return (
+      <svg aria-hidden="true">
+        {/* SVG content */}
+      </svg>
+    );
+  }
   return (
-    <svg aria-hidden="true">
+    <svg>
       <title>{title}</title>
       <desc>{description}</desc>
       {/* SVG content */}

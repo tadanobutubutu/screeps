@@ -26,7 +26,7 @@ const MyComponent = () => {
 
 // chore(deps): update dependency typescript to v7
 // Assuming you have TypeScript code
-function add(a, b) {
+function add(a: number, b: number): number {
   return a + b;
 }
 

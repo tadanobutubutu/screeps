@@ -2,9 +2,9 @@
 // Preserve all existing code and exports
 
 // Add new imports for updated dependencies
-import { createServer } from 'express';
+import express from 'express';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react--dom';
 import { jest } from '@jest/globals';
 
 // Preserve existing exports
@@ -29,7 +29,7 @@ export const handleEslintUpdate = () => {
 };
 
 // Preserve existing server setup
-const app = createServer();
+const app = express();
 
 // Add new middleware for updated dependencies
 app.use((req, res, next) => {

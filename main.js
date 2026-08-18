@@ -1,28 +1,31 @@
 // main.js
 // Preserve all existing code and exports
 
-
 // Add new imports for updated dependencies
 import express from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { jest } from '@jest/globals';
 
-// Layout component converted from TypeScript to JavaScript
+// Layout component converted from TypeScript to JavaScript with accessibility improvements
 const Layout = ({ children }) => {
   return (
-    <body>
-      <div className="layout">
-        <header>
-          <nav>
-            {/* Navigation menu */}
-          </nav>
-        </header>
+    <html lang="en"> {/* Added lang attribute for screen readers */}
+      <body>
+        <div className="layout">
+          <header role="banner"> {/* Added role for better screen reader understanding */}
+            <nav aria-label="Main navigation"> {/* Added aria-label for navigation */}
+              {/* Navigation menu */}
+            </nav>
+          </header>
 
-        {/* Add a main landmark for the primary content */}
-        <main>{children}</main>
-      </div>
-    </body>
+          {/* Add a main landmark for the primary content */}
+          <main role="main" id="main-content"> {/* Added role and id for better accessibility */}
+            {children}
+          </main>
+        </div>
+      </body>
+    </html>
   );
 };
 
@@ -59,7 +62,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en"> {/* Added lang attribute */}
       <head>
         <title>App Layout</title>
       </head>
@@ -101,4 +104,4 @@ describe('Dependency updates', () => {
 });
 
 // Preserve all other existing code and exports
-// ... rest of the original main. js content ...
+// ... rest of the original main.js content ...

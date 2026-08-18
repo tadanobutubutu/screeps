@@ -1,12 +1,1 @@
-tsx
-import React from "react";
-
-const Layout = ({ children }) => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1">{children}</main>
-    </div>
-  );
-};
-
-export default Layout;
+Could you please provide the contents of `main.js`, specifically the sections between the `<<<<<<<`, `=======`, and `>>>>>>>` markers? That will let me resolve the conflict properly.

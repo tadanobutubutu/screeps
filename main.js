@@ -2,9 +2,12 @@ import React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import App from './App';
 
+const container = document.getElementById('root');
 hydrateRoot(
-  document.documentElement.setAttribute('lang', 'en'),
+  container,
   <React.StrictMode>
-    <App />
+    <main>
+      <App />
+    </main>
   </React.StrictMode>
 );

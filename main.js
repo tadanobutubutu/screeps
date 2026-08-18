@@ -42,6 +42,68 @@ export const createAccessibleTable = (headers, data) => {
 };
 
 /**
+ * Creates a table with row headers (scope="row") for better accessibility
+ * @param {Array} headers - Array of header strings
+ * @param {Array} data - 2D array of table data
+ * @returns {JSX.Element} Accessible table with row headers
+ */
+export const createTableWithRowHeaders = (headers, data) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            <th scope="row">{row[0]}</th>
+            {row.slice(1).map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+/**
+ * Creates a table with both column and row headers for complex data
+ * @param {Array} colHeaders - Array of column header strings
+ * @param {Array} rowHeaders - Array of row header strings
+ * @param {Array} data - 2D array of table data
+ * @returns {JSX.Element} Accessible table with both column and row headers
+ */
+export const createComplexTable = (colHeaders, rowHeaders, data) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {colHeaders.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            <th scope="row">{rowHeaders[rowIndex]}</th>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+/**
  * Adds proper landmark elements for better screen reader navigation
  * Fixes REACT_017: React Landmarks and REACT_025: React Unique Landmarks
  */

@@ -6,7 +6,7 @@ Remove the non-code content from origin/main branch and merge the HEAD's depende
 
 // New content for main.js after conflict resolution
 
-// chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
+// chore(deps): update jest monorepo to v30 (babel-jest, jest)
 // Updating the Jest version and related packages
 import { configure } from 'jest';
 

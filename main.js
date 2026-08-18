@@ -58,8 +58,9 @@ class ErrorBoundary extends React.Component {
                     style={{ padding: '2rem', fontFamily: 'monospace' }}
                 >
                     <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                    <pre
+                    <div
                         tabIndex={0}
+                        role="region"
                         aria-label="エラーメッセージ詳細"
                         style={{
                             color: '#c53030',
@@ -69,10 +70,9 @@ class ErrorBoundary extends React.Component {
                             overflow: 'auto',
                         }}
                     >
-                        {this.state.error && this.state.error.toString()}
-                        <br />
-                        {this.state.errorInfo && this.state.errorInfo.componentStack}
-                    </pre>
+                        <p>{this.state.error && this.state.error.toString()}</p>
+                        <p>{this.state.errorInfo && this.state.errorInfo.componentStack}</p>
+                    </div>
                     <button
                         id="reload-btn"
                         onClick={this.handleReload}
@@ -84,6 +84,7 @@ class ErrorBoundary extends React.Component {
                             borderRadius: '4px',
                             cursor: 'pointer',
                         }}
+                        aria-label="ページを再読み込み"
                     >
                         🔄 ページを再読み込み
                     </button>
@@ -116,7 +117,7 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1" role="main">{children}</main>
       </body>
     </html>
   )

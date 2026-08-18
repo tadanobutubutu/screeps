@@ -71,9 +71,9 @@ export const DashboardLayout = ({ children }) => {
 // New component for docs layout
 export const DocsLayout = ({ children }) => {
   return (
-    <main>
+    <section>
       {children}
-    </main>
+    </section>
   );
 };
 
@@ -99,10 +99,10 @@ export const IndexPage = () => {
 // New component for dependency graph
 export const DependencyGraph = () => {
   return (
-    <main>
+    <section>
       <table id="table-rotated">
         {/* Table content would go here */}
       </table>
-    </main>
+    </section>
   );
 };

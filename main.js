@@ -24,15 +24,6 @@ function applyDependencyUpdates() {
   // This would integrate with your package management system
 }
 
-// New export for dependency management
-module.exports = {
-  // Existing exports would be here
-  // [PRESERVED EXISTING EXPORTS]
-  htmlLang,
-  applyDependencyUpdates,
-  updatedDependencies
-};
-
 // Additional utility functions for dependency management
 function checkDependencyCompatibility() {
   // Implementation would check compatibility between updated dependencies
@@ -43,9 +34,6 @@ function checkDependencyCompatibility() {
     warnings: []
   };
 }
-
-// New export for compatibility checking
-module.exports.checkDependencyCompatibility = checkDependencyCompatibility;
 
 // Main execution function
 function main() {
@@ -62,3 +50,13 @@ function main() {
 if (require.main === module) {
   main();
 }
+
+// New export for dependency management
+module.exports = {
+  // Existing exports would be here
+  // [PRESERVED EXISTING EXPORTS]
+  htmlLang,
+  applyDependencyUpdates,
+  updatedDependencies,
+  checkDependencyCompatibility
+};

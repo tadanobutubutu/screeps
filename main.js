@@ -1,3 +1,5 @@
+import React from 'react';
+
 const MyTableComponent = () => {
   return (
     <table>
@@ -14,4 +16,5 @@ const MyTableComponent = () => {
     </table>
   );
 };
+
 export default MyTableComponent;

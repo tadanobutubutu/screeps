@@ -1,9 +1,16 @@
-import { createRoot } from 'react-dom/client';
-import App from './App';
-import './index.css';
-import { createAccessibleSvg } from './createAccessibleSvg';
+import React, { useState, useEffect } from 'react';
+import { useState as useStateNew } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchDashboardData } from '../store/actions/dashboardActions';
+import { RootState } from '../store/reducers/rootReducer';
+import { DashboardData } from '../types/dashboardTypes';
+import { ErrorDisplay } from './ErrorDisplay';
+import { LoadingSpinner } from './LoadingSpinner';
+import { DashboardStats } from './DashboardStats';
+import { DashboardCharts } from './DashboardCharts';
+import { DashboardActions } from './DashboardActions';
 
-// Add this function to create an accessible SVG element
+// Helper function to create accessible SVG elements
 function createAccessibleSvg(props) {
   return (
     <svg
@@ -16,7 +23,7 @@ function createAccessibleSvg(props) {
   );
 }
 
-// Add landmarks function
+// Function to ensure main element has proper role
 function addLandmarks() {
   // Add main landmark if not present
   if (!document.querySelector('main')) {
@@ -38,56 +45,100 @@ function addLandmarks() {
   }
 }
 
-// Example of adding language attribute to root element
-function App() {
-  return (
-    <div lang="en">
-      {/* Your existing content */}
-    </div>
-  );
-}
+// Main Dashboard component
+export const Dashboard: React.FC<DashboardProps> = () => {
+  const dispatch = useDispatch();
+  const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+  
+  // State for active tab
+  const [activeTab, setActiveTab] = useStateNew<string>('overview');
+  
+  // Additional state from conflict
+  const [anotherState, setAnotherState] = useStateNew({});
 
-// Example of a proper table structure
-function DataTable({ data }) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Header 1</th>
-          <th scope="col">Header 2</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item, index) => (
-          <tr key={index}>
-            <td>{item.col1}</td>
-            <td>{item.col2}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
 
-// Example of adding landmarks
-function Layout() {
-  return (
-    <div>
-      <header role="banner">
-        {/* Header content */}
-      </header>
-      <main role="main">
-        {/* Main content */}
+  if (loading) {
+    return (
+      <main className="dashboard-container" aria-busy="true">
+        <LoadingSpinner aria-label="Loading dashboard data" />
       </main>
-      <nav role="navigation">
-        {/* Navigation content */}
-      </nav>
-      <footer role="contentinfo">
-        {/* Footer content */}
-      </footer>
-    </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="dashboard-container" role="alert">
+        <ErrorDisplay message={error} />
+      </main>
+    );
+  }
+
+  if (!data) {
+    return (
+      <main className="dashboard-container">
+        <div>No data available</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="dashboard-container" lang="en">
+      <div className="dashboard-header" role="banner">
+        <h1>Dashboard</h1>
+        <div className="dashboard-tabs" role="tablist" aria-label="Dashboard navigation">
+          <button
+            role="tab"
+            aria-selected={activeTab === 'overview'}
+            aria-controls="overview-tab"
+            className={activeTab === 'overview' ? 'active' : ''}
+            onClick={() => setActiveTab('overview')}
+          >
+            Overview
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'analytics'}
+            aria-controls="analytics-tab"
+            className={activeTab === 'analytics' ? 'active' : ''}
+            onClick={() => setActiveTab('analytics')}
+          >
+            Analytics
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'actions'}
+            aria-controls="actions-tab"
+            className={activeTab === 'actions' ? 'active' : ''}
+            onClick={() => setActiveTab('actions')}
+          >
+            Actions
+          </button>
+        </div>
+      </div>
+
+      <div className="dashboard-content" role="main">
+        {activeTab === 'overview' && (
+          <section className="dashboard-section" id="overview-tab" role="tabpanel" aria-labelledby="overview-tab">
+            <DashboardStats data={data.stats} />
+          </section>
+        )}
+        {activeTab === 'analytics' && (
+          <section className="dashboard-section" id="analytics-tab" role="tabpanel" aria-labelledby="analytics-tab">
+            <DashboardCharts data={data.charts} />
+          </section>
+        )}
+        {activeTab === 'actions' && (
+          <section className="dashboard-section" id="actions-tab" role="tabpanel" aria-labelledby="actions-tab">
+            <DashboardActions data={data.actions} />
+          </section>
+        )}
+      </div>
+    </main>
   );
-}
+};
 
 // Example of an accessible SVG
 function Icon() {
@@ -110,18 +161,6 @@ function ButtonLink() {
 // Preserve all existing exports
 export default App;
 export { DataTable, Layout, createAccessibleSvg, Icon, ButtonLink };
-// ... any other existing exports
-
-// Main render function
-function main() {
-  const container = document.getElementById('root');
-  if (!container) {
-    throw new Error('Root container not found');
-  }
-
-  const root = createRoot(container);
-  root.render(<App />);
-}
 
 // Starting the application
 main();

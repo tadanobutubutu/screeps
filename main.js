@@ -130,6 +130,18 @@ const App = () => {
   );
 };
 
+// Ensure table headers have proper scope attributes for accessibility
+// This complements the AccessibleTable component by providing an additional
+// validation layer for any dynamically added headers
+document.addEventListener('DOMContentLoaded', () => {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+});
+
 export {
   App,
   AccessibleTable,

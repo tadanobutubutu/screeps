@@ -1,33 +1,28 @@
-// Example React table component with proper scope attributes
-// This is a template showing how to fix the REACT_027 issue
+// Current main.js content
+// (Assuming the content of main.js is not related to the HTML structure and is not causing conflicts)
 
-import React from 'react';
+// Add the following content to the `main.js` if it is responsible for rendering the HTML file:
+module.exports = {
+  // ... other code ...
 
-function DataTable({ headers, data }) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              cellIndex === 0 ? (
-                <th key={cellIndex} scope="row">{cell}</th>
-              ) : (
-                <td key={cellIndex}>{cell}</td>
-              )}
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+  renderDependencyGraph: () => {
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Dependency Graph</title>
+        <!-- ... other head elements ... -->
+      </head>
+      <body>
+        <!-- ... the body of the dependency graph ... -->
+      </body>
+      </html>
+    `;
+  },
 
-export default DataTable;
+  // ... other code ...
+};
+
+// (End of updated main.js content)

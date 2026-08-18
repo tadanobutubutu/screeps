@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 // Preserve all existing imports and functions
 import React from 'react';
 
@@ -53,10 +50,3 @@ if (typeof document !== 'undefined') {
 module.exports = {
   // ... keep the original exported functions ...
 };
-```
-
-In this resolved file, the main changes are:
-
-1. Combining the two handling functions for ensuring a single `main` element into one function named `ensureMainLandmark`. The code inside ensures that the container is still found and the new `main` element is created and updated with the actual content, rather than moving the content to a `<section>` element.
-
-2. Cloning the children of the content before replacing it with the `<main>` element to preserve the structure.

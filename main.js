@@ -134,6 +134,8 @@ if (typeof document !== 'undefined') {
     ensureMainLandmark();
     makeSVGsAccessible();
     ensureHtmlLangAttribute();
+    ensureTableAccessibility();
+    ensureLandmarkUniqueness();
   });
 }
 
@@ -225,6 +227,59 @@ function ensureHtmlLangAttribute() {
   }
 }
 
+// Add this function to ensure tables have proper structure
+function ensureTableAccessibility() {
+  const tables = document.querySelectorAll('table');
+
+  tables.forEach(table => {
+    // Skip if table already has proper structure
+    if (table.querySelector('caption') || table.querySelector('th')) {
+      return;
+    }
+
+    // Add a caption if missing
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Convert first row to header if no headers exist
+    if (!table.querySelector('th')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const cells = firstRow.querySelectorAll('td');
+        cells.forEach(cell => {
+          const th = document.createElement('th');
+          th.textContent = cell.textContent;
+          cell.parentNode.replaceChild(th, cell);
+        });
+      }
+    }
+  });
+}
+
+// Add this function to ensure landmarks are unique
+function ensureLandmarkUniqueness() {
+  const landmarks = {
+    'nav': 0,
+    'main': 0,
+    'aside': 0,
+    'footer': 0
+  };
+
+  Object.keys(landmarks).forEach(tag => {
+    const elements = document.querySelectorAll(tag);
+    if (elements.length > 1) {
+      elements.forEach((el, index) => {
+        if (index > 0) {
+          el.setAttribute('aria-label', `${tag} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
 /**
  * Validate dependency compatibility
  * @param {string} packageName - Name of the package
@@ -241,7 +296,7 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
+
   return true; // Simplified validation
 }
 
@@ -251,17 +306,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -271,7 +326,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -282,20 +337,20 @@ function checkConflicts() {
       });
     }
   });
-  
+
   return conflicts;
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);

@@ -1,11 +1,1 @@
-import React from "react";
-
-const Layout = ({ children }) => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <main className="flex-1">{children}</main>
-    </div>
-  );
-};
-
-export default Layout;
+Could you please provide the full contents of `main.js`, focusing on the sections between the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)? That will let me resolve the merge conflict accurately.

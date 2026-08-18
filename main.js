@@ -20,8 +20,12 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 
     if (hasError) {
         return (
-            <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <section
+                role="alert"
+                aria-labelledby="error-heading"
+                style={{ padding: '2rem', fontFamily: 'monospace' }}
+            >
+                <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
                     aria-label="エラーメッセージ詳細"

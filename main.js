@@ -26,15 +26,18 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {/* SVG favicon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
           <symbol id="my-symbol" viewBox="0 0 32 32">
+            <title>Application Logo</title>
             <path d="M16 0h16v16H16z" />
           </symbol>
         </svg>
-        {children}
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   )
@@ -57,13 +60,16 @@ export default function DashboardLayout({
     <html lang="en">
       <body>
         {/* SVG icon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
+          <title>Dashboard Icon</title>
           <circle cx="16" cy="16" r="14" />
         </svg>
-        {children}
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   )

@@ -6,6 +6,9 @@ import App from './App';
 // For app/layout.tsx
 const AppLayout = ({ children }) => (
   <body className="min-h-screen flex flex-col">
+    <svg aria-hidden="true" style={{ display: 'none' }}>
+      <title>Favicon</title>
+    </svg>
     <main className="flex-1">{children}</main>
   </body>
 );
@@ -13,6 +16,9 @@ const AppLayout = ({ children }) => (
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body>
+    <svg aria-hidden="true" style={{ display: 'none' }}>
+      <title>Dashboard Favicon</title>
+    </svg>
     <main>{children}</main>
   </body>
 );

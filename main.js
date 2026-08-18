@@ -3,21 +3,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardData } from '../store/actions/dashboardActions';
 import { RootState } from '../store/reducers';
 import { DashboardData } from '../types/dashboardTypes';
+import { addLanguageAttribute, createAccessibleSVG } from './utils';
 
 // -----------------------------------------------------------------------------
 // Existing imports, components, and helpers (preserved unchanged)
 // -----------------------------------------------------------------------------
 
 // New function or change requested in the issue
-function setLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en');
-  }
-}
-
-// Call the function to set the language attribute
-setLanguageAttribute();
+// Now using utility function from origin/main
+addLanguageAttribute(); // Sets lang="en" globally
 
 const HeaderCell = ({ children }) => (
   <th scope="col" aria-label={typeof children === 'string' ? children : undefined}>
@@ -25,8 +19,6 @@ const HeaderCell = ({ children }) => (
   </th>
 );
 
-// The table component that was flagged by the accessibility rule
-// All <th> elements now have the required scope attribute
 export const DependencyGraphTable = () => (
   <table className="dependency-graph" role="grid" aria-label="Dependency graph">
     <thead>
@@ -46,7 +38,6 @@ export const DependencyGraphTable = () => (
 );
 
 const Dashboard: React.FC = () => {
-  // Code from the patch branch
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -61,9 +52,8 @@ const Dashboard: React.FC = () => {
     }
   }, [data]);
 
-  // Render all states within a single main element
   return (
-    <main className="dashboard-container" lang="en">
+    <main className="dashboard-container">
       {loading && (
         <div aria-busy="true" aria-label="Loading dashboard">
           <div className="loading-spinner" role="status">Loading...</div>
@@ -94,12 +84,27 @@ const Dashboard: React.FC = () => {
   );
 };
 
-// Add this new component for decorative SVGs
-const DecorativeSvg = ({ children, ...props }) => (
-  <svg aria-hidden="true" {...props}>
-    {children}
-  </svg>
-);
+// Replaced DecorativeSvg with accessible SVG utility
+export const DecorativeSvg = ({ children, title, desc, ...props }) => {
+  return createAccessibleSVG(children, title, desc);
+};
 
 export default Dashboard;
 export { DecorativeSvg };
+
+// Preserved utility functions from origin/main
+export const addLanguageAttribute = (lang = 'en') => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lang;
+  }
+};
+
+export const createAccessibleSVG = (svgContent, title, desc) => {
+  return (
+    <svg aria-hidden="true" focusable="false">
+      <title>{title}</title>
+      <desc>{desc}</desc>
+      {svgContent}
+    </svg>
+  );
+};

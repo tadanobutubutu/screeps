@@ -56,3 +56,17 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 };
 
 export default ErrorBoundary;
+
+// SVG component for favicon with accessible name
+const FaviconSVG = () => (
+    <svg
+        aria-hidden="true"
+        width="0"
+        height="0"
+        style={{ position: 'absolute' }}
+    >
+        <title>Favicon Icon</title>
+    </svg>
+);
+
+export { FaviconSVG };

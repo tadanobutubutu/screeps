@@ -50,4 +50,14 @@ function wrapPrimaryContentWithMain() {
 // Call the function to wrap the primary content with <main>
 wrapPrimaryContentWithMain();
 
+// New component to replace the fake link with a proper button
+const RotateBackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+  return (
+    <button id="unrotate" onClick={onClick}>
+      rotate back
+    </button>
+  );
+};
+
 export default AppLayout;
+export { RotateBackButton };

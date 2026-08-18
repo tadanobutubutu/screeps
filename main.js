@@ -13,14 +13,14 @@ const AppLayout = ({ children }) => (
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body>
-    <main>{children}</main>
+    <main role="main" aria-label="Dashboard content">{children}</main>
   </body>
 );
 
 // For docs/dependency-graph.html
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
+  <main role="main" aria-label="Dependency graph visualization">
+    <table id="table-rotated" aria-label="Dependency relationships table">
       {/* Table content */}
     </table>
   </main>
@@ -28,7 +28,7 @@ const DependencyGraph = () => (
 
 // For docs/index.html
 const DocsIndex = () => (
-  <main>
+  <main role="main" aria-label="Documentation index">
     <div className="container">
       <h2>Quality & Metrics Reports</h2>
       <p>
@@ -36,8 +36,8 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        <a href="plato-report/index.html" aria-label="View Plato Code Complexity Report">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html" aria-label="View Dependency Graph">🕸️ Dependency Graph (Dependency-Cruiser)</a>
       </div>
     </div>
   </main>

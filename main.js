@@ -58,11 +58,21 @@ export const AccessibleSVG = ({
   title,
   description,
   children,
+  isDecorative = false,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  isDecorative?: boolean;
 }) => {
+  if (isDecorative) {
+    return (
+      <svg aria-hidden="true" focusable="false">
+        {children}
+      </svg>
+    );
+  }
+
   return (
     <svg aria-hidden="true" focusable="false">
       <title>{title}</title>

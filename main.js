@@ -15,7 +15,7 @@ root.render(
 // New function to handle main content rendering
 export function renderMainContent(content) {
   return (
-    <main className="main-content">
+    <main className="main-content" role="main" aria-label="Main content">
       {content}
     </main>
   );
@@ -25,30 +25,30 @@ export function renderMainContent(content) {
 export function DashboardLayout({ children }) {
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
+      <header className="dashboard-header" role="banner">
         {/* Header content */}
       </header>
-      <main className="dashboard-main">
+      <main className="dashboard-main" role="main">
         {children}
       </main>
-      <footer className="dashboard-footer">
+      <footer className="dashboard-footer" role="contentinfo">
         {/* Footer content */}
       </footer>
     </div>
   );
 }
 
-// New function for documentation pages
+// New component for documentation pages
 export function DocPageLayout({ children }) {
   return (
     <div className="doc-page">
-      <header className="doc-header">
+      <header className="doc-header" role="banner">
         {/* Documentation header */}
       </header>
-      <main className="doc-main">
+      <main className="doc-main" role="main">
         {children}
       </main>
-      <footer className="doc-footer">
+      <footer className="doc-footer" role="contentinfo">
         {/* Documentation footer */}
       </footer>
     </div>
@@ -59,10 +59,10 @@ export function DocPageLayout({ children }) {
 export function DependencyGraphPage({ children }) {
   return (
     <div className="dependency-graph-page">
-      <header className="graph-header">
+      <header className="graph-header" role="banner">
         {/* Graph header */}
       </header>
-      <main className="graph-main">
+      <main className="graph-main" role="main">
         {children}
       </main>
     </div>

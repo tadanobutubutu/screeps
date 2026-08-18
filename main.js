@@ -1,4 +1,3 @@
-tsx
 // app/layout.tsx
 import { Metadata } from 'next';
 
@@ -14,11 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen flex flex-col">
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Decorative icon</title>
         </svg>
-        {children}
+        <main className="flex-1">{children}</main>
       </body>
     </html>
   );

@@ -6,7 +6,7 @@ import App from './App';
 // For app/layout.tsx
 const AppLayout = ({ children }) => (
   <body className="min-h-screen flex flex-col">
-    <main className="flex-1">{children}</main>
+    <main>{children}</main>
   </body>
 );
 
@@ -17,14 +17,26 @@ const DashboardLayout = ({ children }) => (
   </body>
 );
 
-// For docs/dependency-graph.html
-const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
-      {/* Table content */}
-    </table>
-  </main>
-);
+// For ...
+const DependencyGraph = () => {
+  const handleUnrotate = () => {
+    const table = document.getElementById('table-rotated');
+    if (table) {
+      table.classList.remove('rotated');
+    }
+  };
+
+  return (
+    <main>
+      <button id="unrotate" onClick={handleUnrotate} type="button">
+        rotate back
+      </button>
+      <table id="table-rotated">
+        {/* Table content */}
+      </table>
+    </main>
+  );
+};
 
 // For docs/index.html
 const DocsIndex = () => (
@@ -36,15 +48,15 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        <a ... Plato Code Complexity Report</a>
+        <a ... Dependency Graph ...
       </div>
     </div>
   </main>
 );
 
 // Main application render
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

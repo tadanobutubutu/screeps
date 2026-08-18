@@ -1,30 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchDashboardData } from '../store/actions/dashboardActions';
-import { RootState } from '../store/reducers/rootReducer';
-import { DashboardData } from '../types/dashboardTypes';
-import { ErrorDisplay } from './ErrorDisplay';
+import { useRouter } from 'next/router';
+import { useAuth } from '../contexts/AuthContext';
+import { getDashboardData } from '../lib/api';
 import { LoadingSpinner } from './LoadingSpinner';
+import { ErrorMessage } from './ErrorMessage';
 import { DashboardContent } from './DashboardContent';
 
-interface DashboardProps {
-  // Add any props if needed
+interface DashboardData {
+  // Define the shape of dashboard data based on API response
+  [key: string]: any;
 }
 
-export const Dashboard: React.FC<DashboardProps> = () => {
-  const dispatch = useDispatch();
-  const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
-  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+interface User {
+  id: string;
+  name: string;
+}
+
+const Dashboard = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth<User>();
+  const router = useRouter();
 
   useEffect(() => {
-    dispatch(fetchDashboardData());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (data) {
-      setDashboardData(data);
+    if (!user) {
+      router.push('/login');
+      return;
     }
-  }, [data]);
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const result = await getDashboardData(user.id);
+        setData(result);
+      } catch (err) {
+        setError(err.message || 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, router]);
 
   if (loading) {
     return (
@@ -37,12 +56,12 @@ export const Dashboard: React.FC<DashboardProps> = () => {
   if (error) {
     return (
       <div className="dashboard-container">
-        <ErrorDisplay message={error} />
+        <ErrorMessage message={error} />
       </div>
     );
   }
 
-  if (!dashboardData) {
+  if (!data) {
     return (
       <div className="dashboard-container">
         <p>No data available</p>
@@ -52,10 +71,13 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
   return (
     <div className="dashboard-container">
-      <DashboardContent data={dashboardData} />
+      <main>
+        <h1>Welcome, {user?.name}</h1>
+        <DashboardContent data={data} />
+      </main>
     </div>
   );
 };
 
-// Keep all existing exports
 export { Dashboard };
+export default Dashboard;

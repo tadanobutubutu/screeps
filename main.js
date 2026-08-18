@@ -6,7 +6,7 @@
 
   // Rotate functionality
   const unrotateBtn = document.getElementById('unrotate');
-  
+
   if (unrotateBtn) {
     unrotateBtn.addEventListener('click', function() {
       // Rotate back logic

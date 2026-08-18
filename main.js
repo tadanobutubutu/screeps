@@ -54,6 +54,14 @@ export function AccessibleLink({ href, children, ...props }) {
   );
 }
 
+export function AccessibleButton({ onClick, children, ...props }) {
+  return (
+    <button onClick={onClick} {...props}>
+      {children}
+    </button>
+  );
+}
+
 export function AccessibleTable({ caption, headers, data, ...props }) {
   return (
     <table {...props}>

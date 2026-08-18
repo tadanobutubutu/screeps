@@ -97,6 +97,11 @@ function createNavLandmark(children) {
   return react.createElement('nav', null, children);
 }
 
+// New function to create an HTML element with lang attribute
+function createHtmlElementWithLang(children) {
+  return react.createElement('html', { lang: 'en' }, children);
+}
+
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports remain here
@@ -112,5 +117,6 @@ module.exports = {
   createMainLandmark,
   createHeaderLandmark,
   createFooterLandmark,
-  createNavLandmark
+  createNavLandmark,
+  createHtmlElementWithLang
 };

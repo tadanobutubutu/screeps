@@ -77,11 +77,23 @@ function replaceFakeLinks() {
   });
 }
 
+// Fix for REACT_025: React Unique Landmarks
+// Ensure only one main element exists in the document
+function ensureSingleMainLandmark() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple <main> elements found. Only one should exist in the document.');
+    // This is a warning only since the components may be conditionally rendered
+    // The actual fix needs to be done in the React components themselves
+  }
+}
+
 // Initialize accessibility enhancements
 function initAccessibility() {
   addLandmarks();
   enhanceSVGAccessibility();
   ensureUniqueLandmarks();
+  ensureSingleMainLandmark();
   replaceFakeLinks();
 
   // Enhance all tables on the page

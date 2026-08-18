@@ -6,15 +6,15 @@ export const existingFunction = () => {
   // ... existing implementation
 };
 
-// New accessibility-focused functions to address the issues
+// New accessibility--focused functions to address the issues
 
 /**
  * Adds proper language attribute to HTML element for screen readers
  * Fixes REACT_015: React Language Attribute
  */
 export const ensureLanguageAttribute = (htmlElement) => {
-  if (!htmlElement.getAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en'); // Default to English
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = 'en'; // Default to English
   }
 };
 
@@ -54,7 +54,7 @@ export const addLandmarks = () => {
       <header role="banner">
         {/* Header content */}
       </header>
-      <main role="main">
+      <main>
         {/* Main content */}
       </main>
       <footer role="contentinfo">
@@ -126,7 +126,7 @@ export const AccessibleComponent = () => {
       {addLandmarks()}
       {createAccessibleTable(tableData)}
       {createAccessibleSVG('Chart Title', 'Chart Description')}
-      {createUniqueLandmark('navigation', 'Main Navigation')}
+      {createUniqueLandmark('main', 'Main Navigation')}
       {createAccessibleFakeLink('Clickable Text', () => console.log('Clicked'))}
     </div>
   );

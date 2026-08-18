@@ -29,7 +29,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                 >
                     {error && error.toString()}
                     <br />
-                    {errorInfo.componentStack}
+                    {errorInfo. componentStack}
                 </pre>
                 <button
                     onClick={() => window.location.reload()}

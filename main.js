@@ -110,3 +110,41 @@ if (typeof document !== 'undefined') {
     ensureMainLandmark();
   });
 }
+
+// Add this function to handle SVG accessibility
+function makeSVGsAccessible() {
+  // Find all SVG elements in the document
+  const svgs = document.querySelectorAll('svg');
+
+  svgs.forEach(svg => {
+    // Skip if SVG already has accessibility attributes
+    if (svg.hasAttribute('aria-label') ||
+        svg.hasAttribute('aria-hidden') ||
+        svg.querySelector('title') ||
+        svg.querySelector('desc')) {
+      return;
+    }
+
+    // Check if SVG is decorative (no semantic meaning)
+    const isDecorative = svg.closest('a, button') === null &&
+                         !svg.hasAttribute('role') &&
+                         !svg.hasAttribute('aria-labelledby');
+
+    if (isDecorative) {
+      // Mark as decorative if it has no interactive context
+      svg.setAttribute('aria-hidden', 'true');
+    } else {
+      // Add a title element for non-decorative SVGs
+      const title = document.createElement('title');
+      title.textContent = 'Graphic element';
+      svg.insertBefore(title, svg.firstChild);
+    }
+  });
+}
+
+// Add SVG accessibility check to DOMContentLoaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    makeSVGsAccessible();
+  });
+}

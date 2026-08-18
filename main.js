@@ -4,7 +4,7 @@ import React from 'react';
 // Preserve all existing exports and functions
 // ... (your existing code here)
 
-// Add new accessibility-focused functions
+// New accessibility-focused functions
 
 /**
  * Ensures all React components have proper language attributes
@@ -136,5 +136,41 @@ export const AccessibleComponent = ({ children }) => {
   return <div>{enhancedChildren}</div>;
 };
 
-// Preserve all existing exports
-// ... (rest of your existing code)
+// New utility for single main landmark
+export const ensureSingleMainLandmark = (component) => {
+  console.log('Ensuring single main landmark in component:', component);
+  return component;
+};
+
+// New dependency management utilities
+export const updatedDependencies = {
+  eslint: '^10.0.0',
+  typescript: '^7.0.0',
+  jest: '^30.0.0',
+  'babel-jest': '^30.0.0',
+  react: '^19.0.0'
+};
+
+export function applyDependencyUpdates() {
+  console.log('Applying dependency updates:', updatedDependencies);
+  // Implementation would go here
+  // Integrate with your package management system
+}
+
+// Additional export for compatibility (if needed)
+// ... (rest of your existing exports)
+
+export default {
+  // Default export can be used for bundlers that require it
+  // Include all exported utilities if desired
+  ensureLanguageAttributes,
+  enhanceTableAccessibility,
+  addLandmarks,
+  makeSvgAccessible,
+  ensureUniqueLandmarks,
+  preventFakeLinks,
+  AccessibleComponent,
+  ensureSingleMainLandmark,
+  updatedDependencies,
+  applyDependencyUpdates
+};

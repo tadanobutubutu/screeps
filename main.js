@@ -19,14 +19,14 @@ configure({
 
 // chore(deps): update dependency react to v19
 // Assuming you have a component that uses React
-const MyComponent = () => {
+function MyComponent() {
   // ... (existing code) ...
-  return <div>Hello, world!</div>;
-};
+  return '<div>Hello, world!</div>';
+}
 
 // chore(deps): update dependency typescript to v7
 // Assuming you have TypeScript code
-function add(a: number, b: number): number {
+function add(a, b) {
   return a + b;
 }
 

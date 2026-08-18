@@ -1,10 +1,3 @@
-// Assuming the main.js file contains React components that render tables,
-// here's an example of how you might update the table headers to include the `scope` attribute.
-// This is a hypothetical example and would need to be adapted to the actual structure of your main.js file.
-
-import React from 'react';
-
-// Example component that renders a table with headers
 const MyTableComponent = () => {
   return (
     <table>
@@ -21,7 +14,4 @@ const MyTableComponent = () => {
     </table>
   );
 };
-
-// Other components and logic would go here...
-
 export default MyTableComponent;

@@ -68,3 +68,22 @@ export function DependencyGraphPage({ children }) {
     </div>
   );
 }
+
+// New function to render favicon SVG with proper accessibility
+export function FaviconSVG({ decorative = false }) {
+  if (decorative) {
+    return (
+      <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+        <title>Decorative icon</title>
+        {/* SVG content would go here */}
+      </svg>
+    );
+  }
+
+  return (
+    <svg aria-label="Application icon">
+      <title>Application icon</title>
+      {/* SVG content would go here */}
+    </svg>
+  );
+}

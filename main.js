@@ -1,7 +1,7 @@
 // app/layout.tsx
 // Fix: Wrap children in <main> landmark for accessibility
 
-/** @type {import('next').NextConfig} */
+/** @type ... */
 const nextConfig = {
   reactStrictMode: true,
 }

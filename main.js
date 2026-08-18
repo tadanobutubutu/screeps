@@ -53,8 +53,6 @@ export {
   RealLink
 };
 
-export default App;
-
 const App = () => {
   const tableData = [
     { header: 'Row 1', cell1: 'Data 1', cell2: 'Data 2' },
@@ -98,6 +96,8 @@ const App = () => {
     </div>
   );
 };
+
+export default App;
 
 const rootElement = document.getElementById('root');
 if (rootElement) {

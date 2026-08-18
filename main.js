@@ -310,5 +310,9 @@ module.exports = {
   validateDependency,
   generateUpdateReport,
   checkConflicts,
-  dependencyUpdates
+  dependencyUpdates,
+  ensureSingleMainElement,
+  ensureMainLandmark,
+  makeSVGsAccessible,
+  ensureHtmlLangAttribute
 };

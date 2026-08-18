@@ -1,27 +1,109 @@
-// [Your existing main.js content here]
-// ... (all your current code remains unchanged)
+tsx
+import React, { useState, useEffect } from 'react';
 
-// Add the following function to handle the table header scope attributes
-function updateTableHeaders() {
-  // This function would be called after the DOM is loaded
-  // to add scope attributes to table headers
-  const headers = document.querySelectorAll('th');
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      // Default to 'col' scope for most headers
-      header.setAttribute('scope', 'col');
-      // Special cases for row headers if needed
-      if (header.textContent.includes('src/')) {
-        header.setAttribute('scope', 'row');
-      }
-    }
-  });
+interface DashboardProps {
+  // Add any props your component needs
 }
 
-// Call the function when the DOM is fully loaded
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', updateTableHeaders);
-}
+const Dashboard: React.FC<DashboardProps> = () => {
+  const [stats, setStats] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-// [Rest of your existing main.js content here]
-// ... (all your current code remains unchanged)
+  const fetchStats = async (forceRefresh = false) => {
+    // ... existing fetchStats implementation ...
+  };
+
+  const copyErr = () => {
+    // ... existing copyErr implementation ...
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  if (error) {
+    return (
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        <pre
+          tabIndex={0}
+          aria-label="エラーメッセージ詳細"
+          style={{
+            color: '#c53030',
+            backgroundColor: '#fff5f5',
+            padding: '1rem',
+            borderRadius: '4px',
+            overflow: 'auto',
+          }}
+        >
+          {error}
+        </pre>
+        <button
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+        </button>
+        <button
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginLeft: '1rem',
+            transition: 'all 0.2s ease-in-out',
+            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errRetryHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+        </button>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>読み込み中...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h1>ダッシュボード</h1>
+      {/* Rest of your dashboard content */}
+    </div>
+  );
+};
+
+export default Dashboard;

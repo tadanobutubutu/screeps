@@ -61,6 +61,16 @@ function initializeNext() {
   return { nextApp, handle };
 }
 
+// New function to create accessible table headers
+function createAccessibleTableHeader(content, scope = 'col') {
+  return react.createElement('th', { scope }, content);
+}
+
+// New function to create accessible table cells
+function createAccessibleTableCell(content, headers) {
+  return react.createElement('td', { headers }, content);
+}
+
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports remain here
@@ -69,5 +79,7 @@ module.exports = {
   // New exports
   initializeApp,
   initializeSupabase,
-  initializeNext
+  initializeNext,
+  createAccessibleTableHeader,
+  createAccessibleTableCell
 };

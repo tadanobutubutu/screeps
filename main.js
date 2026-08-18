@@ -11,9 +11,9 @@
 // Original problematic code might look like:
 // document.write('<th>src/constants.js</th>');
 // Fixed version:
-document.write('<th scope="col">src/constants.js</th>');
+// document.write('<th scope="col">src/constants.js</th>');
 
 // Repeat similar fixes for all 26 occurrences in main.js
 // Specific fixes based on actual code structure between conflict markers
 
-// >>>>>>>>
+// >>>>>>>

@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
@@ -75,6 +72,3 @@ root.render(
 );
 
 export default Dashboard;
-```
-
-This solution incorporates the existing React code (importing React, ReactDOM, and exporting the Dashboard component) from the 'origin/main' branch and the Next.js code (use of 'next/router', context API, useAuth, and fetchDashboardData from '../utils/api') from the main/master branch. It also correctly renders the Dashboard and the App components in the main part of the application.

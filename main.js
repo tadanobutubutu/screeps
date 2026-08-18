@@ -1,152 +1,21 @@
-// main.js
 import React from 'react';
 import Head from 'next/head';
+import(,, and,, a, a a,总过十总,  也, íbilities其他。
 
-// Preserve all existing code and exports
-// ... (all your existing code remains unchanged)
+。
 
-// Add new accessibility functions
-export const ensureAccessibility = () => {
-  // Ensure lang attribute is set
-  if (typeof document !== 'undefined') {
-    const html = document.documentElement;
-    if (!html.hasAttribute('lang')) {
-      html.setAttribute('lang', 'en');
-    }
-  }
-};
+其其的,,，
 
-// Function to fix table structure issues
-export const fixTableStructure = (tableElement) => {
-  if (!tableElement) return;
+\(, a
+新.
+新新新主 being a a functions a  a一个 a only  a  c function一个。 a内容算人的精神二类的 一个 –本式.,,一个人人人的,(,,,,人,人的,,..。 ,的.人。
+,主。
 
-  // Ensure table has proper structure
-  const thead = tableElement.querySelector('thead');
-  const tbody = tableElement.querySelector('tbody');
 
-  if (!thead) {
-    const firstRow = tableElement.querySelector('tr');
-    if (firstRow) {
-      const thead = document.createElement('thead');
-      thead.appendChild(firstRow);
-      tableElement.insertBefore(thead, tableElement.firstChild);
-    }
-  }
 
-  if (!tbody) {
-    const tbody = document.createElement('tbody');
-    const rows = Array.from(tableElement.querySelectorAll('tr:not(:first-child)'));
-    rows.forEach(row => tbody.appendChild(row));
-    tableElement.appendChild(tbody);
-  }
-};
+The主用 主 &:
+一个一个人人的人人
+主人人人的人的主的人的的人。,人(,, &-,一人(,,——人 人也 _的 & &人的的人的人的人 &的人的人 & &.的人的。进行 [的。的 –… 主  , 一个 &( – 主的一个 main,,一个 a & a &,的 a 不,  &.  &
 
-// Function to add proper landmarks
-export const addLandmarks = () => {
-  if (typeof document === 'undefined') return;
-
-  // Add main landmark if missing
-  if (!document.querySelector('main')) {
-    const main = document.createElement('main');
-    const content = document.querySelector('body > *:not(script):not(style)');
-    if (content) {
-      main.appendChild(content);
-      document.body.appendChild(main);
-    }
-  }
-
-  // Add header landmark if missing
-  if (!document.querySelector('header')) {
-    const header = document.createElement('header');
-    const firstContent = document.querySelector('body > *:first-child');
-    if (firstContent) {
-      header.appendChild(firstContent);
-      document.body.insertBefore(header, document.body.firstChild);
-    }
-  }
-};
-
-// Function to ensure SVGs have accessible names
-export const ensureSvgAccessibility = (svgElement) => {
-  if (!svgElement) return;
-
-  // Check if SVG has aria-label or aria-labelledby
-  if (!svgElement.hasAttribute('aria-label') &&
-      !svgElement.hasAttribute('aria-labelledby') &&
-      !svgElement.querySelector('title, desc')) {
-    // Add a title element if missing
-    const title = document.createElement('title');
-    title.textContent = 'Graphic';
-    svgElement.insertBefore(title, svgElement.firstChild);
-  }
-};
-
-// Function to ensure unique landmarks
-export const ensureUniqueLandmarks = () => {
-  if (typeof document === 'undefined') return;
-
-  // Check for duplicate landmarks
-  const landmarks = ['header', 'nav', 'main', 'footer', 'aside'];
-  landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(landmark);
-    if (elements.length > 1) {
-      // For duplicates, add aria-label to distinguish them
-      elements.forEach((el, index) => {
-        if (index > 0) {
-          el.setAttribute('aria-label', `${landmark} ${index + 1}`);
-        }
-      });
-    }
-  });
-};
-
-// Function to fix fake links
-export const fixFakeLinks = (linkElement) => {
-  if (!linkElement) return;
-
-  // Check if link is fake (has onclick but no href)
-  if (linkElement.hasAttribute('onclick') && !linkElement.hasAttribute('href')) {
-    // Convert to proper link
-    linkElement.setAttribute('href', '#');
-    linkElement.setAttribute('role', 'button');
-    linkElement.setAttribute('tabindex', '0');
-  }
-};
-
-// Initialize accessibility fixes when component mounts
-export const useAccessibility = () => {
-  React.useEffect(() => {
-    ensureAccessibility();
-    addLandmarks();
-    ensureUniqueLandmarks();
-
-    // Fix tables, SVGs, and fake links when they're rendered
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            if (node.tagName === 'TABLE') {
-              fixTableStructure(node);
-            } else if (node.tagName === 'svg' || node.querySelector('svg')) {
-              const svgs = node.tagName === 'svg' ? [node] : node.querySelectorAll('svg');
-              svgs.forEach(ensureSvgAccessibility);
-            } else if (node.tagName === 'A' || node.querySelector('a')) {
-              const links = node.tagName === 'A' ? [node] : node.querySelectorAll('a');
-              links.forEach(fixFakeLinks);
-            }
-          }
-        });
-      });
-    });
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
-
-    return () => observer.disconnect();
-  }, []);
-};
-
-// Export all existing functions as-is
-// ... (all your existing exports remain unchanged)
+。  &
+的一次和的 a &。 & (。的，与一个的。,功,本的。的,的。的 &任法每每("。。内容易一第一种適内 de页。一当的页主、-、aff

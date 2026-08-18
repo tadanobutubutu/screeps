@@ -1,14 +1,1 @@
-import React from 'react';
-import { Body, Main } from './components';
-
-const App: React.FC = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Body>
-        <Main>{children}</Main>
-      </Body>
-    </div>
-  );
-};
-
-export default App;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

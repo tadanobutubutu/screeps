@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
@@ -19,14 +18,22 @@ const FaviconSVG = () => (
   </svg>
 );
 
-// Update the root render to include the accessible SVG
+// Add <main> landmark to fix accessibility warnings
+export function MainContent({ children }) {
+  return <main>{children}</main>;
+}
+
+// Update the root render to include the accessible SVG and main landmark
 const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <FaviconSVG />
-    <App />
+    <MainContent>
+      <App />
+    </MainContent>
   </React.StrictMode>
 );
 
 // All existing exports remain unchanged
 export { /* existing exports */ };
+export default MainContent;

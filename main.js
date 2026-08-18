@@ -63,6 +63,7 @@ function ensureUniqueMainLandmark() {
     // Keep the first main element and remove others
     for (let i = 1; i < mainElements.length; i++) {
       const element = mainElements[i];
+      const parent = element.parentNode;
       const section = document.createElement('section');
       // Copy all attributes
       for (let attr of element.attributes) {
@@ -73,7 +74,7 @@ function ensureUniqueMainLandmark() {
         section.appendChild(element.firstChild);
       }
       // Replace main with section
-      element.parentNode.replaceChild(section, element);
+      parent.replaceChild(section, element);
     }
   }
 }
@@ -95,7 +96,7 @@ function ensureUniqueLandmarks() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
   fakeLinks.forEach(link => {
-    if (!link.tagName.toLowerCase() === 'a') {
+    if (link.tagName.toLowerCase() !== 'a') {
       console.warn('Fake link detected. Consider using proper <a> elements.');
     }
   });

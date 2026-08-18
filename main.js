@@ -26,9 +26,10 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                 style={{ padding: '2rem', fontFamily: 'monospace' }}
             >
                 <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    tabIndex={0}
+                <div
+                    role="region"
                     aria-label="エラーメッセージ詳細"
+                    tabIndex={0}
                     style={{
                         color: '#c53030',
                         backgroundColor: '#fff5f5',
@@ -37,10 +38,12 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                         overflow: 'auto',
                     }}
                 >
-                    {error && error.toString()}
-                    <br />
-                    {errorInfo.componentStack}
-                </pre>
+                    <pre aria-hidden="true">
+                        {error && error.toString()}
+                        <br />
+                        {errorInfo.componentStack}
+                    </pre>
+                </div>
                 {/* The 'button' element was included in the first version.*/}
                 <button
                     onClick={handleReload}

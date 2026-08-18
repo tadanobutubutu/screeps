@@ -123,7 +123,7 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
+
   return true; // Simplified validation
 }
 
@@ -133,17 +133,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -153,7 +153,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -164,20 +164,147 @@ function checkConflicts() {
       });
     }
   });
-  
+
   return conflicts;
+}
+
+/**
+ * Generate ARIA attributes for accessibility
+ * @param {Object} props - Component props
+ * @returns {Object} ARIA attributes
+ */
+function generateAriaAttributes(props) {
+  const ariaProps = {};
+
+  // Add role if specified
+  if (props.role) {
+    ariaProps.role = props.role;
+  }
+
+  // Add aria-label if specified
+  if (props.ariaLabel) {
+    ariaProps['aria-label'] = props.ariaLabel;
+  }
+
+  // Add aria-labelledby if specified
+  if (props.ariaLabelledBy) {
+    ariaProps['aria-labelledby'] = props.ariaLabelledBy;
+  }
+
+  // Add aria-describedby if specified
+  if (props.ariaDescribedBy) {
+    ariaProps['aria-describedby'] = props.ariaDescribedBy;
+  }
+
+  // Add aria-hidden if specified
+  if (props.ariaHidden !== undefined) {
+    ariaProps['aria-hidden'] = props.ariaHidden;
+  }
+
+  // Add aria-expanded if specified
+  if (props.ariaExpanded !== undefined) {
+    ariaProps['aria-expanded'] = props.ariaExpanded;
+  }
+
+  // Add aria-current if specified
+  if (props.ariaCurrent) {
+    ariaProps['aria-current'] = props.ariaCurrent;
+  }
+
+  // Add aria-live if specified
+  if (props.ariaLive) {
+    ariaProps['aria-live'] = props.ariaLive;
+  }
+
+  return ariaProps;
+}
+
+/**
+ * Validate ARIA attributes for a component
+ * @param {Object} props - Component props
+ * @returns {Array} List of validation errors
+ */
+function validateAriaAttributes(props) {
+  const errors = [];
+
+  // Check for required ARIA attributes based on role
+  if (props.role === 'button' && !props.ariaLabel && !props.ariaLabelledBy) {
+    errors.push('Button role requires either aria-label or aria-labelledby');
+  }
+
+  if (props.role === 'img' && !props.ariaLabel && !props.ariaLabelledBy) {
+    errors.push('Image role requires either aria-label or aria-labelledby');
+  }
+
+  // Check for invalid combinations
+  if (props.ariaLabel && props.ariaLabelledBy) {
+    errors.push('Cannot use both aria-label and aria-labelledby on the same element');
+  }
+
+  return errors;
+}
+
+/**
+ * Generate keyboard navigation attributes
+ * @param {Object} props - Component props
+ * @returns {Object} Keyboard navigation attributes
+ */
+function generateKeyboardNavigation(props) {
+  const keyboardProps = {};
+
+  // Add tabIndex if specified
+  if (props.tabIndex !== undefined) {
+    keyboardProps.tabIndex = props.tabIndex;
+  }
+
+  // Add onKeyDown handler if specified
+  if (props.onKeyDown) {
+    keyboardProps.onKeyDown = props.onKeyDown;
+  }
+
+  // Add onKeyUp handler if specified
+  if (props.onKeyUp) {
+    keyboardProps.onKeyUp = props.onKeyUp;
+  }
+
+  // Add onKeyPress handler if specified
+  if (props.onKeyPress) {
+    keyboardProps.onKeyPress = props.onKeyPress;
+  }
+
+  return keyboardProps;
+}
+
+/**
+ * Validate keyboard navigation attributes
+ * @param {Object} props - Component props
+ * @returns {Array} List of validation errors
+ */
+function validateKeyboardNavigation(props) {
+  const errors = [];
+
+  // Check for required keyboard handlers based on role
+  if (props.role === 'button' && !props.onKeyDown) {
+    errors.push('Button role requires onKeyDown handler for keyboard navigation');
+  }
+
+  if (props.role === 'menuitem' && !props.onKeyDown) {
+    errors.push('Menuitem role requires onKeyDown handler for keyboard navigation');
+  }
+
+  return errors;
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
@@ -192,5 +319,9 @@ module.exports = {
   validateDependency,
   generateUpdateReport,
   checkConflicts,
-  dependencyUpdates
+  dependencyUpdates,
+  generateAriaAttributes,
+  validateAriaAttributes,
+  generateKeyboardNavigation,
+  validateKeyboardNavigation
 };

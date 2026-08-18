@@ -45,4 +45,4 @@ const config = {
 };
 
 // Export configuration for other modules
-module.exports.config = config;
+module.exports = config;

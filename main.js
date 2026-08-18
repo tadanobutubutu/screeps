@@ -1,5 +1,3 @@
-const existingFunction = () => { // Existing code };
-
 const updatedEslintConfig = { // ESLint v10 configuration
   extends: ['eslint:recommended'],
   parserOptions: {
@@ -126,7 +124,7 @@ const enhanceTableHeaders = (headers) => {
 
 const createAccessibleButton = (onClick, text, type = 'button', disabled = false) => {
   return (
-    <button type={type} onClick={onClick} disabled={disabled} aria-disabled={disabled}>
+    <button type={type} onClick={onClick} disabled={disabled} aria-disabled={disabled} aria-label={`${text} button`}>
       {text}
     </button>
   );
@@ -146,7 +144,7 @@ const initAccessibility = () => {
   // Other initialization code...
 };
 
-// Preserve all existing exports
+// Preserve all existing exports, plus the updated ESLint, Jest, and React compositions
 module.exports = {
   existingFunction,
   updatedEslintConfig,

@@ -48,14 +48,14 @@ export const createAccessibleTable = (data) => {
  * Adds proper landmark elements for screen readers
  * Fixes REACT_017: React Landmarks
  */
-export const addLandmarks = () => {
+export const addLandmarks = (children) => {
   return (
     <>
       <header role="banner">
         {/* Header content */}
       </header>
       <main role="main">
-        {/* Main content */}
+        {children}
       </main>
       <footer role="contentinfo">
         {/* Footer content */}

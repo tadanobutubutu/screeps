@@ -1,8 +1,37 @@
-// Please paste the actual contents of main.js with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) here.
-// Without seeing the specific code structure in main.js, I cannot generate the correct fix. 
+// main.js - Image Rotation Handler
 
-// Example structure you might need to update (hypothetical):
-// <th scope="col">...</th>
+/**
+ * Rotates an image by the specified degree
+ * @param {string} imageId - The ID of the image element
+ * @param {number} degrees - Degrees to rotate (positive = clockwise)
+ */
+function rotateImage(imageId, degrees) {
+    const img = document.getElementById(imageId);
+    if (!img) return;
+    
+    const currentTransform = img.style.transform || '';
+    const match = currentTransform.match(/rotate\(([-\d.]+)deg\)/);
+    const currentDegrees = match ? parseInt(match[1], 10) : 0;
+    const newDegrees = currentDegrees + degrees;
+    
+    img.style.transform = `rotate(${newDegrees}deg)`;
+}
 
-// Once you provide the real code, I'll add scope="col" to all <th> elements that are missing it,
-// preserving all existing exports, functions, and logic.
+// Initialize rotation functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Rotate back button - use button element for in-page actions
+    const unrotateBtn = document.getElementById('unrotate');
+    if (unrotateBtn) {
+        unrotateBtn.addEventListener('click', () => {
+            const img = document.getElementById('target-image');
+            if (img) {
+                img.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+});
+
+// Export functions for testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { rotateImage };
+}

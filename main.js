@@ -188,6 +188,22 @@ export const createAccessibleTableRow = (cells, isHeader = false, scope = 'col')
   );
 };
 
+/**
+ * Creates a button that performs in-page actions instead of a fake link
+ * Fixes REACT_036: React Fake Link
+ */
+export const createInPageActionButton = (onClick, text, id = undefined) => {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      id={id}
+    >
+      {text}
+    </button>
+  );
+};
+
 // Initialize accessibility features when component mounts
 export const initAccessibility = () => {
   addLanguageAttribute();

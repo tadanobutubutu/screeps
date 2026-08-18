@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <main className="flex-1" role="main">{children}</main>
+        <MainLandmark className="flex-1">{children}</MainLandmark>
       </body>
     </html>
   );

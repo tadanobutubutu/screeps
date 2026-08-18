@@ -47,3 +47,33 @@ if (typeof document !== 'undefined') {
 
 // [Rest of your existing main.js content here]
 // ... (all your current code remains unchanged)
+
+// Add this function to ensure only one main element exists
+function ensureSingleMainElement() {
+  // Check if there are multiple main elements
+  const mainElements = document.getElementsByTagName('main');
+  if (mainElements.length > 1) {
+    // Keep the first main element and remove others
+    for (let i = 1; i < mainElements.length; i++) {
+      const parent = mainElements[i].parentNode;
+      const wrapper = document.createElement('section');
+      // Copy all attributes from the main element to the section
+      Array.from(mainElements[i].attributes).forEach(attr => {
+        wrapper.setAttribute(attr.name, attr.value);
+      });
+      // Move all children to the wrapper
+      while (mainElements[i].firstChild) {
+        wrapper.appendChild(mainElements[i].firstChild);
+      }
+      // Replace the main element with the section
+      parent.replaceChild(wrapper, mainElements[i]);
+    }
+  }
+}
+
+// Add the single main element check to DOMContentLoaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureSingleMainElement();
+  });
+}

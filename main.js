@@ -7,6 +7,7 @@
 // chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
 // Updating the Jest version and related packages
 import { configure } from 'jest';
+import React from 'react';
 
 configure({
   // ... (existing configuration) ...
@@ -26,7 +27,7 @@ const MyComponent = () => {
 
 // chore(deps): update dependency typescript to v7
 // Assuming you have TypeScript code
-function add(a: number, b: number): number {
+function add( a: number, b: number): number {
   return a + b;
 }
 

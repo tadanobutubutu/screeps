@@ -63,11 +63,14 @@ function _updateWorkingState(creep) {
         creep.memory[MEMORY_KEYS.WORKING] = false;
         creep.say('🔄 補充');
         delete creep.memory[MEMORY_KEYS.TARGET_ID];
+        delete creep.memory.energyTargetId;
     }
 
     if (!creep.memory[MEMORY_KEYS.WORKING] && energy === capacity) {
         creep.memory[MEMORY_KEYS.WORKING] = true;
         creep.say('🔧 修復');
+        delete creep.memory[MEMORY_KEYS.TARGET_ID];
+        delete creep.memory.energyTargetId;
     }
 }
 
@@ -324,8 +327,41 @@ function _buildAsBackup(creep) {
 function _getEnergy(creep) {
     const room = creep.room;
 
-    // ⚡ PERFORMANCE OPTIMIZATION: Use single-pass for loops to avoid filter array allocations and find the closest target directly.
-    // Estimated impact: Reduces CPU cycles and memory churn in energy acquisition path.
+    // ⚡ PERFORMANCE OPTIMIZATION: Check cached energy target ID to bypass per-tick room scans
+    const targetId = creep.memory.energyTargetId;
+    if (targetId) {
+        const target = Game.getObjectById(targetId);
+        if (target) {
+            let isValid = false;
+            if (target.amount !== undefined) {
+                isValid = target.resourceType === RESOURCE_ENERGY && target.amount >= 30;
+            } else if (target.structureType === STRUCTURE_CONTAINER) {
+                isValid = target.store && target.store[RESOURCE_ENERGY] >= 100;
+            } else if (target.structureType === STRUCTURE_STORAGE) {
+                isValid = target.store && target.store[RESOURCE_ENERGY] >= 200;
+            } else if (target.energy !== undefined) {
+                isValid = target.energy > 0;
+            }
+
+            if (isValid) {
+                if (target.amount !== undefined) {
+                    if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else if (target.structureType !== undefined) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                }
+                return;
+            }
+        }
+        delete creep.memory.energyTargetId;
+    }
 
     if (_getEnergyFromDropped(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
@@ -356,6 +392,7 @@ function _getEnergyFromDropped(creep, room) {
     }
 
     if (bestDrop) {
+        creep.memory.energyTargetId = bestDrop.id;
         if (creep.pickup(bestDrop) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestDrop, { range: 1 });
         }
@@ -387,6 +424,7 @@ function _getEnergyFromContainer(creep, room) {
     }
 
     if (bestContainer) {
+        creep.memory.energyTargetId = bestContainer.id;
         if (creep.withdraw(bestContainer, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, bestContainer, { range: 1 });
         }
@@ -404,6 +442,7 @@ function _getEnergyFromContainer(creep, room) {
 function _getEnergyFromStorage(creep, room) {
     const storage = cache.getStorage(room);
     if (storage && storage.store[RESOURCE_ENERGY] >= 200) {
+        creep.memory.energyTargetId = storage.id;
         if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, storage, { range: 1 });
         }
@@ -421,6 +460,7 @@ function _getEnergyFromStorage(creep, room) {
 function _getEnergyFromSource(creep, room) {
     const source = cache.assignSource(creep, room);
     if (source) {
+        creep.memory.energyTargetId = source.id;
         if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
             pathfinder.moveTo(creep, source, { range: 1 });
         }

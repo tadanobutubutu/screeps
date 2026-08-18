@@ -1,15 +1,45 @@
 import React from 'react';
 
-interface SvgProps {
-  children: React.ReactNode;
-  ariaLabel?: string;
-}
-
-const AccessibleSvg: React.FC<SvgProps> = ({ children, ariaLabel, ...rest }) => {
+const DependencyGraph = () => {
   return (
-    <svg {...rest} aria-label={ariaLabel}>
-      {children}
-    </svg>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">File</th>
+            <th scope="col">Dependencies</th>
+            <th scope="col">Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>src/constants.js</td>
+            <td>None</td>
+            <td>Configuration</td>
+          </tr>
+          <tr>
+            <td>src/managers/roomManager.js</td>
+            <td>src/constants.js</td>
+            <td>Manager</td>
+          </tr>
+          <tr>
+            <td>src/managers/spawnManager.js</td>
+            <td>src/constants.js, src/managers/roomManager.js</td>
+            <td>Manager</td>
+          </tr>
+          <tr>
+            <td>src/managers/towerManager.js</td>
+            <td>src/constants.js, src/managers/roomManager.js</td>
+            <td>Manager</td>
+          </tr>
+          <tr>
+            <td>src/roles/builder.js</td>
+            <td>src/constants.js, src/managers/roomManager.js</td>
+            <td>Role</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   );
 };
 
@@ -31,10 +61,6 @@ const AppLayout: React.FC = () => {
   );
 };
 
-// New function to wrap primary content with <main>
-// The new function or changes requested in the issue to wrap the primary content in <main>
-// For the sake of this example, let's assume we are wrapping a div with the id 'primary-content'
-
 function wrapPrimaryContentWithMain() {
   const primaryContent = document.getElementById('primary-content');
   if (primaryContent) {
@@ -44,13 +70,9 @@ function wrapPrimaryContentWithMain() {
   }
 }
 
-// This function should be called in a suitable place in the application lifecycle,
-// such as during the initialization of the app or after the DOM is fully loaded.
-
 // Call the function to wrap the primary content with <main>
 wrapPrimaryContentWithMain();
 
-// New component to replace the fake link with a proper button
 const RotateBackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
   return (
     <button id="unrotate" onClick={onClick}>
@@ -60,4 +82,4 @@ const RotateBackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
 };
 
 export default AppLayout;
-export { RotateBackButton };
+export { DependencyGraph, RotateBackButton };

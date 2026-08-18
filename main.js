@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import { getUserData } from '../lib/api';
 import { DashboardHeader } from './DashboardHeader';
-import { DashboardContent } from './DashboardContent';
+import { DashboardContent } from ...
 import { DashboardFooter } from './DashboardFooter';
 import { LoadingSpinner } from './LoadingSpinner';
 
@@ -23,13 +23,13 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!session) {
-      router.push('/login');
+      ...
       return;
     }
 
     const fetchData = async () => {
       try {
-        const data = await getUserData(session.user?.email);
+        const data = await ...
         setUserData(data);
       } catch (err) {
         setError('Failed to load user data. Please try again later.');
@@ -44,9 +44,9 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <section className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
-      </main>
+      </section>
     );
   }
 

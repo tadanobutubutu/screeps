@@ -1,6 +1,3 @@
-Here is the resolved version of the main.js file, integrating both changes and preserving comments and style as much as possible:
-
-```javascript
 // ErrorBoundary.jsx
 import React, { useState } from 'react';
 
@@ -68,6 +65,3 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 };
 
 export default ErrorBoundary;
-```
-
-This version preserves both changes and ensures proper integration. In this resolved version, a new function `handleReload` is added to handle the reload logic, and the fallback component provided as an argument to the ErrorBoundary will also be displayed whenever an error occurs, as per the second changeset.

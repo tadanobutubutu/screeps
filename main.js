@@ -1,17 +1,15 @@
-const MyTableComponent = () => {
+import React from 'react';
+import MyTableComponent from './MyTableComponent';
+
+const MyDashboardComponent = () => {
+  // Your existing logic and components go here
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* Table rows would go here */}
-      </tbody>
-    </table>
+    <div>
+      {/* Your existing dashboard structure */}
+      <MyTableComponent />
+      {/* More dashboard content */}
+    </div>
   );
 };
-export default MyTableComponent;
+
+export default MyDashboardComponent;

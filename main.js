@@ -3,19 +3,29 @@
 
 // ... [existing code] ...
 
-// New changes requested in the issue
-const addScopeToTableHeaders = () => {
-  const tableHeaders = document.querySelectorAll('th');
-  tableHeaders.forEach(header => {
+// Add the following function to handle the table header scope attributes
+function updateTableHeaders() {
+  // This function would be called after the DOM is loaded
+  // to add scope attributes to table headers
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
     if (!header.hasAttribute('scope')) {
+      // Default to 'col' scope for most headers
       header.setAttribute('scope', 'col');
+      // Special cases for row headers if needed
+      if (header.textContent.includes('src/')) {
+        header.setAttribute('scope', 'row');
+      }
     }
   });
-};
+}
+
+// Call the function when the DOM is fully loaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', updateTableHeaders);
+}
 
 // ... [existing code] ...
 
-// Ensure the new function is called when the DOM is fully loaded
-document.addEventListener('DOMContentLoaded', addScopeToTableHeaders);
-
-// ... [existing code] ...
+// [Rest of your existing main.js content here]
+// ... (all your current code remains unchanged)

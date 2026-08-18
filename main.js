@@ -2,7 +2,7 @@
 
 // ... (existing code) ...
 
-// New content for main.js after conflict resolution
+// New content for main.js after conflict
 
 // chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
 // Updating the Jest version and related packages
@@ -39,5 +39,3 @@ function add(a, b) {
 // ... (existing code) ...
 
 // ... (existing code) ...
-
-// Updated main.js with conflict markers

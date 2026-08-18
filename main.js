@@ -20,7 +20,9 @@ export default function RootLayout({
           aria-label="Home icon"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }

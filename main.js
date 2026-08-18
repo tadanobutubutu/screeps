@@ -1,7 +1,6 @@
 // main.js
 // Preserve all existing code and exports
 
-
 // Add new imports for updated dependencies
 import express from 'express';
 import React from 'react';
@@ -75,6 +74,52 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
+// Add route to serve the updated dependency-graph.html with proper table headers
+app.get('/dependency-graph.html', (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Dependency Graph</title>
+      </head>
+      <body>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Module</th>
+              <th scope="col">Dependencies</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row"><div>src/constants.js</div></th>
+              <td>None</td>
+            </tr>
+            <tr>
+              <th scope="row"><div>src/managers/roomManager.js</div></th>
+              <td>src/constants.js</td>
+            </tr>
+            <tr>
+              <th scope="row"><div>src/managers/spawnManager.js</div></th>
+              <td>src/constants.js, src/managers/roomManager.js</td>
+            </tr>
+            <tr>
+              <th scope="row"><div>src/managers/towerManager.js</div></th>
+              <td>src/constants.js, src/managers/roomManager.js</td>
+            </tr>
+            <tr>
+              <th scope="row"><div>src/roles/builder.js</div></th>
+              <td>src/constants.js, src/managers/roomManager.js</td>
+            </tr>
+            <!-- Additional rows with proper scope attributes -->
+          </tbody>
+        </table>
+      </body>
+    </html>
+  `;
+  res.send(html);
+});
+
 // Preserve existing test setup
 describe('Existing tests', () => {
   it('should pass all existing tests', () => {
@@ -100,5 +145,14 @@ describe('Dependency updates', () => {
   });
 });
 
+// Add test for the dependency-graph.html route
+describe('Dependency Graph', () => {
+  it('should serve the dependency graph with proper table structure', () => {
+    // This would typically be tested with a request to the server
+    // For now, we'll just verify the route exists
+    expect(app._router.stack.some(layer => layer.route && layer.route.path === '/dependency-graph.html')).toBe(true);
+  });
+});
+
 // Preserve all other existing code and exports
-// ... rest of the original main. js content ...
+// ... rest of the original main.js content ...

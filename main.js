@@ -1,8 +1,24 @@
-// Please paste the actual contents of main.js with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`) here.
-// Without seeing the specific code structure in main.js, I cannot generate the correct fix. 
+tsx
+// app/layout.tsx
+import React from 'react';
 
-// Example structure you might need to update (hypothetical):
-// <th scope="col">...</th>
-
-// Once you provide the real code, I'll add scope="col" to all <th> elements that are missing it,
-// preserving all existing exports, functions, and logic.
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <title>Screeps</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Screeps Favicon</title>
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

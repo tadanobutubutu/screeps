@@ -1,8 +1,3 @@
-/**
- * Main.js - Dependency Dashboard Handler
- * Handles dependency updates and conflict resolution
- */
-
 const dependencyUpdates = {
   // NPM dependencies pending update
   npm: [

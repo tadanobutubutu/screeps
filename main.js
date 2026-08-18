@@ -16,4 +16,4 @@ function helper() {
 }
 
 // Exported functions – keep the original exports unchanged
-export { calculateScore, processData };
+export { calculateScore, processData, helper };

@@ -13,7 +13,7 @@ const AppLayout = ({ children }) => (
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body>
-    <main>{children}</main>
+    <div>{children}</div>
   </body>
 );
 

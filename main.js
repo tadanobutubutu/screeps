@@ -14,7 +14,7 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
 
     if (hasError) {
         return (
-            <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -44,14 +44,14 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                 >
                     🔄 ページを再読み込み
                 </button>
-            </section>
+            </main>
         );
     }
 
     return (
-        <div>
-            <main>{children}</main>
-        </div>
+        <main>
+            {children}
+        </main>
     );
 };
 

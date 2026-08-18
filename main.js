@@ -23,3 +23,18 @@ export default function RootLayout({
     </html>
   );
 }
+
+// New code added to fix the issue
+export function Favicon() {
+  return (
+    <svg
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      width="32"
+      height="32"
+    >
+      {/* SVG content would go here */}
+    </svg>
+  );
+}

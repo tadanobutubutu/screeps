@@ -4,6 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { getDashboardData } from '../lib/api';
 import { DashboardData } from '../types/dashboard';
 
+// MainContent helper component for accessibility landmarks
+export function MainContent({ children }) {
+  return <main>{children}</main>;
+}
+
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -91,3 +96,9 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
+
+// The following files need <main> landmark updates:
+// - app/layout.tsx
+// - dashboard/app/layout.tsx
+// - docs/index.html
+// - (additional affected files)

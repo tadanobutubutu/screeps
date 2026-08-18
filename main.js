@@ -1,6 +1,7 @@
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { Html, Head, Main, NextScript } from 'next/document';
 
 // Existing code (preserved)
 const existingFunction = () => {
@@ -29,6 +30,19 @@ const Layout = () => {
     </div>
   );
 };
+
+// pages/_document.js - Fix for REACT_015 (Language Attribute)
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head />
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}
 
 // Export all existing functions
 export { existingFunction, Layout };

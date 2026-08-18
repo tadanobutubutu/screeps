@@ -182,7 +182,7 @@ if (require.main === module) {
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
   if (results.failed.length > 0) {
-    console.log(`✗ Failed: ${results.failed.length}`);
+    console.log(`✗ Failed: ${results.failed.length} updates`);
   }
 }
 

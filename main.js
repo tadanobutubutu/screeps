@@ -24,17 +24,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen flex flex-col">
+        <main className="flex-1">{children}</main>
         {/* SVG favicon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
           <symbol id="my-symbol" viewBox="0 0 32 32">
             <path d="M16 0h16v16H16z" />
           </symbol>
         </svg>
-        {children}
       </body>
     </html>
   )
@@ -56,14 +56,14 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body>
+        <main>{children}</main>
         {/* SVG icon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
           <circle cx="16" cy="16" r="14" />
         </svg>
-        {children}
       </body>
     </html>
   )

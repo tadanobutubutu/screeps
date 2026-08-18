@@ -71,6 +71,12 @@ function createAccessibleTableCell(content, headers) {
   return react.createElement('td', { headers }, content);
 }
 
+// New function to handle rotation action (replaces the fake link)
+function handleRotation() {
+  // Implement your rotation logic here
+  console.log('Rotating back');
+}
+
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports remain here
@@ -81,5 +87,6 @@ module.exports = {
   initializeSupabase,
   initializeNext,
   createAccessibleTableHeader,
-  createAccessibleTableCell
+  createAccessibleTableCell,
+  handleRotation
 };

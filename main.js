@@ -1,6 +1,11 @@
 // ErrorBoundary.jsx
 import React, { useState } from 'react';
 
+// Set the document language attribute for accessibility
+if (typeof document !== 'undefined' && document.documentElement) {
+  document.documentElement.lang = 'en';
+}
+
 const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
     const [error, setError] = useState(null);
     const [errorInfo, setErrorInfo] = useState(null);

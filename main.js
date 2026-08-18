@@ -1,85 +1,118 @@
-// ErrorBoundary.jsx
-import React, { useState } from 'react';
+// main.js - Main application file
+// This file should contain only JavaScript code, not HTML
 
-const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
-    const [error, setError] = useState(null);
-    const [errorInfo, setErrorInfo] = useState(null);
-    const [hasError, setHasError] = useState(false);
+const { createElement } = require('react');
+const someModule = require('./someModule');
 
-    const componentDidCatch = (error, errorInfo) => {
-        setError(error);
-        setErrorInfo(errorInfo);
-        setHasError(true);
-    };
+function mainFunction() {
+  // Your existing application logic here
+  console.log('Application running');
 
+  // Handle error rendering
+  let ErrorBoundary = ({ error, errorInfo }) => {
     if (hasError) {
-        return (
-            <main>
-                <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                    <pre
-                        tabIndex={0}
-                        aria-label="エラーメッセージ詳細"
-                        style={{
-                            color: '#c53030',
-                            backgroundColor: '#fff5f5',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            overflow: 'auto',
-                        }}
-                    >
-                        {error && error.toString()}
-                        <br />
-                        {errorInfo.componentStack}
-                    </pre>
-                    <button
-                        onClick={() => window.location.reload()}
-                        style={{
-                            backgroundColor: '#004b73',
-                            color: 'white',
-                            padding: '0.5rem 1rem',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        🔄 ページを再読み込み
-                    </button>
-                </section>
-            </main>
-        );
+      return createElement(
+        'main',
+        null,
+        createElement(
+          'section',
+          {
+            style: {
+              padding: '2rem',
+              fontFamily: 'monospace'
+            }
+          },
+          createElement(
+            'h1',
+            { style: { color: '#b71c1c' } },
+            '⚠️ エラー'
+          ),
+          createElement(
+            'pre',
+            {
+              tabIndex: 0,
+              ariaLabel: 'エラーメッセージ詳細',
+              style: {
+                color: '#c53030',
+                backgroundColor: '#fff5f5',
+                padding: '1rem',
+                borderRadius: '4px',
+                overflow: 'auto'
+              }
+            },
+            error && error.toString(),
+            errorInfo.componentStack
+          ),
+          createElement(
+            'button',
+            {
+              onClick: () => window.location.reload(),
+              style: {
+                backgroundColor: '#004b73',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }
+            },
+            '🔄 ページを再読み込み'
+          )
+        )
+      );
     }
 
-    return (
-        <main>
-            <section>{children}</section>
-        </main>
+    return createElement(
+      'main',
+      null,
+      createElement(
+        'section',
+        null,
+        { children }
+      )
     );
-};
+  };
 
-// Update the existing HTML content to use a <button> instead of an <a> tag
-const DocsDependencyGraph = () => {
+  ErrorBoundary.getDerivedStateFromError = () => {
+    // If ErrorBoundary is re-rendered, set hasError to true
+    return { hasError: true };
+  };
+
+  ErrorBoundary.displayName = 'ErrorBoundary';
+
+  // Update the existing HTML content to use a <button> instead of an <a> tag
+  const DocsDependencyGraph = () => {
     return (
-        <div>
-            {/* ... other components ... */}
-            <button id="unrotate" onClick={() => window.location.hash = ''}>rotate back</button>
-            {/* ... other components ... */}
-        </div>
+      <div>
+        {/* ... other components ... */}
+        <button id="unrotate" onClick={() => (window.location.hash = '')}>rotate back</button>
+        {/* ... other components ... */}
+      </div>
     );
-};
+  };
 
-// Add accessibility attributes to SVG elements in layout files
-const FaviconSVG = () => (
+  // Add accessibility attributes to SVG elements in layout files
+  const FaviconSVG = () => (
     <svg
-        aria-hidden="true"
-        viewBox="0 0 24 24"
-        width="24"
-        height="24"
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
     >
-        <title>Favicon</title>
-        {/* SVG content would go here */}
+      <title>Favicon</title>
+      {/* SVG content would go here */}
     </svg>
-);
+  );
 
-export default ErrorBoundary;
-export { DocsDependencyGraph, FaviconSVG };
+  // Export any necessary functions
+  module.exports = {
+    mainFunction,
+    ErrorBoundary: ErrorBoundary,
+    DocsDependencyGraph,
+    FaviconSVG
+  };
+
+  // Add new JavaScript function
+  function newFeature() {
+    // New functionality
+  }

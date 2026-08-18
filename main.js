@@ -37,6 +37,30 @@ const fixSVGAccessibility = (filePath) => {
             return match;
         });
 
+        // Pattern to match inline SVG elements
+        const inlineSVGPattern = /<svg([^>]*)>([\s\S]*?)<\/svg>/gi;
+        content = content.replace(inlineSVGPattern, (match, attrs, children) => {
+            // Check if aria-hidden or aria-label is already present
+            if (attrs.includes('aria-hidden') || attrs.includes('aria-label')) {
+                return match;
+            }
+
+            // If SVG is empty or only contains whitespace, it's likely decorative
+            if (!children.trim()) {
+                hasChanges = true;
+                return `<svg${attrs} aria-hidden="true">${children}</svg>`;
+            }
+
+            // For non-empty SVGs, we might need to add a title
+            // This is a simplified approach - may need more sophisticated handling
+            if (!children.includes('<title>') && !children.includes('<desc>')) {
+                hasChanges = true;
+                return `<svg${attrs}><title>Graphic</title>${children}</svg>`;
+            }
+
+            return match;
+        });
+
         if (hasChanges) {
             fs.writeFileSync(filePath, content, 'utf8');
             console.log(`✅ Fixed SVG accessibility in: ${filePath}`);

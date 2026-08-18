@@ -17,15 +17,11 @@ const MyTableComponent = () => {
   );
 };
 
-export default MyTableComponent;
-
-// Additional component to handle the dashboard functionality
 const Dashboard = () => {
   const [isError, setIsError] = React.useState(false);
 
   // Simulate error state for demonstration
   React.useEffect(() => {
-    // In a real app, this would be based on actual error conditions
     setIsError(Math.random() > 0.5);
   }, []);
 
@@ -46,5 +42,5 @@ const Dashboard = () => {
   );
 };
 
-// Export the Dashboard component as well
+export default MyTableComponent;
 export { Dashboard };

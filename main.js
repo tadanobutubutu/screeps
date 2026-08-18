@@ -9,7 +9,7 @@ import { DashboardData } from '../types/dashboardTypes';
 // -----------------------------------------------------------------------------
 
 const HeaderCell = ({ children }) => (
-  <th scope="col">
+  <th scope="col" aria-label={typeof children === 'string' ? children : undefined}>
     <div>{children}</div>
   </th>
 );
@@ -17,9 +17,9 @@ const HeaderCell = ({ children }) => (
 // The table component that was flagged by the accessibility rule
 // All <th> elements now have the required scope attribute
 export const DependencyGraphTable = () => (
-  <table className="dependency-graph">
+  <table className="dependency-graph" role="grid" aria-label="Dependency graph">
     <thead>
-      <tr>
+      <tr role="row">
         <HeaderCell>src/constants.js</HeaderCell>
         <HeaderCell>src/managers/roomManager.js</HeaderCell>
         <HeaderCell>src/managers/spawnManager.js</HeaderCell>
@@ -28,7 +28,7 @@ export const DependencyGraphTable = () => (
         {/* ... other header cells (total 26) ... */}
       </tr>
     </thead>
-    <tbody>
+    <tbody role="rowgroup">
       {/* table body remains unchanged */}
     </tbody>
   </table>
@@ -52,15 +52,15 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <main>
-        <div className="loading-spinner">Loading...</div>
+      <main aria-busy="true" aria-label="Loading dashboard">
+        <div className="loading-spinner" role="status">Loading...</div>
       </main>
     );
   }
 
   if (error) {
     return (
-      <section className="error-state">
+      <section className="error-state" role="alert">
         <h2>Error Loading Dashboard</h2>
         <p>{error}</p>
       </section>
@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
 
   if (!dashboardData) {
     return (
-      <section className="no-data">
+      <section className="no-data" role="status">
         <h2>No Data Available</h2>
         <p>Please try again later.</p>
       </section>
@@ -79,7 +79,7 @@ const Dashboard: React.FC = () => {
   // End of code from the patch branch
 
   return (
-    <main className="dashboard-container">
+    <main className="dashboard-container" lang="en">
       <h1>Dashboard</h1>
       {/* Dashboard content */}
     </main>

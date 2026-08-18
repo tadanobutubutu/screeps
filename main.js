@@ -1,11 +1,11 @@
 // main.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import App from './App';
 import './index.css';
 
 // Existing code remains unchanged
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -24,14 +24,14 @@ export function renderMainContent(content) {
 // New component for dashboard layout
 export function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-container">
+    <div ...
       <header className="dashboard-header">
         {/* Header content */}
       </header>
-      <main className="dashboard-main">
+      <main ...
         {children}
       </main>
-      <footer className="dashboard-footer">
+      <footer ...
         {/* Footer content */}
       </footer>
     </div>
@@ -58,11 +58,11 @@ export function DocPageLayout({ children }) {
 // New function for dependency graph page
 export function DependencyGraphPage({ children }) {
   return (
-    <div className="dependency-graph-page">
+    <div ...
       <header className="graph-header">
         {/* Graph header */}
       </header>
-      <main className="graph-main">
+      <main ...
         {children}
       </main>
     </div>

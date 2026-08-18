@@ -1,3 +1,1 @@
-// Unable to generate updated main.js — source file contents not provided.
-// Please paste docs/dependency-graph.html (or the relevant main.js) so the
-// <th> scope attributes can be added.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

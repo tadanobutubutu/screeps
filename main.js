@@ -61,6 +61,28 @@ function initializeNext() {
   return { nextApp, handle };
 }
 
+// New function to create accessible SVG element
+function createAccessibleSvg(props, children) {
+  // If the SVG is decorative, add aria-hidden
+  if (props.decorative) {
+    return react.createElement('svg', { ...props, 'aria-hidden': 'true' }, children);
+  }
+
+  // If the SVG has a title, use that as accessible name
+  if (children && children.some(child => child.type === 'title')) {
+    return react.createElement('svg', props, children);
+  }
+
+  // Otherwise, add aria-label if provided
+  if (props['aria-label']) {
+    return react.createElement('svg', props, children);
+  }
+
+  // Fallback to adding aria-hidden if no accessible name is provided
+  console.warn('SVG element created without accessible name. Consider adding aria-label, a title child, or aria-hidden="true"');
+  return react.createElement('svg', { ...props, 'aria-hidden': 'true' }, children);
+}
+
 // New function to create accessible table headers
 function createAccessibleTableHeader(content, scope = 'col') {
   return react.createElement('th', { scope }, content);
@@ -111,6 +133,7 @@ module.exports = {
   initializeApp,
   initializeSupabase,
   initializeNext,
+  createAccessibleSvg,
   createAccessibleTableHeader,
   createAccessibleTableCell,
   handleRotation,

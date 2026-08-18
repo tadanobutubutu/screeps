@@ -64,10 +64,12 @@ export const DashboardLayout = ({ children }) => {
   return (
     <html lang="en">
       <body>
-        <svg aria-hidden="true" style={{ display: 'none' }}>
-          <title>Dashboard Icon</title>
-        </svg>
-        <main>{children}</main>
+        <header role="banner">
+          <svg aria-hidden="true" style={{ display: 'none' }}>
+            <title>Dashboard Icon</title>
+          </svg>
+        </header>
+        <main role="main">{children}</main>
       </body>
     </html>
   );
@@ -78,12 +80,17 @@ export const DocsLayout = ({ children }) => {
   return (
     <html lang="en">
       <body>
-        <section>
+        <header role="banner">
           <svg aria-hidden="true" style={{ display: 'none' }}>
             <title>Documentation Icon</title>
           </svg>
-          {children}
-        </section>
+        </header>
+        <main role="main">
+          <section aria-labelledby="docs-heading">
+            <h1 id="docs-heading">Documentation</h1>
+            {children}
+          </section>
+        </main>
       </body>
     </html>
   );
@@ -94,17 +101,22 @@ export const IndexPage = () => {
   return (
     <html lang="en">
       <body>
-        <main>
+        <header role="banner">
+          <h1>Quality & Metrics Reports</h1>
+        </header>
+        <main role="main">
           <div className="container">
             <h2>Quality & Metrics Reports</h2>
             <p>
               This repository is fully optimized with automated tools. Explore the generated
               reports below:
             </p>
-            <div className="links">
-              <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-              <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-            </div>
+            <nav aria-label="Reports navigation">
+              <ul className="links">
+                <li><a href="plato-report/index.html">📊 Plato Code Complexity Report</a></li>
+                <li><a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a></li>
+              </ul>
+            </nav>
           </div>
         </main>
       </body>
@@ -117,23 +129,32 @@ export const DependencyGraph = () => {
   return (
     <html lang="en">
       <body>
-        <section>
-          <table id="table-rotated">
-            <thead>
-              <tr>
-                <th scope="col"><div>src/constants.js</div></th>
-                <th scope="col"><div>src/managers/roomManager.js</div></th>
-                <th scope="col"><div>src/managers/spawnManager.js</div></th>
-                <th scope="col"><div>src/managers/towerManager.js</div></th>
-                <th scope="col"><div>src/roles/builder.js</div></th>
-                {/* Additional headers would go here with scope="col" */}
-              </tr>
-            </thead>
-            <tbody>
-              {/* Table content would go here */}
-            </tbody>
-          </table>
-        </section>
+        <header role="banner">
+          <h1>Dependency Graph</h1>
+        </header>
+        <main role="main">
+          <section aria-labelledby="graph-heading">
+            <h2 id="graph-heading">Dependency Relationships</h2>
+            <div className="table-container">
+              <table id="table-rotated">
+                <caption>Dependency relationships between modules</caption>
+                <thead>
+                  <tr>
+                    <th scope="col"><div>src/constants.js</div></th>
+                    <th scope="col"><div>src/managers/roomManager.js</div></th>
+                    <th scope="col"><div>src/managers/spawnManager.js</div></th>
+                    <th scope="col"><div>src/managers/towerManager.js</div></th>
+                    <th scope="col"><div>src/roles/builder.js</div></th>
+                    {/* Additional headers would go here with scope="col" */}
+                  </tr>
+                </thead>
+                <tbody>
+                  {/* Table content would go here */}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </main>
       </body>
     </html>
   );

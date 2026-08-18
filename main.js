@@ -30,7 +30,7 @@ module.exports = {
 };
 
 // Additional utility functions for dependency management
-function checkDependencyCompatibility() {
+function checkCompatibility() {
   // Implementation would check compatibility between updated dependencies
   console.log('Checking dependency compatibility...');
   // Return compatibility report
@@ -41,7 +41,7 @@ function checkDependencyCompatibility() {
 }
 
 // New export for compatibility checking
-module.exports.checkDependencyCompatibility = checkDependencyCompatibility;
+module.exports.checkCompatibility = checkCompatibility;
 
 // Main execution function
 function main() {
@@ -50,7 +50,7 @@ function main() {
 
   // New dependency management flow
   applyDependencyUpdates();
-  const compatibility = checkDependencyCompatibility();
+  const compatibility = checkCompatibility();
   console.log('Dependency compatibility:', compatibility);
 }
 

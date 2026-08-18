@@ -18,3 +18,29 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+// Add new React 19 compatibility functions if needed
+// For example, if using new React 19 features:
+export function useOptimisticState(initialState) {
+  const [state, setState] = React.useState(initialState);
+
+  const updateState = (newState) => {
+    setState(newState);
+    // Additional optimistic state handling can be added here
+  };
+
+  return [state, updateState];
+}
+
+// Add Jest 30 compatibility functions if needed
+// For example, if using new Jest 30 features:
+export function createTestContext() {
+  return {
+    // Add any test context setup needed for Jest 30 compatibility
+    // This is just a placeholder - actual implementation would depend on your test needs
+    mockFunction: jest.fn(),
+    testUtils: {
+      // Add test utilities here
+    }
+  };
+}

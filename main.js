@@ -1,3 +1,5 @@
+import React from 'react';
+
 const MyTableComponent = () => {
   return (
     <table>
@@ -14,4 +16,13 @@ const MyTableComponent = () => {
     </table>
   );
 };
+
+const FaviconLogo = () => {
+  return (
+    <svg viewBox="0 0 100 100" aria-hidden="true">
+      {/* SVG content goes here */}
+    </svg>
+  );
+};
+
 export default MyTableComponent;

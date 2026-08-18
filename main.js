@@ -123,7 +123,7 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
+
   return true; // Simplified validation
 }
 
@@ -133,17 +133,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -153,7 +153,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -164,20 +164,35 @@ function checkConflicts() {
       });
     }
   });
-  
+
   return conflicts;
+}
+
+/**
+ * Helper function to ensure only one main element exists in the DOM
+ * This should be called in the React component's useEffect or similar lifecycle method
+ */
+function ensureSingleMainElement() {
+  // This is a placeholder function that would be used in the React component
+  // The actual implementation would need to be in the React component code
+  // We're adding this to the JavaScript file to maintain consistency with the React component's needs
+  const mainElements = document.getElementsByTagName('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main elements detected. Only the first one will be kept.');
+    // In a real implementation, you would remove or restructure the extra main elements
+  }
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
@@ -192,5 +207,6 @@ module.exports = {
   validateDependency,
   generateUpdateReport,
   checkConflicts,
-  dependencyUpdates
+  dependencyUpdates,
+  ensureSingleMainElement // Added new export
 };

@@ -1,10 +1,1 @@
-module.exports = {
-  // existing exports preserved
-};
-
-// Note: The REACT_017 accessibility issue (missing <main> landmarks)
-// needs to be fixed in the component files:
-// - app/layout.tsx
-// - dashboard/app/layout.tsx
-// - docs/index.html
-// - (1 other file)
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

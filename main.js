@@ -52,9 +52,9 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <main>
+      <section className="loading-state">
         <div className="loading-spinner">Loading...</div>
-      </main>
+      </section>
     );
   }
 

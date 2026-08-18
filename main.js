@@ -26,4 +26,6 @@ module.exports = {
   main: () => {
     // No operation – placeholder for the original bot logic.
   },
+  // Any additional exports would be defined here
+  // ...
 };

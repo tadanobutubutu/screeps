@@ -1,14 +1,13 @@
 // main.js
 // Preserve all existing code and exports
 
-
 // Add new imports for updated dependencies
 import express from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { jest } from '@jest/globals';
 
-// Layout component converted from TypeScript to JavaScript
+// Layout component converted from TypeScript to JavaScript with SVG accessibility fixes
 const Layout = ({ children }) => {
   return (
     <body>
@@ -16,6 +15,10 @@ const Layout = ({ children }) => {
         <header>
           <nav>
             {/* Navigation menu */}
+            {/* Favicon SVG with accessibility fix */}
+            <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+              <title>Favicon</title>
+            </svg>
           </nav>
         </header>
 
@@ -101,4 +104,4 @@ describe('Dependency updates', () => {
 });
 
 // Preserve all other existing code and exports
-// ... rest of the original main. js content ...
+// ... rest of the original main.js content ...

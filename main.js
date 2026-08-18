@@ -27,3 +27,19 @@ const TableComponent = () => {
 };
 
 export default TableComponent;
+
+// New component to handle the HTML structure with lang attribute
+const App = () => {
+  return (
+    <html lang="en">
+      <head>
+        <title>Dependency Graph</title>
+      </head>
+      <body>
+        <TableComponent />
+      </body>
+    </html>
+  );
+};
+
+export { App };

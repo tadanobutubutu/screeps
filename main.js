@@ -77,3 +77,36 @@ if (typeof document !== 'undefined') {
     ensureSingleMainElement();
   });
 }
+
+// Add this function to ensure all content is wrapped in a main element
+function ensureMainLandmark() {
+  // Check if there's already a main element
+  if (document.querySelector('main')) {
+    return;
+  }
+
+  // Find the main content container
+  const content = document.querySelector('.container') ||
+                 document.querySelector('table') ||
+                 document.querySelector('body > *:not(script):not(style):not(link)');
+
+  if (content) {
+    // Create a main element
+    const main = document.createElement('main');
+
+    // Move all content to the main element
+    while (content.firstChild) {
+      main.appendChild(content.firstChild);
+    }
+
+    // Replace the content with the main element
+    content.parentNode.replaceChild(main, content);
+  }
+}
+
+// Add the main landmark check to DOMContentLoaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    ensureMainLandmark();
+  });
+}

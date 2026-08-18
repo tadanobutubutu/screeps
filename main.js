@@ -33,10 +33,9 @@ function handleTypeScript7Updates() {
 // Update existing functions to be compatible with new dependencies
 function updateDependencies() {
     // Update existing dependency handling logic
-    handleReact19Updates();
-    handleJest30Updates();
     handleESLint10Updates();
     handleTypeScript7Updates();
+    handleJest30Updates();
 }
 
 // Start server

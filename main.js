@@ -95,3 +95,44 @@ export function AccessibleSVG({ title, desc, children, ...props }) {
     </svg>
   );
 }
+
+// New accessibility components for the React Landmarks issue
+export function MainLandmark({ children, ...props }) {
+  return (
+    <main role="main" {...props}>
+      {children}
+    </main>
+  );
+}
+
+export function HeaderLandmark({ children, ...props }) {
+  return (
+    <header role="banner" {...props}>
+      {children}
+    </header>
+  );
+}
+
+export function FooterLandmark({ children, ...props }) {
+  return (
+    <footer role="contentinfo" {...props}>
+      {children}
+    </footer>
+  );
+}
+
+export function NavigationLandmark({ children, ...props }) {
+  return (
+    <nav role="navigation" {...props}>
+      {children}
+    </nav>
+  );
+}
+
+export function AsideLandmark({ children, ...props }) {
+  return (
+    <aside role="complementary" {...props}>
+      {children}
+    </aside>
+  );
+}

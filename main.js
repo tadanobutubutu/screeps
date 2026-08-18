@@ -77,11 +77,30 @@ export const createMainContent = (children, isError = false) => {
  * Adds accessible names to SVG elements
  * Fixes REACT_041: React SVG Accessible Name
  */
-export const createAccessibleSVG = (svgContent, title, desc) => {
+export const createAccessibleSVG = (svgContent, title, desc, isDecorative = false) => {
+  if (isDecorative) {
+    return (
+      <svg aria-hidden="true" focusable="false">
+        {svgContent}
+      </svg>
+    );
+  }
+  return (
+    <svg aria-hidden={!title} focusable="false">
+      {title && <title>{title}</title>}
+      {desc && <desc>{desc}</desc>}
+      {svgContent}
+    </svg>
+  );
+};
+
+/**
+ * Creates a decorative SVG element
+ * Fixes REACT_041: React SVG Accessible Name
+ */
+export const createDecorativeSVG = (svgContent) => {
   return (
     <svg aria-hidden="true" focusable="false">
-      <title>{title}</title>
-      <desc>{desc}</desc>
       {svgContent}
     </svg>
   );

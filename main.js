@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -26,6 +25,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   useEffect(() => {
     fetchStats();
+  }, []);
+
+  // Set the language attribute on the <html> element to satisfy REACT_015
+  useEffect(() => {
+    document.documentElement.lang = 'en';
   }, []);
 
   return (

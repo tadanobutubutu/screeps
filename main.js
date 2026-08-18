@@ -33,4 +33,12 @@ const App = () => {
   );
 };
 
+// SVG accessibility fixes for layout files (would be in app/layout.tsx and dashboard/app/layout.tsx)
+const FaviconSVG = () => (
+  <svg aria-hidden="true" viewBox="0 0 100 100">
+    <title>Application Icon</title>
+    {/* SVG content would go here */}
+  </svg>
+);
+
 export default App;

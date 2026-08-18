@@ -77,6 +77,26 @@ function handleRotation() {
   console.log('Rotating back');
 }
 
+// New function to create a main landmark element
+function createMainLandmark(children) {
+  return react.createElement('main', null, children);
+}
+
+// New function to create a header landmark element
+function createHeaderLandmark(children) {
+  return react.createElement('header', null, children);
+}
+
+// New function to create a footer landmark element
+function createFooterLandmark(children) {
+  return react.createElement('footer', null, children);
+}
+
+// New function to create a navigation landmark element
+function createNavLandmark(children) {
+  return react.createElement('nav', null, children);
+}
+
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports remain here
@@ -88,5 +108,9 @@ module.exports = {
   initializeNext,
   createAccessibleTableHeader,
   createAccessibleTableCell,
-  handleRotation
+  handleRotation,
+  createMainLandmark,
+  createHeaderLandmark,
+  createFooterLandmark,
+  createNavLandmark
 };

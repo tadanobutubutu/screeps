@@ -63,3 +63,6 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     </div>
   );
 };
+
+// Re-export any existing exports from the original main.js
+export { someExistingFunction, someExistingValue } from './original'

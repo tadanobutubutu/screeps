@@ -160,3 +160,4 @@ export const initAccessibility = () => {
 };
 
 // Call initAccessibility when appropriate in your application
+```

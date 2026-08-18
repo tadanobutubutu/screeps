@@ -141,22 +141,35 @@ if (typeof document !== 'undefined') {
 function ensureSingleMainElement() {
   // Check if there are multiple main elements
   const mainElements = document.getElementsByTagName('main');
-  if (mainElements.length > 1) {
-    // Keep the first main element and remove others
-    for (let i = 1; i < mainElements.length; i++) {
-      const parent = mainElements[i].parentNode;
-      const wrapper = document.createElement('section');
-      // Copy all attributes from the main element to the section
-      Array.from(mainElements[i].attributes).forEach(attr => {
-        wrapper.setAttribute(attr.name, attr.value);
-      });
-      // Move all children to the wrapper
-      while (mainElements[i].firstChild) {
-        wrapper.appendChild(mainElements[i].firstChild);
-      }
-      // Replace the main element with the section
-      parent.replaceChild(wrapper, mainElements[i]);
+
+  // If there's only one or none, we're good
+  if (mainElements.length <= 1) {
+    return;
+  }
+
+  // Keep the first main element and remove others
+  for (let i = 1; i < mainElements.length; i++) {
+    const parent = mainElements[i].parentNode;
+    const wrapper = document.createElement('section');
+
+    // Copy all attributes from the main element to the section
+    Array.from(mainElements[i].attributes).forEach(attr => {
+      wrapper.setAttribute(attr.name, attr.value);
+    });
+
+    // Move all children to the wrapper
+    while (mainElements[i].firstChild) {
+      wrapper.appendChild(mainElements[i].firstChild);
     }
+
+    // Replace the main element with the section
+    parent.replaceChild(wrapper, mainElements[i]);
+  }
+
+  // Verify we now have only one main element
+  const remainingMains = document.getElementsByTagName('main');
+  if (remainingMains.length > 1) {
+    console.warn('Multiple main elements still exist after cleanup');
   }
 }
 

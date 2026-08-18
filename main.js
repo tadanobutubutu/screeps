@@ -273,6 +273,47 @@ const fixFakeLinks = (filePath) => {
     }
 };
 
+/**
+ * Fixes missing language attribute in HTML documents
+ *
+ * Issue: REACT_015 - React Language Attribute
+ * Affected files: docs/dependency-graph.html
+ * Fix: Add lang="en" attribute to the <html> tag
+ */
+const fixLanguageAttribute = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Pattern to match <html> tag without lang attribute
+        const htmlPattern = /<html([^>]*)>/i;
+
+        content = content.replace(htmlPattern, (match, attrs) => {
+            // Check if lang attribute is already present
+            if (attrs.includes('lang=')) {
+                return match;
+            }
+
+            hasChanges = true;
+            // Add lang="en" attribute
+            const newAttrs = attrs.trim() + ' lang="en"';
+            return `<html${newAttrs}>`;
+        });
+
+        if (hasChanges) {
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Added language attribute in: ${filePath}`);
+            return true;
+        }
+
+        console.log(`ℹ️ Language attribute already present in: ${filePath}`);
+        return false;
+    } catch (error) {
+        console.error(`❌ Error processing ${filePath}:`, error.message);
+        return false;
+    }
+};
+
 // Files to fix based on the issue report
 const filesToFix = [
     'app/layout.tsx',
@@ -349,6 +390,14 @@ linkFiles.forEach(file => {
         fixFakeLinks(fullPath);
     } else {
         console.log(`⚠️ File not found: ${file}`);
+    }
+});
+
+console.log('\n🔧 Fixing React Language Attribute (REACT_015) issues...\n');
+filesToFix.forEach(file => {
+    const fullPath = path.join(process.cwd(), file);
+    if (fs.existsSync(fullPath) && file.endsWith('.html')) {
+        fixLanguageAttribute(fullPath);
     }
 });
 

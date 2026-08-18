@@ -41,7 +41,6 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                     <br />
                     {errorInfo.componentStack}
                 </pre>
-                {/* The 'button' element was included in the first version.*/}
                 <button
                     onClick={handleReload}
                     style={{
@@ -55,7 +54,6 @@ const ErrorBoundary = ({ children, fallback: FallbackComponent }) => {
                 >
                     🔄 ページを再読み込み
                 </button>
-                {/* The following section was added in the second version.*/}
                 {FallbackComponent}
             </section>
         );

@@ -36,9 +36,26 @@ function enhanceTables() {
 
 // REACT_017: Add proper landmarks
 function addLandmarks() {
+  // Ensure there's only one main landmark
   const mainContent = document.querySelector('main');
-  if (mainContent && !mainContent.getAttribute('role')) {
-    mainContent.setAttribute('role', 'main');
+  if (mainContent) {
+    if (!mainContent.getAttribute('role')) {
+      mainContent.setAttribute('role', 'main');
+    }
+    // Remove any duplicate main elements that might exist
+    const duplicateMains = document.querySelectorAll('main:not(:first-of-type)');
+    duplicateMains.forEach(main => {
+      main.removeAttribute('role');
+      main.removeAttribute('aria-label');
+      // Convert to section if it's not the main content
+      if (!main.classList.contains('main-content')) {
+        const section = document.createElement('section');
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        main.replaceWith(section);
+      }
+    });
   }
 
   const navElements = document.querySelectorAll('nav');
@@ -67,6 +84,21 @@ function ensureUniqueLandmarks() {
       header.setAttribute('id', `section-heading-${index}`);
     }
   });
+
+  // Ensure only one main landmark exists
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    console.warn('Multiple main landmarks detected. Converting duplicates to sections.');
+    mains.forEach((main, index) => {
+      if (index > 0) {
+        const section = document.createElement('section');
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        main.replaceWith(section);
+      }
+    });
+  }
 }
 
 // REACT_036: Improve fake links

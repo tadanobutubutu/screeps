@@ -5,12 +5,46 @@ import { RootState } from '../store/reducers/rootReducer';
 import { DashboardData } from '../types/dashboardTypes';
 import { ErrorDisplay } from './ErrorDisplay';
 import { LoadingSpinner } from './LoadingSpinner';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-interface DashboardProps {
-  // Add any props if needed
-}
+const AppLayout = ({ children }) => (
+  <body className="min-h-screen flex flex-col">
+    <main className="flex-1">{children}</main>
+  </body>
+);
 
-export const Dashboard: React.FC<DashboardProps> = () => {
+const DashboardLayout = ({ children }) => (
+  <body>
+    <main>{children}</main>
+  </body>
+);
+
+const DependencyGraph = () => (
+  <main>
+    <table id="table-rotated">
+      {/* Table content */}
+    </table>
+  </main>
+);
+
+const DocsIndex = () => (
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+      </div>
+    </div>
+  </main>
+);
+
+export const Dashboard: React.FC = () => {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -49,12 +83,10 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     );
   }
 
-  // Main content section
   return (
     <div className="dashboard-container">
       <section className="dashboard-main">
         <h1>Dashboard Overview</h1>
-        {/* Dashboard content */}
         <div className="dashboard-content">
           {/* Your dashboard content here */}
         </div>
@@ -63,5 +95,11 @@ export const Dashboard: React.FC<DashboardProps> = () => {
   );
 };
 
-// Keep all existing exports
-export default Dashboard;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+export { AppLayout, DashboardLayout, DependencyGraph, DocsIndex, Dashboard };

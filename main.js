@@ -1,7 +1,3 @@
-// main.js
-// Preserve all existing code and exports
-
-// Add new imports for updated dependencies
 import { createServer } from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';

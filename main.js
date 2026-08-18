@@ -1,6 +1,11 @@
-// main.js - Accessibility improved version
+// main.js - Accessibility improved version with testing utilities
 
 import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { jest } from '@jest/globals';
+import eslint from 'eslint';
+
+// @ts-check
 
 // Example: Fixed React Language Attribute (REACT_015)
 // The <html> element needs a lang attribute at the document level
@@ -130,6 +135,34 @@ const App = () => {
   );
 };
 
+// TypeScript version utility
+export const getTypeScriptVersion = () => { return '7.0.0'; };
+
+// ESLint runner utility
+export const runEslint = async (files) => {
+    const linter = new eslint.ESLint();
+    const results = await linter.lintFiles(files);
+    return results;
+};
+
+// Test environment factory using Jest
+export const createTestEnvironment = () => {
+    return { jest, test: jest.it, describe: jest.describe, expect: jest.expect, beforeAll: jest.beforeAll, afterAll: jest.afterAll };
+};
+
+// Render a component into the DOM root
+export const renderApp = (component) => {
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+        <React.StrictMode>
+            {component}
+        </React.StrictMode>
+    );
+};
+
+// Existing placeholder function
+const existingFunction = () => { // ... existing implementation };
+
 export {
   App,
   AccessibleTable,
@@ -139,7 +172,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  existingFunction
 };
 
 export default App;

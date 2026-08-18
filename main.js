@@ -1,12 +1,17 @@
 tsx
-import React from "react";
+import React from 'react';
 
-const Layout = ({ children }) => {
+// ... other imports
+
+const App: React.FC = () => {
   return (
-    <body className="min-h-screen flex flex-col">
+    <Body className="min-h-screen flex flex-col">
+      {/* ... other components */}
       <main>{children}</main>
-    </body>
+    </Body>
   );
 };
 
-export default Layout;
+// ... other code
+
+export default App;

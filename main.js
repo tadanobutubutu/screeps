@@ -112,12 +112,62 @@ const fixReactLandmarks = (filePath) => {
     }
 };
 
+/**
+ * Fixes multiple main landmarks in Dashboard components
+ *
+ * Issue: REACT_025 - React Unique Landmarks
+ * Affected files: components/Dashboard.tsx, dashboard/components/Dashboard.tsx
+ * Fix: Replace duplicate main elements with section or article elements
+ */
+const fixMultipleMainLandmarks = (filePath) => {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        let hasChanges = false;
+
+        // Pattern to match main elements
+        const mainPattern = /<main([^>]*)>([\s\S]*?)<\/main>/gi;
+
+        // Count main elements
+        const mainMatches = content.match(mainPattern);
+        const mainCount = mainMatches ? mainMatches.length : 0;
+
+        if (mainCount > 1) {
+            hasChanges = true;
+            // Replace all but the first main with section
+            content = content.replace(mainPattern, (match, attrs, children, offset) => {
+                // Keep the first main, replace others with section
+                if (offset === content.search(mainPattern)) {
+                    return match; // Keep the first main
+                } else {
+                    return `<section${attrs}>${children}</section>`;
+                }
+            });
+
+            fs.writeFileSync(filePath, content, 'utf8');
+            console.log(`✅ Fixed multiple main landmarks in: ${filePath}`);
+        } else {
+            console.log(`ℹ️ No multiple main landmarks found in: ${filePath}`);
+        }
+
+        return hasChanges;
+    } catch (error) {
+        console.error(`❌ Error processing ${filePath}:`, error.message);
+        return false;
+    }
+};
+
 // Files to fix based on the issue report
 const filesToFix = [
     'app/layout.tsx',
     'dashboard/app/layout.tsx',
     'docs/dependency-graph.html',
     'docs/index.html'
+];
+
+// Files specifically for the REACT_025 issue
+const dashboardFiles = [
+    'components/Dashboard.tsx',
+    'dashboard/components/Dashboard.tsx'
 ];
 
 // Execute fixes
@@ -138,6 +188,16 @@ filesToFix.forEach(file => {
     const fullPath = path.join(process.cwd(), file);
     if (fs.existsSync(fullPath)) {
         fixReactLandmarks(fullPath);
+    } else {
+        console.log(`⚠️ File not found: ${file}`);
+    }
+});
+
+console.log('\n🔧 Fixing React Unique Landmarks (REACT_025) issues...\n');
+dashboardFiles.forEach(file => {
+    const fullPath = path.join(process.cwd(), file);
+    if (fs.existsSync(fullPath)) {
+        fixMultipleMainLandmarks(fullPath);
     } else {
         console.log(`⚠️ File not found: ${file}`);
     }

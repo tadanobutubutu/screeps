@@ -1,8 +1,5 @@
-Here is the resolved file content with conflicts integrated:
-
-```javascript
 import React, { useState, useEffect } from 'react';
-import { useState as useStateNew } from 'react'; // Additional import from conflict
+import { useState as useStateNew } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchDashboardData } from '../store/actions/dashboardActions';
 import { RootState } from '../store/reducers/rootReducer';
@@ -20,8 +17,8 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = () => {
   const dispatch = useDispatch();
   const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
-  const [activeTab, setActiveTab] = useState<string>('overview'); // Updated useState name from conflict
-  const [anotherState, setAnotherState] = useStateNew({}); // Additional state from conflict
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  const [anotherState, setAnotherState] = useStateNew({});
 
   useEffect(() => {
     dispatch(fetchDashboardData());
@@ -29,31 +26,31 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
   if (loading) {
     return (
-      <main className="dashboard-container" aria-busy="true">
+      <div className="dashboard-container" aria-busy="true">
         <LoadingSpinner aria-label="Loading dashboard data" />
-      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <main className="dashboard-container" role="alert">
+      <div className="dashboard-container" role="alert">
         <ErrorDisplay message={error} />
-      </main>
+      </div>
     );
   }
 
   if (!data) {
     return (
-      <main className="dashboard-container">
+      <div className="dashboard-container">
         <div>No data available</div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="dashboard-container" lang="en">
-      <div className="dashboard-header" role="banner">
+    <div className="dashboard-container" lang="en">
+      <header className="dashboard-header" role="banner">
         <h1>Dashboard</h1>
         <div className="dashboard-tabs" role="tablist" aria-label="Dashboard navigation">
           <button
@@ -76,22 +73,17 @@ export const Dashboard: React.FC<DashboardProps> = () => {
           </button>
           <button
             role="tab"
-            aria-selected={'old_condition_from_conflict'} // Changed condition to match the integration of both changes
+            aria-selected={activeTab === 'actions'}
             aria-controls="actions-tab"
-            className={'old_class_from_conflict'} // Changed className to match the integration of both changes
-            onClick={() => {
-              // Integrate both changes for onClick event
-              // old_condition_from_conflict &&
-              setActiveTab('actions');
-              // additional_code_from_conflict
-            }}
+            className={activeTab === 'actions' ? 'active' : ''}
+            onClick={() => setActiveTab('actions')}
           >
             Actions
           </button>
         </div>
-      </div>
+      </header>
 
-      <div className="dashboard-content" role="main">
+      <main className="dashboard-content" role="main">
         {activeTab === 'overview' && (
           <section className="dashboard-section" id="overview-tab" role="tabpanel" aria-labelledby="overview-tab">
             <DashboardStats data={data.stats} />
@@ -105,13 +97,9 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         {activeTab === 'actions' && (
           <section className="dashboard-section" id="actions-tab" role="tabpanel" aria-labelledby="actions-tab">
             <DashboardActions data={data.actions} />
-            {/* Render new component or functionality here if it exists */}
           </section>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 };
-```
-
-This is the resolved version of the file with both changes integrated. Please review the changes and modify if necessary. The case sentences and the condition and className in the second button were updated in line with changes from both commits. Also, an additional useState and useStateNew import, and usage were added based on the changes in the conflicting commit.

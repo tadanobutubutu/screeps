@@ -15,6 +15,21 @@ export const addLanguageAttribute = (lang = 'en') => {
 };
 
 /**
+ * Root component that wraps children with proper HTML structure including lang attribute
+ * Fixes REACT_015: React Language Attribute
+ */
+export const Root = ({ children, lang = 'en', ...props }) => {
+  return (
+    <html lang={lang} {...props}>
+      <head />
+      <body>
+        {children}
+      </body>
+    </html>
+  );
+};
+
+/**
  * Ensures proper table structure with thead, tbody, and th elements
  * Fixes REACT_027: React Table Structure
  */
@@ -24,7 +39,9 @@ export const createAccessibleTable = (headers, data) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} {...header.props}>
+              {header.content}
+            </th>
           ))}
         </tr>
       </thead>

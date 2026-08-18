@@ -1,12 +1,9 @@
 // main.js
 // [Existing code preserved as-is]
-
 // Fix for REACT_015: React Language Attribute
-// Add lang attribute to root element
 document.documentElement.lang = 'en';
 
 // Fix for REACT_027: React Table Structure
-// Ensure tables have proper structure with <thead>, <tbody>, and <th> elements
 function enhanceTableAccessibility(tableElement) {
   if (!tableElement.querySelector('thead') || !tableElement.querySelector('tbody')) {
     console.warn('Table structure needs improvement for better accessibility');
@@ -15,13 +12,11 @@ function enhanceTableAccessibility(tableElement) {
 }
 
 // Fix for REACT_017: React Landmarks
-// Add proper ARIA landmarks
 function addLandmarks() {
   const mainContent = document.querySelector('main');
   if (mainContent && !mainContent.getAttribute('role')) {
     mainContent.setAttribute('role', 'main');
   }
-
   const navElements = document.querySelectorAll('nav');
   navElements.forEach(nav => {
     if (!nav.getAttribute('aria-label')) {
@@ -31,13 +26,11 @@ function addLandmarks() {
 }
 
 // Fix for REACT_041: React SVG Accessible Name
-// Add title/desc to SVGs
 function enhanceSVGAccessibility() {
   const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
   svgs.forEach(svg => {
     // Check if SVG is in the favicon context (dashboard/app/layout.tsx)
     const isFavicon = svg.closest('link[rel="icon"]') !== null;
-
     if (isFavicon) {
       // For favicon SVGs, mark as decorative
       if (!svg.hasAttribute('aria-hidden')) {
@@ -53,7 +46,6 @@ function enhanceSVGAccessibility() {
 }
 
 // Fix for REACT_025: React Unique Landmarks
-// Ensure landmarks are unique
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'region'];
   landmarks.forEach(role => {
@@ -65,7 +57,6 @@ function ensureUniqueLandmarks() {
 }
 
 // Fix for REACT_036: React Fake Link
-// Replace fake links with proper <a> elements
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
   fakeLinks.forEach(link => {
@@ -81,7 +72,6 @@ function initAccessibility() {
   enhanceSVGAccessibility();
   ensureUniqueLandmarks();
   replaceFakeLinks();
-
   // Enhance all tables on the page
   document.querySelectorAll('table').forEach(table => {
     enhanceTableAccessibility(table);
@@ -94,5 +84,4 @@ if (document.readyState === 'loading') {
 } else {
   initAccessibility();
 }
-
 // [Existing exports preserved as-is]

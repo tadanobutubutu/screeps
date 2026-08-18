@@ -101,6 +101,18 @@ export const createUniqueLandmark = (type, label) => {
 };
 
 /**
+ * Creates a single main landmark with conditional content
+ * Fixes REACT_025: React Unique Landmarks
+ */
+export const createConditionalMainLandmark = (isError, errorContent, successContent) => {
+  return (
+    <main role="main">
+      {isError ? errorContent : successContent}
+    </main>
+  );
+};
+
+/**
  * Creates accessible fake links that behave like real links
  * Fixes REACT_036: React Fake Link
  */

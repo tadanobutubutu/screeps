@@ -131,7 +131,6 @@ if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
     replaceFakeLinks();
     ensureSingleMainElement();
-    ensureMainLandmark();
     makeSVGsAccessible();
     ensureHtmlLangAttribute();
   });
@@ -157,32 +156,21 @@ function ensureSingleMainElement() {
       // Replace the main element with the section
       parent.replaceChild(wrapper, mainElements[i]);
     }
-  }
-}
+  } else if (mainElements.length === 0) {
+    // If no main element exists, create one and wrap the main content
+    const content = document.querySelector('.container') ||
+                   document.querySelector('table') ||
+                   document.querySelector('body > *:not(script):not(style):not(link)');
 
-// Add this function to ensure all content is wrapped in a main element
-function ensureMainLandmark() {
-  // Check if there's already a main element
-  if (document.querySelector('main')) {
-    return;
-  }
-
-  // Find the main content container
-  const content = document.querySelector('.container') ||
-                 document.querySelector('table') ||
-                 document.querySelector('body > *:not(script):not(style):not(link)');
-
-  if (content) {
-    // Create a main element
-    const main = document.createElement('main');
-
-    // Move all content to the main element
-    while (content.firstChild) {
-      main.appendChild(content.firstChild);
+    if (content) {
+      const main = document.createElement('main');
+      // Move all content to the main element
+      while (content.firstChild) {
+        main.appendChild(content.firstChild);
+      }
+      // Replace the content with the main element
+      content.parentNode.replaceChild(main, content);
     }
-
-    // Replace the content with the main element
-    content.parentNode.replaceChild(main, content);
   }
 }
 
@@ -241,7 +229,7 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
+
   return true; // Simplified validation
 }
 
@@ -251,17 +239,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -271,7 +259,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -282,20 +270,20 @@ function checkConflicts() {
       });
     }
   });
-  
+
   return conflicts;
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);

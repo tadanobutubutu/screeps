@@ -21,10 +21,23 @@ export function renderMainContent(content) {
   );
 }
 
+// Component for the rotate back action (accessibility fix for REACT_036)
+export function RotateBackButton({ onClick, children = 'rotate back' }) {
+  return (
+    <button
+      id="unrotate"
+      type="button"
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}
+
 // New component for dashboard layout
 export function DashboardLayout({ children }) {
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-layout">
       <header className="dashboard-header">
         {/* Header content */}
       </header>

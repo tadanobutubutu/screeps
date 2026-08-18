@@ -28,6 +28,11 @@ export const handleEslintUpdate = () => {
   console.log('ESLint 10 update handled');
 };
 
+// Add function to wrap content with main landmark
+export const wrapWithMain = (content) => {
+  return <main>{content}</main>;
+};
+
 // Preserve existing server setup
 const app = createServer();
 
@@ -59,6 +64,12 @@ describe('Dependency updates', () => {
   it('should handle ESLint 10 updates', () => {
     handleEslintUpdate();
     expect(true).toBe(true);
+  });
+
+  it('should wrap content with main landmark', () => {
+    const content = <div>Test content</div>;
+    const wrapped = wrapWithMain(content);
+    expect(wrapped.type).toBe('main');
   });
 });
 

@@ -87,7 +87,9 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        {children}
+        <main role="main">
+          {children}
+        </main>
       </body>
     </html>
   )

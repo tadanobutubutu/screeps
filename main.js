@@ -1,17 +1,12 @@
-const MyTableComponent = () => {
+tsx
+import React from 'react';
+
+const Layout: React.FC = ({ children }) => {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-        </tr>
-      </thead>
-      <tbody>
-        {/* Table rows would go here */}
-      </tbody>
-    </table>
+    <body>
+      <main>{children}</main>
+    </body>
   );
 };
-export default MyTableComponent;
+
+export default Layout;

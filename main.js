@@ -1,10 +1,4 @@
 // main.js
-import React from 'react';
-
-// Preserve existing exports and functions
-// ... (all existing code remains unchanged)
-
-// Add new accessibility-focused functions to address the issues
 
 /**
  * Adds proper language attribute to HTML element for screen readers
@@ -99,6 +93,23 @@ export const replaceFakeLinks = (container) => {
   });
 };
 
+const MyTableComponent = () => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Column 1</th>
+          <th scope="col">Column 2</th>
+          <th scope="col">Column 3</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table rows would go here */}
+      </tbody>
+    </table>
+  );
+};
+
 // Initialize accessibility enhancements when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   const html = document.querySelector('html');
@@ -113,3 +124,5 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureUniqueLandmarks(container);
   replaceFakeLinks(container);
 });
+
+export default MyTableComponent;

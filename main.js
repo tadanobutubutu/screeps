@@ -62,53 +62,67 @@ export const getTypeScriptVersion = () => {
 // New component for dashboard layout with accessible SVG
 export const DashboardLayout = ({ children }) => {
   return (
-    <body>
-      <svg aria-hidden="true" style={{ display: 'none' }}>
-        <title>Dashboard Icon</title>
-      </svg>
-      <main>{children}</main>
-    </body>
+    <html lang="en">
+      <body>
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Dashboard Icon</title>
+        </svg>
+        <main>{children}</main>
+      </body>
+    </html>
   );
 };
 
 // New component for docs layout with accessible SVG
 export const DocsLayout = ({ children }) => {
   return (
-    <section>
-      <svg aria-hidden="true" style={{ display: 'none' }}>
-        <title>Documentation Icon</title>
-      </svg>
-      {children}
-    </section>
+    <html lang="en">
+      <body>
+        <section>
+          <svg aria-hidden="true" style={{ display: 'none' }}>
+            <title>Documentation Icon</title>
+          </svg>
+          {children}
+        </section>
+      </body>
+    </html>
   );
 };
 
 // New component for index page
 export const IndexPage = () => {
   return (
-    <main>
-      <div className="container">
-        <h2>Quality & Metrics Reports</h2>
-        <p>
-          This repository is fully optimized with automated tools. Explore the generated
-          reports below:
-        </p>
-        <div className="links">
-          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
-        </div>
-      </div>
-    </main>
+    <html lang="en">
+      <body>
+        <main>
+          <div className="container">
+            <h2>Quality & Metrics Reports</h2>
+            <p>
+              This repository is fully optimized with automated tools. Explore the generated
+              reports below:
+            </p>
+            <div className="links">
+              <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+              <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            </div>
+          </div>
+        </main>
+      </body>
+    </html>
   );
 };
 
 // New component for dependency graph
 export const DependencyGraph = () => {
   return (
-    <section>
-      <table id="table-rotated">
-        {/* Table content would go here */}
-      </table>
-    </section>
+    <html lang="en">
+      <body>
+        <section>
+          <table id="table-rotated">
+            {/* Table content would go here */}
+          </table>
+        </section>
+      </body>
+    </html>
   );
 };

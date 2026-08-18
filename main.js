@@ -26,8 +26,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {/* SVG favicon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
           <symbol id="my-symbol" viewBox="0 0 32 32">
@@ -57,8 +57,8 @@ export default function DashboardLayout({
     <html lang="en">
       <body>
         {/* SVG icon - decorative, hidden from screen readers */}
-        <svg 
-          aria-hidden="true" 
+        <svg
+          aria-hidden="true"
           style={{ display: 'none' }}
         >
           <circle cx="16" cy="16" r="14" />
@@ -71,3 +71,18 @@ export default function DashboardLayout({
 
 // Re-export any existing exports from the original main.js
 export { someExistingFunction, someExistingValue } from './original'
+
+// New function to handle the rotation back action
+function handleRotateBack() {
+  // Implement the rotation back functionality here
+  console.log('Rotating back');
+}
+
+// Component for the rotate back button
+export function RotateBackButton() {
+  return (
+    <button id="unrotate" onClick={handleRotateBack}>
+      rotate back
+    </button>
+  );
+}

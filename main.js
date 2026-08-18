@@ -76,3 +76,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ userId }) => {
     </section>
   );
 };
+
+// Main component with proper main landmark
+export default function Main({ children }) {
+  return (
+    <body className="min-h-screen flex flex-col">
+      <main className="flex-1">{children}</main>
+    </body>
+  );
+}

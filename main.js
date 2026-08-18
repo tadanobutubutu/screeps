@@ -1,11 +1,1 @@
-// Import the classnames module if not already
-import classNames from "classnames";
-
-// And make sure to declare the 'notice' and 'Safety' variables if used
-const notice = "Some message";
-const Safety = { ... };
-
-// Similarly, ensure that the 'children' variable is passed as a prop if needed
-function MyComponent({ children }) {
-    return <body>{children}</body>
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

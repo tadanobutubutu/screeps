@@ -1,18 +1,12 @@
-// main.js
-// Preserve all existing code and exports
-
-// Add new imports for updated dependencies
-import { createServer } from 'express';
+export { createServer } from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { jest } from '@jest/globals';
 
-// Preserve existing exports
 export const existingFunction = () => {
   // Existing implementation
 };
 
-// Add new functions for updated dependencies
 export const handleReactUpdate = () => {
   // Implementation for React 19 updates
   console.log('React 19 update handled');
@@ -28,7 +22,6 @@ export const handleEslintUpdate = () => {
   console.log('ESLint 10 update handled');
 };
 
-// Add function to validate React landmarks for accessibility (REACT_017)
 export const validateMainLandmark = (children) => {
   if (!children) {
     console.warn('REACT_017: <main> landmark should contain primary content');
@@ -37,23 +30,19 @@ export const validateMainLandmark = (children) => {
   return true;
 };
 
-// Preserve existing server setup
 const app = createServer();
 
-// Add new middleware for updated dependencies
 app.use((req, res, next) => {
   // Middleware for dependency updates
   next();
 });
 
-// Preserve existing test setup
 describe('Existing tests', () => {
   it('should pass all existing tests', () => {
     expect(true).toBe(true);
   });
 });
 
-// Add new test cases for updated dependencies
 describe('Dependency updates', () => {
   it('should handle React 19 updates', () => {
     handleReactUpdate();
@@ -71,7 +60,6 @@ describe('Dependency updates', () => {
   });
 });
 
-// Add tests for accessibility landmark validation
 describe('Accessibility landmarks', () => {
   it('should validate main landmark presence', () => {
     expect(validateMainLandmark(<main>Content</main>)).toBe(true);
@@ -85,5 +73,4 @@ describe('Accessibility landmarks', () => {
   });
 });
 
-// Preserve all other existing code and exports
 // ... rest of the original main.js content ...

@@ -131,4 +131,10 @@ const ensureTableAccessibility = () => {
     console.log('Ensuring table accessibility - scope attributes should be added in the table component');
 }
 
-export { ErrorBoundary, handleUnrotate, ensureTableAccessibility }
+// New function to handle the unrotate action
+const handleUnrotateAction = (e) => {
+    e.preventDefault();
+    handleUnrotate();
+}
+
+export { ErrorBoundary, handleUnrotate, ensureTableAccessibility, handleUnrotateAction }

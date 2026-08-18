@@ -136,3 +136,23 @@ export function AsideLandmark({ children, ...props }) {
     </aside>
   );
 }
+
+// New function to handle decorative SVGs
+export function DecorativeSVG({ children, ...props }) {
+  return (
+    <svg {...props} aria-hidden="true">
+      {children}
+    </svg>
+  );
+}
+
+// New function to handle SVGs with accessible names
+export function NamedSVG({ title, desc, children, ...props }) {
+  return (
+    <svg {...props} role="img" aria-labelledby={`title-${props.id} desc-${props.id}`}>
+      <title id={`title-${props.id}`}>{title}</title>
+      <desc id={`desc-${props.id}`}>{desc}</desc>
+      {children}
+    </svg>
+  );
+}

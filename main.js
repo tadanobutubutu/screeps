@@ -27,6 +27,27 @@ const makeSvgAccessible = (svgElement) => {
   }
 };
 
+// Function to ensure only one main element exists
+const ensureSingleMainElement = () => {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Convert all but the first main to section elements
+    for (let i = 1; i < mainElements.length; i++) {
+      const section = document.createElement('section');
+      // Copy all attributes from main to section
+      Array.from(mainElements[i].attributes).forEach(attr => {
+        section.setAttribute(attr.name, attr.value);
+      });
+      // Move all children to the new section
+      while (mainElements[i].firstChild) {
+        section.appendChild(mainElements[i].firstChild);
+      }
+      // Replace main with section
+      mainElements[i].parentNode.replaceChild(section, mainElements[i]);
+    }
+  }
+};
+
 // Initialize the app
 const initApp = () => {
   const container = document.getElementById('root');
@@ -38,6 +59,9 @@ const initApp = () => {
     setTimeout(() => {
       const svgs = document.querySelectorAll('svg');
       svgs.forEach(makeSvgAccessible);
+
+      // Ensure only one main element exists
+      ensureSingleMainElement();
     }, 0);
   }
 };

@@ -24,7 +24,7 @@ export const createAccessibleTable = (headers, data) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -58,6 +58,29 @@ export const addLandmarks = () => {
         {/* Footer content */}
       </footer>
     </>
+  );
+};
+
+/**
+ * Renders error or success state with proper landmark structure
+ * Fixes REACT_025: React Unique Landmarks by using single main with sections
+ * @param {boolean} isError - Determines whether to show error or success state
+ * @param {React.ReactNode} errorContent - Content to display in error state
+ * @param {React.ReactNode} successContent - Content to display in success state
+ */
+export const renderStateWithLandmarks = (isError, errorContent, successContent) => {
+  return (
+    <main role="main" aria-label="Main content">
+      {isError ? (
+        <section aria-label="Error state">
+          {errorContent}
+        </section>
+      ) : (
+        <section aria-label="Success state">
+          {successContent}
+        </section>
+      )}
+    </main>
   );
 };
 

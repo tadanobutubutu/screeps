@@ -62,6 +62,18 @@ export const addLandmarks = () => {
 };
 
 /**
+ * Creates a main landmark element for primary content
+ * Fixes REACT_017: React Landmarks
+ */
+export const createMainLandmark = (children) => {
+  return (
+    <main role="main" aria-label="Main content">
+      {children}
+    </main>
+  );
+};
+
+/**
  * Adds accessible names to SVG elements
  * Fixes REACT_041: React SVG Accessible Name
  */

@@ -14,6 +14,7 @@ const MyComponent = () => {
   return (
     <div>
       {/* ... */}
+      <button id="unrotate">rotate back</button>
     </div>
   );
 };

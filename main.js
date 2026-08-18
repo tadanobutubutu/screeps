@@ -59,19 +59,25 @@ export const getTypeScriptVersion = () => {
   return '7.0.0';
 };
 
-// New component for dashboard layout
+// New component for dashboard layout with accessible SVG
 export const DashboardLayout = ({ children }) => {
   return (
     <body>
+      <svg aria-hidden="true" style={{ display: 'none' }}>
+        <title>Dashboard Icon</title>
+      </svg>
       <main>{children}</main>
     </body>
   );
 };
 
-// New component for docs layout
+// New component for docs layout with accessible SVG
 export const DocsLayout = ({ children }) => {
   return (
     <section>
+      <svg aria-hidden="true" style={{ display: 'none' }}>
+        <title>Documentation Icon</title>
+      </svg>
       {children}
     </section>
   );

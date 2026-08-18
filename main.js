@@ -23,3 +23,22 @@ export default function RootLayout({
     </html>
   );
 }
+
+// New function to handle the rotation action
+const handleRotateBack = () => {
+  // Implement your rotation logic here
+  console.log('Rotating back');
+};
+
+// Component for the rotate back button
+export function RotateBackButton() {
+  return (
+    <button
+      id="unrotate"
+      onClick={handleRotateBack}
+      className="text-blue-500 hover:text-blue-700"
+    >
+      rotate back
+    </button>
+  );
+}

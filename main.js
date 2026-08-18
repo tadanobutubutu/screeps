@@ -27,6 +27,41 @@ const makeSvgAccessible = (svgElement) => {
   }
 };
 
+// New function to handle fake links (hash-only href)
+const handleFakeLinks = () => {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+
+  fakeLinks.forEach(link => {
+    // Convert to button if it has an ID that suggests it's an action
+    if (link.id && (link.id.includes('rotate') || link.id.includes('back'))) {
+      const button = document.createElement('button');
+      button.id = link.id;
+      button.className = link.className;
+      button.textContent = link.textContent;
+      button.setAttribute('aria-label', link.textContent || 'Action button');
+
+      // Copy event listeners
+      const clone = link.cloneNode(true);
+      link.parentNode.replaceChild(button, link);
+
+      // Reattach event listeners
+      Array.from(clone.attributes).forEach(attr => {
+        if (attr.name.startsWith('on')) {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+
+      // Add keyboard support
+      button.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          button.click();
+        }
+      });
+    }
+  });
+};
+
 // Initialize the app
 const initApp = () => {
   const container = document.getElementById('root');
@@ -38,6 +73,9 @@ const initApp = () => {
     setTimeout(() => {
       const svgs = document.querySelectorAll('svg');
       svgs.forEach(makeSvgAccessible);
+
+      // Handle fake links after render
+      handleFakeLinks();
     }, 0);
   }
 };

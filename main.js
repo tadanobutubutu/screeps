@@ -1,63 +1,93 @@
-// main.js
-// Preserve all existing code and exports
+// src/managers/roomManager.js
 
-// Add new imports for updated dependencies
-import { createServer } from 'express';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { jest } from '@jest/globals';
+class RoomManager {
+  constructor() {
+    this.rooms = new Map();
+    this.roomIdCounter = 0;
+  }
 
-// Preserve existing exports
-export const existingFunction = () => {
-  // Existing implementation
-};
+  createRoom(name, options = {}) {
+    const roomId = `room_${++this.roomIdCounter}`;
+    const room = {
+      id: roomId,
+      name: name,
+      options: options,
+      createdAt: new Date(),
+      users: [],
+      isActive: true
+    };
+    this.rooms.set(roomId, room);
+    return room;
+  }
 
-// Add new functions for updated dependencies
-export const handleReactUpdate = () => {
-  // Implementation for React 19 updates
-  };
+  getRoom(roomId) {
+    return this.rooms.get(roomId);
+  }
 
-export const handleJestUpdate = () => {
-  // Implementation for Jest 30 updates
-  };
+  getAllRooms() {
+    return Array.from(this.rooms.values());
+  }
 
-export const handleEslintUpdate = () => {
-  // Implementation for ESLint 10 updates
-  };
+  updateRoom(roomId, updates) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      Object.assign(room, updates);
+      return room;
+    }
+    return null;
+  }
 
-// Preserve existing server setup
-const app = createServer();
+  deleteRoom(roomId) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      room.isActive = false;
+      this.rooms.delete(roomId);
+      return true;
+    }
+    return false;
+  }
 
-// Add new middleware for updated dependencies
-app.use((req, res, next) => {
-  // Middleware for dependency updates
-  next();
-});
+  addUserToRoom(roomId, user) {
+    const room = this.rooms.get(roomId);
+    if (room && room.isActive) {
+      if (!room.users.includes(user)) {
+        room.users.push(user);
+      }
+      return room;
+    }
+    return null;
+  }
 
-// Preserve existing test setup
-describe('Existing tests', () => {
-  it('should pass all existing tests', () => {
-    expect(true).toBe(true);
-  });
-});
+  removeUserFromRoom(roomId, user) {
+    const room = this.rooms.get(roomId);
+    if (room) {
+      const index = room.users.indexOf(user);
+      if (index > -1) {
+        room.users.splice(index, 1);
+      }
+      return room;
+    }
+    return null;
+  }
 
-// Add new test cases for updated dependencies
-describe('Dependency updates', () => {
-  it('should handle React 19 updates', () => {
-    handleReactUpdate();
-    expect(true).toBe(true);
-  });
+  getActiveRooms() {
+    return this.getAllRooms().filter(room => room.isActive);
+  }
 
-  it('should handle Jest 30 updates', () => {
-    handleJestUpdate();
-    expect(true).toBe(true);
-  });
+  getRoomsByUser(user) {
+    return this.getAllRooms().filter(room => 
+      room.users.includes(user) && room.isActive
+    );
+  }
 
-  it('should handle ESLint 10 updates', () => {
-    handleEslintUpdate();
-    expect(true).toBe(true);
-  });
-});
+  getRoomCount() {
+    return this.rooms.size;
+  }
 
-// Preserve all other existing code and exports
-// ... rest of the original main.js content ...
+  clearAllRooms() {
+    this.rooms.clear();
+    this.roomIdCounter = 0;
+  }
+}
+
+export default RoomManager;

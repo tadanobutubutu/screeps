@@ -68,5 +68,18 @@ const DocsDependencyGraph = () => {
     );
 };
 
+// Add accessibility attributes to SVG elements in layout files
+const FaviconSVG = () => (
+    <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+    >
+        <title>Favicon</title>
+        {/* SVG content would go here */}
+    </svg>
+);
+
 export default ErrorBoundary;
-export { DocsDependencyGraph };
+export { DocsDependencyGraph, FaviconSVG };

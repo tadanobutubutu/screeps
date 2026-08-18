@@ -1,7 +1,4 @@
-// Example of how `main.js` might look before changes
-// This is a hypothetical example and may not reflect the actual code structure
-
-// ... other code ...
+// main.js
 
 // Function to generate table headers
 function generateTableHeaders(headers) {
@@ -12,16 +9,19 @@ function generateTableHeaders(headers) {
   }).join('');
 }
 
-// ... other code ...
+// Sample function to handle the unrotate action
+function unrotate() {
+  // Logic to rotate back
+  console.log('Rotating back...');
+}
 
-// Example usage of the generateTableHeaders function
-const headers = [
-  { text: 'Header 1', type: 'col' },
-  { text: 'Header 2', type: 'col' },
-  // ... more headers ...
-];
+// Attach event listener when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  const unrotateBtn = document.getElementById('unrotate');
+  if (unrotateBtn) {
+    unrotateBtn.addEventListener('click', unrotate);
+  }
+});
 
-const tableHeaders = generateTableHeaders(headers);
-document.getElementById('table-headers').innerHTML = tableHeaders;
-
-// ... other code ...
+// Export for module usage if needed
+module.exports = { unrotate, generateTableHeaders };

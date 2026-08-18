@@ -86,4 +86,18 @@ const Dashboard: React.FC = () => {
   );
 };
 
+// Add the SVG with aria-hidden attribute for accessibility
+const FaviconSVG = () => (
+  <svg
+    aria-hidden="true"
+    width="0"
+    height="0"
+    style={{ position: 'absolute' }}
+  >
+    <title>Favicon</title>
+    {/* SVG content would go here */}
+  </svg>
+);
+
 export default Dashboard;
+export { FaviconSVG };

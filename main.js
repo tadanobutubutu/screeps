@@ -1,4 +1,4 @@
-// ExampleComponent.js
+// ExampleComponent.js (unchanged)
 import React from 'react';
 
 const ExampleComponent = () => {

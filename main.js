@@ -35,7 +35,16 @@ function addLandmarks() {
 function enhanceSVGAccessibility() {
   const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
   svgs.forEach(svg => {
-    if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+    // Check if SVG is in the favicon context (dashboard/app/layout.tsx)
+    const isFavicon = svg.closest('link[rel="icon"]') !== null;
+
+    if (isFavicon) {
+      // For favicon SVGs, mark as decorative
+      if (!svg.hasAttribute('aria-hidden')) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    } else if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+      // For other SVGs, add a title if missing
       const title = document.createElement('title');
       title.textContent = 'Graphic element';
       svg.prepend(title);

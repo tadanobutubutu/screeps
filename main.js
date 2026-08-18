@@ -62,14 +62,34 @@ export const addLandmarks = () => {
 };
 
 /**
- * Adds accessible names to SVG elements
+ * Creates an accessible SVG element with proper attributes
  * Fixes REACT_041: React SVG Accessible Name
  */
-export const createAccessibleSVG = (svgContent, title, desc) => {
+export const createAccessibleSVG = (svgContent, title, desc, isDecorative = false) => {
+  if (isDecorative) {
+    return (
+      <svg aria-hidden="true" focusable="false">
+        {svgContent}
+      </svg>
+    );
+  }
+
   return (
-    <svg aria-hidden="true" focusable="false">
-      <title>{title}</title>
-      <desc>{desc}</desc>
+    <svg aria-hidden={!title} focusable="false">
+      {title && <title>{title}</title>}
+      {desc && <desc>{desc}</desc>}
+      {svgContent}
+    </svg>
+  );
+};
+
+/**
+ * Creates an accessible favicon SVG element
+ * Fixes REACT_041: React SVG Accessible Name for favicon
+ */
+export const createFaviconSVG = (svgContent) => {
+  return (
+    <svg aria-hidden="true" focusable="false" style={{ display: 'none' }}>
       {svgContent}
     </svg>
   );

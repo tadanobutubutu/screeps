@@ -119,7 +119,19 @@ export const DependencyGraph = () => {
       <body>
         <section>
           <table id="table-rotated">
-            {/* Table content would go here */}
+            <thead>
+              <tr>
+                <th scope="col"><div>src/constants.js</div></th>
+                <th scope="col"><div>src/managers/roomManager.js</div></th>
+                <th scope="col"><div>src/managers/spawnManager.js</div></th>
+                <th scope="col"><div>src/managers/towerManager.js</div></th>
+                <th scope="col"><div>src/roles/builder.js</div></th>
+                {/* Additional headers would go here with scope="col" */}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Table content would go here */}
+            </tbody>
           </table>
         </section>
       </body>

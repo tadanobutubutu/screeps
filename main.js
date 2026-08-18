@@ -1,8 +1,8 @@
-// Original content of main.js before conflict
+// Original content of tutorial.auto.js before conflict
 
 // ... (existing code) ...
 
-// New content for main.js after conflict resolution
+// New content for tutorial.auto.js after conflict resolution
 
 // chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
 // Updating the Jest version and related packages
@@ -40,4 +40,4 @@ function add(a: number, b: number): number {
 
 // ... (existing code) ...
 
-// Updated main.js with conflict markers
+// Updated tutorial.auto.js with conflict markers

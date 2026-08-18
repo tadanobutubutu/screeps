@@ -1,12 +1,31 @@
-// main.js
 import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
 // Existing exports should remain unchanged
 export const existingFunction = () => {
   // ... existing implementation
 };
 
-// New accessibility-focused functions to address the issues
+// React app initialization (preserved from origin/main)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// New function to handle main content rendering
+function renderMainContent(content) {
+  return (
+    <main>
+      {content}
+    </main>
+  );
+}
+
+// Export renderMainContent (preserved from origin/main)
+export { renderMainContent };
 
 /**
  * Adds proper language attribute to HTML element for screen readers

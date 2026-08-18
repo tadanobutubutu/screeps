@@ -4,7 +4,7 @@
 
 // New content for main.js after conflict resolution
 
-// chore(deps): update jest monorepo to v30 (`babel-jest`, `jest`)
+// chore(deps): update jest monorepo to v30 (babel-jest, jest)
 // Updating the Jest version and related packages
 import { configure } from 'jest';
 
@@ -26,7 +26,7 @@ const MyComponent = () => {
 
 // chore(deps): update dependency typescript to v7
 // Assuming you have TypeScript code
-function add(a: number, b: number): number {
+function add(a, b) {
   return a + b;
 }
 

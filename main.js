@@ -109,7 +109,7 @@ describe('Dependency updates', () => {
 describe('Accessibility tests', () => {
   it('should have accessible SVG elements', () => {
     const wrapper = React.createElement(Layout, null, 'Test Content');
-    const svgElements = wrapper.props.children.props.children.props.children[0].props.children;
+    const svgElements = wrapper.props.children.props.children[0].props.children;
 
     // Check if SVG has aria-hidden or title
     expect(svgElements.props['aria-hidden'] || svgElements.props.children).toBeDefined();

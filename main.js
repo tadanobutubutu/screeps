@@ -67,9 +67,9 @@ export const addLandmarks = () => {
  */
 export const createAccessibleSVG = (svgContent, title, desc) => {
   return (
-    <svg aria-hidden="true" focusable="false">
-      <title>{title}</title>
-      <desc>{desc}</desc>
+    <svg role="img" aria-labelledby="svg-title svg-desc">
+      <title id="svg-title">{title}</title>
+      <desc id="svg-desc">{desc}</desc>
       {svgContent}
     </svg>
   );

@@ -24,71 +24,73 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
   if (loading) {
     return (
-      <main className="dashboard-container">
+      <div className="dashboard-container">
         <LoadingSpinner />
-      </main>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <main className="dashboard-container">
+      <div className="dashboard-container">
         <ErrorDisplay message={error} />
-      </main>
+      </div>
     );
   }
 
   if (!data) {
     return (
-      <main className="dashboard-container">
+      <div className="dashboard-container">
         <div>No data available</div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="dashboard-container">
-      <div className="dashboard-header">
-        <h1>Dashboard</h1>
-        <div className="dashboard-tabs">
-          <button
-            className={activeTab === 'overview' ? 'active' : ''}
-            onClick={() => setActiveTab('overview')}
-          >
-            Overview
-          </button>
-          <button
-            className={activeTab === 'analytics' ? 'active' : ''}
-            onClick={() => setActiveTab('analytics')}
-          >
-            Analytics
-          </button>
-          <button
-            className={activeTab === 'actions' ? 'active' : ''}
-            onClick={() => setActiveTab('actions')}
-          >
-            Actions
-          </button>
+    <div className="dashboard-container">
+      <main className="dashboard-main">
+        <div className="dashboard-header">
+          <h1>Dashboard</h1>
+          <div className="dashboard-tabs">
+            <button
+              className={activeTab === 'overview' ? 'active' : ''}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
+              className={activeTab === 'analytics' ? 'active' : ''}
+              onClick={() => setActiveTab('analytics')}
+            >
+              Analytics
+            </button>
+            <button
+              className={activeTab === 'actions' ? 'active' : ''}
+              onClick={() => setActiveTab('actions')}
+            >
+              Actions
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="dashboard-content">
-        {activeTab === 'overview' && (
-          <section className="dashboard-section">
-            <DashboardStats data={data.stats} />
-          </section>
-        )}
-        {activeTab === 'analytics' && (
-          <section className="dashboard-section">
-            <DashboardCharts data={data.charts} />
-          </section>
-        )}
-        {activeTab === 'actions' && (
-          <section className="dashboard-section">
-            <DashboardActions data={data.actions} />
-          </section>
-        )}
-      </div>
-    </main>
+        <div className="dashboard-content">
+          {activeTab === 'overview' && (
+            <section className="dashboard-section">
+              <DashboardStats data={data.stats} />
+            </section>
+          )}
+          {activeTab === 'analytics' && (
+            <section className="dashboard-section">
+              <DashboardCharts data={data.charts} />
+            </section>
+          )}
+          {activeTab === 'actions' && (
+            <section className="dashboard-section">
+              <DashboardActions data={data.actions} />
+            </section>
+          )}
+        </div>
+      </main>
+    </div>
   );
 };

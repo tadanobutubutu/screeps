@@ -1,3 +1,25 @@
 // main.js
-// This file appears to be empty or was not provided.
-// Please paste the contents of main.js, especially any sections with conflict markers.
+import React from 'react';
+
+const RotateBackButton = ({ onClick }) => {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label="Rotate back"
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        color: 'inherit',
+        cursor: 'pointer',
+        textDecoration: 'underline'
+      }}
+    >
+      rotate back
+    </button>
+  );
+};
+
+export default RotateBackButton;

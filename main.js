@@ -12,6 +12,9 @@ export function initRotateBack() {
   }
 }
 
+// Add lang attribute to prevent accessibility issue
+document.documentElement.lang = 'en';
+
 // Initialize when DOM is ready
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
@@ -25,3 +28,11 @@ if (typeof document !== 'undefined') {
 if (typeof window !== 'undefined') {
   window.initRotateBack = initRotateBack;
 }
+
+// Export for accessibility issue resolution
+module.exports = {
+  // Add property for document.documentElement.lang
+  setLanguage: function(language) {
+    document.documentElement.lang = language;
+  }
+};

@@ -83,4 +83,12 @@ const Dashboard: React.FC = () => {
   );
 };
 
+// Add this new component for decorative SVGs
+const DecorativeSvg = ({ children, ...props }) => (
+  <svg aria-hidden="true" {...props}>
+    {children}
+  </svg>
+);
+
 export default Dashboard;
+export { DecorativeSvg };

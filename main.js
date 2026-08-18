@@ -28,6 +28,23 @@ export const handleEslintUpdate = () => {
   console.log('ESLint 10 update handled');
 };
 
+// Add function to fix the React Unique Landmarks issue
+export const renderDashboardContent = (isError) => {
+  if (isError) {
+    return (
+      <section className="dashboard-error">
+        {/* Error content */}
+      </section>
+    );
+  }
+
+  return (
+    <main className="dashboard-main">
+      {/* Main dashboard content */}
+    </main>
+  );
+};
+
 // Preserve existing server setup
 const app = createServer();
 
@@ -59,6 +76,19 @@ describe('Dependency updates', () => {
   it('should handle ESLint 10 updates', () => {
     handleEslintUpdate();
     expect(true).toBe(true);
+  });
+});
+
+// Add test for the dashboard rendering
+describe('Dashboard rendering', () => {
+  it('should render only one main element', () => {
+    // Test error state
+    const errorContent = renderDashboardContent(true);
+    expect(errorContent.type).toBe('section');
+
+    // Test success state
+    const successContent = renderDashboardContent(false);
+    expect(successContent.type).toBe('main');
   });
 });
 

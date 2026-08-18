@@ -1,15 +1,34 @@
 // main.js
+
 // Preserve all existing code and exports
 
 // Add new imports for updated dependencies
-import { createServer } from 'express';
+import express from 'express';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { jest } from '@jest/globals';
+import Layout from './Layout'; // Assuming Layout component is present in the same directory
 
 function existingFunction2() {
   // ... existing implementation
 }
+
+const Layout = ({ children }) => {
+  return (
+    <body>
+      <div className="layout">
+        <header>
+          <nav>
+            {/* Navigation menu */}
+          </nav>
+        </header>
+
+        {/* Add a main landmark for the primary content */}
+        <main>{children}</main>
+      </div>
+    </body>
+  );
+};
 
 export const existingFunction = () => {
   // Existing implementation
@@ -17,24 +36,40 @@ export const existingFunction = () => {
 
 export const handleReactUpdate = () => {
   // Implementation for React 19 updates
-  console.log('React 19 update handled');
 };
 
 export const handleJestUpdate = () => {
   // Implementation for Jest 30 updates
-  console.log('Jest 30 update handled');
 };
 
 export const handleEslintUpdate = () => {
   // Implementation for ESLint 10 updates
-  console.log('ESLint 10 update handled');
 };
 
-const app = createServer();
+const app = express();
 
 app.use((req, res, next) => {
   // Middleware for dependency updates
   next();
+});
+
+app.get('/', (req, res) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>App Layout</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script>
+          const Layout = ${Layout.toString()};
+          ReactDOM.render(React.createElement(Layout, null, 'Main Content'), document.getElementById('root'));
+        </script>
+      </body>
+    </html>
+  `;
+  res.send(html);
 });
 
 describe('Existing tests', () => {
@@ -59,4 +94,4 @@ describe('Dependency updates', () => {
     expect(true).toBe(true);
   });
 
-// ... rest of the original main.js content ...
+// Preserve all other existing code and exports

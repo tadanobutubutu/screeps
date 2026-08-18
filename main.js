@@ -7,11 +7,14 @@ function updateTableHeaders() {
   // to add scope attributes to table headers
   const headers = document.querySelectorAll('th');
   headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
+    if (header && !header.hasAttribute('scope')) {
       // Default to 'col' scope for most headers
       header.setAttribute('scope', 'col');
       // Special cases for row headers if needed
-      if (header.textContent.includes('src/')) {
+      // Check if this is a row header (first cell in each row)
+      const cellIndex = header.cellIndex;
+      const row = header.parentElement;
+      if (row && row.rowIndex > 0 && cellIndex === 0) {
         header.setAttribute('scope', 'row');
       }
     }
@@ -20,7 +23,11 @@ function updateTableHeaders() {
 
 // Call the function when the DOM is fully loaded
 if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', updateTableHeaders);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateTableHeaders);
+  } else {
+    updateTableHeaders();
+  }
 }
 
 // [Rest of your existing main.js content here]

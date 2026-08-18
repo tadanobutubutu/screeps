@@ -1,12 +1,8 @@
-Here is the resolved file content:
-
-```javascript
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDashboardData } from '../store/actions/dashboardActions';
 import { RootState } from '../store/reducers';
 import { DashboardData } from '../types/dashboardTypes';
-import React from 'react'; // Import added from the initiational branch
 
 // -----------------------------------------------------------------------------
 // Existing imports, components, and helpers (preserved unchanged)
@@ -91,6 +87,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-```
-
-This merged version of the file incorporates both changes. The new branch added the Redux mechanisms to fetch and display data from the dashboard, while the original branch made changes to make the `DependencyGraphTable` component more accessible. The combined version retains both functionalities.

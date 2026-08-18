@@ -36,12 +36,12 @@ export const handleReactUpdate = () => {
   // Implementation for React 19 updates
 };
 
-// Add new functions for updated dependencies
+// Add a comment explaining the update
 export const handleJestUpdate = () => {
   // Implementation for Jest 30 updates
 };
 
-// Add new functions for updated dependencies
+// Add documentation for ESLint changes
 export const handleEslintUpdate = () => {
   // Implementation for ESLint 10 updates
 };

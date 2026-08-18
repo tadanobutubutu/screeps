@@ -36,12 +36,10 @@ export const handleReactUpdate = () => {
   // Implementation for React 19 updates
 };
 
-// Add a comment explaining the update
 export const handleJestUpdate = () => {
   // Implementation for Jest 30 updates
 };
 
-// Add documentation for ESLint changes
 export const handleEslintUpdate = () => {
   // Implementation for ESLint 10 updates
 };
@@ -59,7 +57,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <title>App Layout</title>
       </head>

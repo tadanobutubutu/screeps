@@ -1,23 +1,23 @@
 // main.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import App from './App';
 
-// For app/layout.tsx
+// For app/root.tsx
 const AppLayout = ({ children }) => (
-  <body className="min-h-screen flex flex-col">
-    <main className="flex-1">{children}</main>
+  <body lang="en" className="min-h-screen flex flex-col">
+    <main>{children}</main>
   </body>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
-  <body>
+  <body lang="en">
     <main>{children}</main>
   </body>
 );
 
-// For docs/dependency-graph.html
+// For dashboard/app/dependency-graph/page.tsx
 const DependencyGraph = () => (
   <main>
     <table id="table-rotated">
@@ -26,7 +26,7 @@ const DependencyGraph = () => (
   </main>
 );
 
-// For docs/index.html
+// For docs/app/index.tsx
 const DocsIndex = () => (
   <main>
     <div className="container">
@@ -36,8 +36,8 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        <a href="/dependency-graph">Plato Code Complexity Report</a>
+        <a href="/dependency-graph">Dependency Graph</a>
       </div>
     </div>
   </main>

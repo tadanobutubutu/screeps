@@ -3,9 +3,9 @@
 
 // Existing code that generates HTML output for the UI
 function getUIHtml() {
-  return '<div>' +
+  return '<main><div>' +
     '<button id="unrotate">rotate back</button>' +
-    '</div>';
+    '</div></main>';
 }
 
 // Other existing code continues...

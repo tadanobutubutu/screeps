@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -31,7 +30,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
   return (
     <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {error ? (
-        <div>
+        <section aria-label="エラーセクション">
           <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
           <pre
             tabIndex={0}
@@ -90,11 +89,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
           >
             {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
           </button>
-        </div>
+        </section>
       ) : (
-        <div>
+        <section aria-label="成功セクション">
           {/* Your success state content here */}
-        </div>
+        </section>
       )}
     </main>
   );

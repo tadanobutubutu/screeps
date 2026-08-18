@@ -1,11 +1,1 @@
-document.addEventListener('DOMContentLoaded', function() {
-  var unrotateBtn = document.getElementById('unrotate');
-  var rotatingElement = document.getElementById('rotating-element');
-
-  if (unrotateBtn && rotatingElement) {
-    unrotateBtn.addEventListener('click', function() {
-      rotatingElement.style.transform = 'rotate(0deg)';
-      rotatingElement.classList.remove('rotated');
-    });
-  }
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

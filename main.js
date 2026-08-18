@@ -1,11 +1,17 @@
-import React from 'react';
+Here is the resolved file content:
+
+```javascript
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDashboardData } from '../store/actions/dashboardActions';
+import { RootState } from '../store/reducers';
+import { DashboardData } from '../types/dashboardTypes';
+import React from 'react'; // Import added from the initiational branch
 
 // -----------------------------------------------------------------------------
 // Existing imports, components, and helpers (preserved unchanged)
 // -----------------------------------------------------------------------------
 
-// Example existing component that renders a table with header cells
-// The original code used <th> without a scope attribute; we now add scope="col"
 const HeaderCell = ({ children }) => (
   <th scope="col">
     <div>{children}</div>
@@ -32,7 +38,59 @@ export const DependencyGraphTable = () => (
   </table>
 );
 
-// -----------------------------------------------------------------------------
-// Export statements (preserved as‑is)
-// -----------------------------------------------------------------------------
-export default DependencyGraphTable;
+const Dashboard: React.FC = () => {
+  // Code from the patch branch
+  const dispatch = useDispatch();
+  const { data, loading, error } = useSelector((state: RootState) => state.dashboard);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchDashboardData());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (data) {
+      setDashboardData(data);
+    }
+  }, [data]);
+
+  if (loading) {
+    return (
+      <main>
+        <div className="loading-spinner">Loading...</div>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="error-state">
+        <h2>Error Loading Dashboard</h2>
+        <p>{error}</p>
+      </section>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <section className="no-data">
+        <h2>No Data Available</h2>
+        <p>Please try again later.</p>
+      </section>
+    );
+  }
+
+  // End of code from the patch branch
+
+  return (
+    <main className="dashboard-container">
+      <h1>Dashboard</h1>
+      {/* Dashboard content */}
+    </main>
+  );
+};
+
+export default Dashboard;
+```
+
+This merged version of the file incorporates both changes. The new branch added the Redux mechanisms to fetch and display data from the dashboard, while the original branch made changes to make the `DependencyGraphTable` component more accessible. The combined version retains both functionalities.

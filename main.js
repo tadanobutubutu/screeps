@@ -84,7 +84,7 @@ export const ensureUniqueLandmarks = (container) => {
 export const replaceFakeLinks = (container) => {
   const fakeLinks = container.querySelectorAll('[role="link"], [role="button"]');
   fakeLinks.forEach(link => {
-    if (link.getAttribute('role') === 'link' && !link.tagName.toLowerCase() === 'a') {
+    if (link.getAttribute('role') === 'link' && link.tagName.toLowerCase() !== 'a') {
       const anchor = document.createElement('a');
       anchor.href = link.getAttribute('data-href') || '#';
       anchor.textContent = link.textContent;

@@ -91,7 +91,7 @@ function ensureUniqueLandmarks() {
 function replaceFakeLinks() {
   const fakeLinks = document.querySelectorAll('[role="link"], [tabindex="0"]');
   fakeLinks.forEach(link => {
-    if (!link.tagName.toLowerCase() === 'a') {
+    if (link.tagName.toLowerCase() !== 'a') {
       console.warn('Fake link detected. Consider using proper <a> elements.');
     }
   });

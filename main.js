@@ -1,5 +1,4 @@
 // main.js - resolved conflicts (preserving all original code and exports)
-
 function calculateScore(input) {
   // Original implementation
   return input * 2;

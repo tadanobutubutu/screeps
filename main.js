@@ -12,6 +12,17 @@ function enhanceTableAccessibility(tableElement) {
     console.warn('Table structure needs improvement for better accessibility');
     // You might want to restructure the table here if needed
   }
+
+  // Add scope attributes to table headers
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      // Determine if this is a row or column header based on context
+      const isRowHeader = header.parentElement.tagName.toLowerCase() === 'thead' &&
+                         header.parentElement.parentElement.tagName.toLowerCase() === 'table';
+      header.setAttribute('scope', isRowHeader ? 'row' : 'col');
+    }
+  });
 }
 
 // Fix for REACT_017: React Landmarks

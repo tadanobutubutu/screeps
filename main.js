@@ -28,6 +28,15 @@ export const handleEslintUpdate = () => {
   console.log('ESLint 10 update handled');
 };
 
+// Add function to validate React landmarks for accessibility (REACT_017)
+export const validateMainLandmark = (children) => {
+  if (!children) {
+    console.warn('REACT_017: <main> landmark should contain primary content');
+    return false;
+  }
+  return true;
+};
+
 // Preserve existing server setup
 const app = createServer();
 
@@ -59,6 +68,20 @@ describe('Dependency updates', () => {
   it('should handle ESLint 10 updates', () => {
     handleEslintUpdate();
     expect(true).toBe(true);
+  });
+});
+
+// Add tests for accessibility landmark validation
+describe('Accessibility landmarks', () => {
+  it('should validate main landmark presence', () => {
+    expect(validateMainLandmark(<main>Content</main>)).toBe(true);
+  });
+
+  it('should warn when main landmark is missing', () => {
+    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    validateMainLandmark(null);
+    expect(consoleWarnSpy).toHaveBeenCalledWith('REACT_017: <main> landmark should contain primary content');
+    consoleWarnSpy.mockRestore();
   });
 });
 

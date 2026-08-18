@@ -109,6 +109,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>

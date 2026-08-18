@@ -1,30 +1,12 @@
-// main.js
 import React from 'react';
 
-// Preserve all existing exports and functions
-// ... (existing code remains unchanged)
-
-/**
- * Adds language attribute to HTML element for better screen reader support
- * Fixes REACT_015: React Language Attribute
- */
-export const addLanguageAttribute = (lang = 'en') => {
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = lang;
-  }
-};
-
-/**
- * Ensures proper table structure with thead, tbody, and th elements
- * Fixes REACT_027: React Table Structure
- */
-export const createAccessibleTable = (headers, data) => {
+const DependencyGraph = () => {
   return (
     <table>
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} ...
+            <th key={index} ... />
           ))}
         </tr>
       </thead>
@@ -41,25 +23,7 @@ export const createAccessibleTable = (headers, data) => {
   );
 };
 
-/**
- * Adds proper landmark elements for better screen reader navigation
- * Fixes REACT_017: React Landmarks and REACT_025: React Unique Landmarks
- */
-export const addLandmarks = () => {
-  return (
-    <>
-      <header role="banner" aria-label="Site header">
-        {/* Header content */}
-      </header>
-      <main role="main" aria-label="Main content">
-        {/* Main content */}
-      </main>
-      <footer role="contentinfo" aria-label="Site footer">
-        {/* Footer content */}
-      </footer>
-    </>
-  );
-};
+export default DependencyGraph;
 
 /**
  * Renders error or success state with proper landmark structure
@@ -121,3 +85,4 @@ export const initAccessibility = () => {
 };
 
 // Call initAccessibility when appropriate in your application
+```

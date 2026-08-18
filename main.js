@@ -20,7 +20,7 @@ export const AccessibleTable = ({ data, headers }) => (
     <thead>
       <tr>
         {headers.map((header, index) => (
-          <th key={index} scope="col">{header}</th>
+          <th key={index} ...</th>
         ))}
       </tr>
     </thead>
@@ -51,9 +51,17 @@ export const AccessibleIcon = ({ name, ...props }) => (
 );
 
 // Fix for REACT_025: React Unique Landmarks
+// Replace additional <main> elements with <section> to avoid multiple main landmarks
 export const SectionWithHeading = ({ title, children }) => (
-  <section aria-labelledby={`section-${title.replace(/\s+/g, '-')}`}>
-    <h2 id={`section-${title.replace(/\s+/g, '-')}`}>{title}</h2>
+  <section aria-labelledby={`heading-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <h2 id={`heading-${title.toLowerCase().replace(/\s+/g, '-')}`}>{title}</h2>
+    {children}
+  </section>
+);
+
+// Use this component for error/success state content that was using <main>
+export const ContentSection = ({ children, ariaLabel }) => (
+  <section role="region" aria-label={ariaLabel}>
     {children}
   </section>
 );
@@ -61,7 +69,7 @@ export const SectionWithHeading = ({ title, children }) => (
 // Fix for REACT_036: React Fake Link
 export const AccessibleLink = ({ href, children, ...props }) => {
   if (!href) {
-    return <span {...props}>{children}</span>;
+    return <span role="link" tabIndex={0} {...props}>{children}</span>;
   }
   return (
     <a href={href} {...props}>

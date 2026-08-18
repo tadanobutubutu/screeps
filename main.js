@@ -1,3 +1,5 @@
+import React from 'react';
+
 const MyTableComponent = () => {
   return (
     <table>
@@ -14,4 +16,35 @@ const MyTableComponent = () => {
     </table>
   );
 };
+
 export default MyTableComponent;
+
+// Additional component to handle the dashboard functionality
+const Dashboard = () => {
+  const [isError, setIsError] = React.useState(false);
+
+  // Simulate error state for demonstration
+  React.useEffect(() => {
+    // In a real app, this would be based on actual error conditions
+    setIsError(Math.random() > 0.5);
+  }, []);
+
+  return (
+    <div className="dashboard-container">
+      {isError ? (
+        <section className="error-state">
+          <h2>Error Occurred</h2>
+          <p>Something went wrong. Please try again.</p>
+        </section>
+      ) : (
+        <section className="success-state">
+          <h2>Dashboard</h2>
+          <MyTableComponent />
+        </section>
+      )}
+    </div>
+  );
+};
+
+// Export the Dashboard component as well
+export { Dashboard };

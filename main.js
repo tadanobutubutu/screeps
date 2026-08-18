@@ -37,17 +37,6 @@ function replaceFakeLinks() {
   });
 }
 
-// Call the functions when the DOM is fully loaded
-if (typeof document !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', () => {
-    updateTableHeaders();
-    replaceFakeLinks();
-  });
-}
-
-// [Rest of your existing main.js content here]
-// ... (all your current code remains unchanged)
-
 // Add this function to ensure only one main element exists
 function ensureSingleMainElement() {
   // Check if there are multiple main elements
@@ -71,9 +60,14 @@ function ensureSingleMainElement() {
   }
 }
 
-// Add the single main element check to DOMContentLoaded
+// Combine DOMContentLoaded listeners into one
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
+    updateTableHeaders();
+    replaceFakeLinks();
     ensureSingleMainElement();
   });
 }
+
+// [Rest of your existing main.js content here]
+// ... (all your current code remains unchanged)

@@ -41,3 +41,24 @@ function add(a: number, b: number): number {
 // ... (existing code) ...
 
 // Updated main.js with conflict markers
+
+// Add test:coverage script configuration
+const jestConfig = {
+  coverageReporters: ['json', 'lcov', 'text', 'clist'],
+  collectCoverageFrom: [
+    'src/**/*.{js,jsx,ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/**/*.test.{js,jsx,ts,tsx}',
+  ],
+};
+
+// Merge with existing Jest configuration if needed
+configure({
+  ...jestConfig,
+  // ... (existing configuration) ...
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.tsx?$': 'babel-jest',
+  },
+  // ... (existing configuration) ...
+});

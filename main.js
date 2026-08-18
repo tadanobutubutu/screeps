@@ -13,7 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1" role="main">{children}</main>
       </body>
     </html>
   );
@@ -43,4 +43,47 @@ export function createTestContext() {
       // Add test utilities here
     }
   };
+}
+
+// Accessibility improvements
+export function AccessibleLink({ href, children, ...props }) {
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  );
+}
+
+export function AccessibleTable({ caption, headers, data, ...props }) {
+  return (
+    <table {...props}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export function AccessibleSVG({ title, desc, children, ...props }) {
+  return (
+    <svg {...props} role="img" aria-labelledby={`title-${props.id} desc-${props.id}`}>
+      <title id={`title-${props.id}`}>{title}</title>
+      <desc id={`desc-${props.id}`}>{desc}</desc>
+      {children}
+    </svg>
+  );
 }

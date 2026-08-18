@@ -60,19 +60,19 @@ const Dashboard: React.FC = () => {
 
   if (error) {
     return (
-      <section className="error-state" role="alert">
+      <main className="error-state" role="alert">
         <h2>Error Loading Dashboard</h2>
         <p>{error}</p>
-      </section>
+      </main>
     );
   }
 
   if (!dashboardData) {
     return (
-      <section className="no-data" role="status">
+      <main className="no-data" role="status">
         <h2>No Data Available</h2>
         <p>Please try again later.</p>
-      </section>
+      </main>
     );
   }
 

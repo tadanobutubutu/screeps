@@ -15,18 +15,15 @@ export const existingFunction = () => {
 // Add new functions for updated dependencies
 export const handleReactUpdate = () => {
   // Implementation for React 19 updates
-  console.log('Handling React 19 updates');
-};
+  };
 
 export const handleJestUpdate = () => {
   // Implementation for Jest 30 updates
-  console.log('Handling Jest 30 updates');
-};
+  };
 
 export const handleEslintUpdate = () => {
   // Implementation for ESLint 10 updates
-  console.log('Handling ESLint 10 updates');
-};
+  };
 
 // Preserve existing server setup
 const app = createServer();

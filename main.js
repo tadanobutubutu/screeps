@@ -123,7 +123,7 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
+
   return true; // Simplified validation
 }
 
@@ -133,17 +133,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -153,7 +153,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -164,20 +164,45 @@ function checkConflicts() {
       });
     }
   });
-  
+
   return conflicts;
+}
+
+/**
+ * Ensure table headers have proper scope attributes for accessibility
+ * @param {HTMLElement} table - The table element to validate
+ */
+function ensureTableAccessibility(table) {
+  if (!table) return;
+
+  // Get all header cells in the table
+  const headers = table.querySelectorAll('th');
+
+  headers.forEach(header => {
+    // If scope is not already set, determine if it's a column or row header
+    if (!header.hasAttribute('scope')) {
+      // Check if this is a column header (first row)
+      const rowIndex = header.parentElement.rowIndex;
+      if (rowIndex === 0) {
+        header.setAttribute('scope', 'col');
+      } else {
+        // Otherwise assume it's a row header
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
@@ -192,5 +217,6 @@ module.exports = {
   validateDependency,
   generateUpdateReport,
   checkConflicts,
+  ensureTableAccessibility,
   dependencyUpdates
 };

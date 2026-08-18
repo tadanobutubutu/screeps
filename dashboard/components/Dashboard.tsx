@@ -852,6 +852,8 @@ export default function Dashboard() {
                     )}
                     {roomQuery && filteredRooms.length === 0 && (
                         <span
+                            role="status"
+                            aria-live="polite"
                             style={{
                                 fontSize: '0.75rem',
                                 color: '#e53e3e',

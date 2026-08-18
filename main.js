@@ -1,1 +1,2 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// No changes needed to main.js since the issue is in the HTML file
+// The fix should be applied to docs/dependency-graph.html instead

@@ -124,6 +124,16 @@ function createHtmlElementWithLang(children) {
   return react.createElement('html', { lang: 'en' }, children);
 }
 
+// New function to safely render a single main landmark
+function renderSingleMainLandmark(content, errorContent) {
+  // Only render one main landmark regardless of error state
+  return react.createElement(
+    'div',
+    null,
+    react.createElement('main', null, errorContent ? errorContent : content)
+  );
+}
+
 // Export all existing functions and add new ones
 module.exports = {
   // Existing exports remain here
@@ -141,5 +151,6 @@ module.exports = {
   createHeaderLandmark,
   createFooterLandmark,
   createNavLandmark,
-  createHtmlElementWithLang
+  createHtmlElementWithLang,
+  renderSingleMainLandmark
 };

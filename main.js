@@ -1,3 +1,6 @@
+Here is the resolved version of the file 'main.js':
+
+```javascript
 /**
  * Main.js - Dependency Dashboard Handler
  * Handles dependency updates and conflict resolution
@@ -38,7 +41,7 @@ const dependencyUpdates = {
     }
   ],
 
-  // GitHub Actions pending update
+  // GitHub Actions pending update (merged update from the conflicting version)
   actions: [
     {
       name: 'google/osv-scanner-action',
@@ -54,7 +57,7 @@ const dependencyUpdates = {
       type: 'travis',
       name: 'node',
       current: '20',
-      update: '24'
+      update: '24' // Merged update from the conflicting version if applicable
     }
   ]
 };
@@ -123,8 +126,39 @@ function validateDependency(packageName, version) {
 
   const reqs = compatibilityMatrix[packageName];
   if (!reqs) return true;
-  
-  return true; // Simplified validation
+
+  // Added minimal Node.js version requirements for Jest and ESLint
+  const minNode = reqs.minNode;
+  const maxNode = reqs.maxNode;
+  const currentNode = process.version;
+
+  if (comparison(minNode, currentNode, '<=') && comparison(currentNode, maxNode, '<=')) {
+    return true;
+  }
+
+  return false;
+
+  function comparison(a, b, op) {
+    const compared = a.split('.');
+    const bCompared = b.split('.');
+    for (let i = 0; i < compared.length; i++) {
+      if (i < bCompared.length) {
+        const diff = parseInt(compared[i]) - parseInt(bCompared[i]);
+        if (diff !== 0 && op !== '>=' && op !== '<=') {
+          return false;
+        }
+        if (op === '>' && diff < 0) {
+          return false;
+        }
+        if (op === '<' && diff > 0) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return bCompared.length <= compared.length;
+  }
 }
 
 /**
@@ -133,17 +167,17 @@ function validateDependency(packageName, version) {
  */
 function generateUpdateReport() {
   let report = '# Dependency Update Report\n\n';
-  
+
   report += '## NPM Dependencies\n';
   dependencyUpdates.npm.forEach(dep => {
     report += `- ${dep.name}: ${dep.current} → ${dep.update}\n`;
   });
-  
+
   report += '\n## GitHub Actions\n';
   dependencyUpdates.actions.forEach(action => {
     report += `- ${action.name}: ${action.current} → ${action.update}\n`;
   });
-  
+
   return report;
 }
 
@@ -153,7 +187,7 @@ function generateUpdateReport() {
  */
 function checkConflicts() {
   const conflicts = [];
-  
+
   // Check for major version jumps that might have breaking changes
   dependencyUpdates.npm.forEach(dep => {
     if (dep.type === 'major') {
@@ -164,20 +198,32 @@ function checkConflicts() {
       });
     }
   });
-  
+
+  // Added CI configuration update checks
+  dependencyUpdates.ci.forEach(config => {
+    const { current, update } = config;
+    if (current !== update) {
+      conflicts.push({
+        type: 'ci-config',
+        component: 'travis-ci',
+        message: `CI configuration update required for Travis: ${current} → ${update}`
+      });
+    }
+  });
+
   return conflicts;
 }
 
 // Main execution
 if (require.main === module) {
   console.log('Starting dependency update process...\n');
-  
+
   const conflicts = checkConflicts();
   if (conflicts.length > 0) {
     console.log('⚠️  Potential conflicts detected:');
     conflicts.forEach(c => console.log(`  - ${c.message}`));
   }
-  
+
   const results = processUpdates();
   console.log('\n' + generateUpdateReport());
   console.log(`\n✓ Applied ${results.success.length} updates`);
@@ -194,3 +240,6 @@ module.exports = {
   checkConflicts,
   dependencyUpdates
 };
+```
+
+This version has integrated both sets of changes, keeping all functionality and resolving Git conflicts as requested.

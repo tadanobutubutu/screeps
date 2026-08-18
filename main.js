@@ -1,4 +1,3 @@
-tsx
 // app/layout.tsx
 import { Metadata } from 'next';
 

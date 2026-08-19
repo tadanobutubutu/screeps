@@ -13,3 +13,15 @@ describe('MyComponent', () => {
     });
   });
 });
+
+// Additional test to verify SVG accessibility fixes
+describe('SVG accessibility', () => {
+  test('SVG elements have proper accessibility attributes', () => {
+    const { container } = render(<MyComponent />);
+    const svgElements = container.querySelectorAll('svg');
+
+    svgElements.forEach((svg) => {
+      expect(svg).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
+});

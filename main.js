@@ -1,16 +1,1 @@
-import { Html, Head, Main, NextScript } from 'next/document';
-import React from 'react';
-
-export default function Document() {
-  return (
-    <Html lang="en">
-      <Head />
-      <body>
-        <main>
-          <Main />
-        </main>
-        <NextScript />
-      </body>
-    </Html>
-  );
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

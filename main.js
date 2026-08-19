@@ -15,9 +15,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
+        <main role="main">
+          {children}
+        </main>
         {/* Modified the link to be a button for accessibility */}
-        <button id="unrotate" onClick={() => {/* Implement the action for rotating back here */}}>rotate back</button>
+        <button id="unrotate" onClick={() => {/* Implement the action for rotating back here */}} aria-label="Rotate back to original orientation">rotate back</button>
       </body>
     </html>
   )

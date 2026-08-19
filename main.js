@@ -1,5 +1,51 @@
 // main.js - Accessibility fixes applied
 
+// Add the scope attributes to the table headers in the dependency graph
+export function updateDependencyGraphTable() {
+  const table = document.querySelector('#dependency-graph-table');
+  if (!table) return;
+
+  // Update headers in the first section
+  const headers1 = table.querySelectorAll('thead tr:nth-child(1) th');
+  headers1.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+
+  // Update headers in the second section
+  const headers2 = table.querySelectorAll('thead tr:nth-child(2) th');
+  headers2.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+
+  // Update data cells to ensure proper association
+  const rows = table.querySelectorAll('tbody tr');
+  rows.forEach(row => {
+    const cells = row.querySelectorAll('td');
+    cells.forEach((cell, index) => {
+      if (!cell.hasAttribute('headers')) {
+        const headerId = `header-${index}`;
+        cell.setAttribute('headers', headerId);
+        // Also add id to corresponding header if needed
+        const header = table.querySelector(`thead th:nth-child(${index + 1})`);
+        if (header && !header.hasAttribute('id')) {
+          header.setAttribute('id', headerId);
+        }
+      }
+    });
+  });
+}
+
+// Call this function when the page loads or when the table is rendered
+document.addEventListener('DOMContentLoaded', updateDependencyGraphTable);
+
+//aron-edited: Integrated updates from both branches
+
+// main.js - Accessibility fixes applied
+
 // Fix 1: Add lang attribute to html element
 // This should be in your _document.js or html file:
 // <html lang="en">
@@ -11,8 +57,8 @@
 
 export const FakeLink = ({ onClick, children }) => (
   // Fixed: Using proper button element instead of fake link
-  <button 
-    type="button" 
+  <button
+    type="button"
     onClick={onClick}
     style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', color: 'inherit' }}
   >
@@ -22,9 +68,9 @@ export const FakeLink = ({ onClick, children }) => (
 
 // Fix 4: Add accessible names to SVG elements
 export const Icon = ({ name, size = 24 }) => (
-  <svg 
-    width={size} 
-    height={size} 
+  <svg
+    width={size}
+    height={size}
     aria-label={name} // Fixed: Added aria-label for screen readers
     role="img"
   >
@@ -34,9 +80,9 @@ export const Icon = ({ name, size = 24 }) => (
 
 // Fix 4: Alternative with aria-labelledby reference
 export const DecorativeIcon = ({ titleId }) => (
-  <svg 
-    width="24" 
-    height="24" 
+  <svg
+    width="24"
+    height="24"
     aria-labelledby={titleId} // Fixed: Links to title element
     role="img"
   >
@@ -78,11 +124,11 @@ export const PageLayout = ({ children }) => (
         <a href="/about">About</a>
       </nav>
     </header>
-    
-    <main id="main-content"> {/* Fix 3: Main landmark */}
+
+     <main id="main-content"> {/* Fix 3: Main landmark */}
       {children}
     </main>
-    
+
     <footer> {/* Fix 3: Footer landmark */}
       <p>Copyright 2024</p>
     </footer>
@@ -95,11 +141,11 @@ export const NavigationMenus = () => (
     <nav aria-label="Primary navigation">
       {/* Primary nav content */}
     </nav>
-    
+
     <nav aria-label="Secondary navigation">
       {/* Secondary nav content */}
     </nav>
-    
+
     <nav aria-label="Footer navigation">
       {/* Footer nav content */}
     </nav>
@@ -123,7 +169,7 @@ export const TableBodyCell = ({ children }) => (
 
 // Accessible SVG with title and description
 export const AccessibleSVG = ({ title, description, children }) => (
-  <svg 
+  <svg
     role="img"
     aria-labelledby="svg-title svg-desc"
   >

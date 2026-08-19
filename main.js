@@ -1,4 +1,3 @@
-tsx
 // In app/layout.tsx
 import React from 'react';
 // ...
@@ -27,3 +26,7 @@ function Layout({ children }) {
   );
 }
 export default Layout;
+
+// In docs/dependency-graph.html
+// Replace the fake link with a button
+<button id="unrotate">rotate back</button>

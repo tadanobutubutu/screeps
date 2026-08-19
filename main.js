@@ -72,6 +72,12 @@ function fixReactUniqueLandmarks() {
   // Implementation for fixing the issue where multiple main landmarks are present
   // This function will ensure only one main landmark exists in the component
   // The actual fix would be applied in the Dashboard.tsx files
+  // For example:
+  // 1. Identify the primary content section that should be the main landmark
+  // 2. Remove any additional <main> elements in the component
+  // 3. Ensure the primary content is properly wrapped in a single <main> element
+  // 4. For conditional rendering, use a single main element that contains all content
+  // 5. For error states, ensure they're part of the main content rather than separate landmarks
 }
 
 // New function to fix React Language Attribute issue (REACT_015)

@@ -84,6 +84,12 @@ const DependencyGraph = () => {
       <table id="table-rotated">
         {/* table content */}
       </table>
+      <button id="unrotate" onClick={() => {
+        // Add your rotation logic here
+        console.log('Rotating back');
+      }}>
+        rotate back
+      </button>
     </main>
   );
 };

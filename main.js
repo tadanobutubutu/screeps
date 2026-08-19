@@ -1,3 +1,15 @@
+import logoSvg from './assets/logo.svg';  
+import metadataSvg from './assets/metadata.svg';  
+
+// And used in components like this:  
+import React from 'react';  
+const Logo = () => (  
+  <svg {...logoSvg.props} aria-label="Company Logo" />  
+);  
+const Metadata = () => (  
+  <svg {...metadataSvg.props} aria-label="Page Metadata" />  
+);  
+
 // Existing code from main.js (not affected by the issue)
 
 // New code or changes requested in the issue
@@ -20,4 +32,5 @@ tableHeaders.forEach(header => {
   }
 });
 
-// Existing code from main.js (not affected by the issue)
+// The rest of your main.js code...  
+// (original code continues here)

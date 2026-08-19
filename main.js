@@ -1,1 +1,10 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+describe('dependency-graph.html tests', () => {
+  // ... other tests ...
+
+  it('should have lang attribute in html tag', () => {
+    const htmlContent = fs.readFileSync('docs/dependency-graph.html', 'utf-8');
+    expect(htmlContent).toContain('<html lang="en">');
+  });
+
+  // ... other tests ...
+});

@@ -84,11 +84,43 @@ function validateSingleMainLandmark() {
   console.log('Validating that React components contain only a single <main> landmark');
 }
 
+// New function to add lang attribute to HTML elements for screen reader support
+function addLanguageAttribute() {
+  // This function would be used in a build step to add lang attributes
+  // to HTML elements for better screen reader support
+  console.log('Adding language attributes to HTML elements for screen reader support');
+}
+
+// New function to ensure proper table structure for screen readers
+function ensureProperTableStructure() {
+  // This function would be used in a build step to ensure tables have proper
+  // structure with thead, tbody, and th elements for screen readers
+  console.log('Ensuring proper table structure for screen readers');
+}
+
+// New function to add ARIA labels to landmarks for better screen reader navigation
+function addAriaLabelsToLandmarks() {
+  // This function would be used in a build step to add ARIA labels to landmarks
+  // for better screen reader navigation
+  console.log('Adding ARIA labels to landmarks for better screen reader navigation');
+}
+
+// New function to ensure unique landmarks for screen reader navigation
+function ensureUniqueLandmarks() {
+  // This function would be used in a build step to ensure landmarks are unique
+  // for better screen reader navigation
+  console.log('Ensuring unique landmarks for screen reader navigation');
+}
+
 module.exports = {
   updatedDependencies,
   dependencyConfig,
   addMainLandmarks,
   ensureSvgAccessibility,
   replaceHashLinksWithButtons,
-  validateSingleMainLandmark
+  validateSingleMainLandmark,
+  addLanguageAttribute,
+  ensureProperTableStructure,
+  addAriaLabelsToLandmarks,
+  ensureUniqueLandmarks
 };

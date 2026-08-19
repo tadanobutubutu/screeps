@@ -29,6 +29,10 @@ const mainJSContent = `
   </table>
 
   <!-- ... other content ... -->
+
+  <!-- Update the 'rotate back' link to a button -->
+  <button id="unrotate">rotate back</button>
+
 </body>
 </html>
 `;

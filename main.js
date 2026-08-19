@@ -2,7 +2,7 @@
 
 export function MainContent({ children, className = '' }) {
   return (
-    <main 
+    <main
       className={className}
       id="main-content"
     >
@@ -27,14 +27,14 @@ export function Navigation({ items = [], ariaLabel = 'Main navigation' }) {
   );
 }
 
-export function AccessibleTable({ headers = [], rows = [], caption }) {
+export function AccessibleTable({ headers = [], rows = [], caption, headerScope = 'col' }) {
   return (
     <table>
       {caption && <caption>{caption}</caption>}
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">
+            <th key={index} scope={headerScope}>
               {header}
             </th>
           ))}
@@ -56,7 +56,7 @@ export function AccessibleTable({ headers = [], rows = [], caption }) {
 export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   return (
     <span className={className} aria-hidden="false">
-      <Icon 
+      <Icon
         aria-label={label}
         role="img"
       />
@@ -64,9 +64,9 @@ export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   );
 }
 
-export function AccessibleButton({ 
-  children, 
-  onClick, 
+export function AccessibleButton({
+  children,
+  onClick,
   variant = 'primary',
   ariaLabel,
   disabled = false,
@@ -85,14 +85,14 @@ export function AccessibleButton({
   );
 }
 
-export function AccessibleLink({ 
-  children, 
-  href, 
+export function AccessibleLink({
+  children,
+  href,
   ariaLabel,
   className = ''
 }) {
   return (
-    <a 
+    <a
       href={href}
       aria-label={ariaLabel}
       className={className}
@@ -102,27 +102,27 @@ export function AccessibleLink({
   );
 }
 
-export function PageLayout({ 
-  children, 
+export function PageLayout({
+  children,
   sidebar,
-  navigation 
+  navigation
 }) {
   return (
     <div lang="en">
       <header>
         {navigation}
       </header>
-      
+
       <div className="layout-container">
         <aside aria-label="Secondary content">
           {sidebar}
         </aside>
-        
+
         <MainContent>
           {children}
         </MainContent>
       </div>
-      
+
       <footer>
         <p>Footer content</p>
       </footer>

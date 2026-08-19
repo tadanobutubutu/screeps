@@ -27,14 +27,14 @@ export function Navigation({ items = [], ariaLabel = 'Main navigation' }) {
   );
 }
 
-export function AccessibleTable({ headers = [], rows = [], caption }) {
+export function AccessibleTable({ headers = [], rows = [], caption, headerScope = 'col' }) {
   return (
     <table>
       {caption && <caption>{caption}</caption>}
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">
+            <th key={index} scope={headerScope}>
               {header}
             </th>
           ))}

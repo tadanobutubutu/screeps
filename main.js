@@ -36,3 +36,41 @@ function updateTableHeaders() {
 
 // Call the function to update the headers when the document is loaded
 document.addEventListener('DOMContentLoaded', updateTableHeaders);
+
+// Add language attribute to HTML element for screen reader support
+function addLanguageAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Add ARIA landmarks for better screen reader navigation
+function addLandmarks() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navElement = document.querySelector('nav');
+  if (navElement && !navElement.hasAttribute('role')) {
+    navElement.setAttribute('role', 'navigation');
+  }
+}
+
+// Add accessible names to SVG elements
+function makeSVGsAccessible() {
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+  svgs.forEach(svg => {
+    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+      svg.setAttribute('aria-label', 'Decorative graphic');
+    }
+  });
+}
+
+// Initialize accessibility improvements when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  addLanguageAttribute();
+  addLandmarks();
+  makeSVGsAccessible();
+});

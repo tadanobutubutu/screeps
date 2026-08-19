@@ -49,7 +49,7 @@ export default function Stats() {
   if (loading) {
     return (
       <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        <h1 style={{ color: '#004b73' }}>読み込み中...</h1>
+        <h1 style={{ color: '#004b73' }}>读込み中...</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div
             style={{
@@ -140,7 +140,7 @@ export default function Stats() {
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      <h1 style={{ color: '#004b73' }}>📊 統計</h1>
+      <h1 style={{ color: '#004b73' }}>📊 统计</h1>
       <div style={{ marginTop: '1rem' }}>
         <div
           style={{
@@ -150,7 +150,7 @@ export default function Stats() {
             marginBottom: '0.5rem',
           }}
         >
-          <span style={{ color: '#666' }}>総打刻数: </span>
+          <span style={{ color: '#666' }}>总打刻数: </span>
           <span style={{ fontWeight: 'bold', color: '#004b73' }}>{stats.total}</span>
         </div>
         <div
@@ -197,4 +197,43 @@ export default function Stats() {
       </button>
     </div>
   );
+}
+
+// Initialize rotation state
+let isRotated = false;
+
+// Handle rotate button click
+document.getElementById('rotate')?.addEventListener('click', function() {
+    const content = document.getElementById('content');
+    if (content) {
+        if (isRotated) {
+            content.style.transform = 'rotate(0deg)';
+            isRotated = false;
+        } else {
+            content.style.transform = 'rotate(90deg)';
+            isRotated = true;
+        }
+    }
+});
+
+// Handle unrotate button click (using button element for accessibility)
+document.getElementById('unrotate')?.addEventListener('click', function() {
+    const content = document.getElementById('content');
+    if (content) {
+        content.style.transform = 'rotate(0deg)';
+        isRotated = false;
+    }
+});
+
+// Sample content with main landmark
+const content = document.getElementById('content');
+if (content) {
+    content.innerHTML = `
+        <main>
+            <h1>Welcome to the App</h1>
+            <p>Click the rotate button to rotate the content.</p>
+            <button id="rotate">Rotate</button>
+            <button id="unrotate">rotate back</button>
+        </main>
+    `;
 }

@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js before fix
+export function RotateBackLink() {
+  return (
+    <div>
+      {/* Incorrect anchor usage for in-page navigation */}
+      <a id="unrotate" href="#">rotate back</a>
+    </div>
+  );
+}

@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_027 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -32,3 +32,34 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Function to update table headers with scope attributes
+function updateTableHeaders() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                // Determine if this is a column or row header based on position
+                const rowIndex = header.parentElement.rowIndex;
+                const cellIndex = header.cellIndex;
+
+                // If it's in the first row, it's likely a column header
+                if (rowIndex === 0) {
+                    header.setAttribute('scope', 'col');
+                }
+                // If it's in the first column, it's likely a row header
+                else if (cellIndex === 0) {
+                    header.setAttribute('scope', 'row');
+                }
+                // Default to column header if position is unclear
+                else {
+                    header.setAttribute('scope', 'col');
+                }
+            }
+        });
+    });
+}
+
+// Call the function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', updateTableHeaders);

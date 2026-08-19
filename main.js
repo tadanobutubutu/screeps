@@ -26,6 +26,12 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
+// Function to handle rotation back action
+const handleRotateBack = () => {
+  // Implement your rotation logic here
+  console.log('Rotating back');
+};
+
 // For docs/dependency-graph.html
 // Note: This is HTML, not JSX, so we'll need to modify the actual HTML file
 // The fix would be to wrap the content in <main> tags
@@ -43,3 +49,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 // Export all existing functions
 export { someExistingFunction } from './someExistingFile';
 export { anotherExistingFunction } from './anotherExistingFile';
+export { handleRotateBack };

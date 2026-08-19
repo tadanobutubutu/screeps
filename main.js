@@ -302,6 +302,54 @@ function setLanguage(dashboard, lang = 'en') {
     };
 }
 
+/**
+ * Wraps content in a main landmark element
+ * @param {React.ReactNode} children - Content to wrap
+ * @returns {React.ReactElement} Main landmark element
+ */
+function createMainLandmark(children) {
+    return React.createElement('main', {
+        role: 'main',
+        'aria-label': 'Main content'
+    }, children);
+}
+
+/**
+ * Wraps content in a navigation landmark element
+ * @param {React.ReactNode} children - Content to wrap
+ * @returns {React.ReactElement} Navigation landmark element
+ */
+function createNavigationLandmark(children) {
+    return React.createElement('nav', {
+        role: 'navigation',
+        'aria-label': 'Main navigation'
+    }, children);
+}
+
+/**
+ * Wraps content in a complementary landmark element
+ * @param {React.ReactNode} children - Content to wrap
+ * @returns {React.ReactElement} Complementary landmark element
+ */
+function createComplementaryLandmark(children) {
+    return React.createElement('aside', {
+        role: 'complementary',
+        'aria-label': 'Additional information'
+    }, children);
+}
+
+/**
+ * Wraps content in a search landmark element
+ * @param {React.ReactNode} children - Content to wrap
+ * @returns {React.ReactElement} Search landmark element
+ */
+function createSearchLandmark(children) {
+    return React.createElement('section', {
+        role: 'search',
+        'aria-label': 'Search'
+    }, children);
+}
+
 module.exports = {
     addUpdate,
     removeUpdate,
@@ -318,7 +366,11 @@ module.exports = {
     createAccessibleSVG,
     createAccessibleLink,
     addLandmarks,
-    setLanguage
+    setLanguage,
+    createMainLandmark,
+    createNavigationLandmark,
+    createComplementaryLandmark,
+    createSearchLandmark
 };
 
 // Auto-initialize if running directly

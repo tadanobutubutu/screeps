@@ -48,7 +48,12 @@ function ensureAccessibility() {
   const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
   svgs.forEach(svg => {
     if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
-      svg.setAttribute('aria-label', 'Graphic content');
+      // Check if this is a favicon SVG (common pattern)
+      if (svg.closest('link[rel="icon"]') || svg.closest('link[rel="shortcut icon"]')) {
+        svg.setAttribute('aria-hidden', 'true');
+      } else {
+        svg.setAttribute('aria-label', 'Graphic content');
+      }
     }
   });
 

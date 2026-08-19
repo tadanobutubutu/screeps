@@ -30,3 +30,16 @@ export default Layout;
 // In docs/dependency-graph.html
 // Replace the fake link with a button
 <button id="unrotate">rotate back</button>
+=======
+tsx
+import React, { useState, useEffect } from 'react';
+
+const Dashboard = () => {
+    const [stats, setStats] = useState(null);
+    const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [errCopyHover, setErrCopyHover] = useState(false);
+    const [errRetryHover, setErrRetryHover] = useState(false);
+
+    const fetchStats = async (force = false)

@@ -37,3 +37,31 @@ const reactDom = require('react-dom');
 
 // Add new exports if needed
 export { eslintConfig, jestConfig, tsConfig };
+
+// Add main landmark components for React accessibility
+const MainLandmark = ({ children }) => {
+  return <main>{children}</main>;
+};
+
+// Add main landmark for HTML files
+const addMainLandmarkToHTML = (htmlContent) => {
+  // Check if main landmark already exists
+  if (htmlContent.includes('<main>')) {
+    return htmlContent;
+  }
+
+  // Find the body tag and wrap content in main
+  const bodyStart = htmlContent.indexOf('<body>');
+  if (bodyStart === -1) return htmlContent;
+
+  const bodyEnd = htmlContent.indexOf('</body>', bodyStart);
+  if (bodyEnd === -1) return htmlContent;
+
+  const contentBefore = htmlContent.substring(0, bodyStart + 6);
+  const contentAfter = htmlContent.substring(bodyEnd);
+
+  return `${contentBefore}<main>${htmlContent.substring(bodyStart + 6, bodyEnd)}</main>${contentAfter}`;
+};
+
+// Export the main landmark components
+export { MainLandmark, addMainLandmarkToHTML };

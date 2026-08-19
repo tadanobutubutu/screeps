@@ -121,5 +121,6 @@ export {
   AppLayout,
   DashboardLayout,
   DependencyGraph,
-  DocsIndex
+  DocsIndex,
+  makeSvgAccessible
 };

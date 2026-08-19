@@ -35,6 +35,28 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
+// New component for dependency graph table with proper scope attributes
+const DependencyGraphTable = ({ data }) => (
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Source File</th>
+        <th scope="col">Dependency</th>
+        <th scope="col">Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((row, index) => (
+        <tr key={index}>
+          <th scope="row">{row.source}</th>
+          <td>{row.dependency}</td>
+          <td>{row.type}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
 const AccessibleIcon = ({ label }) => (
   <svg role="img" aria-label={label} width="24" height="24" viewBox="0 0 24 24">
     <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -187,6 +209,7 @@ const Dashboard: React.FC = () => {
 export {
   App,
   AccessibleTable,
+  DependencyGraphTable, // New export for dependency graph table
   AccessibleIcon,
   AccessibleIconWithTitle,
   MainContent,

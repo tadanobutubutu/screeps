@@ -116,7 +116,7 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
               marginLeft: '1rem'
             }}
           >
-            {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+            {refreshing ? '🔄 再试行中...' : '🔄 再试行'}
           </button>
         </div>
       </MainLandmark>

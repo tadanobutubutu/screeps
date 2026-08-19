@@ -83,5 +83,13 @@ const makeSvgAccessible = (svgElement) => {
   });
 };
 
+// Add function to safely render main landmark in conditional rendering scenarios
+const ConditionalMainLandmark = ({ children, condition, fallback }) => {
+  if (condition) {
+    return <main>{children}</main>;
+  }
+  return fallback ? <section>{fallback}</section> : null;
+};
+
 // Export the main landmark components and SVG accessibility function
-export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible };
+export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, ConditionalMainLandmark };

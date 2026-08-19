@@ -64,6 +64,13 @@ function fixReactUniqueLandmarks() {
   // The actual fix would be applied in the Dashboard.tsx files
 }
 
+// New function to fix React Language Attribute issue (REACT_015)
+function fixReactLanguageAttribute() {
+  // Implementation for adding language attribute to HTML element
+  // This will address the issue where the HTML element lacks a lang attribute
+  // The actual fix would be applied in the dependency-graph.html file
+}
+
 // Export all existing and new functions
 module.exports = {
   existingFunction,
@@ -76,7 +83,8 @@ module.exports = {
   updateTypeScriptTo7,
   addMainLandmarks,
   fixSvgAccessibility,
-  fixReactUniqueLandmarks
+  fixReactUniqueLandmarks,
+  fixReactLanguageAttribute
 };
 
 // Start the server

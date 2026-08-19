@@ -23,6 +23,7 @@ const DependencyGraph = () => (
     <table id="table-rotated">
       {/* Table content */}
     </table>
+    <button id="unrotate" className="rotate-back-button">rotate back</button>
   </main>
 );
 

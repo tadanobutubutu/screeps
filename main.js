@@ -1,8 +1,20 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
+
+/**
+ * Adds accessible name to SVG elements to comply with REACT_041 rule
+ * @param {React.ReactElement} svgElement - The SVG element to make accessible
+ * @param {string} label - The accessible name for the SVG
+ * @returns {React.ReactElement} The accessible SVG element
+ */
+function makeSvgAccessible(svgElement, label) {
+  return React.cloneElement(svgElement, {
+    'aria-label': label,
+    role: 'img'
+  });
+}
 
 // For app/layout.tsx
 const AppLayout = ({ children }) => {

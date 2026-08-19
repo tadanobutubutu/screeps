@@ -9,7 +9,15 @@ function handleUnrotate() {
 
 // Function to render the unrotate button (accessibility fix applied)
 function renderUnrotateButton() {
-  return '<button id="unrotate">rotate back</button>';
+  return '<button id="unrotate" aria-label="Rotate back to original position">rotate back</button>';
+}
+
+// Function to create an accessible SVG element
+function createAccessibleSVG(svgContent, ariaLabel = '', isDecorative = false) {
+  if (isDecorative) {
+    return `<svg aria-hidden="true">${svgContent}</svg>`;
+  }
+  return `<svg aria-label="${ariaLabel}">${svgContent}</svg>`;
 }
 
 // Example: Initialize the unrotate functionality
@@ -24,4 +32,4 @@ function initUnrotateFeature(containerElement) {
 }
 
 // Export for module usage
-export { handleUnrotate, renderUnrotateButton, initUnrotateFeature };
+export { handleUnrotate, renderUnrotateButton, initUnrotateFeature, createAccessibleSVG };

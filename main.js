@@ -40,7 +40,9 @@ export const AccessibleTable = ({ data, headers }) => {
         {data.map((row, rowIndex) => (
           <tr key={`row-${rowIndex}`}>
             {row.map((cell, cellIndex) => (
-              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+              <td key={`cell-${rowIndex}-${cellIndex}`}>
+                {cell}
+              </td>
             ))}
           </tr>
         ))}
@@ -60,11 +62,11 @@ export const AccessibleSVG = ({ title, description, ...props }) => {
   );
 };
 
-// Accessible link component
+// Accessible link component - converts href="#" to button for better accessibility
 export const AccessibleLink = ({ href, children, ...props }) => {
   if (!href || href === '#') {
     return (
-      <button {...props} onClick={props.onClick}>
+      <button type="button" {...props} onClick={props.onClick}>
         {children}
       </button>
     );

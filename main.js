@@ -1,25 +1,15 @@
-// main.js - Updated to fix REACT_017 accessibility warning
-
-// Initialize rotation state
-let isRotated = false;
+// main.js
 
 // Handle rotate button click
 document.getElementById('rotate').addEventListener('click', function() {
     const content = document.getElementById('content');
-    if (isRotated) {
-        content.style.transform = 'rotate(0deg)';
-        isRotated = false;
-    } else {
-        content.style.transform = 'rotate(90deg)';
-        isRotated = true;
-    }
+    content.style.transform = 'rotate(90deg)';
 });
 
 // Handle unrotate button click (using button element for accessibility)
 document.getElementById('unrotate').addEventListener('click', function() {
     const content = document.getElementById('content');
     content.style.transform = 'rotate(0deg)';
-    isRotated = false;
 });
 
 // Sample content
@@ -34,3 +24,13 @@ if (content) {
         </main>
     `;
 }
+
+function getPendingUpdates() {
+  return [
+    { package: 'eslint', version: '^10.0.0' },
+    { package: 'jest', version: '^30.0.0' },
+    { package: 'typescript', version: '^7.0.0' },
+    { package: 'react', version: '^19.0.0' ],
+  ];
+}
+module.exports = { getPendingUpdates };

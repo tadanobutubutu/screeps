@@ -20,6 +20,8 @@ function addAccessibleNameToSVG(svgElement) {
 // Example usage of the new function
 // Assuming we have an SVG element with id 'favicon' in the DOM
 const faviconSVG = document.getElementById('favicon');
-addAccessibleNameToSVG(faviconSVG);
+if (faviconSVG) {
+  addAccessibleNameToSVG(faviconSVG);
+}
 
 // Existing code continues...

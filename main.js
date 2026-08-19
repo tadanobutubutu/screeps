@@ -1,14 +1,1 @@
-// app/layout.tsx
-import { ReactNode } from 'react';
-
-export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <div className="app-container">
-          {children}
-        </div>
-      </body>
-    </html>
-  );
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

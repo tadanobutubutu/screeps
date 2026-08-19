@@ -39,7 +39,7 @@ function addScopeToRowHeaders(content) {
 function fixTableHeadersAccessibility(content) {
   // Match any <th> without scope attribute
   const thWithoutScope = /<th(?![^>]*\bscope=)[^>]*>/gi;
-  
+
   return content.replace(thWithoutScope, (match) => {
     return match.replace(/^<th/, '<th scope="col"');
   });
@@ -55,10 +55,42 @@ function validateTableHeaders(content) {
   return !thWithoutScope.test(content);
 }
 
+/**
+ * Ensures only one <main> element is present in the component
+ * @param {string} content - JSX content to validate
+ * @returns {string} - Content with only one <main> element
+ */
+function ensureSingleMainElement(content) {
+  // Count the number of <main> elements
+  const mainCount = (content.match(/<main\b[^>]*>/gi) || []).length;
+
+  if (mainCount > 1) {
+    // Replace all but the first <main> with <section>
+    return content.replace(/<main\b[^>]*>/gi, (match, index) => {
+      if (index === 0) return match; // Keep the first <main>
+      return match.replace(/<main/, '<section');
+    });
+  }
+
+  return content;
+}
+
+/**
+ * Validates that only one <main> element is present
+ * @param {string} content - JSX content to validate
+ * @returns {boolean} - True if only one <main> element is present
+ */
+function validateSingleMainElement(content) {
+  const mainCount = (content.match(/<main\b[^>]*>/gi) || []).length;
+  return mainCount <= 1;
+}
+
 // Export all functions
 module.exports = {
   addScopeToColumnHeaders,
   addScopeToRowHeaders,
   fixTableHeadersAccessibility,
-  validateTableHeaders
+  validateTableHeaders,
+  ensureSingleMainElement,
+  validateSingleMainElement
 };

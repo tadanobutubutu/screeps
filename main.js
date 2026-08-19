@@ -33,9 +33,9 @@ const Layout = ({ children }) => {
 
 export function renderMainContent(content) {
   return (
-    <main className="main-content">
+    <section className="main-content">
       {content}
-    </main>
+    </section>
   );
 };
 
@@ -91,9 +91,9 @@ function Main() {
     <>
       <h1>My Page</h1>
       <MyTable />
-      <main id="main-content">
+      <section id="main-content">
         {/* Component content here */}
-      </main>
+      </section>
       <footer id="footer">
         {/* Footer content here */}
       </footer>

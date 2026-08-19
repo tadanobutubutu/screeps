@@ -106,5 +106,78 @@ const ensureHtmlLangAttribute = (htmlContent) => {
   return htmlContent.substring(0, htmlStart + 5) + ' lang="en"' + htmlContent.substring(htmlStart + 5);
 };
 
-// Export the main landmark components, SVG accessibility function, and HTML lang attribute function
-export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, ConditionalMainLandmark, ensureHtmlLangAttribute };
+// Add function to add scope attributes to table headers for accessibility
+const addTableHeaderScopes = (tableElement) => {
+  // If table already has scope attributes, return as is
+  if (tableElement.props.children?.some(row =>
+    row.props.children?.some(cell =>
+      cell.type === 'th' && (cell.props.scope === 'col' || cell.props.scope === 'row')
+    )
+  )) {
+    return tableElement;
+  }
+
+  // Clone the table and add scope attributes to headers
+  return React.cloneElement(tableElement, {
+    children: React.Children.map(tableElement.props.children, (row, rowIndex) => {
+      if (rowIndex === 0) {
+        // First row is typically headers - add scope="col"
+        return React.cloneElement(row, {
+          children: React.Children.map(row.props.children, (cell) => {
+            if (cell.type === 'th') {
+              return React.cloneElement(cell, { scope: 'col' });
+            }
+            return cell;
+          })
+        });
+      }
+
+      // Other rows - check if they have th elements and add scope="row" if needed
+      return React.cloneElement(row, {
+        children: React.Children.map(row.props.children, (cell) => {
+          if (cell.type === 'th') {
+            return React.cloneElement(cell, { scope: 'row' });
+          }
+          return cell;
+        })
+      });
+    })
+  });
+};
+
+// Add function to create accessible tables with proper header associations
+const createAccessibleTable = ({ headers, data, caption }) => {
+  return (
+    <table>
+      {caption && <caption>{caption}</caption>}
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex} headers={`header-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+// Export the main landmark components, SVG accessibility function, HTML lang attribute function,
+// and new table accessibility functions
+export {
+  MainLandmark,
+  addMainLandmarkToHTML,
+  makeSvgAccessible,
+  ConditionalMainLandmark,
+  ensureHtmlLangAttribute,
+  addTableHeaderScopes,
+  createAccessibleTable
+};

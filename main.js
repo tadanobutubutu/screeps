@@ -14,4 +14,14 @@ describe('docs/dependency-graph.html', () => {
       expect(th.getAttribute('scope')).toBeDefined();
     });
   });
+
+  it('should not use hash-only href for interactive elements', () => {
+    const htmlContent = fs.readFileSync(path.join(__dirname, 'docs', 'dependency-graph.html'), 'utf8');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+
+    // Check for any <a> elements with href="#"
+    const fakeLinks = doc.querySelectorAll('a[href="#"]');
+    expect(fakeLinks.length).toBe(0);
+  });
 });

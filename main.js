@@ -6,7 +6,7 @@ import App from './App';
 // For app/root.tsx
 const AppLayout = ({ children }) => (
   <body lang="en" className="min-h-screen flex flex-col">
-    <main>{children}</main>
+    <main className="flex-1">{children}</main>
   </body>
 );
 

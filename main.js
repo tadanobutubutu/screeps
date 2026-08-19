@@ -29,6 +29,7 @@ const AccessibleApp = ({ children }) => {
 const AccessibleTable = ({ data }) => {
   return (
     <table>
+      <caption>Table Caption</caption>
       <thead>
         <tr>
           <th scope="col">Header 1</th>
@@ -50,7 +51,7 @@ const AccessibleTable = ({ data }) => {
 // Example of accessible SVG
 const AccessibleSVG = () => {
   return (
-    <svg role="img" aria-label="Description of the image">
+    <svg role="img" aria-label="Description of the image" aria-hidden="false">
       {/* SVG content */}
     </svg>
   );

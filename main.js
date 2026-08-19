@@ -38,5 +38,34 @@ function updateReact() {
 // Call the new function
 updateReact();
 
+// New function to ensure SVG elements have accessible names
+function ensureSvgAccessibility() {
+  // Find all SVG elements in the document
+  const svgs = document.querySelectorAll('svg');
+
+  svgs.forEach(svg => {
+    // If SVG doesn't have an accessible name, add aria-hidden="true" if decorative
+    // or add a title element if it should be announced
+    if (!svg.getAttribute('aria-label') &&
+        !svg.querySelector('title') &&
+        !svg.getAttribute('aria-hidden')) {
+
+      // Check if SVG is decorative (no semantic meaning)
+      if (svg.getAttribute('role') === 'presentation' ||
+          svg.parentElement?.getAttribute('aria-hidden') === 'true') {
+        svg.setAttribute('aria-hidden', 'true');
+      } else {
+        // Add a title element if SVG should be announced
+        const title = document.createElement('title');
+        title.textContent = 'Graphic element';
+        svg.insertBefore(title, svg.firstChild);
+      }
+    }
+  });
+}
+
+// Call the new function to ensure SVG accessibility
+ensureSvgAccessibility();
+
 // Export the existing functions, if any, with their original names
 /* ... */

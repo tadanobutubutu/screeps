@@ -1,10 +1,5 @@
-// Main entry point for the application
-// This file serves as the JavaScript entry point
-
-// Export any necessary functions or initialize the application
-function initializeApp() {
-  console.log('Application initialized');
-}
+element.innerHTML = '<button id="unrotate">rotate back</button>';
+// OR in a template: `<button id="unrotate">rotate back</button>`
 
 // Auto-initialize if in browser environment
 if (typeof window !== 'undefined') {
@@ -82,6 +77,20 @@ function ensureAccessibility() {
       link.replaceWith(anchor);
     }
   });
+
+  // Add click handler for the rotate button
+  const unrotateBtn = document.getElementById('unrotate');
+  if (unrotateBtn) {
+    unrotateBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      // Insert rotation logic here when available
+    });
+  }
+}
+
+// Initialize app function to ensure accessibility
+function initializeApp() {
+  ensureAccessibility();
 }
 
 // Call accessibility function when DOM is loaded

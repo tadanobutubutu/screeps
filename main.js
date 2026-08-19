@@ -189,15 +189,50 @@ function fixSvgAccessibility() {
   console.log('SVG accessibility fixed - all SVGs now have proper accessibility attributes');
 }
 
+// Add the new function to fix React Language Attribute (REACT_015)
+function fixReactLanguageAttribute() {
+  const fs = require('fs');
+  const path = require('path');
+
+  // File that needs language attribute fix
+  const fileToFix = 'docs/dependency-graph.html';
+
+  try {
+    const filePath = path.join(process.cwd(), fileToFix);
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, 'utf8');
+
+      // Check if the html tag already has a lang attribute
+      if (!content.includes('<html lang=')) {
+        // Add lang="en" to the html tag
+        content = content.replace(/<html>/i, '<html lang="en">');
+        console.log(`Fixed: Added lang="en" attribute to html tag in ${fileToFix}`);
+
+        fs.writeFileSync(filePath, content, 'utf8');
+      } else {
+        console.log(`No fix needed: html tag already has lang attribute in ${fileToFix}`);
+      }
+    } else {
+      console.log(`File not found: ${fileToFix}`);
+    }
+  } catch (error) {
+    console.error(`Error fixing language attribute in ${fileToFix}:`, error.message);
+  }
+
+  console.log('React language attribute fixed - html tag now has lang attribute');
+}
+
 // Call the function if needed
 // fixMainLandmarks();
 // fixSvgAccessibility();
 // fixReactLandmarks();
+// fixReactLanguageAttribute();
 
 // Export for use in other modules
 module.exports = {
   fixTableHeaders,
   fixMainLandmarks,
   fixSvgAccessibility,
-  fixReactLandmarks
+  fixReactLandmarks,
+  fixReactLanguageAttribute
 };

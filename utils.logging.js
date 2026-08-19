@@ -139,7 +139,8 @@ function log(arg1, arg2) {
         ? LOG_EMOJIS[level]
         : DEFAULT_EMOJI;
     const escaped = _escapeHTML(redacted);
-    }
+    console.log(emoji + ' [' + level + '] ' + escaped);
+}
 
 function error(msg) {
     log(msg, 'error');

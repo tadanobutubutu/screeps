@@ -1,4 +1,4 @@
-const utilsMemory = require('utils.memory');
+const utilsMemory = require('./utils.memory');
 
 /**
  * Security: Limits for memory-intensive structures to prevent Memory DoS.

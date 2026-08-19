@@ -1,19 +1,3 @@
-// Before:
-import React from 'react';
-
-function DependencyGraph() {
-  return (
-    <div>
-      {/* Existing content */}
-      <a id="unrotate" href="#">rotate back</a>
-      {/* More content */}
-    </div>
-  );
-}
-
-export default DependencyGraph;
-
-// After:
 import React from 'react';
 
 function DependencyGraph() {

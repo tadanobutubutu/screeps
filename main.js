@@ -1,15 +1,12 @@
-// app/layout.tsx
-import { ReactNode } from 'react';
+import React from 'react';
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+const Layout: React.FC = ({ children }) => {
   return (
-    <html lang="en">
-      <body>
-        <main>{children}</main>
-      </body>
-    </html>
+    <main>
+      {children}
+    </main>
   );
-}
+};
 
 // New component for the rotate back button
 export function RotateBackButton({ onClick }: { onClick: () => void }) {
@@ -37,3 +34,5 @@ export function DocsIndexPage({ children }: { children: ReactNode }) {
     </main>
   );
 }
+
+export default Layout;

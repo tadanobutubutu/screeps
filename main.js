@@ -26,3 +26,19 @@ const container = document.getElementById('controls');
 if (container) {
   container.appendChild(createUnrotateButton());
 }
+
+// Add main landmark to HTML structure
+document.addEventListener('DOMContentLoaded', () => {
+  const mainElement = document.createElement('main');
+  const body = document.body;
+  const children = Array.from(body.children);
+
+  // Move all existing content into the main element
+  children.forEach(child => {
+    if (child.id !== 'main') { // Skip if already a main element
+      mainElement.appendChild(child);
+    }
+  });
+
+  body.appendChild(mainElement);
+});

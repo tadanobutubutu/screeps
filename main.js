@@ -153,7 +153,7 @@ const createAccessibleTable = ({ headers, data, caption }) => {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} scope="col" id={`header-${index}`}>{header}</th>
           ))}
         </tr>
       </thead>
@@ -170,6 +170,74 @@ const createAccessibleTable = ({ headers, data, caption }) => {
   );
 };
 
+// Add function to add ARIA landmarks to HTML elements
+const addAriaLandmarks = (htmlContent) => {
+  // Add header landmark if not present
+  if (!htmlContent.includes('<header')) {
+    const bodyStart = htmlContent.indexOf('<body>');
+    if (bodyStart !== -1) {
+      htmlContent = htmlContent.substring(0, bodyStart + 6) +
+        '<header role="banner"></header>' +
+        htmlContent.substring(bodyStart + 6);
+    }
+  }
+
+  // Add navigation landmark if not present
+  if (!htmlContent.includes('<nav')) {
+    const headerEnd = htmlContent.indexOf('</header>');
+    if (headerEnd !== -1) {
+      htmlContent = htmlContent.substring(0, headerEnd) +
+        '<nav role="navigation"></nav>' +
+        htmlContent.substring(headerEnd);
+    }
+  }
+
+  // Add footer landmark if not present
+  if (!htmlContent.includes('<footer')) {
+    const bodyEnd = htmlContent.indexOf('</body>');
+    if (bodyEnd !== -1) {
+      htmlContent = htmlContent.substring(0, bodyEnd) +
+        '<footer role="contentinfo"></footer>' +
+        htmlContent.substring(bodyEnd);
+    }
+  }
+
+  return htmlContent;
+};
+
+// Add function to handle fake links (buttons styled as links)
+const handleFakeLinks = (htmlContent) => {
+  // Convert anchor tags with onclick handlers to buttons
+  return htmlContent.replace(
+    /<a\s+[^>]*onclick="[^"]*"[^>]*>(.*?)<\/a>/gi,
+    '<button onclick="$1">$2</button>'
+  );
+};
+
+// Add function to ensure proper heading hierarchy
+const ensureHeadingHierarchy = (htmlContent) => {
+  const headingRegex = /<h([1-6])[^>]*>(.*?)<\/h\1>/gi;
+  let currentLevel = 0;
+  let lastLevel = 0;
+
+  return htmlContent.replace(headingRegex, (match, level, content) => {
+    level = parseInt(level, 10);
+
+    // If heading is higher than previous, reset current level
+    if (level < lastLevel) {
+      currentLevel = level - 1;
+    }
+
+    // If heading is same or lower level, increment current level
+    if (level >= lastLevel) {
+      currentLevel = level;
+    }
+
+    lastLevel = currentLevel;
+    return `<h${currentLevel}>${content}</h${currentLevel}>`;
+  });
+};
+
 // Export the main landmark components, SVG accessibility function, HTML lang attribute function,
 // and new table accessibility functions
 export {
@@ -179,5 +247,8 @@ export {
   ConditionalMainLandmark,
   ensureHtmlLangAttribute,
   addTableHeaderScopes,
-  createAccessibleTable
+  createAccessibleTable,
+  addAriaLandmarks,
+  handleFakeLinks,
+  ensureHeadingHierarchy
 };

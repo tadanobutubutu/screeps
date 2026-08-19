@@ -1,4 +1,5 @@
 // main.js
+
 // Preserve all existing code and exports from current main.js
 // Add new functions or changes requested in the issue
 
@@ -38,58 +39,112 @@ const reactDom = require('react-dom');
 // Add new exports if needed
 export { eslintConfig, jestConfig, tsConfig };
 
-// Add main landmark components for React accessibility
-const MainLandmark = ({ children }) => {
-  return <main>{children}</main>;
-};
+// Import and modify the Dashboard component
+import React, { useState, useEffect } from 'react';
 
-// Add main landmark for HTML files
-const addMainLandmarkToHTML = (htmlContent) => {
-  // Check if main landmark already exists
-  if (htmlContent.includes('<main>')) {
-    return htmlContent;
+const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
+
+  const copyErr = () => {
+    navigator.clipboard.writeText(error);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (error) {
+    // Add main landmark for React accessibility
+    return (
+      <MainLandmark>
+        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          <button
+            onClick={copyErr}
+            onMouseEnter={() => setErrCopyHover(true)}
+            onMouseLeave={() => setErrCopyHover(false)}
+            onFocus={() => setErrCopyHover(true)}
+            onBlur={() => setErrCopyHover(false)}
+            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+            title={copied ? 'コピー済み' : 'エラーをコピー'}
+            style={{
+              backgroundColor: copied ? '#155d27' : '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errCopyHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          </button>
+          <button
+            onClick={() => fetchStats(true)}
+            disabled={refreshing}
+            onMouseEnter={() => setErrRetryHover(true)}
+            onMouseLeave={() => setErrRetryHover(false)}
+            aria-label="再試行"
+            title="再試行"
+            style={{
+              backgroundColor: '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errRetryHover ? 'brightness(1.1)' : 'none',
+              marginLeft: '1rem'
+            }}
+          >
+            {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+          </button>
+        </div>
+      </MainLandmark>
+    );
   }
 
-  // Find the body tag and wrap content in main
-  const bodyStart = htmlContent.indexOf('<body>');
-  if (bodyStart === -1) return htmlContent;
+  // Add main landmark for static HTML files without React
+  const addMainLandmarkToHTML = (htmlContent) => {
+    if (htmlContent.includes('<main>')) return htmlContent;
 
-  const bodyEnd = htmlContent.indexOf('</body>', bodyStart);
-  if (bodyEnd === -1) return htmlContent;
+    const bodyStart = htmlContent.indexOf('<body>');
+    if (bodyStart === -1) return htmlContent;
 
-  const contentBefore = htmlContent.substring(0, bodyStart + 6);
-  const contentAfter = htmlContent.substring(bodyEnd);
+    const bodyEnd = htmlContent.indexOf('</body>', bodyStart);
+    if (bodyEnd === -1) return htmlContent;
 
-  return `${contentBefore}<main>${htmlContent.substring(bodyStart + 6, bodyEnd)}</main>${contentAfter}`;
-};
+    const contentBefore = htmlContent.substring(0, bodyStart + 6);
+    const contentAfter = htmlContent.substring(bodyEnd);
 
-// Add function to handle SVG accessibility
-const makeSvgAccessible = (svgElement) => {
-  // If SVG is decorative, add aria-hidden
-  if (svgElement.props.decorative) {
-    return React.cloneElement(svgElement, { 'aria-hidden': 'true' });
-  }
+    return `${contentBefore}<main>${htmlContent.substring(bodyStart + 6, bodyEnd)}</main>${contentAfter}`;
+  };
 
-  // If SVG has a title, keep it as is
-  if (svgElement.props.children && React.Children.toArray(svgElement.props.children).some(child =>
-    child.type === 'title' || child.props?.['aria-label']
-  )) {
-    return svgElement;
-  }
+  // Export the additional function (this was added after the HTML function)
+  export { addMainLandmarkToHTML };
 
-  // Otherwise, add a default aria-label
-  return React.cloneElement(svgElement, {
-    'aria-label': svgElement.props['aria-label'] || 'Graphic element'
-  });
-};
+  // Rest of the existing Dashboard code
+  ...
 
-// Add function to safely render main landmark in conditional rendering scenarios
-const ConditionalMainLandmark = ({ children, condition, fallback }) => {
-  if (condition) {
-    return <main>{children}</main>;
-  }
-  return fallback ? <section>{fallback}</section> : null;
-};
-
-// Export the main landmark components and SVG accessibility function
-export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, ConditionalMainLandmark };
+  // Export the updated Dashboard component and the new functions
+  export default Dashboard;
+  export { makeSvgAccessible, ConditionalMainLandmark };

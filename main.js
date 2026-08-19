@@ -26,10 +26,10 @@ function addUpdate(type, name, currentVersion, newVersion, options = {}) {
         changeType: options.changeType || 'chore',
         scheduled: options.scheduled || false
     };
-    
+
     const key = `${type}:${name}`;
     pendingUpdates.set(key, update);
-    
+
     return update;
 }
 
@@ -84,13 +84,13 @@ function getBlockedUpdates() {
 function triggerUpdate(type, name) {
     const key = `${type}:${name}`;
     const update = pendingUpdates.get(key);
-    
+
     if (update && update.status === 'awaiting-schedule') {
         update.status = 'pending';
         update.scheduled = false;
         return update;
     }
-    
+
     return null;
 }
 
@@ -101,7 +101,7 @@ function triggerUpdate(type, name) {
 function createAllAwaitingPRs() {
     const awaitingPRs = getAwaitingScheduleUpdates();
     const createdPRs = [];
-    
+
     for (const update of awaitingPRs) {
         update.status = 'pending';
         update.scheduled = false;
@@ -112,7 +112,7 @@ function createAllAwaitingPRs() {
             changeType: update.changeType
         });
     }
-    
+
     return createdPRs;
 }
 
@@ -139,7 +139,7 @@ function processUpdates(updates) {
         skipped: 0,
         errors: []
     };
-    
+
     for (const update of updates) {
         try {
             if (!update.name || !update.newVersion) {
@@ -150,12 +150,12 @@ function processUpdates(updates) {
                 results.skipped++;
                 continue;
             }
-            
+
             addUpdate(update.type, update.name, update.currentVersion, update.newVersion, {
                 status: update.status || 'awaiting-schedule',
                 changeType: update.changeType || 'chore'
             });
-            
+
             results.processed++;
         } catch (error) {
             results.errors.push({
@@ -165,7 +165,7 @@ function processUpdates(updates) {
             results.skipped++;
         }
     }
-    
+
     return results;
 }
 
@@ -175,27 +175,131 @@ function initializeDashboard() {
     addUpdate('action', 'google/osv-scanner-action', 'v2.5.0', 'v2.5.1', {
         changeType: 'chore'
     });
-    
+
     // NPM updates
     addUpdate('npm', 'typescript', '^5.7.3', '^7.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'react', '^18.2.0', '^19.0.0', {
         changeType: 'fix'
     });
-    
+
     addUpdate('npm', 'jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'eslint', '^8.47.0', '^10.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'babel-jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
+}
+
+/**
+ * Creates an accessible table structure
+ * @param {Array} headers - Array of header strings
+ * @param {Array} rows - Array of row data arrays
+ * @returns {Object} Table structure with accessibility attributes
+ */
+function createAccessibleTable(headers, rows) {
+    return {
+        role: 'table',
+        'aria-label': 'Dependency updates table',
+        headers: headers.map((header, index) => ({
+            role: 'columnheader',
+            id: `header-${index}`,
+            children: header
+        })),
+        rows: rows.map((row, rowIndex) => ({
+            role: 'row',
+            cells: row.map((cell, cellIndex) => ({
+                role: 'cell',
+                'aria-describedby': `header-${cellIndex}`,
+                children: cell
+            }))
+        }))
+    };
+}
+
+/**
+ * Creates an accessible SVG element
+ * @param {string} title - Accessible title for the SVG
+ * @param {string} description - Accessible description
+ * @param {Object} svgProps - SVG properties
+ * @returns {Object} Accessible SVG structure
+ */
+function createAccessibleSVG(title, description, svgProps) {
+    return {
+        svg: {
+            ...svgProps,
+            role: 'img',
+            'aria-label': `${title}. ${description}`
+        },
+        title: {
+            role: 'title',
+            children: title
+        },
+        description: {
+            role: 'description',
+            children: description
+        }
+    };
+}
+
+/**
+ * Creates an accessible link
+ * @param {string} text - Link text
+ * @param {string} href - Link URL
+ * @param {Object} props - Additional link properties
+ * @returns {Object} Accessible link structure
+ */
+function createAccessibleLink(text, href, props = {}) {
+    return {
+        role: 'link',
+        href,
+        'aria-label': text,
+        ...props,
+        children: text
+    };
+}
+
+/**
+ * Adds ARIA landmarks to the dashboard structure
+ * @param {Object} dashboard - Dashboard structure
+ * @returns {Object} Dashboard with ARIA landmarks
+ */
+function addLandmarks(dashboard) {
+    return {
+        ...dashboard,
+        header: {
+            role: 'banner',
+            ...dashboard.header
+        },
+        main: {
+            role: 'main',
+            ...dashboard.main
+        },
+        footer: {
+            role: 'contentinfo',
+            ...dashboard.footer
+        }
+    };
+}
+
+/**
+ * Sets the language attribute for the dashboard
+ * @param {Object} dashboard - Dashboard structure
+ * @param {string} lang - Language code
+ * @returns {Object} Dashboard with language attribute
+ */
+function setLanguage(dashboard, lang = 'en') {
+    return {
+        ...dashboard,
+        lang
+    };
 }
 
 module.exports = {
@@ -209,7 +313,12 @@ module.exports = {
     validateActionVersion,
     processUpdates,
     initializeDashboard,
-    pendingUpdates
+    pendingUpdates,
+    createAccessibleTable,
+    createAccessibleSVG,
+    createAccessibleLink,
+    addLandmarks,
+    setLanguage
 };
 
 // Auto-initialize if running directly

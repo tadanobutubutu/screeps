@@ -28,6 +28,22 @@ const mainJSContent = `
     </tbody>
   </table>
 
+  <!-- Updated table with scope attributes for accessibility -->
+  <table>
+    <thead>
+      <tr>
+        <th scope="col"><div>src/constants.js</div></th>
+        <th scope="col"><div>src/managers/roomManager.js</div></th>
+        <th scope="col"><div>src/managers/spawnManager.js</div></th>
+        <th scope="col"><div>src/managers/towerManager.js</div></th>
+        <th scope="col"><div>src/roles/builder.js</div></th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Table body content would go here -->
+    </tbody>
+  </table>
+
   <!-- ... other content ... -->
 </body>
 </html>

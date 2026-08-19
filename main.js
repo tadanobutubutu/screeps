@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 
 // REACT_036 Fix: Changed <a href="#"> to <button>
-// 
+//
 // BEFORE:
 // <a id="unrotate" href="#">rotate back</a>
-// 
+//
 // AFTER:
 // <button id="unrotate">rotate back</button>
 
@@ -46,6 +46,9 @@ if (typeof module !== 'undefined' && module.exports) {
     }
   };
 }
+
+// Add lang attribute to HTML element for accessibility
+document.documentElement.lang = 'en';
 
 const root = createRoot(document.getElementById('root'));
 

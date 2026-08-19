@@ -1,4 +1,10 @@
-// main.js - Accessibility improved version
+{
+  "messages": [
+    {
+      "type": "informational",
+      "content": "The resolved file preserves the React-based implementation with accessibility features from the HEAD branch, as it aligns with typical Screeps bot web interfaces. The feature branch's non-React structure appears incompatible with the existing React components."
+    }
+ // main.js - Accessibility improved version
 
 import React from 'react';
 

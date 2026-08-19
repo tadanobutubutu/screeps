@@ -34,6 +34,6 @@ const Layout = ({ children }) => {
 export { existingFunction, Layout };
 
 // Initialize app
-const container = document.getElementById('root');
+const container = ...
 const root = createRoot(container);
 root.render(<Layout><App /></Layout>);

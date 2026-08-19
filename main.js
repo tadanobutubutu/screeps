@@ -1,5 +1,6 @@
 // main.js - Accessibility improved version
 
+
 import React from 'react';
 
 // Example: Fixed React Language Attribute (REACT_015)
@@ -16,7 +17,7 @@ const AccessibleTable = ({ data }) => (
       </tr>
     </thead>
     <tbody>
-      {data.map((row, index) => (
+      {data. map((row, index) => (
         <tr key={index}>
           <th scope="row">{row.header}</th>
           <td>{row.cell1}</td>
@@ -54,7 +55,7 @@ const MainContent = ({ children }) => (
 const Navigation = ({ links }) => (
   <nav aria-label="Main navigation">
     <ul>
-      {links.map((link, index) => (
+      {links. map((link, index) => (
         <li key={index}>
           <a href={link.href}>{link.label}</a>
         </li>
@@ -88,6 +89,37 @@ const RealLink = ({ href, children }) => (
   <a href={href} role="button">
     {children}
   </a>
+);
+
+// Example: Fixed React Unique Landmarks (REACT_025)
+// BEFORE: Multiple <main> landmarks in different return paths (violation)
+// AFTER: Single <main> landmark wrapping conditional content (fixed)
+
+// BAD: Component with multiple <main> landmarks in different branches
+const BadDataDisplay = ({ hasError, errorMessage, data }) => {
+  if (hasError) {
+    return (
+      <main role="main">
+        <p>Error: {errorMessage}</p>
+      </main>
+    );
+  }
+  return (
+    <main role="main">
+      <p>Data: {data}</p>
+    </main>
+  );
+};
+
+// GOOD: Component with single <main> landmark wrapping conditional content
+const DataDisplay = ({ hasError, errorMessage, data }) => (
+  <main role="main">
+    {hasError ? (
+      <p>Error: {errorMessage}</p>
+    ) : (
+      <p>Data: {data}</p>
+    )}
+  </main>
 );
 
 // Main App Component with proper landmark structure
@@ -139,7 +171,9 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  DataDisplay,
+  BadDataDisplay
 };
 
 export default App;

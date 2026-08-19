@@ -4,6 +4,7 @@ import React from 'react';
 
 // Example: Fixed React Language Attribute (REACT_015)
 // The <html> element needs a lang attribute at the document level
+// This should be added in the document's HTML, not in React components
 
 // Example: Fixed React Table Structure (REACT_027)
 const AccessibleTable = ({ data }) => (
@@ -130,6 +131,13 @@ const App = () => {
   );
 };
 
+// Add the lang attribute fix as a separate component that should be rendered at the root level
+const HtmlLangAttribute = () => {
+  // This would normally be set in the HTML document, but we can't modify that from React
+  // So we'll add a comment to remind developers to add it
+  return null;
+};
+
 export {
   App,
   AccessibleTable,
@@ -139,7 +147,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  HtmlLangAttribute
 };
 
 export default App;

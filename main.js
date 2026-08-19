@@ -1,13 +1,1 @@
-// main.js
-// [Existing code remains unchanged]
-
-// New function to handle rotation back action
-function handleRotateBack() {
-  // Implement your rotation back logic here
-  console.log('Rotating back');
-}
-
-// [Rest of existing code remains unchanged]
-
-// Export all existing exports
-// [Existing exports remain unchanged]
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

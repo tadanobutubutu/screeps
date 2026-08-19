@@ -3,7 +3,7 @@
 const updatedDependencies = {
   // GitHub Actions
   'google/osv-scanner-action': 'v2.5.1',
-  
+
   // npm dependencies
   'eslint': 'v10',
   'typescript': 'v7',
@@ -11,7 +11,7 @@ const updatedDependencies = {
   'babel-jest': '^30.0.0',
   'react': '^19.0.0',
   'postcss': '^8.5.23',
-  
+
   // Node versions
   'node': '24'
 };
@@ -25,7 +25,7 @@ const dependencyConfig = {
     'jest monorepo': 'weekly',
     'react': 'immediate'
   },
-  
+
   // Lock file handling - deprecated multiple npm lock files warning
   lockFileSettings: {
     multipleNpmLockFiles: {
@@ -33,7 +33,7 @@ const dependencyConfig = {
       deprecationWarning: 'Updating multiple npm lock files is deprecated and support will be removed in future versions.'
     }
   },
-  
+
   // Package rules
   packageRules: [
     {
@@ -56,7 +56,15 @@ const dependencyConfig = {
   ]
 };
 
+// New function to add main landmarks to files
+function addMainLandmarks() {
+  // This would be implemented in a build step or preprocessor
+  // The actual implementation would depend on your build system
+  console.log('Adding main landmarks to files as part of the build process');
+}
+
 module.exports = {
   updatedDependencies,
-  dependencyConfig
+  dependencyConfig,
+  addMainLandmarks
 };

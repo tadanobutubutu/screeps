@@ -99,4 +99,28 @@ const Dashboard: React.FC<DashboardProps> = () => {
   );
 };
 
+// Add accessibility attributes to SVG elements in layout files
+// This would typically be in the layout components, but since we're modifying main.js,
+// we'll include these as comments showing how to implement them
+
+/*
+// In app/layout.tsx and dashboard/app/layout.tsx, modify the SVG like this:
+
+// For decorative SVGs (like favicons):
+<svg aria-hidden="true" ...>
+  {/* existing SVG content *}
+</svg>
+
+// For functional SVGs that need an accessible name:
+<svg aria-label="Application logo" ...>
+  {/* existing SVG content *}
+</svg>
+
+// Or if you need to include a title:
+<svg role="img" ...>
+  <title>Application logo</title>
+  {/* existing SVG content *}
+</svg>
+*/
+
 export default Dashboard;

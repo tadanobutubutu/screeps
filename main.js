@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
 
-// For app/root.tsx
+// For app/root.tsx and docs/app/index.tsx
 const AppLayout = ({ children }) => (
   <body lang="en" className="min-h-screen flex flex-col">
     <main>{children}</main>
@@ -59,7 +59,9 @@ const DocsIndex = () => (
 const root = ...
 root.render(
   <React.StrictMode>
-    <App />
+    <AppLayout>
+      <App />
+    </AppLayout>
   </React.StrictMode>
 );
 

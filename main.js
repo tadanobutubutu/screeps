@@ -69,5 +69,14 @@ const DependencyDashboard = ({ dependencies }) => {
   );
 };
 
+// New function to render favicon SVG with accessibility attributes
+const FaviconSVG = () => {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 100 100">
+      {/* SVG content would go here */}
+    </svg>
+  );
+};
+
 export default TableComponent;
-export { handleDependencyUpdates, DependencyDashboard };
+export { handleDependencyUpdates, DependencyDashboard, FaviconSVG };

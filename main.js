@@ -96,6 +96,10 @@ function fixReactFakeLink() {
   // The actual fix would be applied in the dependency-graph.html file
   // For example:
   // <button id="unrotate">rotate back</button>
+
+  // Note: Since this is a static HTML file, the actual fix would need to be
+  // applied directly to the HTML file rather than through this function.
+  // This function serves as documentation of the required change.
 }
 
 // New function to fix React Table Structure issue (REACT_027)

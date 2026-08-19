@@ -34,6 +34,42 @@ export function DashboardLayout({ children }) {
   );
 }
 
+// New table component with proper scope attributes
+export function DependencyTable() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">File Path</th>
+          <th scope="col">Dependencies</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">src/constants.js</th>
+          <td>Various constants used throughout the application</td>
+        </tr>
+        <tr>
+          <th scope="row">src/managers/roomManager.js</th>
+          <td>Room management logic</td>
+        </tr>
+        <tr>
+          <th scope="row">src/managers/spawnManager.js</th>
+          <td>Spawn point management</td>
+        </tr>
+        <tr>
+          <th scope="row">src/managers/towerManager.js</th>
+          <td>Tower defense logic</td>
+        </tr>
+        <tr>
+          <th scope="row">src/roles/builder.js</th>
+          <td>Builder role implementation</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 // Existing initialization code (preserved)
 const container = document.getElementById('root');
 const root = createRoot(container);

@@ -32,9 +32,27 @@ function makeSvgAccessible(svgElement) {
   }
 }
 
+// Function to ensure only one main element exists in the document
+function ensureSingleMainElement() {
+  const mains = document.getElementsByTagName('main');
+  if (mains.length > 1) {
+    // Convert HTMLCollection to array for easier manipulation
+    const mainArray = Array.from(mains);
+
+    // Keep the first main element and remove others
+    mainArray.slice(1).forEach(main => {
+      // Replace main with section to maintain document structure
+      const section = document.createElement('section');
+      section.innerHTML = main.innerHTML;
+      main.replaceWith(section);
+    });
+  }
+}
+
 // Export the new functions
 module.exports = {
   handleNewEvent,
   renderDashboard,
-  makeSvgAccessible
+  makeSvgAccessible,
+  ensureSingleMainElement
 };

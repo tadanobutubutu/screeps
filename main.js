@@ -91,5 +91,20 @@ const ConditionalMainLandmark = ({ children, condition, fallback }) => {
   return fallback ? <section>{fallback}</section> : null;
 };
 
-// Export the main landmark components and SVG accessibility function
-export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, ConditionalMainLandmark };
+// Add function to ensure HTML has language attribute
+const ensureHtmlLangAttribute = (htmlContent) => {
+  // Check if html tag already has lang attribute
+  if (htmlContent.includes('<html lang=')) {
+    return htmlContent;
+  }
+
+  // Find the html tag and add lang attribute
+  const htmlStart = htmlContent.indexOf('<html');
+  if (htmlStart === -1) return htmlContent;
+
+  // Insert lang attribute right after <html
+  return htmlContent.substring(0, htmlStart + 5) + ' lang="en"' + htmlContent.substring(htmlStart + 5);
+};
+
+// Export the main landmark components, SVG accessibility function, and HTML lang attribute function
+export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, ConditionalMainLandmark, ensureHtmlLangAttribute };

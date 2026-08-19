@@ -83,3 +83,31 @@ function ActionButton({ onClick, label }) {
 }
 
 // ... (rest of your existing code remains unchanged)
+
+// Additional fix for REACT_017: React Landmarks
+// Wrap primary content in <main> landmark
+function Layout({ children }) {
+  return (
+    <main>
+      {children}
+    </main>
+  );
+}
+
+// Update existing layout components to include main landmark
+function AppLayout({ children }) {
+  return (
+    <Layout>
+      {children}
+    </Layout>
+  );
+}
+
+// Update dashboard layout to include main landmark
+function DashboardLayout({ children }) {
+  return (
+    <Layout>
+      {children}
+    </Layout>
+  );
+}

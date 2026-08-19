@@ -3,9 +3,6 @@ import { useRouter } from 'next/router';
 
 // main.js - Updated to fix REACT_036 accessibility warning
 
-// Initialize rotation state
-let isRotated = false;
-
 // Handle rotate button click
 document.getElementById('rotate').addEventListener('click', function() {
     const content = document.getElementById('content');

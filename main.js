@@ -1,11 +1,1 @@
-import React from 'react';
-import ReactDOM from 'react-dom/parent';
-import './index.css';
-import App from './App';
-
-const root = ...
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -2,26 +2,33 @@
 (function() {
     'use strict';
 
-    // Some existing configuration or state
-    const config = {
+    // Imported modules and define local constants
+    const constants = require('./src/constants');
+    const roomManager = require('./src/managers/roomManager');
+    const spawnManager = require('./src/managers/spawnManager');
+    const towerManager = require('./src/managers/towerManager');
+    const builder = require('./src/roles/builder');
+    const { rotation, maxRotation } = constants;
+
+    // Some existing functionality from the conflicted branch
+    let config = {
         rotation: 0,
-        maxRotation: 360
+        maxRotation
     };
 
-    // Function to rotate an element
-    function rotateElement(element, degrees) {
+    // Functions to rotate and reset an element (renamed to match style)
+    function turnElement(element, degrees) {
         if (element) {
             element.style.transform = `rotate(${degrees}deg)`;
             config.rotation = degrees;
         }
     }
 
-    // Function to reset rotation
-    function resetRotation(element) {
-        rotateElement(element, 0);
+    function resetTurn(element) {
+        turnElement(element, 0);
     }
 
-    // Initialize on DOM ready
+    // Initialize on DOM ready (renamed to match style)
     document.addEventListener('DOMContentLoaded', function() {
         const targetElement = document.getElementById('target');
         const unrotateBtn = document.getElementById('unrotate');
@@ -30,7 +37,7 @@
         if (unrotateBtn) {
             unrotateBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                resetRotation(targetElement);
+                resetTurn(targetElement);
             });
         }
 
@@ -39,16 +46,26 @@
         if (rotateBtn) {
             rotateBtn.addEventListener('click', function() {
                 const newRotation = (config.rotation + 90) % config.maxRotation;
-                rotateElement(targetElement, newRotation);
+                turnElement(targetElement, newRotation);
             });
         }
     });
 
-    // Export functions for testing or external use
-    if (typeof module !== 'undefined' && module.exports) {
-        module.exports = {
-            rotateElement,
-            resetRotation
-        };
-    }
+    // Main game loop
+    module.exports.loop = function () {
+        // Game logic here
+        roomManager.run();
+        spawnManager.run();
+        towerManager.run();
+        builder.run();
+    };
+
+    // Export all required modules and added functions
+    module.exports.constants = constants;
+    module.exports.roomManager = roomManager;
+    module.exports.spawnManager = spawnManager;
+    module.exports.towerManager = towerManager;
+    module.exports.builder = builder;
+    module.exports.turnElement = turnElement;
+    module.exports.resetTurn = resetTurn;
 })();

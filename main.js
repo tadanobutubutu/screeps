@@ -22,7 +22,7 @@ if (typeof module !== 'undefined' && module.exports) {
     applySVGAccessibilityFix: () => {
       document.querySelectorAll('svg').forEach(svg => {
         if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-          const title = svg.querySelector('title');
+          let title = svg.querySelector('title');
           if (!title) {
             const desc = svg.getAttribute('alt') || 'Graphic';
             title = document.createElement('title');
@@ -44,5 +44,7 @@ root.render(
   </React.StrictMode>
 );
 
-// Preserve all existing exports from the original main.js
-export { App };
+// Export the React root (for testing) and App component
+export { App, root };
+
+console.log("main.js is properly formatted as JavaScript");

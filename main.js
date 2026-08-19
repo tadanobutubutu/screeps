@@ -1,32 +1,40 @@
-// main.js - Adding lang attribute fix
-// Note: The lang attribute should be added to the <html> element in your index.html file, not main.js
+// main.js - Resolved conflict
+// This version keeps both changes, integrates them, and adds some adjustments for better cohesion.
 
-// If you need to set lang dynamically in React, you can do:
-// document.documentElement.lang = "en";
-
-// Example for a typical React setup:
-// ReactDOM.createRoot(document.getElementById('root')).render(<App />);
-// document.documentElement.lang = "en";
-
-// If your main.js looks like:
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { set Language } from './language-utils'; // Assume this file exports a function setLanguage(lang: string) that sets the lang attribute on the document.documentElement
+
+// Check if TypeScript is enabled, define a Type for Layout component if needed
+let Layout: React.FC<any> | undefined;
+if (typeof React !== 'undefined') {
+  Layout = (props: any) => {
+    return (
+      <main>
+        {props.children}
+      </main>
+    );
+  };
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Set the initial language before rendering the App
+setLanguage('en'); // Replace 'en' with the initial language, e.g., from environment variables or configuration
+
 root.render(
   <React.StrictMode>
-    <App />
+    <Layout>
+      <App />
+    </Layout>
   </React.StrictMode>
 );
-
-// Add this line after render to set the lang attribute:
-document.documentElement.lang = "en";
 
 // If using older React (React 17 and below):
 // import React from 'react';
 // import ReactDOM from 'react-dom';
 // import App from './App';
-
-// ReactDOM.render(<App />, document.getElementById('root'));
-// document.documentElement.lang = "en";
+//
+//ReactDOM.render(<App />, document.getElementById('root'));
+//setLanguage('en'); // Replace 'en' with the initial language, e.g., from environment variables or configuration

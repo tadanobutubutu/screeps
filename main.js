@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
@@ -19,10 +18,13 @@ const DashboardLayout = ({ children }) => (
 
 // For dashboard/app/dependency-graph/page.tsx
 const DependencyGraph = () => (
-  <div>
-    <table id="table-rotated">
-      {/* Table content */}
-    </table>
+  <div lang="en">
+    <main>
+      <table id="table-rotated">
+        {/* Table content */}
+      </table>
+      <button id="unrotate" className="rotate-back-button">rotate back</button>
+    </main>
   </div>
 );
 

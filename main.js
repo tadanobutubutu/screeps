@@ -277,12 +277,104 @@ function analyzeAccessibility(ast, filePath) {
     return allErrors;
 }
 
-module.exports = {
-    checkHtmlLangAttribute,
-    checkReactLandmarks,
-    checkTableStructures,
-    checkSvgAccessibility,
-    checkUniqueLandmarks,
-    checkFakeLinks,
-    analyzeAccessibility
+// Accessibility components
+const App = () => {
+  return (
+    <div lang="en"> {/* Add language attribute */}
+      {/* Your existing app content */}
+    </div>
+  );
+};
+
+const AccessibleTable = ({ data }) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Header 1</th>
+          <th scope="col">Header 2</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, index) => (
+          <tr key={index}>
+            <td>{row.col1}</td>
+            <td>{row.col2}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+const MainLayout = ({ children }) => {
+  return (
+    <div>
+      <header role="banner">
+        {/* Header content */}
+      </header>
+      <main role="main">
+        {children}
+      </main>
+      <footer role="contentinfo">
+        {/* Footer content */}
+      </footer>
+    </div>
+  );
+};
+
+const AccessibleSVG = ({ title, description }) => {
+  return (
+    <svg aria-hidden="true">
+      <title>{title}</title>
+      <desc>{description}</desc>
+      {/* SVG content */}
+    </svg>
+  );
+};
+
+const UniqueLandmark = ({ type, children }) => {
+  const landmarkRoles = {
+    navigation: 'navigation',
+    main: 'main',
+    complementary: 'complementary',
+    contentinfo: 'contentinfo',
+    search: 'search'
+  };
+
+  return (
+    <div role={landmarkRoles[type] || 'region'} aria-label={type}>
+      {children}
+    </div>
+  );
+};
+
+const AccessibleLink = ({ href, children }) => {
+  return (
+    <a href={href} onClick={(e) => {
+      if (!href) {
+        e.preventDefault();
+        // Handle non-link behavior
+      }
+    }}>
+      {children}
+    </a>
+  );
+};
+
+// Export all functions and components
+export {
+  checkHtmlLangAttribute,
+  checkReactLandmarks,
+  checkTableStructures,
+  checkSvgAccessibility,
+  checkUniqueLandmarks,
+  checkFakeLinks,
+  analyzeAccessibility,
+  App,
+  AccessibleTable,
+  MainLayout,
+  AccessibleSVG,
+  UniqueLandmark,
+  AccessibleLink
 };

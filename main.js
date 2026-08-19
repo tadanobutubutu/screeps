@@ -8,7 +8,7 @@ function fixTableHeaders() {
   // For this example, we'll just show the corrected HTML structure
 
   // Corrected table header example:
-  // <th scope="col"><div>src/constants.js</div></th>
+  // <th ...
 
   // The actual implementation would need to:
   // 1. Read the HTML file
@@ -19,5 +19,73 @@ function fixTableHeaders() {
   console.log('Table headers fixed - scope attributes added to all <th> elements');
 }
 
+// Add the new function to fix React Landmarks (REACT_017)
+function fixMainLandmarks() {
+  const fs = require('fs');
+  const path = require('path');
+
+  // Files that need <main> landmark fix
+  const filesToFix = [
+    'app/layout.tsx',
+    'dashboard/app/layout.tsx',
+    'docs/index.html'
+  ];
+
+  filesToFix.forEach(file => {
+    try {
+      const filePath = path.join(process.cwd(), file);
+      if (fs.existsSync(filePath)) {
+        let content = fs.readFileSync(filePath, 'utf8');
+
+        // Fix for React/Next.js layout files
+        if (file.endsWith('.tsx') || file.endsWith('.jsx')) {
+          // Pattern: <body>{children}</body> -> <body><main>{children}</main></body>
+          if (content.includes('<body>{children}</body>')) {
+            content = content.replace('<body>{children}</body>', '<body><main>{children}</main></body>');
+            console.log(`Fixed: Added <main> landmark to ${file}`);
+          }
+          // Pattern: <body>{props.children}</body> -> <body><main>{props.children}</main></body>
+          else if (content.includes('<body>{props.children}</body>')) {
+            content = content.replace('<body>{props.children}</body>', '<body><main>{props.children}</main></body>');
+            console.log(`Fixed: Added <main> landmark to ${file}`);
+          }
+          // Pattern: <body>{children}</body> with whitespace
+          else if (/<body>\s*\{children\}\s*<\/body>/.test(content)) {
+            content = content.replace(/<body>\s*\{children\}\s*<\/body>/, '<body>\n      <main>{children}</main>\n    </body>');
+            console.log(`Fixed: Added <main> landmark to ${file}`);
+          }
+        }
+
+        // Fix for HTML files
+        if (file.endsWith('.html')) {
+          // Check if <main> already exists
+          if (!content.includes('<main>')) {
+            // Pattern: <body><div class="container">... -> <body><main><div class="container">...
+            const containerMatch = content.match(/<body>([\s\S]*?<div class="container">)/);
+            if (containerMatch) {
+              content = content.replace(/<body>/, '<body>\n    <main>');
+              // Close </main> before </body>
+              content = content.replace(/<\/body>/, '\n    </main>\n  </body>');
+              console.log(`Fixed: Added <main> landmark to ${file}`);
+            }
+          }
+        }
+
+        fs.writeFileSync(filePath, content, 'utf8');
+      }
+    } catch (error) {
+      console.error(`Error fixing ${file}:`, error.message);
+    }
+  });
+
+  console.log('Main landmarks fixed - all pages now have <main> landmark for accessibility');
+}
+
 // Call the function if needed
-// fixTableHeaders();
+// fixMainLandmarks();
+
+// Export for use in other modules
+module.exports = {
+  fixTableHeaders,
+  fixMainLandmarks
+};

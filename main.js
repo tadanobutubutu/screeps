@@ -107,6 +107,19 @@ export const createDecorativeSVG = (svgContent) => {
 };
 
 /**
+ * Creates a favicon SVG with proper accessibility attributes
+ * Fixes REACT_041: React SVG Accessible Name
+ */
+export const createFaviconSVG = (svgContent, title = "Favicon") => {
+  return (
+    <svg aria-hidden="true" focusable="false" style={{ display: 'none' }}>
+      <title>{title}</title>
+      {svgContent}
+    </svg>
+  );
+};
+
+/**
  * Creates proper link elements instead of fake links
  * Fixes REACT_036: React Fake Link
  */

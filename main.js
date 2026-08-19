@@ -39,8 +39,12 @@ function addScopeToRowHeaders(content) {
 function fixTableHeadersAccessibility(content) {
   // Match any <th> without scope attribute
   const thWithoutScope = /<th(?![^>]*\bscope=)[^>]*>/gi;
-  
+
   return content.replace(thWithoutScope, (match) => {
+    // Check if this is a row header (based on class or other attributes)
+    if (match.includes('class="row-header"') || match.includes('scope="row"')) {
+      return match.replace(/^<th/, '<th scope="row"');
+    }
     return match.replace(/^<th/, '<th scope="col"');
   });
 }
@@ -55,10 +59,26 @@ function validateTableHeaders(content) {
   return !thWithoutScope.test(content);
 }
 
+/**
+ * Adds scope attributes to all <th> elements in the content
+ * @param {string} content - HTML/JSX content containing table headers
+ * @returns {string} - Content with scope attributes added to all <th> elements
+ */
+function addScopeToAllHeaders(content) {
+  // First add scope="col" to all headers that don't have a scope
+  let result = addScopeToColumnHeaders(content);
+
+  // Then specifically handle row headers
+  result = addScopeToRowHeaders(result);
+
+  return result;
+}
+
 // Export all functions
 module.exports = {
   addScopeToColumnHeaders,
   addScopeToRowHeaders,
   fixTableHeadersAccessibility,
-  validateTableHeaders
+  validateTableHeaders,
+  addScopeToAllHeaders
 };

@@ -58,3 +58,24 @@ export const runEslint = async (files) => {
 export const getTypeScriptVersion = () => {
   return '7.0.0';
 };
+
+// New function to fix React Unique Landmarks issue
+export const ensureSingleMainElement = (content) => {
+  // Check if content contains multiple main elements
+  if (typeof content === 'string' && content.includes('<main>') && content.split('<main>').length > 2) {
+    // Replace all but the first main element with section
+    const parts = content.split('<main>');
+    const firstMain = parts.shift();
+    const rest = parts.join('<section>');
+    return `${firstMain}<main>${rest}`;
+  }
+  return content;
+};
+
+// New function to wrap content in a single main element if needed
+export const wrapInSingleMain = (content) => {
+  if (typeof content === 'string' && !content.includes('<main>')) {
+    return `<main>${content}</main>`;
+  }
+  return content;
+};

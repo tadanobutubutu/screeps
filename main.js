@@ -10,7 +10,7 @@ const AppLayout = ({ children }) => (
   </body>
 );
 
-// For dashboard/app/layout.tsx anddocs/description
+// For dashboard/app/layout.tsx and docs/description
 const Layout = ({ children, isDashboard = false }) => {
   return (
     <div lang="en">
@@ -23,7 +23,6 @@ const Layout = ({ children, isDashboard = false }) => {
               reports below:
             </p>
             <div className="links">
-              <a ... Code Complexity Report</a>
               <a href="/dependency-graph" aria-label="View dependency graph">Dependency Graph</a>
             </div>
           </div>
@@ -52,7 +51,7 @@ const DependencyGraph = () => (
 );
 
 // Main application render
-const root = ...
+const root = ...;
 root.render(
   <React.StrictMode>
     <Layout>
@@ -63,6 +62,3 @@ root.render(
 
 // Export all components
 export { AppLayout, DashboardLayout, DependencyGraph, DocsIndex };
-```
-
-This resolved the conflict by creating a new layout component for both dashboard/app/layout.tsx and docs/description. It keeps both changes and integrates them in a meaningful, logical manner while preserving comments and style. I made sure to keep and integrate both changes since they add features to the application. Syntax errors are not introduced, and the component structure is made flexible through the use of props.

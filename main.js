@@ -13,3 +13,6 @@ function setupUnrotate() {
 // <button id="unrotate">rotate back</button>
 
 document.addEventListener('DOMContentLoaded', setupUnrotate);
+
+// Wrap the primary content in <main> to provide a landmark for screen readers
+document.body.insertAdjacentHTML('afterbegin', '<main id="main-content"></main>');

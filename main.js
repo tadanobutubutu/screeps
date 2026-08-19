@@ -106,5 +106,31 @@ function ensureHtmlLangAttribute() {
 // Call the new function to ensure HTML has lang attribute
 ensureHtmlLangAttribute();
 
+// New function to fix React table structure issues
+function fixReactTableStructure() {
+  // Find all table headers in the document
+  const tableHeaders = document.querySelectorAll('th');
+
+  tableHeaders.forEach(header => {
+    // If the header doesn't have a scope attribute
+    if (!header.hasAttribute('scope')) {
+      // Check if it's a column header (based on its position in the table)
+      const parentRow = header.parentElement;
+      const isFirstRow = parentRow.parentElement.firstElementChild === parentRow;
+
+      // If it's in the first row, assume it's a column header
+      if (isFirstRow) {
+        header.setAttribute('scope', 'col');
+      } else {
+        // Otherwise, assume it's a row header
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
+}
+
+// Call the new function to fix React table structure
+fixReactTableStructure();
+
 // Export the existing functions, if any, with their original names
 /* ... */

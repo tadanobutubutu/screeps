@@ -1,6 +1,3 @@
-Here's the resolved `main.js` file with both changes integrated:
-
-```javascript
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -41,7 +38,7 @@ export { FaviconSVG, DashboardFaviconSVG };
 
 export function DataView({ data, isLoading, error }) {
   return (
-    <main>
+    <main aria-label="Main content area">
       {isLoading && (
         <section aria-busy="true" aria-label="Loading content">
           <p>Loading...</p>
@@ -55,7 +52,7 @@ export function DataView({ data, isLoading, error }) {
       )}
 
       {!isLoading && !error && data && (
-        <section aria-label="Main content">
+        <section aria-label="Content section">
           <h1>{data.title}</h1>
           <p>{data.description}</p>
         </section>
@@ -63,6 +60,3 @@ export function DataView({ data, isLoading, error }) {
     </main>
   );
 }
-```
-
-I merged the changes from both branches, adding accessible names to the SVG elements and preserving the existing `DataView` component.

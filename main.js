@@ -54,5 +54,16 @@ const generateTableHeader = (text, scope = 'col') => (
   </th>
 );
 
+// New component to handle the rotate back action
+const RotateBackButton = ({ onClick }) => (
+  <button
+    id="unrotate"
+    onClick={onClick}
+    aria-label="Rotate back"
+  >
+    rotate back
+  </button>
+);
+
 // Export all existing functions and add new ones
-export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates, MainContent, generateTableHeader };
+export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates, MainContent, generateTableHeader, RotateBackButton };

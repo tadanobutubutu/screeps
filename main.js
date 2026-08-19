@@ -13,13 +13,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      ...
       return;
     }
 
     const fetchData = async () => {
       try {
-        const result = await getDashboardData(user.id);
+        const result = await ...
         setData(result);
       } catch (err) {
         setError('Failed to load dashboard data');
@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard min-h-screen">
       <header className="container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl ...
       </header>
       <main className="container mx-auto px-4 py-8">
         {loading ? (

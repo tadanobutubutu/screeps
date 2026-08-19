@@ -77,8 +77,7 @@ function MyTable() {
   );
 }
 
-// Addressing REACT_017 - React Landmarks
-// Below your MyTable export, add navigation landmarks for main and footer elements
+// Export default Main component
 export default function Main() {
   const router = useRouter();
 

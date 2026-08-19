@@ -40,3 +40,6 @@ export { /* existing exports */ };
 
 // Export the DependencyDashboard class for external use
 export { DependencyDashboard };
+
+// Export the layout components for use in other files
+export { AppLayout, DashboardLayout };

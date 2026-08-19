@@ -130,6 +130,93 @@ export function PageLayout({
   );
 }
 
+export function AccessibleForm({
+  onSubmit,
+  children,
+  ariaLabel,
+  className = ''
+}) {
+  return (
+    <form
+      onSubmit={onSubmit}
+      aria-label={ariaLabel}
+      className={className}
+    >
+      {children}
+    </form>
+  );
+}
+
+export function AccessibleInput({
+  id,
+  label,
+  type = 'text',
+  value,
+  onChange,
+  required = false,
+  className = ''
+}) {
+  return (
+    <div className={`form-group ${className}`}>
+      <label htmlFor={id}>{label}</label>
+      <input
+        type={type}
+        id={id}
+        value={value}
+        onChange={onChange}
+        required={required}
+      />
+    </div>
+  );
+}
+
+export function AccessibleSelect({
+  id,
+  label,
+  options = [],
+  value,
+  onChange,
+  required = false,
+  className = ''
+}) {
+  return (
+    <div className={`form-group ${className}`}>
+      <label htmlFor={id}>{label}</label>
+      <select
+        id={id}
+        value={value}
+        onChange={onChange}
+        required={required}
+      >
+        {options.map((option, index) => (
+          <option key={index} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+export function AccessibleLandmark({
+  type = 'section',
+  ariaLabel,
+  children,
+  className = ''
+}) {
+  const validTypes = ['section', 'article', 'aside', 'nav', 'main'];
+  const landmarkType = validTypes.includes(type) ? type : 'section';
+
+  return (
+    <landmarkType
+      aria-label={ariaLabel}
+      className={className}
+    >
+      {children}
+    </landmarkType>
+  );
+}
+
 export default {
   MainContent,
   Navigation,
@@ -137,5 +224,9 @@ export default {
   AccessibleIcon,
   AccessibleButton,
   AccessibleLink,
-  PageLayout
+  PageLayout,
+  AccessibleForm,
+  AccessibleInput,
+  AccessibleSelect,
+  AccessibleLandmark
 };

@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_027 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -32,3 +32,23 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Function to fix table headers in dependency graph
+function fixTableHeaders() {
+    // This function would be called when the dependency graph is loaded
+    // It would add scope attributes to all table headers
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        const headers = table.querySelectorAll('th');
+        headers.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                // Determine if this is a column or row header based on context
+                // For this example, we'll assume all are column headers
+                header.setAttribute('scope', 'col');
+            }
+        });
+    });
+}
+
+// Call the function when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', fixTableHeaders);

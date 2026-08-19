@@ -65,6 +65,13 @@ function ensureAccessibility() {
     }
   });
 
+  // Fix multiple <main> landmarks (REACT_025)
+  // Remove any additional <main> elements beyond the first one
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    mainElements.slice(1).forEach(el => el.remove());
+  }
+
   // Replace fake links with proper anchor tags (REACT_036)
   const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
   fakeLinks.forEach(link => {

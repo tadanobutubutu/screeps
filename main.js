@@ -57,6 +57,13 @@ function generateAccessibleFavicon() {
   `;
 }
 
+// New function to handle rotation back action
+function handleRotationBack() {
+  // Implement the rotation back logic here
+  console.log('Rotating back to original view');
+  // This would typically update the UI state or trigger a React state change
+}
+
 // Existing route
 app.get('/api/user/:id', (req, res) => {
   const userId = req.params.id;
@@ -95,6 +102,12 @@ app.get('/api/dependency-updates', (req, res) => {
   res.json(updateSummary);
 });
 
+// New route to handle rotation back action
+app.post('/api/rotate-back', (req, res) => {
+  handleRotationBack();
+  res.json({ success: true, message: 'Rotation back action completed' });
+});
+
 // New route for accessible favicon
 app.get('/favicon.svg', (req, res) => {
   res.set('Content-Type', 'image/svg+xml');
@@ -111,5 +124,6 @@ module.exports = {
   calculateTotal,
   handleDependencyUpdates,
   processDashboardData,
-  generateAccessibleFavicon
+  generateAccessibleFavicon,
+  handleRotationBack
 };

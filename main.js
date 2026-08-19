@@ -17,8 +17,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col">
-        <main className="flex-1">{children}</main>
+      <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <header role="banner">
+          {/* Add your header content here */}
+        </header>
+        <main id="main-content" className="flex-1" role="main">
+          {children}
+        </main>
+        <footer role="contentinfo">
+          {/* Add your footer content here */}
+        </footer>
       </body>
     </html>
   );

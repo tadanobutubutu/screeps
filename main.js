@@ -2,7 +2,7 @@
 
 export function MainContent({ children, className = '' }) {
   return (
-    <main 
+    <main
       className={className}
       id="main-content"
     >
@@ -56,7 +56,7 @@ export function AccessibleTable({ headers = [], rows = [], caption }) {
 export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   return (
     <span className={className} aria-hidden="false">
-      <Icon 
+      <Icon
         aria-label={label}
         role="img"
       />
@@ -64,9 +64,9 @@ export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   );
 }
 
-export function AccessibleButton({ 
-  children, 
-  onClick, 
+export function AccessibleButton({
+  children,
+  onClick,
   variant = 'primary',
   ariaLabel,
   disabled = false,
@@ -85,14 +85,14 @@ export function AccessibleButton({
   );
 }
 
-export function AccessibleLink({ 
-  children, 
-  href, 
+export function AccessibleLink({
+  children,
+  href,
   ariaLabel,
   className = ''
 }) {
   return (
-    <a 
+    <a
       href={href}
       aria-label={ariaLabel}
       className={className}
@@ -102,31 +102,55 @@ export function AccessibleLink({
   );
 }
 
-export function PageLayout({ 
-  children, 
+export function PageLayout({
+  children,
   sidebar,
-  navigation 
+  navigation
 }) {
   return (
     <div lang="en">
-      <header>
+      <header role="banner">
         {navigation}
       </header>
-      
+
       <div className="layout-container">
-        <aside aria-label="Secondary content">
+        <aside aria-label="Secondary content" role="complementary">
           {sidebar}
         </aside>
-        
+
         <MainContent>
           {children}
         </MainContent>
       </div>
-      
-      <footer>
+
+      <footer role="contentinfo">
         <p>Footer content</p>
       </footer>
     </div>
+  );
+}
+
+// New function to handle fake links
+export function FakeLink({ children, onClick, className = '' }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`fake-link ${className}`}
+      aria-label={typeof children === 'string' ? children : undefined}
+    >
+      {children}
+    </button>
+  );
+}
+
+// New function to handle SVG accessibility
+export function AccessibleSVG({ children, title, desc, className = '' }) {
+  return (
+    <svg className={className} aria-hidden={!title && !desc}>
+      {title && <title>{title}</title>}
+      {desc && <desc>{desc}</desc>}
+      {children}
+    </svg>
   );
 }
 
@@ -137,5 +161,7 @@ export default {
   AccessibleIcon,
   AccessibleButton,
   AccessibleLink,
-  PageLayout
+  PageLayout,
+  FakeLink,
+  AccessibleSVG
 };

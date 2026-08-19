@@ -5,7 +5,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
+        <main role="main">{children}</main>
       </body>
     </html>
   );
@@ -18,6 +18,7 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
       id="unrotate"
       onClick={onClick}
       aria-label="Rotate back to original orientation"
+      type="button"
     >
       rotate back
     </button>

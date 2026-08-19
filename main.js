@@ -4,6 +4,11 @@ import { ReactNode } from 'react';
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Decorative element</title>
+        </svg>
+      </head>
       <body>
         <main>{children}</main>
       </body>

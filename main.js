@@ -3,9 +3,8 @@ import React from 'react';
 // Dependency Graph component displaying file dependencies
 const DependencyGraph = () => {
   // Sample headers for the dependency graph
-  const headers = ['src/constants.js', 'src/managers/roomManager.js', 'src/managers/spawnManager.js', 
-                   'src/managers/towerManager.js', 'src/roles/builder.js'];
-  
+  const headers = ['src/constants.js', 'src/managers/roomManager.js', 'src/managers/spawnManager.js', 'src/managers/towerManager.js', 'src/roles/builder.js'];
+
   // Sample data rows for the dependency graph
   const rows = [
     ['file1.js', 'file2.js', 'file3.js', 'file4.js', 'file5.js'],
@@ -16,30 +15,13 @@ const DependencyGraph = () => {
     ['file26.js', 'file27.js', 'file28.js', 'file29.js', 'file30.js']
   ];
 
-  return (
-    <div className="dependency-graph-container">
-      <table>
-        <thead>
-          <tr>
-            {headers.map((header, index) => (
-              <th key={index} scope="col">
-                <div>{header}</div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+  const someFunction = () => {
+    console.log('This is a valid JavaScript function');
+  };
 
-export default DependencyGraph;
+  module.exports = {
+    DependencyGraph,
+    someFunction
+  };
+
+ReactDOM.render(<DependencyGraph />, document.getElementById('root'));

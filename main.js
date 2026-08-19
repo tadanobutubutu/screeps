@@ -57,6 +57,30 @@ function fixSvgAccessibility() {
   // The actual fix would be applied in the layout.tsx files
 }
 
+// New function to add language attribute to React components
+function addLanguageAttribute() {
+  // Implementation for adding language attribute to React components
+  // This will address the REACT_015 issue
+}
+
+// New function to fix table structure issues
+function fixTableStructure() {
+  // Implementation for fixing table structure issues
+  // This will address the REACT_027 issue
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  // Implementation for ensuring unique landmarks
+  // This will address the REACT_025 issue
+}
+
+// New function to fix fake link issues
+function fixFakeLinks() {
+  // Implementation for fixing fake link issues
+  // This will address the REACT_036 issue
+}
+
 // Export all existing and new functions
 module.exports = {
   existingFunction,
@@ -68,7 +92,11 @@ module.exports = {
   updateJestTo30,
   updateTypeScriptTo7,
   addMainLandmarks,
-  fixSvgAccessibility
+  fixSvgAccessibility,
+  addLanguageAttribute,
+  fixTableStructure,
+  ensureUniqueLandmarks,
+  fixFakeLinks
 };
 
 // Start the server

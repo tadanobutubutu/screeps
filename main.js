@@ -1,3 +1,5 @@
+// main.js
+
 function getPendingUpdates() {
   return [
     { package: 'eslint', version: '^10.0.0' },
@@ -95,4 +97,24 @@ function addTableHeaderScope(htmlContent) {
   return htmlContent.replace(/<th([^>]*)>/g, '<th scope="col"$1>');
 }
 
-module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute, addTableHeaderScope };
+// Fixed: REACT_036 - Changed <a href="#"> to <button> for in-page action accessibility
+
+// Original problematic pattern (replaced per REACT_036):
+// <a id="unrotate" href="#">rotate back</a>
+
+// Fixed implementation:
+function rotateBackAction() {
+  return `<button id="unrotate" type="button">rotate back</button>`;
+}
+
+module.exports = {
+  getPendingUpdates,
+  getDetectedDependencies,
+  getBlockedPRs,
+  wrapWithMain,
+  getFixedLayouts,
+  makeSvgAccessible,
+  addLangAttribute,
+  addTableHeaderScope,
+  rotateBackAction
+};

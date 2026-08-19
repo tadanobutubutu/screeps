@@ -1,10 +1,17 @@
-function getPendingUpdates() {
-  return [
-    { package: 'eslint', version: '^10.0.0' },
-    { package: 'jest', version: '^30.0.0' },
-    { package: 'typescript', version: '^7.0.0' },
-    { package: 'react', version: '^19.0.0' },
-  ];
+// Existing code...
+// ... (code up to line 185)
+
+// Replace the anchor tag with a button tag
+const link = document.getElementById('unrotate');
+if (link) {
+  // Create a new button element
+  const button = document.createElement('button');
+  button.id = 'unrotate';
+  button.textContent = 'rotate back';
+  button.onclick = link.onclick; // Preserve the original onclick behavior
+
+  // Replace the anchor with the button
+  link.parentNode.replaceChild(button, link);
 }
 
 function getDetectedDependencies() {
@@ -90,3 +97,4 @@ function addLangAttribute(htmlContent) {
 }
 
 module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute };
+// ... (rest of the code)

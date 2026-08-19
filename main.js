@@ -2,19 +2,19 @@
 
 // New functions or changes requested in the issue
 
-// New Function 1 (e. g., handleNewEvent)
+// New Function 1 (e.g., handleNewEvent)
 function handleNewEvent(event) {
   // Implement the new event handling functionality
   console.log('Handling new event:', event);
   // Add your event handling logic here
 }
 
-// New Function 2 (e. g., renderDashboard)
+// New Function 2 (e.g., renderDashboard)
 function renderDashboard() {
   // Implement the new dashboard rendering functionality
   console.log('Rendering dashboard');
   // Add your dashboard rendering logic here
-  return '<div class="dashboard">Dashboard content</div>';
+  return '<div class="dashboard" lang="en">Dashboard content</div>';
 }
 
 // Function to handle SVG accessibility
@@ -49,10 +49,21 @@ function ensureSingleMainElement() {
   }
 }
 
+// Function to ensure HTML output has proper language attribute
+function ensureHtmlLangAttribute(htmlString) {
+  // Check if the string contains an HTML tag
+  if (htmlString.includes('<html')) {
+    // Add lang attribute if not present
+    return htmlString.replace('<html', '<html lang="en"');
+  }
+  return htmlString;
+}
+
 // Export the new functions
 module.exports = {
   handleNewEvent,
   renderDashboard,
   makeSvgAccessible,
-  ensureSingleMainElement
+  ensureSingleMainElement,
+  ensureHtmlLangAttribute
 };

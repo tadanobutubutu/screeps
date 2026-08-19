@@ -1,6 +1,3 @@
-Here is the resolved `main.js` file, integrating changes from both branches:
-
-```javascript
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -113,6 +110,3 @@ export default function Main() {
     </>
   );
 }
-```
-
-This version integrates the changes from both branches, keeping the TypeScript configuration from head and the React components from origin/main. The Main component now includes the landmark elements for main content, footer, and navigation, while the MyTable component handles the table structure and accessibility improvements. No functionality has been discarded unless it was clearly redundant.

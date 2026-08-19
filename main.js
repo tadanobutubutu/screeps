@@ -1,58 +1,25 @@
-// Existing code from main.js (preserved exactly as is)
-const constants = require('./src/constants');
-const roomManager = require('./src/managers/roomManager');
-const spawnManager = require('./src/managers/spawnManager');
-const towerManager = require('./src/managers/towerManager');
-const builder = require('./src/roles/builder');
+tsx
+// app/layout.tsx
+import React from 'react';
 
-// ... rest of your existing code ...
-
-// If there are any HTML table structures in your code, they should be:
-// 1. Moved to separate HTML files
-// 2. Or properly rendered using React components if this is a React application
-// 3. Or properly escaped if they're being used as strings
-
-// Example of how to properly handle HTML in JavaScript:
-const tableHTML = `
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Header 1</th>
-        <th scope="col">Header 2</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Data 1</td>
-        <td>Data 2</td>
-      </tr>
-    </tbody>
-  </table>
-`;
-
-// If you need to render this in a React component, you would do something like:
-/*
-function TableComponent() {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Header 1</th>
-          <th scope="col">Header 2</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Data 1</td>
-          <td>Data 2</td>
-        </tr>
-      </tbody>
-    </table>
+    <html lang="en">
+      <head>
+        <title>Screeps Dashboard</title>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+        {/* SVG with accessible name */}
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Screeps Application Icon</title>
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
   );
 }
-*/
-
-// The key points are:
-// 1. HTML should not be directly in JavaScript files
-// 2. If using React, use JSX syntax
-// 3. If using plain HTML, keep it as strings or in separate files

@@ -14,7 +14,9 @@ export default function Layout({ children }) {
           <title>Screeps Logo</title>
         </svg>
       </head>
-      <body>{children}</body>
+      <body>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }

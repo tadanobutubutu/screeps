@@ -18,7 +18,7 @@ const AccessibleTable = ({ data }) => (
     <tbody>
       {data.map((row, index) => (
         <tr key={index}>
-          <th scope="row">{row.header}</th>
+          <th ...
           <td>{row.cell1}</td>
           <td>{row.cell2}</td>
         </tr>
@@ -56,7 +56,7 @@ const Navigation = ({ links }) => (
     <ul>
       {links.map((link, index) => (
         <li key={index}>
-          <a href={link.href}>{link.label}</a>
+          <a ...
         </li>
       ))}
     </ul>

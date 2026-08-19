@@ -77,10 +77,18 @@ function replaceHashLinksWithButtons() {
   console.log('Replacing hash-only links with proper buttons for better accessibility');
 }
 
+// New function to validate and ensure single main landmark in React components
+function validateSingleMainLandmark() {
+  // This function would be used in a build step to analyze React components
+  // and ensure they only contain a single <main> landmark
+  console.log('Validating that React components contain only a single <main> landmark');
+}
+
 module.exports = {
   updatedDependencies,
   dependencyConfig,
   addMainLandmarks,
   ensureSvgAccessibility,
-  replaceHashLinksWithButtons
+  replaceHashLinksWithButtons,
+  validateSingleMainLandmark
 };

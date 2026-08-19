@@ -14,7 +14,13 @@ export default function Layout({ children }) {
           <title>Screeps Logo</title>
         </svg>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {/* Replace the problematic link with a proper button */}
+        <button id="unrotate" onClick={() => window.history.back()}>
+          rotate back
+        </button>
+      </body>
     </html>
   );
 }

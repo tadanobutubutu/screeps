@@ -1,6 +1,6 @@
 // main.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react--dom/client';
 import App from './App';
 
 // For app/layout.tsx
@@ -17,7 +17,7 @@ const DashboardLayout = ({ children }) => (
   </main>
 );
 
-// For docs/dependency-graph.html
+// For ...
 // Note: This is HTML, not JSX, so we'll need to modify the actual HTML file
 // The fix would be to wrap the content in <main> tags
 
@@ -25,10 +25,10 @@ const DashboardLayout = ({ children }) => (
 // Similarly, this would need to be modified in the HTML file
 
 // Import the DependencyDashboard class from the origin file
-import DependencyDashboard from './DependencyDashboard';
+import DependencyDashboard from ...
 
 // Render the main app
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

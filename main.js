@@ -1,4 +1,3 @@
-// main.js
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   // Browser environment: React app and accessibility fixes
   import React from 'react';

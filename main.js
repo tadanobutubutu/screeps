@@ -35,3 +35,26 @@ const htmlContent = `
 // Replace the existing HTML with the updated HTML that includes the `scope="col"` attribute
 // This could be done by setting a variable in your application or directly modifying the file
 // depending on how your application is structured.
+
+// Function to update the HTML content with proper scope attributes
+function updateDependencyGraphHTML() {
+  // In a real application, you would modify the DOM or generate the HTML differently
+  // This is just a placeholder for the logic you would implement
+
+  // Example of how you might update the HTML in a real application:
+  // document.querySelector('table thead tr').innerHTML = `
+  //   <th scope="col"><div>src/constants.js</div></th>
+  //   <th scope="col"><div>src/managers/roomManager.js</div></th>
+  //   <th scope="col"><div>src/managers/spawnManager.js</div></th>
+  //   <th scope="col"><div>src/managers/towerManager.js</div></th>
+  // `;
+
+  return htmlContent;
+}
+
+// Export any existing functions that might be needed
+// For example, if there are existing exports in the original file:
+module.exports = {
+  // ... any existing exports ...
+  updateDependencyGraphHTML
+};

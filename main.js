@@ -1,11 +1,1 @@
-import React from 'react';
-
-export default function App() {
-  return (
-    <div>
-      <button id="unrotate" type="button">
-        rotate back
-      </button>
-    </div>
-  );
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

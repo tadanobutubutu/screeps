@@ -47,28 +47,25 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <section className="min-h-screen flex items-center justify-center">
-        <ErrorMessage message={error} />
-      </section>
-    );
-  }
-
-  if (!data) {
-    return (
-      <section className="min-h-screen flex items-center justify-center">
-        <p>No data available</p>
-      </section>
-    );
-  }
-
+  // Wrap all non-main content in a section
   return (
-    <main className="container mx-auto px-4 py-8">
-      {/* Dashboard content */}
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      {/* Render your dashboard data here */}
-    </main>
+    <div className="min-h-screen">
+      {error ? (
+        <section className="flex items-center justify-center h-full">
+          <ErrorMessage message={error} />
+        </section>
+      ) : !data ? (
+        <section className="flex items-center justify-center h-full">
+          <p>No data available</p>
+        </section>
+      ) : (
+        <main className="container mx-auto px-4 py-8">
+          {/* Dashboard content */}
+          <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+          {/* Render your dashboard data here */}
+        </main>
+      )}
+    </div>
   );
 };
 

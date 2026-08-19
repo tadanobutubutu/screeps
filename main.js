@@ -15,3 +15,23 @@ describe('docs/dependency-graph.html', () => {
     });
   });
 });
+
+// Function to add scope attributes to all th elements in the HTML
+function addScopeAttributesToThElements(htmlContent) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(htmlContent, 'text/html');
+
+  const thElements = doc.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (!th.hasAttribute('scope')) {
+      th.setAttribute('scope', 'col');
+    }
+  });
+
+  return new XMLSerializer().serializeToString(doc);
+}
+
+// Export the function for use in other files if needed
+module.exports = {
+  addScopeAttributesToThElements
+};

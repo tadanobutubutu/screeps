@@ -13,3 +13,13 @@ export function MainContent({ children }) {
 // - (additional affected files)
 
 export default function MainContent;
+
+// New function to ensure proper landmark structure
+export function MainLandmark({ children, id }) {
+  return <main id={id}>{children}</main>;
+}
+
+// Helper function to create unique landmarks
+export function createLandmark(id, content) {
+  return <MainLandmark id={id}>{content}</MainLandmark>;
+}

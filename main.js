@@ -21,7 +21,15 @@ const DashboardLayout = ({ children }) => (
 const DependencyGraph = () => (
   <main>
     <table id="table-rotated">
-      {/* Table content */}
+      <thead>
+        <tr>
+          <th scope="col">Module</th>
+          <th scope="col">Dependencies</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table content */}
+      </tbody>
     </table>
   </main>
 );

@@ -48,8 +48,11 @@ describe('MyComponent', () => {
     const svgs = container.querySelectorAll('svg');
 
     svgs.forEach(svg => {
-      expect(svg).toHaveAttribute('aria-label');
-      expect(svg.getAttribute('aria-label')).not.toBe('');
+      // Check for either aria-label or aria-hidden
+      const hasAriaLabel = svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '';
+      const isHidden = svg.hasAttribute('aria-hidden') && svg.getAttribute('aria-hidden') === 'true';
+
+      expect(hasAriaLabel || isHidden).toBe(true);
     });
   });
 

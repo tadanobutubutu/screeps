@@ -27,3 +27,24 @@ export default function Document() {
 
 // For a component with tables, use proper table structure:
 // Use semantic landmarks instead of just divs with role="banner", etc.
+
+// Helper function to create accessible buttons for in-page actions
+export function createAccessibleButton({
+  id,
+  onClick,
+  children,
+  className = '',
+  type = 'button'
+}) {
+  return (
+    <button
+      id={id}
+      onClick={onClick}
+      className={className}
+      type={type}
+      aria-label={children}
+    >
+      {children}
+    </button>
+  );
+}

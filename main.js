@@ -49,7 +49,7 @@ export const AccessibleTable = ({ data, headers }) => {
   );
 };
 
-// Fix for REACT_017 (React Landmarks)
+// Fix for REACT_017 (React Landmarks) - Updated layout components
 export const AccessibleLayout = ({ children }) => {
   return (
     <div>
@@ -63,6 +63,24 @@ export const AccessibleLayout = ({ children }) => {
         {/* Footer content */}
       </footer>
     </div>
+  );
+};
+
+// New component to handle layout files that need main landmark
+export const MainLayout = ({ children }) => {
+  return (
+    <main role="main" aria-label="Main content">
+      {children}
+    </main>
+  );
+};
+
+// New component to handle document pages
+export const DocumentLayout = ({ children }) => {
+  return (
+    <main role="main" aria-label="Document content">
+      {children}
+    </main>
   );
 };
 

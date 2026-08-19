@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
   return (
     <div>
       <FaviconSVG />
-      {children}
+      <main>{children}</main>
     </div>
   );
 };
@@ -34,6 +34,6 @@ const Layout = ({ children }) => {
 export { existingFunction, Layout };
 
 // Initialize app
-const container = document.getElementById('root');
+const container = ...
 const root = createRoot(container);
 root.render(<Layout><App /></Layout>);

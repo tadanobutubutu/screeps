@@ -1,12 +1,1 @@
-tsx
-// Add aria-label to the SVG in metadata:
-export const metadata = {
-  icons: {
-    icon: [
-      {
-        url: 'data:image/svg+xml,...',
-        type: 'image/svg+xml',
-      },
-    ],
-  },
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

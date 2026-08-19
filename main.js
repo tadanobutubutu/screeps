@@ -139,11 +139,13 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
-      <table id="table-rotated">
-        {/* table content */}
-      </table>
-    </main>
+    <html lang="en">
+      <main>
+        <table id="table-rotated">
+          {/* table content */}
+        </table>
+      </main>
+    </html>
   );
 };
 

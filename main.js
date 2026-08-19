@@ -26,10 +26,10 @@ function addUpdate(type, name, currentVersion, newVersion, options = {}) {
         changeType: options.changeType || 'chore',
         scheduled: options.scheduled || false
     };
-    
+
     const key = `${type}:${name}`;
     pendingUpdates.set(key, update);
-    
+
     return update;
 }
 
@@ -84,13 +84,13 @@ function getBlockedUpdates() {
 function triggerUpdate(type, name) {
     const key = `${type}:${name}`;
     const update = pendingUpdates.get(key);
-    
+
     if (update && update.status === 'awaiting-schedule') {
         update.status = 'pending';
         update.scheduled = false;
         return update;
     }
-    
+
     return null;
 }
 
@@ -101,7 +101,7 @@ function triggerUpdate(type, name) {
 function createAllAwaitingPRs() {
     const awaitingPRs = getAwaitingScheduleUpdates();
     const createdPRs = [];
-    
+
     for (const update of awaitingPRs) {
         update.status = 'pending';
         update.scheduled = false;
@@ -112,7 +112,7 @@ function createAllAwaitingPRs() {
             changeType: update.changeType
         });
     }
-    
+
     return createdPRs;
 }
 
@@ -139,7 +139,7 @@ function processUpdates(updates) {
         skipped: 0,
         errors: []
     };
-    
+
     for (const update of updates) {
         try {
             if (!update.name || !update.newVersion) {
@@ -150,12 +150,12 @@ function processUpdates(updates) {
                 results.skipped++;
                 continue;
             }
-            
+
             addUpdate(update.type, update.name, update.currentVersion, update.newVersion, {
                 status: update.status || 'awaiting-schedule',
                 changeType: update.changeType || 'chore'
             });
-            
+
             results.processed++;
         } catch (error) {
             results.errors.push({
@@ -165,8 +165,28 @@ function processUpdates(updates) {
             results.skipped++;
         }
     }
-    
+
     return results;
+}
+
+/**
+ * Adds accessibility attributes to SVG elements
+ * @param {string} svgContent - The SVG content to modify
+ * @returns {string} The modified SVG content with accessibility attributes
+ */
+function makeSvgAccessible(svgContent) {
+    // Check if the SVG already has accessibility attributes
+    if (svgContent.includes('aria-hidden') || svgContent.includes('aria-label')) {
+        return svgContent;
+    }
+
+    // Add aria-hidden if the SVG is decorative
+    const modifiedSvg = svgContent.replace(
+        /<svg([^>]*)>/,
+        '<svg$1 aria-hidden="true">'
+    );
+
+    return modifiedSvg;
 }
 
 // Initialize with updates from the issue
@@ -175,24 +195,24 @@ function initializeDashboard() {
     addUpdate('action', 'google/osv-scanner-action', 'v2.5.0', 'v2.5.1', {
         changeType: 'chore'
     });
-    
+
     // NPM updates
     addUpdate('npm', 'typescript', '^5.7.3', '^7.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'react', '^18.2.0', '^19.0.0', {
         changeType: 'fix'
     });
-    
+
     addUpdate('npm', 'jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'eslint', '^8.47.0', '^10.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'babel-jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
@@ -209,7 +229,8 @@ module.exports = {
     validateActionVersion,
     processUpdates,
     initializeDashboard,
-    pendingUpdates
+    pendingUpdates,
+    makeSvgAccessible
 };
 
 // Auto-initialize if running directly

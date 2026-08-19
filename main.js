@@ -58,3 +58,42 @@ export const runEslint = async (files) => {
 export const getTypeScriptVersion = () => {
   return '7.0.0';
 };
+
+// Accessibility improvements
+export const setAriaLabel = (elementId, label) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('aria-label', label);
+  }
+};
+
+export const setAriaHidden = (elementId, isHidden) => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.setAttribute('aria-hidden', isHidden);
+  }
+};
+
+export const createScreenReaderOnlyElement = (content) => {
+  const element = document.createElement('div');
+  element.setAttribute('aria-hidden', 'true');
+  element.style.position = 'absolute';
+  element.style.width = '1px';
+  element.style.height = '1px';
+  element.style.padding = '0';
+  element.style.margin = '-1px';
+  element.style.overflow = 'hidden';
+  element.style.clip = 'rect(0, 0, 0, 0)';
+  element.style.whiteSpace = 'nowrap';
+  element.style.border = '0';
+  element.textContent = content;
+  return element;
+};
+
+export const addLandmark = (role, label, content) => {
+  const landmark = document.createElement('div');
+  landmark.setAttribute('role', role);
+  landmark.setAttribute('aria-label', label);
+  landmark.innerHTML = content;
+  return landmark;
+};

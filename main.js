@@ -36,20 +36,20 @@ function RootLayout({ children }) {
 
 function DashboardLayout({ children }) {
   return (
-    <main>
+    <section aria-label="Dashboard content">
       {/* Add FaviconSVG with accessibility attributes */}
       <FaviconSVG />
       {children}
-    </main>
+    </section>
   );
 }
 
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <section aria-label="Application content">
         {children}
-      </main>
+      </section>
     </React.StrictMode>
   );
 };

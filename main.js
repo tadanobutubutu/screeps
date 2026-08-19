@@ -6,6 +6,9 @@ import App from './App';
 // For app/layout.tsx
 const AppLayout = ({ children }) => (
   <main>
+    <svg aria-hidden="true" style={{ display: 'none' }}>
+      <title>App Icon</title>
+    </svg>
     {children}
   </main>
 );
@@ -13,6 +16,9 @@ const AppLayout = ({ children }) => (
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <main>
+    <svg aria-hidden="true" style={{ display: 'none' }}>
+      <title>Dashboard Icon</title>
+    </svg>
     {children}
   </main>
 );

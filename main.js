@@ -7,7 +7,7 @@ import './index.css';
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main aria-label="Application layout">
         {children}
       </main>
     </React.StrictMode>
@@ -18,7 +18,7 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main aria-label="Dashboard layout">
         {children}
       </main>
     </React.StrictMode>
@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
+    <main aria-label="Dependency graph visualization">
       <table id="table-rotated">
         {/* table content */}
       </table>
@@ -41,7 +41,7 @@ const DependencyGraph = () => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DocsIndex = () => {
   return (
-    <main>
+    <main aria-label="Documentation index">
       <div className="container">
         <h2>Quality & Metrics Reports</h2>
         <p>
@@ -108,5 +108,8 @@ function makeSvgAccessible(svgElement, label) {
     role: 'img'
   });
 }
+
+// Export the makeSvgAccessible function for use in other components
+export { makeSvgAccessible };
 
 // ... (rest of existing code remains unchanged)

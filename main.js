@@ -50,6 +50,6 @@ const handleDependencyUpdates = () => {
 // Preserving all existing exports
 module.exports = {
   existingFunction,
-  handleDependencyUpdates,
-  // All other existing exports
+  handleDependencyUpdates
 };
+// All other existing exports

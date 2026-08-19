@@ -1,16 +1,1 @@
-tsx
-import React from 'react';
-
-// Previous code ...
-
-const DashboardLayout = ({ children }) => {
-    return (
-        <body>
-            <main>{children}</main>
-        </body>
-    );
-};
-
-// Exports and other functions ...
-
-export default DashboardLayout;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

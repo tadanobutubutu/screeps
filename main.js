@@ -19,3 +19,21 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// New component for the dependency graph page
+export function DependencyGraphPage({ children }: { children: ReactNode }) {
+  return (
+    <main>
+      {children}
+    </main>
+  );
+}
+
+// New component for the docs index page
+export function DocsIndexPage({ children }: { children: ReactNode }) {
+  return (
+    <main>
+      {children}
+    </main>
+  );
+}

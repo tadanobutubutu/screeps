@@ -56,3 +56,6 @@ function TableComponent() {
 // 1. HTML should not be directly in JavaScript files
 // 2. If using React, use JSX syntax
 // 3. If using plain HTML, keep it as strings or in separate files
+
+// Note: The actual HTML changes for the React Fake Link issue should be made in the dependency-graph.html file,
+// not in this JavaScript file. The JavaScript code remains unchanged as requested.

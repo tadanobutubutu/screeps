@@ -30,6 +30,3 @@ function fixLangAttribute(filePath) {
 }
 
 module.exports = { fixLangAttribute };
-```
-
-This solution resolves the merge conflict by integrating both changes. The JavaScript code now includes the SVG components from the React files in the HTML file, and the `lang` attribute is added to the `<html>` tag if missing.

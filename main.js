@@ -1,2 +1,1 @@
-// REACT_015: Add lang attribute to the <html> element for accessibility
-export const htmlLang = 'en';
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

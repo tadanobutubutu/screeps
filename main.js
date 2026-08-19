@@ -1,129 +1,171 @@
-Here is the resolved version of the `main.js` file:
+// Screeps Bot Main Entry Point
+// This file is the entry point for the Screeps game engine.
+// It exports a `loop` function that is called every game tick.
 
-```javascript
-// This is a JavaScript file, not HTML
-// The HTML lang attribute should be in your HTML template file, not here
+// Import core modules and configuration
+const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
+const roleWallRepairer = require('role.wallRepairer');
+const roleClaimer = require('role.claimer');
+const roleMiner = require('role.miner');
+const roleHauler = require('role.hauler');
+const roleDefender = require('role.defender');
+const roleRangedAttacker = require('role.rangedAttacker');
+const roleHealer = require('role.healer');
+const roleScout = require('role.scout');
+const roleRemoteHarvester = require('role.remoteHarvester');
+const roleRemoteHauler = require('role.remoteHauler');
+const roleRemoteReserver = require('role.remoteReserver');
 
-// If you need to reference the HTML lang attribute in your JavaScript,
-// you should do it through a configuration object or environment variable
+const creepManager = require('manager.creepManager');
+const roomManager = require('manager.roomManager');
+const spawnManager = require('manager.spawnManager');
+const towerManager = require('manager.towerManager');
+const linkManager = require('manager.linkManager');
+const terminalManager = require('manager.terminalManager');
+const marketManager = require('manager.marketManager');
+const powerManager = require('manager.powerManager');
+const visualManager = require('manager.visualManager');
+const profiler = require('screeps-profiler');
 
-// Example of how you might handle this in your JavaScript:
-const htmlConfig = {
-  lang: (() => {
-    // Fallback to default language if not available from React component
-    const langFromReact = document.documentElement.querySelector('div[lang]')?.getAttribute('lang');
-    const langFromNext = process.env.NEXT_PUBLIC_HTML_LANG || 'en'; // This comes from Next.js render context
-    return langFromReact || langFromNext;
-  })(),
-};
+const constants = require('constants');
+const utils = require('utils');
+const cache = require('cache');
+const intel = require('intel');
+const os = require('os');
 
-// Import React and other dependencies as necessary
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './index.css';
-import { useState } from 'react';
-import Table from 'react-bootstrap/Table';
-import { useRouter } from 'next/router';
-
-// Your existing code would go here
-// For example:
-export function someExistingFunction() {
-  // existing implementation
+// Initialize profiler if enabled
+if (constants.PROFILER_ENABLED) {
+    profiler.enable();
 }
 
-// Export Main component
-export default function Main() {
-  // Addressing REACT_015 - React Language Attribute
-  // Add lang attribute to root div for accessibility
-  const rootElement = document.getElementById('root');
-  rootElement.setAttribute('lang', htmlConfig.lang);
-
-  const router = useRouter();
-
-  return (
-    <>
-      <h1>My Page</h1>
-      <MyTable />
-      {/* More components... */}
-
-      {/* Add landmark for main content */}
-      <main id="main-content">
-        {/* Component content here */}
-      </main>
-
-      {/* Add landmark for footer */}
-      <footer id="footer">
-        {/* Footer content here */}
-      </footer>
-
-      {/* Navigation landmarks */}
-      <nav aria-label="Main Navigation">
-        <ul>
-          {router.routes.map((route) => (
-            <li key={route.id}>
-              <a href={route.asPath}>{route.id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </>
-  );
-}
-
-//Import and use the Table component from origin/main
-const MyTable = () => {
-  // First, let's add necessary import
-  const [data, setData] = useState([
-    { id: 1, name: 'John Doe', email: 'johndoe@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'janesmith@example.com' },
-    // More data rows...
-  ]);
-
-  // Addressing REACT_027 - React Table Structure
-  const tableHeaders = Object.keys(data[0]);
-  const tableRows = data.map((row) => (
-    <tr key={row.id}>
-      {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
-      ))}
-    </tr>
-  ));
-
-  return (
-    // Addressing REACT_015 - React Language Attribute
-    // Add lang attribute to div for accessibility
-    <div lang={htmlConfig.lang}>
-      <h1>Users List</h1>
-      <Table>
-        <thead>
-          <tr>
-            {tableHeaders.map((header) => (
-              // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{tableRows}</tbody>
-      </Table>
-    </div>
-  );
+/**
+ * Main game loop - executed every tick
+ */
+module.exports.loop = function () {
+    const startCpu = Game.cpu.getUsed();
+    
+    try {
+        // Update global cache and intel
+        cache.update();
+        intel.update();
+        
+        // Run room-level management
+        for (const roomName in Game.rooms) {
+            const room = Game.rooms[roomName];
+            if (room.controller && room.controller.my) {
+                roomManager.run(room);
+                spawnManager.run(room);
+                towerManager.run(room);
+                linkManager.run(room);
+                terminalManager.run(room);
+            }
+        }
+        
+        // Run global managers
+        creepManager.run();
+        marketManager.run();
+        powerManager.run();
+        visualManager.run();
+        
+        // Run all creeps
+        for (const name in Game.creeps) {
+            const creep = Game.creeps[name];
+            if (creep.spawning) continue;
+            
+            try {
+                switch (creep.memory.role) {
+                    case 'harvester':
+                        roleHarvester.run(creep);
+                        break;
+                    case 'upgrader':
+                        roleUpgrader.run(creep);
+                        break;
+                    case 'builder':
+                        roleBuilder.run(creep);
+                        break;
+                    case 'repairer':
+                        roleRepairer.run(creep);
+                        break;
+                    case 'wallRepairer':
+                        roleWallRepairer.run(creep);
+                        break;
+                    case 'claimer':
+                        roleClaimer.run(creep);
+                        break;
+                    case 'miner':
+                        roleMiner.run(creep);
+                        break;
+                    case 'hauler':
+                        roleHauler.run(creep);
+                        break;
+                    case 'defender':
+                        roleDefender.run(creep);
+                        break;
+                    case 'rangedAttacker':
+                        roleRangedAttacker.run(creep);
+                        break;
+                    case 'healer':
+                        roleHealer.run(creep);
+                        break;
+                    case 'scout':
+                        roleScout.run(creep);
+                        break;
+                    case 'remoteHarvester':
+                        roleRemoteHarvester.run(creep);
+                        break;
+                    case 'remoteHauler':
+                        roleRemoteHauler.run(creep);
+                        break;
+                    case 'remoteReserver':
+                        roleRemoteReserver.run(creep);
+                        break;
+                    default:
+                        utils.log(`Unknown creep role: ${creep.memory.role} for creep ${name}`, 'WARNING');
+                }
+            } catch (creepError) {
+                utils.log(`Error running creep ${name} (${creep.memory.role}): ${creepError.stack}`, 'ERROR');
+            }
+        }
+        
+        // Cleanup dead creep memory
+        for (const name in Memory.creeps) {
+            if (!Game.creeps[name]) {
+                delete Memory.creeps[name];
+            }
+        }
+        
+        // Garbage collection hint
+        if (Game.time % 100 === 0) {
+            global.gc && global.gc();
+        }
+        
+    } catch (error) {
+        utils.log(`Critical error in main loop: ${error.stack}`, 'CRITICAL');
+        Game.notify(`Critical error: ${error.message}`);
+    }
+    
+    // CPU profiling
+    if (constants.PROFILER_ENABLED) {
+        profiler.wrap(() => {});
+    }
+    
+    const elapsed = Game.cpu.getUsed() - startCpu;
+    if (elapsed > constants.CPU_WARNING_THRESHOLD) {
+        utils.log(`High CPU usage: ${elapsed.toFixed(2)}`, 'WARNING');
+    }
+    
+    // Log CPU stats periodically
+    if (Game.time % 100 === 0) {
+        utils.log(`Tick ${Game.time}: CPU ${elapsed.toFixed(2)}/${Game.cpu.limit} (bucket: ${Game.cpu.bucket})`, 'INFO');
+    }
 };
 
-// Export other functions as necessary
-export const existingExport1 = () => {
-  // existing implementation
-};
-
-export const existingExport2 = () => {
-  // existing implementation
-};
-
-export const newFeature = () => {
-  // implementation for new feature
-};
-
-// Your existing exports (preserved)
-```
-
-In this resolved version, the code from both branches was integrated while keeping important changes from both sides. The JavaScript file gained the ability to get the HTML lang attribute from the React component, and it is now using this value or the Next.js value if not found in the component. Additionally, the `MyTable` component has been updated to maintain its structure but also inherits the lang attribute from the root HTML element for better accessibility. The table header and table row structure has also been preserved, as well as other existing functions and main content rendering.
+// Initialize global prototypes
+require('prototype.creep');
+require('prototype.room');
+require('prototype.structure');
+require('prototype.spawn');
+require('prototype.source');

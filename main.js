@@ -1,10 +1,10 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
 import './index.css';
 import { useState } from 'react';
 import Table from 'react-bootstrap/Table';
+import { useRouter } from 'next/router';
 
 // First, let's add necessary import
 import { useRouter } from 'next/router';

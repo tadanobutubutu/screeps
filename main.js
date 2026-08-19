@@ -1,22 +1,22 @@
-Here is the resolved version of the `main.js` file, combining both changes:
-
-```javascript
-tsx
 import React from 'react';
 
 // ... other imports
 
-const Body = () => {
-  // Add original Body component elements here if necessary
+const Body = ({ children }) => {
+  return (
+    <body className="min-h-screen flex flex-col">
+      <main className="flex-1">
+        {children}
+      </main>
+    </body>
+  );
 };
 
 const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Body>
-        <main>
-          {/* Your primary content here */}
-        </main>
+        {/* Your primary content here */}
       </Body>
     </div>
   );
@@ -25,6 +25,3 @@ const App: React.FC = () => {
 // ... other code
 
 export default App;
-```
-
-I merged the `div` structure from one branch, added the `Body` component for the structuring of main content, and combined the original and new `main` elements. This way, both changes have been incorporated, and the structure stays consistent.

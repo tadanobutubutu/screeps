@@ -32,3 +32,27 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Export for testing
+module.exports = {
+    isRotated,
+    rotateContent: function() {
+        const content = document.getElementById('content');
+        if (content) {
+            if (isRotated) {
+                content.style.transform = 'rotate(0deg)';
+                isRotated = false;
+            } else {
+                content.style.transform = 'rotate(90deg)';
+                isRotated = true;
+            }
+        }
+    },
+    unrotateContent: function() {
+        const content = document.getElementById('content');
+        if (content) {
+            content.style.transform = 'rotate(0deg)';
+            isRotated = false;
+        }
+    }
+};

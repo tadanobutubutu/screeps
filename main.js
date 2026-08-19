@@ -1,32 +1,24 @@
-tsx
-// app/layout.tsx
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "AI Code Review",
-  description: "Automated code review powered by AI",
-  icons: {
-    icon: [
-      {
-        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' aria-hidden='true'><text y='.9em' font-size='90'>🔍</text></svg>",
-        type: "image/svg+xml",
-      },
-    ],
-  },
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function DataView({ data, isLoading, error }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
-    </html>
+    <main>
+      {isLoading && (
+        <section aria-busy="true" aria-label="Loading content">
+          <p>Loading...</p>
+        </section>
+      )}
+      
+      {error && (
+        <section role="alert" aria-label="Error message">
+          <p>Error: {error}</p>
+        </section>
+      )}
+      
+      {!isLoading && !error && data && (
+        <section aria-label="Main content">
+          <h1>{data.title}</h1>
+          <p>{data.description}</p>
+        </section>
+      )}
+    </main>
   );
 }

@@ -52,8 +52,99 @@ async function updateReactToV19() {
     }
 }
 
+/**
+ * Adds accessibility attributes to React components
+ * @param {Object} component - The React component to enhance
+ * @returns {Object} The enhanced component with accessibility attributes
+ */
+function enhanceComponentAccessibility(component) {
+    // Add lang attribute if missing
+    if (!component.props.lang) {
+        component.props.lang = 'en';
+    }
+
+    // Ensure proper table structure if component is a table
+    if (component.type === 'table') {
+        if (!component.props.role) {
+            component.props.role = 'table';
+        }
+        // Additional table structure checks would be implemented here
+    }
+
+    // Add ARIA landmarks if missing
+    if (['header', 'main', 'footer', 'nav', 'aside'].includes(component.type)) {
+        if (!component.props.role) {
+            component.props.role = component.type;
+        }
+    }
+
+    // Add accessible names for SVG elements
+    if (component.type === 'svg') {
+        if (!component.props['aria-label'] && !component.props['aria-labelledby']) {
+            component.props['aria-label'] = 'Graphic';
+        }
+    }
+
+    return component;
+}
+
+/**
+ * Validates accessibility of React components
+ * @param {Object} component - The React component to validate
+ * @returns {boolean} True if component is accessible, false otherwise
+ */
+function validateComponentAccessibility(component) {
+    // Check for language attribute
+    if (!component.props.lang && component.type !== 'html') {
+        console.warn('Missing language attribute for component:', component.type);
+        return false;
+    }
+
+    // Check table structure
+    if (component.type === 'table') {
+        // Basic table structure validation
+        const hasThead = component.props.children.some(child =>
+            child.type === 'thead' || (child.props && child.props.role === 'rowgroup')
+        );
+        const hasTbody = component.props.children.some(child =>
+            child.type === 'tbody' || (child.props && child.props.role === 'rowgroup')
+        );
+
+        if (!hasThead || !hasTbody) {
+            console.warn('Table missing proper structure:', component.type);
+            return false;
+        }
+    }
+
+    // Check landmarks
+    if (['header', 'main', 'footer', 'nav', 'aside'].includes(component.type)) {
+        if (!component.props.role) {
+            console.warn('Missing role for landmark component:', component.type);
+            return false;
+        }
+    }
+
+    // Check SVG accessibility
+    if (component.type === 'svg') {
+        if (!component.props['aria-label'] && !component.props['aria-labelledby']) {
+            console.warn('SVG missing accessible name:', component.type);
+            return false;
+        }
+    }
+
+    // Check for fake links
+    if (component.type === 'a' && !component.props.href) {
+        console.warn('Fake link detected - missing href:', component.type);
+        return false;
+    }
+
+    return true;
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
-    updateReactToV19
+    updateReactToV19,
+    enhanceComponentAccessibility,
+    validateComponentAccessibility
 };

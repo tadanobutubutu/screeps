@@ -1,35 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-
-// main.js - Updated to fix REACT_036 accessibility warning
-
-// Handle rotate button click
-document.getElementById('rotate').addEventListener('click', function() {
-    const content = document.getElementById('content');
-    if (isRotated) {
-        content.style.transform = 'rotate(0deg)';
-        isRotated = false;
-    } else {
-        content.style.transform = 'rotate(90deg)';
-        isRotated = true;
-    }
-});
-
-// Handle unrotate button click (using button element for accessibility)
-document.getElementById('unrotate').addEventListener('click', function() {
-    const content = document.getElementById('content');
-    content.style.transform = 'rotate(0deg)';
-    isRotated = false;
-});
-
-// Add lang attribute to html element
-React.useEffect(() => {
-  document.documentElement.lang = 'en'; // Set your default language here
-}, []);
-
-return (
-  <Component {...pageProps} />
-);
+import { useSession } from 'next-auth/react';
+import { getDashboardData } from '../lib/api';
+import { DashboardData } from '../types/dashboard';
 
 // Fix for REACT_027 (React Table Structure)
 export const AccessibleTable = ({ data, headers }) => {
@@ -125,13 +98,65 @@ export const existingFunction2 = () => {
   // ... existing implementation
 };
 
-// Sample content
-const content = document.getElementById('content');
-if (content) {
-    content.innerHTML = `
-        <h1>Welcome to the App</h1>
-        <p>Click the rotate button to rotate the content.</p>
-        <button id="rotate">Rotate</button>
-        <button id="unrotate">rotate back</button>
-    `;
-}
+const Dashboard = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        const result = await getDashboardData(session.user.id);
+        setData(result);
+      } catch (err) {
+        setError('Failed to load dashboard data');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [session, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <section className="text-center">
+          <h2 className="text-xl font-bold mb-4">Error</h2>
+          <p>{error}</p>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <main className="min-h-screen p-4">
+      <section className="container mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        {data && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Dashboard content */}
+          </div>
+        )}
+      </section>
+    </main>
+  );
+};
+
+export default Dashboard;

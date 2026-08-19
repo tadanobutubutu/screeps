@@ -89,4 +89,10 @@ function addLangAttribute(htmlContent) {
   return htmlContent.replace(/<html([^>]*)>/, '<html lang="en"$1>');
 }
 
-module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute };
+// New function to fix React Table Structure issue
+function addTableHeaderScope(htmlContent) {
+  // Add scope="col" to all th elements in tables
+  return htmlContent.replace(/<th([^>]*)>/g, '<th scope="col"$1>');
+}
+
+module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute, addTableHeaderScope };

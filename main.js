@@ -1,24 +1,144 @@
-// Preserve all existing code from main.js
-// Then add the following function to handle the rotation:
+import React, { useState, useEffect } from 'react';
 
-function rotateBackHandler() {
-  // Implement your rotation logic here
-  console.log('Rotating back');
-}
+const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
+    const [errCopyHover, setErrCopyHover] = useState(false);
+    const [copied, setCopied] = useState(false);
+    const [errRetryHover, setErrRetryHover] = useState(false);
 
-// The HTML link should be replaced with a proper React component
-// This would typically be in your React component file, not main.js
-// For example:
-/*
-import React from 'react';
+    const rotateBackHandler = () => {
+        // Implement your rotation logic here
+        console.log('Rotating back');
+    };
 
-function RotationButton() {
-  return (
-    <button id="unrotate" onClick={rotateBackHandler}>
-      rotate back
-    </button>
-  );
-}
+    const copyErr = async () => {
+        try {
+            await navigator.clipboard.writeText(error);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy error:', err);
+        }
+    };
 
-export default RotationButton;
-*/
+    if (error) {
+        return (
+            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+                <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+                <pre
+                    tabIndex={0}
+                    aria-label="エラーメッセージ詳細"
+                    style={{
+                        color: '#c53030',
+                        backgroundColor: '#fff5f5',
+                        padding: '1rem',
+                        borderRadius: '4px',
+                        overflow: 'auto',
+                    }}
+                >
+                    {error}
+                </pre>
+                <button
+                    onClick={copyErr}
+                    onMouseEnter={() => setErrCopyHover(true)}
+                    onMouseLeave={() => setErrCopyHover(false)}
+                    onFocus={() => setErrCopyHover(true)}
+                    onBlur={() => setErrCopyHover(false)}
+                    aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+                    title={copied ? 'コピー済み' : 'エラーをコピー'}
+                    style={{
+                        backgroundColor: copied ? '#155d27' : '#004b73',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                        filter: errCopyHover ? 'brightness(1.1)' : 'none',
+                    }}
+                >
+                    {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+                </button>
+                <button
+                    onClick={() => fetchStats(true)}
+                    disabled={refreshing}
+                    onMouseEnter={() => setErrRetryHover(true)}
+                    onMouseLeave={() => setErrRetryHover(false)}
+                    style={{
+                        backgroundColor: '#004b73',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginLeft: '1rem',
+                        transition: 'all 0.2s ease-in-out',
+                        transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+                        boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                        filter: errRetryHover ? 'brightness(1.1)' : 'none',
+                    }}
+                >
+                    🔄 再試行
+                </button>
+                <button
+                    onClick={rotateBackHandler}
+                    style={{
+                        backgroundColor: '#2d3748',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginLeft: '1rem',
+                        transition: 'all 0.2s ease-in-out',
+                    }}
+                >
+                    回転を戻す
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <h1 style={{ color: '#1a365d' }}>📊 ダッシュボード</h1>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                {Object.entries(stats).map(([key, value]) => (
+                    <div
+                        key={key}
+                        style={{
+                            backgroundColor: '#f7fafc',
+                            borderRadius: '8px',
+                            padding: '1rem',
+                            flex: '1 1 200px',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                        }}
+                    >
+                        <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
+                        <p style={{ color: '#4a5568', fontSize: '1.5rem', marginBottom: 0 }}>
+                            {value}
+                        </p>
+                    </div>
+                ))}
+            </div>
+            <button
+                onClick={() => fetchStats(true)}
+                disabled={refreshing}
+                style={{
+                    backgroundColor: '#004b73',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginTop: '1rem',
+                }}
+            >
+                {refreshing ? '🔄 更新中...' : '🔄 データを更新'}
+            </button>
+        </div>
+    );
+};
+
+export default Dashboard;

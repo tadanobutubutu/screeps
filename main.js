@@ -47,5 +47,12 @@ const MainContent = ({ children }) => (
   </main>
 );
 
+// New function to generate table headers with proper scope attributes
+const generateTableHeader = (text, scope = 'col') => (
+  <th scope={scope}>
+    <div>{text}</div>
+  </th>
+);
+
 // Export all existing functions and add new ones
-export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates, MainContent };
+export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates, MainContent, generateTableHeader };

@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Original content from main.js with conflict markers
+/*
+<<<<<<< HEAD
+// ... existing code ...
+
+// Conflicting changes here
+export function someFunction() {
+    // ... existing code ...
+}
+
+=======
+
+// Changes requested in the issue
+export function someFunction() {
+    // ... modified code ...
+}
+
+>>>>>>> feature-branch
+// ... existing code ...
+*/

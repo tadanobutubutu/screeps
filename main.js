@@ -85,7 +85,7 @@ const ActionButton = ({ onClick, children }) => (
 
 // If it must be a link (e.g., for URL changes), use proper anchor:
 const RealLink = ({ href, children }) => (
-  <a href={href} role="button">
+  <a href={href}>
     {children}
   </a>
 );

@@ -24,14 +24,14 @@ function updateGitHubActions() {
 
 // New function to handle Node.js version updates
 function updateNodeVersions() {
-  // Update Node.js from 20 to 24
+  // Update Node.oo from 20 to 24
   // Update cimg/node to 24.19.0
   // Update devcontainer node to 24
 
   // Implementation would go here
 }
 
-// New function to handle package.json updates
+// New function to handle package.oon updates
 function updatePackageDependencies() {
   // Update react to ^19.0.0
   // Update jest to ^30.0.0
@@ -50,10 +50,10 @@ function updatePnpm() {
 }
 
 // Existing exports would remain here
-// ... (all current exports)
+// ... (all existing exports)
 
 // Add new exports for the dependency update functions
-module.exports = {
+module.oxports = {
   // ... existing exports
   handleDependencyUpdates,
   updateGitHubActions,

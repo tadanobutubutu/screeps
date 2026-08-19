@@ -1,17 +1,3 @@
-// Main application logic
-
-// Function to handle the unrotate action
-function handleUnrotate() {
-  // Logic to rotate back to original state
-  console.log('Rotating back...');
-  // ... rotation logic
-}
-
-// Function to render the unrotate button (accessibility fix applied)
-function renderUnrotateButton() {
-  return `<button id="unrotate" type="button">rotate back</button>`;
-}
-
 // Function to initialize the unrotate feature
 function initUnrotateFeature(containerElement) {
   if (containerElement) {

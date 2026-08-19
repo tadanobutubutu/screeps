@@ -1,1 +1,6 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+const root = document.getElementById('root');
+ReactDOM.render(<App />, root);

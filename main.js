@@ -1,13 +1,3 @@
-// main.js - Dependency Dashboard Management
-// This file manages dependency updates and schedules
-
-/**
- * DependencyDashboard class for managing and tracking software dependencies
- * @class
- * @access public
- * @description This class provides methods to track dependencies, schedule updates,
- *               and manage the update process with accessibility considerations.
- */
 class DependencyDashboard {
   constructor() {
     this.dependencies = new Map();
@@ -16,15 +6,6 @@ class DependencyDashboard {
     this.processedUpdates = [];
   }
 
-  /**
-   * Add a dependency to track
-   * @param {string} name - Dependency name
-   * @param {string} version - Current version
-   * @param {Object} metadata - Additional metadata
-   * @access public
-   * @example
-   * dashboard.addDependency('react', '18.2.0', { license: 'MIT' });
-   */
   addDependency(name, version, metadata = {}) {
     this.dependencies.set(name, {
       version,
@@ -33,15 +14,6 @@ class DependencyDashboard {
     });
   }
 
-  /**
-   * Schedule a dependency update
-   * @param {string} name - Dependency name
-   * @param {string} newVersion - New version to update to
-   * @param {string} type - Update type (major, minor, patch)
-   * @access public
-   * @example
-   * dashboard.scheduleUpdate('react', '18.3.0', 'minor');
-   */
   scheduleUpdate(name, newVersion, type = 'patch') {
     const dependency = this.dependencies.get(name);
     if (dependency) {
@@ -55,46 +27,18 @@ class DependencyDashboard {
     }
   }
 
-  /**
-   * Get all pending updates
-   * @returns {Array} List of pending updates
-   * @access public
-   * @example
-   * const updates = dashboard.getPendingUpdates();
-   */
   getPendingUpdates() {
     return [...this.pendingUpdates];
   }
 
-  /**
-   * Get all tracked dependencies
-   * @returns {Map} All dependencies
-   * @access public
-   * @example
-   * const deps = dashboard.getDependencies();
-   */
   getDependencies() {
     return new Map(this.dependencies);
   }
 
-  /**
-   * Get pending updates count
-   * @returns {number} Number of pending updates
-   * @access public
-   * @example
-   * const count = dashboard.getPendingUpdatesCount();
-   */
   getPendingUpdatesCount() {
     return this.pendingUpdates.length;
   }
 
-  /**
-   * Process pending updates (simulate applying updates)
-   * @returns {Array} List of processed updates
-   * @access public
-   * @example
-   * const results = dashboard.processPendingUpdates();
-   */
   processPendingUpdates() {
     const processed = [];
 
@@ -119,33 +63,14 @@ class DependencyDashboard {
     return processed;
   }
 
-  /**
-   * Get processed updates
-   * @returns {Array} List of processed updates
-   * @access public
-   * @example
-   * const updates = dashboard.getProcessedUpdates();
-   */
   getProcessedUpdates() {
     return [...this.processedUpdates];
   }
 
-  /**
-   * Clear all pending updates
-   * @access public
-   * @example
-   * dashboard.clearPendingUpdates();
-   */
   clearPendingUpdates() {
     this.pendingUpdates = [];
   }
 
-  /**
-   * Reset dashboard state
-   * @access public
-   * @example
-   * dashboard.reset();
-   */
   reset() {
     this.dependencies.clear();
     this.pendingUpdates = [];
@@ -153,13 +78,6 @@ class DependencyDashboard {
     this.blockedPRs = [];
   }
 
-  /**
-   * Get dashboard statistics
-   * @returns {Object} Dashboard statistics
-   * @access public
-   * @example
-   * const stats = dashboard.getStats();
-   */
   getStats() {
     return {
       totalDependencies: this.dependencies.size,
@@ -169,14 +87,6 @@ class DependencyDashboard {
     };
   }
 
-  /**
-   * Get accessibility information about the dashboard
-   * @returns {Object} Accessibility information
-   * @access public
-   * @description Provides information about how to use this dashboard in an accessible way
-   * @example
-   * const accessibilityInfo = dashboard.getAccessibilityInfo();
-   */
   getAccessibilityInfo() {
     return {
       description: 'Dependency Dashboard Management System',
@@ -188,13 +98,6 @@ class DependencyDashboard {
     };
   }
 
-  /**
-   * Get accessibility compliance status
-   * @returns {Object} Compliance status information
-   * @access public
-   * @example
-   * const compliance = dashboard.getComplianceStatus();
-   */
   getComplianceStatus() {
     return {
       wcag21: {

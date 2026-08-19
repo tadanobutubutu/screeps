@@ -1,4 +1,3 @@
-// Current main.js content (no changes needed as per the issue description)
 const path = require('path');
 const { Worker } = require('worker_threads');
 const { generateDependencyGraph } = require('./dependency-graph-generator');

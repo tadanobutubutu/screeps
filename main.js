@@ -1,1 +1,12 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+
+// Assuming children is a prop
+function Layout({ children }) {
+  return (
+    <body>
+      <main>{children}</main>
+    </body>
+  );
+}
+
+export default Layout;

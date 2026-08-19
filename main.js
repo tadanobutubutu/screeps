@@ -78,6 +78,26 @@ describe('MyComponent', () => {
       expect(link.getAttribute('href')).not.toBe('#');
     });
   });
+
+  // New test for specific table headers in dependency-graph.html
+  test('dependency-graph table headers have proper scope attributes', () => {
+    const { container } = render(<MyComponent />);
+    const table = container.querySelector('table');
+
+    if (table) {
+      const thElements = table.querySelectorAll('th');
+      thElements.forEach(th => {
+        // Check if this is one of the specific headers mentioned in the issue
+        if (th.textContent.includes('src/constants.js') ||
+            th.textContent.includes('src/managers/roomManager.js') ||
+            th.textContent.includes('src/managers/spawnManager.js') ||
+            th.textContent.includes('src/managers/towerManager.js') ||
+            th.textContent.includes('src/roles/builder.js')) {
+          expect(th).toHaveAttribute('scope', 'col');
+        }
+      });
+    }
+  });
 });
 
 // Add new test for React 19 compatibility

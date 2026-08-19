@@ -13,14 +13,15 @@ const AppLayout = ({ children }) => (
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body>
-    <main>{children}</main>
+    <main role="main">{children}</main>
   </body>
 );
 
 // For docs/dependency-graph.html
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
+  <main role="main" aria-labelledby="dependency-graph-title">
+    <h1 id="dependency-graph-title" className="sr-only">Dependency Graph</h1>
+    <table id="table-rotated" aria-label="Dependency graph visualization">
       {/* Table content */}
     </table>
   </main>
@@ -28,8 +29,9 @@ const DependencyGraph = () => (
 
 // For docs/index.html
 const DocsIndex = () => (
-  <main>
+  <main role="main" aria-labelledby="docs-index-title">
     <div className="container">
+      <h1 id="docs-index-title" className="sr-only">Documentation Index</h1>
       <h2>Quality & Metrics Reports</h2>
       <p>
         This repository is fully optimized with automated tools. Explore the generated

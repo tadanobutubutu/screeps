@@ -58,9 +58,11 @@ function makeSvgAccessible(svgElement, label) {
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
-        {children}
-      </main>
+      <html lang="en">
+        <main>
+          {children}
+        </main>
+      </html>
     </React.StrictMode>
   );
 };
@@ -69,9 +71,11 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
-        {children}
-      </main>
+      <html lang="en">
+        <main>
+          {children}
+        </main>
+      </html>
     </React.StrictMode>
   );
 };
@@ -80,11 +84,13 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
-      <table id="table-rotated">
-        {/* table content */}
-      </table>
-    </main>
+    <html lang="en">
+      <main>
+        <table id="table-rotated">
+          {/* table content */}
+        </table>
+      </main>
+    </html>
   );
 };
 
@@ -92,19 +98,21 @@ const DependencyGraph = () => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DocsIndex = () => {
   return (
-    <main>
-      <div className="container">
-        <h2>Quality & Metrics Reports</h2>
-        <p>
-          This repository is fully optimized with automated tools. Explore the generated
-          reports below:
-        </p>
-        <div className="links">
-          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+    <html lang="en">
+      <main>
+        <div className="container">
+          <h2>Quality & Metrics Reports</h2>
+          <p>
+            This repository is fully optimized with automated tools. Explore the generated
+            reports below:
+          </p>
+          <div className="links">
+            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </html>
   );
 };
 

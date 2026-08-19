@@ -126,4 +126,18 @@ function makeSvgAccessible(svgElement, label) {
   });
 }
 
+// New function to handle the rotate back action as a button
+export function RotateBackButton({ onClick, children = 'rotate back' }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      className="rotate-back-button"
+      aria-label="Rotate back to original view"
+    >
+      {children}
+    </button>
+  );
+}
+
 // ... (rest of existing code remains unchanged)

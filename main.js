@@ -9,3 +9,23 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Add a wrapper component to ensure only one main element
+function MainWrapper({ children }) {
+  return (
+    <div className="app-container">
+      <main>
+        {children}
+      </main>
+    </div>
+  );
+}
+
+// Update the root render to use the wrapper
+root.render(
+  <React.StrictMode>
+    <MainWrapper>
+      <App />
+    </MainWrapper>
+  </React.StrictMode>
+);

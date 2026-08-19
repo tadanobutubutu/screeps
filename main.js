@@ -19,3 +19,20 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// New component for the dependency graph table
+export function DependencyGraphTable() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">File</th>
+          <th scope="col">Dependencies</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table content would go here */}
+      </tbody>
+    </table>
+  );
+}

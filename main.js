@@ -16,9 +16,27 @@
 // Fix REACT_036: React Fake Link
 // Use real <a> tags for navigation, <button> for actions
 
-// All existing exports and functions are preserved
-// Only accessibility improvements were added
+import React from 'react';
 
-module.exports = {
-  // ... existing exports
-};
+class RotateBack extends React.Component {
+  render() {
+    // ... other component code ...
+
+    // Replace the anchor tag with a button
+    return (
+      <div>
+        {/* Other content */}
+        <button id="unrotate" onClick={this.rotateBackHandler}>rotate back</button>
+        {/* Other content */}
+      </div>
+    );
+  }
+
+  rotateBackHandler = () => {
+    // Handler logic for rotating back
+    console.log('Rotating back...');
+    // Perform the necessary action to rotate back
+  }
+}
+
+export default RotateBack;

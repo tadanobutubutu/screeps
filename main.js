@@ -3,7 +3,7 @@ tsx
 // Line 7 should be updated to include aria-label or aria-hidden
 
 import { Html, Head, Main, NextScript } from 'next/document'
- 
+
 export default function Document() {
   return (
     <Html lang="en">
@@ -15,7 +15,7 @@ export default function Document() {
         <meta property="og:image:height" content="630" />
         <meta property="og:title" content="Title" />
         <meta property="og:description" content="Description" />
-        <svg aria-hidden="true" /> {/* or use aria-label="Description" for accessible name */}
+        <svg aria-label="Screeps logo" />
       </Head>
       <body>
         <Main />

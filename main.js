@@ -17,11 +17,23 @@ const DashboardLayout = ({ children }) => (
   </body>
 );
 
-// For dashboard/app/dependency-graph/page.tsx
+// For ...
 const DependencyGraph = () => (
   <main>
     <table id="table-rotated">
-      {/* Table content */}
+      <thead>
+        <tr>
+          <th scope="col">Package</th>
+          <th scope="col">Version</th>
+          <th scope="col">Dependencies</th>
+          <th scope="col">Dependents</th>
+          <th scope="col">Size</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table content */}
+      </tbody>
     </table>
   </main>
 );
@@ -36,7 +48,7 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="/dependency-graph">Plato Code Complexity Report</a>
+        <a ... Code Complexity Report</a>
         <a href="/dependency-graph">Dependency Graph</a>
       </div>
     </div>
@@ -44,7 +56,7 @@ const DocsIndex = () => (
 );
 
 // Main application render
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

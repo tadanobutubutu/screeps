@@ -14,4 +14,18 @@ describe('docs/dependency-graph.html', () => {
       expect(th.getAttribute('scope')).toBeDefined();
     });
   });
+
+  it('should use button instead of hash-only href for in-page actions', () => {
+    const htmlContent = fs.readFileSync(path.join(__dirname, 'docs', 'dependency-graph.html'), 'utf8');
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+
+    // Check for the rotate back link
+    const rotateBackLink = doc.querySelector('#unrotate');
+    expect(rotateBackLink).toBeNull(); // The link should not exist anymore
+
+    // Alternatively, if you're keeping the link but changing it to a button:
+    // const rotateBackButton = doc.querySelector('#unrotate');
+    // expect(rotateBackButton.tagName).toBe('BUTTON');
+  });
 });

@@ -74,6 +74,18 @@ export const createMainContent = (children, isError = false) => {
 };
 
 /**
+ * Creates a conditional main content container that ensures only one main element exists
+ * Fixes REACT_025: React Unique Landmarks
+ */
+export const createConditionalMainContent = (successContent, errorContent, isError = false) => {
+  return (
+    <main role="main" aria-label={isError ? "Error content" : "Main content"}>
+      {isError ? errorContent : successContent}
+    </main>
+  );
+};
+
+/**
  * Adds accessible names to SVG elements
  * Fixes REACT_041: React SVG Accessible Name
  */

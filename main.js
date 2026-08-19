@@ -6,13 +6,13 @@ export function DataView({ data, isLoading, error }) {
           <p>Loading...</p>
         </section>
       )}
-      
+
       {error && (
         <section role="alert" aria-label="Error message">
           <p>Error: {error}</p>
         </section>
       )}
-      
+
       {!isLoading && !error && data && (
         <section aria-label="Main content">
           <h1>{data.title}</h1>

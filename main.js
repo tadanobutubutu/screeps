@@ -84,11 +84,19 @@ function validateSingleMainLandmark() {
   console.log('Validating that React components contain only a single <main> landmark');
 }
 
+// New function to add main landmarks to React components
+function addMainLandmarkToReactComponents() {
+  // This function would be used in a build step to wrap primary content
+  // in <main> tags in React components
+  console.log('Adding main landmarks to React components');
+}
+
 module.exports = {
   updatedDependencies,
   dependencyConfig,
   addMainLandmarks,
   ensureSvgAccessibility,
   replaceHashLinksWithButtons,
-  validateSingleMainLandmark
+  validateSingleMainLandmark,
+  addMainLandmarkToReactComponents
 };

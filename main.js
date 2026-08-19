@@ -12,5 +12,3 @@
 // <a id="unrotate" href="#">rotate back</a>
 // to:
 // <button id="unrotate">rotate back</button>
-
-console.log('Main.js content remains unchanged as the fix is for HTML');

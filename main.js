@@ -70,11 +70,11 @@ function MyTable() {
   return (
     <div lang="en">
       <h1>Users List</h1>
-      <Table>
+      <Table aria-label="Users table" role="table">
         <thead>
           <tr>
             {tableHeaders.map((header) => (
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              <th key={`th-${header}`} scope="col">{header}</th>
             ))}
           </tr>
         </thead>
@@ -91,10 +91,10 @@ function Main() {
     <>
       <h1>My Page</h1>
       <MyTable />
-      <main id="main-content">
+      <main id="main-content" role="main">
         {/* Component content here */}
       </main>
-      <footer id="footer">
+      <footer id="footer" role="contentinfo">
         {/* Footer content here */}
       </footer>
       <nav aria-label="Main Navigation">

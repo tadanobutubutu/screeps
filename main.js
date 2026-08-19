@@ -1,35 +1,14 @@
-// Main application file with React table structure
-import React from 'react';
+// Main entry point for the application
+// This file serves as the JavaScript entry point
 
-const App = () => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Alice</td>
-          <td>Developer</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Bob</td>
-          <td>Designer</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>Charlie</td>
-          <td>Manager</td>
-        </tr>
-      </tbody>
-    </table>
-  );
-};
+// Export any necessary functions or initialize the application
+function initializeApp() {
+  console.log('Application initialized');
+}
 
-export default App;
+// Auto-initialize if in browser environment
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', initializeApp);
+}
+
+module.exports = { initializeApp };

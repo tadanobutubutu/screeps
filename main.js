@@ -56,3 +56,70 @@ function TableComponent() {
 // 1. HTML should not be directly in JavaScript files
 // 2. If using React, use JSX syntax
 // 3. If using plain HTML, keep it as strings or in separate files
+
+// Additional changes for React Landmarks issue:
+
+// For app/layout.tsx and dashboard/app/layout.tsx (React components)
+/*
+import { ReactNode } from 'react';
+
+interface LayoutProps {
+  children: ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
+*/
+
+// For docs/dependency-graph.html (HTML file)
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dependency Graph</title>
+</head>
+<body>
+    <main>
+        <table id="table-rotated">
+            <!-- table content -->
+        </table>
+    </main>
+</body>
+</html>
+*/
+
+// For docs/index.html (HTML file)
+/*
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quality & Metrics Reports</title>
+</head>
+<body>
+    <main>
+        <div class="container">
+            <h2>Quality & Metrics Reports</h2>
+            <p>
+                This repository is fully optimized with automated tools. Explore the generated
+                reports below:
+            </p>
+            <div class="links">
+                <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+                <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
+*/

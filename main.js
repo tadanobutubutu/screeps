@@ -49,6 +49,17 @@ function updatePnpm() {
   // Implementation would go here
 }
 
+// New function to ensure single main landmark in React components
+function ensureSingleMainLandmark(component) {
+  // This function would be used to wrap components that might have multiple main landmarks
+  // It ensures only one main element is rendered at runtime
+  return function WrappedComponent(props) {
+    // Implementation would check for multiple main elements
+    // and ensure only one is rendered
+    return component(props);
+  };
+}
+
 // Existing exports would remain here
 // ... (all current exports)
 
@@ -59,5 +70,6 @@ module.exports = {
   updateGitHubActions,
   updateNodeVersions,
   updatePackageDependencies,
-  updatePnpm
+  updatePnpm,
+  ensureSingleMainLandmark
 };

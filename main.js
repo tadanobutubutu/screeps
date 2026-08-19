@@ -1,15 +1,24 @@
-// tests/example.test.js
+import React, { useState } from 'react';
 
-import { render } from '@testing-library/react';
-import MyComponent from '../../path/to/MyComponent';
+const MyComponent = () => {
+  const [isRotated, setIsRotated] = useState(false);
 
-describe('MyComponent', () => {
-  test('all <th> elements have the scope attribute', () => {
-    const { getByText } = render(<MyComponent />);
-    const allThElements = getByText(/header/i).closest('table').querySelectorAll('th');
+  const handleUnrotate = () => {
+    setIsRotated(false);
+  };
 
-    allThElements.forEach((th) => {
-      expect(th).toHaveAttribute('scope');
-    });
-  });
-});
+  return (
+    <div className={`container ${isRotated ? 'rotated' : ''}`}>
+      <h1>My Component</h1>
+      <p>This is some content that can be rotated.</p>
+      
+      {isRotated && (
+        <button id="unrotate" onClick={handleUnrotate}>
+          rotate back
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default MyComponent;

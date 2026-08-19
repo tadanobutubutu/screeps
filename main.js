@@ -1,11 +1,19 @@
 // main.js - Fixed Accessibility Issues
 
+// Ensure the root element has a lang attribute set to English
+document.documentElement.lang = 'en';
+
 // REACT_015: React Language Attribute - Added lang attribute
 // REACT_017: React Landmarks - Using semantic landmarks
 // REACT_025: React Unique Landmarks - Each landmark is unique
 // REACT_036: React Fake Link - Using proper <a> tags
 
 import React from 'react';
+
+// Adjust any functions that manipulate the document's root element to respect the lang attribute
+function setLanguage(language) {
+  document.documentElement.lang = language;
+}
 
 // Sample components demonstrating accessibility fixes
 
@@ -66,7 +74,6 @@ function App() {
   ];
 
   return (
-    // REACT_015: React Language Attribute - Added lang attribute
     <div lang="en">
       {/* REACT_017: React Landmarks - Using semantic landmark tags */}
       <header role="banner">

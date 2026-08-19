@@ -1,5 +1,1 @@
-// main.js
-// Issue REACT_015 concerns docs/dependency-graph.html, not main.js.
-// No changes required for main.js.
-// The <html> element in docs/dependency-graph.html needs lang="en" added for screen reader compatibility.
-// Existing exports, functions, and code structure are preserved (unchanged).
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

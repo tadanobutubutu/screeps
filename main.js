@@ -53,6 +53,44 @@ async function updateReactToV19() {
 }
 
 /**
+ * Ensures only one <main> element exists in the component hierarchy
+ * @param {Object} component - The React component to validate
+ * @returns {boolean} True if only one <main> element exists, false otherwise
+ */
+function ensureSingleMainElement(component) {
+    // Count all main elements in the component hierarchy
+    let mainCount = 0;
+
+    function traverse(node) {
+        if (node.type === 'main') {
+            mainCount++;
+        }
+
+        // Recursively check children
+        if (node.props && node.props.children) {
+            if (Array.isArray(node.props.children)) {
+                node.props.children.forEach(child => {
+                    if (typeof child === 'object' && child !== null) {
+                        traverse(child);
+                    }
+                });
+            } else if (typeof node.props.children === 'object' && node.props.children !== null) {
+                traverse(node.props.children);
+            }
+        }
+    }
+
+    traverse(component);
+
+    if (mainCount > 1) {
+        console.warn(`Multiple main elements found (${mainCount}). Only one main element should exist in the component hierarchy.`);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Adds accessibility attributes to React components
  * @param {Object} component - The React component to enhance
  * @returns {Object} The enhanced component with accessibility attributes
@@ -158,6 +196,7 @@ module.exports = {
     generateDependencyGraph,
     updateJestToV30,
     updateReactToV19,
+    ensureSingleMainElement,
     enhanceComponentAccessibility,
     validateComponentAccessibility
 };

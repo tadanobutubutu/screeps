@@ -95,6 +95,15 @@ class ErrorBoundary extends React.Component {
     }
 }
 
+// Add a helper function to create accessible table headers
+const createAccessibleTableHeader = (content, scope = 'col') => {
+    return (
+        <th scope={scope}>
+            <div>{content}</div>
+        </th>
+    )
+}
+
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
@@ -122,4 +131,4 @@ export default function RootLayout({
   )
 }
 
-export { ErrorBoundary, handleUnrotate }
+export { ErrorBoundary, handleUnrotate, createAccessibleTableHeader }

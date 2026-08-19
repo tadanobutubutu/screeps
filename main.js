@@ -33,6 +33,12 @@ document.documentElement.lang = 'en'; // Add language attribute to root element
 
 // Accessibility improvements for REACT_041 (React SVG Accessible Name)
 // Add title or aria-label to SVG elements when needed
+// This would be implemented in the React components like app/layout.tsx
+// For example:
+// <svg aria-label="Application logo" ...>
+//   <title>Application Logo</title>
+//   ...
+// </svg>
 
 // Accessibility improvements for REACT_025 (React Unique Landmarks)
 // Ensure landmarks have unique labels or roles
@@ -61,3 +67,26 @@ function ensureProperLandmarks() {
   // This would be implemented in the React components
   // to ensure all content is properly wrapped in semantic HTML5 elements
 }
+
+// Function to add accessible names to SVG elements
+function makeSVGAccessible() {
+  // This would be implemented in the React components
+  // For example in app/layout.tsx:
+  /*
+  <svg aria-label="Application favicon" aria-hidden="true">
+    <title>Application Favicon</title>
+    // SVG content
+  </svg>
+  */
+
+  // For non-decorative SVGs, you would use:
+  /*
+  <svg aria-label="Chart visualization">
+    <title>Data Chart</title>
+    // SVG content
+  </svg>
+  */
+}
+
+// Add this function to the exports if needed
+export { makeSVGAccessible };

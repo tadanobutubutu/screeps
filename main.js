@@ -1,2 +1,1 @@
-// Unable to generate updated main.js: original content not provided.
-// Please provide the current main.js content so I can apply the required changes.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

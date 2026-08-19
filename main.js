@@ -46,3 +46,17 @@
 // // ... rest of the main.js file ...
 // >>>>>>> branch-name
 // // ... rest of the main.js file ...
+
+// New implementation with <main> element
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+ReactDOM.render(
+  <React.StrictMode>
+    <main>
+      <App />
+    </main>
+  </React.StrictMode>,
+  document.getElementById('root')
+);

@@ -39,3 +39,25 @@ document.documentElement.lang = 'en'; // Add language attribute to root element
 
 // Accessibility improvements for REACT_036 (React Fake Link)
 // Replace fake links with proper <button> elements or add proper ARIA attributes
+
+// Add main landmark to layout components
+function addMainLandmark() {
+  // This would be implemented in the React components
+  // For example in app/layout.tsx:
+  // <body className="min-h-screen flex flex-col">
+  //   <main className="flex-1">{children}</main>
+  // </body>
+
+  // For HTML files like docs/index.html:
+  // <main>
+  //   <div class="container">
+  //     <!-- content -->
+  //   </div>
+  // </main>
+}
+
+// Add this function to ensure proper landmarks are used
+function ensureProperLandmarks() {
+  // This would be implemented in the React components
+  // to ensure all content is properly wrapped in semantic HTML5 elements
+}

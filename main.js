@@ -1,1 +1,27 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Current main.js content with conflict markers
+// <<<<<<< HEAD
+// import React from 'react';
+
+// const DependencyGraph = () => {
+//   return (
+//     // ... other JSX ...
+//     <a id="unrotate" href="#">rotate back</a>
+//     // ... other JSX ...
+//   );
+// };
+
+// export default DependencyGraph;
+// >>>>>>> origin/main
+
+// Updated main.js content
+import React from 'react';
+
+const DependencyGraph = () => {
+  return (
+    // ... other JSX ...
+    <button id="unrotate" onClick={() => {/* Your action here */}}>rotate back</button>
+    // ... other JSX ...
+  );
+};
+
+export default DependencyGraph;

@@ -1,4 +1,3 @@
-// Existing code from main.js (preserved exactly as is)
 const constants = require('./src/constants');
 const roomManager = require('./src/managers/roomManager');
 const spawnManager = require('./src/managers/spawnManager');

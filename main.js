@@ -49,6 +49,12 @@ function updatePnpm() {
   // Implementation would go here
 }
 
+// New function to fix React Unique Landmarks issue
+function fixReactUniqueLandmarks() {
+  // This function would be used to modify components to ensure only one <main> element
+  // Implementation would go here
+}
+
 // Existing exports would remain here
 // ... (all current exports)
 
@@ -59,5 +65,6 @@ module.exports = {
   updateGitHubActions,
   updateNodeVersions,
   updatePackageDependencies,
-  updatePnpm
+  updatePnpm,
+  fixReactUniqueLandmarks
 };

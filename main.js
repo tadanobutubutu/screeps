@@ -8,11 +8,16 @@ function unrotate() {
     // existing unrotate logic
 }
 
+function rotateBack() {
+    // New logic to replace the link with a button for in-page action
+}
+
 // ... other existing code ...
 
 // Export all functions
 module.exports = {
     rotate,
     unrotate,
+    rotateBack,
     // ... other exports ...
 };

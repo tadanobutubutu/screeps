@@ -24,6 +24,9 @@ const DashboardLayout = ({ children }) => (
 // For docs/index.html
 // Similarly, this would need to be modified in the HTML file
 
+// Import the DependencyDashboard class from the origin file
+import DependencyDashboard from './DependencyDashboard';
+
 // Render the main app
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -34,3 +37,6 @@ root.render(
 
 // Export all existing functions if any
 export { /* existing exports */ };
+
+// Export the DependencyDashboard class for external use
+export { DependencyDashboard };

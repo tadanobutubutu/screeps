@@ -73,4 +73,14 @@ function getFixedLayouts() {
   };
 }
 
-module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts };
+// New function to fix SVG accessibility issues
+function makeSvgAccessible(svgContent, isDecorative = true) {
+  if (isDecorative) {
+    return svgContent.replace('<svg', '<svg aria-hidden="true"');
+  }
+  // For non-decorative SVGs, you would add aria-label or title here
+  // This is a placeholder - adjust based on your actual needs
+  return svgContent;
+}
+
+module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible };

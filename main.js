@@ -82,4 +82,17 @@ function ActionButton({ onClick, label }) {
   );
 }
 
+// Additional component for the rotate back functionality
+function RotateBackButton({ onClick }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label="Rotate back"
+    >
+      rotate back
+    </button>
+  );
+}
+
 // ... (rest of your existing code remains unchanged)

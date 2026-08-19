@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
@@ -38,7 +37,7 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -97,7 +96,7 @@ const Dashboard = () => {
                 >
                     🔄 再試行
                 </button>
-            </div>
+            </main>
         );
     }
 
@@ -106,14 +105,14 @@ const Dashboard = () => {
     }
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <main style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                 {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem' }}>
+                    <section key={key} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem' }}>
                         <h3 style={{ marginTop: 0 }}>{key}</h3>
                         <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{value}</p>
-                    </div>
+                    </section>
                 ))}
             </div>
             <button
@@ -131,7 +130,7 @@ const Dashboard = () => {
             >
                 {refreshing ? '更新中...' : '更新'}
             </button>
-        </div>
+        </main>
     );
 };
 

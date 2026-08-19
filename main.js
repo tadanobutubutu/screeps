@@ -10,7 +10,7 @@ import Table from 'react-bootstrap/Table';
 import { useRouter } from 'next/router';
 
 // Existing code (preserved)
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -43,16 +43,16 @@ export const newFeature = () => {
 function MyTable() {
   const [data, setData] = useState([
     { id: 1, name: 'John Doe', email: 'johndoe@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'janesmith@example.com' },
+    { id: 2, name: 'Jane Smith', email: ... },
     // More data rows...
   ]);
 
   // Addressing REACT_027 - React Table Structure
-  const tableHeaders = Object.keys(data[0]);
+  const tableHeaders = ...
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <Table.Cell ...
       ))}
     </tr>
   ));
@@ -83,30 +83,28 @@ export default function Main() {
 
   return (
     <>
-      <h1>My Page</h1>
-      <MyTable />
-      {/* More components... */}
+      {/* Navigation landmarks */}
+      <nav aria-label="Main Navigation">
+        <ul>
+          {router.routes.map((route) => (
+            <li key={route.id}>
+              <a ...
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      {/* Add landmark for main content */}
+      {/* Add landmark for main content - REACT_017 fix */}
       <main id="main-content">
-        {/* Component content here */}
+        <h1>My Page</h1>
+        <MyTable />
+        {/* More components... */}
       </main>
 
       {/* Add landmark for footer */}
       <footer id="footer">
         {/* Footer content here */}
       </footer>
-
-      {/* Navigation landmarks */}
-      <nav aria-label="Main Navigation">
-        <ul>
-          {router.routes.map((route) => (
-            <li key={route.id}>
-              <a href={route.asPath}>{route.id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
     </>
   );
 }

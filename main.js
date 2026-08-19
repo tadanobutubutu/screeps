@@ -43,7 +43,7 @@ function MyTable() {
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <td key={`cell-${header}-${row.id}`}>{row[header]}</td>
       ))}
     </tr>
   ));
@@ -57,8 +57,8 @@ function MyTable() {
         <thead>
           <tr>
             {tableHeaders.map((header) => (
-              // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              // Add scope attribute for table headers for screen reader accessibility
+              <th key={`th-${header}`} scope="col" aria-label={header}>{header}</th>
             ))}
           </tr>
         </thead>

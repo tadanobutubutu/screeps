@@ -1,29 +1,53 @@
-// Hypothetical main.js with a function to update the HTML file
-
 const fs = require('fs');
 
-function updateHTMLFile(filePath, content) {
+function updateHtmlLanguageAttribute(filePath) {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading the file:', err);
       return;
     }
 
-    // Replace the existing <html> tag with the updated one
-    const updatedData = data.replace(/<html>/g, '<html lang="en">');
+    // Check if lang attribute already exists
+    if (/<html\s+lang=["'][^"']*["']/i.test(data)) {
+      // Replace existing lang attribute with lang="en"
+      const updatedData = data.replace(/<html\s+lang=["'][^"']*["']/i, '<html lang="en"');
+      writeFileWithLang(filePath, updatedData, data);
+    } else if (/<html>/i.test(data)) {
+      // Replace the existing <html> tag with the updated one (add lang attribute)
+      const updatedData = data.replace(/<html>/i, '<html lang="en">');
+      writeFileWithLang(filePath, updatedData, data);
+    } else if (/<html\s+[^>]*>/i.test(data)) {
+      // Replace <html> tag that has other attributes but no lang
+      const updatedData = data.replace(/<html(\s+[^>]*)?>/i, (match, attrs) => {
+        if (attrs) {
+          return `<html lang="en"${attrs}>`;
+        }
+        return '<html lang="en">';
+      });
+      writeFileWithLang(filePath, updatedData, data);
+    } else {
+      console.log('No <html> tag found in the file.');
+    }
+  });
+}
 
-    fs.writeFile(filePath, updatedData, 'utf8', (err) => {
-      if (err) {
-        console.error('Error writing the file:', err);
-        return;
-      }
-      console.log('The file has been updated successfully.');
-    });
+function writeFileWithLang(filePath, updatedData, originalData) {
+  if (updatedData === originalData) {
+    console.log('No changes needed - lang attribute already present.');
+    return;
+  }
+
+  fs.writeFile(filePath, updatedData, 'utf8', (err) => {
+    if (err) {
+      console.error('Error writing the file:', err);
+      return;
+    }
+    console.log('The file has been updated successfully.');
   });
 }
 
 // Assuming the path to the HTML file is known
-const htmlFilePath = './docs/dependency-graph.html';
+const htmlFilePath = process.argv[2] || 'index.html';
 
 // Call the function to update the file
-updateHTMLFile(htmlFilePath, '');
+updateHtmlLanguageAttribute(htmlFilePath);

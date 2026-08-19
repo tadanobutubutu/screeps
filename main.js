@@ -27,7 +27,7 @@ export { existingFunction };
 
 // New function for React v19 compatibility
 export const renderApp = (component) => {
-  const root = ReactDOM.createRoot(document.getElementById('root'));
+  const root = ...
   root.render(
     <React.StrictMode>
       {component}

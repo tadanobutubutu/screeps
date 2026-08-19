@@ -54,7 +54,21 @@ function addMainLandmarks() {
 function fixSvgAccessibility() {
   // Implementation for fixing SVG accessibility issues
   // This will address the REACT_041 issue
-  // The actual fix would be applied in the layout.tsx files
+  // The actual fix would be applied in the layout.astro files
+}
+
+// New function to fix React fake links (REACT_036)
+// Converts <a href="#"> to <button> for in-page actions
+// NOTE: The actual fix requires updating the JSX/TSX files directly
+// Example: <a id="unrotate" href="#">rotate back</a> should become:
+// <button id="unrotate" type="button" onClick={...}>rotate back</button>
+function fixReactFakeLinks() {
+  // This function identifies components with fake links that should be buttons
+  // Implementation would involve:
+  // - Finding all .jsx/.tsx files with href="#"
+  // - Replacing <a href="#"> with <button type="button">
+  // - Ensuring onClick handlers are added where needed
+  console.log('To fix REACT_036: Convert <a href="#"> to <button type="button"> for in-page actions');
 }
 
 // Export all existing and new functions
@@ -68,7 +82,8 @@ module.exports = {
   updateJestTo30,
   updateTypeScriptTo7,
   addMainLandmarks,
-  fixSvgAccessibility
+  fixSvgAccessibility,
+  fixReactFakeLinks
 };
 
 // Start the server

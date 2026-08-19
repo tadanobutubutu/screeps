@@ -1,12 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+// main.js - Screeps bot logic
+var roleHarvester = require('role.harvester');
+var roleUpgrader = require('role.upgrader');
+var roleBuilder = require('role.builder');
 
-document.documentElement.lang = 'en';
+// ... existing code ...
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// Rotate functionality with accessible button
+function createRotateButton() {
+    return '<button id="unrotate" type="button">rotate back</button>';
+}
+
+// ... existing code ...
+
+module.exports = {
+    roleHarvester,
+    roleUpgrader,
+    roleBuilder
+};

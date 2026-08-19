@@ -90,6 +90,18 @@ const RealLink = ({ href, children }) => (
   </a>
 );
 
+// New component for the rotate back functionality
+const RotateBackButton = ({ onClick }) => (
+  <button
+    id="unrotate"
+    type="button"
+    onClick={onClick}
+    aria-label="Rotate back"
+  >
+    rotate back
+  </button>
+);
+
 // Main App Component with proper landmark structure
 const App = () => {
   const tableData = [
@@ -102,6 +114,11 @@ const App = () => {
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
   ];
+
+  const handleRotateBack = () => {
+    // Implement rotation logic here
+    console.log('Rotating back');
+  };
 
   return (
     <div>
@@ -123,6 +140,7 @@ const App = () => {
         <ActionButton onClick={() => console.log('clicked')}>
           Click Me
         </ActionButton>
+        <RotateBackButton onClick={handleRotateBack} />
       </MainContent>
 
       <SiteFooter />
@@ -139,7 +157,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  RotateBackButton
 };
 
 export default App;

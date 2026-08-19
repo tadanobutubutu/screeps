@@ -1,23 +1,106 @@
-// Preserve all existing code from main.js
-// ... (all your existing code remains unchanged)
+tsx
+import React, { useState, useEffect } from 'react';
 
-// Add the new function to fix the table headers
-function fixTableHeaders() {
-  // This function would be used to update the HTML file
-  // In a real implementation, you would read the file, modify it, and write it back
-  // For this example, we'll just show the corrected HTML structure
-
-  // Corrected table header example:
-  // <th scope="col"><div>src/constants.js</div></th>
-
-  // The actual implementation would need to:
-  // 1. Read the HTML file
-  // 2. Find all <th> elements without scope
-  // 3. Add scope="col" or scope="row" as appropriate
-  // 4. Write the changes back to the file
-
-  console.log('Table headers fixed - scope attributes added to all <th> elements');
+interface DashboardProps {
+  // Add any props your component needs
 }
 
-// Call the function if needed
-// fixTableHeaders();
+const Dashboard: React.FC<DashboardProps> = () => {
+  const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
+
+  const copyErr = () => {
+    if (error) {
+      navigator.clipboard.writeText(error);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const fetchStats = (forceRefresh = false) => {
+    // Implementation of fetchStats
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  if (error) {
+    return (
+      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+        <pre
+          tabIndex={0}
+          aria-label="エラーメッセージ詳細"
+          style={{
+            color: '#c53030',
+            backgroundColor: '#fff5f5',
+            padding: '1rem',
+            borderRadius: '4px',
+            overflow: 'auto',
+          }}
+        >
+          {error}
+        </pre>
+        <button
+          onClick={copyErr}
+          onMouseEnter={() => setErrCopyHover(true)}
+          onMouseLeave={() => setErrCopyHover(false)}
+          onFocus={() => setErrCopyHover(true)}
+          onBlur={() => setErrCopyHover(false)}
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+          title={copied ? 'コピー済み' : 'エラーをコピー'}
+          style={{
+            backgroundColor: copied ? '#155d27' : '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease-in-out',
+            transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+            filter: errCopyHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+        </button>
+        <button
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          onMouseEnter={() => setErrRetryHover(true)}
+          onMouseLeave={() => setErrRetryHover(false)}
+          style={{
+            backgroundColor: '#2b6cb0',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginLeft: '1rem',
+            transition: 'all 0.2s ease-in-out',
+            transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(43, 108, 176, 0.3)' : 'none',
+            filter: errRetryHover ? 'brightness(1.1)' : 'none',
+          }}
+        >
+          {refreshing ? 'リフレッシュ中...' : '🔄 再試行'}
+        </button>
+      </div>
+    );
+  }
+
+  // Main content (success state)
+  return (
+    <div style={{ padding: '2rem' }}>
+      {/* Your main content here */}
+      <h1>Dashboard</h1>
+      {/* Other dashboard content */}
+    </div>
+  );
+};
+
+export default Dashboard;

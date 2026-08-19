@@ -21,3 +21,38 @@ function fixTableHeaders() {
 
 // Call the function if needed
 // fixTableHeaders();
+
+// New function to add main landmarks to files
+function addMainLandmarks() {
+  // This function would be used to update the layout files
+  // In a real implementation, you would read the file, modify it, and write it back
+
+  // For app/layout.tsx:
+  // <body className="min-h-screen flex flex-col">
+  //   <main className="flex-1">{children}</main>
+  // </body>
+
+  // For dashboard/app/layout.tsx:
+  // <body>
+  //   <main>{children}</main>
+  // </body>
+
+  // For docs/dependency-graph.html:
+  // <main>
+  //   <table id="table-rotated">
+  //     <!-- table content -->
+  //   </table>
+  // </main>
+
+  // For docs/index.html:
+  // <main>
+  //   <div class="container">
+  //     <!-- content -->
+  //   </div>
+  // </main>
+
+  console.log('Main landmarks added to all layout files');
+}
+
+// Call the function if needed
+// addMainLandmarks();

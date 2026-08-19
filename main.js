@@ -90,6 +90,27 @@ const RealLink = ({ href, children }) => (
   </a>
 );
 
+// Dashboard component with proper landmark structure
+const Dashboard = ({ isError, errorMessage, children }) => {
+  if (isError) {
+    return (
+      <div role="alert" aria-live="assertive">
+        <h2>Error</h2>
+        <p>{errorMessage}</p>
+        <section>
+          <p>Please try again later.</p>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <MainContent>
+      {children}
+    </MainContent>
+  );
+};
+
 // Main App Component with proper landmark structure
 const App = () => {
   const tableData = [
@@ -117,13 +138,13 @@ const App = () => {
         </nav>
       </header>
 
-      <MainContent>
+      <Dashboard isError={false}>
         <h1>Accessible Content</h1>
         <AccessibleTable data={tableData} />
         <ActionButton onClick={() => console.log('clicked')}>
           Click Me
         </ActionButton>
-      </MainContent>
+      </Dashboard>
 
       <SiteFooter />
     </div>
@@ -139,7 +160,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  Dashboard
 };
 
 export default App;

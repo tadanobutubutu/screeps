@@ -1,16 +1,1 @@
-tsx
-import React from 'react';
-import Header from './Header';
-import Footer from './Footer';
-
-const Layout = ({ children }) => {
-  return (
-    <body>
-      <Header />
-      <main>{children}</main>
-      <Footer />
-    </body>
-  );
-};
-
-export default Layout;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

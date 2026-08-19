@@ -1,7 +1,3 @@
-Here is the resolved version of the `main.js` file, combining both changes:
-
-```javascript
-tsx
 import React from 'react';
 
 // ... other imports
@@ -11,11 +7,22 @@ const Body = () => {
 };
 
 const App: React.FC = () => {
+  const [hasError, setHasError] = React.useState(false);
+
+  // Simplified structure with single main landmark
   return (
     <div className="min-h-screen flex flex-col">
       <Body>
         <main>
-          {/* Your primary content here */}
+          {hasError ? (
+            <section className="error-state">
+              {/* Error content */}
+            </section>
+          ) : (
+            <section className="success-state">
+              {/* Success content */}
+            </section>
+          )}
         </main>
       </Body>
     </div>
@@ -25,6 +32,3 @@ const App: React.FC = () => {
 // ... other code
 
 export default App;
-```
-
-I merged the `div` structure from one branch, added the `Body` component for the structuring of main content, and combined the original and new `main` elements. This way, both changes have been incorporated, and the structure stays consistent.

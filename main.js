@@ -1,51 +1,58 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
 
 // For app/root.tsx
 const AppLayout = ({ children }) => (
-  <body lang="en" className="min-h-screen flex flex-col">
-    <main>{children}</main>
-  </body>
+  <div lang="en">
+    <body lang="en" className="min-h-screen flex flex-col">
+      <main>{children}</main>
+    </body>
+  </div>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
-  <body lang="en">
-    <main>{children}</main>
-  </body>
+  <div lang="en">
+    <body lang="en">
+      <main>{children}</main>
+    </body>
+  </div>
 );
 
-// For dashboard/app/dependency-graph/page.tsx
+// For ...
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
-      {/* Table content */}
-    </table>
-    <button id="unrotate" className="rotate-back-button">rotate back</button>
-  </main>
+  <div lang="en">
+    <main>
+      <table id="table-rotated">
+        {/* Table content */}
+      </table>
+      <button id="unrotate" className="rotate-back-button">rotate back</button>
+    </main>
+  </div>
 );
 
 // For docs/app/index.tsx
 const DocsIndex = () => (
-  <main>
-    <div className="container">
-      <h2>Quality & Metrics Reports</h2>
-      <p>
-        This repository is fully optimized with automated tools. Explore the generated
-        reports below:
-      </p>
-      <div className="links">
-        <a href="/dependency-graph">Plato Code Complexity Report</a>
-        <a href="/dependency-graph">Dependency Graph</a>
+  <div lang="en">
+    <main>
+      <div className="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>
+          This repository is fully optimized with automated tools. Explore the generated
+          reports below:
+        </p>
+        <div className="links">
+          <a ... Code Complexity Report</a>
+          <a href="/dependency-graph">Dependency Graph</a>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </div>
 );
 
 // Main application render
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

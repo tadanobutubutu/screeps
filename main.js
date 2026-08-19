@@ -56,28 +56,28 @@ const dependencyConfig = {
   ]
 };
 
-// New function to add main landmarks to files
+// Function to add main landmarks to files
 function addMainLandmarks() {
   // This would be implemented in a build step or preprocessor
   // The actual implementation would depend on your build system
   console.log('Adding main landmarks to files as part of the build process');
 }
 
-// New function to ensure SVG accessibility
+// Function to ensure SVG accessibility
 function ensureSvgAccessibility() {
   // This function would be used in a build step to modify layout files
   // to add aria-hidden="true" to decorative SVGs
   console.log('Ensuring SVG accessibility by adding aria-hidden="true" to decorative SVGs');
 }
 
-// New function to replace hash-only links with proper buttons for accessibility
+// Function to replace hash-only links with proper buttons for accessibility
 function replaceHashLinksWithButtons() {
   // This function would be used in a build step to transform hash-only links
   // to proper buttons for better accessibility
   console.log('Replacing hash-only links with proper buttons for better accessibility');
 }
 
-// New function to validate and ensure single main landmark in React components
+// Function to validate and ensure single main landmark in React components
 function validateSingleMainLandmark() {
   // This function would be used in a build step to analyze React components
   // and ensure they only contain a single <main> landmark

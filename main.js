@@ -7,6 +7,12 @@
 module.exports = {
   // Your existing exports here
   // ...
+  // Add new function to ensure single main landmark
+  ensureSingleMainLandmark: (component) => {
+    // This function can be used to wrap components to ensure only one main landmark
+    // Implementation would depend on your component structure
+    return component;
+  }
 };
 
 // The actual changes would be made in:

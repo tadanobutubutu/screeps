@@ -1,5 +1,3 @@
-// main.js - Accessibility improved version
-
 import React from 'react';
 
 // Example: Fixed React Language Attribute (REACT_015)
@@ -22,7 +20,7 @@ const AccessibleTable = ({ data }) => (
     <tbody>
       {data.map((row, index) => (
         <tr key={index}>
-          <th ...</th>
+          <td>{row.header}</td>
           <td>{row.cell1}</td>
           <td>{row.cell2}</td>
         </tr>

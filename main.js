@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+import React from "react";
+
+function Layout(props: any) {
+  // Existing code
+
+  return (
+    <div className="root">
+      {/* Existing JSX */}
+
+      <main>{props.children}</main>
+    </div>
+  );
+}
+
+export default Layout;

@@ -1,45 +1,40 @@
-// This is a common Next.js main.js/_app.js pattern with accessibility fixes
+import React from 'react';
 
-// Ensure you have lang attribute in your _document.js or _app.js
-// For pages/_app.js:
-import '../styles/globals.css';
-
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
-}
-
-export default MyApp;
-
-// For pages/_document.js (add lang attribute):
-import { Html, Head, Main, NextScript } from 'next/document';
-
-export default function Document() {
+const Main = () => {
   return (
-    <Html lang="en">  {/* REACT_015 fix */}
-      <Head />
-      <body>
-        <Main />
-        <NextScript />
-      </body>
-    </Html>
+    <div lang="en">
+      <main>
+        <div className="container">
+          <h2>Quality & Metrics Reports</h2>
+          <p>This repository is fully optimized with automated tools. Explore the generated reports below:</p>
+          <div className="links">
+            <a href="/code-complexity">Code Complexity Report</a>
+            <a href="/dependency-graph" id="dependencyGraphLink">Dependency Graph</a>
+            <RotateBackButton id="unrotate" />
+            {/* Incorporated the new RotateBackButton component */}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Main;
+
+function RotateBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button id="unrotate" onClick={onClick} aria-label="Rotate back to original orientation">
+      rotate back
+    </button>
   );
 }
 
-// For a component with tables, use proper table structure:
-// Use semantic landmarks instead of just divs with role="banner", etc.
-
-// Add accessibility utilities
-export const skipToContentId = 'skip-to-content';
-
-export function SkipToContentLink() {
+// For a component with tables, use proper table structure: // Use semantic landmarks instead of just divs with role="banner", etc. // Add accessibility utilities export const skipToContentId = 'skip-to-content'; export function SkipToContentLink() {
   return (
-    <a href={`#${skipToContentId}`} className="skip-link">
-      Skip to main content
-    </a>
+    <a href={`#${skipToContentId}`} className="skip-link">Skip to main content</a>
   );
 }
 
-// Add focus management utilities
 export function FocusTrap({ children }) {
   return (
     <div className="focus-trap" tabIndex="-1">
@@ -48,7 +43,6 @@ export function FocusTrap({ children }) {
   );
 }
 
-// Add keyboard navigation utilities
 export function useKeyboardNavigation(ref, items) {
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
@@ -56,12 +50,10 @@ export function useKeyboardNavigation(ref, items) {
       // Implement navigation logic
     }
   };
-
   return { handleKeyDown };
 }
 
-// Add screen reader utilities
-export function ScreenReaderOnly({ children }) {
+// Add screen reader utilities export function ScreenReaderOnly({ children }) {
   return (
     <span className="sr-only">
       {children}
@@ -69,8 +61,7 @@ export function ScreenReaderOnly({ children }) {
   );
 }
 
-// Add ARIA live region utilities
-export function LiveRegion({ children, ariaLive = 'polite' }) {
+// Add ARIA live region utilities export function LiveRegion({ children, ariaLive = 'polite' }) {
   return (
     <div aria-live={ariaLive} className="live-region">
       {children}

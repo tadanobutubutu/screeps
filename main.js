@@ -18,13 +18,21 @@ const DashboardLayout = ({ children }) => (
 );
 
 // For docs/dependency-graph.html
-const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
-      {/* Table content */}
-    </table>
-  </main>
-);
+const DependencyGraph = () => {
+  const handleRotateBack = () => {
+    // Implement your rotation logic here
+    console.log('Rotating back');
+  };
+
+  return (
+    <main>
+      <table id="table-rotated">
+        {/* Table content */}
+      </table>
+      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
+    </main>
+  );
+};
 
 // For docs/index.html
 const DocsIndex = () => (

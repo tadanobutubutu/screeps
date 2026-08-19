@@ -21,7 +21,19 @@ const DashboardLayout = ({ children }) => (
 const DependencyGraph = () => (
   <main role="main">
     <table id="table-rotated" aria-label="Dependency graph table">
-      {/* Table content */}
+      <thead>
+        <tr>
+          <th scope="col"><div>src/constants.js</div></th>
+          <th scope="col"><div>src/managers/roomManager.js</div></th>
+          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <th scope="col"><div>src/managers/towerManager.js</div></th>
+          <th scope="col"><div>src/roles/builder.js</div></th>
+          {/* Additional headers with scope="col" */}
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table content */}
+      </tbody>
     </table>
     <button id="unrotate" className="rotate-back-btn" aria-label="Rotate table back to normal orientation">rotate back</button>
   </main>

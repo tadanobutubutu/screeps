@@ -192,11 +192,25 @@ function validateComponentAccessibility(component) {
     return true;
 }
 
+/**
+ * Adds language attribute to HTML components
+ * @param {Object} component - The React component to enhance
+ * @returns {Object} The enhanced component with language attribute
+ */
+function addLanguageAttribute(component) {
+    if (component.type === 'html' && !component.props.lang) {
+        component.props.lang = 'en';
+        console.log('Added lang="en" attribute to HTML component');
+    }
+    return component;
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
     updateReactToV19,
     ensureSingleMainElement,
     enhanceComponentAccessibility,
-    validateComponentAccessibility
+    validateComponentAccessibility,
+    addLanguageAttribute
 };

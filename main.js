@@ -241,6 +241,56 @@ function ensureTableHeaderScope(component) {
     return component;
 }
 
+/**
+ * Converts fake links (href="#") to proper buttons for better accessibility
+ * @param {Object} component - The React component to process
+ * @returns {Object} The processed component with fake links converted to buttons
+ */
+function convertFakeLinksToButtons(component) {
+    function processNode(node) {
+        if (node.type === 'a' && node.props?.href === '#') {
+            // Convert the fake link to a button
+            const newButton = {
+                type: 'button',
+                props: {
+                    ...node.props,
+                    // Remove the href attribute
+                    href: undefined,
+                    // Add proper button attributes
+                    type: 'button',
+                    // Preserve the original content
+                    children: node.props.children
+                }
+            };
+
+            // If there was an onClick handler, preserve it
+            if (node.props.onClick) {
+                newButton.props.onClick = node.props.onClick;
+            }
+
+            return newButton;
+        }
+
+        // Recursively process children
+        if (node.props && node.props.children) {
+            if (Array.isArray(node.props.children)) {
+                node.props.children = node.props.children.map(child => {
+                    if (typeof child === 'object' && child !== null) {
+                        return processNode(child);
+                    }
+                    return child;
+                });
+            } else if (typeof node.props.children === 'object' && node.props.children !== null) {
+                node.props.children = processNode(node.props.children);
+            }
+        }
+
+        return node;
+    }
+
+    return processNode(component);
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
@@ -249,5 +299,6 @@ module.exports = {
     enhanceComponentAccessibility,
     validateComponentAccessibility,
     addLanguageAttribute,
-    ensureTableHeaderScope
+    ensureTableHeaderScope,
+    convertFakeLinksToButtons
 };

@@ -77,9 +77,27 @@ function ensureAccessibility() {
   });
 }
 
-// Call accessibility function when DOM is loaded
+// Function to add main landmark if missing (REACT_017)
+function addMainLandmark() {
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    const body = document.querySelector('body');
+
+    // Move all existing content into the main element
+    while (body.firstChild) {
+      mainElement.appendChild(body.firstChild);
+    }
+
+    body.appendChild(mainElement);
+  }
+}
+
+// Call accessibility functions when DOM is loaded
 if (typeof window !== 'undefined') {
-  document.addEventListener('DOMContentLoaded', ensureAccessibility);
+  document.addEventListener('DOMContentLoaded', () => {
+    addMainLandmark();
+    ensureAccessibility();
+  });
 }
 
 module.exports = { initializeApp };

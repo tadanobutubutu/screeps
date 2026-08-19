@@ -1,54 +1,58 @@
+// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
 
 // For app/root.tsx
 const AppLayout = ({ children }) => (
-  <div lang="en">
-    <body lang="en" className="min-h-screen flex flex-col">
-      <main>{children}</main>
-    </body>
-  </div>
+  <body lang="en" className="min-h-screen flex flex-col">
+    <main>{children}</main>
+  </body>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
-  <div lang="en">
-    <body lang="en">
-      <main>{children}</main>
-    </body>
-  </div>
+  <body lang="en">
+    <main>{children}</main>
+  </body>
 );
 
 // For ...
 const DependencyGraph = () => (
-  <div lang="en">
-    <main>
-      <table id="table-rotated">
+  <main>
+    <table id="table-rotated">
+      <thead>
+        <tr>
+          <th scope="col">Package</th>
+          <th scope="col">Version</th>
+          <th scope="col">Dependencies</th>
+          <th scope="col">Dependents</th>
+          <th scope="col">Size</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
         {/* Table content */}
-      </table>
-      <button id="unrotate" className="rotate-back-button">rotate back</button>
-    </main>
-  </div>
+      </tbody>
+    </table>
+  </main>
 );
 
 // For docs/app/index.tsx
 const DocsIndex = () => (
-  <div lang="en">
-    <main>
-      <div className="container">
-        <h2>Quality & Metrics Reports</h2>
-        <p>
-          This repository is fully optimized with automated tools. Explore the generated
-          reports below:
-        </p>
-        <div className="links">
-          <a ... Code Complexity Report</a>
-          <a href="/dependency-graph">Dependency Graph</a>
-        </div>
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a ... Code Complexity Report</a>
+        <a href="/dependency-graph">Dependency Graph</a>
       </div>
-    </main>
-  </div>
+    </div>
+  </main>
 );
 
 // Main application render

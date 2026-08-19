@@ -10,7 +10,7 @@ const existingFunction = () => {
 // New code for dependency updates
 // Update for React v19
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react--dom/client';
 
 // Update for Jest v30
 import { jest } from '@jest/globals';
@@ -27,7 +27,7 @@ export { existingFunction };
 
 // New function for React v19 compatibility
 export const renderApp = (component) => {
-  const root = ReactDOM.createRoot(document.getElementById('root'));
+  const root = ...
   root.render(
     <React.StrictMode>
       {component}

@@ -1,6 +1,3 @@
-import { Html, Head, Main, NextScript } from 'next/document';
-import React from 'react';
-
 export default function Document() {
   return (
     <Html lang="en">
@@ -12,25 +9,42 @@ export default function Document() {
     </Html>
   );
 }
-
-// Add a utility function to ensure only one main element exists
 export function ensureSingleMainElement() {
   const mains = document.querySelectorAll('main');
   if (mains.length > 1) {
-    // Convert NodeList to Array for easier manipulation
     const mainArray = Array.from(mains);
-
-    // Keep the first main element and remove the rest
     mainArray.slice(1).forEach(main => {
-      // Replace with a section element to maintain semantic structure
       const section = document.createElement('section');
       section.innerHTML = main.innerHTML;
       main.replaceWith(section);
     });
   }
 }
-
-// Run the function when the page loads
 if (typeof window !== 'undefined') {
   window.addEventListener('load', ensureSingleMainElement);
 }
+
+const addScopeToTh = (htmlString) => {
+  return htmlString.replace(/<th(?![^>]*\bscope=)([^>]*?)>/gi, (match, attributes) => {
+    if (attributes.endsWith('/')) {
+      return `<th scope="col"${attributes}>`;
+    }
+    return `<th scope="col"${attributes}>`;
+  });
+};
+
+const fixDependencyGraph = () => {
+  const fs = require('fs');
+  const path = require('path');
+  const dependencyGraphFile = path.join(__dirname, 'src', 'components', 'DependencyGraph.jsx');
+  try {
+    const content = fs.readFileSync(dependencyGraphFile, 'utf8');
+    const updatedContent = addScopeToTh(content);
+    fs.writeFileSync(dependencyGraphFile, updatedContent);
+    console.log('Successfully added scope attribute to <th> elements');
+  } catch (error) {
+    console.error('Error fixing dependency graph:', error);
+  }
+};
+
+// fixDependencyGraph();

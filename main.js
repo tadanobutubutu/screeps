@@ -17,63 +17,64 @@ const DashboardLayout = ({ children }) => (
   </body>
 );
 
-// Function to handle the unrotate action
-function handleUnrotate() {
-  // Logic to rotate back to original state
-  console.log('Rotating back...');
-  // ... rotation logic
-}
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
+import { getDashboardData } from '../lib/api';
+import { DashboardData } from '../types/dashboard';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorMessage from './ErrorMessage';
+import DashboardContent from './DashboardContent';
 
-// Function to render the unrotate button (accessibility fix applied)
-function renderUnrotateButton() {
-  return '<button id="unrotate">rotate back</button>';
-}
+const Dashboard: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
 
-// Example: Initialize the unrotate functionality
-function initUnrotateFeature(containerElement) {
-  if (containerElement) {
-    containerElement.innerHTML = renderUnrotateButton();
-    const unrotateBtn = document.getElementById('unrotate');
-    if (unrotateBtn) {
-      unrotateBtn.addEventListener('click', handleUnrotate);
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
     }
-  }
-}
 
-// For docs/dependency-graph.html
-const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
-      {/* Table content */}
-    </table>
-  </main>
-);
+    const fetchData = async () => {
+      try {
+        const result = await getDashboardData(user.id);
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-// For docs/index.html
-const DocsIndex = () => (
-  <main>
-    <div className="container">
-      <h2>Quality & Metrics Reports</h2>
-      <p>
-        This repository is fully optimized with automated tools. Explore the generated
-        reports below:
-      </p>
-      <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+    fetchData();
+  }, [user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <ErrorMessage message={error} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      <DashboardContent data={data!} />
     </div>
-  </main>
-);
+  );
+};
 
-// Main application render
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// Export all components and functions for testing
-export { AppLayout, DashboardLayout, DependencyGraph, DocsIndex };
+export { AppLayout, DashboardLayout, Dashboard };
 export { handleUnrotate, renderUnrotateButton, initUnrotateFeature };

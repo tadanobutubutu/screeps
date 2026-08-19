@@ -108,3 +108,21 @@ describe('React Landmarks', () => {
     expect(mains.length).toBe(1);
   });
 });
+
+// New test for Dashboard component landmarks
+describe('Dashboard Component', () => {
+  test('has only one main landmark element', () => {
+    const { container } = render(<MyComponent />);
+    const dashboardMain = container.querySelector('.dashboard-main');
+    const mains = container.querySelectorAll('main');
+
+    // Check that there's only one main element in the entire document
+    expect(mains.length).toBe(1);
+
+    // If the dashboard has its own main, ensure it's properly structured
+    if (dashboardMain) {
+      expect(dashboardMain).toBeInTheDocument();
+      expect(dashboardMain.tagName).toBe('MAIN');
+    }
+  });
+});

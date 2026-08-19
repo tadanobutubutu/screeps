@@ -6,7 +6,7 @@ const TableComponent = () => {
       <thead>
         <tr>
           <th scope="col">ID</th>
-          <th ...</th>
+          <th scope="col">Name</th>
           <th scope="col">Role</th>
         </tr>
       </thead>

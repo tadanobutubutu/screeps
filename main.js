@@ -177,9 +177,11 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <DashboardContent data={data!} />
-    </div>
+    <main>
+      <div className="min-h-screen">
+        <DashboardContent data={data!} />
+      </div>
+    </main>
   );
 };
 

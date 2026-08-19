@@ -1,9 +1,53 @@
-// Original main.js content
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import './index.css';
 
-// ... (rest of the original main.js code) ...
+// Existing code (preserved)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-// The following is an example of how you might address the issue in the `main.js` file,
-// assuming that this file is somehow related to the HTML structure and table headers.
+// New function to handle main content rendering with accessibility
+export function renderMainContent(content) {
+  return (
+    <main className="main-content" aria-label="Main content">
+      {content}
+    </main>
+  );
+}
+
+// Existing exports (preserved)
+export const existingFunction = () => {
+  // Some existing functionality
+};
+
+// New accessibility function
+export function getAccessibleMainElement() {
+  return document.querySelector('main') || document.body;
+}
+
+// Function to create accessible SVG wrapper
+export function createAccessibleSvg(svgContent, { label = '', isDecorative = false } = {}) {
+  if (isDecorative) {
+    return (
+      <div aria-hidden="true">
+        {svgContent}
+      </div>
+    );
+  }
+
+  return (
+    <div aria-label={label}>
+      {svgContent}
+    </div>
+  );
+}
+
+// Example of addressing the issue in main.js, assuming that this file is somehow related to the HTML structure and table headers.
 
 // Example of addressing the issue in main.js
 function generateTableHeaders() {

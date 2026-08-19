@@ -48,6 +48,12 @@ function updateTypeScriptTo7() {
 function addMainLandmarks() {
   // Implementation for adding main landmarks to React components
   // This will address the REACT_017 issue
+  // 
+  // The fix involves wrapping primary content in <main> landmarks in the following files:
+  // - app/layout.tsx: <body><main>{children}</main></body>
+  // - dashboard/app/layout.tsx: <body><main>{children}</main></body>
+  // - docs/index.html: <main>...</main>
+  // - Any other affected components
 }
 
 // New function to fix SVG accessibility issues

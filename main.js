@@ -14,7 +14,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 // New component for the rotate back button
 export function RotateBackButton({ onClick }: { onClick: () => void }) {
   return (
-    <button id="unrotate" onClick={onClick}>
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label="Rotate back to original orientation"
+    >
       rotate back
     </button>
   );

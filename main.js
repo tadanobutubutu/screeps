@@ -19,14 +19,14 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <body>
-      <main>
+      <section>
         {children}
-      </main>
+      </section>
     </body>
   );
 };
 
-// For docs/dependency-graph.html
+// For ...
 // Note: This is HTML, not JSX, so we'll need to modify the actual HTML file
 // The fix would be to wrap the content in <main> tags
 
@@ -34,7 +34,8 @@ const DashboardLayout = ({ children }) => {
 // Similarly, this would need to be modified in the HTML file
 
 // Main render function
-ReactDOM.createRoot(document.getElementById('root')).render(
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

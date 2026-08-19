@@ -72,25 +72,25 @@ class DependencyDashboard {
    */
   processPendingUpdates() {
     const processed = [];
-    
+
     while (this.pendingUpdates.length > 0) {
       const update = this.pendingUpdates.shift();
-      
+
       if (this.dependencies.has(update.name)) {
         const dep = this.dependencies.get(update.name);
         dep.version = update.newVersion;
         dep.lastUpdated = new Date();
-        
+
         processed.push({
           ...update,
           processedAt: new Date(),
           status: 'success'
         });
-        
+
         this.processedUpdates.push(update);
       }
     }
-    
+
     return processed;
   }
 
@@ -129,6 +129,26 @@ class DependencyDashboard {
       pendingUpdates: this.pendingUpdates.length,
       processedUpdates: this.processedUpdates.length,
       blockedPRs: this.blockedPRs.length
+    };
+  }
+
+  /**
+   * Handle rotation action
+   * @param {string} action - The rotation action to perform
+   * @param {Function} callback - Callback function to execute after rotation
+   */
+  handleRotation(action, callback) {
+    // Perform the rotation action
+    if (typeof callback === 'function') {
+      callback();
+    }
+
+    // Return a button element instead of a fake link
+    return {
+      type: 'button',
+      id: 'unrotate',
+      textContent: 'rotate back',
+      onclick: callback
     };
   }
 }

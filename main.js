@@ -123,19 +123,7 @@ export const createProperLink = (href, text, isExternal = false) => {
 };
 
 /**
- * Adds proper scope to table headers for better screen reader interpretation
- * Fixes REACT_027: React Table Structure
- */
-export const enhanceTableHeaders = (headers) => {
-  return headers.map((header, index) => ({
-    ...header,
-    scope: 'col',
-    key: `header-${index}`
-  }));
-};
-
-/**
- * Creates an accessible button component
+ * Creates a proper button element instead of fake links
  * Fixes REACT_036: React Fake Link (for button-like elements)
  */
 export const createAccessibleButton = (onClick, text, type = 'button', disabled = false) => {
@@ -149,6 +137,35 @@ export const createAccessibleButton = (onClick, text, type = 'button', disabled 
       {text}
     </button>
   );
+};
+
+/**
+ * Creates a proper button element for in-page actions
+ * Fixes REACT_036: React Fake Link
+ */
+export const createRotateBackButton = (onClick) => {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      type="button"
+      aria-label="Rotate back"
+    >
+      rotate back
+    </button>
+  );
+};
+
+/**
+ * Adds proper scope to table headers for better screen reader interpretation
+ * Fixes REACT_027: React Table Structure
+ */
+export const enhanceTableHeaders = (headers) => {
+  return headers.map((header, index) => ({
+    ...header,
+    scope: 'col',
+    key: `header-${index}`
+  }));
 };
 
 /**

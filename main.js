@@ -43,7 +43,7 @@ function MyTable() {
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <td key={`cell-${header}-${row.id}`}>{row[header]}</td>
       ))}
     </tr>
   ));
@@ -53,12 +53,12 @@ function MyTable() {
     // Add lang attribute to steps element to ensure the correct region or language is specified for screen readers
     <div lang="en">
       <h1>Users List</h1>
-      <Table>
+      <Table aria-label="Users table" role="table">
         <thead>
           <tr>
             {tableHeaders.map((header) => (
               // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              <th key={`th-${header}`} scope="col" aria-label={header}>{header}</th>
             ))}
           </tr>
         </thead>
@@ -81,12 +81,14 @@ export default function Main() {
       {/* More components... */}
 
       {/* Add landmark for main content */}
-      <main id="main-content">
+      <main id="main-content" aria-labelledby="main-heading">
+        <h2 id="main-heading">Main Content</h2>
         {/* Component content here */}
       </main>
 
       {/* Add landmark for footer */}
-      <footer id="footer">
+      <footer id="footer" aria-labelledby="footer-heading">
+        <h2 id="footer-heading">Footer</h2>
         {/* Footer content here */}
       </footer>
 

@@ -1,1 +1,1 @@
-const UNROTATE_ID = 'unrotate';
+const UNROTATE_BUTTON_ID = 'unrotate';

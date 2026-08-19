@@ -12,7 +12,19 @@ const htmlContent = `<!DOCTYPE html>
   <!-- other head content -->
 </head>
 <body>
-  <!-- rest of the HTML content -->
+  <main role="main" aria-label="Dependency Graph">
+    <!-- rest of the HTML content -->
+    <table role="table" aria-label="Dependency Table">
+      <!-- table content with proper headers and scope attributes -->
+    </table>
+    <nav aria-label="Main Navigation">
+      <!-- navigation content -->
+    </nav>
+    <section aria-labelledby="graph-section">
+      <h2 id="graph-section">Dependency Visualization</h2>
+      <!-- graph content -->
+    </section>
+  </main>
 </body>
 </html>`;
 

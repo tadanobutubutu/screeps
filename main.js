@@ -80,26 +80,24 @@ export default function Main() {
       <MyTable />
       {/* More components... */}
 
-      {/* Add landmark for main content */}
+      {/* Combined main content section */}
       <main id="main-content">
         {/* Component content here */}
-      </main>
+        <nav aria-label="Main Navigation">
+          <ul>
+            {router.routes.map((route) => (
+              <li key={route.id}>
+                <a href={route.asPath}>{route.id}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-      {/* Add landmark for footer */}
-      <footer id="footer">
         {/* Footer content here */}
-      </footer>
-
-      {/* Navigation landmarks */}
-      <nav aria-label="Main Navigation">
-        <ul>
-          {router.routes.map((route) => (
-            <li key={route.id}>
-              <a href={route.asPath}>{route.id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+        <footer id="footer">
+          {/* Footer content here */}
+        </footer>
+      </main>
     </>
   );
 }

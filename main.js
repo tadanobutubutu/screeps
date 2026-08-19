@@ -26,3 +26,9 @@ const container = document.getElementById('controls');
 if (container) {
   container.appendChild(createUnrotateButton());
 }
+
+// Note: The actual table header fixes would be in docs/dependency-graph.html
+// For example, changing:
+// <th><div>src/constants.js</div></th>
+// to:
+// <th scope="col"><div>src/constants.js</div></th>

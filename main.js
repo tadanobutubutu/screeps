@@ -1,7 +1,4 @@
-import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App';
-import './index.css';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Table from 'react-bootstrap/Table';

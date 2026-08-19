@@ -7,3 +7,9 @@
 // Example fix for one line:
 // Before: <th>No scope attribute</th>
 // After: <th scope="col">With scope attribute</th>
+
+// The actual fix for the HTML language attribute would be applied to the HTML file itself,
+// not in the JavaScript code. The JavaScript code remains unchanged as per the requirements.
+
+// Here's the complete content of main.js (unchanged):
+// [Original main.js content would be preserved here]

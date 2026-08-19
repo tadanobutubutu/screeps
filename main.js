@@ -219,5 +219,3 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
   window.DependencyDashboard = DependencyDashboard;
 }
-
-module.exports = DependencyDashboard;

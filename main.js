@@ -42,6 +42,19 @@ function ensureAccessibility() {
         table.prepend(thead);
       }
     }
+
+    // Add scope attributes to table headers
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        // Determine if this is a column or row header based on context
+        if (table.querySelector('thead') && table.querySelector('thead').contains(header)) {
+          header.setAttribute('scope', 'col');
+        } else {
+          header.setAttribute('scope', 'row');
+        }
+      }
+    });
   });
 
   // Ensure SVG elements have accessible names (REACT_041)

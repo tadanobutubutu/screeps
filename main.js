@@ -39,4 +39,62 @@ const html = `
 </table>
 `;
 
-module.exports = html;
+// Add accessibility-related functions to address the issues
+function addLanguageAttribute(element) {
+  if (!element.hasAttribute('lang')) {
+    element.setAttribute('lang', 'en');
+  }
+}
+
+function ensureTableStructure(table) {
+  if (!table.querySelector('thead') || !table.querySelector('tbody')) {
+    console.warn('Table structure issue detected. Please ensure table has both thead and tbody elements.');
+  }
+}
+
+function addLandmarkRoles() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.getAttribute('role')) {
+    navigation.setAttribute('role', 'navigation');
+  }
+}
+
+function ensureUniqueLandmarks() {
+  const mainElements = document.querySelectorAll('[role="main"]');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main landmarks detected. Only one main landmark should exist per page.');
+  }
+
+  const navigationElements = document.querySelectorAll('[role="navigation"]');
+  if (navigationElements.length > 1) {
+    console.warn('Multiple navigation landmarks detected. Consider combining or restructuring navigation.');
+  }
+}
+
+function ensureSvgAccessibleName(svg) {
+  if (!svg.querySelector('title') && !svg.querySelector('desc')) {
+    console.warn('SVG element missing accessible name. Add a <title> or <desc> element inside the SVG.');
+  }
+}
+
+function ensureFakeLinkAccessible(link) {
+  if (link.getAttribute('role') === 'link' && !link.getAttribute('tabindex')) {
+    link.setAttribute('tabindex', '0');
+  }
+}
+
+// Export all existing functions and add new accessibility functions
+module.exports = {
+  html,
+  addLanguageAttribute,
+  ensureTableStructure,
+  addLandmarkRoles,
+  ensureUniqueLandmarks,
+  ensureSvgAccessibleName,
+  ensureFakeLinkAccessible
+};

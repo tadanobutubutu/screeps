@@ -47,6 +47,16 @@ function processDashboardData(data) {
   };
 }
 
+// New function to generate accessible SVG favicon
+function generateAccessibleFavicon() {
+  return `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+      <title>Application Favicon</title>
+      <circle cx="50" cy="50" r="40" fill="#4a6baf" />
+    </svg>
+  `;
+}
+
 // Existing route
 app.get('/api/user/:id', (req, res) => {
   const userId = req.params.id;
@@ -85,6 +95,12 @@ app.get('/api/dependency-updates', (req, res) => {
   res.json(updateSummary);
 });
 
+// New route for accessible favicon
+app.get('/favicon.svg', (req, res) => {
+  res.set('Content-Type', 'image/svg+xml');
+  res.send(generateAccessibleFavicon());
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
@@ -94,5 +110,6 @@ module.exports = {
   getUserData,
   calculateTotal,
   handleDependencyUpdates,
-  processDashboardData
+  processDashboardData,
+  generateAccessibleFavicon
 };

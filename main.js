@@ -182,5 +182,55 @@ function fixFakeLinks() {
 // Call the new function to fix fake links
 fixFakeLinks();
 
+// New function to add landmarks for better screen reader navigation
+function addLandmarks() {
+  // Check if main content landmark exists
+  const mainElement = document.querySelector('main');
+  if (!mainElement) {
+    // Create main element if it doesn't exist
+    const newMain = document.createElement('main');
+    const body = document.querySelector('body');
+    if (body) {
+      // Move all body content into the main element
+      while (body.firstChild) {
+        newMain.appendChild(body.firstChild);
+      }
+      body.appendChild(newMain);
+    }
+  }
+
+  // Check for navigation landmark
+  if (!document.querySelector('nav')) {
+    // Try to find navigation elements
+    const navElements = document.querySelectorAll('[role="navigation"], .nav, #nav');
+    if (navElements.length > 0) {
+      navElements.forEach(nav => {
+        if (nav.tagName !== 'NAV') {
+          const newNav = document.createElement('nav');
+          newNav.innerHTML = nav.innerHTML;
+          nav.parentNode.replaceChild(newNav, nav);
+        }
+      });
+    }
+  }
+
+  // Check for footer landmark
+  if (!document.querySelector('footer')) {
+    const footerElements = document.querySelectorAll('[role="contentinfo"], .footer, #footer');
+    if (footerElements.length > 0) {
+      footerElements.forEach(footer => {
+        if (footer.tagName !== 'FOOTER') {
+          const newFooter = document.createElement('footer');
+          newFooter.innerHTML = footer.innerHTML;
+          footer.parentNode.replaceChild(newFooter, footer);
+        }
+      });
+    }
+  }
+}
+
+// Call the new function to add landmarks
+addLandmarks();
+
 // Export the existing functions, if any, with their original names
 /* ... */

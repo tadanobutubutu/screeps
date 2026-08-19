@@ -12,4 +12,24 @@ export function MainContent({ children }) {
 // - docs/index.html
 // - (additional affected files)
 
+// New component to handle accessible SVG favicon
+export function AccessibleFavicon({ src, alt }) {
+  return (
+    <svg aria-hidden={!alt} aria-label={alt} role="img">
+      <title>{alt || 'Favicon'}</title>
+      <use href={src} />
+    </svg>
+  );
+}
+
+// New component to handle accessible SVG in general
+export function AccessibleSVG({ children, alt, ...props }) {
+  return (
+    <svg aria-hidden={!alt} aria-label={alt} role="img" {...props}>
+      <title>{alt || 'Graphic'}</title>
+      {children}
+    </svg>
+  );
+}
+
 export default function MainContent;

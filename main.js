@@ -26,3 +26,17 @@ const container = document.getElementById('controls');
 if (container) {
   container.appendChild(createUnrotateButton());
 }
+
+// New function to ensure only one main element exists in the DOM
+function ensureSingleMainElement() {
+  const mainElements = document.getElementsByTagName('main');
+  if (mainElements.length > 1) {
+    // Keep the first main element and remove others
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].remove();
+    }
+  }
+}
+
+// Run the function when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', ensureSingleMainElement);

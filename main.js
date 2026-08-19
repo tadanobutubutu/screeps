@@ -17,6 +17,20 @@ document.querySelectorAll('svg').forEach(svg => {
   }
 });
 
+// Add main landmark functionality for React components
+const addMainLandmark = () => {
+  const mainElement = document.createElement('main');
+  const rootElement = document.getElementById('root');
+
+  if (rootElement && !rootElement.querySelector('main')) {
+    // Move all children of root to the main element
+    while (rootElement.firstChild) {
+      mainElement.appendChild(rootElement.firstChild);
+    }
+    rootElement.appendChild(mainElement);
+  }
+};
+
 // Existing code remains unchanged
 // ...
 
@@ -26,6 +40,9 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Call the main landmark function after render
+setTimeout(addMainLandmark, 0);
 
 // All other existing code remains exactly as is
 // ...

@@ -1,3 +1,4 @@
+<resolved content>
 // Screeps Bot Main Entry Point
 // This file is the entry point for the Screeps game engine.
 // It exports a `loop` function that is called every game tick.
@@ -169,3 +170,4 @@ require('prototype.room');
 require('prototype.structure');
 require('prototype.spawn');
 require('prototype.source');
+</resolved content>

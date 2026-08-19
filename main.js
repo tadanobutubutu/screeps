@@ -48,7 +48,7 @@ function updateTypeScriptTo7() {
 function addMainLandmarks() {
   // Implementation for adding main landmarks to React components
   // This will address the REACT_017 issue
-  // 
+  //
   // The fix involves wrapping primary content in <main> landmarks in the following files:
   // - app/layout.tsx: <body><main>{children}</main></body>
   // - dashboard/app/layout.tsx: <body><main>{children}</main></body>
@@ -61,6 +61,10 @@ function fixSvgAccessibility() {
   // Implementation for fixing SVG accessibility issues
   // This will address the REACT_041 issue
   // The actual fix would be applied in the layout.tsx files
+  // For example:
+  // <svg aria-hidden="true">...</svg> for decorative SVGs
+  // or
+  // <svg aria-label="description">...</svg> for functional SVGs
 }
 
 // New function to address React Unique Landmarks issue (REACT_025)

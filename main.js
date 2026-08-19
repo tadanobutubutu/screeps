@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_017 accessibility warning
+// main.js - Updated to fix REACT_017 and REACT_025 accessibility warnings
 
 // Initialize rotation state
 let isRotated = false;

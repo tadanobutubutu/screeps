@@ -21,7 +21,7 @@ function addUpdate(type, name, currentVersion, newVersion, options = {}) {
         name,
         currentVersion,
         newVersion,
-        status: options.status || 'awaiting-schedule',
+        status: options.status || 'pending',
         createdAt: new Date().toISOString(),
         changeType: options.changeType || 'chore',
         scheduled: options.scheduled || false
@@ -61,9 +61,9 @@ function getPendingUpdates(type = null) {
  * Gets updates awaiting schedule
  * @returns {Array} Array of updates awaiting schedule
  */
-function getAwaitingScheduleUpdates() {
+function getAwaitingScheduledUpdates() {
     return Array.from(pendingUpdates.values())
-        .filter(u => u.status === 'awaiting-schedule');
+        .filter(u => u.status === 'scheduled');
 }
 
 /**
@@ -85,7 +85,7 @@ function triggerUpdate(type, name) {
     const key = `${type}:${name}`;
     const update = pendingUpdates.get(key);
     
-    if (update && update.status === 'awaiting-schedule') {
+    if (update && update.status === 'scheduled') {
         update.status = 'pending';
         update.scheduled = false;
         return update;
@@ -99,7 +99,7 @@ function triggerUpdate(type, name) {
  * @returns {Array} Array of created PRs
  */
 function createAllAwaitingPRs() {
-    const awaitingPRs = getAwaitingScheduleUpdates();
+    const awaitingPRs = getAwaitingScheduledUpdates();
     const createdPRs = [];
     
     for (const update of awaitingPRs) {
@@ -122,7 +122,7 @@ function createAllAwaitingPRs() {
  * @param {string} version - Version to validate
  * @returns {boolean} Whether the version is valid
  */
-function validateActionVersion(actionName, version) {
+function validateActionVersion(version) {
     // Actions should follow semver-like versioning
     const versionPattern = /^\d+\.\d+(\.\d+)?$/;
     return versionPattern.test(version);
@@ -152,7 +152,7 @@ function processUpdates(updates) {
             }
             
             addUpdate(update.type, update.name, update.currentVersion, update.newVersion, {
-                status: update.status || 'awaiting-schedule',
+                status: update.status || 'pending',
                 changeType: update.changeType || 'chore'
             });
             
@@ -202,7 +202,7 @@ module.exports = {
     addUpdate,
     removeUpdate,
     getPendingUpdates,
-    getAwaitingScheduleUpdates,
+    getAwaitingScheduledUpdates,
     getBlockedUpdates,
     triggerUpdate,
     createAllAwaitingPRs,

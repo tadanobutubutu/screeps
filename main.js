@@ -94,6 +94,24 @@ export const AccessibleIcon = ({ name, ...props }) => {
   );
 };
 
+// New component for decorative SVGs
+export const DecorativeSvg = ({ children, ...props }) => {
+  return (
+    <svg {...props} aria-hidden="true" focusable="false">
+      {children}
+    </svg>
+  );
+};
+
+// New component for SVGs that need accessible names
+export const NamedSvg = ({ name, children, ...props }) => {
+  return (
+    <svg {...props} role="img" aria-label={name}>
+      {children}
+    </svg>
+  );
+};
+
 // Fix for REACT_025 (React Unique Landmarks)
 export const UniqueLandmark = ({ type, label, children }) => {
   const roleMap = {

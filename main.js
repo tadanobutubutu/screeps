@@ -1,5 +1,3 @@
-tsx
-// app/layout.tsx
 import './globals.css'
 import type { Metadata } from 'next'
 

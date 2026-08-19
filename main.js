@@ -1,3 +1,4 @@
+=========================================
 // Updated dependency versions for Dependency Dashboard
 
 const updatedDependencies = {
@@ -68,3 +69,4 @@ module.exports = {
   dependencyConfig,
   addMainLandmarks
 };
+=========================================

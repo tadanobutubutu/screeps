@@ -52,7 +52,6 @@ function updatePnpm() {
 // Existing exports would remain here
 // ... (all current exports)
 
-// Add new exports for the dependency update functions
 module.exports = {
   // ... existing exports
   handleDependencyUpdates,

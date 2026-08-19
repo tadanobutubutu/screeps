@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
 
     const fetchData = async () => {
       try {
-        const result = await getDashboardData(user.id);
+        const result = await getDashboardData();
         setData(result);
       } catch (err) {
         setError('Failed to load dashboard data');
@@ -39,7 +39,7 @@ const Dashboard: React.FC = () => {
       </header>
       <main className="container mx-auto px-4 py-8">
         {loading ? (
-          <section className="loading-section flex items-center justify-center min-h-[60vh]">
+          <section className="loading--section flex items-center justify-center min-h-[60vh]">
             <p>Loading dashboard...</p>
           </section>
         ) : error ? (

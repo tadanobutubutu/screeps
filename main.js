@@ -9,6 +9,13 @@ export function MainContent({ children }) {
   return <main>{children}</main>;
 }
 
+// SVG component with proper accessibility attributes
+const AccessibleSVG = ({ children, ...props }) => (
+  <svg aria-hidden="true" {...props}>
+    {children}
+  </svg>
+);
+
 const Dashboard: React.FC = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);

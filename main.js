@@ -58,3 +58,33 @@ export const runEslint = async (files) => {
 export const getTypeScriptVersion = () => {
   return '7.0.0';
 };
+
+// New function to wrap content in main landmark for React components
+export const wrapInMain = (content) => {
+  return <main>{content}</main>;
+};
+
+// New function to add main landmark to HTML content
+export const addMainToHTML = (htmlContent) => {
+  // Simple implementation - in a real app, you'd use DOM parsing
+  return htmlContent.replace(/<body[^>]*>/, '<body><main>').replace(/<\/body>/, '</main></body>');
+};
+
+// New function to process layout files with main landmark
+export const processLayoutFile = (fileContent) => {
+  // For TypeScript/JSX files
+  if (fileContent.includes('<body>')) {
+    return fileContent.replace(
+      /<body[^>]*>([\s\S]*?)<\/body>/,
+      '<body><main className="flex-1">$1</main></body>'
+    );
+  }
+  // For HTML files
+  if (fileContent.includes('<body>')) {
+    return fileContent.replace(
+      /<body[^>]*>([\s\S]*?)<\/body>/,
+      '<body><main>$1</main></body>'
+    );
+  }
+  return fileContent;
+};

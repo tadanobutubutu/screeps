@@ -66,8 +66,8 @@ function MyTable() {
         <thead>
           <tr>
             {tableHeaders.map((header) => (
-              // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              // Add scope attribute for table headers for accessibility
+              <th key={`th-${header}`} scope="col" aria-label={header}>{header}</th>
             ))}
           </tr>
         </thead>

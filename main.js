@@ -63,5 +63,25 @@ const addMainLandmarkToHTML = (htmlContent) => {
   return `${contentBefore}<main>${htmlContent.substring(bodyStart + 6, bodyEnd)}</main>${contentAfter}`;
 };
 
-// Export the main landmark components
-export { MainLandmark, addMainLandmarkToHTML };
+// Add function to handle SVG accessibility
+const makeSvgAccessible = (svgElement) => {
+  // If SVG is decorative, add aria-hidden
+  if (svgElement.props.decorative) {
+    return React.cloneElement(svgElement, { 'aria-hidden': 'true' });
+  }
+
+  // If SVG has a title, keep it as is
+  if (svgElement.props.children && React.Children.toArray(svgElement.props.children).some(child =>
+    child.type === 'title' || child.props?.['aria-label']
+  )) {
+    return svgElement;
+  }
+
+  // Otherwise, add a default aria-label
+  return React.cloneElement(svgElement, {
+    'aria-label': svgElement.props['aria-label'] || 'Graphic element'
+  });
+};
+
+// Export the main landmark components and SVG accessibility function
+export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible };

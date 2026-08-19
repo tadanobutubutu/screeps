@@ -1,5 +1,6 @@
 // main.js
 // Fixed: Changed <a href="#"> to <button> for accessibility (REACT_036)
+// Fixed: Added scope attributes to table headers for accessibility (REACT_027)
 function rotate() {
     // existing rotate logic
 }

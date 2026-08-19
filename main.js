@@ -1,7 +1,3 @@
-tsx
-// components/Dashboard.tsx (and dashboard/components/Dashboard.tsx)
-// Fix: Replace the second <main> with a <section> element
-
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -80,10 +76,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
   }
 
   // Normal dashboard content (this is the primary <main>)
+  // Changed from <main> to <section> to resolve REACT_025
   return (
-    <main style={{ padding: '2rem' }}>
+    <section style={{ padding: '2rem' }}>
       {/* Dashboard content here */}
-    </main>
+    </section>
   );
 };
 

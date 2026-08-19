@@ -40,5 +40,12 @@ const checkDependencyUpdates = (currentDeps) => {
   return updatesNeeded;
 };
 
+// New component to wrap content in main landmark
+const MainContent = ({ children }) => (
+  <main aria-label="Main content">
+    {children}
+  </main>
+);
+
 // Export all existing functions and add new ones
-export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates };
+export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates, MainContent };

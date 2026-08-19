@@ -10,7 +10,8 @@ import Table from 'react-bootstrap/Table';
 import { useRouter } from 'next/router';
 
 // Existing code (preserved)
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
+
 root.render(
   <React.StrictMode>
     <App />
@@ -43,23 +44,23 @@ export const newFeature = () => {
 function MyTable() {
   const [data, setData] = useState([
     { id: 1, name: 'John Doe', email: 'johndoe@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'janesmith@example.com' },
+    { id: 2, name: 'Jane Smith', email: ... },
     // More data rows...
   ]);
 
   // Addressing REACT_027 - React Table Structure
-  const tableHeaders = Object.keys(data[0]);
+  const tableHeaders = ...
   const tableRows = data.map((row) => (
     <tr key={row.id}>
-      {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+      {tableHeaders.((header) => (
+        <Table.Cell ...
       ))}
     </tr>
   ));
 
   return (
     // Addressing REACT_015 - React Language Attribute
-    // Add lang attribute to div for accessibility
+    // Add lang attribute to root element for accessibility
     <div lang="en">
       <h1>Users List</h1>
       <Table>
@@ -82,31 +83,33 @@ export default function Main() {
   const router = useRouter();
 
   return (
-    <>
-      <h1>My Page</h1>
-      <MyTable />
-      {/* More components... */}
+    <html lang="en">
+      <body>
+        <h1>My Page</h1>
+        <MyTable />
+        {/* More components... */}
 
-      {/* Add landmark for main content */}
-      <main id="main-content">
-        {/* Component content here */}
-      </main>
+        {/* Add landmark for main content */}
+        <main id="main-content">
+          {/* Component content here */}
+        </main>
 
-      {/* Add landmark for footer */}
-      <footer id="footer">
-        {/* Footer content here */}
-      </footer>
+        {/* Add landmark for footer */}
+        <footer id="footer">
+          {/* Footer content here */}
+        </footer>
 
-      {/* Navigation landmarks */}
-      <nav aria-label="Main Navigation">
-        <ul>
-          {router.routes.map((route) => (
-            <li key={route.id}>
-              <a href={route.asPath}>{route.id}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </>
+        {/* Navigation landmarks */}
+        <nav aria-label="Main Navigation">
+          <ul>
+            {router.routes.((route) => (
+              <li key={route.id}>
+                <a ...
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </body>
+    </html>
   );
 }

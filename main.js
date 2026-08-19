@@ -154,3 +154,16 @@ describe('Accessibility', () => {
     expect(container.firstChild).toHaveAttribute('lang');
   });
 });
+
+// New test for fake links in dependency-graph.html
+describe('Dependency Graph', () => {
+  test('does not use fake links in dependency graph', () => {
+    const { container } = render(<MyComponent />);
+    const rotateBackLink = container.querySelector('#unrotate');
+
+    if (rotateBackLink) {
+      expect(rotateBackLink.getAttribute('href')).not.toBe('#');
+      expect(rotateBackLink.tagName).toBe('BUTTON');
+    }
+  });
+});

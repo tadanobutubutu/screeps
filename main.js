@@ -10,6 +10,22 @@ function setupUnrotate() {
 }
 
 // Use <button> instead of <a href="#"> for in-page actions
-// <button id="unrotate">rotate back</button>
+function createUnrotateButton() {
+    const unrotate = document.getElementById('unrotate');
+    if (unrotate) {
+        const button = document.createElement('button');
+        button.id = 'unrotate';
+        button.textContent = 'rotate back';
+        button.addEventListener('click', function() {
+            document.body.style.transform = 'rotate(0deg)';
+        });
 
-document.addEventListener('DOMContentLoaded', setupUnrotate);
+        // Replace the <a> with the new <button>
+        unrotate.parentNode.replaceChild(button, unrotate);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupUnrotate();
+    createUnrotateButton();
+});

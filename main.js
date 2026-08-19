@@ -87,6 +87,18 @@ const RealLink = ({ href, children }) => (
   </a>
 );
 
+// New component for fake link replacement
+const RotateBackButton = ({ onClick }) => (
+  <button
+    id="unrotate"
+    type="button"
+    onClick={onClick}
+    aria-label="Rotate back"
+  >
+    rotate back
+  </button>
+);
+
 // Main App Component
 const App = () => {
   const tableData = [
@@ -99,6 +111,11 @@ const App = () => {
     { href: '/about', label: 'About' },
     { href: '/contact', label: 'Contact' },
   ];
+
+  const handleRotateBack = () => {
+    console.log('Rotate back action triggered');
+    // Add your rotation logic here
+  };
 
   return (
     <HtmlWithLang>
@@ -124,6 +141,7 @@ const App = () => {
           <ActionButton onClick={() => console.log('clicked')}>
             Click Me
           </ActionButton>
+          <RotateBackButton onClick={handleRotateBack} />
         </MainContent>
 
         <SiteFooter />
@@ -196,6 +214,7 @@ export {
   RealLink,
   HtmlWithLang,
   Dashboard,
+  RotateBackButton, // Added new export
 };
 
 export default App;

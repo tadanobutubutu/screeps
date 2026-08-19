@@ -43,3 +43,4 @@ root.render(
 
 // Export all existing functions if any
 // (Preserve any existing exports from the original file)
+export { AppLayout, DashboardLayout };

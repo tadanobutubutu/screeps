@@ -1,40 +1,75 @@
-// Original main.js content
-// (Assuming the original content is similar to the following, with conflict markers omitted)
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-// <<<<<<< HEAD
-function mainContent() {
-  // Original main content code
+const App = () => {
+  // ... existing app code ...
+};
+
+export { App };
+
+const FaviconSVG = () => (
+  <svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
+    <title>Screeps Favicon</title>
+    {/* SVG content */}
+  </svg>
+);
+
+const DashboardFaviconSVG = () => (
+  <svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
+    <title>Dashboard Favicon</title>
+    {/* SVG content */}
+  </svg>
+);
+
+export { FaviconSVG, DashboardFaviconSVG };
+
+export function DataView({ data, isLoading, error }) {
+  return (
+    <main>
+      {isLoading && (
+        <section aria-busy="true" aria-label="Loading content">
+          <p>Loading...</p>
+        </section>
+      )}
+
+      {error && (
+        <section role="alert" aria-label="Error message">
+          <p>Error: {error}</p>
+        </section>
+      )}
+
+      {!isLoading && !error && data && (
+        <section aria-label="Main content">
+          <h1>{data.title}</h1>
+          <p>{data.description}</p>
+        </section>
+      )}
+    </main>
+  );
 }
 
+// Original renderMain function preserved
 export function renderMain() {
   return <main>{mainContent()}</main>;
 }
 
-// =======
-// New function or changes to be added
+// New function added from branch
 export function wrapContentWithMain() {
-  // Code to wrap the primary content with a <main> tag
+  return (
+    <main>
+      {mainContent()}
+    </main>
+  );
 }
 
-// >>>>>>> branch-name
-
-// Updated main.js content
-function mainContent() {
-  // Original main content code
-}
-
-export function renderMain() {
-  // Original renderMain code
-}
-
-export function wrapContentWithMain() {
-  // Code to wrap the primary content with a <main> tag
-}
-
-// Ensure that the new function is used where necessary
-// For example, in the layout component
-// <<<<<<< HEAD
-// <body>{renderMain()}</body>
-// =======
-// <body>{wrapContentWithMain()}</body>
-// >>>>>>> branch-name
+// Usage example (updated from conflict marker)
+// Original: <body>{renderMain()}</body>
+// Updated: <body>{wrapContentWithMain()}</body>

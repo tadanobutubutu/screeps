@@ -22,8 +22,31 @@ function updateHTMLFile(filePath, content) {
   });
 }
 
+function addScopeAttributesToTableHeaders(filePath) {
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading the file:', err);
+      return;
+    }
+
+    // Add scope="col" to all <th> elements in the table headers
+    const updatedData = data.replace(/<th>/g, '<th scope="col">');
+
+    fs.writeFile(filePath, updatedData, 'utf8', (err) => {
+      if (err) {
+        console.error('Error writing the file:', err);
+        return;
+      }
+      console.log('Added scope attributes to table headers successfully.');
+    });
+  });
+}
+
 // Assuming the path to the HTML file is known
 const htmlFilePath = './docs/dependency-graph.html';
 
 // Call the function to update the file
 updateHTMLFile(htmlFilePath, '');
+
+// Call the function to add scope attributes to table headers
+addScopeAttributesToTableHeaders(htmlFilePath);

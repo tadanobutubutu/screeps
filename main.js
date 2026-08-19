@@ -9,3 +9,6 @@ function rotateBack() {
 
 // Export all existing exports
 // ... (all original exports remain unchanged)
+
+// Add new export for the rotateBack function
+export { rotateBack };

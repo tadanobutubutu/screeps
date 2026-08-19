@@ -271,8 +271,17 @@ function findNearestOpenTile(pos, range) {
 }
 
 function getRoadPositions(room) {
-    const roads = cacheUtils.getStructures(room).filter((r) => r.structureType === STRUCTURE_ROAD);
-    return roads.map((r) => r.pos);
+    // ⚡ PERFORMANCE OPTIMIZATION: Single-pass for loop to collect road positions.
+    // Avoids intermediate array allocations and closure callback overhead from filter & map.
+    const structures = cacheUtils.getStructures(room);
+    const positions = [];
+    for (let i = 0; i < structures.length; i++) {
+        const struct = structures[i];
+        if (struct.structureType === STRUCTURE_ROAD) {
+            positions.push(struct.pos);
+        }
+    }
+    return positions;
 }
 
 // ============================================================

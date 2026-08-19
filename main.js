@@ -13,13 +13,13 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      ...
+      // Placeholder for early exit when user is not authenticated
       return;
     }
 
     const fetchData = async () => {
       try {
-        const result = await ...
+        const result = await getDashboardData();
         setData(result);
       } catch (err) {
         setError('Failed to load dashboard data');
@@ -35,7 +35,9 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard min-h-screen">
       <header className="container mx-auto px-4 py-6">
-        <h1 className="text-3xl ...
+        <h1 className="text-3xl leading-8 font-bold tracking-tight">
+          Dashboard
+        </h1>
       </header>
       <main className="container mx-auto px-4 py-8">
         {loading ? (

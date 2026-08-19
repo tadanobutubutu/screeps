@@ -12,10 +12,13 @@ const MainLayout = ({ children }) => {
   );
 };
 
-// Updated layout components
+// Updated layout components with SVG accessibility fixes
 const DashboardLayout = ({ children }) => {
   return (
     <body>
+      <svg aria-hidden="true" style={{ display: 'none' }}>
+        <title>Dashboard Icon</title>
+      </svg>
       <MainLayout>{children}</MainLayout>
     </body>
   );
@@ -24,6 +27,9 @@ const DashboardLayout = ({ children }) => {
 const AppLayout = ({ children }) => {
   return (
     <body className="min-h-screen flex flex-col">
+      <svg aria-hidden="true" style={{ display: 'none' }}>
+        <title>App Icon</title>
+      </svg>
       <MainLayout>{children}</MainLayout>
     </body>
   );

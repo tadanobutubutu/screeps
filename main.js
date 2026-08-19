@@ -32,4 +32,4 @@ export function AccessibleSVG({ children, alt, ...props }) {
   );
 }
 
-export default function MainContent;
+export default MainContent;

@@ -39,7 +39,7 @@ function addScopeToRowHeaders(content) {
 function fixTableHeadersAccessibility(content) {
   // Match any <th> without scope attribute
   const thWithoutScope = /<th(?![^>]*\bscope=)[^>]*>/gi;
-  
+
   return content.replace(thWithoutScope, (match) => {
     return match.replace(/^<th/, '<th scope="col"');
   });
@@ -55,10 +55,38 @@ function validateTableHeaders(content) {
   return !thWithoutScope.test(content);
 }
 
+/**
+ * Adds aria-hidden="true" to SVG elements that are decorative
+ * @param {string} content - HTML/JSX content containing SVG elements
+ * @returns {string} - Content with aria-hidden="true" added to decorative SVGs
+ */
+function addAriaHiddenToDecorativeSVGs(content) {
+  // Match SVG elements that don't have aria-hidden or aria-label
+  const decorativeSVG = /<svg(?![^>]*\baria-hidden="true")(?![^>]*\baria-label=)[^>]*>/gi;
+
+  return content.replace(decorativeSVG, (match) => {
+    if (match.includes('aria-hidden') || match.includes('aria-label')) return match;
+    return match.replace(/^<svg/, '<svg aria-hidden="true"');
+  });
+}
+
+/**
+ * Validates that all non-decorative SVG elements have accessible names
+ * @param {string} content - HTML/JSX content to validate
+ * @returns {boolean} - True if all non-decorative SVGs have accessible names
+ */
+function validateSVGAccessibility(content) {
+  // Match SVG elements that are not decorative but lack accessible names
+  const nonDecorativeSVGWithoutName = /<svg(?![^>]*\baria-hidden="true")(?![^>]*\baria-label=)[^>]*>/gi;
+  return !nonDecorativeSVGWithoutName.test(content);
+}
+
 // Export all functions
 module.exports = {
   addScopeToColumnHeaders,
   addScopeToRowHeaders,
   fixTableHeadersAccessibility,
-  validateTableHeaders
+  validateTableHeaders,
+  addAriaHiddenToDecorativeSVGs,
+  validateSVGAccessibility
 };

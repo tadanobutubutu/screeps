@@ -1,4 +1,12 @@
-// [Your existing code above this point remains unchanged]
+// main.js before fix
+export function RotateBackLink() {
+  return (
+    <div>
+      {/* Incorrect anchor usage for in-page navigation */}
+      <a id="unrotate" href="#">rotate back</a>
+    </div>
+  );
+}
 
 // Add this new function to handle table header scope attributes
 function addTableHeaderScopes() {

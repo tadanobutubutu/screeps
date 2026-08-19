@@ -1,6 +1,6 @@
 // main.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom/root';
 import App from './App';
 import './index.css';
 import { useState } from 'react';
@@ -10,7 +10,7 @@ import Table from 'react-bootstrap/Table';
 import { useRouter } from 'next/router';
 
 // Existing code (preserved)
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -20,9 +20,10 @@ root.render(
 // New function to handle main content rendering
 export function renderMainContent(content) {
   return (
-    <main className="main-content">
+    // Changed from <main> to <section> to fix REACT_025 - React Unique Landmarks
+    <section className="main-content">
       {content}
-    </main>
+    </section>
   );
 }
 
@@ -43,16 +44,16 @@ export const newFeature = () => {
 function MyTable() {
   const [data, setData] = useState([
     { id: 1, name: 'John Doe', email: 'johndoe@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'janesmith@example.com' },
+    { id: 2, name: 'Jane Smith', email: ... },
     // More data rows...
   ]);
 
   // Addressing REACT_027 - React Table Structure
-  const tableHeaders = Object.keys(data[0]);
+  const tableHeaders = ...
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <Table.Cell ...
       ))}
     </tr>
   ));
@@ -102,7 +103,7 @@ export default function Main() {
         <ul>
           {router.routes.map((route) => (
             <li key={route.id}>
-              <a href={route.asPath}>{route.id}</a>
+              <a ...
             </li>
           ))}
         </ul>

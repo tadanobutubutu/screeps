@@ -32,28 +32,17 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, [user, router]);
 
-  if (loading) {
-    return (
-      <div className="dashboard min-h-screen">
-        <header>
-          <h1>Dashboard</h1>
-        </header>
-        <main>
+  return (
+    <div className="dashboard min-h-screen">
+      <header className="container mx-auto px-4 py-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+      </header>
+      <main className="container mx-auto px-4 py-8">
+        {loading ? (
           <section className="loading-section flex items-center justify-center min-h-[60vh]">
             <p>Loading dashboard...</p>
           </section>
-        </main>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard min-h-screen">
-        <header>
-          <h1>Dashboard</h1>
-        </header>
-        <main>
+        ) : error ? (
           <section className="error-section flex items-center justify-center min-h-[60vh]">
             <div className="text-center">
               <h2 className="text-2xl font-bold mb-4">Error</h2>
@@ -66,25 +55,16 @@ const Dashboard: React.FC = () => {
               </button>
             </div>
           </section>
-        </main>
-      </div>
-    );
-  }
-
-  return (
-    <div className="dashboard min-h-screen">
-      <header className="container mx-auto px-4 py-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-      </header>
-      <main className="container mx-auto px-4 py-8">
-        <section className="data-section">
-          <h2 className="text-xl font-semibold mb-4">Data Overview</h2>
-          {data && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Dashboard content would go here */}
-            </div>
-          )}
-        </section>
+        ) : (
+          <section className="data-section">
+            <h2 className="text-xl font-semibold mb-4">Data Overview</h2>
+            {data && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Dashboard content would go here */}
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );

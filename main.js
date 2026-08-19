@@ -26,9 +26,11 @@ document.getElementById('unrotate').addEventListener('click', function() {
 const content = document.getElementById('content');
 if (content) {
     content.innerHTML = `
-        <h1>Welcome to the App</h1>
-        <p>Click the rotate button to rotate the content.</p>
-        <button id="rotate">Rotate</button>
-        <button id="unrotate">rotate back</button>
+        <div role="main" aria-label="Main content">
+            <h1>Welcome to the App</h1>
+            <p>Click the rotate button to rotate the content.</p>
+            <button id="rotate">Rotate</button>
+            <button id="unrotate">rotate back</button>
+        </div>
     `;
 }

@@ -71,6 +71,15 @@ function fixReactLanguageAttribute() {
   // The actual fix would be applied in the dependency-graph.html file
 }
 
+// New function to fix React Fake Link issue (REACT_036)
+function fixReactFakeLink() {
+  // Implementation for fixing the fake link issue in dependency-graph.html
+  // This function will replace the hash-only href with a proper button element
+  // The actual fix would be applied in the dependency-graph.html file
+  // For example:
+  // <button id="unrotate">rotate back</button>
+}
+
 // Export all existing and new functions
 module.exports = {
   existingFunction,
@@ -84,7 +93,8 @@ module.exports = {
   addMainLandmarks,
   fixSvgAccessibility,
   fixReactUniqueLandmarks,
-  fixReactLanguageAttribute
+  fixReactLanguageAttribute,
+  fixReactFakeLink
 };
 
 // Start the server

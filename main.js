@@ -29,4 +29,35 @@ function fixLangAttribute(filePath) {
   fs.writeFileSync(absolutePath, content);
 }
 
-module.exports = { fixLangAttribute };
+/**
+ * Fixes REACT_025 issue by ensuring only one <main> element exists in Dashboard components.
+ * @param {string} filePath - Path to the Dashboard component file.
+ */
+function fixUniqueLandmarks(filePath) {
+  const fs = require('fs');
+  const path = require('path');
+  const absolutePath = path.resolve(filePath);
+  let content = fs.readFileSync(absolutePath, 'utf8');
+
+  // Check if there are multiple <main> elements
+  const mainTagCount = (content.match(/<main/g) || []).length;
+
+  if (mainTagCount > 1) {
+    // Replace the second <main> with a <section> to maintain semantic structure
+    content = content.replace(/<main/g, (match, offset, string) => {
+      // Only replace the second occurrence
+      const previousMatches = string.slice(0, offset).match(/<main/g) || [];
+      return previousMatches.length === 1 ? '<section' : match;
+    });
+
+    // Also replace closing tags
+    content = content.replace(/<\/main>/g, (match, offset, string) => {
+      const previousMatches = string.slice(0, offset).match(/<\/main>/g) || [];
+      return previousMatches.length === 1 ? '</section>' : match;
+    });
+
+    fs.writeFileSync(absolutePath, content);
+  }
+}
+
+module.exports = { fixLangAttribute, fixUniqueLandmarks };

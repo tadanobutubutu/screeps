@@ -1,6 +1,3 @@
-// Main entry point for Screeps bot
-// This file initializes the game loop and coordinates all subsystems
-
 const { Game } = require('game');
 const { RoleManager } = require('roles/roleManager');
 const { RoomManager } = require('rooms/roomManager');

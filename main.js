@@ -41,15 +41,15 @@ const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner />
+      <main className="min-h-screen flex items-center justify-center" aria-busy="true" aria-live="polite">
+        <LoadingSpinner aria-label="Loading dashboard content" />
       </main>
     );
   }
 
   if (error) {
     return (
-      <section className="min-h-screen flex items-center justify-center">
+      <section className="min-h-screen flex items-center justify-center" role="alert">
         <ErrorMessage message={error} />
       </section>
     );
@@ -57,16 +57,16 @@ const Dashboard: React.FC = () => {
 
   if (!data) {
     return (
-      <section className="min-h-screen flex items-center justify-center">
+      <section className="min-h-screen flex items-center justify-center" aria-live="polite">
         <p>No data available</p>
       </section>
     );
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8" lang="en">
       {/* Dashboard content */}
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6" id="dashboard-heading">Dashboard</h1>
       {/* Render your dashboard data here */}
     </main>
   );

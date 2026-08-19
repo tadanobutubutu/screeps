@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_041 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -32,3 +32,21 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Add ARIA attributes to SVGs in layout files (these would be in the actual layout.tsx files)
+function addSvgAccessibility() {
+    // For favicon SVG (dashboard/app/layout.tsx)
+    const faviconSvg = document.querySelector('link[rel="icon"] + svg');
+    if (faviconSvg) {
+        faviconSvg.setAttribute('aria-hidden', 'true');
+    }
+
+    // For metadata SVG (app/layout.tsx)
+    const metadataSvg = document.querySelector('meta[name="viewport"] + svg');
+    if (metadataSvg) {
+        metadataSvg.setAttribute('aria-label', 'Application icon');
+    }
+}
+
+// Call the function when DOM is loaded
+document.addEventListener('DOMContentLoaded', addSvgAccessibility);

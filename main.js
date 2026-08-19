@@ -9,7 +9,7 @@ function handleUnrotate() {
 
 // Function to render the unrotate button (accessibility fix applied)
 function renderUnrotateButton() {
-  return '<button id="unrotate">rotate back</button>';
+  return `<button id="unrotate" type="button">rotate back</button>`;
 }
 
 // Example: Initialize the unrotate functionality

@@ -1,5 +1,3 @@
-// Hypothetical main.js with a function to update the HTML file
-
 const fs = require('fs');
 
 function updateHTMLFile(filePath, content) {
@@ -10,7 +8,7 @@ function updateHTMLFile(filePath, content) {
     }
 
     // Replace the existing <html> tag with the updated one
-    const updatedData = data.replace(/<html>/g, '<html lang="en">');
+    const updatedData = data.replace(/<html>/g, `<html lang="en">`).replace(/<svg /g, '<svg aria-hidden="true" ');
 
     fs.writeFile(filePath, updatedData, 'utf8', (err) => {
       if (err) {

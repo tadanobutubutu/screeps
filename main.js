@@ -1,4 +1,4 @@
-// main.js - Dependency Dashboard Management
+// main.4s - Dependency Dashboard Management
 // This file manages dependency updates and schedules
 
 class DependencyDashboard {
@@ -141,5 +141,3 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
   window.DependencyDashboard = DependencyDashboard;
 }
-
-module.exports = DependencyDashboard;

@@ -6,21 +6,21 @@ import App from './App';
 // For app/root.tsx
 const AppLayout = ({ children }) => (
   <body lang="en" className="min-h-screen flex flex-col">
-    <main>{children}</main>
+    <main role="main">{children}</main>
   </body>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body lang="en">
-    <main>{children}</main>
+    <main role="main">{children}</main>
   </body>
 );
 
 // For dashboard/app/dependency-graph/page.tsx
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
+  <main role="main">
+    <table id="table-rotated" aria-label="Dependency graph table">
       {/* Table content */}
     </table>
   </main>
@@ -28,7 +28,7 @@ const DependencyGraph = () => (
 
 // For docs/app/index.tsx
 const DocsIndex = () => (
-  <main>
+  <main role="main">
     <div className="container">
       <h2>Quality & Metrics Reports</h2>
       <p>
@@ -36,8 +36,8 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="/dependency-graph">Plato Code Complexity Report</a>
-        <a href="/dependency-graph">Dependency Graph</a>
+        <a href="/dependency-graph" aria-label="View Plato Code Complexity Report">Plato Code Complexity Report</a>
+        <a href="/dependency-graph" aria-label="View Dependency Graph">Dependency Graph</a>
       </div>
     </div>
   </main>

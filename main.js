@@ -3,10 +3,10 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 
 // REACT_036 Fix: Changed <a href="#"> to <button>
-// 
+//
 // BEFORE:
 // <a id="unrotate" href="#">rotate back</a>
-// 
+//
 // AFTER:
 // <button id="unrotate">rotate back</button>
 
@@ -26,6 +26,11 @@ document.querySelectorAll('svg').forEach(svg => {
 
 // For each <th> element in dependency-graph.html, add scope="col" like this:
 // <th scope="col"><div>src/constants.js</div></th>
+document.querySelectorAll('th').forEach(th => {
+  if (!th.hasAttribute('scope')) {
+    th.setAttribute('scope', 'col');
+  }
+});
 
 // React accessibility fix function for module environments (if needed)
 if (typeof module !== 'undefined' && module.exports) {

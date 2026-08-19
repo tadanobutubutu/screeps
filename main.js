@@ -18,7 +18,9 @@ export default function Document() {
     <Html lang="en">  {/* REACT_015 fix */}
       <Head />
       <body>
-        <Main />
+        <main>  {/* REACT_017 fix */}
+          <Main />
+        </main>
         <NextScript />
       </body>
     </Html>

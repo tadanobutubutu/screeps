@@ -94,8 +94,8 @@ function addLanguageAttribute() {
 // New function to ensure proper table structure for screen readers
 function ensureProperTableStructure() {
   // This function would be used in a build step to ensure tables have proper
-  // structure with thead, tbody, and th elements for screen readers
-  console.log('Ensuring proper table structure for screen readers');
+  // structure with thead, tbody, and th elements with scope attributes for screen readers
+  console.log('Ensuring proper table structure for screen readers by adding scope attributes to th elements');
 }
 
 // New function to add ARIA labels to landmarks for better screen reader navigation

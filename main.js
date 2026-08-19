@@ -8,7 +8,7 @@ import './index.css';
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main lang="en" role="main">
         {children}
       </main>
     </React.StrictMode>
@@ -19,7 +19,7 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main lang="en" role="main">
         {children}
       </main>
     </React.StrictMode>

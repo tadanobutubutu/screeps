@@ -10,6 +10,7 @@ const addScopeToTh = (htmlString) => {
 // Example usage of the new function to fix the issue in the given files
 const fixDependencyGraph = () => {
   const dependencyGraphFile = 'docs/dependency-graph.html';
+  const fs = require('fs');
   const content = fs.readFileSync(dependencyGraphFile, 'utf8');
   const updatedContent = addScopeToTh(content);
   fs.writeFileSync(dependencyGraphFile, updatedContent);

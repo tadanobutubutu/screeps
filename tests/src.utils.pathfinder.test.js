@@ -153,4 +153,23 @@ describe('src/utils/pathfinder', () => {
         expect(first).toBe(second);
         expect(searchMock).toHaveBeenCalledTimes(1);
     });
+
+    test('getRoadPositions retrieves road positions with single-pass loop', () => {
+        const roadPos1 = { x: 10, y: 10 };
+        const roadPos2 = { x: 11, y: 11 };
+        const room = {
+            find: jest.fn().mockReturnValue([
+                { structureType: global.STRUCTURE_WALL, pos: { x: 5, y: 5 } },
+                { structureType: global.STRUCTURE_ROAD, pos: roadPos1 },
+                { structureType: global.STRUCTURE_CONTAINER, pos: { x: 8, y: 8 } },
+                { structureType: global.STRUCTURE_ROAD, pos: roadPos2 },
+            ]),
+            name: 'W0N1',
+        };
+
+        const roadPositions = pathfinder.getRoadPositions(room);
+
+        expect(roadPositions).toHaveLength(2);
+        expect(roadPositions).toEqual([roadPos1, roadPos2]);
+    });
 });

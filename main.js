@@ -1,4 +1,1 @@
-// This file intentionally left minimal - Dependency Dashboard issue
-// handles dependency updates via Renovate configuration
-
-module.exports = {};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

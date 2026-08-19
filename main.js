@@ -9,7 +9,7 @@
 // Once you provide that, I can:
 // 1. Identify and resolve the conflicts
 // 2. Ensure all existing code, exports, and functions are preserved
-// 3. Make only the necessary additions
+// 3. Make only the necessary additions.
 //
 // Please share the current main.js file contents so I can assist further.
 

@@ -17,7 +17,7 @@ function generateTableHeaders() {
   ];
 
   return headers.map(header =>
-    `<th scope="${header.scope}"><div>${header.text}</div></th>`
+    `<th scope="${header.scope}">${header.text}</th>`
   ).join('\n');
 }
 

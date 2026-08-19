@@ -1,6 +1,3 @@
-Here's the resolved `main.js` file with both changes integrated:
-
-```javascript
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -63,6 +60,24 @@ export function DataView({ data, isLoading, error }) {
     </main>
   );
 }
-```
 
-I merged the changes from both branches, adding accessible names to the SVG elements and preserving the existing `DataView` component.
+// Add table header scope attributes for accessibility
+export function DependencyGraphTable() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col"><div>src/constants.js</div></th>
+          <th scope="col"><div>src/managers/roomManager.js</div></th>
+          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <th scope="col"><div>src/managers/towerManager.js</div></th>
+          <th scope="col"><div>src/roles/builder.js</div></th>
+          {/* Additional headers with scope attributes */}
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table body content */}
+      </tbody>
+    </table>
+  );
+}

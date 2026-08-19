@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_025 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -32,3 +32,17 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Function to ensure only one main element exists in the document
+function ensureSingleMainElement() {
+    const mainElements = document.getElementsByTagName('main');
+    if (mainElements.length > 1) {
+        // Keep the first main element and remove others
+        for (let i = 1; i < mainElements.length; i++) {
+            mainElements[i].remove();
+        }
+    }
+}
+
+// Run the function when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', ensureSingleMainElement);

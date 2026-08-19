@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming main.js has a function that sets the innerHTML of the html element
+function setHtmlLanguage(lang) {
+  document.documentElement.lang = lang;
+}
+
+// Example usage: Set the language to English
+setHtmlLanguage('en');

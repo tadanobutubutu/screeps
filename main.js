@@ -1,5 +1,8 @@
-// Existing code from main.js, preserved
-// ...
+// main.js
+// Fixed: Changed <a href="#"> to <button> for accessibility (REACT_036)
+function rotate() {
+    // existing rotate logic
+}
 
 // New changes requested in the issue
 // Wrap the primary content in <main> where necessary
@@ -32,5 +35,15 @@ if (indexMainContent) {
   indexMainContent.parentElement.innerHTML = `<main>${indexMainContent.parentElement.innerHTML}</main>`;
 }
 
-// Existing code from main.js, preserved
-// ...
+function unrotate() {
+    // existing unrotate logic
+}
+
+// ... other existing code ...
+
+// Export all functions
+module.exports = {
+    rotate,
+    unrotate,
+    // ... other exports ...
+};

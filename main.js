@@ -1,23 +1,61 @@
-// main.js
 // [Your existing JavaScript code here]
 
-// Add the new function for handling the rotation
 function handleRotation() {
   // Your rotation logic here
   console.log('Rotation handled');
 }
 
-// Export any existing functions you have
-// module.exports = { ... };
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
-// The HTML content should be in a separate file or properly embedded in your application
-// For example, if this is part of a React component:
-/*
-function RotationButton() {
-  return (
-    <button id="unrotate" onClick={handleRotation}>
-      rotate back
-    </button>
-  );
-}
-*/
+// For app/layout.tsx
+const AppLayout = ({ children }) => (
+  <body className="min-h-screen flex flex-col">
+    <main className="flex-1">{children}</main>
+  </body>
+);
+
+// For dashboard/app/layout.tsx
+const DashboardLayout = ({ children }) => (
+  <body>
+    <main>{children}</main>
+  </body>
+);
+
+// For docs/dependency-graph.html
+const DependencyGraph = () => (
+  <main>
+    <table id="table-rotated">
+      {/* Table content */}
+    </table>
+  </main>
+);
+
+// For docs/index.html
+const DocsIndex = () => (
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+      </div>
+    </div>
+  </main>
+);
+
+// Main application render
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Export all components and the handleRotation function
+export { AppLayout, DashboardLayout, DependencyGraph, DocsIndex, handleRotation };
+```

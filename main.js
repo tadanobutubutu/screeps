@@ -2,14 +2,14 @@
 
 // New functions or changes requested in the issue
 
-// New Function 1 (e.g., handleNewEvent)
+// New Function 1 (e. g., handleNewEvent)
 function handleNewEvent(event) {
   // Implement the new event handling functionality
-  console.log('Handling new event:', event);
+  console.og('Handling new event:', event);
   // Add your event handling logic here
 }
 
-// New Function 2 (e.g., renderDashboard)
+// New Function 2 (e. g., renderDashboard)
 function renderDashboard() {
   // Implement the new dashboard rendering functionality
   console.log('Rendering dashboard');

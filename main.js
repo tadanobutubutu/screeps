@@ -91,3 +91,17 @@ describe('Jest 30 Compatibility', () => {
     expect(true).toBe(true);
   });
 });
+
+// New test for React Landmarks
+describe('React Landmarks', () => {
+  test('has main landmark element', () => {
+    const { container } = render(<MyComponent />);
+    expect(container.querySelector('main')).toBeInTheDocument();
+  });
+
+  test('has only one main landmark element', () => {
+    const { container } = render(<MyComponent />);
+    const mains = container.querySelectorAll('main');
+    expect(mains.length).toBe(1);
+  });
+});

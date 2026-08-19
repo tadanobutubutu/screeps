@@ -87,6 +87,11 @@ function MyTable() {
 function Main() {
   const router = useRouter();
 
+  const handleRotateBack = () => {
+    // Implement the rotation logic here
+    console.log('Rotating back');
+  };
+
   return (
     <>
       <h1>My Page</h1>
@@ -106,6 +111,7 @@ function Main() {
           ))}
         </ul>
       </nav>
+      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
     </>
   );
 }

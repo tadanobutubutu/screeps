@@ -1,33 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Screeps Web Client</title>
+</head>
+<body>
+    <main>
+        <div>
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        </div>
+    </main>
+</body>
+</html>
+const App = () => (
+    // Example layout component structure, preserved as minimal structure
+    <div>
+        {/* Primary content */}
+        {/* (Replace with actual application content from ./App component)*/}
+    </div>
+);
+
 // Preserve existing imports
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
 
-// Update ReactDOM.render with StrictMode and include the html lang attribute
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
-
-// Ensure the App component wraps content in <main>
-// Example layout component structure (modify as needed):
-const App = () => (
-  <html lang="en">
-    <head>
-      {/* existing head content */}
-    </head>
-    <body>
-      <main>
-        {/* Primary content */}
-        <div>
-          <App />
-        </div>
-      </main>
-    </body>
-  </html>
-);
-
-// Preserve existing exports and functions
+// Preserve existing exports
 export default App;

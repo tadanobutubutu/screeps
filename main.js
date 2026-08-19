@@ -81,11 +81,73 @@ function fixMainLandmarks() {
   console.log('Main landmarks fixed - all pages now have <main> landmark for accessibility');
 }
 
+// Add the new function to fix SVG accessibility issues
+function fixSvgAccessibility() {
+  const fs = require('fs');
+  const path = require('path');
+
+  // Files that need SVG accessibility fixes
+  const filesToFix = [
+    'app/layout.tsx',
+    'dashboard/app/layout.tsx'
+  ];
+
+  filesToFix.forEach(file => {
+    try {
+      const filePath = path.join(process.cwd(), file);
+      if (fs.existsSync(filePath)) {
+        let content = fs.readFileSync(filePath, 'utf8');
+
+        // Check if the file contains SVG elements
+        if (content.includes('<svg')) {
+          // Pattern for SVG elements that need accessibility attributes
+          const svgRegex = /(<svg[^>]*>)(.*?)(<\/svg>)/gs;
+
+          content = content.replace(svgRegex, (match, openingTag, innerContent, closingTag) => {
+            // Check if the SVG already has accessibility attributes
+            if (!openingTag.includes('aria-label') &&
+                !openingTag.includes('aria-hidden') &&
+                !innerContent.includes('<title>')) {
+
+              // For favicon SVG (dashboard/app/layout.tsx)
+              if (file.includes('dashboard')) {
+                // Add aria-hidden for decorative SVG
+                if (!openingTag.includes('aria-hidden')) {
+                  openingTag = openingTag.replace('>', ' aria-hidden="true">');
+                  console.log(`Fixed: Added aria-hidden to decorative SVG in ${file}`);
+                }
+              }
+              // For metadata SVG (app/layout.tsx)
+              else {
+                // Add aria-label for meaningful SVG
+                if (!openingTag.includes('aria-label')) {
+                  openingTag = openingTag.replace('>', ' aria-label="Application Logo">');
+                  console.log(`Fixed: Added aria-label to meaningful SVG in ${file}`);
+                }
+              }
+            }
+
+            return openingTag + innerContent + closingTag;
+          });
+
+          fs.writeFileSync(filePath, content, 'utf8');
+        }
+      }
+    } catch (error) {
+      console.error(`Error fixing SVG accessibility in ${file}:`, error.message);
+    }
+  });
+
+  console.log('SVG accessibility fixed - all SVGs now have proper accessibility attributes');
+}
+
 // Call the function if needed
 // fixMainLandmarks();
+// fixSvgAccessibility();
 
 // Export for use in other modules
 module.exports = {
   fixTableHeaders,
-  fixMainLandmarks
+  fixMainLandmarks,
+  fixSvgAccessibility
 };

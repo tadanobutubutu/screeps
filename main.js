@@ -1,1 +1,60 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+// For app/layout.tsx
+const AppLayout = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);
+
+// For dashboard/app/layout.tsx
+const DashboardLayout = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);
+
+// For docs/dependency-graph.html (would need to be converted to JSX if used in React)
+const DependencyGraph = () => (
+  <main>
+    <table id="table-rotated">
+      {/* Table content would go here */}
+    </table>
+  </main>
+);
+
+// For docs/index.html (would need to be converted to JSX if used in React)
+const DocsIndex = () => (
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+      </div>
+    </div>
+  </main>
+);
+
+// Main application render
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Export all components for potential use elsewhere
+export {
+  AppLayout,
+  DashboardLayout,
+  DependencyGraph,
+  DocsIndex
+};

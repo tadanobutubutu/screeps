@@ -13,3 +13,11 @@ describe('MyComponent', () => {
     });
   });
 });
+
+// Assuming the issue is related to the HTML file mentioned in the issue report,
+// here's the change to be applied to the HTML file (docs/dependency-graph.html):
+
+// Add this at the top of the file, before the opening <body> tag:
+/*
+<html lang="en">
+*/

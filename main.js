@@ -1,5 +1,3 @@
-tsx
-// app/layout.tsx
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -18,6 +16,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script src="https://cdn.screeps.com/api.js"></script>
+      </head>
       <body className={inter.className}>
         <main>{children}</main>
       </body>

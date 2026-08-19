@@ -1,15 +1,31 @@
-// tests/example.test.js
-
-import { render } from '@testing-library/react';
-import MyComponent from '../../path/to/MyComponent';
-
-describe('MyComponent', () => {
-  test('all <th> elements have the scope attribute', () => {
-    const { getByText } = render(<MyComponent />);
-    const allThElements = getByText(/header/i).closest('table').querySelectorAll('th');
-
-    allThElements.forEach((th) => {
-      expect(th).toHaveAttribute('scope');
-    });
-  });
-});
+export default function Layout({ children }) {
+  return (
+    <>
+      <a href="#main-content" className="skip-link">Skip to main content</a>
+      
+      <header role="banner">
+        <nav aria-label="Main navigation">
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/about">About</a></li>
+            <li><a href="/contact">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+      
+      <main id="main-content" role="main">
+        {children}
+      </main>
+      
+      <footer role="contentinfo">
+        <nav aria-label="Footer navigation">
+          <ul>
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Service</a></li>
+          </ul>
+        </nav>
+        <p>&copy; 2024 Your Company. All rights reserved.</p>
+      </footer>
+    </>
+  );
+}

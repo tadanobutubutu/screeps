@@ -238,6 +238,15 @@ const ensureHeadingHierarchy = (htmlContent) => {
   });
 };
 
+// Add function to convert hash-only links to proper buttons
+const convertHashLinksToButtons = (htmlContent) => {
+  // Convert <a href="#"> to <button> with the same content
+  return htmlContent.replace(
+    /<a\s+href="#"[^>]*>(.*?)<\/a>/gi,
+    '<button>$1</button>'
+  );
+};
+
 // Export the main landmark components, SVG accessibility function, HTML lang attribute function,
 // and new table accessibility functions
 export {
@@ -250,5 +259,6 @@ export {
   createAccessibleTable,
   addAriaLandmarks,
   handleFakeLinks,
-  ensureHeadingHierarchy
+  ensureHeadingHierarchy,
+  convertHashLinksToButtons
 };

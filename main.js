@@ -1,7 +1,3 @@
-// This is a common Next.js main.js/_app.js pattern with accessibility fixes
-
-// Ensure you have lang attribute in your _document.js or _app.js
-// For pages/_app.js:
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {

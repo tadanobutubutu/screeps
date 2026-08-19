@@ -20,12 +20,22 @@ const FaviconSVG = () => (
   </svg>
 );
 
+// New function to handle rotation back action
+const handleRotateBack = () => {
+  // Implement the rotation back functionality here
+  console.log('Rotating back');
+};
+
 // Updated layout component
 const Layout = ({ children }) => {
   return (
     <div>
       <FaviconSVG />
       {children}
+      {/* Replace the problematic link with a proper button */}
+      <button id="unrotate" onClick={handleRotateBack}>
+        rotate back
+      </button>
     </div>
   );
 };

@@ -37,7 +37,7 @@ const AccessibleIcon = ({ label }) => (
 // Alternative: Using <title> element
 const AccessibleIconWithTitle = ({ label }) => (
   <svg role="img" aria-labelledby="icon-title" width="24" height="24" viewBox="0 0 24 24">
-    <title id="icon-title">{label}</title>
+    <title id="icon--title">{label}</title>
     <path d="M12 2L2 7l10 5 10-5-10-5z" />
   </svg>
 );
@@ -83,7 +83,7 @@ const ActionButton = ({ onClick, children }) => (
   </button>
 );
 
-// If it must be a link (e.g., for URL changes), use proper anchor:
+// If it must be a link (e. g., for URL changes), use proper anchor:
 const RealLink = ({ href, children }) => (
   <a href={href} role="button">
     {children}

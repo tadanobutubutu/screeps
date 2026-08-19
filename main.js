@@ -90,3 +90,21 @@ function makeSVGAccessible() {
 
 // Add this function to the exports if needed
 export { makeSVGAccessible };
+
+// Function to ensure only one main landmark exists in the document
+function ensureSingleMainLandmark() {
+  // This function would be called in the React components
+  // to ensure that only one main landmark exists in the document
+  // For example in app/layout.tsx:
+  /*
+  useEffect(() => {
+    ensureSingleMainLandmark();
+  }, []);
+  */
+
+  // Implementation would check for multiple main elements
+  // and either remove duplicates or throw an error
+}
+
+// Add this function to the exports
+export { ensureSingleMainLandmark };

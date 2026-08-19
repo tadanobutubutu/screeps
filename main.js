@@ -80,7 +80,15 @@ function enhanceComponentAccessibility(component) {
 
     // Add accessible names for SVG elements
     if (component.type === 'svg') {
-        if (!component.props['aria-label'] && !component.props['aria-labelledby']) {
+        // Check if SVG is decorative (no semantic meaning)
+        const isDecorative = component.props.children?.some(child =>
+            child.type === 'title' && child.props?.children === 'Decorative'
+        );
+
+        if (isDecorative) {
+            component.props['aria-hidden'] = 'true';
+        } else if (!component.props['aria-label'] && !component.props['aria-labelledby']) {
+            // Add default accessible name if none exists
             component.props['aria-label'] = 'Graphic';
         }
     }
@@ -126,7 +134,12 @@ function validateComponentAccessibility(component) {
 
     // Check SVG accessibility
     if (component.type === 'svg') {
-        if (!component.props['aria-label'] && !component.props['aria-labelledby']) {
+        // Check if SVG is decorative
+        const isDecorative = component.props.children?.some(child =>
+            child.type === 'title' && child.props?.children === 'Decorative'
+        );
+
+        if (!isDecorative && !component.props['aria-label'] && !component.props['aria-labelledby']) {
             console.warn('SVG missing accessible name:', component.type);
             return false;
         }

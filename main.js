@@ -14,4 +14,15 @@ function makeSvgAccessible(svgElement, label) {
   });
 }
 
+/**
+ * Marks an SVG as decorative (hidden from assistive technologies)
+ * @param {React.ReactElement} svgElement - The SVG element to mark as decorative
+ * @returns {React.ReactElement} The decorative SVG element
+ */
+function makeSvgDecorative(svgElement) {
+  return React.cloneElement(svgElement, {
+    'aria-hidden': 'true'
+  });
+}
+
 // ... (rest of existing code remains unchanged)

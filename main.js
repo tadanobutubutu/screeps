@@ -1,20 +1,34 @@
-// Current main.js content is just a placeholder:
-// "Could you please paste the contents of `main.js`, especially the sections with conflict markers..."
+// main.js - Updated to fix REACT_036 accessibility warning
 
-// To help resolve git merge conflicts, here's what you need to do:
-// 1. Look for the conflict markers: <<<<<<<, =======, >>>>>>>
-// 2. Choose which version to keep (or merge both manually)
-// 3. Remove the conflict markers
-// 4. Ensure the resulting code is valid JavaScript
+ // Initialize rotation state
+ let isRotated = false;
 
-// Example resolution pattern:
-function resolveMergeConflict(ours, theirs, strategy = 'ours') {
-  if (strategy === 'ours') {
-    return ours;
-  } else if (strategy === 'theirs') {
-    return theirs;
-  } else {
-    // Manual merge needed
-    return `${ours}\n${theirs}`;
-  }
-}
+// Handle rotate button click
+ document.getElementById('rotate').addEventListener('click', function() {
+     const content = document.getElementById('content');
+     if (isRotated) {
+         content.style.transform = 'rotate(0deg)';
+         isRotated = false;
+     } else {
+         content.style.transform = 'rotate(90deg)';
+         isRotated = true;
+     }
+ });
+
+// Handle unrotate button click (using button element for accessibility)
+ document.getElementById('unrotate').addEventListener('click', function() {
+     const content = document.getElementById('content');
+     content.style.transform = 'rotate(0deg)';
+     isRotated = false;
+ });
+
+// Sample content
+ const content = document.getElementById('content');
+ if (content) {
+     content.innerHTML = `
+         <h1>Welcome to the App</h1>
+         <p>Click the rotate button to rotate the content.</p>
+         <button id="rotate">Rotate</button>
+         <button id="unrotate">rotate back</button>
+     `;
+ }

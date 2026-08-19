@@ -80,5 +80,10 @@ export const createAccessibleLink = (href, text, isButton = false) => {
   return <a href={href}>{text}</a>;
 };
 
+// Initialize language attribute when the app loads
+if (typeof document !== 'undefined') {
+  setLanguageAttribute('en');
+}
+
 // Keep all existing exports and functions unchanged
 // ... rest of the original main.js content

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 const Main = () => {
   return (
@@ -42,3 +42,5 @@ function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+export { RootLayout, RotateBackButton };

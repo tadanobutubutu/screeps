@@ -29,6 +29,20 @@ const AppLayout = ({ children }) => {
   );
 };
 
+// New component for the rotate back button
+const RotateBackButton = ({ onClick }) => {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      className="rotate-back-button"
+      aria-label="Rotate back"
+    >
+      rotate back
+    </button>
+  );
+};
+
 // Existing initialization code
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -39,4 +53,4 @@ root.render(
 );
 
 // Export all existing exports (preserved as-is)
-export { App, DashboardLayout, AppLayout };
+export { App, DashboardLayout, AppLayout, RotateBackButton };

@@ -108,6 +108,10 @@ export const addLanguageAttributes = () => {
     console.log(`Adding language attributes to ${file}`);
   });
 
+  // Specifically address the issue with docs/dependency-graph.html
+  console.log('Adding lang="en" attribute to docs/dependency-graph.html');
+  console.log('This will help screen readers pick the right voice');
+
   return filesToUpdate;
 };
 

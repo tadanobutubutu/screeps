@@ -107,6 +107,11 @@ export default function Main() {
           ))}
         </ul>
       </nav>
+
+      {/* Accessible SVG for favicon */}
+      <svg aria-hidden="true" style={{ display: 'none' }}>
+        <title>Favicon</title>
+      </svg>
     </>
   );
 }

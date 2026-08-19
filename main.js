@@ -95,5 +95,16 @@ function fixUniqueLandmarks() {
 // Call the new function to fix unique landmarks
 fixUniqueLandmarks();
 
+// New function to ensure HTML element has lang attribute
+function ensureHtmlLangAttribute() {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
+}
+
+// Call the new function to ensure HTML has lang attribute
+ensureHtmlLangAttribute();
+
 // Export the existing functions, if any, with their original names
 /* ... */

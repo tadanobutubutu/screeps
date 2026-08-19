@@ -39,7 +39,7 @@ function addScopeToRowHeaders(content) {
 function fixTableHeadersAccessibility(content) {
   // Match any <th> without scope attribute
   const thWithoutScope = /<th(?![^>]*\bscope=)[^>]*>/gi;
-  
+
   return content.replace(thWithoutScope, (match) => {
     return match.replace(/^<th/, '<th scope="col"');
   });
@@ -55,10 +55,31 @@ function validateTableHeaders(content) {
   return !thWithoutScope.test(content);
 }
 
+/**
+ * Converts fake links (href="#") to proper buttons for better accessibility
+ * @param {string} content - HTML/JSX content containing links
+ * @returns {string} - Content with fake links converted to buttons
+ */
+function convertFakeLinksToButtons(content) {
+  // Match <a> tags with href="#"
+  const fakeLinkPattern = /<a\s+[^>]*href=["']#["'][^>]*>(.*?)<\/a>/gi;
+
+  return content.replace(fakeLinkPattern, (match, linkText) => {
+    // Extract attributes from the original <a> tag
+    const attributes = match.match(/<a\s+([^>]*)>/i)[1];
+
+    // Create a button with the same attributes (excluding href)
+    const buttonAttributes = attributes.replace(/href=["']#["']/i, '');
+
+    return `<button ${buttonAttributes}>${linkText}</button>`;
+  });
+}
+
 // Export all functions
 module.exports = {
   addScopeToColumnHeaders,
   addScopeToRowHeaders,
   fixTableHeadersAccessibility,
-  validateTableHeaders
+  validateTableHeaders,
+  convertFakeLinksToButtons
 };

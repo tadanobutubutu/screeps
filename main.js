@@ -44,12 +44,6 @@ import { getRoad } from '../lib/road';
 import { getRampart } from '../lib/rampart';
 import { getWall } from '../lib/wall';
 import { getTower } from '../lib/tower';
-import { getExtractor } from '../lib/extractor';
-import { getContainer } from '../lib/container';
-import { getRoad } from '../lib/road';
-import { getRampart } from '../lib/rampart';
-import { getWall } from '../lib/wall';
-import { getTower } from '../lib/tower';
 
 const Dashboard = ({ user, rooms, creeps, spawns, structures, constructionSites, flags, powerCreeps, nukes, market, terminal, storage, observer, powerSpawn, factory, invaderCore, keeperLair, sources, minerals, deposits, ruins, tombstones, portals, controllers, nukers, powerBanks, labs, links, extractors, containers, roads, ramparts, walls, towers }) => {
   const { data: session, status } = useSession();
@@ -82,24 +76,20 @@ const Dashboard = ({ user, rooms, creeps, spawns, structures, constructionSites,
     </div>;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
-        </div>
-      </header>
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Dashboard content */}
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg h-96">
-            {/* Content goes here */}
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-};
+  // Keep missing imports from both versions, merged:
+  import { getPowerBank } from '../lib/powerBank';
+  import { getLab } from '../lib/lab';
+  import { getLink } from '../lib/link';
+  import { getExtractor } from '../lib/extractor';
+  import { getContainer } from '../lib/container';
+  import { getRoad } from '../lib/road';
+  import { getRampart } from '../lib/rampart';
+  import { getWall } from '../lib/wall';
+  import { getTower } from '../lib/tower';
+  import { get透明Wall } from '../lib/transparentWall'; // New import from the other version
+
+  // ... (rest of the code)
+}
 
 export async function getServerSideProps(context) {
   const session = await getSession(context);
@@ -113,6 +103,7 @@ export async function getServerSideProps(context) {
     };
   }
 
+  // Keep all the named exports in the getServerSideProps function, merged:
   const user = await getUser(session.user.email);
   const rooms = await getRooms(user.id);
   const creeps = await getCreeps(user.id);
@@ -147,6 +138,9 @@ export async function getServerSideProps(context) {
   const ramparts = await getRampart(user.id);
   const walls = await getWall(user.id);
   const towers = await getTower(user.id);
+
+  // Keep missing exports from both versions, merged:
+  const transparentWalls = await get透明Wall(user.id); // New export from the other version
 
   return {
     props: {
@@ -185,6 +179,7 @@ export async function getServerSideProps(context) {
       ramparts,
       walls,
       towers,
+      transparentWalls, // New export from the other version
     },
   };
 }

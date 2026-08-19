@@ -1,24 +1,28 @@
-// --- Main.js content (example structure, adapt based on actual code) ---
+// main.js
 
-// Preserve existing code, exports, and functions here...
-// Example: If the anchor was created via DOM manipulation in main.js:
+/**
+ * Handles the rotate back action for the dependency graph
+ * Replaces the fake link with a proper button element
+ */
+function handleRotateBack() {
+    const rotateBackButton = document.createElement('button');
+    rotateBackButton.id = 'unrotate';
+    rotateBackButton.textContent = 'rotate back';
+    rotateBackButton.addEventListener('click', () => {
+        // Add your rotation logic here
+        console.log('Rotating back');
+    });
 
-// Before (hypothetical example):
-const unrotateLink = document.createElement('a');
-unrotateLink.id = 'unrotate';
-unrotateLink.href = '#';
-unrotateLink.textContent = 'rotate back';
-document.body.appendChild(unrotateLink);
+    // Replace the old <a> element with the new <button>
+    const oldLink = document.getElementById('unrotate');
+    if (oldLink) {
+        oldLink.parentNode.replaceChild(rotateBackButton, oldLink);
+    }
+}
 
-// After (fixed):
-const unrotateButton = document.createElement('button');
-unrotateButton.id = 'unrotate';
-unrotateButton.textContent = 'rotate back';
-// Add event listener if needed (e.g., for routing or action):
-unrotateButton.addEventListener('click', () => { /* Your navigation logic here */ });
-document.body.appendChild(unrotateButton);
+// Initialize the rotation button when the page loads
+document.addEventListener('DOMContentLoaded', handleRotateBack);
 
-// --- End of Main.js ---
-
-// Ensure all existing exports and functions remain untouched.
-export default { /* ... */ };
+export default {
+    handleRotateBack
+};

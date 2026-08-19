@@ -4,17 +4,19 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 
 // Modify SVG elements in both layout files (line 7 in app/layout.tsx and dashboard/app/layout.tsx) to include aria-hidden="true"
-document.querySelectorAll('svg').forEach(svg => {
-  if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+document.addEventListener('DOMContentLoaded', () => {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
     const title = svg.querySelector('title');
     if (!title) {
       const desc = svg.getAttribute('alt') || 'Graphic';
-      title = document.createElement('title');
-      title.textContent = desc;
-      svg.appendChild(title);
+      const newTitle = document.createElement('title');
+      newTitle.textContent = desc;
+      svg.insertBefore(newTitle, svg.firstChild);
+      svg.setAttribute('role', 'img');
     }
     svg.setAttribute('aria-hidden', 'true');
-  }
+  });
 });
 
 // Add function to handle the fake link issue
@@ -39,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Existing code remains unchanged
 // ...
 
-const root = createRoot(document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container);
 root.render(
   <React.StrictMode>
     <App />
@@ -53,17 +56,17 @@ root.render(
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     applyREACT041Fix: () => {
-      document.querySelectorAll('svg').forEach(svg => {
-        if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-          const title = svg.querySelector('title');
-          if (!title) {
-            const desc = svg.getAttribute('alt') || 'Graphic';
-            title = document.createElement('title');
-            title.textContent = desc;
-            svg.appendChild(title);
-          }
-          svg.setAttribute('aria-hidden', 'true');
+      const svgElements = document.querySelectorAll('svg');
+      svgElements.forEach(svg => {
+        const title = svg.querySelector('title');
+        if (!title) {
+          const desc = svg.getAttribute('alt') || 'Graphic';
+          const newTitle = document.createElement('title');
+          newTitle.textContent = desc;
+          svg.insertBefore(newTitle, svg.firstChild);
+          svg.setAttribute('role', 'img');
         }
+        svg.setAttribute('aria-hidden', 'true');
       });
     }
   };

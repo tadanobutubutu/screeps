@@ -1,4 +1,3 @@
-// Existing code from main.js (preserved exactly as is)
 const constants = require('./src/constants');
 const roomManager = require('./src/managers/roomManager');
 const spawnManager = require('./src/managers/spawnManager');
@@ -57,6 +56,7 @@ function TableComponent() {
 // 2. If using React, use JSX syntax
 // 3. If using plain HTML, keep it as strings or in separate files
 
-// Fix for REACT_025: Ensure only one <main> element in Dashboard component
-// This is a placeholder for the actual fix - the real implementation would need to be
-// applied to the Dashboard.tsx file, not main.js
+// Note: 
+//   - REACT_025: Fix for Dashboard component <main> element should be in Dashboard.tsx
+//   - React Fake Link: Actual HTML changes should be in dependency-graph.html
+//   The JavaScript code in this file is unchanged for both issues.

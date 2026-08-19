@@ -6,4 +6,18 @@ function getPendingUpdates() {
     { package: 'react', version: '^19.0.0' },
   ];
 }
-module.exports = { getPendingUpdates };
+
+function getUpdatedDependencyGraph() {
+  const updates = getPendingUpdates();
+  const graph = document.createElement('div');
+
+  updates.forEach(update => {
+    const packageDiv = document.createElement('div');
+    packageDiv.innerText = `${update.package} @ ${update.version}`;
+    graph.appendChild(packageDiv);
+  });
+
+  return graph;
+}
+
+module.exports = { getPendingUpdates, getUpdatedDependencyGraph };

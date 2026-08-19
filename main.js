@@ -1,6 +1,6 @@
 export function DataView({ data, isLoading, error }) {
   return (
-    <main>
+    <main lang="en">
       {isLoading && (
         <section aria-busy="true" aria-label="Loading content">
           <p>Loading...</p>
@@ -16,7 +16,7 @@ export function DataView({ data, isLoading, error }) {
       {!isLoading && !error && data && (
         <section aria-label="Main content">
           <h1>{data.title}</h1>
-          <p>{data.description}</p>
+          ...
         </section>
       )}
     </main>

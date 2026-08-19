@@ -41,6 +41,12 @@ const Dashboard = ({ error, data }) => {
         <section className="data-section">
           <h2>Data Overview</h2>
           {/* Render your data here */}
+          <div className="dependency-dashboard">
+            <h3>Dependency Dashboard</h3>
+            <p>View the <a href="https://docs.renovatebot.com/key-concepts/dashboard/" target="_blank" rel="noopener noreferrer">Dependency Dashboard documentation</a> to learn more.</p>
+            <p>Repository problems: <a href="https://developer.mend.io//github/tadanobutubutu/screeps" target="_blank" rel="noopener noreferrer">View logs</a></p>
+            <p>Mend.io Web Portal: <a href="https://developer.mend.io/github/tadanobutubutu/screeps" target="_blank" rel="noopener noreferrer">View repository</a></p>
+          </div>
         </section>
       </main>
     </div>

@@ -5,7 +5,7 @@
 // New Function 1 (e. g., handleNewEvent)
 function handleNewEvent(event) {
   // Implement the new event handling functionality
-  console.og('Handling new event:', event);
+  console.log('Handling new event:', event);
   // Add your event handling logic here
 }
 

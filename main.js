@@ -4,7 +4,7 @@ document.getElementById('unrotate').innerHTML = `
 
 // Adding event listener to the new button
 document.getElementById('unrotate-button').addEventListener('click', function() {
-  // Your logic to rotate back
+  // Your logic to rotate back OR the logic from the other branch if it is not redundant
   console.log('Rotating back...');
 });
 
@@ -13,3 +13,14 @@ document.getElementById('unrotate-button').addEventListener('click', function() 
 // export function someOtherFunction() {
 //   // Existing function code
 // }
+
+// Merged logic from the other branch (if needed)
+document.getElementById('unrotate').innerHTML += `
+  <button id="reverse-button">reverse</button>
+`;
+
+// Adding event listener to the new button (if it was added in the other branch)
+document.getElementById('reverse-button').addEventListener('click', function() {
+  // Your logic to reverse, if the other branch introduced a reverse function and it's not redundant
+  console.log('Reversing...');
+});

@@ -3,8 +3,20 @@
 import { render } from '@testing-library/react';
 import MyComponent from '../../path/to/MyComponent';
 
-describe('MyComponent', () => {
-  test('all <th> elements have the scope attribute', () => {
+// Add the newly introduced accessibility tests
+describe('Accessibility', () => {
+  test('app/layout.tsx has a main landmark', () => {
+    const { container } = render(<AppLayout />);
+    expect(container.querySelector('main')).toBeInTheDocument();
+  });
+
+  test('dashboard/app/layout.tsx has a main landmark', () => {
+    const { container } = render(<DashboardLayout />);
+    expect(container.querySelector('main')).toBeInTheDocument();
+  });
+
+  // Maintain the existing test for the HTML dependency-graph file
+  test('docs/dependency-graph.html all <th> elements have the scope attribute', () => {
     const { getByText } = render(<MyComponent />);
     const allThElements = getByText(/header/i).closest('table').querySelectorAll('th');
 

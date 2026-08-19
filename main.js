@@ -6,29 +6,29 @@ import App from './App';
 // For app/root.tsx
 const AppLayout = ({ children }) => (
   <body lang="en" className="min-h-screen flex flex-col">
-    <main>{children}</main>
+    <div>{children}</div>
   </body>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body lang="en">
-    <main>{children}</main>
+    <div>{children}</div>
   </body>
 );
 
 // For dashboard/app/dependency-graph/page.tsx
 const DependencyGraph = () => (
-  <main>
+  <div>
     <table id="table-rotated">
       {/* Table content */}
     </table>
-  </main>
+  </div>
 );
 
 // For docs/app/index.tsx
 const DocsIndex = () => (
-  <main>
+  <div>
     <div className="container">
       <h2>Quality & Metrics Reports</h2>
       <p>
@@ -40,7 +40,7 @@ const DocsIndex = () => (
         <a href="/dependency-graph">Dependency Graph</a>
       </div>
     </div>
-  </main>
+  </div>
 );
 
 // Main application render

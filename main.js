@@ -83,4 +83,10 @@ function makeSvgAccessible(svgContent, isDecorative = true) {
   return svgContent;
 }
 
-module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible };
+// New function to fix React Language Attribute issue
+function addLangAttribute(htmlContent) {
+  // Add lang attribute to the html tag if it doesn't exist
+  return htmlContent.replace(/<html([^>]*)>/, '<html lang="en"$1>');
+}
+
+module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute };

@@ -1,18 +1,4 @@
-// main.js
-// ... (existing code remains unchanged)
-
-/**
- * Adds accessible name to SVG elements to comply with REACT_041 rule
- * @param {React.ReactElement} svgElement - The SVG element to make accessible
- * @param {string} label - The accessible name for the SVG
- * @returns {React.ReactElement} The accessible SVG element
- */
-function makeSvgAccessible(svgElement, label) {
-  return React.cloneElement(svgElement, {
-    'aria-label': label,
-    role: 'img'
-  });
-}
+// Existing code from main.js (not affected by the issue)
 
 /**
  * Wraps content in a main landmark element for accessibility compliance
@@ -23,4 +9,12 @@ function wrapInMain(children) {
   return React.createElement('main', null, children);
 }
 
-// ... (rest of existing code remains unchanged)
+const tableHeaders = document.querySelectorAll('th');
+
+tableHeaders.forEach(header => {
+  if (!header.hasAttribute('scope')) {
+    header.setAttribute('scope', 'col');
+  }
+});
+
+// Existing code from main.js (not affected by the issue)

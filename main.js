@@ -58,3 +58,21 @@ export const runEslint = async (files) => {
 export const getTypeScriptVersion = () => {
   return '7.0.0';
 };
+
+// New function to add accessibility to SVG elements
+export const makeSvgAccessible = (svgElement, label) => {
+  if (!svgElement) return;
+
+  // If the SVG is decorative, mark it as hidden
+  if (!label) {
+    svgElement.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  // Otherwise, add an accessible name
+  svgElement.setAttribute('aria-label', label);
+  // Also add a title element for additional accessibility
+  const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+  title.textContent = label;
+  svgElement.insertBefore(title, svgElement.firstChild);
+};

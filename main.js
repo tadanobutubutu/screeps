@@ -13,6 +13,7 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body>
   <!-- rest of the HTML content -->
+  <button id="unrotate" class="rotate-back-button">rotate back</button>
 </body>
 </html>`;
 

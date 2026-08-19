@@ -18,8 +18,9 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
       id="unrotate"
       onClick={onClick}
       aria-label="Rotate back to original orientation"
+      type="button"
     >
-      rotate back
+      <span aria-hidden="true">↻</span> rotate back
     </button>
   );
 }

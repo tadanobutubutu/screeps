@@ -7,7 +7,7 @@ import './index.css';
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main role="main" aria-label="Main content">
         {children}
       </main>
     </React.StrictMode>
@@ -18,7 +18,7 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main role="main" aria-label="Main content">
         {children}
       </main>
     </React.StrictMode>
@@ -29,7 +29,7 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
+    <main role="main" aria-label="Dependency graph">
       <table id="table-rotated">
         {/* table content */}
       </table>
@@ -41,7 +41,7 @@ const DependencyGraph = () => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DocsIndex = () => {
   return (
-    <main>
+    <main role="main" aria-label="Quality and metrics reports">
       <div className="container">
         <h2>Quality & Metrics Reports</h2>
         <p>

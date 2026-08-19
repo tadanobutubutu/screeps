@@ -1,3 +1,6 @@
+Here's the resolved `main.js` file with both changes integrated:
+
+```javascript
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -10,24 +13,25 @@ const App = () => {
 // Existing exports (preserved)
 export { App };
 
-// Add accessible name to SVG in layout.tsx
+// Add accessible name to SVG in layout.tsx and dashboard/app/layout.tsx
 const FaviconSVG = () => (
   <svg
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
   >
+    <title>Screeps Favicon</title>
     {/* SVG content */}
   </svg>
 );
 
-// Add accessible name to SVG in dashboard/app/layout.tsx
 const DashboardFaviconSVG = () => (
   <svg
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
   >
+    <title>Dashboard Favicon</title>
     {/* SVG content */}
   </svg>
 );
@@ -43,13 +47,13 @@ export function DataView({ data, isLoading, error }) {
           <p>Loading...</p>
         </section>
       )}
-      
+
       {error && (
         <section role="alert" aria-label="Error message">
           <p>Error: {error}</p>
         </section>
       )}
-      
+
       {!isLoading && !error && data && (
         <section aria-label="Main content">
           <h1>{data.title}</h1>
@@ -59,3 +63,6 @@ export function DataView({ data, isLoading, error }) {
     </main>
   );
 }
+```
+
+I merged the changes from both branches, adding accessible names to the SVG elements and preserving the existing `DataView` component.

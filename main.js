@@ -88,12 +88,10 @@ function Main() {
   const router = useRouter();
 
   return (
-    <>
+    <main id="main-content">
       <h1>My Page</h1>
       <MyTable />
-      <main id="main-content">
-        {/* Component content here */}
-      </main>
+      {/* Component content here */}
       <footer id="footer">
         {/* Footer content here */}
       </footer>
@@ -106,7 +104,7 @@ function Main() {
           ))}
         </ul>
       </nav>
-    </>
+    </main>
   );
 }
 

@@ -1,9 +1,7 @@
-// Existing code (preserved as-is)
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-// New code added for the React Landmarks fix
 const MainLayout = ({ children }) => {
   return (
     <main className="flex-1" role="main" aria-label="Main content">

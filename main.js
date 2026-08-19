@@ -38,33 +38,35 @@ const Dashboard: React.FC = () => {
         <h1 className="text-3xl font-bold">Dashboard</h1>
       </header>
       <main className="container mx-auto px-4 py-8">
-        {loading ? (
-          <section className="loading-section flex items-center justify-center min-h-[60vh]">
-            <p>Loading dashboard...</p>
-          </section>
-        ) : error ? (
-          <section className="error-section flex items-center justify-center min-h-[60vh]">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Error</h2>
-              <p>{error}</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Retry
-              </button>
-            </div>
-          </section>
-        ) : (
-          <section className="data-section">
-            <h2 className="text-xl font-semibold mb-4">Data Overview</h2>
-            {data && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Dashboard content would go here */}
+        <main className="">
+          {loading ? (
+            <section className="loading-section flex items-center justify-center min-h-[60vh]">
+              <p>Loading dashboard...</p>
+            </section>
+          ) : error ? (
+            <section className="error-section flex items-center justify-center min-h-[60vh]">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold mb-4">Error</h2>
+                <p>{error}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Retry
+                </button>
               </div>
-            )}
-          </section>
-        )}
+            </section>
+          ) : (
+            <section className="data-section">
+              <h2 className="text-xl font-semibold mb-4">Data Overview</h2>
+              {data && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Dashboard content would go here */}
+                </div>
+              )}
+            </section>
+          )}
+        </main>
       </main>
     </div>
   );

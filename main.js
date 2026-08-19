@@ -1,4 +1,3 @@
-tsx
 import { Html, Head, Main, NextScript } from 'next/document'
 
 export default function Document() {
@@ -9,7 +8,9 @@ export default function Document() {
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" aria-label="Website icon" />
       </Head>
       <body>
-        <Main />
+        <main>
+          <Main />
+        </main>
         <NextScript />
       </body>
     </Html>

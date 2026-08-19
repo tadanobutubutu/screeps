@@ -22,6 +22,20 @@ document.getElementById('unrotate').addEventListener('click', function() {
     isRotated = false;
 });
 
+// Add ARIA attributes for better accessibility
+document.addEventListener('DOMContentLoaded', function() {
+    const rotateButton = document.getElementById('rotate');
+    const unrotateButton = document.getElementById('unrotate');
+
+    if (rotateButton) {
+        rotateButton.setAttribute('aria-label', 'Rotate content 90 degrees');
+    }
+
+    if (unrotateButton) {
+        unrotateButton.setAttribute('aria-label', 'Reset content rotation');
+    }
+});
+
 // Sample content
 const content = document.getElementById('content');
 if (content) {

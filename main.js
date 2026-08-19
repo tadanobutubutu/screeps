@@ -27,3 +27,20 @@ export default function Document() {
 
 // For a component with tables, use proper table structure:
 // Use semantic landmarks instead of just divs with role="banner", etc.
+
+// Add this function to handle SVG accessibility
+function FaviconSVG() {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+    >
+      <title>Favicon</title>
+    </svg>
+  );
+}
+
+// Export the FaviconSVG component for use in layout files
+export { FaviconSVG };

@@ -1,6 +1,3 @@
-Here is the resolved version of the `main.js` file:
-
-```javascript
 // This is a JavaScript file, not HTML
 // The HTML lang attribute should be in your HTML template file, not here
 
@@ -48,12 +45,12 @@ export default function Main() {
       {/* More components... */}
 
       {/* Add landmark for main content */}
-      <main id="main-content">
+      <main id="main-content" aria-label="Main content">
         {/* Component content here */}
       </main>
 
       {/* Add landmark for footer */}
-      <footer id="footer">
+      <footer id="footer" aria-label="Footer">
         {/* Footer content here */}
       </footer>
 
@@ -85,7 +82,7 @@ const MyTable = () => {
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <td key={`cell-${header}-${row.id}`}>{row[header]}</td>
       ))}
     </tr>
   ));
@@ -95,17 +92,17 @@ const MyTable = () => {
     // Add lang attribute to div for accessibility
     <div lang={htmlConfig.lang}>
       <h1>Users List</h1>
-      <Table>
+      <table aria-label="Users table">
         <thead>
           <tr>
             {tableHeaders.map((header) => (
               // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              <th key={`th-${header}`} scope="col">{header}</th>
             ))}
           </tr>
         </thead>
         <tbody>{tableRows}</tbody>
-      </Table>
+      </table>
     </div>
   );
 };
@@ -124,6 +121,3 @@ export const newFeature = () => {
 };
 
 // Your existing exports (preserved)
-```
-
-In this resolved version, the code from both branches was integrated while keeping important changes from both sides. The JavaScript file gained the ability to get the HTML lang attribute from the React component, and it is now using this value or the Next.js value if not found in the component. Additionally, the `MyTable` component has been updated to maintain its structure but also inherits the lang attribute from the root HTML element for better accessibility. The table header and table row structure has also been preserved, as well as other existing functions and main content rendering.

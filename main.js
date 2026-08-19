@@ -20,7 +20,8 @@ root.render(
 // New function to handle main content rendering
 export function renderMainContent(content) {
   return (
-    <main className="main-content">
+    <main className="main-content" aria-labelledby="main-heading">
+      <h2 id="main-heading">Main Content</h2>
       {content}
     </main>
   );
@@ -52,7 +53,7 @@ function MyTable() {
   const tableRows = data.map((row) => (
     <tr key={row.id}>
       {tableHeaders.map((header) => (
-        <Table.Cell key={`cell-${header}-${row.id}`}>{row[header]}</Table.Cell>
+        <td key={`cell-${header}-${row.id}`}>{row[header]}</td>
       ))}
     </tr>
   ));
@@ -61,13 +62,13 @@ function MyTable() {
     // Addressing REACT_015 - React Language Attribute
     // Add lang attribute to div for accessibility
     <div lang="en">
-      <h1>Users List</h1>
-      <Table>
+      <h1 id="table-heading">Users List</h1>
+      <Table aria-labelledby="table-heading">
         <thead>
           <tr>
             {tableHeaders.map((header) => (
               // Add aria-label for table headers for screen reader accessibility
-              <th key={`th-${header}`} aria-label={header}>{header}</th>
+              <th key={`th-${header}`} scope="col">{header}</th>
             ))}
           </tr>
         </thead>
@@ -83,22 +84,24 @@ export default function Main() {
 
   return (
     <>
-      <h1>My Page</h1>
+      <h1 id="page-title">My Page</h1>
       <MyTable />
       {/* More components... */}
 
       {/* Add landmark for main content */}
-      <main id="main-content">
+      <main id="main-content" aria-labelledby="page-title">
         {/* Component content here */}
       </main>
 
       {/* Add landmark for footer */}
-      <footer id="footer">
+      <footer id="footer" aria-labelledby="footer-heading">
+        <h2 id="footer-heading">Footer</h2>
         {/* Footer content here */}
       </footer>
 
       {/* Navigation landmarks */}
       <nav aria-label="Main Navigation">
+        <h2 id="nav-heading">Main Navigation</h2>
         <ul>
           {router.routes.map((route) => (
             <li key={route.id}>

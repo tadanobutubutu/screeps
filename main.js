@@ -14,3 +14,31 @@ const Metadata = () => (
 );
 
 // The rest of your main.js code...
+
+// New function to handle updated dependencies
+const getUpdatedDependencies = () => {
+  return {
+    react: '^19.0.0',
+    jest: '^30.0.0',
+    eslint: '^10.0.0',
+    babelJest: '^30.0.0',
+    typescript: '^7.0.0'
+  };
+};
+
+// Function to check if dependencies are up to date
+const checkDependencyUpdates = (currentDeps) => {
+  const updatedDeps = getUpdatedDependencies();
+  const updatesNeeded = {};
+
+  for (const [dep, version] of Object.entries(updatedDeps)) {
+    if (currentDeps[dep] !== version) {
+      updatesNeeded[dep] = version;
+    }
+  }
+
+  return updatesNeeded;
+};
+
+// Export all existing functions and add new ones
+export { Logo, Metadata, getUpdatedDependencies, checkDependencyUpdates };

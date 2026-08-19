@@ -61,11 +61,21 @@ const ProperLink = ({ href, children }) => {
   return <a href={href}>{children}</a>;
 };
 
+// Add main landmark component for the issue
+const MainLandmark = ({ children, className = '' }) => {
+  return (
+    <main className={className} role="main">
+      {children}
+    </main>
+  );
+};
+
 // Preserve all existing exports
 export {
   // ... all existing exports
   AccessibleApp,
   AccessibleTable,
   AccessibleSVG,
-  ProperLink
+  ProperLink,
+  MainLandmark
 };

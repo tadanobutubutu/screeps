@@ -7,7 +7,7 @@ import React from 'react';
 const AccessibleApp = ({ children }) => {
   // Add lang attribute to root element
   return (
-    <div lang="en" className="app-container">
+    <div lang="en">
       {/* Add proper ARIA landmarks */}
       <header role="banner">
         {/* Header content */}
@@ -61,11 +61,34 @@ const ProperLink = ({ href, children }) => {
   return <a href={href}>{children}</a>;
 };
 
+// Example component that had multiple <main> elements (fixed)
+// Before: Both error and success states had <main> elements
+// After: Only success state has <main>, error state uses <section>
+const DataDisplayComponent = ({ data, error }) => {
+  if (error) {
+    return (
+      <section role="alert" aria-live="polite">
+        <h2>Error</h2>
+        <p>{error.message}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </section>
+    );
+  }
+
+  return (
+    <main role="main">
+      <h1>Data</h1>
+      <AccessibleTable data={data} />
+    </main>
+  );
+};
+
 // Preserve all existing exports
 export {
   // ... all existing exports
   AccessibleApp,
   AccessibleTable,
   AccessibleSVG,
-  ProperLink
+  ProperLink,
+  DataDisplayComponent
 };

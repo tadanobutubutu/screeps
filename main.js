@@ -1,36 +1,20 @@
-// Assuming main.js contains HTML content, here's how you might update it:
+// app/layout.tsx
+import React from 'react';
 
-const mainJSContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!-- ... other head elements ... -->
-</head>
-<body>
-  <!-- ... other content ... -->
-
-  <!-- Example of updating a table header -->
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Column 1</th>
-        <th scope="col">Column 2</th>
-        <th scope="col">Column 3</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Data 1</td>
-        <td>Data 2</td>
-        <td>Data 3</td>
-      </tr>
-      <!-- ... other rows ... -->
-    </tbody>
-  </table>
-
-  <!-- ... other content ... -->
-</body>
-</html>
-`;
-
-console.log(mainJSContent);
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Screeps</title>
+        <link rel="icon" href="/favicon.ico" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+          <title>Screeps Logo</title>
+          {/* SVG content */}
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

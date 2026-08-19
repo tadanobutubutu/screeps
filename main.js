@@ -14,3 +14,17 @@ const Metadata = () => (
 );
 
 // The rest of your main.js code...
+
+// New components for the layout files
+export const MainLayout = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);
+
+// For the docs files
+export const DocsMain = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);

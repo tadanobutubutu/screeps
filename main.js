@@ -38,7 +38,7 @@ const reactDom = require('react-dom');
 // Add new exports if needed
 export { eslintConfig, jestConfig, tsConfig };
 
-// Add main landmark components for React accessibility
+// Add main landmark component for React accessibility
 const MainLandmark = ({ children }) => {
   return <main>{children}</main>;
 };
@@ -83,5 +83,20 @@ const makeSvgAccessible = (svgElement) => {
   });
 };
 
-// Export the main landmark components and SVG accessibility function
-export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible };
+// Import for React layout component
+import { ReactNode } from 'react';
+
+// React layout component
+const RootLayout = ({ children }: { children: ReactNode }) => {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+};
+
+// Export the main landmark components, SVG accessibility function, and layout component
+export { MainLandmark, addMainLandmarkToHTML, makeSvgAccessible, RootLayout };
+export { eslintConfig, jestConfig, tsConfig };

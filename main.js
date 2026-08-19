@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_036 and REACT_041 accessibility warnings
 
 // Initialize rotation state
 let isRotated = false;
@@ -69,7 +69,6 @@ export const metadata: Metadata = {
         url: '/favicon.svg',
         type: 'image/svg+xml',
         sizes: 'any',
-        // Added aria-label for accessibility
         'aria-label': 'Screeps favicon'
       }
     ]
@@ -88,7 +87,6 @@ export const metadata: Metadata = {
         url: '/favicon.svg',
         type: 'image/svg+xml',
         sizes: 'any',
-        // Added aria-label for accessibility
         'aria-label': 'Screeps dashboard favicon'
       }
     ]

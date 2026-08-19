@@ -34,6 +34,15 @@ root.render(
   </React.StrictMode>
 );
 
+// Add a new component for the unrotate button
+const UnrotateButton = ({ onClick }) => {
+  return (
+    <button id="unrotate" onClick={onClick}>
+      rotate back
+    </button>
+  );
+};
+
 // Export all existing functions if any
 // (Preserve any existing exports from the original file)
-export { AppLayout, DashboardLayout };
+export { AppLayout, DashboardLayout, UnrotateButton };

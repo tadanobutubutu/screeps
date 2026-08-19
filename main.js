@@ -1,36 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
-import { getUserData } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
+import { getDashboardData } from '../lib/api';
+import { DashboardData } from '../types/dashboard';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorMessage from './ErrorMessage';
+import DashboardContent from './DashboardContent';
 import { DashboardHeader } from './DashboardHeader';
-import { DashboardContent } from './DashboardContent';
 import { DashboardFooter } from './DashboardFooter';
-import { LoadingSpinner } from './LoadingSpinner';
 
 export const Dashboard = () => {
-  const { data: session, status } = useSession();
-  const [userData, setUserData] = useState(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      const fetchData = async () => {
-        try {
-          const data = await getUserData(session.user.email);
-          setUserData(data);
-          setLoading(false);
-        } catch (err) {
-          setError(err.message);
-          setLoading(false);
-        }
-      };
-      fetchData();
-    } else if (status === 'unauthenticated') {
+    if (!user) {
       router.push('/login');
+      return;
     }
-  }, [session, status, router]);
+
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const dashboardData = await getDashboardData(user.id);
+        setData(dashboardData);
+        setError(null);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, router]);
 
   if (loading) {
     return (
@@ -55,13 +62,23 @@ export const Dashboard = () => {
     );
   }
 
+  if (!data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>No data available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <DashboardHeader />
       <main className="flex-grow p-4">
-        <DashboardContent userData={userData} />
+        <DashboardContent data={data} />
       </main>
       <DashboardFooter />
     </div>
   );
 };
+
+export default Dashboard;

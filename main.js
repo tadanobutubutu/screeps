@@ -17,6 +17,25 @@ document.querySelectorAll('svg').forEach(svg => {
   }
 });
 
+// Add function to handle the fake link issue
+function handleFakeLinkClick(event) {
+  event.preventDefault();
+  const targetId = event.currentTarget.getAttribute('href').substring(1);
+  const targetElement = document.getElementById(targetId);
+  if (targetElement) {
+    targetElement.click();
+  }
+}
+
+// Apply the fix to all hash-only links
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('a[href="#"]').forEach(link => {
+    link.addEventListener('click', handleFakeLinkClick);
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+});
+
 // Existing code remains unchanged
 // ...
 

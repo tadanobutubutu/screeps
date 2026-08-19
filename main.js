@@ -1,65 +1,34 @@
-// app/layout.tsx
-import { Metadata } from 'next';
+// main.js - Updated to fix REACT_036 accessibility warning
 
-export const metadata: Metadata = {
-  title: 'Screeps Dashboard',
-  description: 'Screeps game dashboard',
-  icons: {
-    icon: [
-      {
-        url: '/favicon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-  },
-};
+// Initialize rotation state
+let isRotated = false;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body>
-        <svg aria-hidden="true" style={{ display: 'none' }}>
-          <title>Screeps Favicon</title>
-        </svg>
-        {children}
-      </body>
-    </html>
-  );
-}
+// Handle rotate button click
+document.getElementById('rotate').addEventListener('click', function() {
+    const content = document.getElementById('content');
+    if (isRotated) {
+        content.style.transform = 'rotate(0deg)';
+        isRotated = false;
+    } else {
+        content.style.transform = 'rotate(90deg)';
+        isRotated = true;
+    }
+});
 
-// dashboard/app/layout.tsx
-import { Metadata } from 'next';
+// Handle unrotate button click (using button element for accessibility)
+document.getElementById('unrotate').addEventListener('click', function() {
+    const content = document.getElementById('content');
+    content.style.transform = 'rotate(0deg)';
+    isRotated = false;
+});
 
-export const metadata: Metadata = {
-  title: 'Screeps Dashboard',
-  description: 'Screeps game dashboard',
-  icons: {
-    icon: [
-      {
-        url: '/favicon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-  },
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <body>
-        <svg aria-hidden="true" style={{ display: 'none' }}>
-          <title>Screeps Favicon</title>
-        </svg>
-        {children}
-      </body>
-    </html>
-  );
+// Sample content
+const content = document.getElementById('content');
+if (content) {
+    content.innerHTML = `
+        <h1>Welcome to the App</h1>
+        <p>Click the rotate button to rotate the content.</p>
+        <button id="rotate">Rotate</button>
+        <button id="unrotate">rotate back</button>
+    `;
 }

@@ -1,26 +1,15 @@
-// Before:
 import React from 'react';
 
 function DependencyGraph() {
+  const handleRotateBack = () => {
+    // Implement the rotate back functionality here
+    // This could include any state changes or DOM manipulations needed
+  };
+
   return (
     <div>
       {/* Existing content */}
-      <a id="unrotate" href="#">rotate back</a>
-      {/* More content */}
-    </div>
-  );
-}
-
-export default DependencyGraph;
-
-// After:
-import React from 'react';
-
-function DependencyGraph() {
-  return (
-    <div>
-      {/* Existing content */}
-      <button id="unrotate" onClick={() => {/* Handle the rotate back action */}}>rotate back</button>
+      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
       {/* More content */}
     </div>
   );

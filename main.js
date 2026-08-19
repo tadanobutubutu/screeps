@@ -39,15 +39,15 @@ const handleDependencyUpdates = (updates) => {
 // New function to display dependency dashboard
 const DependencyDashboard = ({ dependencies }) => {
   return (
-    <div className="dependency-dashboard">
+    <div className="dependency-dashboard" role="region" aria-label="Dependency Dashboard">
       <h2>Dependency Dashboard</h2>
       <table>
         <thead>
           <tr>
-            <th>Package</th>
-            <th>Current Version</th>
-            <th>Latest Version</th>
-            <th>Status</th>
+            <th scope="col">Package</th>
+            <th scope="col">Current Version</th>
+            <th scope="col">Latest Version</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>

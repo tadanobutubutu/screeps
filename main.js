@@ -11,8 +11,13 @@ export default function App() {
         <title>Application</title>
       </head>
       <body>
-        <div id="root"></div>
+        <main>
+          <div id="root"></div>
+        </main>
       </body>
     </html>
   );
 }
+```
+
+This resolved the merge conflict by integrating both changes. The original HTML structure was kept, and the requested addition of `<main>` landmark was integrated to maintain accessibility compliance for the project.

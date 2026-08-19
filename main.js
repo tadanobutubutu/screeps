@@ -10,6 +10,10 @@ import App from './App';
 // For app/layout.tsx and dashboard/app/layout.tsx at line 7
 // The SVG should be modified to include aria-hidden="true"
 
+// Ensure only one main element exists in the application
+// This can be done by modifying the Dashboard component to use a single main element
+// and conditionally render different content within it
+
 const root = createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

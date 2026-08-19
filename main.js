@@ -26,10 +26,10 @@ function addUpdate(type, name, currentVersion, newVersion, options = {}) {
         changeType: options.changeType || 'chore',
         scheduled: options.scheduled || false
     };
-    
+
     const key = `${type}:${name}`;
     pendingUpdates.set(key, update);
-    
+
     return update;
 }
 
@@ -84,13 +84,13 @@ function getBlockedUpdates() {
 function triggerUpdate(type, name) {
     const key = `${type}:${name}`;
     const update = pendingUpdates.get(key);
-    
+
     if (update && update.status === 'awaiting-schedule') {
         update.status = 'pending';
         update.scheduled = false;
         return update;
     }
-    
+
     return null;
 }
 
@@ -101,7 +101,7 @@ function triggerUpdate(type, name) {
 function createAllAwaitingPRs() {
     const awaitingPRs = getAwaitingScheduleUpdates();
     const createdPRs = [];
-    
+
     for (const update of awaitingPRs) {
         update.status = 'pending';
         update.scheduled = false;
@@ -112,7 +112,7 @@ function createAllAwaitingPRs() {
             changeType: update.changeType
         });
     }
-    
+
     return createdPRs;
 }
 
@@ -139,7 +139,7 @@ function processUpdates(updates) {
         skipped: 0,
         errors: []
     };
-    
+
     for (const update of updates) {
         try {
             if (!update.name || !update.newVersion) {
@@ -150,12 +150,12 @@ function processUpdates(updates) {
                 results.skipped++;
                 continue;
             }
-            
+
             addUpdate(update.type, update.name, update.currentVersion, update.newVersion, {
                 status: update.status || 'awaiting-schedule',
                 changeType: update.changeType || 'chore'
             });
-            
+
             results.processed++;
         } catch (error) {
             results.errors.push({
@@ -165,8 +165,75 @@ function processUpdates(updates) {
             results.skipped++;
         }
     }
-    
+
     return results;
+}
+
+/**
+ * Generates a unique ID for accessibility purposes
+ * @returns {string} A unique ID string
+ */
+function generateAccessibleId() {
+    return `a11y-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+/**
+ * Validates if a table structure is accessible
+ * @param {Object} tableData - Table data structure
+ * @returns {boolean} Whether the table is accessible
+ */
+function validateTableStructure(tableData) {
+    // Basic validation for table structure
+    if (!tableData.headers || !tableData.rows) {
+        return false;
+    }
+
+    // Check if all rows have the same number of cells as headers
+    const headerCount = tableData.headers.length;
+    return tableData.rows.every(row => row.cells.length === headerCount);
+}
+
+/**
+ * Creates accessible landmark attributes
+ * @param {string} role - ARIA role for the landmark
+ * @param {string} label - Accessible label for the landmark
+ * @returns {Object} Accessible landmark attributes
+ */
+function createLandmarkAttributes(role, label) {
+    return {
+        role: role,
+        'aria-label': label,
+        'aria-labelledby': generateAccessibleId()
+    };
+}
+
+/**
+ * Creates accessible SVG attributes
+ * @param {string} title - Title for the SVG
+ * @param {string} description - Description for the SVG
+ * @returns {Object} Accessible SVG attributes
+ */
+function createSvgAccessibilityAttributes(title, description) {
+    return {
+        'aria-labelledby': generateAccessibleId(),
+        'role': 'img',
+        'title': title,
+        'desc': description
+    };
+}
+
+/**
+ * Creates accessible link attributes
+ * @param {string} href - Link destination
+ * @param {string} text - Link text
+ * @returns {Object} Accessible link attributes
+ */
+function createAccessibleLinkAttributes(href, text) {
+    return {
+        href: href,
+        'aria-label': text,
+        'role': 'link'
+    };
 }
 
 // Initialize with updates from the issue
@@ -175,24 +242,24 @@ function initializeDashboard() {
     addUpdate('action', 'google/osv-scanner-action', 'v2.5.0', 'v2.5.1', {
         changeType: 'chore'
     });
-    
+
     // NPM updates
     addUpdate('npm', 'typescript', '^5.7.3', '^7.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'react', '^18.2.0', '^19.0.0', {
         changeType: 'fix'
     });
-    
+
     addUpdate('npm', 'jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'eslint', '^8.47.0', '^10.0.0', {
         changeType: 'chore'
     });
-    
+
     addUpdate('npm', 'babel-jest', '^29.6.1', '^30.0.0', {
         changeType: 'chore'
     });
@@ -209,7 +276,12 @@ module.exports = {
     validateActionVersion,
     processUpdates,
     initializeDashboard,
-    pendingUpdates
+    pendingUpdates,
+    generateAccessibleId,
+    validateTableStructure,
+    createLandmarkAttributes,
+    createSvgAccessibilityAttributes,
+    createAccessibleLinkAttributes
 };
 
 // Auto-initialize if running directly

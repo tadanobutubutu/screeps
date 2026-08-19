@@ -6,7 +6,7 @@ import App from './App';
 // Modify SVG elements in both layout files (line 7 in app/layout.tsx and dashboard/app/layout.tsx) to include aria-hidden="true"
 document.querySelectorAll('svg').forEach(svg => {
   if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-    const title = svg.querySelector('title');
+    let title = svg.querySelector('title');
     if (!title) {
       const desc = svg.getAttribute('alt') || 'Graphic';
       title = document.createElement('title');
@@ -55,7 +55,7 @@ if (typeof module !== 'undefined' && module.exports) {
     applyREACT041Fix: () => {
       document.querySelectorAll('svg').forEach(svg => {
         if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
-          const title = svg.querySelector('title');
+          let title = svg.querySelector('title');
           if (!title) {
             const desc = svg.getAttribute('alt') || 'Graphic';
             title = document.createElement('title');

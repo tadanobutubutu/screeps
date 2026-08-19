@@ -93,6 +93,34 @@ export function getAccessibleMainElement() {
   return bodyElement;
 }
 
+// New function to ensure only one main element exists in the document
+export function ensureSingleMainElement() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    console.warn('Multiple main elements found. Keeping the first one and removing others.');
+    for (let i = 1; i < mainElements.length; i++) {
+      const parent = mainElements[i].parentNode;
+      while (mainElements[i].firstChild) {
+        parent.insertBefore(mainElements[i].firstChild, mainElements[i]);
+      }
+      parent.removeChild(mainElements[i]);
+    }
+  }
+}
+
+// New component to wrap content in a single main element
+export const SingleMainWrapper = ({ children }) => {
+  React.useEffect(() => {
+    ensureSingleMainElement();
+  }, []);
+
+  return (
+    <main role="main" aria-label="Main content">
+      {children}
+    </main>
+  );
+};
+
 // Preserve any other existing code
 // ...
 

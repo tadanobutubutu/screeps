@@ -31,7 +31,7 @@ function updateNodeVersions() {
   // Implementation would go here
 }
 
-// New function to handle package.json updates
+// New function to handle package. json updates
 function updatePackageDependencies() {
   // Update react to ^19.0.0
   // Update jest to ^30.0.0
@@ -50,7 +50,7 @@ function updatePnpm() {
 }
 
 // Existing exports would remain here
-// ... (all current exports)
+// ... (all existing exports)
 
 // Add new exports for the dependency update functions
 module.exports = {

@@ -4,22 +4,26 @@
 let isRotated = false;
 
 // Handle rotate button click
-document.getElementById('rotate').addEventListener('click', function() {
+document.getElementById('rotate')?.addEventListener('click', function() {
     const content = document.getElementById('content');
-    if (isRotated) {
-        content.style.transform = 'rotate(0deg)';
-        isRotated = false;
-    } else {
-        content.style.transform = 'rotate(90deg)';
-        isRotated = true;
+    if (content) {
+        if (isRotated) {
+            content.style.transform = 'rotate(0deg)';
+            isRotated = false;
+        } else {
+            content.style.transform = 'rotate(90deg)';
+            isRotated = true;
+        }
     }
 });
 
 // Handle unrotate button click (using button element for accessibility)
-document.getElementById('unrotate').addEventListener('click', function() {
+document.getElementById('unrotate')?.addEventListener('click', function() {
     const content = document.getElementById('content');
-    content.style.transform = 'rotate(0deg)';
-    isRotated = false;
+    if (content) {
+        content.style.transform = 'rotate(0deg)';
+        isRotated = false;
+    }
 });
 
 // Sample content

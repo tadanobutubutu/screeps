@@ -95,4 +95,19 @@ function addTableHeaderScope(htmlContent) {
   return htmlContent.replace(/<th([^>]*)>/g, '<th scope="col"$1>');
 }
 
-module.exports = { getPendingUpdates, getDetectedDependencies, getBlockedPRs, wrapWithMain, getFixedLayouts, makeSvgAccessible, addLangAttribute, addTableHeaderScope };
+// Fixed: REACT_036 - Changed <a href="#"> to <button> for in-page action accessibility
+const rotateBackAction = () => {
+  return `<button id="unrotate" type="button">rotate back</button>`;
+};
+
+module.exports = { 
+  getPendingUpdates, 
+  getDetectedDependencies, 
+  getBlockedPRs, 
+  wrapWithMain, 
+  getFixedLayouts, 
+  makeSvgAccessible, 
+  addLangAttribute, 
+  addTableHeaderScope,
+  rotateBackAction
+};

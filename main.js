@@ -126,3 +126,11 @@ describe('Dashboard Component', () => {
     }
   });
 });
+
+// New test for language attribute in the root element
+describe('Accessibility', () => {
+  test('root element has lang attribute', () => {
+    const { container } = render(<MyComponent />);
+    expect(container.firstChild).toHaveAttribute('lang');
+  });
+});

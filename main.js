@@ -10,9 +10,15 @@ function unrotate() {
 
 // ... other existing code ...
 
+// Add new function to handle main landmark wrapping
+function wrapWithMain(content) {
+    return `<main>${content}</main>`;
+}
+
 // Export all functions
 module.exports = {
     rotate,
     unrotate,
+    wrapWithMain,
     // ... other exports ...
 };

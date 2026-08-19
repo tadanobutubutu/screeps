@@ -69,18 +69,18 @@ export const AccessibleLayout = ({ children }) => {
 // New component to handle layout files that need main landmark
 export const MainLayout = ({ children }) => {
   return (
-    <main role="main" aria-label="Main content">
+    <section role="section" aria-label="Main content section">
       {children}
-    </main>
+    </section>
   );
 };
 
 // New component to handle document pages
 export const DocumentLayout = ({ children }) => {
   return (
-    <main role="main" aria-label="Document content">
+    <article role="article" aria-label="Document content">
       {children}
-    </main>
+    </article>
   );
 };
 
@@ -122,6 +122,16 @@ export const UniqueLandmark = ({ type, label, children }) => {
     contentinfo: 'contentinfo'
   };
 
+  // Only allow one main landmark
+  if (type === 'main') {
+    return (
+      <main role="main" aria-label={label}>
+        {children}
+      </main>
+    );
+  }
+
+  // For other landmarks, use appropriate semantic elements
   return (
     <div role={roleMap[type]} aria-label={label}>
       {children}

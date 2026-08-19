@@ -87,6 +87,14 @@ const RealLink = ({ href, children }) => (
   </a>
 );
 
+// Favicon SVG component with accessibility
+const FaviconSVG = () => (
+  <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+    <title>Favicon</title>
+    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+  </svg>
+);
+
 // Main App Component
 const App = () => {
   const tableData = [
@@ -104,6 +112,8 @@ const App = () => {
     <HtmlWithLang>
       <head>
         <title>Accessible Application</title>
+        {/* Favicon SVG with accessibility */}
+        <FaviconSVG />
       </head>
       <body>
         {/* Skip link for keyboard users */}
@@ -196,6 +206,7 @@ export {
   RealLink,
   HtmlWithLang,
   Dashboard,
+  FaviconSVG,
 };
 
 export default App;

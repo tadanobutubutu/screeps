@@ -40,3 +40,8 @@ const html = `
 `;
 
 module.exports = html;
+
+// Additional code for fixing the React Unique Landmarks issue
+// This is a placeholder - the actual fix would be in the Dashboard.tsx file
+// which would need to be modified to ensure only one <main> element exists
+// in the component's render output

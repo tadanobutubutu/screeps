@@ -30,5 +30,3 @@ function DependencyGraph() {
 }
 
 export default DependencyGraph;
-// main.js
-// ... (existing code remains unchanged)

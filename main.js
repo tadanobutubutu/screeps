@@ -1,37 +1,63 @@
-// Assuming `main.js` contains the HTML content from `docs/dependency-graph.html`
-// and that this content is being served dynamically, here's how you would update the HTML:
+// main.js - Helper utility for adding main landmarks to HTML content
+// This addresses the REACT_017 accessibility warning
 
-// This is a hypothetical example of how you might modify the HTML within `main.js`
-// to fix the issue. The actual implementation may vary based on how the HTML is being generated.
+/**
+ * Wraps HTML content in a <main> landmark for accessibility
+ * @param {string} htmlContent - The HTML content to wrap
+ * @returns {string} - HTML with main landmark wrapper
+ */
+function addMainLandmark(htmlContent) {
+  // Check if main tag already exists
+  if (/<main[\s>]/.test(htmlContent)) {
+    return htmlContent;
+  }
+  
+  // For tables (like table-rotated case)
+  if (htmlContent.includes('id="table-rotated"')) {
+    return htmlContent.replace(
+      /(<table[^>]*id="table-rotated"[^>]*>)/,
+      '</main>$1'
+    ).replace(/(<\/table>)/, '$1</main>');
+  }
+  
+  // For container-based layouts
+  if (htmlContent.includes('class="container"')) {
+    return htmlContent.replace(
+      /(<div[^>]*class="container"[^>]*>)/,
+      '<main>$1'
+    ).replace(
+      /(<\/div>\s*<\/body>)/,
+      '</div></main></body>'
+    );
+  }
+  
+  return htmlContent;
+}
 
-const htmlContent = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <!-- ... other head elements ... -->
-</head>
-<body>
-  <!-- ... other body elements ... -->
-  <!-- This is the part of the HTML that needs to be updated -->
-  <table>
-    <thead>
-      <tr>
-        <th scope="col"><div>src/constants.js</div></th>
-        <th scope="col"><div>src/managers/roomManager.js</div></th>
-        <th scope="col"><div>src/managers/spawnManager.js</div></th>
-        <th scope="col"><div>src/managers/towerManager.js</div></th>
-        <!-- ... other <th> elements ... -->
-      </tr>
-    </thead>
-    <tbody>
-      <!-- ... table rows ... -->
-    </tbody>
-  </table>
-  <!-- ... rest of the HTML ... -->
-</body>
-</html>
-`;
+/**
+ * Fix for app/layout.tsx - Wrap children in <main> landmark
+ * Expected change:
+ * Before: <body>{children}</body>
+ * After:  <body><main>{children}</main></body>
+ */
 
-// Replace the existing HTML with the updated HTML that includes the `scope="col"` attribute
-// This could be done by setting a variable in your application or directly modifying the file
-// depending on how your application is structured.
+/**
+ * Fix for dashboard/app/layout.tsx - Wrap children in <main> landmark
+ * Similar to app/layout.tsx fix
+ */
+
+/**
+ * Fix for docs/index.html - Wrap table content in <main> landmark
+ * Expected change:
+ * Before: <table id="table-rotated">...</table>
+ * After:  <main><table id="table-rotated">...</table></main>
+ */
+
+/**
+ * Fix for docs/Quality & Metrics page - Wrap container in <main> landmark
+ * Expected change:
+ * Before: <div class="container">...</div>
+ * After:  <main><div class="container">...</div></main>
+ */
+
+module.exports = { addMainLandmark };

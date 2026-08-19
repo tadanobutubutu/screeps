@@ -1,9 +1,37 @@
-// This would be the updated main.js content
-// Since we don't have the actual content, here's what we'd do for the HTML fix:
+// app/layout.tsx
+import React from 'react';
 
-// For the docs/dependency-graph.html file, we'd need to find all <th> elements without scope attributes
-// and add scope="col" or scope="row" as appropriate
+export default function Layout({ children }) {
+  return (
+    <html>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>My App</title>
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          {/* SVG content */}
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
 
-// Example fix for one line:
-// Before: <th>No scope attribute</th>
-// After: <th scope="col">With scope attribute</th>
+// dashboard/app/layout.tsx
+import React from 'react';
+
+export default function DashboardLayout({ children }) {
+  return (
+    <html>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Dashboard</title>
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          {/* SVG content */}
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

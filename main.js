@@ -108,25 +108,27 @@ export function PageLayout({
   navigation
 }) {
   return (
-    <div lang="en">
-      <header>
-        {navigation}
-      </header>
+    <html lang="en">
+      <body>
+        <header>
+          {navigation}
+        </header>
 
-      <div className="layout-container">
-        <aside aria-label="Secondary content">
-          {sidebar}
-        </aside>
+        <div className="layout-container">
+          <aside aria-label="Secondary content">
+            {sidebar}
+          </aside>
 
-        <MainContent>
-          {children}
-        </MainContent>
-      </div>
+          <MainContent>
+            {children}
+          </MainContent>
+        </div>
 
-      <footer>
-        <p>Footer content</p>
-      </footer>
-    </div>
+        <footer>
+          <p>Footer content</p>
+        </footer>
+      </body>
+    </html>
   );
 }
 

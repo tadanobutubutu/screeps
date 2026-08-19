@@ -22,3 +22,28 @@
 //    - Use <button> for actions
 
 // Please provide the actual main.js content so I can make the specific changes needed.
+
+// Here's an example of how to fix the table headers in the dependency-graph.html file:
+
+/*
+Example fix for table headers in dependency-graph.html:
+
+<table>
+  <caption>Dependency Graph</caption>
+  <thead>
+    <tr>
+      <th scope="col">Source File</th>
+      <th scope="col">Target File</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>src/constants.js</td>
+      <td>src/managers/roomManager.js</td>
+    </tr>
+    <!-- More rows as needed -->
+  </tbody>
+</table>
+*/
+
+// The actual implementation would need to be applied to the specific table structure in your main.js file.

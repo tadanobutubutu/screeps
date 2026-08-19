@@ -49,15 +49,26 @@ function updatePnpm() {
   // Implementation would go here
 }
 
+// New function to add main landmarks to layout files
+function addMainLandmarks() {
+  // This would be implemented in the respective layout files
+  // For example:
+  // app/layout.tsx would have <main className="flex-1">{children}</main>
+  // dashboard/app/layout.tsx would have <main>{children}</main>
+  // docs/dependency-graph.html would have <main> wrapping the table
+  // docs/index.html would have <main> wrapping the container div
+}
+
 // Existing exports would remain here
 // ... (all current exports)
 
-// Add new exports for the dependency update functions
+// Add new exports for the dependency update functions and main landmarks
 module.exports = {
   // ... existing exports
   handleDependencyUpdates,
   updateGitHubActions,
   updateNodeVersions,
   updatePackageDependencies,
-  updatePnpm
+  updatePnpm,
+  addMainLandmarks
 };

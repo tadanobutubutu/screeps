@@ -41,6 +41,22 @@ function handleTypeScriptUpdate() {
 // Updated main application logic
 app.use(express.json());
 
+// Serve HTML with proper language attribute
+app.get('/', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <title>Dependency Graph</title>
+      </head>
+      <body>
+        <h1>Dependency Graph</h1>
+        <!-- Content would be generated here -->
+      </body>
+    </html>
+  `);
+});
+
 // Example route using updated dependencies
 app.get('/api', (req, res) => {
   // Using updated React components

@@ -50,7 +50,7 @@ document.documentElement.lang = 'en'; // Add language attribute to root element
 function addMainLandmark() {
   // This would be implemented in the React components
   // For example in app/layout.tsx:
-  // <body className="min-h-screen flex flex-col">
+  // <body className="min-h-screen flex min-col">
   //   <main className="flex-1">{children}</main>
   // </body>
 

@@ -23,3 +23,15 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// New component for the dependency dashboard
+export function DependencyDashboard() {
+  return (
+    <div className="dependency-dashboard">
+      <h2>Dependency Dashboard</h2>
+      <div className="dashboard-content">
+        {/* Dashboard content will be added here */}
+      </div>
+    </div>
+  );
+}

@@ -42,6 +42,15 @@ const AccessibleIconWithTitle = ({ label }) => (
   </svg>
 );
 
+// Fixed favicon SVG for accessibility
+const Favicon = () => (
+  <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+    <title>Favicon</title>
+    {/* Add your favicon SVG path here */}
+    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+  </svg>
+);
+
 // Example: Fixed React Landmarks (REACT_017)
 // Main landmark for primary content
 const MainContent = ({ children }) => (
@@ -110,6 +119,9 @@ const App = () => {
         Skip to main content
       </a>
 
+      {/* Hidden favicon for accessibility */}
+      <Favicon />
+
       <header role="banner">
         <nav aria-label="Site header">
           <AccessibleIcon label="Website Logo" />
@@ -139,7 +151,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  Favicon
 };
 
 export default App;

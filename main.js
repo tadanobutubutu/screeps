@@ -14,8 +14,8 @@ if (typeof window !== 'undefined') {
 // Add accessibility improvements
 function ensureAccessibility() {
   // Set language attribute for better screen reader support (REACT_015)
-  if (document.documentElement) {
-    document.documentElement.lang = 'en'; // Default to English, adjust as needed
+  if (document.documentElement && !document.documentElement.hasAttribute('lang')) {
+    document.documentElement.setAttribute('lang', 'en'); // Default to English, adjust as needed
   }
 
   // Add ARIA landmarks (REACT_017)

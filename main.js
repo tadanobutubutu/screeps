@@ -14,3 +14,25 @@ const Metadata = () => (
 );
 
 // The rest of your main.js code...
+
+// Add this function to handle table headers with proper scope attributes
+const TableHeader = ({ children, scope = 'col' }) => (
+  <th scope={scope}>
+    <div>{children}</div>
+  </th>
+);
+
+// Example usage in your table components:
+const DependencyTable = () => (
+  <table>
+    <thead>
+      <tr>
+        <TableHeader scope="col">File Path</TableHeader>
+        <TableHeader scope="col">Dependencies</TableHeader>
+      </tr>
+    </thead>
+    <tbody>
+      {/* Table rows would go here */}
+    </tbody>
+  </table>
+);

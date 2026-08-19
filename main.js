@@ -59,11 +59,59 @@ function ensureHtmlLangAttribute(htmlString) {
   return htmlString;
 }
 
+// Function to create accessible table headers with proper scope
+function createAccessibleTableHeader(content, scope = 'col') {
+  return `<th scope="${scope}">${content}</th>`;
+}
+
+// Function to create an accessible table row with proper header associations
+function createAccessibleTableRow(headers, data) {
+  let row = '<tr>';
+
+  // Add headers with proper scope
+  headers.forEach(header => {
+    row += createAccessibleTableHeader(header.content, header.scope || 'col');
+  });
+
+  // Add data cells
+  data.forEach(cell => {
+    row += `<td>${cell}</td>`;
+  });
+
+  row += '</tr>';
+  return row;
+}
+
+// Function to create a complete accessible table
+function createAccessibleTable(headers, rows) {
+  let table = '<table>';
+
+  // Add table header
+  table += '<thead><tr>';
+  headers.forEach(header => {
+    table += createAccessibleTableHeader(header.content, header.scope || 'col');
+  });
+  table += '</tr></thead>';
+
+  // Add table body
+  table += '<tbody>';
+  rows.forEach(row => {
+    table += createAccessibleTableRow(headers, row);
+  });
+  table += '</tbody>';
+
+  table += '</table>';
+  return table;
+}
+
 // Export the new functions
 module.exports = {
   handleNewEvent,
   renderDashboard,
   makeSvgAccessible,
   ensureSingleMainElement,
-  ensureHtmlLangAttribute
+  ensureHtmlLangAttribute,
+  createAccessibleTableHeader,
+  createAccessibleTableRow,
+  createAccessibleTable
 };

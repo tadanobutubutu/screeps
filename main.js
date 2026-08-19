@@ -33,4 +33,24 @@ const mainJSContent = `
 </html>
 `;
 
+// Add accessibility attributes to SVGs in layout files
+// This would be implemented in the actual layout.tsx files, but since we're only
+// modifying main.js, we'll document the changes that would be needed:
+
+/*
+In app/layout.tsx and dashboard/app/layout.tsx at line 7, add one of these solutions:
+
+1. Add aria-label:
+<svg aria-label="Favicon" ...>
+
+2. Add a title child:
+<svg>
+  <title>Favicon</title>
+  ...
+</svg>
+
+3. Mark as decorative if not needed:
+<svg aria-hidden="true" ...>
+*/
+
 console.log(mainJSContent);

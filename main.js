@@ -6,30 +6,30 @@ import App from './App';
 // For app/root.tsx
 const AppLayout = ({ children }) => (
   <body lang="en" className="min-h-screen flex flex-col">
-    <main>{children}</main>
+    <main role="main">{children}</main>
   </body>
 );
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
   <body lang="en">
-    <main>{children}</main>
+    <main role="main">{children}</main>
   </body>
 );
 
 // For ...
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
+  <main role="main">
+    <table id="table-rotated" aria-label="Dependency graph table">
       {/* Table content */}
     </table>
-    <button id="unrotate" className="rotate-back-btn">rotate back</button>
+    <button id="unrotate" className="rotate-back-btn" aria-label="Rotate table back to normal orientation">rotate back</button>
   </main>
 );
 
 // For docs/description
 const DocsIndex = () => (
-  <main>
+  <main role="main">
     <div className="container">
       <h2>Quality &amp; Metrics Reports</h2>
       <p>
@@ -38,7 +38,7 @@ const DocsIndex = () => (
       </p>
       <div className="links">
         <a ... Code Complexity Report</a>
-        <a href="/dependency-graph">Dependency Graph</a>
+        <a href="/dependency-graph" aria-label="View dependency graph">Dependency Graph</a>
       </div>
     </div>
   </main>

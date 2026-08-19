@@ -75,20 +75,10 @@ export default function Main() {
   const router = useRouter();
 
   return (
-    <>
+    <main id="main-content">
       <h1>My Page</h1>
       <MyTable />
       {/* More components... */}
-
-      {/* Add landmark for main content */}
-      <main id="main-content">
-        {/* Component content here */}
-      </main>
-
-      {/* Add landmark for footer */}
-      <footer id="footer">
-        {/* Footer content here */}
-      </footer>
 
       {/* Navigation landmarks */}
       <nav aria-label="Main Navigation">
@@ -100,6 +90,11 @@ export default function Main() {
           ))}
         </ul>
       </nav>
-    </>
+
+      {/* Add landmark for footer */}
+      <footer id="footer">
+        {/* Footer content here */}
+      </footer>
+    </main>
   );
 }

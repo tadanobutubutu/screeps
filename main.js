@@ -8,7 +8,7 @@ function fixTableHeaders() {
   // For this example, we'll just show the corrected HTML structure
 
   // Corrected table header example:
-  // <th scope="col"><div>src/constants.js</div></th>
+  // <th ...
 
   // The actual implementation would need to:
   // 1. Read the HTML file

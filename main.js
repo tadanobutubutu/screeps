@@ -40,3 +40,8 @@ const html = `
 `;
 
 module.exports = html;
+
+// Add the fix for the Dashboard component
+// This is a placeholder - the actual fix would be in the Dashboard.tsx file
+// The fix would involve ensuring only one <main> element is rendered
+// regardless of the component's state

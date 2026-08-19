@@ -11,10 +11,10 @@ import React from 'react';
 
 // REACT_041: React SVG Accessible Name - Added title and desc for SVGs
 const AccessibleIcon = ({ size = 24 }) => (
-  <svg 
-    width={size} 
-    height={size} 
-    viewBox="0 0 24 24" 
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
     aria-hidden="false"
     role="img"
   >
@@ -73,29 +73,29 @@ function App() {
         <h1>My Accessible Website</h1>
         <Navigation />
       </header>
-      
+
       {/* REACT_025: React Unique Landmarks - Each section has unique aria-label */}
       <main role="main" aria-labelledby="main-heading">
         <section aria-labelledby="users-section">
           <h2 id="users-section">Users</h2>
           <AccessibleTable data={userData} />
         </section>
-        
+
         <section aria-labelledby="info-section">
           <h2 id="info-section">Information</h2>
           <p>This section contains important information about our services.</p>
-          
+
           {/* REACT_036: React Fake Link - Fixed to use proper anchor */}
           <a href="/more-info" className="button">Learn More</a>
         </section>
-        
+
         {/* REACT_041: React SVG Accessible Name */}
         <section aria-labelledby="icon-section">
           <h2 id="icon-section">Icons</h2>
           <AccessibleIcon size={48} />
         </section>
       </main>
-      
+
       <footer role="contentinfo">
         <p>© 2024 My Accessible Website</p>
       </footer>

@@ -13,7 +13,9 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body>
   <!-- rest of the HTML content -->
+  <button id="unrotate">rotate back</button>
+  <!-- rest of the HTML content -->
 </body>
 </html>`;
 
-fs.writeFileSync('docs/dependency-graph.html', htmlContent);
+fs.writeFileSync('dependency-graph.html', htmlContent);

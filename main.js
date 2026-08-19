@@ -12,10 +12,10 @@ root.render(
   </React.StrictMode>
 );
 
-// New function to handle main content rendering
+// New function to handle main content rendering with accessibility attributes
 export function renderMainContent(content) {
   return (
-    <main className="main-content">
+    <main className="main-content" role="main" aria-label="Main content">
       {content}
     </main>
   );
@@ -26,9 +26,19 @@ export const existingFunction = () => {
   // Some existing functionality
 };
 
-// New accessibility function
+// New accessibility function with improved implementation
 export function getAccessibleMainElement() {
-  return document.querySelector('main') || document.body;
+  const mainElement = document.querySelector('main');
+  if (mainElement) {
+    return mainElement;
+  }
+
+  // Fallback to body with warning
+  console.warn('No main element found, falling back to body for accessibility');
+  const bodyElement = document.body;
+  bodyElement.setAttribute('role', 'main');
+  bodyElement.setAttribute('aria-label', 'Main content');
+  return bodyElement;
 }
 
 // Preserve any other existing code

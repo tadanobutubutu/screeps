@@ -1,5 +1,3 @@
-// Updated dependency versions for Dependency Dashboard
-
 const updatedDependencies = {
   // GitHub Actions
   'google/osv-scanner-action': 'v2.5.1',

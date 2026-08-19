@@ -1,7 +1,19 @@
-// Existing code from main.js
-// ... (Preserve all existing code, exports, and functions)
+// app/layout.tsx
+import { ReactNode } from 'react';
 
-// Add the following line to the root element of your HTML document
-// This should be done in the HTML file, not in main.js
-// For example, in your `docs/dependency-graph.html` file, you would add it to the opening <html> tag
-// <html lang="en">
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
+
+/*
+ * NOTE: The HTML root element addition mentioned in the HEAD conflict
+ * should be applied to the HTML file (e.g., docs/dependency-graph.html),
+ * not to this JavaScript file. The current implementation already includes
+ * the required <html lang="en"> and <body><main> structure above.
+ */

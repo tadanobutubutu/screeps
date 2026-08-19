@@ -132,5 +132,55 @@ function fixReactTableStructure() {
 // Call the new function to fix React table structure
 fixReactTableStructure();
 
+// New function to fix React fake link (REACT_036) — replace <a href="#"> with <button>
+function fixFakeLinks() {
+  // Find all anchor elements with href="#" (fake links that don't navigate)
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+
+  fakeLinks.forEach(link => {
+    // Create a button element to replace the fake link
+    const button = document.createElement('button');
+    button.innerHTML = link.innerHTML;
+
+    // Copy over the id and class attributes
+    if (link.id) {
+      button.id = link.id;
+    }
+    if (link.className) {
+      button.className = link.className;
+    }
+
+    // Copy over data attributes
+    for (const attr of link.attributes) {
+      if (attr.name.startsWith('data-')) {
+        button.setAttribute(attr.name, attr.value);
+      }
+    }
+
+    // Copy over any inline event handlers (e.g., onclick)
+    if (link.getAttribute('onclick')) {
+      button.setAttribute('onclick', link.getAttribute('onclick'));
+    }
+
+    // Copy over the title attribute if present
+    if (link.getAttribute('title')) {
+      button.setAttribute('title', link.getAttribute('title'));
+    }
+
+    // Copy over aria attributes
+    for (const attr of link.attributes) {
+      if (attr.name.startsWith('aria-')) {
+        button.setAttribute(attr.name, attr.value);
+      }
+    }
+
+    // Replace the fake link with the button in the DOM
+    link.parentNode.replaceChild(button, link);
+  });
+}
+
+// Call the new function to fix fake links
+fixFakeLinks();
+
 // Export the existing functions, if any, with their original names
 /* ... */

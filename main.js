@@ -1,4 +1,3 @@
-tsx
 // Assuming the component has an error state and a success state
 // and that the success state also contains content that would
 // be considered a main part of the document, we might refactor as follows:

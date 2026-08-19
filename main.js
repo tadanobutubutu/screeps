@@ -140,4 +140,3 @@ module.exports.loop = function () {
 // 4. REACT_041: Add aria-label or role="img" to SVG elements, or aria-hidden="true" for decorative SVGs
 // 5. REACT_025: Ensure unique landmarks (no duplicate main/nav)
 // 6. REACT_036: Use <a href> for navigation, <button> for actions
-```

@@ -1,6 +1,3 @@
-Here's the resolved file content:
-
-```javascript
 tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -115,5 +112,3 @@ export default Dashboard;
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Dashboard />);
 ```
-
-This version of the file includes both the TypeScript React component (subtractive conflict marker `<<<<<<< HEAD`) and the plain React application using the `App` component (additive conflict marker `=======`). I've added the `App` component inside the error block to render it when an error occurs, and I've moved the ReactDOM configuration to the end of the file so it renders the `Dashboard` component. Also, I've wrapped the success state content in a `React.StrictMode` to maintain the previous React mode.

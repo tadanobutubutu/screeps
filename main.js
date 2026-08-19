@@ -1,32 +1,44 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import App from './App';
 import './index.css';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Table from 'react-bootstrap/Table';
 
-// First, let's add necessary import
-import { useRouter } from 'next/router';
+const existingFunction = () => {
+  // ... existing implementation
+};
 
-// Existing code (preserved)
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+const FaviconSVG = () => (
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 100 100"
+    width="32"
+    height="32"
+  >
+    <title>Application Favicon</title>
+    {/* Existing SVG paths */}
+  </svg>
 );
 
-// New function to handle main content rendering
+const Layout = ({ children }) => {
+  return (
+    <div>
+      <FaviconSVG />
+      <main>{children}</main>
+    </div>
+  );
+};
+
 export function renderMainContent(content) {
   return (
     <main className="main-content">
       {content}
     </main>
   );
-}
+};
 
-// Existing exports (preserved)
 export const existingExport1 = () => {
   // existing implementation
 };
@@ -39,7 +51,6 @@ export const newFeature = () => {
   // implementation for new feature
 };
 
-// Table component from origin/main
 function MyTable() {
   const [data, setData] = useState([
     { id: 1, name: 'John Doe', email: 'johndoe@example.com' },
@@ -47,7 +58,6 @@ function MyTable() {
     // More data rows...
   ]);
 
-  // Addressing REACT_027 - React Table Structure
   const tableHeaders = Object.keys(data[0]);
   const tableRows = data.map((row) => (
     <tr key={row.id}>
@@ -58,15 +68,12 @@ function MyTable() {
   ));
 
   return (
-    // Addressing REACT_015 - React Language Attribute
-    // Add lang attribute to div for accessibility
     <div lang="en">
       <h1>Users List</h1>
       <Table>
         <thead>
           <tr>
             {tableHeaders.map((header) => (
-              // Add aria-label for table headers for screen reader accessibility
               <th key={`th-${header}`} aria-label={header}>{header}</th>
             ))}
           </tr>
@@ -77,27 +84,19 @@ function MyTable() {
   );
 }
 
-// Export default Main component
-export default function Main() {
+function Main() {
   const router = useRouter();
 
   return (
     <>
       <h1>My Page</h1>
       <MyTable />
-      {/* More components... */}
-
-      {/* Add landmark for main content */}
       <main id="main-content">
         {/* Component content here */}
       </main>
-
-      {/* Add landmark for footer */}
       <footer id="footer">
         {/* Footer content here */}
       </footer>
-
-      {/* Navigation landmarks */}
       <nav aria-label="Main Navigation">
         <ul>
           {router.routes.map((route) => (
@@ -110,3 +109,17 @@ export default function Main() {
     </>
   );
 }
+
+export { existingFunction, Layout };
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  <React.StrictMode>
+    <Layout>
+      <App />
+    </Layout>
+  </React.StrictMode>
+);
+
+export default Main;

@@ -18,4 +18,15 @@ const MyTable = () => {
   );
 };
 
+// New component to address the React Language Attribute issue
+const App = () => {
+  return (
+    <html lang="en">
+      <body>
+        <MyTable />
+      </body>
+    </html>
+  );
+};
+
 export default MyTable;

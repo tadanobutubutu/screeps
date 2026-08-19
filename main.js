@@ -1,1 +1,1 @@
-const UNROTATE_BUTTON_ID = 'unrotate';
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

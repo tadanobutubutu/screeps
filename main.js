@@ -15,6 +15,18 @@ export const metadata: Metadata = {
   },
 };
 
+// Existing code...
+// Favicon component (from HEAD, with aria-hidden="true")
+export const Favicon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 16 16"
+    aria-hidden="true"
+  >
+    <text y=".9em" font-size="90">🦊</text>
+  </svg>
+);
+
 export default function RootLayout({
   children,
 }: {
@@ -32,47 +44,64 @@ export default function RootLayout({
   );
 }
 
-// dashboard/app/layout.tsx
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Dashboard page",
-  icons: {
-    icon: [
-      {
-        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>",
-        type: "image/svg+xml",
-      },
-    ],
-  },
+// For app/layout.tsx
+const AppLayout = ({ children }) => {
+  return (
+    <body className="min-h-screen flex flex-col">
+      <main className="flex-1">{children}</main>
+    </body>
+  );
 };
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// For dashboard/app/layout.tsx
+const DashboardLayout = ({ children }) => {
   return (
     <section>
       <h1>Dashboard</h1>
       {children}
     </section>
   );
-}
+};
 
-// Existing code...
-export const Favicon = () => (
-  // Add aria-hidden="true"
-  <Fade in={visible}>
-    {/* Render SVG here */}
-    <svg
-      style={styles.favicon}
-      aria-hidden="true" // Add this line
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 16 16"
-    >
-      {/* Render SVG content here */}
-    </svg>
-  </Fade>
+// For docs/dependency-graph.html
+const DependencyGraph = () => {
+  return (
+    <main>
+      <table id="table-rotated">
+        {/* Table content */}
+      </table>
+    </main>
+  );
+};
+
+// For docs/index.html
+const DocsIndex = () => {
+  return (
+    <main>
+      <div className="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>
+          This repository is fully optimized with automated tools. Explore the generated
+          reports below:
+        </p>
+        <div className="links">
+          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+// Main application render
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(
+  <React.StrictMode>
+    <RootLayout>
+      <App />
+    </RootLayout>
+  </React.StrictMode>
 );
+
+// Export all components
+export { AppLayout, DashboardLayout, DependencyGraph, DocsIndex, Favicon };

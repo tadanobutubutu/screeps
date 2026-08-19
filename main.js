@@ -4,6 +4,7 @@ class DependencyDashboard {
     this.pendingUpdates = [];
     this.blockedPRs = [];
     this.processedUpdates = [];
+    this.htmlContent = '';
   }
 
   addDependency(name, version, metadata = {}) {
@@ -112,6 +113,31 @@ class DependencyDashboard {
       lastAudit: new Date().toISOString()
     };
   }
+
+  setHtmlContent(content) {
+    this.htmlContent = content;
+  }
+
+  fixTableHeaderScopes() {
+    if (!this.htmlContent) return '';
+
+    return this.htmlContent
+      .replace(/<th>/g, '<th scope="col">')
+      .replace(/<th\s+(?!scope)/gi, '<th scope="col" ');
+  }
+
+  getFixedHtmlContent() {
+    return this.fixTableHeaderScopes();
+  }
+
+  getStats() {
+    return {
+      totalDependencies: this.dependencies.size,
+      pendingUpdates: this.pendingUpdates.length,
+      processedUpdates: this.processedUpdates.length,
+      blockedPRs: this.blockedPRs.length
+    };
+  }
 }
 
 // Export for different module systems
@@ -122,5 +148,3 @@ if (typeof module !== 'undefined' && module.exports) {
 if (typeof window !== 'undefined') {
   window.DependencyDashboard = DependencyDashboard;
 }
-
-module.exports = DependencyDashboard;

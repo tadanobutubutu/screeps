@@ -1,15 +1,1 @@
-tsx
-import React from 'react';
-
-// Your existing code...
-
-const Layout = ({ children }: any) => {
-  return (
-    <div className="layout">
-      {/* Add main landmark */}
-      <main>{children}</main>
-    </div>
-  );
-};
-
-export default Layout;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -9,4 +9,14 @@ function Layout({ children }) {
   );
 }
 
+// New function to replace fake links with proper buttons
+function RotateBackButton({ onClick }) {
+  return (
+    <button id="unrotate" onClick={onClick}>
+      rotate back
+    </button>
+  );
+}
+
 export default Layout;
+export { RotateBackButton };

@@ -19,14 +19,14 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      router.push('/login');
+      ...
       return;
     }
 
     const loadData = async () => {
       try {
         setLoading(true);
-        const dashboardData = await fetchDashboardData(user.id);
+        const dashboardData = await ...
         setData(dashboardData);
       } catch (err) {
         setError('Failed to load dashboard data');
@@ -49,24 +49,24 @@ const Dashboard: React.FC = () => {
 
   if (error) {
     return (
-      <section className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <ErrorMessage message={error} />
-      </section>
+      </main>
     );
   }
 
   if (!data) {
     return (
-      <section className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center">
         <p>No data available</p>
-      </section>
+      </main>
     );
   }
 
   return (
     <main className="container mx-auto px-4 py-8">
       {/* Dashboard content */}
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+      <h1 className="text-2xl font-bold ...
       {/* Render your dashboard data here */}
     </main>
   );

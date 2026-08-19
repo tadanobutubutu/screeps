@@ -7,11 +7,16 @@ const addScopeToTh = (htmlString) => {
   return htmlString.replace(/<th>/g, '<th scope="col">');
 };
 
+// Function to add language attribute to html element
+const addLangAttribute = (htmlString) => {
+  return htmlString.replace(/<html>/g, '<html lang="en">');
+};
+
 // Example usage of the new function to fix the issue in the given files
 const fixDependencyGraph = () => {
   const dependencyGraphFile = 'docs/dependency-graph.html';
   const content = fs.readFileSync(dependencyGraphFile, 'utf8');
-  const updatedContent = addScopeToTh(content);
+  const updatedContent = addScopeToTh(addLangAttribute(content));
   fs.writeFileSync(dependencyGraphFile, updatedContent);
 };
 

@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import './globals.css
+import type { Metadata } from 'next'
+export const metadata: Metadata = {
+  title: 'Screeps',
+  description: 'Screeps is an open-source multiplayer creep strategy game.',
+}
+
+export default function RootLayout({ children, }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  )
+}

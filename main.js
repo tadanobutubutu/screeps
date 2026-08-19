@@ -25,7 +25,6 @@ async function updateJestToV30() {
     try {
         console.log('Updating Jest to v30 and related dependencies...');
         // Implementation would go here
-        // This would typically involve:
         // 1. Updating package.json dependencies
         // 2. Running package manager commands
         // 3. Running tests to ensure compatibility
@@ -43,7 +42,6 @@ async function updateReactToV19() {
     try {
         console.log('Updating React to v19...');
         // Implementation would go here
-        // This would typically involve:
         // 1. Updating package.json dependencies
         // 2. Running package manager commands
         // 3. Running tests to ensure compatibility

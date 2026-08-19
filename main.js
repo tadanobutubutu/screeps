@@ -80,5 +80,19 @@ export const createAccessibleLink = (href, text, isButton = false) => {
   return <a href={href}>{text}</a>;
 };
 
+// Function to create an accessible button that replaces fake links
+export const createAccessibleActionButton = (action, text, id) => {
+  // REACT_036: React Fake Link
+  return (
+    <button
+      id={id}
+      onClick={action}
+      aria-label={text}
+    >
+      {text}
+    </button>
+  );
+};
+
 // Keep all existing exports and functions unchanged
 // ... rest of the original main.js content

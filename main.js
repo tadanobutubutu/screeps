@@ -46,3 +46,16 @@
 // // ... rest of the main.js file ...
 // >>>>>>> branch-name
 // // ... rest of the main.js file ...
+
+// Additional changes to fix SVG accessibility issues
+// For app/layout.tsx and dashboard/app/layout.tsx, we need to add accessibility attributes to SVGs
+// Here's how we would modify the layout components:
+
+// Example for app/layout.tsx
+// <svg aria-hidden="true" ...> or <svg><title>Accessible name</title>...</svg>
+
+// Example for dashboard/app/layout.tsx
+// <svg aria-label="Favicon" ...> or <svg><title>Favicon</title>...</svg>
+
+// The exact implementation would depend on the specific SVG usage in your application
+// and whether the SVG is decorative or meaningful content.

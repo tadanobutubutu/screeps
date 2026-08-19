@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_015 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -32,3 +32,14 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Function to ensure HTML has lang attribute
+function ensureHtmlLangAttribute() {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+        htmlElement.setAttribute('lang', 'en');
+    }
+}
+
+// Run the function when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', ensureHtmlLangAttribute);

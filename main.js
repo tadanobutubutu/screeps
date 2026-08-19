@@ -2,7 +2,7 @@
 
 export function MainContent({ children, className = '' }) {
   return (
-    <main 
+    <main
       className={className}
       id="main-content"
     >
@@ -56,7 +56,7 @@ export function AccessibleTable({ headers = [], rows = [], caption }) {
 export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   return (
     <span className={className} aria-hidden="false">
-      <Icon 
+      <Icon
         aria-label={label}
         role="img"
       />
@@ -64,14 +64,7 @@ export function AccessibleIcon({ icon: Icon, label, className = '' }) {
   );
 }
 
-export function AccessibleButton({ 
-  children, 
-  onClick, 
-  variant = 'primary',
-  ariaLabel,
-  disabled = false,
-  type = 'button'
-}) {
+export function AccessibleButton({ children, onClick, variant = 'primary', ariaLabel, disabled = false, type = 'button' }) {
   return (
     <button
       type={type}
@@ -85,14 +78,9 @@ export function AccessibleButton({
   );
 }
 
-export function AccessibleLink({ 
-  children, 
-  href, 
-  ariaLabel,
-  className = ''
-}) {
+export function AccessibleLink({ children, href, ariaLabel, className = '' }) {
   return (
-    <a 
+    <a
       href={href}
       aria-label={ariaLabel}
       className={className}
@@ -102,31 +90,40 @@ export function AccessibleLink({
   );
 }
 
-export function PageLayout({ 
-  children, 
-  sidebar,
-  navigation 
-}) {
+export function PageLayout({ children, sidebar, navigation }) {
   return (
     <div lang="en">
       <header>
         {navigation}
       </header>
-      
+
       <div className="layout-container">
         <aside aria-label="Secondary content">
           {sidebar}
         </aside>
-        
+
         <MainContent>
           {children}
         </MainContent>
       </div>
-      
+
       <footer>
         <p>Footer content</p>
       </footer>
     </div>
+  );
+}
+
+// New function to handle in-page actions
+export function RotateBackButton({ onClick, ariaLabel = 'Rotate back', className = '' }) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={className}
+    >
+      rotate back
+    </button>
   );
 }
 
@@ -137,5 +134,6 @@ export default {
   AccessibleIcon,
   AccessibleButton,
   AccessibleLink,
-  PageLayout
+  PageLayout,
+  RotateBackButton
 };

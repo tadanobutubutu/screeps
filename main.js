@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -93,9 +92,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   // Main content (success state)
   return (
-    <div style={{ padding: '2rem' }}>
+    <main style={{ padding: '2rem' }}>
       {/* Your existing success state content */}
-    </div>
+    </main>
   );
 };
 

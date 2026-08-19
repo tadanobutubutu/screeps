@@ -1,4 +1,5 @@
-tsx
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
@@ -137,4 +138,24 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
+    return (
+        <html lang="en">
+            <body>
+                <main>
+                    {children}
+                </main>
+            </body>
+        </html>
+    );
+};
+
+const Page = () => {
+    return (
+        <RootLayout>
+            <Dashboard />
+        </RootLayout>
+    );
+};
+
+export default Page;

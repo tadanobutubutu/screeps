@@ -55,7 +55,15 @@ const Dashboard = ({ isError, data }) => {
           {/* Combine the new landmark elements with the existing ones */}
           <UniqueLandmarks />
 
-          {children}
+          {/* Main content, modified to include the data instead of the old dashboard content */}
+          {data && (
+            <div className="dashboard-content">
+              {/* Dashboard content */}
+              {children}
+            </div>
+          )}
+
+          {/* Footer content */}
         </main>
 
         <footer role="contentinfo">
@@ -66,21 +74,17 @@ const Dashboard = ({ isError, data }) => {
   };
 
   // Adjust the export to include the new AccessibleApp component
-  export { Dashboard as default, Dashboard, UniqueLandmarks };
+  export { Dashboard as default, Dashboard, UniqueLandmarks, AccessibleApp };
 
   return (
     <div className="dashboard" lang="en">
+      {/* Header content */}
       <header role="banner">
-        {/* Header content */}
       </header>
+
       <main role="main">
-        {/* Main content */}
-        {data && (
-          <div className="dashboard-content">
-            {/* Dashboard content */}
-          </div>
-        )}
       </main>
+
       <footer role="contentinfo">
         {/* Footer content */}
       </footer>

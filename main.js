@@ -1,8 +1,6 @@
-// main.js
-
 /* Existing code, imports, and functions (if any) */
 
-// New function requested in the issue for adding a <main> element
+/* New function requested in the issue for adding a <main> element */
 function addMainElement() {
   const layoutElements = document.querySelectorAll('body > main');
   layoutElements.forEach(layout => {

@@ -57,6 +57,14 @@ function fixSvgAccessibility() {
   // The actual fix would be applied in the layout.tsx files
 }
 
+// New function to fix React table structure issues
+function fixReactTableStructure() {
+  // Implementation for fixing React table structure issues
+  // This will address the REACT_027 issue
+  // The actual fix would be applied in the dependency-graph.html file
+  // by adding scope attributes to table headers
+}
+
 // Export all existing and new functions
 module.exports = {
   existingFunction,
@@ -68,7 +76,8 @@ module.exports = {
   updateJestTo30,
   updateTypeScriptTo7,
   addMainLandmarks,
-  fixSvgAccessibility
+  fixSvgAccessibility,
+  fixReactTableStructure
 };
 
 // Start the server

@@ -4,6 +4,11 @@ import React from 'react';
 
 // Example: Fixed React Language Attribute (REACT_015)
 // The <html> element needs a lang attribute at the document level
+const HtmlWithLang = ({ children }) => (
+  <html lang="en">
+    {children}
+  </html>
+);
 
 // Example: Fixed React Table Structure (REACT_027)
 const AccessibleTable = ({ data }) => (
@@ -18,7 +23,7 @@ const AccessibleTable = ({ data }) => (
     <tbody>
       {data.map((row, index) => (
         <tr key={index}>
-          <th ...
+          <th scope="row">{row.header}</th>
           <td>{row.cell1}</td>
           <td>{row.cell2}</td>
         </tr>
@@ -56,7 +61,7 @@ const Navigation = ({ links }) => (
     <ul>
       {links.map((link, index) => (
         <li key={index}>
-          <a ...
+          <a href={link.href}>{link.label}</a>
         </li>
       ))}
     </ul>
@@ -104,29 +109,34 @@ const App = () => {
   ];
 
   return (
-    <div>
-      {/* Skip link for keyboard users */}
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
+    <HtmlWithLang>
+      <head>
+        <title>Accessible Application</title>
+      </head>
+      <body>
+        {/* Skip link for keyboard users */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
 
-      <header role="banner">
-        <nav aria-label="Site header">
-          <AccessibleIcon label="Website Logo" />
-          <Navigation links={navLinks} />
-        </nav>
-      </header>
+        <header role="banner">
+          <nav aria-label="Site header">
+            <AccessibleIcon label="Website Logo" />
+            <Navigation links={navLinks} />
+          </nav>
+        </header>
 
-      <MainContent>
-        <h1>Accessible Content</h1>
-        <AccessibleTable data={tableData} />
-        <ActionButton onClick={() => console.log('clicked')}>
-          Click Me
-        </ActionButton>
-      </MainContent>
+        <MainContent>
+          <h1>Accessible Content</h1>
+          <AccessibleTable data={tableData} />
+          <ActionButton onClick={() => console.log('clicked')}>
+            Click Me
+          </ActionButton>
+        </MainContent>
 
-      <SiteFooter />
-    </div>
+        <SiteFooter />
+      </body>
+    </HtmlWithLang>
   );
 };
 
@@ -139,7 +149,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  HtmlWithLang
 };
 
 export default App;

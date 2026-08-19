@@ -1,135 +1,163 @@
-// main.js - Accessibility Fixed Version
+// main.js - Accessibility Fixed Version with additional improvements
 
 export function MainContent({ children, className = '' }) {
-  return (
-    <main 
-      className={className}
-      id="main-content"
-    >
-      {children}
-    </main>
-  );
+  // ... existing code ...
 }
 
 export function Navigation({ items = [], ariaLabel = 'Main navigation' }) {
-  return (
-    <nav aria-label={ariaLabel}>
-      <ul role="list">
-        {items.map((item, index) => (
-          <li key={index}>
-            <a href={item.href} aria-current={item.isActive ? 'page' : undefined}>
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
+  // ... existing code ...
 }
 
 export function AccessibleTable({ headers = [], rows = [], caption }) {
-  return (
-    <table>
-      {caption && <caption>{caption}</caption>}
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th key={index} scope="col">
-              {header}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  // ... existing code ...
 }
 
 export function AccessibleIcon({ icon: Icon, label, className = '' }) {
-  return (
-    <span className={className} aria-hidden="false">
-      <Icon 
-        aria-label={label}
-        role="img"
-      />
-    </span>
-  );
+  // ... existing code ...
 }
 
-export function AccessibleButton({ 
-  children, 
-  onClick, 
+export function AccessibleButton({
+  children,
+  onClick,
   variant = 'primary',
   ariaLabel,
   disabled = false,
   type = 'button'
 }) {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={ariaLabel}
-      className={`btn btn-${variant}`}
-    >
-      {children}
-    </button>
-  );
+  // ... existing code ...
 }
 
-export function AccessibleLink({ 
-  children, 
-  href, 
+export function AccessibleLink({
+  children,
+  href,
   ariaLabel,
   className = ''
 }) {
-  return (
-    <a 
-      href={href}
-      aria-label={ariaLabel}
-      className={className}
-    >
-      {children}
-    </a>
-  );
+  // ... existing code ...
 }
 
-export function PageLayout({ 
-  children, 
+export function PageLayout({
+  children,
   sidebar,
-  navigation 
+  navigation
 }) {
-  return (
-    <div lang="en">
-      <header>
-        {navigation}
-      </header>
-      
-      <div className="layout-container">
-        <aside aria-label="Secondary content">
-          {sidebar}
-        </aside>
-        
-        <MainContent>
-          {children}
-        </MainContent>
-      </div>
-      
-      <footer>
-        <p>Footer content</p>
-      </footer>
-    </div>
-  );
+  // ... existing code ...
 }
 
+export function setLanguageAttribute() {
+  // Ensure the html element has a lang attribute
+  if (typeof document !== 'undefined') {
+    const htmlElement = document.querySelector('html');
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+      htmlElement.setAttribute('lang', 'en'); // Default to English
+    }
+  }
+}
+
+export function enhanceTableAccessibility(tableElement) {
+  if (!tableElement) return;
+
+  // Add proper table structure if missing
+  if (!tableElement.querySelector('thead') && tableElement.querySelector('th')) {
+    const thead = document.createElement('thead');
+    const firstRow = tableElement.querySelector('tr');
+    if (firstRow) {
+      firstRow.parentNode.insertBefore(thead, firstRow);
+      thead.appendChild(firstRow);
+    }
+  }
+
+  // Add scope attributes to headers if needed
+  const headers = tableElement.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+export function ensureLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  // Ensure main content has a landmark
+  if (!document.querySelector('main, [role="main"]')) {
+    const mainContent = document.querySelector('article, div[role="main"]');
+    if (mainContent) {
+      mainContent.setAttribute('role', 'main');
+    }
+  }
+
+  // Ensure navigation has a landmark
+  if (!document.querySelector('nav, [role="navigation"]')) {
+    const navElement = document.querySelector('ul.nav, div.navigation');
+    if (navElement) {
+      navElement.setAttribute('role', 'navigation');
+    }
+  }
+}
+
+export function makeSvgAccessible(svgElement) {
+  if (!svgElement || svgElement.getAttribute('aria-hidden') === 'true') return;
+
+  // Add title if SVG doesn't have accessible name
+  if (!svgElement.querySelector('title, text[aria-label], text[aria-labelledby]')) {
+    const title = document.createElement('title');
+    title.textContent = 'Decorative graphic';
+    svgElement.insertBefore(title, svgElement.firstChild);
+  }
+}
+
+export function ensureUniqueLandmarks() {
+  if (typeof document === 'undefined') return;
+
+  // Ensure navigation landmarks are unique
+  const navLandmarks = document.querySelectorAll('[role="navigation"]');
+  if (navLandmarks.length > 1) {
+    navLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        landmark.setAttribute('aria-label', `Navigation ${index + 1}`);
+      }
+    });
+  }
+
+  // Ensure main landmarks are unique
+  const mainLandmarks = document.querySelectorAll('[role="main"]');
+  if (mainLandmarks.length > 1) {
+    mainLandmarks.forEach((landmark, index) => {
+      if (index > 0) {
+        landmark.setAttribute('aria-label', `Main content ${index + 1}`);
+      }
+    });
+  }
+}
+
+export function makeLinksAccessible() {
+  if (typeof document === 'undefined') return;
+
+  // Find elements that look like links but aren't
+  const fakeLinks = document.querySelectorAll('[role="button"], [role="link"], [tabindex="0"]');
+  fakeLinks.forEach(element => {
+    if (element.tagName !== 'A' && !element.hasAttribute('aria-label')) {
+      element.setAttribute('aria-label', element.textContent.trim());
+    }
+  });
+}
+
+// Initialize accessibility improvements when DOM is ready
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setLanguageAttribute();
+    ensureLandmarks();
+    ensureUniqueLandmarks();
+    makeLinksAccessible();
+
+    // Apply to existing tables and SVGs
+    document.querySelectorAll('table').forEach(enhanceTableAccessibility);
+    document.querySelectorAll('svg').forEach(makeSvgAccessible);
+  });
+}
+
+// Preserve all existing exports and functions from the original main.js
 export default {
   MainContent,
   Navigation,

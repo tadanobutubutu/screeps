@@ -183,6 +183,33 @@ const Dashboard: React.FC = () => {
   );
 };
 
+// Layout components for the issue
+const AppLayout = ({ children }) => (
+  <HtmlWithLang>
+    <head>
+      <title>Application</title>
+    </head>
+    <body>
+      <main>
+        {children}
+      </main>
+    </body>
+  </HtmlWithLang>
+);
+
+const DashboardLayout = ({ children }) => (
+  <HtmlWithLang>
+    <head>
+      <title>Dashboard</title>
+    </head>
+    <body>
+      <main>
+        {children}
+      </main>
+    </body>
+  </HtmlWithLang>
+);
+
 // Export all components
 export {
   App,
@@ -196,6 +223,8 @@ export {
   RealLink,
   HtmlWithLang,
   Dashboard,
+  AppLayout,
+  DashboardLayout,
 };
 
 export default App;

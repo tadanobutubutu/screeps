@@ -21,6 +21,23 @@ export default function Document() {
         </footer>
 
         <NextScript />
+
+        {/* Script to update th tags with scope attribute */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              function updateThTags() {
+                const thElements = document.querySelectorAll('th');
+                thElements.forEach(th => {
+                  if (!th.hasAttribute('scope')) {
+                    th.setAttribute('scope', 'col');
+                  }
+                });
+              }
+              document.addEventListener('DOMContentLoaded', updateThTags);
+            `,
+          }}
+        />
       </body>
     </Html>
   );

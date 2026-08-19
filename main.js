@@ -1,10 +1,8 @@
-Here is the resolved file content:
-
-```javascript
 // Main entry point for the Screeps bot.
 // Handles network connections, task execution, and bot lifecycle.
 // Imported Component: Dashboard
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Dashboard as DashboardComponent } from './components/Dashboard'; // Assuming the Dashboard component is in the 'components' folder
 
 const { Client } = require('screeps');
@@ -103,12 +101,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const bot = new MainBot();
     bot.start();
 
-    // Render the Dashboard component
+    // Render the Dashboard component ensuring only one <main> element is present.
     const root = document.getElementById('root');
-    root.innerHTML = <DashboardComponent />;
+    if (root) {
+        // Using ReactDOM.render to properly mount the component.
+        ReactDOM.render(<DashboardComponent />, root);
+    }
 });
 
 module.exports = MainBot;
-```
-
-In the resolved file, I've integrated the Dashboard component previously found in the HEAD branch into the bot rendering process. I've also added a call to `bot.fetchStats(true)` when starting the bot to mimic the behavior of the change from the origin/main branch.

@@ -1,1 +1,16 @@
-<div lang="en"> <main> <div className="container"> <h2>Quality &amp; Metrics Reports</h2> <p> This repository is fully optimized with automated tools. Explore the generated reports below: </p> <div className="links"> <a ... Code Complexity Report</a> <a href="/dependency-graph">Dependency Graph</a> </div> </main> </div> );
+tsx
+import React from 'react';
+import Header from './Header';
+import Footer from './Footer';
+
+const Layout = ({ children }) => {
+  return (
+    <body>
+      <Header />
+      <main>{children}</main>
+      <Footer />
+    </body>
+  );
+};
+
+export default Layout;

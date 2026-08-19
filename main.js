@@ -23,3 +23,7 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// Note: The actual table header fixes would be made in the dependency-graph.html file,
+// but since that's not part of the current main.js content, I'm preserving all existing
+// code as requested.

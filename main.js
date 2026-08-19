@@ -140,17 +140,17 @@ export const UniqueLandmark = ({ type, label, children }) => {
 };
 
 // Fix for REACT_036 (React Fake Link)
-export const AccessibleLink = ({ href, children, ...props }) => {
-  if (!href) {
+export const AccessibleLink = ({ href, children, onClick, ...props }) => {
+  if (!href || href === '#') {
     return (
-      <button {...props}>
+      <button onClick={onClick} {...props}>
         {children}
       </button>
     );
   }
 
   return (
-    <a href={href} {...props}>
+    <a href={href} onClick={onClick} {...props}>
       {children}
     </a>
   );

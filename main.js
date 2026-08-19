@@ -43,6 +43,17 @@ const UnrotateButton = ({ onClick }) => {
   );
 };
 
+// New stargazer tracking functionality
+const trackStargazers = (repoName) => {
+  // This would typically make an API call to GitHub
+  // For now, we'll just log the action
+  console.log(`Tracking stargazers for repository: ${repoName}`);
+  return {
+    stargazers: [],
+    runawayStargazers: []
+  };
+};
+
 // Export all existing functions if any
 // (Preserve any existing exports from the original file)
-export { AppLayout, DashboardLayout, UnrotateButton };
+export { AppLayout, DashboardLayout, UnrotateButton, trackStargazers };

@@ -23,3 +23,21 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// Additional function to handle table structure fix
+export function fixTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
+  });
+}
+
+// Call the function to fix the table structure on component mount or other appropriate event
+// Example: useEffect(() => { fixTableStructure(); }, []);
+
+// Ensure to test the fix thoroughly to confirm that existing tests pass and the fix works as expected

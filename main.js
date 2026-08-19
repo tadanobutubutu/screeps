@@ -27,3 +27,15 @@ export default function Document() {
 
 // For a component with tables, use proper table structure:
 // Use semantic landmarks instead of just divs with role="banner", etc.
+
+// Add helper component for accessible SVGs
+const AccessibleSvg = ({ children, ...props }) => {
+  return (
+    <svg aria-hidden="true" {...props}>
+      {children}
+    </svg>
+  );
+};
+
+// Export the helper component for use in layout files
+export { AccessibleSvg };

@@ -18,4 +18,20 @@ const MyTable = () => {
   );
 };
 
+// Add SVG components with proper accessibility attributes
+const FaviconSVG = () => (
+  <svg aria-hidden="true" viewBox="0 0 24 24">
+    <title>Favicon</title>
+    {/* SVG path data would go here */}
+  </svg>
+);
+
+const MetadataSVG = () => (
+  <svg aria-hidden="true" viewBox="0 0 24 24">
+    <title>Metadata Icon</title>
+    {/* SVG path data would go here */}
+  </svg>
+);
+
 export default MyTable;
+export { FaviconSVG, MetadataSVG };

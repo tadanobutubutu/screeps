@@ -19,3 +19,14 @@ const MyTable = () => {
 };
 
 export default MyTable;
+
+// New button component for the rotate back functionality
+const RotateBackButton = ({ onClick }) => {
+  return (
+    <button id="unrotate" onClick={onClick}>
+      rotate back
+    </button>
+  );
+};
+
+export { RotateBackButton };

@@ -1,4 +1,3 @@
-// Add lang attribute to HTML element (REACT_015)
 import { useEffect } from 'react';
 
 // Fix fake links by creating proper anchor elements (REACT_036)
@@ -68,3 +67,12 @@ const PageLayout = ({ header, navigation, main, footer, aside }) => (
     {footer && <footer>{footer}</footer>}
   </>
 );
+
+// Fixed RotateBackLink using proper in-page navigation pattern (REACT_036)
+export function RotateBackLink({ onClick }) {
+  return (
+    <div>
+      {createLink(null, 'rotate back', onClick)}
+    </div>
+  );
+}

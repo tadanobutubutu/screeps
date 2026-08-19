@@ -9,12 +9,17 @@ export default function Layout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Screeps Dashboard</title>
         <link rel="icon" href="/favicon.ico" />
-        {/* Add aria-label to the SVG or make it decorative */}
-        <svg aria-hidden="true" style={{ display: 'none' }}>
+        {/* Fixed REACT_015: Added lang attribute to SVG */}
+        <svg aria-hidden="true" style={{ display: 'none' }} lang="en">
           <title>Screeps Logo</title>
         </svg>
       </head>
-      <body>{children}</body>
+      <body>
+        {/* Added main landmark for REACT_017 */}
+        <main id="main-content" aria-label="Main Content">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }

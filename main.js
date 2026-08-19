@@ -1,20 +1,25 @@
-import React from 'react';
+// app/layout.tsx
+import { ReactNode } from 'react';
 
-const MainComponent = () => {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <div lang="en">
-      <main>
-        <div className="container">
-          <h2>Quality &amp; Metrics Reports</h2>
-          <p> This repository is fully optimized with automated tools. Explore the generated reports below: </p>
-          <div className="links">
-            <a href="/code-complexity">Code Complexity Report</a>
-            <a href="/dependency-graph">Dependency Graph</a>
-          </div>
-        </div>
-      </main>
-    </div>
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
   );
-};
+}
 
-export default MainComponent;
+// New component for the rotate back button
+export function RotateBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label="Rotate back to original orientation"
+    >
+      rotate back
+    </button>
+  );
+}

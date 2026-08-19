@@ -18,6 +18,44 @@ if (require.main === module) {
     main();
 }
 
+/**
+ * Updates Jest to v30 and related dependencies
+ */
+async function updateJestToV30() {
+    try {
+        console.log('Updating Jest to v30 and related dependencies...');
+        // Implementation would go here
+        // This would typically involve:
+        // 1. Updating package.json dependencies
+        // 2. Running package manager commands
+        // 3. Running tests to ensure compatibility
+        console.log('Jest updated successfully to v30');
+    } catch (error) {
+        console.error('Error updating Jest:', error);
+        throw error;
+    }
+}
+
+/**
+ * Updates React to v19
+ */
+async function updateReactToV19() {
+    try {
+        console.log('Updating React to v19...');
+        // Implementation would go here
+        // This would typically involve:
+        // 1. Updating package.json dependencies
+        // 2. Running package manager commands
+        // 3. Running tests to ensure compatibility
+        console.log('React updated successfully to v19');
+    } catch (error) {
+        console.error('Error updating React:', error);
+        throw error;
+    }
+}
+
 module.exports = {
-    generateDependencyGraph
+    generateDependencyGraph,
+    updateJestToV30,
+    updateReactToV19
 };

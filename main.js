@@ -28,8 +28,8 @@ if (content) {
     content.innerHTML = `
         <h1>Welcome to the App</h1>
         <p>Click the rotate button to rotate the content.</p>
-        <button id="rotate">Rotate</button>
-        <button id="unrotate">rotate back</button>
+        <button id="rotate" aria-label="Rotate content">Rotate</button>
+        <button id="unrotate" aria-label="Reset rotation">rotate back</button>
     `;
 }
 
@@ -117,7 +117,7 @@ function makeSvgAccessible(svgElement, label) {
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main role="main">
         {children}
       </main>
     </React.StrictMode>
@@ -128,7 +128,7 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <main role="main">
         {children}
       </main>
     </React.StrictMode>
@@ -139,8 +139,8 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
-      <table id="table-rotated">
+    <main role="main">
+      <table id="table-rotated" aria-label="Dependency graph table">
         {/* table content */}
       </table>
     </main>
@@ -151,7 +151,7 @@ const DependencyGraph = () => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DocsIndex = () => {
   return (
-    <main>
+    <main role="main">
       <div className="container">
         <h2>Quality & Metrics Reports</h2>
         <p>
@@ -159,8 +159,8 @@ const DocsIndex = () => {
           reports below:
         </p>
         <div className="links">
-          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+          <a href="plato-report/index.html" aria-label="Plato Code Complexity Report">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html" aria-label="Dependency Graph">🕸️ Dependency Graph (Dependency-Cruiser)</a>
         </div>
       </div>
     </main>

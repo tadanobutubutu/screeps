@@ -49,6 +49,13 @@ function updatePnpm() {
   // Implementation would go here
 }
 
+// New function to fix React Fake Link issue
+function fixReactFakeLink() {
+  // This function would be called to update the HTML file
+  // Implementation would go here to modify dependency-graph.html
+  // to replace <a id="unrotate" href="#"> with a proper button element
+}
+
 // Existing exports would remain here
 // ... (all current exports)
 
@@ -59,5 +66,6 @@ module.exports = {
   updateGitHubActions,
   updateNodeVersions,
   updatePackageDependencies,
-  updatePnpm
+  updatePnpm,
+  fixReactFakeLink
 };

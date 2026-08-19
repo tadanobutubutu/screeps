@@ -1,5 +1,88 @@
+Here is the resolved file content:
+
+```javascript
 // main.js
 import React, { useState, useEffect } from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Screeps',
+  description: 'Screeps is a MMO sandbox game for programmers',
+  icons: {
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+        sizes: 'any',
+        // Added aria-label for accessibility
+        'aria-label': 'Screeps favicon'
+      }
+    ]
+  }
+};
+
+const AppLayout = ({ children }) => {
+  return (
+    <React.StrictMode>
+      <main>
+        {children}
+      </main>
+    </React.StrictMode>
+  );
+};
+
+const DashboardLayout = ({ children }) => {
+  return (
+    <React.StrictMode>
+      <main>
+        {children}
+      </main>
+    </React.StrictMode>
+  );
+};
+
+const DependencyGraph = () => {
+  return (
+    <main>
+      <table id="table-rotated">
+        {/* table content */}
+      </table>
+    </main>
+  );
+};
+
+const DocsIndex = () => {
+  return (
+    <main>
+      <div className="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>
+          This repository is fully optimized with automated tools. Explore the generated
+          reports below:
+        </p>
+        <div className="links">
+          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
+      </div>
+    </main>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// For app/layout.tsx and dashboard/app/layout.tsx
+export {
+  AppLayout,
+  DashboardLayout,
+  DependencyGraph,
+  DocsIndex
+};
 
 /**
  * Adds accessible name to SVG elements to comply with REACT_041 rule
@@ -109,3 +192,8 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+```
+
+This resolved file maintains both changes and integrates the common code from both versions of the file. It includes the React and Next.js components for the main application, layouts, dependency graph, and docs index. Additionally, it includes the `makeSvgAccessible` function and the `Dashboard` component from the initial file version.
+
+The file also features the new layout components (`AppLayout` and `DashboardLayout`) for use in other parts of the project, depending on the section of the application (main, dashboard, docs, etc.).

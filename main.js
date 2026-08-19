@@ -50,8 +50,9 @@ function processDashboardData(data) {
 // New function to generate accessible SVG favicon
 function generateAccessibleFavicon() {
   return `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Application Favicon">
       <title>Application Favicon</title>
+      <desc>A blue circle representing the application favicon</desc>
       <circle cx="50" cy="50" r="40" fill="#4a6baf" />
     </svg>
   `;
@@ -62,6 +63,45 @@ function handleRotationBack() {
   // Implement the rotation back logic here
   console.log('Rotating back to original view');
   // This would typically update the UI state or trigger a React state change
+}
+
+// New function to generate accessible table structure
+function generateAccessibleTable(data) {
+  return `
+    <table role="grid" aria-label="Dependency Dashboard">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Version</th>
+          <th scope="col">Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.dependencies.map(dep => `
+          <tr>
+            <td>${dep.name}</td>
+            <td>${dep.version}</td>
+            <td>${dep.type}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+// New function to generate accessible landmarks
+function generateAccessibleLandmarks() {
+  return `
+    <header role="banner" aria-label="Main Header">
+      <h1>Dependency Dashboard</h1>
+    </header>
+    <main role="main" aria-label="Main Content">
+      <!-- Main content goes here -->
+    </main>
+    <footer role="contentinfo" aria-label="Footer">
+      <!-- Footer content goes here -->
+    </footer>
+  `;
 }
 
 // Existing route
@@ -114,6 +154,23 @@ app.get('/favicon.svg', (req, res) => {
   res.send(generateAccessibleFavicon());
 });
 
+// New route for accessible table
+app.get('/api/accessible-table', (req, res) => {
+  const mockData = {
+    dependencies: [
+      { name: 'express', version: '5.0.0', type: 'npm' },
+      { name: 'react', version: '19.0.0', type: 'npm' },
+      { name: 'jest', version: '30.0.0', type: 'npm' }
+    ]
+  };
+  res.send(generateAccessibleTable(mockData));
+});
+
+// New route for accessible landmarks
+app.get('/api/accessible-landmarks', (req, res) => {
+  res.send(generateAccessibleLandmarks());
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
@@ -125,5 +182,7 @@ module.exports = {
   handleDependencyUpdates,
   processDashboardData,
   generateAccessibleFavicon,
-  handleRotationBack
+  handleRotationBack,
+  generateAccessibleTable,
+  generateAccessibleLandmarks
 };

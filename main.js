@@ -1,9 +1,3 @@
-// Example of how to replace an anchor tag with a button in main.js
-
-// Original code with the problematic anchor tag
-// <a id="unrotate" href="#">rotate back</a>
-
-// Refactored code using a button
 document.getElementById('unrotate').innerHTML = `
   <button id="unrotate-button">rotate back</button>
 `;

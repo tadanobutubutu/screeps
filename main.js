@@ -61,11 +61,33 @@ const ProperLink = ({ href, children }) => {
   return <a href={href}>{children}</a>;
 };
 
+// New component for accessible button that replaces fake links
+const AccessibleButton = ({ onClick, children, id }) => {
+  return (
+    <button
+      id={id}
+      onClick={onClick}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        cursor: 'pointer',
+        color: 'inherit',
+        textDecoration: 'underline'
+      }}
+    >
+      {children}
+    </button>
+  );
+};
+
 // Preserve all existing exports
 export {
   // ... all existing exports
   AccessibleApp,
   AccessibleTable,
   AccessibleSVG,
-  ProperLink
+  ProperLink,
+  AccessibleButton
 };

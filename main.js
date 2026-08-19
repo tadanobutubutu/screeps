@@ -7,13 +7,13 @@ var roleBuilder = require('role.builder');
 
 // Rotate functionality with accessible button
 function createRotateButton() {
-    return '<button id="unrotate" type="button">rotate back</button>';
+	return '<button id="unrotate" type="button">rotate back</button>';
 }
 
 // ... existing code ...
 
 module.exports = {
-    roleHarvester,
-    roleUpgrader,
-    roleBuilder
+	roleHarvester,
+	roleUpgrader,
+	roleBuilder
 };

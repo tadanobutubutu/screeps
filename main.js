@@ -13,6 +13,9 @@ const htmlContent = `<!DOCTYPE html>
 </head>
 <body>
   <!-- rest of the HTML content -->
+  <svg aria-hidden="true" style="display: none;">
+    <!-- Favicon SVG content -->
+  </svg>
 </body>
 </html>`;
 

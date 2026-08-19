@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 
-function updateHTMLFile(filePath, content) {
+function updateFile(filePath, content) {
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       console.error('Error reading the file:', err);
@@ -10,7 +10,7 @@ function updateHTMLFile(filePath, content) {
     }
 
     // Replace the existing <html> tag with the updated one
-    const updatedData = data.replace(/<html>/g, '<html lang="en">');
+    const updatedData = data.replace('<html lang="en">', content);
 
     fs.writeFile(filePath, updatedData, 'utf8', (err) => {
       if (err) {
@@ -23,7 +23,7 @@ function updateHTMLFile(filePath, content) {
 }
 
 // Assuming the path to the HTML file is known
-const htmlFilePath = './docs/dependency-graph.html';
+const htmlFilePath = 'path/to/your/file.html';
 
 // Call the function to update the file
-updateHTMLFile(htmlFilePath, '');
+updateFile(htmlFilePath, '<html lang="en">');

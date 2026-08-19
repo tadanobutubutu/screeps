@@ -205,6 +205,42 @@ function addLanguageAttribute(component) {
     return component;
 }
 
+/**
+ * Ensures proper scope attributes for table headers
+ * @param {Object} component - The React component to validate
+ * @returns {Object} The enhanced component with proper table header scope attributes
+ */
+function ensureTableHeaderScope(component) {
+    if (component.type === 'table') {
+        // Process thead if it exists
+        const thead = component.props.children.find(child =>
+            child.type === 'thead' || (child.props && child.props.role === 'rowgroup')
+        );
+
+        if (thead) {
+            // Process all th elements in the thead
+            const rows = thead.props.children;
+            if (Array.isArray(rows)) {
+                rows.forEach(row => {
+                    if (row.type === 'tr' && row.props.children) {
+                        const cells = Array.isArray(row.props.children) ? row.props.children : [row.props.children];
+                        cells.forEach(cell => {
+                            if (cell.type === 'th' && !cell.props.scope) {
+                                // Determine if this is a column or row header
+                                // For simplicity, we'll assume column headers for now
+                                // In a real implementation, you might want to analyze the table structure
+                                cell.props.scope = 'col';
+                            }
+                        });
+                    }
+                });
+            }
+        }
+    }
+
+    return component;
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
@@ -212,5 +248,6 @@ module.exports = {
     ensureSingleMainElement,
     enhanceComponentAccessibility,
     validateComponentAccessibility,
-    addLanguageAttribute
+    addLanguageAttribute,
+    ensureTableHeaderScope
 };

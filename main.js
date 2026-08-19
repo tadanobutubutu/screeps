@@ -15,6 +15,7 @@ const DependencyGraph = () => {
             <th scope="col"><div>src/managers/roomManager.js</div></th>
             <th scope="col"><div>src/managers/spawnManager.js</div></th>
             <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/managers/upgraderManager.js</div></th>
             <th scope="col"><div>src/roles/builder.js</div></th>
             {/* Add scope="col" to all other header cells */}
           </tr>
@@ -30,3 +31,6 @@ const DependencyGraph = () => {
 };
 
 export default DependencyGraph;
+```
+
+In this resolution, I added `src/managers/upgraderManager.js` to the table header, based on the changes introduced in the branch marked as `>>>>>>> origin/main`. The rest of the code remains unaltered because both branches share the same logic.

@@ -18,8 +18,63 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
-        <main className="flex-1">{children}</main>
+        <header role="banner" aria-label="Site header">
+          <nav aria-label="Main navigation">
+            {/* Navigation content would go here */}
+          </nav>
+        </header>
+        <main className="flex-1" role="main">
+          {children}
+        </main>
+        <footer role="contentinfo" aria-label="Site footer">
+          {/* Footer content would go here */}
+        </footer>
       </body>
     </html>
+  );
+}
+
+// Helper function for accessible tables
+export function AccessibleTable({ children, caption, ...props }: {
+  children: React.ReactNode;
+  caption?: string;
+  [key: string]: any;
+}) {
+  return (
+    <div className="table-container">
+      {caption && <div className="sr-only">{caption}</div>}
+      <table {...props} role="table">
+        {children}
+      </table>
+    </div>
+  );
+}
+
+// Helper function for accessible SVGs
+export function AccessibleSVG({ title, desc, children, ...props }: {
+  title: string;
+  desc?: string;
+  children: React.ReactNode;
+  [key: string]: any;
+}) {
+  return (
+    <svg {...props} aria-hidden={!title} role="img">
+      <title>{title}</title>
+      {desc && <desc>{desc}</desc>}
+      {children}
+    </svg>
+  );
+}
+
+// Helper function for accessible links
+export function AccessibleLink({ href, children, ...props }: {
+  href: string;
+  children: React.ReactNode;
+  [key: string]: any;
+}) {
+  return (
+    <a href={href} {...props}>
+      {children}
+    </a>
   );
 }

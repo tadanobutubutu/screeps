@@ -25,21 +25,23 @@ const AccessibleApp = ({ children }) => {
   );
 };
 
-// Example of accessible table
-const AccessibleTable = ({ data }) => {
+// Example of accessible table with proper scope attributes
+const AccessibleTable = ({ data, headers }) => {
   return (
     <table>
       <thead>
         <tr>
-          <th scope="col">Header 1</th>
-          <th scope="col">Header 2</th>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
         </tr>
       </thead>
       <tbody>
-        {data.map((row, index) => (
-          <tr key={index}>
-            <td>{row.col1}</td>
-            <td>{row.col2}</td>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {Object.values(row).map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
           </tr>
         ))}
       </tbody>

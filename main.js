@@ -16,6 +16,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
+        {/* Modified the link to be a button for accessibility */}
+        <button id="unrotate" onClick={() => {/* Implement the action for rotating back here */}}>rotate back</button>
       </body>
     </html>
   )

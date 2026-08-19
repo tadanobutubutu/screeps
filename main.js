@@ -104,6 +104,17 @@ function createAccessibleTable(headers, rows) {
   return table;
 }
 
+// Function to handle link navigation for accessibility
+function handleLinkNavigation(event, callback) {
+  // Prevent default anchor behavior
+  event.preventDefault();
+
+  // Execute the provided callback function
+  if (typeof callback === 'function') {
+    callback();
+  }
+}
+
 // Export the new functions
 module.exports = {
   handleNewEvent,
@@ -113,5 +124,6 @@ module.exports = {
   ensureHtmlLangAttribute,
   createAccessibleTableHeader,
   createAccessibleTableRow,
-  createAccessibleTable
+  createAccessibleTable,
+  handleLinkNavigation
 };

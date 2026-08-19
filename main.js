@@ -74,6 +74,12 @@ function MyTable() {
 export default function Main() {
   const router = useRouter();
 
+  // Function to handle rotation (replaces the fake link)
+  const handleRotateBack = () => {
+    // Implement your rotation logic here
+    console.log('Rotating back');
+  };
+
   return (
     <>
       <h1>My Page</h1>
@@ -100,6 +106,11 @@ export default function Main() {
           ))}
         </ul>
       </nav>
+
+      {/* Replace fake link with proper button */}
+      <button id="unrotate" onClick={handleRotateBack}>
+        rotate back
+      </button>
     </>
   );
 }

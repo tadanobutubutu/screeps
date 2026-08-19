@@ -22,3 +22,33 @@
 //    - Use <button> for actions
 
 // Please provide the actual main.js content so I can make the specific changes needed.
+
+// Since we don't have the actual main.js content, here's a function that would help fix table headers:
+
+/**
+ * Fixes table headers by adding scope attributes to ensure accessibility
+ * @param {HTMLElement} table - The table element to fix
+ */
+function fixTableHeaders(table) {
+  if (!table) return;
+
+  // Get all header cells in the table
+  const headers = table.querySelectorAll('th');
+
+  headers.forEach(header => {
+    // If scope isn't already set, determine if it's a column or row header
+    if (!header.hasAttribute('scope')) {
+      // Check if this is a column header (typically in the first row)
+      const isColumnHeader = header.parentElement.rowIndex === 0;
+
+      // Set appropriate scope
+      header.setAttribute('scope', isColumnHeader ? 'col' : 'row');
+    }
+  });
+}
+
+// Example usage:
+// document.addEventListener('DOMContentLoaded', () => {
+//   const tables = document.querySelectorAll('table');
+//   tables.forEach(fixTableHeaders);
+// });

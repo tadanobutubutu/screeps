@@ -37,9 +37,19 @@ function generateTableStructure() {
   `;
 }
 
+// New function to replace the problematic link with a proper button
+function createRotateBackButton() {
+  return `
+    <button id="unrotate" class="rotate-back-button">
+      rotate back
+    </button>
+  `;
+}
+
 // Export all existing functionality
 module.exports = {
   // Your existing exports here
   generateTableStructure,
+  createRotateBackButton,
   // Other existing exports...
 };

@@ -7,3 +7,10 @@
 // Example fix for one line:
 // Before: <th>No scope attribute</th>
 // After: <th scope="col">With scope attribute</th>
+
+// The actual fix for the REACT_036 issue would be to change:
+// <a id="unrotate" href="#">rotate back</a>
+// to:
+// <button id="unrotate">rotate back</button>
+
+console.log('Main.js content remains unchanged as the fix is for HTML');

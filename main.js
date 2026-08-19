@@ -1,28 +1,7 @@
-// PRESERVED EXISTING CONTENT - Replace with actual existing code
-// This is a placeholder for the original main.js content
-// Actual code should be inserted here, maintaining all existing functionality
-
-// EXAMPLE OF CORRECT HTML IN JS (Wrapped in template literals)
-const tableHeader = `
-  <thead>
-    <tr>
-      <th scope="col"><div>src/constants.js</div></th>
-      <th scope="col"><div>src/managers/roomManager.js</div></th>
-      <th scope="col"><div>src/managers/spawnManager.js</div></th>
-      <th scope="col"><div>src/managers/towerManager.js</div></th>
-      <th scope="col"><div>src/roles/builder.js</div></th>
-      <!-- Add other headers similarly with scope="col" -->
-    </tr>
-  </thead>
-`;
-
-// Add the missing scope="col" to all <th> elements in your table headers
-// This fixes REACT_027 by ensuring proper accessibility
-
-// REMAINING EXISTING CODE - Keep all original exports, functions, and structure
-// ... (original exports and logic here)
-
+// main.js
 import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
 
 // main.js - Accessibility improved version
 
@@ -50,26 +29,34 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
-// Example: Fixed React SVG Accessible Name (REACT_041)
-const AccessibleIcon = ({ label }) => (
-  <svg role="img" aria-label={label} width="24" height="24" viewBox="0 0 24 24">
-    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-  </svg>
+// For app/layout.tsx
+const AppLayout = ({ children }) => (
+  <body className="min-h-screen flex flex-col">
+    <main className="flex-1">{children}</main>
+  </body>
 );
 
-// Alternative: Using <title> element
-const AccessibleIconWithTitle = ({ label }) => (
-  <svg role="img" aria-labelledby="icon-title" width="24" height="24" viewBox="0 0 24 24">
-    <title id="icon-title">{label}</title>
-    <path d="M12 2L2 7l10 5 10-5-10-5z" />
-  </svg>
+// For dashboard/app/layout.tsx and docs/dependency-graph.html
+const DashboardAndGraphLayout = ({ children }) => (
+  <body>
+    <main>{children}</main>
+  </body>
 );
 
-// Example: Fixed React Landmarks (REACT_017)
-// Main landmark for primary content
-const MainContent = ({ children }) => (
-  <main id="main-content" role="main">
-    {children}
+// For docs/index.html
+const DocsIndex = () => (
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+      </div>
+    </div>
   </main>
 );
 
@@ -86,83 +73,24 @@ const Navigation = ({ links }) => (
   </nav>
 );
 
-// Example: Fixed React Unique Landmarks (REACT_025)
-// Each landmark role should appear only once
-// Use unique aria-labels for multiple landmarks of the same type
-const SiteFooter = () => (
-  <footer role="contentinfo">
-    <nav aria-label="Footer navigation">
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/terms">Terms of Service</a>
-    </nav>
-  </footer>
+export const tableHeader = `
+<thead>
+  <tr>
+    <th scope="col"><div>src/constants.js</div></th>
+    <th scope="col"><div>src/managers/roomManager.js</div></th>
+    <th scope="col"><div>src/managers/spawnManager.js</div></th>
+    <th scope="col"><div>src/managers/towerManager.js</div></th>
+    <th scope="col"><div>src/roles/builder.js</div></th>
+    <!-- Add other headers similarly with scope="col" -->
+  </tr>
+</thead>
+`;
+
+// Main render function
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
-
-// Example: Fixed React Fake Link (REACT_036)
-// Use <button> for actions, <a> for navigation
-const ActionButton = ({ onClick, children }) => (
-  <button type="button" onClick={onClick}>
-    {children}
-  </button>
-);
-
-// If it must be a link (e.g., for URL changes), use proper anchor:
-const RealLink = ({ href, children }) => (
-  <a href={href}>
-    {children}
-  </a>
-);
-
-// Main App Component with proper landmark structure
-const App = () => {
-  const tableData = [
-    { header: 'Row 1', cell1: 'Data 1', cell2: 'Data 2' },
-    { header: 'Row 2', cell1: 'Data 3', cell2: 'Data 4' },
-  ];
-
-  const navLinks = [
-    { href: '/home', label: 'Home' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
-  ];
-
-  return (
-    <div>
-      {/* Skip link for keyboard users */}
-      <a href="#main-content" className="skip-link">
-        Skip to main content
-      </a>
-
-      <header role="banner">
-        <nav aria-label="Site header">
-          <AccessibleIcon label="Website Logo" />
-          <Navigation links={navLinks} />
-        </nav>
-      </header>
-
-      <MainContent>
-        <h1>Accessible Content</h1>
-        <AccessibleTable data={tableData} />
-        <ActionButton onClick={() => console.log('clicked')}>
-          Click Me
-        </ActionButton>
-      </MainContent>
-
-      <SiteFooter />
-    </div>
-  );
-};
-
-export {
-  App,
-  AccessibleTable,
-  AccessibleIcon,
-  AccessibleIconWithTitle,
-  MainContent,
-  Navigation,
-  SiteFooter,
-  ActionButton,
-  RealLink
-};
-
-export default App;

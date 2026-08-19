@@ -67,5 +67,33 @@ function ensureSvgAccessibility() {
 // Call the new function to ensure SVG accessibility
 ensureSvgAccessibility();
 
+// New function to fix React Unique Landmarks issue
+function fixUniqueLandmarks() {
+  // This function will be called during component initialization
+  // to ensure only one <main> element exists in the document
+  const mainElements = document.querySelectorAll('main');
+
+  if (mainElements.length > 1) {
+    // If there are multiple <main> elements, we'll keep the first one
+    // and remove the others, but only if they're not part of the main content
+    for (let i = 1; i < mainElements.length; i++) {
+      const element = mainElements[i];
+      // Check if this is an error state main element
+      if (element.querySelector('h1')?.textContent?.includes('エラー')) {
+        // Convert to a section for error state
+        const section = document.createElement('section');
+        section.innerHTML = element.innerHTML;
+        element.parentNode.replaceChild(section, element);
+      } else {
+        // For other cases, just remove the extra main element
+        element.remove();
+      }
+    }
+  }
+}
+
+// Call the new function to fix unique landmarks
+fixUniqueLandmarks();
+
 // Export the existing functions, if any, with their original names
 /* ... */

@@ -102,6 +102,19 @@ export function AccessibleLink({
   );
 }
 
+export function RotateBackButton({ onClick, ariaLabel = 'Rotate back' }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className="btn btn-secondary"
+    >
+      rotate back
+    </button>
+  );
+}
+
 export function PageLayout({
   children,
   sidebar,
@@ -137,5 +150,6 @@ export default {
   AccessibleIcon,
   AccessibleButton,
   AccessibleLink,
+  RotateBackButton,
   PageLayout
 };

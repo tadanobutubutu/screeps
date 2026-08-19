@@ -1,45 +1,45 @@
-// Since the main.js content was not provided (only a placeholder message),
-// I cannot apply the specific fix. However, the issue REACT_027 requires
-// adding scope="col" or scope="row" to all <th> elements.
+// app/layout.tsx
+import React from 'react';
 
-// The fix pattern is:
-// - For header cells in the first row (column headers): <th scope="col">
-// - For header cells in the first column (row headers): <th scope="row">
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Screeps</title>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+          {/* SVG content */}
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
 
-// Example of what the fix would look like for a typical table structure:
+// dashboard/app/layout.tsx
+import React from 'react';
 
-// Before:
-// <table>
-//   <thead>
-//     <tr>
-//       <th>Column 1</th>
-//       <th>Column 2</th>
-//     </tr>
-//   </thead>
-//   <tbody>
-//     <tr>
-//       <th>Row Header</th>
-//       <td>Data</td>
-//     </tr>
-//   </tbody>
-// </table>
-
-// After:
-// <table>
-//   <thead>
-//     <tr>
-//       <th scope="col">Column 1</th>
-//       <th scope="col">Column 2</th>
-//     </tr>
-//   </thead>
-//   <tbody>
-//     <tr>
-//       <th scope="row">Row Header</th>
-//       <td>Data</td>
-//     </tr>
-//   </tbody>
-// </table>
-
-// Please provide the actual main.js content so I can apply the specific fix.
-// You can do this by pasting the file contents or running:
-// cat main.js
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Screeps Dashboard</title>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" aria-hidden="true">
+          {/* SVG content */}
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

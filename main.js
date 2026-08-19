@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom/root';
 import App from './App';
@@ -28,6 +27,7 @@ const DependencyGraph = () => (
       <table id="table-rotated">
         {/* Table content */}
       </table>
+      <button id="unrotate" className="rotate-back-button">rotate back</button>
     </main>
   </div>
 );

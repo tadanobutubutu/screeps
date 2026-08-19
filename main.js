@@ -116,7 +116,7 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        <main className="flex-1">{children}</main>
+        <div className="flex-1">{children}</div>
       </body>
     </html>
   )

@@ -90,6 +90,18 @@ const RealLink = ({ href, children }) => (
   </a>
 );
 
+// Added: RotateBackButton component for the dependency-graph.html issue
+const RotateBackButton = ({ onClick }) => (
+  <button
+    id="unrotate"
+    type="button"
+    onClick={onClick}
+    aria-label="Rotate back"
+  >
+    rotate back
+  </button>
+);
+
 // Main App Component with proper landmark structure
 const App = () => {
   const tableData = [
@@ -139,7 +151,8 @@ export {
   Navigation,
   SiteFooter,
   ActionButton,
-  RealLink
+  RealLink,
+  RotateBackButton
 };
 
 export default App;

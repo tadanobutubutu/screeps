@@ -1,4 +1,3 @@
-tsx
 import React from 'react';
 
 // Assuming children is a prop

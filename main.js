@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming this is a component file using JSX syntax with a transpiler like Babel.
+
+import React from 'react';
+
+const DependencyGraph = () => {
+  return (
+    <div>
+      <button id="unrotate" onClick={() => { /* Handle rotate back action */ }}>
+        rotate back
+      </button>
+    </div>
+  );
+};
+
+export default DependencyGraph;

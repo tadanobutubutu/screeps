@@ -32,3 +32,13 @@ if (content) {
         <button id="unrotate">rotate back</button>
     `;
 }
+
+// Function to handle dashboard rendering (preserving existing functionality)
+function renderDashboard() {
+    // This would be implemented in the React component
+    // For now, we'll just ensure the main.js doesn't interfere
+    console.log('Dashboard rendering would happen here');
+}
+
+// Preserve existing exports
+export { isRotated, renderDashboard };

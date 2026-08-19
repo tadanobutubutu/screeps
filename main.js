@@ -30,8 +30,26 @@ const Layout = ({ children }) => {
   );
 };
 
+// New component for the rotate back button
+const RotateBackButton = () => {
+  const handleRotateBack = () => {
+    // Implement rotation logic here
+    console.log('Rotating back');
+  };
+
+  return (
+    <button
+      id="unrotate"
+      onClick={handleRotateBack}
+      aria-label="Rotate back"
+    >
+      rotate back
+    </button>
+  );
+};
+
 // Export all existing functions
-export { existingFunction, Layout };
+export { existingFunction, Layout, RotateBackButton };
 
 // Initialize app
 const container = document.getElementById('root');

@@ -1,6 +1,3 @@
-Here's the resolved `main.js` file with both changes integrated:
-
-```javascript
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -39,6 +36,7 @@ const DashboardFaviconSVG = () => (
 // Preserve any existing exports
 export { FaviconSVG, DashboardFaviconSVG };
 
+// Updated DataView component with single main landmark
 export function DataView({ data, isLoading, error }) {
   return (
     <main>
@@ -63,6 +61,3 @@ export function DataView({ data, isLoading, error }) {
     </main>
   );
 }
-```
-
-I merged the changes from both branches, adding accessible names to the SVG elements and preserving the existing `DataView` component.

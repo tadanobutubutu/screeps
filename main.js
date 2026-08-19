@@ -26,13 +26,6 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
-// For docs/dependency-graph.html
-// Note: This is HTML, not JSX, so we'll need to modify the actual HTML file
-// The fix would be to wrap the content in <main> tags
-
-// For docs/index.html
-// Similarly, this would need to be modified in the HTML file
-
 // Main rendering
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

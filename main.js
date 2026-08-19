@@ -58,9 +58,9 @@ function makeSvgAccessible(svgElement, label) {
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <div role="main">
         {children}
-      </main>
+      </div>
     </React.StrictMode>
   );
 };
@@ -69,9 +69,9 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main>
+      <div role="main">
         {children}
-      </main>
+      </div>
     </React.StrictMode>
   );
 };
@@ -80,11 +80,11 @@ const DashboardLayout = ({ children }) => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DependencyGraph = () => {
   return (
-    <main>
+    <div role="main">
       <table id="table-rotated">
         {/* table content */}
       </table>
-    </main>
+    </div>
   );
 };
 
@@ -92,7 +92,7 @@ const DependencyGraph = () => {
 // This would be handled in the HTML file directly, but if you need to modify the React component:
 const DocsIndex = () => {
   return (
-    <main>
+    <div role="main">
       <div className="container">
         <h2>Quality & Metrics Reports</h2>
         <p>
@@ -104,7 +104,7 @@ const DocsIndex = () => {
           <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
         </div>
       </div>
-    </main>
+    </div>
   );
 };
 

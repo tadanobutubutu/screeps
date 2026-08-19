@@ -40,26 +40,23 @@ export default function Document() {
 
         <NextScript />
 
-        // Added table with scope attributes from the conflicting branch:
+        {/* Added table with scope attributes from the conflicting branch: */}
         <table>
           <thead>
             <tr>
-              // Assuming 26 columns in the table, updating 13 column headers with scope="col" and 13 row headers with scope="row":
+              {/* Assuming 26 columns in the table, updating 13 column headers with scope="col" and 13 row headers with scope="row": */}
               <th scope="col">Column Header 1</th>
               <th scope="col">Column Header 2</th>
               <th scope="row">Row Header 1</th>
               <th scope="row">Row Header 2</th>
-              // ... (repeat for the remaining column and row headers)
+              {/* ... (repeat for the remaining column and row headers) */}
             </tr>
           </thead>
           <tbody>
-            // ... (rest of the table structure)
+            {/* ... (rest of the table structure) */}
           </tbody>
         </table>
       </body>
     </Html>
   );
 }
-```
-
-This code merges the changes from both branches, preserves the functionality, and fixes the accessibility issues by properly defining the scope attributes for table header cells. The remaining table structure (like tbody, tr, and td elements) should be filled according to the actual table content in the main.js file.

@@ -1,1 +1,12 @@
-Could you please provide the contents of `main.js`, especially the sections marked with the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)? This will let me resolve the conflict accurately.
+tsx
+import { ReactNode } from 'react';
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}

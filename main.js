@@ -1,4 +1,4 @@
-// New function or changes requested in the issue
+// Original functionality: SVG accessibility and image rotation
 const addAccessibleNameToSVG = (svgElement) => {
   // Check if the SVG element already has an accessible name
   if (!svgElement.getAttribute('aria-label') && !svgElement.querySelector('title') && !svgElement.getAttribute('aria-hidden')) {
@@ -76,3 +76,17 @@ document.addEventListener('DOMContentLoaded', processSVGElements);
     };
   }
 })();
+
+// Screeps bot integration
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <head>
+        <script src="https://cdn.screeps.com/api.js"></script>
+      </head>
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}

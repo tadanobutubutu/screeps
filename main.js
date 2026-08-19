@@ -1,28 +1,38 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 
-// Existing code (preserved as-is)
-export const getStaticProps = async () => {
-  // ... existing implementation
-};
+// main.js - Updated to fix REACT_036 accessibility warning
 
-export const getStaticPaths = async () => {
-  // ... existing implementation
-};
+// Initialize rotation state
+let isRotated = false;
 
-// Add accessibility improvements for REACT_015 (React Language Attribute)
-export const App = ({ Component, pageProps }) => {
-  const router = useRouter();
+// Handle rotate button click
+document.getElementById('rotate').addEventListener('click', function() {
+    const content = document.getElementById('content');
+    if (isRotated) {
+        content.style.transform = 'rotate(0deg)';
+        isRotated = false;
+    } else {
+        content.style.transform = 'rotate(90deg)';
+        isRotated = true;
+    }
+});
 
-  // Add lang attribute to html element
-  React.useEffect(() => {
-    document.documentElement.lang = 'en'; // Set your default language here
-  }, []);
+// Handle unrotate button click (using button element for accessibility)
+document.getElementById('unrotate').addEventListener('click', function() {
+    const content = document.getElementById('content');
+    content.style.transform = 'rotate(0deg)';
+    isRotated = false;
+});
 
-  return (
-    <Component {...pageProps} />
-  );
-};
+// Add lang attribute to html element
+React.useEffect(() => {
+  document.documentElement.lang = 'en'; // Set your default language here
+}, []);
+
+return (
+  <Component {...pageProps} />
+);
 
 // Fix for REACT_027 (React Table Structure)
 export const AccessibleTable = ({ data, headers }) => {
@@ -118,36 +128,13 @@ export const existingFunction2 = () => {
   // ... existing implementation
 };
 
-// Integrate rotate functionality
-let isRotated = false;
-
-// Handle rotate button click
-document.getElementById('rotate').addEventListener('click', function() {
-  const content = document.getElementById('content');
-  if (isRotated) {
-      content.style.transform = 'rotate(0deg)';
-      isRotated = false;
-  } else {
-      content.style.transform = 'rotate(90deg)';
-      isRotated = true;
-  }
-});
-
-// Handle unrotate button click (using button element for accessibility)
-document.getElementById('unrotate').addEventListener('click', function() {
-  const content = document.getElementById('content');
-  content.style.transform = 'rotate(0deg)';
-  isRotated = false;
-});
-
-// Sample content (modified to remove duplication of button creation)
-if (document.getElementById('content')) {
-  const content = document.getElementById('content');
-
-  content.innerHTML = `
-      <h1>Welcome to the App</h1>
-      <p>Click the rotate button to rotate the content.</p>
-      <button id="rotate">Rotate</button>
-      <button id="unrotate">rotate back</button>
-  `;
+// Sample content
+const content = document.getElementById('content');
+if (content) {
+    content.innerHTML = `
+        <h1>Welcome to the App</h1>
+        <p>Click the rotate button to rotate the content.</p>
+        <button id="rotate">Rotate</button>
+        <button id="unrotate">rotate back</button>
+    `;
 }

@@ -11,10 +11,10 @@ export function App() {
   );
 }
 
-// Updated layout components with accessible SVG names
+// Updated layout components with accessible SVG names and proper landmarks
 export function Layout({ children }) {
   return (
-    <div>
+    <div role="main" aria-label="Main content">
       <svg aria-hidden="true" style={{ display: 'none' }}>
         <title>Application Icon</title>
       </svg>
@@ -25,7 +25,7 @@ export function Layout({ children }) {
 
 export function DashboardLayout({ children }) {
   return (
-    <div>
+    <div role="main" aria-label="Dashboard content">
       <svg aria-hidden="true" style={{ display: 'none' }}>
         <title>Dashboard Icon</title>
       </svg>

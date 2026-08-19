@@ -24,14 +24,14 @@ function updateGitHubActions() {
 
 // New function to handle Node.js version updates
 function updateNodeVersions() {
-  // Update Node.js from 20 to 24
+  // Update Node. js from 20 to 24
   // Update cimg/node to 24.19.0
   // Update devcontainer node to 24
 
   // Implementation would go here
 }
 
-// New function to handle package.json updates
+// New function to handle package. json updates
 function updatePackageDependencies() {
   // Update react to ^19.0.0
   // Update jest to ^30.0.0

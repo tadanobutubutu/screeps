@@ -64,7 +64,7 @@ root.render(
   </React.StrictMode>
 );
 
-// New function to handle main content rendering with accessibility attributes
+// New function to handle main content rendering with accessibility
 export function renderMainContent(content) {
   return (
     <main className="main-content" role="main" aria-label="Main content">
@@ -91,6 +91,23 @@ export function getAccessibleMainElement() {
   bodyElement.setAttribute('role', 'main');
   bodyElement.setAttribute('aria-label', 'Main content');
   return bodyElement;
+}
+
+// Function to create accessible SVG wrapper
+export function createAccessibleSvg(svgContent, { label = '', isDecorative = false } = {}) {
+  if (isDecorative) {
+    return (
+      <div aria-hidden="true">
+        {svgContent}
+      </div>
+    );
+  }
+
+  return (
+    <div aria-label={label}>
+      {svgContent}
+    </div>
+  );
 }
 
 // Preserve any other existing code

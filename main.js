@@ -5,7 +5,21 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
+        <a 
+          href="#main-content" 
+          className="skip-link"
+          style={{
+            position: 'absolute',
+            left: '-9999px',
+            top: 'auto',
+            width: '1px',
+            height: '1px',
+            overflow: 'hidden'
+          }}
+        >
+          Skip to main content
+        </a>
+        <main id="main-content" role="main">{children}</main>
       </body>
     </html>
   );
@@ -19,7 +33,8 @@ export function RotateBackButton({ onClick }: { onClick: () => void }) {
       onClick={onClick}
       aria-label="Rotate back to original orientation"
     >
-      rotate back
+      <span aria-hidden="true">↺</span>
+      <span className="sr-only">Rotate back to original orientation</span>
     </button>
   );
 }

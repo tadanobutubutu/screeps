@@ -11,3 +11,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     </main>
   </React.StrictMode>
 )
+
+// Add favicon with accessible name
+const favicon = document.createElement('link');
+favicon.rel = 'icon';
+favicon.href = '/favicon.ico';
+favicon.type = 'image/x-icon';
+favicon.setAttribute('aria-hidden', 'true'); // Mark as decorative if needed
+document.head.appendChild(favicon);

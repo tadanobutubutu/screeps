@@ -1,8 +1,5 @@
 // main.js
 import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
-import './index.css';
 
 // For app/layout.tsx
 const AppLayout = ({ children }) => {
@@ -26,6 +23,33 @@ const DashboardLayout = ({ children }) => {
   );
 };
 
+// New function to handle the rotation action
+const handleRotation = (e) => {
+  e.preventDefault();
+  // Add your rotation logic here
+  console.log('Rotation triggered');
+};
+
+// Replace the fake link with a proper button
+const RotationButton = () => (
+  <button
+    id="unrotate"
+    onClick={handleRotation}
+    aria-label="Rotate back"
+    style={{
+      background: 'none',
+      border: 'none',
+      padding: 0,
+      font: 'inherit',
+      cursor: 'pointer',
+      color: 'inherit',
+      textDecoration: 'underline'
+    }}
+  >
+    rotate back
+  </button>
+);
+
 // Main rendering
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -36,4 +60,4 @@ root.render(
 
 // Export all existing functions if any
 // (Preserve any existing exports from the original file)
-export { AppLayout, DashboardLayout };
+export { AppLayout, DashboardLayout, RotationButton };

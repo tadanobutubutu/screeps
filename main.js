@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Preserve all existing code from the original main.js
 // ... (all your existing code remains unchanged)
 
@@ -52,13 +49,3 @@ const RotationButton = () => (
 
 // Export handleRotation and RotationButton for React usage
 export { handleRotation, RotationButton };
-
-// Call this function when you need to add the button to the page, based on the environment
-if (typeof React !== 'undefined') {
-  export { RotationButton as default };
-} else {
-  insertRotationButton();
-}
-```
-
-In this solution, both the new DRY `handleRotation` function and the new React `RotationButton` component were integrated, while keeping the existing `handleRotateBack` function that was only relevant to certain non-React environments. The code now exports different versions of the button based on the environment (React or non-React) that the code is running in.

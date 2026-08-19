@@ -71,10 +71,19 @@ function ensureSvgAccessibility() {
 }
 
 // New function to replace hash-only links with proper buttons for accessibility
-function replaceHashLinksWithButtons() {
-  // This function would be used in a build step to transform hash-only links
-  // to proper buttons for better accessibility
-  console.log('Replacing hash-only links with proper buttons for better accessibility');
+function replaceHashOnlyLinksWithButtons(htmlContent) {
+  // This function transforms hash-only anchor tags into buttons for better accessibility
+  // <a href="#"> creates accessibility issues as screen readers announce it as a dead link
+  // and prevents keyboard users from properly activating it
+  const hashOnlyLinkRegex = /<a([^>]*)\shref="#"([^>]*)>([^<]*)<\/a>/gi;
+  
+  return htmlContent.replace(hashOnlyLinkRegex, (match, beforeHref, afterHref, text) => {
+    const attributes = (beforeHref + afterHref).trim();
+    const typeAttr = attributes.includes('type=') ? '' : ' type="button"';
+    const idAttr = attributes.match(/id="([^"]*)"/) ? '' : '';
+    
+    return `<button${typeAttr}${attributes ? ' ' + attributes : ''}>${text}</button>`;
+  });
 }
 
 // New function to validate and ensure single main landmark in React components
@@ -89,6 +98,6 @@ module.exports = {
   dependencyConfig,
   addMainLandmarks,
   ensureSvgAccessibility,
-  replaceHashLinksWithButtons,
+  replaceHashOnlyLinksWithButtons,
   validateSingleMainLandmark
 };

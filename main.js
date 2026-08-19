@@ -18,6 +18,17 @@ function App() {
         rotate back
       </button>
 
+      {/* Wrap the existing/new <main> element */}
+      <main id="primary-content">
+        <header>
+          <!-- existing header content -->
+        </header>
+        {children}
+        <footer>
+          <!-- existing footer content -->
+        </footer>
+      </main>
+
       {/* Other existing elements */}
     </div>
   );

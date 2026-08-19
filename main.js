@@ -39,7 +39,7 @@ function addScopeToRowHeaders(content) {
 function fixTableHeadersAccessibility(content) {
   // Match any <th> without scope attribute
   const thWithoutScope = /<th(?![^>]*\bscope=)[^>]*>/gi;
-  
+
   return content.replace(thWithoutScope, (match) => {
     return match.replace(/^<th/, '<th scope="col"');
   });
@@ -55,10 +55,38 @@ function validateTableHeaders(content) {
   return !thWithoutScope.test(content);
 }
 
+/**
+ * Adds lang attribute to the HTML element if missing
+ * @param {string} content - HTML content
+ * @param {string} [lang='en'] - Language code to add
+ * @returns {string} - Content with lang attribute added to HTML element
+ */
+function addHtmlLangAttribute(content, lang = 'en') {
+  // Match <html> without lang attribute
+  const htmlWithoutLang = /<html(?![^>]*\blang=)[^>]*>/i;
+
+  return content.replace(htmlWithoutLang, (match) => {
+    // Add lang attribute if not present
+    return match.replace(/^<html/, `<html lang="${lang}"`);
+  });
+}
+
+/**
+ * Validates that the HTML element has a lang attribute
+ * @param {string} content - HTML content to validate
+ * @returns {boolean} - True if HTML element has lang attribute
+ */
+function validateHtmlLangAttribute(content) {
+  const htmlWithLang = /<html[^>]*\blang=/i;
+  return htmlWithLang.test(content);
+}
+
 // Export all functions
 module.exports = {
   addScopeToColumnHeaders,
   addScopeToRowHeaders,
   fixTableHeadersAccessibility,
-  validateTableHeaders
+  validateTableHeaders,
+  addHtmlLangAttribute,
+  validateHtmlLangAttribute
 };

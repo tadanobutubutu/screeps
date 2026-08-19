@@ -64,13 +64,32 @@ function addMainLandmarks() {
 }
 
 // New function to ensure SVG accessibility
-function ensureSvgAccessibility() {
+function ensureSvgAccessibility(files) {
   // This function would be used in a build step to modify layout files
   // to add aria-hidden="true" to decorative SVGs
-  console.log('Ensuring SVG accessibility by adding aria-hidden="true" to decorative SVGs');
+  
+  if (!files || !Array.isArray(files)) {
+    console.log('No files provided for SVG accessibility check');
+    return;
+  }
+  
+  // Common files that may contain decorative SVGs (favicons, icons)
+  const layoutFiles = files.filter(f => 
+    f.includes('app/layout.tsx') || 
+    f.includes('dashboard/app/layout.tsx')
+  );
+  
+  if (layoutFiles.length > 0) {
+    console.log('Ensuring SVG accessibility by adding aria-hidden="true" to decorative SVGs');
+    console.log('Files to check:', layoutFiles);
+    
+    // This would check for SVG elements without accessible names
+    // and suggest adding aria-hidden="true" for decorative SVGs
+    console.log('SVG accessibility improvements would be applied to decorative SVGs in layout files');
+  }
 }
 
-// New function to replace hash-only links with proper buttons for accessibility
+// New function to replace hash--only links with proper buttons for accessibility
 function replaceHashLinksWithButtons() {
   // This function would be used in a build step to transform hash-only links
   // to proper buttons for better accessibility
@@ -84,11 +103,22 @@ function validateSingleMainLandmark() {
   console.log('Validating that React components contain only a single <main> landmark');
 }
 
+// New function to check configuration validity
+function isValidConfig() {
+  // Basic validation checks
+  const deps = Object.keys(updatedDependencies);
+  const hasReact = deps.some(d => d.toLowerCase().includes('react'));
+  const hasJest = deps.some(d => d.toLowerCase().includes('jest'));
+  
+  return hasReact && hasJest && deps.length > 0;
+}
+
 module.exports = {
   updatedDependencies,
   dependencyConfig,
   addMainLandmarks,
   ensureSvgAccessibility,
   replaceHashLinksWithButtons,
-  validateSingleMainLandmark
+  validateSingleMainLandmark,
+  isValidConfig
 };

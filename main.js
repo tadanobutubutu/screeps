@@ -1,4 +1,4 @@
-// main.js - Updated to fix REACT_036 accessibility warning
+// main.js - Updated to fix REACT_017 accessibility warning
 
 // Initialize rotation state
 let isRotated = false;
@@ -26,9 +26,11 @@ document.getElementById('unrotate').addEventListener('click', function() {
 const content = document.getElementById('content');
 if (content) {
     content.innerHTML = `
-        <h1>Welcome to the App</h1>
-        <p>Click the rotate button to rotate the content.</p>
-        <button id="rotate">Rotate</button>
-        <button id="unrotate">rotate back</button>
+        <main>
+            <h1>Welcome to the App</h1>
+            <p>Click the rotate button to rotate the content.</p>
+            <button id="rotate">Rotate</button>
+            <button id="unrotate">rotate back</button>
+        </main>
     `;
 }

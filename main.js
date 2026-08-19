@@ -3,7 +3,7 @@ import './globals.css'
 import React, { useState } from 'react'
 
 const handleUnrotate = () => {
-    const image = document.getElementById('rotatable-image')
+    const image = ...
     if (image) {
         image.style.transform = 'rotate(0deg)'
     }
@@ -32,16 +32,16 @@ class ErrorBoundary extends React.Component {
     }
 
     componentDidMount() {
-        const unrotateBtn = document.getElementById('unrotate-btn')
+        const unrotateBtn = ...
         if (unrotateBtn) {
-            unrotateBtn.addEventListener('click', handleUnrotate)
+            ... handleUnrotate)
         }
     }
 
     componentWillUnmount() {
-        const unrotateBtn = document.getElementById('unrotate-btn')
+        const unrotateBtn = ...
         if (unrotateBtn) {
-            unrotateBtn.removeEventListener('click', handleUnrotate)
+            ... handleUnrotate)
         }
     }
 
@@ -71,11 +71,11 @@ class ErrorBoundary extends React.Component {
                     >
                         {this.state.error && this.state.error.toString()}
                         <br />
-                        {this.state.errorInfo && this.state.errorInfo.componentStack}
+                        {this.state.errorInfo && ...
                     </pre>
                     <button
                         id="reload-btn"
-                        onClick={this.handleReload}
+                        ...
                         style={{
                             backgroundColor: '#004b73',
                             color: 'white',
@@ -116,7 +116,9 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        <main className="flex-1">{children}</main>
+        <main>
+          {children}
+        </main>
       </body>
     </html>
   )

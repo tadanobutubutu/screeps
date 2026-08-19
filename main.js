@@ -1,24 +1,23 @@
-// This is a placeholder response - I need the actual main.js file content to make specific changes.
-// Based on the accessibility issues listed, here's guidance on what likely needs to be fixed:
+tsx
+// app/layout.tsx
+import React from 'react';
 
-// 1. REACT_015 (critical) - Add lang attribute to HTML element:
-//    <html lang="en">
-
-// 2. REACT_027 - Fix table structures with proper semantic markup:
-//    - Use <th> for headers
-//    - Add scope attributes
-//    - Use <caption> for table descriptions
-
-// 3. REACT_017 - Ensure proper landmark elements:
-//    - Use <header>, <main>, <nav>, <footer>, <aside> instead of <div> with ARIA
-
-// 4. REACT_041 - Add accessible names to SVG elements:
-//    - Add aria-label or role="img" to SVG elements
-
-// 5. REACT_025 - Ensure unique landmarks (no duplicate main/nav elements)
-
-// 6. REACT_036 - Fix fake links:
-//    - Use <a> with href for navigation
-//    - Use <button> for actions
-
-// Please provide the actual main.js content so I can make the specific changes needed.
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <title>Screeps Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Screeps Logo</title>
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

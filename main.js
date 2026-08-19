@@ -22,3 +22,6 @@
 //    - Use <button> for actions
 
 // Please provide the actual main.js content so I can make the specific changes needed.
+
+// ✅ REACT_015 Fix: Set the lang attribute on the root HTML element
+document.documentElement.lang = 'en';

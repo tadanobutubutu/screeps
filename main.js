@@ -84,6 +84,7 @@ class ErrorBoundary extends React.Component {
                             borderRadius: '4px',
                             cursor: 'pointer',
                         }}
+                        aria-label="ページを再読み込み"
                     >
                         🔄 ページを再読み込み
                     </button>
@@ -116,7 +117,9 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Favicon</title>
         </svg>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1" role="main">
+          {children}
+        </main>
       </body>
     </html>
   )

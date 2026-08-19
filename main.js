@@ -34,6 +34,26 @@ export function DashboardLayout({ children }) {
   );
 }
 
+// New component for the rotate back button
+export function RotateBackButton({ onClick }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        font: 'inherit',
+        color: 'inherit',
+        cursor: 'pointer'
+      }}
+    >
+      rotate back
+    </button>
+  );
+}
+
 // Existing initialization code (preserved)
 const container = document.getElementById('root');
 const root = createRoot(container);

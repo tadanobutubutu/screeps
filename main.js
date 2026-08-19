@@ -1,3 +1,12 @@
+// main.js - JavaScript file
+
+// Note: The REACT_015 accessibility issue is about the <html lang="en"> attribute
+// which should ideally be added in your index.html or App component's root element.
+// This file provides automated functions to fix such issues, including the language attribute.
+
+// Example of what the root element should look like in your HTML/JSX:
+// <html lang="en">
+
 // Add the new function to fix the table headers
 function fixTableHeaders() {
   const fs = require('fs');

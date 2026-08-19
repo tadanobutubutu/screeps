@@ -1,4 +1,3 @@
-// Assuming you have a test file for the HTML content, such as ...
 describe('Accessibility Tests', () => {
   it('should have all th elements with scope attribute', () => {
     // Load the HTML file content

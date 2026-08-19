@@ -1,6 +1,3 @@
-Here is the resolved version of the 'main.js' file, integrating both changes. This version adds the fetchStats function and the Dashboard component to the RootLayout in a reusable manner:
-
-```javascript
 // app/layout.tsx
 import React, { useState, useEffect } from 'react';
 
@@ -151,6 +148,3 @@ export default function RootLayout({
     </html>
   );
 }
-```
-
-This version integrates the Dashboard component into the RootLayout, so the Dashboard can now easily be used in multiple places by simply pass the children prop. The fetchStats function is also integrated as a method of the RootLayout. In the body of the HTML, the Dashboard component is conditionally rendered when there are no children provided.

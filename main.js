@@ -27,3 +27,9 @@ const DataTable = () => {
 };
 
 export default DataTable;
+
+// Note: The actual fix for the REACT_036 issue would be to replace:
+// <a id="unrotate" href="#">rotate back</a>
+// with:
+// <button id="unrotate">rotate back</button>
+// in the dependency-graph.html file

@@ -17,6 +17,19 @@ function fixLangAttribute(filePath) {
     content = content.replace(/^<html /mi, '<html lang="en" ');
     fs.writeFileSync(absolutePath, content);
   }
+
+  // Include the missing SVG components from the React files
+  const pathToReactLayout = path.join(__dirname, '..', '..', 'app', 'layout.tsx');
+  const reactLayoutContent = fs.readFileSync(pathToReactLayout, 'utf8');
+  const svgReactLayout = /<svg[^>]+aria-hidden="true">[^<]*<\/svg>/.exec(reactLayoutContent)[0];
+
+  // Add the SVG components to the HTML file
+  content = content.replace(/<head>/, `${content.match(/<head>/)[0]}${svgReactLayout}`);
+
+  fs.writeFileSync(absolutePath, content);
 }
 
 module.exports = { fixLangAttribute };
+```
+
+This solution resolves the merge conflict by integrating both changes. The JavaScript code now includes the SVG components from the React files in the HTML file, and the `lang` attribute is added to the `<html>` tag if missing.

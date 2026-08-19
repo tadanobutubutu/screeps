@@ -1,16 +1,19 @@
-// main.js - Accessibility improved version
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useAuth } from '../context/AuthContext';
+import { getDashboardData } from '../lib/api';
+import { DashboardData } from '../types/dashboard';
+import LoadingSpinner from './LoadingSpinner';
+import ErrorMessage from './ErrorMessage';
+import DashboardContent from './DashboardContent';
 
-import React from 'react';
-
-// Example: Fixed React Language Attribute (REACT_015)
-// The <html> element needs a lang attribute at the document level
+// Accessibility components (from HEAD)
 const HtmlWithLang = ({ children }) => (
   <html lang="en">
     {children}
   </html>
 );
 
-// Example: Fixed React Table Structure (REACT_027)
 const AccessibleTable = ({ data }) => (
   <table>
     <thead>
@@ -32,14 +35,12 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
-// Example: Fixed React SVG Accessible Name (REACT_041)
 const AccessibleIcon = ({ label }) => (
   <svg role="img" aria-label={label} width="24" height="24" viewBox="0 0 24 24">
     <path d="M12 2L2 7l10 5 10-5-10-5z" />
   </svg>
 );
 
-// Alternative: Using <title> element
 const AccessibleIconWithTitle = ({ label }) => (
   <svg role="img" aria-labelledby="icon-title" width="24" height="24" viewBox="0 0 24 24">
     <title id="icon-title">{label}</title>
@@ -47,15 +48,12 @@ const AccessibleIconWithTitle = ({ label }) => (
   </svg>
 );
 
-// Example: Fixed React Landmarks (REACT_017)
-// Main landmark for primary content
 const MainContent = ({ children }) => (
   <main id="main-content" role="main">
     {children}
   </main>
 );
 
-// Navigation landmark
 const Navigation = ({ links }) => (
   <nav aria-label="Main navigation">
     <ul>
@@ -68,9 +66,6 @@ const Navigation = ({ links }) => (
   </nav>
 );
 
-// Example: Fixed React Unique Landmarks (REACT_025)
-// Each landmark role should appear only once
-// Use unique aria-labels for multiple landmarks of the same type
 const SiteFooter = () => (
   <footer role="contentinfo">
     <nav aria-label="Footer navigation">
@@ -80,22 +75,19 @@ const SiteFooter = () => (
   </footer>
 );
 
-// Example: Fixed React Fake Link (REACT_036)
-// Use <button> for actions, <a> for navigation
 const ActionButton = ({ onClick, children }) => (
   <button type="button" onClick={onClick}>
     {children}
   </button>
 );
 
-// If it must be a link (e.g., for URL changes), use proper anchor:
 const RealLink = ({ href, children }) => (
   <a href={href}>
     {children}
   </a>
 );
 
-// Main App Component with proper landmark structure
+// Main App Component
 const App = () => {
   const tableData = [
     { header: 'Row 1', cell1: 'Data 1', cell2: 'Data 2' },
@@ -140,6 +132,58 @@ const App = () => {
   );
 };
 
+// Dashboard component (from origin/main)
+const Dashboard: React.FC = () => {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        const result = await getDashboardData(user.id);
+        setData(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <ErrorMessage message={error} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      <DashboardContent data={data!} />
+    </div>
+  );
+};
+
+// Export all components
 export {
   App,
   AccessibleTable,
@@ -150,7 +194,8 @@ export {
   SiteFooter,
   ActionButton,
   RealLink,
-  HtmlWithLang
+  HtmlWithLang,
+  Dashboard,
 };
 
 export default App;

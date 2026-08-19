@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 
 // Preserve all existing imports and functions

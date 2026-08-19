@@ -19,3 +19,23 @@ const MyTable = () => {
 };
 
 export default MyTable;
+
+// Additional table component for dependency graph
+const DependencyGraphTable = () => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Source File</th>
+          <th scope="col">Target File</th>
+          <th scope="col">Dependency Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        {/* Table rows with dependency data */}
+      </tbody>
+    </table>
+  );
+};
+
+export { DependencyGraphTable };

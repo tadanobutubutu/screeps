@@ -1,6 +1,7 @@
-// main.js
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import './index.css';
 
 // Updated layout components with accessibility attributes
 function FaviconSVG() {
@@ -35,18 +36,33 @@ function RootLayout({ children }) {
 
 function DashboardLayout({ children }) {
   return (
-    <div>
+    <main>
       {/* Add FaviconSVG with accessibility attributes */}
       <FaviconSVG />
       {children}
-    </div>
+    </main>
   );
 }
 
-// Existing exports remain unchanged
-export { RootLayout, DashboardLayout };
+const AppLayout = ({ children }) => {
+  return (
+    <React.StrictMode>
+      <main>
+        {children}
+      </main>
+    </React.StrictMode>
+  );
+};
+
+// Export all existing functions if any
+// (Preserve any existing exports from the original file)
+export { RootLayout, DashboardLayout, AppLayout };
 
 // Render the app
 const container = document.getElementById('root');
 const root = createRoot(container);
-root.render(<App />);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

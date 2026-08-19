@@ -3,7 +3,7 @@
 // but requests changes to main.js
 
 // Please provide the actual main.js file contents if you need assistance fixing the issue.
-// Alternatively, if you meant to provide a React component file (*.jsx, *.tsx), 
+// Alternatively, if you meant to provide a React component file (*.jsx, *.tsx),
 // please share the full component code.
 
 // For the React accessibility issue (REACT_025) mentioned:

@@ -1,11 +1,140 @@
+Here is the resolved version of the 'main.js' file, integrating both changes. This version adds the fetchStats function and the Dashboard component to the RootLayout in a reusable manner:
+
+```javascript
 // app/layout.tsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode;
 }) {
+  const [stats, setStats] = useState(null);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
+
+  const fetchStats = async (force = false) => {
+    if (refreshing && !force) return;
+    setRefreshing(true);
+    try {
+      const response = await fetch('/api/stats');
+      if (!response.ok) throw new Error('Failed to fetch stats');
+      const data = await response.json();
+      setStats(data);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+      setStats(null);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const Dashboard = () => {
+    if (error) {
+      return (
+        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          <button
+            onClick={copyErr}
+            onMouseEnter={() => setErrCopyHover(true)}
+            onMouseLeave={() => setErrCopyHover(false)}
+            onFocus={() => setErrCopyHover(true)}
+            onBlur={() => setErrCopyHover(false)}
+            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+            title={copied ? 'コピー済み' : 'エラーをコピー'}
+            style={{
+              backgroundColor: copied ? '#155d27' : '#004b73',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+              filter: errCopyHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          </button>
+          <button
+            onClick={() => fetchStats(true)}
+            disabled={refreshing}
+            onMouseEnter={() => setErrRetryHover(true)}
+            onMouseLeave={() => setErrRetryHover(false)}
+            style={{
+              backgroundColor: '#2b6cb0',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginLeft: '1rem',
+              transition: 'all 0.2s ease-in-out',
+              transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+              boxShadow: errRetryHover ? '0 4px 10px rgba(43, 108, 176, 0.3)' : 'none',
+              filter: errRetryHover ? 'brightness(1.1)' : 'none',
+            }}
+          >
+            🔄 再試行
+          </button>
+        </div>
+      );
+    }
+
+    if (!stats) {
+      return <div>Loading...</div>;
+    }
+
+    return (
+      <div style={{ padding: '2rem' }}>
+        <h1>Dashboard</h1>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+          {Object.entries(stats).map(([key, value]) => (
+            <div key={key} style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem' }}>
+              <h3 style={{ marginTop: 0 }}>{key}</h3>
+              <p style={{ fontSize: '2rem', fontWeight: 'bold' }}>{value}</p>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={() => fetchStats(true)}
+          disabled={refreshing}
+          style={{
+            marginTop: '1rem',
+            padding: '0.5rem 1rem',
+            backgroundColor: '#2b6cb0',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+          {refreshing ? '更新中...' : '更新'}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <html lang="en">
       <head>
@@ -18,7 +147,10 @@ export default function RootLayout({
           <title>Screeps Logo</title>
         </svg>
       </head>
-      <body>{children}</body>
+      <body>{children && <Dashboard />}</body>
     </html>
   );
 }
+```
+
+This version integrates the Dashboard component into the RootLayout, so the Dashboard can now easily be used in multiple places by simply pass the children prop. The fetchStats function is also integrated as a method of the RootLayout. In the body of the HTML, the Dashboard component is conditionally rendered when there are no children provided.

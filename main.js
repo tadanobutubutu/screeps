@@ -5,15 +5,15 @@ const Dashboard = ({ isError, data }) => {
 
   if (isError) {
     return (
-      <div className="dashboard">
-        <header>
+      <div className="dashboard" lang="en"> {/* Added lang attribute */}
+        <header role="banner"> {/* Added role */}
           {/* Header content */}
         </header>
-        <section className="error-state">
-          <h2>Error</h2>
+        <section className="error-state" aria-labelledby="error-heading">
+          <h2 id="error-heading">Error</h2> {/* Added id for aria-labelledby */}
           <p>Something went wrong. Please try again.</p>
         </section>
-        <footer>
+        <footer role="contentinfo"> {/* Added role */}
           {/* Footer content */}
         </footer>
       </div>
@@ -21,11 +21,11 @@ const Dashboard = ({ isError, data }) => {
   }
 
   return (
-    <div className="dashboard">
-      <header>
+    <div className="dashboard" lang="en"> {/* Added lang attribute */}
+      <header role="banner"> {/* Added role */}
         {/* Header content */}
       </header>
-      <main>
+      <main role="main"> {/* Added role */}
         {/* Main content */}
         {data && (
           <div className="dashboard-content">
@@ -33,7 +33,7 @@ const Dashboard = ({ isError, data }) => {
           </div>
         )}
       </main>
-      <footer>
+      <footer role="contentinfo"> {/* Added role */}
         {/* Footer content */}
       </footer>
     </div>

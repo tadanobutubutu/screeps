@@ -2,27 +2,29 @@ import React from 'react';
 
 const TableComponent = () => {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Name</th>
-          <th scope="col">Role</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Alice</td>
-          <td>Developer</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Bob</td>
-          <td>Designer</td>
-        </tr>
-      </tbody>
-    </table>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Name</th>
+            <th scope="col">Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>Alice</td>
+            <td>Developer</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Bob</td>
+            <td>Designer</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
   );
 };
 
@@ -39,29 +41,31 @@ const handleDependencyUpdates = (updates) => {
 // New function to display dependency dashboard
 const DependencyDashboard = ({ dependencies }) => {
   return (
-    <div className="dependency-dashboard" role="region" aria-label="Dependency Dashboard">
-      <h2>Dependency Dashboard</h2>
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Package</th>
-            <th scope="col">Current Version</th>
-            <th scope="col">Latest Version</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {dependencies.map((dep, index) => (
-            <tr key={index}>
-              <td>{dep.package}</td>
-              <td>{dep.currentVersion}</td>
-              <td>{dep.latestVersion}</td>
-              <td>{dep.status}</td>
+    <main>
+      <div className="dependency-dashboard" role="region" aria-label="Dependency Dashboard">
+        <h2>Dependency Dashboard</h2>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Package</th>
+              <th scope="col">Current Version</th>
+              <th scope="col">Latest Version</th>
+              <th scope="col">Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {dependencies.map((dep, index) => (
+              <tr key={index}>
+                <td>{dep.package}</td>
+                <td>{dep.currentVersion}</td>
+                <td>{dep.latestVersion}</td>
+                <td>{dep.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
   );
 };
 

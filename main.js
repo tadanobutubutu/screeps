@@ -16,6 +16,7 @@ export default function RootLayout({
         <svg aria-hidden="true" style={{ display: 'none' }}>
           <title>Screeps Logo</title>
         </svg>
+        {/* Additional imports or component mounts could be included here if needed */}
       </head>
       <body>{children}</body>
     </html>

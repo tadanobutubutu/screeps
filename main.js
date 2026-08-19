@@ -6,19 +6,21 @@ function renderTable() {
 
   // Example HTML content generation
   const tableHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Header 1</th>
-          <th scope="col">Header 2</th>
-          <th scope="col">Header 3</th>
-          <!-- ... other headers ... -->
-        </tr>
-      </thead>
-      <tbody>
-        <!-- ... table rows ... -->
-      </tbody>
-    </table>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Header 1</th>
+            <th scope="col">Header 2</th>
+            <th scope="col">Header 3</th>
+            <!-- ... other headers ... -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- ... table rows ... -->
+        </tbody>
+      </table>
+    </main>
   `;
 
   // ... code to render the tableHTML to the DOM or return it ...

@@ -3,7 +3,11 @@
 import React from 'react';
 
 // Example: Fixed React Language Attribute (REACT_015)
-// The <html> element needs a lang attribute at the document level
+// NOTE: The lang="en" attribute must be added to the <html> element in the
+// HTML template file (e.g., public/index.html), NOT in this JavaScript file.
+// The <html> element should have: <html lang="en">
+// This file does not contain an <html> element and does not need modification
+// for REACT_015 compliance.
 
 // Example: Fixed React Table Structure (REACT_027)
 const AccessibleTable = ({ data }) => (
@@ -18,7 +22,7 @@ const AccessibleTable = ({ data }) => (
     <tbody>
       {data.map((row, index) => (
         <tr key={index}>
-          <th scope="row">{row.header}</th>
+          <th ...</th>
           <td>{row.cell1}</td>
           <td>{row.cell2}</td>
         </tr>
@@ -56,7 +60,7 @@ const Navigation = ({ links }) => (
     <ul>
       {links.map((link, index) => (
         <li key={index}>
-          <a href={link.href}>{link.label}</a>
+          <a ...</a>
         </li>
       ))}
     </ul>
@@ -83,7 +87,7 @@ const ActionButton = ({ onClick, children }) => (
   </button>
 );
 
-// If it must be a link (e.g., for URL changes), use proper anchor:
+// If it must be a link (e. g., for URL changes), use proper anchor:
 const RealLink = ({ href, children }) => (
   <a href={href} role="button">
     {children}

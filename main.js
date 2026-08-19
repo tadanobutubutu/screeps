@@ -1,25 +1,27 @@
-// main.js
+// Current main.js content with conflict markers
+// <<<<<<< HEAD
+// import React from 'react';
 
-// Existing code preserved here...
+// const DependencyGraph = () => {
+//   return (
+//     // ... other JSX ...
+//     <a id="unrotate" href="#">rotate back</a>
+//     // ... other JSX ...
+//   );
+// };
 
-// New function or changes requested in the issue
-function addAccessibleNameToSVG(svgElement) {
-  // Check if the SVG element already has aria-hidden="true"
-  if (svgElement.getAttribute('aria-hidden') !== 'true') {
-    // Add aria-label or a title child if not already present
-    if (!svgElement.querySelector('title')) {
-      const title = document.createElement('title');
-      title.textContent = 'Descriptive title for SVG';
-      svgElement.appendChild(title);
-    }
-    // Set aria-hidden="true" to hide the SVG from screen readers
-    svgElement.setAttribute('aria-hidden', 'true');
-  }
-}
+// export default DependencyGraph;
+// >>>>>>> origin/main
 
-// Example usage of the function
-// Assuming there is an SVG element with the ID 'favicon'
-const faviconSVG = document.getElementById('favicon');
-addAccessibleNameToSVG(faviconSVG);
+// Updated main.js content
+import React from 'react';
 
-// Continue with the rest of the main.js content...
+const DependencyGraph = () => {
+  return (
+    // ... other JSX ...
+    <button id="unrotate" onClick={() => {/* Your action here */}}>rotate back</button>
+    // ... other JSX ...
+  );
+};
+
+export default DependencyGraph;

@@ -256,3 +256,50 @@ export function createAccessibleFakeLink({ children, onClick, ariaLabel }) {
     </span>
   );
 }
+
+// New function to create accessible table header with proper scope
+export function createTableHeader({ text, scope = 'col' }) {
+  return (
+    <th scope={scope}>
+      <div>{text}</div>
+    </th>
+  );
+}
+
+// New function to create accessible table row
+export function createTableRow({ cells, rowIndex }) {
+  return (
+    <tr key={`row-${rowIndex}`}>
+      {cells.map((cell, cellIndex) => (
+        <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+      ))}
+    </tr>
+  );
+}
+
+// New function to create accessible table with proper structure
+export function createAccessibleTableWithScope({ headers, data, caption, headerScope = 'col' }) {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={`header-${index}`} scope={headerScope}>
+              <div>{header}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={`row-${rowIndex}`}>
+            {row.map((cell, cellIndex) => (
+              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}

@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+function calculate(a, b) {
+  return a + b;
+}
+
+// TODO: Add back any required exports that might have been?
+
+// Added required export
+export { calculate };

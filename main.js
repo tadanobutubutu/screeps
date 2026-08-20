@@ -29,6 +29,11 @@ function addMainToHTML(content) {
 
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
+  // Check if lang attribute already exists
+  if (html.includes('lang="')) {
+    return html;
+  }
+  // Add lang="en" to the html tag
   return html.replace(/<html([^>]*)>/, '<html$1 lang="en">');
 }
 

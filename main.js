@@ -22,4 +22,29 @@ function addTableHeaderScopes() {
 // Call this function when your table is rendered
 document.addEventListener('DOMContentLoaded', addTableHeaderScopes);
 
+// Add main landmark wrapper for accessibility
+function wrapContentInMain() {
+  // Check if we're in a document context
+  if (typeof document !== 'undefined') {
+    // Get the body element
+    const body = document.body;
+
+    // Create a main element
+    const main = document.createElement('main');
+
+    // Move all existing children to the main element
+    while (body.firstChild) {
+      main.appendChild(body.firstChild);
+    }
+
+    // Append the main element to the body
+    body.appendChild(main);
+  }
+}
+
+// Initialize main landmark wrapper when DOM is loaded
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', wrapContentInMain);
+}
+
 // [Your existing code below this point remains unchanged]

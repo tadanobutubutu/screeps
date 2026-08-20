@@ -2,28 +2,28 @@ function calculate(a, b) {
   return a + b;
 }
 
-function addAccessibleNameToSVG(svg) {
+// Add accessible name to SVG elements
+export function addAccessibleNameToSVG(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
-  svg.appendChild(titleElement);
+  svg.insertBefore(titleElement, svg.firstChild);
+  
+  // Add role="img" for accessibility
+  if (!svg.hasAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+  
   return svg;
 }
 
-// Existing code remains unchanged
-
-// Example of existing exports that should be preserved
-export { calculate, addAccessibleNameToSVG };
-
 // Update to include the lang attribute in the HTML root element
-export function updateRootElementWithLangAttribute() {
-  const htmlElement = document.querySelector('html');
+export function addLangToHtmlRoot(lang) {
+  const htmlElement = document.documentElement;
   if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en');
+    htmlElement.setAttribute('lang', lang);
   }
+  return htmlElement;
 }
-
-// Existing export preservation
-export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute };
 
 // Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
@@ -34,9 +34,6 @@ export function addScopeToTableHeaders() {
     }
   });
 }
-
-// Existing export preservation
-export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders };
 
 // Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
 export function replaceFakeLinksWithButtons() {
@@ -54,5 +51,5 @@ export function replaceFakeLinksWithButtons() {
   });
 }
 
-// Export the new function
-export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+// Export all functions
+export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };

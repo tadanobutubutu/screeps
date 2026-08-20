@@ -1,6 +1,5 @@
 /**
- * Main JavaScript file for accessibility fixes
- * Addresses REACT_027 - React Table Structure warning
+ * Main JavaScript file for accessibility fixes and React Landmarks
  */
 
 // Utility function to add scope attribute to table header cells
@@ -11,7 +10,7 @@ function addScopeToTableHeaders(table) {
 
   const rows = table.querySelectorAll('tr');
   const firstRow = rows[0];
-  
+
   if (!firstRow) {
     return table;
   }
@@ -23,10 +22,9 @@ function addScopeToTableHeaders(table) {
     }
   });
 
-  // Process other rows for row headers (first th in each row)
   rows.forEach((row, index) => {
     if (index === 0) return; // Skip first row as it's handled above
-    
+
     const firstCell = row.querySelector('th');
     if (firstCell && !firstCell.hasAttribute('scope')) {
       firstCell.setAttribute('scope', 'row');
@@ -45,8 +43,98 @@ function processTables(rootElement = document) {
   return tables.length;
 }
 
-// Export for testing
+// Checks if a file contains a <main> landmark
+function hasMainLandmark(filePath) {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    return /<main[\s>]/i.test(content);
+  } catch (error) {
+    console.error(`Error reading file ${filePath}:`, error.message);
+    return false;
+  }
+}
+
+// Adds a <main> landmark around children in layout files
+function addMainLandmark(filePath, type = 'tsx') {
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+
+    if (type === 'tsx') {
+      content = content.replace(
+          /(<body[^>]*>)(\{children\})(<\/body>)/i,
+          '<body><main>{children}</main></body>'
+      );
+
+      content = content.replace(
+          /(<div[^>]*>)(\{children\})(<\/div>)/i,
+          '<main><div>{children}</div></main>'
+      );
+    } else if (type === 'html') {
+      content = content.replace(
+          /(<table[^>]*id="table-rotated"[^>]*>)/i,
+          '<main>$1'
+      );
+
+      content = content.replace(
+          /(<\/body>)/i,
+          '</main>$1'
+      );
+    }
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Added <main> landmark to ${filePath}`);
+  } catch (error) {
+    console.error(`Error modifying file ${filePath}:`, error.message);
+  }
+}
+
+// Fixes all files mentioned in the REACT_017 issue
+function fixReactLandmarks() {
+  const filesToFix = [
+      { path: 'app/layout.tsx', type: 'tsx' },
+      { path: 'dashboard/app/layout.tsx', type: 'tsx' },
+      { path: 'docs/index.html', type: 'html' }
+  ];
+
+  filesToFix.forEach(({ path: filePath, type }) => {
+    const fullPath = path.resolve(process.cwd(), filePath);
+    if (!hasMainLandmark(fullPath)) {
+      addMainLandmark(fullPath, type);
+    } else {
+      console.log(`${filePath} already has <main> landmark`);
+    }
+  });
+}
+
+// Checks all layout files for <main> landmark
+// @param {string[]} filePaths - Array of file paths to check
+// @returns {Object} - Summary of results
+function checkLandmarks(filePaths) {
+  const results = {
+    passed: [],
+    failed: []
+  };
+
+  filePaths.forEach(filePath => {
+    if (hasMainLandmark(filePath)) {
+      results.passed.push(filePath);
+    } else {
+      results.failed.push(filePath);
+    }
+  });
+
+  return results;
+}
+
+// Export all functions for use in tests and other modules
 module.exports = {
   addScopeToTableHeaders,
   processTables,
+  hasMainLandmark,
+  addMainLandmark,
+  fixReactLandmarks,
+  checkLandmarks
 };
+```
+
+This file now contains both retained changes. It provides both the `addScopeToTableHeaders` and `processTables` functions for HTML tables accessibility and the `hasMainLandmark`, `addMainLandmark`, `fixReactLandmarks`, and `checkLandmarks` functions for adding a `<main>` landmark in React layout files.

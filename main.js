@@ -4,7 +4,11 @@
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <head />
+      <head>
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          {/* Favicon SVG content would go here */}
+        </svg>
+      </head>
       <body>
         <main>{children}</main>
       </body>

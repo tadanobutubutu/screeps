@@ -95,3 +95,11 @@ export function getDecorativeSvgAccessibilityAttributes() {
     "aria-label": "Decorative elements"
   };
 }
+
+// New function to get accessibility attributes for favicon SVG
+export function getFaviconAccessibilityAttributes() {
+  return {
+    "aria-hidden": "true",
+    "aria-label": "Favicon"
+  };
+}

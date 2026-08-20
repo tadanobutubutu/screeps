@@ -27,7 +27,7 @@ export default function RootLayout({
         >
           {/* SVG content */}
         </svg>
-        <main>{children}</main>
+        <section>{children}</section>
       </body>
     </html>
   );

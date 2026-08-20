@@ -15,3 +15,16 @@ describe('HTML Table Structure', () => {
     });
   });
 });
+
+// Adding new test for SVG accessibility
+describe('SVG Accessibility', () => {
+  it('should have aria-hidden="true" for decorative SVGs', () => {
+    // This would need to be adapted to your actual component structure
+    // For example, if you're rendering a component that contains SVGs
+    const { container } = render(<YourComponent />);
+    const svgs = container.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
+});

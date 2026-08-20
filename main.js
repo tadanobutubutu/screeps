@@ -1,4 +1,4 @@
-// [Previous existing code remains unchanged]
+`
 
 export const langAttribute = () => {
   document.documentElement.lang = 'en';
@@ -47,19 +47,19 @@ export const addFixLandmarkIssues = () => {
 // Add accessible names to 2 SVGs (fix for REACT_041)
 export const addAccessibleNamesToSVGs = () => {
   // Find all SVG elements in the document
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
 
   svgs.forEach((svg) => {
     // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
 
     // Check if SVG has a title child element
-    const titleElement = ...
+    const titleElement = svg.querySelector('title');
     const hasTitleChild = titleElement !== null;
 
     // Check if SVG is marked as hidden from screen readers
-    const ariaHidden = ... === 'true';
+    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
 
     // If SVG has no accessible name and is not hidden from screen readers
     if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
@@ -69,7 +69,7 @@ export const addAccessibleNamesToSVGs = () => {
         svg.setAttribute('aria-label', titleText);
       } else {
         // Check if SVG contains text elements (indicating it may be decorative)
-        const textElement = ...
+        const textElement = svg.querySelector('text');
         if (textElement) {
           // Add aria-hidden="true" since it contains text but no proper accessible name
           svg.setAttribute('aria-hidden', 'true');
@@ -122,7 +122,7 @@ export const fixFakeLinkIssue = () => {
 
 // Handle rotation back logic
 export const handleRotateBack = () => {
-  const character = ...
+  const character = document.getElementById('character-model');
   if (character) {
     character.style.transform = 'rotateY(0deg)';
     console.log('Character rotated back to initial orientation');
@@ -146,10 +146,10 @@ function App() {
 
   React.useEffect(() => {
     langAttribute();
-    ...
-    ...
-    ...
-    ...
+    addScopeAttributesToHeaders();
+    fixTableStructure();
+    addFixLandmarkIssues();
+    addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
   }, []);
@@ -158,7 +158,7 @@ function App() {
     <div>
       {/* ... existing JSX ... */}
 
-      <button id="unrotate" ...
+      <button id="unrotate"
         onClick={handleRotateBack}
       >
         Rotate back
@@ -168,8 +168,6 @@ function App() {
     </div>
   );
 }
-
-// ... rest of the existing code ...
 
 // Export App if needed
 export default App;

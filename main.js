@@ -1,1 +1,12 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+import React from 'react';
+
+const AppLayout: React.FC = ({ children }) => (
+  <div>
+    {/* existing code */}
+    <main>{children}</main>
+    {/* existing code */}
+  </div>
+);
+
+export default AppLayout;

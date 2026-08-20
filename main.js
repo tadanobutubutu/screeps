@@ -38,6 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add function to ensure main landmark is present
+function ensureMainLandmark() {
+  if (!document.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    const bodyChildren = Array.from(document.body.children);
+
+    // Move all body children except scripts and meta tags into main
+    bodyChildren.forEach(child => {
+      if (child.tagName !== 'SCRIPT' && child.tagName !== 'META') {
+        mainElement.appendChild(child);
+      }
+    });
+
+    document.body.appendChild(mainElement);
+  }
+}
+
+// Apply main landmark fix on DOM load
+document.addEventListener('DOMContentLoaded', ensureMainLandmark);
+
 // Existing code remains unchanged
 // ...
 
@@ -68,6 +88,7 @@ if (typeof module !== 'undefined' && module.exports) {
         }
         svg.setAttribute('aria-hidden', 'true');
       });
-    }
+    },
+    ensureMainLandmark: ensureMainLandmark
   };
 }

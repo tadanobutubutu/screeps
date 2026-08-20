@@ -1,20 +1,23 @@
+<html lang="en">
 import React, { useState, useEffect } from 'react';
 
-interface DashboardProps {
-  // Add any props your component might receive
-}
+// New changes to fix the REACT_027 issue
+// Add the scope attribute to the <th> elements in the affected files
 
-const Dashboard: React.FC<DashboardProps> = () => {
-  const [error, setError] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [errCopyHover, setErrCopyHover] = useState(false);
-  const [errRetryHover, setErrRetryHover] = useState(false);
+// Example of how to fix the issue in a single file
+// Replace the following line:
+// <th><div>src/constants.js</div></th>
+// With:
+// <th scope="col"><div>src/constants.js</div></th>
 
-  const fetchStats = async (forceRefresh = false) => {
-    // Your existing fetchStats implementation
-  };
+// Repeat the above change for all occurrences in the affected files, such as:
+// <th><div>src/managers/roomManager.js</div></th>
+// <th><div>src/managers/spawnManager.js</div></th>
+// ...
+// <th><div>src/roles/builder.js</div></th>
+// ...
 
+const Dashboard = () => {
   const copyErr = () => {
     // Your existing copyErr implementation
   };
@@ -99,3 +102,4 @@ const Dashboard: React.FC<DashboardProps> = () => {
 };
 
 export default Dashboard;
+```

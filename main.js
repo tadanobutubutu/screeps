@@ -1,11 +1,8 @@
-// This file should contain JavaScript code, not HTML
-// The HTML content appears to be in a different file (dependency-graph.html)
-// Please ensure all JavaScript code is properly formatted and valid
+// Existing code preserved
+import React from 'react';
+import App from './App';
 
 // Example of proper JavaScript code (if this was the actual content):
-// import React from 'react';
-// import App from './App';
-
 // function Main() {
 //   return (
 //     <div className="App">
@@ -14,4 +11,15 @@
 //   );
 // }
 
-// export default Main;
+// New function or changes requested in the issue
+function AccessibilityEnhancedMain() {
+  // Example of adding accessibility features
+  return (
+    <div className="App" role="main">
+      <App />
+    </div>
+  );
+}
+
+// Exporting the new function with the same name as the existing one
+export default AccessibilityEnhancedMain;

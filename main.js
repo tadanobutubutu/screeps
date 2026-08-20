@@ -5,7 +5,7 @@ interface DashboardProps {
   // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -26,7 +26,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   if (error) {
     return (
-      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <div lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         <pre
           tabIndex={0}
@@ -93,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   // Your existing success state rendering
   return (
-    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <main lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {/* Your existing success state content */}
     </main>
   );

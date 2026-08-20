@@ -1,4 +1,3 @@
-tsx
 // app/layout.tsx
 import './globals.css'
 import type { Metadata } from 'next'
@@ -19,7 +18,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <main>{children}</main>
+        <header role="banner">
+          <h1>Application Header</h1>
+        </header>
+        <main role="main">{children}</main>
+        <footer role="contentinfo">
+          <p>Footer content</p>
+        </footer>
       </body>
     </html>
   )

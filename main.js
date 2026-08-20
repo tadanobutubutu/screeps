@@ -1,3 +1,11 @@
+// Example of the fix pattern for React Table Structure accessibility:
+// Before:
+// <th>Column Name</th>
+// After:
+// <th scope="col">Column Name</th>
+// For row headers:
+// <th>Row Label</th>  →  <th scope="row">Row Label</th>
+
 describe('HTML Table Structure', () => {
   it('should have scope attribute on all <th> elements', () => {
     const fileContent = readFileSync('path/to/your/html/file.html', 'utf8');

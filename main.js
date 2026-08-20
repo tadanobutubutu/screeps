@@ -30,7 +30,7 @@ function handleDependencyUpdates() {
 
 // New function to wrap content in main landmark
 function wrapInMainLandmark(content) {
-  return React.createElement('main', null, content);
+  return React.createElement('main', { role: 'main' }, content);
 }
 
 // New function to add accessibility attributes to SVG elements
@@ -45,6 +45,7 @@ function makeSvgAccessible(svgElement) {
     child.type === 'title' || child.type === 'desc'
   )) {
     return React.cloneElement(svgElement, {
+      'aria-label': 'SVG Image',
       children: [
         React.createElement('title', null, 'SVG Image'),
         ...(svgElement.props.children || [])

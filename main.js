@@ -25,4 +25,40 @@ const app = {
   }
 };
 
+// Accessibility utilities for addressing insight report findings
+app.accessibility = {
+  // All open checks from the insight report
+  openChecks: [
+    { rule: 'REACT_015', severity: 'critical', occurrences: 1, description: 'Add lang attribute to HTML element' },
+    { rule: 'REACT_027', severity: 'warning', occurrences: 26, description: 'Fix table structure issues' },
+    { rule: 'REACT_017', severity: 'warning', occurrences: 4, description: 'Add/fix landmark issues' },
+    { rule: 'REACT_041', severity: 'warning', occurrences: 2, description: 'Add accessible names to SVGs' },
+    { rule: 'REACT_025', severity: 'warning', occurrences: 2, description: 'Ensure unique landmarks' },
+    { rule: 'REACT_036', severity: 'warning', occurrences: 1, description: 'Fix fake link issue' }
+  ],
+
+  // Get total open issues count
+  getTotalOpenIssues: function() {
+    return this.openChecks.reduce((sum, check) => sum + check.occurrences, 0);
+  },
+
+  // Get critical issues only
+  getCriticalIssues: function() {
+    return this.openChecks.filter(check => check.severity === 'critical');
+  },
+
+  // Get warning issues only
+  getWarningIssues: function() {
+    return this.openChecks.filter(check => check.severity === 'warning');
+  },
+
+  // Calculate score if all issues were fixed
+  getPotentialScore: function() {
+    const currentPassed = 41;
+    const totalChecks = 47;
+    const currentScore = Math.round((currentPassed / totalChecks) * 100);
+    return currentScore;
+  }
+};
+
 module.exports = app;

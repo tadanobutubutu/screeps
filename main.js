@@ -14,9 +14,10 @@ const App = () => {
 };
 
 // Add accessibility improvements for REACT_027 (Table Structure)
-const AccessibleTable = ({ data }) => {
+const AccessibleTable = ({ data, caption }) => {
   return (
     <table>
+      {caption && <caption>{caption}</caption>}
       <thead>
         <tr>
           <th scope="col">Header 1</th>
@@ -39,13 +40,13 @@ const AccessibleTable = ({ data }) => {
 const MainLayout = ({ children }) => {
   return (
     <div>
-      <header role="banner">
+      <header role="banner" aria-label="Site header">
         {/* Header content */}
       </header>
       <main role="main">
         {children}
       </main>
-      <footer role="contentinfo">
+      <footer role="contentinfo" aria-label="Site footer">
         {/* Footer content */}
       </footer>
     </div>
@@ -53,18 +54,18 @@ const MainLayout = ({ children }) => {
 };
 
 // Add accessibility improvements for REACT_041 (SVG Accessible Name)
-const AccessibleSVG = ({ title, description }) => {
+const AccessibleSVG = ({ title, description, children }) => {
   return (
-    <svg aria-hidden="true">
-      <title>{title}</title>
-      <desc>{description}</desc>
-      {/* SVG content */}
+    <svg aria-hidden={!title && !description}>
+      {title && <title>{title}</title>}
+      {description && <desc>{description}</desc>}
+      {children}
     </svg>
   );
 };
 
 // Add accessibility improvements for REACT_025 (Unique Landmarks)
-const UniqueLandmark = ({ type, children }) => {
+const UniqueLandmark = ({ type, children, label }) => {
   const landmarkRoles = {
     navigation: 'navigation',
     main: 'main',
@@ -74,21 +75,30 @@ const UniqueLandmark = ({ type, children }) => {
   };
 
   return (
-    <div role={landmarkRoles[type] || 'region'} aria-label={type}>
+    <div
+      role={landmarkRoles[type] || 'region'}
+      aria-label={label || type}
+    >
       {children}
     </div>
   );
 };
 
 // Add accessibility improvements for REACT_036 (Fake Link)
-const AccessibleLink = ({ href, children }) => {
+const AccessibleLink = ({ href, children, onClick }) => {
   return (
-    <a href={href} onClick={(e) => {
-      if (!href) {
-        e.preventDefault();
-        // Handle non-link behavior
-      }
-    }}>
+    <a
+      href={href || '#'}
+      onClick={(e) => {
+        if (!href) {
+          e.preventDefault();
+        }
+        if (onClick) {
+          onClick(e);
+        }
+      }}
+      aria-disabled={!href}
+    >
       {children}
     </a>
   );

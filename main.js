@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -7,7 +6,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: ... = () => {
+const Dashboard: React.FC<DashboardProps> = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -46,9 +45,9 @@ const Dashboard: ... = () => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => ...
+                    onMouseLeave={() => setErrCopyHover(false)}
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => ...
+                    onBlur={() => setErrCopyHover(false)}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -71,6 +70,8 @@ const Dashboard: ... = () => {
                     disabled={refreshing}
                     onMouseEnter={() => setErrRetryHover(true)}
                     onMouseLeave={() => setErrRetryHover(false)}
+                    onFocus={() => setErrRetryHover(true)}
+                    onBlur={() => setErrRetryHover(false)}
                     aria-label="再試行"
                     title="再試行"
                     style={{
@@ -109,5 +110,5 @@ const Dashboard: ... = () => {
 
 export default Dashboard;
 
-const root = ...
+const root = ReactDOM.createRoot(document.getElementById('root')!);
 root.render(<Dashboard />);

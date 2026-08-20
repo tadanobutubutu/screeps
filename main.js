@@ -6,3 +6,18 @@
 function myFunction() {
     // Your code here
 }
+
+// Add accessibility attributes to SVG elements
+function makeSvgAccessible(svgElement) {
+    if (svgElement && !svgElement.getAttribute('aria-hidden')) {
+        svgElement.setAttribute('aria-hidden', 'true');
+    }
+}
+
+// Initialize accessibility for SVGs when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+        makeSvgAccessible(svg);
+    });
+});

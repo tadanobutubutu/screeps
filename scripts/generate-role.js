@@ -114,8 +114,12 @@ module.exports = roleClaimer;`,
                 const exitPos = creep.pos.findClosestByRange(exit);
                 creep.moveTo(exitPos, {visualizePathStyle: {stroke: '#ffff00'}});
             } else {
-                const source = creep.pos.findClosestByPath(FIND_SOURCES);
-                if (creep.harvest(source) === ERR_NOT_IN_RANGE) {
+                let source = Game.getObjectById(creep.memory.sourceId);
+                if (!source) {
+                    source = creep.pos.findClosestByRange(FIND_SOURCES);
+                    if (source) creep.memory.sourceId = source.id;
+                }
+                if (source && creep.harvest(source) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(source, {visualizePathStyle: {stroke: '#ffff00'}});
                 }
             }
@@ -126,8 +130,12 @@ module.exports = roleClaimer;`,
                 const exitPos = creep.pos.findClosestByRange(exit);
                 creep.moveTo(exitPos, {visualizePathStyle: {stroke: '#ffffff'}});
             } else {
-                const spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                let spawn = Game.getObjectById(creep.memory.spawnId);
+                if (!spawn) {
+                    spawn = creep.pos.findClosestByRange(FIND_MY_SPAWNS);
+                    if (spawn) creep.memory.spawnId = spawn.id;
+                }
+                if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(spawn, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }

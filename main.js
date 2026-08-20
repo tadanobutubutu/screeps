@@ -139,10 +139,62 @@ function improveRotateBackLink() {
   }
 }
 
+// Add ARIA attributes to form elements
+function enhanceFormAccessibility() {
+  const forms = document.querySelectorAll('form');
+  forms.forEach(form => {
+    if (!form.hasAttribute('role')) {
+      form.setAttribute('role', 'form');
+    }
+
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      if (!input.hasAttribute('aria-required') && input.required) {
+        input.setAttribute('aria-required', 'true');
+      }
+
+      if (!input.hasAttribute('aria-invalid') && input.validity && input.validity.valid === false) {
+        input.setAttribute('aria-invalid', 'true');
+      }
+    });
+  });
+}
+
+// Add skip to content link for keyboard users
+function addSkipToContentLink() {
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  skipLink.style.position = 'absolute';
+  skipLink.style.left = '-9999px';
+  skipLink.style.top = '0';
+  skipLink.style.width = '1px';
+  skipLink.style.height = '1px';
+  skipLink.style.overflow = 'hidden';
+  skipLink.style.zIndex = '100';
+
+  skipLink.addEventListener('focus', () => {
+    skipLink.style.left = '0';
+    skipLink.style.width = 'auto';
+    skipLink.style.height = 'auto';
+  });
+
+  skipLink.addEventListener('blur', () => {
+    skipLink.style.left = '-9999px';
+    skipLink.style.width = '1px';
+    skipLink.style.height = '1px';
+  });
+
+  document.body.insertBefore(skipLink, document.body.firstChild);
+}
+
 // Initialize all accessibility improvements
 document.addEventListener('DOMContentLoaded', () => {
   addLandmarkRoles();
   improveTableStructure();
   improveFakeLinks();
+  enhanceFormAccessibility();
+  addSkipToContentLink();
   improveRotateBackLink(); // Add the new function call
 });

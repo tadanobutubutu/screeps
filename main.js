@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 
 interface DashboardProps {
     // Add your props here if any

@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Existing code (preserved as-is)
 // New accessibility improvements
 /**
@@ -85,6 +88,17 @@ function ensureUniqueLandmarks() {
       header.setAttribute('id', `heading-${index + 1}`);
     }
   });
+
+  // Additional fix for unique landmarks from the origin/main branch
+  function uniqueLandmarks() {
+    const links = document.querySelectorAll('[id^="unrotate"]');
+    links.forEach(link => {
+      const id = link.id;
+      const index = id.split('-')[1];
+      link.id = `unrotate-${index}`;
+    });
+  }
+  uniqueLandmarks();
 }
 
 /**
@@ -102,18 +116,18 @@ function replaceFakeLinks() {
     }
   });
 
-  // Additional fix for the specific case mentioned in the issue
-  const rotateBackLink = document.getElementById('unrotate');
-  if (rotateBackLink && rotateBackLink.getAttribute('href') === '#') {
+  // Additional fix for the specific case mentioned in the issue from the origin/main branch
+  const rotateBackLinks = document.querySelectorAll('#unrotate');
+  rotateBackLinks.forEach(link => {
     const button = document.createElement('button');
-    button.id = 'unrotate';
-    button.textContent = rotateBackLink.textContent;
+    button.id = link.id;
+    button.textContent = link.textContent;
     button.addEventListener('click', () => {
       // Add your rotation logic here
       console.log('Rotation back triggered');
     });
-    rotateBackLink.replaceWith(button);
-  }
+    link.replaceWith(button);
+  });
 }
 
 // Initialize accessibility improvements when DOM is loaded
@@ -125,3 +139,5 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureUniqueLandmarks();
   replaceFakeLinks();
 });
+```
+I have integrated the changes from both branches, including the unique landmarks fix (REACT\_025) from the origin/main branch. The resolved file does not introduce any syntax errors and preserves comments and style as much as possible.

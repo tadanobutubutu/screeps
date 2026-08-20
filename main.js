@@ -98,6 +98,26 @@ function fixTableStructure(tableElement) {
   return tableElement;
 }
 
+// New function to fix table header scope issues
+function fixTableHeaderScope(thElement) {
+  // Check if the th element already has a scope attribute
+  if (!thElement.props.scope) {
+    // Determine if this is a column or row header based on context
+    // This is a simplified approach - in a real app you might need more sophisticated logic
+    const isColumnHeader = thElement.props.children?.some(child =>
+      typeof child === 'string' && child.includes('src/')
+    ) || thElement.props.children?.some(child =>
+      child.type === 'div' && child.props.children?.includes('src/')
+    );
+
+    return React.cloneElement(thElement, {
+      scope: isColumnHeader ? 'col' : 'row'
+    });
+  }
+
+  return thElement;
+}
+
 // New function to fix landmark issues
 function fixLandmarkIssues(element) {
   // Ensure unique landmarks and proper hierarchy
@@ -181,6 +201,7 @@ module.exports = {
   makeSvgAccessible,
   addLangAttribute,
   fixTableStructure,
+  fixTableHeaderScope,
   fixLandmarkIssues,
   fixFakeLinkIssues,
   ensureSingleMainLandmark

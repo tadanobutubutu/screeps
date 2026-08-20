@@ -103,12 +103,11 @@ export function Footer({ children }) {
  * Fixes: REACT_036 (Fake Link)
  */
 export function AccessibleLink({ href, children, onClick, ...props }) {
-  // If href exists and is a real destination, use <a>
-  if (href && href !== '#' && href !== '') {
-    return <a href={href} onClick={onClick} {...props}>{children}</a>;
+  if (!isValidHref(href)) {
+    return <button type="button" onClick={onClick} {...props}>{children}</button>;
   }
-  // If no href or fake href, use <button> instead
-  return <button type="button" onClick={onClick} {...props}>{children}</button>;
+
+  return <a href={href} onClick={onClick} {...props}>{children}</a>;
 }
 
 /**
@@ -194,12 +193,27 @@ export const accessibilityComponents = {
   AccessiblePageWrapper,
 };
 
+export function isValidHref(href) {
+  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+}
+
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
 export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
 
 // Utility functions for accessibility support
+/**
+ * Utility function to check if an element is focusable
+ * Useful in various accessibility contexts
+ */
+export function isFocusable(element) {
+  return (
+    (element && typeof element === 'object' && element.tagName) ||
+    (element && typeof element === 'string' && element.trim().length > 0)
+  );
+}
+
 export function announceToScreenReader(message, priority = 'polite') {
   const announcer = document.createElement('div');
   announcer.setAttribute('role', 'status');
@@ -260,8 +274,4 @@ export function trapFocus(container) {
   return () => {
     container.removeEventListener('keydown', handleKeyDown);
   };
-}
-
-export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
 }

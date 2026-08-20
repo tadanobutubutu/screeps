@@ -112,7 +112,7 @@ export const FakeLink = ({ href, children }) => {
       href={href}
       role="link"
       tabIndex="0"
-      onKeyPress={(e) => e.key === 'Enter' && window.location.href = href}
+      onKeyPress={(e) => e.key === 'Enter' && (window.location.href = href)}
     >
       {children}
     </a>

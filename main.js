@@ -11,3 +11,9 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
+
+// New function to handle the rotation back action
+function handleRotateBack() {
+  // Add your rotation logic here
+  console.log('Rotating back');
+}

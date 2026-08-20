@@ -98,7 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }
         `}</style>
             </head>
-            <body><main>{children}</main></body>
+            <body>{children}</body>
         </html>
     );
 }

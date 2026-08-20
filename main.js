@@ -6,19 +6,19 @@
     }
 
     // Export the function
-    module.exports.myFunction = myFunction;
+    exports.myFunction = myFunction;
 
     // Additional code to add accessible names to SVGs
 
     // Function to add accessible name to SVGs for accessibility
-    function addAccessibleNameToSVGs(svgString, label) {
+    function addAccessibleSvg(svgContent, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;
         const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
         const textRegex = /<text[^>]*>(.*?)<\/text>/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgString.replace(svgRegex, (match) => {
+        return svgContent.replace(svgRegex, (match) => {
             // Check if the SVG already contains a title
             let hasTitle = titleRegex.test(match);
             let hasText = textRegex.test(match);
@@ -41,14 +41,14 @@
         const updatedIcons = {};
         for (const key in icons) {
             const svgData = icons[key];
-            const accessibleSvg = addAccessibleNameToSVGs(svgData, label);
+            const accessibleSvg = addAccessibleSvg(svgData, label);
             updatedIcons[key] = accessibleSvg;
         }
         return updatedIcons;
     }
 
     // Export the new functions
-    module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
+    exports.addAccessibleSvg = addAccessibleSvg;
     module.exports.updateIcons = updateIcons;
 
     // Other code...

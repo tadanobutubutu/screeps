@@ -1,10 +1,9 @@
-tsx
 import React from 'react';
 
 const Layout = (props) => {
   // Your existing code...
   return (
-    <html lang="ja">
+    <html lang="en">
       {/* Add the missing <main> element */}
       <main>
         <head>

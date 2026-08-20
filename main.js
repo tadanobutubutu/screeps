@@ -6,7 +6,6 @@ import React from 'react';
 const NewComponent = () => {
   return (
     <div>
-      {/* Replace the <a> with a <button> */}
       <button id="unrotate" onClick={() => {/* Your action here */}}>rotate back</button>
       {/* Other content */}
     </div>

@@ -1,4 +1,5 @@
-// [Previous existing code remains unchanged]
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 // Add the lang attribute to HTML element for accessibility
 export const langAttribute = () => {

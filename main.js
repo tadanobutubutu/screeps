@@ -6,6 +6,12 @@ interface DashboardProps {
     // Add your props here if any
 }
 
+export const metadata = {
+    htmlAttributes: {
+        lang: 'ja',
+    },
+};
+
 const Dashboard: React.FC<DashboardProps> = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
@@ -21,8 +27,24 @@ const Dashboard: React.FC<DashboardProps> = () => {
         // Your existing copyErr implementation
     };
 
+    const handleBotEvent = (event: any) => {
+        // Added from the other diff: Handle custom bot event
+        // ...
+    };
+
     useEffect(() => {
         fetchStats();
+    }, []);
+
+    useEffect(() => {
+        // Handle custom bot event
+        const eventListener = (event: any) => {
+            handleBotEvent(event);
+        };
+        window.addEventListener('message', eventListener);
+        return () => {
+            window.removeEventListener('message', eventListener);
+        };
     }, []);
 
     if (error) {
@@ -97,14 +119,14 @@ const Dashboard: React.FC<DashboardProps> = () => {
         );
     }
 
-    // Success state content (wrapped in a section element to avoid duplicate main landmark)
+    // Success state content (wrapped in a main element with proper role)
     return (
-        <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <main style={{ padding: '2rem', fontFamily: 'monospace', role: "main" }}>
             <h1>Dashboard</h1>
             {/* Your existing success state content */}
             <h2>Dashboard App</h2>
             {/* Rest of your dashboard content */}
-        </section>
+        </main>
     );
 };
 

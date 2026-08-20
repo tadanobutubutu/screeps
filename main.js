@@ -17,3 +17,16 @@
 // document.getElementById('unrotate').addEventListener('click', function() {
 //   // Logic to rotate back
 // });
+
+// app/layout.tsx
+import { ReactNode } from 'react';
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en">
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}

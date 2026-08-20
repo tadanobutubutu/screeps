@@ -2,40 +2,52 @@
 // ...
 
 // New function or changes requested in the issue go here
-// Add the 'scope' attribute to <th> elements that are missing it
-const addScopeToTh = (htmlString) => {
-  // Use regex to find <th> elements that don't have a scope attribute
-  // and add scope="col" to them
-  return htmlString.replace(/<th(?![^>]*\bscope=)([^>]*?)>/gi, (match, attributes) => {
-    // Check if it's a self-closing tag or has content
-    if (attributes.endsWith('/')) {
-      // Self-closing tag: <th />
-      return `<th scope="col"${attributes}>`;
-    }
-    // Regular opening tag: <th>
-    return `<th scope="col"${attributes}>`;
-  });
-};
-
-// Example usage of the new function to fix the issue in the given files
-const fixDependencyGraph = () => {
+// Fix React SVG Accessible Name (REACT_041) by adding aria-hidden="true" to decorative SVGs
+const fixSvgAccessibleName = () => {
   const fs = require('fs');
   const path = require('path');
   
-  const dependencyGraphFile = path.join(__dirname, 'src', 'components', 'DependencyGraph.jsx');
+  const filesToFix = [
+    path.join('app', 'layout.tsx'),
+    path.join('dashboard', 'app', 'layout.tsx')
+  ];
   
-  try {
-    const content = fs.readFileSync(dependencyGraphFile, 'utf8');
-    const updatedContent = addScopeToTh(content);
-    fs.writeFileSync(dependencyGraphFile, updatedContent);
-    console.log('Successfully added scope attribute to <th> elements');
-  } catch (error) {
-    console.error('Error fixing dependency graph:', error);
-  }
+  filesToFix.forEach(filePath => {
+    try {
+      if (fs.existsSync(filePath)) {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // Find SVG elements that don't have aria-label, aria-labelledby, or title child
+        // and add aria-hidden="true" to them
+        const updatedContent = content.replace(
+          /<svg(?![^>]*\b(aria-label|aria-labelledby)\s*=)(?![^>]*\baria-hidden\s*=)([^>]*?)>/gi,
+          (match, attributes) => {
+            // Check if it already has aria-hidden
+            if (!attributes.includes('aria-hidden')) {
+              // Add aria-hidden="true" to the SVG tag
+              return `<svg aria-hidden="true"${attributes}>`;
+            }
+            return match;
+          }
+        );
+        
+        if (content !== updatedContent) {
+          fs.writeFileSync(filePath, updatedContent, 'utf8');
+          console.log(`Fixed SVG accessible name in: ${filePath}`);
+        } else {
+          console.log(`No changes needed in: ${filePath}`);
+        }
+      } else {
+        console.log(`File not found: ${filePath}`);
+      }
+    } catch (error) {
+      console.error(`Error fixing ${filePath}:`, error);
+    }
+  });
 };
 
-// Ensure to call fixDependencyGraph() if needed to apply the fix
-// fixDependencyGraph();
+// Ensure to call fixSvgAccessibleName() if needed to apply the fix
+// fixSvgAccessibleName();
 
 // Rest of the main.js code goes here
 // ...

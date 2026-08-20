@@ -34,7 +34,14 @@ const roleTransporter = {
 
             // ⚡ PERFORMANCE: O(1) check for delivery target validity instead of O(N) .some()
             if (!target || target.store.getFreeCapacity(RESOURCE_ENERGY) === 0) {
-                target = creep.pos.findClosestByRange(targets);
+                // ⚡ PERFORMANCE: filter before findClosestByRange to avoid repeated lookups when all are full
+                let validTargets = [];
+                for (let i = 0; i < targets.length; i++) {
+                    if (targets[i].store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+                        validTargets.push(targets[i]);
+                    }
+                }
+                target = creep.pos.findClosestByRange(validTargets);
                 if (target) {
                     creep.memory.deliveryTargetId = target.id;
                 } else {
@@ -61,8 +68,16 @@ const roleTransporter = {
             let target = Game.getObjectById(creep.memory.withdrawalTargetId);
 
             // ⚡ PERFORMANCE: O(1) check for withdrawal target validity instead of O(N) .some()
-            if (!target || target.store[RESOURCE_ENERGY] === 0) {
-                target = creep.pos.findClosestByRange(sources);
+            if (!target || ('energy' in target && target.energy === 0) || ('store' in target && target.store[RESOURCE_ENERGY] === 0)) {
+                // ⚡ PERFORMANCE: filter before findClosestByRange to avoid repeated lookups when all are empty
+                let validSources = [];
+                for (let i = 0; i < sources.length; i++) {
+                    let s = sources[i];
+                    if (('energy' in s && s.energy > 0) || ('store' in s && s.store[RESOURCE_ENERGY] > 0)) {
+                        validSources.push(s);
+                    }
+                }
+                target = creep.pos.findClosestByRange(validSources);
                 if (target) {
                     creep.memory.withdrawalTargetId = target.id;
                 } else {

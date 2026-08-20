@@ -23,6 +23,16 @@ const DependencyGraphTable = () => {
           <td>...</td>
         </tr>
         {/* More rows with scope="row" for data headers */}
+        {/* Add scope="col" to all header cells that are not rows */}
+        <tr>
+          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <td>...</td>
+        </tr>
+        <tr>
+          <th scope="col"><div>src/managers/towerManager.js</div></th>
+          <td>...</td>
+        </tr>
+        {/* ... other headers with scope="col" ... */}
       </tbody>
     </table>
   );

@@ -1,22 +1,45 @@
 const express = require('express');
 const lodash = require('lodash');
-const app = express();
-
-// Existing exports and functions should remain unchanged
-// Add new functions or updates for the requested dependencies
-
-// Update for React v19
 const React = require('react');
 const ReactDOM = require('react-dom');
-
-// Update for Jest v30
 const { jest } = require('@jest/globals');
-
-// Update for ESLint v10
 const eslint = require('eslint').ESLint;
-
-// Update for TypeScript v7
 const typescript = require('typescript');
+const app = express();
+
+const DependencyGraph = () => {
+  return (
+    <html lang="en">
+      <head>
+        {/* Existing head content */}
+      </head>
+      <body>
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col"><div>src/constants.js</div></th>
+                <th scope="col"><div>src/managers/roomManager.js</div></th>
+                <th scope="col"><div>src/managers/spawnManager.js</div></th>
+                <th scope="col"><div>src/managers/towerManager.js</div></th>
+                <th scope="col"><div>src/roles/builder.js</div></th>
+                {/* Add more headers with scope="col" as needed */}
+              </tr>
+            </thead>
+            <tbody>
+              {/* Table body content */}
+            </tbody>
+          </table>
+        </div>
+      </body>
+    </html>
+  );
+};
+
+// Update for React v19
+// Update for Jest v30
+// Update for ESLint v10
+// Update for TypeScript v7
 
 // New function to handle dependency updates
 function handleDependencyUpdates() {
@@ -73,7 +96,8 @@ module.exports = {
   typescript,
   handleDependencyUpdates,
   wrapInMainLandmark,
-  makeSvgAccessible
+  makeSvgAccessible,
+  DependencyGraph
 };
 
 // Ensure the language attribute is set when running in a browser

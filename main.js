@@ -79,9 +79,28 @@ async function addScopeToTableHeaders() {
     }
 }
 
+/**
+ * Adds `lang="en"` to the root `<html>` element if it is missing.
+ * Preserves any existing attributes and avoids duplicating a `lang` attribute.
+ * @param {string} content - HTML string to modify
+ * @returns {string} - Modified HTML with a language attribute
+ */
+function addLangAttributeToHtml(content) {
+  return content.replace(/<html\b([^>]*)>/gi, (match, attrs) => {
+    if (/\blang\s*=/i.test(attrs)) {
+      // Lang attribute already present – keep original
+      return match;
+    }
+    // Insert lang="en" before the closing '>'
+    return `<html${attrs} lang="en">`;
+  });
+}
+
+// Export utilities for testing
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
     updateReactToV19,
-    addScopeToTableHeaders
+    addScopeToTableHeaders,
+    addLangAttributeToHtml
 };

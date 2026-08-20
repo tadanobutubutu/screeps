@@ -1,6 +1,1 @@
-// Main game loop for Screeps
-var loop = function() {
-    // Your code here
-};
-
-module.exports = loop;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

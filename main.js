@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -28,11 +27,12 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <div role="alert" aria-live="assertive" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    tabIndex={0}
+                <div
+                    role="region"
                     aria-label="エラーメッセージ詳細"
+                    tabIndex={0}
                     style={{
                         color: '#c53030',
                         backgroundColor: '#fff5f5',
@@ -41,8 +41,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
                         overflow: 'auto',
                     }}
                 >
-                    {error}
-                </pre>
+                    <pre>{error}</pre>
+                </div>
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
@@ -111,4 +111,3 @@ export default Dashboard;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Dashboard />);
-```

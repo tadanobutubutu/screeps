@@ -1,1 +1,1 @@
-Please provide the content after the `=======` marker (the changes from the `origin/main` branch) so I can resolve the conflict.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -4,8 +4,6 @@
 // The problematic component, Dashboard.tsx, with two occurrences of the issue
 // ... (preserved code)
 
-// >>>>>>> Inspect Code: Rule REACT_025
-
 // Assuming the component looks something like this:
 // <Dashboard />
 // Replace the second occurrence of <main> with <section> for example:
@@ -16,7 +14,8 @@
 
 // ... (rest of the component code)
 
-// <<<<<<< Inspect Code: Rule REACT_025
-
 // ... (rest of the main.js content after the conflict markers)
 // ... (preserved code)
+
+// Main script
+// REACT_015 fix: Ensure <html lang="en> in docs/dependency-graph.html

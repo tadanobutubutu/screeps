@@ -49,3 +49,13 @@ function renderDependencyDashboard() {
 
 // Call the function to render the dashboard
 renderDependencyDashboard();
+
+// New function to address the React Language Attribute issue
+function addLanguageAttribute(element, lang) {
+  if (element && lang) {
+    element.setAttribute('lang', lang);
+  }
+}
+
+// Example usage:
+// addLanguageAttribute(document.getElementById('dependency-dashboard'), 'en');

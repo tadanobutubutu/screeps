@@ -133,3 +133,10 @@ export const AccessibleLink = ({ href, children, ariaLabel }) => (
     {children}
   </a>
 );
+
+// Root HTML element with language attribute
+export const RootHtml = ({ children }) => (
+  <html lang="en">
+    {children}
+  </html>
+);

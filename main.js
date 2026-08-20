@@ -128,6 +128,17 @@ function renderAccessibleLink(href, label, target = '_self') {
 }
 
 /**
+ * Renders a "rotate back" button for in-page actions.
+ * This replaces the fake link pattern (<a href="#">) for better accessibility.
+ * @param {string} [id='unrotate'] - Optional ID for the button.
+ * @param {string} [label='rotate back'] - Button label text.
+ * @returns {string} Accessible <button> markup for rotation actions.
+ */
+function renderRotateBackButton(id = 'unrotate', label = 'rotate back') {
+  return `<button type="button" id="${id}">${label}</button>`;
+}
+
+/**
  * Renders an accessible icon (SVG) with proper accessible name
  * @param {string} iconId - Unique identifier for the icon
  * @param {string} iconType - Type of icon (icon, apple, etc.)
@@ -308,6 +319,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderAccessibleFooter,
     renderAccessibleButton,
     renderAccessibleLink,
+    renderRotateBackButton,
     renderAccessibleHTML,
     renderAccessibleModal,
     compileExports,

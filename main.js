@@ -44,7 +44,7 @@ function handleTypeScript7Update() {
   // Add any necessary migration code here
 }
 
-// New function to fix React SVG Accessible Name issues
+// New function to fix React 19 updates
 function fixReactSVGAccessibility() {
   // Define the layout files that contain the favicon SVG
   const layoutPaths = [
@@ -79,8 +79,18 @@ module.exports.handleJest30Update = handleJest30Update;
 module.exports.handleEslint10Update = handleEslint10Update;
 module.exports.handleTypeScript7Update = handleTypeScript7Update;
 module.exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
+module.exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+module.exports.addLangAttribute = addLangAttribute;
+module.exports.fixTableStructureIssues = fixTableStructureIssues;
+module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
 
-// ... rest of the existing code remains unchanged
+// Fixed function - corrected recursive call
+function addScopeAttributesToHeadersOnMount() {
+  addScopeAttributesToHeaders();
+}
+
+// ... rest of the existing code remains unchanged ...
 
 // New function to fix React Landmark issues (build-time version)
 function fixReactLandmarkIssuesBuild() {
@@ -183,7 +193,7 @@ function addLangAttributeBuild() {
   });
 }
 
-// New function to fix table structure issues (build-time version)
+// New function to fix Table 7 issues (build-time version)
 function fixTableStructureIssuesBuild() {
   console.log('Fixing table structure issues');
   
@@ -287,182 +297,6 @@ function fixFakeLinkIssuesBuild() {
 
 // Export the build-time helper functions
 module.exports.fixReactLandmarkIssues = fixReactLandmarkIssuesBuild;
-module.exports.addLangAttribute = addLangAttributeBuild;
+module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssuesBuild;
-module.exports.ensureUniqueLandmarks = ensureUniqueLandmarksBuild;
-module.exports.fixFakeLinkIssues = fixFakeLinkIssuesBuild;
-
-// Client-side helper functions and React component
-const React = require('react');
-const ReactDOM = require('react-dom');
-
-// Add the lang attribute to HTML element for accessibility
-const langAttribute = () => {
-  document.documentElement.lang = 'en';
-};
-
-// Fix 26 table structure issues (example code, actual implementation needed)
-const fixTableStructure = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const tables = ...
-  // tables.forEach((table) => {
-  //   // Apply necessary fixes to each table element.
-  // });
-};
-
-// Add/fix 4 landmark issues (example code, actual implementation needed)
-const addFixLandmarkIssues = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const landmarks = ... ...
-  // landmarks.forEach((landmark) => {
-  //   // Apply necessary fixes to each landmark element.
-  // });
-};
-
-// Add accessible names to 2 SVGs (fix for REACT_041)
-const addAccessibleNamesToSVGs = () => {
-  // Find all SVG elements in the document
-  const svgs = document.querySelectorAll('svg');
-  
-  svgs.forEach((svg) => {
-    // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '';
-    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby') && svg.getAttribute('aria-labelledby').trim() !== '';
-    
-    // Check if SVG has a title child element
-    const titleElement = svg.querySelector('title');
-    const hasTitleChild = titleElement !== null;
-    
-    // Check if SVG is marked as hidden from screen readers
-    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
-    
-    // If SVG has no accessible name and is not hidden from screen readers
-    if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
-      if (hasTitleChild) {
-        // Use the existing title text as aria-label for screen readers
-        const titleText = titleElement.textContent;
-        svg.setAttribute('aria-label', titleText);
-      } else {
-        // Check if SVG contains text elements (indicating it may be decorative)
-        const textElement = svg.querySelector('text');
-        if (textElement) {
-          // Add aria-hidden="true" since it contains text but no proper accessible name
-          svg.setAttribute('aria-hidden', 'true');
-        }
-      }
-    }
-  });
-};
-
-// Ensure unique landmarks (2 issues)
-// Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
-const ensureUniqueLandmarks = () => {
-  // Find all main elements in the document
-  const mainElements = document.querySelectorAll('main');
-  
-  // If there's more than one main element, fix the duplicate(s)
-  if (mainElements.length > 1) {
-    // Keep the first main element as-is, convert others to section elements
-    // This fixes the accessibility violation where multiple main landmarks exist
-    for (let i = 1; i < mainElements.length; i++) {
-      const duplicateMain = mainElements[i];
-      
-      // Create a replacement section element with the same attributes
-      const sectionReplacement = document.createElement('section');
-      
-      // Copy all attributes from the main element to the section element
-      Array.from(duplicateMain.attributes).forEach((attr) => {
-        sectionReplacement.setAttribute(attr.name, attr.value);
-      });
-      
-      // Move all child nodes from main to section
-      while (duplicateMain.firstChild) {
-        sectionReplacement.appendChild(duplicateMain.firstChild);
-      }
-      
-      // Replace the duplicate main with the section element
-      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
-    }
-    
-    console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);
-  }
-};
-
-// Fix 1 fake link issue (example code, actual implementation needed)
-const fixFakeLinkIssue = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const fakeLinks = ...
-  // fakeLinks.forEach((link) => {
-  //   // Remove role attribute or replace with a proper element, like a button.
-  // });
-};
-
-// Handle rotation back logic
-const handleRotateBack = () => {
-  // Implement rotation back logic
-  // Example: reset any forward rotation applied to the character model
-  const character = document.querySelector('#character');
-  if (character) {
-    // Reset rotation (assuming Y-axis rotation was used for forward orientation)
-    character.style.transform = 'rotateY(0deg)';
-    console.log('Character rotated back to initial orientation');
-  } else {
-    console.warn('Character model element not found; cannot rotate back');
-  }
-};
-
-// Add scope attributes to table headers in dependency-graph.html
-// This is a temporary fix until the HTML can be properly generated with scope attributes
-function addScopeAttributesToHeaders() {
-  // Select all th elements in the document
-  const headers = document.querySelectorAll('th');
-
-  headers.forEach(header => {
-    // Check if the header already has a scope attribute
-    if (!header.hasAttribute('scope')) {
-      // Determine if it's a column or row header based on context
-      if (header.closest('thead')) {
-        header.setAttribute('scope', 'col');
-      } else if (header.closest('tr')) {
-        header.setAttribute('scope', 'row');
-      }
-    }
-  });
-}
-
-// Add scope attributes to table headers (called on mount)
-function addScopeAttributesToHeadersOnMount() {
-  addScopeAttributesToHeaders();
-}
-
-// React component
-function App() {
-  React.useEffect(() => {
-    langAttribute();
-    fixTableStructure();
-    addFixLandmarkIsses();
-    addAccessibleNamesToSVGs();
-    ensureUniqueLandmarks();
-    fixFakeLinkIssue();
-    addScopeAttributesToHeadersOnMount();
-  }, []);
-
-  return (
-    <div>
-      {/* ... existing JSX ... */}
-
-      <button id="unrotate" onClick={handleRotateBack}>
-        rotate back
-      </button>
-
-      {/* ... rest of the JSX ... */}
-    }
-  );
-}
-
-// Export App if needed
-module.exports.App = App;
-module.exports.default = App;
+module.exports.ensureUniqueLandmarks

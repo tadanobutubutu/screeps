@@ -66,6 +66,20 @@ export const AccessibleLandmark = ({ type, children }) => {
 };
 
 /**
+ * Creates a main landmark component for primary content
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Content
+ * @returns {JSX.Element} - Main landmark component
+ */
+export const MainLandmark = ({ children }) => {
+  return (
+    <main role="main" aria-label="Main content">
+      {children}
+    </main>
+  );
+};
+
+/**
  * Creates an accessible SVG with proper title and description
  * @param {Object} props - Component props
  * @param {string} props.title - SVG title

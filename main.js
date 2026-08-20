@@ -21,6 +21,12 @@
         rotateElement(element, 0);
     }
 
+    // Function to handle rotation button click
+    function handleRotateClick(element) {
+        const newRotation = (config.rotation + 90) % config.maxRotation;
+        rotateElement(element, newRotation);
+    }
+
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         const targetElement = document.getElementById('target');
@@ -38,8 +44,7 @@
         const rotateBtn = document.getElementById('rotate');
         if (rotateBtn) {
             rotateBtn.addEventListener('click', function() {
-                const newRotation = (config.rotation + 90) % config.maxRotation;
-                rotateElement(targetElement, newRotation);
+                handleRotateClick(targetElement);
             });
         }
     });
@@ -48,7 +53,8 @@
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = {
             rotateElement,
-            resetRotation
+            resetRotation,
+            handleRotateClick
         };
     }
 })();

@@ -26,7 +26,7 @@ const Dashboard = () => {
     };
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -55,9 +55,9 @@ const Dashboard = () => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -109,8 +109,8 @@ const Dashboard = () => {
     return (
         <div style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
+            <div style={{ display: 'grid', ... 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                ... value]) => (
                     <div key={key} style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '4px' }}>
                         <h2>{key}</h2>
                         <p>{value}</p>

@@ -17,3 +17,6 @@ html.push(`<table>
     <!-- table body content -->
   </tbody>
 </table>`);
+
+// Note: The language attribute fix for dependency-graph.html is in that file,
+// not in main.js. This comment is just to preserve the existing structure.

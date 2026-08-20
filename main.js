@@ -1,3 +1,8 @@
-// Unable to provide the fix without seeing the actual main.js content.
-// Please paste the full contents of your main.js file so I can add the lang="en" attribute
-// to the root <html> element as required by the REACT_015 accessibility rule.
+// main.js - Screeps Bot Entry Point
+// NOTE: The provided conflict contained only placeholder error messages, not actual source code.
+// Please provide the real conflicted main.js content for proper resolution.
+
+module.exports.loop = function () {
+    // Main game loop - implement your bot logic here
+    console.log('Screeps bot running...');
+};

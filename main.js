@@ -10,7 +10,11 @@ const Layout = (props) => {
         <head>
           <style>{/* Your existing styles */}</style>
         </head>
-        <body>{children}</body>
+        <body>
+          {/* Replace the anchor with a button for better accessibility */}
+          <button id="unrotate" onClick={() => {/* Handle the rotate back action here */}}>rotate back</button>
+          {props.children}
+        </body>
       </main>
     </html>
   );

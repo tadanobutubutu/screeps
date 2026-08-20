@@ -9,7 +9,7 @@ export default function Document() {
           <nav role="navigation" aria-label="Main navigation">
             <ul>
               <li><a href="/">Home</a></li>
-              <li><a href="/about">About</a></li>
+              <li><a ...
             </ul>
           </nav>
         </header>

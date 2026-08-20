@@ -48,26 +48,21 @@ function validateReactLandmarks() {
   console.log('Note: Ensure React components have a single <main> landmark. Use <section> or <article> for other regions.');
 }
 
-// New function to ensure HTML language attribute is set
-function ensureHtmlLanguageAttribute() {
-  console.log('Note: The HTML document should have a lang attribute (e.g., lang="en") for proper screen reader support.');
-}
-
-// Add scope attributes to table headers in dependency-graph.html
+// Unified function to add scope attributes to table headers
 function addScopeAttributesToHeaders() {
-  if (typeof document === 'undefined') return;
+  if (typeof document !== 'undefined') {
+    const headers = document.querySelectorAll('th');
 
-  const headers = document.querySelectorAll('th');
-
-  headers.forEach(header => {
-    if (!header.hasAttribute('scope')) {
-      if (header.closest('thead')) {
-        header.setAttribute('scope', 'col');
-      } else if (header.closest('tr')) {
-        header.setAttribute('scope', 'row');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        if (header.closest('thead')) {
+          header.setAttribute('scope', 'col');
+        } else if (header.closest('tr')) {
+          header.setAttribute('scope', 'row');
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 // Added React component
@@ -76,7 +71,7 @@ import ReactDOM from 'react-dom';
 
 function App() {
   React.useEffect(() => {
-    addScopeAttributesToHeadersOnMount();
+    addScopeAttributesToHeaders();
   }, []);
 
   return (
@@ -134,6 +129,5 @@ module.exports = {
   validateReactLandmarks,
   ensureHtmlLanguageAttribute,
   addScopeAttributesToHeaders,
-  handleRotateBack,
   App
 };

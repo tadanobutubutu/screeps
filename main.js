@@ -25,7 +25,7 @@ export default function RootLayout({
         >
           {/* SVG content */}
         </svg>
-        <main>{children}</main>
+        <main role="main" aria-label="Main content">{children}</main>
       </body>
     </html>
   );

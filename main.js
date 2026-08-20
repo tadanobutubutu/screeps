@@ -13,7 +13,7 @@ export default function Layout({ children }) {
   // Original code...
 
   // Added for accessibility
-  if (process.env.NODE_ENV === 'production') {
+  if ... === 'production') {
     return (
       <>
         {/* Rest of the code */}

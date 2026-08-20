@@ -7,7 +7,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -46,9 +46,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -96,19 +96,18 @@ const Dashboard: React.FC<DashboardProps> = () => {
         );
     }
 
-    // Success state content (wrapped in a single main element)
+    // Success state content (wrapped in a section element to avoid duplicate main landmark)
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1>Dashboard</h1>
             {/* Your existing success state content */}
             <h2>Dashboard App</h2>
             {/* Rest of your dashboard content */}
-        </main>
+        </section>
     );
 };
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(<Dashboard />);
-```

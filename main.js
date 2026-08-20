@@ -1,5 +1,6 @@
 // Main.js - React Landmarks Fix Utility
 // Fixes REACT_017: React Landmarks - Page has no <main> landmark
+// Adds a <button> for the 'rotate back' link to fix REACT_036
 
 const fs = require('fs');
 const path = require('path');
@@ -62,13 +63,34 @@ function addMainLandmark(filePath, type = 'tsx') {
 }
 
 /**
- * Fixes all files mentioned in the REACT_017 issue
+ * Replaces the 'rotate back' link with a button for better accessibility
+ * @param {string} filePath - Path to the file to modify
  */
-function fixReactLandmarks() {
+function replaceLinkWithButton(filePath) {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        // Replace the <a> element with a <button>
+        content = content.replace(
+            /<a id="unrotate" href="#">rotate back<\/a>/i,
+            '<button id="unrotate">rotate back</button>'
+        );
+        
+        fs.writeFileSync(filePath, content, 'utf8');
+        console.log(`Replaced 'rotate back' link with button in ${filePath}`);
+    } catch (error) {
+        console.error(`Error modifying file ${filePath}:`, error.message);
+    }
+}
+
+/**
+ * Fixes all files mentioned in the REACT_017 issue and replaces the 'rotate back' link
+ */
+function fixReactLandmarksAndLink() {
     const filesToFix = [
         { path: 'app/layout.tsx', type: 'tsx' },
         { path: 'dashboard/app/layout.tsx', type: 'tsx' },
-        { path: 'docs/index.html', type: 'html' }
+        { path: 'docs/dependency-graph.html', type: 'html' } // Added the HTML file
     ];
     
     filesToFix.forEach(({ path: filePath, type }) => {
@@ -77,6 +99,11 @@ function fixReactLandmarks() {
             addMainLandmark(fullPath, type);
         } else {
             console.log(`${filePath} already has <main> landmark`);
+        }
+        
+        // Check if the file needs the 'rotate back' link to be replaced
+        if (filePath.includes('dependency-graph.html')) {
+            replaceLinkWithButton(fullPath);
         }
     });
 }
@@ -107,6 +134,6 @@ function checkLandmarks(filePaths) {
 module.exports = {
     hasMainLandmark,
     addMainLandmark,
-    fixReactLandmarks,
+    fixReactLandmarksAndLink, // Exported the new function
     checkLandmarks
 };

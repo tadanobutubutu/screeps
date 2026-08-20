@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js - Screeps game loop entry point
+
+// Preserve any existing exports
+module.exports = {
+  loop: function() {
+    // Game loop logic
+  }
+};

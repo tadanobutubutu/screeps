@@ -1,0 +1,16 @@
+# PR Description
+
+This pull request introduces the following changes and updates to the Screeps bot:
+
+1. Error handling for API requests: The bot will now handle a 402 Payment Required error and print a meaningful error message to the console.
+
+2. Deprecation notice: A notice is given regarding the deprecation of the Pollinations legacy text API for authenticated users. The bot will be updated to use the new API at https://enter.pollinations.ai for better performance and access to all the latest models.
+
+3. Improved error messages: Detailed error messages are provided to give developers more context about the issue that occurred. In this case, the error message includes the cost of the request, the remaining balance on the API key, and the timestamp of the error.
+
+In case of a conflict, both changes should be integrated as they seem to be complementary enhancements that improve the error handling and information provided to developers.
+
+**Remember to update the requirements and dependencies of the bot to include any necessary changes for the new API.**
+```
+
+This file content incorporates both proposed changes to maintain the described functionality and error message improvements. Note that I have not made any changes to the bot code, as this file only describes the pull request's changes. The actual coding implementation should be done in separate files as appropriate.

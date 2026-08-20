@@ -10,7 +10,7 @@ class MainBot extends Client {
     constructor() {
         super();
         this.name = 'ScreepsBot';
-        this.id = Math.random().toString(36).substring(2, 15);
+        this.id = 15;
 
         // Task management
         this.taskQueue = [];
@@ -20,7 +20,7 @@ class MainBot extends Client {
         this.config = {
             maxConcurrentTasks: 20,
             heartbeatIntervalMs: 1000,
-            ...process.env.NODE_ENV || {}
+            ...process.env
         };
     }
 
@@ -28,7 +28,7 @@ class MainBot extends Client {
      * Start the bot and begin its main loop.
      */
     async start() {
-        console.log(`[${this.name}] Starting up...`);
+        console.log('[MainBot] Starting up...');
         await this.connect();
         this.isRunning = true;
         this.startLoop();
@@ -37,7 +37,7 @@ class MainBot extends Client {
     /**
      * Continuously process tasks from the queue.
      */
-    startLoop() {
+    async startLoop() {
         while (this.isRunning) {
             try {
                 const task = this.getNextTask();
@@ -46,11 +46,6 @@ class MainBot extends Client {
                 }
             } catch (error) {
                 console.error('[MainBot] Error processing task:', error);
-            }
-
-            // Send periodic heartbeats
-            if (Date.now() % this.config.heartbeatIntervalMs === 0) {
-                this.sendHeartbeat();
             }
         }
     }
@@ -69,9 +64,9 @@ class MainBot extends Client {
     async executeTask(task) {
         try {
             await task.action();
-            console.log(`[${this.name}] Task "${task.name}" completed successfully.`);
+            console.log(`[MainBot] Task "${task.name}" completed successfully.`);
         } catch (err) {
-            console.error(`[${this.name}] Task "${task.name}" failed:`, err);
+            console.error(`[MainBot] Task "${task.name}" failed:`, err);
         }
     }
 

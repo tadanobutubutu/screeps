@@ -14,16 +14,16 @@ export function AccessibleTable({ data, caption }) {
       <caption>{caption}</caption>
       <thead>
         <tr>
-          {Object.keys(data[0]).map((key) => (
-            <th key={key} scope="col">{key}</th>
+          ... => (
+            <th key={key} ...
           ))}
         </tr>
       </thead>
       <tbody>
         {data.map((row, index) => (
           <tr key={index}>
-            {Object.values(row).map((value, i) => (
-              <td key={i}>{value}</td>
+            ... i) => (
+              <td ...
             ))}
           </tr>
         ))}
@@ -89,5 +89,18 @@ export function Layout({ children }) {
         {/* Footer content */}
       </footer>
     </div>
+  );
+}
+
+// REACT_036 fix: Replace fake links with buttons for in-page actions
+export function RotateBackButton({ onClick, children = 'rotate back', ...props }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </button>
   );
 }

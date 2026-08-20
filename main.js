@@ -116,9 +116,33 @@ function improveFakeLinks() {
   });
 }
 
+// Add specific improvement for the rotate back link
+function improveRotateBackLink() {
+  const rotateBackLink = document.getElementById('unrotate');
+  if (rotateBackLink) {
+    // Replace href="#" with a proper button element
+    const button = document.createElement('button');
+    button.id = rotateBackLink.id;
+    button.textContent = rotateBackLink.textContent;
+    button.className = rotateBackLink.className;
+
+    // Copy any event listeners
+    const listeners = getEventListeners(rotateBackLink);
+    if (listeners && listeners.click) {
+      listeners.click.forEach(listener => {
+        button.addEventListener('click', listener.listener);
+      });
+    }
+
+    // Replace the link with the button
+    rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+  }
+}
+
 // Initialize all accessibility improvements
 document.addEventListener('DOMContentLoaded', () => {
   addLandmarkRoles();
   improveTableStructure();
   improveFakeLinks();
+  improveRotateBackLink(); // Add the new function call
 });

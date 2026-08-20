@@ -85,6 +85,21 @@ function createAccessibleSVG(title, description, children) {
   );
 }
 
+// Add accessible SVG for favicon (specific fix for the issue)
+function createFaviconSVG() {
+  return React.createElement(
+    'svg',
+    {
+      xmlns: 'http://www.w3.org/2000/svg',
+      viewBox: '0 0 100 100',
+      'aria-hidden': 'true',
+      focusable: 'false'
+    },
+    React.createElement('title', null, 'Bug favicon'),
+    React.createElement('text', { y: '.9em', fontSize: '90' }, '🐛')
+  );
+}
+
 // Add accessible link
 function createAccessibleLink(href, text) {
   return React.createElement(
@@ -143,6 +158,7 @@ module.exports = {
   createAccessibleTable,
   createLandmarkStructure,
   createAccessibleSVG,
+  createFaviconSVG, // New export for favicon SVG
   createAccessibleLink,
   createAccessibleForm,
   createAccessibleButton,

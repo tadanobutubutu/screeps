@@ -1,14 +1,21 @@
-// Main JavaScript file with accessibility fix applied
-// Fix: Changed <a href="#"> to <button> for the "rotate back" link
+// main.js - Application entry point
+// This file serves as the main entry point for the application and includes accessibility fixes for UI rotation controls.
 
+const React = require('react');
+const ReactDOM = require('react-dom/client');
+
+/**
+ * UI Logic for Image Rotation
+ * Fixed: Changed <a href="#"> to <button> for the "rotate back" link for accessibility.
+ */
 (function() {
     'use strict';
 
     // Store rotation state
     let currentRotation = 0;
     
-    // Initialize the application
-    function init() {
+    // Initialize the rotation UI components
+    function initRotationUI() {
         const unrotateLink = document.getElementById('unrotate');
         if (unrotateLink) {
             // Create a button element to replace the fake link
@@ -32,11 +39,10 @@
             });
         }
         
-        // Other initialization...
-        setupEventListeners();
+        setupRotationEventListeners();
     }
     
-    function setupEventListeners() {
+    function setupRotationEventListeners() {
         // Setup rotation controls if they exist
         const rotateLeft = document.getElementById('rotate-left');
         const rotateRight = document.getElementById('rotate-right');
@@ -80,20 +86,63 @@
             unrotateBtn.style.display = 'none';
         }
     }
-    
+
+    // Initialize when DOM is ready if in a browser environment
+    if (typeof window !== 'undefined') {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initRotationUI);
+        } else {
+            initRotationUI();
+        }
+    }
+
     // Export functions for testing
     if (typeof module !== 'undefined' && module.exports) {
-        module.exports = {
-            init: init,
-            rotate: rotate,
-            resetRotation: resetRotation
-        };
-    }
-    
-    // Initialize when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
+        module.exports.rotate = rotate;
+        module.exports.resetRotation = resetRotation;
     }
 })();
+
+// Dynamic import for Next.js App Router
+async function bootstrap() {
+  try {
+    // Import the app directory dynamically to support App Router
+    const { createServer } = require('http');
+    const next = require('next');
+    
+    const dev = process.env.NODE_ENV !== 'production';
+    const hostname = 'localhost';
+    const port = parseInt(process.env.PORT || '3000', 10);
+    
+    const app = next({ dev, hostname, port });
+    const handle = app.getRequestHandler();
+    
+    await app.prepare();
+    
+    createServer(async (req, res) => {
+      try {
+        await handle(req, res);
+      } catch (err) {
+        console.error('Error occurred handling', req.url, err);
+        res.statusCode = 500;
+        res.end('internal server error');
+      }
+    }).listen(port, () => {
+      console.log(`> Ready on http://${hostname}:${port}`);
+    });
+  } catch (err) {
+    console.error('Failed to start application:', err);
+    process.exit(1);
+  }
+}
+
+// Export for testing and module usage
+module.exports = {
+  bootstrap,
+  // Preserve any existing exports
+};
+
+// Auto-bootstrap if running directly
+if (require.main === module) {
+  bootstrap();
+}

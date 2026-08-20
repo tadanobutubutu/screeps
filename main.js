@@ -177,5 +177,5 @@ export const accessibilityComponents = {
 
 export default accessibilityComponents;
 
-// Commit: 2912491648b70466867d6508f71a4445ec6f0b49
-// todo-hash: 0c7e6e7ad167f5c5bee4369e1e614affc7525407
+// Re‑export named components for test imports
+export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };

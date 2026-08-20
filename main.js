@@ -1,4 +1,3 @@
-// main.js
 const express = require('express');
 const lodash = require('lodash');
 const app = express();

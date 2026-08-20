@@ -1,4 +1,3 @@
-// app/layout.tsx
 import React from 'react';
 
 export default function RootLayout({
@@ -17,7 +16,9 @@ export default function RootLayout({
           <title>Screeps Logo</title>
         </svg>
       </head>
-      <body>{children}</body>
+      <body>
+        <main>{children}</main>
+      </body>
     </html>
   );
 }

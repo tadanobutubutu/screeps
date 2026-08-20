@@ -55,8 +55,27 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRotation('rotatable', 'unrotate');
 });
 
+/**
+ * Adds an accessible name to an SVG element
+ * @param {SVGElement} svgElement - The SVG element to add the accessible name to
+ * @param {string} label - The accessible name for the SVG
+ */
+function addAccessibleName(svgElement, label) {
+    svgElement.setAttribute('aria-label', label);
+}
+
+// Assuming the SVGs in question are in the DOM and accessible by their IDs
+// Example usage of addAccessibleName function
+document.addEventListener('DOMContentLoaded', function() {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach((svg) => {
+        addAccessibleName(svg, 'Description of the SVG image');
+    });
+});
+
 module.exports = {
     rotateElement,
     resetRotation,
-    initializeRotation
+    initializeRotation,
+    addAccessibleName
 };

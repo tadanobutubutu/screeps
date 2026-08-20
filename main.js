@@ -1,20 +1,28 @@
 // Original main.js content (with conflict markers removed for clarity)
 // ... [existing code] ...
 
-// New changes to fix the REACT_027 issue
-// Add the scope attribute to the <th> elements in the affected files
+// New changes to fix the REACT_025 issue
+// Change one of the <main> elements to <section> to avoid multiple main landmarks
 
 // Example of how to fix the issue in a single file
-// Replace the following line:
-// <th><div>src/constants.js</div></th>
+// Replace the following line (in the error state return path):
+// <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
 // With:
-// <th scope="col"><div>src/constants.js</div></th>
+// <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+
+// And close it with:
+// </section>
+// Instead of:
+// </main>
 
 // Repeat the above change for all occurrences in the affected files, such as:
-// <th><div>src/managers/roomManager.js</div></th>
-// <th><div>src/managers/spawnManager.js</div></th>
+// file1.js
 // ...
-// <th><div>src/roles/builder.js</div></th>
+// file2.js
+// ...
+// file3.js
+// ...
+// file4.js
 // ...
 
 // Also, ensure the addition of lang attribute to the <html> element as requested

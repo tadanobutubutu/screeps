@@ -7,6 +7,13 @@
 // Example of what the root element should look like in your HTML/JSX:
 // <html lang="en">
 
+// Add this function to handle the rotate back action
+function handleRotateBack() {
+  // Implement your rotation logic here
+  console.log('Rotating back');
+}
+
 module.exports = {
   // Your existing exports here
+  handleRotateBack
 };

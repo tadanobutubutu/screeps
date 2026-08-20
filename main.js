@@ -12,32 +12,48 @@ export { App };
 // Add accessibility attributes to SVG elements
 const FaviconSVG = () => (
   <svg
+    role="img"
     aria-hidden="true"
     width="0"
     height="0"
     style={{ position: 'absolute' }}
   >
+    <title>Favicon</title>
     {/* SVG content */}
   </svg>
 );
 
 const MetadataSVG = () => (
   <svg
+    role="img"
     aria-hidden="true"
     width="0"
     height="0"
     style={{ position: 'absolute' }}
   >
+    <title>Metadata</title>
     {/* SVG content */}
   </svg>
 );
 
-// Update layout components to use accessible SVGs
+// Update layout components to use accessible SVGs and proper landmarks
 const Layout = ({ children }) => (
   <div>
     <FaviconSVG />
     <MetadataSVG />
-    {children}
+    <header>
+      <nav aria-label="Main navigation">
+        {/* Navigation links - use button for non-navigating actions */}
+      </nav>
+    </header>
+    <main>
+      {children}
+    </main>
+    <footer>
+      <nav aria-label="Footer navigation">
+        {/* Footer navigation */}
+      </nav>
+    </footer>
   </div>
 );
 
@@ -53,3 +69,42 @@ const HtmlWithLang = ({ children }) => (
 
 // Preserve any existing exports
 export { HtmlWithLang };
+
+// Accessible table component with proper structure
+const AccessibleTable = ({ headers, rows }) => (
+  <table>
+    <thead>
+      <tr>
+        {headers.map((header, index) => (
+          <th key={index} scope="col">{header}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row, rowIndex) => (
+        <tr key={rowIndex}>
+          {row.map((cell, cellIndex) => (
+            <td key={cellIndex}>{cell}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+// Export for use where needed
+export { AccessibleTable };
+
+// Accessible link button component for fake links
+const LinkButton = ({ onClick, children, ...props }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    {...props}
+  >
+    {children}
+  </button>
+);
+
+// Export for use where needed
+export { LinkButton };

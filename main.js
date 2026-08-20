@@ -44,9 +44,22 @@ function escapeHtml(str) {
   return str.replace(/[&<>"']/g, char => htmlEscapeMap[char]);
 }
 
-// Export utilities for testing
+/* ------------------------------------------------------------------ */
+/* UI interaction for rotating back button -------------------------------- */
+
+// Replace the original anchor with a button for in-page actions
+// The button calls handleUnrotate on click
+
+function handleUnrotate() {
+  // Logic to handle the rotation back action
+  console.log('Rotating back...');
+  // Implement actual rotation logic here
+}
+
+// Export utilities and handleUnrotate for testing and usage
 module.exports = {
   hasMainLandmark,
   addMainLandmark,
-  escapeHtml
+  escapeHtml,
+  handleUnrotate
 };

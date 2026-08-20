@@ -3,7 +3,7 @@ import React from 'react';
 const Main = () => {
   // existing Main component code...
   return (
-    <main>
+    <main lang="en"> {/* Added lang attribute for REACT_015 */}
       {/* Wrap existing content in main landmark */}
       {/* ... */}
     </main>
@@ -13,7 +13,7 @@ const Main = () => {
 const NecessaryExport = () => {
   // Add the necessary export component code here...
   return (
-    <main>
+    <main lang="en"> {/* Added lang attribute for REACT_015 */}
       <div>New Required Export</div>
     </main>
   );

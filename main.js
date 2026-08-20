@@ -11,7 +11,7 @@ export function AccessibleTable({ headers, rows, caption }) {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -46,11 +46,28 @@ export function AccessibleIcon({ children, label, className }) {
 }
 
 /**
+ * Decorative SVG icon component (for favicons, etc.)
+ * Fixes: REACT_041 (SVG Accessible Name)
+ * Use this for purely decorative icons that should be hidden from screen readers
+ */
+export function DecorativeIcon({ children, className }) {
+  return (
+    <svg
+      className={className}
+      aria-hidden="true"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}
+
+/**
  * Proper landmark wrapper
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
  */
 export function MainContent({ children }) {
-  return <main id="main-content">{children}</main>;
+  return <main ...
 }
 
 /**
@@ -88,10 +105,10 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href} onClick={onClick}>{children}</a>;
+    return <a href={href} ...
   }
   // If no href or fake href, use <button> instead
-  return <button type="button" onClick={onClick}>{children}</button>;
+  return <button type="button" ...
 }
 
 /**
@@ -148,7 +165,7 @@ export function AccessiblePageWrapper({ children }) {
         <Navigation>
           <ul>
             <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
+            <li><a ...
           </ul>
         </Navigation>
       </Header>
@@ -166,6 +183,7 @@ export function AccessiblePageWrapper({ children }) {
 export const accessibilityComponents = {
   AccessibleTable,
   AccessibleIcon,
+  DecorativeIcon,
   MainContent,
   Navigation,
   Header,
@@ -178,44 +196,44 @@ export const accessibilityComponents = {
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
 
 // Utility functions for accessibility support
 export function announceToScreenReader(message, priority = 'polite') {
-  const announcer = document.createElement('div');
-  announcer.setAttribute('aria-live', priority);
-  announcer.setAttribute('aria-atomic', 'true');
-  announcer.setAttribute('class', 'sr-only');
+  const announcer = ...
+  ... priority);
+  ... 'true');
+  ... 'sr-only');
   announcer.style.position = 'absolute';
   announcer.style.left = '-9999px';
   announcer.style.width = '1px';
   announcer.style.height = '1px';
   announcer.style.overflow = 'hidden';
-  document.body.appendChild(announcer);
+  ...
   
   setTimeout(() => {
     announcer.textContent = message;
     setTimeout(() => {
-      document.body.removeChild(announcer);
+      ...
     }, 1000);
   }, 100);
 }
 
-export function getFocusableElements(container) {
+export function ... {
   const focusableSelectors = [
     'a[href]',
-    'button:not([disabled])',
-    'input:not([disabled])',
-    'select:not([disabled])',
-    'textarea:not([disabled])',
-    '[tabindex]:not([tabindex="-1"])'
+    ...
+    ...
+    ...
+    ...
+    ...
   ];
-  return Array.from(container.querySelectorAll(focusableSelectors.join(',')));
+  return ...
 }
 
 export function trapFocus(container) {
-  const focusableElements = getFocusableElements(container);
-  const firstElement = focusableElements[0];
+  const focusableElements = ...
+  const firstElement = ...
   const lastElement = focusableElements[focusableElements.length - 1];
 
   const handleKeyDown = (e) => {
@@ -224,24 +242,24 @@ export function trapFocus(container) {
     if (e.shiftKey) {
       if (document.activeElement === firstElement) {
         e.preventDefault();
-        lastElement.focus();
+        ...
       }
     } else {
       if (document.activeElement === lastElement) {
         e.preventDefault();
-        firstElement.focus();
+        ...
       }
     }
   };
 
-  container.addEventListener('keydown', handleKeyDown);
-  firstElement?.focus();
+  ... handleKeyDown);
+  ...
 
   return () => {
-    container.removeEventListener('keydown', handleKeyDown);
+    ... handleKeyDown);
   };
 }
 
 export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+  return href && href !== '#' && href !== '' && ...
 }

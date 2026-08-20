@@ -45,6 +45,7 @@ function renderDependencyDashboard() {
     </html>
   `;
   document.body.appendChild(mainContent);
+  addLanguageAttribute(mainContent, 'en');
 }
 
 // Call the function to render the dashboard

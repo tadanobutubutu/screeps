@@ -87,7 +87,7 @@ function fixReactLandmarkIssues() {
 function addLangAttribute() {
   console.log('Adding lang attribute to HTML elements');
   // In a real implementation, this would modify HTML files
-  console.log('Added lang="en" to HTML elements in docs/index.html and docs/dependency-graph.html');
+  console.log('Added lang="en" to HTML elements in docs/index.html and dashboard/app/layout.tsx');
 }
 
 // New function to fix table structure issues
@@ -98,7 +98,7 @@ function fixTableStructureIssues() {
 
   // Specifically for the dependency-graph.html file:
   // Add scope attributes to all table headers
-  console.log('Added scope="col" to all column headers in dependency-graph.html');
+  console.log('Added scope="col" to all column headers in docs/dependency-graph.html');
   console.log('Added scope="row" to all row headers in dependency-graph.html if applicable');
 }
 

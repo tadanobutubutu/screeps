@@ -27,21 +27,31 @@
     }
   }
 
+  /**
+   * Handles the click event for rotation
+   */
+  function handleRotateClick() {
+    rotateImage(90);
+  }
+
+  /**
+   * Handles the click event for unrotation
+   */
+  function handleUnrotateClick() {
+    resetRotation();
+  }
+
   // Event listeners
   document.addEventListener('DOMContentLoaded', function() {
     const rotateButton = document.getElementById('rotate');
     const unrotateButton = document.getElementById('unrotate');
 
     if (rotateButton) {
-      rotateButton.addEventListener('click', function() {
-        rotateImage(90);
-      });
+      rotateButton.addEventListener('click', handleRotateClick);
     }
 
     if (unrotateButton) {
-      unrotateButton.addEventListener('click', function() {
-        resetRotation();
-      });
+      unrotateButton.addEventListener('click', handleUnrotateClick);
     }
   });
 
@@ -49,7 +59,9 @@
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
       rotateImage,
-      resetRotation
+      resetRotation,
+      handleRotateClick,
+      handleUnrotateClick
     };
   }
 })();

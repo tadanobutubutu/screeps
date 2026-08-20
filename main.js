@@ -166,7 +166,7 @@ export const accessibilityComponents = {
 };
 
 export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+  return href && href !== '#' && href !== '' && ...
 }
 
 export default accessibilityComponents;
@@ -185,5 +185,74 @@ export function isFocusable(element) {
   return (
     (element && typeof element === 'object' && element.tagName) ||
     (element && typeof element === 'string' && element.trim().length > 0)
+  );
+}
+
+/**
+ * Main landmark wrapper for document-level accessibility
+ * Fixes: REACT_017 (React Landmarks - Page has no <main> landmark)
+ * 
+ * Provides a semantic <main> element that wraps the primary content of a page.
+ * The <main> landmark represents the dominant content of the <body> of a document
+ * or application, which should be unique per page for optimal accessibility.
+ * 
+ * This component should be used once per page to wrap the primary content area.
+ * For document structure, use <header> for site-wide headers, <nav> for navigation,
+ * and <footer> for site-wide footers - keeping <main> for the unique page content.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.children - Content to wrap in <main> landmark
+ * @returns {JSX.Element} Semantic <main> element with children
+ * 
+ * @example
+ * // Basic usage
+ * <MainLandmark>
+ *   <YourPageContent />
+ * </MainLandmark>
+ * 
+ * // In a full page structure
+ * <div>
+ *   <Header>...</Header>
+ *   <Navigation>...</Navigation>
+ *   <MainLandmark>
+ *     <h1>Page Title</h1>
+ *     <p>Main content here</p>
+ *   </MainLandmark>
+ *   <Footer>...</Footer>
+ * </div>
+ */
+export function MainLandmark({ children }) {
+  return <main id="main-content">{children}</main>;
+}
+
+/**
+ * Accessible page structure component
+ * Fixes: REACT_017 (React Landmarks)
+ * 
+ * Provides a complete page structure with proper landmarks for accessibility.
+ * Includes skip link target, header, navigation, main content, and footer.
+ * 
+ * @param {Object} props - Component props
+ * @param {React.ReactNode} props.header - Header content
+ * @param {React.ReactNode} props.navigation - Navigation content
+ * @param {React.ReactNode} props.children - Main content (wrapped in <main>)
+ * @param {React.ReactNode} props.footer - Footer content
+ * @returns {JSX.Element} Fully structured accessible page layout
+ */
+export function AccessiblePageStructure({ header, navigation, children, footer }) {
+  return (
+    <div className="page">
+      <div id="skip-link-target" tabIndex={-1} />
+      {header && <header>{header}</header>}
+      {navigation && (
+        <nav aria-label="Main navigation">
+          {navigation}
+        </nav>
+      )}
+      <main id="main-content" tabIndex={-1}>
+        {children}
+      </main>
+      {footer && <footer>{footer}</footer>}
+    </div>
   );
 }

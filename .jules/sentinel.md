@@ -1,6 +1,5 @@
-# 🛡️ Sentinel Learnings
+## 2026-08-11 - [Harden Console Logging Output and Prototype Pollution Protection]
 
-## 2024-08-20 (Example)
-- **Vulnerability:** Potential Command Injection via `execSync`
-- **Context:** In `scripts/add-contributor.js`, `execSync('npx all-contributors-cli generate', { stdio: 'inherit' });` was used to run an external command. While hardcoded and currently not exploitable, using `execSync` is a poor security hygiene practice as it invokes a shell and can lead to command injection if inputs are ever incorporated.
-- **Fix:** Switched to `execFileSync` to bypass shell execution completely. Replaced the single string command with an executable string and an array of arguments: `execFileSync(cmd, ['all-contributors-cli', 'generate'], { stdio: 'inherit' });`, taking care to handle the `.cmd` extension correctly on Windows platforms (`process.platform === 'win32' ? 'npx.cmd' : 'npx'`).
+**Vulnerability:** The console logger was missing the actual output execution line (`console.log`), resulting in silent failure where sanitized, redacted, and HTML-escaped logs were not printed. This crippled security logging visibility, making it impossible to audit potential console injection attacks or log-based information disclosure.
+**Learning:** Over-reliance on regex redaction and sanitization blocks can occasionally result in developers or automated tools accidentally stripping or omitting final output sinks during refactoring.
+**Prevention:** Always cover core logging behaviors with regression tests that explicitly assert console output is printed with correct arguments (including safe emoji and escaped strings), and prevent prototype pollution by creating the lookup maps using `Object.create(null)` to bypass standard object inheritance.

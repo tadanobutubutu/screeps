@@ -43,7 +43,6 @@ jest.mock('fs', () => ({
     })
 }));
 
-const fs = require('fs');
 
 describe('update-docs.js', () => {
     let originalConsoleLog;
@@ -71,19 +70,19 @@ describe('update-docs.js', () => {
             require('../scripts/update-docs.js');
 
             // Check file writes
-            expect(fs.writeFileSync).toHaveBeenCalledTimes(3);
+            expect(require('fs').writeFileSync).toHaveBeenCalledTimes(3);
 
-            const readmeWrite = fs.writeFileSync.mock.calls.find(call => call[0].includes('README.md'));
+            const readmeWrite = require('fs').writeFileSync.mock.calls.find(call => call[0].includes('README.md'));
             expect(readmeWrite).toBeDefined();
             expect(readmeWrite[1]).toContain('[![Workflows](https://img.shields.io/badge/Workflows-2-green)]');
             expect(readmeWrite[1]).toContain('[![Roles](https://img.shields.io/badge/Roles-2-orange)]');
             expect(readmeWrite[1]).toContain('[![Lines](https://img.shields.io/badge/Lines-5-purple)]');
 
-            const workflowsWrite = fs.writeFileSync.mock.calls.find(call => call[0].includes('WORKFLOWS.md'));
+            const workflowsWrite = require('fs').writeFileSync.mock.calls.find(call => call[0].includes('WORKFLOWS.md'));
             expect(workflowsWrite).toBeDefined();
             expect(workflowsWrite[1]).toContain('📊 **統計**: 2個 of workflows');
 
-            const statsWrite = fs.writeFileSync.mock.calls.find(call => call[0].includes('repo-stats.json'));
+            const statsWrite = require('fs').writeFileSync.mock.calls.find(call => call[0].includes('repo-stats.json'));
             expect(statsWrite).toBeDefined();
             const stats = JSON.parse(statsWrite[1]);
             expect(stats.workflows).toBe(2);

@@ -43,6 +43,14 @@
         resetRotation();
       });
     }
+
+    // Add accessibility attributes to SVG elements
+    const svgs = document.querySelectorAll('svg');
+    svgs.forEach(svg => {
+      if (!svg.getAttribute('aria-label') && !svg.querySelector('title')) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    });
   });
 
   // Export functions for testing

@@ -150,6 +150,20 @@ function fixFakeLinkIssues(element) {
     });
   }
 
+  // Convert hash-only links to proper buttons
+  if (element.type === 'a' && element.props.href === '#') {
+    return React.createElement('button', {
+      ...element.props,
+      href: undefined,
+      onClick: (e) => {
+        e.preventDefault();
+        if (element.props.onClick) {
+          element.props.onClick(e);
+        }
+      }
+    }, element.props.children);
+  }
+
   return element;
 }
 

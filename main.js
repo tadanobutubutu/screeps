@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
+const { Worker } = require('worker_threads');
 const { generateDependencyGraph } = require('./dependency-graph-generator');
 
 async function main() {
     try {
         const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
         await generateDependencyGraph(outputPath);
+        // Add the lang attribute to the HTML document tag for better screen reader support
+        document.documentElement.lang = 'en';
         console.log('Dependency graph generated successfully!');
     } catch (error) {
         console.error('Error generating dependency graph:', error);
@@ -25,7 +28,11 @@ async function updateJestToV30() {
         console.log('Updating Jest to v30 and related dependencies...');
         // Implementation would go here
         // 1. Updating package.json dependencies
+        // Add the following line
+        // "jest": "^30.0.0",
+        // Replace the existing "jest" version in package.json with "^30.0.0"
         // 2. Running package manager commands
+        // Run `npm install` or `yarn install`
         // 3. Running tests to ensure compatibility
         console.log('Jest updated successfully to v30');
     } catch (error) {
@@ -42,7 +49,11 @@ async function updateReactToV19() {
         console.log('Updating React to v19...');
         // Implementation would go here
         // 1. Updating package.json dependencies
+        // Add the following line
+        // "react": "^19.0.0",
+        // Replace the existing "react" version in package.json with "^19.0.0"
         // 2. Running package manager commands
+        // Run `npm install` or `yarn install`
         // 3. Running tests to ensure compatibility
         console.log('React updated successfully to v19');
     } catch (error) {

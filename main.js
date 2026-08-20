@@ -7,7 +7,7 @@
 
 // You would replace the anchor tag with a button for in-page actions
 // ... other code ...
-// <button id="unrotate" onClick={handleUnrotate}>rotate back</button>
+// <button id="unrotate" ... back</button>
 // ... other code ...
 
 // The rest of the `main.js` file would remain unchanged

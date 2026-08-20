@@ -51,3 +51,6 @@ export default function MainPage() {
     </main>
   );
 }
+
+module.exports = { accessibilityFixes: true };
+```

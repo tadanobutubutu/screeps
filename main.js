@@ -3,7 +3,7 @@ function calculate(a, b) {
 }
 
 // Add accessible name to SVG elements
-export function addAccessibleNameToSvg(svg) {
+export function addAccessibleSvgName(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
@@ -52,4 +52,4 @@ export function replaceFakeLinksWithButtons() {
 }
 
 // Export all functions
-export { calculate, addAccessibleNameToSvg, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleSvgName, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };

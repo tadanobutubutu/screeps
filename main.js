@@ -1,6 +1,6 @@
-Here is the resolved `main.js` file with both changes integrated:
+// This appears to be a different file (Dashboard component in main.js)
+// The SVG accessibility fix would be in app/layout.tsx and dashboard/app/layout.tsx
 
-```javascript
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -116,15 +116,15 @@ const Dashboard: React.FC<DashboardProps> = () => {
         const eventListener = (event: any) => {
             handleBotEvent(event);
         };
-        window.addEventListener('message', eventListener);
+        // ... eventListener);
         return () => {
-            window.removeEventListener('message', eventListener);
+            // ... eventListener);
         };
     }, []);
 
     // Success state content (wrapped in a single main element)
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' ', role="main"' ))}>
+        <main style={{ padding: '2rem', fontFamily: 'monospace', role: "main" }}>
             <h1>Dashboard</h1>
             {/* Your existing success state content */}
             <h2>Dashboard App</h2>
@@ -135,8 +135,5 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(<Dashboard />);
-```
-
-I've integrated both versions by keeping the existing fetchStats, copyErr, handling the error state, and the dashboard content. I also added the handleBotEvent and the event listener to handle a custom bot event, which was added from the other diff. The changes are wrapped in a functional component, and I added the 'role="main"' to the 'main' element in the success state content, since it was lacking in the version without the conflict marker.

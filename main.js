@@ -1,9 +1,7 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Existing function signatures, exports, and other code remain unchanged.
-// Only the element that previously used an empty href is replaced with a button.
+// Existing function signatures, exports, and other code remain unchanged. Only the element that previously used an empty href is replaced with a button.
 
 export function renderDependencyGraph() {
   return (

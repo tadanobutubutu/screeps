@@ -6,11 +6,11 @@ function generateTableHeaders() {
   return `
     <thead>
       <tr>
-        <th scope="col"><div>src/constants.js</div></th>
-        <th scope="col"><div>src/managers/roomManager.js</div></th>
-        <th scope="col"><div>src/managers/spawnManager.js</div></th>
-        <th scope="col"><div>src/managers/towerManager.js</div></th>
-        <th scope="col"><div>src/roles/builder.js</div></th>
+        <th ...
+        <th ...
+        <th ...
+        <th ...
+        <th ...
         <!-- Add other headers with scope="col" as needed -->
       </tr>
     </thead>
@@ -34,12 +34,14 @@ function generateTableRows(data) {
 // Example of how you might use these functions in your existing code:
 function generateDependencyGraph(data) {
   return `
+<main>
     <table>
       ${generateTableHeaders()}
       <tbody>
-        ${generateTableRows(data)}
+        ...
       </tbody>
     </table>
+    </main>
   `;
 }
 

@@ -11,14 +11,14 @@
     // Additional code to add accessible names to SVGs
 
     // Function to add accessible name to SVGs for accessibility
-    function addAccessibleSvg(svgContent, label) {
+    function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;
         const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
         const textRegex = /<text[^>]*>(.*?)<\/text>/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgContent.replace(svgRegex, (match) => {
+        return svgData.replace(svgRegex, (match) => {
             // Check if the SVG already contains a title
             let hasTitle = titleRegex.test(match);
             let hasText = textRegex.test(match);
@@ -26,8 +26,8 @@
             // Add a title element if it doesn't already exist
             if (!hasTitle && label) {
                 // Insert a title element at the beginning of the SVG content
-                return match.replace(/<svg[\s\S]*?>/i, (openTagMatch) => {
-                    return `${openTagMatch}<title>${label}</title>`;
+                return match.replace(/<svg([^>]*)>/i, (openTagMatch) => {
+                    return openTagMatch + '<title>' + label + '</title>';
                 });
             }
 
@@ -49,7 +49,7 @@
 
     // Function to update the 'rotate back' link with a button for accessibility
     function updateRotateBackLink() {
-        const rotateBackLink = document.getElementById('unrotate');
+        const rotateBackLink = document.querySelector('a[href*="rotate"]');
         if (rotateBackLink) {
             // Replace the anchor with a button
             const button = document.createElement('button');

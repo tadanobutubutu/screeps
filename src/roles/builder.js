@@ -11,6 +11,7 @@
 
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
+const roleUtils = require('../utils/roleUtils');
 const logger = require('../utils/logger');
 const { MEMORY_KEYS } = require('../constants');
 
@@ -250,7 +251,7 @@ function _getEnergy(creep) {
 
     if (_getEnergyFromDropped(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
-    if (_getEnergyFromStorage(creep, room)) return;
+    if (roleUtils.getEnergyFromStorage(creep, room, 500, MEMORY_KEYS.TARGET_ID)) return;
     _getEnergyFromSource(creep, room);
 }
 
@@ -318,23 +319,7 @@ function _getEnergyFromContainer(creep, room) {
     return false;
 }
 
-/**
- * ストレージから取得
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromStorage(creep, room) {
-    const storage = cache.getStorage(room);
-    if (storage && storage.store[RESOURCE_ENERGY] >= 500) {
-        creep.memory[MEMORY_KEYS.TARGET_ID] = storage.id;
-        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, storage, { range: 1 });
-        }
-        return true;
-    }
-    return false;
-}
+
 
 /**
  * ソースから直接採掘

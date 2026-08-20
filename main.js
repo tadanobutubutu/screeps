@@ -56,6 +56,83 @@ function makeSvgAccessible(svgElement) {
   return svgElement;
 }
 
+// New function to add lang attribute to HTML element
+function addLangAttribute(htmlElement) {
+  if (!htmlElement.props.lang) {
+    return React.cloneElement(htmlElement, { lang: 'en' });
+  }
+  return htmlElement;
+}
+
+// New function to fix table structure issues
+function fixTableStructure(tableElement) {
+  // Ensure table has proper structure with thead, tbody, and tfoot if needed
+  const children = React.Children.toArray(tableElement.props.children);
+  let hasThead = false;
+  let hasTbody = false;
+  let hasTfoot = false;
+
+  children.forEach(child => {
+    if (child.type === 'thead') hasThead = true;
+    if (child.type === 'tbody') hasTbody = true;
+    if (child.type === 'tfoot') hasTfoot = true;
+  });
+
+  // If no thead, add one with proper structure
+  if (!hasThead) {
+    const firstRow = children.find(child => child.type === 'tr');
+    if (firstRow) {
+      const thead = React.createElement('thead', null, firstRow);
+      const newChildren = children.filter(child => child !== firstRow);
+      newChildren.unshift(thead);
+      return React.cloneElement(tableElement, null, newChildren);
+    }
+  }
+
+  // If no tbody, wrap all rows in tbody
+  if (!hasTbody && children.some(child => child.type === 'tr')) {
+    const tbody = React.createElement('tbody', null, children);
+    return React.cloneElement(tableElement, null, tbody);
+  }
+
+  return tableElement;
+}
+
+// New function to fix landmark issues
+function fixLandmarkIssues(element) {
+  // Ensure unique landmarks and proper hierarchy
+  const landmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
+  const props = element.props;
+
+  // If element is a landmark but doesn't have proper attributes
+  if (landmarks.includes(element.type) && !props.role && !props['aria-label']) {
+    return React.cloneElement(element, {
+      'aria-label': `${element.type} content`
+    });
+  }
+
+  return element;
+}
+
+// New function to fix fake link issues
+function fixFakeLinkIssues(element) {
+  // Ensure elements that look like links but aren't actually links
+  // are properly marked as buttons or have proper ARIA attributes
+  if (element.type === 'div' && element.props.onClick) {
+    return React.cloneElement(element, {
+      role: 'button',
+      tabIndex: 0,
+      onKeyDown: (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          element.props.onClick(e);
+        }
+      }
+    });
+  }
+
+  return element;
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -67,5 +144,9 @@ module.exports = {
   typescript,
   handleDependencyUpdates,
   wrapInMainLandmark,
-  makeSvgAccessible
+  makeSvgAccessible,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  fixFakeLinkIssues
 };

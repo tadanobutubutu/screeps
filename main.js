@@ -1,6 +1,3 @@
-// React Accessibility Rules
-
-// REACT_015 - Critical: Add lang attribute to HTML element
 function checkHtmlLangAttribute(ast) {
     const errors = [];
     const htmlElements = ast.children?.filter(

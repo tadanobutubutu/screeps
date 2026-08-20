@@ -36,6 +36,100 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add function to handle table structure issues
+function ensureTableAccessibility() {
+  document.querySelectorAll('table').forEach(table => {
+    if (!table.getAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
+
+    table.querySelectorAll('thead, tbody, tfoot').forEach(section => {
+      if (!section.getAttribute('role')) {
+        section.setAttribute('role', section.tagName.toLowerCase());
+      }
+    });
+
+    table.querySelectorAll('th, td').forEach(cell => {
+      if (!cell.getAttribute('role')) {
+        cell.setAttribute('role', cell.tagName.toLowerCase());
+      }
+    });
+  });
+}
+
+// Add function to handle landmark issues
+function ensureLandmarkAccessibility() {
+  const landmarks = {
+    'header': 'banner',
+    'nav': 'navigation',
+    'main': 'main',
+    'footer': 'contentinfo',
+    'aside': 'complementary'
+  };
+
+  Object.keys(landmarks).forEach(tag => {
+    document.querySelectorAll(tag).forEach(element => {
+      if (!element.getAttribute('role') && !element.getAttribute('aria-label')) {
+        element.setAttribute('role', landmarks[tag]);
+      }
+    });
+  });
+}
+
+// Add function to handle SVG accessible name issues
+function ensureSVGAccessibility() {
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-hidden')) {
+      const title = svg.querySelector('title');
+      if (!title) {
+        const desc = svg.getAttribute('alt') || 'Graphic';
+        const titleElement = document.createElement('title');
+        titleElement.textContent = desc;
+        svg.appendChild(titleElement);
+      }
+      svg.setAttribute('aria-hidden', 'true');
+    }
+  });
+}
+
+// Add function to handle unique landmark issues
+function ensureUniqueLandmarks() {
+  const landmarkCounts = {};
+
+  document.querySelectorAll('[role]').forEach(element => {
+    const role = element.getAttribute('role');
+    if (['banner', 'navigation', 'main', 'complementary', 'contentinfo'].includes(role)) {
+      landmarkCounts[role] = (landmarkCounts[role] || 0) + 1;
+    }
+  });
+
+  Object.keys(landmarkCounts).forEach(role => {
+    if (landmarkCounts[role] > 1) {
+      const elements = document.querySelectorAll(`[role="${role}"]`);
+      elements.forEach((element, index) => {
+        if (index > 0) {
+          element.setAttribute('aria-label', `${role} ${index + 1}`);
+        }
+      });
+    }
+  });
+}
+
+// Initialize all accessibility fixes on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  ensureTableAccessibility();
+  ensureLandmarkAccessibility();
+  ensureSVGAccessibility();
+  ensureUniqueLandmarks();
+
+  // Existing fake link fix
+  document.querySelectorAll('a[href="#"]').forEach(link => {
+    link.addEventListener('click', handleFakeLinkClick);
+    link.setAttribute('role', 'button');
+    link.setAttribute('tabindex', '0');
+  });
+});
+
 // Existing code remains unchanged
 // ...
 

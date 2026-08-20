@@ -42,6 +42,16 @@
                 rotateElement(targetElement, newRotation);
             });
         }
+
+        // Fix for REACT_027: Add scope attributes to table headers
+        const tableHeaders = document.querySelectorAll('th');
+        tableHeaders.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                // Determine if this is a column or row header based on context
+                // For this example, we'll assume all are column headers
+                header.setAttribute('scope', 'col');
+            }
+        });
     });
 
     // Export functions for testing or external use

@@ -53,12 +53,11 @@ const MainLayout = ({ children }) => {
 };
 
 // Add accessibility improvements for REACT_041 (SVG Accessible Name)
-const AccessibleSVG = ({ title, description }) => {
+const FaviconSVG = () => {
   return (
-    <svg aria-hidden="true">
-      <title>{title}</title>
-      <desc>{description}</desc>
-      {/* SVG content */}
+    <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+      <title>Favicon</title>
+      {/* SVG content for favicon */}
     </svg>
   );
 };
@@ -100,7 +99,7 @@ export {
   App,
   AccessibleTable,
   MainLayout,
-  AccessibleSVG,
+  FaviconSVG,
   UniqueLandmark,
   AccessibleLink
 };

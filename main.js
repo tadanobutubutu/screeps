@@ -33,6 +33,28 @@ function wrapInMainLandmark(content) {
   return React.createElement('main', null, content);
 }
 
+// New function to add accessibility attributes to SVG elements
+function makeSvgAccessible(svgElement) {
+  // If the SVG is decorative, add aria-hidden="true"
+  if (svgElement.props.role === 'presentation' || svgElement.props['aria-hidden'] !== undefined) {
+    return React.cloneElement(svgElement, { 'aria-hidden': 'true' });
+  }
+
+  // If the SVG has no accessible name, add a title or aria-label
+  if (!svgElement.props['aria-label'] && !svgElement.props.children?.some(child =>
+    child.type === 'title' || child.type === 'desc'
+  )) {
+    return React.cloneElement(svgElement, {
+      children: [
+        React.createElement('title', null, 'SVG Image'),
+        ...(svgElement.props.children || [])
+      ]
+    });
+  }
+
+  return svgElement;
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -43,5 +65,6 @@ module.exports = {
   eslint,
   typescript,
   handleDependencyUpdates,
-  wrapInMainLandmark
+  wrapInMainLandmark,
+  makeSvgAccessible
 };

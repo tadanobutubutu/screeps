@@ -6,14 +6,17 @@
 const addScopeToTh = (htmlString) => {
   // Use regex to find <th> elements that don't have a scope attribute
   // and add scope="col" to them
-  return htmlString.replace(/<th(?![^>]*\bscope=)([^>]*?)>/gi, (match, attributes) => {
+  return htmlString.replace(/<th(\s[^>]*)?(?!\s+scope)[^>]*>/gi, (match, attributes) => {
     // Check if it's a self-closing tag or has content
-    if (attributes.endsWith('/')) {
+    if (match.endsWith('/>')) {
       // Self-closing tag: <th />
-      return `<th scope="col"${attributes}>`;
+      return match.replace('/>', ' scope="col"/>');
     }
     // Regular opening tag: <th>
-    return `<th scope="col"${attributes}>`;
+    if (attributes) {
+      return `<th${attributes} scope="col">`;
+    }
+    return '<th scope="col">';
   });
 };
 
@@ -35,7 +38,7 @@ const fixDependencyGraph = () => {
 };
 
 // Ensure to call fixDependencyGraph() if needed to apply the fix
-// fixDependencyGraph();
+// ...
 
 // Rest of the main.js code goes here
 // ...

@@ -1,13 +1,17 @@
-// Fixed for REACT_017: Added <main> landmark for accessibility
-// This is the fixed app/layout.tsx (main layout) converted to JavaScript/JSX
+import React from 'react';
+import Head from 'next/head';
 
-export default function RootLayout({ children }) {
+const RootLayout = ({ children }) => {
   return (
-    <html lang="en">
-      <head />
+    <html lang="ja">
+      <head>
+        <style>{/* ... (existing styles) */}</style>
+      </head>
       <body>
         <main>{children}</main>
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

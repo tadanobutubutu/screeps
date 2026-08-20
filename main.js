@@ -7,6 +7,8 @@ document.documentElement.lang = 'en';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <main>
+      <App />
+    </main>
   </React.StrictMode>
 );

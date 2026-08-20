@@ -1,4 +1,3 @@
-tsx
 // app/layout.tsx
 import React from 'react';
 
@@ -18,7 +17,7 @@ export default function RootLayout({
           {/* SVG content */}
         </svg>
       </head>
-      <body>{children}</body>
+      <body><main>{children}</main></body>
     </html>
   );
 }

@@ -9,13 +9,13 @@ function enhanceTableAccessibility(table) {
   if (!table) return;
 
   // Add scope attributes to table headers
-  const headers = table.querySelectorAll('th');
+  const headers = document.querySelectorAll('th');
   headers.forEach(header => {
     header.setAttribute('scope', 'col');
   });
 
   // Add ARIA labels if needed
-  if (!table.getAttribute('aria-label') && !table.querySelector('caption')) {
+  if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
     table.setAttribute('aria-label', 'Data table');
   }
 }
@@ -23,19 +23,21 @@ function enhanceTableAccessibility(table) {
 // Add accessibility improvements for REACT_017 (React Landmarks)
 function ensureLandmarks() {
   // Ensure main content has a landmark
-  if (!document.querySelector('main, [role="main"]')) {
-    const mainContent = document.querySelector('div[role="main"]') ||
-                        document.querySelector('div.main-content') ||
-                        document.querySelector('section');
+  const mainElements = document.querySelectorAll('[role="main"], main');
+  if (mainElements.length === 0) {
+    const mainContent = document.querySelector('div#content') ||
+                        document.querySelector('div.content') ||
+                        document.querySelector('main');
     if (mainContent) {
       mainContent.setAttribute('role', 'main');
     }
   }
 
   // Ensure navigation has a landmark
-  if (!document.querySelector('nav, [role="navigation"]')) {
-    const nav = document.querySelector('div[role="navigation"]') ||
-                document.querySelector('ul.nav');
+  const navElements = document.querySelectorAll('nav');
+  if (navElements.length > 0) {
+    const nav = document.querySelector('nav') ||
+                document.querySelector('[role="navigation"]');
     if (nav) {
       nav.setAttribute('role', 'navigation');
     }
@@ -44,8 +46,10 @@ function ensureLandmarks() {
 
 // Add accessibility improvements for REACT_041 (React SVG Accessible Name)
 function enhanceSVGAccessibility() {
-  document.querySelectorAll('svg:not([aria-hidden="true"])').forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
+  document.querySelectorAll('svg').forEach(svg => {
+    const hasTitle = svg.querySelector('title');
+    const hasDesc = svg.querySelector('desc');
+    if (!hasTitle && !hasDesc) {
       svg.setAttribute('aria-label', 'Decorative graphic');
     }
   });
@@ -68,7 +72,7 @@ function ensureUniqueLandmarks() {
 
 // Add accessibility improvements for REACT_036 (React Fake Link)
 function enhanceLinkAccessibility() {
-  document.querySelectorAll('[role="link"], [tabindex="0"]').forEach(el => {
+  document.querySelectorAll('a').forEach(el => {
     if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
       el.setAttribute('aria-label', 'Link');
     }
@@ -78,7 +82,8 @@ function enhanceLinkAccessibility() {
 // Initialize accessibility enhancements when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Apply table accessibility improvements
-  document.querySelectorAll('table').forEach(enhanceTableAccessibility);
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => enhanceTableAccessibility(table));
 
   // Ensure proper landmarks
   ensureLandmarks();

@@ -103,3 +103,34 @@ export function getFaviconAccessibilityAttributes() {
     "aria-label": "Favicon"
   };
 }
+
+// New function to get accessibility attributes for error section
+export function getErrorSectionAccessibilityAttributes() {
+  return {
+    role: "region",
+    "aria-label": "Error message"
+  };
+}
+
+// New function to get accessibility attributes for error message
+export function getErrorMessageAccessibilityAttributes() {
+  return {
+    tabIndex: 0,
+    "aria-label": "Error message details"
+  };
+}
+
+// New function to get accessibility attributes for copy button
+export function getCopyButtonAccessibilityAttributes(copied: boolean) {
+  return {
+    "aria-label": copied ? "Copied" : "Copy error",
+    title: copied ? "Copied" : "Copy error"
+  };
+}
+
+// New function to get accessibility attributes for retry button
+export function getRetryButtonAccessibilityAttributes() {
+  return {
+    "aria-label": "Retry"
+  };
+}

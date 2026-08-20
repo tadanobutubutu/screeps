@@ -4,11 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const ISSUE_AUTHOR = process.env.ISSUE_AUTHOR;
 const GITHUB_API = 'https://api.github.com';
-// Dynamic env evaluation for testing
-const getGithubToken = () => process.env.GITHUB_TOKEN;
-const getIssueAuthor = () => process.env.ISSUE_AUTHOR;
-const getRepo = () => process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
+const REPO = process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
 
 /**
  * GitHub API リクエスト実行
@@ -16,37 +15,23 @@ const getRepo = () => process.env.GITHUB_REPOSITORY || 'tadanobutubutu/screeps';
 async function githubRequest(endpoint, options = {}) {
     const url = `${GITHUB_API}${endpoint}`;
     const headers = {
-        Authorization: `token ${getGithubToken()}`,
+        Authorization: `token ${GITHUB_TOKEN}`,
         Accept: 'application/vnd.github+json',
         ...options.headers,
     };
 
-
-    return new Promise((resolve, reject) => {
-        const https = require('https');
-        const req = https.request(url, {
-            method: options.method || 'GET',
-            headers
-        }, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                if (res.statusCode >= 200 && res.statusCode < 300) {
-                    resolve(JSON.parse(data));
-                } else {
-                    reject(new Error(`GitHub API error: ${res.statusCode} ${data}`));
-                }
-            });
-        });
-
-        req.on('error', reject);
-
-        if (options.body) {
-            req.write(JSON.stringify(options.body));
-        }
-        req.end();
+    const response = await fetch(url, {
+        method: options.method || 'GET',
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined,
     });
 
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`GitHub API error: ${response.status} ${JSON.stringify(error)}`);
+    }
+
+    return response.json();
 }
 
 /**
@@ -142,7 +127,7 @@ function commitAndPush(username) {
  * メイン処理
  */
 async function main() {
-    if (!getIssueAuthor() || !getGithubToken()) {
+    if (!ISSUE_AUTHOR || !GITHUB_TOKEN) {
         console.warn('⚠️  Missing ISSUE_AUTHOR or GITHUB_TOKEN');
         return;
     }
@@ -156,13 +141,13 @@ async function main() {
         }
 
         // 既に contributor の場合はスキップ
-        if (isAlreadyContributor(config, getIssueAuthor())) {
-            console.log(`ℹ️  ${getIssueAuthor()} is already a contributor`);
+        if (isAlreadyContributor(config, ISSUE_AUTHOR)) {
+            console.log(`ℹ️  ${ISSUE_AUTHOR} is already a contributor`);
             return;
         }
 
         // ユーザー情報を取得
-        const user = await getUserInfo(getIssueAuthor());
+        const user = await getUserInfo(ISSUE_AUTHOR);
 
         // Contributor として追加
         const updatedConfig = addContributorToConfig(config, user);
@@ -181,21 +166,4 @@ async function main() {
     }
 }
 
-if (require.main === module) {
-    main();
-}
-
-module.exports = {
-    githubRequest,
-    getUserInfo,
-    getAllContributorsConfig,
-    isAlreadyContributor,
-    addContributorToConfig,
-    updateAllContributorsConfig,
-    updateReadme,
-    commitAndPush,
-    main,
-    getGithubToken,
-    getIssueAuthor,
-    getRepo
-};
+main();

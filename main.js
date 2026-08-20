@@ -1,1 +1,17 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const handleRotateBack = () => {
+  console.log('Rotating back...');
+};
+
+const DependencyGraph = () => {
+  return (
+    <div>
+      {/* ... other components and logic ... */}
+      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
+      {/* ... other components and logic ... */}
+    </div>
+  );
+};
+
+ReactDOM.render(<DependencyGraph />, document.getElementById('root'));
+
+// ... (existing code and exports)

@@ -10,7 +10,7 @@ const generateTableHTML = () => {
     <table>
       <thead>
         <tr>
-          ${headers.map(header => `<th scope="col">${header.name}</th>`).join('')}
+          ${headers.map(header => `<th scope="col" aria-label="${header.name}">${header.name}</th>`).join('')}
         </tr>
       </thead>
       <tbody>

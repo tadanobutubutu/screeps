@@ -20,16 +20,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <header role="banner" aria-label="Site header">
+          {/* Header content would go here */}
+        </header>
+        <nav role="navigation" aria-label="Main navigation">
+          {/* Navigation content would go here */}
+        </nav>
+        <main role="main" aria-label="Main content">
+          {children}
+        </main>
+        <footer role="contentinfo" aria-label="Site footer">
+          {/* Footer content would go here */}
+        </footer>
         <svg
           aria-hidden="true"
           style={{ display: "none" }}
           xmlns="http://www.w3.org/2000/svg"
+          aria-label="Decorative elements"
         >
           {/* decorative elements */}
         </svg>
-        <main role="main" aria-label="Main content">
-          {children}
-        </main>
       </body>
     </html>
   );

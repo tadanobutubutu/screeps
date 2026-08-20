@@ -1,13 +1,1 @@
-tsx
-// dashboard/app/layout.tsx
-import React from 'react';
-
-function AppLayout({ children }) {
-  return (
-    <body>
-      <main>{children}</main>
-    </body>
-  );
-}
-
-export default AppLayout;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

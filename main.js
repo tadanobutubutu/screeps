@@ -6,7 +6,7 @@
  */
 function replaceFakeLinksWithButtons() {
   // This function would be called when the dependency graph is loaded
-  const rotateBackLink = document.getElementById('unrotate');
+  const rotateBackLink = document.querySelector('#rotate-back');
   if (rotateBackLink) {
     // Create a new button element
     const button = document.createElement('button');
@@ -38,7 +38,7 @@ export { replaceFakeLinksWithButtons, someFunction };
 
 // Call this function when the dependency graph is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  if (window.location.pathname.includes('dependency-graph.html')) {
+  if (document.querySelector('#rotate-back')) {
     replaceFakeLinksWithButtons();
   }
 });

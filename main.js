@@ -109,6 +109,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Dashboard />);
-```
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(
+    <React.StrictMode>
+        <html lang="en">
+            <Dashboard />
+        </html>
+    </React.StrictMode>
+);

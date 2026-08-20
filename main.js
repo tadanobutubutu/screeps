@@ -42,5 +42,30 @@ const Layout = ({ children }) => (
   </div>
 );
 
+// Add a helper component for accessible tables
+const AccessibleTable = ({ headers, data, caption }) => {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
 // Preserve any existing exports
-export { Layout };
+export { Layout, AccessibleTable };

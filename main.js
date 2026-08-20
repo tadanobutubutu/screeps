@@ -15,7 +15,7 @@ function enhanceTableAccessibility(table) {
   });
 
   // Add ARIA labels if needed
-  if (!table.getAttribute('aria-label') && !table.querySelector('caption')) {
+  if (!table.getAttribute('aria-label') && !table.getAttribute('aria-labelledby')) {
     table.setAttribute('aria-label', 'Data table');
   }
 }
@@ -23,19 +23,22 @@ function enhanceTableAccessibility(table) {
 // Add accessibility improvements for REACT_017 (React Landmarks)
 function ensureLandmarks() {
   // Ensure main content has a landmark
-  if (!document.querySelector('main, [role="main"]')) {
-    const mainContent = document.querySelector('div[role="main"]') ||
-                        document.querySelector('div.main-content') ||
-                        document.querySelector('section');
+  const mains = document.querySelectorAll('[role="main"], main');
+  if (!mains.length) {
+    const mainContent = document.querySelector('.main') ||
+                        document.querySelector('#main') ||
+                        document.querySelector('.content');
     if (mainContent) {
       mainContent.setAttribute('role', 'main');
     }
   }
 
   // Ensure navigation has a landmark
-  if (!document.querySelector('nav, [role="navigation"]')) {
-    const nav = document.querySelector('div[role="navigation"]') ||
-                document.querySelector('ul.nav');
+  const navs = document.querySelectorAll('[role="navigation"], nav');
+  if (!navs.length) {
+    const nav = document.querySelector('.nav') ||
+                document.querySelector('#nav') ||
+                document.querySelector('.navigation');
     if (nav) {
       nav.setAttribute('role', 'navigation');
     }
@@ -44,8 +47,8 @@ function ensureLandmarks() {
 
 // Add accessibility improvements for REACT_041 (React SVG Accessible Name)
 function enhanceSVGAccessibility() {
-  document.querySelectorAll('svg:not([aria-hidden="true"])').forEach(svg => {
-    if (!svg.getAttribute('aria-label') && !svg.querySelector('title, desc')) {
+  document.querySelectorAll('svg').forEach(svg => {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
       svg.setAttribute('aria-label', 'Decorative graphic');
     }
   });
@@ -55,7 +58,7 @@ function enhanceSVGAccessibility() {
 function ensureUniqueLandmarks() {
   const landmarks = ['main', 'navigation', 'search', 'complementary', 'contentinfo'];
   landmarks.forEach(landmark => {
-    const elements = document.querySelectorAll(`[role="${landmark}"]`);
+    const elements = document.querySelectorAll(`[role="${landmark}"], ${landmark}`);
     if (elements.length > 1) {
       elements.forEach((el, index) => {
         if (index > 0) {
@@ -68,7 +71,7 @@ function ensureUniqueLandmarks() {
 
 // Add accessibility improvements for REACT_036 (React Fake Link)
 function enhanceLinkAccessibility() {
-  document.querySelectorAll('[role="link"], [tabindex="0"]').forEach(el => {
+  document.querySelectorAll('a').forEach(el => {
     if (!el.getAttribute('aria-label') && !el.textContent.trim()) {
       el.setAttribute('aria-label', 'Link');
     }
@@ -78,7 +81,9 @@ function enhanceLinkAccessibility() {
 // Initialize accessibility enhancements when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Apply table accessibility improvements
-  document.querySelectorAll('table').forEach(enhanceTableAccessibility);
+  document.querySelectorAll('table').forEach(table => {
+    enhanceTableAccessibility(table);
+  });
 
   // Ensure proper landmarks
   ensureLandmarks();

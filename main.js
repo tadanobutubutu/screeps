@@ -38,6 +38,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add function to ensure only one main element exists in the document
+function ensureSingleMainElement() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    // Convert all but the first main element to section
+    for (let i = 1; i < mainElements.length; i++) {
+      const section = document.createElement('section');
+      // Copy all attributes
+      Array.from(mainElements[i].attributes).forEach(attr => {
+        section.setAttribute(attr.name, attr.value);
+      });
+      // Move all children
+      while (mainElements[i].firstChild) {
+        section.appendChild(mainElements[i].firstChild);
+      }
+      // Replace the main element with section
+      mainElements[i].parentNode.replaceChild(section, mainElements[i]);
+    }
+  }
+}
+
+// Run the main element check after DOM is loaded
+document.addEventListener('DOMContentLoaded', ensureSingleMainElement);
+
 // Existing code remains unchanged
 // ...
 

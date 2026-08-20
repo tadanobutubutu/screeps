@@ -1,32 +1,12 @@
-The conflict appears to involve incompatible content between a JavaScript Screeps bot file and a React TypeScript component. Since `main.js` is expected to contain JavaScript for a Screeps bot, the resolution should prioritize the JavaScript logic while discarding the React/TSX code as unrelated. Here's the resolved file:
+// Screeps main bot logic
+module.exports.loop = function() {
+    // Game loop logic here
+    // Harvesters, builders, and other creep roles would be implemented here
+};
 
-// app/layout.tsx
-import type { Metadata } from 'next'
-
-export const metadata: Metadata = {
-  title: 'App Title',
-  description: 'App description',
-}
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="en">
-      <body>
-        <svg 
-          width="32" 
-          height="32" 
-          viewBox="0 0 32 32" 
-          aria-hidden="true" 
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* SVG content */}
-        </svg>
-        {children}
-      </body>
-    </html>
-  )
-}
+// Export modules for reuse
+require('./modules.creeps');
+require('./modules.spawn');
+require('./modules.towers');
+require('./prototype.creep');
+require('./prototype.structure');

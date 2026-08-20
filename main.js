@@ -3,6 +3,9 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
+// Set the language attribute for better accessibility
+document.documentElement.lang = 'en';
+
 // Modify SVG elements in both layout files (line 7 in app/layout.tsx and dashboard/app/layout.tsx) to include aria-hidden="true"
 document.addEventListener('DOMContentLoaded', () => {
   const svgElements = document.querySelectorAll('svg');

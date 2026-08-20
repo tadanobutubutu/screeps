@@ -1,7 +1,6 @@
 // [Previous existing code remains unchanged]
 
-// Add scope attributes to table headers in dependency-graph.html
-// This is a temporary fix until the HTML can be properly generated with scope attributes
+// Add lang attribute to the HTML document
 document.addEventListener('DOMContentLoaded', function() {
   // Select all th elements in the document
   const headers = document.querySelectorAll('th');
@@ -17,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   });
+
+  // Set the lang attribute on the HTML element
+  const htmlElement = document.documentElement;
+  if (!htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 });
 
 // [Rest of existing code remains unchanged]

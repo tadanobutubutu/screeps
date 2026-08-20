@@ -28,7 +28,7 @@ class MainBot extends Client {
      * Start the bot and begin its main loop.
      */
     async start() {
-        console.log(`[${this.name}] Starting up...`);
+        console.log('[MainBot] Starting up...');
         await this.connect();
         this.isRunning = true;
         this.startLoop();
@@ -37,7 +37,7 @@ class MainBot extends Client {
     /**
      * Continuously process tasks from the queue.
      */
-    startLoop() {
+    async startLoop() {
         while (this.isRunning) {
             try {
                 const task = this.getNextTask();
@@ -69,9 +69,9 @@ class MainBot extends Client {
     async executeTask(task) {
         try {
             await task.action();
-            console.log(`[${this.name}] Task "${task.name}" completed successfully.`);
+            console.log(`[MainBot] Task "${task.name}" completed successfully.`);
         } catch (err) {
-            console.error(`[${this.name}] Task "${task.name}" failed:`, err);
+            console.error(`[MainBot] Task "${task.name}" failed:`, err);
         }
     }
 

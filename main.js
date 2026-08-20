@@ -14,9 +14,13 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
 
     if (error) {
         return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main style={{ padding: '2rem', fontFamily: 'monospace' }} role="main">
                 <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+                    <h1 style={{ color: '#b71c1c' }}>
+                        <span aria-hidden="true">⚠️</span>
+                        <span className="sr-only">警告: </span>
+                        エラー
+                    </h1>
                     <pre
                         tabIndex={0}
                         aria-label="エラーメッセージ詳細"
@@ -51,7 +55,8 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                             filter: errCopyHover ? 'brightness(1.1)' : 'none',
                         }}
                     >
-                        {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+                        <span aria-hidden="true">{copied ? '✅' : '📋'}</span>
+                        <span className="sr-only">{copied ? 'コピー済み' : 'エラーをコピー'}</span>
                     </button>
                     <button
                         onClick={() => fetchStats(true)}
@@ -74,7 +79,8 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                             marginLeft: '1rem',
                         }}
                     >
-                        {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+                        <span aria-hidden="true">🔄</span>
+                        <span className="sr-only">{refreshing ? '再試行中...' : '再試行'}</span>
                     </button>
                 </div>
             </main>
@@ -82,11 +88,15 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
     }
 
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }} role="main" aria-label="ダッシュボード">
+            <h1 style={{ color: '#004b73' }}>
+                <span aria-hidden="true">📊</span>
+                <span className="sr-only">統計データ: </span>
+                ダッシュボード
+            </h1>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }} role="region" aria-label="統計データ">
+                {stats && Object.entries(stats).map(([key, value]) => (
+                    <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }} role="group" aria-label={`${key}の統計`}>
                         <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
                         <p style={{ color: '#4a5568', fontSize: '1.25rem', marginBottom: 0 }}>{value}</p>
                     </div>
@@ -104,8 +114,10 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                     cursor: 'pointer',
                     marginTop: '1rem',
                 }}
+                aria-label={refreshing ? 'データを更新中' : 'データを更新'}
             >
-                {refreshing ? '🔄 更新中...' : '🔄 更新'}
+                <span aria-hidden="true">🔄</span>
+                <span className="sr-only">{refreshing ? '更新中...' : '更新'}</span>
             </button>
         </main>
     );

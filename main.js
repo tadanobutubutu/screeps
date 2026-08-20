@@ -42,4 +42,36 @@ function updateDependencyGraphTable() {
 // Call this function when the page loads or when the table is rendered
 document.addEventListener('DOMContentLoaded', updateDependencyGraphTable);
 
+// Function to wrap content in main landmark
+function wrapContentInMain() {
+  // For app/layout.tsx and dashboard/app/layout.tsx
+  const body = document.querySelector('body');
+  if (body && !body.querySelector('main')) {
+    const main = document.createElement('main');
+    while (body.firstChild) {
+      main.appendChild(body.firstChild);
+    }
+    body.appendChild(main);
+  }
+
+  // For docs/index.html
+  const container = document.querySelector('.container');
+  if (container && !container.closest('main')) {
+    const main = document.createElement('main');
+    container.parentNode.insertBefore(main, container);
+    main.appendChild(container);
+  }
+
+  // For docs/dependency-graph.html
+  const table = document.querySelector('#table-rotated');
+  if (table && !table.closest('main')) {
+    const main = document.createElement('main');
+    table.parentNode.insertBefore(main, table);
+    main.appendChild(table);
+  }
+}
+
+// Call the function to wrap content when the page loads
+document.addEventListener('DOMContentLoaded', wrapContentInMain);
+
 // [Rest of the existing code remains unchanged]

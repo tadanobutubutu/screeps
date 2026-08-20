@@ -3,6 +3,13 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
+const COVERAGE_THRESHOLD = Number(process.env.COVERAGE_THRESHOLD || '100');
+const PKG_MANAGER = process.env.PKG_MANAGER || (fs.existsSync('pnpm-lock.yaml') ? 'pnpm' : 'npm');
+const TMP_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'repo-health-'));
+const ESLINT_REPORT = path.join(TMP_DIR, 'eslint.json');
+const JEST_REPORT = path.join(TMP_DIR, 'jest.json');
+
+console.log('🔍 リポジトリ健全性チェックを開始...');
 
 const report = {
     timestamp: new Date().toISOString(),
@@ -17,7 +24,6 @@ function addIssue(issue) {
 
 function runCommand(command) {
     try {
-        const { execSync } = require('child_process');
         execSync(command, { stdio: 'pipe', encoding: 'utf8' });
         return { ok: true };
     } catch (error) {
@@ -31,7 +37,6 @@ function runCommand(command) {
 }
 
 function readJsonFile(filePath) {
-    const fs = require('fs');
     if (!fs.existsSync(filePath)) {
         return null;
     }
@@ -42,22 +47,7 @@ function readJsonFile(filePath) {
     }
 }
 
-function main() {
-    const fs = require('fs');
-    const os = require('os');
-    const path = require('path');
-    const COVERAGE_THRESHOLD = Number(process.env.COVERAGE_THRESHOLD || '100');
-    const PKG_MANAGER = process.env.PKG_MANAGER || (fs.existsSync('pnpm-lock.yaml') ? 'pnpm' : 'npm');
-    const TMP_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'repo-health-'));
-    const ESLINT_REPORT = path.join(TMP_DIR, 'eslint.json');
-    const JEST_REPORT = path.join(TMP_DIR, 'jest.json');
-
-    console.log('🔍 リポジトリ健全性チェックを開始...');
-
-    report.status = 'healthy';
-    report.issues = [];
-
-    // 1. ESLint 静的解析（--fix なし、出力ファイル経由で確実にパース）
+// 1. ESLint 静的解析（--fix なし、出力ファイル経由で確実にパース）
 console.log('ESLint を実行中...');
 const eslintCmd = `npx eslint . --format json --output-file "${ESLINT_REPORT}"`;
 const eslintResult = runCommand(eslintCmd);
@@ -157,7 +147,7 @@ if (fs.existsSync(coverageSummaryPath)) {
             });
         });
     } catch (error) {
-        addIssue({
+        report.issues.push({
             type: 'coverage_parse_error',
             fingerprint: 'coverage:parse-error',
             severity: 'warning',
@@ -184,17 +174,4 @@ try {
 }
 
 console.log(`\n健全性チェック完了: ${report.status}（検出 ${report.issues.length} 件）`);
-    process.exit(report.status === 'healthy' ? 0 : 1);
-}
-
-if (require.main === module) {
-    main();
-}
-
-module.exports = {
-    report,
-    addIssue,
-    runCommand,
-    readJsonFile,
-    main
-};
+process.exit(report.status === 'healthy' ? 0 : 1);

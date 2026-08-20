@@ -179,3 +179,80 @@ export function createErrorSection({ error, copyErr, setErrCopyHover, errCopyHov
     </section>
   );
 }
+
+// New function to create accessible table structure
+export function createAccessibleTable({ headers, data, caption }) {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={`header-${index}`} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={`row-${rowIndex}`}>
+            {row.map((cell, cellIndex) => (
+              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// New function to create accessible navigation landmark
+export function createNavLandmark({ children, label }) {
+  return (
+    <nav aria-label={label}>
+      {children}
+    </nav>
+  );
+}
+
+// New function to create accessible header landmark
+export function createHeaderLandmark({ children, label }) {
+  return (
+    <header aria-label={label}>
+      {children}
+    </header>
+  );
+}
+
+// New function to create accessible footer landmark
+export function createFooterLandmark({ children, label }) {
+  return (
+    <footer aria-label={label}>
+      {children}
+    </footer>
+  );
+}
+
+// New function to create accessible main landmark with unique ID
+export function createUniqueMainLandmark({ children, id }) {
+  return (
+    <main id={id} aria-label="Main content">
+      {children}
+    </main>
+  );
+}
+
+// New function to create accessible fake link
+export function createAccessibleFakeLink({ children, onClick, ariaLabel }) {
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      aria-label={ariaLabel}
+      style={{ cursor: 'pointer', textDecoration: 'underline' }}
+    >
+      {children}
+    </span>
+  );
+}

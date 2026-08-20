@@ -7,6 +7,7 @@ export const metadata: Metadata = {
     icon: [
       {
         url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>",
+        type: "image/svg+xml",
       },
     ],
   },
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body>
@@ -23,11 +26,14 @@ export default function RootLayout({
           style={{ display: "none" }}
           aria-hidden="true"
         >
+          <title>Dashboard Icon</title>
           {/* SVG content */}
         </svg>
-        <main>{children}</main>
+        <main role="main" aria-label="Main content">{children}</main>
         {/* Adding a button to replace the anchor for the 'rotate back' action */}
-        <button id="unrotate" onClick={() => {/* Action to rotate back */}}>rotate back</button>
+        <button id="unrotate" onClick={() => {/* Action to rotate back */}}>
+          rotate back
+        </button>
       </body>
     </html>
   );

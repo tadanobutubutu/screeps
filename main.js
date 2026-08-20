@@ -1,7 +1,3 @@
-// tests/htmlTableStructure.test.js
-import { readFileSync } from 'fs';
-import { JSDOM } from 'jsdom';
-
 describe('HTML Table Structure', () => {
   it('should have scope attribute on all <th> elements', () => {
     const fileContent = readFileSync('path/to/your/html/file.html', 'utf8');
@@ -27,4 +23,12 @@ describe('SVG Accessibility', () => {
       expect(svg).toHaveAttribute('aria-hidden', 'true');
     });
   });
+});
+
+// Setting document language attribute
+document.addEventListener('DOMContentLoaded', (event) => {
+  const htmlTag = document.documentElement;
+  if (!htmlTag.lang) {
+    htmlTag.setAttribute('lang', 'en');
+  }
 });

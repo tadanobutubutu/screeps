@@ -92,4 +92,11 @@ export const RealLink = ({ href, children }) => {
   );
 };
 
+// Handle unrotate action (from origin/main)
+export function handleUnrotate() {
+  // Logic to handle the rotation back action
+  console.log('Rotating back...');
+  // Implement actual rotation logic here
+}
+
 // Any other existing exports remain unchanged

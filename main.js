@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-
 // Existing code (preserved)
 const App = () => {
   // ... existing app code ...
@@ -11,23 +10,13 @@ export { App };
 
 // Add accessibility attributes to SVG elements
 const FaviconSVG = () => (
-  <svg
-    aria-hidden="true"
-    width="0"
-    height="0"
-    style={{ position: 'absolute' }}
-  >
+  <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
     {/* SVG content */}
   </svg>
 );
 
 const MetadataSVG = () => (
-  <svg
-    aria-hidden="true"
-    width="0"
-    height="0"
-    style={{ position: 'absolute' }}
-  >
+  <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
     {/* SVG content */}
   </svg>
 );

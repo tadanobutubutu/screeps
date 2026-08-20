@@ -24,3 +24,16 @@ export function updateRootElementWithLangAttribute() {
 
 // Existing export preservation
 export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute };
+
+// Add scope attribute to th elements as per the issue
+export function addScopeToTableHeaders() {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+}
+
+// Existing export preservation
+export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders };

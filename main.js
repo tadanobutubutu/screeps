@@ -42,5 +42,12 @@ const Layout = ({ children }) => (
   </div>
 );
 
+// Add a single main container component
+const MainContainer = ({ children }) => (
+  <main aria-label="Main content">
+    {children}
+  </main>
+);
+
 // Preserve any existing exports
-export { Layout };
+export { Layout, MainContainer };

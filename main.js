@@ -29,7 +29,7 @@ function App() {
         
         {isRotated && (
           <button id="unrotate" onClick={handleRotate}>
-            rotate back
+            Rotate Back
           </button>
         )}
       </div>

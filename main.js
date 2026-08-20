@@ -1,4 +1,3 @@
-// main.js
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
@@ -43,13 +42,15 @@ function ensureSvgAccessibility() {
   // Since we can't modify those here, we'll document the requirement
   console.log('Note: SVG elements in layout.tsx should have accessible names or aria-hidden="true"');
 
-  // Additional accessibility checks
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('role')) {
-      console.warn('SVG element missing accessibility attributes. Add aria-hidden="true" or provide an accessible name.');
-    }
-  });
+  // Additional accessibility checks (only in browser)
+  if (typeof document !== 'undefined') {
+    const svgElements = document.querySelectorAll('svg');
+    svgElements.forEach(svg => {
+      if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('role')) {
+        console.warn('SVG element missing accessibility attributes. Add aria-hidden="true" or provide an accessible name.');
+      }
+    });
+  }
 }
 
 // New function to validate React landmark structure
@@ -71,6 +72,37 @@ function ensureHtmlLanguageAttribute() {
   // In a real implementation, this would check the HTML file
   // For now, we'll just log the requirement
   console.log('Please ensure docs/dependency-graph.html has <html lang="en"> or similar language attribute.');
+}
+
+// Add scope attributes to table headers in dependency-graph.html
+// This is a temporary fix until the HTML can be properly generated with scope attributes
+function addScopeAttributesToHeaders() {
+  // Only run in a browser environment
+  if (typeof document === 'undefined') return;
+
+  // Select all th elements in the document
+  const headers = document.querySelectorAll('th');
+
+  headers.forEach(header => {
+    // Check if the header already has a scope attribute
+    if (!header.hasAttribute('scope')) {
+      // Determine if it's a column or row header based on context
+      if (header.closest('thead')) {
+        header.setAttribute('scope', 'col');
+      } else if (header.closest('tr')) {
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
+}
+
+// Call the function when the DOM is ready (browser only)
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', addScopeAttributesToHeaders);
+  } else {
+    addScopeAttributesToHeaders();
+  }
 }
 
 // Updated server setup
@@ -105,5 +137,6 @@ module.exports = {
   handleTypeScriptUpdate,
   ensureSvgAccessibility,
   validateReactLandmarks,
-  ensureHtmlLanguageAttribute
+  ensureHtmlLanguageAttribute,
+  addScopeAttributesToHeaders
 };

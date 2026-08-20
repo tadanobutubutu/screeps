@@ -23,6 +23,9 @@
 
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
+        // Add lang attribute to the HTML element for accessibility
+        document.documentElement.lang = 'en';
+
         const targetElement = document.getElementById('target');
         const unrotateBtn = document.getElementById('unrotate');
 

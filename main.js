@@ -10,7 +10,7 @@
 
     // Additional code to add accessible names to SVGs
 
-    // Function to add aria-label to SVGs for accessibility
+    // Function to add accessible name to SVGs for accessibility
     function addAccessibleNameToSVGs(svgString, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;

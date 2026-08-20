@@ -25,6 +25,12 @@ export default function Layout({ children }) {
                   if (dashboardLayoutSvg) {
                     dashboardLayoutSvg.setAttribute('aria-label', 'Dashboard icon');
                   }
+
+                  // New: Add aria-label to home icon
+                  const homeLayoutSvg = document.querySelector('home-app-layout svg');
+                  if (homeLayoutSvg) {
+                    homeLayoutSvg.setAttribute('aria-label', 'Home icon');
+                  }
                 });
               `
             }}

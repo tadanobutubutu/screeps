@@ -31,5 +31,12 @@ const RotationButton = () => (
   </button>
 );
 
+// Main component wrapper for accessibility
+const MainContent = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);
+
 // Export all existing exports
 // ... (all existing exports remain unchanged)

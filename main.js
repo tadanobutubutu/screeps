@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Accessibility fixes from insight report
 
 /**
@@ -145,3 +147,17 @@ export function isFocusable(element) {
     (element && typeof element === 'string' && element.trim().length > 0)
   );
 }
+
+const Dashboard = () => {
+    // (rest of the Dashboard function)
+    return (
+        <React.Fragment>
+            {/* Keep the content inside one single "main" */}
+            <main>
+                // ... (rest of the dashboard content)
+            </main>
+        </React.Fragment>
+    );
+};
+
+export default Dashboard;

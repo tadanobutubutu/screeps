@@ -18,7 +18,7 @@ function addScopeToTableHeaders(table) {
 
   const headerCells = firstRow.querySelectorAll('th');
   headerCells.forEach((cell) => {
-    if (!cell.hasAttribute('scope')) {
+    if (cell.tagName === 'TH') {
       cell.setAttribute('scope', 'col');
     }
   });
@@ -27,8 +27,8 @@ function addScopeToTableHeaders(table) {
   rows.forEach((row, index) => {
     if (index === 0) return; // Skip first row as it's handled above
     
-    const firstCell = row.querySelector('th');
-    if (firstCell && !firstCell.hasAttribute('scope')) {
+    const firstCell = row.querySelector('th, td');
+    if (firstCell && firstCell.tagName === 'TH') {
       firstCell.setAttribute('scope', 'row');
     }
   });

@@ -1,9 +1,9 @@
-// Example of the fix pattern for React Table Structure accessibility:
-// Before:
-// <th>Column Name</th>
+import React from 'react';
 
-// After:
-// <th scope="col">Column Name</th>
+const App = () => {
+  return (
+    <button id="unrotate" onClick={() => console.log('rotate back')}>rotate back</button>
+  );
+};
 
-// For row headers:
-// <th>Row Label</th>  →  <th scope="row">Row Label</th>
+export default App;

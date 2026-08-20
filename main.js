@@ -1,6 +1,7 @@
 const path = require('path');
 const { Worker } = require('worker_threads');
 const { generateDependencyGraph } = require('./dependency-graph-generator');
+const fs = require('fs');
 
 async function main() {
     try {
@@ -59,8 +60,26 @@ async function updateReactToV19() {
     }
 }
 
+/**
+ * Adds scope attribute to table headers for accessibility
+ */
+async function addScopeToTableHeaders() {
+    try {
+        console.log('Adding scope attribute to table headers for accessibility...');
+        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const updatedContent = fileContent.replace(/<th>(.*?)<\/th>/g, '<th scope="col">$1</th>');
+        fs.writeFileSync(filePath, updatedContent);
+        console.log('Scope attribute added successfully to table headers.');
+    } catch (error) {
+        console.error('Error adding scope attribute to table headers:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
-    updateReactToV19
+    updateReactToV19,
+    addScopeToTableHeaders
 };

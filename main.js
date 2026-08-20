@@ -1,6 +1,4 @@
-function calculate(a, b) {
-  return a + b;
-}
+// User module - manages user interface
 
 // Add accessible name to SVG elements
 function addAccessibleNameToSVG(svg) {
@@ -35,7 +33,7 @@ function addScopeToTableHeaders() {
   });
 }
 
-// Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
+// Replace fake link (<a href="#") with a real button for accessibility per REACT_036
 function replaceFakeLinksWithButtons() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
@@ -44,6 +42,13 @@ function replaceFakeLinksWithButtons() {
     if (link.id) {
       button.id = link.id;
     }
+    // Click handler to clear viewport transform (as per snippet)
+    button.addEventListener('click', function() {
+        const viewport = document.getElementById('viewport');
+        if (viewport) {
+            viewport.style.transform = '';
+        }
+    });
     const parent = link.parentNode;
     if (parent) {
       parent.replaceChild(button, link);

@@ -27,7 +27,9 @@ export default function RootLayout({
         >
           {/* decorative elements */}
         </svg>
-        {children}
+        <main role="main">
+          {children}
+        </main>
       </body>
     </html>
   );

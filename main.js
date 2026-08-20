@@ -31,19 +31,19 @@ function addMainLandmark(filePath, type = 'tsx') {
         if (type === 'tsx') {
             // Pattern: <body>{children}</body> or similar
             content = content.replace(
-                /(<body[^>]*>)(\{children\})(<\/body>)/i,
+                /<body>\s*{children}\s*<\/body>/i,
                 '<body><main>{children}</main></body>'
             );
             
             // Pattern: <div>{children}</div> in layout
             content = content.replace(
-                /(<div[^>]*>)(\{children\})(<\/div>)/i,
+                /<div>\s*{children}\s*<\/div>/gi,
                 '<main><div>{children}</div></main>'
             );
         } else if (type === 'html') {
             // Pattern: <table id="table-rotated">
             content = content.replace(
-                /(<table[^>]*id="table-rotated"[^>]*>)/i,
+                /(<table id="table-rotated">)/i,
                 '<main>$1'
             );
             
@@ -72,11 +72,15 @@ function fixReactLandmarks() {
     ];
     
     filesToFix.forEach(({ path: filePath, type }) => {
-        const fullPath = path.resolve(process.cwd(), filePath);
-        if (!hasMainLandmark(fullPath)) {
-            addMainLandmark(fullPath, type);
+        const fullPath = path.join(process.cwd(), filePath);
+        if (fs.existsSync(fullPath)) {
+            if (!hasMainLandmark(fullPath)) {
+                addMainLandmark(fullPath, type);
+            } else {
+                console.log(`${filePath} already has <main> landmark`);
+            }
         } else {
-            console.log(`${filePath} already has <main> landmark`);
+            console.log(`File not found: ${filePath}`);
         }
     });
 }

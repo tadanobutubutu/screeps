@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 
 interface DashboardProps {
     // Add your props here if any
@@ -46,9 +45,8 @@ const Dashboard: React.FC<DashboardProps> = (props) => {
     return <>{successContent}</>;
 };
 
-export default Dashboard;
-
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
 root.render(<Dashboard />);
+export default Dashboard;

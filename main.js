@@ -107,6 +107,48 @@ function ensureUniqueLandmarks() {
   console.log('Ensuring unique landmarks');
   // In a real implementation, this would modify layout files
   console.log('Made landmarks unique in app/layout.tsx and dashboard/app/layout.tsx');
+
+  // Read the Dashboard.tsx file
+  const fs = require('fs');
+  const path = require('path');
+  
+  try {
+    const dashboardPath = path.join(__dirname, 'components', 'Dashboard.tsx');
+    
+    if (fs.existsSync(dashboardPath)) {
+      let dashboardContent = fs.readFileSync(dashboardPath, 'utf8');
+      
+      // Find and replace the duplicate <main> element in the error state
+      // The issue states there are 2 <main> elements - one in error state, one in success state
+      // We need to keep only the success state <main> and replace error state <main> with <section>
+      
+      // Pattern to match the error state <main> wrapper
+      const errorMainPattern = /<main\s+style=\{\{\s*padding:\s*'2rem',\s*fontFamily:\s*'monospace'\s*\}\}>\s*<h1[^>]*>[^<]*<\/h1>/g;
+      
+      if (errorMainPattern.test(dashboardContent)) {
+        // Replace with <section> to maintain semantic structure without duplicate landmark
+        dashboardContent = dashboardContent.replace(
+          /<main\s+style=\{\{\s*padding:\s*'2rem',\s*fontFamily:\s*'monospace'\s*\}\}>/g,
+          '<section aria-labelledby="error-heading" style={{ padding: \'2rem\', fontFamily: \'monospace\' }}>'
+        );
+        
+        // Add id to the h1 for aria-labelledby reference
+        dashboardContent = dashboardContent.replace(
+          /<h1\s+style=\{\{\s*color:\s*'#b71c1c'\s*\}\}>([^<]*)<\/h1>/,
+          '<h1 id="error-heading" style={{ color: \'#b71c1c\' }}>$1</h1>'
+        );
+        
+        fs.writeFileSync(dashboardPath, dashboardContent);
+        console.log('Fixed Dashboard.tsx: Replaced duplicate <main> with <section> in error state');
+      } else {
+        console.log('Dashboard.tsx error state <main> pattern not found - may already be fixed or different structure');
+      }
+    } else {
+      console.log('Dashboard.tsx not found at expected path');
+    }
+  } catch (error) {
+    console.error('Error fixing unique landmarks:', error.message);
+  }
 }
 
 // New function to fix fake link issues

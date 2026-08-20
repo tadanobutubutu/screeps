@@ -25,8 +25,15 @@ function replaceFakeLinksWithButtons() {
   }
 }
 
-// Export the function to be used elsewhere in the application
-export { replaceFakeLinksWithButtons };
+/**
+ * The new function to be added as requested in the issue
+ */
+function someFunction() {
+  // Add the functionality of the new function here.
+}
+
+// Export the functions to be used elsewhere in the application
+export { replaceFakeLinksWithButtons, someFunction };
 
 // Call this function when the dependency graph is loaded
 document.addEventListener('DOMContentLoaded', function() {

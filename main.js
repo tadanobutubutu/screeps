@@ -1,4 +1,3 @@
-// Assuming you have a function that renders the table headers
 function renderTableHeaders(headers) {
   return headers.map((header, index) => {
     // Ensure each header has a scope attribute

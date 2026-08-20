@@ -5,15 +5,18 @@ function addTableHeaderScopes() {
   // Select all th elements in your table
   const headers = document.querySelectorAll('th');
 
-  headers.forEach((header, index) => {
+  headers.forEach((header) => {
     // Check if the header already has a scope attribute
     if (!header.hasAttribute('scope')) {
       // Determine if this is a column or row header based on position
-      // This is a simple heuristic - you may need to adjust based on your actual table structure
-      if (index === 0) {
-        header.setAttribute('scope', 'col');
-      } else {
+      // Check if this is a row header by looking at parent structure
+      const parentRow = header.parentElement;
+      const isFirstCell = parentRow ? parentRow.querySelector('th') === header : false;
+      
+      if (isFirstCell) {
         header.setAttribute('scope', 'row');
+      } else {
+        header.setAttribute('scope', 'col');
       }
     }
   });

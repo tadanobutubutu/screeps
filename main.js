@@ -15,11 +15,11 @@ const DependencyGraphTable = () => {
       </thead>
       <tbody>
         <tr>
-          <th scope="row"><div>src/constants.js</div></th>
+          <th scope="row">...</th>
           <td>...</td>
         </tr>
         <tr>
-          <th scope="row"><div>src/managers/roomManager.js</div></th>
+          <th scope="row">...</th>
           <td>...</td>
         </tr>
         {/* More rows with scope="row" for data headers */}

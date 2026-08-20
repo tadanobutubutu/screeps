@@ -13,7 +13,11 @@ export default function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Screeps</title>
-        <svg aria-hidden="true" style={{ display: 'none' }}>
+        <svg
+          aria-hidden="true"
+          style={{ display: 'none' }}
+          role="img" // Adding role="img" to the SVG for accessibility
+        >
           {/* Your SVG content here */}
         </svg>
       </head>

@@ -1,6 +1,3 @@
-Here is the resolved file content, adding the scope attributes to the table headers in the dependency-graph.html content while keeping the JavaScript code separate:
-
-```javascript
 // This file should contain JavaScript code, not HTML
 // The HTML content appears to be in a different file (dependency-graph.html)
 // Please ensure all JavaScript code is properly formatted and valid
@@ -55,6 +52,3 @@ const updatedDependencyGraph = `
 </body>
 </html>
 `;
-```
-
-This file now contains separate JavaScript code and HTML content for the dependency graph. The scope attributes were added to the table headers in the dependency-graph.html content. The JavaScript code remains unchanged and formatted properly.

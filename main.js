@@ -297,6 +297,3 @@ module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 module.exports.fixFakeLinkIssues = fixFakeLinkIssues;
-
-// ... rest of the existing code remains unchanged
-```

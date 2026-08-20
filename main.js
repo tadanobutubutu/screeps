@@ -43,3 +43,21 @@ function updateDependencyGraphTable() {
 document.addEventListener('DOMContentLoaded', updateDependencyGraphTable);
 
 // [Rest of the existing code remains unchanged]
+
+// Function to add accessibility attributes to SVG elements
+function addSVGAccessibility() {
+  // For favicon SVG in dashboard/app/layout.tsx
+  const faviconSVG = document.querySelector('link[rel="icon"] + svg');
+  if (faviconSVG && !faviconSVG.hasAttribute('aria-hidden')) {
+    faviconSVG.setAttribute('aria-hidden', 'true');
+  }
+
+  // For metadata SVG in app/layout.tsx
+  const metadataSVG = document.querySelector('meta[name="viewport"] + svg');
+  if (metadataSVG && !metadataSVG.hasAttribute('aria-hidden')) {
+    metadataSVG.setAttribute('aria-hidden', 'true');
+  }
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', addSVGAccessibility);

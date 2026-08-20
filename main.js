@@ -1,1 +1,12 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Current main.js content
+module.exports = {
+  // ... (existing code, exports, and functions)
+
+  // New function or changes requested in the issue
+  // Assuming this function is related to the issue at hand, though the specific implementation would depend on the rest of the code
+  addLanguageAttribute: () => {
+    document.documentElement.lang = 'en';
+  },
+
+  // ... (rest of the main.js content)
+};

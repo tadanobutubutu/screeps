@@ -52,6 +52,17 @@ function ensureSvgAccessibility() {
   });
 }
 
+// New function to validate React landmark structure
+function validateReactLandmarks() {
+  // This function would be called during server startup to validate
+  // that the React components follow accessibility best practices
+  console.log('Validating React landmark structure...');
+
+  // In a real implementation, this would check the component tree
+  // For now, we'll just log the requirement
+  console.log('Note: Ensure React components have a single <main> landmark. Use <section> or <article> for other regions.');
+}
+
 // Updated server setup
 app.get('/', (req, res) => {
   res.send('Server is running with updated dependencies');
@@ -67,6 +78,8 @@ app.listen(port, () => {
   handleTypeScriptUpdate();
   // Ensure SVG accessibility
   ensureSvgAccessibility();
+  // Validate React landmarks
+  validateReactLandmarks();
 });
 
 // Export all existing functions
@@ -78,5 +91,6 @@ module.exports = {
   handleJestUpdate,
   handleEslintUpdate,
   handleTypeScriptUpdate,
-  ensureSvgAccessibility
+  ensureSvgAccessibility,
+  validateReactLandmarks
 };

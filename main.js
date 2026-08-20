@@ -27,9 +27,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
   return (
     <main lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {error ? (
-        <section aria-label="エラーセクション">
-          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-          <div role="region" aria-label="エラーメッセージ詳細">
+        <section aria-labelledby="error-heading" aria-describedby="error-message">
+          <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <div id="error-message" role="region" aria-label="エラーメッセージ詳細">
             <pre
               tabIndex={0}
               aria-label="エラーメッセージ詳細"

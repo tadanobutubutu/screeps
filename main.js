@@ -47,9 +47,25 @@
         return updatedIcons;
     }
 
+    // Function to update the 'rotate back' link with a button for accessibility
+    function updateRotateBackLink() {
+        const rotateBackLink = document.getElementById('unrotate');
+        if (rotateBackLink) {
+            // Replace the anchor with a button
+            const button = document.createElement('button');
+            button.textContent = 'rotate back';
+            button.type = 'button'; // Specify the button type to avoid form submission
+            rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+        }
+    }
+
     // Export the new functions
     exports.addAccessibleSvg = addAccessibleSvg;
-    module.exports.updateIcons = updateIcons;
+    exports.updateIcons = updateIcons;
+    exports.updateRotateBackLink = updateRotateBackLink;
+
+    // Call the function to update the 'rotate back' link on page load
+    window.onload = updateRotateBackLink;
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

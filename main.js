@@ -99,6 +99,19 @@ function improveTableStructure() {
       caption.setAttribute('id', captionId);
       table.setAttribute('aria-labelledby', captionId);
     }
+
+    // Add scope attributes to th elements
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+
+    // Add unique landmark roles for tables
+    if (!table.hasAttribute('aria-label') && caption) {
+      table.setAttribute('aria-label', caption.textContent);
+    }
   });
 }
 
@@ -189,6 +202,29 @@ function addSkipToContentLink() {
   document.body.insertBefore(skipLink, document.body.firstChild);
 }
 
+// Add accessible names to SVGs
+function addSVGAccessibility() {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    if (!svg.hasAttribute('aria-hidden') && !svg.hasAttribute('aria-label') && !svg.hasAttribute('title')) {
+      svg.setAttribute('aria-label', `Graphic ${index + 1}`);
+    }
+  });
+}
+
+// Ensure unique landmarks
+function ensureUniqueLandmarks() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.hasAttribute('aria-label')) {
+    mainContent.setAttribute('aria-label', 'Main content');
+  }
+
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.hasAttribute('aria-label')) {
+    navigation.setAttribute('aria-label', 'Main navigation');
+  }
+}
+
 // Initialize all accessibility improvements
 document.addEventListener('DOMContentLoaded', () => {
   addLandmarkRoles();
@@ -197,4 +233,6 @@ document.addEventListener('DOMContentLoaded', () => {
   enhanceFormAccessibility();
   addSkipToContentLink();
   improveRotateBackLink(); // Add the new function call
+  addSVGAccessibility(); // Add SVG accessibility improvements
+  ensureUniqueLandmarks(); // Ensure unique landmarks
 });

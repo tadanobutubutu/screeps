@@ -45,9 +45,20 @@ export function DecorativeIcon({ children, className }) {
 /**
  * Proper landmark wrapper
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
+ * 
+ * Uses a single <main> landmark for success states and <section role="alert">
+ * for error states to avoid multiple main landmarks while maintaining
+ * accessibility for screen readers and assistive technologies.
  */
-export function MainContent({ children }) {
-  // (existing code)
+export function MainContent({ children, isError = false }) {
+  if (isError) {
+    return (
+      <section role="alert" aria-label="Error state" className="error-container">
+        {children}
+      </section>
+    );
+  }
+  return <main>{children}</main>;
 }
 
 /**

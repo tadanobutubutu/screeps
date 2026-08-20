@@ -1,1 +1,16 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const express = require('express');
+const app = express();
+
+// ... existing code ...
+
+// Render UI with rotate back button
+function renderUI() {
+    const html = `
+        <div class="controls">
+            <button id="unrotate">rotate back</button>
+        </div>
+    `;
+    return html;
+}
+
+// ... rest of the code ...

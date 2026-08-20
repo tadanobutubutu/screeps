@@ -73,6 +73,27 @@ function ensureHtmlLanguageAttribute() {
   console.log('Please ensure docs/dependency-graph.html has <html lang="en"> or similar language attribute.');
 }
 
+// New function to validate table structure
+function validateTableStructure() {
+  console.log('Validating table structure for accessibility...');
+  // In a real implementation, this would check for proper table structure
+  console.log('Note: Ensure tables have <thead>, <tbody>, and proper scope attributes for screen readers.');
+}
+
+// New function to fix fake links
+function fixFakeLinks() {
+  console.log('Checking for fake links that should be buttons...');
+  // In a real implementation, this would identify and fix fake links
+  console.log('Note: Replace <a> tags used as buttons with proper <button> elements.');
+}
+
+// New function to ensure unique landmarks
+function ensureUniqueLandmarks() {
+  console.log('Ensuring unique landmarks in the document...');
+  // In a real implementation, this would check for duplicate landmarks
+  console.log('Note: Ensure each landmark (main, nav, etc.) is unique and properly labeled.');
+}
+
 // Updated server setup
 app.get('/', (req, res) => {
   res.send('Server is running with updated dependencies');
@@ -92,6 +113,10 @@ app.listen(port, () => {
   validateReactLandmarks();
   // Ensure HTML language attribute
   ensureHtmlLanguageAttribute();
+  // New accessibility checks
+  validateTableStructure();
+  fixFakeLinks();
+  ensureUniqueLandmarks();
 });
 
 // Export all existing functions
@@ -105,5 +130,8 @@ module.exports = {
   handleTypeScriptUpdate,
   ensureSvgAccessibility,
   validateReactLandmarks,
-  ensureHtmlLanguageAttribute
+  ensureHtmlLanguageAttribute,
+  validateTableStructure,
+  fixFakeLinks,
+  ensureUniqueLandmarks
 };

@@ -8,6 +8,14 @@
 
 // 3. REACT_025 - Ensure unique landmark regions
 // Don't have multiple <main> elements, use unique IDs for navigation
+// FIX: Keep a single <main> element and use <section> or <article> for other regions
+// Example:
+// Instead of:
+//   {isError ? <main>Error content</main> : <main>Success content</main>}
+// Use:
+//   <main>
+//     {isError ? <section>Error content</section> : <section>Success content</section>}
+//   </main>
 
 // 4. REACT_027 - Proper table structure
 /*
@@ -28,7 +36,7 @@
 */
 
 // 5. REACT_036 - Use <button> instead of <a> for non-navigation elements
-// <button onClick={handleClick}>Submit</button> instead of <a href="#" onClick={handleClick}>Submit</a>
+// <button ... instead of <a href="#" ...
 
 // 6. REACT_041 - Add accessible names to SVGs
 // <svg aria-label="Close menu" role="img">
@@ -36,3 +44,5 @@
 //   <path d="..." />
 // </svg>
 // OR use aria-hidden="true" if purely decorative
+
+module.exports = { accessibilityFixes: true };

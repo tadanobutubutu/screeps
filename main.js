@@ -17,3 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // [Rest of your existing code remains unchanged]
+
+// Add <main> landmark to the affected files
+// For example, in app/layout.tsx:
+// <html lang="ja">
+//     <head>
+//         <style>{`
+//   // ... existing styles ...
+//         `}</style>
+//     </head>
+//     <body>
+//         <main>
+//             // ... existing content ...
+//         </main>
+//     </body>
+// </html>
+
+// Repeat the above <main> landmark addition for dashboard/app/layout.tsx, docs/dependency-graph.html, and docs/index.html

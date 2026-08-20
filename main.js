@@ -10,9 +10,17 @@ function exampleFunc() {
     // Example logic for the additional function
 }
 
+// Configuration settings for the game
+const config = {
+    // Add your configuration options here
+    maxCreeps: 50,
+    room: 'W0N0',
+};
+
 // Export the loop function for the game engine as requested
 module.exports = {
     loop: loop,
     exampleFunc: exampleFunc,
+    config: config,
     // Add any missing exports here if necessary
 };

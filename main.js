@@ -26,6 +26,24 @@ export default function RootLayout({
           {/* SVG content */}
         </svg>
         <main>{children}</main>
+        {/* Add the following line to preserve table accessibility */}
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Column 1</th>
+              <th scope="col">Column 2</th>
+              {/* Add more headers as necessary */}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Row 1, Cell 1</td>
+              <td>Row 1, Cell 2</td>
+              {/* Add more cells as necessary */}
+            </tr>
+            {/* Add more rows as necessary */}
+          </tbody>
+        </table>
       </body>
     </html>
   );

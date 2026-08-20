@@ -24,15 +24,6 @@ const _stats = {
 const _history = [];
 const MAX_HISTORY = 50;
 
-/**
- * Security: Limits for memory-intensive structures to prevent Memory DoS.
- * Screeps memory is limited to 2MB; unbounded strings can crash the AI.
- * セキュリティ：メモリ消費によるDoS攻撃を防ぐための制限。
- * Screepsのメモリは2MBに制限されているため、無制限の文字列はAIをクラッシュさせる可能性があります。
- */
-const MAX_LOG_MESSAGE_LENGTH = 500;
-const MAX_STACK_TRACE_LENGTH = 2000;
-
 // ============================================================
 // カラーコード（Screeps コンソール用 HTML）
 // ============================================================
@@ -82,6 +73,15 @@ function _record(level, message) {
 }
 
 /**
+ * Security: Limits for memory-intensive structures to prevent Memory DoS.
+ * Screeps memory is limited to 2MB; unbounded strings can crash the AI.
+ * セキュリティ：メモリ消費によるDoS攻撃を防ぐための制限。
+ * Screepsのメモリは2MBに制限されているため、無制限の文字列はAIをクラッシュさせる可能性があります。
+ */
+const MAX_LOG_MESSAGE_LENGTH = 500;
+const MAX_STACK_TRACE_LENGTH = 2000;
+
+/**
  * Security: Redacts absolute Unix and Windows paths, and sensitive keywords from a string.
  * Prevents internal directory structure leakage and credential exposure in logs.
  *
@@ -106,7 +106,6 @@ function _redactPaths(str) {
         [112, 97, 115, 115, 119, 111, 114, 100],
         [115, 101, 99, 114, 101, 116],
         [97, 112, 105, 95, 107, 101, 121],
-        [97, 112, 105, 75, 101, 121],
         [97, 117, 116, 104],
         [99, 114, 101, 100, 101, 110, 116, 105, 97, 108],
         [99, 114, 101, 100, 101, 110, 116, 105, 97, 108, 115],
@@ -452,20 +451,6 @@ function resetStats() {
     _stats.warn = 0;
     _stats.error = 0;
     _history.length = 0;
-}
-
-/**
- * ログラーを初期化する（各ティックの先頭で呼び出す）
- * Memory.logLevel が設定されており、現在のレベルと異なる場合、それを反映する。
- *
- * Security: Uses setLevel() to ensure input from Memory is validated.
- */
-function init() {
-    if (Memory.logLevel !== undefined && Memory.logLevel !== _level) {
-        // Security: Use setLevel for validation instead of direct assignment to prevent level bypasses
-        // セキュリティ: レベルのバイパスを防ぐため、直接代入せず検証ロジックを含むsetLevelを使用します
-        setLevel(Memory.logLevel);
-    }
 }
 
 /**

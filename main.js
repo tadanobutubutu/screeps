@@ -38,5 +38,3 @@ function App() {
 }
 
 export default App;
-```
-I merged the changes and updated the table structure with the correct `scope` attribute as per the React table accessibility example. Additionally, I added the table and its `thead`, `tr`, and `th` elements to the existing React component structure.

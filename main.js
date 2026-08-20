@@ -27,16 +27,39 @@ export const addFixLandmarkIssues = () => {
   // });
 };
 
-// Add accessible names to 2 SVGs (example code, actual implementation needed)
+// Add accessible names to 2 SVGs (fix for REACT_041)
 export const addAccessibleNamesToSVGs = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const svgs = ...
-  // svgs.forEach((svg) => {
-  //   if ... && svg.hasAttribute('title')) {
-  //     ... 'svg-title');
-  //   }
-  // });
+  // Find all SVG elements in the document
+  const svgs = document.querySelectorAll('svg');
+  
+  svgs.forEach((svg) => {
+    // Check if SVG already has an accessible name via aria-label or aria-labelledby
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    
+    // Check if SVG has a title child element
+    const titleElement = svg.querySelector('title');
+    const hasTitleChild = titleElement !== null;
+    
+    // Check if SVG is marked as hidden from screen readers
+    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
+    
+    // If SVG has no accessible name and is not hidden from screen readers
+    if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
+      if (hasTitleChild) {
+        // Use the existing title text as aria-label for screen readers
+        const titleText = titleElement.textContent;
+        svg.setAttribute('aria-label', titleText);
+      } else {
+        // Check if SVG contains text elements (indicating it may be decorative)
+        const textElement = svg.querySelector('text');
+        if (textElement) {
+          // Add aria-hidden="true" since it contains text but no proper accessible name
+          svg.setAttribute('aria-hidden', 'true');
+        }
+      }
+    }
+  });
 };
 
 // Ensure unique landmarks (2 issues) (example code, actual implementation needed)
@@ -96,6 +119,7 @@ function App() {
     ...
     ...
     ...
+    addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
   }, []);

@@ -1,13 +1,1 @@
-// Original content of main.js (with conflict markers)
-
-// <<<<<<< HEAD
-export function main() {
-  // Original implementation of main function
-}
-// ========
-
-// >>>>>> yours
-export function main() {
-  // Modified implementation of main function
-}
-// >>>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

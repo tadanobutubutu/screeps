@@ -19,4 +19,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Add a new function to handle accessibility checks if needed
+function accessibilityCheck() {
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      if (header.closest('thead') || header.closest('tr:first-child')) {
+        header.setAttribute('scope', 'col');
+      } else if (header.closest('tr')) {
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
+}
+
+// Call the accessibilityCheck function on document load
+document.addEventListener('DOMContentLoaded', accessibilityCheck);
+
 // [Rest of existing code remains unchanged]

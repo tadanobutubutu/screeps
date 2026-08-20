@@ -1,7 +1,6 @@
 // main.js
 
-// Original code (before conflict)
-// ... (code before conflict markers) ...
+// Original code (before conflict markers) ...
 
 // Conflicting code (code between conflict markers)
 // <<<<<<< HEAD
@@ -23,3 +22,4 @@ document.getElementById('unrotate').innerHTML = `
 document.documentElement.lang = 'en';
 
 // ... (rest of the code after the conflicting section) ...
+=======

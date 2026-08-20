@@ -13,8 +13,9 @@ function MyApp({ Component, pageProps }: AppProps) {
           content="Screeps is a next-generation web-based game that offers a unique blend of exploration, strategy, and player engagement."
         />
       </Head>
-      <main>{/* Place your content here */}</main>
-      <Component {...pageProps} />
+      <main>
+        <Component {...pageProps} />
+      </main>
     </>
   );
 }

@@ -57,3 +57,17 @@ export function Icon({ className = '' }: { className?: string }) {
     </svg>
   );
 }
+
+// New function to handle the rotation back action
+export function RotateBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      className="rotate-back-button"
+      aria-label="Rotate back to original view"
+    >
+      rotate back
+    </button>
+  );
+}

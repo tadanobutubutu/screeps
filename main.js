@@ -53,3 +53,12 @@ const HtmlWithLang = ({ children }) => (
 
 // Preserve any existing exports
 export { HtmlWithLang };
+
+// Create root and render with HtmlWithLang wrapper
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
+  <HtmlWithLang>
+    <App />
+  </HtmlWithLang>
+);

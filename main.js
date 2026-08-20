@@ -45,12 +45,12 @@ module.exports = {
 
 // Add main landmark elements for React accessibility
 export function wrapWithMain(content) {
-  return <main>{content}</main>;
+  return <main aria-label="Main content">{content}</main>;
 }
 
 // Helper function to wrap content with main landmark
 export function createMainContent(content) {
-  return React.createElement('main', null, content);
+  return React.createElement('main', { 'aria-label': 'Main content' }, content);
 }
 
 // Update layout components to include main landmarks
@@ -61,7 +61,7 @@ export function updateLayoutWithMain(children) {
         {/* Head content */}
       </head>
       <body>
-        <main>{children}</main>
+        <main aria-label="Main content">{children}</main>
       </body>
     </html>
   );
@@ -70,7 +70,7 @@ export function updateLayoutWithMain(children) {
 // Update docs content with proper main landmarks
 export function updateDocsContent(content) {
   return (
-    <main>
+    <main aria-label="Documentation content">
       <div className="container">
         {content}
       </div>
@@ -84,8 +84,8 @@ export function createAccessibleSvg({ children, isDecorative = false }) {
     return <svg aria-hidden="true">{children}</svg>;
   }
   return (
-    <svg aria-label="Favicon">
-      <title>Favicon</title>
+    <svg aria-label="Graphic content">
+      <title>Graphic content</title>
       {children}
     </svg>
   );
@@ -111,7 +111,7 @@ export function renderConditionalMain({ error, content, errorContent }) {
     );
   }
   return (
-    <main>
+    <main aria-label="Main content">
       {content}
     </main>
   );

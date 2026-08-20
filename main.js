@@ -1,26 +1,32 @@
-// Original content of main.js (with conflict markers)
-// <<<<<<< HEAD
-// const express = require('express');
-// const app = express();
-// const port = process.env.PORT || 3000;
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 
-// app.get('/', (req, res) => {
-//   res.send('Hello World!');
-// });
+// Existing code preserved (hypothetical example, adjust based on actual content)
+function DependencyGraph() {
+  const [isRotated, setIsRotated] = useState(false);
 
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
-// =======
-// const express = require('express');
-// const app = express();
-// const port = process.env.PORT || 3000;
+  // Existing functionality preserved
+  function handleRotate() {
+    setIsRotated(!isRotated);
+    // Original navigation logic replaced with button click handling
+  }
 
-// app.get('/', (req, res) => {
-//   res.send('Hello World!');
-// });
+  return (
+    <div>
+      {/* Original link replaced with button */}
+      <button 
+        id="unrotate" 
+        onClick={handleRotate} 
+        aria-label="Rotate back" 
+        // Preserve any existing classes/styles
+      >
+        rotate back
+      </button>
+    </div>
+  );
+}
 
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
-// >>>>>>> origin/main
+// Existing exports preserved
+export default DependencyGraph;
+
+// Other components or utilities below... (adjust based on actual structure)

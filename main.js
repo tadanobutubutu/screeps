@@ -35,11 +35,15 @@ const MetadataSVG = () => (
 
 // Update layout components to use accessible SVGs
 const Layout = ({ children }) => (
-  <div>
-    <FaviconSVG />
-    <MetadataSVG />
-    {children}
-  </div>
+  <html lang="en">
+    <body>
+      <FaviconSVG />
+      <MetadataSVG />
+      <main role="main">
+        {children}
+      </main>
+    </body>
+  </html>
 );
 
 // Preserve any existing exports

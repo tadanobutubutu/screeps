@@ -4,15 +4,41 @@
  * It exports a `run` function that can be imported by tests or the Screeps runtime.
  */
 
-/**
- * The primary function called each tick by the Screeps engine.
- * Currently a no-op placeholder.
- */
+import React from 'react';
+
+// ... other imports and component logic ...
+
 export function run() {
   // No operation performed.
 }
 
 /**
- * Default export for convenience.
+ * Dashboard component for UI.
  */
-export default run;
+const Dashboard = ({ error, copied, errCopyHover, errRetryHover, refreshing, copyErr, fetchStats }) => {
+  const renderMainContent = () => {
+    if (error) {
+      return (
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+          {/* ... error state content ... */}
+        </main>
+      );
+    } else {
+      return (
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+          {/* ... success state content ... */}
+        </main>
+      );
+    }
+  };
+
+  return (
+    <div>
+      {renderMainContent()}
+      {/* ... rest of the component ... */}
+    </div>
+  );
+};
+
+export default Dashboard;
+export function run;

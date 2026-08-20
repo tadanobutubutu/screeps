@@ -1,8 +1,14 @@
 // main.js
 import React from 'react';
 
-// Preserve all existing code and exports
-// ... (all existing code remains unchanged)
+// Existing imports and code remain unchanged
+// ... (all existing imports remain unchanged)
+
+// Existing component definitions remain unchanged
+// ... (all existing component definitions remain unchanged)
+
+// Existing exports remain unchanged
+// ... (all existing exports remain unchanged)
 
 // New function to handle the rotation action
 const handleRotation = (e) => {
@@ -31,30 +37,27 @@ const RotationButton = () => (
   </button>
 );
 
-// Add language attribute to the document
-document.documentElement.lang = 'en';
-
-// Add proper table structure with scope attributes
+// Add proper table structure with scope attributes and unique IDs
 const AccessibleTable = ({ data }) => (
   <table>
     <thead>
       <tr>
-        <th scope="col">Header 1</th>
-        <th scope="col">Header 2</th>
+        <th id="hdr1" scope="col">Header 1</th>
+        <th id="hdr2" scope="col">Header 2</th>
       </tr>
     </thead>
     <tbody>
       {data.map((row, index) => (
         <tr key={index}>
-          <td>{row.col1}</td>
-          <td>{row.col2}</td>
+          <td headers="hdr1">{row.col1}</td>
+          <td headers="hdr2">{row.col2}</td>
         </tr>
       ))}
     </tbody>
   </table>
 );
 
-// Add proper landmarks
+// Add proper landmarks with unique roles
 const MainContent = () => (
   <main>
     <h1>Page Title</h1>
@@ -69,14 +72,6 @@ const Sidebar = () => (
   </aside>
 );
 
-// Add accessible SVG
-const AccessibleSVG = () => (
-  <svg role="img" aria-label="Description of the image">
-    {/* SVG content */}
-  </svg>
-);
-
-// Add unique landmarks
 const Header = () => (
   <header>
     <h1>Site Header</h1>
@@ -89,5 +84,16 @@ const Footer = () => (
   </footer>
 );
 
-// Export all existing exports
+// Add accessible SVG with explicit accessible name
+const AccessibleSVG = () => (
+  <svg role="img" aria-label="Description of the image" xmlns="http://www.w3.org/2000/svg">
+    {/* SVG content */}
+  </svg>
+);
+
+// Add language attribute to the document
+document.documentElement.lang = 'en';
+
+// Add existing code and exports (preserved)
+// ... (all existing code remains unchanged)
 // ... (all existing exports remain unchanged)

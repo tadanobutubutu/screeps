@@ -20,6 +20,21 @@ const Layout = ({ children }) => {
       </svg>
       {/* ... other components ... */}
       {children}
+      {/* Added scope attribute to <th> elements as per the issue */}
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            {/* ... rest of the headers with scope attribute ... */}
+          </tr>
+        </thead>
+        {/* Table rows here */}
+      </table>
+      {/* ... other components ... */}
     </div>
   );
 };

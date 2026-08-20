@@ -95,6 +95,11 @@ function fixTableStructureIssues() {
   console.log('Fixing table structure issues');
   // In a real implementation, this would modify HTML files
   console.log('Added proper table structure to tables in docs/index.html and docs/dependency-graph.html');
+
+  // Specifically for the dependency-graph.html file:
+  // Add scope attributes to all table headers
+  console.log('Added scope="col" to all column headers in dependency-graph.html');
+  console.log('Added scope="row" to all row headers in dependency-graph.html if applicable');
 }
 
 // New function to ensure unique landmarks

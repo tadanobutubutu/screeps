@@ -30,7 +30,7 @@ function handleDependencyUpdates() {
 
 // New function to wrap content in main landmark
 function wrapInMainLandmark(content) {
-  return React.createElement('main', { role: 'main' }, content);
+  return React.createElement('main', null, content);
 }
 
 // New function to add accessibility attributes to SVG elements
@@ -45,7 +45,6 @@ function makeSvgAccessible(svgElement) {
     child.type === 'title' || child.type === 'desc'
   )) {
     return React.cloneElement(svgElement, {
-      'aria-label': 'SVG Image',
       children: [
         React.createElement('title', null, 'SVG Image'),
         ...(svgElement.props.children || [])
@@ -132,6 +131,14 @@ function fixFakeLinkIssues(element) {
 
   return element;
 }
+
+// Ensure HTML document has a lang attribute for accessibility
+document.addEventListener('DOMContentLoaded', (event) => {
+  const htmlTag = document.documentElement;
+  if (!htmlTag.lang) {
+    htmlTag.setAttribute('lang', 'en');
+  }
+});
 
 // Existing exports
 module.exports = {

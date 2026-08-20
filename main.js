@@ -6,6 +6,9 @@ import App from './App';
 // Set language attribute for accessibility
 document.documentElement.lang = 'en';
 
+// Set direction for better accessibility
+document.documentElement.dir = 'ltr';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

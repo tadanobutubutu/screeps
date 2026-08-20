@@ -1,4 +1,23 @@
-// main.js - Fixed with SVG accessibility compliance (REACT_041)
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Example component (assuming this is where the <html> tag is being used)
+const App = () => {
+  return (
+    <html>
+      <head>
+        <title>My App</title>
+      </head>
+      <body>
+        <div className="app-container">
+          {/* App content */}
+        </div>
+      </body>
+    </html>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));
 
 /**
  * Returns accessibility attributes for SVG elements

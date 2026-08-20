@@ -23,7 +23,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     fetchStats();
   }, []);
 
-  // Wrap both states in a single main element
+  // Add lang attribute to the main element
   return (
     <main lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {error ? (

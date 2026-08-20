@@ -2,19 +2,15 @@
 // ...
 
 // New function or changes requested in the issue go here
-// Add the 'scope' attribute to <th> elements that are missing it
-const addScopeToTh = (htmlString) => {
-  // Use regex to find <th> elements that don't have a scope attribute
-  // and add scope="col" to them
-  return htmlString.replace(/<th(?![^>]*\bscope=)([^>]*?)>/gi, (match, attributes) => {
-    // Check if it's a self-closing tag or has content
-    if (attributes.endsWith('/')) {
-      // Self-closing tag: <th />
-      return `<th scope="col"${attributes}>`;
-    }
-    // Regular opening tag: <th>
-    return `<th scope="col"${attributes}>`;
-  });
+// Add the 'lang' attribute to the <html> element that is missing it
+const addLangAttribute = (htmlString) => {
+  // Check if the <html> element has the lang attribute
+  if (!/<html\b[^>]*>/i.test(htmlString)) {
+    return htmlString;
+  }
+
+  // If the <html> element does not have the lang attribute, add it
+  return htmlString.replace(/<html\b[^>]*>/i, '<html lang="en">');
 };
 
 // Example usage of the new function to fix the issue in the given files
@@ -22,13 +18,13 @@ const fixDependencyGraph = () => {
   const fs = require('fs');
   const path = require('path');
   
-  const dependencyGraphFile = path.join(__dirname, 'src', 'components', 'DependencyGraph.jsx');
+  const dependencyGraphFile = path.join(__dirname, 'docs', 'dependency-graph.html');
   
   try {
     const content = fs.readFileSync(dependencyGraphFile, 'utf8');
-    const updatedContent = addScopeToTh(content);
+    const updatedContent = addLangAttribute(content);
     fs.writeFileSync(dependencyGraphFile, updatedContent);
-    console.log('Successfully added scope attribute to <th> elements');
+    console.log('Successfully added lang attribute to <html> element');
   } catch (error) {
     console.error('Error fixing dependency graph:', error);
   }

@@ -41,10 +41,10 @@ function initializeRotation(targetId, controlId) {
             if (currentRotation >= 360) {
                 currentRotation = 0;
                 resetRotation(target);
-                control.textContent = 'rotate back';
+                control.textContent = 'reset rotation';
             } else {
                 rotateElement(target, currentRotation);
-                control.textContent = `reset (${currentRotation}°)`;
+                control.textContent = `rotated: ${currentRotation}°`;
             }
         });
     }

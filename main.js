@@ -19,4 +19,21 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Replace the non-interactive <a> element with a <button> for the 'rotate back' action
+document.addEventListener('DOMContentLoaded', function() {
+  const rotateBackLink = document.getElementById('unrotate');
+  if (rotateBackLink) {
+    // Remove the original <a> element
+    rotateBackLink.parentNode.removeChild(rotateBackLink);
+
+    // Create a new <button> element
+    const rotateBackButton = document.createElement('button');
+    rotateBackButton.id = 'unrotate';
+    rotateBackButton.textContent = 'rotate back';
+
+    // Replace the <a> with the <button>
+    rotateBackButton.parentNode.replaceChild(rotateBackButton, rotateBackLink);
+  }
+});
+
 // [Rest of existing code remains unchanged]

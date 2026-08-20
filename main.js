@@ -19,12 +19,12 @@ const typescript = require('typescript'); // Update to v7 if needed
 
 // Add main landmark to layout components
 function wrapWithMain(content) {
-  return React.createElement('main', { role: 'main' }, content);
+  return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
 }
 
 // Add main landmark to HTML documents
 function addMainToHTML(content) {
-  return `<main role="main">${content}</main>`;
+  return `<main role="main" aria-label="Main content">${content}</main>`;
 }
 
 // Add language attribute to HTML documents
@@ -36,7 +36,7 @@ function addLanguageAttribute(html) {
 function createAccessibleTable(headers, rows) {
   return React.createElement(
     'table',
-    null,
+    { 'aria-label': 'Data table' },
     React.createElement(
       'thead',
       null,
@@ -67,10 +67,10 @@ function createLandmarkStructure(content) {
   return React.createElement(
     React.Fragment,
     null,
-    React.createElement('header', { role: 'banner' }, 'Header Content'),
-    React.createElement('nav', { role: 'navigation' }, 'Navigation Content'),
-    React.createElement('main', { role: 'main' }, content),
-    React.createElement('footer', { role: 'contentinfo' }, 'Footer Content')
+    React.createElement('header', { role: 'banner', 'aria-label': 'Site header' }, 'Header Content'),
+    React.createElement('nav', { role: 'navigation', 'aria-label': 'Main navigation' }, 'Navigation Content'),
+    React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content),
+    React.createElement('footer', { role: 'contentinfo', 'aria-label': 'Site footer' }, 'Footer Content')
   );
 }
 
@@ -78,7 +78,7 @@ function createLandmarkStructure(content) {
 function createAccessibleSVG(title, description, children) {
   return React.createElement(
     'svg',
-    { role: 'img', 'aria-label': title },
+    { role: 'img', 'aria-label': title, focusable: 'false' },
     React.createElement('title', null, title),
     React.createElement('desc', null, description),
     children
@@ -94,6 +94,47 @@ function createAccessibleLink(href, text) {
   );
 }
 
+// Add accessible form elements
+function createAccessibleForm(label, id, type = 'text') {
+  return React.createElement(
+    'div',
+    { className: 'form-group' },
+    React.createElement('label', { htmlFor: id }, label),
+    React.createElement('input', {
+      type: type,
+      id: id,
+      'aria-required': type === 'text' ? 'false' : 'true',
+      'aria-label': label
+    })
+  );
+}
+
+// Add accessible button
+function createAccessibleButton(text, onClick, type = 'button') {
+  return React.createElement(
+    'button',
+    {
+      type: type,
+      onClick: onClick,
+      'aria-label': text
+    },
+    text
+  );
+}
+
+// Add skip to content link
+function createSkipToContentLink() {
+  return React.createElement(
+    'a',
+    {
+      href: '#main',
+      className: 'skip-link',
+      'aria-label': 'Skip to main content'
+    },
+    'Skip to main content'
+  );
+}
+
 // Export the new functions for use in other files
 module.exports = {
   wrapWithMain,
@@ -103,6 +144,9 @@ module.exports = {
   createLandmarkStructure,
   createAccessibleSVG,
   createAccessibleLink,
+  createAccessibleForm,
+  createAccessibleButton,
+  createSkipToContentLink,
   // Preserve all existing exports
   jest,
   React,

@@ -1,8 +1,8 @@
-// app/favicon.ts (new file for favicon SVG with accessible name)
-import { ImageResponse } from 'next/og';
+// main.js
+// [Your existing code here]
 
-export const size = { width: 32, height: 32 };
-export const contentType = 'image/svg+xml';
+// Add the HTML lang attribute to the root element
+document.documentElement.lang = 'en';
 
 export default function Icon() {
   return new ImageResponse(

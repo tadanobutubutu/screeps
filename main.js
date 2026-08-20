@@ -33,8 +33,8 @@ export const addAccessibleNamesToSVGs = () => {
   
   svgs.forEach((svg) => {
     // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const hasAriaLabel = svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '';
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby') && svg.getAttribute('aria-labelledby').trim() !== '';
     
     // Check if SVG has a title child element
     const titleElement = svg.querySelector('title');
@@ -61,19 +61,38 @@ export const addAccessibleNamesToSVGs = () => {
   });
 };
 
-// Ensure unique landmarks (2 issues) (example code, actual implementation needed)
+// Ensure unique landmarks (2 issues)
+// Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
 export const ensureUniqueLandmarks = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const landmarks = ...
-  // const roles = new Set();
-  // landmarks.forEach((landmark) => {
-  //   if ... {
-  //     // Duplicate role found, handle it (e.g., throw error, warning, or correct the role)
-  //   } else {
-  //     ...
-  //   }
-  // });
+  // Find all main elements in the document
+  const mainElements = document.querySelectorAll('main');
+  
+  // If there's more than one main element, fix the duplicate(s)
+  if (mainElements.length > 1) {
+    // Keep the first main element as-is, convert others to section elements
+    // This fixes the accessibility violation where multiple main landmarks exist
+    for (let i = 1; i < mainElements.length; i++) {
+      const duplicateMain = mainElements[i];
+      
+      // Create a replacement section element with the same attributes
+      const sectionReplacement = document.createElement('section');
+      
+      // Copy all attributes from the main element to the section element
+      Array.from(duplicateMain.attributes).forEach((attr) => {
+        sectionReplacement.setAttribute(attr.name, attr.value);
+      });
+      
+      // Move all child nodes from main to section
+      while (duplicateMain.firstChild) {
+        sectionReplacement.appendChild(duplicateMain.firstChild);
+      }
+      
+      // Replace the duplicate main with the section element
+      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
+    }
+    
+    console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);
+  }
 };
 
 // Fix 1 fake link issue (example code, actual implementation needed)
@@ -81,7 +100,7 @@ export const fixFakeLinkIssue = () => {
   // This function needs to be implemented according to the specific issues found.
   // Example:
   // const fakeLinks = ...
-  // ... => {
+  // fakeLinks.forEach((link) => {
   //   // Remove role attribute or replace with a proper element, like a button.
   // });
 };
@@ -90,7 +109,7 @@ export const fixFakeLinkIssue = () => {
 export const handleRotateBack = () => {
   // Implement rotation back logic
   // Example: reset any forward rotation applied to the character model
-  const character = ...
+  const character = document.querySelector('#character');
   if (character) {
     // Reset rotation (assuming Y-axis rotation was used for forward orientation)
     character.style.transform = 'rotateY(0deg)';
@@ -100,34 +119,43 @@ export const handleRotateBack = () => {
   }
 };
 
-// All required exports are present:
-// - langAttribute
-// - fixTableStructure
-// - addFixLandmarkIssues
-// - addAccessibleNamesToSVGs
-// - ensureUniqueLandmarks
-// - fixFakeLinkIssue
-// - handleRotateBack
-// - App (default export)
+// Add scope attributes to table headers in dependency-graph.html
+// This is a temporary fix until the HTML can be properly generated with scope attributes
+function addScopeAttributesToHeaders() {
+  // Select all th elements in the document
+  const headers = document.querySelectorAll('th');
+
+  headers.forEach(header => {
+    // Check if the header already has a scope attribute
+    if (!header.hasAttribute('scope')) {
+      // Determine if it's a column or row header based on context
+      if (header.closest('thead')) {
+        header.setAttribute('scope', 'col');
+      } else if (header.closest('tr')) {
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
+}
 
 function App() {
   // ... existing code ...
 
   React.useEffect(() => {
     langAttribute();
-    ...
-    ...
-    ...
+    fixTableStructure();
+    addFixLandmarkIssues();
     addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
+    addScopeAttributesToHeaders();
   }, []);
 
   return (
     <div>
       {/* ... existing JSX ... */}
 
-      <button id="unrotate" ...
+      <button id="unrotate" onClick={handleRotateBack}>
         rotate back
       </button>
 
@@ -135,8 +163,6 @@ function App() {
     </div>
   );
 }
-
-// ... rest of the existing code ...
 
 // Export App if needed
 export default App;

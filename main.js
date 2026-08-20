@@ -42,3 +42,38 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   // ... rest of your existing Jest config
 };
+
+// Add main landmark elements for React accessibility
+export function wrapWithMain(content) {
+  return <main>{content}</main>;
+}
+
+// Helper function to wrap content with main landmark
+export function createMainContent(content) {
+  return React.createElement('main', null, content);
+}
+
+// Update layout components to include main landmarks
+export function updateLayoutWithMain(children) {
+  return (
+    <html lang="ja">
+      <head>
+        {/* Head content */}
+      </head>
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}
+
+// Update docs content with proper main landmarks
+export function updateDocsContent(content) {
+  return (
+    <main>
+      <div className="container">
+        {content}
+      </div>
+    </main>
+  );
+}

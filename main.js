@@ -13,7 +13,7 @@ function addMainLandmark(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
     const hasMain = /<main[\s>]/i.test(content);
-    
+
     if (!hasMain) {
       // For JSX files with body, wrap children in main
       if (content.includes('<body>') || content.includes('<Body>')) {

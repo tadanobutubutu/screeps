@@ -164,7 +164,10 @@ const _escapeHTML = (function () {
 function _createCircularReplacer() {
     const seen = new WeakSet();
     return (key, value) => {
-        if (typeof value === 'bigint') return value.toString() + 'n';
+        if (typeof value === 'bigint') {
+            return value.toString() + 'n';
+        }
+
         if (typeof value === 'object' && value !== null) {
             if (seen.has(value)) return '[Circular]';
             seen.add(value);
@@ -174,19 +177,19 @@ function _createCircularReplacer() {
 }
 
 /**
-/**
- * Security: Safely stringifies an object, handling circular references and limiting length.
- * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
- * Also redacts absolute paths to prevent information leakage in logged objects.
- *
- * セキュリティ：循環参照を処理し、長さを制限してオブジェクトを安全に文字列化します。
- * JSON.stringify の失敗によるティック途中での DoS を防ぎます。
- * また、ログ出力されたオブジェクトからの情報漏洩を防ぐため、絶対パスをサニタイズします。
- *
- * @param {*} obj
- * @param {number} [maxLength=500]
- * @returns {string}
- */
+ /**
+  * Security: Safely stringifies an object, handling circular references and limiting length.
+  * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
+  * Also redacts absolute paths to prevent information leakage in logged objects.
+  *
+  * セキュリティ：循環参照を処理し、長さを制限してオブジェクトを安全に文字列化します。
+  * JSON.stringify の失敗によるティック途中での DoS を防ぎます。
+  * また、ログ出力されたオブジェクトからの情報漏洩を防ぐため、絶対パスをサニタイズします。
+  *
+  * @param {*} obj
+  * @param {number} [maxLength=500]
+  * @returns {string}
+  */
 function _safeStringify(obj, maxLength = 500) {
     try {
         const str = JSON.stringify(obj, _createCircularReplacer());
@@ -465,7 +468,7 @@ function resetStats() {
 function init() {
     if (Memory.logLevel !== undefined && Memory.logLevel !== _level) {
         // Security: Use setLevel for validation instead of direct assignment to prevent level bypasses
-        // セキュリティ: レベルのバイパスを防ぐため、直接代入せず検証ロジックを含むsetLevelを使用します
+        // セキュリティ：レベルのバイパスを防ぐため、直接代入せず検証ロジックを含むsetLevelを使用します
         setLevel(Memory.logLevel);
     }
 }

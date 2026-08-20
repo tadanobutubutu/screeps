@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -67,5 +66,12 @@ const AccessibleTable = ({ headers, data, caption }) => {
   );
 };
 
+// Add language attribute to the root HTML element for accessibility
+const HtmlWithLang = ({ children }) => (
+  <html lang="en">
+    {children}
+  </html>
+);
+
 // Preserve any existing exports
-export { Layout, AccessibleTable };
+export { Layout, AccessibleTable, HtmlWithLang };

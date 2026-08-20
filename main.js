@@ -119,5 +119,26 @@ export const FakeLink = ({ href, children }) => {
   );
 };
 
+/**
+ * Creates an accessible HTML document with proper language attribute
+ * @param {Object} props - Component props
+ * @param {string} props.lang - Language code (default: 'en')
+ * @param {React.ReactNode} props.children - Content
+ * @returns {JSX.Element} - Accessible HTML document component
+ */
+export const AccessibleDocument = ({ lang = 'en', children }) => {
+  return (
+    <html lang={lang}>
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body>
+        {children}
+      </body>
+    </html>
+  );
+};
+
 // Preserve all existing code below
 // ... (rest of the original main.js content remains unchanged)

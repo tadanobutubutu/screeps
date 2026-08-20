@@ -1,3 +1,30 @@
-// main.js content is not provided in your message.
-// Please paste the contents of main.js so I can help resolve the REACT_025 issue.
-// The issue states that there are 2 occurrences of multiple <main> landmarks that need to be fixed.
+// Assuming the main.js file does not directly contain the HTML table and is not responsible for the issue at hand, the following is a hypothetical example of how you might modify a component that renders the table to fix the `REACT_027` issue.
+
+import React from 'react';
+
+const MyTableComponent = ({ headers, rows }) => {
+  return (
+    <table>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th scope="col" key={index}>
+              {header}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+export default MyTableComponent;

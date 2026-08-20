@@ -100,14 +100,43 @@ const rotateBackAction = () => {
   return `<button id="unrotate" type="button">rotate back</button>`;
 };
 
-module.exports = { 
-  getPendingUpdates, 
-  getDetectedDependencies, 
-  getBlockedPRs, 
-  wrapWithMain, 
-  getFixedLayouts, 
-  makeSvgAccessible, 
-  addLangAttribute, 
+// New function to fix React Unique Landmarks issue
+function ensureUniqueLandmarks(htmlContent) {
+  // Ensure only one h1 per page and proper heading hierarchy
+  const h1Count = (htmlContent.match(/<h1/g) || []).length;
+  if (h1Count > 1) {
+    // Replace all but first h1 with h2
+    htmlContent = htmlContent.replace(/<h1/g, (match, offset) => {
+      return offset === htmlContent.indexOf('<h1') ? match : '<h2';
+    });
+  }
+
+  // Ensure proper heading hierarchy
+  const headings = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  let currentLevel = 0;
+
+  return htmlContent.replace(/<h([1-6])([^>]*)>/g, (match, level) => {
+    level = parseInt(level);
+    if (level <= currentLevel) {
+      currentLevel = level;
+    } else if (level > currentLevel + 1) {
+      // Skip levels if hierarchy is broken
+      currentLevel += 1;
+      return `<h${currentLevel}`;
+    }
+    return match;
+  });
+}
+
+module.exports = {
+  getPendingUpdates,
+  getDetectedDependencies,
+  getBlockedPRs,
+  wrapWithMain,
+  getFixedLayouts,
+  makeSvgAccessible,
+  addLangAttribute,
   addTableHeaderScope,
-  rotateBackAction
+  rotateBackAction,
+  ensureUniqueLandmarks
 };

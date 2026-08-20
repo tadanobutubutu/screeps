@@ -1,7 +1,6 @@
 // main.js - merged with React component and SVG accessibility compliance
-
-const React = require('react');
-const ReactDOM = require('react-dom');
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 // Existing code from main.js (excluding the App component)
 export function getSVGAriaProps(isDecorative = false, ariaLabel) {
@@ -12,7 +11,7 @@ export function validateSVGAccessibility(svgProps) {
   // ... existing code for validateSVGAccessibility
 }
 
-// Merge the React App component and adjust it to use the new getSVGAriaProps function
+// Merge the React App component and adapt it to use the new getSVGAriaProps function
 const App = () => {
   // Adapt App to use getSVGAriaProps for SVG elements
   return (
@@ -22,8 +21,8 @@ const App = () => {
       </head>
       <body>
         <div className="app-container">
-          {/* Adapt App content to use getSVGAriaProps for any decorative SVGs */}
-          <svg viewBox="0 0 32 32" width="32" height="32" {…getSVGAriaProps(true)}>
+          {/* Adapt App content to use getSVGAriaProps for decorative SVGs */}
+          <svg viewBox="0 0 32 32" width="32" height="32" {...getSVGAriaProps(true)}>
             <path d="..." />
           </svg>
           {/* ... rest of App content */}
@@ -34,6 +33,27 @@ const App = () => {
 };
 
 ReactDOM.render(<App />, document.getElementById('root'));
-```
 
-This solution keeps the React component, adapts it to use the getSVGAriaProps function for decorative SVGs, and addresses the Git merge conflict by merging both changes.
+function addSvgAccessibility(svgElement) {
+  if (!svgElement.hasAttribute('aria-hidden') && !svgElement.querySelector('title')) {
+    svgElement.setAttribute('aria-label', 'Application icon');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach(svg => {
+    addSvgAccessibility(svg);
+  });
+});
+
+function ensureSingleMain() {
+  const mainElements = document.querySelectorAll('main');
+  if (mainElements.length > 1) {
+    for (let i = 1; i < mainElements.length; i++) {
+      mainElements[i].parentNode.removeChild(mainElements[i]);
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ensureSingleMain);

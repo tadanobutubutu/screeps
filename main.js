@@ -4,21 +4,7 @@ const fs = require('fs');
 const cookieParser = require('cookie-parser');
 const compression = require('compression');
 const helmet = require('helmet');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
 
 app.use(compression());
 app.use(express.static('public'));
@@ -82,4 +68,3 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
-```

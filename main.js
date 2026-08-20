@@ -1,7 +1,1 @@
-module.exports = {
-  // Your existing exports here
-  // Example of adding a new function or change requested in the issue, if needed
-  // newFunction: () => {
-  //   // New function implementation
-  // }
-};
+Could you please provide the full contents of `main.js`, especially the sections surrounding the `<<<<<<<`, `=======`, and `>>>>>>>` markers? This will let me resolve the conflict accurately.

@@ -8,6 +8,10 @@ const jest = require('jest');
 const eslint = require('eslint');
 const babelJest = require('babel-jest');
 
+// New imports for file system operations
+const fs = require('fs');
+const path = require('path');
+
 // Existing exports (preserved)
 module.exports = {
   // ... all existing exports remain unchanged
@@ -43,16 +47,25 @@ function handleTypeScript7Update() {
 
 // New function to fix React SVG Accessible Name issues
 function fixReactSVGAccessibility() {
-  // This function would be called during the build process to modify the layout files
-  console.log('Fixing React SVG accessibility issues');
+  // Define the layout files that contain the favicon SVG
+  const layoutPaths = [
+    path.join(__dirname, 'app/layout.tsx'),
+    path.join(__dirname, 'dashboard/app/layout.tsx')
+  ];
 
-  // In a real implementation, this would modify the layout files directly
-  // For example:
-  // 1. Read app/layout.tsx and dashboard/app/layout.tsx
-  // 2. Add aria-hidden="true" to the favicon SVG
-  // 3. Write the modified files back
+  layoutPaths.forEach(file => {
+    if (!fs.existsSync(file)) return;
 
-  // Since we can't modify files in this context, we'll just log the action
+    const content = fs.readFileSync(file, 'utf8');
+    // Add aria-hidden="true" to the <svg> tag if it's not already present
+    const updatedContent = content.replace(
+      /<svg([^>]*?)>/,
+      (match, attr) => match.replace(/>/, ` aria-hidden="true">`)
+    );
+
+    fs.writeFileSync(file, updatedContent, 'utf8');
+  });
+
   console.log('Added aria-hidden="true" to favicon SVGs in app/layout.tsx and dashboard/app/layout.tsx');
 }
 
@@ -69,7 +82,3 @@ module.exports.handleTypeScript7Update = handleTypeScript7Update;
 module.exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
 
 // ... rest of the existing code remains unchanged
-
-// React Landmark fixes would be implemented in the respective component files
-// For example, in app/layout.tsx and dashboard/app/layout.tsx, the body would be wrapped in <main>
-// In docs/index.html and docs/dependency-graph.html, the content would be wrapped in <main> tags

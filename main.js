@@ -1,5 +1,5 @@
 // This file should contain JavaScript code, not HTML
-// The HTML content appears to be in a different file (dependency-graph.html)
+// The HTML content appears to be in a different file ...
 // Please ensure all JavaScript code is properly formatted and valid
 
 // Example of proper JavaScript code (if this was the actual content):

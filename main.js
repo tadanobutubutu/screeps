@@ -72,4 +72,4 @@ module.exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
 
 // React Landmark fixes would be implemented in the respective component files
 // For example, in app/layout.tsx and dashboard/app/layout.tsx, the body would be wrapped in <main>
-// In docs/index.html and docs/dependency-graph.html, the content would be wrapped in <main> tags
+// In docs/index.html and ... the content would be wrapped in <main> tags

@@ -1,6 +1,3 @@
-// User module - manages user interface
-
-// Add accessible name to SVG elements
 export function addAccessibleNameToSVG(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
@@ -14,7 +11,6 @@ export function addAccessibleNameToSVG(svg) {
   return svg;
 }
 
-// Update to include the lang attribute in the HTML root element
 export function addLangToHtmlRoot(lang) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
@@ -23,7 +19,6 @@ export function addLangToHtmlRoot(lang) {
   return htmlElement;
 }
 
-// Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
   const tableHeaders = document.querySelectorAll('th');
   tableHeaders.forEach(header => {
@@ -33,7 +28,6 @@ export function addScopeToTableHeaders() {
   });
 }
 
-// Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
 export function replaceFakeLinksWithButtons() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
@@ -44,10 +38,10 @@ export function replaceFakeLinksWithButtons() {
     }
     // Click handler to clear viewport transform (as per snippet)
     button.addEventListener('click', function() {
-        const viewport = document.getElementById('viewport');
-        if (viewport) {
-            viewport.style.transform = '';
-        }
+      const viewport = document.getElementById('viewport');
+      if (viewport) {
+        viewport.style.transform = '';
+      }
     });
     const parent = link.parentNode;
     if (parent) {
@@ -60,10 +54,8 @@ function calculate(a, b) {
   return a + b;
 }
 
-// New function with contribution from origin/main
 function calculateWithContribution(contribution, a, b) {
   return a + b + contribution;
 }
 
-// Export all functions
 export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, calculateWithContribution };

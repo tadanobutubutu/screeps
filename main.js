@@ -16,13 +16,11 @@ export function Layout({ children }) {
   return (
     <div>
       <svg
-        aria-hidden="true"
+        aria-label="Application icon"
         width="0"
         height="0"
         style={{ position: 'absolute' }}
-      >
-        <title>Application icon</title>
-      </svg>
+      />
       {children}
     </div>
   );
@@ -33,13 +31,11 @@ export function DashboardLayout({ children }) {
   return (
     <div>
       <svg
-        aria-hidden="true"
+        aria-label="Dashboard icon"
         width="0"
         height="0"
         style={{ position: 'absolute' }}
-      >
-        <title>Dashboard icon</title>
-      </svg>
+      />
       {children}
     </div>
   );
@@ -47,7 +43,7 @@ export function DashboardLayout({ children }) {
 
 // Existing code (preserved)
 export function renderApp() {
-  const container = document.getElementById('root');
+  const container = ...
   const root = createRoot(container);
   root.render(<App />);
 }

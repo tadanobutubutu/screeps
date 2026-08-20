@@ -16,13 +16,13 @@ function setHtmlLanguage(lang = 'en') {
  */
 function replaceFakeLinksWithButtons() {
   // This function would be called when the dependency graph is loaded
-  const rotateBackLink = document.querySelector('#rotate-back');
+  const rotateBackLink = document.getElementById('rotate-back-link');
   if (rotateBackLink) {
     // Create a new button element
     const button = document.createElement('button');
     button.id = 'unrotate';
     button.textContent = 'rotate back';
-    button.className = rotateBackLink.className;
+    button.className = 'graph-button';
 
     // Replace the link with the button
     rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
@@ -44,11 +44,11 @@ function someFunction() {
 }
 
 // Export the functions to be used elsewhere in the application
-export { replaceFakeLinksWithButtons, someFunction, setHtmlLanguage };
+export { someFunction, setHtmlLanguage, replaceFakeLinksWithButtons };
 
 // Call this function when the dependency graph is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  if (document.querySelector('#rotate-back')) {
+  if (document.querySelector('.dependency-graph')) {
     replaceFakeLinksWithButtons();
   }
   // Set the HTML language attribute for accessibility (REACT_015)

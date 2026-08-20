@@ -21,6 +21,28 @@
         rotateElement(element, 0);
     }
 
+    // Add ARIA attributes for accessibility
+    function addAccessibilityAttributes(element) {
+        if (element) {
+            element.setAttribute('role', 'button');
+            element.setAttribute('tabindex', '0');
+            element.setAttribute('aria-label', 'Rotate element');
+        }
+    }
+
+    // Add keyboard support for rotation
+    function handleKeyboardRotation(element) {
+        if (element) {
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const newRotation = (config.rotation + 90) % config.maxRotation;
+                    rotateElement(element, newRotation);
+                }
+            });
+        }
+    }
+
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         const targetElement = document.getElementById('target');
@@ -32,6 +54,8 @@
                 e.preventDefault();
                 resetRotation(targetElement);
             });
+            addAccessibilityAttributes(unrotateBtn);
+            handleKeyboardRotation(unrotateBtn);
         }
 
         // Example: rotate on some trigger
@@ -41,6 +65,13 @@
                 const newRotation = (config.rotation + 90) % config.maxRotation;
                 rotateElement(targetElement, newRotation);
             });
+            addAccessibilityAttributes(rotateBtn);
+            handleKeyboardRotation(rotateBtn);
+        }
+
+        // Add ARIA attributes to target element if it exists
+        if (targetElement) {
+            targetElement.setAttribute('aria-live', 'polite');
         }
     });
 

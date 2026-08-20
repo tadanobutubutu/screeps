@@ -9,7 +9,7 @@ function addScopeToTableHeaders(table) {
     return table;
   }
 
-  const rows = table.querySelectorAll('tr');
+  const rows = table.rows;
   const firstRow = rows[0];
   
   if (!firstRow) {
@@ -18,7 +18,7 @@ function addScopeToTableHeaders(table) {
 
   const headerCells = firstRow.querySelectorAll('th');
   headerCells.forEach((cell) => {
-    if (!cell.hasAttribute('scope')) {
+    if (cell.tagName === 'TH') {
       cell.setAttribute('scope', 'col');
     }
   });
@@ -28,7 +28,7 @@ function addScopeToTableHeaders(table) {
     if (index === 0) return; // Skip first row as it's handled above
     
     const firstCell = row.querySelector('th');
-    if (firstCell && !firstCell.hasAttribute('scope')) {
+    if (firstCell && firstCell === row.cells[0]) {
       firstCell.setAttribute('scope', 'row');
     }
   });

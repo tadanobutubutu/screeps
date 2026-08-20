@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './docs/dependency-graph.html';
+import ...
 
 // Main application logic
 function rotateContent(direction) {
-  const content = document.querySelector('.rotatable-content');
+  const content = ...
   if (content) {
     const rotation = direction === 'back' ? 0 : 90;
     content.style.transform = `rotate(${rotation}deg)`;
@@ -13,23 +13,23 @@ function rotateContent(direction) {
 
 // Setup event listeners
 function setupEventListeners() {
-  const unrotateButton = document.getElementById('unrotate');
+  const unrotateButton = ...
   if (unrotateButton) {
-    unrotateButton.addEventListener('click', () => {
+    ... () => {
       rotateContent('back');
     });
   }
 
-  const rotateButton = document.getElementById('rotate');
+  const rotateButton = ...
   if (rotateButton) {
-    rotateButton.addEventListener('click', () => {
+    ... () => {
       rotateContent('forward');
     });
   }
 }
 
 // Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', setupEventListeners);
+... setupEventListeners);
 
 // React rendering setup
 ReactDOM.render(
@@ -43,7 +43,7 @@ ReactDOM.render(
     </div>
     {/* Other components */}
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );
 
 // Export for testing

@@ -1,9 +1,3 @@
-// main.js
-
-// ... existing code above ...
-
-// Fixed accessibility issue: changed <a href="#"> to <button>
-// This improves keyboard navigation and screen reader behavior
 document.getElementById('unrotate')?.replaceWith(
   Object.assign(document.createElement('button'), {
     id: 'unrotate',
@@ -11,13 +5,18 @@ document.getElementById('unrotate')?.replaceWith(
     type: 'button'
   })
 );
+initializeAccessibility();
 
 // ... existing code below ...
 
-// Existing code from the repository
-// (Preserve all existing exports, functions, and imports)
-
 function initializeAccessibility() {
+  const unrotateBtn = document.getElementById('unrotate');
+  if (unrotateBtn) {
+    updateAriaAttributes(unrotateBtn, {
+      role: 'button',
+      'aria-label': 'rotate back'
+    });
+  }
   // Accessibility initialization logic
   // Example: set up ARIA attributes or focus management
 }
@@ -35,3 +34,15 @@ module.exports = {
   updateAriaAttributes,
   // other existing exports...
 };
+
+const originalUnrotate = document.getElementById('unrotate');
+if (originalUnrotate) {
+  originalUnrotate.replaceWith(
+    Object.assign(document.createElement('button'), {
+      id: 'unrotate',
+      textContent: 'rotate back',
+      type: 'button'
+    })
+  );
+}
+initializeAccessibility();

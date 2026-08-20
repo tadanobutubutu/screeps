@@ -1,1 +1,17 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+tsx
+// app/layout.tsx
+import React from 'react';
+
+const Layout: React.FC = () => {
+  return (
+    <div>
+      {/* Existing content */}
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        {/* SVG content without accessible name */}
+      </svg>
+      {/* More existing content */}
+    </div>
+  );
+};
+
+export default Layout;

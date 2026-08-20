@@ -1,16 +1,85 @@
-// Assuming this is the structure of the main.js file with the conflicting sections
-// You would need to replace the existing content of the script tag with the following
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const helmet = require('helmet');
 
-document.addEventListener("DOMContentLoaded", function() {
-  // ... existing code ...
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  // Adding the lang attribute to the html tag
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en');
-  }
+// Security middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
 
-  // ... remaining code ...
+app.use(compression());
+app.use(express.static('public'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Serve the main index.html with lang attribute set
+app.get('/', (req, res) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  fs.readFile(indexPath, 'utf8', (err, data) => {
+    if (err) {
+      return res.status(500).send('Error loading index.html');
+    }
+    // Ensure the lang attribute is set on the html tag
+    const htmlElement = data.match(/<html[^>]*>/i);
+    if (htmlElement && !/lang\s*=\s*["']en["']/i.test(htmlElement[0])) {
+      const updatedData = data.replace(
+        /<html/i,
+        '<html lang="en"'
+      );
+      res.send(updatedData);
+    } else {
+      res.send(data);
+    }
+  });
 });
 
-// ... rest of main.js content ...
+app.get('/dashboard', (req, res) => {
+  // In the actual Dashboard.tsx, we'll fix this
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// API endpoints
+app.get('/api/stats', (req, res) => {
+  // Return some stats
+  res.json({
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    memory: process.memoryUsage()
+  });
+});
+
+app.get('/api/error-test', (req, res) => {
+  // Simulate an error for testing error handling
+  res.status(500).json({
+    message: 'Simulated error for testing',
+    details: 'Error details here'
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+module.exports = app;
+```

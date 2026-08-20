@@ -1,86 +1,33 @@
-// main.js
-// Preserve all existing imports and functions
 import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
 
-// Example of how to address REACT_015 - Ensure language attribute is set
-function App() {
-  // Add lang attribute to the root element
-  return (
-    <div lang="en"> {/* Set appropriate language code */}
-      {/* Existing content */}
-    </div>
-  );
-}
+// Set language attribute for accessibility
+document.documentElement.lang = 'en';
 
-// Example of how to address REACT_027 - Proper table structure
-function DataTable({ data }) {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Header 1</th>
-          <th scope="col">Header 2</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item, index) => (
-          <tr key={index}>
-            <td>{item.column1}</td>
-            <td>{item.column2}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+// Set direction for better accessibility
+document.documentElement.dir = 'ltr';
 
-// Example of how to address REACT_017 - Proper landmarks
-function MainLayout() {
-  return (
-    <>
-      <header role="banner">
-        {/* Header content */}
-      </header>
-      <main role="main">
-        {/* Main content */}
-      </main>
-      <footer role="contentinfo">
-        {/* Footer content */}
-      </footer>
-    </>
-  );
-}
+// Merged both sections from separate branches
+import Script from 'react-load-script';
+import { Loader } from './Loader';
 
-// Example of how to address REACT_041 - SVG accessible name
-function Icon({ name }) {
-  return (
-    <svg aria-label={name} role="img">
-      {/* SVG content */}
-    </svg>
-  );
-}
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
-// Example of how to address REACT_025 - Unique landmarks
-function Sidebar() {
-  return (
-    <aside aria-label="Main navigation">
-      {/* Sidebar content */}
-    </aside>
-  );
-}
-
-// Example of how to address REACT_036 - Proper link implementation
-function CustomLink({ href, children }) {
-  return (
-    <a href={href} onClick={(e) => {
-      e.preventDefault();
-      // Handle navigation
-    }}>
-      {children}
-    </a>
-  );
-}
-
-// Preserve all existing exports
-export default App;
-export { DataTable, MainLayout, Icon, Sidebar, CustomLink };
+root.render(
+  <React.StrictMode>
+    <Script url="https://cdn.screeps.com/lib/screeps.min.js" onLoad={({ target }) => {
+      window.screeps = target;
+      root.render(
+        <>
+          <App />
+          {/* Instead of rendering App twice, only render it inside the loaded Screeps library */}
+          {typeof window.screeps !== 'undefined' && <Loader />}
+        </>
+      );
+    }} />
+    {/* Added loader while the Screeps library is being loaded */}
+    <Loader visible={typeof window.screeps === 'undefined'} />
+  </React.StrictMode>
+);

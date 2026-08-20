@@ -201,6 +201,30 @@ function ensureSingleMainLandmark(component) {
   return component;
 }
 
+// New function to process all th elements in a table and add scope attributes
+function fixAllTableHeaderScopes(tableElement) {
+  const children = React.Children.toArray(tableElement.props.children);
+  
+  const processChildren = (children) => {
+    return children.map(child => {
+      if (child.type === 'th') {
+        return fixTableHeaderScope(child);
+      }
+      
+      // Process nested table elements
+      if (child.props && child.props.children) {
+        const processedChildren = processChildren(React.Children.toArray(child.props.children));
+        return React.cloneElement(child, null, processedChildren);
+      }
+      
+      return child;
+    });
+  };
+  
+  const processedChildren = processChildren(children);
+  return React.cloneElement(tableElement, null, processedChildren);
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -216,6 +240,7 @@ module.exports = {
   addLangAttribute,
   fixTableStructure,
   fixTableHeaderScope,
+  fixAllTableHeaderScopes,
   fixLandmarkIssues,
   fixFakeLinkIssues,
   ensureSingleMainLandmark

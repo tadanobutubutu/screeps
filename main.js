@@ -51,26 +51,26 @@ export const fixTableStructure = () => {
 // Add/fix 4 landmark issues (example code, actual implementation needed)
 export const addFixLandmarkIssues = () => {
   // Check if there's already a main landmark in the document
-  let mainElement = ...
+  let mainElement = document.querySelector('main');
   
   if (!mainElement) {
     // If no main landmark exists, create one and wrap the primary content
     const body = document.body;
     
     // Create a new main element
-    mainElement = ...
+    mainElement = document.createElement('main');
     
     // Get all child elements from body that should be wrapped in main
-    const children = ...
+    const children = Array.from(body.children);
     const contentElements = children.filter(child => {
       // Filter out non-content elements like scripts, styles, meta, etc.
-      const tagName = ...
-      return !['script', 'style', 'noscript', 'link', ...
+      const tagName = child.tagName.toLowerCase();
+      return !['script', 'style', 'noscript', 'link', 'meta', 'noscript'].includes(tagName);
     });
     
     if (contentElements.length > 0) {
       // Insert the main element at the beginning of body
-      ... body.firstChild);
+      body.insertBefore(mainElement, body.firstChild);
       
       // Move all content elements into the main element
       contentElements.forEach(element => {
@@ -87,32 +87,32 @@ export const addFixLandmarkIssues = () => {
 // Add accessible names to 2 SVGs (fix for REACT_041)
 export const addAccessibleNamesToSVGs = () => {
   // Find all SVG elements in the document
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg) => {
     // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
     
     // Check if SVG has a title child element
-    const titleElement = ...
+    const titleElement = svg.querySelector('title');
     const hasTitleChild = titleElement !== null;
     
     // Check if SVG is marked as hidden from screen readers
-    const ariaHidden = ... === 'true';
+    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
     
     // If SVG has no accessible name and is not hidden from screen readers
     if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
       if (hasTitleChild) {
         // Use the existing title text as aria-label for screen readers
         const titleText = titleElement.textContent;
-        ... titleText);
+        svg.setAttribute('aria-label', titleText);
       } else {
         // Check if SVG contains text elements (indicating it may be decorative)
-        const textElement = ...
+        const textElement = svg.querySelector('text');
         if (textElement) {
           // Add aria-hidden="true" since it contains text but no proper accessible name
-          ... 'true');
+          svg.setAttribute('aria-hidden', 'true');
         }
       }
     }
@@ -123,7 +123,7 @@ export const addAccessibleNamesToSVGs = () => {
 // Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
 export const ensureUniqueLandmarks = () => {
   // Find all main elements in the document
-  const mainElements = ...
+  const mainElements = document.querySelectorAll('main');
   
   // If there's more than one main element, fix the duplicate(s)
   if (mainElements.length > 1) {
@@ -133,41 +133,71 @@ export const ensureUniqueLandmarks = () => {
       const duplicateMain = mainElements[i];
       
       // Create a replacement section element with the same attributes
-      const sectionReplacement = ...
+      const sectionReplacement = document.createElement('section');
       
       // Copy all attributes from the main element to the section element
-      ... => {
+      Array.from(duplicateMain.attributes).forEach(attr => {
         sectionReplacement.setAttribute(attr.name, attr.value);
       });
       
       // Move all child nodes from main to section
-      while ... {
-        ...
+      while (duplicateMain.firstChild) {
+        sectionReplacement.appendChild(duplicateMain.firstChild);
       }
       
       // Replace the duplicate main with the section element
-      ... duplicateMain);
+      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
     }
     
     console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);
   }
 };
 
-// Fix 1 fake link issue (example code, actual implementation needed)
+// Fix 1 fake link issue (REACT_036: React Fake Link)
 export const fixFakeLinkIssue = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const fakeLinks = ...
-  // ... => {
-  //   // Remove role attribute or replace with a proper element, like a button.
-  // });
+  // Find all anchor elements with href="#" (fake links that don't navigate)
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  
+  fakeLinks.forEach((link) => {
+    // Get the link's text content and any relevant attributes
+    const linkText = link.textContent.trim();
+    const linkId = link.id || '';
+    const linkClass = link.className || '';
+    const linkOnClick = link.onclick;
+    
+    // Create a proper button element to replace the fake link
+    const button = document.createElement('button');
+    button.textContent = linkText;
+    button.id = linkId;
+    button.className = linkClass;
+    
+    // Copy any relevant data attributes
+    Array.from(link.attributes).forEach(attr => {
+      if (attr.name.startsWith('data-')) {
+        button.setAttribute(attr.name, attr.value);
+      }
+    });
+    
+    // If the link had an onclick handler, attach it to the button
+    // or set up a click listener that calls the original handler
+    if (linkOnClick) {
+      button.onclick = linkOnClick;
+    }
+    
+    // Replace the fake link with the proper button
+    if (link.parentNode) {
+      link.parentNode.replaceChild(button, link);
+    }
+    
+    console.log(`Fixed fake link: "${linkText}" - converted <a href="#"> to <button>`);
+  });
 };
 
 // Handle rotation back logic
 export const handleRotateBack = () => {
   // Implement rotation back logic
   // Example: reset any forward rotation applied to the character model
-  const character = ...
+  const character = document.querySelector('#character') || document.querySelector('.character');
   if (character) {
     // Reset rotation (assuming Y-axis rotation was used for forward orientation)
     character.style.transform = 'rotateY(0deg)';
@@ -193,9 +223,8 @@ function App() {
   React.useEffect(() => {
     langAttribute();
     fixTableStructure();
-    ...
-    ...
-    ...
+    addFixLandmarkIssues();
+    addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
   }, []);
@@ -204,7 +233,7 @@ function App() {
     <div>
       {/* ... existing JSX ... */}
 
-      <button id="unrotate" ...
+      <button id="unrotate" onClick={handleRotateBack}>
         rotate back
       </button>
 

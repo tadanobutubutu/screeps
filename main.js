@@ -1,7 +1,3 @@
-Here is the resolved version of the file, merging both changes:
-
-```javascript
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -38,7 +34,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
         );
     } else {
         successContent = (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main style={{ padding: '2rem', fontFamily: 'monospace' }} role="main">
                 <h1>Dashboard</h1>
                 {/* Your existing success state content from patch 2 */}
                 <h2>Dashboard App</h2>
@@ -52,8 +48,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<Dashboard />);
-```
+// Set lang attribute on the root element for accessibility (REACT_015)
+const rootElement = document.getElementById('root');
+if (rootElement) {
+    rootElement.setAttribute('lang', 'en');
+}
 
-This code combines the error handling and the success state content from both patches, while addressing the Git conflict markers.
+const root = ReactDOM.createRoot(rootElement!);
+root.render(<Dashboard />);

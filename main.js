@@ -1,3 +1,5 @@
+import React from 'react';
+
 // Accessibility fixes from insight report
 
 /**
@@ -127,10 +129,24 @@ export function isValidHref(href) {
   return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
 }
 
-export default accessibilityComponents;
+export { isFocusable };
+export default Dashboard;
 
-// Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export function isFocusable(element) {
+  return (
+    (element && typeof element === 'object' && element.tagName) ||
+    (element && typeof element === 'string' && element.trim().length > 0)
+  );
+}
 
-// Utility functions for accessibility support
-// (existing code)
+const Dashboard = () => {
+    // (rest of the Dashboard function)
+    return (
+        <React.Fragment>
+            {/* Keep the content inside one single "main" */}
+            <main>
+                // ... (rest of the dashboard content)
+            </main>
+        </React.Fragment>
+    );
+};

@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+
+// Main application component
+const App = () => {
+  return (
+    <div>
+      {/* Layout with accessible SVG favicon */}
+      <div className="layout">
+        <svg 
+          src="/favicon.svg" 
+          aria-hidden="true" 
+          role="img"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default App;

@@ -13,6 +13,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <svg
+          aria-hidden="true"
+          style={{ display: "none" }}
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <symbol id="favicon" viewBox="0 0 32 32">
+            <rect width="32" height="32" fill="#000" />
+          </symbol>
+        </svg>
         {children}
       </body>
     </html>

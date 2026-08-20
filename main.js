@@ -1,21 +1,10 @@
 import React from 'react';
+// Existing code from main.js (before conflict)
+// ... (code before conflict)
 
-const TableComponent = () => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-          {/* ... other headers ... */}
-        </tr>
-      </thead>
-      <tbody>
-        {/* ... table rows ... */}
-      </tbody>
-    </table>
-  );
-};
+// <button id="unrotate" onClick={() => {/* Your action here */}}>rotate back</button>
 
-export default TableComponent;
+// ... (code after conflict)
+
+// Existing code from main.js (after conflict markers)
+// ... (code after conflict)

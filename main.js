@@ -7,6 +7,7 @@ export function App() {
   return (
     <div>
       {/* Other existing components */}
+      <button id="unrotate" onClick={() => {/* Implement the rotate back action here */}}>rotate back</button>
     </div>
   );
 }

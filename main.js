@@ -2,7 +2,6 @@ function calculate(a, b) {
   return a + b;
 }
 
-// Added the new function or change requested in the issue
 function addAccessibleNameToSVG(svgString) {
   const svgElement = new DOMParser().parseFromString(svgString, "image/svg+xml").documentElement;
   const titleElement = document.createElement('title');
@@ -11,8 +10,7 @@ function addAccessibleNameToSVG(svgString) {
   return new XMLSerializer().serializeToString(svgElement);
 }
 
-// TODO: Add back any required exports that might have been?
-// ... (rest of your existing code remains unchanged)
+// Existing code remains unchanged
 
-// Added required export
+// Example of existing exports that should be preserved
 export { calculate, addAccessibleNameToSVG };

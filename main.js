@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -127,3 +126,13 @@ const SuccessContent = ({ children }) => {
 
 // Export the new components
 export { ErrorContent, SuccessContent };
+
+// Add language attribute to the root HTML element for accessibility
+const HtmlWithLang = ({ children }) => (
+  <html lang="en">
+    {children}
+  </html>
+);
+
+// Preserve any existing exports
+export { HtmlWithLang };

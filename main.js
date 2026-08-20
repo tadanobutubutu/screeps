@@ -1,13 +1,56 @@
-// Current main.js content appears to be a placeholder/error message.
-// The actual issue (REACT_036) is in docs/dependency-graph.html:186
-// where <a id="unrotate" href="#">rotate back</a> should be a <button>
+// TODO: Address accessibility issues from insight report:
 
-// The fix for the HTML file would be:
-// <button id="unrotate" type="button">rotate back</button>
+// Handler function for the unrotate button with accessibility support
+function handleUnrotateClick(event) {
+  // Prevent default only if it's a link element without proper action
+  if (event.target.tagName === 'A' && event.target.getAttribute('href') === '#') {
+    event.preventDefault();
+  }
+  
+  // Call the rotation reset function
+  resetRotation();
+  
+  // Set focus to the unrotate element after action for accessibility
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    unrotateElement.focus();
+  }
+}
 
-// Since this is an HTML accessibility issue, not a JavaScript issue,
-// no changes to main.js are required. The fix should be applied to
-// docs/dependency-graph.html directly.
+// Initialize accessibility features
+document.addEventListener('DOMContentLoaded', function() {
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    // Add click event listener
+    unrotateElement.addEventListener('click', handleUnrotateClick);
+    
+    // Ensure proper keyboard support (Enter and Space for buttons)
+    if (unrotateElement.tagName !== 'BUTTON') {
+      unrotateElement.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleUnrotateClick(event);
+        }
+      });
+    }
+    
+    // Add aria-label if needed for better screen reader support
+    if (!unrotateElement.getAttribute('aria-label') && !unrotateElement.textContent.trim()) {
+      unrotateElement.setAttribute('aria-label', 'Rotate back to original position');
+    }
+  }
+});
 
-// Preserving the original placeholder content as requested:
-console.log("Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?");
+// Rotation reset function
+function resetRotation() {
+  const rotatedElement = document.getElementById('rotated');
+  if (rotatedElement) {
+    rotatedElement.style.transform = 'rotate(0deg)';
+  }
+}
+
+// Export for testing
+module.exports = {
+  handleUnrotateClick,
+  resetRotation
+};

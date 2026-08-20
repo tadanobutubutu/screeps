@@ -1,13 +1,1 @@
-// Main game loop module
-module.exports = {
-  loop: function() {
-    // Clean up memory of dead creeps
-    for (const name in Memory.creeps) {
-      if (!Game.creeps[name]) {
-        delete Memory.creeps[name];
-      }
-    }
-    
-    // Your game logic here
-  }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

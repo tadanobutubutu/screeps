@@ -42,24 +42,3 @@ if (originalUnrotate) {
     })
   );
 }
-
-// Implemented accessibility initialization logic
-initializeAccessibility();
-
-function initializeAccessibility() {
-  const unrotateBtn = document.getElementById('unrotate');
-  updateAriaAttributes(unrotateBtn, {
-    role: 'button',
-    'aria-label': 'rotate back'
-  });
-
-  // Accessibility initialization logic
-  // Example: set up ARIA attributes or focus management
-}
-
-function updateAriaAttributes(element, attributes) {
-  // Updates ARIA attributes for an element
-  Object.entries(attributes).forEach(([key, value]) => {
-    element.setAttribute(key, value);
-  });
-}

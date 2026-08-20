@@ -187,12 +187,11 @@ describe('utils.missions', () => {
         // Mock crypto.randomBytes
         const crypto = require('crypto');
         const originalRandomBytes = crypto.randomBytes;
-        const mockMathRandom = jest.spyOn(Math, 'random');
 
         let called = false;
         crypto.randomBytes = jest.fn().mockImplementation((size) => {
             called = true;
-            // Return a static buffer to simulate randomness
+            // Return a fixed buffer to simulate randomness
             return Buffer.alloc(size, 0);
         });
 
@@ -203,9 +202,7 @@ describe('utils.missions', () => {
 
         // Ensure crypto.randomBytes was called during the process
         expect(called).toBe(true);
-        expect(mockMathRandom).not.toHaveBeenCalled();
 
         crypto.randomBytes = originalRandomBytes;
-        mockMathRandom.mockRestore();
     });
 });

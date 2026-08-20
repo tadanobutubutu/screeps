@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -7,7 +6,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -103,12 +102,28 @@ const Dashboard: React.FC<DashboardProps> = () => {
             {/* Your existing success state content */}
             <h2>Dashboard App</h2>
             {/* Rest of your dashboard content */}
+            <button
+                id="unrotate"
+                type="button"
+                onClick={() => {
+                    // rotate back functionality
+                }}
+                style={{
+                    backgroundColor: 'transparent',
+                    border: '1px solid #ccc',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    color: '#004b73',
+                }}
+            >
+                rotate back
+            </button>
         </main>
     );
 };
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
 root.render(<Dashboard />);
-```

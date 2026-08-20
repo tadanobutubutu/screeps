@@ -1,1 +1,7 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js
+// [Your existing code here]
+
+// Add the HTML lang attribute to the root element
+document.documentElement.lang = 'en';
+
+// [Rest of your existing code here]

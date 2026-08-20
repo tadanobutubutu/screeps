@@ -107,7 +107,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <main style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                 {Object.entries(stats).map(([key, value]) => (
@@ -132,7 +132,7 @@ const Dashboard = () => {
             >
                 {refreshing ? 'Refreshing...' : 'Refresh Data'}
             </button>
-        </div>
+        </main>
     );
 };
 

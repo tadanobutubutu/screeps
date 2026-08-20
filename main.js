@@ -1,3 +1,13 @@
-// main.js content is not provided in your message.
-// Please paste the contents of main.js so I can help resolve the REACT_025 issue.
-// The issue states that there are 2 occurrences of multiple <main> landmarks that need to be fixed.
+// Assuming the main.js file is the entry point of the React application, it should be set up to render the root component of the app.
+// Since the issue is about multiple <main> elements, we need to ensure that there is only one <main> element in the entire application.
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App'; // Assuming the root component is exported from a file named 'App'
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);

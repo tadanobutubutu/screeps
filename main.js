@@ -12,9 +12,9 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
         }
     }, [copied]);
 
-    if (error) {
-        return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    return (
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            {error ? (
                 <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
                     <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                     <pre
@@ -77,36 +77,34 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                         {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
                     </button>
                 </div>
-            </main>
-        );
-    }
-
-    return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
-                        <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
-                        <p style={{ color: '#4a5568', fontSize: '1.25rem', marginBottom: 0 }}>{value}</p>
+            ) : (
+                <>
+                    <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
+                        {Object.entries(stats || {}).map(([key, value]) => (
+                            <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
+                                <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
+                                <p style={{ color: '#4a5568', fontSize: '1.25rem', marginBottom: 0 }}>{value}</p>
+                            </div>
+                        ))}
                     </div>
-                ))}
-            </div>
-            <button
-                onClick={() => fetchStats(true)}
-                disabled={refreshing}
-                style={{
-                    backgroundColor: '#004b73',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                }}
-            >
-                {refreshing ? '🔄 更新中...' : '🔄 更新'}
-            </button>
+                    <button
+                        onClick={() => fetchStats(true)}
+                        disabled={refreshing}
+                        style={{
+                            backgroundColor: '#004b73',
+                            color: 'white',
+                            padding: '0.5rem 1rem',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            marginTop: '1rem',
+                        }}
+                    >
+                        {refreshing ? '🔄 更新中...' : '🔄 更新'}
+                    </button>
+                </>
+            )}
         </main>
     );
 };

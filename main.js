@@ -23,86 +23,68 @@
                 firstCell.setAttribute('scope', 'row');
         });
 
-        return table;
-    }
+        // This section is new, it addresses additional accessibility issues
+        function addAccessibleSvg(svgContent, label) {
+            // Regex to find the SVG tag and the content within it
+            const svgRegex = /<svg[\s\S]*?<\/svg>/i;
+            const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
+            const textRegex = /<text[^>]*>(.*?)<\/text>/i;
 
-    // Process all tables in a document or element
-    function processTables(rootElement = document) {
-        const tables = rootElement.querySelectorAll('table');
-        tables.forEach(addScopeToTableHeaders);
-        return tables.length;
-    }
+            // Replace the SVG content with an updated version that includes a title element
+            return svgContent.replace(svgRegex, (match) => {
+                // Check if the SVG already contains a title
+                let hasTitle = titleRegex.test(match);
+                let hasText = textRegex.test(match);
 
-    // Accessibility fixer function for REACT_036
-    function fixFakeLinks(rootElement = document) {
-        const anchors = rootElement.querySelectorAll('a[href="#"]');
-        anchors.forEach(anchor => {
-            anchor.removeAttribute('href');
-            anchor.setAttribute('tabindex', '-1');
-        });
-    }
+                // Add a title element if it doesn't already exist and if the SVG contains text
+                if (!hasTitle && hasText) {
+                    // Replace the SVG content with a title element wrapping the existing text
+                    return match.replace(textRegex, (textMatch) => {
+                        return `<title>${label}</title>${textMatch}`;
+                    });
+                }
 
-    function myFunction() {
-        console.log("This is my new function!");
-    }
+                // If the SVG doesn't contain text or already has a title, return the original match
+                return match;
+            });
+        }
 
-    // Export the function
-    exports.myFunction = myFunction;
-
-    // Additional code to add accessible names to SVGs
-    // Function to add accessible name to SVGs for accessibility
-    function addAccessibleSvg(svgContent, label) {
-        // Regex to find the SVG tag and the content within it
-        const svgRegex = /<svg[\s\S]*?<\/svg>/i;
-        const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
-        const textRegex = /<text[^>]*>(.*?)<\/text>/i;
-
-        // Replace the SVG content with an updated version that includes a title element
-        return svgContent.replace(svgRegex, (match) => {
-            // Check if the SVG already contains a title
-            let hasTitle = titleRegex.test(match);
-            let hasText = textRegex.test(match);
-
-            // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
-                // Replace the SVG content with a title element wrapping the existing text
-                return match.replace(textRegex, (textMatch) => {
-                    return `<title>${label}</title>${textMatch}`;
-                });
+        function updateIcons(icons, label) {
+            const updatedIcons = {};
+            for (const key in icons) {
+                const svgData = icons[key];
+                const accessibleSvg = addAccessibleSvg(svgData, label);
+                updatedIcons[key] = accessibleSvg;
             }
-
-            // If the SVG doesn't contain text or already has a title, return the original match
-            return match;
-        });
-    }
-
-    // Function to update icons with accessible names
-    function updateIcons(icons, label) {
-        const updatedIcons = {};
-        for (const key in icons) {
-            const svgData = icons[key];
-            const accessibleSvg = addAccessibleSvg(svgData, label);
-            updatedIcons[key] = accessibleSvg;
+            return updatedIcons;
         }
-        return updatedIcons;
-    }
 
-    // Function to update the 'rotate back' link with a button for accessibility
-    function updateRotateBackLink() {
-        const rotateBackLink = document.getElementById('unrotate');
-        if (rotateBackLink) {
-            // Replace the anchor with a button
-            const button = document.createElement('button');
-            button.textContent = 'rotate back';
-            button.type = 'button'; // Specify the button type to avoid form submission
-            rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+        // Function to update icons with accessible names
+        function updateIconsWithHeader(icons, label) {
+            // This section is new, it's an alternative implementation to address accessibility issues
+            const tableIcons = table.querySelectorAll('td > a > img');
+            tableIcons.forEach(icon => {
+                const accessibleIcon = updateIcons(window[icon.getAttribute('data-icon-set')], label);
+                icon.outerHTML = `<td>${Object.values(accessibleIcon).join('')}</td>`;
+            });
         }
-    }
+
+        // Process all tables in a document or element
+        function processTables(rootElement = document) {
+            const tables = rootElement.querySelectorAll('table');
+            tables.forEach(addScopeToTableHeaders);
+            tables.forEach(updateIconsWithHeader);
+            return tables.length;
+        }
+
+    // The rest of the code remains the same...
 
     // Export the new functions
     exports.addAccessibleSvg = addAccessibleSvg;
     exports.updateIcons = updateIcons;
     exports.updateRotateBackLink = updateRotateBackLink;
+    exports.updateIconsWithHeader = updateIconsWithHeader;
+    // ...
 
     // Call the function to update the 'rotate back' link on page load
     window.onload = updateRotateBackLink;

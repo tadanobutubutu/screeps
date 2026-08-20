@@ -28,6 +28,8 @@ export default function RootLayout({
           {/* SVG content */}
         </svg>
         <main>{children}</main>
+        {/* Add a button for the 'rotate back' action */}
+        <button id="unrotate" onClick={() => {/* Rotate back functionality here */}}>rotate back</button>
       </body>
     </html>
   );

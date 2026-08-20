@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code...
+// ...preserved code...
+
+// Replace the anchor with a button for the 'rotate back' action
+document.getElementById('unrotate').innerHTML = `
+  <button id="unrotateButton" onclick="rotateBack()">rotate back</button>
+`;
+
+// Define the rotateBack function, assuming it's defined somewhere in your codebase
+function rotateBack() {
+  // Function implementation...
+  // ...
+}
+
+// ...preserved code...

@@ -42,6 +42,14 @@
                 rotateElement(targetElement, newRotation);
             });
         }
+
+        // Add scope attribute to table headers for accessibility
+        const tableHeaders = document.querySelectorAll('th');
+        tableHeaders.forEach(header => {
+            if (!header.hasAttribute('scope')) {
+                header.setAttribute('scope', 'col');
+            }
+        });
     });
 
     // Export functions for testing or external use

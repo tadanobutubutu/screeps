@@ -17,3 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // [Rest of your existing code remains unchanged]
+
+// Update the root element to include the lang attribute
+document.documentElement.lang = 'en';

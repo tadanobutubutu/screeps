@@ -28,6 +28,8 @@ export const Favicon = () => (
     aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 100 100"
+    role="img"
+    aria-label="Bug icon"
   >
     <text y=".9em" fontSize="90">🐛</text>
   </svg>
@@ -73,4 +75,61 @@ export const AccessibleButton = ({ onClick, children, ariaLabel }) => (
   >
     {children}
   </button>
+);
+
+// New components to address landmark issues
+export const Header = ({ children }) => (
+  <header role="banner" aria-label="Site header">
+    {children}
+  </header>
+);
+
+export const Footer = ({ children }) => (
+  <footer role="contentinfo" aria-label="Site footer">
+    {children}
+  </footer>
+);
+
+export const Navigation = ({ children }) => (
+  <nav role="navigation" aria-label="Main navigation">
+    {children}
+  </nav>
+);
+
+// Accessible table component
+export const AccessibleTable = ({ caption, headers, data }) => (
+  <table role="table" aria-label={caption}>
+    <caption>{caption}</caption>
+    <thead>
+      <tr>
+        {headers.map((header, index) => (
+          <th key={index} scope="col">{header}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((row, rowIndex) => (
+        <tr key={rowIndex}>
+          {row.map((cell, cellIndex) => (
+            <td key={cellIndex}>{cell}</td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+// Accessible link component
+export const AccessibleLink = ({ href, children, ariaLabel }) => (
+  <a
+    href={href}
+    aria-label={ariaLabel}
+    onClick={(e) => {
+      if (!href || href === '#') {
+        e.preventDefault();
+      }
+    }}
+  >
+    {children}
+  </a>
 );

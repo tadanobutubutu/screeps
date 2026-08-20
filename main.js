@@ -1,4 +1,6 @@
-// Accessibility fixes from insight report
+/**
+ * Accessibility fixes from insight report
+ */
 
 /**
  * Creates an accessible table component

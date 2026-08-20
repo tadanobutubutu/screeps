@@ -10,7 +10,7 @@ const roleTemplates = [
     run: function(creep) {
         // 敵を探す
         const hostiles = creep.room.find(FIND_HOSTILE_CREEPS);
-        
+
         if (hostiles.length > 0) {
             // 最も近い敵を攻撃
             const target = creep.pos.findClosestByRange(hostiles);
@@ -41,22 +41,22 @@ module.exports = roleDefender;`,
             const sources = creep.room.find(FIND_SOURCES);
             creep.memory.sourceId = sources[0].id;
         }
-        
+
         const source = Game.getObjectById(creep.memory.sourceId);
         if (!source) return;
-        
+
         // ソースの隣に移動
         if (!creep.pos.isNearTo(source)) {
             creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
         } else {
             // 採掘
             creep.harvest(source);
-            
+
             // 隣にコンテナがあればエネルギーを転送
             const container = creep.pos.findInRange(FIND_STRUCTURES, 1, {
                 filter: s => s.structureType === STRUCTURE_CONTAINER
             })[0];
-            
+
             if (container && creep.store.getFreeCapacity() === 0) {
                 creep.transfer(container, RESOURCE_ENERGY);
             }
@@ -76,7 +76,7 @@ module.exports = roleMiner;`,
             console.log('Claimer needs targetRoom in memory!');
             return;
         }
-        
+
         // ターゲットルームに移動
         if (creep.room.name !== creep.memory.targetRoom) {
             const exit = creep.room.findExitTo(creep.memory.targetRoom);
@@ -106,7 +106,7 @@ module.exports = roleClaimer;`,
             console.log('RemoteHarvester needs targetRoom in memory!');
             return;
         }
-        
+
         if (creep.store.getFreeCapacity() > 0) {
             // ターゲットルームへ移動して採掘
             if (creep.room.name !== creep.memory.targetRoom) {
@@ -146,7 +146,7 @@ module.exports = roleRemoteHarvester;`,
         const damagedCreep = creep.pos.findClosestByRange(FIND_MY_CREEPS, {
             filter: c => c.hits < c.hitsMax
         });
-        
+
         if (damagedCreep) {
             // 回復
             if (creep.heal(damagedCreep) === ERR_NOT_IN_RANGE) {
@@ -183,7 +183,7 @@ module.exports = roleHealer;`,
         if (!Memory.scoutedRooms) {
             Memory.scoutedRooms = {};
         }
-        
+
         // 現在の部屋を記録
         const room = creep.room;
         if (!Memory.scoutedRooms[room.name]) {
@@ -199,14 +199,14 @@ module.exports = roleHealer;`,
             };
             console.log(\`📍 Scout mapped: \${room.name}\`);
         }
-        
+
         // 次の探索先を決定
         if (!creep.memory.targetRoom) {
             const exits = Game.map.describeExits(room.name);
             const unscoutedExits = Object.entries(exits).filter(
                 ([dir, roomName]) => !Memory.scoutedRooms[roomName]
             );
-            
+
             if (unscoutedExits.length > 0) {
                 const [dir, targetRoom] = unscoutedExits[0];
                 creep.memory.targetRoom = targetRoom;
@@ -219,7 +219,7 @@ module.exports = roleHealer;`,
                 }
             }
         }
-        
+
         // ターゲット部屋へ移動
         if (creep.memory.targetRoom && room.name !== creep.memory.targetRoom) {
             const exit = room.findExitTo(creep.memory.targetRoom);
@@ -253,7 +253,7 @@ module.exports = roleScout;`,
                 return;
             }
         }
-        
+
         // ターゲット部屋に移動
         if (creep.room.name !== creep.memory.powerBankRoom) {
             const exit = creep.room.findExitTo(creep.memory.powerBankRoom);

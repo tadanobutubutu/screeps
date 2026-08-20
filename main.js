@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
@@ -24,9 +23,10 @@ const Dashboard = () => {
         return (
             <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                <pre
-                    tabIndex={0}
+                <div
+                    role="region"
                     aria-label="エラーメッセージ詳細"
+                    tabIndex={0}
                     style={{
                         color: '#c53030',
                         backgroundColor: '#fff5f5',
@@ -35,8 +35,8 @@ const Dashboard = () => {
                         overflow: 'auto',
                     }}
                 >
-                    {error}
-                </pre>
+                    <pre aria-hidden="true">{error}</pre>
+                </div>
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}

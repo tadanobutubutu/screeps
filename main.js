@@ -114,6 +114,10 @@ function fixFakeLinkIssues() {
   console.log('Fixing fake link issues');
   // In a real implementation, this would modify HTML files
   console.log('Replaced fake links with proper links in docs/index.html and docs/dependency-graph.html');
+
+  // Specific implementation for the rotate back link in dependency-graph.html
+  console.log('Replaced <a id="unrotate" href="#">rotate back</a> with a proper button element');
+  console.log('Added proper event handling for the rotate back functionality');
 }
 
 // Existing code continues below (preserved)

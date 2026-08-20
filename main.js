@@ -1,9 +1,1 @@
-function calculate(a, b) {
-  return a + b;
-}
-
-// TODO: Add back any required exports that might have been?
-// ... (rest of your existing code remains unchanged)
-
-// Added required export
-export { calculate };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

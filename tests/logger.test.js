@@ -36,8 +36,9 @@ describe('logger', () => {
     describe('debug', () => {
         test('デバッグメッセージをログに記録する', () => {
             logger.debug('Test debug message');
-            // エラーが発生しないことを確認
-            expect(console.log).toHaveBeenCalled();
+            const history = logger.getHistory();
+            expect(history.length).toBeGreaterThan(0);
+            expect(history[history.length - 1].level).toBe('debug');
         });
     });
 

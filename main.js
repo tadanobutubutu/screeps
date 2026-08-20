@@ -28,3 +28,17 @@ if (typeof module !== 'undefined' && module.exports) {
   // Fallback for browser/Global context
   window.main = main;
 }
+
+// Wrap the primary content in <main> for accessibility
+function renderDependencyDashboard() {
+  const mainContent = document.createElement('main');
+  mainContent.innerHTML = `
+    <div id="dependency-dashboard">
+      <!-- Dependency dashboard content goes here -->
+    </div>
+  `;
+  document.body.appendChild(mainContent);
+}
+
+// Call the function to render the dashboard
+renderDependencyDashboard();

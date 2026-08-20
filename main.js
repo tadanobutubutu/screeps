@@ -303,3 +303,101 @@ export function createAccessibleTableWithScope({ headers, data, caption, headerS
     </table>
   );
 }
+
+// New function to add language attribute to HTML element (fix for REACT_015)
+export function addLanguageAttribute(element) {
+  if (element.type === 'html') {
+    return React.cloneElement(element, { lang: 'en' });
+  }
+  return element;
+}
+
+// New function to create accessible landmark with proper role
+export function createLandmark({ role, label, children }) {
+  return React.createElement(role, { 'aria-label': label }, children);
+}
+
+// New function to create accessible table with proper headers and scope
+export function createAccessibleTableWithHeaders({ headers, data, caption, headerScope = 'col' }) {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={`header-${index}`} scope={headerScope}>
+              <div>{header}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={`row-${rowIndex}`}>
+            {row.map((cell, cellIndex) => (
+              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// New function to create accessible table with proper row and column headers
+export function createAccessibleTableWithRowColHeaders({ colHeaders, rowHeaders, data, caption }) {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          {colHeaders.map((header, index) => (
+            <th key={`col-header-${index}`} scope="col">
+              <div>{header}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={`row-${rowIndex}`}>
+            <th key={`row-header-${rowIndex}`} scope="row">
+              {rowHeaders[rowIndex]}
+            </th>
+            {row.map((cell, cellIndex) => (
+              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// New function to create accessible table with proper scope and headers
+export function createAccessibleTableWithScopeAndHeaders({ headers, data, caption, headerScope = 'col' }) {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={`header-${index}`} scope={headerScope}>
+              <div>{header}</div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={`row-${rowIndex}`}>
+            {row.map((cell, cellIndex) => (
+              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}

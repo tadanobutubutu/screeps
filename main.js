@@ -45,3 +45,11 @@ export function getUpdatedDependencies() {
     babelJest: "^30.0.0"
   };
 }
+
+// New function to get accessibility attributes for main content
+export function getAccessibilityAttributes() {
+  return {
+    role: "main",
+    "aria-label": "Main content"
+  };
+}

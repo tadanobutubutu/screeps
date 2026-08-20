@@ -32,3 +32,24 @@ export default function RootLayout({
     </html>
   );
 }
+
+// Add a new component for the rotate back functionality
+export function RotateBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      aria-label="Rotate back"
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        cursor: 'pointer',
+        font: 'inherit',
+        color: 'inherit'
+      }}
+    >
+      rotate back
+    </button>
+  );
+}

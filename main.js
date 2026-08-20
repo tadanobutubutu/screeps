@@ -23,31 +23,30 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <main role="main">{children}</main>
+        <main>
+          {/* Replace fake link with proper button */}
+          <button
+            id="unrotate"
+            onClick={handleRotation}
+            aria-label="Rotate back"
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              font: 'inherit',
+              cursor: 'pointer',
+              color: 'inherit',
+              textDecoration: 'underline'
+            }}
+          >
+            rotate back
+          </button>
+          {children}
+        </main>
       </body>
     </html>
   );
 }
-
-// Replace the fake link with a proper button
-const RotationButton = () => (
-  <button
-    id="unrotate"
-    onClick={handleRotation}
-    aria-label="Rotate back"
-    style={{
-      background: 'none',
-      border: 'none',
-      padding: 0,
-      font: 'inherit',
-      cursor: 'pointer',
-      color: 'inherit',
-      textDecoration: 'underline'
-    }}
-  >
-    rotate back
-  </button>
-);
 
 // Add language attribute to the document
 if (typeof document !== 'undefined') {

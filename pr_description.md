@@ -8,9 +8,4 @@ This pull request introduces the following changes and updates to the Screeps bo
 
 3. Improved error messages: Detailed error messages are provided to give developers more context about the issue that occurred. In this case, the error message includes the cost of the request, the remaining balance on the API key, and the timestamp of the error.
 
-In case of a conflict, both changes should be integrated as they seem to be complementary enhancements that improve the error handling and information provided to developers.
-
 **Remember to update the requirements and dependencies of the bot to include any necessary changes for the new API.**
-```
-
-This file content incorporates both proposed changes to maintain the described functionality and error message improvements. Note that I have not made any changes to the bot code, as this file only describes the pull request's changes. The actual coding implementation should be done in separate files as appropriate.

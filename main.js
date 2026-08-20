@@ -5,7 +5,7 @@ interface DashboardProps {
   // Add any props your component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -93,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   // Success state content wrapped in a single main element
   return (
-    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <main lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {/* Your existing success state content */}
     </main>
   );

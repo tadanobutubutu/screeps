@@ -1,21 +1,12 @@
-Here's the resolved file content:
-
-```javascript
 // main.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-
 // Accessibility fixes from insight report
 import { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper } from './AccessibilityComponents.js';
 
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // Proper landmark wrapper for accessible page structure
 const AccessibilityPage = () => {
@@ -31,7 +22,7 @@ const AccessibilityPage = () => {
         </Navigation>
       </Header>
       <MainContent>
-        {/* Insert App component here */}
+        <App />
       </MainContent>
       <Footer>
         <p>&copy; 2024 Accessible Site</p>
@@ -41,9 +32,8 @@ const AccessibilityPage = () => {
   );
 };
 
-// Wrap the App component with AccessibilityPage for better accessibility
-root.render(<AccessibilityPage><App /></AccessibilityPage>);
-
-```
-
-This resolution keeps both changes by wrapping the original React app (from the HEAD branch) within the accessibility components (from the other branch) to ensure a more accessible user experience. The original React app should be inserted where `/* Insert App component here */` is placed within the `AccessibilityPage` component.
+root.render(
+  <React.StrictMode>
+    <AccessibilityPage />
+  </React.StrictMode>
+);

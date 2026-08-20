@@ -7,7 +7,13 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+export const metadata = {
+    htmlAttributes: {
+        lang: 'ja',
+    },
+};
+
+const Dashboard: ... = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -71,6 +77,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
                     disabled={refreshing}
                     onMouseEnter={() => setErrRetryHover(true)}
                     onMouseLeave={() => setErrRetryHover(false)}
+                    onFocus={() => setErrRetryHover(true)}
+                    onBlur={() => setErrRetryHover(false)}
                     aria-label="再試行"
                     title="再試行"
                     style={{
@@ -98,7 +106,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     // Success state content (wrapped in a single main element)
     return (
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <main style={{ padding: '2rem', fontFamily: 'monospace' }} role="main">
             <h1>Dashboard</h1>
             {/* Your existing success state content */}
             <h2>Dashboard App</h2>
@@ -109,6 +117,5 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(<Dashboard />);
-```

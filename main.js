@@ -10,6 +10,8 @@
 // Don't have multiple <main> elements, use unique IDs for navigation
 
 // 4. REACT_027 - Proper table structure
+// All <th> elements must have scope="col" for column headers or scope="row" for row headers
+// Example of CORRECT table structure:
 /*
 <table>
   <thead>
@@ -20,15 +22,17 @@
   </thead>
   <tbody>
     <tr>
+      <th scope="row">Row Header</th>
       <td>Data 1</td>
-      <td>Data 2</td>
     </tr>
   </tbody>
 </table>
 */
+// FIX: Add scope="col" to all <th> elements in thead
+// FIX: Add scope="row" to <th> elements that are row headers in tbody
 
 // 5. REACT_036 - Use <button> instead of <a> for non-navigation elements
-// <button onClick={handleClick}>Submit</button> instead of <a href="#" onClick={handleClick}>Submit</a>
+// <button ... instead of <a href="#" ...
 
 // 6. REACT_041 - Add accessible names to SVGs
 // <svg aria-label="Close menu" role="img">

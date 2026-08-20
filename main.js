@@ -10,8 +10,14 @@ fs.readFile(filePath, 'utf8', (err, data) => {
     return;
   }
 
-  const updatedData = data.replace(/<th\b[^>]*>/g, (match) => {
-    return match.replace(/<th\b[^>]*>/, '<th scope="col">');
+  // Add scope="col" to all <th> elements that don't already have a scope attribute
+  const updatedData = data.replace(/<th\b([^>]*?)(?<!scope="[^"]*")([^>]*)>/g, (match, before, after) => {
+    // Check if the match already contains a scope attribute
+    if (/scope="[^"]*"/.test(match)) {
+      return match; // Return unchanged if scope already exists
+    }
+    // Add scope="col" to the <th> element
+    return `<th scope="col"${before}${after}>`;
   });
 
   fs.writeFile(updatedFilePath, updatedData, 'utf8', (err) => {

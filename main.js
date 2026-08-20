@@ -18,7 +18,7 @@ function addScopeToTableHeaders(table) {
 
   const headerCells = firstRow.querySelectorAll('th');
   headerCells.forEach((cell) => {
-    if (!cell.hasAttribute('scope')) {
+    if (cell && !cell.hasAttribute('scope')) {
       cell.setAttribute('scope', 'col');
     }
   });
@@ -48,8 +48,8 @@ function processTables(rootElement = document) {
 // Check if a file contains a <main> landmark
 function hasMainLandmark(filePath) {
     try {
-        const content = fs.readFileSync(filePath, 'utf8');
-        return /<main[\s>]/i.test(content);
+        const content = require('fs').readFileSync(filePath, 'utf8');
+        return /<main[\s>]/.test(content);
     } catch (error) {
         console.error(`Error reading file ${filePath}:`, error.message);
         return false;
@@ -62,19 +62,20 @@ function hasMainLandmark(filePath) {
  * @param {string} type - Type of layout ('tsx' or 'html')
  */
 function addMainLandmark(filePath, type = 'tsx') {
+    const fs = require('fs');
     try {
         let content = fs.readFileSync(filePath, 'utf8');
         
         if (type === 'tsx') {
             // Pattern: <body>{children}</body> or similar
             content = content.replace(
-                /(<body[^>]*>)(\{children\})(<\/body>)/i,
+                /<body>\{children\}<\/body>/i,
                 '<body><main>{children}</main></body>'
             );
             
             // Pattern: <div>{children}</div> in layout
             content = content.replace(
-                /(<div[^>]*>)(\{children\})(<\/div>)/i,
+                /<div>\{children\}<\/div>/i,
                 '<main><div>{children}</div></main>'
             );
         } else if (type === 'html') {
@@ -102,9 +103,10 @@ function addMainLandmark(filePath, type = 'tsx') {
  * Fixes all files mentioned in the REACT_017 issue
  */
 function fixReactLandmarks() {
+    const path = require('path');
     const filesToFix = [
         { path: 'app/layout.tsx', type: 'tsx' },
-        { path: 'dashboard/app/layout.tsx', type: 'tsx' },
+        { path: 'app/docs/layout.tsx', type: 'tsx' },
         { path: 'docs/index.html', type: 'html' }
     ];
     
@@ -113,7 +115,7 @@ function fixReactLandmarks() {
         if (!hasMainLandmark(fullPath)) {
             addMainLandmark(fullPath, type);
         } else {
-            console.log(`${filePath} already has <main> landmark`);
+            console.log(`File ${filePath} already has <main> landmark`);
         }
     });
 }

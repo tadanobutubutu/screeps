@@ -2,45 +2,53 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import AppLayout from './app/layout';
+import DashboardLayout from './dashboard/app/layout';
+import DependencyGraph from './docs/dependency-graph';
+import DocsIndex from './docs/index';
 
-// For app/layout.tsx
 const AppLayout = ({ children }) => (
-  <main>
-    {children}
-  </main>
+  <AppLayout>
+    <main>
+      {children}
+    </main>
+  </AppLayout>
 );
 
-// For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
-  <main>
-    {children}
-  </main>
+  <DashboardLayout>
+    <main>
+      {children}
+    </main>
+  </DashboardLayout>
 );
 
-// For docs/dependency-graph.html (would need to be converted to React component)
 const DependencyGraph = () => (
-  <main>
-    <table id="table-rotated">
-      {/* Table content would go here */}
-    </table>
-  </main>
+  <DependencyGraph>
+    <main>
+      <table id="table-rotated">
+        {/* Table content would go here */}
+      </table>
+    </main>
+  </DependencyGraph>
 );
 
-// For docs/index.html (would need to be converted to React component)
 const DocsIndex = () => (
-  <main>
-    <div className="container">
-      <h2>Quality & Metrics Reports</h2>
-      <p>
-        This repository is fully optimized with automated tools. Explore the generated
-        reports below:
-      </p>
-      <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+  <DocsIndex>
+    <main>
+      <div className="container">
+        <h2>Quality & Metrics Reports</h2>
+        <p>
+          This repository is fully optimized with automated tools. Explore the generated
+          reports below:
+        </p>
+        <div className="links">
+          <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+          <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
+  </DocsIndex>
 );
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

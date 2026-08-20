@@ -134,3 +134,14 @@ export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigatio
 
 // Utility functions for accessibility support
 // (existing code)
+
+/**
+ * Utility function to check if an element is focusable
+ * Useful in various accessibility contexts
+ */
+export function isFocusable(element) {
+  return (
+    (element && typeof element === 'object' && element.tagName) ||
+    (element && typeof element === 'string' && element.trim().length > 0)
+  );
+}

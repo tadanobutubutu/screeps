@@ -5,7 +5,7 @@
 
 // Main Content Component that properly wraps children in a <main> landmark
 export function MainContent({ children }) {
-  return <main role="main">{children}</main>;
+  return <main role="main" {...arguments[2]}>{children}</main>;
 }
 
 // Helper function for creating main elements with additional props

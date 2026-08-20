@@ -51,8 +51,25 @@ async function updateReactToV19() {
     }
 }
 
+/**
+ * Adds a lang attribute to the root HTML element
+ */
+async function addLangAttribute() {
+    try {
+        const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const htmlContent = await fs.readFileSync(outputPath, 'utf8');
+        const updatedHtmlContent = htmlContent.replace(/<html>/g, '<html lang="en">');
+        await fs.writeFileSync(outputPath, updatedHtmlContent);
+        console.log('Lang attribute added to the root HTML element');
+    } catch (error) {
+        console.error('Error adding lang attribute:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
-    updateReactToV19
+    updateReactToV19,
+    addLangAttribute
 };

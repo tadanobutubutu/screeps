@@ -164,6 +164,9 @@ const _escapeHTML = (function () {
 function _createCircularReplacer() {
     const seen = new WeakSet();
     return (key, value) => {
+        if (typeof value === 'bigint') {
+            return value.toString() + 'n';
+        }
         if (typeof value === 'object' && value !== null) {
             if (seen.has(value)) return '[Circular]';
             seen.add(value);

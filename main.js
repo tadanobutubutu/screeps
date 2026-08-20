@@ -30,7 +30,7 @@ function handleDependencyUpdates() {
 
 // New function to wrap content in main landmark
 function wrapInMainLandmark(content) {
-  return React.createElement('main', { role: 'main' }, content);
+  return React.createElement('main', null, content);
 }
 
 // New function to add accessibility attributes to SVG elements
@@ -169,35 +169,35 @@ function fixFakeLinkIssues(element) {
 
 // New function to ensure only one main landmark exists in the component
 function ensureSingleMainLandmark(component) {
-  // Check if the component already has a main landmark
-  const hasMain = React.Children.toArray(component.props.children).some(child =>
-    child.type === 'main' || (child.props && child.props.role === 'main')
-  );
+  const children = React.Children.toArray(component.props.children);
+  const hasMain = children.some(child => child.type === 'main');
 
-  // If it doesn't have a main, wrap the content in a main landmark
   if (!hasMain) {
-    return wrapInMainLandmark(component.props.children);
+    // No main landmark found, wrap the content in a main element
+    return wrapInMainLandmark(children);
   }
 
-  // If it has multiple mains, we need to fix this
-  const children = React.Children.toArray(component.props.children);
-  const mainCount = children.filter(child =>
-    child.type === 'main' || (child.props && child.props.role === 'main')
-  ).length;
+  // If there are multiple main elements, consolidate them
+  const mainIndices = children.reduce((acc, child, idx) => {
+    if (child.type === 'main') acc.push(idx);
+    return acc;
+  }, []);
 
-  if (mainCount > 1) {
-    // Find all main elements and wrap their content in sections
-    const newChildren = children.map(child => {
-      if (child.type === 'main' || (child.props && child.props.role === 'main')) {
-        return React.createElement('section', null, child.props.children);
+  if (mainIndices.length > 1) {
+    // Keep the first main as-is, wrap subsequent mains' children in sections
+    const newChildren = children.map((child, idx) => {
+      if (child.type === 'main') {
+        if (idx !== mainIndices[0]) {
+          return React.createElement('section', null, child.props.children);
+        }
+        return child;
       }
       return child;
     });
-
-    // Wrap the entire component in a single main
-    return wrapInMainLandmark(newChildren);
+    return React.cloneElement(component, null, newChildren);
   }
 
+  // Single main already present
   return component;
 }
 

@@ -35,6 +35,8 @@ export const metadata = {
       {
         url: 'data:image/svg+xml,...',
         type: 'image/svg+xml',
+        // Add aria-hidden for decorative SVG
+        'aria-hidden': 'true'
       },
     ],
   },

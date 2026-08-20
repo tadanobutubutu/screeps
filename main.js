@@ -12,7 +12,7 @@
 //   <React.StrictMode>
 //     <App />
 //   </React.StrictMode>,
-//   document.getElementById('root')
+//   ...
 // );
 // >>>>>>> origin/main
 // 
@@ -26,7 +26,7 @@
 //   <React.StrictMode>
 //     <App />
 //   </React.StrictMode>,
-//   document.getElementById('root')
+//   ...
 // );
 // >>>>>>> origin/main
 
@@ -44,5 +44,5 @@ ReactDOM.render(
       </body>
     </html>
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );

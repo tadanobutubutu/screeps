@@ -64,7 +64,132 @@ async function compileExports() {
   console.log('Exports compiled:\n', bundle);
 }
 
-// Existing rendering helpers (unchanged)
+// -------------------------------------------------------------------
+// Missing accessible rendering helpers (added to satisfy exports)
+// -------------------------------------------------------------------
+
+/**
+ * Renders an accessible navigation bar.
+ * @param {string} label - Accessible label for the navigation.
+ * @returns {string} HTML for an accessible <nav> element.
+ */
+function renderAccessibleNav(label) {
+  return `<nav aria-label="${label}" class="accessible-nav">${label}</nav>`;
+}
+
+/**
+ * Renders the main content wrapper with appropriate ARIA attributes.
+ * @param {string} innerHTML - HTML to be placed inside the <main> element.
+ * @returns {string} Accessible <main> element markup.
+ */
+function renderAccessibleMain(innerHTML) {
+  return `<main role="main" aria-labelledby="main-content">${innerHTML}</main>`;
+}
+
+/**
+ * Renders an accessible header element.
+ * @param {string} title - Header title text.
+ * @param {string} id - Optional ID for the header (used for labeling).
+ * @returns {string} Accessible <header> markup.
+ */
+function renderAccessibleHeader(title, id = 'main-header') {
+  return `<header id="${id}" role="banner"><h1>${title}</h1></header>`;
+}
+
+/**
+ * Renders an accessible footer element.
+ * @returns {string} Accessible <footer> markup.
+ */
+function renderAccessibleFooter() {
+  return `<footer role="contentinfo">© 2025 Screeps Team</footer>`;
+}
+
+/**
+ * Renders an accessible button.
+ * @param {string} label - Button label text.
+ * @param {string} [id] - Optional ID for the button.
+ * @param {string} [type='button'] - Button type attribute.
+ * @returns {string} Accessible <button> markup.
+ */
+function renderAccessibleButton(label, id = null, type = 'button') {
+  const buttonId = id ? `id="${id}"` : '';
+  return `<button type="${type}" ${buttonId}>${label}</button>`;
+}
+
+/**
+ * Renders an accessible link.
+ * @param {string} href - Destination URL.
+ * @param {string} label - Link text.
+ * @param {string} [target='_self'] - Link target attribute.
+ * @returns {string} Accessible <a> markup.
+ */
+function renderAccessibleLink(href, label, target = '_self') {
+  return `<a href="${href}" target="${target}">${label}</a>`;
+}
+
+/**
+ * Renders an accessible icon (SVG) with proper accessible name
+ * @param {string} iconId - Unique identifier for the icon
+ * @param {string} iconType - Type of icon (icon, apple, etc.)
+ * @param {object} options - Additional options (size, className, etc.)
+ * @returns {string} Accessible SVG icon HTML
+ */
+function renderIcon(iconId, iconType, options = {}) {
+  const { size = 32, className = '' } = options;
+  
+  // SVG icon content - add <title> for accessibility
+  const iconContent = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" class="${className}" role="img">
+      <title>Screeps Dashboard</title>
+      <text y=".9em" font-size="90">🎮</text>
+    </svg>
+  `;
+  
+  return iconContent;
+}
+
+/**
+ * Renders an accessible SVG icon with proper accessible name for screen readers
+ * @param {string} iconName - Name/identifier for the icon
+ * @param {object} attributes - SVG attributes (viewBox, width, height, className, etc.)
+ * @param {boolean} isDecorative - Whether the icon is purely decorative (hidden from screen readers)
+ * @param {string} accessibleLabel - Label for screen readers (required if not decorative)
+ * @returns {string} Accessible SVG icon HTML string
+ */
+function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, accessibleLabel = '') {
+  const { viewBox = "0 0 100 100", width = 32, height = 32, className = '' } = attributes;
+  
+  // Build SVG with accessible attributes
+  let ariaAttributes = '';
+  
+  if (isDecorative) {
+    ariaAttributes = 'aria-hidden="true"';
+  } else {
+    ariaAttributes = `aria-label="${accessibleLabel || iconName}" role="img"`;
+  }
+  
+  // Generate SVG with <title> element for accessibility
+  const svg = `
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="${viewBox}" 
+      width="${width}" 
+      height="${height}" 
+      class="${className}"
+      ${ariaAttributes}
+    >
+      ${!isDecorative ? `<title>${accessibleLabel || iconName}</title>` : ''}
+      <text y=".9em" font-size="90">🎮</text>
+    </svg>
+  `;
+  
+  return svg;
+}
+
+// -------------------------------------------------------------------
+// Updated accessible rendering helper to ensure <html> has lang attribute
+// -------------------------------------------------------------------
+
 /**
  * Renders accessible HTML with appropriate structure and landmarks
  * @param {string} html - HTML string to be made accessible
@@ -72,19 +197,13 @@ async function compileExports() {
  */
 function renderAccessibleHTML(html) {
   // Provide a proper HTML structure and landmarks
-  const wrap = `
-    <html lang="en">
-      ${renderAccessibleHeader()}
-      ${renderMain()}
-      ${renderFooter()}
-    </html>
-  `;
+  const wrap = `<html lang="en">\n  ${renderAccessibleHeader()}\n  ${renderMain()}\n  ${renderFooter()}\n</html>`;
   // Wrap the provided HTML inside the accessible HTML structure
   return wrap.replace('<main>', `<main>${html}`).replace(new RegExp('<body', 'g'), '<body class="main-content"');
 }
 
 /**
- * Renders accessible modal with proper structure
+ * Renders an accessible modal with proper structure
  * @param {string} modalID - Unique modal ID
  * @param {string} modalContent - Modal content HTML
  * @returns {string} Accessible modal HTML
@@ -191,69 +310,6 @@ function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, a
   `;
   
   return svg;
-}
-
-// -------------------------------------------------------------------
-// Missing accessible rendering helpers (added to satisfy exports)
-// -------------------------------------------------------------------
-
-/**
- * Renders an accessible navigation bar.
- * @param {string} label - Accessible label for the navigation.
- * @returns {string} HTML for an accessible <nav> element.
- */
-function renderAccessibleNav(label) {
-  return `<nav aria-label="${label}" class="accessible-nav">${label}</nav>`;
-}
-
-/**
- * Renders the main content wrapper with appropriate ARIA attributes.
- * @param {string} innerHTML - HTML to be placed inside the <main> element.
- * @returns {string} Accessible <main> element markup.
- */
-function renderAccessibleMain(innerHTML) {
-  return `<main role="main" aria-labelledby="main-content">${innerHTML}</main>`;
-}
-
-/**
- * Renders an accessible header element.
- * @param {string} title - Header title text.
- * @param {string} id - Optional ID for the header (used for labeling).
- * @returns {string} Accessible <header> markup.
- */
-function renderAccessibleHeader(title, id = 'main-header') {
-  return `<header id="${id}" role="banner"><h1>${title}</h1></header>`;
-}
-
-/**
- * Renders an accessible footer element.
- * @returns {string} Accessible <footer> markup.
- */
-function renderAccessibleFooter() {
-  return `<footer role="contentinfo">© 2025 Screeps Team</footer>`;
-}
-
-/**
- * Renders an accessible button.
- * @param {string} label - Button label text.
- * @param {string} [id] - Optional ID for the button.
- * @param {string} [type='button'] - Button type attribute.
- * @returns {string} Accessible <button> markup.
- */
-function renderAccessibleButton(label, id = null, type = 'button') {
-  const buttonId = id ? `id="${id}"` : '';
-  return `<button type="${type}" ${buttonId}>${label}</button>`;
-}
-
-/**
- * Renders an accessible link.
- * @param {string} href - Destination URL.
- * @param {string} label - Link text.
- * @param {string} [target='_self'] - Link target attribute.
- * @returns {string} Accessible <a> markup.
- */
-function renderAccessibleLink(href, label, target = '_self') {
-  return `<a href="${href}" target="${target}">${label}</a>`;
 }
 
 // Exported utilities for testing

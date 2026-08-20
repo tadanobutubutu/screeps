@@ -21,6 +21,13 @@
         rotateElement(element, 0);
     }
 
+    // Function to wrap content in a main landmark
+    function wrapInMain(content) {
+        const mainElement = document.createElement('main');
+        mainElement.innerHTML = content;
+        return mainElement;
+    }
+
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         const targetElement = document.getElementById('target');
@@ -42,13 +49,21 @@
                 rotateElement(targetElement, newRotation);
             });
         }
+
+        // Wrap the main content in a main landmark if it exists
+        const mainContent = document.querySelector('.main-content');
+        if (mainContent) {
+            const wrappedContent = wrapInMain(mainContent.innerHTML);
+            mainContent.parentNode.replaceChild(wrappedContent, mainContent);
+        }
     });
 
     // Export functions for testing or external use
     if (typeof module !== 'undefined' && module.exports) {
         module.exports = {
             rotateElement,
-            resetRotation
+            resetRotation,
+            wrapInMain
         };
     }
 })();

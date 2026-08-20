@@ -12,6 +12,8 @@ document.documentElement.dir = 'ltr';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <main>
+      <App />
+    </main>
   </React.StrictMode>
 );

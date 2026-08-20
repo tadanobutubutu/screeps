@@ -160,36 +160,60 @@ const experiments = [
     },
 ];
 
-// ランダムに1つ選択
-const selected = experiments[crypto.randomInt(0, experiments.length)];
-console.log(`🎲 Selected experiment: ${selected.name}`);
-console.log(`📝 Description: ${selected.description}`);
+function runRandomExperiment() {
+    // ランダムに1つ選択
+    const selected = experiments[crypto.randomInt(0, experiments.length)];
+    if (!selected) {
+        console.log("⚠️ No experiment selected");
+        return false;
+    }
+    console.log(`🎲 Selected experiment: ${selected.name}`);
+    console.log(`📝 Description: ${selected.description}`);
 
-const success = selected.apply();
+    let success;
+    try {
+        success = selected.apply();
+    } catch (e) {
+        console.error("Error applying experiment:", e);
+        success = false;
+    }
 
-if (success) {
-    const report = {
-        experiment: selected.name,
-        description: selected.description,
-        timestamp: new Date().toISOString(),
-        status: 'applied',
-    };
-    fs.writeFileSync('last-experiment.json', JSON.stringify(report, null, 2));
-    console.log('✅ Experiment applied successfully!');
-} else {
-    console.log('⚠️ Experiment already exists or not applicable');
-    fs.writeFileSync(
-        'last-experiment.json',
-        JSON.stringify(
-            {
-                experiment: selected.name,
-                description: selected.description,
-                timestamp: new Date().toISOString(),
-                status: 'skipped',
-            },
-            null,
-            2
-        )
-    );
-    process.exit(0);
+    if (success) {
+        const report = {
+            experiment: selected.name,
+            description: selected.description,
+            timestamp: new Date().toISOString(),
+            status: 'applied',
+        };
+        fs.writeFileSync('last-experiment.json', JSON.stringify(report, null, 2));
+        console.log('✅ Experiment applied successfully!');
+    } else {
+        console.log('⚠️ Experiment already exists or not applicable');
+        fs.writeFileSync(
+            'last-experiment.json',
+            JSON.stringify(
+                {
+                    experiment: selected.name,
+                    description: selected.description,
+                    timestamp: new Date().toISOString(),
+                    status: 'skipped',
+                },
+                null,
+                2
+            )
+        );
+        return false;
+    }
+    return true;
 }
+
+if (require.main === module) {
+    if (!runRandomExperiment()) {
+        process.exit(0);
+    }
+}
+
+module.exports = {
+    experiments,
+    runRandomExperiment
+};

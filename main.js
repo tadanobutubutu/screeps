@@ -57,3 +57,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Preserve all existing exports and functions below
 // ...
+
+// Additional changes to ensure <th> elements have a scope attribute
+document.addEventListener('DOMContentLoaded', function() {
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(function(header) {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
+});

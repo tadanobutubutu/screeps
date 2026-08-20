@@ -14,16 +14,18 @@ export function AccessibleTable({ data, caption }) {
       <caption>{caption}</caption>
       <thead>
         <tr>
-          {Object.keys(data[0]).map((key) => (
-            <th key={key} scope="col">{key}</th>
+          {Object.keys(data[0] || {}).map((key) => (
+            <th key={key} scope="col">
+              {key}
+            </th>
           ))}
         </tr>
       </thead>
       <tbody>
         {data.map((row, index) => (
           <tr key={index}>
-            {Object.values(row).map((value, i) => (
-              <td key={i}>{value}</td>
+            {Object.values(row).map((cell, i) => (
+              <td key={i}>{cell}</td>
             ))}
           </tr>
         ))}

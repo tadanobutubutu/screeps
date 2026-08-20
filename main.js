@@ -37,7 +37,7 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <div style={{ padding: '2rem', fontFamily: 'monospace' }} role="alert" aria-live="assertive">
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -103,15 +103,24 @@ const Dashboard = () => {
     }
 
     if (!stats) {
-        return <div>Loading...</div>;
+        return <div role="status" aria-live="polite">Loading...</div>;
     }
 
     return (
         <div style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+            <div
+                role="region"
+                aria-label="統計データ"
+                style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}
+            >
                 {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '4px' }}>
+                    <div
+                        key={key}
+                        role="article"
+                        aria-label={`${key} の統計`}
+                        style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: '4px' }}
+                    >
                         <h3>{key}</h3>
                         <p>{value}</p>
                     </div>
@@ -120,6 +129,7 @@ const Dashboard = () => {
             <button
                 onClick={() => fetchStats(true)}
                 disabled={refreshing}
+                aria-label="データを更新"
                 style={{
                     marginTop: '1rem',
                     padding: '0.5rem 1rem',
@@ -130,7 +140,7 @@ const Dashboard = () => {
                     cursor: 'pointer',
                 }}
             >
-                {refreshing ? 'Refreshing...' : 'Refresh Data'}
+                {refreshing ? '更新中...' : 'データを更新'}
             </button>
         </div>
     );

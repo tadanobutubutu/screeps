@@ -1,4 +1,5 @@
-// main.js - JavaScript file (no changes needed for this issue)
+// main.js
+// [Existing code remains unchanged]
 
 // Existing code that should be preserved
 

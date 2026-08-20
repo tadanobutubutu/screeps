@@ -1,16 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
+interface DashboardProps {
+    // Add your props here if any
+}
+
+const Dashboard: React.FC<DashboardProps> = (props) => {
+    const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const [copied, setCopied] = useState(false);
     const [errCopyHover, setErrCopyHover] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
-    const [copied, setCopied] = useState(false);
+
+    const fetchStats = async (forceRefresh = false) => {
+        // Your existing fetchStats implementation
+    };
+
+    const copyErr = () => {
+        // Your existing copyErr implementation
+    };
 
     useEffect(() => {
-        if (copied) {
-            const timer = setTimeout(() => setCopied(false), 2000);
-            return () => clearTimeout(timer);
-        }
-    }, [copied]);
+        fetchStats();
+    }, []);
 
     if (error) {
         return (
@@ -67,11 +80,11 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                             border: 'none',
                             borderRadius: '4px',
                             cursor: 'pointer',
+                            marginLeft: '1rem',
                             transition: 'all 0.2s ease-in-out',
                             transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
                             boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                             filter: errRetryHover ? 'brightness(1.1)' : 'none',
-                            marginLeft: '1rem',
                         }}
                     >
                         {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
@@ -81,34 +94,35 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
         );
     }
 
+    // Success state content (wrapped in a single main element)
     return (
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
-                        <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
-                        <p style={{ color: '#4a5568', fontSize: '1.25rem', marginBottom: 0 }}>{value}</p>
-                    </div>
-                ))}
-            </div>
+            <h1>Dashboard</h1>
+            {/* Your existing success state content */}
+            <h2>Dashboard App</h2>
+            {/* Rest of your dashboard content */}
             <button
-                onClick={() => fetchStats(true)}
-                disabled={refreshing}
+                id="unrotate"
+                type="button"
+                onClick={() => {
+                    // rotate back functionality
+                }}
                 style={{
-                    backgroundColor: '#004b73',
-                    color: 'white',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #ccc',
                     padding: '0.5rem 1rem',
-                    border: 'none',
                     borderRadius: '4px',
                     cursor: 'pointer',
-                    marginTop: '1rem',
+                    color: '#004b73',
                 }}
             >
-                {refreshing ? '🔄 更新中...' : '🔄 更新'}
+                rotate back
             </button>
         </main>
     );
 };
 
 export default Dashboard;
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(<Dashboard />);

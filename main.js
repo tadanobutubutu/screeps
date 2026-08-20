@@ -48,7 +48,7 @@ function createAccessibleTable(headers, rows) {
       React.createElement(
         'tr',
         null,
-        headers.map((header, index) => 
+        headers.map((header, index) =>
           React.createElement('th', { key: header, scope: 'col' }, header)
         )
       )
@@ -72,14 +72,14 @@ function createAccessibleTable(headers, rows) {
 // Create accessible table header cell with proper scope attribute
 function createThElement(content, options = {}) {
   const { isRowHeader = false, isColumnHeader = true, key } = options;
-  
+
   let scope = 'col';
   if (isRowHeader && !isColumnHeader) {
     scope = 'row';
   } else if (isColumnHeader) {
     scope = 'col';
   }
-  
+
   return React.createElement('th', { scope, key }, content);
 }
 
@@ -104,15 +104,15 @@ function createAccessibleTableRow(cells, rowIndex, isHeaderRow = false) {
 // Create fully accessible table with all proper scope attributes
 function createFullyAccessibleTable(headers, rows, options = {}) {
   const { caption, id } = options;
-  
+
   const tableElements = [];
-  
+
   if (caption) {
     tableElements.push(
       React.createElement('caption', { key: 'caption' }, caption)
     );
   }
-  
+
   // Thead with column headers
   tableElements.push(
     React.createElement(
@@ -127,7 +127,7 @@ function createFullyAccessibleTable(headers, rows, options = {}) {
       )
     )
   );
-  
+
   // Tbody with row headers
   tableElements.push(
     React.createElement(
@@ -148,7 +148,7 @@ function createFullyAccessibleTable(headers, rows, options = {}) {
       )
     )
   );
-  
+
   return React.createElement(
     'table',
     { id, 'aria-label': caption || 'Data table' },
@@ -258,6 +258,20 @@ function ensureSingleMainLandmark(content) {
   return content;
 }
 
+// Add function to create accessible button for navigation actions
+function createNavigationButton(text, onClick, id) {
+  return React.createElement(
+    'button',
+    {
+      id: id,
+      onClick: onClick,
+      'aria-label': text,
+      type: 'button'
+    },
+    text
+  );
+}
+
 // Export the new functions for use in other files
 module.exports = {
   wrapWithMain,
@@ -276,6 +290,8 @@ module.exports = {
   createThElement,
   createAccessibleTableRow,
   createFullyAccessibleTable,
+  // New navigation button function
+  createNavigationButton,
   // Preserve all existing exports
   jest,
   React,

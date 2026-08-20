@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -111,4 +110,3 @@ export default Dashboard;
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<Dashboard />);
-```

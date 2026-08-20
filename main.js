@@ -8,9 +8,13 @@ import './index.css';
 const AppLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main lang="en" role="main">
-        {children}
-      </main>
+      <html lang="en">
+        <body>
+          <main>
+            {children}
+          </main>
+        </body>
+      </html>
     </React.StrictMode>
   );
 };
@@ -19,15 +23,19 @@ const AppLayout = ({ children }) => {
 const DashboardLayout = ({ children }) => {
   return (
     <React.StrictMode>
-      <main lang="en" role="main">
-        {children}
-      </main>
+      <html lang="en">
+        <body>
+          <main>
+            {children}
+          </main>
+        </body>
+      </html>
     </React.StrictMode>
   );
 };
 
 // Main rendering
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

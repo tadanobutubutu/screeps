@@ -98,7 +98,7 @@ const experiments = [
     towers.forEach(tower => {
         const roomName = tower.room.name;
         if (!hostilesByRoom[roomName]) {
-            hostilesByRoom[roomName] = require('../src/utils/cache').getEnemies(tower.room);
+            hostilesByRoom[roomName] = tower.room.find(FIND_HOSTILE_CREEPS);
         }
         const hostiles = hostilesByRoom[roomName];
         if (hostiles.length > 0) {

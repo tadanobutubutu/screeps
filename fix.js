@@ -11,7 +11,7 @@ export const solution = {
       dynamic: {
         managerConfig: {
           'github-actions': {
-            // Resolves the 'Failed to look up github-tags' warning
+            // Fixes the 'Failed to look up github-tags' warning
             'linear-bots/gitstream-github-action': {
               // Explicitly defining the v2 structure for Renovate
               version: 'v2',

@@ -1,4 +1,3 @@
-// main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
@@ -47,9 +46,56 @@ export function DashboardLayout({ children }) {
 
 // Existing code (preserved)
 export function renderApp() {
-  const container = ...
+  const container = document.getElementById('root');
   const root = createRoot(container);
   root.render(<App />);
 }
 
-// Any other existing exports remain unchanged
+// DOM manipulation for the unrotate element
+document.addEventListener('DOMContentLoaded', () => {
+  const unrotateElement = document.getElementById('unrotate');
+  if (unrotateElement) {
+    const newButton = document.createElement('button');
+    newButton.id = 'unrotate';
+    newButton.type = 'button';
+    newButton.textContent = 'rotate back';
+    newButton.className = unrotateElement.className;
+
+    if (unrotateElement.style.cssText) {
+      newButton.style.cssText = unrotateElement.style.cssText;
+    }
+
+    newButton.addEventListener('click', () => {
+      // Your unrotate logic here
+      // For example: reset rotation, scroll to top, etc.
+      console.log('Rotate back clicked');
+    });
+
+    unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
+  }
+});
+
+// Export for testing (if applicable)
+export function init() {
+  // This function can be called manually if needed
+  document.addEventListener('DOMContentLoaded', () => {
+    const unrotateElement = document.getElementById('unrotate');
+    if (unrotateElement) {
+      const newButton = document.createElement('button');
+      newButton.id = 'unrotate';
+      newButton.type = 'button';
+      newButton.textContent = 'rotate back';
+      newButton.className = unrotateElement.className;
+
+      if (unrotateElement.style.cssText) {
+        newButton.style.cssText = unrotateElement.style.cssText;
+      }
+
+      newButton.addEventListener('click', () => {
+        console.log('Rotate back clicked');
+      });
+
+      unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
+    }
+  });
+}

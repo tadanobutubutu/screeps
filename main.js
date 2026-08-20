@@ -30,51 +30,70 @@ export const addFixLandmarkIssues = () => {
 // Add accessible names to 2 SVGs (fix for REACT_041)
 export const addAccessibleNamesToSVGs = () => {
   // Find all SVG elements in the document
-  const svgs = document.querySelectorAll('svg');
+  const svgs = ...
   
   svgs.forEach((svg) => {
     // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = svg.hasAttribute('aria-label');
-    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+    const hasAriaLabel = ...
+    const hasAriaLabelledby = ...
     
     // Check if SVG has a title child element
-    const titleElement = svg.querySelector('title');
+    const titleElement = ...
     const hasTitleChild = titleElement !== null;
     
     // Check if SVG is marked as hidden from screen readers
-    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
+    const ariaHidden = ... === 'true';
     
     // If SVG has no accessible name and is not hidden from screen readers
     if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
       if (hasTitleChild) {
         // Use the existing title text as aria-label for screen readers
         const titleText = titleElement.textContent;
-        svg.setAttribute('aria-label', titleText);
+        ... titleText);
       } else {
         // Check if SVG contains text elements (indicating it may be decorative)
-        const textElement = svg.querySelector('text');
+        const textElement = ...
         if (textElement) {
           // Add aria-hidden="true" since it contains text but no proper accessible name
-          svg.setAttribute('aria-hidden', 'true');
+          ... 'true');
         }
       }
     }
   });
 };
 
-// Ensure unique landmarks (2 issues) (example code, actual implementation needed)
+// Ensure unique landmarks (2 issues)
+// Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
 export const ensureUniqueLandmarks = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const landmarks = ...
-  // const roles = new Set();
-  // landmarks.forEach((landmark) => {
-  //   if ... {
-  //     // Duplicate role found, handle it (e.g., throw error, warning, or correct the role)
-  //   } else {
-  //     ...
-  //   }
-  // });
+  // Find all main elements in the document
+  const mainElements = document.querySelectorAll('main');
+  
+  // If there's more than one main element, fix the duplicate(s)
+  if (mainElements.length > 1) {
+    // Keep the first main element as-is, convert others to section elements
+    // This fixes the accessibility violation where multiple main landmarks exist
+    for (let i = 1; i < mainElements.length; i++) {
+      const duplicateMain = mainElements[i];
+      
+      // Create a replacement section element with the same attributes
+      const sectionReplacement = document.createElement('section');
+      
+      // Copy all attributes from the main element to the section element
+      Array.from(duplicateMain.attributes).forEach((attr) => {
+        sectionReplacement.setAttribute(attr.name, attr.value);
+      });
+      
+      // Move all child nodes from main to section
+      while (duplicateMain.firstChild) {
+        sectionReplacement.appendChild(duplicateMain.firstChild);
+      }
+      
+      // Replace the duplicate main with the section element
+      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
+    }
+    
+    console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);
+  }
 };
 
 // Fix 1 fake link issue (example code, actual implementation needed)
@@ -119,7 +138,7 @@ function App() {
     ...
     ...
     ...
-    addAccessibleNamesToSVGs();
+    ...
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
   }, []);

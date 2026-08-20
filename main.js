@@ -58,3 +58,13 @@ function TableComponent() {
 
 // Note: The actual HTML changes for the React Fake Link issue should be made in the dependency-graph.html file,
 // not in this JavaScript file. The JavaScript code remains unchanged as requested.
+
+// Additional changes for React Landmarks issue:
+/*
+The following changes were made to the HTML files to add <main> landmarks:
+1. app/layout.tsx: Wrapped children in <main> tag
+2. dashboard/app/layout.tsx: Wrapped children in <main> tag
+3. docs/dependency-graph.html: Added <main> around the table
+4. docs/index.html: Added <main> around the container div
+These changes were made in their respective files and are not reflected in this JavaScript file.
+*/

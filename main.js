@@ -10,8 +10,10 @@ function App() {
         <title>Document</title>
       </head>
       <body>
-        <Dashboard />
-        {/* Rest of the body content */}
+        <main>
+          <Dashboard />
+          {/* Rest of the body content */}
+        </main>
       </body>
     </html>
   );

@@ -64,7 +64,7 @@ export const fixFakeLinkIssue = () => {
   // });
 };
 
-// Add back any required exports that might have been?
+// Handle rotation back logic
 export const handleRotateBack = () => {
   // Implement rotation back logic
   // Example: reset any forward rotation applied to the character model
@@ -80,20 +80,6 @@ export const handleRotateBack = () => {
 
 function App() {
   // ... existing code ...
-
-  // Replace the fake link with a proper button
-  const handleRotateBack = () => {
-    // Implement rotation back logic
-    // Example: reset any forward rotation applied to the character model
-    const character = ...
-    if (character) {
-      // Reset rotation (assuming Y-axis rotation was used for forward orientation)
-      character.style.transform = 'rotateY(0deg)';
-      console.log('Character rotated back to initial orientation');
-    } else {
-      console.warn('Character model element not found; cannot rotate back');
-    }
-  };
 
   React.useEffect(() => {
     langAttribute();

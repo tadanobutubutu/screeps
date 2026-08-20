@@ -54,12 +54,12 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
-// Add proper landmarks
+// Use section instead of main to avoid multiple main landmarks issue
 const MainContent = () => (
-  <main>
+  <section>
     <h1>Page Title</h1>
     {/* Content here */}
-  </main>
+  </section>
 );
 
 const Sidebar = () => (

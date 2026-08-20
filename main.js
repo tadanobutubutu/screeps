@@ -27,7 +27,7 @@ export default function RootLayout({
         >
           {/* decorative elements */}
         </svg>
-        <main role="main">
+        <main role="main" aria-label="Main content">
           {children}
         </main>
       </body>

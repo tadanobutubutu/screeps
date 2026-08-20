@@ -56,7 +56,7 @@ export function createMainContent(content) {
 // Update layout components to include main landmarks
 export function updateLayoutWithMain(children) {
   return (
-    <html lang="ja">
+    <html lang="en">
       <head>
         {/* Head content */}
       </head>

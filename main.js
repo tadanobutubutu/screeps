@@ -45,7 +45,7 @@ function handleTypeScript7Update() {
   // Add any necessary migration code here
 }
 
-// New function to fix React SVG Accessible Name issues
+// New function to fix React 19 updates
 function fixReactSVGAccessibility() {
   // This function would be called during the build process to modify the layout files
   console.log('Fixing React SVG accessibility issues');

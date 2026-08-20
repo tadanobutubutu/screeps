@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { execSync, execFileSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const ISSUE_AUTHOR = process.env.ISSUE_AUTHOR;
@@ -99,7 +99,8 @@ function updateAllContributorsConfig(config) {
 function updateReadme() {
     try {
         console.log('📝 Updating README with all-contributors...');
-        execSync('npx all-contributors-cli generate', { stdio: 'inherit' });
+        const cmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+        execFileSync(cmd, ['all-contributors-cli', 'generate'], { stdio: 'inherit' });
         console.log('✅ README updated');
     } catch (error) {
         console.warn('⚠️  Failed to update README:', error.message);

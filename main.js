@@ -1,7 +1,6 @@
 // Existing code (preserved)
 // ...
 
-// Corrected section
 document.getElementById('unrotate').addEventListener('click', rotateBack);
 
 // Ensure the rotateBack function is defined elsewhere in the file

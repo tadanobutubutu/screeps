@@ -13,7 +13,7 @@
 
 // Get the elements
 const unrotateButton = document.getElementById('unrotate');
-const rotateButton = document.getElementById('rotate'); // Assuming there's a rotate button
+const rotateButton = document.getElementById('rotate');
 
 // Store the original rotation state
 let isRotated = false;

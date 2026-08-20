@@ -16,3 +16,24 @@ const typescript = require('typescript'); // Update to v7 if needed
 
 // Add any new functions or changes requested in the issue
 // while preserving all existing functionality
+
+// Add main landmark to layout components
+function wrapWithMain(content) {
+  return React.createElement('main', null, content);
+}
+
+// Add main landmark to HTML documents
+function addMainToHTML(content) {
+  return `<main>${content}</main>`;
+}
+
+// Export the new functions for use in other files
+module.exports = {
+  wrapWithMain,
+  addMainToHTML,
+  // Preserve all existing exports
+  jest,
+  React,
+  eslint,
+  typescript
+};

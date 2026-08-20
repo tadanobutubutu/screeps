@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import './styles.css';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<div lang="en"><App /></div>, document.getElementById('root'));
 
 // App.js - Main application component
 import React, { useState } from 'react';
@@ -23,12 +23,12 @@ function App() {
       </div>
       
       <div className="controls">
-        <button onClick={handleRotate}>
+        <button onClick={handleRotate} aria-label="Rotate image">
           Rotate Image
         </button>
         
         {isRotated && (
-          <button id="unrotate" onClick={handleRotate}>
+          <button id="unrotate" onClick={handleRotate} aria-label="Rotate back">
             rotate back
           </button>
         )}

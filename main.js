@@ -1,5 +1,6 @@
 // Main.js - React Landmarks Fix Utility
 // Fixes REACT_017: React Landmarks - Page has no <main> landmark
+// Fixes REACT_027: React Table Structure - <th> has no scope
 
 const fs = require('fs');
 const path = require('path');
@@ -12,7 +13,7 @@ const path = require('path');
 function hasMainLandmark(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
-        return /<main[\s>]/i.test(content);
+        return /<main[\s\S]*?<\/main>/i.test(content);
     } catch (error) {
         console.error(`Error reading file ${filePath}:`, error.message);
         return false;
@@ -31,19 +32,19 @@ function addMainLandmark(filePath, type = 'tsx') {
         if (type === 'tsx') {
             // Pattern: <body>{children}</body> or similar
             content = content.replace(
-                /(<body[^>]*>)(\{children\})(<\/body>)/i,
-                '<body><main>{children}</main></body>'
+                /(<body[^>]*>)([\s\S]*?)(<\/body>)/i,
+                '$1<main>$2</main>$3'
             );
             
             // Pattern: <div>{children}</div> in layout
             content = content.replace(
-                /(<div[^>]*>)(\{children\})(<\/div>)/i,
+                /<div>\{children\}<\/div>/,
                 '<main><div>{children}</div></main>'
             );
         } else if (type === 'html') {
             // Pattern: <table id="table-rotated">
             content = content.replace(
-                /(<table[^>]*id="table-rotated"[^>]*>)/i,
+                /(<table id="table-rotated">)/i,
                 '<main>$1'
             );
             
@@ -67,16 +68,16 @@ function addMainLandmark(filePath, type = 'tsx') {
 function fixReactLandmarks() {
     const filesToFix = [
         { path: 'app/layout.tsx', type: 'tsx' },
-        { path: 'dashboard/app/layout.tsx', type: 'tsx' },
+        { path: 'app/(auth)/layout.tsx', type: 'tsx' },
         { path: 'docs/index.html', type: 'html' }
     ];
     
     filesToFix.forEach(({ path: filePath, type }) => {
-        const fullPath = path.resolve(process.cwd(), filePath);
-        if (!hasMainLandmark(fullPath)) {
+        const fullPath = path.resolve(filePath);
+        if (fs.existsSync(fullPath)) {
             addMainLandmark(fullPath, type);
         } else {
-            console.log(`${filePath} already has <main> landmark`);
+            console.log(`File ${filePath} already has <main> landmark`);
         }
     });
 }
@@ -103,10 +104,111 @@ function checkLandmarks(filePaths) {
     return results;
 }
 
+/**
+ * Checks if a file contains properly scoped table headers
+ * @param {string} filePath - Path to the file to check
+ * @returns {boolean} - True if all <th> elements have scope attributes
+ */
+function hasTableScope(filePath) {
+    try {
+        const content = fs.readFileSync(filePath, 'utf8');
+        // Check if there are <th> elements without scope attribute
+        const thWithoutScope = /<th(?![^>]*\bscope=["'])[^>]*>/gi;
+        const matches = content.match(thWithoutScope);
+        return matches === null || matches.length === 0;
+    } catch (error) {
+        console.error(`Error reading file ${filePath}:`, error.message);
+        return false;
+    }
+}
+
+/**
+ * Adds scope="col" to all <th> elements in a file
+ * @param {string} filePath - Path to the file
+ * @param {string} type - Type of file ('html' or 'tsx')
+ */
+function addTableScope(filePath, type = 'html') {
+    try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        
+        if (type === 'html') {
+            // Pattern: <table id="table-rotated">
+            content = content.replace(
+                /(<table id="table-rotated">)/i,
+                '<main>$1'
+            );
+            
+            // Close main before closing body
+            content = content.replace(
+                /(<\/body>)/i,
+                '</main>$1'
+            );
+        }
+        
+        // Add scope="col" to <th> elements that don't have it
+        // This regex matches <th> tags without a scope attribute and adds scope="col"
+        const thRegex = /(<th(?![^>]*\bscope=["'])[^>]*?)>/gi;
+        content = content.replace(thRegex, '$1 scope="col">');
+        
+        fs.writeFileSync(filePath, content, 'utf8');
+        console.log(`Added scope="col" to table headers in ${filePath}`);
+    } catch (error) {
+        console.error(`Error modifying file ${filePath}:`, error.message);
+    }
+}
+
+/**
+ * Fixes all files mentioned in the REACT_027 issue
+ */
+function fixReactTableStructure() {
+    const filesToFix = [
+        { path: 'docs/index.html', type: 'html' }
+    ];
+    
+    filesToFix.forEach(({ path: filePath, type }) => {
+        const fullPath = path.resolve(filePath);
+        if (fs.existsSync(fullPath)) {
+            if (hasTableScope(fullPath)) {
+                console.log(`File ${filePath} already has properly scoped table headers`);
+            } else {
+                addTableScope(fullPath, type);
+            }
+        } else {
+            console.log(`File ${filePath} not found`);
+        }
+    });
+}
+
+/**
+ * Checks all files for properly scoped table headers
+ * @param {string[]} filePaths - Array of file paths to check
+ * @returns {Object} - Summary of results
+ */
+function checkTableStructures(filePaths) {
+    const results = {
+        passed: [],
+        failed: []
+    };
+    
+    filePaths.forEach(filePath => {
+        if (hasTableScope(filePath)) {
+            results.passed.push(filePath);
+        } else {
+            results.failed.push(filePath);
+        }
+    });
+    
+    return results;
+}
+
 // Export all functions for use in tests and other modules
 module.exports = {
     hasMainLandmark,
     addMainLandmark,
     fixReactLandmarks,
-    checkLandmarks
+    checkLandmarks,
+    hasTableScope,
+    addTableScope,
+    fixReactTableStructure,
+    checkTableStructures
 };

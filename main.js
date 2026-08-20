@@ -77,3 +77,26 @@ export function updateDocsContent(content) {
     </main>
   );
 }
+
+// Add function to create accessible SVG with aria-hidden
+export function createAccessibleSvg({ children, isDecorative = false }) {
+  if (isDecorative) {
+    return <svg aria-hidden="true">{children}</svg>;
+  }
+  return (
+    <svg aria-label="Favicon">
+      <title>Favicon</title>
+      {children}
+    </svg>
+  );
+}
+
+// Add function to create accessible favicon SVG
+export function createFaviconSvg() {
+  return (
+    <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
+      <title>Favicon</title>
+      {/* SVG content would go here */}
+    </svg>
+  );
+}

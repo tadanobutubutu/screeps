@@ -1,5 +1,1 @@
-// Example of how to fix the issue in a single file
-   // Replace the following line:
-   // <th><div>src/constants.js</div></th>
-   // With:
-   // <th ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -43,7 +43,6 @@ function renderDependencyDashboard() {
         <table>
           <thead>
             <tr>
-              <!-- Reproduced tables from the issue's affected line -->
               <th scope="col"><div>src/constants.js</div></th>
               <th scope="col"><div>src/managers/roomManager.js</div></th>
               <th scope="col"><div>src/managers/spawnManager.js</div></th>
@@ -65,6 +64,7 @@ function renderDependencyDashboard() {
         <banner id="banner">...</banner>
         <!-- Fix 1 fake link issue -->
         <!-- Assuming no fake links exist on this dashboard, but we will double-check links in the real dashboard -->
+        <button id="unrotate" type="button">rotate back</button>
       </div>
     </body>
     </html>
@@ -82,12 +82,12 @@ function renderDependencyDashboard() {
   addLanguageAttribute(mainContent, 'en');
 }
 
-// Call the function to render the dashboard
-renderDependencyDashboard();
-
 // New function to address the React Language Attribute issue
 function addLanguageAttribute(element, lang) {
   if (element && lang) {
     element.setAttribute('lang', lang);
   }
 }
+
+// Call the function to render the dashboard
+renderDependencyDashboard();

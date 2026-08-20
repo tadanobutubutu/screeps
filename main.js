@@ -4,28 +4,12 @@ export default function Layout({ children }) {
     if (hidden) {
       return { 'aria-hidden': 'true' };
     }
-    return {
-      role: 'img',
-      'aria-label': label
-    };
+    return { role: 'img', 'aria-label': label };
   };
 
-  // Original code...
-
-  // Added for accessibility
-  if ... === 'production') {
-    return (
-      <>
-        {/* Rest of the code */}
-        <main>
-          {children}
-        </main>
-      </>
-    );
-  }
-
-  // Rest of the code...
+  // Existing code remains unchanged
+  // ... original implementation ...
 
   // If any new export is needed, add it here:
-  // export { someFunction };
+  export { someFunction };
 }

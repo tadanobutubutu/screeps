@@ -75,6 +75,30 @@ function enhanceLinkAccessibility() {
   });
 }
 
+// Add accessibility improvements for REACT_036 (React Fake Link) - replace fake links with buttons
+function fixFakeLinksWithButtons() {
+  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""]');
+  fakeLinks.forEach(link => {
+    const button = document.createElement('button');
+    // Copy all attributes except href
+    Array.from(link.attributes).forEach(attr => {
+      if (attr.name !== 'href') {
+        button.setAttribute(attr.name, attr.value);
+      }
+    });
+    // Copy inner HTML
+    button.innerHTML = link.innerHTML;
+    // Ensure it has type="button"
+    button.setAttribute('type', 'button');
+    // Ensure role is button (if not already set)
+    if (!button.hasAttribute('role')) {
+      button.setAttribute('role', 'button');
+    }
+    // Replace the link with the button
+    link.parentNode.replaceChild(button, link);
+  });
+}
+
 // Initialize accessibility enhancements when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Apply table accessibility improvements
@@ -91,6 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enhance link accessibility
   enhanceLinkAccessibility();
+
+  // Fix fake links by replacing them with buttons
+  fixFakeLinksWithButtons();
 });
 
 // Preserve all existing exports

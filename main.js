@@ -31,5 +31,21 @@ const RotationButton = () => (
   </button>
 );
 
+// Add decorative SVG with aria-hidden for favicon
+const FaviconSVG = () => (
+  <svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+    style={{ display: 'none' }}
+  >
+    <title>Favicon</title>
+    <circle cx="50" cy="50" r="40" fill="#61dafb" />
+  </svg>
+);
+
 // Export all existing exports
 // ... (all existing exports remain unchanged)
+
+// Add new exports for the accessibility components
+export { RotationButton, FaviconSVG };

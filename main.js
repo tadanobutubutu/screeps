@@ -100,14 +100,31 @@ const rotateBackAction = () => {
   return `<button id="unrotate" type="button">rotate back</button>`;
 };
 
-module.exports = { 
-  getPendingUpdates, 
-  getDetectedDependencies, 
-  getBlockedPRs, 
-  wrapWithMain, 
-  getFixedLayouts, 
-  makeSvgAccessible, 
-  addLangAttribute, 
+// New function to fix React Unique Landmarks issue
+function ensureUniqueLandmarks(htmlContent) {
+  // Ensure only one main landmark exists
+  const mainCount = (htmlContent.match(/<main/g) || []).length;
+  if (mainCount > 1) {
+    // If multiple mains exist, wrap all but first in divs
+    return htmlContent.replace(/<main/g, (match, offset, string) => {
+      if (offset === string.indexOf('<main')) {
+        return match;
+      }
+      return '<div';
+    }).replace(/<\/main>/g, '</div>');
+  }
+  return htmlContent;
+}
+
+module.exports = {
+  getPendingUpdates,
+  getDetectedDependencies,
+  getBlockedPRs,
+  wrapWithMain,
+  getFixedLayouts,
+  makeSvgAccessible,
+  addLangAttribute,
   addTableHeaderScope,
-  rotateBackAction
+  rotateBackAction,
+  ensureUniqueLandmarks
 };

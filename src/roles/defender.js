@@ -257,9 +257,15 @@ function _getPatrolPoints(room) {
     const ramparts = cache.getMyStructures(room, STRUCTURE_RAMPART);
 
     if (ramparts.length > 0) {
-        // ランパートを等間隔で選択
+        // ⚡ PERFORMANCE OPTIMIZATION: Use a single-pass for loop instead of filter().map()
+        // to avoid allocating intermediate arrays and callback closures during patrol routines.
         const step = Math.max(1, Math.floor(ramparts.length / 6));
-        return ramparts.filter((_, i) => i % step === 0).map((r) => ({ x: r.pos.x, y: r.pos.y }));
+        const points = [];
+        for (let i = 0; i < ramparts.length; i += step) {
+            const pos = ramparts[i].pos;
+            points.push({ x: pos.x, y: pos.y });
+        }
+        return points;
     }
 
     // ランパートがなければルームの角付近をパトロール

@@ -4,7 +4,7 @@ import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <main>
+  <main lang="en" role="main">
     <App />
   </main>
 );

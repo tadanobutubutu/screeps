@@ -23,15 +23,15 @@
             let hasTitle = titleRegex.test(match);
             let hasText = textRegex.test(match);
 
-            // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
-                // Replace the SVG content with a title element wrapping the existing text
-                return match.replace(textRegex, (textMatch) => {
-                    return `<title>${label}</title>${textMatch}`;
+            // Add a title element if it doesn't already exist
+            if (!hasTitle && label) {
+                // Insert a title element at the beginning of the SVG content
+                return match.replace(/<svg[\s\S]*?>/i, (openTagMatch) => {
+                    return `${openTagMatch}<title>${label}</title>`;
                 });
             }
 
-            // If the SVG doesn't contain text or already has a title, return the original match
+            // If the SVG already has a title or no label provided, return the original match
             return match;
         });
     }

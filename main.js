@@ -1,6 +1,10 @@
 // main.js
 import React from 'react';
 
+// Create the root <main> element to satisfy REACT_017
+const mainRoot = document.createElement('main');
+document.body.appendChild(mainRoot);
+
 // Preserve all existing code and exports
 // ... (all existing code remains unchanged)
 

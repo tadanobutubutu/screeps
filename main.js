@@ -3,9 +3,42 @@
 /**
  * Creates an accessible table component
  * Fixes: REACT_027 (Table Structure)
+ * 
+ * Adds proper scope attributes to table headers for screen reader compatibility.
+ * Use scope="col" for column headers and scope="row" for row headers.
+ * 
+ * @param {Object} props - Component props
+ * @param {Array<string>} props.headers - Column header labels
+ * @param {Array<Array<string>>} props.rows - Table row data
+ * @param {string} props.caption - Table caption for screen readers
+ * @returns {JSX.Element} Accessible table component
  */
 export function AccessibleTable({ headers, rows, caption }) {
-  // (existing code)
+  return (
+    <table>
+      {caption && <caption>{caption}</caption>}
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              cellIndex === 0 ? (
+                <th key={cellIndex} scope="row">{cell}</th>
+              ) : (
+                <td key={cellIndex}>{cell}</td>
+              )
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
 }
 
 /**
@@ -95,12 +128,12 @@ export function Footer({ children }) {
  */
 export function AccessibleLink({ href, children, onClick, ...props }) {
   if (!isValidHref(href)) {
-    return <button type="button" onClick={onClick} ...props>
+    return <button type="button" onClick={onClick} {...props}>
       {children}
     </button>;
   }
 
-  return <a href={href} onClick={onClick} ...props>
+  return <a href={href} onClick={onClick} {...props}>
     {children}
   </a>;
 }
@@ -110,7 +143,11 @@ export function AccessibleLink({ href, children, onClick, ...props }) {
  * Helps with accessibility overall
  */
 export function SkipLink() {
-  // (existing code)
+  return (
+    <a href="#main-content" className="skip-link">
+      Skip to main content
+    </a>
+  );
 }
 
 /**
@@ -166,7 +203,7 @@ export const accessibilityComponents = {
 };
 
 export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && ...
+  return href && href !== '#' && href !== '';
 }
 
 export default accessibilityComponents;
@@ -175,7 +212,6 @@ export default accessibilityComponents;
 export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
 
 // Utility functions for accessibility support
-// (existing code)
 
 /**
  * Utility function to check if an element is focusable
@@ -222,7 +258,7 @@ export function isFocusable(element) {
  * </div>
  */
 export function MainLandmark({ children }) {
-  return <main id="main-content">{children}</main>;
+  return <main>{children}</main>;
 }
 
 /**

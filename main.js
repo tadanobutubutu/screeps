@@ -1,14 +1,1 @@
-import React from 'react';
-import ReactDOM from 'react--dom/client';
-import './index.css';
-import App from './App';
-
-// Set language attribute for accessibility
-document.documentElement.lang = 'en';
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+import React from 'react'; import ReactDOM from 'react-dom/client'; import './index.css'; import App from './App'; // Set language attribute for accessibility document.documentElement.lang = 'en'; // Set direction for better accessibility document.documentElement.dir = 'ltr'; const root = ReactDOM.createRoot(document.getElementById('root')); root.render( <React.StrictMode> <main> <App /> </main> </React.StrictMode> );

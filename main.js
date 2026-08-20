@@ -34,15 +34,3 @@ module.exports = {
   updateAriaAttributes,
   // other existing exports...
 };
-
-const originalUnrotate = document.getElementById('unrotate');
-if (originalUnrotate) {
-  originalUnrotate.replaceWith(
-    Object.assign(document.createElement('button'), {
-      id: 'unrotate',
-      textContent: 'rotate back',
-      type: 'button'
-    })
-  );
-}
-initializeAccessibility();

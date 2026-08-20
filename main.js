@@ -8,8 +8,6 @@
     // Export the function
     exports.myFunction = myFunction;
 
-    // Additional code to add accessible names to SVGs
-
     // Function to add accessible name to SVGs for accessibility
     function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
@@ -66,6 +64,15 @@
 
     // Call the function to update the 'rotate back' link on page load
     window.onload = updateRotateBackLink;
+
+    // Additional code to add accessible names to SVGs
+    // Example usage:
+    // const icons = {
+    //   icon1: '<svg>...</svg>',
+    //   icon2: '<svg>...</svg>'
+    // };
+    // const updatedIcons = updateIcons(icons, 'Accessible description');
+    // console.log(updatedIcons);
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

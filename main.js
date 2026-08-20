@@ -173,6 +173,7 @@ function ensureSingleMainLandmark(component) {
     component = React.cloneElement(component, { lang: 'en' });
   }
 
+  // Check if the component already has a main landmark
   const children = React.Children.toArray(component.props.children);
   const hasMain = children.some(child => child.type === 'main' || (child.props && child.props.role === 'main'));
 

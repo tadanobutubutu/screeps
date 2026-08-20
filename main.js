@@ -1,12 +1,1 @@
-const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Application</title>
-</head>
-<body>
-    <!-- Application content -->
-</body>
-</html>
-`;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

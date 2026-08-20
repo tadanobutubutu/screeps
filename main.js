@@ -2,6 +2,8 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
+const fs = require('fs');
+const path = require('path');
 
 // Existing functions (preserved)
 function existingFunction1() {
@@ -39,17 +41,60 @@ function handleTypeScriptUpdate() {
 
 // Function to ensure SVG accessibility
 function ensureSvgAccessibility() {
-  // This would be implemented in the layout.tsx files
-  // Since we can't modify those here, we'll document the requirement
-  console.log('Note: SVG elements in layout.tsx should have accessible names or aria-hidden="true"');
-
-  // Additional accessibility checks
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('role')) {
-      console.warn('SVG element missing accessibility attributes. Add aria-hidden="true" or provide an accessible name.');
+  console.log('Checking SVG accessibility in layout files...');
+  
+  const layoutFiles = [
+    'app/layout.tsx',
+    'dashboard/app/layout.tsx'
+  ];
+  
+  layoutFiles.forEach(file => {
+    const filePath = path.join(process.cwd(), file);
+    
+    if (fs.existsSync(filePath)) {
+      let content = fs.readFileSync(filePath, 'utf8');
+      let modified = false;
+      
+      // Pattern to match SVG elements that don't have aria-hidden, aria-label, or role
+      const svgPattern = /<svg(?![^>]*\b(aria-hidden|aria-label|role)=)([^>]*)>/gi;
+      
+      // For favicon SVGs (decorative), add aria-hidden="true"
+      // This regex targets SVGs in Link components or as direct img src
+      const faviconSvgPattern = /<svg([^>]*)>(?![\s\S]*?<title>)/gi;
+      
+      // Check if the file contains SVG elements without accessibility
+      if (content.includes('<svg') || content.includes('<Svg')) {
+        // For decorative SVGs (like favicons), add aria-hidden="true"
+        content = content.replace(/<Link[^>]*>[\s\n]*<svg([^>]*)>[\s\n]*<path/gi, (match, svgAttrs) => {
+          if (!svgAttrs.includes('aria-hidden') && !svgAttrs.includes('aria-label')) {
+            modified = true;
+            return `<Link><svg aria-hidden="true"${svgAttrs}><path`;
+          }
+          return match;
+        });
+        
+        // For general SVG elements without accessible names, add aria-hidden if decorative
+        if (content.match(/<svg[^>]*href.*favicon|icon.*\.svg/gi)) {
+          content = content.replace(/<svg([^>]*)>[\s\S]*?<\/svg>/gi, (match, attrs) => {
+            if (!attrs.includes('aria-hidden') && !attrs.includes('aria-label') && !attrs.includes('role=')) {
+              modified = true;
+              return `<svg aria-hidden="true"${attrs}></svg>`;
+            }
+            return match;
+          });
+        }
+        
+        if (modified) {
+          fs.writeFileSync(filePath, content);
+          console.log(`✓ Updated ${file} with SVG accessibility attributes`);
+        } else {
+          console.log(`✓ ${file} SVG elements already have accessibility attributes`);
+        }
+      }
     }
   });
+  
+  console.log('SVG accessibility check complete.');
 }
 
 // New function to validate React landmark structure
@@ -70,7 +115,7 @@ function ensureHtmlLanguageAttribute() {
 
   // In a real implementation, this would check the HTML file
   // For now, we'll just log the requirement
-  console.log('Please ensure docs/dependency-graph.html has <html lang="en"> or similar language attribute.');
+  console.log('Please ensure app/page.tsx has <html lang="en"> or similar language attribute.');
 }
 
 // New function to validate table structure
@@ -96,7 +141,7 @@ function fixFakeLinks() {
   // For now, we'll just log the requirement and provide guidance
   console.log('Note: Replace <a href="#"> elements used as buttons with proper <button> elements.');
   console.log('Example: Change <a href="#" onclick="rotateBack()"> to <button onclick="rotateBack()">rotate back</button>');
-  console.log('For the specific case in docs/dependency-graph.html, replace the "rotate back" link with a button element.');
+  console.log('For the specific case in docs/dependency-graph.html replace the "rotate back" link with a button element.');
 }
 
 // New function to ensure unique landmarks

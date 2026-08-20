@@ -17,7 +17,12 @@ function App() {
       {/* ... existing JSX ... */}
 
       {/* Replace the fake link with a proper button */}
-      <button id="unrotate" onClick={handleRotateBack}>
+      <button
+        id="unrotate"
+        type="button"
+        onClick={handleRotateBack}
+        aria-label="Rotate back"
+      >
         rotate back
       </button>
 
@@ -27,3 +32,5 @@ function App() {
 }
 
 // ... rest of the existing code ...
+
+export default App;

@@ -1,17 +1,36 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
 // This file should contain JavaScript code, not HTML
-// The HTML content appears to be in a different file (dependency-graph.html)
+// The HTML content appears to be in a different file ...
 // Please ensure all JavaScript code is properly formatted and valid
 
-// Example of proper JavaScript code (if this was the actual content):
-// import React from 'react';
-// import App from './App';
+function RotateButton({ onClick, children }) {
+  return (
+    <button 
+      id="unrotate" 
+      onClick={onClick}
+      type="button"
+    >
+      {children}
+    </button>
+  );
+}
 
-// function Main() {
-//   return (
-//     <div className="App">
-//       <App />
-//     </div>
-//   );
-// }
+function Main() {
+  const handleRotateBack = () => {
+    // Handle rotate back action
+    // This could reset rotation, scroll to top, or other relevant action
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-// export default Main;
+  return (
+    <div className="App">
+      <RotateButton onClick={handleRotateBack}>
+        rotate back
+      </RotateButton>
+    </div>
+  );
+}
+
+export default Main;

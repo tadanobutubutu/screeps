@@ -91,11 +91,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
     );
   }
 
-  // Your existing success state rendering
+  // Success state - changed <main> to <section> to comply with REACT_025
   return (
-    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
       {/* Your existing success state content */}
-    </main>
+    </section>
   );
 };
 

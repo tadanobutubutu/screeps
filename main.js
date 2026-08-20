@@ -7,7 +7,7 @@ import ReactDOM from 'react-dom';
 
 export function renderDependencyGraph() {
   return (
-    <div className="dependency-graph">
+    <div ...>
       {/* -------------------------------------------------
           The following JSX previously contained a fake link:
       
@@ -33,7 +33,7 @@ export function renderDependencyGraph() {
       >
         rotate back
       </button>
-      
+
       {/* The rest of the component’s JSX / UI stays exactly as it
           was before, ensuring no functional regression. */}
       {/* ...other elements... */}

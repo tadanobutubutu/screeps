@@ -18,14 +18,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <a href="#main-content" className="skip-link" style={{ position: 'absolute', left: '-9999px', top: '0' }}>
+          Skip to main content
+        </a>
+        <header role="banner">
+          <h1>Application Header</h1>
+        </header>
+        <main id="main-content" role="main">
+          {children}
+        </main>
+        <footer role="contentinfo">
+          <p>Footer content</p>
+        </footer>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           style={{ display: "none" }}
           aria-hidden="true"
         >
+          <title>Hidden SVG icons</title>
           {/* SVG content */}
         </svg>
-        <main>{children}</main>
       </body>
     </html>
   );

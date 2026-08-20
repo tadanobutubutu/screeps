@@ -13,3 +13,11 @@
 ## 2026-08-16 - Lazy Target Evaluation for Tower Defense Logic
 **Learning:** In tower defense routines, unconditionally iterating through all room structures to build arrays of repair candidates before checking for hostile creeps wastes CPU cycles when hostile creeps are present. Evaluating hostile presence first and lazily scanning structures in a single pass with early termination prevents unneeded room-wide iterations and array allocations.
 **Action:** Always place hostile checks before structure scans in tower loops, and lazily break early when single repair targets are needed.
+
+## 2026-08-20 - Centralized Caching for Scripts
+**Learning:** Raw script injection logic inside `random-experiment.js` was generating repetitive, high-CPU spatial scans `tower.room.find(FIND_HOSTILE_CREEPS)` in Screeps. Utilizing the unified TTL caching system (e.g. `cache.getEnemies()`) eliminates this N+1 querying and significantly reduces tower logic execution time per tick.
+**Action:** Replace direct `.find()` operations with centralized `cache.get...` methods in auto-generated scripts and experiments.
+
+## 2026-08-20 - Guardrails Scanning
+**Learning:** Third party integrations like guardrails/scan will fail if plan limits are reached, showing a "Scan skipped, plan limit reached. Contact sales." message in GitHub check runs.
+**Action:** Since these limits are tied to external service subscriptions and billing on the organization or repo level, they cannot be resolved via source code modifications.

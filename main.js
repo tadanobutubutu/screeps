@@ -20,13 +20,13 @@ export default function RootLayout({
       <body className={inter.className}>
         <header>
           {/* Example SVG that was flagged - adding aria-hidden="true" */}
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2" 
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
             aria-hidden="true"
           >
             <path d="M12 2L2 7l10 5 10-5-10-5z" />

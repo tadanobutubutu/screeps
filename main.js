@@ -25,6 +25,9 @@ function replaceFakeLinksWithButtons() {
   }
 }
 
+// Export the function to be used elsewhere in the application
+export { replaceFakeLinksWithButtons };
+
 // Call this function when the dependency graph is loaded
 document.addEventListener('DOMContentLoaded', function() {
   if (window.location.pathname.includes('dependency-graph.html')) {

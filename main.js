@@ -87,6 +87,23 @@ const Dashboard: React.FC<DashboardProps> = () => {
         >
           🔄 再試行
         </button>
+        {/* Replace the anchor with a button */}
+        <button
+          id="unrotate"
+          onClick={() => fetchStats(true)}
+          style={{
+            backgroundColor: '#004b73',
+            color: 'white',
+            padding: '0.5rem 1rem',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            marginLeft: '1rem',
+            transition: 'all 0.2s ease-in-out',
+          }}
+        >
+          rotate back
+        </button>
       </div>
     );
   }

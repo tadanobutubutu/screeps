@@ -1,7 +1,3 @@
-// main.js
-// This file contains all the existing functionality while incorporating the dependency updates
-
-// Existing imports (preserved)
 const express = require('express');
 const lodash = require('lodash');
 const jest = require('jest');

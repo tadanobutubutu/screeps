@@ -17,3 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // [Rest of your existing code remains unchanged]
+
+// Additional changes to fix REACT_027 issue
+document.addEventListener('DOMContentLoaded', () => {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
+});

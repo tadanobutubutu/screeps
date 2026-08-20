@@ -1,9 +1,3 @@
-Here is the resolved `main.js` file with both changes integrated:
-
-```javascript
-Could you please review the following resolved `main.js` file:
-=========================================
-
 function calculate(a, b) {
   return a + b;
 }
@@ -55,20 +49,12 @@ export function replaceFakeLinksWithButtons() {
       parent.replaceChild(button, link);
     }
   });
+}
 
-  // Your added code here
-  function calculateWithContribution(contribution, a, b) {
-    return a + b + contribution;
-  }
-
-  // Export the new function
-  export { calculateWithContribution };
+// New function with contribution from origin/main
+function calculateWithContribution(contribution, a, b) {
+  return a + b + contribution;
 }
 
 // Export all functions
 export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, calculateWithContribution };
->>>>>>> origin/main
-=========================================
-```
-
-In the conflict resolution, the new function `calculateWithContribution` was added based on the contribution in the `origin/main` branch. The updated file exports both `calculate` and `calculateWithContribution` functions.

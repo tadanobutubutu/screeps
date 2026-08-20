@@ -1,9 +1,8 @@
-// Example of the fix pattern for React Table Structure accessibility:
-// Before:
-// <th>Column Name</th>
+// Existing code from main.js
+// ...
 
-// After:
-// <th scope="col">Column Name</th>
+// New code to fix the issue with the lang attribute in the HTML document
+document.documentElement.lang = 'en';
 
-// For row headers:
-// <th>Row Label</th>  →  <th scope="row">Row Label</th>
+// Existing code continues below
+// ...

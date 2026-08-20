@@ -21,3 +21,14 @@ const NecessaryExport = () => {
 
 export default Main;
 export { NecessaryExport };
+
+// Additional code for the SVG accessibility fix
+export const Favicon = () => (
+  <svg
+    aria-hidden="true"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 100 100"
+  >
+    <text y=".9em" fontSize="90">🐛</text>
+  </svg>
+);

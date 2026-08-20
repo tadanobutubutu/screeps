@@ -6,12 +6,11 @@ function generateTableHeaders() {
   return `
     <thead>
       <tr>
-        <th scope="col"><div>src/constants.js</div></th>
-        <th scope="col"><div>src/managers/roomManager.js</div></th>
-        <th scope="col"><div>src/managers/spawnManager.js</div></th>
-        <th scope="col"><div>src/managers/towerManager.js</div></th>
-        <th scope="col"><div>src/roles/builder.js</div></th>
-        <!-- Add other headers with scope="col" as needed -->
+        <th scope="col">#</th>
+        <th scope="col">Dependency</th>
+        <th scope="col">Dependents</th>
+        <th scope="col">Version</th>
+        <th scope="col">Status</th>
       </tr>
     </thead>
   `;
@@ -24,8 +23,17 @@ function generateTableRows(data) {
       <td scope="row">${index + 1}</td>
       <td>${item.dependency}</td>
       <td>${item.dependents}</td>
+      <td>${item.version}</td>
+      <td>${item.status}</td>
     </tr>
   `).join('');
+}
+
+// Function to generate accessible SVG icons
+function generateAccessibleIcon(iconName, ariaLabel) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-label="${ariaLabel}" role="img">
+    <!-- Icon paths here -->
+  </svg>`;
 }
 
 // [Your existing exports and functions here]
@@ -47,5 +55,8 @@ function generateDependencyGraph(data) {
 module.exports = {
   // Your existing exports here
   generateDependencyGraph,
+  generateTableHeaders,
+  generateTableRows,
+  generateAccessibleIcon,
   // Add any new functions you need to export
 };

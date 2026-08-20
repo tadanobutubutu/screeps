@@ -2,7 +2,6 @@ var loop = function() {
     // Your main game loop code here
 };
 
-// UI functions - replacing fake link with button
 function createRotateBackButton(container) {
     // Remove existing element if it exists
     var existing = document.getElementById('unrotate');
@@ -40,3 +39,16 @@ function initUI() {
 
 // Export for Screeps
 module.exports = loop;
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+      </head>
+      <body>
+        <main>{children}</main>
+      </body>
+    </html>
+  );
+}

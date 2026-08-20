@@ -6,7 +6,7 @@ export default function RootLayout({ children }) {
         <script src="https://cdn.screeps.com/api.js"></script>
       </head>
       <body>
-        <main>{children}</main>
+        <main role="main">{children}</main>
       </body>
     </html>
   );

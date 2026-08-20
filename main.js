@@ -1,2 +1,1 @@
-// Could not resolve - please provide the current main.js content
-// The issue mentions conflict markers (<<<<<<<, =======, >>>>>>>) which need to be shown
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

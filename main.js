@@ -1,10 +1,8 @@
+=======
 // ... (other code remains unchanged)
 
 // Update the 'rotate back' link to use a button
 const htmlContent = `
-<!-- ... (other HTML content remains unchanged) -->
-
-<a id="unrotate" href="#">rotate back</a>
 <!-- ... (other HTML content remains unchanged) -->
 
 <!-- Update to use a button instead of an anchor -->
@@ -22,3 +20,4 @@ function rotateBack() {
 }
 
 // ... (other code remains unchanged)
+>>>>>>> origin/main

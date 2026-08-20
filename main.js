@@ -1,6 +1,3 @@
-Here is the resolved version of the file, merging both changes:
-
-```javascript
 tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
@@ -10,7 +7,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -52,8 +49,5 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(<Dashboard />);
-```
-
-This code combines the error handling and the success state content from both patches, while addressing the Git conflict markers.

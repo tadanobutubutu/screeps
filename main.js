@@ -28,6 +28,11 @@ function handleDependencyUpdates() {
   console.log('- TypeScript v7');
 }
 
+// New function to wrap content in main landmark
+function wrapInMainLandmark(content) {
+  return React.createElement('main', null, content);
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -37,5 +42,6 @@ module.exports = {
   jest,
   eslint,
   typescript,
-  handleDependencyUpdates
+  handleDependencyUpdates,
+  wrapInMainLandmark
 };

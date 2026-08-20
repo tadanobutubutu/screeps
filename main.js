@@ -66,3 +66,59 @@ document.addEventListener('DOMContentLoaded', () => {
     enhanceDashboardAccessibility();
   }
 });
+
+// Add landmark roles for better screen reader navigation
+function addLandmarkRoles() {
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.hasAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  const navigation = document.querySelector('nav');
+  if (navigation && !navigation.hasAttribute('role')) {
+    navigation.setAttribute('role', 'navigation');
+  }
+
+  const search = document.querySelector('[role="search"]');
+  if (search && !search.hasAttribute('aria-label')) {
+    search.setAttribute('aria-label', 'Search');
+  }
+}
+
+// Add table structure improvements
+function improveTableStructure() {
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    if (!table.hasAttribute('role')) {
+      table.setAttribute('role', 'table');
+    }
+
+    const caption = table.querySelector('caption');
+    if (caption && !caption.hasAttribute('id')) {
+      const captionId = `caption-${Math.random().toString(36).substring(2, 9)}`;
+      caption.setAttribute('id', captionId);
+      table.setAttribute('aria-labelledby', captionId);
+    }
+  });
+}
+
+// Add fake link improvements
+function improveFakeLinks() {
+  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
+  fakeLinks.forEach(link => {
+    if (!link.hasAttribute('tabindex')) {
+      link.setAttribute('tabindex', '0');
+    }
+
+    if (!link.hasAttribute('aria-label') && !link.textContent.trim()) {
+      link.setAttribute('aria-label', 'Link');
+    }
+  });
+}
+
+// Initialize all accessibility improvements
+document.addEventListener('DOMContentLoaded', () => {
+  addLandmarkRoles();
+  improveTableStructure();
+  improveFakeLinks();
+});

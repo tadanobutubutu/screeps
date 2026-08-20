@@ -8,18 +8,18 @@ document.documentElement.lang = 'en';
 
 // Update th tags with scope attribute
 function updateThTags() {
-  const thElements = document.querySelectorAll('th');
+  const thElements = ...
   thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
+    if ... {
       th.setAttribute('scope', 'col');
     }
   });
 }
 
 // Call update function when DOM is loaded
-document.addEventListener('DOMContentLoaded', updateThTags);
+... updateThTags);
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

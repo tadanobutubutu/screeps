@@ -100,14 +100,14 @@ const rotateBackAction = () => {
   return `<button id="unrotate" type="button">rotate back</button>`;
 };
 
-module.exports = { 
-  getPendingUpdates, 
-  getDetectedDependencies, 
-  getBlockedPRs, 
-  wrapWithMain, 
-  getFixedLayouts, 
-  makeSvgAccessible, 
-  addLangAttribute, 
+module.exports = {
+  getPendingUpdates,
+  getDetectedDependencies,
+  getBlockedPRs,
+  wrapWithMain,
+  getFixedLayouts,
+  makeSvgAccessible,
+  addLangAttribute,
   addTableHeaderScope,
   rotateBackAction
 };

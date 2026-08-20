@@ -36,3 +36,11 @@
 //   <path d="..." />
 // </svg>
 // OR use aria-hidden="true" if purely decorative
+
+export function wrapWithMainLandmark(children) {
+  return (
+    <main>
+      {children}
+    </main>
+  );
+}

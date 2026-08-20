@@ -4,6 +4,8 @@ const generateTableHTML = () => {
     { name: 'src/constants.js' },
     { name: 'src/managers/roomManager.js' },
     // ... other headers
+    { name: 'src/newManager1.js', addedBy: 'UserA' }, // Since both sides have added new headers, keep both.
+    { name: 'src/newManager2.js', addedBy: 'UserB' }, // ... and both.
   ];
 
   return `

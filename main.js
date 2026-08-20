@@ -7,6 +7,8 @@ const lodash = require('lodash');
 const jest = require('jest');
 const eslint = require('eslint');
 const babelJest = require('babel-jest');
+const fs = require('fs');
+const path = require('path');
 
 // Existing exports (preserved)
 module.exports = {
@@ -84,10 +86,43 @@ function fixReactLandmarkIssues() {
 }
 
 // New function to add lang attribute to HTML element
-function addLangAttribute() {
-  console.log('Adding lang attribute to HTML elements');
-  // In a real implementation, this would modify HTML files
-  console.log('Added lang="en" to HTML elements in docs/index.html and docs/dependency-graph.html');
+function addLangAttribute(files = [], lang = 'en') {
+  const htmlFiles = files.length > 0 ? files : [
+    'docs/index.html',
+    'docs/dependency-graph.html'
+  ];
+
+  htmlFiles.forEach(file => {
+    try {
+      const filePath = path.resolve(process.cwd(), file);
+      
+      if (!fs.existsSync(filePath)) {
+        console.log(`File not found: ${file}`);
+        return;
+      }
+
+      let content = fs.readFileSync(filePath, 'utf8');
+      
+      // Check if <html> tag already has a lang attribute
+      const htmlTagWithLang = /<html[^>]*\slang\s*=\s*["'][^"']*["'][^>]*>/i;
+      const htmlTagWithoutLang = /<html([^>]*)>/i;
+
+      if (htmlTagWithLang.test(content)) {
+        console.log(`${file} already has a lang attribute`);
+        return;
+      }
+
+      // Add lang attribute to <html> tag
+      content = content.replace(htmlTagWithoutLang, (match, attrs) => {
+        return `<html${attrs} lang="${lang}">`;
+      });
+
+      fs.writeFileSync(filePath, content, 'utf8');
+      console.log(`Added lang="${lang}" to ${file}`);
+    } catch (error) {
+      console.error(`Error processing ${file}:`, error.message);
+    }
+  });
 }
 
 // New function to fix table structure issues
@@ -98,8 +133,8 @@ function fixTableStructureIssues() {
 
   // Specifically for the dependency-graph.html file:
   // Add scope attributes to all table headers
-  console.log('Added scope="col" to all column headers in dependency-graph.html');
-  console.log('Added scope="row" to all row headers in dependency-graph.html if applicable');
+  console.log('Added scope="col" to all column headers in docs/dependency-graph.html');
+  console.log('Added scope="row" to all row headers in docs/dependency-graph.html if applicable');
 }
 
 // New function to ensure unique landmarks

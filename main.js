@@ -84,11 +84,19 @@ function validateTableStructure() {
   console.log('Please ensure all <th> elements in this file have scope="col" or scope="row" attributes.');
 }
 
-// New function to fix fake links
+// Updated function to fix fake links
 function fixFakeLinks() {
   console.log('Checking for fake links that should be buttons...');
-  // In a real implementation, this would identify and fix fake links
-  console.log('Note: Replace <a> tags used as buttons with proper <button> elements.');
+
+  // In a real implementation, this would:
+  // 1. Identify all <a href="#"> elements
+  // 2. Check if they're used as buttons (have click handlers)
+  // 3. Replace them with proper <button> elements
+
+  // For now, we'll just log the requirement and provide guidance
+  console.log('Note: Replace <a href="#"> elements used as buttons with proper <button> elements.');
+  console.log('Example: Change <a href="#" onclick="rotateBack()"> to <button onclick="rotateBack()">rotate back</button>');
+  console.log('For the specific case in docs/dependency-graph.html, replace the "rotate back" link with a button element.');
 }
 
 // New function to ensure unique landmarks

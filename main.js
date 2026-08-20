@@ -96,7 +96,7 @@ export const Navigation = ({ children }) => (
   </nav>
 );
 
-// Accessible table component
+// Accessible table component with scope attributes
 export const AccessibleTable = ({ caption, headers, data }) => (
   <table role="table" aria-label={caption}>
     <caption>{caption}</caption>
@@ -139,4 +139,9 @@ export const RootHtml = ({ children }) => (
   <html lang="en">
     {children}
   </html>
+);
+
+// New component to address the table header scope issue
+export const TableHeader = ({ children, scope = 'col' }) => (
+  <th scope={scope}>{children}</th>
 );

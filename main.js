@@ -5,7 +5,13 @@ function loop() {
     // Game logic goes here
 }
 
-// Export the loop function for the game engine
+// Another example function added for the asked question
+function exampleFunc() {
+    // Example logic for the additional function
+}
+
+// Export the loop function for the game engine as requested
 module.exports = {
-    loop: loop
+    loop: loop,
+    exampleFunc: exampleFunc // Added the new function here
 };

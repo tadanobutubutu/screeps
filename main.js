@@ -1,1 +1,4 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// No changes to main.js are needed for this issue.
+// The fix should be applied directly to the SVG elements in:
+// - app/layout.tsx
+// - dashboard/app/layout.tsx

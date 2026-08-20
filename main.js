@@ -7,6 +7,7 @@ const Dashboard = () => {
     const [copied, setCopied] = useState(false);
     const [errCopyHover, setErrCopyHover] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
+    const [isRotated, setIsRotated] = useState(false);
 
     const fetchStats = async (force = false) => {
         if (refreshing && !force) return;
@@ -33,6 +34,10 @@ const Dashboard = () => {
         navigator.clipboard.writeText(error);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const toggleRotation = () => {
+        setIsRotated(!isRotated);
     };
 
     if (error) {
@@ -117,21 +122,37 @@ const Dashboard = () => {
                     </div>
                 ))}
             </div>
-            <button
-                onClick={() => fetchStats(true)}
-                disabled={refreshing}
-                style={{
-                    marginTop: '1rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#004b73',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                }}
-            >
-                {refreshing ? 'Refreshing...' : 'Refresh Data'}
-            </button>
+            <div style={{ marginTop: '1rem' }}>
+                <button
+                    onClick={() => fetchStats(true)}
+                    disabled={refreshing}
+                    style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#004b73',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {refreshing ? 'Refreshing...' : 'Refresh Data'}
+                </button>
+                <button
+                    onClick={toggleRotation}
+                    style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#004b73',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginLeft: '1rem',
+                    }}
+                    aria-label={isRotated ? 'Rotate back' : 'Rotate view'}
+                >
+                    {isRotated ? '🔄 Rotate back' : '🔄 Rotate view'}
+                </button>
+            </div>
         </div>
     );
 };

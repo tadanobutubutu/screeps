@@ -1,9 +1,6 @@
 Here is the resolved `main.js` file with both changes integrated:
 
 ```javascript
-Could you please review the following resolved `main.js` file:
-=========================================
-
 function calculate(a, b) {
   return a + b;
 }
@@ -67,8 +64,11 @@ export function replaceFakeLinksWithButtons() {
 
 // Export all functions
 export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, calculateWithContribution };
->>>>>>> origin/main
-=========================================
+
+// Add the conflicted change from origin/main
+function calculateWithContribution(contribution, a, b) {
+  return a + b + contribution;
+}
 ```
 
-In the conflict resolution, the new function `calculateWithContribution` was added based on the contribution in the `origin/main` branch. The updated file exports both `calculate` and `calculateWithContribution` functions.
+The file now includes both versions of the `calculate` function, with the new `calculateWithContribution` function added, based on the contribution in the `origin/main` branch. The updated file exports all functions, including both versions of `calculate`.

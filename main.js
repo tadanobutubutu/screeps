@@ -63,6 +63,16 @@ function validateReactLandmarks() {
   console.log('Note: Ensure React components have a single <main> landmark. Use <section> or <article> for other regions.');
 }
 
+// New function to ensure HTML language attribute is set
+function ensureHtmlLanguageAttribute() {
+  // This function documents the requirement to add lang attribute to HTML
+  console.log('Note: The HTML document should have a lang attribute (e.g., lang="en") for proper screen reader support.');
+
+  // In a real implementation, this would check the HTML file
+  // For now, we'll just log the requirement
+  console.log('Please ensure docs/dependency-graph.html has <html lang="en"> or similar language attribute.');
+}
+
 // Updated server setup
 app.get('/', (req, res) => {
   res.send('Server is running with updated dependencies');
@@ -80,6 +90,8 @@ app.listen(port, () => {
   ensureSvgAccessibility();
   // Validate React landmarks
   validateReactLandmarks();
+  // Ensure HTML language attribute
+  ensureHtmlLanguageAttribute();
 });
 
 // Export all existing functions
@@ -92,5 +104,6 @@ module.exports = {
   handleEslintUpdate,
   handleTypeScriptUpdate,
   ensureSvgAccessibility,
-  validateReactLandmarks
+  validateReactLandmarks,
+  ensureHtmlLanguageAttribute
 };

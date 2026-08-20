@@ -30,7 +30,9 @@ const Dashboard = () => {
     }, []);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        if (error) {
+            navigator.clipboard.writeText(error);
+        }
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };

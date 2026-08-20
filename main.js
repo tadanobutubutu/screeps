@@ -1,6 +1,8 @@
-// Main application logic
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './docs/dependency-graph.html';
 
-// Rotate content function
+// Main application logic
 function rotateContent(direction) {
   const content = document.querySelector('.rotatable-content');
   if (content) {
@@ -11,15 +13,13 @@ function rotateContent(direction) {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Rotate button - using <button> element instead of <a href="#">
   const unrotateButton = document.getElementById('unrotate');
   if (unrotateButton) {
     unrotateButton.addEventListener('click', () => {
       rotateContent('back');
     });
   }
-  
-  // Rotate forward button
+
   const rotateButton = document.getElementById('rotate');
   if (rotateButton) {
     rotateButton.addEventListener('click', () => {
@@ -31,7 +31,25 @@ function setupEventListeners() {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', setupEventListeners);
 
+// React rendering setup
+ReactDOM.render(
+  <React.StrictMode>
+    {/* Other components */}
+    <div id="unrotate">
+      {/* Replace the anchor tag with a button */}
+      <button id="unrotate" onClick={() => rotateContent('back')}>
+        rotate back
+      </button>
+    </div>
+    {/* Other components */}
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
 // Export for testing
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { rotateContent, setupEventListeners };
+  module.exports = {
+    rotateContent,
+    setupEventListeners
+  };
 }

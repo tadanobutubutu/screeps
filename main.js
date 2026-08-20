@@ -73,5 +73,4 @@ const HtmlWithLang = ({ children }) => (
   </html>
 );
 
-// Preserve any existing exports
 export { Layout, AccessibleTable, HtmlWithLang };

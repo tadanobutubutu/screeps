@@ -11,11 +11,23 @@ const app = {
   name: 'Application',
   version: '1.0.0',
   
+  // Accessible name mappings for the two SVGs referenced in the report
+  _svgAccessibleNames: {
+    favicon: 'Screeps logo',
+    dashboardFavicon: 'Dashboard icon'
+  },
+
   init: function() {
     console.log('Application initialized');
     return true;
   },
   
+  // Returns the accessible name for a given SVG identifier (used to add aria-label or <title>)
+  getSvgAccessibleName: function(svgId) {
+    return this._svgAccessibleNames[svgId] || '';
+  },
+
+  // Existing accessibility scoring method
   getAccessibilityScore: function() {
     return {
       current: 87,

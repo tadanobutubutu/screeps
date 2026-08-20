@@ -190,7 +190,7 @@ export const fixFakeLinkIssue = () => {
     }
     
     console.log(`Fixed fake link: "${linkText}" - converted <a href="#"> to <button>`);
-  });
+  }
 };
 
 // Handle rotation back logic

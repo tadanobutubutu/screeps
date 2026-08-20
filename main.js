@@ -1,17 +1,60 @@
-// This file should contain JavaScript code, not HTML
-// The HTML content appears to be in a different file (dependency-graph.html)
-// Please ensure all JavaScript code is properly formatted and valid
+// Import any necessary components or functions
+import React from 'react';
+import App from './App';
 
-// Example of proper JavaScript code (if this was the actual content):
-// import React from 'react';
-// import App from './App';
+// Define a new function that will render the main content of the page
+function MainContent() {
+  // The original code snippet suggests that there are two different main content areas
+  // one for error state and one for success state. We should refactor the component
+  // to handle these states appropriately, using conditional rendering or separate components.
 
-// function Main() {
-//   return (
-//     <div className="App">
-//       <App />
-//     </div>
-//   );
-// }
+  // For the purpose of this fix, we will assume that the error state and success state
+  // can be handled within the same component using conditional rendering.
 
-// export default Main;
+  return (
+    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      {/* Render the error state */}
+      {error && (
+        <>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          {/* ... other error-related elements */}
+        </>
+      )}
+
+      {/* Render the success state */}
+      {success && (
+        <>
+          {/* ... success-related content */}
+        </>
+      )}
+
+      {/* ... any other shared main content */}
+    </main>
+  );
+}
+
+// Define the main component that will render the application
+function Main() {
+  return (
+    <div className="App">
+      <MainContent />
+      {/* ... any other components that are part of the main application */}
+    </div>
+  );
+}
+
+// Export the main component
+export default Main;

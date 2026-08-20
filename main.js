@@ -1,1 +1,19 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming other imports and code...
+
+// Import the component that uses the problematic HTML
+import DependencyGraph from './DependencyGraph';
+
+// Update the component to replace the <a> with a <button>
+const DependencyGraphComponent = () => {
+  return (
+    <div>
+      {/* Other components and content */}
+      <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
+      {/* Other components and content */}
+    </div>
+  );
+};
+
+export default DependencyGraphComponent;
+
+// Assuming other code...

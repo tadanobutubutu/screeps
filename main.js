@@ -1,44 +1,27 @@
-var rotateAngle = 0;
-
-function loop() {
-    // Rotate camera
-    rotateAngle += 0.5;
-    var camera = Game.map.getRoomTerrain('W0N0');
-    var cameraEl = document.getElementById('camera');
-    if (cameraEl) {
-        cameraEl.style.transform = 'rotate(' + rotateAngle + 'deg)';
+// Main game loop for Screeps
+module.exports.loop = function() {
+    // Spawn basic harvester if we have enough energy
+    if (Game.spawns['Spawn1'] && Game.spawns['Spawn1'].energy >= 200) {
+        Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE], null, {role: 'harvester'});
     }
-}
-
-function handleRotateBack() {
-    rotateAngle = 0;
-    var cameraEl = document.getElementById('camera');
-    if (cameraEl) {
-        cameraEl.style.transform = 'rotate(0deg)';
+    
+    // Iterate through all creeps and perform actions based on role
+    for (var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        
+        if (creep.memory.role === 'harvester') {
+            // Find dropped energy and pick it up
+            var sources = creep.room.find(FIND_SOURCES);
+            if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
+                creep.moveTo(sources[0]);
+            }
+        }
     }
-}
-
-function render() {
-    var html = '<div class="container">';
-    html += '<h2>Console</h2>';
-    html += '<p>Press <kbd>Ctrl</kbd> + <kbd>V</kbd> to paste code and press <kbd>Enter</kbd> to run.</p>';
-    html += '<p>You can use <code>Game.spawns["Spawn1"].room.find(FIND_MY_CREEPS)</code> to find your creeps.</p>';
-    html += '<button id="unrotate" onClick="handleRotateBack()">rotate back</button>';
-    html += '<div id="console"></div>';
-    html += '<input id="console-input" placeholder="Enter code..." />';
-    html += '</div>';
-    html += '<div class="container" id="camera"><div class="camera-layer"></div></div>';
-    return html;
-}
-
-console.log('Main module loaded');
-
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Initial setup code
-});
-
-module.exports = {
-    loop: loop,
-    render: render
+    
+    // Clean up dead creeps from memory
+    for (var name in Memory.creeps) {
+        if (!Game.creeps[name]) {
+            delete Memory.creeps[name];
+        }
+    }
 };

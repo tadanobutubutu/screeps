@@ -1,4 +1,3 @@
-// Current main.js content
 module.exports = {
   // ... (existing code, exports, and functions)
 

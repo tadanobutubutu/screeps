@@ -1,6 +1,7 @@
 // main.js
 import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { ReactNode } from 'react';
 
 // Existing code (preserved)
 const App = () => {
@@ -33,7 +34,7 @@ const MetadataSVG = () => (
   </svg>
 );
 
-// Update layout components to use accessible SVGs
+// Update layout components to use accessible SVGs (from both changes merged)
 const Layout = ({ children }) => (
   <html lang="en">
     <body>
@@ -48,3 +49,6 @@ const Layout = ({ children }) => (
 
 // Preserve any existing exports
 export { Layout };
+
+// Export RootLayout from the merged changes
+export { default as RootLayout } from './app/layout.tsx';

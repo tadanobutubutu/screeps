@@ -12,9 +12,8 @@ const AppLayout = ({ children }) => (
 
 // For dashboard/app/layout.tsx
 const DashboardLayout = ({ children }) => (
-  <main>
-    {children}
-  </main>
+  // Remove the duplicate <main> element here
+  {children}
 );
 
 // For docs/dependency-graph.html (would need to be converted to React component)

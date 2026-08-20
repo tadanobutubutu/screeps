@@ -258,8 +258,6 @@ function debug(message, data) {
     const full =
         data !== undefined ? `${sanitizedMessage} ${_safeStringify(data)}` : sanitizedMessage;
     _record('debug', full);
-    const escapedFull = _escapeHTML(full);
-    console.log(_colorize(`${_prefix('debug')} ${escapedFull}`, COLORS.debug));
 }
 
 /**

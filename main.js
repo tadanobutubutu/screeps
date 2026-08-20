@@ -44,9 +44,14 @@ function ensureSvgAccessibility() {
   console.log('Note: SVG elements in layout.tsx should have accessible names or aria-hidden="true"');
 
   // Additional accessibility checks
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('role')) {
+  const svgElements = [];
+  svgElements.forEach(element => {
+    const hasAriaLabel = element.getAttribute('aria-label') !== null;
+    const hasAriaLabelledby = element.getAttribute('aria-labelledby') !== null;
+    const hasTitleChild = element.querySelector('title') !== null;
+    const hasAriaHidden = element.getAttribute('aria-hidden') === 'true';
+
+    if (!hasAriaLabel && !hasAriaLabelledby && !hasTitleChild && !hasAriaHidden) {
       console.warn('SVG element missing accessibility attributes. Add aria-hidden="true" or provide an accessible name.');
     }
   });

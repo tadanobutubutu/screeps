@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Original main.js content (with conflict markers removed for clarity)
 // ... [existing code] ...
 
@@ -25,4 +22,3 @@ Here is the resolved file content:
 // (Note: Screeps does not handle HTML elements, but this change will be propagated to other files generated or rendered by the bot)
 // <html lang="en">
 // ... [rest of the main.js content] ...
-```

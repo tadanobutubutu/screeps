@@ -22,6 +22,22 @@ const app = {
       target: 100,
       grade: 'B'
     };
+  },
+  
+  // New function to fix landmark issues
+  fixLandmarkIssues: function() {
+    // Assuming that the DOM is available and that the main function is already called
+    // Wrap the primary content in <main> where necessary
+    const layouts = document.querySelectorAll('body > main');
+    layouts.forEach(layout => {
+      if (!layout.querySelector('main')) {
+        const mainContent = layout.querySelector('body > *');
+        if (mainContent) {
+          mainContent.parentNode.insertBefore(document.createElement('main'), mainContent);
+          mainContent.classList.add('main-content');
+        }
+      }
+    });
   }
 };
 

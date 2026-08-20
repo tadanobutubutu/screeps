@@ -1,7 +1,4 @@
 // Existing code (preserved as-is)
-bash
-cd /path/to/your/repository
-
 // New accessibility improvements
 /**
  * Adds proper language attribute to the HTML element for screen readers

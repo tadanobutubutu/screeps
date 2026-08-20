@@ -23,7 +23,9 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <main role="main">{children}</main>
+        <main style={{ minHeight: '100vh' }}>
+          {children}
+        </main>
       </body>
     </html>
   );
@@ -74,12 +76,12 @@ const AccessibleTable = ({ data }) => (
   </table>
 );
 
-// Add proper landmarks
+// Add proper landmarks - use section instead of main to avoid duplicate landmarks
 const MainContent = () => (
-  <main>
+  <section>
     <h1>Page Title</h1>
     {/* Content here */}
-  </main>
+  </section>
 );
 
 const Sidebar = () => (

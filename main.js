@@ -1,3 +1,16 @@
+// main.js
+// ... existing code ...
+
+// To address the issue, add the language attribute to the root element if it's not already there.
+// This is typically done in the HTML template file, not in the JavaScript file.
+
+// Since the issue is related to an HTML file, ensure that the following changes are made in the HTML template:
+// <html lang="en">
+//   <!-- ... rest of the HTML content ... -->
+// </html>
+
+// No changes should be made to the JavaScript code in main.js unless they are directly related to the issue.
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -138,9 +151,13 @@ function addScopeAttributesToHeaders() {
   });
 }
 
-function App() {
-  // ... existing code ...
+// Add scope attributes to table headers (called on mount)
+function addScopeAttributesToHeadersOnMount() {
+  addScopeAttributesToHeaders();
+}
 
+// React component
+function App() {
   React.useEffect(() => {
     langAttribute();
     fixTableStructure();
@@ -148,7 +165,7 @@ function App() {
     addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
-    addScopeAttributesToHeaders();
+    addScopeAttributesToHeadersOnMount();
   }, []);
 
   return (

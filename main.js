@@ -1,18 +1,20 @@
 // Main.js - React Landmarks Fix Utility
 // Fixes REACT_017: React Landmarks - Page has no <main> landmark
+// Modified to fix REACT_025: React Unique Landmarks
 
 const fs = require('fs');
 const path = require('path');
 
 /**
- * Checks if a file contains a <main> landmark
+ * Checks if a file contains more than one <main> landmark
  * @param {string} filePath - Path to the file to check
- * @returns {boolean} - True if <main> landmark exists
+ * @returns {boolean} - True if there are more than one <main> landmark
  */
-function hasMainLandmark(filePath) {
+function hasMultipleMainLandmarks(filePath) {
     try {
         const content = fs.readFileSync(filePath, 'utf8');
-        return /<main[\s>]/i.test(content);
+        const mainMatches = [...content.matchAll(/<main[\s>]/g)];
+        return mainMatches.length > 1;
     } catch (error) {
         console.error(`Error reading file ${filePath}:`, error.message);
         return false;
@@ -20,25 +22,42 @@ function hasMainLandmark(filePath) {
 }
 
 /**
- * Adds a <main> landmark around children in layout files
+ * Adds a check for more than one <main> landmark in a function
+ * @param {string} filePath - Path to the layout file
+ * @param {string} type - Type of layout ('tsx' or 'html')
+ */
+function checkMultipleMainLandmarks(filePath, type = 'tsx') {
+    try {
+        const content = fs.readFileSync(filePath, 'utf8');
+
+        if (hasMultipleMainLandmarks(filePath)) {
+            console.warn(`${filePath} has more than one <main> landmark. Keep a single <main>; use <section> or <article> for the other regions`);
+        }
+    } catch (error) {
+        console.error(`Error modifying file ${filePath}:`, error.message);
+    }
+}
+
+/**
+ * Adds a <main> or <article> landmark around children in layout files
  * @param {string} filePath - Path to the layout file
  * @param {string} type - Type of layout ('tsx' or 'html')
  */
 function addMainLandmark(filePath, type = 'tsx') {
     try {
         let content = fs.readFileSync(filePath, 'utf8');
-        
+
         if (type === 'tsx') {
             // Pattern: <body>{children}</body> or similar
             content = content.replace(
                 /(<body[^>]*>)(\{children\})(<\/body>)/i,
-                '<body><main>{children}</main></body>'
+                '<main>{children}</main></body>'
             );
-            
+
             // Pattern: <div>{children}</div> in layout
             content = content.replace(
                 /(<div[^>]*>)(\{children\})(<\/div>)/i,
-                '<main><div>{children}</div></main>'
+                '<article>{children}</article>'
             );
         } else if (type === 'html') {
             // Pattern: <table id="table-rotated">
@@ -46,23 +65,23 @@ function addMainLandmark(filePath, type = 'tsx') {
                 /(<table[^>]*id="table-rotated"[^>]*>)/i,
                 '<main>$1'
             );
-            
+
             // Close main before closing body
             content = content.replace(
                 /(<\/body>)/i,
                 '</main>$1'
             );
         }
-        
+
         fs.writeFileSync(filePath, content, 'utf8');
-        console.log(`Added <main> landmark to ${filePath}`);
+        console.log(`Added <main> or <article> landmark to ${filePath}`);
     } catch (error) {
         console.error(`Error modifying file ${filePath}:`, error.message);
     }
 }
 
 /**
- * Fixes all files mentioned in the REACT_017 issue
+ * Fixes all files mentioned in the REACT_025 issue
  */
 function fixReactLandmarks() {
     const filesToFix = [
@@ -70,19 +89,20 @@ function fixReactLandmarks() {
         { path: 'dashboard/app/layout.tsx', type: 'tsx' },
         { path: 'docs/index.html', type: 'html' }
     ];
-    
+
     filesToFix.forEach(({ path: filePath, type }) => {
         const fullPath = path.resolve(process.cwd(), filePath);
+        checkMultipleMainLandmarks(fullPath, type);
         if (!hasMainLandmark(fullPath)) {
             addMainLandmark(fullPath, type);
         } else {
-            console.log(`${filePath} already has <main> landmark`);
+            console.log(`${filePath} already has <main> or <article> landmark`);
         }
     });
 }
 
 /**
- * Checks all layout files for <main> landmark
+ * Checks all layout files for <main> or <article> landmark
  * @param {string[]} filePaths - Array of file paths to check
  * @returns {Object} - Summary of results
  */
@@ -91,7 +111,7 @@ function checkLandmarks(filePaths) {
         passed: [],
         failed: []
     };
-    
+
     filePaths.forEach(filePath => {
         if (hasMainLandmark(filePath)) {
             results.passed.push(filePath);
@@ -99,7 +119,7 @@ function checkLandmarks(filePaths) {
             results.failed.push(filePath);
         }
     });
-    
+
     return results;
 }
 
@@ -108,5 +128,6 @@ module.exports = {
     hasMainLandmark,
     addMainLandmark,
     fixReactLandmarks,
-    checkLandmarks
+    checkLandmarks,
+    checkMultipleMainLandmarks
 };

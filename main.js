@@ -5,13 +5,15 @@ const Layout = (props) => {
   // Your existing code...
   return (
     <html lang="ja">
-      {/* Add the missing <main> element */}
-      <main>
-        <head>
-          <style>{/* Your existing styles */}</style>
-        </head>
-        <body>{children}</body>
-      </main>
+      <head>
+        <style>{/* Your existing styles */}</style>
+      </head>
+      <body>
+        <main>
+          {/* Add the missing <main> element */}
+          {props.children}
+        </main>
+      </body>
     </html>
   );
 };

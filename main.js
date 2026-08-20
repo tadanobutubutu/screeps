@@ -2,29 +2,31 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import Script from 'react-load-script';
+import { Loader } from './Loader';
 
 // Set language attribute for accessibility
 document.documentElement.lang = 'en';
+document.documentElement.dir = 'ltr';
 
-// Update th tags with scope attribute
-function updateThTags() {
-  const thElements = document.querySelectorAll('th');
-  thElements.forEach(th => {
-    if (!th.hasAttribute('scope')) {
-      th.setAttribute('scope', 'col');
-    }
-  });
-}
-
-// Call update function when DOM is loaded
-document.addEventListener('DOMContentLoaded', updateThTags);
-
+// Merged both sections from separate branches
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
-    <main>
-      <App />
-    </main>
+    {/* Load Screeps library */}
+    <Script url="https://cdn.screeps.com/lib/screeps.min.js" onLoad={({ target }) => {
+      window.screeps = target;
+      root.render(
+        <>
+          <App />
+          {/* Render Loader only when Screeps lib is still loading */}
+          {typeof window.screeps === 'undefined' && <Loader />}
+        </>
+      );
+    }} />
+    {/* Show loading indicator while the library is loading */}
+    <Loader visible={typeof window.screeps === 'undefined'} />
   </React.StrictMode>
 );
 

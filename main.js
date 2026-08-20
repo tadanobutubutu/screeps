@@ -1,8 +1,3 @@
-// New accessibility improvements
-/**
- * Adds proper language attribute to the HTML element for screen readers
- * Fixes REACT_015: React Language Attribute
- */
 function ensureLanguageAttribute() {
   const htmlElement = document.querySelector('html');
   if (htmlElement && !htmlElement.hasAttribute('lang')) {

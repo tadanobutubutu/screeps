@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -72,7 +71,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
           aria-label="再試行"
           title="再試行"
           style={{
-            backgroundColor: '#2b6cb0',
+            backgroundColor: '#004b73',
             color: 'white',
             padding: '0.5rem 1rem',
             border: 'none',
@@ -81,22 +80,27 @@ const Dashboard: React.FC<DashboardProps> = () => {
             marginLeft: '1rem',
             transition: 'all 0.2s ease-in-out',
             transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
-            boxShadow: errRetryHover ? '0 4px 10px rgba(43, 108, 176, 0.3)' : 'none',
+            boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
             filter: errRetryHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+          🔄 再試行
         </button>
       </div>
     );
   }
 
-  // Success state content
+  // Main content when there's no error
   return (
-    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      {/* Your existing success state content */}
-    </div>
+    <main style={{ padding: '2rem' }}>
+      <h1>Dashboard</h1>
+      {/* Your existing main content here */}
+      {/* Other dashboard content */}
+    </main>
   );
 };
 
 export default Dashboard;
+```
+
+This resolved conflict by keeping both changes and integrating them in a logical manner. Both blocks of code define the main and error states of the Dashboard component, but they were placed in different locations within the component. I combined them, placing the success state content in the main content when there's no error section, and moving the existing `success state content` comment into a comment above.

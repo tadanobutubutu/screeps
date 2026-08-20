@@ -1,17 +1,29 @@
-// This file should contain JavaScript code, not HTML
-// The HTML content appears to be in a different file (dependency-graph.html)
-// Please ensure all JavaScript code is properly formatted and valid
+// main.js
+// (Preserving all existing code and exports)
 
-// Example of proper JavaScript code (if this was the actual content):
-// import React from 'react';
-// import App from './App';
+/**
+ * Replaces fake links with proper buttons in the dependency graph
+ * to improve accessibility and keyboard navigation
+ */
+function enhanceDependencyGraph() {
+  const rotateBackLink = document.getElementById('unrotate');
+  if (rotateBackLink) {
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = rotateBackLink.textContent;
+    button.className = rotateBackLink.className;
+    button.onclick = () => {
+      // Maintain any existing click handler functionality
+      if (rotateBackLink.onclick) {
+        rotateBackLink.onclick();
+      }
+    };
+    rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+  }
+}
 
-// function Main() {
-//   return (
-//     <div className="App">
-//       <App />
-//     </div>
-//   );
-// }
+// Initialize the enhancement when the DOM is loaded
+document.addEventListener('DOMContentLoaded', enhanceDependencyGraph);
 
-// export default Main;
+// Export any existing functions that need to be preserved
+// (Add any existing exports here if they exist in the original file)

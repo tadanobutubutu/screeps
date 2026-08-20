@@ -37,3 +37,30 @@ export const metadata = {
     ],
   },
 };
+
+// Add accessibility improvements for the dependency dashboard
+function enhanceDashboardAccessibility() {
+  // Add ARIA labels to dashboard elements
+  const dashboardElements = document.querySelectorAll('.dashboard-section');
+  dashboardElements.forEach((section, index) => {
+    if (!section.hasAttribute('aria-label')) {
+      const sectionTitle = section.querySelector('h2, h3')?.textContent || `Section ${index + 1}`;
+      section.setAttribute('aria-label', sectionTitle);
+    }
+  });
+
+  // Add keyboard navigation support
+  const dashboardItems = document.querySelectorAll('.dashboard-item');
+  dashboardItems.forEach(item => {
+    if (!item.hasAttribute('tabindex')) {
+      item.setAttribute('tabindex', '0');
+    }
+  });
+}
+
+// Initialize accessibility enhancements when dashboard content is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  if (document.querySelector('.dependency-dashboard')) {
+    enhanceDashboardAccessibility();
+  }
+});

@@ -1,9 +1,8 @@
-// main.js
+import React from 'react';
 
 // Preserve existing code, exports, and functions
 // ...
 
-// Add wrapper function to wrap the existing main component if more than one exists
 const wrapMain = (Component) => {
   // Check if there's already a main element in the document
   const existingMainCount = document.querySelectorAll('main').length;
@@ -31,7 +30,7 @@ const wrapMain = (Component) => {
 };
 
 // Wrap the main component with the provided wrapper function
-wrapMain(YourMainComponent);
+wrapMain(MyTableComponent);
 
 // Export the modified main component
-export default YourMainComponent;
+export default MyTableComponent;

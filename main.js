@@ -1,4 +1,3 @@
-tsx
 // dashboard/app/layout.tsx
 
 import React from 'react';

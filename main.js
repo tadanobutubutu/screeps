@@ -41,4 +41,20 @@ const SvgComponent = () => {
   );
 };
 
-export { MyTable, LandmarkedMain, SvgComponent };
+// New Layout component (previously in dashboard/app/layout.tsx)
+const Layout = ({ children }) => {
+  // Determine if the SVG is decorative; could be derived from props or state
+  let svgIsDecorative = false;
+  return (
+    <div>
+      {/* ... other components ... */}
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden={svgIsDecorative ? 'true' : 'false'}>
+        {/* SVG content */}
+      </svg>
+      {/* ... other components ... */}
+      {children}
+    </div>
+  );
+};
+
+export { MyTable, LandmarkedMain, SvgComponent, Layout };

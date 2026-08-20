@@ -1,17 +1,17 @@
-tsx
 import React from 'react';
 
 const Layout = (props) => {
-  // Your existing code...
+  const { children } = props;
   return (
     <html lang="ja">
-      {/* Add the missing <main> element */}
-      <main>
-        <head>
-          <style>{/* Your existing styles */}</style>
-        </head>
-        <body>{children}</body>
-      </main>
+      <head>
+        <style>{/* Your existing styles */}</style>
+      </head>
+      <body>
+        <main aria-label="main content">
+          {children}
+        </main>
+      </body>
     </html>
   );
 };

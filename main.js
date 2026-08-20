@@ -1,11 +1,3 @@
-// main.js
-// ... existing code ...
-
-// To address the issue, add the language attribute to the root element if it's not already there.
-// This is typically done in the HTML template file, not in the JavaScript file.
-
-// No changes should be made to the JavaScript code in main.js unless they are directly related to the issue.
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -177,6 +169,3 @@ function App() {
 
 // Export App if needed
 export default App;
-```
-
-In this resolved file, the changes related to adding the `lang` attribute to the HTML root are preserved. The rest of the functions (`fixTableStructure`, `addFixLandmarkIssues`, `addAccessibleNamesToSVGs`, `ensureUniqueLandmarks`, `fixFakeLinkIssue`, `handleRotateBack`) remain as they are because there were no conflicting changes to these functions. The changes related to adding scope attributes to table headers in the dependency-graph.html have been consolidated and only the `addScopeAttributesToHeadersOnMount` function remains, because both versions of the code were identical in structure and content.

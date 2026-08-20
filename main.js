@@ -9,37 +9,68 @@ export const langAttribute = () => {
 
 // Fix 26 table structure issues (example code, actual implementation needed)
 export const fixTableStructure = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const tables = ...
-  // tables.forEach((table) => {
-  //   // Apply necessary fixes to each table element.
-  // });
+  // Find all th elements that are missing scope attributes
+  const thElements = document.querySelectorAll('th');
+  let fixedCount = 0;
+
+  thElements.forEach((th) => {
+    // Check if th already has a scope attribute
+    if (th.hasAttribute('scope')) {
+      return;
+    }
+
+    // Get the parent row and table
+    const parentRow = th.closest('tr');
+    if (!parentRow) {
+      return;
+    }
+
+    const parentTable = th.closest('table');
+    if (!parentTable) {
+      return;
+    }
+
+    // Check if the row is inside a thead element
+    const thead = parentTable.querySelector('thead');
+    if (thead && thead.contains(parentRow)) {
+      // This is a column header (in thead)
+      th.setAttribute('scope', 'col');
+      fixedCount++;
+    } else {
+      // This is a row header
+      th.setAttribute('scope', 'row');
+      fixedCount++;
+    }
+  });
+
+  if (fixedCount > 0) {
+    console.log(`Fixed ${fixedCount} table structure issues (added scope attributes to <th> elements)`);
+  }
 };
 
 // Add/fix 4 landmark issues (example code, actual implementation needed)
 export const addFixLandmarkIssues = () => {
   // Check if there's already a main landmark in the document
-  let mainElement = document.querySelector('main');
+  let mainElement = ...
   
   if (!mainElement) {
     // If no main landmark exists, create one and wrap the primary content
     const body = document.body;
     
     // Create a new main element
-    mainElement = document.createElement('main');
+    mainElement = ...
     
     // Get all child elements from body that should be wrapped in main
-    const children = Array.from(body.children);
+    const children = ...
     const contentElements = children.filter(child => {
       // Filter out non-content elements like scripts, styles, meta, etc.
-      const tagName = child.tagName.toLowerCase();
-      return !['script', 'style', 'noscript', 'link', 'meta'].includes(tagName);
+      const tagName = ...
+      return !['script', 'style', 'noscript', 'link', ...
     });
     
     if (contentElements.length > 0) {
       // Insert the main element at the beginning of body
-      body.insertBefore(mainElement, body.firstChild);
+      ... body.firstChild);
       
       // Move all content elements into the main element
       contentElements.forEach(element => {
@@ -161,7 +192,7 @@ function App() {
 
   React.useEffect(() => {
     langAttribute();
-    ...
+    fixTableStructure();
     ...
     ...
     ...

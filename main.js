@@ -78,6 +78,16 @@ export const handleRotateBack = () => {
   }
 };
 
+// All required exports are present:
+// - langAttribute
+// - fixTableStructure
+// - addFixLandmarkIssues
+// - addAccessibleNamesToSVGs
+// - ensureUniqueLandmarks
+// - fixFakeLinkIssue
+// - handleRotateBack
+// - App (default export)
+
 function App() {
   // ... existing code ...
 

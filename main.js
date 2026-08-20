@@ -1,4 +1,3 @@
-tsx
 import React from 'react';
 
 const Layout = (props) => {
@@ -10,7 +9,13 @@ const Layout = (props) => {
         <head>
           <style>{/* Your existing styles */}</style>
         </head>
-        <body>{children}</body>
+        <body>
+          {props.children}
+          {/* Example SVG favicon fix - add aria-hidden="true" for decorative SVG */}
+          <svg aria-hidden="true" style={{ display: 'none' }}>
+            {/* SVG content */}
+          </svg>
+        </body>
       </main>
     </html>
   );

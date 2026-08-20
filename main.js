@@ -1,5 +1,4 @@
 // Main application logic
-
 /**
  * Rotates an element by the specified angle
  * @param {HTMLElement} element - The element to rotate
@@ -32,16 +31,16 @@ function initializeRotation(targetId, controlId) {
     const target = document.getElementById(targetId);
     const control = document.getElementById(controlId);
     let currentRotation = 0;
-    
+
     if (control && target) {
-        // Fix: Changed from <a href="#"> to <button> for proper accessibility
+        // Fix accessibility control from <a> to <button>
         control.addEventListener('click', function(e) {
             e.preventDefault();
             currentRotation += 90;
             if (currentRotation >= 360) {
                 currentRotation = 0;
-                resetRotation(target);
-                control.textContent = 'rotate back';
+                rotateElement(target, currentRotation);
+                control.textContent = 'reset.';
             } else {
                 rotateElement(target, currentRotation);
                 control.textContent = `reset (${currentRotation}°)`;

@@ -292,3 +292,72 @@ export function AccessiblePageStructure({ header, navigation, children, footer }
     </div>
   );
 }
+
+// New functions or changes requested in the issue
+
+/**
+ * Utility function to set accessible element text
+ * @param {HTMLElement} element - The element to set text for
+ * @param {string} text - The text to set on the element
+ */
+export function setAccessibleElementText(element, text) {
+  if (element) {
+    element.textContent = text;
+  }
+}
+
+/**
+ * Utility function to add accessible role to an element
+ * @param {HTMLElement} element - The element to add the role to
+ * @param {string} role - The ARIA role to add
+ */
+export function addAccessibleRole(element, role) {
+  if (element) {
+    element.setAttribute('role', role);
+  }
+}
+
+// Example usage of the new functions within the existing components
+
+// Inside AccessibleTable component, set accessible text for the caption
+export function AccessibleTable({ headers, rows, caption }) {
+  return (
+    <table>
+      {caption && <caption id="table-caption">{caption}</caption>}
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              cellIndex === 0 ? (
+                <th key={cellIndex} scope="row" id={`table-row-${rowIndex}`}>{cell}</th>
+              ) : (
+                <td key={cellIndex}>{cell}</td>
+              )
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// Inside AccessibleIcon component, add an accessible role
+export function AccessibleIcon({ children, label, className }) {
+  return (
+    <svg
+      className={className}
+      aria-label={label}
+      role="img"
+      focusable="false"
+    >
+      {children}
+    </svg>
+  );
+}

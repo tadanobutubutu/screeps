@@ -15,3 +15,14 @@
 // }
 
 // export default Main;
+
+// Add the new function or changes requested in the issue
+// Assuming the new function is a simple example of a test suite setup
+import { configure } from 'jest';
+
+configure({
+  // Add any new configuration options here
+  // For example, to update the test environment to match the new Jest version
+  testEnvironment: 'jsdom',
+  // ... other configurations
+});

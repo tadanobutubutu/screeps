@@ -1,9 +1,43 @@
-// Remove Git merge conflict markers
-// Remove the lines below if the conflict markers are not present in the actual file
-/*
-<<<<<<< HEAD
-^^
-*/
+// main.js - Fix React Landmarks (REACT_017) by adding <main> landmarks
+
+const fs = require('fs');
+const path = require('path');
+
+const files = [
+  'app/layout.tsx',
+  'dashboard/app/layout.tsx',
+  // Add other affected files as needed
+];
+
+function addMainLandmark(filePath) {
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+    const hasMain = /<main[\s>]/i.test(content);
+    
+    if (!hasMain) {
+      // For JSX files with body, wrap children in main
+      if (content.includes('<body>') || content.includes('<Body>')) {
+        content = content.replace(
+          /(<(?:body|Body)[^>]*>\s*)({[\s\S]*?})(\s*<\/(?:body|Body)>)/i,
+          (match, open, children, close) => {
+            return `${open}<main>${children}</main>${close}`;
+          }
+        );
+      }
+      fs.writeFileSync(filePath, content, 'utf8');
+      console.log(`Fixed: ${filePath}`);
+    }
+  } catch (err) {
+    console.error(`Error processing ${filePath}:`, err.message);
+  }
+}
+
+files.forEach(file => {
+  const fullPath = path.join(process.cwd(), file);
+  if (fs.existsSync(fullPath)) {
+    addMainLandmark(fullPath);
+  }
+});
 
 // Replace the following line to fix the syntax error for the invalid regular expression
 // Also, add the conflict markers back if they were removed by mistake
@@ -24,10 +58,3 @@ function searchWithValidRegex(input) {
 
 // Call the function with some input
 searchWithValidRegex('Example input text with regex');
-
-// Preserve existing code and add only the new functions or changes requested in the issue
-// Add any new functions or changes here that are related to the issue
-// ...
-
-// Output the complete updated main.js content
-// Replace the following block with the actual updated main.js content

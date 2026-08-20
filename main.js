@@ -70,7 +70,7 @@ export function Navigation({ children, ariaLabel }) {
  * Fixes: REACT_017
  */
 export function Header({ children }) {
-  return <header role="banner">{children}</header>;
+  return <header>{children}</header>;
 }
 
 /**
@@ -78,7 +78,7 @@ export function Header({ children }) {
  * Fixes: REACT_017
  */
 export function Footer({ children }) {
-  return <footer role="contentinfo">{children}</footer>;
+  return <footer>{children}</footer>;
 }
 
 /**
@@ -88,7 +88,7 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href}>{children}</a>;
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
   return <button type="button" onClick={onClick}>{children}</button>;
@@ -179,3 +179,69 @@ export default accessibilityComponents;
 
 // Re‑export named components for test imports
 export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+
+// Utility functions for accessibility support
+export function announceToScreenReader(message, priority = 'polite') {
+  const announcer = document.createElement('div');
+  announcer.setAttribute('aria-live', priority);
+  announcer.setAttribute('aria-atomic', 'true');
+  announcer.setAttribute('class', 'sr-only');
+  announcer.style.position = 'absolute';
+  announcer.style.left = '-9999px';
+  announcer.style.width = '1px';
+  announcer.style.height = '1px';
+  announcer.style.overflow = 'hidden';
+  document.body.appendChild(announcer);
+  
+  setTimeout(() => {
+    announcer.textContent = message;
+    setTimeout(() => {
+      document.body.removeChild(announcer);
+    }, 1000);
+  }, 100);
+}
+
+export function getFocusableElements(container) {
+  const focusableSelectors = [
+    'a[href]',
+    'button:not([disabled])',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    '[tabindex]:not([tabindex="-1"])'
+  ];
+  return Array.from(container.querySelectorAll(focusableSelectors.join(',')));
+}
+
+export function trapFocus(container) {
+  const focusableElements = getFocusableElements(container);
+  const firstElement = focusableElements[0];
+  const lastElement = focusableElements[focusableElements.length - 1];
+
+  const handleKeyDown = (e) => {
+    if (e.key !== 'Tab') return;
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstElement) {
+        e.preventDefault();
+        lastElement.focus();
+      }
+    } else {
+      if (document.activeElement === lastElement) {
+        e.preventDefault();
+        firstElement.focus();
+      }
+    }
+  };
+
+  container.addEventListener('keydown', handleKeyDown);
+  firstElement?.focus();
+
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
+}
+
+export function isValidHref(href) {
+  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+}

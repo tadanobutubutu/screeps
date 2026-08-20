@@ -1,6 +1,1 @@
-# 2026-08-20
-
-**Vulnerability:** Uncaught TypeError when JSON.stringify encounters a BigInt.
-**Fix:** Modified `_createCircularReplacer` in `src/utils/logger.js` to stringify BigInt values (by appending 'n') before attempting to serialize them, avoiding crashes.
-**Impact:** Prevents DoS conditions mid-tick.
-**Verification:** Added unit tests ensuring `logger.info()` does not throw on BigInts and properly stringifies them.
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0004 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-20T13:08:46.635Z"},"status":402}}

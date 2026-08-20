@@ -3,6 +3,10 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Ensure filesystem access for HTML language attribute fix
+const fs = require('fs');
+const path = require('path');
+
 // Existing functions (preserved)
 function existingFunction1() {
   // ... existing code
@@ -69,8 +73,22 @@ function ensureHtmlLanguageAttribute() {
   console.log('Note: The HTML document should have a lang attribute (e.g., lang="en") for proper screen reader support.');
 
   // In a real implementation, this would check the HTML file
-  // For now, we'll just log the requirement
-  console.log('Please ensure docs/dependency-graph.html has <html lang="en"> or similar language attribute.');
+  // For now, we'll actually modify the file to ensure the lang attribute exists
+  const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+  try {
+    let content = fs.readFileSync(filePath, 'utf8');
+    // Check if <html> already has a lang attribute
+    if (!/<html\b[^>]*lang="[^"]*"[^>]*>/i.test(content)) {
+      // Insert lang="en" right after the opening <html> tag
+      content = content.replace(/<html\b[^>]*/i, '<html lang="en">');
+      fs.writeFileSync(filePath, content, 'utf8');
+      console.log('Added lang="en" attribute to <html> in docs/dependency-graph.html');
+    } else {
+      console.log('HTML already has lang attribute.');
+    }
+  } catch (err) {
+    console.error('Failed to update HTML language attribute:', err);
+  }
 }
 
 // New function to validate table structure

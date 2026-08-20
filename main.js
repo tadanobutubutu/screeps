@@ -10,9 +10,11 @@ fs.readFile(filePath, 'utf8', (err, data) => {
     return;
   }
 
-  const updatedData = data.replace(/<th\b[^>]*>/g, (match) => {
-    return match.replace(/<th\b[^>]*>/, '<th scope="col">');
-  });
+  // Add lang attribute to the html tag
+  const updatedData = data.replace(/<html\b[^>]*>/, '<html lang="en">')
+    .replace(/<th\b[^>]*>/g, (match) => {
+      return match.replace(/<th\b[^>]*>/, '<th scope="col">');
+    });
 
   fs.writeFile(updatedFilePath, updatedData, 'utf8', (err) => {
     if (err) {

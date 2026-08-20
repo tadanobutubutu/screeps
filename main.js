@@ -1,6 +1,3 @@
-// main.js - Application entry point
-// This file serves as the main entry point for the application
-
 const React = require('react');
 const ReactDOM = require('react-dom/client');
 
@@ -10,16 +7,15 @@ async function bootstrap() {
     // Import the app directory dynamically to support App Router
     const { createServer } = require('http');
     const next = require('next');
-    
     const dev = process.env.NODE_ENV !== 'production';
     const hostname = 'localhost';
     const port = parseInt(process.env.PORT || '3000', 10);
-    
+
     const app = next({ dev, hostname, port });
     const handle = app.getRequestHandler();
-    
+
     await app.prepare();
-    
+
     createServer(async (req, res) => {
       try {
         await handle(req, res);
@@ -37,7 +33,7 @@ async function bootstrap() {
   }
 }
 
-// Export for testing and module usage
+// Preserve existing exports
 module.exports = {
   bootstrap,
   // Preserve any existing exports
@@ -47,3 +43,29 @@ module.exports = {
 if (require.main === module) {
   bootstrap();
 }
+
+const Main = () => {
+  // existing Main component code...
+  return (
+    <main>
+      {/* Wrap existing content in main landmark */}
+      {/* ... */}
+    </main>
+  );
+};
+
+const NecessaryExport = () => {
+  // Add the necessary export component code here...
+  return (
+    <main>
+      <div>New Required Export</div>
+    </main>
+  );
+};
+
+export default Main;
+export { NecessaryExport };
+
+// Integrating both changes
+// =========================================
+```

@@ -2,6 +2,16 @@
 // (Preserving all existing code and exports)
 
 /**
+ * Sets the language attribute on the HTML element for accessibility
+ */
+function setHtmlLanguage(lang = 'en') {
+  const htmlElement = document.documentElement;
+  if (htmlElement && htmlElement.tagName.toLowerCase() === 'html') {
+    htmlElement.setAttribute('lang', lang);
+  }
+}
+
+/**
  * Replaces fake links with proper buttons in the dependency graph
  */
 function replaceFakeLinksWithButtons() {
@@ -34,13 +44,15 @@ function someFunction() {
 }
 
 // Export the functions to be used elsewhere in the application
-export { replaceFakeLinksWithButtons, someFunction };
+export { replaceFakeLinksWithButtons, someFunction, setHtmlLanguage };
 
 // Call this function when the dependency graph is loaded
 document.addEventListener('DOMContentLoaded', function() {
   if (document.querySelector('#rotate-back')) {
     replaceFakeLinksWithButtons();
   }
+  // Set the HTML language attribute for accessibility (REACT_015)
+  setHtmlLanguage('en');
 });
 
 // Preserve all existing exports and functions below

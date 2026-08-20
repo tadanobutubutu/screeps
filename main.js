@@ -22,9 +22,7 @@ document.addEventListener('DOMContentLoaded', updateThTags);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <main>
-      <App />
-    </main>
+    <App />
   </React.StrictMode>
 );
 

@@ -15,6 +15,7 @@ export default function Icon() {
         xmlns="http://www.w3.org/2000/svg"
         role="img"
         aria-label="App favicon"
+        aria-hidden="false"
       >
         <title>App favicon</title>
         <rect width="32" height="32" rx="8" fill="#3B82F6" />
@@ -45,6 +46,7 @@ export function Icon({ className = '' }: { className?: string }) {
       className={className}
       role="img"
       aria-label="Application logo"
+      aria-hidden="false"
     >
       <title>Application logo</title>
       <path

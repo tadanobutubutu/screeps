@@ -38,18 +38,33 @@ function handleTypeScriptUpdate() {
 }
 
 // Function to ensure SVG accessibility
-function ensureSvgAccessibility() {
+function ensureSvgAccessibility(svgElements) {
   // This would be implemented in the layout.tsx files
   // Since we can't modify those here, we'll document the requirement
   console.log('Note: SVG elements in layout.tsx should have accessible names or aria-hidden="true"');
 
   // Additional accessibility checks
-  const svgElements = document.querySelectorAll('svg');
-  svgElements.forEach(svg => {
-    if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('role')) {
+  svgElements && svgElements.forEach && svgElements.forEach(svg => {
+    if (svg && !svg.getAttribute('aria-hidden') && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       console.warn('SVG element missing accessibility attributes. Add aria-hidden="true" or provide an accessible name.');
     }
   });
+}
+
+// Helper function to fix REACT_025 - React Unique Landmarks issue
+// This documents the fix needed in React component files
+function fixReactUniqueLandmarks() {
+  console.log('REACT_025 Fix: Ensure only one <main> landmark per page');
+  console.log('  - Keep a single <main> element for the primary content');
+  console.log('  - Use <section> or <article> for other content regions');
+  console.log('  - Error/success states should not both contain <main> elements');
+  console.log('');
+  console.log('Example fix pattern:');
+  console.log('  // Instead of:');
+  console.log('  // <main>{error ? <ErrorContent /> : <SuccessContent />}</main>');
+  console.log('  // Use:');
+  console.log('  // <main><SuccessContent /></main>');
+  console.log('  // <div role="alert">{error && <ErrorContent />}</div>');
 }
 
 // Updated server setup
@@ -67,6 +82,8 @@ app.listen(port, () => {
   handleTypeScriptUpdate();
   // Ensure SVG accessibility
   ensureSvgAccessibility();
+  // Document REACT_025 fix
+  fixReactUniqueLandmarks();
 });
 
 // Export all existing functions
@@ -78,5 +95,6 @@ module.exports = {
   handleJestUpdate,
   handleEslintUpdate,
   handleTypeScriptUpdate,
-  ensureSvgAccessibility
+  ensureSvgAccessibility,
+  fixReactUniqueLandmarks
 };

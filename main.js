@@ -1,9 +1,6 @@
 // main.js - Application entry point
 // This file serves as the main entry point for the application and includes accessibility fixes for UI rotation controls and a new required export.
 
-=======
->>>>>>> origin/main
-
 const React = require('react');
 const ReactDOM = require('react-dom/client');
 
@@ -170,6 +167,3 @@ const Main = () => {
 };
 
 module.exports.default = Main;
-```
-
-This file now includes the UI rotation logic for better accessibility and a required export component. Both changes have been integrated and preserved within the same code.

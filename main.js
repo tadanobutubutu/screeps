@@ -37,7 +37,7 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <div lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -103,11 +103,11 @@ const Dashboard = () => {
     }
 
     if (!stats) {
-        return <div>Loading...</div>;
+        return <div lang="en">Loading...</div>;
     }
 
     return (
-        <div style={{ padding: '2rem' }}>
+        <div lang="en" style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                 {Object.entries(stats).map(([key, value]) => (

@@ -1,16 +1,9 @@
 // main.js
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom/client';
+import App from './App';
 
-// Existing code (preserved)
-const App = () => {
-  // ... existing app code ...
-};
-
-// Existing exports (preserved)
-export { App };
-
-// Add accessible names to SVGs
+// Favicon and Metadata SVG components (from HEAD)
 const FaviconSVG = () => (
   <svg
     aria-hidden="true"
@@ -35,7 +28,7 @@ const MetadataSVG = () => (
   </svg>
 );
 
-// Update layout components
+// Layout components (merged from both branches)
 const Layout = ({ children }) => (
   <div>
     <FaviconSVG />
@@ -43,15 +36,58 @@ const Layout = ({ children }) => (
   </div>
 );
 
-const DashboardLayout = ({ children }) => (
-  <div>
-    <MetadataSVG />
+const AppLayout = ({ children }) => (
+  <main>
     {children}
-  </div>
+  </main>
 );
 
-// Export updated components
-export { Layout, DashboardLayout, FaviconSVG, MetadataSVG };
-```
+const DashboardLayout = ({ children }) => (
+  <main>
+    {children}
+  </main>
+);
 
-In this solution, I kept both functional changes by adding the `FaviconSVG` and updating the `MetadataSVG` while also preserving the existing components and their exports. I incorporated the `FaviconSVG` from the HEAD branch and the `MetadataSVG` from the main branch. I added the missing module exports to accommodate the changes made.
+// Documentation components (from origin/main)
+const DependencyGraph = () => (
+  <main>
+    <table id="table-rotated">
+      {/* Table content would go here */}
+    </table>
+  </main>
+);
+
+const DocsIndex = () => (
+  <main>
+    <div className="container">
+      <h2>Quality & Metrics Reports</h2>
+      <p>
+        This repository is fully optimized with automated tools. Explore the generated
+        reports below:
+      </p>
+      <div className="links">
+        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+      </div>
+    </div>
+  </main>
+);
+
+// React app entry point (from origin/main)
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+// Export all components
+export { 
+  Layout, 
+  DashboardLayout, 
+  FaviconSVG, 
+  MetadataSVG,
+  AppLayout, 
+  DependencyGraph, 
+  DocsIndex 
+};

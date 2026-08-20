@@ -85,7 +85,7 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
         <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
+                {Object.entries(stats || {}).map(([key, value]) => (
                     <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
                         <h2 style={{ color: '#2d3748', marginTop: 0 }}>{key}</h2>
                         <p style={{ color: '#4a5568', fontSize: '1.25rem', marginBottom: 0 }}>{value}</p>

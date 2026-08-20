@@ -1,4 +1,3 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
 // main.js - Dependency Dashboard
 // Updated to support Renovate dependency tracking and dashboard display.
 // Preserves compatibility with the project's existing structure.

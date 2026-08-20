@@ -1,21 +1,21 @@
 // User module - manages user interface
 
 // Add accessible name to SVG elements
-function addAccessibleNameToSVG(svg) {
+export function addAccessibleNameToSVG(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
-  
+
   // Add role="img" for accessibility
   if (!svg.hasAttribute('role')) {
     svg.setAttribute('role', 'img');
   }
-  
+
   return svg;
 }
 
 // Update to include the lang attribute in the HTML root element
-function addLangToHtmlRoot(lang) {
+export function addLangToHtmlRoot(lang) {
   const htmlElement = document.documentElement;
   if (htmlElement) {
     htmlElement.setAttribute('lang', lang);
@@ -24,7 +24,7 @@ function addLangToHtmlRoot(lang) {
 }
 
 // Add scope attribute to th elements as per the issue
-function addScopeToTableHeaders() {
+export function addScopeToTableHeaders() {
   const tableHeaders = document.querySelectorAll('th');
   tableHeaders.forEach(header => {
     if (!header.hasAttribute('scope')) {
@@ -33,8 +33,8 @@ function addScopeToTableHeaders() {
   });
 }
 
-// Replace fake link (<a href="#") with a real button for accessibility per REACT_036
-function replaceFakeLinksWithButtons() {
+// Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
+export function replaceFakeLinksWithButtons() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
     const button = document.createElement('button');
@@ -56,5 +56,14 @@ function replaceFakeLinksWithButtons() {
   });
 }
 
+function calculate(a, b) {
+  return a + b;
+}
+
+// New function with contribution from origin/main
+function calculateWithContribution(contribution, a, b) {
+  return a + b + contribution;
+}
+
 // Export all functions
-export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, calculateWithContribution };

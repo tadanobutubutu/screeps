@@ -133,6 +133,40 @@ function fixFakeLinkIssues(element) {
   return element;
 }
 
+// New function to ensure only one main landmark exists in the component
+function ensureSingleMainLandmark(component) {
+  // Check if the component already has a main landmark
+  const hasMain = React.Children.toArray(component.props.children).some(child =>
+    child.type === 'main' || (child.props && child.props.role === 'main')
+  );
+
+  // If it doesn't have a main, wrap the content in a main landmark
+  if (!hasMain) {
+    return wrapInMainLandmark(component.props.children);
+  }
+
+  // If it has multiple mains, we need to fix this
+  const children = React.Children.toArray(component.props.children);
+  const mainCount = children.filter(child =>
+    child.type === 'main' || (child.props && child.props.role === 'main')
+  ).length;
+
+  if (mainCount > 1) {
+    // Find all main elements and wrap their content in sections
+    const newChildren = children.map(child => {
+      if (child.type === 'main' || (child.props && child.props.role === 'main')) {
+        return React.createElement('section', null, child.props.children);
+      }
+      return child;
+    });
+
+    // Wrap the entire component in a single main
+    return wrapInMainLandmark(newChildren);
+  }
+
+  return component;
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -148,5 +182,6 @@ module.exports = {
   addLangAttribute,
   fixTableStructure,
   fixLandmarkIssues,
-  fixFakeLinkIssues
+  fixFakeLinkIssues,
+  ensureSingleMainLandmark
 };

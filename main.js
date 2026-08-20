@@ -134,3 +134,12 @@ export function getRetryButtonAccessibilityAttributes() {
     "aria-label": "Retry"
   };
 }
+
+// New function to get accessibility attributes for fake link
+export function getFakeLinkAccessibilityAttributes() {
+  return {
+    role: "button",
+    tabIndex: 0,
+    "aria-label": "Rotate back"
+  };
+}

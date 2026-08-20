@@ -22,6 +22,21 @@ const app = {
       target: 100,
       grade: 'B'
     };
+  },
+  
+  // New function to replace the fake link with a button
+  replaceFakeLinkWithButton: function() {
+    // Assuming the DOM is available in the context where this function is called
+    const fakeLink = document.getElementById('unrotate');
+    if (fakeLink) {
+      // Create a new button element
+      const button = document.createElement('button');
+      button.textContent = 'rotate back';
+      button.onclick = fakeLink.onclick; // Copy the onclick event handler if it exists
+
+      // Replace the fake link with the new button
+      fakeLink.parentNode.replaceChild(button, fakeLink);
+    }
   }
 };
 

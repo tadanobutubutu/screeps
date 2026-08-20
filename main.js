@@ -1,20 +1,13 @@
 // main.js
-// Preserve all existing code and exports
-// Add any new required imports for updated dependencies
-
-// Example of how you might update Jest-related code for v30
-const { jest } = require('@jest/globals');
-
-// Example of React 19 compatibility changes
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 // Preserve all existing functions and exports
-// Add any new functionality needed for the updates
+const existingFunction1 = () => {};
+const existingFunction2 = () => {};
 
-// Example of updated ESLint configuration
+// ESLint configuration
 module.exports = {
-  // ESLint v10 configuration
   env: {
     browser: true,
     es2021: true,
@@ -22,39 +15,38 @@ module.exports = {
   },
   extends: [
     'eslint:recommended',
-    'plugin:react/recommended',
-    'plugin:react/jsx-runtime',
   ],
-  // ... rest of your existing configuration
 };
 
-// Example of TypeScript 7.x compatibility
-// Add any necessary type definitions or updates
+// TypeScript type definitions
+interface AccessibleSvgProps {
+  children?: React.ReactNode;
+  isDecorative?: boolean;
+}
 
-// Preserve all existing exports
-export { existingFunction1, existingFunction2 };
-// Add any new exports needed for the updates
+interface ErrorSectionProps {
+  error: string;
+  copyErr: () => void;
+  setErrCopyHover: (hover: boolean) => void;
+  errCopyHover: boolean;
+  copied: boolean;
+  refreshing: boolean;
+  fetchStats: (refresh?: boolean) => void;
+  setErrRetryHover: (hover: boolean) => void;
+}
 
-// Example of updated Jest test configuration
-module.exports = {
-  // Jest v30 configuration
-  testEnvironment: 'jsdom',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  // ... rest of your existing Jest config
-};
-
-// Add main landmark elements for React accessibility
-export function wrapWithMain(content) {
+// Main landmark component for React accessibility
+export function wrapWithMain(content: React.ReactNode) {
   return <main>{content}</main>;
 }
 
 // Helper function to wrap content with main landmark
-export function createMainContent(content) {
+export function createMainContent(content: React.ReactNode) {
   return React.createElement('main', null, content);
 }
 
 // Update layout components to include main landmarks
-export function updateLayoutWithMain(children) {
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <head>
@@ -68,7 +60,7 @@ export function updateLayoutWithMain(children) {
 }
 
 // Update docs content with proper main landmarks
-export function updateDocsContent(content) {
+export function updateDocsContent(content: React.ReactNode) {
   return (
     <main>
       <div className="container">
@@ -78,10 +70,14 @@ export function updateDocsContent(content) {
   );
 }
 
-// Add function to create accessible SVG with aria-hidden
-export function createAccessibleSvg({ children, isDecorative = false }) {
+// Create accessible SVG with aria-hidden
+export function createAccessibleSvg({ children, isDecorative = false }: AccessibleSvgProps) {
   if (isDecorative) {
-    return <svg aria-hidden="true">{children}</svg>;
+    return (
+      <svg aria-hidden="true">
+        {children}
+      </svg>
+    );
   }
   return (
     <svg aria-label="Favicon">
@@ -91,7 +87,7 @@ export function createAccessibleSvg({ children, isDecorative = false }) {
   );
 }
 
-// Add function to create accessible favicon SVG
+// Create accessible favicon SVG
 export function createFaviconSvg() {
   return (
     <svg aria-hidden="true" width="0" height="0" style={{ position: 'absolute' }}>
@@ -101,8 +97,8 @@ export function createFaviconSvg() {
   );
 }
 
-// New function to handle conditional main landmark rendering
-export function renderConditionalMain({ error, content, errorContent }) {
+// Handle conditional main landmark rendering
+export function renderConditionalMain({ error, content, errorContent }: { error: boolean; content: React.ReactNode; errorContent: React.ReactNode }) {
   if (error) {
     return (
       <section aria-label="Error state">
@@ -117,8 +113,17 @@ export function renderConditionalMain({ error, content, errorContent }) {
   );
 }
 
-// New function to create accessible error section
-export function createErrorSection({ error, copyErr, setErrCopyHover, errCopyHover, copied, refreshing, fetchStats, setErrRetryHover }) {
+// Create accessible error section
+export function createErrorSection({
+  error,
+  copyErr,
+  setErrCopyHover,
+  errCopyHover,
+  copied,
+  refreshing,
+  fetchStats,
+  setErrRetryHover
+}: ErrorSectionProps) {
   return (
     <section aria-label="Error state" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
@@ -152,30 +157,3 @@ export function createErrorSection({ error, copyErr, setErrCopyHover, errCopyHov
           cursor: 'pointer',
           transition: 'all 0.2s ease-in-out',
           transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-          boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-          filter: errCopyHover ? 'brightness(1.1)' : 'none',
-        }}
-      >
-        {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
-      </button>
-      <button
-        onClick={() => fetchStats(true)}
-        disabled={refreshing}
-        onMouseEnter={() => setErrRetryHover(true)}
-        onMouseLeave={() => setErrRetryHover(false)}
-        aria-label="再試行"
-        style={{
-          backgroundColor: '#2b6cb0',
-          color: 'white',
-          padding: '0.5rem 1rem',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          marginLeft: '0.5rem',
-        }}
-      >
-        再試行
-      </button>
-    </section>
-  );
-}

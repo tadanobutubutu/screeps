@@ -38,6 +38,62 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add function to handle table structure issues
+function ensureTableAccessibility() {
+  document.querySelectorAll('table').forEach(table => {
+    // Ensure table has a caption
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Table data';
+      table.insertBefore(caption, table.firstChild);
+    }
+
+    // Ensure table has proper headers
+    const headers = table.querySelectorAll('th');
+    if (headers.length > 0) {
+      table.setAttribute('role', 'grid');
+      headers.forEach((header, index) => {
+        header.setAttribute('scope', 'col');
+        header.setAttribute('id', `col-header-${index}`);
+      });
+
+      // Associate cells with headers
+      const rows = table.querySelectorAll('tr');
+      rows.forEach((row, rowIndex) => {
+        if (rowIndex > 0) { // Skip header row
+          const cells = row.querySelectorAll('td');
+          cells.forEach((cell, cellIndex) => {
+            if (cellIndex < headers.length) {
+              cell.setAttribute('headers', `col-header-${cellIndex}`);
+            }
+          });
+        }
+      });
+    }
+  });
+}
+
+// Add function to handle landmark issues
+function ensureLandmarkAccessibility() {
+  // Ensure main content has a landmark
+  const mainContent = document.querySelector('main');
+  if (mainContent && !mainContent.getAttribute('role')) {
+    mainContent.setAttribute('role', 'main');
+  }
+
+  // Ensure navigation has a landmark
+  const nav = document.querySelector('nav');
+  if (nav && !nav.getAttribute('role')) {
+    nav.setAttribute('role', 'navigation');
+  }
+}
+
+// Apply accessibility fixes on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+  ensureTableAccessibility();
+  ensureLandmarkAccessibility();
+});
+
 // Existing code remains unchanged
 // ...
 

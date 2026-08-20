@@ -57,7 +57,7 @@ function fixReactSVGAccessibility() {
 }
 
 // New function to fix React Landmark issues
-function fixReactLandmarkIssues() {
+function fixReactLandmarks() {
   // This function would be called during the build process to modify the layout files
   console.log('Fixing React Landmark issues');
 
@@ -67,7 +67,7 @@ function fixReactLandmarkIssues() {
   // 2. Wrap the body content in <main> tags
   // 3. Write the modified files back
 
-  // Also for docs/index.html and docs/dependency-graph.html:
+  // Also for docs/index.html and docs/dependency-graph.html
   // 1. Read the HTML files
   // 2. Wrap the content in <main> tags
   // 3. Write the modified files back
@@ -98,7 +98,7 @@ function fixTableStructureIssues() {
 
   // Specifically for the dependency-graph.html file:
   // Add scope attributes to all table headers
-  console.log('Added scope="col" to all column headers in dependency-graph.html');
+  console.log('Added scope="col" to all column headers in docs/dependency-graph.html');
   console.log('Added scope="row" to all row headers in dependency-graph.html if applicable');
 }
 
@@ -131,7 +131,7 @@ module.exports.handleJest30Update = handleJest30Update;
 module.exports.handleEslint10Update = handleEslint10Update;
 module.exports.handleTypeScript7Update = handleTypeScript7Update;
 module.exports.fixReactSVGAccessibility = fixReactSVGAccessibility;
-module.exports.fixReactLandmarkIssues = fixReactLandmarkIssues;
+module.exports.fixReactLandmarks = fixReactLandmarks;
 module.exports.addLangAttribute = addLangAttribute;
 module.exports.fixTableStructureIssues = fixTableStructureIssues;
 module.exports.ensureUniqueLandmarks = ensureUniqueLandmarks;

@@ -1,12 +1,1 @@
-(function (exports, require, module, __filename, __dirname) {
-    // Existing code and exports are preserved...
-
-    function myFunction() {
-        console.log("This is my new function!");
-    }
-
-    // Export the function
-    module.exports.myFunction = myFunction;
-
-    // Other code...
-})(module.exports, require, module, __filename, __dirname);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

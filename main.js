@@ -1,15 +1,63 @@
-// Assuming the following is the JSX within the main.js file that includes the problematic anchor tag
-
-export default function DependencyGraph() {
-  // ... other code ...
-
+export default function RootLayout({ children }) {
   return (
-    <div>
-      {/* ... other JSX elements ... */}
-      <button id="unrotate" onClick={() => {/* Functionality to rotate back */}}>rotate back</button>
-      {/* ... other JSX elements ... */}
-    </div>
+    <html lang="en">
+      <body>
+        <main>
+          <header>
+            <h1>Dashboard</h1>
+          </header>
+          <section>
+            <h2>Statistics</h2>
+            <p>{stats.summary}</p>
+          </section>
+          <section>
+            <h2>Users</h2>
+            <UserTable data={users} />
+          </section>
+          <nav>
+            <ul>
+              {links.map((link, idx) => (
+                <li key={link.href}>
+                  <NavLink href={link.href}>{link.label}</NavLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </main>
+      </body>
+    </html>
   );
 }
 
-// ... rest of the main.js file ...
+export function UserTable({ data }) {
+  return (
+    <table>
+      <caption>User List</caption>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((user, index) => (
+          <tr key={user.id}>
+            <td>{user.name}</td>
+            <td>{user.email}</td>
+            <td>{user.role}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+export function Icon({ title, children }) {
+  return (
+    <svg aria-label={title} focusable="false" role="presentation">
+      <title>{title}</title>
+      {children}
+    </svg>
+  );
+}

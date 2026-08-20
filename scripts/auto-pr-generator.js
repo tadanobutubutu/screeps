@@ -182,7 +182,10 @@ Fixes #${issue.number}
 ${analysis.rootCause}`;
 
     execFileSync('git', ['add', '-A'], { stdio: 'inherit' });
-    execFileSync('git', ['commit', '-m', commitMessage], { stdio: 'inherit' });
+    execFileSync('git', ['commit', '-F', '-'], {
+        input: commitMessage,
+        stdio: ['pipe', 'inherit', 'inherit'],
+    });
     execFileSync('git', ['push', 'origin', fullBranchName], { stdio: 'inherit' });
 
     return { branchName: fullBranchName, commitMessage };

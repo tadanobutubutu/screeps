@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 const Dashboard = () => {
@@ -38,7 +37,7 @@ const Dashboard = () => {
 
     if (error) {
         return (
-            <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <section style={{ padding: '2rem', fontFamily: 'monospace' }} aria-live="polite">
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -105,19 +104,21 @@ const Dashboard = () => {
 
     if (!stats) {
         return (
-            <section style={{ padding: '2rem', textAlign: 'center' }}>
-                <div className="spinner"></div>
+            <section style={{ padding: '2rem', textAlign: 'center' }} aria-busy="true">
+                <div className="spinner" role="status" aria-label="読み込み中"></div>
                 <p>読み込み中...</p>
             </section>
         );
     }
 
     return (
-        <main style={{ padding: '2rem' }}>
+        <main style={{ padding: '2rem' }} role="main">
             {/* Your main content here */}
             <h1>ダッシュボード</h1>
             {/* Render your stats data */}
-            <pre>{JSON.stringify(stats, null, 2)}</pre>
+            <div aria-live="polite">
+                <pre>{JSON.stringify(stats, null, 2)}</pre>
+            </div>
         </main>
     );
 };

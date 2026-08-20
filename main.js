@@ -1,14 +1,40 @@
-// Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
-
-// tsx
+typescript
 // app/layout.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
+import en from '@jsx-a11y/i18n/dist/lang/en';
+import { configure, createProvider } from '@jsx-a11y/backend';
+import { useRef } from 'react';
+import { render } from '@testing-library/react';
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const documentRef = useRef(document);
+
+  useEffect(() => {
+    // Initialize the a11y checking backend and the provider
+    const backend = configure({ i18n: { lng: en, resources: en });
+    const provider = createProvider({ backend });
+
+    // Wrap the children with the react-jsx-a11y Provider to enable a11y checking
+    const jsxElement = (
+      <provider.Provider>
+        {children}
+      </provider.Provider>
+    );
+
+    // Render the JSX element into the document body
+    ReactDOM.render(jsxElement, documentRef.current.body);
+
+    // Clean up on component unmount
+    return () => {
+      ReactDOM.unmountComponentAtNode(documentRef.current.body);
+    };
+  }, [children]);
+
   return (
     <html lang="en">
       <head>
@@ -19,7 +45,7 @@ export default function RootLayout({
           {/* Your SVG content here */}
         </svg>
       </head>
-      <body>{children}</body>
+      <body>{documentRef.current.body}</body>
     </html>
   );
 }

@@ -57,3 +57,17 @@ export function Icon({ className = '' }: { className?: string }) {
     </svg>
   );
 }
+
+// New button component for the rotate back action
+export function RotateBackButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      id="unrotate"
+      onClick={onClick}
+      className="rotate-back-button"
+      aria-label="Rotate back"
+    >
+      rotate back
+    </button>
+  );
+}

@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
         width="16" 
         height="16" 
         viewBox="0 0 16 16" 
-        aria-hidden={svgIsDecorative ? true : false}
+        ... ? true : false}
         aria-label="Decorative icon"
       >
         {/* SVG content */}
@@ -24,16 +24,29 @@ const Layout = ({ children }) => {
       <table>
         <thead>
           <tr>
-            <th scope="col"><div>src/constants.js</div></th>
-            <th scope="col"><div>src/managers/roomManager.js</div></th>
-            <th scope="col"><div>src/managers/spawnManager.js</div></th>
-            <th scope="col"><div>src/managers/towerManager.js</div></th>
-            <th scope="col"><div>src/roles/builder.js</div></th>
+            <th ...
+            <th ...
+            <th ...
+            <th ...
+            <th ...
             {/* ... rest of the headers with scope attribute ... */}
           </tr>
         </thead>
         {/* Table rows here */}
       </table>
+      {/* ... other components ... */}
+      
+      {/* Fixed: Changed fake link to button for proper accessibility */}
+      <button 
+        id="unrotate" 
+        type="button"
+        onClick={() => {
+          // Add your rotation reset logic here
+        }}
+      >
+        rotate back
+      </button>
+      
       {/* ... other components ... */}
     </div>
   );

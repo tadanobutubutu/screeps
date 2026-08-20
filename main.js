@@ -6,7 +6,7 @@ function checkHtmlLangAttribute(ast) {
     const htmlElements = ast.children?.filter(
         child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'html'
     );
-    
+
     if (htmlElements.length === 0) {
         errors.push({
             rule: 'REACT_015',
@@ -15,7 +15,7 @@ function checkHtmlLangAttribute(ast) {
             line: ast.loc?.start?.line || 1
         });
     }
-    
+
     return errors;
 }
 
@@ -25,19 +25,19 @@ function checkReactLandmarks(ast, filePath) {
     const htmlElements = ast.children?.filter(
         child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'html'
     );
-    
+
     if (htmlElements.length === 0) {
         // Check if there's a body element without a main wrapper
         const bodyElements = ast.children?.filter(
             child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'body'
         );
-        
+
         if (bodyElements.length > 0) {
             const body = bodyElements[0];
             const hasMainElement = body.children?.some(
                 child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'main'
             );
-            
+
             if (!hasMainElement) {
                 errors.push({
                     rule: 'REACT_017',
@@ -49,20 +49,20 @@ function checkReactLandmarks(ast, filePath) {
             }
         }
     }
-    
+
     return errors;
 }
 
 // REACT_027 - Fix table structures with proper semantic markup
 function checkTableStructures(ast) {
     const errors = [];
-    
+
     function visitNode(node, depth = 0) {
         if (node.type === 'JSXElement' && node.openingElement?.name?.name === 'table') {
             const hasCaption = node.children?.some(
                 child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'caption'
             );
-            
+
             if (!hasCaption) {
                 errors.push({
                     rule: 'REACT_027',
@@ -71,17 +71,17 @@ function checkTableStructures(ast) {
                     line: node.loc?.start?.line || 1
                 });
             }
-            
+
             const headers = node.children?.filter(
                 child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'th'
             );
-            
+
             if (headers && headers.length > 0) {
                 headers.forEach(th => {
                     const hasScope = th.openingElement?.attributes?.some(
                         attr => attr.name?.name === 'scope'
                     );
-                    
+
                     if (!hasScope) {
                         errors.push({
                             rule: 'REACT_027',
@@ -93,12 +93,12 @@ function checkTableStructures(ast) {
                 });
             }
         }
-        
+
         if (node.children) {
             node.children.forEach(child => visitNode(child, depth + 1));
         }
     }
-    
+
     visitNode(ast);
     return errors;
 }
@@ -106,21 +106,21 @@ function checkTableStructures(ast) {
 // REACT_041 - Add accessible names to SVG elements
 function checkSvgAccessibility(ast) {
     const errors = [];
-    
+
     function visitNode(node) {
         if (node.type === 'JSXElement' && node.openingElement?.name?.name === 'svg') {
             const hasAriaLabel = node.openingElement?.attributes?.some(
                 attr => attr.name?.name === 'aria-label' || attr.name?.name === 'aria-labelledby'
             );
-            
+
             const hasTitle = node.children?.some(
                 child => child.type === 'JSXElement' && child.openingElement?.name?.name === 'title'
             );
-            
+
             const hasRole = node.openingElement?.attributes?.some(
                 attr => attr.name?.name === 'role' && attr.value?.value === 'img'
             );
-            
+
             if (!hasAriaLabel && !hasTitle && !hasRole) {
                 errors.push({
                     rule: 'REACT_041',
@@ -130,12 +130,12 @@ function checkSvgAccessibility(ast) {
                 });
             }
         }
-        
+
         if (node.children) {
             node.children.forEach(child => visitNode(child));
         }
     }
-    
+
     visitNode(ast);
     return errors;
 }
@@ -150,39 +150,63 @@ function checkUniqueLandmarks(ast) {
         footer: 0,
         aside: 0
     };
-    
-    function visitNode(node) {
+
+    // Track conditional branches to detect multiple main elements in different branches
+    const conditionalBranches = new Set();
+
+    function visitNode(node, inConditional = false) {
         if (node.type === 'JSXElement') {
             const tagName = node.openingElement?.name?.name?.toLowerCase();
-            
+
             if (landmarkCounts.hasOwnProperty(tagName)) {
-                landmarkCounts[tagName]++;
-                
-                if (tagName === 'main' && landmarkCounts[tagName] > 1) {
-                    errors.push({
-                        rule: 'REACT_025',
-                        severity: 'warning',
-                        message: 'Page should have only one <main> landmark',
-                        line: node.loc?.start?.line || 1
-                    });
-                }
-                
-                if (tagName === 'nav' && landmarkCounts[tagName] > 1) {
-                    errors.push({
-                        rule: 'REACT_025',
-                        severity: 'info',
-                        message: 'Multiple <nav> elements should have unique aria-label attributes',
-                        line: node.loc?.start?.line || 1
-                    });
+                // For main elements, track if they're in different conditional branches
+                if (tagName === 'main') {
+                    const branchKey = inConditional ? 'conditional' : 'unconditional';
+                    conditionalBranches.add(branchKey);
+
+                    // Only count if we haven't seen this branch before
+                    if (!landmarkCounts[tagName][branchKey]) {
+                        landmarkCounts[tagName][branchKey] = 1;
+                    } else {
+                        landmarkCounts[tagName][branchKey]++;
+                    }
+
+                    // Check if we have more than one main in any branch
+                    if (Object.values(landmarkCounts[tagName]).some(count => count > 1)) {
+                        errors.push({
+                            rule: 'REACT_025',
+                            severity: 'warning',
+                            message: 'Page should have only one <main> landmark',
+                            line: node.loc?.start?.line || 1
+                        });
+                    }
+                } else {
+                    landmarkCounts[tagName]++;
+
+                    if (tagName === 'nav' && landmarkCounts[tagName] > 1) {
+                        errors.push({
+                            rule: 'REACT_025',
+                            severity: 'info',
+                            message: 'Multiple <nav> elements should have unique aria-label attributes',
+                            line: node.loc?.start?.line || 1
+                        });
+                    }
                 }
             }
         }
-        
+
+        // Check for conditional rendering (JSXExpressionContainer with logical operators)
+        const isConditional = node.type === 'JSXExpressionContainer' &&
+            (node.expression?.operator === '&&' || node.expression?.operator === '||');
+
         if (node.children) {
-            node.children.forEach(child => visitNode(child));
+            node.children.forEach(child => visitNode(child, isConditional || inConditional));
         }
     }
-    
+
+    // Initialize main tracking with branch information
+    landmarkCounts.main = {};
+
     visitNode(ast);
     return errors;
 }
@@ -190,32 +214,32 @@ function checkUniqueLandmarks(ast) {
 // REACT_036 - Fix fake links (divs pretending to be links)
 function checkFakeLinks(ast) {
     const errors = [];
-    
+
     function visitNode(node) {
         if (node.type === 'JSXElement') {
             const tagName = node.openingElement?.name?.name;
             const attributes = node.openingElement?.attributes || [];
-            
+
             const isClickable = attributes.some(
                 attr => attr.name?.name === 'onClick'
             );
-            
+
             const hasOnKeyDown = attributes.some(
                 attr => attr.name?.name === 'onKeyDown'
             );
-            
+
             const hasRole = attributes.find(
                 attr => attr.name?.name === 'role'
             );
-            
+
             const className = attributes.find(
                 attr => attr.name?.name === 'className'
             );
-            
+
             // Check for divs/spans that should be links or buttons
             if (tagName === 'div' || tagName === 'span') {
                 const hasLinkClass = className?.value?.value?.match(/link|clickable|nav/i);
-                
+
                 if (isClickable && !hasRole && !['button', 'a', 'input'].includes(tagName)) {
                     errors.push({
                         rule: 'REACT_036',
@@ -224,7 +248,7 @@ function checkFakeLinks(ast) {
                         line: node.loc?.start?.line || 1
                     });
                 }
-                
+
                 if (hasLinkClass && !hasRole && !['a', 'button'].includes(tagName)) {
                     errors.push({
                         rule: 'REACT_036',
@@ -234,13 +258,13 @@ function checkFakeLinks(ast) {
                     });
                 }
             }
-            
+
             // Check for links without href
             if (tagName === 'a' && isClickable) {
                 const hasHref = attributes.some(
                     attr => attr.name?.name === 'href'
                 );
-                
+
                 if (!hasHref) {
                     errors.push({
                         rule: 'REACT_036',
@@ -251,12 +275,12 @@ function checkFakeLinks(ast) {
                 }
             }
         }
-        
+
         if (node.children) {
             node.children.forEach(child => visitNode(child));
         }
     }
-    
+
     visitNode(ast);
     return errors;
 }
@@ -264,7 +288,7 @@ function checkFakeLinks(ast) {
 // Main analysis function
 function analyzeAccessibility(ast, filePath) {
     const allErrors = [];
-    
+
     if (filePath.endsWith('.tsx') || filePath.endsWith('.jsx')) {
         allErrors.push(...checkHtmlLangAttribute(ast));
         allErrors.push(...checkReactLandmarks(ast, filePath));
@@ -273,7 +297,7 @@ function analyzeAccessibility(ast, filePath) {
         allErrors.push(...checkUniqueLandmarks(ast));
         allErrors.push(...checkFakeLinks(ast));
     }
-    
+
     return allErrors;
 }
 

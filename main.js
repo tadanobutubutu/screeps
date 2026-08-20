@@ -104,15 +104,32 @@ export const UniqueLandmark = ({ type, label, children }) => {
  * @param {Object} props - Component props
  * @param {string} props.href - Link destination
  * @param {React.ReactNode} props.children - Content
+ * @param {Function} props.onClick - Click handler
  * @returns {JSX.Element} - Accessible link component
  */
-export const FakeLink = ({ href, children }) => {
+export const FakeLink = ({ href, children, onClick }) => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    if (onClick) onClick(e);
+    if (href) window.location.href = href;
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (onClick) onClick(e);
+      if (href) window.location.href = href;
+    }
+  };
+
   return (
     <a
-      href={href}
+      href={href || '#'}
       role="link"
       tabIndex="0"
-      onKeyPress={(e) => e.key === 'Enter' && window.location.href = href}
+      onClick={handleClick}
+      onKeyPress={handleKeyPress}
+      style={{ cursor: 'pointer' }}
     >
       {children}
     </a>

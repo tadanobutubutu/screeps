@@ -2,11 +2,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Existing code (preserved as-is)
+// Add the lang attribute to HTML element for accessibility
+const langAttribute = () => {
+  document.documentElement.lang = 'en';
+};
+
+// Fix 26 table structure issues (example code, actual implementation needed)
+const fixTableStructure = () => {
+  // ... implementation needed ...
+};
+
+// Add/fix 4 landmark issues (example code, actual implementation needed)
+const addFixLandmarkIssues = () => {
+  // ... implementation needed ...
+};
+
+// Add accessible names to 2 SVGs (example code, actual implementation needed)
+const addAccessibleNamesToSVGs = () => {
+  // ... implementation needed ...
+};
+
+// Ensure unique landmarks (2 issues) (example code, actual implementation needed)
+const ensureUniqueLandmarks = () => {
+  // ... implementation needed ...
+};
+
+// Fix 1 fake link issue (example code, actual implementation needed)
+const fixFakeLinkIssue = () => {
+  // ... implementation needed ...
+};
+
 function App() {
   // ... existing code ...
 
-  // Add the new button handler
+  // Replace the fake link with a proper button
   const handleRotateBack = () => {
     // Implement rotation back logic
     // Example: reset any forward rotation applied to the character model
@@ -16,48 +45,18 @@ function App() {
       character.style.transform = 'rotateY(0deg)';
       console.log('Character rotated back to initial orientation');
     } else {
-      // Fallback: log for debugging if element not found
       console.warn('Character model element not found; cannot rotate back');
     }
   };
 
-  // Add lang attribute to HTML element for accessibility
-  const langAttribute = () => {
-    document.documentElement.lang = 'en';
-  };
-
-  // Fix 26 table structure issues (example code, actual implementation needed)
-  const fixTableStructure = () => {
-    // ... implementation needed ...
-  };
-
-  // Add/fix 4 landmark issues (example code, actual implementation needed)
-  const addFixLandmarkIssues = () => {
-    // ... implementation needed ...
-  };
-
-  // Add accessible names to 2 SVGs (example code, actual implementation needed)
-  const addAccessibleNamesToSVGs = () => {
-    // ... implementation needed ...
-  };
-
-  // Ensure unique landmarks (2 issues) (example code, actual implementation needed)
-  const ensureUniqueLandmarks = () => {
-    // ... implementation needed ...
-  };
-
-  // Fix 1 fake link issue (example code, actual implementation needed)
-  const fixFakeLinkIssue = () => {
-    // ... implementation needed ...
-  };
-
-  // ... rest of the existing code ...
+  React.useEffect(() => {
+    langAttribute();
+  }, []);
 
   return (
     <div>
       {/* ... existing JSX ... */}
 
-      {/* Replace the fake link with a proper button */}
       <button id="unrotate" onClick={handleRotateBack}>
         rotate back
       </button>

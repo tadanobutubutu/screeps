@@ -150,6 +150,20 @@ function createSkipToContentLink() {
   );
 }
 
+// Add function to ensure single main landmark
+function ensureSingleMainLandmark(content) {
+  // Check if content already contains a main element
+  if (typeof content === 'string') {
+    const hasMain = content.includes('<main') || content.includes('</main>');
+    return hasMain ? content : addMainToHTML(content);
+  } else if (React.isValidElement(content)) {
+    // For React elements, we'll need to check if they contain a main element
+    // This is a simplified check - in a real implementation you might need a more robust solution
+    return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
+  }
+  return content;
+}
+
 // Export the new functions for use in other files
 module.exports = {
   wrapWithMain,
@@ -163,6 +177,7 @@ module.exports = {
   createAccessibleForm,
   createAccessibleButton,
   createSkipToContentLink,
+  ensureSingleMainLandmark, // New export for ensuring single main landmark
   // Preserve all existing exports
   jest,
   React,

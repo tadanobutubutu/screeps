@@ -5,7 +5,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: React.FC<DashboardProps> = (props) => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -45,7 +45,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
     return <>{successContent}</>;
 };
 
-export default Dashboard;
-
-const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+const root = ReactDOM.createRoot(
+    document.getElementById('root') as HTMLElement
+);
 root.render(<Dashboard />);
+export default Dashboard;

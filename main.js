@@ -32,12 +32,12 @@ const MetadataSVG = () => (
   </svg>
 );
 
-// Update layout components to use accessible SVGs
+// Update layout components to use accessible SVGs and add main landmark
 const Layout = ({ children }) => (
   <div>
     <FaviconSVG />
     <MetadataSVG />
-    {children}
+    <main>{children}</main>
   </div>
 );
 

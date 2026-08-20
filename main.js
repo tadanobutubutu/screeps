@@ -1,4 +1,1 @@
-// Link to dependency-graph.html should be preserved if it exists here
-// <a href="dependency-graph.html">Dependency Graph</a>
-
-// ... rest of main.js content ...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

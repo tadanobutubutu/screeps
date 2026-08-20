@@ -1,6 +1,1 @@
-# 🛡️ Sentinel Learnings
-
-## 2024-08-20 (Example)
-- **Vulnerability:** Potential Command Injection via `execSync`
-- **Context:** In `scripts/add-contributor.js`, `execSync('npx all-contributors-cli generate', { stdio: 'inherit' });` was used to run an external command. While hardcoded and currently not exploitable, using `execSync` is a poor security hygiene practice as it invokes a shell and can lead to command injection if inputs are ever incorporated.
-- **Fix:** Switched to `execFileSync` to bypass shell execution completely. Replaced the single string command with an executable string and an array of arguments: `execFileSync(cmd, ['all-contributors-cli', 'generate'], { stdio: 'inherit' });`, taking care to handle the `.cmd` extension correctly on Windows platforms (`process.platform === 'win32' ? 'npx.cmd' : 'npx'`).
+{"error":"402 Payment Required","status":402,"deprecation_notice":"NOTE: The Pollinations legacy text API is being deprecated for authenticated users. Please migrate to https://enter.pollinations.ai for better performance and access to all the latest models. Anonymous requests to text.pollinations.ai are NOT affected.","details":{"success":false,"error":{"message":"API key budget too low. This request costs ~0.0004 pollen, but this key has 0.0000.","code":"PAYMENT_REQUIRED","timestamp":"2026-08-20T13:08:46.635Z"},"status":402}}

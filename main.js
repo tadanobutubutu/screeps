@@ -14,6 +14,8 @@ function renderRotateBackLink() {
   button.textContent = 'rotate back';
   // Add any additional attributes or event listeners to the button as needed
   // ...
+  // Button styling example (optional):
+  // button.style.cssText = 'background-color: #e0e0e0; color: #333; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px;';
 
   // Replace the existing <a> element with the new <button> element
   // This assumes there is an existing reference to the <a> element

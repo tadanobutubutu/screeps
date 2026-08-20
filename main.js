@@ -1,30 +1,44 @@
-// Current main.js content
-// Please note that the content below is a placeholder and may not reflect the actual codebase.
-// Replace the placeholder content with the actual code from `main.js` if needed.
+// main.js - Helper utilities for accessibility fixes
 
-// Placeholder for existing code that should be preserved
-// <<<<<<< HEAD
-// ... existing code ...
-// =======
-// ... conflicting code ...
-// >>>>>>> branch-name
+function hasMainLandmark(content) {
+  const mainRegex = /<main[\s>]/gi;
+  return mainRegex.test(content);
+}
 
-// New function or changes requested in the issue
+function addMainLandmark(content, childrenTag = 'children') {
+  // Pattern to find <body>{children}</body> or <div>{children}</div>
+  const bodyPattern = /<(\w+)>\s*\{(\w+)\}\s*<\/\1>/g;
+  
+  return content.replace(bodyPattern, (match, tag, children) => {
+    if (tag === 'body' || tag === 'div' || tag === 'section') {
+      return `<${tag}>\n    <main>\n        {${children}}\n    </main>\n</${tag}>`;
+    }
+    return match;
+  });
+}
+
+function escapeHtml(str) {
+  const htmlEscapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  };
+  return str.replace(/[&<>"']/g, char => htmlEscapeMap[char]);
+}
+
+// New function for rotating back
 function rotateBack() {
   // Implementation of the rotate back functionality
   // This function should replace the anchor tag with a button for better accessibility
+  // Placeholder implementation: currently a stub
 }
 
-// Placeholder for existing exports that should be preserved
-// export function someFunction() {
-//   // ... implementation ...
-// }
-
-// New export if needed
+// Export utilities for testing and new button component
+export { hasMainLandmark, addMainLandmark, escapeHtml };
 export function rotateBackButton() {
   return (
     <button id="unrotate" onClick={rotateBack}>rotate back</button>
   );
 }
-
-// Ensure that the rest of the main.js file remains unchanged, including any other exports and functions.

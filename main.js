@@ -12,3 +12,6 @@ const tableHeadersHTML = renderTableHeaders(headers);
 
 // You would then insert this HTML into your document or component
 document.getElementById('table-headers').innerHTML = tableHeadersHTML;
+
+// Note: Issue REACT_036 (rotate back link should be a button) is in docs/dependency-graph.html:186
+// and should be fixed there directly, not in this JavaScript file.

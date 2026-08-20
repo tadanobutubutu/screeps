@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // main.js - Application entry point
 
 // Wait for DOM to be ready
@@ -45,9 +42,3 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { init: () => {} }; // Update the init function if needed
 }
-```
-
-In this resolution, I integrated both changes:
-1. The function `setLanguageAttribute()` was added after the unrotate button manipulation.
-2. The unrotate functionality was updated as per the changes made in the second branch.
-3. The export was modified to an empty object since the `init` function was not provided in the conflicted code. Update it as needed in your application logic.

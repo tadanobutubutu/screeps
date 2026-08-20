@@ -13,9 +13,7 @@ export default function RootLayout({
         <meta name="description" content="Screeps Dashboard" />
         <link rel="icon" href="/favicon.ico" />
         {/* Add aria-hidden="true" to make the SVG decorative */}
-        <svg aria-hidden="true" style={{ display: 'none' }}>
-          <title>Screeps Logo</title>
-        </svg>
+        <svg aria-hidden="true" style={{ display: 'none' }} />
       </head>
       <body>{children}</body>
     </html>

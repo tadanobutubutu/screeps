@@ -25,7 +25,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   if (error) {
     return (
-      <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
         <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
         <pre
           tabIndex={0}
@@ -86,7 +86,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
         >
           🔄 再試行
         </button>
-      </div>
+      </main>
     );
   }
 

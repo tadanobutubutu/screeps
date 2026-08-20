@@ -11,6 +11,32 @@ function App() {
       </head>
       <body>
         {/* Rest of the body content */}
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">John Doe</th>
+              <td>john@example.com</td>
+              <td>Developer</td>
+            </tr>
+            <tr>
+              <th scope="row">Jane Smith</th>
+              <td>jane@example.com</td>
+              <td>Designer</td>
+            </tr>
+            <tr>
+              <th scope="row">Bob Johnson</th>
+              <td>bob@example.com</td>
+              <td>Manager</td>
+            </tr>
+          </tbody>
+        </table>
       </body>
     </html>
   );

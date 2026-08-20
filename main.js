@@ -44,3 +44,13 @@ const Layout = ({ children }) => (
 
 // Preserve any existing exports
 export { Layout };
+
+// Add language attribute to the root HTML element for accessibility
+const HtmlWithLang = ({ children }) => (
+  <html lang="en">
+    {children}
+  </html>
+);
+
+// Preserve any existing exports
+export { HtmlWithLang };

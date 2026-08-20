@@ -38,7 +38,5 @@ function rotateBack() {
 // Export utilities for testing and new button component
 export { hasMainLandmark, addMainLandmark, escapeHtml };
 export function rotateBackButton() {
-  return (
-    <button id="unrotate" onClick={rotateBack}>rotate back</button>
-  );
+  return '<button id="unrotate" onclick="rotateBack()">rotate back</button>';
 }

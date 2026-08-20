@@ -241,7 +241,7 @@ export function createUniqueMainLandmark({ children, id }) {
   );
 }
 
-// New function to create accessible fake link
+// New function to create accessible fake link (fix for REACT_036)
 export function createAccessibleFakeLink({ children, onClick, ariaLabel }) {
   return (
     <span

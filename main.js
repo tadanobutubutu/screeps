@@ -29,3 +29,5 @@ describe('Example test suite', () => {
 });
 
 // ... (Preserve all existing code, exports, and functions)
+
+// REACT_015 fix: Ensure <html lang="en"> in docs/dependency-graph.html

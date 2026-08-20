@@ -26,6 +26,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
   // Add lang attribute to the main element
   return (
     <main lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <header role="banner" aria-label="ダッシュボードヘッダー">
+        <h1 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>ダッシュボード</h1>
+      </header>
       {error ? (
         <section aria-labelledby="error-heading" aria-describedby="error-message">
           <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
@@ -98,6 +101,11 @@ const Dashboard: React.FC<DashboardProps> = () => {
           {/* Your existing success state content */}
         </section>
       )}
+      <footer role="contentinfo" aria-label="ダッシュボードフッター">
+        <p style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#666' }}>
+          © 2023 ダッシュボード
+        </p>
+      </footer>
     </main>
   );
 };

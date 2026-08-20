@@ -47,7 +47,5 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = document.getElementById('root');
-if (root) {
-    ReactDOM.createRoot(root).render(<Dashboard />);
-}
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement);
+root.render(<Dashboard />);

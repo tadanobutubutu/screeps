@@ -1,4 +1,16 @@
 // main.js
+// ... existing code ...
+
+// To address the issue, add the language attribute to the root element if it's not already there.
+// This is typically done in the HTML template file, not in the JavaScript file.
+
+// Since the issue is related to an HTML file, ensure that the following changes are made in the HTML template:
+// <html lang="en">
+//   <!-- ... rest of the HTML content ... -->
+// </html>
+
+// No changes should be made to the JavaScript code in main.js unless they are directly related to the issue.
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -56,32 +68,32 @@ export const addFixLandmarkIssues = () => {
 // Add accessible names to 2 SVGs (fix for REACT_041)
 export const addAccessibleNamesToSVGs = () => {
   // Find all SVG elements in the document
-  const svgs = ...
+  const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg) => {
     // Check if SVG already has an accessible name via aria-label or aria-labelledby
-    const hasAriaLabel = ...
-    const hasAriaLabelledby = ...
+    const hasAriaLabel = svg.hasAttribute('aria-label') && svg.getAttribute('aria-label').trim() !== '';
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby') && svg.getAttribute('aria-labelledby').trim() !== '';
     
     // Check if SVG has a title child element
-    const titleElement = ...
+    const titleElement = svg.querySelector('title');
     const hasTitleChild = titleElement !== null;
     
     // Check if SVG is marked as hidden from screen readers
-    const ariaHidden = ... === 'true';
+    const ariaHidden = svg.getAttribute('aria-hidden') === 'true';
     
     // If SVG has no accessible name and is not hidden from screen readers
     if (!hasAriaLabel && !hasAriaLabelledby && !ariaHidden) {
       if (hasTitleChild) {
         // Use the existing title text as aria-label for screen readers
         const titleText = titleElement.textContent;
-        ... titleText);
+        svg.setAttribute('aria-label', titleText);
       } else {
         // Check if SVG contains text elements (indicating it may be decorative)
-        const textElement = ...
+        const textElement = svg.querySelector('text');
         if (textElement) {
           // Add aria-hidden="true" since it contains text but no proper accessible name
-          ... 'true');
+          svg.setAttribute('aria-hidden', 'true');
         }
       }
     }
@@ -92,7 +104,7 @@ export const addAccessibleNamesToSVGs = () => {
 // Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
 export const ensureUniqueLandmarks = () => {
   // Find all main elements in the document
-  const mainElements = ...
+  const mainElements = document.querySelectorAll('main');
   
   // If there's more than one main element, fix the duplicate(s)
   if (mainElements.length > 1) {
@@ -102,20 +114,20 @@ export const ensureUniqueLandmarks = () => {
       const duplicateMain = mainElements[i];
       
       // Create a replacement section element with the same attributes
-      const sectionReplacement = ...
+      const sectionReplacement = document.createElement('section');
       
       // Copy all attributes from the main element to the section element
-      ... => {
+      Array.from(duplicateMain.attributes).forEach((attr) => {
         sectionReplacement.setAttribute(attr.name, attr.value);
       });
       
       // Move all child nodes from main to section
-      while ... {
-        ...
+      while (duplicateMain.firstChild) {
+        sectionReplacement.appendChild(duplicateMain.firstChild);
       }
       
       // Replace the duplicate main with the section element
-      ... duplicateMain);
+      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
     }
     
     console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);
@@ -127,7 +139,7 @@ export const fixFakeLinkIssue = () => {
   // This function needs to be implemented according to the specific issues found.
   // Example:
   // const fakeLinks = ...
-  // ... => {
+  // fakeLinks.forEach((link) => {
   //   // Remove role attribute or replace with a proper element, like a button.
   // });
 };
@@ -136,7 +148,7 @@ export const fixFakeLinkIssue = () => {
 export const handleRotateBack = () => {
   // Implement rotation back logic
   // Example: reset any forward rotation applied to the character model
-  const character = ...
+  const character = document.querySelector('#character');
   if (character) {
     // Reset rotation (assuming Y-axis rotation was used for forward orientation)
     character.style.transform = 'rotateY(0deg)';
@@ -146,34 +158,48 @@ export const handleRotateBack = () => {
   }
 };
 
-// All required exports are present:
-// - langAttribute
-// - fixTableStructure
-// - addFixLandmarkIssues
-// - addAccessibleNamesToSVGs
-// - ensureUniqueLandmarks
-// - fixFakeLinkIssue
-// - handleRotateBack
-// - App (default export)
+// Add scope attributes to table headers in dependency-graph.html
+// This is a temporary fix until the HTML can be properly generated with scope attributes
+function addScopeAttributesToHeaders() {
+  // Select all th elements in the document
+  const headers = document.querySelectorAll('th');
 
+  headers.forEach(header => {
+    // Check if the header already has a scope attribute
+    if (!header.hasAttribute('scope')) {
+      // Determine if it's a column or row header based on context
+      if (header.closest('thead')) {
+        header.setAttribute('scope', 'col');
+      } else if (header.closest('tr')) {
+        header.setAttribute('scope', 'row');
+      }
+    }
+  });
+}
+
+// Add scope attributes to table headers (called on mount)
+function addScopeAttributesToHeadersOnMount() {
+  addScopeAttributesToHeaders();
+}
+
+// React component
 function App() {
-  // ... existing code ...
-
   React.useEffect(() => {
     langAttribute();
-    ...
-    ...
-    ...
-    ...
+    fixTableStructure();
+    addFixLandmarkIssues();
+    addAccessibleNamesToSVGs();
     ensureUniqueLandmarks();
     fixFakeLinkIssue();
+    addScopeAttributesToHeadersOnMount();
+    handleRotateBack();
   }, []);
 
   return (
     <div>
       {/* ... existing JSX ... */}
 
-      <button id="unrotate" ...
+      <button id="unrotate" onClick={handleRotateBack}>
         rotate back
       </button>
 

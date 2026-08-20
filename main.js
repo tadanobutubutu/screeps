@@ -13,7 +13,7 @@
 
 // Get the elements
 const unrotateButton = document.getElementById('unrotate');
-const rotateButton = document.getElementById('rotate'); // Assuming there's a rotate button
+const rotateButton = document.getElementById('rotate');
 
 // Store the original rotation state
 let isRotated = false;
@@ -23,7 +23,7 @@ function toggleRotation() {
   isRotated = !isRotated;
   // Apply rotation logic here
   // For example:
-  const graphContainer = document.querySelector('.dependency-graph-container');
+  const graphContainer = document.querySelector('.dependency-graph-container, .graph-container');
   if (graphContainer) {
     graphContainer.style.transform = isRotated ? 'rotate(180deg)' : 'rotate(0deg)';
   }
@@ -48,7 +48,7 @@ if (unrotateButton) {
 if (rotateButton) {
   rotateButton.addEventListener('click', () => {
     isRotated = true;
-    const graphContainer = document.querySelector('.dependency-graph-container');
+    const graphContainer = document.querySelector('.dependency-graph-container, .graph-container');
     if (graphContainer) {
       graphContainer.style.transform = 'rotate(180deg)';
     }
@@ -56,3 +56,32 @@ if (rotateButton) {
 }
 
 // [Rest of existing code would be here...]
+
+// Handle table rotation for code complexity reports
+function setupTableRotation() {
+  const table = document.getElementById('table-rotated');
+  if (!table) return;
+  
+  const rotateBtn = document.createElement('button');
+  rotateBtn.id = 'rotate-table-btn';
+  rotateBtn.textContent = 'Rotate Table';
+  
+  const container = table.parentElement || document.body;
+  container.appendChild(rotateBtn);
+  
+  let isTableRotated = false;
+  
+  rotateBtn.addEventListener('click', () => {
+    isTableRotated = !isTableRotated;
+    table.classList.toggle('rotated', isTableRotated);
+    rotateBtn.textContent = isTableRotated ? 'Unrotate Table' : 'Rotate Table';
+  });
+}
+
+// Export for testing and module usage
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    toggleRotation,
+    setupTableRotation
+  };
+}

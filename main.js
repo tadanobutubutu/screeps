@@ -32,3 +32,14 @@ export default function RootLayout({
     </html>
   );
 }
+
+// New function to handle dependency updates
+export function getUpdatedDependencies() {
+  return {
+    jest: "^30.0.0",
+    react: "^19.0.0",
+    eslint: "^10.0.0",
+    typescript: "^7.0.0",
+    babelJest: "^30.0.0"
+  };
+}

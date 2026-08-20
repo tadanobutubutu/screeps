@@ -36,6 +36,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add main landmark wrapper for accessibility
+function wrapContentInMain() {
+  const rootElement = document.getElementById('root');
+  if (rootElement && !rootElement.querySelector('main')) {
+    const mainElement = document.createElement('main');
+    while (rootElement.firstChild) {
+      mainElement.appendChild(rootElement.firstChild);
+    }
+    rootElement.appendChild(mainElement);
+  }
+}
+
 // Existing code remains unchanged
 // ...
 
@@ -45,6 +57,9 @@ root.render(
     <App />
   </React.StrictMode>
 );
+
+// Call the wrapContentInMain function after rendering
+document.addEventListener('DOMContentLoaded', wrapContentInMain);
 
 // All other existing code remains exactly as is
 // ...

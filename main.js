@@ -1,5 +1,5 @@
+const fs = require('fs');
 const path = require('path');
-const { Worker } = require('worker_threads');
 const { generateDependencyGraph } = require('./dependency-graph-generator');
 
 async function main() {

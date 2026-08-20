@@ -77,6 +77,25 @@ export const AccessibleButton = ({ onClick, children, ariaLabel }) => (
   </button>
 );
 
+// New component to replace the problematic link
+export const RotateBackButton = ({ onClick }) => (
+  <button
+    id="unrotate"
+    onClick={onClick}
+    aria-label="Rotate back"
+    style={{
+      cursor: 'pointer',
+      padding: '8px 16px',
+      background: '#6c757d',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px'
+    }}
+  >
+    rotate back
+  </button>
+);
+
 // New components to address landmark issues
 export const Header = ({ children }) => (
   <header role="banner" aria-label="Site header">

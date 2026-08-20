@@ -22,16 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // Add function to handle the fake link issue
 function handleFakeLinkClick(event) {
   event.preventDefault();
-  const targetId = event.currentTarget.getAttribute('href').substring(1);
-  const targetElement = document.getElementById(targetId);
-  if (targetElement) {
-    targetElement.click();
+  const hash = event.currentTarget.getAttribute('href');
+  if (hash === '#') {
+    const targetId = event.currentTarget.getAttribute('id');
+    const targetElement = targetId ? document.getElementById(targetId) : null;
+    if (targetElement) {
+      targetElement.click();
+    }
   }
 }
 
 // Apply the fix to all hash-only links
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('a[href="#"]').forEach(link => {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
     link.addEventListener('click', handleFakeLinkClick);
     link.setAttribute('role', 'button');
     link.setAttribute('tabindex', '0');

@@ -6,7 +6,7 @@ function someFunction() {
   // existing code
 }
 
-export function someExportedFunction() {
+export function ... {
   // existing code
 }
 
@@ -44,7 +44,7 @@ function someFunction() {
   // existing code
 }
 
-export function someExportedFunction() {
+export function ... {
   // existing code
 }
 
@@ -65,3 +65,25 @@ export function renderLayout(children) {
 // More existing code...
 ...
 */
+
+function someFunction() {
+  // existing code
+}
+
+export function ... {
+  // existing code
+}
+
+function renderLayout(children) {
+  return (
+    <body>
+      <main>
+        {children}
+      </main>
+    </body>
+  );
+}
+
+export function renderLayout(children) {
+  // existing code
+}

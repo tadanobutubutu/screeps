@@ -14,16 +14,16 @@ export function AccessibleTable({ data, caption }) {
       <caption>{caption}</caption>
       <thead>
         <tr>
-          {Object.keys(data[0]).map((key) => (
-            <th key={key} scope="col">{key}</th>
+          ... => (
+            <th key={key} ...
           ))}
         </tr>
       </thead>
       <tbody>
         {data.map((row, index) => (
           <tr key={index}>
-            {Object.values(row).map((value, i) => (
-              <td key={i}>{value}</td>
+            ... i) => (
+              <td ...
             ))}
           </tr>
         ))}
@@ -58,6 +58,15 @@ export function AccessibleSVG({ title, ...props }) {
   return (
     <svg {...props} role="img" aria-label={title}>
       <title>{title}</title>
+      {props.children}
+    </svg>
+  );
+}
+
+// Decorative SVG component - hides from screen readers when SVG is purely decorative
+export function DecorativeSVG({ ...props }) {
+  return (
+    <svg {...props} aria-hidden="true">
       {props.children}
     </svg>
   );

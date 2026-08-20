@@ -8,10 +8,27 @@ describe('HTML Table Structure', () => {
     const dom = new JSDOM(fileContent);
     const tables = dom.window.document.querySelectorAll('table');
     tables.forEach((table) => {
-      const headers = table.querySelectorAll('th');
+      const headers = table.query.querySelectorAll('th');
       headers.forEach((header) => {
         expect(header).toHaveAttribute('scope');
       });
+    });
+  });
+
+  // New test for main landmark
+  it('should have a main landmark in all HTML files', () => {
+    const files = [
+      'app/layout.tsx',
+      'dashboard/app/layout.tsx',
+      'docs/dependency-graph.html',
+      'docs/index.html'
+    ];
+
+    files.forEach(file => {
+      const fileContent = readFileSync(file, 'utf8');
+      const dom = new JSDOM(fileContent);
+      const mainElement = dom.window.document.querySelector('main');
+      expect(mainElement).not.toBeNull();
     });
   });
 });

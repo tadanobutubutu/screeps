@@ -1,17 +1,37 @@
-import type { Metadata } from "next";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './docs/dependency-graph.html';
 
-export const metadata: Metadata = {
-  title: "Create Next App",
-  icons: {
-    icon: [
-      {
-        url: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📁</text></svg>",
-        type: "image/svg+xml",
-      },
-    ],
-  },
-};
+// Main application logic
+function rotateContent(direction) {
+  const content = document.querySelector('.rotatable-content');
+  if (content) {
+    const rotation = direction === 'back' ? 0 : 90;
+    content.style.transform = `rotate(${rotation}deg)`;
+  }
+}
 
+// Setup event listeners
+function setupEventListeners() {
+  const unrotateButton = document.getElementById('unrotate');
+  if (unrotateButton) {
+    unrotateButton.addEventListener('click', () => {
+      rotateContent('back');
+    });
+  }
+
+  const rotateButton = document.getElementById('rotate');
+  if (rotateButton) {
+    rotateButton.addEventListener('click', () => {
+      rotateContent('forward');
+    });
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', setupEventListeners);
+
+// Main component for layout
 export default function RootLayout({
   children,
 }: {
@@ -43,5 +63,34 @@ export function getUpdatedDependencies() {
     eslint: "^10.0.0",
     typescript: "^7.0.0",
     babelJest: "^30.0.0"
+  };
+}
+
+// React rendering setup
+ReactDOM.render(
+  <React.StrictMode>
+    {/* Other components */}
+    <div id="unrotate-container">
+      {/* Replace the anchor tag with a button */}
+      <button id="unrotate" onClick={() => rotateContent('back')}>
+        rotate back
+      </button>
+    </div>
+    <div id="rotate-container">
+      <button id="rotate" onClick={() => rotateContent('forward')}>
+        rotate forward
+      </button>
+    </div>
+    {/* Other components */}
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+// Export for testing
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    rotateContent,
+    setupEventListeners,
+    getUpdatedDependencies
   };
 }

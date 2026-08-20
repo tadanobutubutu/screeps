@@ -33,16 +33,9 @@ if (typeof module !== 'undefined' && module.exports) {
 function renderDependencyDashboard() {
   const mainContent = document.createElement('main');
   mainContent.innerHTML = `
-    <html lang="en">
-    <head>
-      <!-- Include your head content here -->
-    </head>
-    <body>
-      <div id="dependency-dashboard">
-        <!-- Dependency dashboard content goes here -->
-      </div>
-    </body>
-    </html>
+    <div id="dependency-dashboard">
+      <!-- Dependency dashboard content goes here -->
+    </div>
   `;
   document.body.appendChild(mainContent);
 }

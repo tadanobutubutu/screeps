@@ -101,6 +101,3 @@ const Dashboard: React.FC<DashboardProps> = () => {
 };
 
 export default Dashboard;
-```
-
-This resolved conflict by keeping both changes and integrating them in a logical manner. Both blocks of code define the main and error states of the Dashboard component, but they were placed in different locations within the component. I combined them, placing the success state content in the main content when there's no error section, and moving the existing `success state content` comment into a comment above.

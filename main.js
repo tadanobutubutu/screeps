@@ -41,8 +41,30 @@ const Layout = ({ children }) => (
   </div>
 );
 
-// Preserve any existing exports
-export { Layout };
+// Add a helper component for accessible tables
+const AccessibleTable = ({ headers, data, caption }) => {
+  return (
+    <table aria-label={caption}>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 // New component to handle error state content
 const ErrorContent = ({ error, copyErr, copied, refreshing, fetchStats }) => {
@@ -135,4 +157,4 @@ const HtmlWithLang = ({ children }) => (
 );
 
 // Preserve any existing exports
-export { HtmlWithLang };
+export { Layout, AccessibleTable, HtmlWithLang };

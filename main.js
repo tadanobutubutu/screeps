@@ -17,11 +17,49 @@ const DashboardLayout = ({ children }) => (
   </main>
 );
 
-// For docs/dependency-graph.html (would need to be converted to React component)
+// For ... (would need to be converted to React component)
 const DependencyGraph = () => (
   <main>
     <table id="table-rotated">
-      {/* Table content would go here */}
+      <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col">Component A</th>
+          <th scope="col">Component B</th>
+          <th scope="col">Component C</th>
+          <th scope="col">Component D</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Module 1</th>
+          <td>uses</td>
+          <td>depends</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th scope="row">Module 2</th>
+          <td></td>
+          <td>uses</td>
+          <td>depends</td>
+          <td></td>
+        </tr>
+        <tr>
+          <th scope="row">Module 3</th>
+          <td>depends</td>
+          <td></td>
+          <td>uses</td>
+          <td>depends</td>
+        </tr>
+        <tr>
+          <th scope="row">Module 4</th>
+          <td></td>
+          <td></td>
+          <td>depends</td>
+          <td>uses</td>
+        </tr>
+      </tbody>
     </table>
   </main>
 );
@@ -36,14 +74,14 @@ const DocsIndex = () => (
         reports below:
       </p>
       <div className="links">
-        <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-        <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+        <a ... Plato Code Complexity Report</a>
+        <a ... Dependency Graph ...
       </div>
     </div>
   </main>
 );
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />

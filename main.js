@@ -72,6 +72,17 @@ function ensureSvgAccessibility() {
  * Fixes REACT_025: React Unique Landmarks
  */
 function ensureUniqueLandmarks() {
+  // Check for multiple main elements and convert extras to sections
+  const mains = document.querySelectorAll('main');
+  if (mains.length > 1) {
+    for (let i = 1; i < mains.length; i++) {
+      const section = document.createElement('section');
+      section.innerHTML = mains[i].innerHTML;
+      mains[i].replaceWith(section);
+    }
+  }
+
+  // Ensure headers have unique IDs
   const headers = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
   headers.forEach((header, index) => {
     if (!header.hasAttribute('id')) {

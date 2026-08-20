@@ -93,6 +93,22 @@ const Dashboard = ({ stats, error, refreshing, fetchStats, copyErr }) => {
                 ))}
             </div>
             <button
+                id="unrotate"
+                onClick={() => fetchStats(true)}
+                disabled={refreshing}
+                style={{
+                    backgroundColor: '#004b73',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginTop: '1rem',
+                }}
+            >
+                rotate back
+            </button>
+            <button
                 onClick={() => fetchStats(true)}
                 disabled={refreshing}
                 style={{

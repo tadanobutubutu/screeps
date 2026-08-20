@@ -81,16 +81,11 @@ const UniqueLandmark = ({ type, children }) => {
 };
 
 // Add accessibility improvements for REACT_036 (Fake Link)
-const AccessibleLink = ({ href, children }) => {
+const AccessibleButton = ({ onClick, children }) => {
   return (
-    <a href={href} onClick={(e) => {
-      if (!href) {
-        e.preventDefault();
-        // Handle non-link behavior
-      }
-    }}>
+    <button onClick={onClick} type="button">
       {children}
-    </a>
+    </button>
   );
 };
 
@@ -102,5 +97,5 @@ export {
   MainLayout,
   AccessibleSVG,
   UniqueLandmark,
-  AccessibleLink
+  AccessibleButton
 };

@@ -173,7 +173,6 @@ function _createCircularReplacer() {
 }
 
 /**
-/**
  * Security: Safely stringifies an object, handling circular references and limiting length.
  * Prevents Denial of Service (DoS) mid-tick from JSON.stringify failures.
  * Also redacts absolute paths to prevent information leakage in logged objects.
@@ -456,8 +455,8 @@ function resetStats() {
 }
 
 /**
- * ロガーを初期化する（各ティックの先頭で呼び出す）
- * Memory.logLevel が設定されていればそれを使用する
+ * ログラーを初期化する（各ティックの先頭で呼び出す）
+ * Memory.logLevel が設定されており、現在のレベルと異なる場合、それを反映する。
  *
  * Security: Uses setLevel() to ensure input from Memory is validated.
  */

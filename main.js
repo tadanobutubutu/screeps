@@ -51,8 +51,21 @@ async function updateReactToV19() {
     }
 }
 
+/**
+ * Adds scope attribute to th elements for accessibility
+ */
+function addScopeToTheElements() {
+    const allThElements = document.querySelectorAll('th');
+    allThElements.forEach(th => {
+        if (!th.hasAttribute('scope')) {
+            th.setAttribute('scope', 'col');
+        }
+    });
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
-    updateReactToV19
+    updateReactToV19,
+    addScopeToTheElements
 };

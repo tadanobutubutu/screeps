@@ -10,8 +10,6 @@ function exampleFunc() {
     // Example logic for the additional function
 }
 
-// TODO: Add back any required exports that might have been?
-
 // Export the loop function for the game engine as requested
 module.exports = {
     loop: loop,

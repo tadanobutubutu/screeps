@@ -37,7 +37,6 @@ function handleTypeScriptUpdate() {
   // ... implementation for TypeScript 7 compatibility
 }
 
-// Function to ensure SVG accessibility
 function ensureSvgAccessibility() {
   // This would be implemented in the layout.tsx files
   // Since we can't modify those here, we'll document the requirement
@@ -73,7 +72,6 @@ app.listen(port, () => {
 module.exports = {
   existingFunction1,
   existingFunction2,
-  // Add new exports if needed
   handleReactUpdate,
   handleJestUpdate,
   handleEslintUpdate,

@@ -105,6 +105,19 @@ function replaceFakeLinks() {
       element.replaceWith(anchor);
     }
   });
+
+  // Additional fix for the specific case mentioned in the issue
+  const rotateBackLink = document.getElementById('unrotate');
+  if (rotateBackLink && rotateBackLink.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    button.id = 'unrotate';
+    button.textContent = rotateBackLink.textContent;
+    button.addEventListener('click', () => {
+      // Add your rotation logic here
+      console.log('Rotation back triggered');
+    });
+    rotateBackLink.replaceWith(button);
+  }
 }
 
 // Initialize accessibility improvements when DOM is loaded

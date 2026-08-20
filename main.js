@@ -2,32 +2,17 @@
 // ... (rest of your existing code remains unchanged)
 // ADD BELOW FOR THE MISSING EXPORTS
 
-/**
- * Renders accessible HTML with appropriate structure and landmarks
- * @param {string} html - HTML string to be made accessible
- * @returns {string} Rendered accessible HTML with appropriate structure and landmarks
- */
 function renderAccessibleHTML(html) {
-  // Provide a proper HTML structure and landmarks
   const wrap = `
     <html lang="en">
       ${renderAccessibleHeader()}
       ${renderMain()}
       ${renderFooter()}
-    </html>
   `;
-  // Wrap the provided HTML inside the accessible HTML structure
   return wrap.replace('<main>', `<main>${html}`).replace(new RegExp('<body', 'g'), '<body class="main-content"');
 }
 
-/**
- * Renders accessible modal with proper structure
- * @param {string} modalID - Unique modal ID
- * @param {string} modalContent - Modal content HTML
- * @returns {string} Accessible modal HTML
- */
 function renderAccessibleModal(modalID, modalContent) {
-  // HTML for a basic inaccessible modal
   const modal = `
     <div id="${modalID}" tabindex="-1" aria-hidden="true" class="modal fade" role="dialog" >
       <div class="modal-dialog">
@@ -50,7 +35,6 @@ function renderAccessibleModal(modalID, modalContent) {
     </div>
   `;
 
-  // Provide proper accessibility
   const accessibleModal = `
     <div id="${modalID}" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="${modalID}-title" class="modal fade" >
       <div class="modal-dialog" role="document">
@@ -67,43 +51,20 @@ function renderAccessibleModal(modalID, modalContent) {
     </div>
   `;
 
-  // Replace the basic modal with the accessible one
   return modal.replace('<h5 class="modal-title">Modal title</h5>', `<h5 class="modal-title" id="${modalID}-title">Modal title</h5>`).replace('<footer>', `<footer role="contentinfo">`);
 }
 
-/**
- * Renders an accessible icon (SVG) with proper accessible name
- * @param {string} iconId - Unique identifier for the icon
- * @param {string} iconType - Type of icon (icon, apple, etc.)
- * @param {object} options - Additional options (size, className, etc.)
- * @returns {string} Accessible SVG icon HTML
- */
-function renderIcon(iconId, iconType, options = {}) {
-  const { size = 32, className = '' } = options;
-  
-  // SVG icon content - add <title> for accessibility
-  const iconContent = `
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="${size}" height="${size}" class="${className}" role="img">
-      <title>Screeps Dashboard</title>
-      <text y=".9em" font-size="90">🎮</text>
-    </svg>
-  `;
-  
-  return iconContent;
+function renderIcon(iconName, description) {
+  const icons = {
+    search: `<svg viewBox="0 0 24 24" aria-label="${description}" role="img"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2"/></svg>`,
+    settings: `<svg viewBox="0 0 24 24" aria-label="${description}" role="img"><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.4-6.6l-1.4 1.4m-9.2 9.2l-1.4 1.4m0-12l1.4 1.4m9.2 9.2l1.4 1.4" fill="none" stroke="currentColor" stroke-width="2"/></svg>`
+  };
+  return icons[iconName] || '';
 }
 
-/**
- * Renders an accessible SVG icon with proper accessible name for screen readers
- * @param {string} iconName - Name/identifier for the icon
- * @param {object} attributes - SVG attributes (viewBox, width, height, className, etc.)
- * @param {boolean} isDecorative - Whether the icon is purely decorative (hidden from screen readers)
- * @param {string} accessibleLabel - Label for screen readers (required if not decorative)
- * @returns {string} Accessible SVG icon HTML string
- */
 function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, accessibleLabel = '') {
   const { viewBox = "0 0 100 100", width = 32, height = 32, className = '' } = attributes;
   
-  // Build SVG with accessible attributes
   let ariaAttributes = '';
   
   if (isDecorative) {
@@ -112,7 +73,6 @@ function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, a
     ariaAttributes = `aria-label="${accessibleLabel || iconName}" role="img"`;
   }
   
-  // Generate SVG with <title> element for accessibility
   const svg = `
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
@@ -128,6 +88,102 @@ function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, a
   `;
   
   return svg;
+}
+
+/**
+ * Renders an accessible table with proper structure
+ * @param {Array} headers - Array of header strings
+ * @param {Array} rows - 2D array of row data
+ * @returns {string} Accessible HTML table
+ */
+function renderAccessibleTable(headers, rows) {
+  let table = '<table>';
+  
+  // Add thead with scope="col" for proper accessibility
+  table += '<thead><tr>';
+  headers.forEach(function(header) {
+    table += '<th scope="col">' + header + '</th>';
+  });
+  table += '</tr></thead>';
+  
+  // Add tbody with scope="row" for proper accessibility
+  table += '<tbody>';
+  rows.forEach(function(row) {
+    table += '<tr>';
+    row.forEach(function(cell, index) {
+      // First cell in each row is a header cell
+      if (index === 0) {
+        table += '<th scope="row">' + cell + '</th>';
+      } else {
+        table += '<td>' + cell + '</td>';
+      }
+    });
+    table += '</tr>';
+  });
+  table += '</tbody></table>';
+  
+  return table;
+}
+
+/**
+ * Renders accessible navigation landmark
+ * @param {string} label - Unique label for the navigation
+ * @returns {string} Accessible navigation HTML
+ */
+function renderAccessibleNav(label) {
+  return '<nav aria-label="' + label + '"></nav>';
+}
+
+/**
+ * Renders accessible main landmark
+ * @returns {string} Accessible main HTML
+ */
+function renderAccessibleMain() {
+  return '<main></main>';
+}
+
+/**
+ * Renders accessible header landmark
+ * @param {string} label - Optional label for the header
+ * @returns {string} Accessible header HTML
+ */
+function renderAccessibleHeader(label) {
+  if (label) {
+    return '<header role="banner" aria-label="' + label + '"></header>';
+  }
+  return '<header role="banner"></header>';
+}
+
+/**
+ * Renders accessible footer landmark
+ * @returns {string} Accessible footer HTML
+ */
+function renderAccessibleFooter() {
+  return '<footer role="contentinfo"></footer>';
+}
+
+/**
+ * Renders accessible button (not a fake link)
+ * @param {string} text - Button text
+ * @param {Function} onClick - Click handler
+ * @returns {string} Accessible button HTML
+ */
+function renderAccessibleButton(text, onClick) {
+  return '<button type="button" onclick="' + onClick + '">' + text + '</button>';
+}
+
+/**
+ * Renders accessible link
+ * @param {string} href - Valid href attribute
+ * @param {string} text - Link text
+ * @returns {string} Accessible link HTML
+ */
+function renderAccessibleLink(href, text) {
+  if (!href || href === '#' || href === 'javascript:void(0)') {
+    // Use button for non-navigating elements
+    return '<button type="button">' + text + '</button>';
+  }
+  return '<a href="' + href + '">' + text + '</a>';
 }
 
 // Export functions for testing

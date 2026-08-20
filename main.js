@@ -54,6 +54,14 @@ function makeSvgAccessible(svgElement) {
   return svgElement;
 }
 
+// Ensure HTML document has a lang attribute for accessibility
+document.addEventListener('DOMContentLoaded', (event) => {
+  const htmlTag = document.documentElement;
+  if (!htmlTag.lang) {
+    htmlTag.setAttribute('lang', 'en');
+  }
+});
+
 // Existing exports
 module.exports = {
   app,

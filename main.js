@@ -1,30 +1,11 @@
-import React from 'react';
+// Assuming main.js is responsible for rendering HTML content
+const fs = require('fs');
 
-const TableHeader = ({ children }) => {
-  return (
-    <th scope="col">
-      {children}
-    </th>
-  );
-};
+// Read the existing HTML content
+const htmlContent = fs.readFileSync('path/to/your/html/file.html', 'utf8');
 
-const MyTable = () => {
-  return (
-    <table>
-      <thead>
-        <tr>
-          <TableHeader>src/constants.js</TableHeader>
-          <TableHeader>src/managers/roomManager.js</TableHeader>
-          <TableHeader>src/managers/spawnManager.js</TableHeader>
-          <TableHeader>src/managers/towerManager.js</TableHeader>
-          {/* ... other headers ... */}
-        </tr>
-      </thead>
-      <tbody>
-        {/* ... table rows ... */}
-      </tbody>
-    </table>
-  );
-};
+// Replace the <th> elements without scope attribute
+const updatedHtmlContent = htmlContent.replace(/<th>(.*?)<\/th>/g, '<th scope="col">$1</th>');
 
-export default MyTable;
+// Write the updated HTML content back to the file
+fs.writeFileSync('path/to/your/html/file.html', updatedHtmlContent, 'utf8');

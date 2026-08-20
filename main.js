@@ -21,3 +21,25 @@ export default function RootLayout({
     </html>
   );
 }
+
+// dashboard/app/layout.tsx
+import React from 'react';
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <head>
+        <title>Screeps Dashboard</title>
+        <meta name="description" content="Screeps Dashboard" />
+        <svg aria-hidden="true" style={{ display: 'none' }}>
+          <title>Screeps Logo</title>
+        </svg>
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}

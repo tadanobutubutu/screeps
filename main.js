@@ -57,3 +57,64 @@ export function Icon({ className = '' }: { className?: string }) {
     </svg>
   );
 }
+
+// Add landmark roles to main layout components
+export function MainLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div role="main">
+      {children}
+    </div>
+  );
+}
+
+// Add proper table structure for data tables
+export function DataTable({ headers, rows }: { headers: string[], rows: any[][] }) {
+  return (
+    <table role="table">
+      <thead>
+        <tr>
+          {headers.map((header, index) => (
+            <th key={index} scope="col">{header}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, rowIndex) => (
+          <tr key={rowIndex}>
+            {row.map((cell, cellIndex) => (
+              <td key={cellIndex}>{cell}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// Add proper landmark for navigation
+export function Navigation({ children }: { children: React.ReactNode }) {
+  return (
+    <nav role="navigation" aria-label="Main navigation">
+      {children}
+    </nav>
+  );
+}
+
+// Add accessible name for SVG elements
+export function AccessibleSVG({ title, children }: { title: string, children: React.ReactNode }) {
+  return (
+    <svg role="img" aria-label={title}>
+      <title>{title}</title>
+      {children}
+    </svg>
+  );
+}
+
+// Add fake link replacement for interactive elements
+export function InteractiveElement({ onClick, children }: { onClick: () => void, children: React.ReactNode }) {
+  return (
+    <button onClick={onClick} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+      {children}
+    </button>
+  );
+}

@@ -201,6 +201,28 @@ function ensureSingleMainLandmark(component) {
   return component;
 }
 
+// New function to apply SVG accessibility to a component tree
+function applySvgAccessibility(element) {
+  // If the element is an SVG, ensure it has accessible name or is hidden
+  if (element.type === 'svg') {
+    return makeSvgAccessible(element);
+  }
+
+  // For other elements, recursively process children
+  const children = React.Children.toArray(element.props.children);
+  const processedChildren = children.map(child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(applySvgAccessibility(child), child.props);
+    }
+    return child;
+  });
+
+  return React.cloneElement(element, {
+    ...element.props,
+    children: processedChildren
+  });
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -218,5 +240,6 @@ module.exports = {
   fixTableHeaderScope,
   fixLandmarkIssues,
   fixFakeLinkIssues,
-  ensureSingleMainLandmark
+  ensureSingleMainLandmark,
+  applySvgAccessibility
 };

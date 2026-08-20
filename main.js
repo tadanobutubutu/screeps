@@ -168,6 +168,12 @@ function fixFakeLinkIssues(element) {
 
 // New function to ensure only one main landmark exists in the component
 function ensureSingleMainLandmark(component) {
+  // Ensure html element has lang attribute
+  if (component.type === 'html' && !component.props.lang) {
+    component = React.cloneElement(component, { lang: 'en' });
+  }
+
+  // Check if the component already has a main landmark
   const children = React.Children.toArray(component.props.children);
   const hasMain = children.some(child => child.type === 'main');
 

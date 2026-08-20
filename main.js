@@ -30,11 +30,11 @@ function addMainToHTML(content) {
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (html.includes('lang="')) {
+  if (/<html[^>]*lang=/i.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
-  return html.replace(/<html([^>]*)>/, '<html$1 lang="en">');
+  return html.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
 }
 
 // Add proper table structure
@@ -48,7 +48,9 @@ function createAccessibleTable(headers, rows) {
       React.createElement(
         'tr',
         null,
-        headers.map(header => React.createElement('th', { key: header, scope: 'col' }, header))
+        headers.map((header, index) => 
+          React.createElement('th', { key: header, scope: 'col' }, header)
+        )
       )
     ),
     React.createElement(
@@ -64,6 +66,93 @@ function createAccessibleTable(headers, rows) {
         )
       )
     )
+  );
+}
+
+// Create accessible table header cell with proper scope attribute
+function createThElement(content, options = {}) {
+  const { isRowHeader = false, isColumnHeader = true, key } = options;
+  
+  let scope = 'col';
+  if (isRowHeader && !isColumnHeader) {
+    scope = 'row';
+  } else if (isColumnHeader) {
+    scope = 'col';
+  }
+  
+  return React.createElement('th', { scope, key }, content);
+}
+
+// Create accessible table row with proper header scopes
+function createAccessibleTableRow(cells, rowIndex, isHeaderRow = false) {
+  return React.createElement(
+    'tr',
+    { key: rowIndex },
+    cells.map((cell, cellIndex) => {
+      if (isHeaderRow) {
+        return React.createElement('th', { key: cellIndex, scope: 'col' }, cell);
+      }
+      // First column cells get row scope for association
+      if (cellIndex === 0) {
+        return React.createElement('th', { key: cellIndex, scope: 'row' }, cell);
+      }
+      return React.createElement('td', { key: cellIndex }, cell);
+    })
+  );
+}
+
+// Create fully accessible table with all proper scope attributes
+function createFullyAccessibleTable(headers, rows, options = {}) {
+  const { caption, id } = options;
+  
+  const tableElements = [];
+  
+  if (caption) {
+    tableElements.push(
+      React.createElement('caption', { key: 'caption' }, caption)
+    );
+  }
+  
+  // Thead with column headers
+  tableElements.push(
+    React.createElement(
+      'thead',
+      { key: 'thead' },
+      React.createElement(
+        'tr',
+        null,
+        headers.map((header, index) =>
+          React.createElement('th', { key: index, scope: 'col' }, header)
+        )
+      )
+    )
+  );
+  
+  // Tbody with row headers
+  tableElements.push(
+    React.createElement(
+      'tbody',
+      { key: 'tbody' },
+      rows.map((row, rowIndex) =>
+        React.createElement(
+          'tr',
+          { key: rowIndex },
+          row.map((cell, cellIndex) => {
+            // First cell in each row is a row header
+            if (cellIndex === 0) {
+              return React.createElement('th', { key: cellIndex, scope: 'row' }, cell);
+            }
+            return React.createElement('td', { key: cellIndex }, cell);
+          })
+        )
+      )
+    )
+  );
+  
+  return React.createElement(
+    'table',
+    { id, 'aria-label': caption || 'Data table' },
+    ...tableElements
   );
 }
 
@@ -159,7 +248,7 @@ function createSkipToContentLink() {
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
   if (typeof content === 'string') {
-    const hasMain = content.includes('<main') || content.includes('</main>');
+    const hasMain = /<main[^>]*>/i.test(content) || content.includes('<main>');
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
     // For React elements, we'll need to check if they contain a main element
@@ -183,6 +272,10 @@ module.exports = {
   createAccessibleButton,
   createSkipToContentLink,
   ensureSingleMainLandmark, // New export for ensuring single main landmark
+  // New table accessibility functions
+  createThElement,
+  createAccessibleTableRow,
+  createFullyAccessibleTable,
   // Preserve all existing exports
   jest,
   React,

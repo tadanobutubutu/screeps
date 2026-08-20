@@ -21,9 +21,6 @@ function main(options = {}) {
   // exampleFunction(options);
 }
 
-// Imported dependencies (if any) can be nested under this comment block
-// for better organization
-
 // Export main function for CommonJS and ES module systems
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { main };

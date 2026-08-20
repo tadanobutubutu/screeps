@@ -120,9 +120,9 @@ function _redactPaths(str) {
 
     // Prefix-aware pattern to catch variables like SCREEPS_TOKEN and handle suffixes/Bearer tokens
     const pattern = new RegExp(
-        '\\b([a-zA-Z0-9_-]*(' +
+        '\\b([\\w-]*(' +
             k +
-            ')[a-zA-Z0-9_-]*)\\b(["\' ]*[:= ]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^ \\n\\t"\' ]+))',
+            ')[\\w-]*)\\b(["\']*[ \\t]*(?:[:=][ \\t]*)+|["\' \\t]+)(?:("[^"]*")|(\'[^\']*\')|((?:Bearer\\s+)?[^\\n\\t"\' ]+))',
         'gi'
     );
 

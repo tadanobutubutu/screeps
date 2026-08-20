@@ -5,7 +5,7 @@ interface DashboardProps {
     // Add any props your component might receive
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -26,7 +26,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     if (error) {
         return (
-            <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <main lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -44,9 +44,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -56,7 +56,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                         border: 'none',
                         borderRadius: '4px',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out',
+                        transition: 'all 0.2s ease--in-out',
                         transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
                         boxShadow: errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                         filter: errCopyHover ? 'brightness(1.1)' : 'none',
@@ -79,7 +79,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
                         borderRadius: '4px',
                         cursor: 'pointer',
                         marginLeft: '1rem',
-                        transition: 'all 0.2s ease-in-out',
+                        transition: 'all 0.2s ease--in-out',
                         transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
                         boxShadow: errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
                         filter: errRetryHover ? 'brightness(1.1)' : 'none',
@@ -93,7 +93,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     // Your existing success state rendering
     return (
-        <main>
+        <main lang="ja">
             {/* Your existing success state content */}
         </main>
     );

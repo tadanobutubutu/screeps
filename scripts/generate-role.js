@@ -126,8 +126,14 @@ module.exports = roleClaimer;`,
                 const exitPos = creep.pos.findClosestByRange(exit);
                 creep.moveTo(exitPos, {visualizePathStyle: {stroke: '#ffffff'}});
             } else {
-                const spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-                if (creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                let spawn = Game.getObjectById(creep.memory.spawnId);
+                if (!spawn) {
+                    spawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+                    if (spawn) {
+                        creep.memory.spawnId = spawn.id;
+                    }
+                }
+                if (spawn && creep.transfer(spawn, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(spawn, {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }

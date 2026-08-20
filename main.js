@@ -7,19 +7,23 @@ export default function Layout({ children }) {
       <>
         {/* Rest of the code */}
         <>
-          <script>
-            window.addEventListener('load', function () {
-              const appLayoutSvg = document.querySelector('app-layout svg');
-              if (appLayoutSvg) {
-                appLayoutSvg.setAttribute('aria-label', 'Application icon');
-              }
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.addEventListener('load', function () {
+                  const appLayoutSvg = document.querySelector('app-layout svg');
+                  if (appLayoutSvg) {
+                    appLayoutSvg.setAttribute('aria-label', 'Application icon');
+                  }
 
-              const dashboardLayoutSvg = document.querySelector('dashboard-app-layout svg');
-              if (dashboardLayoutSvg) {
-                dashboardLayoutSvg.setAttribute('aria-label', 'Dashboard icon');
-              }
-            });
-          </script>
+                  const dashboardLayoutSvg = document.querySelector('dashboard-app-layout svg');
+                  if (dashboardLayoutSvg) {
+                    dashboardLayoutSvg.setAttribute('aria-label', 'Dashboard icon');
+                  }
+                });
+              `
+            }}
+          />
         </>
       </>
     );

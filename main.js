@@ -1,4 +1,3 @@
-// main.js
 const express = require('express');
 const lodash = require('lodash');
 const app = express();
@@ -169,35 +168,43 @@ function fixFakeLinkIssues(element) {
 
 // New function to ensure only one main landmark exists in the component
 function ensureSingleMainLandmark(component) {
-  // Check if the component already has a main landmark
-  const hasMain = React.Children.toArray(component.props.children).some(child =>
-    child.type === 'main' || (child.props && child.props.role === 'main')
-  );
-
-  // If it doesn't have a main, wrap the content in a main landmark
-  if (!hasMain) {
-    return wrapInMainLandmark(component.props.children);
+  // Ensure html element has lang attribute
+  if (component.type === 'html' && !component.props.lang) {
+    component = React.cloneElement(component, { lang: 'en' });
   }
 
-  // If it has multiple mains, we need to fix this
+  // Check if the component already has a main landmark
   const children = React.Children.toArray(component.props.children);
-  const mainCount = children.filter(child =>
-    child.type === 'main' || (child.props && child.props.role === 'main')
-  ).length;
+  const hasMain = children.some(child => child.type === 'main' || (child.props && child.props.role === 'main'));
 
-  if (mainCount > 1) {
-    // Find all main elements and wrap their content in sections
-    const newChildren = children.map(child => {
+  if (!hasMain) {
+    // No main landmark found, wrap the content in a main element
+    return wrapInMainLandmark(children);
+  }
+
+  // If there are multiple main elements, consolidate them
+  const mainIndices = children.reduce((acc, child, idx) => {
+    if (child.type === 'main' || (child.props && child.props.role === 'main')) {
+      acc.push(idx);
+    }
+    return acc;
+  }, []);
+
+  if (mainIndices.length > 1) {
+    // Keep the first main as-is, wrap subsequent mains' children in sections
+    const newChildren = children.map((child, idx) => {
       if (child.type === 'main' || (child.props && child.props.role === 'main')) {
-        return React.createElement('section', null, child.props.children);
+        if (idx !== mainIndices[0]) {
+          return React.createElement('section', null, child.props.children);
+        }
+        return child;
       }
       return child;
     });
-
-    // Wrap the entire component in a single main
-    return wrapInMainLandmark(newChildren);
+    return React.cloneElement(component, null, newChildren);
   }
 
+  // Single main already present
   return component;
 }
 
@@ -225,6 +232,28 @@ function fixAllTableHeaderScopes(tableElement) {
   return React.cloneElement(tableElement, null, processedChildren);
 }
 
+// New function to apply SVG accessibility to a component tree
+function applySvgAccessibility(element) {
+  // If the element is an SVG, ensure it has accessible name or is hidden
+  if (element.type === 'svg') {
+    return makeSvgAccessible(element);
+  }
+
+  // For other elements, recursively process children
+  const children = React.Children.toArray(element.props.children);
+  const processedChildren = children.map(child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(applySvgAccessibility(child), child.props);
+    }
+    return child;
+  });
+
+  return React.cloneElement(element, {
+    ...element.props,
+    children: processedChildren
+  });
+}
+
 // Existing exports
 module.exports = {
   app,
@@ -243,5 +272,6 @@ module.exports = {
   fixAllTableHeaderScopes,
   fixLandmarkIssues,
   fixFakeLinkIssues,
-  ensureSingleMainLandmark
+  ensureSingleMainLandmark,
+  applySvgAccessibility
 };

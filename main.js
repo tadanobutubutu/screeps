@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -62,7 +61,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
             filter: errCopyHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+          <span aria-hidden="true">📋</span>
+          <span>{copied ? 'コピー済み' : 'エラーをコピー'}</span>
         </button>
         <button
           onClick={() => fetchStats(true)}
@@ -85,7 +85,8 @@ const Dashboard: React.FC<DashboardProps> = () => {
             filter: errRetryHover ? 'brightness(1.1)' : 'none',
           }}
         >
-          {refreshing ? '🔄 再試行中...' : '🔄 再試行'}
+          <span aria-hidden="true">🔄</span>
+          <span>{refreshing ? '再試行中...' : '再試行'}</span>
         </button>
       </div>
     );
@@ -93,9 +94,17 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
   // Your existing success state rendering
   return (
-    <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-      {/* Your existing success state content */}
-    </main>
+    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <header>
+        <h1>Dashboard</h1>
+      </header>
+      <main role="main" aria-label="メインディュアボードコンテンツ">
+        {/* Your existing success state content */}
+      </main>
+      <footer role="contentinfo">
+        {/* Footer content if any */}
+      </footer>
+    </div>
   );
 };
 

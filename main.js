@@ -1,5 +1,3 @@
-// Assuming the main.js file does not directly contain the HTML table and is not responsible for the issue at hand, the following is a hypothetical example of how you might modify a component that renders the table to fix the `REACT_027` issue.
-
 import React from 'react';
 
 const MyTableComponent = ({ headers, rows }) => {

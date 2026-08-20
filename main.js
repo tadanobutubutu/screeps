@@ -1,1 +1,8 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Existing code in main.js that should be preserved
+// ...
+
+// Code to add the lang attribute to the <html> tag
+document.documentElement.lang = 'en';
+
+// Rest of the existing code
+// ...

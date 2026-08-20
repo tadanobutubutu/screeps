@@ -5,7 +5,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
+        <main aria-label="Content"> {/* Added 'aria-label' attribute to enhance accessibility */}</main>
       </body>
     </html>
   );

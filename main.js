@@ -11,7 +11,7 @@ export function renderDependencyGraph() {
       {/* -------------------------------------------------
           The following JSX previously contained a fake link:
       
-          <a id="unrotate" href="#">rotate back</a>
+          <a id="unrotate" href="#">
       
           This anchor did not navigate anywhere, causing the
           REACT_036 warning. It has been replaced with a button
@@ -44,5 +44,5 @@ export function renderDependencyGraph() {
 /* -------------------------------------------------
    Export any other symbols that were present in the
    original main.js.  They are left untouched.
-------------------------------------------------- */
+*/
 export default renderDependencyGraph;

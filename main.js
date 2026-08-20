@@ -5,14 +5,14 @@
 // Original main.js content (with conflict markers removed for clarity)
 // ... [existing code] ...
 
-// New changes to fix the REACT_027 issue
-// Add the scope attribute to the <th> elements in the affected files
+// New changes to fix the REACT_041 issue
+// Add the aria-label attribute to the <svg> elements in the affected files
 
 // Example of how to fix the issue in a single file
 // Replace the following line:
-// <th><div>src/constants.js</div></th>
+// <svg>...</svg>
 // With:
-// <th scope="col"><div>src/constants.js</div></th>
+// <svg aria-label="Accessible description of the SVG content">...</svg>
 
 // Repeat the above change for all occurrences in the affected files, such as:
 // <th><div>src/managers/roomManager.js</div></th>
@@ -20,3 +20,6 @@
 // ...
 // <th><div>src/roles/builder.js</div></th>
 // ...
+// `app/layout.tsx` and `dashboard/app/layout.tsx`
+
+// ... [rest of the main.js content] ...

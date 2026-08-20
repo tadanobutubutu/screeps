@@ -250,6 +250,50 @@ function renderAccessibleModal(modalID, modalContent) {
 }
 
 /**
+ * Renders an accessible table with proper header scopes
+ * @param {string} tableClass - CSS class for the table
+ * @param {string} caption - Optional table caption for accessibility
+ * @param {string} headerHTML - HTML for table headers (should include <th> elements with scope attributes)
+ * @param {string} bodyHTML - HTML for table body (should include <tr> and <td> elements)
+ * @returns {string} Accessible table HTML with proper scope attributes
+ */
+function renderAccessibleTable(tableClass = '', caption = '', headerHTML = '', bodyHTML = '') {
+  const captionElement = caption ? `<caption>${caption}</caption>` : '';
+  const classAttribute = tableClass ? ` class="${tableClass}"` : '';
+  
+  // Create header row with scope="col" on all th elements
+  const headerRow = headerHTML ? `<thead><tr>${headerHTML}</tr></thead>` : '';
+  
+  // Create table body
+  const body = bodyHTML ? `<tbody>${bodyHTML}</tbody>` : '';
+  
+  // Assemble the complete table with proper accessibility attributes
+  const table = `
+    <table${classAttribute} role="table">
+      ${captionElement}
+      ${headerRow}
+      ${body}
+    </table>
+  `;
+  
+  return table.trim();
+}
+
+/**
+ * Creates an accessible table header cell with proper scope attribute
+ * @param {string} content - Content of the header cell
+ * @param {string} [scope='col'] - Scope attribute value ('col' or 'row')
+ * @param {string} [additionalAttrs=''] - Additional attributes for the th element
+ * @returns {string} Accessible th element with scope attribute
+ */
+function renderAccessibleTableHeader(content, scope = 'col', additionalAttrs = '') {
+  const scopeAttr = scope ? ` scope="${scope}"` : '';
+  const attrs = additionalAttrs ? ` ${additionalAttrs}` : '';
+  
+  return `<th${scopeAttr}${attrs}>${content}</th>`;
+}
+
+/**
  * Exported utilities for testing
  */
 if (typeof module !== 'undefined' && module.exports) {
@@ -257,6 +301,7 @@ if (typeof module !== 'undefined' && module.exports) {
     renderIcon,
     renderAccessibleIcon,
     renderAccessibleTable,
+    renderAccessibleTableHeader,
     renderAccessibleNav,
     renderAccessibleMain,
     renderAccessibleHeader,

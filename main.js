@@ -22,4 +22,28 @@ function addTableHeaderScopes() {
 // Call this function when your table is rendered
 document.addEventListener('DOMContentLoaded', addTableHeaderScopes);
 
+// Add this function to handle SVG accessibility
+function makeSVGsAccessible() {
+  // Select all SVG elements in the document
+  const svgs = document.querySelectorAll('svg');
+
+  svgs.forEach(svg => {
+    // Check if the SVG is decorative (no semantic meaning)
+    if (svg.getAttribute('aria-hidden') !== 'true' &&
+        !svg.querySelector('title') &&
+        !svg.getAttribute('aria-label')) {
+
+      // If it's a favicon, mark it as decorative
+      if (svg.closest('link[rel="icon"]')) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+      // For other SVGs, you might want to add a title or aria-label
+      // depending on your specific use case
+    }
+  });
+}
+
+// Call this function when the DOM is loaded
+document.addEventListener('DOMContentLoaded', makeSVGsAccessible);
+
 // [Your existing code below this point remains unchanged]

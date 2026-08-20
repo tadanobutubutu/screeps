@@ -1,12 +1,8 @@
-// Existing code and conflict markers preserved
-// <<<<<<< HEAD
-// ... existing code ...
-// #region Rotate Back Link
-// <a id="unrotate" href="#">rotate back</a>
-// #endregion
-// >>>>>>> origin/main
+// main.js
 
-// New function or changes requested in the issue
+// Original code (before conflict)
+// ... (code before conflict markers) ...
+
 function rotateBack() {
   // Implementation for the rotate back action
   console.log('Rotating back...');
@@ -17,6 +13,11 @@ function rotateBack() {
 // #region Rotate Back Link
 // <button id="unrotate" onclick="rotateBack()">rotate back</button>
 // #endregion
+
+// ... (rest of the code after the conflicting section) ...
+
+// Updated code with the suggested change
+// ... (code before the conflicting section) ...
 
 // Rest of the main.js content
 // ... existing code ...

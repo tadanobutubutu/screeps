@@ -13,5 +13,3 @@
 ## 2026-08-16 - Lazy Target Evaluation for Tower Defense Logic
 **Learning:** In tower defense routines, unconditionally iterating through all room structures to build arrays of repair candidates before checking for hostile creeps wastes CPU cycles when hostile creeps are present. Evaluating hostile presence first and lazily scanning structures in a single pass with early termination prevents unneeded room-wide iterations and array allocations.
 **Action:** Always place hostile checks before structure scans in tower loops, and lazily break early when single repair targets are needed.
-
-2026-08-20: In Screeps, replacing repetitive `findClosestByPath` inside tick loops with ID caching (`Game.getObjectById`) significantly reduces pathfinding CPU overhead. Caching the target ID across ticks prevents redundant spatial searches for static objects like Spawns.

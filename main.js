@@ -8,9 +8,10 @@ const generateTableHTML = () => {
 
   return `
     <table>
+      <caption class="sr-only">Project files and managers overview</caption>
       <thead>
         <tr>
-          ${headers.map(header => `<th scope="col">${header.name}</th>`).join('')}
+          ${headers.map((header, index) => `<th scope="col">${header.name}</th>`).join('')}
         </tr>
       </thead>
       <tbody>

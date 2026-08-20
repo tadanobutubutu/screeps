@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Original code
+// <div lang="en">
+//   <p>Welcome to our website!</p>
+// </div>
+
+// Updated code
+// <div lang="en" role="document">
+//   <p>Welcome to our website!</p>
+// </div>

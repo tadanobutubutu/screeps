@@ -4,6 +4,10 @@
  * Addresses REACT_025 - React Unique Landmark by adding unique aria-label to each main element
  */
 
+/*
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+*/
+
 // Main Content Component that properly wraps children in a <main> landmark
 export function MainContent({ children, uniqueId = '' }) {
   return <main role="main" aria-label={`main-content-${uniqueId}`}>{children}</main>;

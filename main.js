@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 
 interface DashboardProps {
@@ -11,6 +10,7 @@ const Dashboard: React.FC<DashboardProps> = () => {
     const [copied, setCopied] = useState(false);
     const [errCopyHover, setErrCopyHover] = useState(false);
     const [errRetryHover, setErrRetryHover] = useState(false);
+    const [isRotated, setIsRotated] = useState(false);
 
     const fetchStats = async (forceRefresh = false) => {
         // Your existing fetchStats implementation
@@ -18,6 +18,10 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
     const copyErr = () => {
         // Your existing copyErr implementation
+    };
+
+    const handleRotate = () => {
+        setIsRotated(!isRotated);
     };
 
     useEffect(() => {
@@ -95,6 +99,22 @@ const Dashboard: React.FC<DashboardProps> = () => {
     return (
         <main>
             {/* Your existing success state content */}
+            <button
+                id="unrotate"
+                onClick={handleRotate}
+                aria-label={isRotated ? '元に戻す' : '回転'}
+                style={{
+                    backgroundColor: '#004b73',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    marginTop: '1rem'
+                }}
+            >
+                {isRotated ? '元に戻す' : '回転'}
+            </button>
         </main>
     );
 };

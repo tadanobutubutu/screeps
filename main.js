@@ -34,6 +34,13 @@ const MetadataSVG = () => (
   </svg>
 );
 
+// Handle unrotate action
+function handleUnrotate() {
+  // Logic to handle the rotation back action
+  console.log('Rotating back...');
+  // Implement actual rotation logic here
+}
+
 // Main component (preserved as-is)
 const App = () => {
   return (

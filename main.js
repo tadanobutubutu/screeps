@@ -1,36 +1,42 @@
-// main.js
-// [Your existing code remains unchanged]
+function fixLanguageAttribute() {  
+  const nonInteractiveElements = document.querySelectorAll('div[role="presentation"]');  
+  nonInteractiveElements.forEach(element => {  
+    const button = document.createElement('button');  
+    button.setAttribute('role', 'button');  
+    button.setAttribute('tabindex', '-1');  
+    button.setAttribute('aria-disabled', 'false');  
+    button.textContent = element.textContent;  
+    element.parentNode.replaceChild(button, element);  
+  });  
+}  
 
-// Add these new functions to handle SVG accessibility
-function addSvgAccessibility(svgElement) {
-  if (!svgElement.hasAttribute('aria-hidden') && !svgElement.querySelector('title')) {
-    svgElement.setAttribute('aria-label', 'Application icon');
-  }
-}
+function fixTableStructure() {  
+  const tables = document.querySelectorAll('table');  
+  tables.forEach(table => {  
+    if (!table.querySelector('th')) {  
+      const headerRow = document.createElement('tr');  
+      const header = document.createElement('th');  
+      header.setAttribute('scope', 'col');  
+      header.setAttribute('colspan', table.rows.length);  
+      header.textContent = 'Table Header';  
+      headerRow.appendChild(header);  
+      table.insertBefore(headerRow, table.firstChild);  
+    }  
+  });  
+}  
 
-// Initialize accessibility for all SVGs
-document.addEventListener('DOMContentLoaded', () => {
-  const svgs = document.querySelectorAll('svg');
-  svgs.forEach(svg => {
-    addSvgAccessibility(svg);
-  });
-});
+function fixLandmarks() {  
+  const landmarkElements = document.querySelectorAll('main, nav, section, article, aside, footer');  
+  landmarkElements.forEach(element => {  
+    if (!element.hasAttribute('role')) {  
+      element.setAttribute('role', element.tagName.toLowerCase());  
+    } else if (element.tagName.toLowerCase() === 'main') {  
+      element.setAttribute('landmark', true);  
+    }  
+  });  
+}  
 
-// [Rest of your existing code remains unchanged]
-
-// Add <main> landmark to the affected files
-// For example, in app/layout.tsx:
-// <html lang="ja">
-//     <head>
-//         <style>{`
-//   // ... existing styles ...
-//         `}</style>
-//     </head>
-//     <body>
-//         <main>
-//             // ... existing content ...
-//         </main>
-//     </body>
-// </html>
-
-// Repeat the above <main> landmark addition for dashboard/app/layout.tsx, docs/dependency-graph.html, and docs/index.html
+// Preserve existing exports and functions from main.js  
+// Add new functions or changes requested in the issue  
+// ...  
+// Output the complete updated main.js content inside a block

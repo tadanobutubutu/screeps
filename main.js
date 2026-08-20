@@ -55,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeRotation('rotatable', 'unrotate');
 });
 
+// Add lang attribute to the root HTML element
+document.documentElement.setAttribute('lang', 'en');
+
 module.exports = {
     rotateElement,
     resetRotation,

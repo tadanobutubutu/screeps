@@ -1,4 +1,3 @@
-// Assuming the `main.js` file is a React component that renders the HTML document
 import React from 'react';
 
 function App() {
@@ -11,6 +10,8 @@ function App() {
       </head>
       <body>
         {/* Rest of the body content */}
+        {/* Replacing the <a> tag with a <button> */}
+        <button id="unrotate" onClick={() => {/* Your function to rotate back here */}}>rotate back</button>
       </body>
     </html>
   );

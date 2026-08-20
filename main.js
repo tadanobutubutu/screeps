@@ -32,3 +32,45 @@ export const Favicon = () => (
     <text y=".9em" fontSize="90">🐛</text>
   </svg>
 );
+
+// New accessibility-related components
+export const SkipLink = ({ href, children }) => (
+  <a
+    href={href}
+    className="skip-link"
+    style={{
+      position: 'absolute',
+      left: '-9999px',
+      top: '0',
+      background: '#000',
+      color: '#fff',
+      padding: '8px',
+      zIndex: '100'
+    }}
+    onFocus={(e) => {
+      e.target.style.left = '0';
+    }}
+    onBlur={(e) => {
+      e.target.style.left = '-9999px';
+    }}
+  >
+    {children}
+  </a>
+);
+
+export const AccessibleButton = ({ onClick, children, ariaLabel }) => (
+  <button
+    onClick={onClick}
+    aria-label={ariaLabel}
+    style={{
+      cursor: 'pointer',
+      padding: '8px 16px',
+      background: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px'
+    }}
+  >
+    {children}
+  </button>
+);

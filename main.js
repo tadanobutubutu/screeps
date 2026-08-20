@@ -42,6 +42,14 @@
                 rotateElement(targetElement, newRotation);
             });
         }
+
+        // Add accessibility attributes to SVG elements
+        const svgs = document.querySelectorAll('svg');
+        svgs.forEach(svg => {
+            if (!svg.hasAttribute('aria-hidden')) {
+                svg.setAttribute('aria-hidden', 'true');
+            }
+        });
     });
 
     // Export functions for testing or external use

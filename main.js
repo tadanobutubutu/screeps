@@ -37,6 +37,9 @@
 // </svg>
 // OR use aria-hidden="true" if purely decorative
 
+// Added in conflict:
+// 7. REACT_029 - Wrap non-landmark components with main for screen readers
+
 export function wrapWithMainLandmark(children) {
   return (
     <main>
@@ -44,3 +47,6 @@ export function wrapWithMainLandmark(children) {
     </main>
   );
 }
+```
+
+The conflict resolution here involves adding the missing section (7. REACT_029) that was not present in the initial commit. This section is about wrapping non-landmark components with the 'main' tag for screen readers.

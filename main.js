@@ -14,16 +14,16 @@ export function AccessibleTable({ data, caption }) {
       <caption>{caption}</caption>
       <thead>
         <tr>
-          {Object.keys(data[0]).map((key) => (
-            <th key={key} scope="col">{key}</th>
+          ... => (
+            <th key={key} ...
           ))}
         </tr>
       </thead>
       <tbody>
         {data.map((row, index) => (
           <tr key={index}>
-            {Object.values(row).map((value, i) => (
-              <td key={i}>{value}</td>
+            ... i) => (
+              <td ...
             ))}
           </tr>
         ))}
@@ -91,3 +91,13 @@ export function Layout({ children }) {
     </div>
   );
 }
+
+// Utility function to get the document language
+export function getDocumentLang() {
+  return 'en';
+}
+
+// Helper component for language-aware wrapper (use in _document.js)
+// For the root <html> element, add lang="en" attribute
+// Example usage in pages/_document.js:
+// <html lang="en">

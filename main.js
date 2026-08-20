@@ -84,10 +84,10 @@ export function Footer({ children }) {
  */
 export function AccessibleLink({ href, children, onClick, ...props }) {
   if (!isValidHref(href)) {
-    return <button type="button" onClick={onClick} {...props}>{children}</button>;
+    return <button type="button" onClick={onClick} ...
   }
 
-  return <a href={href} onClick={onClick} {...props}>{children}</a>;
+  return <a href={href} onClick={onClick} ...
 }
 
 /**
@@ -124,7 +124,7 @@ export const accessibilityComponents = {
 };
 
 export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+  return href && href !== '#' && href !== '' && ...
 }
 
 export default accessibilityComponents;

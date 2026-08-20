@@ -1,4 +1,3 @@
-// main.js
 const express = require('express');
 const lodash = require('lodash');
 const app = express();
@@ -68,3 +67,13 @@ module.exports = {
   wrapInMainLandmark,
   makeSvgAccessible
 };
+
+// Ensure the language attribute is set when running in a browser
+if (typeof window !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', (event) => {
+    const htmlTag = document.documentElement;
+    if (!htmlTag.lang) {
+      htmlTag.setAttribute('lang', 'en');
+    }
+  });
+}

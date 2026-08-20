@@ -106,6 +106,16 @@ function ensureUniqueLandmarks() {
   console.log('Note: Ensure each landmark (main, nav, etc.) is unique and properly labeled.');
 }
 
+// New function to fix missing main landmark (REACT_017)
+function fixMissingMainLandmark() {
+  console.log('Fixing missing main landmark (REACT_017):');
+  console.log('  Please update the following files to wrap the primary content in a <main> element:');
+  console.log('    - dashboard/app/layout.tsx: change <body>{children}</body> to <body><main>{children}</main></body>');
+  console.log('    - app/layout.tsx: ensure the body content is wrapped in <main>');
+  console.log('    - docs/dependency-graph.html: wrap the page content in <main>');
+  console.log('    - docs/index.html: wrap the page content in <main>');
+}
+
 // Updated server setup
 app.get('/', (req, res) => {
   res.send('Server is running with updated dependencies');
@@ -129,6 +139,8 @@ app.listen(port, () => {
   validateTableStructure();
   fixFakeLinks();
   ensureUniqueLandmarks();
+  // Fix missing main landmark
+  fixMissingMainLandmark();
 });
 
 // Export all existing functions
@@ -145,5 +157,6 @@ module.exports = {
   ensureHtmlLanguageAttribute,
   validateTableStructure,
   fixFakeLinks,
-  ensureUniqueLandmarks
+  ensureUniqueLandmarks,
+  fixMissingMainLandmark
 };

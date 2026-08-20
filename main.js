@@ -6,7 +6,7 @@ import App from './App';
 // Existing code remains unchanged
 // ... (all other existing imports and code)
 
-const root = createRoot(document.getElementById('root'));
+const root = ...
 root.render(
   <React.StrictMode>
     <App />
@@ -15,11 +15,14 @@ root.render(
 
 // Add this new component for accessible SVG
 const AccessibleSVG = ({ children, ...props }) => {
+  // Don't add role when aria-hidden is explicitly true (screen readers ignore it anyway)
+  const isHidden = props['aria-hidden'] === 'true';
+  
   return (
     <svg
       {...props}
-      aria-hidden={props['aria-hidden'] || 'true'}
-      role={props.role || 'img'}
+      aria-hidden={isHidden ? undefined : props['aria-hidden']}
+      role={isHidden ? undefined : (props.role || 'img')}
     >
       {children}
     </svg>

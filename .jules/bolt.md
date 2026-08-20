@@ -13,3 +13,7 @@
 ## 2026-08-16 - Lazy Target Evaluation for Tower Defense Logic
 **Learning:** In tower defense routines, unconditionally iterating through all room structures to build arrays of repair candidates before checking for hostile creeps wastes CPU cycles when hostile creeps are present. Evaluating hostile presence first and lazily scanning structures in a single pass with early termination prevents unneeded room-wide iterations and array allocations.
 **Action:** Always place hostile checks before structure scans in tower loops, and lazily break early when single repair targets are needed.
+
+## 2026-08-20 - Optimized findClosestByRange with Array Pre-filtering
+**Learning:** In Screeps, `findClosestByRange` iterating over a full array of targets/sources every tick without first checking if the items in the array are valid (e.g. have capacity/energy) leads to finding a closest target that is full/empty. This invalidates the target check on the subsequent tick, causing `findClosestByRange` to be continuously called and discarding results. Pre-filtering the array elements to only valid ones before passing it into `findClosestByRange` completely avoids this redundant execution loop when all sources are invalid.
+**Action:** Filter empty sources and full targets into a new valid list before calling `findClosestByRange` to ensure the target selected is usable and to prevent continuous failing re-evaluations every tick.

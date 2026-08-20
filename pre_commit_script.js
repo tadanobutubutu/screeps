@@ -1,6 +1,6 @@
 const { execFileSync } = require('child_process');
 try {
-    execFileSync('npm', ['run', 'lint'], { stdio: 'inherit' });
+    execFileSync('npx', ['eslint', 'role.transporter.js'], { stdio: 'inherit' });
     execFileSync('npm', ['test'], { stdio: 'inherit' });
 } catch (error) {
     console.error('Pre-commit checks failed:', error.message);

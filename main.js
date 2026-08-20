@@ -11,6 +11,45 @@ function hasMainLandmark(content) {
 }
 
 /**
+ * Counts the number of <main> landmarks in the given content
+ * @param {string} content - File content to check
+ * @returns {number} - Number of <main> landmarks found
+ */
+function countMainLandmarks(content) {
+  const mainRegex = /<main[\s>]/gi;
+  const matches = content.match(mainRegex);
+  return matches ? matches.length : 0;
+}
+
+/**
+ * Checks if content has multiple <main> landmarks (accessibility violation)
+ * @param {string} content - File content to check
+ * @returns {boolean} - True if multiple <main> landmarks exist
+ */
+function hasMultipleMainLandmarks(content) {
+  return countMainLandmarks(content) > 1;
+}
+
+/**
+ * Replaces additional <main> elements with <section> for accessibility
+ * Keeps the first <main> and converts subsequent ones to <section>
+ * @param {string} content - File content to modify
+ * @returns {string} - Modified content with extra <main> converted to <section>
+ */
+function replaceExtraMainsWithSections(content) {
+  let mainCount = 0;
+  
+  return content.replace(/<main[\s>]/gi, (match) => {
+    mainCount++;
+    // Keep the first <main>, replace subsequent ones with <section>
+    if (mainCount > 1) {
+      return '<section';
+    }
+    return match;
+  });
+}
+
+/**
  * Wraps children in a <main> landmark
  * @param {string} content - File content to modify
  * @param {string} childrenTag - The tag containing main children (e.g., 'body', 'div')
@@ -41,12 +80,15 @@ function escapeHtml(str) {
     '"': '&quot;',
     "'": '&#39;'
   };
-  return str.replace(/[&<>"']/g, char => htmlEscapeMap[char]);
+  return str.split('').map(char => htmlEscapeMap[char] || char).join('');
 }
 
 // Export utilities for testing
 module.exports = {
   hasMainLandmark,
+  countMainLandmarks,
+  hasMultipleMainLandmarks,
+  replaceExtraMainsWithSections,
   addMainLandmark,
   escapeHtml
 };

@@ -4,38 +4,47 @@
 // New function or changes requested in the issue go here
 // Add the 'scope' attribute to <th> elements that are missing it
 const addScopeToTh = (htmlString) => {
-  // Use regex to find <th> elements that don't have a scope attribute
-  // and add scope="col" to them
+  // Regex finds <th> tags that do NOT already contain a scope attribute
+  // and injects scope="col" (suitable for table header cells)
   return htmlString.replace(/<th(?![^>]*\bscope=)([^>]*?)>/gi, (match, attributes) => {
-    // Check if it's a self-closing tag or has content
-    if (attributes.endsWith('/')) {
-      // Self-closing tag: <th />
+    // Handle self‑closing <th /> tags
+    if (attributes.trim().endsWith('/')) {
       return `<th scope="col"${attributes}>`;
     }
-    // Regular opening tag: <th>
+    // Handle regular opening <th> tags
     return `<th scope="col"${attributes}>`;
   });
 };
 
-// Example usage of the new function to fix the issue in the given files
-const fixDependencyGraph = () => {
+// Scan a set of files and apply the fix where needed
+const fixThScopeInFiles = () => {
   const fs = require('fs');
   const path = require('path');
-  
-  const dependencyGraphFile = path.join(__dirname, 'src', 'components', 'DependencyGraph.jsx');
-  
-  try {
-    const content = fs.readFileSync(dependencyGraphFile, 'utf8');
-    const updatedContent = addScopeToTh(content);
-    fs.writeFileSync(dependencyGraphFile, updatedContent);
-    console.log('Successfully added scope attribute to <th> elements');
-  } catch (error) {
-    console.error('Error fixing dependency graph:', error);
-  }
+
+  // List of files (or patterns) that should be checked/updated
+  const targetFiles = [
+    path.join(__dirname, 'src', 'components', 'DependencyGraph.jsx'),
+    // Add additional file paths or globs as appropriate
+  ];
+
+  targetFiles.forEach(filePath => {
+    try {
+      const original = fs.readFileSync(filePath, 'utf8');
+      const updated = addScopeToTh(original);
+      if (updated !== original) {
+        fs.writeFileSync(filePath, updated);
+        console.log(`✅ Added missing scope attribute to <th> in ${filePath}`);
+      }
+    } catch (err) {
+      console.error(`⚠️  Failed to process ${filePath}:`, err);
+    }
+  });
 };
 
-// Ensure to call fixDependencyGraph() if needed to apply the fix
-// fixDependencyGraph();
+// Ensure the fix runs when this module is executed directly
+if (require.main === module) {
+  fixThScopeInFiles();
+}
 
 // Rest of the main.js code goes here
 // ...

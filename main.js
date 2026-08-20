@@ -5,12 +5,12 @@
 
 // Main Content Component that properly wraps children in a <main> landmark
 export function MainContent({ children }) {
-  return <main role="main">{children}</main>;
+  return <main ...
 }
 
 // Helper function for creating main elements with additional props
 export function createMainElement(children, additionalProps = {}) {
-  return <main role="main" {...additionalProps}>{children}</main>;
+  return <main role="main" ...
 }
 
 // Layout wrapper function for reusable layout patterns

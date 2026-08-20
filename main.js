@@ -22,9 +22,9 @@
     }
 
     // Initialize on DOM ready
-    document.addEventListener('DOMContentLoaded', function() {
-        const targetElement = document.getElementById('target');
-        const unrotateBtn = document.getElementById('unrotate');
+    function init() {
+        var targetElement = document.querySelector('.rotate-target');
+        var unrotateBtn = document.querySelector('.unrotate-btn');
 
         // Handle the rotate back button click
         if (unrotateBtn) {
@@ -35,14 +35,21 @@
         }
 
         // Example: rotate on some trigger
-        const rotateBtn = document.getElementById('rotate');
+        var rotateBtn = document.querySelector('.rotate-btn');
         if (rotateBtn) {
             rotateBtn.addEventListener('click', function() {
-                const newRotation = (config.rotation + 90) % config.maxRotation;
+                var newRotation = (config.rotation + 90) % config.maxRotation;
                 rotateElement(targetElement, newRotation);
             });
         }
-    });
+    }
+
+    // Run initialization when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     // Export functions for testing or external use
     if (typeof module !== 'undefined' && module.exports) {

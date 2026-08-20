@@ -178,7 +178,7 @@ function ensureSingleMainLandmark(component) {
     return wrapInMainLandmark(component.props.children);
   }
 
-  // If it has multiple mains, we need to fix this
+  // If there are multiple mains, we need to fix this
   const children = React.Children.toArray(component.props.children);
   const mainCount = children.filter(child =>
     child.type === 'main' || (child.props && child.props.role === 'main')
@@ -197,6 +197,7 @@ function ensureSingleMainLandmark(component) {
     return wrapInMainLandmark(newChildren);
   }
 
+  // Single main already present
   return component;
 }
 

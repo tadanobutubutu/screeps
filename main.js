@@ -63,3 +63,35 @@ export function getAccessibilityAttributes() {
     "aria-label": "Main content"
   };
 }
+
+// New function to get accessibility attributes for header
+export function getHeaderAccessibilityAttributes() {
+  return {
+    role: "banner",
+    "aria-label": "Site header"
+  };
+}
+
+// New function to get accessibility attributes for navigation
+export function getNavigationAccessibilityAttributes() {
+  return {
+    role: "navigation",
+    "aria-label": "Main navigation"
+  };
+}
+
+// New function to get accessibility attributes for footer
+export function getFooterAccessibilityAttributes() {
+  return {
+    role: "contentinfo",
+    "aria-label": "Site footer"
+  };
+}
+
+// New function to get accessibility attributes for decorative SVGs
+export function getDecorativeSvgAccessibilityAttributes() {
+  return {
+    "aria-hidden": "true",
+    "aria-label": "Decorative elements"
+  };
+}

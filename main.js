@@ -18,7 +18,7 @@ function renderAccessibleHTML(html) {
   `;
   // Wrap the provided HTML inside the accessible HTML structure
   return wrap.replace('<main>', `${renderAccessibleMain()}${'<main>'}`).replace('<footer>', `${renderAccessibleFooter()}</main>${'<footer>'}`)
-    .replace(new RegExp('<body', 'g'), '<body class="main-content"');
+    .replace(new RegExp('<body', 'g'), '<body class="main-content">);
 }
 
 /**

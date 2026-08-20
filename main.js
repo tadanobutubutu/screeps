@@ -1,8 +1,9 @@
-// Assuming this is a React component that needs to be fixed
-// The issue states there are TWO <main> elements - one in error state and one in success state
-// Fix: Use a single <main> wrapper and use <section> or <article> for internal sections
-
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+
+const handleRotateBack = () => {
+  console.log('Rotating back...');
+};
 
 const SomeComponent = ({ error, data, fetchStats }) => {
   const [copied, setCopied] = useState(false);
@@ -87,4 +88,14 @@ const SomeComponent = ({ error, data, fetchStats }) => {
   );
 };
 
+const DependencyGraph = () => {
+  return (
+    <div>
+      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
+    </div>
+  );
+};
+
 export default SomeComponent;
+
+ReactDOM.render(<DependencyGraph />, document.getElementById('root'));

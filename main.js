@@ -7,16 +7,18 @@ const generateTableHTML = () => {
   ];
 
   return `
-    <table>
-      <thead>
-        <tr>
-          ${headers.map(header => `<th scope="col">${header.name}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Data rows would go here -->
-      </tbody>
-    </table>
+    <main>
+      <table>
+        <thead>
+          <tr>
+            ${headers.map(header => `<th scope="col">${header.name}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Data rows would go here -->
+        </tbody>
+      </table>
+    </main>
   `;
 };
 

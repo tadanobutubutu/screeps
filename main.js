@@ -9,12 +9,14 @@ export default function Document() {
           <nav role="navigation" aria-label="Main navigation">
             <ul>
               <li><a href="/">Home</a></li>
-              <li><a href="/about">About</a></li>
+              <li><a ...</li>
             </ul>
           </nav>
         </header>
 
-        <Main />
+        <main>
+          <Main />
+        </main>
 
         <footer role="contentinfo">
           <p>© 2024</p>

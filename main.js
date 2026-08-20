@@ -66,7 +66,7 @@ export const addAccessibleNamesToSVGs = () => {
 // Fix REACT_025: React Unique Landmarks - ensure only one <main> landmark exists
 export const ensureUniqueLandmarks = () => {
   // Find all main elements in the document
-  const mainElements = document.querySelectorAll('main');
+  const mainElements = ...
   
   // If there's more than one main element, fix the duplicate(s)
   if (mainElements.length > 1) {
@@ -76,20 +76,20 @@ export const ensureUniqueLandmarks = () => {
       const duplicateMain = mainElements[i];
       
       // Create a replacement section element with the same attributes
-      const sectionReplacement = document.createElement('section');
+      const sectionReplacement = ...
       
       // Copy all attributes from the main element to the section element
-      Array.from(duplicateMain.attributes).forEach((attr) => {
+      ... => {
         sectionReplacement.setAttribute(attr.name, attr.value);
       });
       
       // Move all child nodes from main to section
-      while (duplicateMain.firstChild) {
-        sectionReplacement.appendChild(duplicateMain.firstChild);
+      while ... {
+        ...
       }
       
       // Replace the duplicate main with the section element
-      duplicateMain.parentNode.replaceChild(sectionReplacement, duplicateMain);
+      ... duplicateMain);
     }
     
     console.log(`Fixed ${mainElements.length - 1} duplicate <main> landmark(s) - converted to <section> elements`);

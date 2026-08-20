@@ -19,12 +19,38 @@ export const fixTableStructure = () => {
 
 // Add/fix 4 landmark issues (example code, actual implementation needed)
 export const addFixLandmarkIssues = () => {
-  // This function needs to be implemented according to the specific issues found.
-  // Example:
-  // const landmarks = ... ...
-  // landmarks.forEach((landmark) => {
-  //   // Apply necessary fixes to each landmark element.
-  // });
+  // Check if there's already a main landmark in the document
+  let mainElement = document.querySelector('main');
+  
+  if (!mainElement) {
+    // If no main landmark exists, create one and wrap the primary content
+    const body = document.body;
+    
+    // Create a new main element
+    mainElement = document.createElement('main');
+    
+    // Get all child elements from body that should be wrapped in main
+    const children = Array.from(body.children);
+    const contentElements = children.filter(child => {
+      // Filter out non-content elements like scripts, styles, meta, etc.
+      const tagName = child.tagName.toLowerCase();
+      return !['script', 'style', 'noscript', 'link', 'meta'].includes(tagName);
+    });
+    
+    if (contentElements.length > 0) {
+      // Insert the main element at the beginning of body
+      body.insertBefore(mainElement, body.firstChild);
+      
+      // Move all content elements into the main element
+      contentElements.forEach(element => {
+        mainElement.appendChild(element);
+      });
+      
+      console.log('Added <main> landmark to page');
+    }
+  } else {
+    console.log('<main> landmark already exists');
+  }
 };
 
 // Add accessible names to 2 SVGs (fix for REACT_041)

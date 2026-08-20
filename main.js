@@ -19,4 +19,7 @@ document.getElementById('unrotate').innerHTML = `
   <button id="unrotate">rotate back</button>
 `;
 
+// Add lang attribute to the <html> tag to comply with REACT_015
+document.documentElement.lang = 'en';
+
 // ... (rest of the code after the conflicting section) ...

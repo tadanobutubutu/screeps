@@ -192,10 +192,10 @@ function renderAccessibleIcon(iconName, attributes = {}, isDecorative = false, a
  * @returns {string} Rendered accessible HTML with appropriate structure and landmarks
  */
 function renderAccessibleHTML(html) {
-  // Provide a proper HTML structure and landmarks
-  const wrap = `<html lang="en">\n  ${renderAccessibleHeader()}\n  ${renderMain()}\n  ${renderFooter()}\n</html>`;
-  // Wrap the provided HTML inside the accessible HTML structure
-  return wrap.replace('<main>', `<main>${html}`).replace(new RegExp('<body', 'g'), '<body class="main-content"');
+  // Provide a proper HTML structure with body, header, main, and footer.
+  // The provided HTML is placed inside the main element.
+  const wrap = `<html lang="en">\n  <body class="main-content">\n    ${renderAccessibleHeader('')}\n    ${renderAccessibleMain(html)}\n    ${renderAccessibleFooter()}\n  </body>\n</html>`;
+  return wrap;
 }
 
 /**

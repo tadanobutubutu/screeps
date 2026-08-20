@@ -1,1 +1,23 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Assuming main.js is a React component that renders the HTML content
+import React from 'react';
+
+class App extends React.Component {
+  render() {
+    // Original code with conflict markers
+    // <<<<<<< HEAD
+    return (
+      <html>
+        {/* ... rest of the HTML content ... */}
+      </html>
+    );
+    // =======
+    // return (
+    //   <html lang="en">
+    //     {/* ... rest of the HTML content ... */}
+    //   </html>
+    // );
+    // >>>>>>> origin/master
+  }
+}
+
+export default App;

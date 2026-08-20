@@ -1,9 +1,7 @@
-tsx
-// components/Dashboard.tsx
 import React, { useState, useEffect } from 'react';
 
 function Dashboard() {
-// Your existing code...
+  // Your existing code...
 
   return (
     <>

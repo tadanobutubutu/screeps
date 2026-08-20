@@ -1,9 +1,34 @@
-// Example of the fix pattern for React Table Structure accessibility:
-// Before:
-// <th>Column Name</th>
+describe('HTML Table Structure', () => {
+  it('should have scope attribute on all <th> elements', () => {
+    const fileContent = readFileSync('path/to/your/html/file.html', 'utf8');
+    const dom = new JSDOM(fileContent);
+    const tables = dom.window.document.querySelectorAll('table');
+    tables.forEach((table) => {
+      const headers = table.querySelectorAll('th');
+      headers.forEach((header) => {
+        expect(header).toHaveAttribute('scope');
+      });
+    });
+  });
+});
 
-// After:
-// <th scope="col">Column Name</th>
+// Adding new test for SVG accessibility
+describe('SVG Accessibility', () => {
+  it('should have aria-hidden="true" for decorative SVGs', () => {
+    // This would need to be adapted to your actual component structure
+    // For example, if you're rendering a component that contains SVGs
+    const { container } = render(<YourComponent />);
+    const svgs = container.querySelectorAll('svg');
+    svgs.forEach((svg) => {
+      expect(svg).toHaveAttribute('aria-hidden', 'true');
+    });
+  });
+});
 
-// For row headers:
-// <th>Row Label</th>  →  <th scope="row">Row Label</th>
+// Setting document language attribute
+document.addEventListener('DOMContentLoaded', (event) => {
+  const htmlTag = document.documentElement;
+  if (!htmlTag.lang) {
+    htmlTag.setAttribute('lang', 'en');
+  }
+});

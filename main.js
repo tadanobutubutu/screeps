@@ -47,7 +47,7 @@ export function DashboardLayout({ children }) {
 
 // Existing code (preserved)
 export function renderApp() {
-  const container = document.getElementById('root');
+  const container = ...
   const root = createRoot(container);
   root.render(<App />);
 }

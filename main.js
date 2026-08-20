@@ -6,19 +6,19 @@
     }
 
     // Export the function
-    module.exports.myFunction = myFunction;
+    exports.myFunction = myFunction;
 
     // Additional code to add accessible names to SVGs
 
-    // Function to add aria-label to SVGs for accessibility
-    function addAccessibleNameToSVGs(svgString, label) {
+    // Function to add accessible name to SVGs for accessibility
+    function addAccessibleSvg(svgContent, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;
         const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
         const textRegex = /<text[^>]*>(.*?)<\/text>/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgString.replace(svgRegex, (match) => {
+        return svgContent.replace(svgRegex, (match) => {
             // Check if the SVG already contains a title
             let hasTitle = titleRegex.test(match);
             let hasText = textRegex.test(match);
@@ -41,15 +41,31 @@
         const updatedIcons = {};
         for (const key in icons) {
             const svgData = icons[key];
-            const accessibleSvg = addAccessibleNameToSVGs(svgData, label);
+            const accessibleSvg = addAccessibleSvg(svgData, label);
             updatedIcons[key] = accessibleSvg;
         }
         return updatedIcons;
     }
 
+    // Function to update the 'rotate back' link with a button for accessibility
+    function updateRotateBackLink() {
+        const rotateBackLink = document.getElementById('unrotate');
+        if (rotateBackLink) {
+            // Replace the anchor with a button
+            const button = document.createElement('button');
+            button.textContent = 'rotate back';
+            button.type = 'button'; // Specify the button type to avoid form submission
+            rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+        }
+    }
+
     // Export the new functions
-    module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
-    module.exports.updateIcons = updateIcons;
+    exports.addAccessibleSvg = addAccessibleSvg;
+    exports.updateIcons = updateIcons;
+    exports.updateRotateBackLink = updateRotateBackLink;
+
+    // Call the function to update the 'rotate back' link on page load
+    window.onload = updateRotateBackLink;
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

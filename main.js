@@ -1,4 +1,3 @@
-tsx
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
@@ -7,7 +6,7 @@ interface DashboardProps {
     // Add your props here if any
 }
 
-const Dashboard: React.FC<DashboardProps> = () => {
+const Dashboard: ... = () => {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState(false);
     const [copied, setCopied] = useState(false);
@@ -46,9 +45,9 @@ const Dashboard: React.FC<DashboardProps> = () => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -109,6 +108,5 @@ const Dashboard: React.FC<DashboardProps> = () => {
 
 export default Dashboard;
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ...
 root.render(<Dashboard />);
-```

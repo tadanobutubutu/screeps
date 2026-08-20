@@ -37,3 +37,22 @@ export function addScopeToTableHeaders() {
 
 // Existing export preservation
 export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders };
+
+// Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
+export function replaceFakeLinksWithButtons() {
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  fakeLinks.forEach(link => {
+    const button = document.createElement('button');
+    button.textContent = link.textContent;
+    if (link.id) {
+      button.id = link.id;
+    }
+    const parent = link.parentNode;
+    if (parent) {
+      parent.replaceChild(button, link);
+    }
+  });
+}
+
+// Export the new function
+export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders, replaceFakeLinksWithButtons };

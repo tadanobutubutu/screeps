@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import Head from 'next/head';
 export default function Main() {
   return (
@@ -68,12 +67,3 @@ export default function Main() {
     </>
   );
 }
-=======
-import Head from 'next/head';
-export default function Main() {
-  return (
-    <>
-      <Head>
-        <html lang="en" />
-      </Head>
-      {/* REACT_017: Ensure proper

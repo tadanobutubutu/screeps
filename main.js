@@ -168,7 +168,7 @@ function fixRotateBackLink(container) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section, header");
+  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {
@@ -178,7 +178,7 @@ function fixLandmarkIssues(container) {
 
     if (seenLandmarks[key]) {
       // Duplicate landmark found - make unique
-      ensureUniqueLandmark(landmark, role, label + " " + seenLandmarks[key]++);
+      ensureUniqueLandmark(landmark, role, label + " " + (seenLandmarks[key]++));
     } else {
       seenLandmarks[key] = 1;
     }

@@ -31,13 +31,19 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Wrap the primary content in <main> for accessibility
 function renderDependencyDashboard() {
-  const mainContent = document.createElement('main');
-  mainContent.innerHTML = `
+  // Reuse an existing <main> element if one already exists to avoid
+  // multiple <main> landmarks in the DOM.
+  let mainElement = document.querySelector('main');
+  if (!mainElement) {
+    mainElement = document.createElement('main');
+    document.body.appendChild(mainElement);
+  }
+
+  mainElement.innerHTML = `
     <div id="dependency-dashboard">
       <!-- Dependency dashboard content goes here -->
     </div>
   `;
-  document.body.appendChild(mainContent);
 }
 
 // Call the function to render the dashboard

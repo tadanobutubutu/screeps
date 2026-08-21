@@ -41,11 +41,12 @@ async function addMainLandmark() {
       console.log(`Error reading ${file}, skipping`);
       continue;
     }
-    if (!/<main[\s>]/i.test(content)) {
-      let modified = content.replace(/<body([^>]*)>/i, (match, attrs) => {
-        return `<body${attrs}><main id="main">`;
-      });
-      modified = modified.replace(/<\/body>/i, '</main></body>');
+    if (!content.includes('<main')) {
+      let modified = content.replace(
+        /<body([^>]*)>/gi,
+        (match, attrs) => `<body${attrs}><main id="main">`
+      );
+      modified = modified.replace(/<\/body>/gi, '</main></body>');
       if (modified !== content) {
         await fs.writeFile(filePath, modified);
         console.log(`Added main landmark to ${file}`);
@@ -88,7 +89,7 @@ async function addLangToFiles() {
 /**
  * Replaces hash links with buttons for better accessibility
  */
-async function replaceHashLinksWithButtons() {
+async function replaceHashLinks() {
   const dir = 'docs';
   let files;
   try {
@@ -108,8 +109,8 @@ async function replaceHashLinksWithButtons() {
       continue;
     }
     const modified = content.replace(
-      /<a\s+[^>]*href\s*=\s*["']\s*#?!?\s*["'][^>]*>([\s\S]*?)<\/a>/gi,
-      (match, inner) => `<button>${inner}</button>`
+      /<a\s+href\s*=\s*"#([^"]*)"([^>]*)>([^<]*)<\/a>/gi,
+      (match, hash, attrs, inner) => `<button>${inner}</button>`
     );
     if (modified !== content) {
       await fs.writeFile(filePath, modified);
@@ -141,49 +142,52 @@ async function fixTableStructure() {
       console.log(`Error reading ${file}, skipping`);
       continue;
     }
-    const modified = content.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (match, inner) => {
-      let innerContent = inner;
-      // Ensure thead exists
-      if (!/<thead[\s>]/i.test(innerContent)) {
-        let replaced = false;
+    const modified = content.replace(
+      /<table([^>]*)>([\s\S]*?)<\/table>/gi,
+      (match, inner) => {
+        let innerContent = inner;
+        // Ensure thead exists
+        if (!/<thead/i.test(innerContent)) {
+          let replaced = false;
+          innerContent = innerContent.replace(
+            /<tr>([\s\S]*?)<\/tr>/gi,
+            (trMatch, trContent) => {
+              if (replaced) return trMatch;
+              replaced = true;
+              return `<thead><tr>${trContent}</tr></thead>`;
+            }
+          );
+        }
+        // Ensure tbody exists
+        if (!/<tbody/i.test(innerContent)) {
+          if (/<thead/i.test(innerContent)) {
+            innerContent = innerContent.replace(/<\/thead>/i, '</thead><tbody>');
+            innerContent = innerContent.replace(/<\/table>/i, '</tbody></table>');
+          } else {
+            innerContent = `<tbody>${innerContent}</tbody>`;
+          }
+        }
+        // Add scope="col" to th in thead
         innerContent = innerContent.replace(
-          /<tr([^>]*)>([\s\S]*?)<\/tr>/i,
-          (trMatch, trAttrs, trContent) => {
-            if (replaced) return trMatch;
-            replaced = true;
-            return `<thead><tr${trAttrs}>${trContent}</tr></thead>`;
+          /<thead[^>]*>[\s\S]*?<th([^>]*)>([\s\S]*?)<\/th>/gi,
+          (m, p1, p2, p3) => {
+            if (/scope/i.test(p2)) return m;
+            return `${p1}${p2} scope="col"${p3}`;
           }
         );
+        // Add scope="row" to th in tbody
+        innerContent = innerContent.replace(
+          /<tbody[^>]*>[\s\S]*?<th([^>]*)>([\s\S]*?)<\/th>/gi,
+          (m, p1, p2, p3) => {
+            if (/scope/i.test(p2)) return m;
+            return `${p1}${p2} scope="row"${p3}`;
+          }
+        );
+        const tableAttrMatch = /<table([^>]*)>/.exec(match);
+        const attrs = tableAttrMatch ? tableAttrMatch[1] : '';
+        return `<table${attrs}>${innerContent}</table>`;
       }
-      // Ensure tbody exists
-      if (!/<tbody[\s>]/i.test(innerContent)) {
-        if (/<thead[\s>]/i.test(innerContent)) {
-          innerContent = innerContent.replace(/<\/thead>/i, '</thead><tbody>');
-          innerContent = innerContent.replace(/(?=<\/table>)/i, '</tbody>');
-        } else {
-          innerContent = `<tbody>${innerContent}</tbody>`;
-        }
-      }
-      // Add scope="col" to th in thead
-      innerContent = innerContent.replace(
-        /(<thead[\s\S]*?<th)([^>]*)(>)/gi,
-        (m, p1, p2, p3) => {
-          if (/scope/i.test(p2)) return m;
-          return `${p1}${p2} scope="col"${p3}`;
-        }
-      );
-      // Add scope="row" to th in tbody
-      innerContent = innerContent.replace(
-        /(<tbody[\s\S]*?<th)([^>]*)(>)/gi,
-        (m, p1, p2, p3) => {
-          if (/scope/i.test(p2)) return m;
-          return `${p1}${p2} scope="row"${p3}`;
-        }
-      );
-      const tableAttrMatch = match.match(/<table([^>]*)>/i);
-      const attrs = tableAttrMatch ? tableAttrMatch[1] : '';
-      return `<table${attrs}>${innerContent}</table>`;
-    });
+    );
     if (modified !== content) {
       await fs.writeFile(filePath, modified);
       console.log(`Fixed table structure in ${file}`);
@@ -217,17 +221,17 @@ async function ensureUniqueLandmarks() {
     const originalContent = content;
     const landmarks = ['main', 'nav', 'aside', 'header', 'footer', 'section', 'article'];
     for (const role of landmarks) {
-      const regex = new RegExp(`<${role}[\\s>]`, 'gi');
+      const regex = new RegExp(`<${role}(\\s[^>]*)?>`, 'gi');
       const matches = content.match(regex);
       if (matches && matches.length > 1) {
         let counter = 1;
         content = content.replace(
-          new RegExp(`<${role}([^>]*)>`, 'gi'),
+          new RegExp(`<${role}(\\s[^>]*)?>`, 'gi'),
           (match, attrs) => {
-            if (/aria-label/i.test(attrs)) return match;
+            if (attrs && /aria-label/i.test(attrs)) return match;
             const label = `${role} ${counter}`;
             counter++;
-            return `<${role}${attrs} aria-label="${label}">`;
+            return `<${role}${attrs ? attrs : ''} aria-label="${label}">`;
           }
         );
       }
@@ -254,7 +258,7 @@ async function addSvgAccessibleNames() {
       continue;
     }
 
-    if (!/aria-label/i.test(fileContent) && !/role="img"/i.test(fileContent)) {
+    if (fileContent && !/<svg[^>]*aria-label/i.test(fileContent)) {
       const modifiedContent = fileContent.replace(
         /<svg([^>]*)>/gi,
         (match, attrs) => {
@@ -278,7 +282,7 @@ async function addressAccessibilityIssues() {
   try {
     await addMainLandmark();
     await addLangToFiles();
-    await replaceHashLinksWithButtons();
+    await replaceHashLinks();
     await fixTableStructure();
     await ensureUniqueLandmarks();
     await addSvgAccessibleNames();
@@ -293,7 +297,7 @@ module.exports = {
   addLangAttribute,
   addMainLandmark,
   addLangToFiles,
-  replaceHashLinksWithButtons,
+  replaceHashLinks,
   fixTableStructure,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
@@ -303,7 +307,7 @@ module.exports = {
 exports.addLangAttribute = addLangAttribute;
 exports.addMainLandmark = addMainLandmark;
 exports.addLangToFiles = addLangToFiles;
-exports.replaceHashLinksWithButtons = replaceHashLinksWithButtons;
+exports.replaceHashLinks = replaceHashLinks;
 exports.fixTableStructure = fixTableStructure;
 exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;

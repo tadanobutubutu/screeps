@@ -30,6 +30,7 @@ export default function Main() {
       role="img"
       className="icon"
       aria-label={iconName} // Adding aria-label to each SVG
+      aria-hidden={!iconName} // Hide SVGs with empty aria-labels
     >
       <title>{iconName}</title>
       {/* SVG content */}
@@ -64,20 +65,12 @@ export default function Main() {
   // Add accessible landmark for the table (REACT_025)
   const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
 
-  // Fix fake link issue (REACT_036) - use proper anchor or button
+  // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
   const link = (
     <a ... aria-label="Navigate to destination">
       {linkContent}
     </a>
-  );
-
-  // OR if it's a button action:
-  // Assuming the button content is the variable "buttonContent"
-  const button = (
-    <button type="button" aria-label="Perform action">
-      {buttonContent}
-    </button>
   );
 
   // Add accessible names to SVGs (REACT_041)
@@ -95,30 +88,16 @@ export default function Main() {
 
       {table}
 
-      {/* Fix link and button issues */}
-      {/* Add as needed */}
+      {/* Add accessible links and buttons */}
       {link}
-      {button}
 
       {/* Add accessible names to SVGs (REACT_041) */}
       {externalLink}
       {infoIcon}
 
-      {/* Fix landmark issues (REACT_017) - ensure proper landmark structure */}
-      {/* Header with proper landmark */}
-      {/* Header content */}
-
-      {/* Navigation with proper landmark */}
-      {/* Navigation content */}
-
-      {/* Footer with proper landmark */}
-      {/* Footer content */}
     </div>
   );
 }
 
 // Import required module(s) and export the new necessary function(s) here
 export const distMain = () => distMainModule.default;
-
-// Add to index.html or root component for REACT_015:
-// <html lang="en">

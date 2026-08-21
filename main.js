@@ -14,9 +14,6 @@ const eslint = require('eslint'); // Update to v10 if needed
 // For TypeScript updates:
 const typescript = require('typescript'); // Update to v7 if needed
 
-// Add any new functions or changes requested in the issue
-// while preserving all existing functionality
-
 // Add main landmark to layout components
 function wrapWithMain(content) {
   return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
@@ -169,6 +166,87 @@ function ensureSingleMainLandmark(content) {
   return content;
 }
 
+// NEW: Generate a unique ID for landmarks
+function generateUniqueLandmarkId(prefix = 'landmark') {
+  return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
+
+// NEW: Add unique IDs to landmark elements to satisfy uniqueness rule
+function addUniqueIdsToReactElement(element) {
+  if (!React.isValidElement(element)) return element;
+  const { type, props, children } = element;
+  // Define landmark roles that need unique IDs
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
+  const newProps = { ...props };
+  if (type && typeof type === 'string' && landmarkRoles.includes(type.toLowerCase())) {
+    if (!newProps.id) {
+      newProps.id = generateUniqueLandmarkId();
+    }
+  }
+  // Process children recursively
+  if (Array.isArray(children)) {
+    const newChildren = children.map(addUniqueIdsToReactElement);
+    return React.createElement(type, newProps, newChildren);
+  } else if (children && typeof children === 'object') {
+    const newChildren = React.cloneElement(children, {}, addUniqueIdsToReactElement(children));
+    return React.createElement(type, newProps, newChildren);
+  }
+  return React.createElement(type, newProps, children);
+}
+
+// NEW: Helper to ensure a React node has unique landmark IDs
+function ensureUniqueLandmarks(node) {
+  return addUniqueIdsToReactElement(node);
+}
+
+// NEW: Create an accessible table with optional caption
+function createAccessibleTableWithCaption(headers, rows, caption) {
+  const tableElement = createAccessibleTable(headers, rows);
+  if (caption) {
+    return React.createElement(
+      'div',
+      null,
+      React.createElement('caption', { id: `table-caption-${Date.now()}` }, caption),
+      tableElement
+    );
+  }
+  return tableElement;
+}
+
+// NEW: Create an accessible SVG with proper accessible name (title + desc linked)
+function createAccessibleSVGWithName(title, description, children) {
+  const titleId = `svg-title-${Math.random().toString(36).substr(2, 9)}`;
+  const descId = `svg-desc-${Math.random().toString(36).substr(2, 9)}`;
+  return React.createElement(
+    'svg',
+    {
+      role: 'img',
+      'aria-labelledby': titleId,
+      focusable: 'false'
+    },
+    React.createElement('title', { id: titleId }, title),
+    React.createElement('desc', { id: descId }, description),
+    children
+  );
+}
+
+// NEW: Create a proper accessible link with rel attribute
+function createProperAccessibleLink(href, text, rel = 'noopener') {
+  return React.createElement(
+    'a',
+    {
+      href: href,
+      'aria-label': text,
+      rel: rel,
+      target: '_self'
+    },
+    text
+  );
+}
+
+// Add any new functions or changes requested in the issue
+// while preserving all existing functionality
+
 // Export the new functions for use in other files
 module.exports = {
   wrapWithMain,
@@ -183,6 +261,12 @@ module.exports = {
   createAccessibleButton,
   createSkipToContentLink,
   ensureSingleMainLandmark, // New export for ensuring single main landmark
+  // NEW exports
+  generateUniqueLandmarkId,
+  ensureUniqueLandmarks,
+  createAccessibleTableWithCaption,
+  createAccessibleSVGWithName,
+  createProperAccessibleLink,
   // Preserve all existing exports
   jest,
   React,

@@ -1,3 +1,22 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+// Existing component code...
+
+function App() {
+  // Existing component code...
+  return (
+    // Existing JSX code...
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+
+// Ensure that the root element of the document has a lang attribute
+if (document.documentElement.lang === undefined) {
+  document.documentElement.lang = 'en';
+}
+
 // main.js
 // [Your existing code here]
 
@@ -65,5 +84,5 @@ function fixFakeLinkIssue() {
   });
 }
 
-element.innerHTML = '<button id="unrotate">rotate back</button>';
+element.innerHTML = '<button id="unrotate">rotate back</button>'; 
 // [Rest of your existing code here]

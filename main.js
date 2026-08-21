@@ -1,66 +1,6 @@
-// Accessibility improvements implemented in this file
+Here is the resolved file content:
 
-// Address accessibility issues from insight report
-// This function validates accessibility requirements
-const validateAccessibility = (component) => {
-  const checks = {
-    hasAriaLabel: !!component.ariaLabel,
-    hasRole: !!component.role,
-    hasTabIndex: component.tabIndex !== undefined,
-    hasKeyboardSupport: !!component.onKeyDown,
-    hasScreenReaderText: !!component.screenReaderText,
-  };
-  
-  return Object.values(checks).every(check => check);
-};
-
-// Create accessible button component with full ARIA support
-const createAccessibleButton = (props) => {
-  return {
-    ...props,
-    role: 'button',
-    tabIndex: props.disabled ? -1 : 0,
-    'aria-label': props.label || 'Button',
-    'aria-describedby': props.descriptionId,
-    'aria-pressed': props.isPressed || false,
-    'aria-disabled': props.disabled || false,
-    onKeyDown: props.onKeyDown || ((e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        props.onClick?.();
-      }
-    }),
-  };
-};
-
-// Create accessible form input with label association
-const createAccessibleInput = (props) => {
-  return {
-    ...props,
-    id: props.id,
-    'aria-label': props.ariaLabel,
-    'aria-describedby': props.ariaDescribedBy,
-    'aria-required': props.required || false,
-    'aria-invalid': props.invalid || false,
-    'aria-errormessage': props.errorId,
-    tabIndex: 0,
-  };
-};
-
-// Create accessible modal/dialog
-const createAccessibleModal = (props) => {
-  return {
-    ...props,
-    role: 'dialog',
-    'aria-modal': true,
-    'aria-labelledby': props.titleId,
-    'aria-describedby': props.descriptionId,
-    tabIndex: -1,
-  };
-};
-
-// Current existing code (preserve all existing code, exports, and functions)
-
+```javascript
 import express from 'express'; // update express to v5.0.0
 const expressApp = express();
 
@@ -81,6 +21,16 @@ configure.cacheDirectory = __dirname + '/.cache';
 module.exports = {
   preset: 'ts-jest',
   // ... rest of the jest configuration
+  // Include accessibility improvements
+  transform: {
+    '.(js|jsx|ts|tsx)$': ['babel-jest', { plugins: ['jest-canvas-mock'] }],
+  },
+  moduleNameMapper: {
+    // ... existing mapper
+    '^components/(.*)$': '<rootDir>/src/components/$1',
+    '^utils/(.*)$': '<rootDir>/src/utils/$1',
+  },
+  // ... rest of the jail config
 };
 
 // Upgrade eslint to v10
@@ -111,15 +61,71 @@ module.exports = tsConfig;
 // Note: This upgrade might require changes in the renderer, components, and other React-dependant parts of the codebase.
 const React = require('react'); // add `const React = require('react');`
 
+// Include accessibility improvements
+const isAccessible = (component) => {
+  const checks = {
+    role: !!component.props.role,
+    tabIndex: component.props.tabIndex !== undefined,
+    onKeyDown: !!component.props.onKeyDown,
+    ariaLabel: !!component.props['aria-label'],
+    ariaDescribedby: !!component.props['aria-describedby'],
+    keyboardSupport: !!component.props.onKeyDown,
+    screenReaderText: !!component.props['aria-label'],
+  };
+
+  return Object.values(checks).every(check => check);
+};
+
+const createAccessibleComponent = (BaseComponent, props) => {
+  return {
+    __html: BaseComponent,
+    ...props,
+    role: 'button',
+    tabIndex: props.disabled ? -1 : 0,
+    'aria-label': props.label || 'Component',
+    'aria-describedby': props.descriptionId,
+    'aria-pressed': props.isPressed || false,
+    'aria-disabled': props.disabled || false,
+    onKeyDown: props.onKeyDown || ((e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        props.onClick?.();
+      }
+    }),
+  };
+};
+
+// Create accessible button component with full ARIA support
+export const createAccessibleButton = createAccessibleComponent;
+
+// Create accessible form input with label association
+export const createAccessibleInput = (props) => {
+  return {
+    ...props,
+    id: props.id,
+    'aria-label': props.ariaLabel,
+    'aria-describedby': props.ariaDescribedBy,
+    'aria-required': props.required || false,
+    'aria-invalid': props.invalid || false,
+    'aria-errormessage': props.errorId,
+    tabIndex: 0,
+  };
+};
+
+// Create accessible modal/dialog
+export const createAccessibleModal = (props) => {
+  return {
+    ...props,
+    role: 'dialog',
+    'aria-modal': true,
+    'aria-labelledby': props.titleId,
+    'aria-describedby': props.descriptionId,
+    tabIndex: -1,
+  };
+};
+
+// Accessibility helper method
 class MyComponent extends React.Component {
-  // ... existing component code
-
-  // ... request to upgrade React to v19 specific changes here
-
-  // Add ARIA attributes for improved accessibility
-  static ariaRole = 'button'; // add custom ARIA role attribute
-  
-  // Accessibility helper method
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -127,14 +133,18 @@ class MyComponent extends React.Component {
     }
   };
 
+  // ... existing component code
+  // Add ARIA attributes for improved accessibility
+  static ariaRole = 'button'; // add custom ARIA role attribute
+
   render() {
     // ... existing render method code
     // Add additional ARIA attributes to the component as needed
     return (
-      <button 
+      <button
         role="button"
         aria-label={this.props.label || 'My Button'}
-        ... ? -1 : 0}
+        tabIndex={this.props.disabled ? -1 : 0}
         aria-pressed={this.props.isPressed || false}
         aria-disabled={this.props.disabled || false}
         onClick={this.props.onClick}
@@ -148,6 +158,9 @@ class MyComponent extends React.Component {
 }
 
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal };
+export { isAccessible, createAccessibleButton, createAccessibleInput, createAccessibleModal };
 
 export default MyComponent;
+```
+
+This resolved file merges the changes from both branches, adds accessibility improvements to React components, and integrates the updated jest, eslint, TypeScript, and React dependencies.

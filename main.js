@@ -50,4 +50,16 @@ module.exports.loop = function() {
             roleBuilder.run(creep);
         }
     }
+
+    // Update the 'rotate back' link with a button
+    if(document.getElementById('unrotate')) {
+        var unrotateButton = document.getElementById('unrotate');
+        unrotateButton.innerHTML = '<button onclick="rotateBack()">rotate back</button>';
+        unrotateButton.removeAttribute('href');
+    }
 };
+
+function rotateBack() {
+    // Logic to rotate back
+    console.log('Rotating back...');
+}

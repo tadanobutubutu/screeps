@@ -18,7 +18,9 @@ const DependencyGraph = () => {
   return (
     <div>
       {/* ... other components and logic ... */}
-      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
+      <button id="unrotate" onClick={handleRotateBack} type="button">
+        rotate back
+      </button>
       {/* ... other components and logic ... */}
     </div>
   );

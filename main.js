@@ -272,6 +272,15 @@ async function addSvgAccessibleNames() {
 }
 
 /**
+ * Icons object with accessible SVG data URIs
+ * Each icon includes a title element for screen reader support
+ */
+const icons = {
+    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
+    apple: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Apple Icon</title><text y="0.9em" font-size="90">🍎</text></svg>'
+};
+
+/**
  * Addresses all accessibility issues from the insight report.
  * Orchestrates the individual accessibility functions in the correct order.
  */
@@ -299,7 +308,8 @@ module.exports = {
   fixTableStructure,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
-  addressAccessibilityIssues
+  addressAccessibilityIssues,
+  icons
 };
 
 // Run accessibility fixes if this script is executed directly

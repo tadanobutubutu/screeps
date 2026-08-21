@@ -123,7 +123,7 @@ class MyComponent extends React.Component {
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      ...
+      props.onClick?.();
     }
   };
 

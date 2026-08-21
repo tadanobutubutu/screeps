@@ -2,26 +2,12 @@ import distMainModule from './dist/main.js';
 
 // Main component
 export default function Main() {
-  // Define the columns for the table (26 columns total)
-  const columns = [
-    { Header: 'src/constants.js' },
-    // ... (additional columns up to 26 total)
-    {
-      Header: 'dist/main.js',
-      accessor: 'distMain', // Add this accessor for the required export
-      role: 'presentation' // Add ARIA role for the table cell
-    },
-  ];
-
-  // ... (Existing code below)
+  // ... (Existing code)
 
   // New function to include the required export from the main.js dist file
   const distMain = async () => {
     return distMainModule.default; // Return the default export
   };
-
-  // Use the distMain function in your table data
-  const tableData = await Promise.all(columns.map(column => column.accessor ? distMain().then(main => main[column.accessor]) : null));
 
   // Helper function to create accessible SVG icons
   const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
@@ -45,29 +31,32 @@ export default function Main() {
 
   const mainElement = distMainModule.default;
 
+  // Add role="presentation" for the table cell containing the distMain export
+  const tableColumns = [
+    // ... (Existing columns)
+    {
+      Header: 'dist/main.js',
+      accessor: 'distMain',
+      role: 'presentation' // Add ARIA role for the table cell
+    },
+  ];
+
+  // ... (Existing table structure code)
+
   // Fix table structure issues (REACT_027)
   const table = (
     <table aria-label="Code analysis results">
       <thead>
         <tr>
-          {columns.map(({ Header: category }, idx) => (
-            <th key={idx} ...
-            >
-              {category}
-            </th>
-          ))}
+          {/* ... (Existing thead code) */}
+          <th role="presentation">{tableColumns[tableColumns.length - 1].Header}</th> // Set role for the last column
         </tr>
       </thead>
       <tbody>
-        {/* Remaining table structure */}
+        {/* ... (Existing tbody code) */}
         <tr>
-          {columns.map(({ Header: category }, idx) => (
-            <td key={idx} ...
-            >
-              {category}
-            </td>
-          ))}
-          <td role="presentation">{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
+          {/* ... (Existing row code) */}
+          <td role="presentation">{distMain || ''}</td> // Assuming the distMain export is the last column
         </tr>
       </tbody>
     </table>
@@ -76,7 +65,7 @@ export default function Main() {
   // Add accessible landmark for the table (REACT_025)
   const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
 
-  // Fix link issue (REACT_036) - use proper anchor or button
+  // Fix link issue (REACT_036) - use properanchor or button
   // Assuming the link content is the variable "linkContent"
   const link = (
     <a href="..." aria-label="Navigate to destination">
@@ -84,12 +73,11 @@ export default function Main() {
     </a>
   );
 
-  // Add accessible names to SVGs (REACT_041)
-  const externalLink = createAccessibleSVG('External Link', '0 0 24 24');
-  const infoIcon = createAccessibleSVG('Information', '0 0 24 24');
+  // Add lang attribute to HTML element (REACT_015)
+  const htmlLangAttribute = ' lang="en"';
 
   return (
-    // ... (Existing return statement below)
+    // ... (Existing return statement)
     <div>
       {/* Add accessible landmark - one main per page (REACT_025) */}
       {landmarkMain}
@@ -102,12 +90,8 @@ export default function Main() {
       {/* Add accessible links and buttons */}
       {link}
 
-      {/* Add accessible names to SVGs (REACT_041) */}
-      {externalLink}
-      {infoIcon}
-
       {/* Add lang attribute to HTML element (REACT_015) */}
-      <html lang="en">
+      <html{htmlLangAttribute}>
         <head>
           {/* ... (Existing head content) */}
         </head>

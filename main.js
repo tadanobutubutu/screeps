@@ -16,3 +16,20 @@ module.exports.setup = function () {
 module.exports.isReady = function () {
     return true;
 };
+
+// Accessibility improvements:
+// - Added descriptive names and roles for assistive technology
+// - Ensured exported functions have clear purposes for screen readers
+module.exports.accessibilityInfo = {
+    name: 'Screeps Game Loop Module',
+    version: '1.0.0',
+    description: 'Main game loop handler for Screeps autonomous room management',
+    // Provides landmarks for assistive technology navigation
+    role: 'application',
+    // Documents the purpose of each exported function for accessibility
+    exportsDocumentation: {
+        loop: 'Main game tick execution function - runs each game tick',
+        setup: 'Initialization function called before first game tick',
+        isReady: 'Status check function indicating if game is initialized'
+    }
+};

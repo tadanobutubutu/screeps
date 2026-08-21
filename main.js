@@ -11,7 +11,7 @@ export function AccessibleTable({ headers, rows, caption }) {
       <thead>
         <tr>
           {headers.map((header, index) => (
-            <th key={index} scope="col">{header}</th>
+            <th key={index} ...
           ))}
         </tr>
       </thead>
@@ -67,7 +67,7 @@ export function DecorativeIcon({ children, className }) {
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
  */
 export function MainContent({ children }) {
-  return <main id="main-content">{children}</main>;
+  return <main id="main-content" tabIndex={-1}>{children}</main>;
 }
 
 /**
@@ -194,7 +194,7 @@ export const accessibilityComponents = {
 };
 
 export function isValidHref(href) {
-  return href && href !== '#' && href !== '' && !href.startsWith('javascript:');
+  return href && href !== '#' && href !== '' && href.startsWith('/');
 }
 
 export default accessibilityComponents;
@@ -225,6 +225,7 @@ export function announceToScreenReader(message, priority = 'polite') {
   announcer.style.width = '1px';
   announcer.style.height = '1px';
   announcer.style.overflow = 'hidden';
+  
   document.body.appendChild(announcer);
   
   setTimeout(() => {
@@ -239,12 +240,12 @@ export function getFocusableElements(container) {
   const focusableSelectors = [
     'a[href]',
     'button:not([disabled])',
-    'textarea:not([disabled])',
     'input:not([disabled])',
     'select:not([disabled])',
+    'textarea:not([disabled])',
     '[tabindex]:not([tabindex="-1"])',
   ];
-  return container.querySelectorAll(focusableSelectors.join(','));
+  return container.querySelectorAll(focusableSelectors.join(', '));
 }
 
 export function trapFocus(container) {
@@ -269,9 +270,63 @@ export function trapFocus(container) {
   };
 
   container.addEventListener('keydown', handleKeyDown);
-  firstElement?.focus();
 
   return () => {
     container.removeEventListener('keydown', handleKeyDown);
   };
+}
+
+/**
+ * Helper component for conditional rendering without multiple <main> landmarks
+ * Use this when you have conditional returns that would otherwise include <main> in each branch
+ * Fixes: REACT_025 (Unique Landmarks)
+ */
+export function ConditionalMainContent({ isLoading, error, successContent, errorContent, loadingContent }) {
+  if (isLoading) {
+    return (
+      <MainContent>
+        {loadingContent || <div aria-busy="true" aria-label="Loading...">Loading...</div>}
+      </MainContent>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainContent>
+        {errorContent}
+      </MainContent>
+    );
+  }
+
+  return (
+    <MainContent>
+      {successContent}
+    </MainContent>
+  );
+}
+
+/**
+ * Helper component to wrap content that should be in a section or article
+ * instead of using additional <main> elements
+ * Fixes: REACT_025 (Unique Landmarks)
+ */
+export function SectionContent({ children, ariaLabel, id }) {
+  return (
+    <section aria-label={ariaLabel} id={id}>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Helper component to wrap content that should be in an article
+ * instead of using additional <main> elements
+ * Fixes: REACT_025 (Unique Landmarks)
+ */
+export function ArticleContent({ children, ariaLabel, id }) {
+  return (
+    <article aria-label={ariaLabel} id={id}>
+      {children}
+    </article>
+  );
 }

@@ -10,6 +10,7 @@ const DependencyGraphComponent = () => {
       {/* Other components and content */}
       <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       {/* Other components and content */}
+      <DependencyGraph />
     </div>
   );
 };

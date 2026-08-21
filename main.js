@@ -1,3 +1,4 @@
+export default function Home() {
 // @ts-check
 import React from 'react';
 import Head from 'next/head';
@@ -29,7 +30,6 @@ import Head from 'next/head';
  * - Changed <a> with onClick but no href to <button>
  */
 
-export default function Home() {
   const tableData = [
     { id: 1, name: 'John Doe', email: 'john@example.com' },
     { id: 2, name: 'Jane Smith', email: 'jane@example.com' },
@@ -117,25 +117,51 @@ export default function Home() {
             </button>
           </div>
         </section>
-      </main>
 
-      <section aria-labelledby="action-section">
-        <h2 id="action-section">Actions</h2>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button type="button">
-            Learn More
-          </button>
-          <button type="button">
-            Submit
-          </button>
-        </div>
-      </section>
+        <section aria-labelledby="action-section">
+          <h2 id="action-section">Actions</h2>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button type="button">
+              Learn More
+            </button>
+            <button type="button">
+              Submit
+            </button>
+          </div>
+        </section>
 
-      <footer>
-        <nav aria-label="Footer navigation">
-          <p>&copy; 2024 My Next.js App. All rights reserved.</p>
-        </nav>
-      </footer>
-    </div>
-  );
+        <footer>
+          <nav aria-label="Footer navigation">
+            <p>&copy; 2024 My Next.js App. All rights reserved.</p>
+          </nav>
+        </footer>
+      </div>
+    );
 }
+
+// Main application entry point
+function initializeApp() {
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+        console.log('Main landmark found');
+    }
+    return mainElement;
+}
+
+function getMainContent() {
+    return document.querySelector('main') || document.getElementById('main');
+}
+
+function init() {
+    const main = getMainContent();
+    if (main) {
+        main.setAttribute('role', 'main');
+    }
+    return main;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { initializeApp, getMainContent, init};
+}
+
+export { initializeApp, getMainContent, init };

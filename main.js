@@ -1,1 +1,3 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// No changes needed in main.js since the issue is in docs/dependency-graph.html
+// The html file is separate from the main.js file in the repository structure.
+// Just ensure the docs/dependency-graph.html has <html lang="en"> on line 2.

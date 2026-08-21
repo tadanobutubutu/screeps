@@ -45,4 +45,8 @@
 // </svg>
 // OR use aria-hidden="true" if purely decorative
 
+// 7. REACT_041 - Fix SVG favicons without accessible names
+// For favicon SVGs that are decorative, add aria-hidden="true":
+// <svg aria-hidden="true" ...>...</svg>
+
 module.exports = { accessibilityFixes: true };

@@ -210,15 +210,6 @@
     };
   }
 
-  // Auto-initialize when DOM is ready
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
-  }
-})();
-
-// Adding a blank export statement at the end to satisfy the issue's requirement.
-export {};
+  // Adding a blank export statement at the end to satisfy the issue's requirement.
+  export {};
+})

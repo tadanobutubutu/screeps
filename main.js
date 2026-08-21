@@ -108,14 +108,14 @@ const createAccessibleModal = (props) => {
     contentEl.className = 'modal-content';
     contentEl.textContent = content;
     
-    modal.appendChild(closeBtn);
     modal.appendChild(titleEl);
+    modal.appendChild(closeBtn);
     modal.appendChild(contentEl);
     
     // Focus trap management
     modal.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            modal.dispatchEvent(new CustomEvent('modalclose'));
+            modal.dispatchEvent(new Event('close'));
         }
     });
     
@@ -128,7 +128,7 @@ let mainElement = null;
 // Add new function: addMainElementAriaAttributes
 const addMainElementAriaAttributes = () => {
     if (typeof document !== 'undefined') {
-        mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
+        mainElement = document.querySelector('[role="main"]') || document.querySelector('main');
         
         if (mainElement) {
             mainElement.setAttribute('role', 'main');
@@ -170,11 +170,11 @@ const fixFakeLinkIssue = () => {
             
             if (isClickable) {
                 // Convert to proper button if it acts as a link
-                if (!link.getAttribute('role')) {
+                if (link.tagName === 'A') {
                     link.setAttribute('role', 'button');
                     
                     // Add keyboard support if missing
-                    if (!link.onclick && !link.getAttribute('onclick')) {
+                    if (!link.onclick && link.addEventListener) {
                         link.addEventListener('click', (e) => {
                             e.preventDefault();
                             // Handle click appropriately
@@ -182,7 +182,7 @@ const fixFakeLinkIssue = () => {
                     }
                     
                     // Ensure tabindex for keyboard navigation
-                    if (link.tabIndex === -1 || !link.hasAttribute('tabindex')) {
+                    if (link.tabIndex === -1 || link.tabIndex === undefined) {
                         link.tabIndex = 0;
                     }
                     
@@ -203,7 +203,7 @@ const fixFakeLinkIssue = () => {
 // Fix for REACT_041: Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
     if (typeof document !== 'undefined') {
-        const svgs = document.querySelectorAll('svg:not([aria-hidden="true"])');
+        const svgs = document.querySelectorAll('svg');
         
         svgs.forEach((svg, index) => {
             // Check if SVG already has an accessible name
@@ -238,17 +238,17 @@ const fixTableStructure = () => {
         
         tables.forEach((table) => {
             const headers = table.querySelectorAll('th');
-            const firstRow = table.querySelector('thead tr') || table.querySelector('tr:first-of-type');
-            const isDataTable = table.querySelector('tbody') !== null;
+            const firstRow = table.querySelector('thead tr') || table.querySelector('tr');
+            const isDataTable = table.querySelector('thead') !== null;
             
             headers.forEach((th) => {
                 // Determine if it's a column header or row header
                 const isInThead = th.closest('thead') !== null;
-                const rowIndex = Array.from(th.parentElement?.children || []).indexOf(th);
-                const previousCells = Array.from(th.parentElement?.children || []).slice(0, rowIndex);
+                const rowIndex = Array.from(th.parentElement?.cells || []).indexOf(th);
+                const previousCells = Array.from(th.parentElement?.cells || []).slice(0, rowIndex);
                 const hasRowHeader = previousCells.some(cell => cell.tagName === 'TH' && cell.getAttribute('scope') === 'row');
                 
-                if (!th.hasAttribute('scope')) {
+                if (!th.getAttribute('scope')) {
                     if (isInThead || (!hasRowHeader && isDataTable)) {
                         th.setAttribute('scope', 'col');
                     } else {
@@ -299,7 +299,7 @@ const ensureUniqueLandmarks = () => {
         
         // Ensure at least one main landmark exists
         if (mainElements.length === 0) {
-            const body = document.querySelector('body');
+            const body = document.body;
             if (body) {
                 const newMain = document.createElement('main');
                 newMain.id = 'main-content';
@@ -317,9 +317,4 @@ const fixLandmarkIssues = () => {
     addMainElementAriaAttributes();
     
     if (typeof document !== 'undefined') {
-        // Fix missing or duplicate landmark roles
-        
-        // Ensure header has banner role if not already
-        const headers = document.querySelectorAll('header:not([role])');
-        headers.forEach((header) => {
-            if (!header.closest('article, aside, main, nav, section'))
+        // Fix missing or

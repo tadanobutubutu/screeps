@@ -1,4 +1,5 @@
-import DependencyGraph from './DependencyGraph';
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 
 // Address accessibility issues from insight report:
 // Implemented accessibility-related code changes below
@@ -10,6 +11,21 @@ const DependencyGraphComponent = () => {
       <button type="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       {/* Other components and content */}
       <DependencyGraph />
+=======
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+// Address accessibility issues from insight report:
+// Implemented accessibility-related code changes below
+
+const DependencyGraphComponent = () => {
+  // Other components and content
+  return (
+    <div>
+      <button type="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
+      {/* Other components and content */}
+      <DependencyGraph />
+>>>>>>> origin/main
     </div>
   );
 };
@@ -35,14 +51,14 @@ const ensureUniqueLandmarks = () => {
   for (const landmark of existingLandmarks) {
     const ariaLabel = landmark.getAttribute('aria-label');
     const landmarkId = landmark.id || '';
-    const idBase = landmarkId || `landmark-${usedLabels.size}`;
 
     if (!ariaLabel) {
       // Generate a unique identifier if no aria-label is present
-      let uniqueIdentifier = idBase;
+      let uniqueIdentifier = landmarkId || 'landmark-' + usedLabels.size;
+
       if (usedLabels.has(uniqueIdentifier)) {
         const count = usedLabels.get(uniqueIdentifier) + 1;
-        uniqueIdentifier = `${idBase}-${count}`;
+        uniqueIdentifier = uniqueIdentifier + '-' + count;
         usedLabels.set(uniqueIdentifier, 1);
       } else {
         usedLabels.set(uniqueIdentifier, 1);
@@ -52,7 +68,7 @@ const ensureUniqueLandmarks = () => {
       // Check if the aria-label is already used
       if (usedLabels.has(ariaLabel)) {
         usedLabels.set(ariaLabel, usedLabels.get(ariaLabel) + 1);
-        const newLabel = `${ariaLabel} ${usedLabels.get(ariaLabel)}`;
+        const newLabel = ariaLabel + ' ' + usedLabels.get(ariaLabel);
         landmark.setAttribute('aria-label', newLabel);
       } else {
         usedLabels.set(ariaLabel, 1);
@@ -132,8 +148,8 @@ const addSvgAccessibleNames = () => {
 
   svgs.forEach((svg, index) => {
     const hasAriaLabel = svg.getAttribute('aria-label') !== null;
-    const hasLabelledBy = svg.getAttribute('aria-labelledby') !== null;
     const hasTitle = svg.querySelector('title') !== null;
+    const hasLabelledBy = svg.getAttribute('aria-labelledby') !== null;
 
     if (!hasAriaLabel && !hasTitle && !hasLabelledBy) {
       const title = document.createElement('title');
@@ -203,3 +219,14 @@ export {
   fixFakeLinks,
   initMain
 };
+
+// Keeping both export statements to maintain the original export and the line added in the conflicting code
+export default App;
+
+// Integrating both rendering approaches
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);

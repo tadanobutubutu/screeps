@@ -37,7 +37,7 @@ function addDetectedDependencies(ecosystem, dependencies, mainElement) {
   // ...
 }
 
-let mainElement = null; /* Uncomment the mainElement variable */
+let mainElement = document.documentElement; // Set mainElement to the root HTML element
 
 /**
  * Retrieves all pending updates
@@ -91,7 +91,7 @@ function generateSummary() {
   };
 }
 
-// Adding lang attribute to HTML element
+// Adding lang attribute to HTML element to address accessibility issue
 function setLangAttribute(element, mainElement) {
   if (element && mainElement && element.setAttribute) {
     mainElement.setAttribute('lang', 'en');
@@ -215,6 +215,7 @@ function getRequiredDependencies() {
 // Set lang attribute on HTML element to address accessibility issue
 if (typeof document !== 'undefined') {
   document.documentElement.setAttribute('lang', 'en');
+  fixTableStructure(mainElement);
 }
 
 // Add the new function to the module.exports

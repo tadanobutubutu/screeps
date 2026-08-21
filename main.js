@@ -11,27 +11,30 @@
     // Additional code to add accessible names to SVGs
 
     // Function to add accessible name to SVGs for accessibility
-    function addAccessibleSvg(svgContent, label) {
+    function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;
-        const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
-        const textRegex = /<text[^>]*>(.*?)<\/text>/i;
+        const titleRegex = /<title[^>]*>.*?<\/title>/i;
+        const textRegex = /<text[^>]*>.*?<\/text>/i;
+        const ariaLabelRegex = /\s*aria-label=["'][^"']*["']/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgContent.replace(svgRegex, (match) => {
-            // Check if the SVG already contains a title
+        return svgData.replace(svgRegex, (match) => {
+            // Check if the SVG already contains a title or aria-label
             let hasTitle = titleRegex.test(match);
-            let hasText = textRegex.test(match);
+            let hasAriaLabel = ariaLabelRegex.test(match);
 
-            // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
-                // Replace the SVG content with a title element wrapping the existing text
-                return match.replace(textRegex, (textMatch) => {
-                    return `<title>${label}</title>${textMatch}`;
-                });
+            // Add a title element if it doesn't already exist
+            if (!hasTitle && !hasAriaLabel) {
+                // Get the existing content after <svg
+                const svgOpenTag = match.match(/<svg[^>]*>/i)[0];
+                const svgContent = match.slice(svgOpenTag.length);
+                
+                // Add title at the beginning of content
+                return svgOpenTag + `<title>${label}</title>` + svgContent;
             }
 
-            // If the SVG doesn't contain text or already has a title, return the original match
+            // If the SVG already has a title or aria-label, return the original match
             return match;
         });
     }
@@ -49,13 +52,31 @@
 
     // Function to update the 'rotate back' link with a button for accessibility
     function updateRotateBackLink() {
-        const rotateBackLink = document.getElementById('unrotate');
-        if (rotateBackLink) {
-            // Replace the anchor with a button
+        const rotateBackLink = document.querySelector('a[href="#"]');
+        const rotateBackLinkByText = Array.from(document.querySelectorAll('a')).find(
+            link => link.textContent.trim().toLowerCase() === 'rotate back'
+        );
+        
+        const linkToReplace = rotateBackLinkByText || rotateBackLink;
+        
+        if (linkToReplace) {
+            // Create a button to replace the fake link
             const button = document.createElement('button');
             button.textContent = 'rotate back';
             button.type = 'button'; // Specify the button type to avoid form submission
-            rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+            
+            // Copy any relevant attributes from the original link
+            if (linkToReplace.id) button.id = linkToReplace.id;
+            if (linkToReplace.className) button.className = linkToReplace.className;
+            
+            // Copy click handler if exists
+            const clickHandler = linkToReplace.onclick;
+            if (clickHandler) {
+                button.addEventListener('click', clickHandler);
+            }
+            
+            // Replace the anchor with a button
+            linkToReplace.parentNode.replaceChild(button, linkToReplace);
         }
     }
 
@@ -65,7 +86,9 @@
     exports.updateRotateBackLink = updateRotateBackLink;
 
     // Call the function to update the 'rotate back' link on page load
-    window.onload = updateRotateBackLink;
+    if (typeof window !== 'undefined') {
+        window.addEventListener('load', updateRotateBackLink);
+    }
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

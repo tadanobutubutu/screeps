@@ -1,7 +1,3 @@
-// Assuming this is a React component that needs to be fixed
-// The issue states there are TWO <main> elements - one in error state and one in success state
-// Fix: Use a single <main> wrapper and use <section> or <article> for internal sections
-
 import React, { useState } from 'react';
 
 const SomeComponent = ({ error, data, fetchStats }) => {

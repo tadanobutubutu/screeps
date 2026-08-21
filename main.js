@@ -47,17 +47,17 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 
-      ? svgProps.children.some(c => c && c.type === 'title')
-      : svgProps.children.type === 'title');
+      ? svgProps.children.some(c => c && (c.type === 'title' || c.type === 'Title'))
+      : svgProps.children.type === 'title' || svgProps.children.type === 'Title');
   
   const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
   
   if (!isCompliant) {
-    issues.push('SVG has no accessible name and is not hidden');
+    issues.push('SVG has no accessible name and is not hidden from screen readers');
   }
   
   return { compliant: isCompliant, issues };

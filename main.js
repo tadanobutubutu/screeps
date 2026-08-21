@@ -21,3 +21,6 @@ export default function RootLayout({
     </html>
   );
 }
+
+// TODO: Add back any required exports that might have been?
+export { RootLayout };

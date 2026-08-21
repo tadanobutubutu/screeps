@@ -1,10 +1,1 @@
-import { NextSeo } from 'next-seo';
-
-function MyComponent() {
-  return (
-    <>
-      <NextSeo lang="en" />
-      {/* Add your component here */}
-    </>
-  );
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

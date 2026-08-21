@@ -32,14 +32,14 @@ const ensureUniqueLandmarks = () => {
   for (const landmark of existingLandmarks) {
     const ariaLabel = landmark.getAttribute('aria-label');
     const landmarkId = landmark.id || '';
-    const idBase = landmarkId.replace(/[^a-zA-Z0-9]/g, '');
+    const idBase = landmarkId || `landmark-${usedLabels.size}`;
     
     if (!ariaLabel) {
       // Generate a unique identifier if no aria-label is present
-      let uniqueIdentifier = `landmark-${idBase}`;
+      let uniqueIdentifier = idBase;
       if (usedLabels.has(uniqueIdentifier)) {
         const count = usedLabels.get(uniqueIdentifier) + 1;
-        uniqueIdentifier = `landmark-${idBase}-${count}`;
+        uniqueIdentifier = `${idBase}-${count}`;
         usedLabels.set(uniqueIdentifier, 1);
       } else {
         usedLabels.set(uniqueIdentifier, 1);
@@ -49,7 +49,7 @@ const ensureUniqueLandmarks = () => {
       // Check if the aria-label is already used
       if (usedLabels.has(ariaLabel)) {
         usedLabels.set(ariaLabel, usedLabels.get(ariaLabel) + 1);
-        const newLabel = `${ariaLabel}-${usedLabels.get(ariaLabel)}`;
+        const newLabel = `${ariaLabel} ${usedLabels.get(ariaLabel)}`;
         landmark.setAttribute('aria-label', newLabel);
       } else {
         usedLabels.set(ariaLabel, 1);
@@ -94,7 +94,7 @@ const fixTableStructureIssues = () => {
     // 3. Ensure proper thead/tbody structure
     if (!table.querySelector('thead') && table.querySelector('tr th')) {
       const firstRow = table.querySelector('tr');
-      if (firstRow && firstRow.querySelector('th')) {
+      if (firstRow && firstRow.contains(table.querySelector('th'))) {
         const thead = document.createElement('thead');
         const clonedRow = firstRow.cloneNode(true);
         thead.appendChild(clonedRow);
@@ -143,7 +143,7 @@ const addSvgAccessibleNames = () => {
 
 const fixFakeLinks = () => {
   // Fix 1 fake link issue - replace href="#" with button elements
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
   
   fakeLinks.forEach(link => {
     if (link.tagName !== 'A') {
@@ -162,7 +162,16 @@ const fixFakeLinks = () => {
       button.type = 'button';
       button.textContent = link.textContent;
       button.className = link.className;
-      link.replaceWith(button);
+      button.onclick = link.onclick;
+      
+      // Copy all attributes except href
+      Array.from(link.attributes).forEach(attr => {
+        if (attr.name !== 'href') {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      link.parentNode.replaceChild(button, link);
     }
   });
 };

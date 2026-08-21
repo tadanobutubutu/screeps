@@ -10,7 +10,9 @@ function App() {
         <title>Document</title>
       </head>
       <body>
-        {/* Content of the document */}
+        <main>
+          {/* Content of the document */}
+        </main>
       </body>
     </html>
   );

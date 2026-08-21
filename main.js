@@ -12,14 +12,14 @@ const Layout = ({ children }) => {
         viewBox="0 0 16 16" 
         role="img"
         aria-labelledby="svg-title-icon"
-        focusable="false"
       >
-        <title id="svg-title-icon">Icon description</title>
+        <title id="svg-title-icon">Icon</title>
         {/* SVG content */}
       </svg>
       {/* ... other components ... */}
       {children}
     </div>
   );
+};
 
 export default Layout;

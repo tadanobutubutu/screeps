@@ -13,6 +13,9 @@ function App() {
   return <div>Hello World!</div>;
 }
 
+// Export App function
+export { App };
+
 // Wrap the ReactDOM.render call with a <html> tag
 const htmlElement = (
   <html lang="en">
@@ -28,6 +31,12 @@ const htmlElement = (
   </html>
 );
 
-ReactDOM.render(htmlElement, document.getElementById('root'));
+// Export htmlElement
+export { htmlElement };
+
+// Re-export React and ReactDOM for external usage
+export { React, ReactDOM };
+
+... ...
 
 // ... [Rest of main.js] ...

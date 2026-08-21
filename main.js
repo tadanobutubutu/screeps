@@ -8,7 +8,7 @@ const path = require('path');
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html(\s[^>]*)?>/i, (match, attrs) => {
+  return content.replace(/<html([^>]*)>/i, (match, attrs) => {
     if (attrs && /\slang\s*=/i.test(attrs)) {
       return match;
     }
@@ -31,7 +31,7 @@ async function addMainLandmark() {
         continue;
       }
       const updatedContent = fileContent.replace(
-        /(<body[^>]*>)((?:[\s\S]*?)<\/body>)/i,
+        /<body([^>]*)>([\s\S]*)<\/body>/i,
         (match, bodyOpen, bodyContent) => {
           return bodyOpen + '\n<main>\n' + bodyContent + '\n</main>';
         }
@@ -73,11 +73,11 @@ async function replaceHashLinksWithButtons() {
     const filePath = path.join('docs', 'index.html');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const updatedContent = fileContent.replace(
-      /<a\s+([^>]*?)href="#([^"]*)"([^>]*)>([\s\S]*?)<\/a>/gi,
+      /<a([^>]*href=["']#[^"']*["'][^>]*)>(.*?)<\/a>/gi,
       (match, attrsBefore, id, attrsAfter, text) => {
         const idAttr = id ? ` id="${id}"` : '';
         const allAttrs = (attrsBefore || '') + (attrsAfter || '');
-        const classMatch = allAttrs.match(/class="([^"]*)"/);
+        const classMatch = /class=["']([^"']*)["']/i.exec(allAttrs);
         const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
         // Remove the href from the button to avoid "fake link" issues
         return `<button${idAttr}${classAttr}>${text}</button>`;
@@ -123,20 +123,17 @@ async function fixTableStructure() {
                   return `<th${cellAttrs}>${cellContent}</th>`;
                 }
               );
-              return `<thead><tr${rowAttrs}>${headerCells}</tr></thead>`;
+              return `<thead><tr${rowAttrs}>${headerCells}</tr></thead><tbody>`;
             }
           );
           
           // Wrap remaining content in tbody if not already present
-          if (!/<tbody/i.test(fixedContent)) {
-            const afterHeader = fixedContent.replace(/<\/thead>/, '');
-            fixedContent = fixedContent.replace(
-              /(<thead>[\s\S]*?<\/thead>)([\s\S]*)/,
-              '$1<tbody>$2</tbody>'
-            );
+          if (!/<tbody>/i.test(fixedContent)) {
+            const afterHeader = fixedContent.replace('</thead>', '</thead><tbody>');
+            fixedContent = afterHeader.replace(/(<\/thead><tbody>)([\s\S]*)$/i, '$1$2</tbody>');
           }
           
-          return /<thead>/i.test(fixedContent) ? fixedContent : match;
+          return `<table${tableAttrs}>${fixedContent}</table>` ? fixedContent : match;
         }
         
         // For simple tables without rows, just wrap content
@@ -172,12 +169,12 @@ async function ensureUniqueLandmarks() {
     let updatedContent = fileContent;
     
     landmarkRoles.forEach(role => {
-      const rolePattern = new RegExp(`role="${role}"`, 'gi');
-      const landmarks = updatedContent.match(rolePattern);
+      const rolePattern = new RegExp(`<[^>]*role=["']${role}["']`, 'gi');
+      const landmarks = fileContent.match(rolePattern);
       if (landmarks && landmarks.length > 1) {
         // Add aria-label to make duplicate landmarks unique
         updatedContent = updatedContent.replace(
-          new RegExp(`<([a-z]+)([^>]*)role="${role}"([^>]*)>`, 'gi'),
+          new RegExp(`<([^>]*role=["']${role}["'][^>]*)>`, 'gi'),
           (match, tag, attrsBefore, attrsAfter) => {
             const allAttrs = (attrsBefore || '') + (attrsAfter || '');
             // Check if aria-label already exists
@@ -185,14 +182,14 @@ async function ensureUniqueLandmarks() {
               return match;
             }
             // Add unique aria-label
-            return match.replace('>', ` aria-label="${tag}-${role}">`);
+            return match.replace('>', ` aria-label="${role}">`);
           }
         );
       }
     });
     
     // Fix multiple main landmarks by converting extras to divs
-    const mainMatches = updatedContent.match(/<main[\s>]/gi);
+    const mainMatches = updatedContent.match(/<main[^>]*>/gi);
     if (mainMatches && mainMatches.length > 1) {
       // Keep first main, convert others to divs with role="main" fallback
       let mainCount = 0;
@@ -248,7 +245,7 @@ async function addSvgAccessibleNames() {
       }
 
       // Check if SVG already has role="img" or aria-label
-      const hasRoleImg = /role="img"/i.test(fileContent);
+      const hasRoleImg = /role=["']img["']/i.test(fileContent);
       const hasAriaLabel = /aria-label=/i.test(fileContent);
 
       if (!hasRoleImg && !hasAriaLabel) {

@@ -57,14 +57,14 @@ function fixReactSVGAccessibility() {
 
   layoutFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Add aria-hidden="true" to SVG elements (favicon, etc.)
-        content = content.replace(/<svg([^>]*)>/g, (match, attrs) => {
+        content = content.replace(/(<svg[^>]*>)/g, (match, attrs) => {
           if (!attrs.includes('aria-hidden')) {
-            return `<svg aria-hidden="true"${attrs}>`;
+            return `<svg aria-hidden="true"${attrs.slice(4)}>`;
           }
           return match;
         });
@@ -96,12 +96,12 @@ function fixReactLandmarkIssues() {
   // Fix TSX files - wrap {children} in <main> tags
   tsxLayoutFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (!content.includes('<main>') && !content.includes('<main ')) {
+        if (content.includes('{children}') && !content.includes('<main>')) {
           // Replace {children} with <main>{children}</main>
           content = content.replace(
             /\{children\}/g,
@@ -120,17 +120,17 @@ function fixReactLandmarkIssues() {
   // Fix HTML files - wrap body content in <main> tags
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Check if <main> tag doesn't already exist
-        if (!content.includes('<main>') && !content.includes('<main ')) {
+        if (!content.includes('<main>')) {
           // Wrap content between <body> tags in <main> tags
           content = content.replace(
-            /<body([^>]*)>([\s\S]*?)<\/body>/g,
-            (match, attrs, bodyContent) => {
-              return `<body${attrs}>\n<main>\n${bodyContent}\n</main>\n</body>`;
+            /(<body[^>]*>)([\s\S]*)(<\/body>)/gi,
+            (match, openTag, bodyContent, closeTag) => {
+              return `${openTag}\n<main>\n${bodyContent}\n</main>\n${closeTag}`;
             }
           );
           
@@ -155,7 +155,7 @@ function addLangAttribute() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
@@ -164,7 +164,7 @@ function addLangAttribute() {
           /<html([^>]*)>/g,
           (match, attrs) => {
             if (!attrs.includes('lang=')) {
-              return `<html lang="en"${attrs}>`;
+              return `<html${attrs} lang="en">`;
             }
             return match;
           }
@@ -190,21 +190,21 @@ function fixTableStructureIssues() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Add <thead> and <tbody> to tables if missing
         content = content.replace(
-          /<table([^>]*)>([\s\S]*?)(<\/table>)/g,
+          /<table([^>]*)>([\s\S]*?)(<\/table>)/gi,
           (match, attrs, tableContent, closeTag) => {
             // Only wrap if there's no thead or tbody
-            if (!tableContent.includes('<thead') && !tableContent.includes('<tbody')) {
+            if (!tableContent.includes('<thead>') && !tableContent.includes('<tbody>')) {
               // Simple heuristic: first row becomes thead, rest becomes tbody
-              const rows = tableContent.match(/<tr[\s\S]*?<\/tr>/g) || [];
+              const rows = tableContent.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
               if (rows.length > 0) {
                 const theadRow = rows[0];
-                const tbodyRows = rows.slice(1).join('\n          ');
+                const tbodyRows = rows.slice(1).join('\n');
                 
                 const newContent = `
         <thead>
@@ -214,7 +214,7 @@ function fixTableStructureIssues() {
           ${tbodyRows}
         </tbody>`;
                 
-                return `<table${attrs}>${newContent}${closeTag}`;
+                return `<table${attrs}>${newContent}</table>`;
               }
             }
             return match;
@@ -248,25 +248,25 @@ function fixFakeLinkIssues() {
 
   htmlFiles.forEach(file => {
     try {
-      const filePath = path.join(process.cwd(), file);
+      const filePath = path.join(__dirname, file);
       if (fs.existsSync(filePath)) {
         let content = fs.readFileSync(filePath, 'utf8');
         
         // Replace <div onclick> pseudo-links with <a href> or proper buttons
         content = content.replace(
-          /<div([^>]*)onclick([^>]*)>/g,
+          /<div([^>]*)onclick([^>]*)>/gi,
           (match, before, after) => {
             // Convert to button element
-            return match.replace(/<div/g, '<button').replace(/<\/div>/g, '</button>');
+            return `<button${before}${after}></button>`;
           }
         );
         
         // Ensure links have proper href attributes
         content = content.replace(
-          /<a([^>]*)(?<!href=)([^>]*)>/g,
+          /<a([^>]*)>/gi,
           (match, attrs, rest) => {
-            if (!attrs.includes('href=') && !attrs.includes('onclick=')) {
-              return `<a href="#"${attrs}>`;
+            if (!attrs.includes('href=')) {
+              return `<a href="#"`;
             }
             return match;
           }

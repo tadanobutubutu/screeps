@@ -106,43 +106,170 @@ function generateSummary() {
 
 // Adding lang attribute to HTML element
 function setLangAttribute(element) {
-  element.setAttribute('lang', 'en');
+  if (element && element.setAttribute) {
+    element.setAttribute('lang', 'en');
+  }
 }
 
 // Fixing 26 table structure issues
-// This is a placeholder for the actual fix. The actual fix would depend on the table structure.
-// Example: Ensure all tables have a `<thead>` and `<tbody>`, and that each `<th>` has a scope attribute.
-// The following is a sample function that would need to be integrated into the codebase.
+// Ensures all tables have proper <thead> and <tbody>, and that each <th> has a scope attribute.
 function fixTableStructure() {
-  // Implementation goes here
+  if (typeof document === 'undefined') return;
+  
+  const tables = document.querySelectorAll('table');
+  tables.forEach((table, index) => {
+    // Check if table already has proper structure
+    const hasThead = table.querySelector('thead');
+    const hasTbody = table.querySelector('tbody');
+    
+    if (!hasThead) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    
+    if (!hasTbody) {
+      const rows = table.querySelectorAll('tr');
+      const tbody = document.createElement('tbody');
+      rows.forEach(row => {
+        if (row.parentNode === table) {
+          tbody.appendChild(row);
+        }
+      });
+      table.appendChild(tbody);
+    }
+    
+    // Fix th elements with scope attributes
+    const ths = table.querySelectorAll('th');
+    ths.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        const parentRow = th.closest('tr');
+        const parentThead = th.closest('thead');
+        if (parentThead) {
+          const parentThs = parentRow.querySelectorAll('th');
+          const thIndex = Array.from(parentThs).indexOf(th);
+          th.setAttribute('scope', thIndex === 0 ? 'col' : 'col');
+        }
+      }
+    });
+  });
 }
 
 // Add/fix 4 landmark issues
-// This is a placeholder for the actual fix. The actual fix would depend on the landmarks.
-// Example: Add ARIA roles to landmarks.
+// Add appropriate ARIA landmark roles to semantic HTML elements
 function addLandmarks() {
-  // Implementation goes here
+  if (typeof document === 'undefined') return;
+  
+  const elementConfigs = [
+    { selector: 'header:not([role])', role: 'banner' },
+    { selector: 'nav:not([role])', role: 'navigation' },
+    { selector: 'main:not([role])', role: 'main' },
+    { selector: 'aside:not([role])', role: 'complementary' },
+    { selector: 'footer:not([role])', role: 'contentinfo' }
+  ];
+  
+  elementConfigs.forEach(config => {
+    const elements = document.querySelectorAll(config.selector);
+    elements.forEach(el => {
+      el.setAttribute('role', config.role);
+    });
+  });
 }
 
-// Add accessible names to 2 SVGs
-// This is a placeholder for the actual fix. The actual fix would depend on the SVGs.
-// Example: Add `<title>` and `<desc>` elements to SVGs.
+// Add accessible names to SVGs
+// Add <title> and <desc> elements to SVGs for screen readers
 function addAccessibleSVGs() {
-  // Implementation goes here
+  if (typeof document === 'undefined') return;
+  
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const existingTitle = svg.querySelector('title');
+    const existingDesc = svg.querySelector('desc');
+    
+    if (!existingTitle) {
+      const titleId = `svg-title-${index}`;
+      const title = document.createElement('title');
+      title.textContent = `Icon ${index + 1}`;
+      title.id = titleId;
+      svg.insertBefore(title, svg.firstChild);
+      
+      // Link title to SVG
+      svg.setAttribute('aria-labelledby', titleId);
+      
+      if (!existingDesc) {
+        const descId = `svg-desc-${index}`;
+        const desc = document.createElement('desc');
+        desc.textContent = `SVG graphic ${index + 1}`;
+        desc.id = descId;
+        svg.insertBefore(desc, svg.firstChild);
+      }
+    }
+  });
 }
 
 // Ensure unique landmarks (2 issues)
-// This is a placeholder for the actual fix. The actual fix would depend on the landmarks.
-// Example: Ensure that each landmark has a unique ID.
+// Ensure that each landmark has a unique accessible name
 function ensureUniqueLandmarks() {
-  // Implementation goes here
+  if (typeof document === 'undefined') return;
+  
+  const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo', 'region'];
+  const landmarkCounts = {};
+  
+  landmarkRoles.forEach(role => {
+    landmarkCounts[role] = 0;
+  });
+  
+  landmarkRoles.forEach(role => {
+    const landmarks = document.querySelectorAll(`[role="${role}"]`);
+    landmarks.forEach(landmark => {
+      landmarkCounts[role]++;
+      const count = landmarkCounts[role];
+      
+      // First landmark of type is fine without modification
+      if (count > 1) {
+        const existingLabel = landmark.getAttribute('aria-label');
+        const existingLabelledby = landmark.getAttribute('aria-labelledby');
+        
+        if (!existingLabel && !existingLabelledby) {
+          landmark.setAttribute('aria-label', `${role} section ${count}`);
+        }
+      }
+    });
+  });
 }
 
-// Fix 1 fake link issue
-// This is a placeholder for the actual fix. The actual fix would depend on the fake link.
-// Example: Ensure that all links have appropriate ARIA roles or titles.
+// Fix fake link issue
+// Ensure elements pretending to be links have proper accessibility
 function fixFakeLink() {
-  // Implementation goes here
+  if (typeof document === 'undefined') return;
+  
+  // Find elements with onclick that use location navigation
+  const fakeLinks = document.querySelectorAll('[onclick*="location"], [onclick*="href"], [role="button"]:not(a)');
+  
+  fakeLinks.forEach(element => {
+    const onclick = element.getAttribute('onclick') || '';
+    
+    // Check if it's doing navigation
+    if (onclick.includes('location') || onclick.includes('href')) {
+      // Check if it already has proper link role
+      const currentRole = element.getAttribute('role');
+      if (currentRole === 'button' || !currentRole) {
+        // Add link role and tabindex for keyboard accessibility
+        if (!element.hasAttribute('tabindex')) {
+          element.setAttribute('tabindex', '0');
+        }
+        
+        // Add descriptive aria-label if missing
+        const text = element.textContent.trim();
+        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+          element.setAttribute('aria-label', text || 'Link');
+        }
+      }
+    }
+  });
 }
 
 module.exports = {

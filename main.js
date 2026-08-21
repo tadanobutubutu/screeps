@@ -7,8 +7,8 @@ function App() {
 
   return (
     <div className="App" aria-label="Main application content">
-      {/* You need to add an aria-label or <title> child here */}
-      <img src={favicon} alt="Favicon" />
+      {/* Favicon SVG - decorative, hidden from screen readers */}
+      <img src={favicon} alt="" aria-hidden="true" />
       // ... rest of your code
     </div>
   );

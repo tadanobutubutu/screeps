@@ -1,5 +1,11 @@
 // Address accessibility issues from insight report
 
+// - REACT_015: Add lang attribute to HTML element
+// - REACT_017: Add/fix 4 landmark issues
+// - REACT_041: Add accessible names to 2 SVGs
+// - REACT_025: Ensure unique landmarks (2 issues)
+// - REACT_036: Fix 1 fake link issue
+
 // Existing imports or code
 // ... [original main.js content] ...
 
@@ -9,6 +15,9 @@ primaryContent = `
     ...
   </main>
 `;
+
+// Add lang attribute for HTML element
+document.documentElement.lang = "en";
 
 // Replace the <a> element with a <button> element for the 'rotate back' action
 rotateBackButton = `
@@ -23,9 +32,6 @@ document.getElementById('unrotate').addEventListener('click', function() {
   rotateBack();
 });
 
-// Add lang attribute for HTML element
-document.documentElement.lang = "en";
-
 // Add scope="col" to all <th> elements for accessibility
 const tableHeaders = document.querySelectorAll('th');
 tableHeaders.forEach(th => {
@@ -39,74 +45,83 @@ document.body.setAttribute('role', 'document');
 // Add a banner (or header) with the role="banner"
 const banner = document.createElement('header');
 banner.setAttribute('role', 'banner');
+banner.setAttribute('id', 'banner');
 document.body.prepend(banner);
 
 // Add a footer with the role="contentinfo"
 const footer = document.createElement('footer');
 footer.setAttribute('role', 'contentinfo');
+footer.setAttribute('id', 'footer');
 document.body.appendChild(footer);
 
 // Add landmark roles to primary navigation (if applicable)
 const navigation = document.querySelector('nav');
 if (navigation) {
   navigation.setAttribute('role', 'navigation');
+  navigation.setAttribute('id', 'navigation');
 }
 
 // Mark up each section with the role="region" (if applicable)
 const sections = document.querySelectorAll('section');
 sections.forEach(section => {
   section.setAttribute('role', 'region');
+  section.setAttribute('aria-label', section.getAttribute('aria-label') || 'Section');
 });
 
 // Add unique IDs to landmarks, if multiple/applicable
 // (Use WAI-ARIA/WCAG guidelines as needed - https://www.w3.org/TR/wai-aria-1.1/)
 let uniqueIdCounter = 0;
-const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="header"], [role="footer"]');
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="banner"], [role="contentinfo"]');
+const landmarkIdMap = new Map();
+
 landmarks.forEach(landmark => {
   if (!landmark.id) {
-    landmark.id = `landmark-${uniqueIdCounter++}`;
+    let baseId = `landmark-${uniqueIdCounter++}`;
+    landmark.id = baseId;
+    landmarkIdMap.set(landmark, baseId);
+  } else {
+    landmarkIdMap.set(landmark, landmark.id);
   }
 });
 
-// Add accessible names to 2 SVGs
+// Ensure unique landmarks (REACT_025)
+const uniqueLandmarkIDs = new Set();
+landmarkIdMap.forEach((id, landmark) => {
+  let currentId = id;
+  let index = 2;
+  while (uniqueLandmarkIDs.has(currentId)) {
+    currentId = `${id}-${index}`;
+    index++;
+  }
+  landmark.id = currentId;
+  uniqueLandmarkIDs.add(currentId);
+});
+
+// Add accessible names to SVGs (REACT_041)
 const svgs = document.querySelectorAll('svg');
 svgs.forEach(svg => {
   // Create title and desc elements for each SVG
   const title = document.createElement('title');
-  title.id = `${svg.id}-title`;
-  title.textContent = svg.id ? `${svg.id} image` : 'SVG image';
-  
+  title.id = `${svg.id || 'svg'}-title`;
+  title.textContent = svg.getAttribute('aria-label') || svg.title || `${svg.id ? svg.id : 'SVG'} image`;
+
   const desc = document.createElement('desc');
-  desc.id = `${svg.id}-desc`;
-  desc.textContent = ''; // Add a proper description in the SVG file if necessary
-  
+  desc.id = `${svg.id || 'svg'}-desc`;
+  desc.textContent = svg.getAttribute('aria-describedby') || '';
+
   svg.insertBefore(title, svg.firstChild);
   svg.appendChild(desc);
   svg.setAttribute('aria-labelledby', `${title.id} ${desc.id}`);
 });
 
-// Ensure unique landmarks
-const uniqueLandmarkIDs = new Set();
-landmarks.forEach(landmark => {
-  if (landmark.id) {
-    let index = 2;
-    let currentId = landmark.id;
-    while (uniqueLandmarkIDs.has(currentId)) {
-      currentId = `${landmark.id}-${index}`;
-      index++;
-    }
-    landmark.id = currentId;
-    uniqueLandmarkIDs.add(currentId);
-  }
-});
-
-// Fix 1 fake link issue
-// (More checks might be needed based on the specific CSS and HTML structure)
+// Fix fake link issue (REACT_036)
 const fakeLinks = document.querySelectorAll('a.no-underline');
 fakeLinks.forEach(link => {
   // Ensure the link has proper accessible text
   if (!link.textContent.trim()) {
     link.setAttribute('aria-label', 'Link');
+  } else {
+    link.setAttribute('aria-label', link.textContent.trim());
   }
   link.style.textDecoration = 'none';
 });

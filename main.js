@@ -1,5 +1,4 @@
 const React = require('react');
-const ReactDOM = require('react-dom');
 
 // Function to address "REACT_015" rule violation
 function addLanguageAttribute(component) {
@@ -27,12 +26,44 @@ function fixTableStructure(component) {
       }
     }
   }
-
-  return component;
 }
 
-// Export the utility functions for use in other modules
-module.exports = {
+// Main application entry point
+export function initializeApp() {
+  // Initialize application
+  console.log('App initialized');
+}
+
+// Existing exports preserved
+export const config = {
+  name: 'MyApp',
+  version: '1.0.0'
+};
+
+// Utility functions for use in other modules
+export default {
   addLanguageAttribute,
   fixTableStructure
 };
+
+// Additional helper functions for the main app
+export function renderApp(container) {
+  // Create main element for accessibility
+  const main = document.createElement('main');
+  main.setAttribute('id', 'main-content');
+  main.setAttribute('role', 'main');
+  
+  // App content
+  const appContent = document.createElement('div');
+  appContent.textContent = 'Application Content';
+  
+  main.appendChild(appContent);
+  container.appendChild(main);
+  
+  // Skip link for keyboard navigation
+  const skipLink = document.createElement('a');
+  skipLink.href = '#main-content';
+  skipLink.textContent = 'Skip to main content';
+  skipLink.className = 'skip-link';
+  container.insertBefore(skipLink, container.firstChild);
+}

@@ -43,9 +43,10 @@ function extractAwaitingSchedule(body) {
 
   const deps = [];
   const regex = /\[ \]<!-- .* -->(?:chore|fix|feat)\([^)]+\): update (?:dependency |action )?([^\s]+) (?:to|action to) (v?\d+[\d.]*)/gi;
+  const sectionContent = awaitingSection[0];
   let match;
 
-  while ((match = regex.exec(awaitingSection[0])) !== null) {
+  while ((match = regex.exec(sectionContent)) !== null) {
     deps.push({
       package: match[1],
       version: match[2],
@@ -67,9 +68,10 @@ function extractBlocked(body) {
 
   const blocked = [];
   const regex = /\[ \]<!-- .* -->(?:chore|fix|feat)\([^)]+\): update [^\s]+/gi;
+  const sectionContent = blockedSection[0];
   let match;
 
-  while ((match = regex.exec(blockedSection[0])) !== null) {
+  while ((match = regex.exec(sectionContent)) !== null) {
     blocked.push({
       update: match[0],
       type: 'blocked'
@@ -114,8 +116,7 @@ function extractDetectedDependencies(body) {
 function extractErrors(body) {
   const errors = [];
   const errorSection = body.match(/## Repository Problems[\s\S]*?(?=## Awaiting|$)/gi);
-  
-  if (errorSection) {
+  if (errorSection && errorSection[0]) {
     const warns = errorSection[0].match(/⚠️\s*(.*)/gi) || [];
     warns.forEach(w => {
       errors.push({

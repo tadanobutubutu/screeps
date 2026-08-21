@@ -1,3 +1,4 @@
+const initialize = require('./path/to/initialize').default;
 const Foo = require('./path/to/Foo').default;
 const Bar = require('./path/to/Bar').default;
 
@@ -50,9 +51,9 @@ function initialize() {
 }
 
 module.exports = {
+  // ... existing exports ...
   initialize,
   Foo,
-  Bar
+  Bar,
 };
-
 export { Foo, Bar };

@@ -32,6 +32,3 @@ function App() {
 
 export { formatData };
 export default App;
-```
-
-In this merge conflict resolution, I have kept both changes. I added a new icon (`NewIcon`) that was introduced in the second branch (`origin/main`), and also kept the original structure and imports from the first branch (`HEAD`). This should ensure that both features coexist in the repository, and the bot remains functional with the updated user interface.

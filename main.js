@@ -1,1 +1,17 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+
+// ... existing imports and your code
+
+function App() {
+  // ... existing function content
+
+  return (
+    <div className="App">
+      {/* Favicon SVG - decorative, hidden from screen readers */}
+      <img src={favicon} alt="" aria-hidden="true" />
+      // ... rest of your code
+    </div>
+  );
+}
+
+export default App;

@@ -215,6 +215,8 @@ async function addSvgAccessibleNames() {
   }
 }
 
+const mainElement = require('./mainElement');
+
 /**
  * Addresses all accessibility issues from the insight report.
  * Orchestrates the individual accessibility functions in the correct order.

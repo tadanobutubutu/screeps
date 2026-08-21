@@ -30,6 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Add lang attribute to the root element
+document.documentElement.lang = 'en';
+
 // Export for testing (if applicable)
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { init };

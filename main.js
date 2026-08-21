@@ -1,20 +1,17 @@
-// main.js
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 // Example React component with the fix applied
 export function ImageRotator({ onRotate }) {
   // ... existing code for rotation logic ...
-
   return (
     <div className="image-rotator">
       {/* Image display logic */}
-      
-      {/* FIX: Changed from <a href="#"> to <button> for proper accessibility */}
-      <button id="unrotate" onClick={onRotate}>
-        rotate back
-      </button>
+      {/* FIX: Changed from <a href="#" to <button> for proper accessibility */}
+      <button id="unrotate" onClick={onRotate}>rotate back</button>
+      =======
+      {"/* merge conflict from origin/main branch - add toggling state functionality -- do not remove -- see #42 for details */"}
+      >>>>>>> origin/main
     </div>
   );
 }

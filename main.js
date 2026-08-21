@@ -1,10 +1,8 @@
 // Existing code and exports preserved...
 
-// Add the new function or change requested in the issue
 function fixTableStructure() {
   const filesAffected = [
     'docs/dependency-graph.html'
-    // ... add other files if necessary
   ];
 
   filesAffected.forEach(file => {

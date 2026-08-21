@@ -36,6 +36,4 @@ export function anotherFunction() {
 }
 
 // ADD back any required exports:
-
-// Required Export 1
-export let someVariable = "exampleValue";
+export let someRequiredVariable; // ADD this line

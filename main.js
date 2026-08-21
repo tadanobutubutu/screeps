@@ -116,7 +116,7 @@ export function addSvgAccessibleNames(html) {
   });
   
   // Add title element inside SVGs if not present
-  result = result.replace(/(<svg([^>]*)>)(?!.*<title)/gi, (match, openTag, attrs) => {
+  result = result.replace(/(<svg([^>]*)>)(?!.*<title))/gi, (match, openTag, attrs) => {
     return `${openTag}<title>SVG Image</title>`;
   });
   
@@ -147,7 +147,7 @@ export function ensureUniqueLandmarks(html) {
             const uniqueId = `${lm}-${counter[lm]}`;
             // Add unique id to the opening tag
             if (!tag.includes('id="')) {
-              newHtmlArray.push(tag.replace(new RegExp(`<${lm}`, 'i'), `<${lm} id="${uniqueId}"`));
+              newHtmlArray.push(tag.replace(new RegExp(`<${lm}`, 'i`), `<${lm} id="${uniqueId}"`));
             } else {
               newHtmlArray.push(tag);
             }

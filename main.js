@@ -1,11 +1,11 @@
 const path = require('path');
 const { Worker } = require('worker_threads');
-const { generateDependencyGraph } = require('./dependency-graph-generator');
+const { generateDependencyGraph } = require('./dependencyGraph');
 const fs = require('fs');
 
 async function main() {
     try {
-        const outputPath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const outputPath = path.join('docs', 'dependency-graph.html');
         await generateDependencyGraph(outputPath);
         // Add the lang attribute to the HTML document tag for better screen reader support
         document.documentElement.lang = 'en';
@@ -68,9 +68,9 @@ async function updateReactToV19() {
 async function addScopeToTableHeaders() {
     try {
         console.log('Adding scope attribute to table headers for accessibility...');
-        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const filePath = path.join('docs', 'dependency-graph.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
-        const updatedContent = fileContent.replace(/<th>(.*?)<\/th>/g, '<th scope="col">$1</th>');
+        const updatedContent = fileContent.replace(/<th([^>]*)>/g, '<th$1 scope="col">');
         fs.writeFileSync(filePath, updatedContent);
         console.log('Scope attribute added successfully to table headers.');
     } catch (error) {
@@ -79,9 +79,55 @@ async function addScopeToTableHeaders() {
     }
 }
 
+/**
+ * Adds lang attribute to the HTML element for accessibility (REACT_015)
+ * This is critical for screen readers to properly interpret the document's language
+ */
+async function addLangAttributeToHtml() {
+    try {
+        console.log('Adding lang attribute to HTML element for accessibility...');
+        const filePath = path.join('app', 'layout.tsx');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        
+        // Check if lang attribute already exists
+        if (fileContent.includes('lang=')) {
+            console.log('Lang attribute already exists in HTML element.');
+            return;
+        }
+        
+        // Add lang="en" to the html tag
+        const updatedContent = fileContent.replace(
+            /<html([^>]*)>/,
+            '<html$1 lang="en">'
+        );
+        
+        if (updatedContent === fileContent) {
+            // Try alternative pattern for html tag
+            const altUpdatedContent = fileContent.replace(
+                /<Html([^>]*)>/,
+                '<Html$1 lang="en">'
+            );
+            if (altUpdatedContent !== fileContent) {
+                fs.writeFileSync(filePath, altUpdatedContent);
+                console.log('Lang attribute added successfully to HTML element (Html component).');
+                return;
+            }
+            console.log('Could not find HTML element to update.');
+            return;
+        }
+        
+        fs.writeFileSync(filePath, updatedContent);
+        console.log('Lang attribute added successfully to HTML element.');
+    } catch (error) {
+        console.error('Error adding lang attribute to HTML element:', error);
+        throw error;
+    }
+}
+
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
     updateReactToV19,
-    addScopeToTableHeaders
+    addScopeToTableHeaders,
+    addLangAttributeToHtml
 };

@@ -177,7 +177,7 @@ async function ensureUniqueLandmarks() {
       if (landmarks && landmarks.length > 1) {
         // Add aria-label to make duplicate landmarks unique
         updatedContent = updatedContent.replace(
-          new RegExp(`<([a-z]+)([^>]*)role="${role}"([^>]*)>`, 'gi'),
+          new RegExp(`<([a-z]+)([^>]*)role("${role}")([^>]*)>`, 'gi'),
           (match, tag, attrsBefore, attrsAfter) => {
             const allAttrs = (attrsBefore || '') + (attrsAfter || '');
             // Check if aria-label already exists

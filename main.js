@@ -79,7 +79,7 @@ function getDetectedDependencies() {
     if (!acc[item.ecosystem]) {
       acc[item.ecosystem] = [];
     }
-    acc[item.ecosystem].push(item.dependencies);
+    acc[item.ecosystem].push(...item.dependencies);
     return acc;
   }, {});
 }
@@ -145,13 +145,13 @@ function fixTableStructure() {
     }
 
     // Fix th elements with scope attributes
-    const ths = table.querySelectorAll('th');
+    const ths = table.querySelectorAll('th:not([scope])');
     ths.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         const parentRow = th.closest('tr');
         const parentThead = th.closest('thead');
         if (parentThead) {
-          const parentThs = Array.from(parentThead.querySelectorAll('th'));
+          const parentThs = Array.from(parentRow.querySelectorAll('th'));
           const thIndex = parentThs.indexOf(th);
           th.setAttribute('scope', thIndex === 0 ? 'col' : 'col');
         }
@@ -166,17 +166,19 @@ function addLandmarks() {
   if (typeof document === 'undefined') return;
 
   const elementConfigs = [
-    { selector: 'header:not([role])', role: 'banner' },
-    { selector: 'nav:not([role])', role: 'navigation' },
-    { selector: 'main:not([role])', role: 'main' },
-    { selector: 'aside:not([role])', role: 'complementary' },
-    { selector: 'footer:not([role])', role: 'contentinfo' }
+    { selector: 'header:has(:not([role]))', role: 'banner' },
+    { selector: 'nav:has(:not([role]))', role: 'navigation' },
+    { selector: 'main:has(:not([role]))', role: 'main' },
+    { selector: 'aside:has(:not([role]))', role: 'complementary' },
+    { selector: 'footer:has(:not([role]))', role: 'contentinfo' }
   ];
 
   elementConfigs.forEach(config => {
     const elements = document.querySelectorAll(config.selector);
     elements.forEach(el => {
-      el.setAttribute('role', config.role);
+      if (!el.getAttribute('role')) {
+        el.setAttribute('role', config.role);
+      }
     });
   });
 }
@@ -260,7 +262,7 @@ function fixFakeLink() {
       const currentRole = element.getAttribute('role');
       if (currentRole === 'button' || !currentRole) {
         // Add link role and tabindex for keyboard accessibility
-        if (!element.hasAttribute('tabindex')) {
+        if (!element.getAttribute('tabindex')) {
           element.setAttribute('tabindex', '0');
         }
         element.setAttribute('role', 'link');

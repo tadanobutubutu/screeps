@@ -23,4 +23,11 @@ const Layout = ({ children }) => {
   );
 };
 
+// New function requested in the issue
+const getIconDescription = () => {
+  // Placeholder for function logic
+  return "Default icon description";
+};
+
 export default Layout;
+export { getIconDescription };

@@ -1,7 +1,1 @@
-export function SemanticLinks({ href, children, onClick }) {
-  if (href) {
-    return <a href={href}>{children}</a>;
-  }
-  // If it doesn't navigate, use a button with onClick and the appropriate role for a button
-  return <button onClick={onClick} role="button">{children}</button>;
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

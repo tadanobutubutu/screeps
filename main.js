@@ -133,7 +133,7 @@ export function createIndexHTML() {
       </div>
     `,
     id: 'index',
-  }))))));
+  })))));
 }
 
 // Example of how to use the new function to create updated html for another specific page

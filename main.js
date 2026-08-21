@@ -1,4 +1,3 @@
-// Original main.js content (assuming it has some SVG elements that need to be fixed)
 import React from 'react';
 import './App.css';
 

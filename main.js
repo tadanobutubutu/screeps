@@ -1,5 +1,1 @@
-// main.js
-const fs = require('fs');
-// [Other existing code preserved with possible merge conflict markers]
-// [Conflict Resolution: Resolve all <<<<<<<, =======, >>>>>>> markers with your chosen code version]
-// Remainder of code continues unchanged...
+const fs = require('fs'); // [Other existing code preserved with possible merge conflict markers] // Handle memory cleanup for reserved roles const reservedRoles = invalidateMemoryForRoles('reserved', creepName); // Destroy Creep if not spawned yet and no role assigned to it if (!creep && Object.keys(reservedRoles).length === 0) { Memory[creepName] = null; } // Remainder of code continues unchanged...

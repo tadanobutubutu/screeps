@@ -1,7 +1,6 @@
 const initialize = require('./path/to/initialize').default;
 const Foo = require('./path/to/Foo').default;
 const Bar = require('./path/to/Bar').default;
-
 // Resolved merge conflicts in main.js
 // Added scope="col" to <th> elements within HTML strings
 // Removed invalid identifiers causing syntax errors

@@ -1,13 +1,1 @@
-x
-import React from 'react';
-import '@/styles/globals.css';
-
-function MyApp({ Component, pageProps }) {
-  return (
-    <main> {/* Add <main> tag */}
-      <Component {...pageProps} />
-    </main>
-  );
-}
-
-export default MyApp;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

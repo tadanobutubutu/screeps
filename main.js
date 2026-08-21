@@ -3,30 +3,46 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import MainContent from './components/MainContent';
 
-// PRESERVE all existing code from your current main.js
-// Only modifications related to adding <main> landmarks should be made here
+/**
+ * Main application entry point
+ */
 
-export default function MainContent({ children }) {
-    return (
-        <main>
-            {children}
-        </main>
-    );
+function initializeApp() {
+    const mainElement = document.querySelector('main') || document.getElementById('main');
+    if (mainElement) {
+        console.log('Main landmark found');
+    }
+    
+    // Set ARIA role for accessibility
+    mainElement.setAttribute('role', 'main');
+    
+    // Fix React Language Attribute accessibility warning
+    document.documentElement.setAttribute('lang', 'en');
+    
+    return mainElement;
 }
 
-// Example usage wrapper component
-export function AppContent({ children }) {
-    return (
-        <MainContent>
-            {children}
-        </MainContent>
-    );
+function getMainContent() {
+    return document.querySelector('main') || document.getElementById('main');
 }
 
-// If you have existing app initialization, preserve it here
-// Example: 
-// const container = document.getElementById('root');
-// const root = createRoot(container);
-// root.render(<App />);
+function init() {
+    const main = getMainContent();
+    if (main) {
+        main.setAttribute('role', 'main');
+    }
+    // The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
+    document.documentElement.setAttribute('lang', 'en');
+    return main;
+}
 
-module.exports = { MainContent, AppContent };
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        initializeApp,
+        getMainContent,
+        init
+    };
+}
+
+// ESM export for modern environments
+export { initializeApp, getMainContent, init };

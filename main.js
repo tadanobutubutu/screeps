@@ -1,7 +1,1 @@
-module.exports = {
-    accessibilityFixes: true,
-    ensureHTMLLangAttribute: () => {
-        const htmlElement = document.querySelector('html');
-        htmlElement.setAttribute('lang', 'en');
-    }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

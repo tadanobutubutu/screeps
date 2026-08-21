@@ -1,29 +1,21 @@
-// main.js - Fix React Landmarks (REACT_017) by adding <main> landmarks
+// main.js - Fix React Language Attribute (REACT_015) by adding lang attribute to <html>
 
 const fs = require('fs');
 const path = require('path');
 
 const files = [
-  'app/layout.tsx',
-  'dashboard/app/layout.tsx',
+  'docs/dependency-graph.html', // Add the affected file here
   // Add other affected files as needed
 ];
 
-function addMainLandmark(filePath) {
+function addLangAttribute(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
-    const hasMain = /<main[\s>]/i.test(content);
+    const hasLang = /<html[\s>]/i.test(content);
 
-    if (!hasMain) {
-      // For JSX files with body, wrap children in main
-      if (content.includes('<body>') || content.includes('<Body>')) {
-        content = content.replace(
-          /(<(?:body|Body)[^>]*>\s*)({[\s\S]*?})(\s*<\/(?:body|Body)>)/i,
-          (match, open, children, close) => {
-            return `${open}<main>${children}</main>${close}`;
-          }
-        );
-      }
+    if (!hasLang) {
+      // Add lang attribute to <html>
+      content = content.replace(/<html[\s>]/i, '<html lang="en">');
       fs.writeFileSync(filePath, content, 'utf8');
       console.log(`Fixed: ${filePath}`);
     }
@@ -35,6 +27,6 @@ function addMainLandmark(filePath) {
 files.forEach(file => {
   const fullPath = path.join(process.cwd(), file);
   if (fs.existsSync(fullPath)) {
-    addMainLandmark(fullPath);
+    addLangAttribute(fullPath);
   }
 });

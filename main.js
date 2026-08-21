@@ -86,7 +86,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex}>
+              <td key={cellIndex} headers={`header-${cellIndex}`}>
                 {cell}
               </td>
             ))}
@@ -131,6 +131,8 @@ export const AccessibleIconSVG = ({ ariaLabel, children, ...props }) => {
     <svg 
       aria-label={ariaLabel}
       role="img"
+      aria-hidden={ariaLabel ? undefined : true}
+      focusable="false"
       {...props}
     >
       {children}
@@ -178,7 +180,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
+  return new Date(date).toLocaleDateString('en-US', defaultOptions);
 }
 
 export function debounce(func, wait) {

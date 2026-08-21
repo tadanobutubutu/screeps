@@ -1,4 +1,3 @@
-tsx
 import React from 'react';
 
 const Layout = ({ children }) => {
@@ -13,6 +12,11 @@ const Layout = ({ children }) => {
       </body>
     </html>
   );
+};
+
+// New export for the TODO comment
+export const todoExport = () => {
+  console.log('Todo export placeholder function');
 };
 
 export default Layout;

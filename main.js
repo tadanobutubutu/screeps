@@ -99,11 +99,33 @@ function addLangAttribute(content) {
   });
 }
 
+/**
+ * Adds a <main> landmark to the HTML content for accessibility
+ */
+async function addMainLandmark() {
+    try {
+        console.log('Adding <main> landmark to HTML content for accessibility...');
+        const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
+        for (const filePath of filesToUpdate) {
+            const fileContent = fs.readFileSync(filePath, 'utf8');
+            const updatedContent = addLangAttribute(fileContent);
+            const newFileContent = `<main>` + updatedContent.replace(/<\/html>/, '</main></html>') + '</main>';
+            fs.writeFileSync(filePath, newFileContent);
+            console.log(`Main landmark added to ${filePath}`);
+        }
+        console.log('All HTML files have been updated with <main> landmarks.');
+    } catch (error) {
+        console.error('Error adding <main> landmark:', error);
+        throw error;
+    }
+}
+
 // Export utilities for testing
 module.exports = {
     generateDependencyGraph,
     updateJestToV30,
     updateReactToV19,
     addScopeToTableHeaders,
-    addLangAttribute
+    addLangAttribute,
+    addMainLandmark
 };

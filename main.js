@@ -90,7 +90,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex} ...
                 {cell}
               </td>
             ))}
@@ -173,7 +173,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 11)}`;
+  return ... 11)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -183,7 +183,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new ... ...
 }
 
 export function debounce(func, wait) {
@@ -285,7 +285,7 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
         zIndex: 1000
       }}
     >
-      <h2 id="modal-title">{title}</h2>
+      <h2 ...
       {children}
       <button 
         type="button" 

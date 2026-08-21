@@ -1,8 +1,5 @@
-// The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
-
 /**
- * Main application entry point
- */
+ * Main application entry point */
 
 function initializeApp() {
     const mainElement = document.querySelector('main');
@@ -21,7 +18,7 @@ function init() {
     if (main) {
         main.setAttribute('role', 'main');
     }
-    // Set language attribute for accessibility
+    // The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
     document.documentElement.setAttribute('lang', 'en');
     return main;
 }

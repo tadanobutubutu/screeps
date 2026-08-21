@@ -8,12 +8,15 @@ const path = require('path');
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html([^>]*)>/i, (match, attrs) => {
-    if (attrs && /\b(?:lang\s*=\s*['"])\b/i.test(attrs)) {
-      return match;
+  return content.replace(
+    /<html(\s+[^>]*)?>/gi,
+    (match, attrs) => {
+      if (attrs && /\blang\s*=/i.test(attrs)) {
+        return match;
+      }
+      return `<html${attrs ? attrs : ''} lang="en">`;
     }
-    return `<html${attrs ? attrs : ''} lang="en">`;
-  });
+  );
 }
 
 /**
@@ -25,14 +28,15 @@ async function addMainLandmark() {
     const filesToUpdate = [path.join('docs', 'index.html')];
     for (const filePath of filesToUpdate) {
       const fileContent = await fs.readFile(filePath, 'utf8');
-      if (/<main[\s>]/i.test(fileContent)) {
+      if (/<main[^>]*>/i.test(fileContent)) {
         console.log(`Main landmark already exists in ${filePath}, skipping`);
         continue;
       }
       const updatedContent = fileContent.replace(
-        /<body([^>]*)>([\s\S]*)<\/body>/i,
-        (match, bodyOpen, bodyContent) =>
-          `${bodyOpen}${bodyContent}${'</main>'}`
+        /(<body[^>]*>)(\s*)([\s\S]*?)(<\/body>)/gi,
+        (match, bodyOpen, whitespace, bodyContent, bodyClose) => {
+          return `${bodyOpen}${whitespace}<main>${bodyContent}</main>${bodyClose}`;
+        }
       );
       await fs.writeFile(filePath, updatedContent);
       console.log(`Main landmark added to ${filePath}`);
@@ -71,13 +75,13 @@ async function replaceHashLinksWithButtons() {
     const filePath = path.join('docs', 'index.html');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const updatedContent = fileContent.replace(
-      /<a([^>]*href=["']#[^"']*["'][^>]*)>(.*?)<\/a>/gi,
+      /<a\s+href="#([^"]*)"([^>]*)>([^<]*)<\/a>/gi,
       (match, attrsBefore, id, attrsAfter, text) => {
         const idAttr = id ? ` id="${id}"` : '';
-        const classMatch = /class=["']([^"']*)["']/i.exec(attrsBefore + attrsAfter);
+        const classMatch = /class="([^"]*)"/gi.exec(attrsAfter);
         const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
-        return `<button${idAttr}${classAttr}>${text}</button>`;
-      },
+        return `<button${idAttr}${classAttr} type="button">${text}</button>`;
+      }
     );
     await fs.writeFile(filePath, updatedContent);
     console.log('Hash links replaced with buttons successfully.');
@@ -97,23 +101,23 @@ async function fixTableStructure() {
     const filePath = path.join('docs', 'index.html');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const updatedContent = fileContent.replace(
-      /<table([^>]*)>([\s\S]*?)<\/table>/gi,
-      (match, tableAttrs, tableContent) => {
-        if (/<thead>/i.test(tableContent) || /<tbody>/i.test(tableContent)) {
+      /<table([^>]*)>(\s*)([\s\S]*?)(<\/table>)/gi,
+      (match, tableAttrs, whitespace, tableContent) => {
+        if (/<thead>[\s\S]*<\/thead>/i.test(tableContent) || /<tbody>[\s\S]*<\/tbody>/i.test(tableContent)) {
           return match;
         }
-        const firstRowMatch = /<tr([^>]*)>([\s\S]*?)<\/tr>/i.exec(tableContent);
+        const firstRowMatch = /<tr[^>]*>([\s\S]*?)<\/tr>/i.exec(tableContent);
         if (firstRowMatch) {
-          const headerCells = firstRowMatch[2].replace(
-            /<td([^>]*)>([\s\S]*?)<\/td>/gi,
+          const headerCells = firstRowMatch[1].replace(
+            /<t[dh]([^>]*)>([\s\S]*?)<\/t[dh]>/gi,
             (cellMatch, cellAttrs, cellContent) =>
-              `<th${cellAttrs}>${cellContent}</th>`,
+              `<th${cellAttrs}>${cellContent}</th>`
           );
-          return `<table${tableAttrs}><thead><tr${firstRowMatch[1]}>${headerCells}</tr></thead>
-<tbody>${tableContent.replace(/<tr([^>]*)>/i, '')}</tbody></table>`;
+          const restContent = tableContent.replace(firstRowMatch[0], '');
+          return `<table${tableAttrs}><thead><tr>${headerCells}</tr></thead><tbody>${restContent}</tbody></table>`;
         }
         return `<table${tableAttrs}><tbody>${tableContent}</tbody></table>`;
-      },
+      }
     );
     await fs.writeFile(filePath, updatedContent);
     console.log('Table structure issues fixed.');
@@ -134,16 +138,16 @@ async function ensureUniqueLandmarks() {
     const fileContent = await fs.readFile(filePath, 'utf8');
     let updatedContent = fileContent;
     ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].forEach(role => {
-      const rolePattern = new RegExp(`<[^>]*role=["']${role}["'][^>]*/`, 'gi');
+      const rolePattern = new RegExp(`<[^>]*\\b(role=['"]${role}['"]|${role})\\b[^>]*>`, 'gi');
       let match;
       while ((match = rolePattern.exec(updatedContent)) !== null) {
         updatedContent = updatedContent.replace(
           rolePattern,
-          (fullMatch, tag) => {
-            const attrs = tag.match(/[^=]*\s*=\s*[\"\'][^\"\']*[\"\']/g) || [];
-            const existingAriaLabel = attrs.find(a => a.includes('aria-label'));
+          (fullMatch) => {
+            const attrs = fullMatch.match(/[\w-]+=(['"])[^\1]*?\1/gi) || [];
+            const existingAriaLabel = attrs.find(a => /aria-label/i.test(a));
             if (existingAriaLabel) return fullMatch;
-            return match[0].replace('>', ` aria-label="${role}">`);
+            return fullMatch.replace(/>$/, ` aria-label="${role}">`);
           }
         );
       }
@@ -157,7 +161,7 @@ async function ensureUniqueLandmarks() {
         (match, attrs) => {
           mainCount++;
           return mainCount === 1 ? `<main${attrs}>` : `<div${attrs} role="main">`;
-        },
+        }
       );
       let closeCount = 0;
       updatedContent = updatedContent.replace(
@@ -165,7 +169,7 @@ async function ensureUniqueLandmarks() {
         () => {
           closeCount++;
           return closeCount === 1 ? '</main>' : '</div>';
-        },
+        }
       );
     }
 
@@ -193,7 +197,7 @@ async function addSvgAccessibleNames() {
         continue;
       }
 
-      if (!/role=["']img["']/i.test(fileContent) && !/aria-label\s*=\s*[\"\']/i.test(fileContent)) {
+      if (/<svg[^>]*>/i.test(fileContent) && !/aria-label/i.test(fileContent)) {
         const modifiedContent = fileContent.replace(
           /<svg([^>]*)>/gi,
           (match, attrs) => {

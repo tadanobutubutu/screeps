@@ -134,7 +134,7 @@ class MyComponent extends React.Component {
       <button 
         role="button"
         aria-label={this.props.label || 'My Button'}
-        tabIndex={this.props.disabled ? -1 : 0}
+        ... ? -1 : 0}
         aria-pressed={this.props.isPressed || false}
         aria-disabled={this.props.disabled || false}
         onClick={this.props.onClick}

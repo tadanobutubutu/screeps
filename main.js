@@ -1,24 +1,16 @@
-// Main entry point for the Screeps application
+import React from 'react';
+import ReactDOM from 'react-dom';
 import { Dashboard } from './components/Dashboard';
 
+// Main entry point for the Screeps application
 export default function App() {
   return <Dashboard />;
 }
 
-// HTML root setup added from origin/main
-import React from 'react';
-import ReactDOM from 'react-dom';
-
+// ReactDOM setup from origin/main
 ReactDOM.render(
   <React.StrictMode>
-    <html lang="en">
-      <head>
-        {/* ... (existing head elements) */}
-      </head>
-      <body>
-        {/* ... (existing body elements) */}
-      </body>
-    </html>
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

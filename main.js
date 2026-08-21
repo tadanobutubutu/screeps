@@ -5,7 +5,6 @@ const path = require('path');
 
 const files = [
   'app/layout.tsx',
-  'dashboard/app/layout.tsx',
   // Add other affected files as needed
 ];
 
@@ -16,11 +15,11 @@ function addMainLandmark(filePath) {
     
     if (!hasMain) {
       // For JSX files with body, wrap children in main
-      if (content.includes('<body>') || content.includes('<Body>')) {
+      if (/<body[^>]*>[\s\S]*<\/body>/i.test(content)) {
         content = content.replace(
-          /(<(?:body|Body)[^>]*>\s*)({[\s\S]*?})(\s*<\/(?:body|Body)>)/i,
-          (match, open, children, close) => {
-            return `${open}<main>${children}</main>${close}`;
+          /<body([^>]*)>([\s\S]*?)<\/body>/i,
+          (match, attrs, children) => {
+            return `<body${attrs}><main>${children}</main></body>`;
           }
         );
       }
@@ -33,7 +32,7 @@ function addMainLandmark(filePath) {
 }
 
 files.forEach(file => {
-  const fullPath = path.join(process.cwd(), file);
+  const fullPath = path.join(__dirname, file);
   if (fs.existsSync(fullPath)) {
     addMainLandmark(fullPath);
   }

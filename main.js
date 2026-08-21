@@ -2,16 +2,20 @@ import DependencyGraph from './DependencyGraph';
 
 const DependencyGraphComponent = () => {
   // Other components and content
-  <button type="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
-  // Other components and content
-  <DependencyGraph />
+  return (
+    <div>
+      <button type="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
+      {/* Other components and content */}
+      <DependencyGraph />
+    </div>
+  );
 };
 
 const addLangAttribute = () => {
   // Add lang attribute to HTML element
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
-    htmlElement.setAttribute('lang', 'en');
+  if (htmlElement && !htmlElement.lang) {
+    htmlElement.lang = 'en';
   }
 };
 
@@ -20,21 +24,21 @@ const ensureUniqueLandmarks = () => {
   // Common landmark roles: banner, navigation, main, complementary, contentinfo, search
   // This function should be called during component mount to validate uniqueness
   // Example of ensuring unique landmarks for existing landmarks:
-  const landmarkSelectors = '[role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]';
-  const existingLandmarks = document.querySelectorAll(landmarkSelectors);
+  const landmarkSelectors = ['[role="main"]', '[role="complementary"]', '[role="contentinfo"]', '[role="search"]'];
+  const existingLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
   
   const usedLabels = new Map();
   
   for (const landmark of existingLandmarks) {
     const ariaLabel = landmark.getAttribute('aria-label');
-    const landmarkId = landmark.id || 'landmark-without-id';
+    const landmarkId = landmark.id || `landmark-${Math.random().toString(36).substr(2, 9)}`;
     
     if (!ariaLabel) {
       // Generate a unique identifier if no aria-label is present
       let uniqueIdentifier = `landmark-${landmarkId}`;
       if (usedLabels.has(uniqueIdentifier)) {
-        uniqueIdentifier = `${uniqueIdentifier}-${usedLabels.get(uniqueIdentifier)}`;
-        usedLabels.set(uniqueIdentifier, usedLabels.get(uniqueIdentifier) + 1);
+        uniqueIdentifier = `${uniqueIdentifier}-${usedLabels.get(uniqueIdentifier) + 1}`;
+        usedLabels.set(uniqueIdentifier, 1);
       } else {
         usedLabels.set(uniqueIdentifier, 1);
       }
@@ -87,9 +91,9 @@ const fixTableStructureIssues = () => {
     // 3. Ensure proper thead/tbody structure
     if (!table.querySelector('thead')) {
       const firstRow = table.querySelector('tr');
-      if (firstRow && !firstRow.closest('thead')) {
+      if (firstRow && firstRow.querySelector('th')) {
         const thead = document.createElement('thead');
-        const clonedRow = firstRow.cloneNode(false);
+        const clonedRow = firstRow.cloneNode(true);
         thead.appendChild(clonedRow);
         table.insertBefore(thead, table.firstChild);
       }
@@ -99,7 +103,7 @@ const fixTableStructureIssues = () => {
       const bodyRows = Array.from(table.querySelectorAll('tr')).filter(tr => !tr.closest('thead'));
       if (bodyRows.length > 0) {
         const tbody = document.createElement('tbody');
-        bodyRows.forEach(tr => tbody.appendChild(tr.cloneNode(true)));
+        bodyRows.forEach(tr => tbody.appendChild(tr));
         table.appendChild(tbody);
         // Remove original rows that are now in tbody
         bodyRows.forEach(tr => {
@@ -117,7 +121,7 @@ const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg, index) => {
-    const hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
     const hasTitle = svg.querySelector('title') !== null;
     
     if (!hasAriaLabel && !hasTitle) {
@@ -130,40 +134,13 @@ const addSvgAccessibleNames = () => {
   });
 };
 
-const replaceHashLinksWithButtons = () => {
-  // Fix 1 fake link issue - replace href="#" with button elements
-  const fakeLinks = document.querySelectorAll('a[href="#"]');
-  
-  fakeLinks.forEach(link => {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = link.textContent;
-    button.className = link.className;
-    button.id = link.id;
-    
-    // Copy relevant attributes
-    Array.from(link.attributes).forEach(attr => {
-      if (!['href', 'id'].includes(attr.name)) {
-        button.setAttribute(attr.name, attr.value);
-      }
-    });
-    
-    // Copy event listeners (this is a simplified approach)
-    // In a real implementation, you'd need to properly transfer event listeners
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
-    });
-    
-    link.parentNode.replaceChild(button, link);
-  });
-};
-
 const fixFakeLinks = () => {
-  // Fix elements with role="link" that aren't actual anchor tags
-  const fakeLinks = document.querySelectorAll('[role="link"]');
+  // Fix 1 fake link issue - replace href="#" with button elements
+  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"]');
   
   fakeLinks.forEach(link => {
     if (link.tagName !== 'A') {
+      // Handle elements with role="link" that aren't actual anchor tags
       link.setAttribute('tabindex', '0');
       link.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -171,6 +148,29 @@ const fixFakeLinks = () => {
           link.click();
         }
       });
+    } else {
+      // Convert fake links (href="#") to proper buttons
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = link.textContent;
+      button.className = link.className;
+      button.id = link.id;
+      
+      // Copy relevant attributes
+      Array.from(link.attributes).forEach(attr => {
+        if (!['href', 'role'].includes(attr.name)) {
+          button.setAttribute(attr.name, attr.value);
+        }
+      });
+      
+      // Copy event listeners
+      const clickHandler = (e) => {
+        e.preventDefault();
+        // Add your click logic here
+      };
+      button.addEventListener('click', clickHandler);
+      
+      link.parentNode.replaceChild(button, link);
     }
   });
 };
@@ -181,8 +181,6 @@ export {
   ensureUniqueLandmarks, 
   fixTableStructureIssues, 
   addSvgAccessibleNames,
-  replaceHashLinksWithButtons,
   fixFakeLinks, 
   DependencyGraph 
 };
-// Re-export existing functions or add new export statements for additional functions if necessary

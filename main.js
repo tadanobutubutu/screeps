@@ -18,4 +18,5 @@
 // ... (preserved code)
 
 // Main script
-// REACT_015 fix: Ensure <html lang="en> in docs/dependency-graph.html
+// REACT_015 fix: Ensure <html lang="en"> in docs/dependency-graph.html
+// ... (rest of the main.js content after the conflict markers)

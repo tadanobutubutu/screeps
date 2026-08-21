@@ -30,14 +30,14 @@ const Dashboard = () => {
     }, []);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <div lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -103,14 +103,14 @@ const Dashboard = () => {
     }
 
     if (!stats) {
-        return <div>Loading...</div>;
+        return <div lang="ja">Loading...</div>;
     }
 
     return (
-        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <div lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1 style={{ color: '#2b6cb0' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
+            <div style={{ display: 'grid', ... 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                ... value]) => (
                     <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
                         <h2 style={{ color: '#2b6cb0', marginTop: 0 }}>{key}</h2>
                         <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2d3748' }}>{value}</p>

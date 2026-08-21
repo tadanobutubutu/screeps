@@ -1,6 +1,6 @@
 const path = require('path');
 const { Worker } = require('worker_threads');
-const { generateDependencyGraph } = require('./dependency-graph-generator');
+const { generateDependencyGraph } = require('./dependencyGraph');
 const fs = require('fs');
 
 async function main() {
@@ -70,7 +70,12 @@ async function addScopeToTableHeaders() {
         console.log('Adding scope attribute to table headers for accessibility...');
         const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
-        const updatedContent = fileContent.replace(/<th>(.*?)<\/th>/g, '<th scope="col">$1</th>');
+        const updatedContent = fileContent.replace(/<th([^>]*)>/g, (match, attrs) => {
+            if (attrs.includes('scope')) {
+                return match;
+            }
+            return `<th${attrs} scope="col">`;
+        });
         fs.writeFileSync(filePath, updatedContent);
         console.log('Scope attribute added successfully to table headers.');
     } catch (error) {
@@ -85,14 +90,12 @@ async function addScopeToTableHeaders() {
  * @param {string} content - HTML string to modify
  * @returns {string} - Modified HTML with a language attribute
  */
-function addLangAttributeToHtml(content) {
-  return content.replace(/<html\b([^>]*)>/gi, (match, attrs) => {
-    if (/\blang\s*=/i.test(attrs)) {
-      // Lang attribute already present – keep original
+function addLangAttribute(content) {
+  return content.replace(/<html(\s[^>]*)?>/, (match, attrs) => {
+    if (attrs && /\slang\s*=/i.test(attrs)) {
       return match;
     }
-    // Insert lang="en" before the closing '>'
-    return `<html${attrs} lang="en">`;
+    return `<html${attrs ? attrs : ''} lang="en">`;
   });
 }
 
@@ -102,5 +105,5 @@ module.exports = {
     updateJestToV30,
     updateReactToV19,
     addScopeToTableHeaders,
-    addLangAttributeToHtml
+    addLangAttribute
 };

@@ -28,6 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Replace the old element with the new button
     unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
   }
+
+  // Add scope="col" to all <th> elements in tables
+  const headers = document.querySelectorAll('th');
+  headers.forEach(header => {
+    header.setAttribute('scope', 'col');
+  });
 });
 
 // Export for testing (if applicable)

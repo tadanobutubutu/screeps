@@ -46,6 +46,24 @@ export function AccessibleIcon({ children, label, className }) {
 }
 
 /**
+ * Creates an accessible SVG data URL for favicons
+ * Fixes: REACT_041 (SVG Accessible Name) for inline SVG favicons
+ * 
+ * @param {Object} options - Configuration options
+ * @param {string} options.title - Accessible title for the SVG (required)
+ * @param {string} options.content - SVG content (e.g., text, paths)
+ * @param {string} [options.viewBox='0 0 100 100'] - SVG viewBox
+ * @returns {string} Data URL string for use in Next.js metadata icons
+ */
+export function createAccessibleFaviconSvg({ title, content, viewBox = '0 0 100 100' }) {
+  if (!title || !title.trim()) {
+    throw new Error('Favicon SVG must have a non-empty title for accessibility (REACT_041)');
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" role="img" aria-labelledby="favicon-title"><title id="favicon-title">${title}</title>${content}</svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
  * Proper landmark wrapper
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
  */
@@ -173,9 +191,10 @@ export const accessibilityComponents = {
   AccessibleLink,
   SkipLink,
   AccessiblePageWrapper,
+  createAccessibleFaviconSvg,
 };
 
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper, createAccessibleFaviconSvg };

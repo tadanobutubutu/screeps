@@ -106,6 +106,25 @@ async function addMainLandmark() {
     }
 }
 
+/**
+ * Replaces links with hash-only href attributes with buttons for better accessibility
+ */
+async function replaceHashLinksWithButtons() {
+    try {
+        console.log('Replacing hash links with buttons for better accessibility...');
+        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const fileContent = fs.readFileSync(filePath, 'utf8');
+        const updatedContent = fileContent.replace(/<a\s+id="unrotate"\s+href="#"\s*>(.*?)<\/a>/g, (match, text) => {
+            return `<button id="unrotate">${text}</button>`;
+        });
+        fs.writeFileSync(filePath, updatedContent);
+        console.log('Hash links replaced with buttons successfully.');
+    } catch (error) {
+        console.error('Error replacing hash links with buttons:', error);
+        throw error;
+    }
+}
+
 // Export utilities for testing
 module.exports = {
     generateDependencyGraph,
@@ -114,5 +133,6 @@ module.exports = {
     addScopeToTableHeaders,
     addLangAttribute,
     addMainLandmark,
+    replaceHashLinksWithButtons,
     main
 };

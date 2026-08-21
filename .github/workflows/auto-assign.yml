@@ -26,7 +26,18 @@ jobs:
       
       - name: Auto Assign PRs
         if: github.event_name == 'pull_request'
-        uses: kentaro-m/auto-assign-action@v2.0.2
+        uses: actions/github-script@v7
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          configuration-path: '.github/auto-assign.yml'
+          script: |
+            github.rest.issues.addAssignees({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              assignees: ['tadanobutubutu']
+            })
+            github.rest.pulls.requestReviewers({
+              pull_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              reviewers: ['tadanobutubutu']
+            })

@@ -1,14 +1,1 @@
-module.exports.loop = function() {
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role === 'harvester') {
-            roleHarvester.run(creep);
-        }
-        if(creep.memory.role === 'upgrader') {
-            roleUpgrader.run(creep);
-        }
-        if(creep.memory.role === 'builder') {
-            roleBuilder.run(creep);
-        }
-    }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

@@ -23,7 +23,7 @@ document.getElementById('unrotate').addEventListener('click', function () {
 });
 
 // Add lang attribute for HTML element
-document. documentElement.lang = "en";
+document.documentElement.lang = "en";
 
 // Add scope="col" to all <th> elements for accessibility
 const tableHeaders = document.querySelectorAll('table th');
@@ -107,9 +107,7 @@ fakeLinks.forEach(link => {
   link.style.textDecoration = 'none';
 });
 
-// ... [rest of the main.js content] ...
-
-// Add back any required exports that might have been removed
+// Add back the main function (rotateBack) to the exports
 function rotateBack() {
   // Example implementation: reset rotation of targeted elements
   const targets = document.querySelectorAll('.rotate-target');
@@ -121,4 +119,15 @@ function rotateBack() {
 // Export the function so it remains accessible to other modules
 export { rotateBack };
 
-// ... [any other existing exports and functions] ...
+// ... [rest of the main.js content] ...
+
+// Add new function (resetAllRotations) to the exports
+function resetAllRotations() {
+  const rotateTargets = document.querySelectorAll('.rotate-target');
+  rotateTargets.forEach(el => {
+    el.style.transform = ' none ';
+  });
+}
+
+// Export the new function for use by other modules
+export { resetAllRotations };

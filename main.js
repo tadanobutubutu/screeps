@@ -12,6 +12,12 @@ btn.addEventListener('click', function() {
 // The button can be appended to wherever the original link was
 // document.querySelector('.controls').appendChild(btn);
 
+// New function to ensure SVG accessibility
+function addAccessibleNameToSVG(svgString) {
+    return svgString.replace('<svg', '<svg aria-label="Accessible name for SVG content">');
+}
+
 module.exports = {
-    btn
+    btn,
+    addAccessibleNameToSVG
 };

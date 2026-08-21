@@ -21,16 +21,17 @@ const MyTable = ({ columns, data }) => {
 
   // Enable accessibility features for table headers as requested by REACT_027 rule.
   return (
-    <table {...getTableProps()} aria-labelledby="table- Titel">
+    <table {...getTableProps()} aria-labelledby="table-Titel">
       <thead>
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
               <th
-                id={`header-${column.id}`}
                 {...column.getHeaderProps(column.getSortByToggleProps())}
+                scope="col"
               >
                 {column.render('Header')}
+                {column.canSort && <span>{column.isSorted ? (column.isSortedDesc ? ' ↓' : ' ↑') : ' ↕'}</span>}
               </th>
             ))}
           </tr>
@@ -68,7 +69,7 @@ const ContentInEnglish = () => (
 export const MyLandmarks = () => (
   <>
     <header role="banner" id="landmarks-banner">
-      <h1 role="heading" id="landmarks-title">My Landmarks</h1>
+      <h1 role="heading" aria-level="1">Landmarks</h1>
     </header>
   </>
 );

@@ -1,4 +1,5 @@
-// ... Existing code ...
+// TODO: Address accessibility issues from insight report:
+// Placeholder for accessibility-related code changes
 
 // Function to create main HTML with main landmark (improves accessibility)
 export function createMainHTML({ children, id }) {
@@ -11,8 +12,8 @@ export function createMainHTML({ children, id }) {
 
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
-export function fixTableStructureIssues(html) {
-  return html.replace(/<th([^>]*)>/gi, (match, attrs) => {
+export function fixTableScope(html) {
+  return html.replace(/<th(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasScope = /scope\s*=/i.test(existingAttrs);
     if (hasScope) {
@@ -24,7 +25,7 @@ export function fixTableStructureIssues(html) {
 
 // Function to add lang attribute to HTML element
 export function addLangAttribute(html) {
-  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+  return html.replace(/<html(\s[^>]*)?>/gi, (match, attrs) => {
     const hasLang = attrs && /lang\s*=/i.test(attrs);
     if (hasLang) {
       return match;
@@ -38,7 +39,7 @@ export function addLandmarks(html) {
   let result = html;
   
   // Add main landmark with proper id and aria-label
-  result = result.replace(/<main([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<main(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasId = /id\s*=/i.test(existingAttrs);
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs);
@@ -53,7 +54,7 @@ export function addLandmarks(html) {
   });
   
   // Fix div landmarks
-  result = result.replace(/<div([^>]*)class="([^"]*)"([^>]*)>/gi, (match, attrs1, c1, attrs2) => {
+  result = result.replace(/<div(\s[^>]*)?\sclass="([^"]*)"(\s[^>]*)?>/gi, (match, attrs1, c1, attrs2) => {
     const existingAttrs = (attrs1 || '') + (attrs2 || '');
     const hasRole = /role\s*=/i.test(existingAttrs);
     if (!hasRole) {
@@ -63,7 +64,7 @@ export function addLandmarks(html) {
   });
   
   // Fix section landmarks
-  result = result.replace(/<section([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<section(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
@@ -75,7 +76,7 @@ export function addLandmarks(html) {
   });
   
   // Fix article landmarks
-  result = result.replace(/<article([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<article(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
@@ -85,7 +86,7 @@ export function addLandmarks(html) {
   });
   
   // Fix nav landmarks
-  result = result.replace(/<nav([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<nav(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
@@ -98,11 +99,11 @@ export function addLandmarks(html) {
 }
 
 // Function to add accessible names to SVGs
-export function addAccessibleNamesToSVGs(html) {
+export function addSvgAccessibility(html) {
   let result = html;
   
   // Add role and aria-label to svg elements
-  result = result.replace(/<svg([^>]*)>/gi, (match, attrs) => {
+  result = result.replace(/<svg(\s[^>]*)?>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasRole = /role\s*=/i.test(existingAttrs);
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs);
@@ -117,8 +118,12 @@ export function addAccessibleNamesToSVGs(html) {
   });
   
   // Add title element inside SVGs if not present
-  result = result.replace(/(<svg[^>]*>)(?!.*<title)/gi, (match, openTag) => {
+  result = result.replace(/(<svg[^>]*>)/gi, (match, openTag) => {
+    if (/<title/i.test(match)) {
+      return match;
+    }
     return openTag + '<title>Icon</title>';
   });
   
-  return
+  return result;
+}

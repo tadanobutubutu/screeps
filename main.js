@@ -5,6 +5,7 @@
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope attribute to th elements
 
 // Existing imports or code
 // ... [original main.js content] ...
@@ -126,6 +127,12 @@ fakeLinks.forEach(link => {
     link.setAttribute('aria-label', link.textContent.trim());
   }
   link.style.textDecoration = 'none';
+});
+
+// Add scope="col" to all <th> elements for accessibility (REACT_027)
+const thElements = document.querySelectorAll('th');
+thElements.forEach(th => {
+  th.setAttribute('scope', 'col');
 });
 
 // Add the new function (resetAllRotations) to the exports

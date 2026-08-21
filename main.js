@@ -189,6 +189,21 @@ function fixFakeLink() {
 }
 
 /**
+ * Fixes the fake link in docs/dependency-graph.html by replacing it with a button
+ * This addresses REACT_036 accessibility issue
+ */
+function fixFakeLinkInDocs() {
+  if (typeof document === 'undefined') return;
+  const oldLink = document.getElementById('unrotate');
+  if (oldLink && oldLink.tagName.toLowerCase() === 'a' && oldLink.getAttribute('href') === '#') {
+    const button = document.createElement('button');
+    button.textContent = oldLink.textContent;
+    button.id = oldLink.id;
+    oldLink.parentNode.replaceChild(button, oldLink);
+  }
+}
+
+/**
  * The function that gets all required dependencies and exports them
  */
 function getRequiredDependencies() {
@@ -216,6 +231,7 @@ function getRequiredDependencies() {
 if (typeof document !== 'undefined') {
   document.documentElement.setAttribute('lang', 'en');
   fixTableStructure(mainElement);
+  fixFakeLinkInDocs();
 }
 
 // Add the new function to the module.exports
@@ -234,5 +250,6 @@ module.exports = {
   addAccessibleSVGs,
   ensureUniqueLandmarks,
   fixFakeLink,
+  fixFakeLinkInDocs,
   getRequiredDependencies
 };

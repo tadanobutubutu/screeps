@@ -1,13 +1,4 @@
-import React, { useState, useEffect } from 'react';
-
-const Dashboard = () => {
-    const [stats, setStats] = useState(null);
-    const [error, setError] = useState(null);
-    const [refreshing, setRefreshing] = useState(false);
-    const [errCopyHover, setErrCopyHover] = useState(false);
-    const [errRetryHover, setErrRetryHover] = useState(false);
-    const [copied, setCopied] = useState(false);
-
+<main>
     const fetchStats = async (force = false) => {
         if (refreshing && !force) return;
         setRefreshing(true);
@@ -142,3 +133,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+</main>

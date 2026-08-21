@@ -51,6 +51,32 @@ export function AccessibleTable({ data }) {
   );
 }
 
+// Fix for REACT_027: Table headers with proper scope attributes
+export function TableWithProperHeaders() {
+  return (
+    <table>
+      <thead>
+        <tr>
+          <th scope="col"><div>src/constants.js</div></th>
+          <th scope="col"><div>src/managers/roomManager.js</div></th>
+          <th scope="col"><div>src/managers/spawnManager.js</div></th>
+          <th scope="col"><div>src/managers/towerManager.js</div></th>
+          <th scope="col"><div>src/roles/builder.js</div></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row"><div>Row Header</div></th>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+          <td>Data</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 // Example SVG with accessible name (REACT_041 fix)
 export function AccessibleIcon({ name }) {
   return (

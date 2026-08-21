@@ -6,10 +6,6 @@ export function rotateBack() {
 }
 
 // Updated main.js content with new function to replace the <a> tag with a <button>
-export function rotateBack() {
-  // existing rotateBack function code
-}
-
 export function handleRotation() {
   // new function to handle the rotation action, replacing the <a> tag
   return (

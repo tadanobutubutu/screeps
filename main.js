@@ -1,6 +1,29 @@
-// TODO: Add back any required exports that might have been?
+/**
+ * Main application entry point
+ */
 
-// Placeholder for missing exports
-module.exports = {
-  // Add exports here
-};
+function initializeApp() {
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+        console.log('Main landmark found');
+    }
+    return mainElement;
+}
+
+function getMainContent() {
+    return document.querySelector('main') || document.getElementById('main');
+}
+
+function init() {
+    const main = getMainContent();
+    if (main) {
+        main.setAttribute('role', 'main');
+    }
+    return main;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { initializeApp, getMainContent, init};
+}
+
+export { initializeApp, getMainContent, init };

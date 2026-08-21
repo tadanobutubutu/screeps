@@ -1,10 +1,1 @@
-const icons = {
-  icon: 'data:image/svg+xml,<svg aria-label="Screeps Dashboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>',
-  apple: 'data:image/svg+xml,<svg aria-label="Screeps Dashboard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">🐛</text></svg>',
-};
-
-export default function Home() {
-  return <div>{/* ... */}</div>;
-}
-
-export { icons };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

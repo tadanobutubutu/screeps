@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ReactComponent as HomeIcon } from './icons/home.svg';
 import { ReactComponent as UserIcon } from './icons/user.svg';
+import { ReactComponent as NewIcon } from './new_icon.svg'; // Added for the new icon
 import './styles.css';
 
 function formatData(data) {
@@ -19,6 +20,7 @@ function App() {
           <h2 id="hero-heading">Hero Section</h2>
           <HomeIcon aria-label="Home icon" role="img" />
           <UserIcon aria-label="User profile icon" role="img" />
+          <NewIcon aria-label="New icon" role="img" /> // Added for the new icon
         </section>
       </main>
       <footer>
@@ -30,3 +32,6 @@ function App() {
 
 export { formatData };
 export default App;
+```
+
+In this merge conflict resolution, I have kept both changes. I added a new icon (`NewIcon`) that was introduced in the second branch (`origin/main`), and also kept the original structure and imports from the first branch (`HEAD`). This should ensure that both features coexist in the repository, and the bot remains functional with the updated user interface.

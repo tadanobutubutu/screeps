@@ -158,8 +158,6 @@ addAccessibleNamesToSVGs();
 ensureUniqueLandmarks();
 fixFakeLinkIssue();
 
-// Current existing code (preserve all existing code, exports, and functions)
-
 import express from 'express';
 
 const expressApp = express();

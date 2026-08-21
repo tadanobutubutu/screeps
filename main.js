@@ -59,14 +59,14 @@ function ensureMainLandmark(container) {
   const targetDoc = container && container.querySelector ? container : document;
   
   // Check if main landmark already exists
-  let mainElement = targetDoc.querySelector("main, [role='main']");
+  let mainElement = targetDoc.querySelector("[role='main']");
   
   if (!mainElement) {
     // Create main landmark for accessibility
     mainElement = targetDoc.createElement("main");
     
     // Try to find the body or main content area to wrap
-    const body = targetDoc.body || targetDoc.querySelector("body");
+    const body = targetDoc.body || targetDoc.documentElement;
     if (body && body.firstChild) {
       // Move body children into main
       while (body.firstChild) {
@@ -151,9 +151,9 @@ function fixFakeLink(element, isActionLink) {
 // REACT_036: Fix the rotate back fake link
 function fixRotateBackLink(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const rotateBackLink = targetDoc.getElementById("unrotate");
+  const rotateBackLink = targetDoc.querySelector(".rotate-back, [data-action='rotate-back']");
   
-  if (rotateBackLink && rotateBackLink.tagName.toLowerCase() === "a") {
+  if (rotateBackLink && rotateBackLink.tagName && rotateBackLink.tagName.toLowerCase() === "a") {
     // Check if it's a hash-only href (fake link)
     const href = rotateBackLink.getAttribute("href");
     if (href === "#" || href === "") {
@@ -196,7 +196,6 @@ ensureMainLandmark();
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
   // Existing exports preserved unchanged
-  ...module.exports,
 
   // New accessibility functions
   setLangAttribute: setLangAttribute,

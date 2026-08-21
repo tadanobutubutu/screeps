@@ -7,6 +7,8 @@ const DependencyGraphComponent = () => {
       <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       {/* Other components and content */}
       <DependencyGraph />
+      {/* Add ARIA attributes to improve accessibility */}
+      <div role="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</div>
     </main>
   );
 };

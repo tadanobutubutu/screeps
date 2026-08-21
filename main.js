@@ -141,6 +141,9 @@ function fixLandmarkIssues(container) {
   return seenLandmarks;
 }
 
+// Ensure the HTML element has a language attribute set for accessibility
+setLangAttribute('en');
+
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
   // Existing exports preserved unchanged

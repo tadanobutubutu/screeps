@@ -6,10 +6,12 @@
 // ========
 
 // New code to fix the issue
-const htmlElement = document.querySelector('html');
-if (htmlElement) {
-  htmlElement.setAttribute('lang', 'en');
-}
+const thElements = document.querySelectorAll('th');
+thElements.forEach(th => {
+  if (!th.hasAttribute('scope')) {
+    th.setAttribute('scope', 'col');
+  }
+});
 
 // Existing code after conflict markers
 // >>>>>>> origin/main

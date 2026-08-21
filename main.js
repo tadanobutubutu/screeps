@@ -37,6 +37,22 @@ const app = {
       // Replace the fake link with the new button
       fakeLink.parentNode.replaceChild(button, fakeLink);
     }
+  },
+  
+  // New function to ensure unique landmarks
+  ensureUniqueLandmarks: function() {
+    // This function should be called when rendering or after any changes that might affect landmarks
+    const mainElements = document.querySelectorAll('main');
+    if (mainElements.length > 1) {
+      console.warn('Multiple <main> elements found. Ensuring unique landmarks...');
+      // Logic to remove duplicates or handle the situation as needed
+      // For example, you could keep the first and remove the rest
+      mainElements.forEach((element, index) => {
+        if (index > 0) {
+          element.remove();
+        }
+      });
+    }
   }
 };
 

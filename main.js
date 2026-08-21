@@ -81,7 +81,7 @@ const Dashboard = ({ stats, error, fetchStats }) => {
             <section style={{ padding: '2rem' }}>
                 <h1 style={{ color: '#2b6cb0' }}>📊 ダッシュボード</h1>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {Object.entries(stats).map(([key, value]) => (
+                    {Object.entries(stats || {}).map(([key, value]) => (
                         <div
                             key={key}
                             style={{

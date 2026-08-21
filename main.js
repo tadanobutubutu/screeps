@@ -21,14 +21,6 @@ function main(options = {}) {
   // exampleFunction(options);
 }
 
-// Export main function for CommonJS and ES module systems
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { main };
-} else {
-  // Fallback for browser/Global context
-  window.main = main;
-}
-
 // Wrap the primary content in <main> for accessibility
 function renderDependencyDashboard() {
   const mainContent = document.createElement('main');
@@ -44,12 +36,10 @@ function renderDependencyDashboard() {
     </body>
     </html>
   `;
+  mainContent.setAttribute('aria-label', 'Dependency Dashboard');
   document.body.appendChild(mainContent);
   addLanguageAttribute(mainContent, 'en');
 }
-
-// Call the function to render the dashboard
-renderDependencyDashboard();
 
 // New function to address the React Language Attribute issue
 function addLanguageAttribute(element, lang) {
@@ -58,5 +48,5 @@ function addLanguageAttribute(element, lang) {
   }
 }
 
-// Example usage:
-// addLanguageAttribute(document.getElementById('dependency-dashboard'), 'en');
+// Call the function to render the dashboard
+renderDependencyDashboard();

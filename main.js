@@ -69,8 +69,8 @@ const createAccessibleModal = (props) => {
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.querySelector('html');
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', 'en'); // Assuming English; adjust as needed
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    htmlElement.setAttribute('lang', 'en');
   }
 };
 
@@ -83,7 +83,7 @@ const fixTableStructure = () => {
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table Description';
-      table.appendChild(caption);
+      table.insertBefore(caption, table.firstChild);
     }
     // ... additional fixes
   });
@@ -92,19 +92,28 @@ const fixTableStructure = () => {
 // Add/fix 4 landmark issues
 const addLandmarkIssues = () => {
   // Example: Add a navigation landmark
-  const nav = document.createElement('nav');
-  nav.setAttribute('role', 'navigation');
-  nav.setAttribute('aria-label', 'Main navigation');
-  document.body.insertBefore(nav, document.body.firstChild);
+  const navs = document.querySelectorAll('nav');
+  navs.forEach((nav, index) => {
+    if (!nav.hasAttribute('aria-label')) {
+      nav.setAttribute('role', 'navigation');
+      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
+    }
+  });
   // ... additional landmarks
 };
 
 // Add accessible names to 2 SVGs
 const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
+  let count = 0;
   svgs.forEach(svg => {
-    if (!svg.getAttribute('aria-label')) {
-      svg.setAttribute('aria-label', 'SVG description');
+    if (count < 2 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+      const title = document.createElement('title');
+      title.textContent = `SVG ${count + 1} description`;
+      title.id = `svg-title-${count + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+      count++;
     }
   });
 };
@@ -112,11 +121,12 @@ const addAccessibleNamesToSVGs = () => {
 // Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
   // Example: Ensure navigation landmark is unique
-  const navs = document.querySelectorAll('nav');
+  const navs = document.querySelectorAll('nav[role="navigation"]');
   if (navs.length > 1) {
     navs.forEach((nav, index) => {
       if (index > 0) {
-        nav.remove();
+        const existingLabel = nav.getAttribute('aria-label') || '';
+        nav.setAttribute('aria-label', `${existingLabel} ${index + 1}`.trim());
       }
     });
   }
@@ -125,13 +135,19 @@ const ensureUniqueLandmarks = () => {
 
 // Fix 1 fake link issue
 const fixFakeLinkIssue = () => {
-  const links = document.querySelectorAll('a[href="#"]');
+  const links = document.querySelectorAll('a[href]:not([role]), span[onclick], div[onclick]');
   links.forEach(link => {
-    link.setAttribute('role', 'button');
-    link.setAttribute('tabIndex', '0');
-    link.addEventListener('click', (event) => {
-      event.preventDefault();
-    });
+    if (link.tagName === 'A' && !link.getAttribute('role')) {
+      // Check if it's a fake link (e.g., no href or javascript: href)
+      const href = link.getAttribute('href');
+      if (!href || href === '#' || href.startsWith('javascript:')) {
+        link.setAttribute('role', 'button');
+        link.setAttribute('tabindex', '0');
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+        });
+      }
+    }
   });
 };
 
@@ -189,24 +205,25 @@ class MyComponent extends React.Component {
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      ...
+      // ... handle click
     }
   };
 
   render() {
     // ... existing render method code
     // Add additional ARIA attributes to the component as needed
+    const { isPressed, disabled, label, onClick, className, type, children } = this.props;
     return (
       <button
         role="button"
-        aria-label={this.props.label || 'My Button'}
-        'aria-pressed': props.isPressed || false
-        'aria-disabled': props.disabled || false
-        onClick={this.props.onClick}
-        className={this.props.className}
-        type={this.props.type || 'button'}
+        aria-label={label || 'My Button'}
+        aria-pressed={isPressed || false}
+        aria-disabled={disabled || false}
+        onClick={onClick}
+        className={className}
+        type={type || 'button'}
       >
-        {this.props.children}
+        {children}
       </button>
     );
   }

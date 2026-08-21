@@ -2,30 +2,27 @@ function calculate(a, b) {
   return a + b;
 }
 
-// Add accessible name to SVG elements
+// Add accessible name to SVG elements and update HTML root element to include the lang attribute
 export function addAccessibleNameToSvg(svg, name) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
-  
+
   // Add role="img" for accessibility
   if (name) {
     svg.setAttribute('role', 'img');
   }
-  
+
+  // Update to include the lang attribute in the HTML root element
+  const htmlElement = document.documentElement;
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', htmlElement.getAttribute('lang') || 'en');
+  }
+
   return svg;
 }
 
-// Update to include the lang attribute in the HTML root element
-export function addLangToHtmlRoot(lang) {
-  const htmlElement = document.documentElement;
-  if (htmlElement) {
-    htmlElement.setAttribute('lang', lang);
-  }
-  return htmlElement;
-}
-
-// Add scope attribute to th elements as per the issue
+// Add scope attribute to th elements as per the issue and replace fake link (<a href="#">) with a real button for accessibility per REACT_036
 export function addScopeToTableHeaders() {
   const tableHeaders = document.querySelectorAll('th:not([scope])');
   tableHeaders.forEach(header => {
@@ -35,7 +32,6 @@ export function addScopeToTableHeaders() {
   });
 }
 
-// Replace fake link (<a href="#">) with a real button for accessibility per REACT_036
 export function replaceFakeLinksWithButtons() {
   const fakeLinks = document.querySelectorAll('a[href="#"]');
   fakeLinks.forEach(link => {
@@ -63,7 +59,7 @@ export function addMainLandmark() {
       mainElement.appendChild(tableElement);
     }
   }
-  
+
   // Find the container with Quality & Metrics Reports content
   const metricsContainer = document.querySelector('.container');
   if (metricsContainer && !metricsContainer.closest('main')) {
@@ -74,9 +70,9 @@ export function addMainLandmark() {
       mainElement.appendChild(metricsContainer);
     }
   }
-  
+
   return document.querySelectorAll('main');
 }
 
-// Export all functions
-export { calculate, addAccessibleNameToSvg, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, addMainLandmark };
+// Export all functions except the extra addLangToHtmlRoot function
+export { calculate, addAccessibleNameToSvg, addScopeToTableHeaders, replaceFakeLinksWithButtons, addMainLandmark };

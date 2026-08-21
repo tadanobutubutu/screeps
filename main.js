@@ -1,5 +1,1 @@
-// main.js
-const fs = require('fs');
-// [Other existing code preserved with possible merge conflict markers]
-// [Conflict Resolution: Resolve all <<<<<<<, =======, >>>>>>> markers with your chosen code version]
-// Remainder of code continues unchanged...
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

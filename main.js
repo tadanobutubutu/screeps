@@ -16,5 +16,12 @@ module.exports = {
                 delete Memory.creeps[name];
             }
         }
-    }
+    },
+  foo: function() {
+    // existing code
+  },
+  bar: function() {
+    // existing code
+  },
+  // ... other exports
 };

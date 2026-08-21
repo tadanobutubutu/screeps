@@ -1,3 +1,6 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 // main.js - Fixed with SVG accessibility compliance (REACT_041)
 
 /**
@@ -54,6 +57,20 @@ export function validateSVGAccessibility(svgProps) {
 }
 
 // Rest of the file remains unchanged
-```
 
-The resolution incorporates both changes by adding an additional check for the `title` child element, which was introduced in one of the changes. This way, the function handles both options: when there is an accessible name provided or when itas derived from the `title` child element.
+const App = () => {
+  return (
+    <html lang="en">
+      <head>
+        <title>My App</title>
+      </head>
+      <body>
+        <div className="app-container">
+          {/* App content */}
+        </div>
+      </body>
+    </html>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));

@@ -1,40 +1,40 @@
 // main.js
 // [Preserve all existing code and exports]
 
-// Add new dependency updates as needed
-// For example, if updating Jest to v30:
-const jest = require('jest'); // Update to v30 if needed
+ // Add new dependency updates as needed
+ // For example, if updating Jest to v30:
+ const jest = require('jest'); // Update to v30 if needed
 
-// For React updates:
-import React from 'react'; // Update to v19 if needed
+ // For React updates:
+ const React = require('react'); // Update to v19 if needed
 
-// For ESLint updates:
-const eslint = require('eslint'); // Update to v10 if needed
+ // For ESLint updates:
+ const eslint = require('eslint'); // Update to v10 if needed
 
-// For TypeScript updates:
-const typescript = require('typescript'); // Update to v7 if needed
+ // For TypeScript updates:
+ const typescript = require('typescript'); // Update to v7 if needed
 
-// Add any new functions or changes requested in the issue
-// while preserving all existing functionality
+ // Add any new functions or changes requested in the issue
+ // while preserving all existing functionality
 
-// Add main landmark to layout components
-function wrapWithMain(content) {
-  return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
-}
+ // Add main landmark to layout components
+ function wrapWithMain(content) {
+   return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
+ }
 
-// Add main landmark to HTML documents
-function addMainToHTML(content) {
-  return `<main role="main" aria-label="Main content">${content}</main>`;
-}
+ // Add main landmark to HTML documents
+ function addMainToHTML(content) {
+   return `<main role="main" aria-label="Main content">${content}</main>`;
+ }
 
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (/lang\s*=/i.test(html)) {
+  if (/<html[^>]*\blang\s*=/i.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
-  return html.replace(/<html([^>]*?)>/i, '<html$1 lang="en">');
+  return html.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
 }
 
 // Add proper table structure
@@ -158,12 +158,15 @@ function createSkipToContentLink() {
 // Add function to ensure single main landmark
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
+  const hasMain = /<main\b[^>]*>/i.test(content);
   if (typeof content === 'string') {
-    const hasMain = /<main[\s>]/i.test(content) || /<main[\s\S]*?>/i.test(content);
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
-    // For React elements, we'll need to check if they contain a main element
+    // For React elements, check if they are already a main element
     // This is a simplified check - in a real implementation you might need a more robust solution
+    if (content.type === 'main') {
+      return content;
+    }
     return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
   }
   return content;

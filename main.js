@@ -45,9 +45,9 @@ if (require.main === module) {
 }
 
 const Main = () => {
-  // existing Main component code...
+  // existing Main component code with accessibility improvements
   return (
-    <main>
+    <main role="main" aria-label="Main content">
       {/* Wrap existing content in main landmark */}
       {/* ... */}
     </main>
@@ -55,9 +55,9 @@ const Main = () => {
 };
 
 const NecessaryExport = () => {
-  // Add the necessary export component code here...
+  // Add the necessary export component code here with accessibility improvements
   return (
-    <main>
+    <main role="main" aria-label="Necessary export content">
       <div>New Required Export</div>
     </main>
   );
@@ -68,4 +68,3 @@ export { NecessaryExport };
 
 // Integrating both changes
 // =========================================
-```

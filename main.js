@@ -1,9 +1,1 @@
-html
-<table>
-  <tr>
-    <th><div>src/constants.js</div></th>
-    <th><div>src/managers/roomManager.js</div></th>
-    <!-- ... other columns ... -->
-  </tr>
-  <!-- ... other rows ... -->
-</table>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

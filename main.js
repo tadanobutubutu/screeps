@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
@@ -105,40 +107,27 @@ const Dashboard = () => {
     if (!stats) {
         return <div>Loading...</div>;
     }
-
-    return (
-        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
-            <h1 style={{ color: '#2b6cb0' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
-                    <div key={key} style={{ backgroundColor: '#f7fafc', padding: '1rem', borderRadius: '4px' }}>
-                        <h2 style={{ color: '#2b6cb0', marginTop: 0 }}>{key}</h2>
-                        <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2d3748' }}>{value}</p>
-                    </div>
-                ))}
-            </div>
-            <button
-                onClick={() => fetchStats(true)}
-                disabled={refreshing}
-                style={{
-                    backgroundColor: '#2b6cb0',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                    transition: 'all 0.2s ease-in-out',
-                }}
-                onMouseEnter={() => setErrRetryHover(true)}
-                onMouseLeave={() => setErrRetryHover(false)}
-                aria-label="更新"
-                title="更新"
-            >
-                {refreshing ? '🔄 更新中...' : '🔄 更新'}
-            </button>
-        </div>
-    );
 };
 
-export default Dashboard;
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        {/* Other components */}
+        <main>
+          <div>
+            <Dashboard />
+            <div>Primary content goes here</div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+}
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('root')
+);

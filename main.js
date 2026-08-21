@@ -1,3 +1,6 @@
+Below is the resolved `main.js` file, integrating both changes and addressing the Git merge conflict:
+
+```javascript
 // ... Existing code ...
 
 // TODO: Address accessibility issues from insight report
@@ -32,6 +35,7 @@ export function fixTableStructure(content) {
 }
 
 // Example of how to use the new function to create updated html for a specific page
+// Integrated changes from both branches to properly address accessibility issues for index and dependencyGraph pages
 export function createIndexHTML() {
   return createMainHTML({
     children: `
@@ -46,7 +50,7 @@ export function createIndexHTML() {
             <a href="/dependency-graph">Dependency Graph</a>
           </div>
       </div>
-    `,
+    `.replace(/<(th|td)/gi, (match) => fixTableStructure(match)), // Apply fixTableStructure function to entire content for index page
     id: 'index',
   });
 }
@@ -62,3 +66,4 @@ export function createDependencyGraphHTML(dependencyGraphContent) {
 }
 
 // ... Rest of your existing code ...
+```

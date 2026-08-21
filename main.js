@@ -115,7 +115,7 @@ const createAccessibleModal = (props) => {
     // Focus trap management
     modal.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
-            modal.dispatchEvent(new Event('close'));
+            modal.dispatchEvent(new CustomEvent('close'));
         }
     });
     
@@ -128,14 +128,14 @@ let mainElement = null;
 // Add new function: addMainElementAriaAttributes
 const addMainElementAriaAttributes = () => {
     if (typeof document !== 'undefined') {
-        mainElement = document.querySelector('[role="main"]') || document.querySelector('main');
+        mainElement = document.querySelector('main') || document.querySelector('[role="main"]');
         
         if (mainElement) {
             mainElement.setAttribute('role', 'main');
             if (!mainElement.id) {
                 mainElement.id = 'main-content';
             }
-            mainElement.setAttribute('tabindex', '-1');
+            mainElement.tabIndex = -1;
             
             // Ensure label for main landmark
             const existingLabel = mainElement.getAttribute('aria-label');
@@ -274,7 +274,7 @@ const ensureUniqueLandmarks = () => {
                 const mainElement = mainElements[i];
                 
                 // Create a section element to replace the main
-                const section = document.createElement('section');
+                const section = document.createElement('div');
                 section.setAttribute('role', 'region');
                 section.setAttribute('aria-label', 'Secondary content region');
                 
@@ -293,7 +293,7 @@ const ensureUniqueLandmarks = () => {
                 }
                 
                 // Replace the main element with section in the DOM
-                mainElement.parentNode.replaceChild(section, mainElement);
+                mainElement.parentNode?.replaceChild(section, mainElement);
             }
         }
         
@@ -311,10 +311,8 @@ const ensureUniqueLandmarks = () => {
     }
 };
 
-// Fix landmark issues across the document
-const fixLandmarkIssues = () => {
-    ensureUniqueLandmarks();
-    addMainElementAriaAttributes();
-    
+// Fix for REACT_017: React Landmarks - Wrap primary content in <main> elements
+const fixReactLandmarks = () => {
     if (typeof document !== 'undefined') {
-        // Fix missing or
+        // Find tables with id="table-rotated" that aren't inside a main element
+        const rotatedTable = document.querySelector('table#table-rotated');

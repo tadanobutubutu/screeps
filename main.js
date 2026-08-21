@@ -106,7 +106,7 @@ export const PageLayout = ({
   headerContent, 
   mainContent, 
   navContent, 
-  footerContent  
+  footerContent   
 }) => {
   return (
     <>
@@ -173,7 +173,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 11)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -183,7 +183,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Date(date).toLocaleDateString('en-US', defaultOptions);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
 }
 
 export function debounce(func, wait) {

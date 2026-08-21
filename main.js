@@ -86,7 +86,7 @@ const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex}>
                 {cell}
               </td>
             ))}
@@ -102,7 +102,7 @@ export const PageLayout = ({
   headerContent, 
   mainContent, 
   navContent, 
-  footerContent 
+  footerContent  
 }) => {
   return (
     <>
@@ -161,7 +161,7 @@ export {
   RotateBackButton, 
   FakeLinkAsButton, 
   DependencyGraphTable,
-  AccessibleIconSVG 
+  AccessibleIconSVG  
 };
 
 // ... rest of the main.js content ...

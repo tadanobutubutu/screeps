@@ -32,9 +32,9 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
                     <button
                         onClick={copyErr}
                         onMouseEnter={() => setErrCopyHover(true)}
-                        onMouseLeave={() => ...
+                        onMouseLeave={() => setErrCopyHover(false)}
                         onFocus={() => setErrCopyHover(true)}
-                        onBlur={() => ...
+                        onBlur={() => setErrCopyHover(false)}
                         aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                         title={copied ? 'コピー済み' : 'エラーをコピー'}
                         style={{

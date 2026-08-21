@@ -131,3 +131,8 @@
 
 **Learning:** Silencing focus outlines using inline styles (such as `outline: 'none'`) on native form elements like checkboxes without a visible alternative creates a major accessibility blocker for keyboard navigation users. By removing inline outline overrides and setting clean `:focus-visible` rules combined with `:focus-within` on label wrappers, we ensure high keyboard focus visibility. Furthermore, utilizing pure CSS classes for transition effects (such as `:hover` on label containers) provides dynamic and highly responsive feedback without unnecessarily cluttering React component states.
 **Action:** Never silence default outline styles on interactive elements without defining explicit `:focus-visible` styles, and utilize `:focus-within` on label containers for polished keyboard visual accessibility.
+
+## 2026-08-21 - [Keyboard Shortcut Badge Accessibility & Focus Cleanliness]
+
+**Learning:** Static visual shortcut badges (such as `<kbd>` indicators) should not carry `tabIndex={0}` or `cursor: 'help'` when placed directly adjacent to their target interactive elements (e.g. buttons or inputs). Retaining `tabIndex={0}` on non-interactive badges forces users navigating via keyboard (Tab key) through redundant focus stops before reaching the actual actionable control, violating WCAG 2.1.1 (Keyboard Navigation Efficiency).
+**Action:** Always omit `tabIndex={0}` and `cursor: 'help'` from static `<kbd>` shortcut indicators that sit next to interactive controls.

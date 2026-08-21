@@ -106,7 +106,7 @@ async function fixTableStructure() {
       /<table([^>]*)>([\s\S]*?)<\/table>/gi,
       (match, tableAttrs, tableContent) => {
         // Check if table already has proper structure
-        if (/<thead/i.test(tableContent) || /<tbody/i.test(tableContent)) {
+        if (/<thead>/i.test(tableContent) || /<tbody>/i.test(tableContent)) {
           return match;
         }
         

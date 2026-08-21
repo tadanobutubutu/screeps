@@ -18,18 +18,24 @@ function logMessage(message) {
 function updateTableStructure() {
   const tables = document.querySelectorAll('table');
   tables.forEach(table => {
-    // Add or modify table elements as needed
-    // For example, add a caption, ensure headers are present, etc.
-    if (!table.querySelector('caption')) {
-      const caption = document.createElement('caption');
-      caption.textContent = 'Table caption';
-      table.insertBefore(caption, table.firstChild);
-    }
-    const headers = table.querySelectorAll('th');
-    headers.forEach(header => {
-      if (!header.hasAttribute('scope')) {
-        header.setAttribute('scope', 'col');
-      }
+    const rows = table.querySelectorAll('tr');
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('th, td');
+      cells.forEach((cell, cellIndex) => {
+        if (cell.tagName === 'TH') {
+          // Check if this is a column header (first row) or row header (first cell in a row)
+          const existingScope = cell.getAttribute('scope');
+          if (!existingScope) {
+            if (rowIndex === 0) {
+              // Header in first row is a column header
+              cell.setAttribute('scope', 'col');
+            } else if (cellIndex === 0) {
+              // First cell in non-first row is a row header
+              cell.setAttribute('scope', 'row');
+            }
+          }
+        }
+      });
     });
   });
 }
@@ -85,7 +91,7 @@ function fixLandmarkIssues() {
 
   // Ensure main elements have proper labeling
   mainElements.forEach((main, index) => {
-    if (!main.id && !main.getAttribute('aria-label') && mainElements.length > 1) {
+    if (!main.id && mainElements.length > 1) {
       main.setAttribute('aria-label', 'Main content section ' + (index + 1));
     }
   });
@@ -120,14 +126,14 @@ function addSVGAccessibleNames() {
 
 // Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="main"], main, header, footer, nav, aside');
+  const landmarks = document.querySelectorAll('main, header, footer, nav, aside');
   const landmarkNames = new Set();
 
   landmarks.forEach(landmark => {
     const name = landmark.getAttribute('aria-label') || landmark.id || '';
     if (landmarkNames.has(name) && name !== '') {
       // Handle duplicate landmark names by making them unique
-      const role = landmark.getAttribute('role') || landmark.tagName.toLowerCase();
+      const role = landmark.tagName.toLowerCase() || landmark.getAttribute('role');
       landmark.setAttribute('aria-label', name + ' ' + role);
     } else {
       landmarkNames.add(name);
@@ -137,7 +143,7 @@ function ensureUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('a[href="#"], a[href=""], a:not([href])');
+  const fakeLinks = document.querySelectorAll('a[href=""], a:not([href])');
 
   fakeLinks.forEach(link => {
     const text = link.textContent;

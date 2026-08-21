@@ -1,6 +1,3 @@
-Here is the resolved file content, integrating both changes:
-
-```javascript
 import React, { useState } from 'react';
 import CommonDashboard from './CommonDashboard';
 
@@ -51,4 +48,3 @@ module.exports = {
   Dashboard,
   // ... other exported functions for accessibility fixes ...
 };
-```

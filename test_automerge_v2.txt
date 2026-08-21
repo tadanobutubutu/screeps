@@ -3,3 +3,4 @@ test v2
 # bounty-fix-ref: https://github.com/tadanobutubutu/screeps/issues/5
 # bounty-fix-ref: https://github.com/tadanobutubutu/screeps/issues/5
 # bounty-fix-ref: https://github.com/tadanobutubutu/screeps/issues/5
+# bounty-fix-ref: https://github.com/tadanobutubutu/screeps/issues/5

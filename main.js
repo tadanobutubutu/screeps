@@ -1,3 +1,11 @@
+import { render } from 'react';
+import { App } from './components/App';
+
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  render(<App />, rootElement);
+}
+
 // Main JavaScript file with accessibility fix
 // REACT_036: Changed <a href="#"> to <button> for the rotate back action
 

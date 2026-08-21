@@ -11,17 +11,15 @@ const Layout = ({ children }) => {
         height="16" 
         viewBox="0 0 16 16" 
         role="img"
-        aria-labelledby="svg-icon-title"
+        aria-labelledby="svg-title-icon"
         focusable="false"
       >
-        <title id="svg-icon-title">Icon</title>
+        <title id="svg-title-icon">Icon description</title>
         {/* SVG content */}
       </svg>
       {/* ... other components ... */}
       {children}
     </div>
   );
-};
 
-// TODO: Add back any required exports that might have been? - Removed export statement
 export default Layout;

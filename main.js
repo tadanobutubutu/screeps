@@ -1,1 +1,13 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Main application entry point
+import React from 'react';
+import { TableComponent } from './TableComponent';
+
+function App() {
+  return (
+    <div className="app">
+      <TableComponent />
+    </div>
+  );
+}
+
+export default App;

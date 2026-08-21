@@ -378,26 +378,16 @@ function findLeastAssignedSource(sources, assignments) {
     return bestSource;
 }
 
-function _findOptimalSource(room) {
-    const sources = getSources(room);
-    if (sources.length === 0) return null;
-    const assignments = getRoomSourceAssignments(room);
-    return findLeastAssignedSource(sources, assignments);
-}
-
-function _recordSourceAssignment(creep, source, room) {
-    creep.memory.sourceId = source.id;
-    const assignments = getRoomSourceAssignments(room);
-    assignments[source.id] = (assignments[source.id] || 0) + 1;
-}
-
 function assignSource(creep, room) {
     const existingSource = getExistingSource(creep);
     if (existingSource) return existingSource;
-
-    const bestSource = _findOptimalSource(room);
+    const sources = getSources(room);
+    if (sources.length === 0) return null;
+    const assignments = getRoomSourceAssignments(room);
+    const bestSource = findLeastAssignedSource(sources, assignments);
     if (bestSource) {
-        _recordSourceAssignment(creep, bestSource, room);
+        creep.memory.sourceId = bestSource.id;
+        assignments[bestSource.id] = (assignments[bestSource.id] || 0) + 1;
     }
     return bestSource;
 }

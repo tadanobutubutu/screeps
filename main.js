@@ -150,7 +150,8 @@ function addLangAttribute() {
   
   const htmlFiles = [
     'docs/index.html',
-    'docs/table.html'
+    'docs/table.html',
+    'docs/dependency-graph.html'  // Added the missing file from the issue
   ];
 
   htmlFiles.forEach(file => {

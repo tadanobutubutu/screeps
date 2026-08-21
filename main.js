@@ -71,6 +71,19 @@ const A11yHelpers = {
   // Check if user prefers reduced motion
   prefersReducedMotion: () => {
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  },
+
+  // Add accessible name to SVGs
+  addAccessibleNameToSVG: (svgElement, label) => {
+    if (!svgElement) return;
+
+    // Add aria-label to the SVG element
+    svgElement.setAttribute('aria-label', label);
+
+    // Optionally, add a title element for accessibility
+    const title = document.createElement('title');
+    title.textContent = label;
+    svgElement.insertBefore(title, svgElement.firstChild);
   }
 };
 
@@ -119,3 +132,17 @@ const App = () => {
   );
 };
 export default App;
+
+// Update the SVG icons to include accessible names
+const icons = {
+  icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+  apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Apple Icon</title><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>',
+};
+
+// Assuming there is a function to set the icons, we would call it like this:
+// setIcons(icons);
+
+// If the icons are directly used in the component, we would modify the component to include the accessible name
+// For example:
+// <img src={icons.icon} alt="Screeps Dashboard" aria-label="Screeps Dashboard" />
+// <img src={icons.apple} alt="Apple Icon" aria-label="Apple Icon" />

@@ -1,9 +1,5 @@
-// Assuming other imports and code...
-
-// Import the component that uses the problematic HTML
 import DependencyGraph from './DependencyGraph';
 
-// Update the component to replace the <a> with a <button>
 const DependencyGraphComponent = () => {
   return (
     <main>
@@ -16,5 +12,3 @@ const DependencyGraphComponent = () => {
 };
 
 export default DependencyGraphComponent;
-
-// Assuming other code...

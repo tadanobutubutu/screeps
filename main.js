@@ -3,6 +3,7 @@
 
 // Before the change:
 // <a id="unrotate" href="#">rotate back</a>
+<button id="unrotate">rotate back</button>
 
 // After the change:
 // <button id="unrotate">rotate back</button>

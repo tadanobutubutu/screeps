@@ -1,16 +1,1 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Dashboard } from './components/Dashboard';
-
-// Main entry point for the Screeps application
-export default function App() {
-  return <Dashboard />;
-}
-
-// ReactDOM setup from origin/main
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

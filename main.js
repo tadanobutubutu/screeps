@@ -7,8 +7,29 @@ const htmlContent = `<!DOCTYPE html>
   <!-- Rest of your HTML content here -->
 </html>`;
 
-// Keep existing JavaScript logic here
-// ...
+// Function to render the dependency graph HTML file
+function renderDependencyGraph() {
+  // ... existing code ...
+
+  // Render the HTML content for the dependency graph
+  const graphHtml = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Dependency Graph</title>
+      </head>
+      <body>
+        <!-- Dependency graph content here -->
+      </body>
+    </html>
+  `;
+
+  // Assuming we have a function to write the HTML content to the file system
+  writeToFile('docs/dependency-graph.html', graphHtml);
+}
+
+// Call the function to render the dependency graph
+renderDependencyGraph();
 
 // Export as needed
 export { htmlContent };

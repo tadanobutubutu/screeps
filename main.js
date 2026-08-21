@@ -6,12 +6,12 @@ import DependencyGraph from './DependencyGraph';
 // Update the component to replace the <a> with a <button>
 const DependencyGraphComponent = () => {
   return (
-    <div>
+    <main>
       {/* Other components and content */}
       <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       {/* Other components and content */}
       <DependencyGraph />
-    </div>
+    </main>
   );
 };
 

@@ -35,9 +35,20 @@ function renderDependencyDashboard() {
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
       <!-- Dependency dashboard content goes here -->
+      <!-- Updated the 'rotate back' link to a button for accessibility -->
+      <button id="unrotate" onclick="rotateBack()">rotate back</button>
+      <!-- Other dependency dashboard content -->
     </div>
   `;
   document.body.appendChild(mainContent);
+
+  // Add rotateBack function to window if it's not already there
+  if (typeof rotateBack === 'undefined') {
+    window.rotateBack = function rotateBack() {
+      // Logic to rotate back, e.g., by manipulating the URL or dashboard state
+      console.log('Rotating back...');
+    };
+  }
 }
 
 // Call the function to render the dashboard

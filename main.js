@@ -13,18 +13,27 @@ const handleRotateBack = () => {
   console.log('Rotating back...');
 };
 
-// Main component with a button instead of a fake link
+// Main component with proper accessibility - button instead of fake link
 const DependencyGraph = () => {
   return (
-    <div>
-      {/* ... other components and logic ... */}
-      <button id="unrotate" onClick={handleRotateBack}>rotate back</button>
-      {/* ... other components and logic ... */}
-    </div>
+    <main>
+      <div>
+        {/* ... other components and logic ... */}
+        <button 
+          id="unrotate" 
+          type="button"
+          onClick={handleRotateBack}
+          aria-label="Rotate back"
+        >
+          Rotate back
+        </button>
+        {/* ... other components and logic ... */}
+      </div>
+    </main>
   );
 };
 
 // Render the component
-ReactDOM.render(<DependencyGraph />, document.getElementById('root'));
+... />, ...
 
 // ... (existing code and exports)

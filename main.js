@@ -5,11 +5,6 @@
         console.log("This is my new function!");
     }
 
-    // Export the function
-    exports.myFunction = myFunction;
-
-    // Additional code to add accessible names to SVGs
-
     // Function to add accessible name to SVGs for accessibility
     function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
@@ -89,6 +84,11 @@
 
     // Call the function to update the 'rotate back' link and add main landmark on page load
     window.onload = function() {
+        // Here there's a conflict: 'origin/main' wants to add 'myFunction' in the callback function
+
+        // To ensure that both functions can be executed, we can call 'myFunction' separately after the existing code execution
+        myFunction();
+
         updateRotateBackLink();
         addMainLandmark();
     };

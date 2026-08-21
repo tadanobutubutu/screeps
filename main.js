@@ -134,7 +134,7 @@ export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIco
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -144,7 +144,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
+  return new Date(date).toLocaleDateString('en-US', defaultOptions);
 }
 
 export function debounce(func, wait) {
@@ -260,14 +260,3 @@ export const RequiredIndicator = () => {
     <span aria-hidden="true" style={{ color: '#d32f2f' }}>
       *
     </span>
-  );
-};
-
-// Export all accessibility utilities
-export {
-  SkipLink,
-  LiveRegion,
-  Modal,
-  ErrorMessage,
-  RequiredIndicator
-};

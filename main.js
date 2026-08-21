@@ -36,14 +36,14 @@ function updateTableStructure() {
 
 // Add/fix 4 landmark issues
 function fixLandmarkIssues() {
-  const mainElements = document.querySelectorAll('main');
-  const headers = document.querySelectorAll('header');
-  const footers = document.querySelectorAll('footer');
-  const navElements = document.querySelectorAll('nav');
+  const mainElements = document.querySelectorAll('main, [role="main"]');
+  const headers = document.querySelectorAll('header, [role="banner"]');
+  const footers = document.querySelectorAll('footer, [role="contentinfo"]');
+  const navElements = document.querySelectorAll('nav, [role="navigation"]');
   
   // Ensure main elements have proper labeling
   mainElements.forEach((main, index) => {
-    if (!main.id && !main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
+    if (!main.id && !main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
       main.setAttribute('aria-label', 'Main content section ' + (index + 1));
     }
   });
@@ -51,7 +51,7 @@ function fixLandmarkIssues() {
   // Ensure navigation has labels if multiple nav elements exist
   let navIndex = 0;
   navElements.forEach(nav => {
-    if (navElements.length > 1 && !nav.id && !nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
+    if (navElements.length > 1 && !nav.id && !nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
       navIndex++;
       nav.setAttribute('aria-label', 'Navigation ' + navIndex);
     }
@@ -65,7 +65,7 @@ function addSVGAccessibleNames() {
   let svgIndex = 0;
   
   svgs.forEach(svg => {
-    if (svgIndex < svgNames.length && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (svgIndex < svgNames.length && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.querySelector('title')) {
       const title = document.createElement('title');
       title.id = 'svg-title-' + (svgIndex + 1);
       title.textContent = svgNames[svgIndex];
@@ -78,7 +78,7 @@ function addSVGAccessibleNames() {
 
 // Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="navigation"], [role="banner"], [role="contentinfo"], [role="main"], main, header, footer, nav, aside');
+  const landmarks = document.querySelectorAll('[role="banner"], [role="contentinfo"], [role="main"], main, header, footer, nav, aside');
   const landmarkNames = new Set();
   
   landmarks.forEach(landmark => {
@@ -95,7 +95,7 @@ function ensureUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('div[role="link"], span[role="link"], a:not([href])');
+  const fakeLinks = document.querySelectorAll('span[role="link"], a:not([href])');
   
   fakeLinks.forEach(link => {
     const text = link.textContent;
@@ -108,7 +108,7 @@ function fixFakeLinkIssue() {
     }
     
     // Add keyboard support for Enter key
-    if (!link.getAttribute('onkeydown')) {
+    if (!link.hasAttribute('role') || link.getAttribute('role') === 'button') {
       link.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -126,7 +126,7 @@ export {
   updateDocumentTitle,
   logMessage,
   updateTableStructure,
-  fixLandmarkIsses,
+  fixLandmarkIssues,
   addSVGAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue

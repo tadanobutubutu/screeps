@@ -208,3 +208,6 @@ export {
   fixDuplicateMainLandmarks,
   initMain
 };
+
+// Run accessibility fixes on module load
+initMain();

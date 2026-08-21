@@ -128,7 +128,11 @@ function addAccessibleSVGs() {
   if (typeof document === 'undefined') return;
 
   const svgs = document.querySelectorAll('svg');
-  // ...
+  svgs.forEach(svg => {
+    const title = document.createElement('title');
+    title.textContent = 'Descriptive title for SVG';
+    svg.appendChild(title);
+  });
 }
 
 // Ensure unique landmarks (2 issues)

@@ -1,6 +1,4 @@
-// Assuming this is a part of a React component file
 import React from 'react';
-
 function DependencyGraphTable() {
   return (
     <table>
@@ -20,5 +18,4 @@ function DependencyGraphTable() {
     </table>
   );
 }
-
 export default DependencyGraphTable;

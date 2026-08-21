@@ -41,15 +41,16 @@ export default function App() {
   };
 
   // -----------------------------------------------------------------------
-  // Render logic – now uses a **single** <main> element
+  // Render logic – now uses proper landmark structure
   // -----------------------------------------------------------------------
   if (error) {
     // ---------- Error state UI ----------
     return (
-      <>
-        <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <div className="app-container">
+        <header>
           <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-
+        </header>
+        <main>
           <pre
             tabIndex={0}
             aria-label="エラーメッセージ詳細"
@@ -64,65 +65,71 @@ export default function App() {
             {error}
           </pre>
 
-          <button
-            onClick={copyErr}
-            onMouseEnter={() => setErrCopyHover(true)}
-            onMouseLeave={() => setErrCopyHover(false)}
-            onFocus={() => setErrCopyHover(true)}
-            onBlur={() => setErrCopyHover(false)}
-            aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
-            title={copied ? 'コピー済み' : 'エラーをコピー'}
-            style={{
-              backgroundColor: copied ? '#155d27' : '#004b73',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease-in-out',
-              transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
-              boxShadow:
-                errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-              filter: errCopyHover ? 'brightness(1.1)' : 'none',
-            }}
-          >
-            {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
-          </button>
+          <div role="group" aria-label="エラーの操作">
+            <button
+              type="button"
+              onClick={copyErr}
+              onMouseEnter={() => setErrCopyHover(true)}
+              onMouseLeave={() => setErrCopyHover(false)}
+              onFocus={() => setErrCopyHover(true)}
+              onBlur={() => setErrCopyHover(false)}
+              aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
+              style={{
+                backgroundColor: copied ? '#155d27' : '#004b73',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                transform: errCopyHover ? 'scale(1.05)' : 'scale(1)',
+                boxShadow:
+                  errCopyHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                filter: errCopyHover ? 'brightness(1.1)' : 'none',
+              }}
+            >
+              {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+            </button>
 
-          <button
-            onClick={() => fetchStats(true)}
-            disabled={refreshing}
-            onMouseEnter={() => setErrRetryHover(true)}
-            onMouseLeave={() => setErrRetryHover(false)}
-            style={{
-              backgroundColor: '#004b73',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease-in-out',
-              transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
-              boxShadow:
-                errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
-              filter: errRetryHover ? 'brightness(1.1)' : 'none',
-            }}
-          >
-            {refreshing ? '読み込み中...' : '🔄 リトライ'}
-          </button>
+            <button
+              type="button"
+              onClick={() => fetchStats(true)}
+              disabled={refreshing}
+              onMouseEnter={() => setErrRetryHover(true)}
+              onMouseLeave={() => setErrRetryHover(false)}
+              aria-busy={refreshing}
+              style={{
+                backgroundColor: '#004b73',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                transform: errRetryHover ? 'scale(1.05)' : 'scale(1)',
+                boxShadow:
+                  errRetryHover ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',
+                filter: errRetryHover ? 'brightness(1.1)' : 'none',
+              }}
+            >
+              {refreshing ? '読み込み中...' : '🔄 リトライ'}
+            </button>
+          </div>
         </main>
-      </>
+      </div>
     );
   }
 
   // ---------- Success (normal) state UI ----------
   return (
-    <>
-      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <div className="app-container">
+      <header>
         <h1>✅ すべて正常です</h1>
+      </header>
+      <main>
         <p>ゲームのステータスや情報をここに表示します。</p>
         {/* ここに元の成功時のUIコンテンツを配置 */}
       </main>
-    </>
+    </div>
   );
 }

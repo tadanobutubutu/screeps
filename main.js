@@ -1,2 +1,5 @@
-// Current main.js content (without HTML tags)
-// (Assuming the HTML tags are not part of the JavaScript code)
+// ... existing code that generates UI ...
+// Previous: element.innerHTML = '<a id="unrotate" href="#">rotate back</a>';
+// Fixed: Using <button> instead of <a href="#"> for accessibility
+element.innerHTML = '<button id="unrotate">rotate back</button>';
+// ... rest of existing code ...

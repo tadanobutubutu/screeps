@@ -1,16 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
-function replaceFakeLinksWithButtons() {
+function rotateBackLinkHandler() {
 	// This function would be called when the dependency graph is loaded
-	const rotateBackLink = document.querySelector('#rotate-back');
+	const rotateBackLink = document.getElementById('unrotate');
 	if (rotateBackLink) {
 		// Create a new button element
 		const button = document.createElement('button');
 		button.id = 'unrotate';
 		button.textContent = 'rotate back';
-		button.className = rotateBackLink.className;
-		rotateBackLink.replaceWith(button);
+		button.className = 'rotate-btn';
+		button.addEventListener('click', () => {
+			document.body.style.transform = 'rotate(0deg)';
+		});
 	}
 }
 
@@ -45,11 +47,11 @@ function App() {
 	return (
 		<html lang="en">
 			<body>
-				<header role="banner">Main Application</header>
+				<header role="banner">Main Header</header>
 				<main role="main">
 					<p>This is the primary content area.</p>
-					<sampleTable />
-					<accessibleSVG />
+					{sampleTable}
+					{accessibleSVG}
 				</main>
 			</body>
 		</html>
@@ -64,14 +66,9 @@ function someFunction() {
 	// Placeholder for new function logic
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-	if (document.querySelector('#rotate-back')) {
-		replaceFakeLinksWithButtons();
-	}
-});
+rotateBackLinkHandler();
 
-// Export the functions to be used elsewhere in the application
-export { replaceFakeLinksWithButtons, someFunction };
+export { sampleTable, accessibleSVG, someFunction, App };
 
 // Preserve all existing exports and functions below
 // ...

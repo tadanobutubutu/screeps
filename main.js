@@ -301,3 +301,8 @@ module.exports = {
   addSvgAccessibleNames,
   addressAccessibilityIssues
 };
+
+// Run accessibility fixes if this script is executed directly
+if (require.main === module) {
+  addressAccessibilityIssues();
+}

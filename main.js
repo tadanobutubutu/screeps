@@ -28,6 +28,14 @@ const htmlElement = (
   </html>
 );
 
-ReactDOM.render(htmlElement, document.getElementById('root'));
+// TODO: Add back any required exports that might have been?
+
+// Required exports added back
+export { App, htmlElement };
+
+// Re-export for convenience
+export default App;
+
+... ...
 
 // ... [Rest of main.js] ...

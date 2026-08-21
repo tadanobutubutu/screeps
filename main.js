@@ -30,7 +30,7 @@ function addMainToHTML(content) {
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (html.includes('lang="')) {
+  if (/<html[^>]*\slang\s*=/.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
@@ -159,7 +159,7 @@ function createSkipToContentLink() {
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
   if (typeof content === 'string') {
-    const hasMain = content.includes('<main') || content.includes('</main>');
+    const hasMain = /<main[\s>]/.test(content) || /<main\s+/.test(content);
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
     // For React elements, we'll need to check if they contain a main element

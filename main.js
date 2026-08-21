@@ -5,6 +5,20 @@
 
 // 2. REACT_017 - Use semantic landmarks
 // <header>, <nav>, <main>, <footer>, <aside>
+// FIX: Ensure page content is wrapped in a <main> landmark
+// Example:
+/*
+  <body>
+    <header>...</header>
+    <nav>...</nav>
+    <main>
+      <table id="table-rotated">
+        ...
+      </table>
+    </main>
+    <footer>...</footer>
+  </body>
+*/
 
 // 3. REACT_025 - Ensure unique landmark regions
 // Don't have multiple <main> elements, use unique IDs for navigation

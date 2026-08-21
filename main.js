@@ -9,13 +9,48 @@
 // 3. REACT_025 - Ensure unique landmark regions
 // Don't have multiple <main> elements, use unique IDs for navigation
 // FIX: Keep a single <main> element and use <section> or <article> for other regions
-// Example:
-// Instead of:
-//   {isError ? <main>Error content</main> : <main>Success content</main>}
-// Use:
-//   <main>
-//     {isError ? <section>Error content</section> : <section>Success content</section>}
-//   </main>
+// The issue occurs when using ternary/render functions that return separate <main> elements
+// Example Bad Pattern:
+//   {isError ? (
+//     return <main>Error content</main>
+//   ) : (
+//     return <main>Success content</main>
+//   )}
+//
+// Example Good Pattern - Use a single <main> with conditional inner sections:
+//   return (
+//     <main>
+//       {isError ? (
+//         <section aria-labelledby="error-heading">
+//           <h1 id="error-heading">Error</h1>
+//           <ErrorContent />
+//         </section>
+//       ) : (
+//         <section aria-labelledby="success-heading">
+//           <h1 id="success-heading">Success</h1>
+//           <SuccessContent />
+//         </section>
+//       )}
+//     </main>
+//   );
+//
+// Example Good Pattern - Using early return at top level (if applicable):
+//   if (isLoading) return <div>Loading...</div>;
+//   if (isError) return <ErrorFallback />;
+//   return (
+//     <main>
+//       <Content />
+//     </main>
+//   );
+//
+// Another Good Pattern - Conditional wrapper (only wraps when needed):
+//   const mainContent = isError ? (
+//     <ErrorContent />
+//   ) : (
+//     <SuccessContent />
+//   );
+//   
+//   return isPageLevelMain ? <main>{mainContent}</main> : <div>{mainContent}</div>;
 
 // 4. REACT_027 - Proper table structure
 /*

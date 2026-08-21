@@ -11,7 +11,7 @@ function enhanceAccessibility(element) {
   }
 }
 
-// Ensure the provided element is a DOM element or a string that can be converted to a DOM element
+// Ensure the provided element is a string that can be converted to a DOM element
 function ensureElement(input) {
   if (typeof input === "string") {
     // Convert string selector to DOM element
@@ -71,7 +71,7 @@ function addSvgAccessibleName(svgElement, title, description) {
   }
   
   // Generate unique IDs for accessibility
-  const titleId = "svg-title-" + Math.random().toString(36).substring(2, 11);
+  const titleId = "svg-title-" + Math.random().toString(36).substr(2, 11);
   
   // Add title element for screen reader support
   const titleEl = document.createElement("title");
@@ -84,11 +84,11 @@ function addSvgAccessibleName(svgElement, title, description) {
   
   // Optionally add desc for more detail
   if (description) {
-    const descId = "svg-desc-" + Math.random().toString(36).substring(2, 11);
+    const descId = "svg-desc-" + Math.random().toString(36).substr(2, 11);
     const descEl = document.createElement("desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.insertBefore(descEl, svgElement.firstChild.nextSibling);
+    svgElement.insertBefore(descEl, svgElement.firstChild);
     
     // Update aria-labelledby to include both title and description
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
@@ -114,14 +114,15 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.hasAttribute("tabindex")) {
+  if (!element.getAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }
 
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
-  const landmarks = container.querySelectorAll("header, nav, main, footer, aside, section");
+  const targetDoc = container && container.querySelector ? container : document;
+  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section");
   const seenLandmarks = {};
   
   landmarks.forEach(function(landmark) {

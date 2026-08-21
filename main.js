@@ -10,34 +10,41 @@ const validateAccessibility = (component) => {
     hasKeyboardSupport: !!component.onKeyDown,
     hasScreenReaderText: !!component.screenReaderText,
   };
-  
+
   return Object.values(checks).every(check => check);
 };
 
 // Create accessible button component with full ARIA support
 const createAccessibleButton = (props) => {
+  const role = typeof props.role === 'string' ? props.role : 'button';
+  const ariaLabel = props.ariaLabel || 'Button';
+  const ariaPressed = props.isPressed || false;
+  const ariaDisabled = props.disabled || false;
+  const onKeyDown = props.onKeyDown || ((e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      props.onClick?.();
+    }
+  });
+
   return {
     ...props,
-    role: 'button',
+    role,
     tabIndex: props.disabled ? -1 : 0,
-    'aria-label': props.label || 'Button',
+    'aria-label': ariaLabel,
     'aria-describedby': props.descriptionId,
-    'aria-pressed': props.isPressed || false,
-    'aria-disabled': props.disabled || false,
-    onKeyDown: props.onKeyDown || ((e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        props.onClick?.();
-      }
-    }),
+    'aria-pressed': ariaPressed,
+    'aria-disabled': ariaDisabled,
+    onKeyDown,
   };
 };
 
 // Create accessible form input with label association
 const createAccessibleInput = (props) => {
+  const { id, ...rest } = props;
   return {
-    ...props,
-    id: props.id,
+    ...rest,
+    id,
     'aria-label': props.ariaLabel,
     'aria-describedby': props.ariaDescribedBy,
     'aria-required': props.required || false,
@@ -138,7 +145,8 @@ fixFakeLinkIssue();
 
 // Current existing code (preserve all existing code, exports, and functions)
 
-import express from 'express'; // update express to v5.0.0
+import express from 'express';
+
 const expressApp = express();
 
 if (require.main === module) {
@@ -157,37 +165,27 @@ configure.cacheDirectory = __dirname + '/.cache';
 
 // Upgrade eslint to v10
 const eslingConfig = {
-  // ... existing eslint config
   rules: {
     // ... existing rules
-    'no-var': 'error', // add this rule to eslint config
+    'no-var': 'error',
   },
 };
 
 // Upgrade TypeScript to v7
-// Note: TypeScript v7 configuration might require changes in the tsconfig.json file as well.
 const tsConfig = {
   compilerOptions: {
-    // ... existing TypeScript options
-    target: 'es6', // add this option for TypeScript 7
-    module: 'esnext', // add this option for TypeScript 7
-    // ... request to update TypeScript to v7 configuration here
+    target: 'es6',
+    module: 'esnext',
   },
 };
 
 // Upgrade React to v19
-// Note: This upgrade might require changes in the renderer, components, and other React-dependant parts of the codebase.
-const React = require('react'); // add `const React = require('react');`
+const React = require('react');
 
 class MyComponent extends React.Component {
   // ... existing component code
+  static ariaRole = 'button';
 
-  // ... request to upgrade React to v19 specific changes here
-
-  // Add ARIA attributes for improved accessibility
-  static ariaRole = 'button'; // add custom ARIA role attribute
-  
-  // Accessibility helper method
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -199,7 +197,7 @@ class MyComponent extends React.Component {
     // ... existing render method code
     // Add additional ARIA attributes to the component as needed
     return (
-      <button 
+      <button
         role="button"
         aria-label={this.props.label || 'My Button'}
         'aria-pressed': props.isPressed || false
@@ -223,8 +221,8 @@ export default MyComponent;
 module.exports = {
   jest: {
     preset: 'ts-jest',
-    configure: configure,
-    cacheDirectory: configure.cacheDirectory,
+    configure,
+    cacheDirectory,
   },
   eslingConfig,
   tsConfig,

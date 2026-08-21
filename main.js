@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code (preserved as-is)
 // New accessibility improvements
 /**
@@ -8,7 +5,7 @@ Here is the resolved file content:
  * Fixes REACT_015: React Language Attribute
  */
 function ensureLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -43,7 +40,24 @@ function enhanceTableAccessibility() {
  * Fixes REACT_017: React Landmarks
  */
 function ensureProperLandmarks() {
-  const main = document.querySelector('main');
+  // Check if main landmark exists, if not, create one
+  let main = document.querySelector('main');
+  if (!main) {
+    // Find body element and wrap its children in main
+    const body = document.querySelector('body');
+    if (body) {
+      const children = Array.from(body.children);
+      if (children.length > 0) {
+        main = document.createElement('main');
+        children.forEach(child => {
+          main.appendChild(child);
+        });
+        body.appendChild(main);
+      }
+    }
+  }
+  
+  // Ensure main has proper role attribute
   if (main && !main.hasAttribute('role')) {
     main.setAttribute('role', 'main');
   }
@@ -61,7 +75,7 @@ function ensureProperLandmarks() {
 function ensureSvgAccessibility() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
+    if (!svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       svg.setAttribute('aria-label', 'Decorative graphic');
     }
   });
@@ -77,7 +91,7 @@ function ensureUniqueLandmarks() {
     for (let i = 1; i < mains.length; i++) {
       const section = document.createElement('section');
       section.innerHTML = mains[i].innerHTML;
-      mains[i].replaceWith(section);
+      mains[i].parentNode.replaceChild(section, mains[i]);
     }
   }
 
@@ -91,11 +105,11 @@ function ensureUniqueLandmarks() {
 
   // Additional fix for unique landmarks from the origin/main branch
   function uniqueLandmarks() {
-    const links = document.querySelectorAll('[id^="unrotate"]');
+    const links = document.querySelectorAll('[role="link"]');
     links.forEach(link => {
       const id = link.id;
       const index = id.split('-')[1];
-      link.id = `unrotate-${index}`;
+      link.id = `unique-link-${index}`;
     });
   }
   uniqueLandmarks();
@@ -106,27 +120,27 @@ function ensureUniqueLandmarks() {
  * Fixes REACT_036: React Fake Link
  */
 function replaceFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(element => {
-    if (element.getAttribute('role') === 'link' && !element.tagName.toLowerCase() === 'a') {
+    if (element.getAttribute('role') === 'link' && element.tagName.toLowerCase() !== 'a') {
       const anchor = document.createElement('a');
-      anchor.href = element.getAttribute('data-href') || '#';
+      anchor.href = element.getAttribute('href') || '#';
       anchor.textContent = element.textContent;
       element.replaceWith(anchor);
     }
   });
 
   // Additional fix for the specific case mentioned in the issue from the origin/main branch
-  const rotateBackLinks = document.querySelectorAll('#unrotate');
+  const rotateBackLinks = document.querySelectorAll('.rotate-back-link');
   rotateBackLinks.forEach(link => {
     const button = document.createElement('button');
     button.id = link.id;
     button.textContent = link.textContent;
+    link.replaceWith(button);
     button.addEventListener('click', () => {
       // Add your rotation logic here
       console.log('Rotation back triggered');
     });
-    link.replaceWith(button);
   });
 }
 
@@ -139,5 +153,3 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureUniqueLandmarks();
   replaceFakeLinks();
 });
-```
-I have integrated the changes from both branches, including the unique landmarks fix (REACT\_025) from the origin/main branch. The resolved file does not introduce any syntax errors and preserves comments and style as much as possible.

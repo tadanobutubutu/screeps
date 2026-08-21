@@ -1,5 +1,4 @@
-// Current content of main.js
-// ... [Other code] ...
+// TODO: Add back any required exports that might have been?
 
 // Assuming the code is using ReactDOM.render() to render the React component
 // to the DOM, you would add the lang attribute to the <html> tag by wrapping the
@@ -28,6 +27,6 @@ const htmlElement = (
   </html>
 );
 
-ReactDOM.render(htmlElement, document.getElementById('root'));
+export default App;
 
 // ... [Rest of main.js] ...

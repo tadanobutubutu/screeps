@@ -7,6 +7,7 @@
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
+// - REACT_027: Add scope attribute to th elements
 
 // New Functionality (to be added)
 function enhanceAccessibility() {
@@ -69,10 +70,14 @@ function enhanceAccessibility() {
     if (!link.getAttribute('href')) {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
+      // Add click event listener for button-like links
+      link.addEventListener('click', (event) => {
+        event.currentTarget.blur(); // Remove focus to avoid screen reader repetition
+      });
     }
   });
 
-  // Additional functionality to fix REACT_027 - Add scope attribute to th elements
+  // REACT_027: Add scope attribute to th elements
   const thElements = document.querySelectorAll('th');
   thElements.forEach(th => {
     if (th.hasAttribute('scope')) {

@@ -1,23 +1,29 @@
-// Assuming this is a React component file, let's say it's named TableComponent.js
+// Utility for creating accessible SVG elements
 
-import React from 'react';
-
-const TableComponent = () => {
+/**
+ * Renders an SVG with accessibility attributes for decorative icons
+ * @param {Object} props - SVG props including children
+ * @returns {JSX.Element} Accessible SVG element
+ */
+export const AccessibleSVG = ({ 
+  children, 
+  ariaLabel,
+  decorative = false,
+  ...props 
+}) => {
+  if (decorative) {
+    return (
+      <svg aria-hidden="true" focusable="false" {...props}>
+        {children}
+      </svg>
+    );
+  }
+  
   return (
-    <table>
-      <thead>
-        <tr>
-          <th scope="col">Column 1</th>
-          <th scope="col">Column 2</th>
-          <th scope="col">Column 3</th>
-          {/* ... other headers ... */}
-        </tr>
-      </thead>
-      <tbody>
-        {/* ... table rows ... */}
-      </tbody>
-    </table>
+    <svg aria-label={ariaLabel} {...props}>
+      {children}
+    </svg>
   );
 };
 
-export default TableComponent;
+export default AccessibleSVG;

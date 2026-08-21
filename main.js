@@ -136,12 +136,23 @@
     });
   }
 
+  function fixDuplicateMainElements() {
+    // Remove duplicate <main> elements that may exist in the same document
+    var mainElements = document.querySelectorAll('main');
+    if (mainElements.length > 1) {
+      for (var i = 1; i < mainElements.length; i++) {
+        mainElements[i].parentNode.removeChild(mainElements[i]);
+      }
+    }
+  }
+
   function init() {
     fixLanguageAttribute();
     fixLandmarkIssues();
     fixTableStructure();
     fixSvgAccessibility();
     fixFakeLinkIssue();
+    fixDuplicateMainElements();
   }
 
   // Export for module usage
@@ -153,7 +164,8 @@
       fixLandmarkIssues,
       fixSvgAccessibility,
       fixFakeLinkIssue,
-      fixTableStructure
+      fixTableStructure,
+      fixDuplicateMainElements
     };
   }
 

@@ -10,7 +10,7 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 
 // Update for Jest v30
-const { jest } = require('@jest/globals');
+const jest = require('@jest/globals');
 
 // Update for ESLint v10
 const eslint = require('eslint').ESLint;

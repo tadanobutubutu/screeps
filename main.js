@@ -9,6 +9,7 @@ export default function Main() {
     {
       Header: 'dist/main.js',
       accessor: 'distMain', // Add this accessor for the required export
+      role: 'presentation' // Add ARIA role for the table cell
     },
   ];
 
@@ -40,6 +41,9 @@ export default function Main() {
   // Add accessible landmark - one main per page (REACT_025)
   const landmarkMain = createAccessibleSVG('Main content', '0 0 1 1');
 
+  // Add ARIA-label to the main element
+  distMainModule.default.ariaLabel = 'Main component';
+
   const mainElement = distMainModule.default;
 
   // Fix table structure issues (REACT_027)
@@ -64,7 +68,7 @@ export default function Main() {
               {category}
             </td>
           ))}
-          <td>{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
+          <td role="presentation">{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
         </tr>
       </tbody>
     </table>

@@ -24,7 +24,7 @@ const Dashboard: ... = ({
   const [errCopyHoverLocal, setErrCopyHoverLocal] = useState(false);
 
   return (
-    <div lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <div lang="ja" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
       <pre
         tabIndex={0}

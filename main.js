@@ -59,9 +59,7 @@
             return updatedIcons;
         }
 
-        // Function to update icons with accessible names
         function updateIconsWithHeader(icons, label) {
-            // This section is new, it's an alternative implementation to address accessibility issues
             const tableIcons = table.querySelectorAll('td > a > img');
             tableIcons.forEach(icon => {
                 const accessibleIcon = updateIcons(window[icon.getAttribute('data-icon-set')], label);
@@ -69,13 +67,18 @@
             });
         }
 
-        // Process all tables in a document or element
         function processTables(rootElement = document) {
             const tables = rootElement.querySelectorAll('table');
             tables.forEach(addScopeToTableHeaders);
             tables.forEach(updateIconsWithHeader);
             return tables.length;
         }
+
+        // Process all tables in a document or element
+        processTables();
+
+        // The rest of the code remains the same...
+    }
 
     // The rest of the code remains the same...
 
@@ -84,11 +87,6 @@
     exports.updateIcons = updateIcons;
     exports.updateRotateBackLink = updateRotateBackLink;
     exports.updateIconsWithHeader = updateIconsWithHeader;
-    // ...
-
-    // Call the function to update the 'rotate back' link on page load
-    window.onload = updateRotateBackLink;
-
     module.exports.addScopeToTableHeaders = addScopeToTableHeaders;
     module.exports.processTables = processTables;
     module.exports.fixFakeLinks = fixFakeLinks;

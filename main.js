@@ -1,8 +1,16 @@
-// main.js - Fix React Landmarks (REACT_017) by adding <main> landmarks
-
 const fs = require('fs');
 const path = require('path');
 
+// Check if we're in a browser environment
+if (typeof document !== 'undefined') {
+  // Browser code: add event listener for unrotate button
+  document.getElementById('unrotate').addEventListener('click', function() {
+    console.log('Rotating back...');
+    // Your rotation logic goes here
+  });
+}
+
+// Node.js code: add main landmark to files
 const files = [
   'app/layout.tsx',
   'docs/index.html',
@@ -58,11 +66,14 @@ function addMainLandmark(filePath) {
   }
 }
 
-files.forEach(file => {
-  const fullPath = path.resolve(file);
-  if (fs.existsSync(fullPath)) {
-    addMainLandmark(fullPath);
-  } else {
-    console.error(`File not found: ${fullPath}`);
-  }
-});
+// Only run file processing in Node.js environment
+if (typeof document === 'undefined') {
+  files.forEach(file => {
+    const fullPath = path.resolve(file);
+    if (fs.existsSync(fullPath)) {
+      addMainLandmark(fullPath);
+    } else {
+      console.error(`File not found: ${fullPath}`);
+    }
+  });
+}

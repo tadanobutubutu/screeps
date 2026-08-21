@@ -78,11 +78,6 @@ configure.automock = false;
 
 configure.cacheDirectory = __dirname + '/.cache';
 
-module.exports = {
-  preset: 'ts-jest',
-  // ... rest of the jest configuration
-};
-
 // Upgrade eslint to v10
 const eslingConfig = {
   // ... existing eslint config
@@ -91,8 +86,6 @@ const eslingConfig = {
     'no-var': 'error', // add this rule to eslint config
   },
 };
-
-module.exports = eslingConfig;
 
 // Upgrade TypeScript to v7
 // Note: TypeScript v7 configuration might require changes in the tsconfig.json file as well.
@@ -104,8 +97,6 @@ const tsConfig = {
     // ... request to update TypeScript to v7 configuration here
   },
 };
-
-module.exports = tsConfig;
 
 // Upgrade React to v19
 // Note: This upgrade might require changes in the renderer, components, and other React-dependant parts of the codebase.
@@ -151,3 +142,19 @@ class MyComponent extends React.Component {
 export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal };
 
 export default MyComponent;
+
+// Export all required modules
+module.exports = {
+  jest: {
+    preset: 'ts-jest',
+    configure: configure,
+    cacheDirectory: configure.cacheDirectory,
+  },
+  eslingConfig,
+  tsConfig,
+  validateAccessibility,
+  createAccessibleButton,
+  createAccessibleInput,
+  createAccessibleModal,
+  default: MyComponent,
+};

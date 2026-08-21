@@ -1,32 +1,28 @@
-// main.js - Fix React Landmarks (REACT_017) by adding <main> landmarks
+// main.js - Fix React Fake Link (REACT_036) by replacing anchor tags with buttons for in-page actions
 
 const fs = require('fs');
 const path = require('path');
 
 const files = [
-  'app/layout.tsx',
-  'dashboard/app/layout.tsx',
+  'docs/dependency-graph.html',
   // Add other affected files as needed
 ];
 
-function addMainLandmark(filePath) {
+function replaceAnchorsWithButtons(filePath) {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
-    const hasMain = /<main[\s>]/i.test(content);
 
-    if (!hasMain) {
-      // For JSX files with body, wrap children in main
-      if (content.includes('<body>') || content.includes('<Body>')) {
-        content = content.replace(
-          /(<(?:body|Body)[^>]*>\s*)({[\s\S]*?})(\s*<\/(?:body|Body)>)/i,
-          (match, open, children, close) => {
-            return `${open}<main>${children}</main>${close}`;
-          }
-        );
-      }
-      fs.writeFileSync(filePath, content, 'utf8');
-      console.log(`Fixed: ${filePath}`);
-    }
+    // Regex to find anchor tags with href="#" and no text content
+    const regex = /<a[^>]*href="#"[^>]*>([^<]*)<\/a>/gi;
+
+    // Replace the anchor tags with button elements
+    content = content.replace(regex, (match, text) => {
+      // Add button for the in-page action, including a `type="button"` attribute to avoid default behavior
+      return `<button type="button" onclick="window.scrollTo(0, 0);">${text}</button>`;
+    });
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`Fixed: ${filePath}`);
   } catch (err) {
     console.error(`Error processing ${filePath}:`, err.message);
   }
@@ -35,6 +31,6 @@ function addMainLandmark(filePath) {
 files.forEach(file => {
   const fullPath = path.join(process.cwd(), file);
   if (fs.existsSync(fullPath)) {
-    addMainLandmark(fullPath);
+    replaceAnchorsWithButtons(fullPath);
   }
 });

@@ -1,14 +1,18 @@
 // main.js - Accessibility fixes applied
 
 // Existing imports and code preserved...
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // Accessibility fix: Ensure lang attribute is properly set on HTML element
 // This typically needs to be set at the HTML level, not in main.js
 
 export function App() {
+  useEffect(() => {
+    // Fix for REACT_015: Set lang attribute on html element for screen readers
+    document.documentElement.setAttribute('lang', 'en');
+  }, []);
+
   return (
-    // Fix for REACT_015: Add lang attribute context
     <div lang="en">
       <Header />
       <main id="main-content" role="main">
@@ -64,10 +68,10 @@ export function AccessibleIcon({ name }) {
 // Fix for REACT_036: Semantic links instead of divs with onClick
 export function SemanticLinks({ href, children, onClick }) {
   if (href) {
-    return <a href={href}>{children}</a>;
+    return <a ...
   }
   // If it doesn't navigate, use a button
-  return <button onClick={onClick}>{children}</button>;
+  return <button ...
 }
 
 // Existing exports preserved

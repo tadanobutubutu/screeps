@@ -1,9 +1,1 @@
-// Screeps main.js - Game loop configuration
-// This file initializes the game's main loop
-
-module.exports = {
-  loop: function() {
-    // Game tick logic
-    console.log('Game loop running');
-  }
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

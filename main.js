@@ -1,6 +1,14 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var _ = require('lodash');
 var myModule = require('./myModule');
+var TableComponent = require('./TableComponent');
+
+function App() {
+  return React.createElement('div', { className: 'app' },
+    React.createElement(TableComponent)
+  );
+}
 
 function initialize() {
     var app = {
@@ -49,7 +57,8 @@ function render() {
     var root = React.createElement('div', { className: 'app' },
         header,
         unrotateButton,
-        footer
+        footer,
+        React.createElement(App)
     );
 
     ReactDOM.render(root, app.container);
@@ -58,6 +67,8 @@ function render() {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         initialize: initialize,
-        render: render
+        render: render,
+        App: App
     };
 }
+=========================================

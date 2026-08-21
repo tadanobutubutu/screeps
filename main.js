@@ -14,7 +14,7 @@ export function createMainHTML({ children, id }) {
 export function fixTableStructure(html) {
   return html.replace(/<th([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = existingAttrs.includes('scope=');
+    const hasScope = /scope\s*=/i.test(existingAttrs);
     const scopeAttr = hasScope ? '' : ' scope="col"';
     const attrString = existingAttrs;
     return `<th${attrString}${scopeAttr}>`;
@@ -66,7 +66,7 @@ export function addLandmarks(html) {
     const existingAttrs = attrs || '';
     const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
-      const idMatch = existingAttrs.match(/id\s*=\s*["']([^"']*)["']/i);
+      const idMatch = existingAttrs.match(/id="([^"]*)"/);
       const sectionId = idMatch ? idMatch[1] : '';
       return `<section${existingAttrs} aria-label="${sectionId || 'Section'}">`;
     }
@@ -116,8 +116,8 @@ export function addSvgAccessibility(html) {
   });
   
   // Add title element inside SVGs if not present
-  result = result.replace(/(<svg[^>]*>)(?!.*<title)/gi, (match, openTag) => {
-    return `${openTag}<title>SVG Image</title>`;
+  result = result.replace(/(<svg[^>]*>)(?!.*<title>)/gi, (match, openTag) => {
+    return `${openTag}<title>Image</title>`;
   });
   
   return result;
@@ -146,78 +146,4 @@ export function ensureUniqueLandmarks(html) {
           if (counter[lm] > 1) {
             const uniqueId = `${lm}-${counter[lm]}`;
             // Add unique id to the opening tag
-            if (!/id\s*=/i.test(tag)) {
-              tag = tag.replace(new RegExp(`<${lm}`, 'i'), `<${lm} id="${uniqueId}"`);
-            } else {
-              // Id already exists, append to it
-              tag = tag.replace(/(id\s*=\s*["'])([^"']+)(["'])/i, (m, p1, p2, p3) => `${p1}${p2}-${counter[lm]}${p3}`);
-            }
-          } else {
-            newHtmlArray.push(tag);
-          }
-          break;
-        }
-      }
-    } else {
-      if (isLandmarkTag) {
-        newHtmlArray.push(tag);
-      } else {
-        newHtmlArray.push(tag);
-      }
-      isLandmarkTag = false;
-    }
-  });
-  
-  return newHtmlArray.join('</');
-}
-
-// Function to fix fake link issues
-export function fixFakeLinks(html) {
-  return html.replace(/<a([^>]*)>([^<]*)<\/a>/gi, (match, attrs, content) => {
-    const hrefMatch = attrs.match(/href\s*=\s*["']([^"']*)["']/i);
-    const href = hrefMatch ? hrefMatch[1] : '';
-    const isFakeLink = href && (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;');
-    
-    if (isFakeLink) {
-      // If it's a fake link, replace it with a span
-      const newAttrs = attrs.replace(/href\s*=\s*["'][^"']*["']/gi, '');
-      return `<span${newAttrs}>${content}</span>`;
-    }
-    return match;
-  });
-}
-
-// Function to fix 1 fake link issue
-export function fixOneFakeLink(html) {
-  return fixFakeLinks(html);
-}
-
-// Example of how to use the new function to create updated html for a specific page
-export function createIndexHTML() {
-  return addSvgAccessibility(addLandmarks(addLangAttribute(fixTableStructure(createMainHTML({
-    children: `
-      <div class="container">
-          <h2>Quality & Metrics Reports</h2>
-          <p>
-            This repository is fully optimized with automated tools. Explore the generated
-            reports below:
-          </p>
-          <div class="links">
-            <a href="/plato">Plato Code Complexity Report</a>
-            <a href="/dependency-graph">Dependency Graph</a>
-          </div>
-      </div>
-    `,
-    id: 'index',
-  })))))));
-}
-
-// Example of how to use the new function to create updated html for another specific page
-export function createDependencyGraphHTML(updatedTableContent) {
-  return addSvgAccessibility(addLandmarks(addLangAttribute(fixTableStructure(createMainHTML({
-    children: updatedTableContent,
-    id: 'dependency_graph',
-  }))))));
-}
-
-// ... Rest of your existing code ...
+            if (!

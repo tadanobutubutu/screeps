@@ -1,4 +1,3 @@
-tsx
 import React, { useState } from 'react';
 import CommonDashboard from './CommonDashboard';
 

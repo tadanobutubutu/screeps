@@ -70,7 +70,7 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   );
 };
 
-// REACT_027 & REACT_025: Example of a table component with corrected accessibility
+// REACT_025 & REACT_027: Example of a table component with corrected accessibility
 export const DependencyGraphTable = ({ data }) => {
   return (
     <table>
@@ -173,7 +173,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -183,7 +183,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new Date(date).toLocaleDateString('en-US', defaultOptions);
 }
 
 export function debounce(func, wait) {

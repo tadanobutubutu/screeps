@@ -18,14 +18,14 @@ export default function Main() {
   );
 
   const desc = (text) => (
-    <p className="lead" aria-label="Description">
+    <p className="lead">
       {text}
     </p>
   );
 
   const tableTitle = heading('table-title', 'File Overview Table');
   const tableDesc = desc('The table below provides an overview of source code files.');
-  const categoryHeading = (category) => heading(`category-${category}`, category);
+  const categoryHeading = (category) => ... category);
 
   // Initialize the React Table hook
   const {
@@ -36,22 +36,46 @@ export default function Main() {
   } = useTable({ columns });
 
   return (
-    <Container>
-      <section aria-label="Metadata section">
-        <>{tableTitle}</>
-        <>{tableDesc}</>
-      </section>
-      <section aria-label="Categories section">
-        {columns.map(({ Header: category }, idx) => (
-          <>{categoryHeading(idx)}</>
-        ))}
-      </section>
-      <section aria-label="Table section">
-        <Table>
-          {/* Remaining table structure */}
-        </Table>
-      </section>
-    </Container>
+    <div lang="en">
+      <Container>
+        <header>
+          <h1 className="sr-only">Source Code Overview</h1>
+        </header>
+        <main>
+          <section aria-label="Metadata section">
+            <>{tableTitle}</>
+            <>{tableDesc}</>
+          </section>
+          <section aria-label="Categories section">
+            {columns.map(({ Header: category }, idx) => (
+              ...
+            ))}
+          </section>
+          <section aria-label="Table section">
+            <Table>
+              <caption>The table below provides an overview of source code files.</caption>
+              <thead>
+                {getHeaderGroups().map(headerGroup => (
+                  <tr {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map(column => (
+                      <th {...column.getHeaderProps()} scope="col">
+                        {column.render('Header')}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody>
+                {/* Remaining table structure */}
+              </tbody>
+            </Table>
+          </section>
+        </main>
+        <footer>
+          <RotateBackButton />
+        </footer>
+      </Container>
+    </div>
   );
 }
 

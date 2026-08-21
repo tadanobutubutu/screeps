@@ -1,14 +1,3 @@
-Here's the resolved file content:
-
-```javascript
-// TODO: Address accessibility issues from insight report:
-// - REACT_015: Add lang attribute to HTML element (DONE: addLangAttribute)
-// - REACT_027: Fix 26 table structure issues (DONE: fixTableStructure)
-// - REACT_017: Add/fix 2 landmark issues (DONE: addMainLandmark)
-// - REACT_041: Add accessible names to 2 SVGs (DONE: addSvgAccessibleNames)
-// - REACT_025: Ensure unique landmarks (DONE: ensureUniqueLandmarks)
-// - REACT_036: Fix 1 fake link issue (DONE: replaceHashLinksWithButtons)
-
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -93,6 +82,16 @@ const Dashboard: React.FC<DashboardProps> = ({ /* props */ }) => {
     }
   }
 
+  async function updateIcons(icons, label) {
+     const updatedIcons = {};
+     for (const key in icons) {
+         const svgData = icons[key];
+         const accessibleSvg = await addSvgAccessibleNames(svgData);
+         updatedIcons[key] = accessibleSvg;
+     }
+     return updatedIcons;
+  }
+
   return (
     <div>
       {/* Wrap the multiple main content blocks with a single <main> */}
@@ -104,6 +103,32 @@ const Dashboard: React.FC<DashboardProps> = ({ /* props */ }) => {
 };
 
 export default Dashboard;
-```
 
-This resolves the Git conflict by merging both changes. The JavaScript part now contains your original functions to handle accessibility issues, and the new React component with table structure fixes are combined together.
+// Function to add accessible names to SVGs for accessibility
+async function addAccessibleNameToSvg(svgData, label) {
+  // Regex to find the SVG tag and the content within it
+  const svgRegex = /<svg[\s\S]*?<\/svg>/i;
+  const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
+  const textRegex = /<text[^>]*>(.*?)<\/text>/i;
+
+  // Replace the SVG content with an updated version that includes a title element
+  return svgData.replace(svgRegex, (match) => {
+      // Check if the SVG already contains a title
+      let hasTitle = titleRegex.test(match);
+      let hasText = textRegex.test(match);
+
+      // Add a title element if it doesn't already exist and if the SVG contains text
+      if (!hasTitle && hasText) {
+          // Replace the SVG content with a title element wrapping the existing text
+          return match.replace(textRegex, (textMatch) => {
+              return `<title>${label}</title>${textMatch}`;
+          });
+      }
+
+      // If the SVG doesn't contain text or already has a title, return the original match
+      return match;
+  });
+}
+
+// Export the accessibility function
+module.exports.addAccessibleNameToSvg = addAccessibleNameToSvg;

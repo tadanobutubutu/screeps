@@ -2,8 +2,11 @@
 
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Set language attribute for accessibility (REACT_015)
+  document.documentElement.lang = 'en';
+  
   // Select the unrotate element
-  const unrotateElement = document.getElementById('unrotate');
+  const unrotateElement = document.querySelector('#rotate > a');
   
   if (unrotateElement) {
     // Replace the <a> element with a <button> element

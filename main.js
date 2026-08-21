@@ -1,26 +1,20 @@
+import React from 'react';
+
 // TODO: Address accessibility issues from insight report:
 // Placeholder for accessibility-related code changes
 
-// Added back required exports
-import React from 'react';
-
-// Preserved existing code
 function existingFunction() {
   // ... existing code ...
 }
 
-// Preserved exports
-export { existingFunction };
-
-// Added new function or changes as requested
+// Preserved existing code
 function newFunction() {
   // ... new code ...
 }
 
-// No removal or renaming of existing exports
-export { newFunction, existingFunction };
+// Exports preserved and added
+export { existingFunction, newFunction };
 
-// ... rest of the main.js content ...
 
 // ============================================
 // Accessibility Improvements
@@ -135,6 +129,7 @@ export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props 
       aria-label={ariaLabel}
       role={role}
       aria-hidden={ariaLabel ? undefined : true}
+      focusable="false"
       {...props}
     >
       {children}
@@ -170,9 +165,9 @@ export {
   SettingsIcon  
 };
 
-// Missing functions added as requested
+// Additional utility functions
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -182,7 +177,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new Date(date).toLocaleDateString('en-US', defaultOptions);
 }
 
 export function debounce(func, wait) {
@@ -207,8 +202,6 @@ export function throttle(func, limit) {
     }
   };
 }
-
-// ... rest of the main.js content ...
 
 // ============================================
 // Additional Accessibility Improvements

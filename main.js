@@ -29,14 +29,14 @@ const ensureUniqueLandmarks = () => {
   // Example of ensuring unique landmarks for existing landmarks:
   const landmarkSelectors = ['[role="main"]', '[role="contentinfo"]', '[role="search"]', '[role="banner"]', '[role="navigation"]', '[role="complementary"]'];
   const existingLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
-  
+
   const usedLabels = new Map();
-  
+
   for (const landmark of existingLandmarks) {
     const ariaLabel = landmark.getAttribute('aria-label');
     const landmarkId = landmark.id || '';
     const idBase = landmarkId || `landmark-${usedLabels.size}`;
-    
+
     if (!ariaLabel) {
       // Generate a unique identifier if no aria-label is present
       let uniqueIdentifier = idBase;
@@ -69,7 +69,7 @@ const fixTableStructureIssues = () => {
   // 4. Add aria-describedby for complex tables
   // 5. Ensure proper column/row headers
   const tables = document.querySelectorAll('table');
-  
+
   tables.forEach(table => {
     // 1. Add scope attributes to <th> elements
     const thElements = table.querySelectorAll('th');
@@ -79,21 +79,21 @@ const fixTableStructureIssues = () => {
       } else if (th.closest('tbody') || th.closest('tr')) {
         th.setAttribute('scope', 'row');
       }
-      
+
       // Check for row spans and adjust scope accordingly
       const rowspan = th.getAttribute('rowspan');
       if (rowspan && parseInt(rowspan) > 1) {
         th.setAttribute('scope', 'rowgroup');
       }
     });
-    
+
     // 2. Add caption if not present
     if (!table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = 'Data table';
       table.insertBefore(caption, table.firstChild);
     }
-    
+
     // 3. Ensure proper thead/tbody structure
     if (!table.querySelector('thead') && table.querySelector('tr th')) {
       const firstRow = table.querySelector('tr');
@@ -107,9 +107,10 @@ const fixTableStructureIssues = () => {
         }
       }
     }
-    
+
     if (!table.querySelector('tbody') && table.children.length > 1) {
       const bodyRows = Array.from(table.querySelectorAll('tr')).filter(tr => !tr.closest('thead'));
+
       if (bodyRows.length > 0) {
         const tbody = document.createElement('tbody');
         bodyRows.forEach(tr => tbody.appendChild(tr));
@@ -128,12 +129,12 @@ const fixTableStructureIssues = () => {
 const addSvgAccessibleNames = () => {
   // Add accessible names to SVG elements
   const svgs = document.querySelectorAll('svg');
-  
+
   svgs.forEach((svg, index) => {
     const hasAriaLabel = svg.getAttribute('aria-label') !== null;
     const hasLabelledBy = svg.getAttribute('aria-labelledby') !== null;
     const hasTitle = svg.querySelector('title') !== null;
-    
+
     if (!hasAriaLabel && !hasTitle && !hasLabelledBy) {
       const title = document.createElement('title');
       title.id = `svg-title-${index + 1}`;
@@ -147,7 +148,7 @@ const addSvgAccessibleNames = () => {
 const fixFakeLinks = () => {
   // Fix 1 fake link issue - replace href="#" with button elements
   const fakeLinks = document.querySelectorAll('a[href="#"], [role="link"]');
-  
+
   fakeLinks.forEach(link => {
     if (link.tagName !== 'A') {
       // Handle elements with role="link" that aren't actual anchor tags
@@ -166,14 +167,14 @@ const fixFakeLinks = () => {
       button.textContent = link.textContent;
       button.className = link.className;
       button.onclick = link.onclick;
-      
+
       // Copy all attributes except href
       Array.from(link.attributes).forEach(attr => {
         if (attr.name !== 'href') {
           button.setAttribute(attr.name, attr.value);
         }
       });
-      
+
       link.parentNode.replaceChild(button, link);
     }
   });
@@ -187,7 +188,12 @@ const initAccessibilityFixes = () => {
   fixFakeLinks();
 };
 
-// Import required module(s) and export the new necessary function(s) here
+// A new function: initMain is added to ensure that initAccessibilityFixes gets executed when the page loads
+const initMain = () => {
+  initAccessibilityFixes();
+};
+
+// We update the export section to include initMain as well
 export {
   DependencyGraphComponent,
   addLangAttribute,
@@ -195,5 +201,5 @@ export {
   fixTableStructureIssues,
   addSvgAccessibleNames,
   fixFakeLinks,
-  initAccessibilityFixes
+  initMain
 };

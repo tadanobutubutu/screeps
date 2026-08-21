@@ -1,4 +1,3 @@
-tsx
 import React from 'react';
 
 interface DashboardProps {
@@ -11,7 +10,7 @@ interface DashboardProps {
   fetchStats: (retry: boolean) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({
+const Dashboard: ... = ({
   error,
   copied,
   errCopyHover,
@@ -23,7 +22,7 @@ const Dashboard: React.FC<DashboardProps> = ({
   // ... (rest of the component code)
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+    <div lang="en" style={{ padding: '2rem', fontFamily: 'monospace' }}>
       <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
       <pre
         tabIndex={0}

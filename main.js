@@ -1,5 +1,4 @@
 tsx
-// Hypothetical existing `layout.tsx` file content
 import React from 'react';
 
 const FaviconSVG = () => (
@@ -10,12 +9,13 @@ const FaviconSVG = () => (
 
 const AppLayout = () => {
   return (
-    <div>
+    <main>
       {/* Other components */}
       <link rel="icon" href="favicon.ico" />
       {/* Favicon SVG */}
       <FaviconSVG aria-label="App favicon" />
-    </div>
+      {/* Existing content */}
+    </main>
   );
 };
 

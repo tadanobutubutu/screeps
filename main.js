@@ -23,8 +23,19 @@ function ensureElement(input) {
   return input;
 }
 
+// Import the required module for API calls
+const api = require('./apiModule');
+
+// New function for making API calls using the imported API module
+function makeApiCall(endpoint) {
+  // Example usage of the imported API module
+  return api.callApi(endpoint);
+}
+
+// Export the new necessary function(s) preserving the existing ones
 module.exports = {
   enhanceAccessibility: enhanceAccessibility,
   ensureElement: ensureElement,
-  // Export any necessary functions or configurations
+  makeApiCall: makeApiCall,
+  // Export any existing necessary functions or configurations
 };

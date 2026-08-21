@@ -18,13 +18,18 @@ const MyTableComponent = () => {
   );
 };
 
-// Assuming there is a wrapper for landing page content
+// Assuming there's a wrapper for landing page content
+// Fixed: Keep single <main> landmark, use <section> for sub-regions
 const LandingPage = () => {
   // Defining landmarks for the landing page
   return (
     <div>
       <header role="banner">Header Content</header>
-      <main role="main">Main Content</main>
+      <main>
+        <section aria-label="Main content">
+          Main Content
+        </section>
+      </main>
       <footer role="contentinfo">Footer Content</footer>
     </div>
   );
@@ -43,7 +48,7 @@ const LinkComponent = (props) => {
 const SvgIcon = (props) => {
   // Adding a hidden 'aria-label' based on the icon's purpose or name
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" {...props}>
       {props.children}
     </svg>
   );

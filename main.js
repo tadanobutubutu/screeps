@@ -12,6 +12,27 @@ const Dashboard = ({ stats, error, fetchStats }) => {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    useEffect(() => {
+        // New function to handle error retry logic
+        const handleRetry = () => {
+            if (!refreshing) {
+                fetchStats(true);
+            }
+        };
+
+        // Add event listeners for retry button
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target === document.body) {
+                handleRetry();
+            }
+        });
+
+        // Remove event listeners when component unmounts
+        return () => {
+            document.removeEventListener('keydown', handleRetry);
+        };
+    }, [refreshing, fetchStats]);
+
     if (error) {
         return (
             <html lang="en">
@@ -54,7 +75,7 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                         {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
                     </button>
                     <button
-                        onClick={() => fetchStats(true)}
+                        onClick={handleRetry}
                         disabled={refreshing}
                         onMouseEnter={() => setErrRetryHover(true)}
                         onMouseLeave={() => setErrRetryHover(false)}

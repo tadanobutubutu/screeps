@@ -70,9 +70,11 @@ function addSvgAccessibleName(svgElement, title, description) {
     return;
   }
   
-  // Add title element for screen reader support
+  // Generate unique IDs for accessibility
   const titleId = "svg-title-" + Math.random().toString(36).substr(2, 9);
-  const titleEl = document.createElementNS("http://www.w3.org/2000/svg", "title");
+  
+  // Add title element for screen reader support
+  const titleEl = document.createElement("title");
   titleEl.id = titleId;
   titleEl.textContent = title || "";
   svgElement.insertBefore(titleEl, svgElement.firstChild);
@@ -83,11 +85,12 @@ function addSvgAccessibleName(svgElement, title, description) {
   // Optionally add desc for more detail
   if (description) {
     const descId = "svg-desc-" + Math.random().toString(36).substr(2, 9);
-    const descEl = document.createElementNS("http://www.w3.org/2000/svg", "desc");
+    const descEl = document.createElement("desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.appendChild(descEl);
+    svgElement.insertBefore(descEl, svgElement.firstChild);
     
+    // Update aria-labelledby to include both title and description
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
     svgElement.setAttribute("aria-labelledby", currentAriaLabelledby + " " + titleId + " " + descId);
   }
@@ -111,18 +114,18 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.hasAttribute("tabindex")) {
+  if (!element.getAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }
 
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
-  const landmarks = container.querySelectorAll("[role]");
+  const landmarks = container.querySelectorAll("[role], header, nav, main, footer, aside, section");
   const seenLandmarks = {};
   
   landmarks.forEach(function(landmark) {
-    const role = landmark.getAttribute("role");
+    const role = landmark.getAttribute("role") || landmark.tagName.toLowerCase();
     const label = landmark.getAttribute("aria-label") || "";
     const key = role + "-" + label;
     

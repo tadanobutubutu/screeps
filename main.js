@@ -1,7 +1,6 @@
 // Accessibility improvements implemented in this file
 
 // Address accessibility issues from insight report
-// This function validates accessibility requirements
 const validateAccessibility = (component) => {
   const checks = {
     hasAriaLabel: !!component.ariaLabel,

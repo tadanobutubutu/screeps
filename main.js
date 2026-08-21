@@ -8,6 +8,11 @@ import DocsDependencyGraph from './docs/dependency-graph';
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 
+// IMPORTANT: The <html> element must have a lang attribute for accessibility.
+// Add lang="en" (or your document's language) to your index.html file:
+// <html lang="en">
+// This ensures screen readers use the correct language for pronunciation.
+
 // Update your render logic to wrap the primary content with <main>
 ReactDOM.render(
   <React.StrictMode>

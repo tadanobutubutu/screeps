@@ -18,12 +18,15 @@ export function createMainHTML({ children, id }) {
   `;
 }
 
-// Function to fix 26 table structure issues by adding scope attributes to th tags
+// Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
-export function fixTableStructureIssues(html) {
-  // Add scope="col" to all th tags that don't already have a scope attribute
-  return html.replace(/<th(?![^>]*\bscope=)([^>]*)>/gi, (match, attrs) => {
-    return `<th scope="col"${attrs}>`;
+export function addScopeToTableHeaders(html) {
+  return html.replace(/<th(?:\s+([^>]*))?>(?!.*scope=)/gi, (match, attrs) => {
+    const existingAttrs = attrs || '';
+    const scopeAttr = existingAttrs.includes('scope="col"') || existingAttrs.includes("scope='col'")
+      ? ''
+      : ' scope="col"';
+    return `<th${scopeAttr}${existingAttrs ? ' ' + existingAttrs : ''}>`;
   });
 }
 
@@ -38,8 +41,8 @@ export function createIndexHTML() {
             reports below:
           </p>
           <div class="links">
-            <a ... Plato Code Complexity Report</a>
-            <a ... Dependency Graph ...
+            <a href="/plato">Plato Code Complexity Report</a>
+            <a href="/dependency-graph">Dependency Graph</a>
           </div>
       </div>
     `,
@@ -49,19 +52,17 @@ export function createIndexHTML() {
 
 // Example of how to use the new function to create updated html for another specific page
 export function createDependencyGraphHTML() {
-  return createMainHTML({
-    children: fixTableStructureIssues(`
+  const tableContent = `
       <!-- existing content without the main tag -->
       <!-- Add the scope attribute to the th tags in the table -->
       <table>
         <thead>
           <tr>
-            <th scope="col">...</th>
-            <th scope="col">...</th>
-            <th scope="col">...</th>
-            <th scope="col">...</th>
-            <th scope="col">...</th>
-            <!-- 21 further occurrences... -->
+            <th>Package</th>
+            <th>Version</th>
+            <th>Dependencies</th>
+            <th>Dependents</th>
+            <th>Size</th>
           </tr>
         </thead>
         <tbody>
@@ -69,7 +70,10 @@ export function createDependencyGraphHTML() {
         </tbody>
       </table>
       <!-- 21 further occurrences... -->
-    `),
+    `;
+
+  return createMainHTML({
+    children: addScopeToTableHeaders(tableContent),
     id: 'dependency_graph',
   });
 }

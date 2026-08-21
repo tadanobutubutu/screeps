@@ -54,6 +54,31 @@ function addLandmarkRole(element, landmarkType) {
   }
 }
 
+// REACT_017: Ensure main landmark exists for accessibility
+function ensureMainLandmark(container) {
+  const targetDoc = container && container.querySelector ? container : document;
+
+  // Check if main landmark already exists
+  let mainElement = targetDoc.querySelector("main");
+
+  if (!mainElement) {
+    // Create main landmark for accessibility
+    mainElement = targetDoc.createElement("main");
+
+    // Try to find the body or main content area to wrap
+    const body = targetDoc.body || targetDoc.querySelector("body");
+    if (body && body.firstChild) {
+      // Move body children into main
+      while (body.firstChild) {
+        mainElement.appendChild(body.firstChild);
+      }
+      body.appendChild(mainElement);
+    }
+  }
+
+  return mainElement;
+}
+
 // REACT_025: Ensure unique landmark by adding unique role/label combination
 function ensureUniqueLandmark(element, landmarkType, label) {
   if (element && element.setAttribute) {
@@ -122,7 +147,7 @@ function fixFakeLink(element, isActionLink) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {
@@ -144,6 +169,9 @@ function fixLandmarkIssues(container) {
 // Ensure the HTML element has a language attribute set for accessibility
 setLangAttribute('en');
 
+// Ensure main landmark exists for accessibility (REACT_017)
+ensureMainLandmark();
+
 // ADD THE MISSING EXPORT STATEMENT FOR THE FIXED FUNCTIONS
 module.exports = {
   // Existing exports preserved unchanged
@@ -152,6 +180,7 @@ module.exports = {
   // New accessibility functions
   setLangAttribute: setLangAttribute,
   addLandmarkRole: addLandmarkRole,
+  ensureMainLandmark: ensureMainLandmark,
   ensureUniqueLandmark: ensureUniqueLandmark,
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,

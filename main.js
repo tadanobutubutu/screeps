@@ -133,7 +133,7 @@ async function fixTableStructure() {
             fixedContent = afterHeader.replace(/(<\/thead><tbody>)([\s\S]*)$/i, '$1$2</tbody>');
           }
           
-          return `<table${tableAttrs}>${fixedContent}</table>` ? fixedContent : match;
+          return `<table${tableAttrs}>${fixedContent}</table>`;
         }
         
         // For simple tables without rows, just wrap content

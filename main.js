@@ -1,91 +1,51 @@
-// Example of how you might update Jest-related code for v30
-const { jest } = require('@jest/globals');
+// ... Existing code ...
 
-// Example of React 19 compatibility changes
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-
-// Preserve all existing functions and exports
-// Add any new functionality needed for the updates
-
-// Add functions to handle conditional main landmark rendering (new)
-export function createUniqueMainLandmark({ children, id }) {
-  return (
-    <main id={id} aria-label="Main content">
-      {children}
-    </main>
-  );
+// New function to create main HTML with main landmark (new)
+export function createMainHTML({ children, id }) {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <!-- existing head content -->
+      </head>
+      <body>
+        <main id="${id}" aria-label="Main content">
+          ${children}
+        </main>
+        <!-- existing body content -->
+      </body>
+    </html>
+  `;
 }
 
-// New function to create accessible fake link (fix for REACT_036) (new)
-export function createAccessibleFakeLink({ children, onClick, ariaLabel }) {
-  return (
-    <button
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
-      onKeyDown={(e) => e.key === 'Enter' && onClick()}
-      aria-label={ariaLabel}
-      style={{
-        cursor: 'pointer',
-        textDecoration: 'underline',
-      }}
-    >
-      {children}
-    </button>
-  );
+// Example of how to use the new function to create updated html for a specific page
+export function createIndexHTML() {
+  return createMainHTML({
+    children: `
+      <div class="container">
+          <h2>Quality & Metrics Reports</h2>
+          <p>
+            This repository is fully optimized with automated tools. Explore the generated
+            reports below:
+          </p>
+          <div class="links">
+            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
+            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+          </div>
+      </div>
+    `,
+    id: 'index',
+  });
 }
 
-// New function to create accessible table header with proper scope (new)
-export function createTableHeader({ text, scope = 'col' }) {
-  return (
-    <th scope={scope}>
-      <div>{text}</div>
-    </th>
-  );
+// Example of how to use the new function to create updated html for another specific page
+export function createDependencyGraphHTML() {
+  return createMainHTML({
+    children: `
+      <!-- existing content without the main tag -->
+    `,
+    id: 'dependency_graph',
+  });
 }
 
-// New function to create accessible table row (new)
-export function createTableRow({ cells, rowIndex }) {
-  return (
-    <tr key={`row-${rowIndex}`}>
-      {cells.map((cell, cellIndex) => (
-        <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
-      ))}
-    </tr>
-  );
-}
-
-// New function to create accessible table with proper structure (new)
-export function createAccessibleTableWithScope({ headers, data, caption, headerScope = 'col' }) {
-  return (
-    <table aria-label={caption}>
-      <caption>{caption}</caption>
-      <thead>
-        <tr>
-          {headers.map((header, index) => (
-            <th key={`header-${index}`} scope={headerScope}>
-              <div>{header}</div>
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((row, rowIndex) => (
-          <tr key={`row-${rowIndex}`}>
-            {row.map((cell, cellIndex) => (
-              <td key={`cell-${rowIndex}-${cellIndex}`}>{cell}</td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
-// Preserve existing ESLint configuration
-// (Here you can see the existing configuration is already included in the file)
-
-module.exports = {
-  // ... rest of your existing configuration
-};
+// ... Rest of your existing code ...

@@ -116,10 +116,10 @@ export function AccessibleLink({ href, children, onClick }) {
  * Skip link component for keyboard navigation
  * Helps with accessibility overall
  */
-export function SkipLink() {
+export function SkipLink({ href = '#main-content', children = 'Skip to main content' }) {
   return (
     <a
-      href="#main-content"
+      href={href}
       className="skip-link"
       style={{
         position: 'absolute',
@@ -146,7 +146,7 @@ export function SkipLink() {
         e.target.style.height = '1px';
       }}
     >
-      Skip to main content
+      {children}
     </a>
   );
 }
@@ -180,7 +180,21 @@ export function AccessiblePageWrapper({ children }) {
   );
 }
 
-// Export component for testing - demonstrates all accessibility fixes
+/**
+ * App wrapper with language support for internationalization
+ * Extends AccessiblePageWrapper with locale configuration
+ */
+export function AppWrapper({ lang = 'en', children }) {
+  return (
+    <html lang={lang}>
+      <body>
+        {children}
+      </body>
+    </html>
+  );
+}
+
+// Export component collection for easy access during development
 export const accessibilityComponents = {
   AccessibleTable,
   AccessibleIcon,
@@ -191,10 +205,11 @@ export const accessibilityComponents = {
   AccessibleLink,
   SkipLink,
   AccessiblePageWrapper,
+  AppWrapper,
   createAccessibleFaviconSvg,
 };
 
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper, createAccessibleFaviconSvg };
+export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper, AppWrapper, createAccessibleFaviconSvg };

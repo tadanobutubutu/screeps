@@ -18,6 +18,15 @@ export function createMainHTML({ children, id }) {
   `;
 }
 
+// Function to fix 26 table structure issues by adding scope attributes to th tags
+// This improves accessibility by properly associating header cells with data cells
+export function fixTableStructureIssues(html) {
+  // Add scope="col" to all th tags that don't already have a scope attribute
+  return html.replace(/<th(?![^>]*\bscope=)([^>]*)>/gi, (match, attrs) => {
+    return `<th scope="col"${attrs}>`;
+  });
+}
+
 // Example of how to use the new function to create updated html for a specific page
 export function createIndexHTML() {
   return createMainHTML({
@@ -39,9 +48,9 @@ export function createIndexHTML() {
 }
 
 // Example of how to use the new function to create updated html for another specific page
-export function ... {
+export function createDependencyGraphHTML() {
   return createMainHTML({
-    children: `
+    children: fixTableStructureIssues(`
       <!-- existing content without the main tag -->
       <!-- Add the scope attribute to the th tags in the table -->
       <table>
@@ -60,7 +69,7 @@ export function ... {
         </tbody>
       </table>
       <!-- 21 further occurrences... -->
-    `,
+    `),
     id: 'dependency_graph',
   });
 }

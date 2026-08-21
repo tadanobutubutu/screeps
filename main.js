@@ -83,7 +83,7 @@ export function addLandmarks(html) {
   });
 
   // Fix div landmarks
-  result = result.replace(/<div([^>]*)>(\s*<div)([^>]*)>(\s*)(<div)([^>]*)>(\s*<\/div>)(\s*<\/div>)(\s*<\/div>)/gi, (match, attrs1, content, attrs2, attrs3) => {
+  result = result.replace(/<div([^>]*)>(\s*<div)([^>]*)>(\s*)(<div)([^>]*)>(\s*<\/div>)(\s*<\/div>)(\s*<\/div>)/gi, (match, attrs1, content, attrs2, space, div3, attrs3) => {
     const existingAttrs = (attrs2 || '') + (attrs3 || '');
     const hasRole = /role\s*=/.test(existingAttrs);
     if (!hasRole) {
@@ -193,25 +193,12 @@ export function fixFakeLinks(html) {
       attrs += ' href="#"';
     }
     // Ensure accessible name if empty
-    if (!attrs || (/\bclass\s*=\s*["'][^"']*["']/.test(attrs) && !/aria-label\s*=/.test(attrs))) {
+    if (!attrs || (/\bclass\s*=\s*["'][^"']*["']/.test(attrs) && !/\btext\s*=/.test(attrs))) {
       attrs = attrs.replace(/class\s*=\s*["']([^"']+)["']/, 'class="$1"');
-      if (!/aria-label\s*=/.test(attrs)) {
+      if (!/\baria-label\s*=/.test(attrs)) {
         attrs += ' aria-label="Link"';
       }
     }
     return `<a${attrs}>`;
-  });
-}
-
-// Function to fix table structure issues by adding scope attributes to th tags
-// This improves accessibility by properly associating header cells with data cells
-export function fixTableScope(html) {
-  return html.replace(/<th(?![^>]*\bscope\b)([^>]*)>/gi, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    const hasScope = /\bscope\s*=/.test(existingAttrs);
-    if (hasScope) {
-      return match;
-    }
-    return `<th${existingAttrs} scope="col">`;
   });
 }

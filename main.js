@@ -74,16 +74,19 @@ function enhanceAccessibility() {
 }
 
 // Accessibility utility functions
-export function addAriaLabel(element, label) {
+function addAriaLabel(element, label) {
   if (element) {
     element.setAttribute('aria-label', label);
   }
 }
 
-export function setMainLandmark(mainElement) {
+function setMainLandmark(mainElement) {
   // TODO: Remove the commented line and uncomment mainElement when available
   if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
 }
 
-// ADD EXPORT STATEMENT HERE
-export default enhanceAccessibility;
+module.exports = {
+  enhanceAccessibility,
+  addAriaLabel,
+  setMainLandmark
+};

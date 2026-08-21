@@ -11,7 +11,6 @@ const Layout = ({ children }) => {
         height="16" 
         viewBox="0 0 16 16" 
         role="img"
-        ...
         focusable="false"
       >
         <title id="svg-title-icon">Icon description</title>

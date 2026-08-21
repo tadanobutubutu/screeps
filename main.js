@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+// Assuming main.js contains a function that renders the HTML content for `docs/dependency-graph.html`
+// Also, it includes functions to update table headers, fix multiple <main> landmarks, find files with multiple <main> elements
+
+function renderDependencyGraph() {
+  // ... existing code ...
+}
 
 // Function to update the <th> elements with the scope attribute
 function updateTableHeaders(filePath) {
@@ -23,14 +27,14 @@ filesToUpdate.forEach((file) => {
 /**
  * Fixes multiple <main> landmark issues by replacing subsequent <main> elements
  * with <section role="main"> to ensure only one <main> landmark exists per page.
- * 
+ *
  * @param {string} filePath - Path to the file to process
  * @param {number} maxMainElements - Maximum number of <main> elements allowed (default: 1)
  */
 function fixMultipleMainLandmarks(filePath, maxMainElements = 1) {
   const content = fs.readFileSync(filePath, 'utf8');
   let mainCount = 0;
-  
+
   const updatedContent = content.replace(/<main(\s|>)/gi, (match, suffix) => {
     mainCount++;
     if (mainCount > maxMainElements) {
@@ -49,7 +53,7 @@ function fixMultipleMainLandmarks(filePath, maxMainElements = 1) {
 
 /**
  * Processes multiple files to fix <main> landmark issues
- * 
+ *
  * @param {string[]} filePaths - Array of file paths to process
  * @param {number} maxMainElements - Maximum number of <main> elements allowed
  */
@@ -66,44 +70,48 @@ function fixMultipleMainLandmarksBatch(filePaths, maxMainElements = 1) {
 
 /**
  * Finds files containing multiple <main> elements
- * 
+ *
  * @param {string} directory - Directory to search
  * @param {string[]} extensions - File extensions to search (e.g., ['.jsx', '.tsx', '.js'])
  * @returns {string[]} - Array of file paths with multiple <main> elements
  */
 function findFilesWithMultipleMainLandmarks(directory, extensions = ['.jsx', '.tsx', '.js']) {
   const results = [];
-  
+
   function searchDir(dir) {
     const files = fs.readdirSync(dir);
-    
+
     files.forEach((file) => {
       const filePath = path.join(dir, file);
       const stat = fs.statSync(filePath);
-      
+
       if (stat.isDirectory()) {
         searchDir(filePath);
       } else if (extensions.some((ext) => file.endsWith(ext))) {
         const content = fs.readFileSync(filePath, 'utf8');
         const mainMatches = content.match(/<main[\s|>]/gi);
         const mainCount = mainMatches ? mainMatches.length : 0;
-        
+
         if (mainCount > 1) {
           results.push({ filePath, mainCount });
         }
       }
     });
   }
-  
+
   searchDir(directory);
   return results;
 }
 
 // Export functions for use in other modules
 module.exports = {
+  renderDependencyGraph,
   updateTableHeaders,
   fixMultipleMainLandmarks,
   fixMultipleMainLandmarksBatch,
   findFilesWithMultipleMainLandmarks,
   filesToUpdate,
 };
+
+// Call the function to render the dependency graph
+renderDependencyGraph();

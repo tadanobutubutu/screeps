@@ -15,14 +15,9 @@ function enhanceAccessibility() {
   // For example, adding ARIA roles, keyboard navigation support, etc.
   // Here's some sample code to demonstrate the addition of ARIA roles:
 
-  // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
-  if (htmlElement) {
-    // Ensure the HTML element has a language attribute set to English
-    htmlElement.lang = 'en';
-  }
+  if (htmlElement) htmlElement.lang = 'en';
 
-  // REACT_017: Add landmark roles and fix landmark issues
   const main = document.querySelector('main') || document.getElementsByTagName('main')[0];
   if (main) {
     main.setAttribute('role', 'main');
@@ -30,82 +25,64 @@ function enhanceAccessibility() {
   }
 
   const nav = document.querySelector('nav') || document.getElementsByTagName('nav')[0];
-  if (nav && !nav.getAttribute('aria-label')) {
-    nav.setAttribute('aria-label', 'Main navigation');
+  if (nav && !nav.getAttribute('aria-label')) nav.setAttribute('aria-label', 'Main navigation');
+
+  const headers = document.getElementsByTagName('header');
+  for (let i = 1; i < headers.length; i++) {
+    if (!headers[i].id) {
+      headers[i].id = `header-${i}`;
+    }
   }
 
-  // REACT_025: Ensure unique landmarks
-  const headers = document.getElementsByTagName('header');
-  headers.forEach((header, index) => {
-    if (!header.id && index > 0) {
-      header.id = `header-${index}`;
-    }
-  });
-
   const footers = document.getElementsByTagName('footer');
-  footers.forEach((footer, index) => {
-    if (!footer.id && index > 0) {
-      footer.id = `footer-${index}`;
+  for (let i = 1; i < footers.length; i++) {
+    if (!footers[i].id) {
+      footers[i].id = `footer-${i}`;
     }
-  });
+  }
 
-  // REACT_041: Add accessible names to SVGs
   const svgs = document.getElementsByTagName('svg');
-  svgs.forEach((svg, index) => {
-    const title = svg.getElementsByTagName('title')[0];
-    if (!title && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+  for (let i = 0; i < svgs.length; i++) {
+    const title = svgs[i].getElementsByTagName('title')[0];
+    if (!title && !svgs[i].getAttribute('aria-label') && !svgs[i].getAttribute('aria-labelledby')) {
       const titleElement = document.createElement('title');
-      const titleId = `svg-title-${index + 1}`;
+      const titleId = `svg-title-${i + 1}`;
       titleElement.id = titleId;
-      titleElement.textContent = 'Screeps Dashboard' || `Decorative icon ${index + 1}`;
-      svg.insertBefore(titleElement, svg.firstChild);
-      svg.setAttribute('aria-labelledby', titleId);
-      svg.setAttribute('role', 'img');
+      titleElement.textContent = 'Screeps Dashboard' || `Decorative icon ${i + 1}`;
+      svgs[i].insertBefore(titleElement, svgs[i].firstChild);
+      svgs[i].setAttribute('aria-labelledby', titleId);
+      svgs[i].setAttribute('role', 'img');
     }
-  });
+  }
 
-  // REACT_036: Fix fake link issues - ensure links have proper href
   const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
     if (!link.getAttribute('href')) {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
-      // Add click event listener for button-like links
       link.addEventListener('click', (event) => {
-        event.currentTarget.blur(); // Remove focus to avoid screen reader repetition
+        event.currentTarget.blur();
       });
     }
   });
 
-  // REACT_027: Add scope attribute to th elements
   const thElements = document.querySelectorAll('th');
   thElements.forEach(th => {
-    if (th.hasAttribute('scope')) {
-      // If scope is already set, no need to do anything
-      return;
-    }
-    // Determine if the th is for a column or a row
     if (th.nextElementSibling && th.nextElementSibling.tagName === 'th') {
-      // It's a row header
       th.setAttribute('scope', 'row');
     } else {
-      // It's a column header
       th.setAttribute('scope', 'col');
     }
   });
-}
 
-// Accessibility utility functions
-export function addAriaLabel(element, label) {
-  if (element) {
-    element.setAttribute('aria-label', label);
+  // Export the enhanced function
+  export default enhanceAccessibility;
+
+  // Accessibility utility functions
+  export function addAriaLabel(element, label) {
+    if (element) element.setAttribute('aria-label', label);
   }
-}
 
-export function setMainLandmark(mainElement) {
-  // TODO: Remove the commented line and uncomment mainElement when available
-  if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
-}
-
-// ADD EXPORT STATEMENT HERE
-export default enhanceAccessibility;
+  export function setMainLandmark(mainElement) {
+    if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
+  }

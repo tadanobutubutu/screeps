@@ -6,6 +6,9 @@ import './index.css';
 // Accessibility enhancements for React rules (REACT_015, REACT_017, REACT_025, REACT_027, REACT_036, REACT_041)
 // No functional changes to existing logic.
 
+// REACT_015: Set language attribute on HTML element for screen readers
+document.documentElement.lang = 'en';
+
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
 root.render(<App />);

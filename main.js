@@ -56,5 +56,8 @@ function calculateWithContribution(contribution, a, b) {
   return a + b + contribution;
 }
 
+// Apply language attribute to HTML root element
+addLangToHtmlRoot('en');
+
 // Export all functions
 export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, calculateWithContribution };

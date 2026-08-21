@@ -111,56 +111,56 @@
     exports.addScopeToTableHeaders = addScopeToTableHeaders;
     module.exports.processTables = processTables;
 
+    // Additional accessibility functions from origin/main, integrated as standalone utilities
+
+    /**
+     * Returns accessibility attributes for SVG elements
+     * Use this for decorative SVGs that don't need to be announced
+     * @param {boolean} isDecorative - Whether the SVG is purely decorative
+     * @param {string} [ariaLabel] - Optional accessible name
+     * @returns {Object} Accessibility props to spread onto <svg>
+     */
+    function getSVGAriaProps(isDecorative, ariaLabel) {
+        if (isDecorative) {
+            return { 'aria-hidden': 'true' };
+        }
+        
+        if (ariaLabel) {
+            return { 'aria-label': ariaLabel, role: 'img' };
+        }
+        
+        // Fallback: add role for better screen reader support
+        return { role: 'img' };
+    }
+
+    /**
+     * Validates SVG accessibility compliance
+     * @param {Object} svgProps - Props from an SVG element
+     * @returns {{compliant: boolean, issues: string[]}}
+     */
+    function validateSVGAccessibility(svgProps) {
+        const issues = [];
+        
+        const hasAriaHidden = svgProps['aria-hidden'] === 'true';
+        const hasAriaLabel = Boolean(svgProps['aria-label']);
+        const hasRole = svgProps.role === 'img';
+        const hasTitleChild = svgProps.children && Array.isArray(svgProps.children) 
+            ? svgProps.children.some(function(c) { return c && c.type === 'title'; })
+            : String(svgProps.children).indexOf('title') !== -1;
+        
+        const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
+        
+        if (!isCompliant) {
+            issues.push('SVG has no accessible name and is not hidden');
+        }
+        
+        return { compliant: isCompliant, issues: issues };
+    }
+
+    // Export the new functions to make them available for use
+    exports.getSVGAriaProps = getSVGAriaProps;
+    exports.validateSVGAccessibility = validateSVGAccessibility;
+
     // Other code...
 
 })(module.exports, require, module, __filename, __dirname);
-
-// Additional accessibility functions from origin/main, integrated as standalone utilities
-
-/**
- * Returns accessibility attributes for SVG elements
- * Use this for decorative SVGs that don't need to be announced
- * @param {boolean} isDecorative - Whether the SVG is purely decorative
- * @param {string} [ariaLabel] - Optional accessible name
- * @returns {Object} Accessibility props to spread onto <svg>
- */
-function getSVGAriaProps(isDecorative, ariaLabel) {
-    if (isDecorative) {
-        return { 'aria-hidden': 'true' };
-    }
-    
-    if (ariaLabel) {
-        return { 'aria-label': ariaLabel, role: 'img' };
-    }
-    
-    // Fallback: add role for better screen reader support
-    return { role: 'img' };
-}
-
-/**
- * Validates SVG accessibility compliance
- * @param {Object} svgProps - Props from an SVG element
- * @returns {{compliant: boolean, issues: string[]}}
- */
-function validateSVGAccessibility(svgProps) {
-    const issues = [];
-    
-    const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-    const hasAriaLabel = Boolean(svgProps['aria-label']);
-    const hasRole = svgProps.role === 'img';
-    const hasTitleChild = svgProps.children && Array.isArray(svgProps.children) 
-        ? svgProps.children.some(function(c) { return c && c.type === 'title'; })
-        : String(svgProps.children).indexOf('title') !== -1;
-    
-    const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
-    
-    if (!isCompliant) {
-        issues.push('SVG has no accessible name and is not hidden');
-    }
-    
-    return { compliant: isCompliant, issues: issues };
-}
-
-// Export the new functions to make them available for use
-module.exports.getSVGAriaProps = getSVGAriaProps;
-module.exports.validateSVGAccessibility = validateSVGAccessibility;

@@ -21,12 +21,11 @@ export function createMainHTML({ children, id }) {
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
 export function addScopeToTableHeaders(html) {
-  return html.replace(/<th(?:\s+([^>]*))?>(?!.*scope=)/gi, (match, attrs) => {
+  return html.replace(/<th(\s+[^>]*)?>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const scopeAttr = existingAttrs.includes('scope="col"') || existingAttrs.includes("scope='col'")
-      ? ''
-      : ' scope="col"';
-    return `<th${scopeAttr}${existingAttrs ? ' ' + existingAttrs : ''}>`;
+    const hasScope = existingAttrs.includes('scope');
+    const scopeAttr = hasScope ? '' : ' scope="col"';
+    return `<th${existingAttrs}${scopeAttr}>`;
   });
 }
 
@@ -51,29 +50,11 @@ export function createIndexHTML() {
 }
 
 // Example of how to use the new function to create updated html for another specific page
-export function createDependencyGraphHTML() {
-  const tableContent = `
-      <!-- existing content without the main tag -->
-      <!-- Add the scope attribute to the th tags in the table -->
-      <table>
-        <thead>
-          <tr>
-            <th>Package</th>
-            <th>Version</th>
-            <th>Dependencies</th>
-            <th>Dependents</th>
-            <th>Size</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Table rows -->
-        </tbody>
-      </table>
-      <!-- 21 further occurrences... -->
-    `;
+export function createDependencyGraphHTML(tableContent) {
+  const updatedTableContent = addScopeToTableHeaders(tableContent);
 
   return createMainHTML({
-    children: addScopeToTableHeaders(tableContent),
+    children: updatedTableContent,
     id: 'dependency_graph',
   });
 }

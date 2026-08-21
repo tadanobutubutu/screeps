@@ -1,6 +1,1 @@
-// main.js - Fix for REACT_027: Add scope attributes to table headers
-function addScopeToTableHeaders(html) {
-  // Add scope="col" to all <th> elements without a scope attribute
-  return html.replace(/<th(?![^>]*\bscope=)/g, '<th scope="col"');
-}
-module.exports = { addScopeToTableHeaders };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

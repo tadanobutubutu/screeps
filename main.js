@@ -114,7 +114,7 @@ function fixFakeLink(element, isActionLink) {
   }
 
   // Add tabindex to make keyboard accessible
-  if (!element.hasAttribute("tabindex")) {
+  if (typeof element.setAttribute === "function") {
     element.setAttribute("tabindex", "0");
   }
 }
@@ -122,7 +122,7 @@ function fixFakeLink(element, isActionLink) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {

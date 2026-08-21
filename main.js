@@ -1,6 +1,1 @@
-// Main game loop module
-"use strict";
-module.exports = function() {
-    // Your screeps game code here
-    return;
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

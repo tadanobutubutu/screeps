@@ -25,7 +25,7 @@ function DependencyGraph() {
 
   return (
     <div>
-      <button id="unrotate" onClick={handleUnrotate}>
+      <button id="unrotate" ...
         rotate back
       </button>
     </div>

@@ -156,13 +156,7 @@ async function addAccessibleNamesToSvgFiles() {
                     /<svg([^>]*)>/gi, 
                     (match, attrs) => {
                         const newAttrs = [...(attrs || []), 'role="img"', 'aria-label="Generated dependency graph"'];
-                        return `${match}[${newAttrs.join(' ')}]`;
-                    }
-                ).replace(
-                    /<svg([^>]*)>/gi, 
-                    (match, attrs) => {
-                        const newAttrs = [...(attrs || []), 'role="img"', 'aria-label="Generated dependency graph"'];
-                        return `${match}[${newAttrs.join(' ')}]`;
+                        return `<svg${attrs || ''} ${newAttrs.join(' ')}>`;
                     }
                 );
                 

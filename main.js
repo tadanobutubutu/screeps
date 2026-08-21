@@ -1,4 +1,3 @@
-// pages/_document.js for Next.js to add lang attribute
 import { Html, Head, Main, NextScript } from 'next/document';
 
 export default function Document() {
@@ -8,6 +7,8 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
+        {/* Add a button for the 'rotate back' action */}
+        <button id="unrotate" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
       </body>
     </Html>
   );

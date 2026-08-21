@@ -6,14 +6,14 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     const [copied, setCopied] = useState(false);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     if (error) {
         return (
-            <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+            <div style={{ padding: '2rem', fontFamily: 'monospace' }} lang="ja">
                 <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
                 <pre
                     tabIndex={0}
@@ -31,9 +31,9 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...}
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -79,10 +79,10 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     }
 
     return (
-        <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        <div style={{ padding: '2rem', fontFamily: 'monospace' }} lang="ja">
             <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
+            <main style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                ... value]) => (
                     <div
                         key={key}
                         style={{
@@ -97,10 +97,11 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
                         <p style={{ color: '#2d3748', fontSize: '1.2rem' }}>{value}</p>
                     </div>
                 ))}
-            </div>
+            </main>
             <button
                 onClick={() => fetchStats(true)}
                 disabled={refreshing}
+                aria-label="データを更新"
                 style={{
                     backgroundColor: '#004b73',
                     color: 'white',

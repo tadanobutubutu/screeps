@@ -1,7 +1,8 @@
-// Maintain the existing code, exports, and functions from current main.js
-// Add the new changes requested in the issue
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-// Include the updated docs/dependency-graph.html without the issues
+// ... (other imports and code)
+
 const dependencyGraphHtml = `
 ... (Existing code...)
 
@@ -15,5 +16,19 @@ const dependencyGraphHtml = `
 ... (Remaining code...)
 
 `;
+
+ReactDOM.render(
+  <React.StrictMode>
+    <html lang="en">
+      <head>
+        {/* ... (existing head elements) */}
+      </head>
+      <body>
+        {/* ... (existing body elements) */}
+      </body>
+    </html>
+  </React.StrictMode>,
+  document.getElementById('root')
+);
 
 module.exports = { dependencyGraphHtml };

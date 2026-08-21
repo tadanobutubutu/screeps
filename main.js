@@ -70,7 +70,7 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   );
 };
 
-// REACT_025 & REACT_027: Example of a table component with corrected accessibility
+// REACT_017 & REACT_025: Example of a table component with corrected accessibility
 export const DependencyGraphTable = ({ data }) => {
   return (
     <table>

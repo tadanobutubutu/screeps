@@ -55,6 +55,9 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
 };
 
 export const DependencyGraphTable = ({ data }) => {
+  // Build header ids for association with cells
+  const headerIds = data.columns.map((column, index) => `header-${index}`);
+  
   return (
     <table>
       <caption style={{ textAlign: 'left' }}>Dependency relationships visualization</caption>
@@ -71,7 +74,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex} headers={headerIds[cellIndex]}>
                 {cell}
               </td>
             ))}
@@ -141,7 +144,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
 }
 
 export function debounce(func, wait) {

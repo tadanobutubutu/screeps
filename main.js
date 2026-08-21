@@ -1,4 +1,4 @@
-// TODO: Address accessibility issues from insight report: (addressed)
+// Added back required exports
 import React from 'react';
 
 // Preserved existing code
@@ -33,7 +33,7 @@ export const AppWrapper = ({ lang = 'en', children }) => {
 };
 
 // REACT_036: Correcting fake links to use buttons instead
-const RotateBackButton = ({ onClick }) => {
+export const RotateBackButton = ({ onClick }) => {
   return (
     <button 
       id="unrotate" 
@@ -46,9 +46,9 @@ const RotateBackButton = ({ onClick }) => {
   );
 };
 
-const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
+export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   // If href starts with # or is JavaScript-dependent, use button
-  if (href?.startsWith('#') || href === 'javascript:void(0)') {
+  if (href?.startsWith('#') || href === '') {
     return (
       <button 
         type="button"
@@ -67,7 +67,7 @@ const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
 };
 
 // REACT_027 & REACT_025: Example of a table component with corrected accessibility
-const DependencyGraphTable = ({ data }) => {
+export const DependencyGraphTable = ({ data }) => {
   return (
     <table>
       <caption style={{ textAlign: 'left' }}>
@@ -161,7 +161,9 @@ export {
   RotateBackButton, 
   FakeLinkAsButton, 
   DependencyGraphTable,
-  AccessibleIconSVG  
+  AccessibleIconSVG,
+  GraphIcon,
+  SettingsIcon  
 };
 
 // ... rest of the main.js content ...

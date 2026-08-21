@@ -1,4 +1,4 @@
-// main.js - Fixed with SVG accessibility compliance (REACT_041)
+// main.js - Fixed with SVG accessibility compliance (REACT_027, REACT_041)
 
 /**
  * Returns accessibility attributes for SVG elements
@@ -47,7 +47,7 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 
@@ -63,7 +63,100 @@ export function validateSVGAccessibility(svgProps) {
   return { compliant: isCompliant, issues };
 }
 
+/**
+ * Returns scope attribute for table header cells
+ * Use this for <th> elements to ensure proper accessibility
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.isColumnHeader - Whether this is a column header
+ * @param {boolean} options.isRowHeader - Whether this is a row header
+ * @param {boolean} options.isCornerCell - Whether this is a corner/stub cell
+ * @returns {string} The scope attribute value
+ */
+export function getTableHeaderScope({ isColumnHeader = false, isRowHeader = false, isCornerCell = false }) {
+  if (isCornerCell) {
+    return ''; // Corner cells typically don't need a scope
+  }
+  
+  if (isColumnHeader) {
+    return 'col';
+  }
+  
+  if (isRowHeader) {
+    return 'row';
+  }
+  
+  return ''; // Default: no scope attribute
+}
+
+/**
+ * Generates accessibility attributes for table header cells
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.isColumnHeader - Whether this is a column header
+ * @param {boolean} options.isRowHeader - Whether this is a row header
+ * @param {boolean} options.isCornerCell - Whether this is a corner/stub cell
+ * @returns {Object} Props object to spread onto <th> element
+ */
+export function getTableHeaderAriaProps(options) {
+  const scope = getTableHeaderScope(options);
+  
+  return {
+    ...(scope && { scope })
+  };
+}
+
+/**
+ * Validates table accessibility compliance
+ * @param {Array<Array>} tableData - 2D array of table cell data
+ * @param {Object} options - Configuration options
+ * @param {Array<string>} options.columnHeaders - Column header text
+ * @param {Array<string>} options.rowHeaders - Row header text
+ * @returns {{compliant: boolean, issues: string[]}}
+ */
+export function validateTableAccessibility(tableData, options = {}) {
+  const issues = [];
+  const { columnHeaders = [], rowHeaders = [] } = options;
+  
+  // Check if table has headers
+  if (columnHeaders.length === 0 && rowHeaders.length === 0) {
+    issues.push('Table has no headers defined');
+  }
+  
+  // Validate column headers
+  columnHeaders.forEach((header, index) => {
+    if (!header || !header.trim()) {
+      issues.push(`Column header at index ${index} is empty`);
+    }
+  });
+  
+  // Validate row headers
+  rowHeaders.forEach((header, index) => {
+    if (!header || !header.trim()) {
+      issues.push(`Row header at index ${index} is empty`);
+    }
+  });
+  
+  // Check data alignment
+  if (tableData.length > 0) {
+    const rowCount = tableData.length;
+    const colCount = tableData[0]?.length || 0;
+    
+    tableData.forEach((row, rowIndex) => {
+      if (row.length !== colCount) {
+        issues.push(`Row ${rowIndex} has inconsistent column count`);
+      }
+    });
+  }
+  
+  return {
+    compliant: issues.length === 0,
+    issues
+  };
+}
+
 export default {
   getSVGAriaProps,
-  validateSVGAccessibility
+  validateSVGAccessibility,
+  getTableHeaderScope,
+  getTableHeaderAriaProps,
+  validateTableAccessibility
 };

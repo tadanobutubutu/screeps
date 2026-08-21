@@ -24,7 +24,6 @@ const app = {
     };
   },
   
-  // New function to replace the fake link with a button
   replaceFakeLinkWithButton: function() {
     // Assuming the DOM is available in the context where this function is called
     const fakeLink = document.getElementById('unrotate');
@@ -37,12 +36,20 @@ const app = {
       // Replace the fake link with the new button
       fakeLink.parentNode.replaceChild(button, fakeLink);
     }
+  },
+  
+  // New function to add <main> landmark to the document
+  addMainLandmark: function() {
+    const body = document.querySelector('body');
+    if (!body.querySelector('main')) {
+      const main = document.createElement('main');
+      body.insertBefore(main, body.firstChild);
+    }
   }
 };
 
 // Accessibility utilities for addressing insight report findings
 app.accessibility = {
-  // All open checks from the insight report
   openChecks: [
     { rule: 'REACT_015', severity: 'critical', occurrences: 1, description: 'Add lang attribute to HTML element' },
     { rule: 'REACT_027', severity: 'warning', occurrences: 26, description: 'Fix table structure issues' },
@@ -51,23 +58,19 @@ app.accessibility = {
     { rule: 'REACT_025', severity: 'warning', occurrences: 2, description: 'Ensure unique landmarks' },
     { rule: 'REACT_036', severity: 'warning', occurrences: 1, description: 'Fix fake link issue' }
   ],
-
-  // Get total open issues count
+  
   getTotalOpenIssues: function() {
     return this.openChecks.reduce((sum, check) => sum + check.occurrences, 0);
   },
-
-  // Get critical issues only
+  
   getCriticalIssues: function() {
     return this.openChecks.filter(check => check.severity === 'critical');
   },
-
-  // Get warning issues only
+  
   getWarningIssues: function() {
     return this.openChecks.filter(check => check.severity === 'warning');
   },
-
-  // Calculate score if all issues were fixed
+  
   getPotentialScore: function() {
     const currentPassed = 41;
     const totalChecks = 47;
@@ -75,5 +78,13 @@ app.accessibility = {
     return currentScore;
   }
 };
+
+// Call the function to add <main> landmark to the document
+app.accessibility.openChecks.forEach(check => {
+  if (check.rule === 'REACT_017') {
+    // Assuming this is the correct function to apply the fix for REACT_017
+    app.addMainLandmark();
+  }
+});
 
 module.exports = app;

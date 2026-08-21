@@ -3,6 +3,23 @@
 // 1. REACT_015 - Add lang attribute (typically in _app.js or layout component)
 // <html lang="en">
 
+// Next.js _document.js implementation:
+/*
+import { Html, Head, Main, NextScript } from 'next/document';
+
+export default function Document() {
+  return (
+    <Html lang="en">
+      <Head />
+      <body>
+        <Main />
+        <NextScript />
+      </body>
+    </Html>
+  );
+}
+*/
+
 // 2. REACT_017 - Use semantic landmarks
 // <header>, <nav>, <main>, <footer>, <aside>
 
@@ -45,4 +62,24 @@
 // </svg>
 // OR use aria-hidden="true" if purely decorative
 
-module.exports = { accessibilityFixes: true };
+// REACT_015 - Function to validate/apply lang attribute to document
+function applyLangAttribute(lang = 'en') {
+  if (typeof document !== 'undefined') {
+    document.documentElement.lang = lang;
+  }
+  return lang;
+}
+
+// Function to get current document language
+function getDocumentLang() {
+  if (typeof document !== 'undefined') {
+    return document.documentElement.lang || 'en';
+  }
+  return 'en';
+}
+
+module.exports = { 
+  accessibilityFixes: true,
+  applyLangAttribute,
+  getDocumentLang
+};

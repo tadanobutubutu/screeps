@@ -1,4 +1,5 @@
 // TODO: Address accessibility issues from insight report: (addressed)
+import React from 'react';
 
 // Preserved existing code
 function existingFunction() {
@@ -18,13 +19,60 @@ export { newFunction, existingFunction };
 
 // ... rest of the main.js content ...
 
-// Changes to fix the REACT_036 issue
-import React from 'react';
+// ============================================
+// Accessibility Improvements
+// ============================================
 
-// Example of a table component with corrected headers
+// REACT_015: Wrapper component with lang attribute for HTML element
+export const AppWrapper = ({ lang = 'en', children }) => {
+  return (
+    <div lang={lang}>
+      {children}
+    </div>
+  );
+};
+
+// REACT_036: Correcting fake links to use buttons instead
+const RotateBackButton = ({ onClick }) => {
+  return (
+    <button 
+      id="unrotate" 
+      type="button"
+      onClick={onClick}
+      aria-label="Rotate view back"
+    >
+      rotate back
+    </button>
+  );
+};
+
+const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
+  // If href starts with # or is JavaScript-dependent, use button
+  if (href?.startsWith('#') || href === 'javascript:void(0)') {
+    return (
+      <button 
+        type="button"
+        onClick={onClick}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <a href={href} onClick={onClick} {...props}>
+      {children}
+    </a>
+  );
+};
+
+// REACT_027 & REACT_025: Example of a table component with corrected accessibility
 const DependencyGraphTable = ({ data }) => {
   return (
     <table>
+      <caption style={{ textAlign: 'left' }}>
+        Dependency relationships visualization
+      </caption>
       <thead>
         <tr>
           {data.columns.map((column, index) => (
@@ -38,7 +86,9 @@ const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>{cell}</td>
+              <td key={cellIndex} headers={`header-${cellIndex}`}>
+                {cell}
+              </td>
             ))}
           </tr>
         ))}
@@ -47,18 +97,71 @@ const DependencyGraphTable = ({ data }) => {
   );
 };
 
-// Correcting the 'rotate back' link to use a button instead of an anchor
-const RotateBackButton = () => {
+// REACT_017 & REACT_025: Landmark structure with unique identifiers
+export const PageLayout = ({ 
+  headerContent, 
+  mainContent, 
+  navContent, 
+  footerContent 
+}) => {
   return (
-    <button 
-      id="unrotate" 
-      type="button"
-      onClick={() => { /* Rotate back logic here */ }}
-      aria-label="Rotate view back"
-    >
-      rotate back
-    </button>
+    <>
+      <header id="site-header" role="banner">
+        {headerContent}
+      </header>
+      
+      <nav id="main-navigation" role="navigation" aria-label="Main navigation">
+        {navContent}
+      </nav>
+      
+      <main id="main-content" role="main">
+        {mainContent}
+      </main>
+      
+      <footer id="site-footer" role="contentinfo">
+        {footerContent}
+      </footer>
+    </>
   );
+};
+
+// REACT_041: SVG components with accessible names
+export const AccessibleIconSVG = ({ ariaLabel, children, ...props }) => {
+  return (
+    <svg 
+      aria-label={ariaLabel}
+      role="img"
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+};
+
+export const GraphIcon = (props) => (
+  <AccessibleIconSVG 
+    ariaLabel="Dependency graph" 
+    {...props}
+  >
+    {/* SVG path content */}
+  </AccessibleIconSVG>
+);
+
+export const SettingsIcon = (props) => (
+  <AccessibleIconSVG 
+    ariaLabel="Settings" 
+    {...props}
+  >
+    {/* SVG path content */}
+  </AccessibleIconSVG>
+);
+
+// Export all new accessibility-friendly components
+export { 
+  RotateBackButton, 
+  FakeLinkAsButton, 
+  DependencyGraphTable,
+  AccessibleIconSVG 
 };
 
 // ... rest of the main.js content ...

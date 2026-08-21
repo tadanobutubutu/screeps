@@ -73,6 +73,16 @@ app.accessibility = {
     const totalChecks = 47;
     const currentScore = Math.round((currentPassed / totalChecks) * 100);
     return currentScore;
+  },
+
+  // New function to fix table headers by adding scope attribute
+  fixTableHeaders: function() {
+    const headers = document.querySelectorAll('th');
+    headers.forEach(header => {
+      if (!header.hasAttribute('scope')) {
+        header.setAttribute('scope', 'col');
+      }
+    });
   }
 };
 

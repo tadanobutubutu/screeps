@@ -8,16 +8,8 @@
 
 ## 2026-08-15 - Single-Pass Loop Optimization for Structure Counting
 **Learning:** Using `Array.prototype.filter` to count matching objects (e.g., damaged structures in `countDamagedStructures`) allocates intermediate arrays and callback closures on every invocation. Replacing `.filter(...).length` with a standard single-pass `for` loop eliminates array allocation overhead and closure creation in tick routines.
-**Action:** Use single-pass `for` loops instead of `.filter(...).length` when only the count or aggregate total of matching elements is required.
+**Action:** Use single-pass `for` loops instead of `.filter().length` when only the count or aggregate total of matching elements is required.
 
 ## 2026-08-16 - Lazy Target Evaluation for Tower Defense Logic
 **Learning:** In tower defense routines, unconditionally iterating through all room structures to build arrays of repair candidates before checking for hostile creeps wastes CPU cycles when hostile creeps are present. Evaluating hostile presence first and lazily scanning structures in a single pass with early termination prevents unneeded room-wide iterations and array allocations.
 **Action:** Always place hostile checks before structure scans in tower loops, and lazily break early when single repair targets are needed.
-
-## 2026-08-20: Caching filtered arrays for `findClosestByRange`
-
-**What:** In Screeps, passing a `FIND_*` constant and a filter object to `findClosestByRange` (e.g. `findClosestByRange(FIND_MY_CREEPS, { filter: (c) => c.hits < c.hitsMax })`) causes the engine to retrieve all matching objects and execute the filter function *every time* it is called. When multiple creeps (like healers) look for targets in the same tick, this redundant filtering consumes significant CPU.
-
-**Optimization:** Perform the `room.find()` with the filter once per tick and cache the resulting array directly on the `room` object (e.g., `room._injuredCreeps`). Subsequent creeps can then pass this pre-filtered array directly to `findClosestByRange(cachedArray)`, bypassing the redundant global retrieval and filtering steps.
-
-**Impact:** Benchmarks demonstrated a ~15x CPU reduction (286ms -> 18ms for 10,000 iterations) when 10 healers scan for injured creeps in the same tick, and a ~3x reduction for finding defenders.

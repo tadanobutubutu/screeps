@@ -18,7 +18,6 @@ describe('role.healer', () => {
     beforeEach(() => {
         global.Game.flags = {};
         mockCreep = {
-            room: { find: jest.fn().mockReturnValue([]) },
             memory: {},
             heal: jest.fn().mockReturnValue(global.OK),
             rangedHeal: jest.fn().mockReturnValue(global.OK),
@@ -36,8 +35,12 @@ describe('role.healer', () => {
 
     test('ダメージを受けたcreepを回復する (in range)', () => {
         const damagedCreep = { hits: 50, hitsMax: 100 };
-        mockCreep.room.find.mockReturnValue([damagedCreep]);
-        mockCreep.pos.findClosestByRange.mockReturnValue(damagedCreep);
+        mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
+            if (type === global.FIND_MY_CREEPS && opts.filter(damagedCreep)) {
+                return damagedCreep;
+            }
+            return null;
+        });
 
         roleHealer.run(mockCreep);
 
@@ -48,8 +51,12 @@ describe('role.healer', () => {
 
     test('ダメージを受けたcreepに近づき、遠隔回復する (out of range)', () => {
         const damagedCreep = { hits: 50, hitsMax: 100 };
-        mockCreep.room.find.mockReturnValue([damagedCreep]);
-        mockCreep.pos.findClosestByRange.mockReturnValue(damagedCreep);
+        mockCreep.pos.findClosestByRange.mockImplementation((type, opts) => {
+            if (type === global.FIND_MY_CREEPS && opts.filter(damagedCreep)) {
+                return damagedCreep;
+            }
+            return null;
+        });
         mockCreep.heal.mockReturnValue(global.ERR_NOT_IN_RANGE);
 
         roleHealer.run(mockCreep);
@@ -76,12 +83,14 @@ describe('role.healer', () => {
         const defender = { memory: { role: 'defender' } };
 
         // First call looks for damaged creeps (returns null), second looks for defender
-        mockCreep.room.find.mockImplementation((type, opts) => {
-                if (opts && opts.filter && opts.filter(defender)) return [defender];
-                return [];
+        mockCreep.pos.findClosestByRange
+            .mockReturnValueOnce(null)
+            .mockImplementationOnce((type, opts) => {
+                if (type === global.FIND_MY_CREEPS && opts.filter(defender)) {
+                    return defender;
+                }
+                return null;
             });
-        mockCreep.room._defenders = [defender];
-        mockCreep.pos.findClosestByRange.mockReturnValue(defender);
 
         roleHealer.run(mockCreep);
 
@@ -115,7 +124,6 @@ describe('role.healer', () => {
         const newDamagedCreep = { id: 'creep456', hits: 80, hitsMax: 100 };
         mockCreep.memory.healTargetId = 'creep123';
         global.Game.getObjectById = jest.fn().mockReturnValue(cachedCreep);
-        mockCreep.room.find.mockReturnValue([newDamagedCreep]);
         mockCreep.pos.findClosestByRange.mockReturnValue(newDamagedCreep);
 
         roleHealer.run(mockCreep);
@@ -127,7 +135,7 @@ describe('role.healer', () => {
 
     test('⚡ [Bolt Perf] room._injuredCreepsのキャッシュ配列が存在する場合は優先して検索する', () => {
         const injuredArray = [{ id: 'creep_inj_1', hits: 60, hitsMax: 100 }];
-        mockCreep.room = { _injuredCreeps: injuredArray, find: jest.fn().mockReturnValue([]) };
+        mockCreep.room = { _injuredCreeps: injuredArray };
         mockCreep.pos.findClosestByRange.mockReturnValue(injuredArray[0]);
 
         roleHealer.run(mockCreep);
@@ -138,8 +146,10 @@ describe('role.healer', () => {
 
     test('⚡ [Bolt Perf] room._defendersのキャッシュ配列が存在する場合は優先して検索する', () => {
         const defendersArray = [{ id: 'def_1', memory: { role: 'defender' } }];
-        mockCreep.room = { _defenders: defendersArray, find: jest.fn().mockReturnValue([]) };
-        mockCreep.pos.findClosestByRange.mockReturnValue(defendersArray[0]);
+        mockCreep.room = { _defenders: defendersArray };
+        mockCreep.pos.findClosestByRange
+            .mockReturnValueOnce(null) // no damaged creep
+            .mockReturnValueOnce(defendersArray[0]); // returns defender
 
         roleHealer.run(mockCreep);
 

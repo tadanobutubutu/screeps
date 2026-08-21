@@ -47,11 +47,11 @@ export function ... {
       <table>
         <thead>
           <tr>
-            <th ...
-            <th ...
-            <th ...
-            <th ...
-            <th ...
+            <th scope="col">...</th>
+            <th scope="col">...</th>
+            <th scope="col">...</th>
+            <th scope="col">...</th>
+            <th scope="col">...</th>
             <!-- 21 further occurrences... -->
           </tr>
         </thead>

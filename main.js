@@ -176,6 +176,7 @@ export const SkipLink = ({ href = '#main-content', children = 'Skip to main cont
     <a
       href={href}
       className="skip-link"
+      aria-label="Skip to main content"
       style={{
         position: 'absolute',
         top: '-40px',

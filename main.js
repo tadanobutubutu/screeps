@@ -21,6 +21,13 @@ document.getElementById('unrotate').addEventListener('click', function () {
   rotateBack();
 });
 
+// Add scope="col" to all <th> elements for accessibility
+// This addresses the REACT_027 insight code issue
+const tableHeaders = document.querySelectorAll('th');
+tableHeaders.forEach(th => {
+  th.setAttribute('scope', 'col');
+});
+
 // ... [rest of the main.js content] ...
 
 // Add back any required exports that might have been removed

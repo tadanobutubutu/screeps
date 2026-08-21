@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 // Import your layout components or components that render the primary content
 import DashboardLayout from './dashboard/app/layout';
-import DocsDependencyGraph from './docs/dependency-graph';
+import DocsDependencyGraph from ...
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 
@@ -35,7 +35,7 @@ ReactDOM.render(
       </main>
     </AppLayout>
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );
 
 // ... rest of your main.js file ...

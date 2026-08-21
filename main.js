@@ -1,4 +1,3 @@
-// Assuming this is a module that imports the HTML files and returns updated versions
 const fs = require('fs');
 const path = require('path');
 
@@ -51,6 +50,25 @@ function addMainLandmark(filePath) {
   fs.writeFileSync(filePath, updatedContent, 'utf8');
 }
 
+// Function to fix React Fake Link (REACT_036) - replace <a href="#"> with <button>
+function fixFakeLinks(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  // Match <a href="#">...</a> patterns and replace with <button>
+  // This handles: <a id="unrotate" href="#">rotate back</a>
+  updatedContent = updatedContent.replace(/<a([^>]*?)href="#"([^>]*?)>(.*?)<\/a>/gi, (match, beforeHref, afterHref, text) => {
+    // Remove href attribute and convert to button
+    const combinedAttrs = beforeHref + afterHref;
+    return `<button${combinedAttrs}>${text}</button>`;
+  });
+
+  if (content !== updatedContent) {
+    fs.writeFileSync(filePath, updatedContent, 'utf8');
+    console.log(`Fixed fake links in: ${filePath}`);
+  }
+}
+
 // List of files that need to be updated
 const filesToUpdate = [
   'docs/index.html',
@@ -59,12 +77,26 @@ const filesToUpdate = [
   // Add other file paths here if needed
 ];
 
+const filesWithFakeLinks = [
+  // Add file paths here if needed for fake link fixes
+];
+
 // Update each file
 filesToUpdate.forEach(file => {
   if (fs.existsSync(file)) {
+    updateTableHeaders(file);
     addMainLandmark(file);
-    console.log(`Added main landmark to: ${file}`);
+    console.log(`Updated accessibility for: ${file}`);
   }
 });
 
-module.exports = { updateTableHeaders, addMainLandmark };
+// Fix fake links in affected files
+filesWithFakeLinks.forEach(file => {
+  fixFakeLinks(file);
+});
+
+module.exports = {
+  updateTableHeaders,
+  addMainLandmark,
+  fixFakeLinks
+};

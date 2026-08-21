@@ -28,14 +28,14 @@ function renderIcon(iconName, description) {
  */
 function renderAccessibleTable(headers, rows) {
   let table = '<table>';
-  
+
   // Add thead with scope="col" for proper accessibility
   table += '<thead><tr>';
   headers.forEach(function(header) {
     table += '<th scope="col">' + header + '</th>';
   });
   table += '</tr></thead>';
-  
+
   // Add tbody with scope="row" for proper accessibility
   table += '<tbody>';
   rows.forEach(function(row) {
@@ -51,7 +51,7 @@ function renderAccessibleTable(headers, rows) {
     table += '</tr>';
   });
   table += '</tbody></table>';
-  
+
   return table;
 }
 

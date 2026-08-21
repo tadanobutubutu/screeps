@@ -1,1 +1,5 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// ... existing code that generates UI ...
+// Previous: element.innerHTML = '<a id="unrotate" href="#">rotate back</a>';
+// Fixed: Using <button> instead of <a href="#"> for accessibility
+element.innerHTML = '<button id="unrotate">rotate back</button>';
+// ... rest of existing code ...

@@ -110,6 +110,7 @@ export const AccessibleIconSVG = ({ ariaLabel, children, role = 'img', ...props 
       aria-label={ariaLabel}
       role={role}
       aria-hidden={ariaLabel ? undefined : true}
+      focusable={false}
       {...props}
     >
       {children}
@@ -144,7 +145,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Date(date).toLocaleDateString('en-US', defaultOptions);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
 }
 
 export function debounce(func, wait) {
@@ -260,3 +261,5 @@ export const RequiredIndicator = () => {
     <span aria-hidden="true" style={{ color: '#d32f2f' }}>
       *
     </span>
+  );
+};

@@ -1,6 +1,3 @@
-// Original Content (preserve this)
-// This is the original content of main.js that must be preserved.
-
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_017: Add/fix 4 landmark issues
@@ -78,8 +75,7 @@ export function addAriaLabel(element, label) {
 
 export function setMainLandmark(mainElement) {
   // TODO: Remove the commented line and uncomment mainElement when available
-  // mainElement.setAttribute('aria-label', 'Main content area');
+  mainElement.setAttribute('aria-label', 'Main content area');
 }
 
-// <-- ADD EXPORT STATEMENT HERE -->
 export default enhanceAccessibility;

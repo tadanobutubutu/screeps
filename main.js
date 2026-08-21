@@ -8,7 +8,7 @@ const validateAccessibility = (component) => {
     hasRole: !!component.role,
     hasTabIndex: component.tabIndex !== undefined,
     hasKeyboardSupport: !!component.onKeyDown,
-    hasScreenReaderText: !!component.ariaDescribedBy,
+    hasScreenReaderText: !!component.screenReaderText,
   };
   
   return Object.values(checks).every(check => check);
@@ -17,8 +17,9 @@ const validateAccessibility = (component) => {
 // Create accessible button component with full ARIA support
 const createAccessibleButton = (props) => {
   return {
+    ...props,
     role: 'button',
-    tabIndex: 0,
+    tabIndex: props.disabled ? -1 : 0,
     'aria-label': props.label || 'Button',
     'aria-describedby': props.descriptionId,
     'aria-pressed': props.isPressed || false,
@@ -29,13 +30,13 @@ const createAccessibleButton = (props) => {
         props.onClick?.();
       }
     }),
-    ...props,
   };
 };
 
 // Create accessible form input with label association
 const createAccessibleInput = (props) => {
   return {
+    ...props,
     id: props.id,
     'aria-label': props.ariaLabel,
     'aria-describedby': props.ariaDescribedBy,
@@ -43,19 +44,18 @@ const createAccessibleInput = (props) => {
     'aria-invalid': props.invalid || false,
     'aria-errormessage': props.errorId,
     tabIndex: 0,
-    ...props,
   };
 };
 
 // Create accessible modal/dialog
 const createAccessibleModal = (props) => {
   return {
+    ...props,
     role: 'dialog',
     'aria-modal': true,
     'aria-labelledby': props.titleId,
     'aria-describedby': props.descriptionId,
     tabIndex: -1,
-    ...props,
   };
 };
 
@@ -123,7 +123,7 @@ class MyComponent extends React.Component {
   handleKeyDown = (event) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      this.props.onClick?.();
+      ...
     }
   };
 
@@ -138,7 +138,6 @@ class MyComponent extends React.Component {
         aria-pressed={this.props.isPressed || false}
         aria-disabled={this.props.disabled || false}
         tabIndex={this.props.disabled ? -1 : 0}
-        onKeyDown={this.handleKeyDown}
         onClick={this.props.onClick}
         className={this.props.className}
         type={this.props.type || 'button'}

@@ -90,7 +90,7 @@ function fixReactLandmarkIssues() {
 
   const htmlFiles = [
     'docs/index.html',
-    'docs/table.html'
+    'docs/dependency-graph.html'
   ];
 
   // Fix TSX files - wrap {children} in <main> tags

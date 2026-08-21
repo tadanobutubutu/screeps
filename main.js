@@ -3,14 +3,9 @@
 
 // Before the change:
 // <a id="unrotate" href="#">rotate back</a>
-// =======
-// <button id="unrotate">rotate back</button>
-// >>>>>>> origin/main
 
 // After the change:
 // <button id="unrotate">rotate back</button>
-
-// Any other code in main.js remains unchanged.
 
 /**
  * Main application entry point

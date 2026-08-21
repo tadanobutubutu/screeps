@@ -1,17 +1,17 @@
-// User module - manages user interface
+import React from 'react';
 
-// Create button using createElement
-const btn = document.createElement('button');
-btn.id = 'unrotate';
-btn.textContent = 'rotate back';
-btn.addEventListener('click', function() {
-    const viewport = document.getElementById('viewport');
-    viewport.style.transform = '';
-});
+const WrappedDependencyGraph = () => {
+  const htmlString = `
+    <html lang="en">
+      <!-- Original HTML content... -->
+    </html>
+    `;
 
-// The button can be appended to wherever the original link was
-// document.querySelector('.controls').appendChild(btn);
-
-module.exports = {
-    btn
+  return (
+    <div
+      dangerouslySetInnerHTML={{ __html: htmlString }}
+    />
+  );
 };
+
+export default WrappedDependencyGraph;

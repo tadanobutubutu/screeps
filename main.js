@@ -3,6 +3,11 @@
 // - app/layout.tsx
 // - dashboard/app/layout.tsx
 
+// The REACT_036 issue requires changing:
+// <a id="unrotate" href="#">rotate back</a>
+// to:
+// <button id="unrotate">rotate back</button>
+
 // Please provide the contents of:
 // 1. app/layout.tsx
 // 2. dashboard/app/layout.tsx

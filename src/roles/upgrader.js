@@ -11,6 +11,7 @@
 
 const cache = require('../utils/cache');
 const pathfinder = require('../utils/pathfinder');
+const roleUtils = require('../utils/roleUtils');
 const logger = require('../utils/logger');
 const { MEMORY_KEYS } = require('../constants');
 
@@ -81,89 +82,55 @@ function _getEnergy(creep) {
     const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
 
     // ⚡ PERFORMANCE OPTIMIZATION: Check if cached energy target is still valid to avoid per-tick scans
-    if (_useCachedEnergyTarget(creep, room, targetKey)) return;
+    const targetId = creep.memory[targetKey];
+    if (targetId) {
+        const target = Game.getObjectById(targetId);
+        if (target) {
+            let isValid = false;
+            if (target.structureType === STRUCTURE_STORAGE) {
+                isValid = target.store[RESOURCE_ENERGY] >= 1000;
+            } else if (target.structureType === STRUCTURE_LINK) {
+                isValid = target.store[RESOURCE_ENERGY] >= 200;
+            } else if (target.structureType === STRUCTURE_CONTAINER) {
+                isValid =
+                    target.store[RESOURCE_ENERGY] >= 100 &&
+                    (!room.controller || target.pos.getRangeTo(room.controller) <= 5);
+            } else if (target.amount !== undefined) {
+                // Dropped resource
+                isValid = target.resourceType === RESOURCE_ENERGY && target.amount >= 50;
+            } else if (target.energy !== undefined) {
+                // Source
+                isValid = target.energy > 0;
+            }
 
-    if (_getEnergyFromStorage(creep, room)) return;
+            if (isValid) {
+                if (target.store !== undefined) {
+                    if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else if (target.amount !== undefined) {
+                    if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                } else {
+                    if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
+                        pathfinder.moveTo(creep, target, { range: 1 });
+                    }
+                }
+                return;
+            }
+        }
+        delete creep.memory[targetKey];
+    }
+
+    if (roleUtils.getEnergyFromStorage(creep, room, 1000, MEMORY_KEYS.TARGET_ID || 'targetId')) return;
     if (_getEnergyFromLink(creep, room)) return;
     if (_getEnergyFromContainer(creep, room)) return;
     if (_getEnergyFromDropped(creep, room)) return;
     _getEnergyFromSource(creep, room);
 }
 
-/**
- * キャッシュされたターゲットが有効か確認し、有効ならそこからエネルギーを取得する
- * @param {Creep} creep
- * @param {Room} room
- * @param {string} targetKey
- * @returns {boolean}
- */
-function _useCachedEnergyTarget(creep, room, targetKey) {
-    const targetId = creep.memory[targetKey];
-    if (!targetId) return false;
 
-    const target = Game.getObjectById(targetId);
-    if (!target) {
-        delete creep.memory[targetKey];
-        return false;
-    }
-
-    let isValid = false;
-    if (target.structureType === STRUCTURE_STORAGE) {
-        isValid = target.store[RESOURCE_ENERGY] >= 1000;
-    } else if (target.structureType === STRUCTURE_LINK) {
-        isValid = target.store[RESOURCE_ENERGY] >= 200;
-    } else if (target.structureType === STRUCTURE_CONTAINER) {
-        isValid =
-            target.store[RESOURCE_ENERGY] >= 100 &&
-            (!room.controller || target.pos.getRangeTo(room.controller) <= 5);
-    } else if (target.amount !== undefined) {
-        // Dropped resource
-        isValid = target.resourceType === RESOURCE_ENERGY && target.amount >= 50;
-    } else if (target.energy !== undefined) {
-        // Source
-        isValid = target.energy > 0;
-    }
-
-    if (isValid) {
-        if (target.store !== undefined) {
-            if (creep.withdraw(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                pathfinder.moveTo(creep, target, { range: 1 });
-            }
-        } else if (target.amount !== undefined) {
-            if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
-                pathfinder.moveTo(creep, target, { range: 1 });
-            }
-        } else {
-            if (creep.harvest(target) === ERR_NOT_IN_RANGE) {
-                pathfinder.moveTo(creep, target, { range: 1 });
-            }
-        }
-        return true;
-    }
-
-    delete creep.memory[targetKey];
-    return false;
-}
-
-
-/**
- * ストレージから取得
- * @param {Creep} creep
- * @param {Room} room
- * @returns {boolean}
- */
-function _getEnergyFromStorage(creep, room) {
-    const storage = cache.getStorage(room);
-    const targetKey = MEMORY_KEYS.TARGET_ID || 'targetId';
-    if (storage && storage.store[RESOURCE_ENERGY] >= 1000) {
-        creep.memory[targetKey] = storage.id;
-        if (creep.withdraw(storage, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-            pathfinder.moveTo(creep, storage, { range: 1 });
-        }
-        return true;
-    }
-    return false;
-}
 
 /**
  * リンクから取得

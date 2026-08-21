@@ -3,7 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 // Import custom library for handling accessibility table headers as requested by REACT_027 rule.
-// You may have to install this package (e.g., `npm install react-accessible-table`).
+// You may have to install this package (e.g., `npm install react-table`).
 import { useTable, useSortBy } from 'react-table';
 
 // Avoid using 'notice' and 'you' as variable names, which are causing syntax errors.
@@ -21,14 +21,14 @@ const MyTable = ({ columns, data }) => {
 
   // Enable accessibility features for table headers as requested by REACT_027 rule.
   return (
-    <table ... aria-labelledby="table- Titel">
+    <table {...getTableProps()} aria-labelledby="table-title">
       <thead>
         {headerGroups.map(headerGroup => (
-          <tr ...
-            ... => (
+          <tr {...headerGroup.getHeaderProps()}>
+            {headerGroup.headers.map(column => (
               <th
-                ...
-                ...
+                {...column.getHeaderProps(column.getSortByToggleProps())}
+                {...column.getIsSorted() ? column.getSortByToggleProps() : ''}
               >
                 {column.render('Header')}
               </th>
@@ -36,13 +36,15 @@ const MyTable = ({ columns, data }) => {
           </tr>
         ))}
       </thead>
-      <tbody ...
+      <tbody {...getTableBodyProps()}>
         {rows.map(row => {
           prepareRow(row);
           return (
             <tr {...row.getRowProps()}>
               {row.cells.map(cell => (
-                <td ...
+                <td {...cell.getCellProps()}>
+                  {cell.render('Cell')}
+                </td>
               ))}
             </tr>
           );
@@ -68,10 +70,10 @@ const ContentInEnglish = () => (
 export const MyLandmarks = () => (
   <>
     <header role="banner" id="landmarks-banner">
-      <h1 role="heading" ... Landmarks</h1>
+      <h1 role="heading" aria-level="1">Landmarks</h1>
     </header>
     <main id="landmarks-main">
-      {children}
+      {'Content for main'}
     </main>
   </>
 );

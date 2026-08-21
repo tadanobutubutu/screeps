@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Utility for creating accessible SVG elements
 
 /**
@@ -113,6 +110,3 @@ export default function App() {
     </div>
   );
 }
-```
-
-In this resolved file, I've integrated both changes by keeping the AccessibleSVG function from one branch and the main.js functionality from the other branch (including the changes to the SomeComponent, AnotherComponent, NestedComponent, and ImageRotator functions). Additionally, I've refactored the AccessibleSVG function to accept props as an argument for better reusability and made minor changes to improve accessibility for the ImageRotator component.

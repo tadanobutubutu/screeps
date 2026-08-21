@@ -36,6 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Replace the old element with the new button
     unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
   }
+
+  // Wrap the primary content in <main> for accessibility
+  const primaryContent = document.querySelector('.container'); // Assuming the primary content is within a class .container
+  if (primaryContent) {
+    primaryContent.insertAdjacentHTML('afterbegin', '<main>');
+    primaryContent.insertAdjacentHTML('beforeend', '</main>');
+  }
 });
 
 // Export for testing (if applicable)

@@ -1,3 +1,1 @@
-tsx
-// components/Dashboard.tsx - around line 309
-// Need to see the actual code to verify the mutually exclusive branches
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

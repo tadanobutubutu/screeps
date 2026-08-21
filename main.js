@@ -1,3 +1,6 @@
+Here is the resolved file content:
+
+```javascript
 // Accessibility fixes from insight report
 
 /**
@@ -48,7 +51,7 @@ export function AccessibleIcon({ children, label, className }) {
 /**
  * Creates an accessible SVG data URL for favicons
  * Fixes: REACT_041 (SVG Accessible Name) for inline SVG favicons
- * 
+ *
  * @param {Object} options - Configuration options
  * @param {string} options.title - Accessible title for the SVG (required)
  * @param {string} options.content - SVG content (e.g., text, paths)
@@ -109,44 +112,35 @@ export function AccessibleLink({ href, children, onClick }) {
     return <a href={href}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
-  return <button type="button" onClick={onClick}>{children}</button>;
+  return (
+    <button type="button" onClick={onClick}>
+      {children}
+    </button>
+  );
 }
 
 /**
  * Skip link component for keyboard navigation
  * Helps with accessibility overall
  */
-export function SkipLink() {
+export function SkipLink({ children = 'Skip to main content', href = '#main-content' }) {
   return (
     <a
-      href="#main-content"
+      href={href}
       className="skip-link"
+      aria-label={children}
       style={{
         position: 'absolute',
-        left: '-9999px',
-        top: 'auto',
-        width: '1px',
-        height: '1px',
-        overflow: 'hidden'
-      }}
-      onFocus={(e) => {
-        e.target.style.position = 'fixed';
-        e.target.style.top = '0';
-        e.target.style.left = '0';
-        e.target.style.width = 'auto';
-        e.target.style.height = 'auto';
-        e.target.style.padding = '1rem';
-        e.target.style.background = '#fff';
-        e.target.style.zIndex = '9999';
-      }}
-      onBlur={(e) => {
-        e.target.style.position = 'absolute';
-        e.target.style.left = '-9999px';
-        e.target.style.width = '1px';
-        e.target.style.height = '1px';
+        top: '-40px',
+        left: '0',
+        background: '#000',
+        color: '#fff',
+        padding: '8px',
+        zIndex: 100,
+        transition
       }}
     >
-      Skip to main content
+      {children}
     </a>
   );
 }
@@ -154,7 +148,7 @@ export function SkipLink() {
 /**
  * Accessible page wrapper for Next.js
  * Fixes: REACT_015 (lang attribute - though typically set in _document.js)
- * 
+ *
  * Note: For REACT_015, ensure your pages/_document.js or app/layout.tsx has:
  * <html lang="en">
  */
@@ -198,3 +192,17 @@ export default accessibilityComponents;
 
 // Re‑export named components for test imports
 export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper, createAccessibleFaviconSvg };
+
+export function AppWrapper({ children, lang = 'en' }) {
+  // Merged changes to export a wrapper component for a custom HTML lang attribute
+  return (
+    <html lang={lang}>
+      <body>
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+This resolved file contains the content from both branches. I added the `AppWrapper` function to handle the custom HTML `lang` attribute, which was introduced in the second branch. This ensures that both important features are integrated into the repository.

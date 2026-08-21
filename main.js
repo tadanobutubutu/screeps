@@ -9,7 +9,7 @@ export function addAccessibleNameToSVG(svg) {
   svg.insertBefore(titleElement, svg.firstChild);
   
   // Add role="img" for accessibility
-  if (!svg.hasAttribute('role')) {
+  if (svg.tagName.toLowerCase() === 'svg') {
     svg.setAttribute('role', 'img');
   }
   
@@ -43,6 +43,9 @@ export function replaceFakeLinksWithButtons() {
     button.textContent = link.textContent;
     if (link.id) {
       button.id = link.id;
+    }
+    if (link.className) {
+      button.className = link.className;
     }
     const parent = link.parentNode;
     if (parent) {

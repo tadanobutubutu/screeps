@@ -23,7 +23,7 @@ const Dashboard = () => {
         <pre tabIndex={0} aria-label="エラーメッセージ詳細" style={{ color: '#c53030', backgroundColor: '#fff5f5', padding: '1rem', borderRadius: '4px', overflow: 'auto', }} >  
           {error}  
         </pre>  
-        <button onClick={handleCopyError} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} title={copied ? 'コピー済み' : 'エラーをコピー'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease-in-out', transform: copied ? 'scale(1.05)' : 'scale(1)', boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none', filter: copied ? 'brightness(1.1)' : 'none', }}>  
+        <button onClick={handleCopyError} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} title={copied ? 'コピー済み' : 'エラーをコピ'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease-in-out', transform: copied ? 'scale(1.05)' : 'scale(1)', boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none', filter: copied ? 'brightness(1.1)' : 'none', }}>  
           {copied ? '✅ コピー済み' : '📋 エラーをコピー'}  
         </button>  
         <button onClick={() => fetchStats(true)} disabled={refreshing} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} >  

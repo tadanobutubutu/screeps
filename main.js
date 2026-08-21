@@ -9,9 +9,11 @@ const App = () => {
         <title>My App</title>
       </head>
       <body>
-        <div className="app-container">
-          {/* App content */}
-        </div>
+        <main>
+          <div className="app-container">
+            {/* App content */}
+          </div>
+        </main>
       </body>
     </html>
   );

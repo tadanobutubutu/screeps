@@ -11,29 +11,23 @@ import AppLayout from './app/layout';
 // Update your render logic to wrap the primary content with <main>
 ReactDOM.render(
   <React.StrictMode>
-    <DashboardLayout>
-      <main>
+    <main>
+      <DashboardLayout>
         {/* Dashboard primary content */}
-      </main>
-    </DashboardLayout>
+      </DashboardLayout>
 
-    <DocsDependencyGraph>
-      <main>
+      <DocsDependencyGraph>
         {/* Docs Dependency Graph primary content */}
-      </main>
-    </DocsDependencyGraph>
+      </DocsDependencyGraph>
 
-    <DocsIndex>
-      <main>
+      <DocsIndex>
         {/* Docs Index primary content */}
-      </main>
-    </DocsIndex>
+      </DocsIndex>
 
-    <AppLayout>
-      <main>
+      <AppLayout>
         {/* App Layout primary content */}
-      </main>
-    </AppLayout>
+      </AppLayout>
+    </main>
   </React.StrictMode>,
   document.getElementById('root')
 );

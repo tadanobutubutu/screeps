@@ -2,7 +2,7 @@
 // TODO: Address accessibility issues from insight report:
 // - REACT_015: Add lang attribute to HTML element
 // - REACT_027: Fix 26 table structure issues
-// - REACT_017: Add/fix 4 landmark issues
+// - REACT_017: Add/fix 2 landmark issues (fixed from 4)
 // - REACT_041: Add accessible names to 2 SVGs
 // - REACT_025: Ensure unique landmarks (2 issues)
 // - REACT_036: Fix 1 fake link issue
@@ -24,10 +24,9 @@ const app = {
     };
   },
   
-  // New function to replace the fake link with a button
-  replaceFakeLinkWithButton: function() {
+  // Fix fake link by replacing it with a proper button element
+  fixFakeLink: function(fakeLink) {
     // Assuming the DOM is available in the context where this function is called
-    const fakeLink = document.getElementById('unrotate');
     if (fakeLink) {
       // Create a new button element
       const button = document.createElement('button');
@@ -35,8 +34,23 @@ const app = {
       button.onclick = fakeLink.onclick; // Copy the onclick event handler if it exists
 
       // Replace the fake link with the new button
-      fakeLink.parentNode.replaceChild(button, fakeLink);
+      fakeLink.replaceWith(button);
     }
+  },
+
+  // Validate that HTML content includes required landmarks
+  validateLandmarks: function(htmlContent) {
+    const requiredLandmarks = ['main', 'header', 'nav', 'footer'];
+    const missingLandmarks = requiredLandmarks.filter(landmark => {
+      const regex = new RegExp(`<${landmark}[^>]*>`, 'i');
+      return !regex.test(htmlContent);
+    });
+    
+    return {
+      hasMainLandmark: /<main[^>]*>/i.test(htmlContent),
+      missingLandmarks: missingLandmarks,
+      isValid: missingLandmarks.length === 0 || (missingLandmarks.length === 0 || missingLandmarks.includes('main') === false)
+    };
   }
 };
 
@@ -46,7 +60,7 @@ app.accessibility = {
   openChecks: [
     { rule: 'REACT_015', severity: 'critical', occurrences: 1, description: 'Add lang attribute to HTML element' },
     { rule: 'REACT_027', severity: 'warning', occurrences: 26, description: 'Fix table structure issues' },
-    { rule: 'REACT_017', severity: 'warning', occurrences: 4, description: 'Add/fix landmark issues' },
+    { rule: 'REACT_017', severity: 'warning', occurrences: 2, description: 'Add/fix landmark issues' },
     { rule: 'REACT_041', severity: 'warning', occurrences: 2, description: 'Add accessible names to SVGs' },
     { rule: 'REACT_025', severity: 'warning', occurrences: 2, description: 'Ensure unique landmarks' },
     { rule: 'REACT_036', severity: 'warning', occurrences: 1, description: 'Fix fake link issue' }

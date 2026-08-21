@@ -2,14 +2,14 @@
 // ... [original main.js content] ...
 
 // Wrap the primary content in <main> for accessibility
-document.getElementById('primary-content').innerHTML = `
+primaryContent = `
   <main>
-    ${document.getElementById('primary-content').innerHTML}
+    ...
   </main>
 `;
 
 // Replace the <a> element with a <button> element for the 'rotate back' action
-document.getElementById('unrotate').outerHTML = `
+rotateBackButton = `
   <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">
     rotate back
   </button>
@@ -33,7 +33,7 @@ tableHeaders.forEach(th => {
 // Add back any required exports that might have been removed
 function rotateBack() {
   // Example implementation: reset rotation of targeted elements
-  const targets = document.querySelectorAll('.rotate-item');
+  const targets = document.querySelectorAll('.rotate-target');
   targets.forEach(el => {
     el.style.transform = 'rotate(0deg)';
   });

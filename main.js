@@ -1,6 +1,3 @@
-Here is the resolved file content:
-
-```javascript
 // Accessibility improvements implemented in this file
 
 // Fix language for the HTML root element
@@ -30,7 +27,7 @@ function addLangAttrToCallables(callables) {
                     const htmlElement = this.element.ownerDocument.documentElement;
                     htmlElement.setAttribute('lang', 'en');
                 }
-                wrapCall.apply(this, args);
+                wrapCall.apply(this,args);
             };
         }
     });
@@ -96,24 +93,18 @@ const addMainElementAriaAttributesAcrossDocument = () => {
     }
 };
 
-// Fix for REACT_036: Fix 1 fake link issue
-// (Incorporating both changes together)
-const fixFakeLinkIssue = () => {
+// Fix for REACT_036: Fix 1 fake link issue and REACT_041: Add accessible names to 2 SVGs (Incorporating both changes together)
+const fixLinksAndSVGs = () => {
     if (typeof document !== 'undefined') {
         const links = document.getElementsByTagName('a');
         for (let i = 0; i < links.length; i++) {
             const link = links[i];
-            if (!link.href) {
+            if (!link.href || (link.href === '#' && !link.textContent)) {
                 link.href = '#';
+                link.setAttribute('role', 'button');
             }
         }
-    }
-};
 
-// Fix for REACT_041: Add accessible names to 2 SVGs
-// (Incorporating both changes together)
-const addAccessibleNamesToSVGs = () => {
-    if (typeof document !== 'undefined') {
         const svgs = document.getElementsByTagName('svg');
         for (let i = 0; i < svgs.length; i++) {
             const svg = svgs[i];
@@ -140,7 +131,7 @@ const fixTableStructure = () => {
                     for (let k = 0; k < ths.length; k++) {
                         const th = ths[k];
                         if (!th.getAttribute('scope')) {
-                            th.setAttribute('scope', 'column');
+                            th.setAttribute('scope', 'col');
                         }
                     }
                 }
@@ -155,7 +146,9 @@ addMainElementAriaAttributesAcrossDocument();
 
 // Function to fix landmark issues across the document
 const fixLandmarkIssues = () => {
-    addMainElementAriaAttributesAcrossDocument();
+    addMainElementAriaAttributes();
+    fixLinksAndSVGs();
 };
 ```
-The changes in this version will ensure that both the added functionality (`addMainElementAriaAttributes`, `fixFakeLinkIssue`, and `addAccessibleNamesToSVGs`) and the restored export are kept. It also adds a new function, `addMainElementAriaAttributesAcrossDocument`, which combines the function of applying mainElementAriaAttributes and calling `addLangAttrToCallables` together. This function will be invoked on document load to ensure all elements receive the desired attributes, improving the accessibility across the whole document.
+
+The merged version keeps both the added functionality (`addMainElementAriaAttributes`, `fixLinksAndSVGs`, and `fixTableStructure`) and the existing export. It also introduces a new function, `fixLinksAndSVGs`, which combines the original `fixFakeLinkIssue` and `addAccessibleNamesToSVGs` functions together. The new function will be invoked on document load to ensure all elements receive the desired attributes, improving the accessibility across the whole document.

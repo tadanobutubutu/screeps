@@ -11,7 +11,7 @@ export function App() {
     // Fix for REACT_015: Add lang attribute context
     <div lang="en">
       <Header />
-      <main id="main-content" role="main">
+      <main id="main-content">
         {/* Fix for REACT_017: Proper landmark usage */}
         <Navigation />
         
@@ -64,10 +64,10 @@ export function AccessibleIcon({ name }) {
 // Fix for REACT_036: Semantic links instead of divs with onClick
 export function SemanticLinks({ href, children, onClick }) {
   if (href) {
-    return <a href={href}>{children}</a>;
+    return <a ...
   }
   // If it doesn't navigate, use a button
-  return <button onClick={onClick}>{children}</button>;
+  return <button ...
 }
 
 // Existing exports preserved

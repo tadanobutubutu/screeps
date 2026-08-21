@@ -18,7 +18,7 @@ function main(options = {}) {
 
   // If necessary, use imported dependencies inside this function
   // For example:
-  // exampleFunction(options);
+  // ...
 }
 
 // Export main function for CommonJS and ES module systems
@@ -32,11 +32,15 @@ if (typeof module !== 'undefined' && module.exports) {
 // Wrap the primary content in <main> for accessibility
 function renderDependencyDashboard() {
   const mainContent = document.createElement('main');
-  mainContent.innerHTML = `
-    <div id="dependency-dashboard">
-      <!-- Dependency dashboard content goes here -->
-    </div>
-  `;
+  mainContent.id = 'dependency-dashboard-main';
+  mainContent.style.padding = '2rem';
+  mainContent.style.fontFamily = 'monospace';
+  
+  const dashboardContent = document.createElement('div');
+  dashboardContent.id = 'dependency-dashboard';
+  // Dependency dashboard content goes here
+  
+  mainContent.appendChild(dashboardContent);
   document.body.appendChild(mainContent);
 }
 

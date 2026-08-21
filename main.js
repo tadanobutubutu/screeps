@@ -3,7 +3,7 @@ function calculate(a, b) {
 }
 
 // Add accessible name to SVG elements
-export function addAccessibleNameToSVG(svg) {
+export function addAccessibleSvg(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
   svg.insertBefore(titleElement, svg.firstChild);
@@ -27,7 +27,7 @@ export function addLangToHtmlRoot(lang) {
 
 // Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
-  const tableHeaders = document.querySelectorAll('th');
+  const tableHeaders = document.querySelectorAll('th:not([scope])');
   tableHeaders.forEach(header => {
     if (!header.hasAttribute('scope')) {
       header.setAttribute('scope', 'col');
@@ -52,4 +52,4 @@ export function replaceFakeLinksWithButtons() {
 }
 
 // Export all functions
-export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleSvg, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };

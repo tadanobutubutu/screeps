@@ -1,8 +1,25 @@
-// main.js
-// [Your existing code here]
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-// Add the HTML lang attribute to the root element
-document.documentElement.lang = 'en';
+// Existing component code...
+
+function App() {
+  // Existing component code...
+  return (
+    // Existing JSX code...
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+
+// Additional code requested to fix the issue with the lang attribute
+
+// Ensure that the root element of the document has a lang attribute
+if (document.documentElement.lang === undefined) {
+  document.documentElement.lang = 'en';
+}
+
+// [Rest of your existing code here]
 
 // New function to update the document title
 function updateDocumentTitle(newTitle) {
@@ -118,8 +135,6 @@ function fixFakeLinkIssue() {
     }
   });
 }
-
-// [Rest of your existing code here]
 
 // Export required functions for testing
 export {

@@ -21,21 +21,22 @@
 
   function getMainElement() {
     // Try to find the main element by various selectors
-    var mainElement = document.querySelector('main');
+    var mainElement = document.querySelector('main') || 
+                      document.getElementById('main') ||
+                      document.getElementsByTagName('main')[0];
     if (!mainElement) {
       // Fallback: look for common main content containers
       mainElement = document.querySelector('[role="main"]') ||
-                    document.querySelector('#main') ||
-                    document.querySelector('#main-content') ||
+                    document.getElementById('content') ||
+                    document.getElementById('app') ||
                     document.querySelector('.main-content') ||
-                    document.querySelector('.main');
+                    document.querySelector('#root > div');
     }
     if (!mainElement) {
       // Fallback: look for common class or id patterns
       mainElement = document.querySelector('.content') || 
-                    document.querySelector('#content') ||
-                    document.querySelector('.page-content') ||
-                    document.querySelector('.app-content');
+                    document.querySelector('.app-content') ||
+                    document.querySelector('#content');
     }
     return mainElement;
   }
@@ -57,16 +58,18 @@
 
   function fixSvgAccessibility() {
     var svgs = document.querySelectorAll('svg');
-    svgs.forEach(function(svg) {
-      if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('role')) {
+    Array.prototype.forEach.call(svgs, function(svg) {
+      var hasAriaLabel = svg.hasAttribute('aria-label') || svg.hasAttribute('aria-labelledby');
+      var hasTitleChild = svg.querySelector('title') !== null;
+      if (!hasAriaLabel && !hasTitleChild) {
         svg.setAttribute('aria-hidden', 'true');
       }
     });
   }
 
   function fixFakeLinkIssue() {
-    var fakeLinks = document.querySelectorAll('[onclick]');
-    fakeLinks.forEach(function(link) {
+    var fakeLinks = document.querySelectorAll('[role="link"], a[href="#"], [href="#"]');
+    Array.prototype.forEach.call(fakeLinks, function(link) {
       if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
         var href = link.getAttribute('href');
         if (href && href !== '#') {

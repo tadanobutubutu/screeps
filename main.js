@@ -42,3 +42,19 @@ function renderDependencyDashboard() {
 
 // Call the function to render the dashboard
 renderDependencyDashboard();
+
+// Add decorative SVG with aria-hidden for accessibility
+function addDecorativeSVG() {
+  const dashboard = document.getElementById('dependency-dashboard');
+  if (dashboard) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('width', '24');
+    svg.setAttribute('height', '24');
+    svg.innerHTML = '<circle cx="12" cy="12" r="10" fill="currentColor"/>';
+    dashboard.appendChild(svg);
+  }
+}
+
+// Call the function to add decorative SVG
+addDecorativeSVG();

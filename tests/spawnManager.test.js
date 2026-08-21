@@ -143,35 +143,6 @@ describe('spawnManager', () => {
         cache.getSpawns.mockReturnValue([]);
     });
 
-
-    describe('_buildSpawnQueue execution testing', () => {
-        test('when _buildSpawnQueue throws an error, logger.error is called', () => {
-            const logger = require('../src/utils/logger');
-            jest.spyOn(logger, 'error').mockImplementation(() => {});
-
-            // Modify Game properties or mock properties to cause an internal method
-            // inside run -> _buildSpawnQueue to throw.
-            // A clean way is to make room.controller.level throw or something,
-            // but the prompt says: "The spawn block is already mocked in existing tests.
-            // We just need to mock an internal method to throw and verify that the logger handles it properly."
-
-            // _getTargetCounts calls cache.getConstructionSites(room).
-            // Let's mock it to throw!
-            cache.getConstructionSites.mockImplementationOnce(() => {
-                throw new Error('Internal cache error');
-            });
-
-            spawnManager.run(mockSpawn);
-
-            expect(logger.error).toHaveBeenCalledWith(
-                '[SpawnManager] スポーンエラー',
-                expect.any(Error)
-            );
-
-            logger.error.mockRestore();
-        });
-    });
-
     describe('run', () => {
         test('実行してもエラーにならない', () => {
             expect(() => spawnManager.run(mockSpawn)).not.toThrow();

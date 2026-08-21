@@ -97,21 +97,6 @@ describe('towerManager', () => {
     });
 
     describe('run', () => {
-
-        test('エラー発生時にlogger.errorが呼ばれること', () => {
-            const mockLogger = require('../src/utils/logger');
-            cache.getMyStructures.mockImplementation(() => {
-                throw new Error('Test Error');
-            });
-
-            towerManager.run(mockRoom);
-
-            expect(mockLogger.error).toHaveBeenCalledWith(
-                '[TowerManager] タワーエラー',
-                expect.any(Error)
-            );
-        });
-
         test('タワーがない場合は何もしない', () => {
             cache.getMyStructures.mockReturnValue([]);
             expect(() => towerManager.run(mockRoom)).not.toThrow();

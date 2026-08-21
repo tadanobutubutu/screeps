@@ -75,14 +75,17 @@ function enhanceAccessibility() {
     }
   });
 
-  // Accessibility utility functions
-  export function addAriaLabel(element, label) {
-    if (element) element.setAttribute('aria-label', label);
-  }
+  // Accessibility utility functions (updated with required exports)
+  const accessibilityUtil = {
+    addAriaLabel(element, label) {
+      if (element) element.setAttribute('aria-label', label);
+    },
+    setMainLandmark(mainElement) {
+      if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
+    }
+  };
 
-  export function setMainLandmark(mainElement) {
-    if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
-  }
+  export { accessibilityUtil };
 
   // Export the enhanced function
   export default enhanceAccessibility;

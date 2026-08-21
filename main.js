@@ -14,8 +14,8 @@
  */
 function renderIcon(iconName, description) {
   const icons = {
-    search: '<svg viewBox="0 0 24 24" aria-label="' + description + '" role="img"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
-    settings: '<svg viewBox="0 0 24 24" aria-label="' + description + '" role="img"><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.4-6.6l-1.4 1.4m-9.2 9.2l-1.4 1.4m0-12l1.4 1.4m9.2 9.2l1.4 1.4" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
+    search: '<svg viewBox="0 0 24 24" aria-label="' + description + '" role="img"><title>' + description + '</title><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" aria-label="' + description + '" role="img"><title>' + description + '</title><circle cx="12" cy="12" r="3" fill="currentColor"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2m-3.4-6.6l-1.4 1.4m-9.2 9.2l-1.4 1.4m0-12l1.4 1.4m9.2 9.2l1.4 1.4" fill="none" stroke="currentColor" stroke-width="2"/></svg>'
   };
   return icons[iconName] || '';
 }

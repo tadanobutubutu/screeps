@@ -24,3 +24,17 @@ module.exports = {
     config: config,
     // Add any missing exports here if necessary
 };
+
+// Additional code to replace the anchor with a button for in-page actions
+// This assumes that the `rotate back` link is used within a page where a button would be appropriate
+// The `rotate back` functionality is kept in the same line of the HTML
+document.addEventListener('DOMContentLoaded', () => {
+    const rotateBackLink = document.getElementById('unrotate');
+    if (rotateBackLink) {
+        rotateBackLink.innerHTML = '<button onclick="rotateBack()">rotate back</button>';
+        function rotateBack() {
+            // The actual rotation logic should go here
+            console.log('Rotating back...');
+        }
+    }
+});

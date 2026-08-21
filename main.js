@@ -47,6 +47,9 @@ export default function Main() {
         <tr>
           {columns.map(({ Header: category }, idx) => (
             <th key={idx} ...
+            >
+              {category}
+            </th>
           ))}
         </tr>
       </thead>
@@ -54,7 +57,10 @@ export default function Main() {
         {/* Remaining table structure */}
         <tr>
           {columns.map(({ Header: category }, idx) => (
-            <td ...
+            <td key={idx} ...
+            >
+              {category}
+            </td>
           ))}
           <td>{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
         </tr>
@@ -68,7 +74,7 @@ export default function Main() {
   // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
   const link = (
-    <a ... aria-label="Navigate to destination">
+    <a href="..." aria-label="Navigate to destination">
       {linkContent}
     </a>
   );
@@ -95,6 +101,15 @@ export default function Main() {
       {externalLink}
       {infoIcon}
 
+      {/* Add lang attribute to HTML element (REACT_015) */}
+      <html lang="en">
+        <head>
+          {/* ... (Existing head content) */}
+        </head>
+        <body>
+          {/* ... (Existing body content) */}
+        </body>
+      </html>
     </div>
   );
 }

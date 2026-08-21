@@ -17,7 +17,19 @@ export default function RootLayout({
           {/* SVG content */}
         </svg>
       </head>
-      <body>{children}</body>
+      <body>
+        <header>
+          <nav aria-label="Main navigation">
+            {/* Navigation content */}
+          </nav>
+        </header>
+        <main id="main-content" aria-label="Main content">
+          {children}
+        </main>
+        <footer aria-label="Site footer">
+          {/* Footer content */}
+        </footer>
+      </body>
     </html>
   );
 }

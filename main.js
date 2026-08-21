@@ -27,7 +27,6 @@ export default function Main() {
     <svg
       ...
       viewBox={viewBox}
-      ... icon`}
       role="img"
       className="icon"
     >

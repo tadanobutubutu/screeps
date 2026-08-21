@@ -1,6 +1,3 @@
-Here is the resolved main.js file:
-
-```javascript
 // Import and original code
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -40,6 +37,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
-```
-
-This code adds a `<main>` element around the primary content in the `App` component, following the required changes to fix the REACT_017 accessibility issue, while preserving the existing components and structure.

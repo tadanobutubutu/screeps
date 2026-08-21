@@ -54,6 +54,12 @@ module.exports = {
     // Clean up memory of dead creeps
     cleanMemory: function () {
         if (!Memory.creeps) return 0;
+
+        // ⚡ PERFORMANCE: Only run O(N) cleanup every 100 ticks to save CPU
+        if (typeof Game !== 'undefined' && typeof Game.time === 'number' && Game.time % 100 !== 0) {
+            return 0;
+        }
+
         let cleaned = 0;
         // ⚡ PERFORMANCE: Use for...in to avoid O(N) Object.keys() array allocation.
         for (const name in Memory.creeps) {

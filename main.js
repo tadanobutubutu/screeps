@@ -10,7 +10,7 @@ document.documentElement.setAttribute('lang', 'en');
 // Fix 26 table structure issues (example of fixing one issue)
 // Assuming the table has issues with header cells not being properly associated with data cells
 table.querySelectorAll('th').forEach((th, index) => {
-  th.setAttribute('scope', 'row');
+  th.setAttribute('scope', 'col');
   const td = table.querySelectorAll('td')[index];
   if (td) {
     td.setAttribute('headers', th.id);

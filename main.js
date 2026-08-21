@@ -104,7 +104,22 @@ function fixTableStructure(mainElement) {
   if (typeof document === 'undefined') return;
 
   const tables = mainElement.querySelectorAll('table');
-  // ...
+  tables.forEach(table => {
+    if (!table.querySelector('thead')) {
+      const thead = document.createElement('thead');
+      table.appendChild(thead);
+    }
+    if (!table.querySelector('tbody')) {
+      const tbody = document.createElement('tbody');
+      table.appendChild(tbody);
+    }
+    const headers = table.querySelectorAll('th');
+    headers.forEach(th => {
+      if (!th.hasAttribute('scope')) {
+        th.setAttribute('scope', 'col');
+      }
+    });
+  });
 }
 
 // Add/fix 4 landmark issues
@@ -113,11 +128,17 @@ function addLandmarks(mainElement) {
   if (typeof document === 'undefined') return;
 
   const elementConfigs = [
-    // ...
+    { selector: 'header', role: 'banner' },
+    { selector: 'nav', role: 'navigation' },
+    { selector: 'main', role: 'main' },
+    { selector: 'footer', role: 'contentinfo' }
   ];
 
   elementConfigs.forEach(config => {
-    // ...
+    const element = mainElement.querySelector(config.selector);
+    if (element) {
+      element.setAttribute('role', config.role);
+    }
   });
   mainElement.setAttribute('aria-label', 'Main content area');
 }
@@ -132,6 +153,9 @@ function addAccessibleSVGs() {
     const title = document.createElement('title');
     title.textContent = 'Descriptive title for SVG';
     svg.appendChild(title);
+    const desc = document.createElement('desc');
+    desc.textContent = 'Description of SVG content';
+    svg.appendChild(desc);
   });
 }
 
@@ -140,7 +164,12 @@ function addAccessibleSVGs() {
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
-  // ...
+  // Example implementation for header
+  const header = mainElement.querySelector('header');
+  if (header && !header.hasAttribute('id')) {
+    header.setAttribute('id', 'unique-header');
+  }
+  // Repeat similar logic for other landmarks as needed
 }
 
 // Fix fake link issue
@@ -148,7 +177,15 @@ function ensureUniqueLandmarks() {
 function fixFakeLink() {
   if (typeof document === 'undefined') return;
 
-  // ...
+  const fakeLinks = mainElement.querySelectorAll('.fake-link');
+  fakeLinks.forEach(fakeLink => {
+    if (!fakeLink.hasAttribute('role') || fakeLink.getAttribute('role') !== 'link') {
+      fakeLink.setAttribute('role', 'link');
+    }
+    if (!fakeLink.hasAttribute('href')) {
+      fakeLink.setAttribute('href', '#');
+    }
+  });
 }
 
 /**

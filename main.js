@@ -23,11 +23,12 @@ export default function Main() {
 
   return (
     <table>
+      <caption className="sr-only">Source code file overview table</caption>
       <thead>
         {getHeaderGroups().map(headerGroup => (
-          <tr key={headerGroup.id}>
+          <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map(column => (
-              <th key={column.id} scope="col">
+              <th {...column.getHeaderProps()} scope="col">
                 {column.render('Header')}
               </th>
             ))}
@@ -37,8 +38,14 @@ export default function Main() {
       <tbody>
         {allColumns.map(row => (
           <tr {...row.getRowProps()}>
-            {row.cells.map(cell => (
-              <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+            {row.cells.map((cell, idx) => (
+              <td
+                {...cell.getCellProps()}
+                scope={idx === 0 ? 'row' : undefined}
+                role={idx === 0 ? 'rowheader' : undefined}
+              >
+                {cell.render('Cell')}
+              </td>
             ))}
           </tr>
         ))}
@@ -50,6 +57,8 @@ export default function Main() {
 // Replace the non-interactive link with a button
 export function RotateBackButton() {
   return (
-    <button id="unrotate">rotate back</button>
+    <button id="unrotate" aria-label="Rotate view back to original position" type="button">
+      rotate back
+    </button>
   );
 }

@@ -23,7 +23,5 @@ function init() {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initializeApp, getMainContent, init};
+    module.exports = { initializeApp, getMainContent, init };
 }
-
-export { initializeApp, getMainContent, init };

@@ -57,7 +57,7 @@ export const AccessiblePage = ({ children }) => (
       </nav>
     </header>
     
-    <main role="main" id="main-content">
+    <main role="main" id="main-content" tabIndex={-1}>
       {children}
     </main>
     

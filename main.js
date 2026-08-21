@@ -10,11 +10,13 @@ function exampleFunc() {
     // Example logic for the additional function
 }
 
-// Configuration settings for the game
+// Configuration settings for the game with added 'aria-label' for accessibility
 const config = {
     // Add your configuration options here
     maxCreeps: 50,
     room: 'W0N0',
+    // Add 'aria-label' to the config object
+    ariaLabel: 'Game Configuration',
 };
 
 // Export the loop function for the game engine as requested

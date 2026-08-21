@@ -9,8 +9,6 @@ const dependencyUpdates = {
   detected: []
 };
 
-/* Add mainElement as an argument to the functions that require a DOM element */
-
 /**
  * Adds a pending dependency update to the tracking list
  * @param {Object} update - The dependency update object
@@ -38,6 +36,8 @@ function addBlockedUpdate(update, mainElement) {
 function addDetectedDependencies(ecosystem, dependencies, mainElement) {
   // ...
 }
+
+let mainElement = null; /* Uncomment the mainElement variable */
 
 /**
  * Retrieves all pending updates
@@ -188,6 +188,3 @@ module.exports = {
   fixFakeLink,
   getRequiredDependencies
 };
-
-/* Uncomment the mainElement variable */
-let mainElement = null;

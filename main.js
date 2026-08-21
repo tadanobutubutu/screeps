@@ -7,7 +7,9 @@ ReactDOM.render(
   <React.StrictMode>
     <html lang="en">
       <body>
-        <App />
+        <main>
+          <App />
+        </main>
       </body>
     </html>
   </React.StrictMode>,

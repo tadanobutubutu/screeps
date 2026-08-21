@@ -6,33 +6,27 @@
     }
 
     // Export the function
-    module.exports.myFunction = myFunction;
+    exports.myFunction = myFunction;
 
     // Additional code to add accessible names to SVGs
 
     // Function to add aria-label to SVGs for accessibility
-    function addAccessibleNameToSVGs(svgString, label) {
-        // Regex to find the SVG tag and the content within it
-        const svgRegex = /<svg[\s\S]*?<\/svg>/i;
-        const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
-        const textRegex = /<text[^>]*>(.*?)<\/text>/i;
-
-        // Replace the SVG content with an updated version that includes a title element
-        return svgString.replace(svgRegex, (match) => {
-            // Check if the SVG already contains a title
-            let hasTitle = titleRegex.test(match);
-            let hasText = textRegex.test(match);
-
-            // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
-                // Replace the SVG content with a title element wrapping the existing text
-                return match.replace(textRegex, (textMatch) => {
-                    return `<title>${label}</title>${textMatch}`;
-                });
-            }
-
-            // If the SVG doesn't contain text or already has a title, return the original match
-            return match;
+    function addAriaLabelToSvg(svgString, label) {
+        // Regex to find the SVG opening tag
+        const svgOpeningTagRegex = /<svg([^>]*)>/i;
+        
+        // Check if SVG already has aria-label or aria-hidden
+        const hasAriaLabel = /aria-label\s*=/i.test(svgString);
+        const hasAriaHidden = /aria-hidden\s*=/i.test(svgString);
+        
+        // If already has accessible name, return as is
+        if (hasAriaLabel || hasAriaHidden) {
+            return svgString;
+        }
+        
+        // Add aria-label to the SVG opening tag
+        return svgString.replace(svgOpeningTagRegex, (match, attributes) => {
+            return `<svg${attributes} aria-label="${label}">`;
         });
     }
 
@@ -40,15 +34,17 @@
     function updateIcons(icons, label) {
         const updatedIcons = {};
         for (const key in icons) {
-            const svgData = icons[key];
-            const accessibleSvg = addAccessibleNameToSVGs(svgData, label);
-            updatedIcons[key] = accessibleSvg;
+            if (icons.hasOwnProperty(key)) {
+                const svgData = icons[key];
+                const accessibleSvg = addAriaLabelToSvg(svgData, label);
+                updatedIcons[key] = accessibleSvg;
+            }
         }
         return updatedIcons;
     }
 
     // Export the new functions
-    module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
+    exports.addAriaLabelToSvg = addAriaLabelToSvg;
     module.exports.updateIcons = updateIcons;
 
     // Other code...

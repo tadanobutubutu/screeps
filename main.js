@@ -69,7 +69,7 @@ const createAccessibleModal = (props) => {
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.getAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -89,12 +89,12 @@ const fixTableStructure = () => {
   });
 };
 
-// Add/fix 4 landmark issues
-const addLandmarkIssues = () => {
+// Fix 4 landmark issues
+const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.hasAttribute('aria-label')) {
+    if (!nav.getAttribute('role')) {
       nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
     }
@@ -107,7 +107,7 @@ const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   svgs.forEach(svg => {
-    if (count < 2 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
+    if (count < 2 && !svg.querySelector('title') && svg.getAttribute('role') === 'img') {
       const title = document.createElement('title');
       title.textContent = `SVG ${count + 1} description`;
       title.id = `svg-title-${count + 1}`;
@@ -121,7 +121,7 @@ const addAccessibleNamesToSVGs = () => {
 // Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
   // Example: Ensure navigation landmark is unique
-  const navs = document.querySelectorAll('nav[role="navigation"]');
+  const navs = document.querySelectorAll('nav');
   if (navs.length > 1) {
     navs.forEach((nav, index) => {
       if (index > 0) {
@@ -135,9 +135,9 @@ const ensureUniqueLandmarks = () => {
 
 // Fix 1 fake link issue
 const fixFakeLinkIssue = () => {
-  const links = document.querySelectorAll('a[href]:not([role]), span[onclick], div[onclick]');
+  const links = document.querySelectorAll('a[onclick], span[onclick], div[onclick]');
   links.forEach(link => {
-    if (link.tagName === 'A' && !link.getAttribute('role')) {
+    if (link.tagName === 'A' && link.getAttribute('href')) {
       // Check if it's a fake link (e.g., no href or javascript: href)
       const href = link.getAttribute('href');
       if (!href || href === '#' || href.startsWith('javascript:')) {
@@ -154,7 +154,7 @@ const fixFakeLinkIssue = () => {
 // Run accessibility fixes
 addLangAttribute();
 fixTableStructure();
-addLandmarkIssues();
+fixLandmarkIssues();
 addAccessibleNamesToSVGs();
 ensureUniqueLandmarks();
 fixFakeLinkIssue();
@@ -230,7 +230,7 @@ class MyComponent extends React.Component {
 }
 
 // Export accessibility utilities
-export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal };
+export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal, addLangAttribute, fixTableStructure, fixLandmarkIssues, addAccessibleNamesToSVGs, ensureUniqueLandmarks, fixFakeLinkIssue };
 
 export default MyComponent;
 
@@ -247,5 +247,11 @@ module.exports = {
   createAccessibleButton,
   createAccessibleInput,
   createAccessibleModal,
+  addLangAttribute,
+  fixTableStructure,
+  fixLandmarkIssues,
+  addAccessibleNamesToSVGs,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue,
   default: MyComponent,
 };

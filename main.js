@@ -35,6 +35,14 @@ const Dashboard = () => {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleHover = (hovering, setter) => (event) => {
+        if (event.type === 'mouseenter' || event.type === 'focus') {
+            setter(true);
+        } else if (event.type === 'mouseleave' || event.type === 'blur') {
+            setter(false);
+        }
+    };
+
     if (error) {
         return (
             <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
@@ -54,10 +62,10 @@ const Dashboard = () => {
                 </pre>
                 <button
                     onClick={copyErr}
-                    onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
-                    onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onMouseEnter={handleHover(true, setErrCopyHover)}
+                    onMouseLeave={handleHover(false, setErrCopyHover)}
+                    onFocus={handleHover(true, setErrCopyHover)}
+                    onBlur={handleHover(false, setErrCopyHover)}
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -78,8 +86,8 @@ const Dashboard = () => {
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
-                    onMouseEnter={() => setErrRetryHover(true)}
-                    onMouseLeave={() => setErrRetryHover(false)}
+                    onMouseEnter={handleHover(true, setErrRetryHover)}
+                    onMouseLeave={handleHover(false, setErrRetryHover)}
                     aria-label="再試行"
                     title="再試行"
                     style={{
@@ -130,8 +138,8 @@ const Dashboard = () => {
                     marginTop: '1rem',
                     transition: 'all 0.2s ease-in-out',
                 }}
-                onMouseEnter={() => setErrRetryHover(true)}
-                onMouseLeave={() => setErrRetryHover(false)}
+                onMouseEnter={handleHover(true, setErrRetryHover)}
+                onMouseLeave={handleHover(false, setErrRetryHover)}
                 aria-label="更新"
                 title="更新"
             >

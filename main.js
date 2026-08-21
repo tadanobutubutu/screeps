@@ -6,7 +6,9 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     const [copied, setCopied] = useState(false);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        navigator.clipboard.writeText(error).catch((err) => {
+            console.error('Failed to copy:', err);
+        });
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -98,21 +100,38 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
                     </div>
                 ))}
             </div>
-            <button
-                onClick={() => fetchStats(true)}
-                disabled={refreshing}
-                style={{
-                    backgroundColor: '#004b73',
-                    color: 'white',
-                    padding: '0.5rem 1rem',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    marginTop: '1rem',
-                }}
-            >
-                {refreshing ? '🔄 更新中...' : '🔄 データを更新'}
-            </button>
+            <div style={{ marginTop: '1rem' }}>
+                <button
+                    id="unrotate"
+                    onClick={() => {}}
+                    aria-label="rotate back"
+                    style={{
+                        backgroundColor: '#666',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                        marginRight: '1rem',
+                    }}
+                >
+                    rotate back
+                </button>
+                <button
+                    onClick={() => fetchStats(true)}
+                    disabled={refreshing}
+                    style={{
+                        backgroundColor: '#004b73',
+                        color: 'white',
+                        padding: '0.5rem 1rem',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {refreshing ? '🔄 更新中...' : '🔄 データを更新'}
+                </button>
+            </div>
         </div>
     );
 };

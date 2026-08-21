@@ -22,21 +22,21 @@
   function getMainElement() {
     // Try to find the main element by various selectors
     var mainElement = document.querySelector('main') || 
+                      document.getElementById('main') ||
                       document.querySelector('[role="main"]') ||
-                      document.querySelector('#main') ||
-                      document.querySelector('.main');
+                      document.querySelector('#main-content');
     if (!mainElement) {
       // Fallback: look for common main content containers
       mainElement = document.getElementById('content') ||
-                    document.getElementById('main-content') ||
+                    document.getElementById('table-rotated') ||
                     document.querySelector('#root > main') ||
                     document.querySelector('#root > div');
     }
     if (!mainElement) {
       // Fallback: look for common class or id patterns
       mainElement = document.querySelector('.content') || 
-                    document.querySelector('.main-content') ||
-                    document.querySelector('[class*="main"]');
+                    document.querySelector('.container') ||
+                    document.querySelector('table#table-rotated');
     }
     return mainElement;
   }
@@ -56,12 +56,42 @@
     }
     
     // Fix duplicate landmark issues (REACT_025)
-    var landmarks = document.querySelectorAll('[role="main"]');
+    var landmarks = Array.from(document.querySelectorAll('header, nav, main, footer, aside'));
     landmarks.forEach(function(landmark, index) {
       if (index > 0 && !landmark.id) {
         landmark.id = 'main-content-' + index;
       }
     });
+  }
+
+  function fixMissingMain() {
+    // Fix REACT_017 - React Landmarks: Add missing <main> landmark
+    var existingMain = document.querySelector('main');
+    
+    if (!existingMain) {
+      // Find the table with id 'table-rotated' - one of the affected elements
+      var tableRotated = document.getElementById('table-rotated');
+      if (tableRotated && tableRotated.parentNode) {
+        var main = document.createElement('main');
+        main.id = 'main-content';
+        tableRotated.parentNode.insertBefore(main, tableRotated);
+        main.appendChild(tableRotated);
+      }
+      
+      // Find the container with Quality & Metrics Reports - the other affected element
+      var containerDiv = document.querySelector('.container h2');
+      if (containerDiv && containerDiv.parentNode) {
+        var container = containerDiv.parentNode;
+        var parent = container.parentNode;
+        if (parent && !parent.querySelector('main')) {
+          // Check if this container isn't already wrapped
+          var main = document.createElement('main');
+          main.id = 'main-doc';
+          parent.insertBefore(main, container);
+          main.appendChild(container);
+        }
+      }
+    }
   }
 
   function fixTableStructure() {
@@ -87,13 +117,13 @@
         var firstRow = table.querySelector('tr');
         if (firstRow) {
           var thead = document.createElement('thead');
-          thead.appendChild(firstRow.cloneNode(true));
+          thead.appendChild(firstRow);
           table.insertBefore(thead, firstRow);
-          firstRow.parentNode.removeChild(firstRow);
+          thead.parentNode.insertBefore(thead, table.firstChild);
         }
       }
       
-      if (!table.querySelector('tbody')) {
+      if (table.querySelector('tbody') === null) {
         var rows = Array.from(table.querySelectorAll('tr'));
         var theadRow = table.querySelector('thead tr');
         if (theadRow) {
@@ -110,13 +140,13 @@
 
   function fixSvgAccessibility() {
     var svgs = document.querySelectorAll('svg');
-    svgs.forEach(function(svg) {
+    svgs.forEach(function(svg, index) {
       var hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
       var hasTitleChild = svg.querySelector('title') !== null;
       if (!hasAriaLabel && !hasTitleChild) {
         var title = document.createElement('title');
         title.textContent = 'Icon';
-        title.id = 'svg-title-' + Math.random().toString(36).substr(2, 9);
+        title.id = 'svg-title-' + Math.floor(Math.random() * 1000000000);
         svg.insertBefore(title, svg.firstChild);
         svg.setAttribute('aria-labelledby', title.id);
       }
@@ -124,8 +154,8 @@
   }
 
   function fixFakeLinkIssue() {
-    var fakeLinks = document.querySelectorAll('div[href="#"], span[href="#"], a[href="#"]');
-    Array.prototype.forEach.call(fakeLinks, function(link) {
+    var fakeLinks = document.querySelectorAll('span[href="#"], div[href="#"], a[href="#"]');
+    fakeLinks.forEach(function(link) {
       if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
         var href = link.getAttribute('href');
         if (href && href !== '#') {
@@ -138,7 +168,7 @@
 
   function fixDuplicateMainElements() {
     // Remove duplicate <main> elements that may exist in the same document
-    var mainElements = document.querySelectorAll('main');
+    var mainElements = Array.from(document.querySelectorAll('main'));
     if (mainElements.length > 1) {
       for (var i = 1; i < mainElements.length; i++) {
         mainElements[i].parentNode.removeChild(mainElements[i]);
@@ -149,6 +179,7 @@
   function init() {
     fixLanguageAttribute();
     fixLandmarkIssues();
+    fixMissingMain();
     fixTableStructure();
     fixSvgAccessibility();
     fixFakeLinkIssue();
@@ -165,7 +196,8 @@
       fixSvgAccessibility,
       fixFakeLinkIssue,
       fixTableStructure,
-      fixDuplicateMainElements
+      fixDuplicateMainElements,
+      fixMissingMain
     };
   }
 

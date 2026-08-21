@@ -37,6 +37,8 @@ function renderDependencyDashboard() {
       <!-- Dependency dashboard content goes here -->
     </div>
   `;
+  // Add language attribute to the <html> element for accessibility
+  document.documentElement.setAttribute('lang', 'en');
   document.body.appendChild(mainContent);
 }
 

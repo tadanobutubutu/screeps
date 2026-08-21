@@ -26,15 +26,14 @@ export default function Main() {
   // Helper function to create accessible SVG icons
   const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
     <svg
-      ...
+      xmlns="http://www.w3.org/2000/svg"
       viewBox={viewBox}
       role="img"
       className="icon"
-      aria-label={iconName} // Adding aria-label to each SVG
-      aria-hidden={!iconName} // Hide SVGs with empty aria-labels
+      aria-label={iconName}
     >
       <title>{iconName}</title>
-      {/* SVG content */}
+      <circle cx="12" cy="12" r="10" fill="currentColor" />
     </svg>
   );
 
@@ -75,7 +74,7 @@ export default function Main() {
   );
 
   // Add accessible landmark for the table (REACT_025)
-  const landmarkTable = ... analysis results', '0 0 1 1');
+  const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
 
   // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
@@ -86,8 +85,8 @@ export default function Main() {
   );
 
   // Add accessible names to SVGs (REACT_041)
-  const externalLink = ... Link', '0 0 24 24');
-  const infoIcon = ... '0 0 24 24');
+  const externalLink = createAccessibleSVG('External Link', '0 0 24 24');
+  const infoIcon = createAccessibleSVG('Information', '0 0 24 24');
 
   return (
     // ... (Existing return statement below)

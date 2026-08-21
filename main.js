@@ -47,7 +47,7 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 
@@ -63,7 +63,71 @@ export function validateSVGAccessibility(svgProps) {
   return { compliant: isCompliant, issues };
 }
 
+/**
+ * Validates anchor link accessibility (REACT_036)
+ * Detects hash-only href links that don't navigate anywhere
+ * @param {Object} anchorProps - Props from an anchor element
+ * @returns {{compliant: boolean, issues: string[], suggestion: string}}
+ */
+export function validateAnchorAccessibility(anchorProps) {
+  const issues = [];
+  const { href, onClick, role, 'aria-label': ariaLabel } = anchorProps;
+  
+  // Check if it's a hash-only link
+  const isHashLink = href === '#' || (href && href.startsWith('#') && href.length === 1);
+  
+  if (isHashLink) {
+    // Check if proper accessibility measures are in place
+    const hasClickHandler = typeof onClick === 'function';
+    const hasRole = role !== undefined;
+    const hasAriaLabel = ariaLabel !== undefined;
+    
+    // A hash link without proper accessibility is a "fake link"
+    if (!hasClickHandler && !hasRole && !hasAriaLabel) {
+      issues.push('Hash-only href="#" does not navigate - use <button> for in-page actions');
+    }
+    
+    if (hasClickHandler && !onClick._isSyntheticEvent) {
+      // Plain function without preventing default - common issue
+      issues.push('onClick should call event.preventDefault() for hash links');
+    }
+    
+    if (!hasRole && !hasAriaLabel) {
+      issues.push('Hash link lacks role or aria-label for screen reader support');
+    }
+  }
+  
+  const isCompliant = issues.length === 0;
+  
+  const suggestion = isHashLink 
+    ? 'Use <button> element instead of <a href="#"> for in-page actions to ensure proper keyboard and screen reader behavior'
+    : '';
+  
+  return { compliant: isCompliant, issues, suggestion };
+}
+
+/**
+ * Returns appropriate element type recommendation based on href
+ * @param {string} href - The href attribute value
+ * @returns {{element: string, reason: string}}
+ */
+export function getLinkRecommendation(href) {
+  if (href === '#' || (href && href.startsWith('#') && href.length === 1)) {
+    return {
+      element: 'button',
+      reason: 'In-page actions should use <button> for proper accessibility'
+    };
+  }
+  
+  return {
+    element: 'a',
+    reason: 'External or page navigation should use <a> with proper href'
+  };
+}
+
 export default {
   getSVGAriaProps,
-  validateSVGAccessibility
+  validateSVGAccessibility,
+  validateAnchorAccessibility,
+  getLinkRecommendation
 };

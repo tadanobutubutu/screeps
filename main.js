@@ -136,7 +136,7 @@ async function fixTableStructure() {
           return `<table${tableAttrs}>${fixedContent}</table>`;
         }
         
-        // For simple tables without rows, just wrap content
+        // For simple tables without rows, just wrap content in tbody if not already present
         if (!/<tr/i.test(tableContent)) {
           return `<table${tableAttrs}><tbody>${tableContent}</tbody></table>`;
         }

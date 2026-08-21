@@ -16,7 +16,7 @@ const path = require('path');
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html([^>]*)>/i, (match, attrs) => {
+  return content.replace(/<html(\s[^>]*)?>/i, (match, attrs) => {
     if (attrs && /\slang\s*=/i.test(attrs)) {
       return match;
     }
@@ -39,7 +39,7 @@ async function addMainLandmark() {
         continue;
       }
       const updatedContent = fileContent.replace(
-        /<body([^>]*)>([\s\S]*)<\/body>/i,
+        /(<body[^>]*>)((?:[\s\S]*?)<\/body>)/i,
         (match, bodyOpen, bodyContent) => {
           return bodyOpen + '\n<main>\n' + bodyContent + '\n</main>';
         }
@@ -58,7 +58,7 @@ async function addMainLandmark() {
  * Adds a function to modify the HTML content with the `lang` attribute.
  * This can be used to handle more complex scenarios, such as multiple languages in one file.
  */
-async function addLangAttributeToFiles() {
+async function addLangToFiles() {
   try {
     console.log('Adding lang attribute to HTML files...');
     const filePath = path.join('docs', 'index.html');
@@ -81,14 +81,14 @@ async function replaceHashLinksWithButtons() {
     const filePath = path.join('docs', 'index.html');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const updatedContent = fileContent.replace(
-      /<a([^>]*)href="#([^"]*)"([^>]*)>([\s\S]*?)<\/a>/gi,
+      /<a\s+([^>]*?)href="#([^"]*)"([^>]*)>([\s\S]*?)<\/a>/gi,
       (match, attrsBefore, id, attrsAfter, text) => {
         const idAttr = id ? ` id="${id}"` : '';
         const allAttrs = (attrsBefore || '') + (attrsAfter || '');
         const classMatch = allAttrs.match(/class="([^"]*)"/);
         const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
         // Remove the href from the button to avoid "fake link" issues
-        return `<button${idAttr}${classAttr} type="button">${text}</button>`;
+        return `<button${idAttr}${classAttr}>${text}</button>`;
       }
     );
     await fs.writeFile(filePath, updatedContent);
@@ -114,12 +114,12 @@ async function fixTableStructure() {
       /<table([^>]*)>([\s\S]*?)<\/table>/gi,
       (match, tableAttrs, tableContent) => {
         // Check if table already has proper structure
-        if (/<thead[\s>]/i.test(tableContent) || /<tbody[\s>]/i.test(tableContent)) {
+        if (/<thead/i.test(tableContent) || /<tbody/i.test(tableContent)) {
           return match;
         }
         
         // Add thead with header row for tables without proper headers
-        const firstRowMatch = tableContent.match(/<tr([^>]*)>([\s\S]*?)<\/tr>/i);
+        const firstRowMatch = /<tr([^>]*)>([\s\S]*?)<\/tr>/i.exec(tableContent);
         if (firstRowMatch) {
           // Convert first row cells to header cells
           let fixedContent = tableContent.replace(
@@ -137,14 +137,14 @@ async function fixTableStructure() {
           
           // Wrap remaining content in tbody if not already present
           if (!/<tbody/i.test(fixedContent)) {
-            const afterHeader = fixedContent.replace(/<\/thead>/i, '');
+            const afterHeader = fixedContent.replace(/<\/thead>/, '');
             fixedContent = fixedContent.replace(
-              /(\<\/thead>)([\s\S]*)/i,
-              '</thead><tbody>$2</tbody>'
+              /(<thead>[\s\S]*?<\/thead>)([\s\S]*)/,
+              '$1<tbody>$2</tbody>'
             );
           }
           
-          return tableContent.includes('<thead>') ? match : `<table${tableAttrs}>${fixedContent}</table>`;
+          return /<thead>/i.test(fixedContent) ? fixedContent : match;
         }
         
         // For simple tables without rows, just wrap content
@@ -179,21 +179,21 @@ async function ensureUniqueLandmarks() {
     const landmarkRoles = ['banner', 'navigation', 'main', 'complementary', 'contentinfo'];
     let updatedContent = fileContent;
     
-    landmarkRoles.forEach((role) => {
+    landmarkRoles.forEach(role => {
       const rolePattern = new RegExp(`role="${role}"`, 'gi');
       const landmarks = updatedContent.match(rolePattern);
       if (landmarks && landmarks.length > 1) {
         // Add aria-label to make duplicate landmarks unique
         updatedContent = updatedContent.replace(
-          new RegExp(`<[a-z]+([^>]*)role="${role}"([^>]*)>`, 'gi'),
-          (match, attrsBefore, attrsAfter) => {
+          new RegExp(`<([a-z]+)([^>]*)role="${role}"([^>]*)>`, 'gi'),
+          (match, tag, attrsBefore, attrsAfter) => {
             const allAttrs = (attrsBefore || '') + (attrsAfter || '');
             // Check if aria-label already exists
             if (/aria-label/i.test(allAttrs)) {
               return match;
             }
             // Add unique aria-label
-            return match.replace('>', ` aria-label="${role}-${Date.now()}">`);
+            return match.replace('>', ` aria-label="${tag}-${role}">`);
           }
         );
       }
@@ -247,14 +247,13 @@ async function addSvgAccessibleNames() {
     for (const fileName of svgFiles) {
       const filePath = path.join('docs', fileName);
       
+      let fileContent;
       try {
-        const fileContent = await fs.readFile(filePath, 'utf8');
+        fileContent = await fs.readFile(filePath, 'utf8');
       } catch (err) {
         console.log(`SVG file ${fileName} not found, skipping`);
         continue;
       }
-
-      const fileContent = await fs.readFile(filePath, 'utf8');
 
       // Check if SVG already has role="img" or aria-label
       const hasRoleImg = /role="img"/i.test(fileContent);
@@ -284,7 +283,7 @@ async function addSvgAccessibleNames() {
 module.exports = {
   addLangAttribute,
   addMainLandmark,
-  addLangAttributeToFiles,
+  addLangToFiles,
   replaceHashLinksWithButtons,
   fixTableStructure,
   ensureUniqueLandmarks,

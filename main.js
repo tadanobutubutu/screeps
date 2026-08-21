@@ -1,2 +1,1 @@
-// Current main.js content (without HTML tags)
-// (Assuming the HTML tags are not part of the JavaScript code)
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

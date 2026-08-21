@@ -144,7 +144,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
 }
 
 export function debounce(func, wait) {
@@ -263,11 +263,6 @@ export const RequiredIndicator = () => {
   );
 };
 
-// Export all accessibility utilities
-export {
-  SkipLink,
-  LiveRegion,
-  Modal,
-  ErrorMessage,
-  RequiredIndicator
-};
+// Export all new accessibility-friendly components
+export { SkipLink, LiveRegion, Modal, ErrorMessage, RequiredIndicator };
+```

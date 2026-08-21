@@ -6,7 +6,7 @@
 const jest = require('jest'); // Update to v30 if needed
 
 // For React updates:
-import React from 'react'; // Update to v19 if needed
+const React = require('react'); // Update to v19 if needed
 
 // For ESLint updates:
 const eslint = require('eslint'); // Update to v10 if needed

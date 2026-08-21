@@ -1,6 +1,66 @@
+// TODO: Address accessibility issues from insight report:
+
+// Address accessibility issues from insight report
+// This function validates accessibility requirements
+const validateAccessibility = (component) => {
+  const checks = {
+    hasAriaLabel: !!component.ariaLabel,
+    hasRole: !!component.role,
+    hasTabIndex: component.tabIndex !== undefined,
+    hasKeyboardSupport: !!component.onKeyDown,
+    hasScreenReaderText: !!component.ariaDescribedBy,
+  };
+  
+  return Object.values(checks).every(check => check);
+};
+
+// Create accessible button component with full ARIA support
+const createAccessibleButton = (props) => {
+  return {
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': props.label || 'Button',
+    'aria-describedby': props.descriptionId,
+    'aria-pressed': props.isPressed || false,
+    'aria-disabled': props.disabled || false,
+    onKeyDown: props.onKeyDown || ((e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        props.onClick?.();
+      }
+    }),
+    ...props,
+  };
+};
+
+// Create accessible form input with label association
+const createAccessibleInput = (props) => {
+  return {
+    id: props.id,
+    'aria-label': props.ariaLabel,
+    'aria-describedby': props.ariaDescribedBy,
+    'aria-required': props.required || false,
+    'aria-invalid': props.invalid || false,
+    'aria-errormessage': props.errorId,
+    tabIndex: 0,
+    ...props,
+  };
+};
+
+// Create accessible modal/dialog
+const createAccessibleModal = (props) => {
+  return {
+    role: 'dialog',
+    'aria-modal': true,
+    'aria-labelledby': props.titleId,
+    'aria-describedby': props.descriptionId,
+    tabIndex: -1,
+    ...props,
+  };
+};
+
 // Current existing code (preserve all existing code, exports, and functions)
 
-// Add new functions or changes requested in the issue
 import express from 'express'; // update express to v5.0.0
 const expressApp = express();
 
@@ -58,21 +118,52 @@ class MyComponent extends React.Component {
 
   // Add ARIA attributes for improved accessibility
   static ariaRole = 'button'; // add custom ARIA role attribute
+  
+  // Accessibility helper method
+  handleKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.props.onClick?.();
+    }
+  };
 
   render() {
     // ... existing render method code
     // Add additional ARIA attributes to the component as needed
     return (
-      <button aria-label="My Button">
+      <button 
+        role="button"
+        aria-label={this.props.label || 'My Button'}
+        aria-describedby={this.props.descriptionId}
+        aria-pressed={this.props.isPressed || false}
+        aria-disabled={this.props.disabled || false}
+        tabIndex={this.props.disabled ? -1 : 0}
+        onKeyDown={this.handleKeyDown}
+        onClick={this.props.onClick}
+        className={this.props.className}
+        type={this.props.type || 'button'}
+      >
         {this.props.children}
       </button>
     );
   }
 }
 
+// Export accessibility utilities
+export { validateAccessibility, createAccessibleButton, createAccessibleInput, createAccessibleModal };
+
 export default MyComponent;
 
-// TODO: Address accessibility issues from insight report:
-// Please add the specific changes required to address the accessibility issues.
-// For example, add appropriate ARIA labels, tab indexes, etc.
-// Replace the TODO comment with the actual code changes after reviewing the insight report.
+// Accessibility improvements implemented:
+// - Added validateAccessibility function for accessibility validation
+// - Added createAccessibleButton helper for accessible button creation
+// - Added createAccessibleInput helper for accessible form inputs
+// - Added createAccessibleModal helper for accessible dialogs/modals
+// - Enhanced MyComponent with comprehensive ARIA attributes:
+//   * role="button" for semantic meaning
+//   * aria-label for screen reader description
+//   * aria-describedby for additional context
+//   * aria-pressed for toggle button state
+//   * aria-disabled for disabled state
+//   * tabIndex for keyboard navigation
+//   * handleKeyDown for keyboard activation (Enter/Space)

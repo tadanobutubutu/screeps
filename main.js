@@ -51,5 +51,13 @@ export function replaceFakeLinksWithButtons() {
   });
 }
 
+// Add a new function to fix React Language Attribute issue (REACT_015)
+export function addLanguageAttribute() {
+  const rootElement = document.querySelector('html');
+  if (rootElement) {
+    rootElement.setAttribute('lang', 'en'); // Assuming 'en' as default language
+  }
+}
+
 // Export all functions
-export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons };
+export { calculate, addAccessibleNameToSVG, addLangToHtmlRoot, addScopeToTableHeaders, replaceFakeLinksWithButtons, addLanguageAttribute };

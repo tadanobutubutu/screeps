@@ -258,6 +258,32 @@ describe('src/roles/miner', () => {
         expect(roomMock.visual.circle).toHaveBeenCalled();
     });
 
+
+    test('Mocking one of the core dependencies to throw a dummy error to verify logger coverage', () => {
+        const error = new Error('dummy mock error from core dependency');
+
+        // Mock getAssignedSource indirect call (e.g. by mocking cache.getSources to throw)
+        cache.getSources.mockImplementationOnce(() => {
+            throw error;
+        });
+
+        const creep = {
+            name: 'mock_error_miner',
+            memory: {},
+            room: roomMock,
+            pos: new RoomPosition(5, 5, 'W0N0'),
+            harvest: jest.fn(),
+            repair: jest.fn(),
+            say: jest.fn(),
+            store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            moveTo: jest.fn(),
+        };
+
+        miner.run(creep);
+
+        expect(logger.error).toHaveBeenCalledWith(`[${creep.name}] マイナーエラー`, error);
+    });
+
     test('エラー発生時にロガーがエラーを出力する', () => {
         const error = new Error('Test error');
         const source = {
@@ -587,6 +613,93 @@ describe('src/roles/miner', () => {
     });
 
     describe('_findSourceContainer', () => {
+
+        test('コンテナのキャッシュがnullの場合はnullを返す', () => {
+            const source = { id: 'src_null_cache', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            cache.getContainers.mockReturnValue([]);
+            cache.getSources.mockReturnValue([source]);
+            global.Game.getObjectById.mockReturnValue(source);
+            source.pos.getRangeTo = jest.fn().mockReturnValue(3);
+
+            const creep = {
+                name: 'miner_null_cache', memory: { sourceId: 'src_null_cache' },
+                room: roomMock, pos: new RoomPosition(5, 5, 'W0N0'),
+                harvest: jest.fn().mockReturnValue(global.OK), drop: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            const miner = require('../src/roles/miner');
+            miner.run(creep);
+            expect(cache.getContainers).toHaveBeenCalledTimes(1);
+
+            cache.getContainers.mockClear();
+            miner.run(creep);
+            expect(cache.getContainers).not.toHaveBeenCalled();
+        });
+
+        test('コンテナのキャッシュがあるがオブジェクトが存在しない場合、キャッシュを無効化して再スキャンする', () => {
+            const source = { id: 'src_stale_cache', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            const container = { id: 'cont_1', structureType: global.STRUCTURE_CONTAINER, pos: new RoomPosition(5, 5, 'W0N0'), hits: 50, hitsMax: 100 };
+
+            cache.getContainers.mockReturnValue([container]);
+            cache.getSources.mockReturnValue([source]);
+            global.Game.getObjectById.mockImplementation((id) => {
+                if (id === 'src_stale_cache') return source;
+                if (id === 'cont_1') return container;
+                return null;
+            });
+            source.pos.getRangeTo = jest.fn().mockReturnValue(1);
+
+            const creep = {
+                name: 'miner_stale_cache', memory: { sourceId: 'src_stale_cache' },
+                room: roomMock, pos: new RoomPosition(5, 5, 'W0N0'),
+                harvest: jest.fn().mockReturnValue(global.OK), drop: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            const miner = require('../src/roles/miner');
+            miner.run(creep);
+
+            global.Game.getObjectById.mockImplementation((id) => {
+                if (id === 'src_stale_cache') return source;
+                return null; // simulate container destruction
+            });
+
+            cache.getContainers.mockClear();
+            miner.run(creep);
+            expect(cache.getContainers).toHaveBeenCalledTimes(1);
+        });
+
+        test('コンテナのキャッシュがありオブジェクトが存在する場合、キャッシュからコンテナを返す', () => {
+            const source = { id: 'src_hit_cache', room: roomMock, pos: new RoomPosition(5, 5, 'W0N0') };
+            const container = { id: 'cont_hit', structureType: global.STRUCTURE_CONTAINER, pos: new RoomPosition(5, 5, 'W0N0'), hits: 50, hitsMax: 100 };
+
+            cache.getContainers.mockReturnValue([container]);
+            cache.getSources.mockReturnValue([source]);
+            global.Game.getObjectById.mockImplementation((id) => {
+                if (id === 'src_hit_cache') return source;
+                if (id === 'cont_hit') return container;
+                return null;
+            });
+            source.pos.getRangeTo = jest.fn().mockReturnValue(1);
+
+            const creep = {
+                name: 'miner_hit_cache', memory: { sourceId: 'src_hit_cache' },
+                room: roomMock, pos: new RoomPosition(5, 5, 'W0N0'),
+                harvest: jest.fn().mockReturnValue(global.OK), drop: jest.fn(), repair: jest.fn(),
+                store: { getFreeCapacity: jest.fn().mockReturnValue(50) },
+            };
+
+            const miner = require('../src/roles/miner');
+            miner.run(creep);
+            expect(cache.getContainers).toHaveBeenCalledTimes(1);
+
+            cache.getContainers.mockClear();
+            miner.run(creep);
+            expect(cache.getContainers).not.toHaveBeenCalled();
+            expect(creep.harvest).toHaveBeenCalledWith(source);
+        });
+
         test('範囲外のコンテナは無視する', () => {
             const source = {
                 id: 'src_container',

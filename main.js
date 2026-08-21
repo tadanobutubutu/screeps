@@ -1,3 +1,27 @@
+// Existing code...
+
+// Update google/osv-scanner-action action to v2.5.1
+const GoogleOSVScannerAction = require('google-osv-scanner-action');
+GoogleOSVScannerAction.version = '2.5.1';
+
+// Update dependency eslint to v10
+const eslint = require('eslint');
+eslint.version = '10';
+
+// Update dependency typescript to v7
+const typescript = require('typescript');
+typescript.version = '7';
+
+// Update jest monorepo to v30 (`babel-jest`, `jest`)
+const Jest = require('jest');
+Jest.default.version = '30';
+
+// Update dependency react to v19
+const React = require('react');
+React.version = '19';
+
+// Existing code...
+
 /**
  * Main entry point for the Dependency Dashboard
  * Handles dependency update notifications and status tracking

@@ -1,8 +1,6 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code (preserved as-is)
 // New accessibility improvements
+
 /**
  * Adds proper language attribute to the HTML element for screen readers
  * Fixes REACT_015: React Language Attribute
@@ -139,5 +137,3 @@ document.addEventListener('DOMContentLoaded', () => {
   ensureUniqueLandmarks();
   replaceFakeLinks();
 });
-```
-I have integrated the changes from both branches, including the unique landmarks fix (REACT\_025) from the origin/main branch. The resolved file does not introduce any syntax errors and preserves comments and style as much as possible.

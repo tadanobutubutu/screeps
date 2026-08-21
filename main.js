@@ -5,7 +5,7 @@ import React from 'react';
 const Layout = ({ children }) => {
   return (
     <html lang="en">
-      <div>
+      <main>
         {/* ... other components ... */}
         <svg 
           width="16" 
@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
         </svg>
         {/* ... other components ... */}
         {children}
-      </div>
+      </main>
     </html>
   );
 };

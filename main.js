@@ -63,7 +63,18 @@ export function validateSVGAccessibility(svgProps) {
   return { compliant: isCompliant, issues };
 }
 
+/**
+ * Ensures the <html> element has a lang attribute for screen reader support.
+ * Returns default language tag 'en' if not specified.
+ * @param {string} [lang='en'] - The document language code
+ * @returns {string} Language attribute value to apply to <html>
+ */
+export function getHtmlLangAttribute(lang = 'en') {
+  return lang;
+}
+
 export default {
   getSVGAriaProps,
-  validateSVGAccessibility
+  validateSVGAccessibility,
+  getHtmlLangAttribute
 };

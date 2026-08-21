@@ -1,10 +1,4 @@
 // Current content of main.js
-// ... [Other code] ...
-
-// Assuming the code is using ReactDOM.render() to render the React component
-// to the DOM, you would add the lang attribute to the <html> tag by wrapping the
-// ReactDOM.render call with a <html> tag that includes the lang attribute.
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -30,4 +24,9 @@ const htmlElement = (
 
 ReactDOM.render(htmlElement, document.getElementById('root'));
 
-// ... [Rest of main.js] ...
+// Add the following import and default export as requested
+// This allows other modules to import the generated HTML structure easily
+import './index.html';
+
+// Do not remove the existing export
+export default App;

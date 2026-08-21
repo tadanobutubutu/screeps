@@ -166,4 +166,42 @@ export {
   SettingsIcon  
 };
 
+// Missing functions added as requested
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+export function formatDate(date, options = {}) {
+  const defaultOptions = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    ...options
+  };
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+}
+
+export function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export function throttle(func, limit) {
+  let inThrottle;
+  return function executedFunction(...args) {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
 // ... rest of the main.js content ...

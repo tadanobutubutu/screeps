@@ -1,10 +1,3 @@
-tsx
-// Assuming the rest of the Dashboard.tsx file is here and that there are multiple <main> elements
-
-// Replace the existing <main> elements with a single <main> element
-// and move the content of the other <main> elements into <section> or <article> tags.
-
-// Example of how to refactor the file:
 import React from 'react';
 
 const Dashboard: React.FC = () => {
@@ -24,10 +17,9 @@ const Dashboard: React.FC = () => {
 
   return (
     <div>
-      {/* Assuming the error state and success state are mutually exclusive */}
-      {error && (
-        <section>
-          <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        {error && (
+          <section>
             <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
             <pre
               tabIndex={0}
@@ -43,12 +35,12 @@ const Dashboard: React.FC = () => {
               {error}
             </pre>
             {/* ... rest of the error state content */}
-          </main>
+          </section>
+        )}
+        {/* ... other content */}
+        <section>
+          {/* ... content for the main state */}
         </section>
-      )}
-      {/* ... other content */}
-      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
-        {/* ... content for the main state */}
       </main>
       {/* ... rest of the component */}
     </div>

@@ -34,7 +34,20 @@ function renderDependencyDashboard() {
   const mainContent = document.createElement('main');
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
-      <!-- Dependency dashboard content goes here -->
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <!-- ... other headers ... -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- table rows go here -->
+        </tbody>
+      </table>
     </div>
   `;
   document.body.appendChild(mainContent);

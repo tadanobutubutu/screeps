@@ -10,15 +10,15 @@
 
     // Additional code to add accessible names to SVGs
 
-    // Function to add aria-label to SVGs for accessibility
-    function addAccessibleNameToSVGs(svgString, label) {
+    // Function to add accessible names to SVGs for accessibility
+    function addAccessibleNameToSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
         const svgRegex = /<svg[\s\S]*?<\/svg>/i;
         const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
         const textRegex = /<text[^>]*>(.*?)<\/text>/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgString.replace(svgRegex, (match) => {
+        return svgData.replace(svgRegex, (match) => {
             // Check if the SVG already contains a title
             let hasTitle = titleRegex.test(match);
             let hasText = textRegex.test(match);
@@ -36,19 +36,21 @@
         });
     }
 
-    // Function to update icons with accessible names
+    // Export the accessibility function
+    module.exports.addAccessibleNameToSvg = addAccessibleNameToSvg;
+
+    // Function to update icons with accessible name
     function updateIcons(icons, label) {
         const updatedIcons = {};
         for (const key in icons) {
             const svgData = icons[key];
-            const accessibleSvg = addAccessibleNameToSVGs(svgData, label);
+            const accessibleSvg = addAccessibleNameToSvg(svgData, label);
             updatedIcons[key] = accessibleSvg;
         }
         return updatedIcons;
     }
 
     // Export the new functions
-    module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
     module.exports.updateIcons = updateIcons;
 
     // Other code...

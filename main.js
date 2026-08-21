@@ -1,6 +1,1 @@
-tsx
-import icons from './icons';
-
-// ... existing code ...
-
-<img src={icons.icon} alt="Insight Code Logo" aria-hidden="true"/>
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

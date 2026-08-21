@@ -1,5 +1,8 @@
 // Accessibility improvements implemented in this file
-// Address accessibility issues from insight report
+// TODO: Address accessibility issues from insight report:
+// - REACT_015: Add lang attribute to HTML element
+// Fix language for the HTML root element
+
 const validateAccessibility = (component) => {
     const checks = {
         hasAriaLabel: !!component.ariaLabel,
@@ -35,9 +38,9 @@ const mainElement = ...
 // Add new function: addMainElementAriaAttributes
 const addMainElementAriaAttributes = () => {
     if (mainElement) {
-        mainElement.setAttribute('role', 'application');
-        ... 'Main Application');
-        ... 0);
+        mainElement.setAttribute('role', 'main');
+        mainElement.setAttribute('aria-label', 'Main Application');
+        mainElement.setAttribute('tabindex', 0);
     }
 };
 
@@ -51,19 +54,19 @@ fixFakeLinkIssue();
 // Fix for REACT_025: Ensure only one main landmark exists
 const ensureUniqueLandmarks = () => {
     // Query all main elements in the document
-    const mainElements = document.querySelectorAll('main');
+    const mainElements = ...
     
     if (mainElements.length > 1) {
         // Keep the first main element as the primary landmark
         // Convert additional main elements to section elements with appropriate aria-label
         for (let i = 1; i < mainElements.length; i++) {
             const mainElement = mainElements[i];
-            const section = document.createElement('section');
+            const section = ...
             section.setAttribute('aria-label', 'Secondary content region');
             
             // Preserve all child content
-            while (mainElement.firstChild) {
-                section.appendChild(mainElement.firstChild);
+            while ... {
+                ...
             }
             
             // Preserve any existing id or class attributes
@@ -72,7 +75,7 @@ const ensureUniqueLandmarks = () => {
             }
             
             // Replace the main element with section in the DOM
-            mainElement.parentNode.replaceChild(section, mainElement);
+            ... mainElement);
         }
     }
 };
@@ -81,6 +84,16 @@ const ensureUniqueLandmarks = () => {
 const fixLandmarkIssues = () => {
     ensureUniqueLandmarks();
     // Additional landmark fixes can be added here
+};
+
+// Fix for REACT_015: Add lang attribute to HTML element
+const addLangAttribute = () => {
+    if (typeof document !== 'undefined' && document.documentElement) {
+        const htmlElement = document.documentElement;
+        if (!htmlElement.hasAttribute('lang')) {
+            htmlElement.setAttribute('lang', 'en');
+        }
+    }
 };
 
 // existing express & Jest upgrades remain unchanged

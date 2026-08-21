@@ -1,6 +1,6 @@
 const path = require('path');
 const { Worker } = require('worker_threads');
-const { generateDependencyGraph } = require('./dependencyGraph');
+const { generateDependencyGraph } = require('./dependency-graph');
 const fs = require('fs');
 
 async function main() {
@@ -54,10 +54,10 @@ async function updateReactToV19() {
 async function addScopeToTableHeaders() {
     try {
         console.log('Adding scope attribute to table headers for accessibility...');
-        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const filePath = path.join(__dirname, 'docs', 'index.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
         const updatedContent = fileContent.replace(/<th([^>]*)>/g, (match, attrs) => {
-            if (attrs.includes('scope')) {
+            if (/\bscope\s*=/i.test(attrs)) {
                 return match;
             }
             return `<th${attrs} scope="col">`;
@@ -77,7 +77,7 @@ async function addScopeToTableHeaders() {
  * @returns {string} - Modified HTML with a language attribute
  */
 function addLangAttribute(content) {
-  return content.replace(/<html(\s[^>]*)?>/, (match, attrs) => {
+  return content.replace(/<html([^>]*)>/gi, (match, attrs) => {
     if (attrs && /\slang\s*=/i.test(attrs)) {
       return match;
     }
@@ -91,11 +91,11 @@ function addLangAttribute(content) {
 async function addMainLandmark() {
     try {
         console.log('Adding <main> landmark to HTML content for accessibility...');
-        const filesToUpdate = ['docs/dependency-graph.html', 'docs/index.html'];
+        const filesToUpdate = [path.join(__dirname, 'docs', 'index.html')];
         for (const filePath of filesToUpdate) {
             const fileContent = fs.readFileSync(filePath, 'utf8');
-            const updatedContent = addLangAttribute(fileContent);
-            const newFileContent = `<main>` + updatedContent.replace(/<\/html>/, '</main></html>') + '</main>';
+            const updatedContent = fileContent.replace(/<\/html>/i, '</main></html>');
+            const newFileContent = `<main>` + fileContent.replace(/<html[^>]*>/i, (match) => match) + `</main>` + fileContent.split(/<html[^>]*>/i)[1];
             fs.writeFileSync(filePath, newFileContent);
             console.log(`Main landmark added to ${filePath}`);
         }
@@ -112,10 +112,14 @@ async function addMainLandmark() {
 async function replaceHashLinksWithButtons() {
     try {
         console.log('Replacing hash links with buttons for better accessibility...');
-        const filePath = path.join(__dirname, 'docs', 'dependency-graph.html');
+        const filePath = path.join(__dirname, 'docs', 'index.html');
         const fileContent = fs.readFileSync(filePath, 'utf8');
-        const updatedContent = fileContent.replace(/<a\s+id="unrotate"\s+href="#"\s*>(.*?)<\/a>/g, (match, text) => {
-            return `<button id="unrotate">${text}</button>`;
+        const updatedContent = fileContent.replace(/<a\s+([^>]*?)href="#"([^>]*?)>([^<]*)<\/a>/gi, (match, attrsBefore, attrsAfter, text) => {
+            const idMatch = attrsBefore.match(/id="([^"]*)"/) || attrsAfter.match(/id="([^"]*)"/);
+            const idAttr = idMatch ? ` id="${idMatch[1]}"` : '';
+            const classMatch = attrsBefore.match(/class="([^"]*)"/) || attrsAfter.match(/class="([^"]*)"/);
+            const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
+            return `<button${idAttr}${classAttr}>${text}</button>`;
         });
         fs.writeFileSync(filePath, updatedContent);
         console.log('Hash links replaced with buttons successfully.');

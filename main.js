@@ -42,7 +42,7 @@ export const FakeLinkAsButton = ({ href, onClick, children, ...props }) => {
   // If href starts with # or is JavaScript-dependent, use button
   if (href?.startsWith('#') || href === '') {
     return (
-      <button type="button" onClick={onClick} {...props}>
+      <button type="button" onClick={onClick} aria-label={typeof children === 'string' ? children : undefined} {...props}>
         {children}
       </button>
     );
@@ -71,7 +71,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} {...{ cell }}>
+              <td key={cellIndex} headers={`header-${cellIndex}`}>
                 {cell}
               </td>
             ))}
@@ -131,7 +131,7 @@ export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIco
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return ... 11;
+  return `${prefix}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -141,7 +141,7 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new ... ...;
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
 }
 
 export function debounce(func, wait) {
@@ -234,7 +234,8 @@ export const Modal = ({ isOpen, onClose, title, children }) => {
         zIndex: 1000
       }}
     >
-      <h2 {...children}</h2>
+      <h2 id="modal-title">{title}</h2>
+      <div>{children}</div>
       <button type="button" onClick={onClose} aria-label="Close dialog">
         Close
       </button>

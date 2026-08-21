@@ -1,9 +1,10 @@
+// Address accessibility issues from insight report
 // Existing imports or code
 // ... [original main.js content] ...
 
 // Wrap the primary content in <main> for accessibility
 primaryContent = `
-  <main>
+  <main id="main-content" role="main">
     ...
   </main>
 `;
@@ -23,7 +24,7 @@ document.getElementById('unrotate').addEventListener('click', function () {
 
 // Add scope="col" to all <th> elements for accessibility
 // This addresses the REACT_027 insight code issue
-const tableHeaders = document.querySelectorAll('th');
+const tableHeaders = document.querySelectorAll('table th');
 tableHeaders.forEach(th => {
   th.setAttribute('scope', 'col');
 });

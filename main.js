@@ -1,25 +1,24 @@
-// Assuming that 'import React' and 'ReactDOM' are defined elsewhere in your project
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-// Import your layout components or components that render the primary content
 import DashboardLayout from './dashboard/app/layout';
-import DocsDependencyGraph from ...
+import DocsDependencyGraph from './docs/dependency-graph';
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 
-// Update your render logic to wrap the primary content with <main>
 ReactDOM.render(
   <React.StrictMode>
     <DashboardLayout>
       <main>
         {/* Dashboard primary content */}
+        <div id="my-added-dashboard-content"></div>
       </main>
     </DashboardLayout>
 
     <DocsDependencyGraph>
       <main>
         {/* Docs Dependency Graph primary content */}
+        <div id="my-added-docs-dependency-graph-content"></div>
       </main>
     </DocsDependencyGraph>
 
@@ -32,10 +31,11 @@ ReactDOM.render(
     <AppLayout>
       <main>
         {/* App Layout primary content */}
+        <div id="my-added-app-layout-content"></div>
       </main>
     </AppLayout>
   </React.StrictMode>,
-  ...
+  document.getElementById('root')
 );
 
 // ... rest of your main.js file ...

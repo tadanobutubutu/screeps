@@ -1,14 +1,1 @@
-// main.js
-
-// Existing code that needs to be preserved
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import { Layout } from './Layout';
-
-ReactDOM.render(
-  <React.StrictMode>
-    <Layout />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

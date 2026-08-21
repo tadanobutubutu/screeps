@@ -315,7 +315,4 @@ const ensureUniqueLandmarks = () => {
 const fixLandmarkIssues = () => {
     ensureUniqueLandmarks();
     addMainElementAriaAttributes();
-    if (typeof document !== 'undefined') {
-        // Fix missing or
-    }
-}
+};

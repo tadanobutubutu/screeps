@@ -11,27 +11,35 @@
     // Additional code to add accessible names to SVGs
 
     // Function to add accessible name to SVGs for accessibility
-    function addAccessibleSvg(svgContent, label) {
+    function addAccessibleSvg(svgData, label) {
         // Regex to find the SVG tag and the content within it
-        const svgRegex = /<svg[\s\S]*?<\/svg>/i;
-        const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
-        const textRegex = /<text[^>]*>(.*?)<\/text>/i;
+        const svgRegex = /<svg[\s\S]*?<\/svg>/gi;
+        const titleRegex = /<title[^>]*>.*?<\/title>/i;
+        const textRegex = /<text[^>]*>([\s\S]*?)<\/text>/i;
 
         // Replace the SVG content with an updated version that includes a title element
-        return svgContent.replace(svgRegex, (match) => {
+        return svgData.replace(svgRegex, function (match) {
             // Check if the SVG already contains a title
-            let hasTitle = titleRegex.test(match);
-            let hasText = textRegex.test(match);
+            const hasTitle = titleRegex.test(match);
+            const textMatch = textRegex.exec(match);
 
             // Add a title element if it doesn't already exist and if the SVG contains text
-            if (!hasTitle && hasText) {
+            if (!hasTitle && textMatch) {
                 // Replace the SVG content with a title element wrapping the existing text
-                return match.replace(textRegex, (textMatch) => {
-                    return `<title>${label}</title>${textMatch}`;
+                return match.replace(textRegex, function (textMatch, textContent) {
+                    return `<title>${label}</title><text>${textContent}</text>`;
                 });
             }
 
-            // If the SVG doesn't contain text or already has a title, return the original match
+            // If the SVG doesn't contain text or already has a title, add aria-label to the SVG tag
+            if (!hasTitle) {
+                // Add aria-label attribute to the svg element if it doesn't have one
+                if (!/aria-label/i.test(match)) {
+                    return match.replace('<svg', `<svg aria-label="${label}"`);
+                }
+            }
+
+            // If the SVG already has a title, return the original match
             return match;
         });
     }
@@ -49,12 +57,15 @@
 
     // Function to update the 'rotate back' link with a button for accessibility
     function updateRotateBackLink() {
-        const rotateBackLink = document.getElementById('unrotate');
+        const rotateBackLink = document.querySelector('.rotate-back');
         if (rotateBackLink) {
             // Replace the anchor with a button
             const button = document.createElement('button');
             button.textContent = 'rotate back';
             button.type = 'button'; // Specify the button type to avoid form submission
+            button.addEventListener('click', function() {
+                history.back();
+            });
             rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
         }
     }
@@ -65,7 +76,9 @@
     exports.updateRotateBackLink = updateRotateBackLink;
 
     // Call the function to update the 'rotate back' link on page load
-    window.onload = updateRotateBackLink;
+    if (typeof window !== 'undefined') {
+        window.addEventListener('load', updateRotateBackLink);
+    }
 
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

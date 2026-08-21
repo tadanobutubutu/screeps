@@ -101,6 +101,7 @@ function createFaviconSVG() {
       focusable: 'false'
     },
     React.createElement('title', null, 'Bug favicon'),
+    React.createElement('desc', null, 'Bug icon for website'),
     React.createElement('text', { y: '.9em', fontSize: '90' }, '🐛')
   );
 }

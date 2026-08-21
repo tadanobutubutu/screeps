@@ -3,122 +3,197 @@
 // Function to create main HTML with main landmark (improves accessibility)
 export function createMainHTML({ children, id }) {
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <!-- existing head content -->
-      </head>
-      <body>
-        <html lang="en">
-          <head>
-            <!-- existing head content -->
-          </head>
-          <body>
-            <main id="${id}" aria-label="Main content">
-              ${children}
-            </main>
-            <!-- existing body content -->
-          </body>
-        </html>
-      </body>
-    </html>
+    <main id="${id}" aria-label="Main content">
+      ${children}
+    </main>
   `;
 }
 
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
-export function fixTableHeaders(html) {
+export function fixTableStructure(html) {
   return html.replace(/<th([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
     const hasScope = existingAttrs.includes('scope');
     const scopeAttr = hasScope ? '' : ' scope="col"';
-    const attrString = existingAttrs ? existingAttrs : '';
+    const attrString = existingAttrs;
     return `<th${attrString}${scopeAttr}>`;
   });
 }
 
 // Function to add lang attribute to HTML element
 export function addLangAttribute(html) {
-  return html.replace(/<html([^>]*)>/, (match, attrs) => {
-    return `<html lang="en"${attrs}>`;
+  return html.replace(/<html([^>]*)>/g, (match, attrs) => {
+    const hasLang = attrs && attrs.includes('lang=');
+    if (hasLang) {
+      return match;
+    }
+    return `<html lang="en"${attrs ? attrs : ''}>`;
   });
 }
 
 // Function to add/fix landmark issues
 export function addLandmarks(html) {
-  return html.replace(/<main([^>]*)>/g, (match, attrs) => {
+  let result = html;
+  
+  // Add main landmark with proper id and aria-label
+  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    return `<main id="main" role="main"${existingAttrs}>`;
-  }).replace(/<div([^>]*)>/g, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    return `<div role="region"${existingAttrs}>`;
-  }).replace(/<section([^>]*)>/g, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    return `<section role="region"${existingAttrs}>`;
-  }).replace(/<article([^>]*)>/g, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    return `<article role="article"${existingAttrs}>`;
-  }).replace(/<nav([^>]*)>/g, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    return `<nav role="navigation"${existingAttrs}>`;
+    const hasId = existingAttrs.includes('id=');
+    const hasAriaLabel = existingAttrs.includes('aria-label=');
+    let newAttrs = existingAttrs;
+    if (!hasId) {
+      newAttrs += ' id="main"';
+    }
+    if (!hasAriaLabel) {
+      newAttrs += ' aria-label="Main content"';
+    }
+    return `<main${newAttrs}>`;
   });
+  
+  // Fix div landmarks
+  result = result.replace(/<div([^>]*)class="([^"]*)header([^"]*)"([^>]*)>/g, (match, attrs1, c1, c2, attrs2) => {
+    const existingAttrs = (attrs1 || '') + (attrs2 || '');
+    const hasRole = existingAttrs.includes('role=');
+    if (!hasRole) {
+      return `<div${attrs1 || ''} class="${c1}${c2}" role="banner"${attrs2 || ''}>`;
+    }
+    return match;
+  });
+  
+  // Fix section landmarks
+  result = result.replace(/<section([^>]*)>/g, (match, attrs) => {
+    const existingAttrs = attrs || '';
+    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    if (!hasAriaLabel) {
+      const idMatch = existingAttrs.match(/id="([^"]*)"/);
+      const sectionId = idMatch ? idMatch[1] : '';
+      return `<section${existingAttrs} aria-label="${sectionId || 'Section'}">`;
+    }
+    return match;
+  });
+  
+  // Fix article landmarks
+  result = result.replace(/<article([^>]*)>/g, (match, attrs) => {
+    const existingAttrs = attrs || '';
+    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    if (!hasAriaLabel) {
+      return `<article${existingAttrs} role="article">`;
+    }
+    return match;
+  });
+  
+  // Fix nav landmarks
+  result = result.replace(/<nav([^>]*)>/g, (match, attrs) => {
+    const existingAttrs = attrs || '';
+    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    if (!hasAriaLabel) {
+      return `<nav${existingAttrs} aria-label="Navigation">`;
+    }
+    return match;
+  });
+  
+  return result;
 }
 
 // Function to add accessible names to SVGs
-export function addAccessibleNamesToSVGs(html) {
-  return html.replace(/<svg([^>]*)>/g, (match, attrs) => {
+export function addSvgAccessibleNames(html) {
+  let result = html;
+  
+  // Add role and aria-label to svg elements
+  result = result.replace(/<svg([^>]*)>/g, (match, attrs) => {
     const existingAttrs = attrs || '';
-    return `<svg${existingAttrs} aria-labelledby="svg-title">`;
-  }).replace(/<title([^>]*)>(.*?)<\/title>/g, (match, attrs, content) => {
-    return `<title id="svg-title">${content}</title>`;
+    const hasRole = existingAttrs.includes('role=');
+    const hasAriaLabel = existingAttrs.includes('aria-label=');
+    let newAttrs = existingAttrs;
+    if (!hasRole) {
+      newAttrs += ' role="img"';
+    }
+    if (!hasAriaLabel) {
+      newAttrs += ' aria-label="Icon"';
+    }
+    return `<svg${newAttrs}>`;
   });
+  
+  // Add title element inside SVGs if not present
+  result = result.replace(/(<svg([^>]*)>)(?!.*<title)/gi, (match, openTag, attrs) => {
+    return `${openTag}<title>SVG Image</title>`;
+  });
+  
+  return result;
 }
 
 // Function to ensure unique landmarks
 export function ensureUniqueLandmarks(html) {
-  const landmarks = ['main', 'region', 'article', 'navigation'];
+  const landmarks = ['main', 'region', 'article', 'navigation', 'header', 'footer', 'aside'];
   const htmlArray = html.split('</');
   let isLandmarkTag = false;
   let newHtmlArray = [];
-
+  let counter = {};
+  
+  // Initialize counters for each landmark type
+  landmarks.forEach(lm => {
+    counter[lm] = 0;
+  });
+  
   htmlArray.forEach((tag, index) => {
-    if (landmarks.includes(tag.replace('</', ''))) {
+    if (tag.includes('<') && landmarks.some(lm => tag.includes(`<${lm}`))) {
       isLandmarkTag = true;
-      if (newHtmlArray.length === 0) {
-        newHtmlArray.push('</');
+      let tagToCheck = tag.toLowerCase();
+      for (const lm of landmarks) {
+        if (tagToCheck.includes(`<${lm}`)) {
+          counter[lm]++;
+          if (counter[lm] > 1) {
+            const uniqueId = `${lm}-${counter[lm]}`;
+            // Add unique id to the opening tag
+            if (!tag.includes('id="')) {
+              newHtmlArray.push(tag.replace(new RegExp(`<${lm}`, 'i'), `<${lm} id="${uniqueId}"`));
+            } else {
+              newHtmlArray.push(tag);
+            }
+          } else {
+            newHtmlArray.push(tag);
+          }
+          break;
+        }
       }
     } else {
       if (isLandmarkTag) {
-        newHtmlArray.push(` id="${tag.replace('</', '')}Unique"`); // Ensure unique ID
+        newHtmlArray.push(tag);
+      } else {
+        newHtmlArray.push(tag);
       }
-      newHtmlArray.push(tag);
       isLandmarkTag = false;
     }
   });
-
-  return newHtmlArray.join('');
+  
+  return newHtmlArray.join('</');
 }
 
 // Function to fix fake link issues
-export function fixFakeLinkIssues(html) {
-  return html.replace(/<a([^>]*)>(.*?)<\/a>/g, (match, attrs, content) => {
-    const href = attrs.match(/href="([^"]*)"/);
-    if (href && href[1].startsWith('#')) {
+export function fixFakeLinks(html) {
+  return html.replace(/<a([^>]*)>([^<]*)<\/a>/g, (match, attrs, content) => {
+    const hrefMatch = attrs.match(/href="([^"]*)"/);
+    const href = hrefMatch ? hrefMatch[1] : '';
+    const isFakeLink = href && (href === '#' || href === '' || href.startsWith('javascript:'));
+    
+    if (isFakeLink) {
       // If it's a fake link, replace it with a span
-      return `<span${attrs}>${content}</span>`;
+      const newAttrs = attrs.replace(/href="[^"]*"/, '');
+      return `<span${newAttrs}>${content}</span>`;
     }
     return match;
   });
 }
 
 // Function to fix 1 fake link issue
-export function fixFakeLinkIssue(html) {
-  return fixFakeLinkIssues(html); // Reuse existing function
+export function fixSpecificFakeLink(html) {
+  return fixFakeLinks(html);
 }
 
 // Example of how to use the new function to create updated html for a specific page
 export function createIndexHTML() {
-  return addLangAttribute(fixTableHeaders(addLandmarks(addAccessibleNamesToSVGs(ensureUniqueLandmarks(fixFakeLinkIssues(createMainHTML({
+  return addLandmarks(addSvgAccessibleNames(ensureUniqueLandmarks(fixFakeLinks(addLangAttribute(createMainHTML({
     children: `
       <div class="container">
           <h2>Quality & Metrics Reports</h2>
@@ -133,15 +208,15 @@ export function createIndexHTML() {
       </div>
     `,
     id: 'index',
-  })))));
+  })))))));
 }
 
 // Example of how to use the new function to create updated html for another specific page
 export function createDependencyGraphHTML(updatedTableContent) {
-  return addLangAttribute(fixTableHeaders(addLandmarks(addAccessibleNamesToSVGs(ensureUniqueLandmarks(fixFakeLinkIssues(createMainHTML({
+  return addLandmarks(addSvgAccessibleNames(ensureUniqueLandmarks(fixFakeLinks(addLangAttribute(fixTableStructure(createMainHTML({
     children: updatedTableContent,
     id: 'dependency_graph',
-  }))))));
+  }))))))));
 }
 
 // ... Rest of your existing code ...

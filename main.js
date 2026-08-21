@@ -30,11 +30,11 @@ function addMainToHTML(content) {
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (html.includes('lang="')) {
+  if (/<html[^>]*lang=["'][^"']*["']/i.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
-  return html.replace(/<html([^>]*)>/, '<html$1 lang="en">');
+  return html.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
 }
 
 // Add proper table structure
@@ -159,7 +159,7 @@ function createSkipToContentLink() {
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
   if (typeof content === 'string') {
-    const hasMain = content.includes('<main') || content.includes('</main>');
+    const hasMain = /<main[\s\S]*?>[\s\S]*?<\/main>/i.test(content);
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
     // For React elements, we'll need to check if they contain a main element
@@ -167,6 +167,51 @@ function ensureSingleMainLandmark(content) {
     return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
   }
   return content;
+}
+
+// Create a table header cell with proper scope attribute (fix for REACT_027)
+function createTableHeaderCell(content, scope = 'col') {
+  return React.createElement('th', { scope: scope }, content);
+}
+
+// Create column header cell (scope="col")
+function createColumnHeader(content, props = {}) {
+  return React.createElement('th', { scope: 'col', ...props }, content);
+}
+
+// Create row header cell (scope="row")
+function createRowHeader(content, props = {}) {
+  return React.createElement('th', { scope: 'row', ...props }, content);
+}
+
+// Create a table row with properly scoped headers
+function createTableRowWithHeaders(headers, isHeaderRow = true, rowProps = {}) {
+  return React.createElement(
+    'tr',
+    rowProps,
+    headers.map((header, index) =>
+      React.createElement(
+        isHeaderRow ? 'th' : 'td',
+        { key: index, scope: isHeaderRow ? 'col' : undefined },
+        header
+      )
+    )
+  );
+}
+
+// Create table header with properly scoped th elements
+function createTableHead(headers) {
+  return React.createElement(
+    'thead',
+    null,
+    React.createElement(
+      'tr',
+      null,
+      headers.map((header, index) =>
+        React.createElement('th', { key: index, scope: 'col' }, header)
+      )
+    )
+  );
 }
 
 // Export the new functions for use in other files
@@ -177,12 +222,18 @@ module.exports = {
   createAccessibleTable,
   createLandmarkStructure,
   createAccessibleSVG,
-  createFaviconSVG, // New export for favicon SVG
+  createFaviconSVG,
   createAccessibleLink,
   createAccessibleForm,
   createAccessibleButton,
   createSkipToContentLink,
-  ensureSingleMainLandmark, // New export for ensuring single main landmark
+  ensureSingleMainLandmark,
+  // New exports for table accessibility (REACT_027 fix)
+  createTableHeaderCell,
+  createColumnHeader,
+  createRowHeader,
+  createTableRowWithHeaders,
+  createTableHead,
   // Preserve all existing exports
   jest,
   React,

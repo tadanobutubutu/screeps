@@ -23,9 +23,9 @@ export default function Main() {
     </p>
   );
 
-  const tableTitle = heading('table-title', 'File Overview Table');
-  const tableDesc = desc('The table below provides an overview of source code files.');
-  const categoryHeading = (category) => ... category);
+  const categoryHeading = (category) => (
+    <h3 id={`category-${category.toLowerCase()}`}>{category}</h3>
+  );
 
   // Initialize the React Table hook
   const {
@@ -43,22 +43,22 @@ export default function Main() {
         </header>
         <main role="main" aria-label="Main content">
           <section aria-label="Metadata section">
-            <>{tableTitle}</>
-            <>{tableDesc}</>
+            {tableTitle}
+            {tableDesc}
           </section>
           <section aria-label="Categories section">
             {columns.map(({ Header: category }, idx) => (
-              ...
+              <>{categoryHeading(category)}</>
             ))}
           </section>
           <section aria-label="Table section">
             <Table>
               <caption>The table below provides an overview of source code files.</caption>
               <thead>
-                ... => (
-                  <tr ...
-                    ... => (
-                      <th ... scope="col">
+                {getHeaderGroups().map(headerGroup => (
+                  <tr {...headerGroup.getHeaderGroupProps()}>
+                    {headerGroup.headers.map(column => (
+                      <th {...column.getHeaderProps()} scope="col">
                         {column.render('Header')}
                       </th>
                     ))}

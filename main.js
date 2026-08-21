@@ -42,8 +42,3 @@ module.exports = {
   bootstrap,
   // Preserve any existing exports
 };
-
-// Auto-bootstrap if running directly
-if (require.main === module) {
-  bootstrap();
-}

@@ -65,4 +65,27 @@ export function NestedComponent({ content }) {
   );
 }
 
-export default SomeComponent;
+// Image rotation component
+export function ImageRotator({ onRotate }) {
+  // ... existing code for rotation logic ...
+  
+  return (
+    <div className="image-rotator">
+      {/* Image display logic */}
+      
+      {/* FIX: Changed from <a href="#"> to <button> for proper accessibility */}
+      <button id="unrotate" onClick={onRotate}>
+        rotate back
+      </button>
+    </div>
+  );
+}
+
+// Main application component
+export default function App() {
+  return (
+    <div>
+      <ImageRotator onRotate={() => {}} />
+    </div>
+  );
+}

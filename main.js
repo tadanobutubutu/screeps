@@ -28,6 +28,9 @@ const htmlElement = (
   </html>
 );
 
-ReactDOM.render(htmlElement, document.getElementById('root'));
+... ...
 
 // ... [Rest of main.js] ...
+
+// Export the App component and any required modules
+export { App, React, ReactDOM };

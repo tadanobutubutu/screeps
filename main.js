@@ -24,13 +24,18 @@
     var mainElement = document.querySelector('main');
     if (!mainElement) {
       // Fallback: look for common main content containers
-      mainElement = document.querySelector('[role="main"]');
+      mainElement = document.querySelector('[role="main"]') ||
+                    document.querySelector('#main') ||
+                    document.querySelector('#main-content') ||
+                    document.querySelector('.main-content') ||
+                    document.querySelector('.main');
     }
     if (!mainElement) {
       // Fallback: look for common class or id patterns
-      mainElement = document.querySelector('.main-content') || 
-                    document.querySelector('#main') ||
-                    document.querySelector('.content');
+      mainElement = document.querySelector('.content') || 
+                    document.querySelector('#content') ||
+                    document.querySelector('.page-content') ||
+                    document.querySelector('.app-content');
     }
     return mainElement;
   }
@@ -53,18 +58,19 @@
   function fixSvgAccessibility() {
     var svgs = document.querySelectorAll('svg');
     svgs.forEach(function(svg) {
-      if (!svg.getAttribute('aria-hidden') && !svg.querySelector('title')) {
+      if (!svg.getAttribute('aria-hidden') && !svg.getAttribute('role')) {
         svg.setAttribute('aria-hidden', 'true');
       }
     });
   }
 
   function fixFakeLinkIssue() {
-    var fakeLinks = document.querySelectorAll('[role="button"], [onclick]');
+    var fakeLinks = document.querySelectorAll('[onclick]');
     fakeLinks.forEach(function(link) {
       if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
-        if (!link.getAttribute('tabindex')) {
-          link.setAttribute('tabindex', '0');
+        var href = link.getAttribute('href');
+        if (href && href !== '#') {
+          link.setAttribute('role', 'link');
         }
       }
     });

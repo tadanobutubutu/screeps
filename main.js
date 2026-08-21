@@ -169,6 +169,24 @@ function ensureSingleMainLandmark(content) {
   return content;
 }
 
+// Add function to fix React layout files to include main landmark
+function fixReactLayout(content, filePath = '') {
+  // For Next.js/React layout files, ensure they wrap children in main
+  if (filePath.includes('layout.tsx')) {
+    return wrapWithMain(content);
+  }
+  return content;
+}
+
+// Add function to fix HTML files to include main landmark
+function fixHTMLFile(content, filePath = '') {
+  // For HTML files, ensure main is present
+  if (filePath.includes('.html')) {
+    return addMainToHTML(content);
+  }
+  return content;
+}
+
 // Export the new functions for use in other files
 module.exports = {
   wrapWithMain,
@@ -183,6 +201,8 @@ module.exports = {
   createAccessibleButton,
   createSkipToContentLink,
   ensureSingleMainLandmark, // New export for ensuring single main landmark
+  fixReactLayout, // New export for fixing React layout files
+  fixHTMLFile, // New export for fixing HTML files
   // Preserve all existing exports
   jest,
   React,

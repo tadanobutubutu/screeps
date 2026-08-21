@@ -1,4 +1,4 @@
-(function (exports, require, module, __filename, __dirname) {
+function (exports, require, module, __filename, __dirname) {
     // Existing code and exports are preserved...
 
     function myFunction() {
@@ -68,4 +68,4 @@
     window.onload = updateRotateBackLink;
 
     // Other code...
-})(module.exports, require, module, __filename, __dirname);
+}

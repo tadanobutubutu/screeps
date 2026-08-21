@@ -51,5 +51,17 @@
     module.exports.addAccessibleNameToSVGs = addAccessibleNameToSVGs;
     module.exports.updateIcons = updateIcons;
 
+    // Function to add a main landmark for accessibility
+    function addMainLandmark(htmlString) {
+        // If the HTML already contains a <main> element, return unchanged
+        if (/<main[\s>]/i.test(htmlString)) {
+            return htmlString;
+        }
+        // Wrap the content in a <main> element
+        return `<main>${htmlString}</main>`;
+    }
+
+    module.exports.addMainLandmark = addMainLandmark;
+
     // Other code...
 })(module.exports, require, module, __filename, __dirname);

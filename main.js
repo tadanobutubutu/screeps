@@ -1,1 +1,15 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+const tableHeaders = [
+  {
+    label: 'src/constants.js',
+    value: 'Constants',
+    scope: 'col'
+  },
+  {
+    label: 'src/managers/roomManager.js',
+    value: 'Room Manager',
+    scope: 'col'
+  },
+  // ... other headers with scope: 'col' added
+];
+
+// The rest of the main.js content would remain unchanged.

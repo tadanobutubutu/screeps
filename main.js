@@ -1,4 +1,5 @@
 // Address accessibility issues from insight report
+
 // Existing imports or code
 // ... [original main.js content] ...
 
@@ -17,7 +18,7 @@ rotateBackButton = `
 `;
 
 // Ensure that the button has the appropriate event listener if needed
-document.getElementById('unrotate').addEventListener('click', function () {
+document.getElementById('unrotate').addEventListener('click', function() {
   // Call the rotate back functionality
   rotateBack();
 });
@@ -26,14 +27,14 @@ document.getElementById('unrotate').addEventListener('click', function () {
 document.documentElement.lang = "en";
 
 // Add scope="col" to all <th> elements for accessibility
-const tableHeaders = document.querySelectorAll('table th');
+const tableHeaders = document.querySelectorAll('th');
 tableHeaders.forEach(th => {
   th.setAttribute('scope', 'col');
 });
 
 // Add landmark roles to the document
-// Use the WAI-ARIA roles (https://www.w3.org/TR/wai-aria-1.1/)
-document.documentElement.setAttribute('role', 'document');
+// Use the WAI-ARIA roles for document structure
+document.body.setAttribute('role', 'document');
 
 // Add a banner (or header) with the role="banner"
 const banner = document.createElement('header');
@@ -46,7 +47,7 @@ footer.setAttribute('role', 'contentinfo');
 document.body.appendChild(footer);
 
 // Add landmark roles to primary navigation (if applicable)
-const navigation = document.querySelector('.navigation');
+const navigation = document.querySelector('nav');
 if (navigation) {
   navigation.setAttribute('role', 'navigation');
 }
@@ -60,34 +61,34 @@ sections.forEach(section => {
 // Add unique IDs to landmarks, if multiple/applicable
 // (Use WAI-ARIA/WCAG guidelines as needed - https://www.w3.org/TR/wai-aria-1.1/)
 let uniqueIdCounter = 0;
-const landmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="header"], [role="footer"]');
+const landmarks = document.querySelectorAll('[role="navigation"], [role="main"], [role="header"], [role="footer"]');
 landmarks.forEach(landmark => {
   if (!landmark.id) {
-    landmark.id = `landmark-${uniqueIdCounter}`;
-    uniqueIdCounter++;
+    landmark.id = `landmark-${uniqueIdCounter++}`;
   }
 });
 
 // Add accessible names to 2 SVGs
 const svgs = document.querySelectorAll('svg');
 svgs.forEach(svg => {
-  svg.setAttribute('aria-labelledby', `${svg.id}-title ${svg.id}-desc`);
-
+  // Create title and desc elements for each SVG
   const title = document.createElement('title');
   title.id = `${svg.id}-title`;
-  title.textContent = svg.getAttribute('aria-label');
-  svg.appendChild(title);
-
+  title.textContent = svg.id ? `${svg.id} image` : 'SVG image';
+  
   const desc = document.createElement('desc');
   desc.id = `${svg.id}-desc`;
   desc.textContent = ''; // Add a proper description in the SVG file if necessary
+  
+  svg.insertBefore(title, svg.firstChild);
   svg.appendChild(desc);
+  svg.setAttribute('aria-labelledby', `${title.id} ${desc.id}`);
 });
 
 // Ensure unique landmarks
 const uniqueLandmarkIDs = new Set();
 landmarks.forEach(landmark => {
-  if (uniqueLandmarkIDs.has(landmark.id)) {
+  if (landmark.id) {
     let index = 2;
     let currentId = landmark.id;
     while (uniqueLandmarkIDs.has(currentId)) {
@@ -95,21 +96,24 @@ landmarks.forEach(landmark => {
       index++;
     }
     landmark.id = currentId;
+    uniqueLandmarkIDs.add(currentId);
   }
-  uniqueLandmarkIDs.add(landmark.id);
 });
 
 // Fix 1 fake link issue
 // (More checks might be needed based on the specific CSS and HTML structure)
-const fakeLinks = document.querySelectorAll('.fake-link, .no-underline');
+const fakeLinks = document.querySelectorAll('a.no-underline');
 fakeLinks.forEach(link => {
-  link.removeAttribute('href');
+  // Ensure the link has proper accessible text
+  if (!link.textContent.trim()) {
+    link.setAttribute('aria-label', 'Link');
+  }
   link.style.textDecoration = 'none';
 });
 
 // Add the new function (resetAllRotations) to the exports
 function resetAllRotations() {
-  const rotateTargets = document.querySelectorAll('.rotate-target');
+  const rotateTargets = document.querySelectorAll('[data-rotate], .rotate-target');
   rotateTargets.forEach(el => {
     el.style.transform = 'none';
   });
@@ -121,7 +125,7 @@ export { resetAllRotations };
 // Add back the main function (rotateBack) to the exports
 function rotateBack() {
   // Example implementation: reset rotation of targeted elements
-  const targets = document.querySelectorAll('.rotate-target');
+  const targets = document.querySelectorAll('[data-rotate], .rotate-target');
   targets.forEach(el => {
     el.style.transform = 'rotate(0deg)';
   });

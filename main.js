@@ -6,7 +6,7 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     const [copied, setCopied] = useState(false);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -81,23 +81,22 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     return (
         <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
-                    <div
-                        key={key}
-                        style={{
-                            backgroundColor: '#f0f9ff',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            flex: '1 1 200px',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                        }}
-                    >
-                        <h2 style={{ color: '#004b73', marginTop: 0 }}>{key}</h2>
-                        <p style={{ color: '#2d3748', fontSize: '1.2rem' }}>{value}</p>
-                    </div>
-                ))}
-            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
+                <thead>
+                    <tr>
+                        <th scope="col" style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid #004b73', color: '#004b73' }}>項目</th>
+                        <th scope="col" style={{ textAlign: 'left', padding: '0.75rem', borderBottom: '2px solid #004b73', color: '#004b73' }}>値</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {Object.entries(stats || {}).map(([key, value]) => (
+                        <tr key={key} style={{ backgroundColor: '#f0f9ff' }}>
+                            <th scope="row" style={{ padding: '1rem', fontWeight: 'normal', color: '#004b73', borderBottom: '1px solid #e2e8f0' }}>{key}</th>
+                            <td style={{ padding: '1rem', color: '#2d3748', fontSize: '1.2rem', borderBottom: '1px solid #e2e8f0' }}>{value}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
             <button
                 onClick={() => fetchStats(true)}
                 disabled={refreshing}

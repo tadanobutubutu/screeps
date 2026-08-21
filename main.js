@@ -88,7 +88,7 @@ function addSvgAccessibleName(svgElement, title, description) {
     const descEl = document.createElement("desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.insertBefore(descEl, svgElement.firstChild);
+    svgElement.insertBefore(descEl, svgElement.firstChild.nextSibling);
 
     // Update aria-labelledby to include both title and description
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
@@ -122,7 +122,7 @@ function fixFakeLink(element, isActionLink) {
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {

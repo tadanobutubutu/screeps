@@ -2,48 +2,17 @@
 // ...
 
 // Add new functions or changes requested in the issue
-// Example: If a new function is needed to handle the error state in Dashboard.tsx
-function handleErrorMessage(error) {
-    // Implementation for handling error message
-    // ...
+// No new functions are needed for this issue, but we will include the changes to make the SVGs accessible
+
+// Example of refactoring the SVG elements in the icons to include an accessible name
+function getAccessibleSVG(iconData) {
+    return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">${iconData}</text></svg>`;
 }
 
-// Replace the duplicate <main> elements in Dashboard.tsx with <section> or <article>
-// Assuming the original code structure, here's how you might refactor the component:
-
-import React from 'react';
-
-const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
-    // Other component logic...
-
-    return (
-        <div>
-            {/* Replace the duplicate <main> elements */}
-            {error ? (
-                <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
-                    <pre
-                        tabIndex={0}
-                        aria-label="エラーメッセージ詳細"
-                        style={{
-                            color: '#c53030',
-                            backgroundColor: '#fff5f5',
-                            padding: '1rem',
-                            borderRadius: '4px',
-                            overflow: 'auto',
-                        }}
-                    >
-                        {error}
-                    </pre>
-                    {/* ... rest of the error handling elements */}
-                </section>
-            ) : (
-                // ... other content that might be in the main section
-            )}
-        </div>
-    );
+// Update the icons object to include aria-label for accessibility
+const icons = {
+    icon: getAccessibleSVG('🐛'),
+    apple: getAccessibleSVG('🐛'),
 };
-
-export default Dashboard;
 
 // ...

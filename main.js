@@ -10,7 +10,7 @@ interface DashboardProps {
   fetchStats: (retry: boolean) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({
+const Dashboard: ... = ({
   error,
   copied,
   errCopyHover,
@@ -61,10 +61,10 @@ const Dashboard: React.FC<DashboardProps> = ({
       </button>
       <button
         onClick={copyErr}
-        onMouseEnter={() => setErrCopyHoverLocal(true)}
-        onMouseLeave={() => setErrCopyHoverLocal(false)}
-        onFocus={() => setErrCopyHoverLocal(true)}
-        onBlur={() => setErrCopyHoverLocal(false)}
+        onMouseEnter={() => ...
+        onMouseLeave={() => ...
+        onFocus={() => ...
+        onBlur={() => ...
         aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
         title={copied ? 'コピー済み' : 'エラーをコピー'}
         style={{
@@ -104,4 +104,5 @@ const Dashboard: React.FC<DashboardProps> = ({
   );
 };
 
+export { DashboardProps };
 export default Dashboard;

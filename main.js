@@ -1,14 +1,28 @@
-// main.js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App'; // Assuming App is the root component that includes the dependency-graph.html component
+import App from './App';
 
+// Existing component code...
+
+function App() {
+  // Existing component code...
+  return (
+    // Existing JSX code...
+  );
+}
+
+// Render the App component
 ReactDOM.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
   document.getElementById('root')
 );
+
+// Ensure that the root element of the document has a lang attribute
+if (document.documentElement.lang === undefined) {
+  document.documentElement.lang = 'en';
+}
 
 // Importing the specific component that needs to be updated
 import DependencyGraph from './docs/dependency-graph';

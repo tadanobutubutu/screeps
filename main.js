@@ -1,3 +1,5 @@
+import distMainModule from './dist/main.js';
+
 // Main component
 export default function Main() {
   // Define the columns for the table (26 columns total)
@@ -14,7 +16,7 @@ export default function Main() {
 
   // New function to include the required export from the main.js dist file
   const distMain = async () => {
-    const mainModule = await import('./dist/main.js'); // Import the dist file
+    const mainModule = await ... // Import the dist file
     return mainModule.default; // Return the default export
   };
 
@@ -117,8 +119,6 @@ export default function Main() {
 }
 
 // Import required module(s) and export the new necessary function(s) here
-import distMainModule from './dist/main.js';
-
 export const distMain = () => distMainModule.default;
 
 // Add to index.html or root component for REACT_015:

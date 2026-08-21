@@ -18,3 +18,5 @@ module.exports = {
 
 // Note: JSX files (app/layout.tsx, etc.) should be .tsx files
 // and should include <main> landmarks for accessibility (REACT_017)
+
+// Ensure that the rendered HTML includes a <main> element for accessibility (REACT_017)

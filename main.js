@@ -176,3 +176,7 @@ export const SkipLink = ({ href = '#main-content', children = 'Skip to main cont
         padding: '8px',
         zIndex: 100,
         transition
+      }}
+    />
+  );
+};

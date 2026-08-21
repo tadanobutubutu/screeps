@@ -16,8 +16,7 @@ export default function Main() {
 
   // New function to include the required export from the main.js dist file
   const distMain = async () => {
-    const mainModule = await ... // Import the dist file
-    return mainModule.default; // Return the default export
+    return distMainModule.default; // Return the default export
   };
 
   // Use the distMain function in your table data

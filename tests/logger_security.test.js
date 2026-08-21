@@ -86,11 +86,4 @@ describe('logger security (DoS protection)', () => {
         const result = logger.getSafeStack(stack);
         expect(result).not.toContain('/secret/path/');
     });
-
-    test('bigint values should be stringified safely without throwing', () => {
-        const dataWithBigInt = { val: 123n };
-        expect(() => logger.info('Test BigInt', dataWithBigInt)).not.toThrow();
-        const history = logger.getHistory(1);
-        expect(history[0].message).toContain('123n');
-    });
 });

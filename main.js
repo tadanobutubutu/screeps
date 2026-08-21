@@ -15,10 +15,12 @@ document.getElementById('unrotate').outerHTML = `
   </button>
 `;
 
-// ... [rest of the main.js content] ...
-
 // Ensure that the button has the appropriate event listener if needed
 // For example, if the button needs to trigger a function:
 // document.getElementById('unrotate').addEventListener('click', function() {
 //   // Functionality to rotate back
 // });
+
+// ... [rest of the main.js content] ...
+
+// ... [existing exports and functions] ...

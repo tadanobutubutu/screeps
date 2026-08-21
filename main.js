@@ -126,7 +126,7 @@ export {
   updateDocumentTitle,
   logMessage,
   updateTableStructure,
-  fixLandmarkIssues,
+  fixLandmarkIsses,
   addSVGAccessibleNames,
   ensureUniqueLandmarks,
   fixFakeLinkIssue

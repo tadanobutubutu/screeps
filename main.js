@@ -114,7 +114,7 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.getAttribute("tabindex")) {
+  if (!element.hasAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }

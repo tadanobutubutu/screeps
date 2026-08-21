@@ -1,3 +1,5 @@
+const initialize = require('./path/to/initialize').default;
+
 // Ensure you don't modify any existing exports or functions
 // ... Your existing main.js code that shouldn't be changed ...
 
@@ -11,4 +13,5 @@ module.exports = {
   // ... existing exports ...
   Foo,
   Bar,
+  initialize
 };

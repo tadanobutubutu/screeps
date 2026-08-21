@@ -1,5 +1,4 @@
-// The issue requires adding lang="en" attribute to the <html> element
-// to fix React Language Attribute accessibility warnings (REACT_015).
+// The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
 
 /**
  * Main application entry point

@@ -36,10 +36,11 @@ export function AccessibleIcon({ children, label, className }) {
   return (
     <svg
       className={className}
-      aria-label={label}
       role="img"
       focusable="false"
+      aria-labelledby="svg-title"
     >
+      <title id="svg-title">{label}</title>
       {children}
     </svg>
   );
@@ -50,7 +51,7 @@ export function AccessibleIcon({ children, label, className }) {
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
  */
 export function MainContent({ children }) {
-  return <main id="main-content">{children}</main>;
+  return <main>{children}</main>;
 }
 
 /**
@@ -70,7 +71,7 @@ export function Navigation({ children, ariaLabel }) {
  * Fixes: REACT_017
  */
 export function Header({ children }) {
-  return <header role="banner">{children}</header>;
+  return <header>{children}</header>;
 }
 
 /**
@@ -78,7 +79,7 @@ export function Header({ children }) {
  * Fixes: REACT_017
  */
 export function Footer({ children }) {
-  return <footer role="contentinfo">{children}</footer>;
+  return <footer>{children}</footer>;
 }
 
 /**
@@ -88,7 +89,7 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href}>{children}</a>;
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
   return <button type="button" onClick={onClick}>{children}</button>;
@@ -152,7 +153,7 @@ export function AccessiblePageWrapper({ children }) {
           </ul>
         </Navigation>
       </Header>
-      <MainContent>
+      <MainContent id="main-content">
         {children}
       </MainContent>
       <Footer>

@@ -56,6 +56,16 @@ function fixLandmarkIssues() {
   // Re-query main elements after potentially creating one
   mainElements = document.querySelectorAll('main');
 
+  // Ensure main elements have proper labeling
+  mainElements.forEach((main, index) => {
+    if (!main.id && !main.getAttribute('aria-label') && mainElements.length > 1) {
+      main.setAttribute('aria-label', 'Main content section ' + (index + 1));
+    }
+  });
+
+  // Re-query after potential replacements
+  mainElements = document.querySelectorAll('main');
+
   // Fix duplicate main landmarks - convert additional main elements to section
   if (mainElements.length > 1) {
     mainElements.forEach((main, index) => {
@@ -78,16 +88,6 @@ function fixLandmarkIssues() {
       }
     });
   }
-
-  // Re-query after potential replacements
-  mainElements = document.querySelectorAll('main');
-
-  // Ensure main elements have proper labeling
-  mainElements.forEach((main, index) => {
-    if (!main.id && !main.getAttribute('aria-label') && mainElements.length > 1) {
-      main.setAttribute('aria-label', 'Main content section ' + (index + 1));
-    }
-  });
 
   // Ensure navigation has labels if multiple nav elements exist
   let navIndex = 0;

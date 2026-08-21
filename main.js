@@ -1,4 +1,4 @@
-// Updated main.js with resolved conflicts
+// TODO: Address accessibility issues from insight report: (addressed)
 
 // Preserved existing code
 function existingFunction() {
@@ -28,7 +28,7 @@ const DependencyGraphTable = ({ data }) => {
       <thead>
         <tr>
           {data.columns.map((column, index) => (
-            <th key={index} scope="col">
+            <th key={index} id={`header-${index}`} scope="col">
               {column.label}
             </th>
           ))}
@@ -38,7 +38,7 @@ const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex}>{cell}</td>
+              <td key={cellIndex} headers={`header-${cellIndex}`}>{cell}</td>
             ))}
           </tr>
         ))}
@@ -50,7 +50,12 @@ const DependencyGraphTable = ({ data }) => {
 // Correcting the 'rotate back' link to use a button instead of an anchor
 const RotateBackButton = () => {
   return (
-    <button id="unrotate" onClick={() => { /* Rotate back logic here */ }}>
+    <button 
+      id="unrotate" 
+      type="button"
+      onClick={() => { /* Rotate back logic here */ }}
+      aria-label="Rotate view back"
+    >
       rotate back
     </button>
   );

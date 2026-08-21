@@ -164,12 +164,19 @@ function addAccessibleSVGs() {
 function ensureUniqueLandmarks() {
   if (typeof document === 'undefined') return;
 
-  // Example implementation for header
-  const header = mainElement.querySelector('header');
-  if (header && !header.hasAttribute('id')) {
-    header.setAttribute('id', 'unique-header');
-  }
-  // Repeat similar logic for other landmarks as needed
+  const landmarks = [
+    { selector: 'header', idPrefix: 'unique-header' },
+    { selector: 'nav', idPrefix: 'unique-nav' },
+    { selector: 'main', idPrefix: 'unique-main' },
+    { selector: 'footer', idPrefix: 'unique-footer' }
+  ];
+
+  landmarks.forEach(landmark => {
+    const element = mainElement.querySelector(landmark.selector);
+    if (element && !element.hasAttribute('id')) {
+      element.setAttribute('id', landmark.idPrefix);
+    }
+  });
 }
 
 // Fix fake link issue
@@ -232,6 +239,10 @@ if (typeof document !== 'undefined') {
   document.documentElement.setAttribute('lang', 'en');
   fixTableStructure(mainElement);
   fixFakeLinkInDocs();
+  addAccessibleSVGs();
+  addLandmarks(mainElement);
+  ensureUniqueLandmarks();
+  fixFakeLink();
 }
 
 // Add the new function to the module.exports

@@ -59,7 +59,7 @@ export function fixTableScope(html) {
 // Function to add/fix landmark issues
 export function addLandmarks(html) {
   let result = html;
-  
+
   // Helper to generate unique IDs for landmarks
   let landmarkIdCounter = 0;
   const getNextId = (prefix) => {

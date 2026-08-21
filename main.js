@@ -2,8 +2,6 @@
 const table = document.querySelector('table');
 // ... (other existing code)
 
-// Hypothetical updated code to address accessibility issues
-
 // Add lang attribute to HTML element
 document.documentElement.setAttribute('lang', 'en');
 

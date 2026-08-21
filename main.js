@@ -1,5 +1,8 @@
 import DependencyGraph from './DependencyGraph';
 
+// Address accessibility issues from insight report:
+// Implemented accessibility-related code changes below
+
 const DependencyGraphComponent = () => {
   // Other components and content
   return (
@@ -176,12 +179,21 @@ const fixFakeLinks = () => {
   });
 };
 
-// TODO: Import required module(s) and export the new necessary function(s) here
+const initAccessibilityFixes = () => {
+  addLangAttribute();
+  ensureUniqueLandmarks();
+  fixTableStructureIssues();
+  addSvgAccessibleNames();
+  fixFakeLinks();
+};
+
+// Import required module(s) and export the new necessary function(s) here
 export {
   DependencyGraphComponent,
   addLangAttribute,
   ensureUniqueLandmarks,
   fixTableStructureIssues,
   addSvgAccessibleNames,
-  fixFakeLinks
+  fixFakeLinks,
+  initAccessibilityFixes
 };

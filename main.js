@@ -158,7 +158,7 @@ export function SkipLink() {
  */
 export function AccessiblePageWrapper({ children }) {
   return (
-    <>
+    <html lang="en">
       <SkipLink />
       <Header>
         <Navigation>
@@ -175,7 +175,7 @@ export function AccessiblePageWrapper({ children }) {
       <Footer>
         <p>&copy; 2024 Accessible Site</p>
       </Footer>
-    </>
+    </html>
   );
 }
 

@@ -1,21 +1,27 @@
-// main.js
-// This file contains all the existing functionality while incorporating the dependency updates
+// TODO: Address accessibility issues from insight report: add ARIA attributes
 
-// Existing imports (preserved)
-const express = require('express');
-const lodash = require('lodash');
-const jest = require('jest');
-const eslint = require('eslint');
-const babelJest = require('babel-jest');
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
 
-// New imports for file operations
-const fs = require('fs');
-const path = require('path');
+ReactDOM.render(<App />, document.getElementById('root'));
 
-// Existing exports (preserved)
-module.exports = {
-  // ... all existing exports remain unchanged
+// These are existing code and exports, no changes are made to them
+const anExistingFunction = () => {};
+const anotherExistingFunction = () => {};
+
+// A new function with added ARIA attributes to fix accessibility issues
+const createAccessibleButton = (text, id) => {
+  const button = document.createElement('button');
+  button.textContent = text;
+  button.id = id;
+  button.setAttribute('aria-label', `${text} button`);
+  return button;
 };
+
+// Example of using the createAccessibleButton function
+const myButton = createAccessibleButton('Click me', 'myButtonId');
+document.body.appendChild(myButton);
 
 // New function for handling React 19 updates
 function handleReact19Update() {

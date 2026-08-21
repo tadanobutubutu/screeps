@@ -16,17 +16,19 @@ function enhanceAccessibility() {
 
   // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
-  if (!htmlElement.hasAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 
   // REACT_017: Add landmark roles and fix landmark issues
   const main = document.querySelector('main') || document.querySelector('[role="main"]');
-  main.setAttribute('role', 'main');
-  main.id = main.id || 'main-content';
+  if (main) {
+    main.setAttribute('role', 'main');
+    main.id = main.id || 'main-content';
+  }
 
   const nav = document.querySelector('nav') || document.querySelector('[role="navigation"]');
-  if (nav && !nav.hasAttribute('aria-label')) {
+  if (nav && !nav.getAttribute('aria-label')) {
     nav.setAttribute('aria-label', 'Main navigation');
   }
 
@@ -46,23 +48,24 @@ function enhanceAccessibility() {
   });
 
   // REACT_041: Add accessible names to SVGs
-  const svgs = document.querySelectorAll('svg');
+  const svgs = document.querySelectorAll('svg:not([aria-hidden="true"]):not([aria-label])');
   svgs.forEach((svg, index) => {
     const title = svg.querySelector('title');
-    if (!title && !svg.getAttribute('aria-label')) {
-      const titleElement = document.createElement('title');
-      titleElement.id = `svg-title-${index}`;
-      titleElement.textContent = svg.getAttribute('aria-label') || `Decorative icon ${index + 1}`;
+    if (!title && !svg.getAttribute('aria-labelledby')) {
+      const titleElement = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const titleId = `svg-title-${Date.now()}-${index}`;
+      titleElement.id = titleId;
+      titleElement.textContent = 'Screeps Dashboard' || `Decorative icon ${index + 1}`;
       svg.insertBefore(titleElement, svg.firstChild);
-      svg.setAttribute('aria-labelledby', titleElement.id);
+      svg.setAttribute('aria-labelledby', titleId);
       svg.setAttribute('role', 'img');
     }
   });
 
   // REACT_036: Fix fake link issues - ensure links have proper href
-  const links = document.querySelectorAll('a');
+  const links = document.querySelectorAll('a:not([href])');
   links.forEach(link => {
-    if (!link.getAttribute('href')) {
+    if (!link.href && !link.getAttribute('role')) {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
@@ -78,7 +81,7 @@ export function addAriaLabel(element, label) {
 
 export function setMainLandmark(mainElement) {
   // TODO: Remove the commented line and uncomment mainElement when available
-  // mainElement.setAttribute('aria-label', 'Main content area');
+  if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
 }
 
 // <-- ADD EXPORT STATEMENT HERE -->

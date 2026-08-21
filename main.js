@@ -4,38 +4,32 @@ import ReactDOM from 'react-dom';
 
 // Import your layout components or components that render the primary content
 import DashboardLayout from './dashboard/app/layout';
-import DocsDependencyGraph from './docs/dependency-graph';
+import DocsDependencyGraph from ...
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 
-// Update your render logic to wrap the primary content with <main>
+// Update your render logic to wrap the primary content with a single <main>
 ReactDOM.render(
   <React.StrictMode>
-    <DashboardLayout>
-      <main>
+    <main>
+      <DashboardLayout>
         {/* Dashboard primary content */}
-      </main>
-    </DashboardLayout>
+      </DashboardLayout>
 
-    <DocsDependencyGraph>
-      <main>
+      <DocsDependencyGraph>
         {/* Docs Dependency Graph primary content */}
-      </main>
-    </DocsDependencyGraph>
+      </DocsDependencyGraph>
 
-    <DocsIndex>
-      <main>
+      <DocsIndex>
         {/* Docs Index primary content */}
-      </main>
-    </DocsIndex>
+      </DocsIndex>
 
-    <AppLayout>
-      <main>
+      <AppLayout>
         {/* App Layout primary content */}
-      </main>
-    </AppLayout>
+      </AppLayout>
+    </main>
   </React.StrictMode>,
-  document.getElementById('root')
+  ...
 );
 
 // ... rest of your main.js file ...

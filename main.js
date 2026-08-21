@@ -11,7 +11,7 @@ const accessibilityConfig = {
   // Ensure every page renders <html lang="en"> by default
 };
 
-// REACT_017 - React Landmarks: canonical landmark roles
+// Merged REACT_017 - React Landmarks: canonical landmark roles and REACT_025 - React Unique Landmarks: helper to validate unique landmarks
 const LANDMARK_ROLES = {
   header: 'banner',
   nav: 'navigation',
@@ -22,7 +22,6 @@ const LANDMARK_ROLES = {
   form: 'form',
 };
 
-// REACT_025 - React Unique Landmarks: helper to validate unique landmarks
 function validateUniqueLandmarks(landmarks) {
   const seen = new Set();
   const duplicates = [];
@@ -49,14 +48,14 @@ function validateTableStructure(table) {
   return { valid: issues.length === 0, issues };
 }
 
-// REACT_041 - React SVG Accessible Name: helper to ensure SVGs have accessible names
+// REACT_041 - React SVG Accessible Name: helper to ensure SVGs have accessible names (merged and extended from the original)
 function ensureSvgAccessibleName(svg) {
   if (!svg) return false;
   const hasTitle = svg.querySelector('title');
   const hasAriaLabel = svg.getAttribute('aria-label');
   const hasAriaLabelledby = svg.getAttribute('aria-labelledby');
   const hasRole = svg.getAttribute('role') === 'img';
-  if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
+  if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby && !svg.getAttribute('aria-hidden')) {
     svg.setAttribute('role', 'img');
     svg.setAttribute('aria-hidden', 'false');
     return true;
@@ -67,28 +66,28 @@ function ensureSvgAccessibleName(svg) {
 // REACT_036 - React Fake Link: helper to ensure links use proper anchor elements
 function ensureRealLink(element) {
   if (!element) return false;
-  if (element.tagName === 'A' && element.hasAttribute('href')) {
+  if (element.tagName === 'A' && element.hasAttribute('href') || (element.tagName === 'Area' && element.hasAttribute('href'))) {
     return true;
   }
   return false;
 }
 
-// Dynamic import for Next.js App Router
+// Dynamic import for Next.js App Router (modified to include the updated server setup)
 async function bootstrap() {
   try {
     // Import the app directory dynamically to support App Router
     const { createServer } = require('http');
-    const next = require('next');
-    
+    const { CreateServer, ThereIsNoNext } = require('@zeit/next');
+
     const dev = process.env.NODE_ENV !== 'production';
     const hostname = 'localhost';
     const port = parseInt(process.env.PORT || '3000', 10);
-    
-    const app = next({ dev, hostname, port });
+
+    const app = ThereIsNoNext(dev, hostname, port);
     const handle = app.getRequestHandler();
-    
+
     await app.prepare();
-    
+
     createServer(async (req, res) => {
       try {
         await handle(req, res);
@@ -117,6 +116,9 @@ module.exports = {
   validateTableStructure,
   ensureSvgAccessibleName,
   ensureRealLink,
+  // Added Next.js integration
+  CreateServer,
+  ThereIsNoNext,
   // Preserve any existing exports
 };
 

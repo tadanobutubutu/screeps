@@ -43,6 +43,23 @@ export function createDependencyGraphHTML() {
   return createMainHTML({
     children: `
       <!-- existing content without the main tag -->
+      <!-- Add the scope attribute to the th tags in the table -->
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            <!-- 21 further occurrences... -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows -->
+        </tbody>
+      </table>
+      <!-- 21 further occurrences... -->
     `,
     id: 'dependency_graph',
   });

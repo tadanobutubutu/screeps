@@ -25,9 +25,9 @@ const app = {
   },
   
   // New function to replace the fake link with a button
-  replaceFakeLinkWithButton: function() {
+  replaceFakeLinkWithButton: function(selector) {
     // Assuming the DOM is available in the context where this function is called
-    const fakeLink = document.getElementById('unrotate');
+    const fakeLink = document.querySelector(selector);
     if (fakeLink) {
       // Create a new button element
       const button = document.createElement('button');

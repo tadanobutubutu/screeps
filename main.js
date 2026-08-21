@@ -1,4 +1,3 @@
-tsx
 // dashboard/app/layout.tsx
 
 import React from 'react';
@@ -12,9 +11,10 @@ const Layout = ({ children }) => {
         height="16" 
         viewBox="0 0 16 16" 
         role="img"
-        aria-label="Icon"
+        aria-labelledby="svg-icon-title"
+        focusable="false"
       >
-        <title>Icon</title>
+        <title id="svg-icon-title">Icon</title>
         {/* SVG content */}
       </svg>
       {/* ... other components ... */}

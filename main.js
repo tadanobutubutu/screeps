@@ -1,1 +1,20 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+const App = () => {
+  return (
+    <html lang="ja">
+      <head>
+        {/* ... other head elements ... */}
+      </head>
+      <body>
+        <main>
+          {/* primary content goes here */}
+        </main>
+        {/* ... rest of the body elements ... */}
+      </body>
+    </html>
+  );
+};
+
+ReactDOM.render(<App />, document.getElementById('root'));

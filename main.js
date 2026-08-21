@@ -1,4 +1,4 @@
-// Assuming the main.js file is a React component that renders the HTML document
+// Existing code remains unchanged
 import React from 'react';
 
 function App() {
@@ -10,7 +10,12 @@ function App() {
         <title>Document</title>
       </head>
       <body>
-        {/* Content of the document */}
+        {/* Existing content */}
+        <button id="unrotate">
+          <span>rotate back</span>
+          <span className="sr-only">(Back to main section)</span>
+        </button>
+        {/* Rest of content */}
       </body>
     </html>
   );

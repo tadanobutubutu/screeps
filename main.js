@@ -79,7 +79,7 @@ function getDetectedDependencies() {
     if (!acc[item.ecosystem]) {
       acc[item.ecosystem] = [];
     }
-    acc[item.ecosystem].push(...item.dependencies);
+    acc[item.ecosystem].push(item.dependencies);
     return acc;
   }, {});
 }
@@ -113,7 +113,7 @@ function setLangAttribute(element) {
   }
 }
 
-// Fixing 26 table structure issues
+// Fixing table structure issues
 // Ensures all tables have proper <thead> and <tbody>, and that each <th> has a scope attribute.
 function fixTableStructure() {
   if (typeof document === 'undefined') return;

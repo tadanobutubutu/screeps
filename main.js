@@ -40,9 +40,9 @@ const Dashboard: ... = ({
       <button
         onClick={copyErr}
         onMouseEnter={() => setErrCopyHover(true)}
-        onMouseLeave={() => setErrCopyHover(false)}
+        onMouseLeave={() => ...
         onFocus={() => setErrCopyHover(true)}
-        onBlur={() => setErrCopyHover(false)}
+        onBlur={() => ...
         aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
         title={copied ? 'コピー済み' : 'エラーをコピー'}
         style={{
@@ -68,10 +68,11 @@ const Dashboard: ... = ({
       >
         {/* The content of this button remains the same */}
       </button>
-      {/* Replace the second <main> with a <section> */}
-      <section>
-        {/* Content that was originally in the second <main> */}
-      </section>
+      <main>
+        <section>
+          {/* Content that was originally in the second <main> */}
+        </section>
+      </main>
     </div>
   );
 };

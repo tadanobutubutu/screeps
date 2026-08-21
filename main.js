@@ -24,7 +24,7 @@ export { newFunction, existingFunction };
 // ============================================
 
 // REACT_015: Wrapper component with lang attribute for HTML element
-export const AppWrapper = ({ lang = 'en', children }) => {
+export const AppWrapper = ({ lang, children }) => {
   return (
     <div lang={lang}>
       {children}
@@ -39,7 +39,7 @@ export const RotateBackButton = ({ onClick }) => {
       id="unrotate" 
       type="button"
       onClick={onClick}
-      aria-label="Rotate view back"
+      aria-label="rotate view back"
     >
       rotate back
     </button>

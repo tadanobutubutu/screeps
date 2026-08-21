@@ -5,8 +5,17 @@ import React, { useState } from 'react';
 // -----------------------------------------------------------
 import './Dashboard.css'; // Example CSS import; keep as-is
 
-// Example helper function that was previously present
+// Helper function defined in original
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Added from origin/main
+const icons = {
+    // ... (Preserve existing icon data)
+
+    // Updated icon with aria-label for accessibility
+    icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>Screeps Dashboard</title><text y=%22.9em%22 font-size=%2290%22>🐛</text><desc>Screeps Dashboard Icon</desc></svg>',
+    apple: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><title>App Icon</title><text y=%22.9em%22 font-size=%2290%22>🐛</text><desc>App Icon</desc></svg>',
+};
 
 // -----------------------------------------------------------
 // Dashboard component
@@ -131,3 +140,4 @@ export default function Dashboard() {
 // Preserve any named exports or additional components that existed
 // -----------------------------------------------------------
 export { /* any named exports */ };
+```

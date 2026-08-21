@@ -16,7 +16,8 @@ function enhanceAccessibility() {
 
   // REACT_015: Add lang attribute to HTML element
   const htmlElement = document.documentElement;
-  if (htmlElement && !htmlElement.hasAttribute('lang')) {
+  if (htmlElement) {
+    // Ensure the HTML element has a language attribute set to English
     htmlElement.setAttribute('lang', 'en');
   }
 
@@ -84,5 +85,5 @@ export function setMainLandmark(mainElement) {
   if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
 }
 
-// <-- ADD EXPORT STATEMENT HERE -->
+// ADD EXPORT STATEMENT HERE
 export default enhanceAccessibility;

@@ -30,11 +30,11 @@ function addMainToHTML(content) {
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (html.includes('lang="')) {
+  if (/<html[^>]*lang=/i.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
-  return html.replace(/<html([^>]*)>/, '<html$1 lang="en">');
+  return html.replace(/<html([^>]*)>/i, '<html$1 lang="en">');
 }
 
 // Add proper table structure
@@ -159,11 +159,14 @@ function createSkipToContentLink() {
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
   if (typeof content === 'string') {
-    const hasMain = content.includes('<main') || content.includes('</main>');
+    const hasMain = /<main[^>]*>/i.test(content);
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
-    // For React elements, we'll need to check if they contain a main element
+    // For React elements, check if they are already a main element
     // This is a simplified check - in a real implementation you might need a more robust solution
+    if (content.type === 'main') {
+      return content;
+    }
     return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
   }
   return content;

@@ -2,11 +2,8 @@ import distMainModule from './dist/main.js';
 
 // Main component
 export default function Main() {
-  // ... (Existing code)
   // New function to include the required export from the main.js dist file
-  const distMain = async () => {
-    return distMainModule.default; // Return the default export
-  };
+  const distMain = distMainModule.default;
 
   // Helper function to create accessible SVG icons
   const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
@@ -17,33 +14,31 @@ export default function Main() {
   );
 
   // Add ARIA-label to the main element
-  distMainModule.default.ariaLabel = 'Main component';
-  const mainElement = distMainModule.default;
+  distMain.ariaLabel = 'Main component';
 
   // Add role="presentation" for the table cell containing the distMain export
   const tableColumns = [
-    // ... (Existing columns)
+    // Existing columns would be here
     {
       Header: 'dist/main.js',
       accessor: 'distMain',
-      role: 'presentation' // Add ARIA role for the table cell
+      role: 'presentation'
     },
   ];
 
-  // ... (Existing code) // Fix table structure issues (REACT_027)
+  // Fix table structure issues (REACT_027)
   const table = (
     <table aria-label="Code analysis results">
       <thead>
         <tr>
-          {/* ... (Existing thead code) */}
-          <th role="presentation">{tableColumns[tableColumns.length - 1].Header}</th> {/* Set role for the last column */}
+          {/* Existing header cells would be here */}
+          <th role="presentation">{tableColumns[tableColumns.length - 1].Header}</th>
         </tr>
       </thead>
       <tbody>
-        {/* ... (Existing tbody code) */}
         <tr>
-          {/* ... (Existing row code) */}
-          <td role="presentation">{distMain || ''}</td> {/* Assuming the distMain export is the last column */}
+          {/* Existing row cells would be here */}
+          <td role="presentation">{distMain || ''}</td>
         </tr>
       </tbody>
     </table>
@@ -54,17 +49,19 @@ export default function Main() {
 
   // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
+  const linkContent = "Link to destination";
   const link = (
-    <a href="..." aria-label="Navigate to destination">
+    <a href="#" aria-label="Navigate to destination">
       {linkContent}
     </a>
   );
 
-  // Add lang attribute to HTML element (REACT_015)
-  const htmlLangAttribute = ' lang="en"';
-
   return (
-    // ... (Existing return statement)  </div>
+    <div>
+      {landmarkTable}
+      {table}
+      {link}
+    </div>
   );
 }
 

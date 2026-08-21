@@ -23,7 +23,7 @@ const Dashboard = () => {
         <pre tabIndex={0} aria-label="エラーメッセージ詳細" style={{ color: '#c53030', backgroundColor: '#fff5f5', padding: '1rem', borderRadius: '4px', overflow: 'auto', }} >  
           {error}  
         </pre>  
-        <button ... onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} title={copied ? 'コピー済み' : 'エラーをコピー'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease-in-out', transform: copied ? 'scale(1.05)' : 'scale(1)', boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none', filter: copied ? 'brightness(1.1)' : 'none', }}>  
+        <button onClick={handleCopyError} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} title={copied ? 'コピー済み' : 'エラーをコピー'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease-in-out', transform: copied ? 'scale(1.05)' : 'scale(1)', boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none', filter: copied ? 'brightness(1.1)' : 'none', }}>  
           {copied ? '✅ コピー済み' : '📋 エラーをコピー'}  
         </button>  
         <button onClick={() => fetchStats(true)} disabled={refreshing} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} >  
@@ -46,7 +46,7 @@ const App = () => {
       <nav id="main-navigation">  
         <ul>  
           <li><a href="#home">Home</a></li>  
-          <li><a ...  
+          <li><a href="#about">About</a></li>  
         </ul>  
       </nav>  
       <main id="main-content">  
@@ -62,17 +62,17 @@ const App = () => {
           </thead>  
           <tbody>  
             <tr>  
-              <td><span ...  
-              <td><span ...  
+              <td><span>John Doe</span></td>  
+              <td><span>30</span></td>  
             </tr>  
             <tr>  
-              <td><span ...  
-              <td><span ...  
+              <td><span>Jane Smith</span></td>  
+              <td><span>25</span></td>  
             </tr>  
           </tbody>  
         </table>  
         {/* Accessible SVG with title */}  
-        <svg width="20" height="20" viewBox="0 0 20 20" ...  
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">  
           <title>User avatar</title>  
           <circle cx="10" cy="10" r="8" stroke="black" stroke-width="2"/>  
         </svg>  
@@ -83,5 +83,5 @@ const App = () => {
   );  
 };  
 
-const root = ...  
+const root = ReactDOM.createRoot(document.getElementById('root'));  
 root.render(<App />);

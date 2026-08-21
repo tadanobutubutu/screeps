@@ -1,18 +1,1 @@
-var main = function()
-{
-	if (!Game.time)
-	{
-		Game.cpu.generatePixel();
-	}
-
-	// Wrap the primary content in <main> for accessibility
-	document.querySelector('main').innerHTML = `
-		<main>
-			${document.querySelector('main').innerHTML}
-		</main>
-	`;
-
-	require('main.loop')(Game.time);
-};
-
-module.exports = main;
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

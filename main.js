@@ -1,29 +1,55 @@
-// [Previous existing code remains unchanged]
+tsx
+import React, { useState } from 'react';
 
-// Add scope attributes to table headers in dependency-graph.html
-// This is a temporary fix until the HTML can be properly generated with scope attributes
-function addScopeAttributesToHeaders() {
-  // Select all th elements in the document
-  const headers = document.querySelectorAll('th');
+const Dashboard: React.FC = () => {
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [errCopyHover, setErrCopyHover] = useState(false);
+  const [errRetryHover, setErrRetryHover] = useState(false);
 
-  headers.forEach(header => {
-    // Check if the header already has a scope attribute
-    if (!header.hasAttribute('scope')) {
-      // Determine if it's a column or row header based on context
-      if (header.closest('thead')) {
-        header.setAttribute('scope', 'col');
-      } else if (header.closest('tr')) {
-        header.setAttribute('scope', 'row');
-      }
+  const copyErr = () => {
+    // Implementation to copy error
+    setCopied(true);
+  };
+
+  const fetchStats = (force) => {
+    // Implementation to fetch stats
+    setRefreshing(true);
+  };
+
+  // Render different views based on state
+  const renderContent = () => {
+    if (error) {
+      return (
+        <main>
+          <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+          <pre
+            tabIndex={0}
+            aria-label="エラーメッセージ詳細"
+            style={{
+              color: '#c53030',
+              backgroundColor: '#fff5f5',
+              padding: '1rem',
+              borderRadius: '4px',
+              overflow: 'auto',
+            }}
+          >
+            {error}
+          </pre>
+          {/* Other error-related elements */}
+        </main>
+      );
+    } else {
+      return (
+        <main>
+          {/* Content for successful state */}
+        </main>
+      );
     }
-  });
-}
+  };
 
-// Call the function when the DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', addScopeAttributesToHeaders);
-} else {
-  addScopeAttributesToHeaders();
-}
+  return renderContent();
+};
 
-// [Rest of existing code remains unchanged]
+export default Dashboard;

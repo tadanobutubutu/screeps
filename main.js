@@ -9,7 +9,7 @@ const path = require('path');
  */
 function addLangAttribute(content) {
   return content.replace(
-    /<html(\s+[^>]*)?>/gi,
+    /<html([^>]*)>/gi,
     (match, attrs) => {
       if (attrs && /\blang\s*=/i.test(attrs)) {
         return match;
@@ -28,14 +28,14 @@ async function addMainLandmark() {
     const filesToUpdate = [path.join('docs', 'index.html')];
     for (const filePath of filesToUpdate) {
       const fileContent = await fs.readFile(filePath, 'utf8');
-      if (/<main[^>]*>/i.test(fileContent)) {
+      if (/<main[\s>]/i.test(fileContent)) {
         console.log(`Main landmark already exists in ${filePath}, skipping`);
         continue;
       }
       const updatedContent = fileContent.replace(
         /(<body[^>]*>)(\s*)([\s\S]*?)(<\/body>)/gi,
         (match, bodyOpen, whitespace, bodyContent, bodyClose) => {
-          return `${bodyOpen}${whitespace}<main>${bodyContent}</main>${bodyClose}`;
+          return `${bodyOpen}${whitespace}<main>\n${bodyContent}\n</main>${bodyClose}`;
         }
       );
       await fs.writeFile(filePath, updatedContent);
@@ -75,12 +75,12 @@ async function replaceHashLinksWithButtons() {
     const filePath = path.join('docs', 'index.html');
     const fileContent = await fs.readFile(filePath, 'utf8');
     const updatedContent = fileContent.replace(
-      /<a\s+href="#([^"]*)"([^>]*)>([^<]*)<\/a>/gi,
+      /<a([^>]*)href="#([^"]*)"([^>]*)>([^<]*)<\/a>/gi,
       (match, attrsBefore, id, attrsAfter, text) => {
         const idAttr = id ? ` id="${id}"` : '';
-        const classMatch = /class="([^"]*)"/gi.exec(attrsAfter);
+        const classMatch = attrsBefore.match(/class="([^"]*)"/) || attrsAfter.match(/class="([^"]*)"/);
         const classAttr = classMatch ? ` class="${classMatch[1]}"` : '';
-        return `<button${idAttr}${classAttr} type="button">${text}</button>`;
+        return `<button${idAttr}${classAttr} onclick="window.location.hash='#${id}'">${text}</button>`;
       }
     );
     await fs.writeFile(filePath, updatedContent);
@@ -103,20 +103,20 @@ async function fixTableStructure() {
     const updatedContent = fileContent.replace(
       /<table([^>]*)>(\s*)([\s\S]*?)(<\/table>)/gi,
       (match, tableAttrs, whitespace, tableContent) => {
-        if (/<thead>[\s\S]*<\/thead>/i.test(tableContent) || /<tbody>[\s\S]*<\/tbody>/i.test(tableContent)) {
+        if (/<thead/i.test(tableContent) || /<tbody/i.test(tableContent) || !/<tr[\s>]/.test(tableContent)) {
           return match;
         }
-        const firstRowMatch = /<tr[^>]*>([\s\S]*?)<\/tr>/i.exec(tableContent);
+        const firstRowMatch = tableContent.match(/<tr[^>]*>([\s\S]*?)<\/tr>/i);
         if (firstRowMatch) {
           const headerCells = firstRowMatch[1].replace(
-            /<t[dh]([^>]*)>([\s\S]*?)<\/t[dh]>/gi,
+            /<td([^>]*)>([\s\S]*?)<\/td>/gi,
             (cellMatch, cellAttrs, cellContent) =>
-              `<th${cellAttrs}>${cellContent}</th>`
+              `<th scope="col"${cellAttrs}>${cellContent}</th>`
           );
           const restContent = tableContent.replace(firstRowMatch[0], '');
-          return `<table${tableAttrs}><thead><tr>${headerCells}</tr></thead><tbody>${restContent}</tbody></table>`;
+          return `<table${tableAttrs}>${whitespace}<thead>\n<tr>${headerCells}</tr>\n</thead>\n<tbody>${restContent}</tbody>\n</table>`;
         }
-        return `<table${tableAttrs}><tbody>${tableContent}</tbody></table>`;
+        return match;
       }
     );
     await fs.writeFile(filePath, updatedContent);
@@ -138,16 +138,16 @@ async function ensureUniqueLandmarks() {
     const fileContent = await fs.readFile(filePath, 'utf8');
     let updatedContent = fileContent;
     ['banner', 'navigation', 'main', 'complementary', 'contentinfo'].forEach(role => {
-      const rolePattern = new RegExp(`<[^>]*\\b(role=['"]${role}['"]|${role})\\b[^>]*>`, 'gi');
+      const rolePattern = new RegExp(`<(${role})([^>]*)>`, 'gi');
       let match;
       while ((match = rolePattern.exec(updatedContent)) !== null) {
         updatedContent = updatedContent.replace(
           rolePattern,
-          (fullMatch) => {
-            const attrs = fullMatch.match(/[\w-]+=(['"])[^\1]*?\1/gi) || [];
-            const existingAriaLabel = attrs.find(a => /aria-label/i.test(a));
+          (fullMatch, tagName, attrs) => {
+            const attrList = attrs ? attrs.match(/\S+/g) || [] : [];
+            const existingAriaLabel = attrList.find(a => /aria-label/i.test(a));
             if (existingAriaLabel) return fullMatch;
-            return fullMatch.replace(/>$/, ` aria-label="${role}">`);
+            return `<${tagName}${attrs} aria-label="${role}">`;
           }
         );
       }
@@ -197,7 +197,7 @@ async function addSvgAccessibleNames() {
         continue;
       }
 
-      if (/<svg[^>]*>/i.test(fileContent) && !/aria-label/i.test(fileContent)) {
+      if (!/aria-label/i.test(fileContent) && !/role="img"/i.test(fileContent)) {
         const modifiedContent = fileContent.replace(
           /<svg([^>]*)>/gi,
           (match, attrs) => {
@@ -215,7 +215,7 @@ async function addSvgAccessibleNames() {
   }
 }
 
-const mainElement = require('./mainElement');
+const mainElement = 'main';
 
 /**
  * Addresses all accessibility issues from the insight report.

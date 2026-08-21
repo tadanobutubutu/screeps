@@ -22,7 +22,7 @@
   function getMainElement() {
     // Identify the main content element of the application
     // In a real-world scenario, this should be the element containing the primary app content
-    const mainElement = document.querySelector('[data-main-content]') || document.querySelector('main') || document.querySelector('#main-content') || document.querySelector('.main-content');
+    const mainElement = document.querySelector('[data-main-content]') || document.querySelector('main') || document.getElementById('main-content') || document.querySelector('#root main') || document.querySelector('.main-content') || document.querySelector('[role="main"]');
 
     if (!mainElement) {
       console.error('No main content element found. Update the JSX/HTML files to include a data-main-content attribute on the main content container.');
@@ -33,8 +33,8 @@
   }
 
   function fixLanguageAttribute() {
-    const htmlElement = document.querySelector('html');
-    if (htmlElement && !htmlElement.hasAttribute('lang')) {
+    const htmlElement = document.documentElement;
+    if (htmlElement && !htmlElement.lang) {
       htmlElement.setAttribute('lang', 'en'); // Example language, should be set according to actual content
     }
   }
@@ -47,7 +47,7 @@
     }
 
     // Example: Ensure unique landmarks
-    const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
+    const landmarkElements = document.querySelectorAll('[role="navigation"], [role="main"], [role="contentinfo"], [role="banner"], [role="search"]');
     landmarkElements.forEach((element, index) => {
       if (!element.id) {
         element.setAttribute('id', `landmark-${index + 1}`);
@@ -75,7 +75,7 @@
   }
 
   function fixFakeLinkIssue() {
-    const links = document.querySelectorAll('[data-fake-link], .fake-link');
+    const links = document.querySelectorAll('.fake-link');
     links.forEach(link => {
       link.addEventListener('click', function(event) {
         event.preventDefault();

@@ -36,22 +36,45 @@ function updateTableStructure() {
 
 // Add/fix 4 landmark issues
 function fixLandmarkIssues() {
-  const mainElements = document.querySelectorAll('main, [role="main"]');
-  const headers = document.querySelectorAll('header, [role="banner"]');
-  const footers = document.querySelectorAll('footer, [role="contentinfo"]');
-  const navElements = document.querySelectorAll('nav, [role="navigation"]');
-  
+  const mainElements = document.querySelectorAll('[role="main"], main');
+  const headers = document.querySelectorAll('[role="banner"], header');
+  const footers = document.querySelectorAll('[role="contentinfo"], footer');
+  const navElements = document.querySelectorAll('nav');
+
+  // Fix duplicate main landmarks - convert additional main elements to section
+  if (mainElements.length > 1) {
+    mainElements.forEach((main, index) => {
+      if (index > 0) {
+        // Convert additional <main> elements to <section> elements
+        const section = document.createElement('section');
+        section.setAttribute('aria-label', 'Additional content section ' + index);
+        
+        // Move all children from main to section
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        
+        // Copy any inline styles or classes
+        if (main.className) section.className = main.className;
+        if (main.id) section.id = main.id;
+        
+        // Replace main with section
+        main.parentNode.replaceChild(section, main);
+      }
+    });
+  }
+
   // Ensure main elements have proper labeling
   mainElements.forEach((main, index) => {
-    if (!main.id && !main.hasAttribute('aria-label') && !main.hasAttribute('aria-labelledby')) {
+    if (!main.id && !main.getAttribute('aria-label') && !main.getAttribute('aria-labelledby')) {
       main.setAttribute('aria-label', 'Main content section ' + (index + 1));
     }
   });
-  
+
   // Ensure navigation has labels if multiple nav elements exist
   let navIndex = 0;
   navElements.forEach(nav => {
-    if (navElements.length > 1 && !nav.id && !nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
+    if (navElements.length > 1 && !nav.id && !nav.getAttribute('aria-label') && !nav.getAttribute('aria-labelledby')) {
       navIndex++;
       nav.setAttribute('aria-label', 'Navigation ' + navIndex);
     }
@@ -63,9 +86,9 @@ function addSVGAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   const svgNames = ['SVG description 1', 'SVG description 2'];
   let svgIndex = 0;
-  
+
   svgs.forEach(svg => {
-    if (svgIndex < svgNames.length && !svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby') && !svg.querySelector('title')) {
+    if (svgIndex < svgNames.length && !svg.querySelector('title') && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby')) {
       const title = document.createElement('title');
       title.id = 'svg-title-' + (svgIndex + 1);
       title.textContent = svgNames[svgIndex];
@@ -78,9 +101,9 @@ function addSVGAccessibleNames() {
 
 // Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
-  const landmarks = document.querySelectorAll('[role="banner"], [role="contentinfo"], [role="main"], main, header, footer, nav, aside');
+  const landmarks = document.querySelectorAll('[role="contentinfo"], [role="main"], main, header, footer, nav, aside');
   const landmarkNames = new Set();
-  
+
   landmarks.forEach(landmark => {
     const name = landmark.getAttribute('aria-label') || landmark.getAttribute('aria-labelledby') || landmark.id || '';
     if (landmarkNames.has(name) && name !== '') {
@@ -95,20 +118,20 @@ function ensureUniqueLandmarks() {
 
 // Fix 1 fake link issue
 function fixFakeLinkIssue() {
-  const fakeLinks = document.querySelectorAll('span[role="link"], a:not([href])');
-  
+  const fakeLinks = document.querySelectorAll('a:not([href])');
+
   fakeLinks.forEach(link => {
     const text = link.textContent;
     const onClick = link.getAttribute('onclick') || '';
-    
+
     // Convert to proper button if it's an action
     if (onClick || link.style.cursor === 'pointer') {
       link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
     }
-    
+
     // Add keyboard support for Enter key
-    if (!link.hasAttribute('role') || link.getAttribute('role') === 'button') {
+    if (link.getAttribute('onclick') || link.getAttribute('role') === 'button') {
       link.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
           e.preventDefault();

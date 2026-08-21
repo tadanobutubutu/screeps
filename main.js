@@ -1,12 +1,1 @@
-// Main application logic
-
-document.addEventListener('DOMContentLoaded', function() {
-    var unrotateBtn = document.getElementById('unrotate');
-    if (unrotateBtn) {
-        unrotateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            // rotate back logic
-            document.body.classList.remove('rotated');
-        });
-    }
-});
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

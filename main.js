@@ -1,14 +1,12 @@
-Here is the resolved file content:
-
-```javascript
 // Existing code (preserved as-is)
 // New accessibility improvements
+
 /**
  * Adds proper language attribute to the HTML element for screen readers
  * Fixes REACT_015: React Language Attribute
  */
 function ensureLanguageAttribute() {
-  const htmlElement = document.querySelector('html');
+  const htmlElement = document.documentElement;
   if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
@@ -58,11 +56,17 @@ function ensureProperLandmarks() {
  * Ensures SVG elements have accessible names
  * Fixes REACT_041: React SVG Accessible Name
  */
-function ensureSvgAccessibility() {
+function ensureSvgAccessibleNames() {
   const svgs = document.querySelectorAll('svg');
   svgs.forEach(svg => {
-    if (!svg.hasAttribute('aria-label') && !svg.hasAttribute('aria-labelledby')) {
-      svg.setAttribute('aria-label', 'Decorative graphic');
+    const hasTitle = svg.querySelector('title');
+    const hasAriaLabel = svg.hasAttribute('aria-label');
+    const hasAriaLabelledby = svg.hasAttribute('aria-labelledby');
+
+    if (!hasTitle && !hasAriaLabel && !hasAriaLabelledby) {
+      const title = document.createElement('title');
+      title.textContent = 'Decorative graphic';
+      svg.prepend(title);
     }
   });
 }
@@ -77,28 +81,17 @@ function ensureUniqueLandmarks() {
     for (let i = 1; i < mains.length; i++) {
       const section = document.createElement('section');
       section.innerHTML = mains[i].innerHTML;
-      mains[i].replaceWith(section);
+      mains[i].parentNode.replaceChild(section, mains[i]);
     }
   }
 
   // Ensure headers have unique IDs
-  const headers = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  const headers = document.querySelectorAll('h2, h3, h4, h5, h6');
   headers.forEach((header, index) => {
     if (!header.hasAttribute('id')) {
       header.setAttribute('id', `heading-${index + 1}`);
     }
   });
-
-  // Additional fix for unique landmarks from the origin/main branch
-  function uniqueLandmarks() {
-    const links = document.querySelectorAll('[id^="unrotate"]');
-    links.forEach(link => {
-      const id = link.id;
-      const index = id.split('-')[1];
-      link.id = `unrotate-${index}`;
-    });
-  }
-  uniqueLandmarks();
 }
 
 /**
@@ -106,38 +99,36 @@ function ensureUniqueLandmarks() {
  * Fixes REACT_036: React Fake Link
  */
 function replaceFakeLinks() {
-  const fakeLinks = document.querySelectorAll('[role="link"], [role="button"]');
+  const fakeLinks = document.querySelectorAll('[role="link"]');
   fakeLinks.forEach(element => {
-    if (element.getAttribute('role') === 'link' && !element.tagName.toLowerCase() === 'a') {
+    const tagName = element.tagName.toLowerCase();
+    if (element.getAttribute('role') === 'link' && tagName !== 'a') {
       const anchor = document.createElement('a');
-      anchor.href = element.getAttribute('data-href') || '#';
+      anchor.href = element.getAttribute('href') || '#';
       anchor.textContent = element.textContent;
       element.replaceWith(anchor);
     }
   });
 
-  // Additional fix for the specific case mentioned in the issue from the origin/main branch
-  const rotateBackLinks = document.querySelectorAll('#unrotate');
+  // Additional fix for the specific case mentioned in the issue
+  const rotateBackLinks = document.querySelectorAll('.rotate-back-link');
   rotateBackLinks.forEach(link => {
     const button = document.createElement('button');
     button.id = link.id;
     button.textContent = link.textContent;
     button.addEventListener('click', () => {
-      // Add your rotation logic here
       console.log('Rotation back triggered');
     });
     link.replaceWith(button);
   });
 }
 
-// Initialize accessibility improvements when DOM is loaded
+// Initialize accessibility improvements when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   ensureLanguageAttribute();
   enhanceTableAccessibility();
   ensureProperLandmarks();
-  ensureSvgAccessibility();
+  ensureSvgAccessibleNames();
   ensureUniqueLandmarks();
   replaceFakeLinks();
 });
-```
-I have integrated the changes from both branches, including the unique landmarks fix (REACT\_025) from the origin/main branch. The resolved file does not introduce any syntax errors and preserves comments and style as much as possible.

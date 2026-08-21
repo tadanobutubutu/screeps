@@ -1,13 +1,10 @@
-Below is the resolved `main.js` file that incorporates both changes:
-
-```javascript
 // Assuming that 'import React' and 'ReactDOM' are defined elsewhere in your project
 import React from 'react';
 import ReactDOM from 'react-dom';
 
 // Import your layout components or components that render the primary content
 import DashboardLayout from './dashboard/app/layout';
-import DocsDependencyGraph from ...
+import DocsDependencyGraph from './docs/dependency-graph';
 import DocsIndex from './docs/index';
 import AppLayout from './app/layout';
 import MyNewComponent from './my-new-component';
@@ -39,8 +36,3 @@ ReactDOM.render(
   </React.StrictMode>,
   ...
 );
-
-// ... rest of your main.js file ...
-```
-
-In the integrated version of the file, `MyNewComponent` has been added based on changes from the `origin/main` branch. This new component (and its primary content) is rendering after the existing components (`DashboardLayout`, `DocsDependencyGraph`, `DocsIndex`, `AppLayout`).

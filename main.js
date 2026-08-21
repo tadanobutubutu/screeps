@@ -1,21 +1,17 @@
 // main.js
 // [Your existing code here]
 
-// Add the HTML lang attribute to the root element
 document.documentElement.lang = 'en';
 
-// New function to update the document title
 function updateDocumentTitle(newTitle) {
   document.title = newTitle;
 }
 
-// New function to log a message to the console
 function logMessage(message) {
   console.log(message);
 }
 
-// Fix 26 table structure issues
-function updateTableStructure() {
+function fixTableStructure() {
   // Example code to update table structure
   // You should replace this with the actual code needed to fix the issues
   const tables = document.querySelectorAll('table');
@@ -25,7 +21,6 @@ function updateTableStructure() {
   });
 }
 
-// Add/fix 4 landmark issues
 function fixLandmarkIssues() {
   // Example code to fix landmark issues
   // You should replace this with the actual code needed to fix the issues
@@ -36,7 +31,6 @@ function fixLandmarkIssues() {
   });
 }
 
-// Add accessible names to 2 SVGs
 function addAccessibleNamesToSVGs() {
   // Example code to add accessible names to SVGs
   // You should replace this with the actual code needed to fix the issues
@@ -47,7 +41,6 @@ function addAccessibleNamesToSVGs() {
   });
 }
 
-// Ensure unique landmarks (2 issues)
 function ensureUniqueLandmarks() {
   // Example code to ensure unique landmarks
   // You should replace this with the actual code needed to fix the issues
@@ -63,7 +56,6 @@ function ensureUniqueLandmarks() {
   });
 }
 
-// Fix 1 fake link issue
 function fixFakeLinkIssue() {
   // Example code to fix fake link issues
   // You should replace this with the actual code needed to fix the issues
@@ -73,4 +65,5 @@ function fixFakeLinkIssue() {
   });
 }
 
+element.innerHTML = '<button id="unrotate">rotate back</button>';
 // [Rest of your existing code here]

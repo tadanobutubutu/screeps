@@ -1,18 +1,20 @@
 // main.js
-// Fix for REACT_015: Ensure the HTML element has a lang attribute for accessibility.
+// Fix for REACT_027: Add scope attribute to <th> for accessibility.
 
-function ensureLangAttribute() {
+function ensureScopeAttribute() {
   if (typeof document !== 'undefined') {
-    const html = document.documentElement;
-    if (!html.getAttribute('lang')) {
-      html.setAttribute('lang', 'en');
-    }
+    const tableHeaders = document.querySelectorAll('th');
+    tableHeaders.forEach(header => {
+      if (header.getAttribute('scope') === null) {
+        header.setAttribute('scope', 'col');
+      }
+    });
   }
 }
 
 // Run immediately if in a browser environment
 if (typeof window !== 'undefined') {
-  ensureLangAttribute();
+  ensureScopeAttribute();
 }
 
-module.exports = { ensureLangAttribute };
+module.exports = { ensureScopeAttribute };

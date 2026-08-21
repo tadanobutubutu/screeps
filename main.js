@@ -70,8 +70,8 @@ const createAccessibleModal = (props) => {
 
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -82,7 +82,7 @@ const fixTableStructure = () => {
   tables.forEach(table => {
     // Implement table structure fixes here
     // Example: Add a caption or ensure proper headers
-    if (!table.querySelector('caption') && !table.querySelector('aria-label')) {
+    if (table && !table.querySelector('caption')) {
       const caption = document.createElement('caption');
       caption.textContent = 'Table Description';
       table.insertBefore(caption, table.firstChild);
@@ -94,9 +94,9 @@ const fixTableStructure = () => {
 // Fix 4 landmark issues
 const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
-  const navs = document.querySelectorAll('nav');
+  const navs = document.querySelectorAll('nav, [role="navigation"]');
   navs.forEach((nav, index) => {
-    if (!nav.getAttribute('role') && !nav.getAttribute('aria-label')) {
+    if (nav && !nav.hasAttribute('aria-label')) {
       nav.setAttribute('role', 'navigation');
       nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Navigation ' + (index + 1));
     }
@@ -109,7 +109,7 @@ const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   svgs.forEach(svg => {
-    if (count < 2 && !svg.querySelector('title') && !svg.getAttribute('aria-label') && svg.getAttribute('role') === 'img') {
+    if (count < 2 && svg && !svg.querySelector('title') && svg.getAttribute('role') === 'img') {
       const title = document.createElement('title');
       title.textContent = 'SVG ' + (count + 1) + ' description';
       title.id = 'svg-title-' + (count + 1);
@@ -123,7 +123,7 @@ const addAccessibleNamesToSVGs = () => {
 // Ensure unique landmarks (2 issues)
 const ensureUniqueLandmarks = () => {
   // Example: Ensure navigation landmark is unique
-  const navs = document.querySelectorAll('nav[role="navigation"], nav');
+  const navs = document.querySelectorAll('nav, [role="navigation"]');
   if (navs.length > 1) {
     navs.forEach((nav, index) => {
       if (index > 0) {

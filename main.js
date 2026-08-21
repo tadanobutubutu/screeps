@@ -8,8 +8,12 @@ const Dashboard = () => {
         <React.Fragment>
             {/* Keep the content inside one single "main" */}
             <main>
-                // ... (rest of the dashboard content)
+                {/* ... (rest of the dashboard content) */}
             </main>
+            {/* Replace the duplicate <main> with a <section> or <article> */}
+            <section>
+                {/* ... (content that was previously in the duplicate <main>) */}
+            </section>
         </React.Fragment>
     );
 };

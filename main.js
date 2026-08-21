@@ -12,7 +12,9 @@ export function createMainHTML({ children, id }) {
         <main id="${id}" aria-label="Main content">
           ${children}
         </main>
-        <!-- existing body content -->
+
+        // Incorporate the table scope attribute fixing function
+        ${fixTableHeaders(`<!-- existing body content -->`)}
       </body>
     </html>
   `;
@@ -52,10 +54,14 @@ export function createIndexHTML() {
 
 // Example of how to use the new function to create updated html for another specific page
 export function createDependencyGraphHTML(updatedTableContent) {
+  // Incorporate the table scope attribute fixing function on the specific page
   return createMainHTML({
-    children: updatedTableContent,
+    children: fixTableHeaders(updatedTableContent),
     id: 'dependency_graph',
   });
 }
 
 // ... Rest of your existing code ...
+```
+
+The conflict has been resolved by incorporating the `fixTableHeaders` function in the existing `createMainHTML` function for all pages, except `createIndexHTML` which already has its own fixed table content. The updated `createDependencyGraphHTML` function now applies the `fixTableHeaders` function to the provided content before creating the main HTML.

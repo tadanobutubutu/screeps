@@ -1,9 +1,1 @@
-module.exports = {
-  foo: function() {
-    // existing code
-  },
-  bar: function() {
-    // existing code
-  },
-  // ... other exports
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

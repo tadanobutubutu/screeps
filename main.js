@@ -12,7 +12,7 @@ const dependencyUpdates = {
 /**
  * Adds a pending dependency update to the tracking list
  * @param {Object} update - The dependency update object
- * @param {HTMLElement} mainElement - The main HTML element (new argument)
+ * @param {HTMLElement} mainElement - The main HTML element
  */
 function addPendingUpdate(update, mainElement) {
   // ...
@@ -21,7 +21,7 @@ function addPendingUpdate(update, mainElement) {
 /**
  * Adds a blocked dependency update to the tracking list
  * @param {Object} update - The blocked update object
- * @param {HTMLElement} mainElement - The main HTML element (new argument)
+ * @param {HTMLElement} mainElement - The main HTML element
  */
 function addBlockedUpdate(update, mainElement) {
   // ...
@@ -31,7 +31,7 @@ function addBlockedUpdate(update, mainElement) {
  * Adds a detected dependency to the tracking list
  * @param {string} ecosystem - The ecosystem type (npm, github-actions, etc.)
  * @param {Array} dependencies - List of detected dependencies
- * @param {HTMLElement} mainElement - The main HTML element (new argument)
+ * @param {HTMLElement} mainElement - The main HTML element
  */
 function addDetectedDependencies(ecosystem, dependencies, mainElement) {
   // ...
@@ -119,6 +119,7 @@ function addLandmarks(mainElement) {
   elementConfigs.forEach(config => {
     // ...
   });
+  mainElement.setAttribute('aria-label', 'Main content area');
 }
 
 // Add accessible names to SVGs

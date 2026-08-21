@@ -38,10 +38,10 @@ export default function Main() {
   return (
     <div lang="en">
       <Container>
-        <header>
-          <h1 className="sr-only">Source Code Overview</h1>
+        <header role="banner" aria-label="Site header">
+          <h1>Code Overview</h1>
         </header>
-        <main>
+        <main role="main" aria-label="Main content">
           <section aria-label="Metadata section">
             <>{tableTitle}</>
             <>{tableDesc}</>
@@ -55,10 +55,10 @@ export default function Main() {
             <Table>
               <caption>The table below provides an overview of source code files.</caption>
               <thead>
-                {getHeaderGroups().map(headerGroup => (
-                  <tr {...headerGroup.getHeaderGroupProps()}>
-                    {headerGroup.headers.map(column => (
-                      <th {...column.getHeaderProps()} scope="col">
+                ... => (
+                  <tr ...
+                    ... => (
+                      <th ... scope="col">
                         {column.render('Header')}
                       </th>
                     ))}
@@ -71,7 +71,7 @@ export default function Main() {
             </Table>
           </section>
         </main>
-        <footer>
+        <footer role="contentinfo" aria-label="Site footer">
           <RotateBackButton />
         </footer>
       </Container>

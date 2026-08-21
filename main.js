@@ -6,7 +6,7 @@ function App() {
   // ... existing function content
 
   return (
-    <div className="App">
+    <div className="App" aria-label="Main application content">
       {/* You need to add an aria-label or <title> child here */}
       <img src={favicon} alt="Favicon" />
       // ... rest of your code

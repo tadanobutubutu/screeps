@@ -62,19 +62,19 @@ const App = () => {
           </thead>  
           <tbody>  
             <tr>  
-              <td><span id="row1-name">Alice</span></td>  
-              <td><span id="row1-age">30</span></td>  
+              <td><span>John</span></td>  
+              <td><span>30</span></td>  
             </tr>  
             <tr>  
-              <td><span id="row2-name">Bob</span></td>  
-              <td><span id="row2-age">25</span></td>  
+              <td><span>Jane</span></td>  
+              <td><span>25</span></td>  
             </tr>  
           </tbody>  
         </table>  
         {/* Accessible SVG with title */}  
-        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">  
-          <title>User avatar</title>  
-          <circle cx="10" cy="10" r="8" stroke="black" stroke-width="2"/>  
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-labelledby="svg-title">  
+          <title id="svg-title">User avatar</title>  
+          <circle cx="10" cy="10" r="8" stroke="black" strokeWidth="2"/>  
         </svg>  
         {/* Non‑link button replaces fake link */}  
         <button onClick={() => alert('Clicked!')}>Click me</button>  

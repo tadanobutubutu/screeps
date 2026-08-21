@@ -13,7 +13,7 @@ const Layout = ({ children }) => {
           viewBox="0 0 16 16" 
           role="img"
           focusable="false"
-          ...
+          aria-labelledby="svg-title-icon"
         >
           <title id="svg-title-icon">Icon description</title>
           {/* SVG content */}
@@ -25,11 +25,11 @@ const Layout = ({ children }) => {
   );
 };
 
-// New function requested in the issue
 const getIconDescription = () => {
   // Placeholder for function logic
   return "Default icon description";
 };
 
+// Existing exports
 export default Layout;
 export { getIconDescription };

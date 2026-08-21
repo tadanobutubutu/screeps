@@ -18,7 +18,7 @@ function main(options = {}) {
 
   // If necessary, use imported dependencies inside this function
   // For example:
-  // exampleFunction(options);
+  // ...
 }
 
 // Export main function for CommonJS and ES module systems
@@ -30,15 +30,51 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 
 // Wrap the primary content in <main> for accessibility
-function renderDependencyDashboard() {
-  const mainContent = document.createElement('main');
+function renderDependencyDashboard(options = {}) {
+  const mainContent = document.querySelector('#main-content') || document.body;
+  
+  const pendingCount = options.pendingUpdates?.length || 0;
+  const detectedCount = options.detectedDependencies?.length || 0;
+  
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
+      <h1>Dependency Dashboard</h1>
+      <div class="dashboard-stats">
+        <p>Pending Updates: <strong>${pendingCount}</strong></p>
+        <p>Detected Dependencies: <strong>${detectedCount}</strong></p>
+      </div>
+      <div class="dashboard-actions">
+        ${pendingCount > 0 ? '<button id="unrotate">rotate back</button>' : ''}
+      </div>
       <!-- Dependency dashboard content goes here -->
     </div>
   `;
-  document.body.appendChild(mainContent);
+  
+  // Add click handler for the rotate back button
+  const unrotateButton = mainContent.querySelector('#unrotate');
+  if (unrotateButton) {
+    unrotateButton.addEventListener('click', () => {
+      console.log('Rotate back action triggered');
+      // Reset/rotate back action logic
+      if (typeof onRotateBack === 'function') {
+        onRotateBack();
+      }
+    });
+  }
+}
+
+// Global callback for rotate back action (can be overridden)
+if (typeof window !== 'undefined') {
+  window.onRotateBack = window.onRotateBack || function() {
+    // Default implementation - to be customized
+  };
 }
 
 // Call the function to render the dashboard
-renderDependencyDashboard();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => renderDependencyDashboard());
+  } else {
+    renderDependencyDashboard();
+  }
+}

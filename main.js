@@ -28,9 +28,17 @@ export const getAccessibleTable = (data) => {
   );
 };
 
-export const AccessibleSVG = ({ children }) => {
+export const AccessibleSVG = ({ children, label = 'Graphic', hidden = false }) => {
+  if (hidden) {
+    return (
+      <svg aria-hidden="true" focusable="false">
+        {children}
+      </svg>
+    );
+  }
+  
   return (
-    <svg aria-label="Graphic" role="img">
+    <svg aria-label={label} role="img">
       {children}
     </svg>
   );

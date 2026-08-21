@@ -168,7 +168,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function formatDate(date, options = {}) {
@@ -178,12 +178,12 @@ export function formatDate(date, options = {}) {
     day: 'numeric',
     ...options
   };
-  return new Intl.DateTimeFormat('en-US', defaultOptions).format(date);
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(new Date(date));
 }
 
 export function debounce(func, wait) {
   let timeout;
-  return function executedFunction(...args) {
+  return function(...args) {
     const later = () => {
       clearTimeout(timeout);
       func(...args);
@@ -195,7 +195,7 @@ export function debounce(func, wait) {
 
 export function throttle(func, limit) {
   let inThrottle;
-  return function executedFunction(...args) {
+  return function(...args) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;

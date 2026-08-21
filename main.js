@@ -1,6 +1,13 @@
 // Existing imports or code
 // ... [original main.js content] ...
 
+// Wrap the primary content in <main> for accessibility
+document.getElementById('primary-content').innerHTML = `
+  <main>
+    ${document.getElementById('primary-content').innerHTML}
+  </main>
+`;
+
 // Replace the <a> element with a <button> element for the 'rotate back' action
 document.getElementById('unrotate').outerHTML = `
   <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">

@@ -263,5 +263,6 @@ export const RequiredIndicator = () => {
   );
 };
 
-// Export all accessibility utilities
+// Export all new accessibility-friendly components
 export { SkipLink, LiveRegion, Modal, ErrorMessage, RequiredIndicator };
+```

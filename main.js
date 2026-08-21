@@ -175,6 +175,11 @@ function getRequiredDependencies() {
   return result;
 }
 
+// Set lang attribute on HTML element to address accessibility issue
+if (typeof document !== 'undefined') {
+  document.documentElement.setAttribute('lang', 'en');
+}
+
 // Add the new function to the module.exports
 module.exports = {
   addPendingUpdate,

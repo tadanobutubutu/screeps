@@ -1,15 +1,9 @@
-// Existing main.js content
-// ...
+const tableHeaders = [
+  { label: 'src/constants.js', value: 'Constants', scope: 'col' },
+  { label: 'src/managers/roomManager.js', value: 'Room Manager', scope: 'col' },
+  // ... other headers with scope: 'col' added
+];
 
-// Add new functions or changes requested in the issue
-// Example: If a new function is needed to handle the error state in Dashboard.tsx
-function handleErrorMessage(error) {
-    // Implementation for handling error message
-    // ...
-}
-
-// Replace the duplicate <main> elements in Dashboard.tsx with <section> or <article>
-// Ensuring proper landmark usage: <main> for primary content, <section> for subsections like errors
 import React from 'react';
 
 const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
@@ -17,7 +11,6 @@ const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
 
     return (
         <div>
-            {/* Replace the duplicate <main> elements */}
             {error ? (
                 <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
                     <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
@@ -47,5 +40,3 @@ const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
 };
 
 export default Dashboard;
-
-// ...

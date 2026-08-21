@@ -43,7 +43,7 @@ function makeApiCall(endpoint) {
 function setLangAttribute(lang, targetDoc) {
   const doc = targetDoc || document;
   if (doc.documentElement) {
-    doc.documentElement.setAttribute("lang", lang || "en");
+    doc.documentElement.lang = lang || "en";
   }
 }
 
@@ -71,7 +71,7 @@ function addSvgAccessibleName(svgElement, title, description) {
   }
   
   // Generate unique IDs for accessibility
-  const titleId = "svg-title-" + Math.random().toString(36).substr(2, 9);
+  const titleId = "svg-title-" + Math.random().toString(36).substring(2, 11);
   
   // Add title element for screen reader support
   const titleEl = document.createElement("title");
@@ -84,11 +84,11 @@ function addSvgAccessibleName(svgElement, title, description) {
   
   // Optionally add desc for more detail
   if (description) {
-    const descId = "svg-desc-" + Math.random().toString(36).substr(2, 9);
+    const descId = "svg-desc-" + Math.random().toString(36).substring(2, 11);
     const descEl = document.createElement("desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.insertBefore(descEl, svgElement.firstChild);
+    svgElement.insertBefore(descEl, svgElement.firstChild.nextSibling);
     
     // Update aria-labelledby to include both title and description
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
@@ -114,14 +114,14 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.getAttribute("tabindex")) {
+  if (!element.hasAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }
 
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
-  const landmarks = container.querySelectorAll("[role], header, nav, main, footer, aside, section");
+  const landmarks = container.querySelectorAll("header, nav, main, footer, aside, section");
   const seenLandmarks = {};
   
   landmarks.forEach(function(landmark) {

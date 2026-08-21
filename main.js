@@ -1,1 +1,1 @@
-// The user is asking for the content of main.js, especially the conflict markers (<<<<<<<, =======, >>>>>>>). We don't have it. Let's list the repository to understand the structure.I don't have access to the repository files in real time, but I can attempt to read them. Let's start by listing the root directory to see what we have.
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

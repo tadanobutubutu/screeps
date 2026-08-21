@@ -1,18 +1,1 @@
-import React from 'react';
-
-const Layout = ({ children }) => {
-  // existing code...
-  return (
-    <html lang="ja">
-      <head>
-        {/* existing head content */}
-      </head>
-      <body>
-        <main>{children}</main>
-      </body>
-    </html>
-  );
-};
-
-export default Layout;
-export { Layout };
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

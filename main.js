@@ -43,7 +43,7 @@
 
   function fixLanguageAttribute() {
     var html = document.documentElement;
-    if (html && !html.lang) {
+    if (html) {
       html.lang = 'en';
     }
   }

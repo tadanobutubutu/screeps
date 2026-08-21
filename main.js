@@ -6,7 +6,7 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
     const [copied, setCopied] = useState(false);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -31,9 +31,9 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
                 <button
                     onClick={copyErr}
                     onMouseEnter={() => setErrCopyHover(true)}
-                    onMouseLeave={() => setErrCopyHover(false)}
+                    onMouseLeave={() => ...
                     onFocus={() => setErrCopyHover(true)}
-                    onBlur={() => setErrCopyHover(false)}
+                    onBlur={() => ...
                     aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                     title={copied ? 'コピー済み' : 'エラーをコピー'}
                     style={{
@@ -82,7 +82,7 @@ const Dashboard = ({ stats, error, refreshing, fetchStats }) => {
         <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
             <h1 style={{ color: '#004b73' }}>📊 ダッシュボード</h1>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                {Object.entries(stats).map(([key, value]) => (
+                ... value]) => (
                     <div
                         key={key}
                         style={{

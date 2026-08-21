@@ -6,9 +6,11 @@
 // ========
 
 // New code to fix the issue
-const htmlElement = document.querySelector('html');
-if (htmlElement) {
-  htmlElement.setAttribute('lang', 'en');
+// Ensure that only one <main> element exists in the document
+const mainElements = document.querySelectorAll('main');
+if (mainElements.length > 1) {
+  // If there are multiple <main> elements, remove all but the first one
+  mainElements.slice(1).forEach(main => main.remove());
 }
 
 // Existing code after conflict markers

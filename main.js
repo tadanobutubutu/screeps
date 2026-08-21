@@ -8,6 +8,13 @@
 function enhanceAccessibility() {
   // Code to enhance accessibility features
   // For example, adding ARIA roles, keyboard navigation support, etc.
+  // Here's some sample code to demonstrate the addition of ARIA roles:
+
+  const heading = document.querySelector('h1');
+  heading.setAttribute('aria-label', 'Main Heading');
+
+  const link = document.querySelector('a[href="/about"]');
+  link.setAttribute('aria-label', 'Link to About page');
 }
 
 // Existing Code (to be preserved)

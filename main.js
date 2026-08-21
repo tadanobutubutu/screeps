@@ -45,4 +45,13 @@
 // </svg>
 // OR use aria-hidden="true" if purely decorative
 
-module.exports = { accessibilityFixes: true };
+module.exports = {
+  accessibilityFixes: true,
+  // New fix for REACT_036
+  fixNonNavigationalLink: (htmlContent) => {
+    // Replace all non-navigation <a> tags with <button>
+    return htmlContent.replace(/<a href="#"[^>]*>(.*?)<\/a>/g, (match, text) => {
+      return `<button>${text}</button>`;
+    });
+  }
+};

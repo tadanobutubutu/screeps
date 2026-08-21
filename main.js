@@ -1,17 +1,31 @@
 import React from 'react';
 import { useTable } from 'react-table';
+import { Container, Table } from 'reactstrap';
 
 // Main component
 export default function Main() {
   // Define the columns for the table (26 columns total)
   const columns = [
     { Header: 'src/constants.js' },
-    { Header: 'src/managers/roomManager.js' },
-    { Header: 'src/managers/spawnManager.js' },
-    { Header: 'src/managers/towerManager.js' },
-    { Header: 'src/roles/builder.js' },
     // ... (additional columns up to 26 total)
   ];
+
+  // Accessibility improvements
+  const heading = (id, text) => (
+    <h2 id={id} aria-level={2}>
+      {text}
+    </h2>
+  );
+
+  const desc = (text) => (
+    <p className="lead" aria-label="Description">
+      {text}
+    </p>
+  );
+
+  const tableTitle = heading('table-title', 'File Overview Table');
+  const tableDesc = desc('The table below provides an overview of source code files.');
+  const categoryHeading = (category) => heading(`category-${category}`, category);
 
   // Initialize the React Table hook
   const {
@@ -22,35 +36,22 @@ export default function Main() {
   } = useTable({ columns });
 
   return (
-    <table>
-      <caption className="sr-only">Source code file overview table</caption>
-      <thead>
-        {getHeaderGroups().map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <th {...column.getHeaderProps()} scope="col">
-                {column.render('Header')}
-              </th>
-            ))}
-          </tr>
+    <Container>
+      <section aria-label="Metadata section">
+        <>{tableTitle}</>
+        <>{tableDesc}</>
+      </section>
+      <section aria-label="Categories section">
+        {columns.map(({ Header: category }, idx) => (
+          <>{categoryHeading(idx)}</>
         ))}
-      </thead>
-      <tbody>
-        {allColumns.map(row => (
-          <tr {...row.getRowProps()}>
-            {row.cells.map((cell, idx) => (
-              <td
-                {...cell.getCellProps()}
-                scope={idx === 0 ? 'row' : undefined}
-                role={idx === 0 ? 'rowheader' : undefined}
-              >
-                {cell.render('Cell')}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      </section>
+      <section aria-label="Table section">
+        <Table>
+          {/* Remaining table structure */}
+        </Table>
+      </section>
+    </Container>
   );
 }
 

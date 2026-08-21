@@ -4,8 +4,8 @@
 function ensureLangAttribute() {
   if (typeof document !== 'undefined') {
     const html = document.documentElement;
-    if (!html.getAttribute('lang')) {
-      html.setAttribute('lang', 'en');
+    if (html && !html.lang) {
+      html.lang = 'en';
     }
   }
 }

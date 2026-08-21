@@ -1,6 +1,1 @@
-// Main entry point for the Screeps application
-import { Dashboard } from './components/Dashboard';
-
-export default function App() {
-  return <Dashboard />;
-}
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

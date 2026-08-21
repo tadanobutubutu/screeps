@@ -269,6 +269,107 @@ async function addSvgAccessibleNames() {
 }
 
 /**
+ * Function to add accessible name to SVGs for accessibility
+ * @param {string} svgData - SVG content as string
+ * @param {string} label - Accessible label to add
+ * @returns {string} - Modified SVG with accessible name
+ */
+function addAccessibleSvg(svgData, label) {
+  // Regex to find the SVG tag and the content within it
+  const svgRegex = /<svg[\s\S]*?<\/svg>/i;
+  const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
+  const textRegex = /<text[^>]*>(.*?)<\/text>/i;
+
+  // Replace the SVG content with an updated version that includes a title element
+  return svgData.replace(svgRegex, (match) => {
+    // Check if the SVG already contains a title
+    let hasTitle = titleRegex.test(match);
+    let hasText = textRegex.test(match);
+
+    // Add a title element if it doesn't already exist and if the SVG contains text
+    if (!hasTitle && hasText) {
+      // Replace the SVG content with a title element wrapping the existing text
+      return match.replace(textRegex, (textMatch) => {
+        return `<title>${label}</title>${textMatch}`;
+      });
+    }
+
+    // If the SVG doesn't contain text or already has a title, return the original match
+    return match;
+  });
+}
+
+/**
+ * Function to update icons with accessible name
+ * @param {Object} icons - Object containing icon SVG data
+ * @param {string} label - Accessible label to add
+ * @returns {Object} - Updated icons object with accessible SVGs
+ */
+function updateIcons(icons, label) {
+  const updatedIcons = {};
+  for (const key in icons) {
+    const svgData = icons[key];
+    const accessibleSvg = addAccessibleSvg(svgData, label);
+    updatedIcons[key] = accessibleSvg;
+  }
+  return updatedIcons;
+}
+
+/**
+ * Function to update the 'rotate back' link with a button for accessibility
+ * Note: This function is designed for client-side use in browsers
+ */
+function updateRotateBackLink() {
+  // Check if we're in a browser environment
+  if (typeof document === 'undefined') return;
+  
+  const rotateBackLink = document.querySelector('.rotate-back a, a.rotate-back');
+  if (rotateBackLink) {
+    // Replace the anchor with a button
+    const button = document.createElement('button');
+    button.textContent = 'rotate back';
+    button.type = 'button'; // Specify the button type to avoid form submission
+    button.className = rotateBackLink.className;
+    rotateBackLink.parentNode.replaceChild(button, rotateBackLink);
+  }
+}
+
+/**
+ * Function to add main landmark for accessibility (client-side version)
+ * Note: This function is designed for client-side use in browsers
+ * Addresses REACT_017
+ */
+function addMainLandmarkClient() {
+  // Check if we're in a browser environment
+  if (typeof document === 'undefined') return;
+  
+  // Check if main element already exists
+  const existingMain = document.querySelector('main');
+  if (existingMain) {
+    return; // Already has a main landmark
+  }
+
+  // Find the primary content area
+  const tableRotated = document.getElementById('table-rotated');
+  const container = document.querySelector('.container');
+  const primaryContent = tableRotated || container;
+
+  // Wrap the primary content in a main element
+  if (primaryContent && primaryContent.parentNode) {
+    const main = document.createElement('main');
+    primaryContent.parentNode.insertBefore(main, primaryContent);
+    main.appendChild(primaryContent);
+  }
+}
+
+/**
+ * Function to add a new feature
+ */
+function myFunction() {
+  console.log("This is my new function!");
+}
+
+/**
  * Addresses all accessibility issues from the insight report.
  * Orchestrates the individual accessibility functions in the correct order.
  */
@@ -296,6 +397,11 @@ module.exports = {
   fixTableStructure,
   ensureUniqueLandmarks,
   addSvgAccessibleNames,
+  addAccessibleSvg,
+  updateIcons,
+  updateRotateBackLink,
+  addMainLandmarkClient,
+  myFunction,
   addressAccessibilityIssues
 };
 
@@ -307,10 +413,23 @@ exports.replaceHashLinksWithButtons = replaceHashLinksWithButtons;
 exports.fixTableStructure = fixTableStructure;
 exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
+exports.addAccessibleSvg = addAccessibleSvg;
+exports.updateIcons = updateIcons;
+exports.updateRotateBackLink = updateRotateBackLink;
+exports.addMainLandmarkClient = addMainLandmarkClient;
+exports.myFunction = myFunction;
 // Exported for completeness, though primarily internal
 exports.addressAccessibilityIssues = addressAccessibilityIssues;
 
 // Run accessibility fixes if this script is executed directly
 if (require.main === module) {
   addressAccessibilityIssues();
+}
+
+// Client-side initialization for browser environment
+if (typeof window !== 'undefined') {
+  window.onload = function() {
+    updateRotateBackLink();
+    addMainLandmarkClient();
+  };
 }

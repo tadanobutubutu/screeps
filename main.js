@@ -22,21 +22,21 @@
   function getMainElement() {
     // Try to find the main element by various selectors
     var mainElement = document.querySelector('main') || 
-                      document.getElementById('main') ||
                       document.querySelector('[role="main"]') ||
-                      document.querySelector('#main-content');
+                      document.getElementById('main') ||
+                      document.getElementById('main-content');
     if (!mainElement) {
       // Fallback: look for common main content containers
       mainElement = document.getElementById('content') ||
-                    document.getElementById('table-rotated') ||
+                    document.getElementById('app-content') ||
                     document.querySelector('#root > main') ||
                     document.querySelector('#root > div');
     }
     if (!mainElement) {
       // Fallback: look for common class or id patterns
       mainElement = document.querySelector('.content') || 
-                    document.querySelector('.container') ||
-                    document.querySelector('table#table-rotated');
+                    document.querySelector('.main-content') ||
+                    document.querySelector('.app');
     }
     return mainElement;
   }
@@ -56,7 +56,7 @@
     }
     
     // Fix duplicate landmark issues (REACT_025)
-    var landmarks = Array.from(document.querySelectorAll('header, nav, main, footer, aside'));
+    var landmarks = document.querySelectorAll('nav, main, footer, aside');
     landmarks.forEach(function(landmark, index) {
       if (index > 0 && !landmark.id) {
         landmark.id = 'main-content-' + index;
@@ -66,7 +66,7 @@
 
   function fixMissingMain() {
     // Fix REACT_017 - React Landmarks: Add missing <main> landmark
-    var existingMain = document.querySelector('main');
+    var existingMain = document.querySelector('main') || document.querySelector('[role="main"]');
     
     if (!existingMain) {
       // Find the table with id 'table-rotated' - one of the affected elements
@@ -74,19 +74,21 @@
       if (tableRotated && tableRotated.parentNode) {
         var main = document.createElement('main');
         main.id = 'main-content';
+        main.setAttribute('role', 'main');
         tableRotated.parentNode.insertBefore(main, tableRotated);
         main.appendChild(tableRotated);
       }
       
       // Find the container with Quality & Metrics Reports - the other affected element
-      var containerDiv = document.querySelector('.container h2');
+      var containerDiv = document.querySelector('h2');
       if (containerDiv && containerDiv.parentNode) {
         var container = containerDiv.parentNode;
         var parent = container.parentNode;
-        if (parent && !parent.querySelector('main')) {
+        if (parent && parent.tagName !== 'MAIN') {
           // Check if this container isn't already wrapped
           var main = document.createElement('main');
           main.id = 'main-doc';
+          main.setAttribute('role', 'main');
           parent.insertBefore(main, container);
           main.appendChild(container);
         }
@@ -112,28 +114,35 @@
         }
       }
       
-      // Ensure proper table structure
-      if (!table.querySelector('thead') && hasHeader) {
-        var firstRow = table.querySelector('tr');
-        if (firstRow) {
-          var thead = document.createElement('thead');
-          thead.appendChild(firstRow);
-          table.insertBefore(thead, firstRow);
-          thead.parentNode.insertBefore(thead, table.firstChild);
-        }
+      // Ensure proper table structure with thead
+      var firstRow = table.querySelector('tr');
+      var thead = table.querySelector('thead');
+      if (firstRow && !thead) {
+        thead = document.createElement('thead');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, firstRow);
       }
       
-      if (table.querySelector('tbody') === null) {
-        var rows = Array.from(table.querySelectorAll('tr'));
-        var theadRow = table.querySelector('thead tr');
-        if (theadRow) {
-          rows = rows.filter(function(row) { return row !== theadRow; });
-        }
-        if (rows.length > 0) {
-          var tbody = document.createElement('tbody');
-          rows.forEach(function(row) { tbody.appendChild(row); });
-          table.appendChild(tbody);
-        }
+      // Add scope="col" to header cells in thead
+      if (thead) {
+        var headerCells = thead.querySelectorAll('th');
+        headerCells.forEach(function(th) {
+          if (!th.hasAttribute('scope')) {
+            th.setAttribute('scope', 'col');
+          }
+        });
+      }
+      
+      // Add scope="row" to first th in each tbody row
+      var tbody = table.querySelector('tbody');
+      if (tbody) {
+        var rows = tbody.querySelectorAll('tr');
+        rows.forEach(function(row) {
+          var firstTh = row.querySelector('th');
+          if (firstTh && !firstTh.hasAttribute('scope')) {
+            firstTh.setAttribute('scope', 'row');
+          }
+        });
       }
     });
   }
@@ -154,7 +163,7 @@
   }
 
   function fixFakeLinkIssue() {
-    var fakeLinks = document.querySelectorAll('span[href="#"], div[href="#"], a[href="#"]');
+    var fakeLinks = document.querySelectorAll('div[href="#"], a[href="#"]');
     fakeLinks.forEach(function(link) {
       if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
         var href = link.getAttribute('href');
@@ -166,9 +175,9 @@
     });
   }
 
-  function fixDuplicateMainElements() {
+  function removeDuplicateMainElements() {
     // Remove duplicate <main> elements that may exist in the same document
-    var mainElements = Array.from(document.querySelectorAll('main'));
+    var mainElements = document.querySelectorAll('main');
     if (mainElements.length > 1) {
       for (var i = 1; i < mainElements.length; i++) {
         mainElements[i].parentNode.removeChild(mainElements[i]);
@@ -183,7 +192,7 @@
     fixTableStructure();
     fixSvgAccessibility();
     fixFakeLinkIssue();
-    fixDuplicateMainElements();
+    removeDuplicateMainElements();
   }
 
   // Export for module usage
@@ -196,7 +205,7 @@
       fixSvgAccessibility,
       fixFakeLinkIssue,
       fixTableStructure,
-      fixDuplicateMainElements,
+      removeDuplicateMainElements,
       fixMissingMain
     };
   }

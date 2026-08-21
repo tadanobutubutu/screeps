@@ -120,3 +120,14 @@ function fixFakeLinkIssue() {
 }
 
 // [Rest of your existing code here]
+
+// Export required functions for testing
+export {
+  updateDocumentTitle,
+  logMessage,
+  updateTableStructure,
+  fixLandmarkIssues,
+  addSVGAccessibleNames,
+  ensureUniqueLandmarks,
+  fixFakeLinkIssue
+};

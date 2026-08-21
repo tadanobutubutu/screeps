@@ -12,7 +12,6 @@ const Layout = ({ children }) => {
         viewBox="0 0 16 16" 
         role="img"
         aria-labelledby="svg-icon-title"
-        aria-label="Icon"
         focusable="false"
       >
         <title id="svg-icon-title">Icon</title>

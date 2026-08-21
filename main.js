@@ -10,10 +10,10 @@ const React = require('react');
 const ReactDOM = require('react-dom');
 
 // Update for Jest v30
-const { jest } = require('@jest/globals');
+const { jest } = require('jest');
 
 // Update for ESLint v10
-const eslint = require('eslint').ESLint;
+const eslint = require('eslint');
 
 // Update for TypeScript v7
 const typescript = require('typescript');
@@ -40,14 +40,14 @@ function makeSvgAccessible(svgElement) {
   }
 
   // If the SVG has no accessible name, add a title or aria-label
-  if (!svgElement.props['aria-label'] && !svgElement.props.children?.some(child =>
-    child.type === 'title' || child.type === 'desc'
-  )) {
+  if (svgElement.props.ariaLabel === undefined && !React.Children.toArray(svgElement.props.children || []).some(child => {
+    return child && (child.type === 'title' || child.type === 'desc');
+  })) {
     return React.cloneElement(svgElement, {
       'aria-label': 'SVG Image',
       children: [
         React.createElement('title', null, 'SVG Image'),
-        ...(svgElement.props.children || [])
+        ...React.Children.toArray(svgElement.props.children || [])
       ]
     });
   }
@@ -57,7 +57,7 @@ function makeSvgAccessible(svgElement) {
 
 // New function to add lang attribute to HTML element
 function addLangAttribute(htmlElement) {
-  if (!htmlElement.props.lang) {
+  if (htmlElement.type === 'html') {
     return React.cloneElement(htmlElement, { lang: 'en' });
   }
   return htmlElement;
@@ -66,30 +66,29 @@ function addLangAttribute(htmlElement) {
 // New function to fix table structure issues
 function fixTableStructure(tableElement) {
   // Ensure table has proper structure with thead, tbody, and tfoot if needed
-  const children = React.Children.toArray(tableElement.props.children);
+  const children = React.Children.toArray(tableElement.props.children || []);
   let hasThead = false;
   let hasTbody = false;
   let hasTfoot = false;
 
   children.forEach(child => {
-    if (child.type === 'thead') hasThead = true;
-    if (child.type === 'tbody') hasTbody = true;
-    if (child.type === 'tfoot') hasTfoot = true;
+    if (child && child.type === 'thead') hasThead = true;
+    if (child && child.type === 'tbody') hasTbody = true;
+    if (child && child.type === 'tfoot') hasTfoot = true;
   });
 
   // If no thead, add one with proper structure
   if (!hasThead) {
-    const firstRow = children.find(child => child.type === 'tr');
+    const firstRow = children.find(child => child && child.type === 'tr');
     if (firstRow) {
       const thead = React.createElement('thead', null, firstRow);
       const newChildren = children.filter(child => child !== firstRow);
-      newChildren.unshift(thead);
-      return React.cloneElement(tableElement, null, newChildren);
+      return React.cloneElement(tableElement, null, [thead, ...newChildren]);
     }
   }
 
   // If no tbody, wrap all rows in tbody
-  if (!hasTbody && children.some(child => child.type === 'tr')) {
+  if (!hasTbody && children.some(child => child && child.type === 'tr')) {
     const tbody = React.createElement('tbody', null, children);
     return React.cloneElement(tableElement, null, tbody);
   }
@@ -103,11 +102,12 @@ function fixTableHeaderScope(thElement) {
   if (!thElement.props.scope) {
     // Determine if this is a column or row header based on context
     // This is a simplified approach - in a real app you might need more sophisticated logic
-    const isColumnHeader = thElement.props.children?.some(child =>
-      typeof child === 'string' && child.includes('src/')
-    ) || thElement.props.children?.some(child =>
-      child.type === 'div' && child.props.children?.includes('src/')
-    );
+    const children = React.Children.toArray(thElement.props.children || []);
+    const isColumnHeader = children.some(child => {
+      return typeof child === 'string' && child.includes('src/');
+    }) || children.some(child => {
+      return child && child.type === 'div' && child.props.className && child.props.className.includes('col');
+    });
 
     return React.cloneElement(thElement, {
       scope: isColumnHeader ? 'col' : 'row'
@@ -122,11 +122,12 @@ function fixLandmarkIssues(element) {
   // Ensure unique landmarks and proper hierarchy
   const landmarks = ['header', 'nav', 'main', 'footer', 'aside', 'section'];
   const props = element.props;
+  const tagName = element.type;
 
   // If element is a landmark but doesn't have proper attributes
-  if (landmarks.includes(element.type) && !props.role && !props['aria-label']) {
+  if (landmarks.includes(tagName) && !props.role && !props['aria-label']) {
     return React.cloneElement(element, {
-      'aria-label': `${element.type} content`
+      'aria-label': `${tagName} content`
     });
   }
 
@@ -143,7 +144,10 @@ function fixFakeLinkIssues(element) {
       tabIndex: 0,
       onKeyDown: (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          element.props.onClick(e);
+          e.preventDefault();
+          if (element.props.onClick) {
+            element.props.onClick(e);
+          }
         }
       }
     });
@@ -168,26 +172,31 @@ function fixFakeLinkIssues(element) {
 
 // New function to ensure only one main landmark exists in the component
 function ensureSingleMainLandmark(component) {
-  const children = React.Children.toArray(component.props.children);
-  const hasMain = children.some(child => child.type === 'main');
+  const children = React.Children.toArray(component.props.children || []);
+  const mainIndices = [];
 
-  if (!hasMain) {
-    // No main landmark found, wrap the content in a main element
-    return wrapInMainLandmark(children);
+  children.forEach((child, idx) => {
+    if (child && child.type === 'main') {
+      mainIndices.push(idx);
+    }
+  });
+
+  // If no main element, wrap content in a main element
+  if (mainIndices.length === 0) {
+    return React.cloneElement(
+      component,
+      null,
+      React.createElement('main', null, children)
+    );
   }
 
   // If there are multiple main elements, consolidate them
-  const mainIndices = children.reduce((acc, child, idx) => {
-    if (child.type === 'main') acc.push(idx);
-    return acc;
-  }, []);
-
   if (mainIndices.length > 1) {
-    // Keep the first main as-is, wrap subsequent mains' children in sections
     const newChildren = children.map((child, idx) => {
-      if (child.type === 'main') {
+      if (child && child.type === 'main') {
         if (idx !== mainIndices[0]) {
-          return React.createElement('section', null, child.props.children);
+          // Replace additional main elements with sections to preserve semantics
+          return React.createElement('section', { 'aria-label': 'Alternative content section' }, child.props.children);
         }
         return child;
       }
@@ -208,9 +217,9 @@ function applySvgAccessibility(element) {
   }
 
   // For other elements, recursively process children
-  const children = React.Children.toArray(element.props.children);
+  const children = React.Children.toArray(element.props.children || []);
   const processedChildren = children.map(child => {
-    if (React.isValidElement(child)) {
+    if (child && typeof child === 'object' && child.type) {
       return React.cloneElement(applySvgAccessibility(child), child.props);
     }
     return child;

@@ -271,6 +271,25 @@ async function addSvgAccessibleNames() {
   }
 }
 
+/**
+ * Addresses all accessibility issues from the insight report.
+ * Orchestrates the individual accessibility functions in the correct order.
+ */
+async function addressAccessibilityIssues() {
+  try {
+    await addMainLandmark();
+    await addLangToFiles();
+    await replaceHashLinksWithButtons();
+    await fixTableStructure();
+    await ensureUniqueLandmarks();
+    await addSvgAccessibleNames();
+    console.log('All accessibility issues have been addressed.');
+  } catch (error) {
+    console.error('Error addressing accessibility issues:', error);
+    throw error;
+  }
+}
+
 // Export functions for testing and external use
 module.exports = {
   addLangAttribute,
@@ -279,5 +298,6 @@ module.exports = {
   replaceHashLinksWithButtons,
   fixTableStructure,
   ensureUniqueLandmarks,
-  addSvgAccessibleNames
+  addSvgAccessibleNames,
+  addressAccessibilityIssues
 };

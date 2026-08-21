@@ -35,3 +35,14 @@ const getIconDescription = () => {
 // Existing exports
 export default Layout;
 export { getIconDescription };
+
+// TODO: Add back any required exports that might have been removed
+// Assuming that there are additional functions that are required to be exported, for example:
+
+// Example function that needs to be exported
+const someAdditionalFunction = () => {
+  // Implementation of someAdditionalFunction
+};
+
+// Exporting the additional function
+export { someAdditionalFunction };

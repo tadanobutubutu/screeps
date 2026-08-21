@@ -1,10 +1,1 @@
-import React from 'react';
-// Existing code from main.js (before conflict)
-// ... (code before conflict)
-
-// <button id="unrotate" onClick={() => {/* Your action here */}}>rotate back</button>
-
-// ... (code after conflict)
-
-// Existing code from main.js (after conflict markers)
-// ... (code after conflict)
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

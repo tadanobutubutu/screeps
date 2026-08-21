@@ -1,15 +1,32 @@
-// main.js
+tsx
+// app/layout.tsx
 
-// ... existing code above ...
+import { useState } from "react";
+import data from "../icons.json";
+import "./styles.css";
 
-// Fixed accessibility issue: changed <a href="#"> to <button>
-// This improves keyboard navigation and screen reader behavior
-document.getElementById('unrotate')?.replaceWith(
-  Object.assign(document.createElement('button'), {
-    id: 'unrotate',
-    textContent: 'rotate back',
-    type: 'button'
-  })
-);
+function Icon({ name }) {
+  const [hover, setHover] = useState(false);
 
-// ... existing code below ...
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 100 100"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <title>Screeps Dashboard</title>
+      <text
+        y=".9em"
+        fontSize="90"
+        style={{ opacity: hover ? 1 : 0.6 }}
+      >
+        {data[name]}
+      </text>
+    </svg>
+  );
+}
+
+export default Icon;
+
+const icons = data; // Moved this constant to the top

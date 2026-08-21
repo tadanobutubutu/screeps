@@ -161,4 +161,18 @@ const fixFakeLinks = () => {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = link.textContent;
-      button.className = link.className
+      button.className = link.className;
+      link.replaceWith(button);
+    }
+  });
+};
+
+// TODO: Import required module(s) and export the new necessary function(s) here
+export {
+  DependencyGraphComponent,
+  addLangAttribute,
+  ensureUniqueLandmarks,
+  fixTableStructureIssues,
+  addSvgAccessibleNames,
+  fixFakeLinks
+};

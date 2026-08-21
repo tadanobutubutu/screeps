@@ -13,6 +13,9 @@ const validateAccessibility = (component) => {
   return Object.values(checks).every(check => check);
 };
 
+// RESTORED EXPORT (previously removed)
+export { validateAccessibility };
+
 // Create accessible button component with full ARIA support
 const createAccessibleButton = (props) => {
   const role = typeof props.role === 'string' ? props.role : 'button';

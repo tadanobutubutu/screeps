@@ -1,1 +1,18 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+var roleHarvester = require('role.harvester');
+var roleUpgrader = require('role.upgrader');
+
+module.exports.loop = function () {
+    for (var name in Game.rooms) {
+        console.log('Room "' + name + '" has ' + Game.rooms[name].energyAvailable + ' energy');
+    }
+
+    for (var name in Game.creeps) {
+        var creep = Game.creeps[name];
+        if (creep.memory.role === 'harvester') {
+            roleHarvester.run(creep);
+        }
+        if (creep.memory.role === 'upgrader') {
+            roleUpgrader.run(creep);
+        }
+    }
+};

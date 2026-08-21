@@ -22,14 +22,14 @@ function renderAccessibleTable(headers, rows) {
     <table>
       <thead>
         <tr>
-          ${headers.map((header, i) => `<th scope="col" id="header-${i}">${header}</th>`).join('')}
+          ${headers.map((header, i) => `<th scope="col">${header}</th>`).join('')}
         </tr>
       </thead>
       <tbody>
         ${rows.map((row, rowIndex) => `
           <tr>
             ${row.map((cell, colIndex) => 
-              `<td headers="header-${colIndex} row-${rowIndex}">${cell}</td>`
+              `<td>${cell}</td>`
             ).join('')}
           </tr>
         `).join('')}
@@ -42,7 +42,7 @@ function renderAccessibleTable(headers, rows) {
 function renderAccessibleSVG(svgContent, accessibleName, svgId) {
   return `
     <svg 
-      xmlns="http://www.w3.org/2000/svg" 
+      xmlns="http://www.w3.org/2000/svg"
       role="img" 
       aria-label="${accessibleName}"
       id="${svgId || ''}"
@@ -53,7 +53,7 @@ function renderAccessibleSVG(svgContent, accessibleName, svgId) {
 }
 
 // Function to create accessible landmark structure (addresses REACT_017 & REACT_025)
-function renderAccessibleLayout(content) {
+function renderLandmarkStructure(content) {
   return `
     <header role="banner">
       <nav role="navigation" aria-label="Main navigation">
@@ -86,11 +86,11 @@ function createAccessibleButton(content, onClick, buttonId) {
 function renderApp() {
   const appContent = document.getElementById('app');
   if (appContent) {
-    appContent.innerHTML = renderAccessibleLayout(`
+    appContent.innerHTML = `
       <h1>Welcome</h1>
       ${renderAccessibleSVG('<circle cx="50" cy="50" r="40"/>', 'Decorative circle icon', 'icon-1')}
-      ${renderAccessibleButton('Click me', 'handleClick()', 'primary-action')}
-    `);
+      ${createAccessibleButton('Click me', 'handleClick()', 'primary-action')}
+    `;
   }
 }
 
@@ -103,7 +103,7 @@ if (typeof document !== 'undefined') {
 export {
   renderAccessibleTable,
   renderAccessibleSVG,
-  renderAccessibleLayout,
+  renderLandmarkStructure,
   createAccessibleButton,
   renderApp
 };

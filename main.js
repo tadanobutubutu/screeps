@@ -14,13 +14,15 @@
  * However, this function will be used to help identify the correct DOM element for wrapping.
  */
 
+// TODO: Address accessibility issues from insight report:
+
 (function() {
   'use strict';
 
   function getMainElement() {
     // Identify the main content element of the application
     // In a real-world scenario, this should be the element containing the primary app content
-    const mainElement = document.querySelector('[data-main-content]');
+    const mainElement = document.querySelector('[data-main-content]') || document.querySelector('main') || document.querySelector('#main-content') || document.querySelector('.main-content');
 
     if (!mainElement) {
       console.error('No main content element found. Update the JSX/HTML files to include a data-main-content attribute on the main content container.');
@@ -30,9 +32,9 @@
     return mainElement;
   }
 
-  function addLangAttributeToHTML() {
+  function fixLanguageAttribute() {
     const htmlElement = document.querySelector('html');
-    if (htmlElement) {
+    if (htmlElement && !htmlElement.hasAttribute('lang')) {
       htmlElement.setAttribute('lang', 'en'); // Example language, should be set according to actual content
     }
   }
@@ -45,29 +47,39 @@
     }
 
     // Example: Ensure unique landmarks
-    const landmarkElements = document.querySelectorAll('[role]');
+    const landmarkElements = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"]');
     landmarkElements.forEach((element, index) => {
-      element.setAttribute('id', `landmark-${index}`);
+      if (!element.id) {
+        element.setAttribute('id', `landmark-${index + 1}`);
+      }
     });
   }
 
-  function addAccessibleNamesToSVGs() {
+  function fixSvgAccessibility() {
     const svgElements = document.querySelectorAll('svg');
     svgElements.forEach((svg, index) => {
       const title = svg.querySelector('title');
       if (!title) {
-        title = document.createElement('title');
-        title.textContent = `SVG ${index + 1}`;
-        svg.insertBefore(title, svg.firstChild);
+        const titleEl = document.createElement('title');
+        titleEl.textContent = `SVG ${index + 1}`;
+        titleEl.setAttribute('id', `svg-title-${index + 1}`);
+        svg.insertBefore(titleEl, svg.firstChild);
+        
+        // Add aria-labelledby to link the title
+        const ariaLabelledby = svg.getAttribute('aria-labelledby') || '';
+        if (!ariaLabelledby.includes(`svg-title-${index + 1}`)) {
+          svg.setAttribute('aria-labelledby', (ariaLabelledby + ` svg-title-${index + 1}`).trim());
+        }
       }
     });
   }
 
   function fixFakeLinkIssue() {
-    const links = document.querySelectorAll('a[href="#"]');
+    const links = document.querySelectorAll('[data-fake-link], .fake-link');
     links.forEach(link => {
-      link.addEventListener('click', (event) => {
+      link.addEventListener('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
       });
     });
   }
@@ -76,9 +88,9 @@
   function init() {
     console.log('Application initialized');
 
-    addLangAttributeToHTML();
+    fixLanguageAttribute();
     fixLandmarkIssues();
-    addAccessibleNamesToSVGs();
+    fixSvgAccessibility();
     fixFakeLinkIssue();
 
     // Wrap the main content with a <main> element for accessibility
@@ -86,7 +98,7 @@
     if (mainElement) {
       const main = document.createElement('main');
       main.setAttribute('role', 'main'); // Adding role for accessibility
-      mainElement.parentNode.replaceChild(main, mainElement);
+      mainElement.parentNode.insertBefore(main, mainElement);
       main.appendChild(mainElement);
     }
   }

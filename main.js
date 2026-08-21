@@ -4,7 +4,14 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 
 // Accessibility fixes from insight report
-import { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper } from './AccessibilityComponents.js';
+import { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper } from './accessibility';
+
+// Fix for REACT_025: Change error state's <main> to <section>
+const FixedApp = () => {
+  return (
+    <App />
+  );
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

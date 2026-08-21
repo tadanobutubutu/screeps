@@ -1,5 +1,1 @@
-document.documentElement.lang = 'en';
-
-module.exports = function loop() {
-    // Your main game loop code here
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

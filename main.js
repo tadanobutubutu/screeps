@@ -1,6 +1,1 @@
-// Please provide the original main.js content so I can update it.
-// The issue is about adding <main> landmarks to HTML files.
-
-module.exports = {
-  // Your existing configuration
-};
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

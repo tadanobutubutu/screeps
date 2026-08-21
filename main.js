@@ -24,7 +24,12 @@ function ensureElement(input) {
 }
 
 // Import the required module for API calls
-const api = require('./apiModule');
+const api = {
+  callApi: function(endpoint) {
+    // Placeholder for API call implementation
+    return fetch(endpoint);
+  }
+};
 
 // New function for making API calls using the imported API module
 function makeApiCall(endpoint) {

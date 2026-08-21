@@ -25,12 +25,15 @@ if (mainNav) {
 
 // Add accessible names to 2 SVGs (example of adding accessible names)
 const svgs = document.querySelectorAll('svg');
-svgs.forEach(svg => {
+svgs.forEach((svg, index) => {
   const title = svg.querySelector('title');
   if (title) {
-    svg.setAttribute('aria-labelledby', title.textContent);
+    if (!title.id) {
+      title.id = 'svg-title-' + index;
+    }
+    svg.setAttribute('aria-labelledby', title.id);
   } else {
-    svg.setAttribute('aria-labelledby', 'svg-description');
+    svg.setAttribute('aria-label', 'Screeps Dashboard');
   }
 });
 
@@ -45,7 +48,7 @@ landmarks.forEach(landmark => {
   }
 });
 
-// Fix 1 fake link issue (example of fixing one issue)
+// Fix 1 fake link issue (example of hiding a fake link)
 const fakeLinks = document.querySelectorAll('.fake-link');
 fakeLinks.forEach(link => {
   link.style.display = 'none'; // Hide the fake link

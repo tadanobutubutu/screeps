@@ -36,6 +36,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Replace the old element with the new button
     unrotateElement.parentNode.replaceChild(newButton, unrotateElement);
   }
+
+  // Add scope attribute to <th> elements for accessibility
+  const tableHeaders = document.querySelectorAll('th');
+  tableHeaders.forEach(header => {
+    if (!header.hasAttribute('scope')) {
+      header.setAttribute('scope', 'col');
+    }
+  });
 });
 
 // Export for testing (if applicable)

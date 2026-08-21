@@ -311,7 +311,7 @@ exports.fixTableStructure = fixTableStructure;
 exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
 exports.addSvgAccessibleNames = addSvgAccessibleNames;
 // Exported for completeness, though primarily internal
-exports.addressAccessibilityIssues = addressAccessibilityIssues;
+exports.addressAccessibilityIssues = addressAccessibilityIssues();
 
 // Run accessibility fixes if this script is executed directly
 if (require.main === module) {

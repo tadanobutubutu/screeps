@@ -1,1 +1,17 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js or your component file
+import React from 'react';
+
+const App = () => {
+  return (
+    <html lang="en">
+      <head>
+        {/* ... other head elements ... */}
+      </head>
+      <body>
+        {/* ... rest of your app ... */}
+      </body>
+    </html>
+  );
+};
+
+export default App;

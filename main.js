@@ -84,9 +84,11 @@ if (typeof module !== 'undefined' && module.exports) {
 // React component
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-const htmlElement = document.querySelector('html');
-if (htmlElement) {
-  htmlElement.setAttribute('lang', 'en');
+if (typeof document !== 'undefined') {
+  const htmlElement = document.querySelector('html');
+  if (htmlElement) {
+    htmlElement.setAttribute('lang', 'en');
+  }
 }
 const App = () => {
   return (

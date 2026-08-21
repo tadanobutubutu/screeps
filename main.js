@@ -23,7 +23,7 @@ document.getElementById('unrotate').addEventListener('click', function () {
 });
 
 // Add lang attribute for HTML element
-document. documentElement.lang = "en";
+document.documentElement.lang = "en";
 
 // Add scope="col" to all <th> elements for accessibility
 const tableHeaders = document.querySelectorAll('table th');
@@ -84,21 +84,6 @@ svgs.forEach(svg => {
   svg.appendChild(desc);
 });
 
-// Ensure unique landmarks
-const uniqueLandmarkIDs = new Set();
-landmarks.forEach(landmark => {
-  if (uniqueLandmarkIDs.has(landmark.id)) {
-    let index = 2;
-    let currentId = landmark.id;
-    while (uniqueLandmarkIDs.has(currentId)) {
-      currentId = `${landmark.id}-${index}`;
-      index++;
-    }
-    landmark.id = currentId;
-  }
-  uniqueLandmarkIDs.add(landmark.id);
-});
-
 // Fix 1 fake link issue
 // (More checks might be needed based on the specific CSS and HTML structure)
 const fakeLinks = document.querySelectorAll('.fake-link, .no-underline');
@@ -122,3 +107,31 @@ function rotateBack() {
 export { rotateBack };
 
 // ... [any other existing exports and functions] ...
+
+// Example of a function that might render the table
+function renderTable() {
+  const table = document.createElement('table');
+  const thead = document.createElement('thead');
+  const tbody = document.createElement('tbody');
+  const headerRow = document.createElement('tr');
+
+  // Assuming you have an array of headers
+  const headers = ['Header 1', 'Header 2', 'Header 3'];
+
+  headers.forEach(headerText => {
+    const th = document.createElement('th');
+    th.setAttribute('scope', 'col'); // Adding the scope attribute
+    th.textContent = headerText;
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  // Append the table to the document body or another element
+  document.body.appendChild(table);
+}
+
+// Call the function to render the table
+renderTable();

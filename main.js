@@ -18,5 +18,5 @@ export {
   renderLandmarkStructure,
   createAccessibleButton,
   renderApp,
-  someFunction // ADD THIS LINE
+  someFunction
 };

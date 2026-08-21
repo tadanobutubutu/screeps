@@ -1,7 +1,3 @@
-// TODO: Address accessibility issues from insight report:
-// Placeholder for accessibility-related code changes
-
-// Function to create main HTML with main landmark (improves accessibility)
 export function createMainHTML({ children, id }) {
   return `
     <main id="${id}" aria-label="Main content">
@@ -165,7 +161,7 @@ export function addSvgAccessibility(html) {
 
 // Function to fix 1 fake link issue
 function fixFakeLinks(html) {
-  return html.replace(/<a\s+([^>]*?)>/gi, (match, attrs) => {
+  return html.replace(/<a\s+([^>]*>)/gi, (match, attrs) => {
     // Ensure href is present
     if (!/\bhref\s*=/i.test(attrs)) {
       attrs += ' href="#"';
@@ -175,18 +171,5 @@ function fixFakeLinks(html) {
       attrs += ' aria-label="Link"';
     }
     return `<a${attrs}>`;
-  });
-}
-
-// Function to fix table structure issues by adding scope attributes to th tags
-// This improves accessibility by properly associating header cells with data cells
-export function fixTableScope(html) {
-  return html.replace(/<th([^>]*)>/g, (match, attrs) => {
-    const existingAttrs = attrs || '';
-    const hasScope = /\bscope\s*=/.test(existingAttrs);
-    if (hasScope) {
-      return match;
-    }
-    return `<th${existingAttrs} scope="col">`;
   });
 }

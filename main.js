@@ -86,7 +86,7 @@ export const DependencyGraphTable = ({ data }) => {
         {data.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.cells.map((cell, cellIndex) => (
-              <td key={cellIndex} headers={`header-${cellIndex}`}>
+              <td key={cellIndex}>
                 {cell}
               </td>
             ))}
@@ -170,7 +170,7 @@ export {
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+  return `${prefix}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 export function formatDate(date, options = {}) {

@@ -185,4 +185,10 @@ module.exports = {
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
   fixLandmarkIssues: fixLandmarkIssues,
+
+  // Added back missing exports
+  enhanceAccessibility: enhanceAccessibility,
+  ensureElement: ensureElement,
+  makeApiCall: makeApiCall,
+  api: api,
 };

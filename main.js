@@ -99,6 +99,22 @@ export function Footer({ children }) {
 }
 
 /**
+ * Section landmark for content regions
+ * Fixes: REACT_025 (Unique Landmarks) - alternative to multiple <main> elements
+ */
+export function SectionContent({ children }) {
+  return <section>{children}</section>;
+}
+
+/**
+ * Article landmark for self-contained content
+ * Fixes: REACT_025 (Unique Landmarks) - alternative to multiple <main> elements
+ */
+export function ArticleContent({ children }) {
+  return <article>{children}</article>;
+}
+
+/**
  * Accessible link component - real links only
  * Fixes: REACT_036 (Fake Link)
  */
@@ -188,6 +204,8 @@ export const accessibilityComponents = {
   Navigation,
   Header,
   Footer,
+  SectionContent,
+  ArticleContent,
   AccessibleLink,
   SkipLink,
   AccessiblePageWrapper,
@@ -200,7 +218,7 @@ export function isValidHref(href) {
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export { AccessibleTable, AccessibleIcon, DecorativeIcon, MainContent, Navigation, Header, Footer, SectionContent, ArticleContent, AccessibleLink, SkipLink, AccessiblePageWrapper };
 
 // Utility functions for accessibility support
 /**

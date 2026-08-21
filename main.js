@@ -14,33 +14,67 @@
  * However, this function will be used to help identify the correct DOM element for wrapping.
  */
 
-// TODO: Address accessibility issues from insight report:
+// Address accessibility issues from insight report:
 
 (function() {
   'use strict';
 
   function getMainElement() {
-    // ... (existing getMainElement function here)
+    // Try to find the main element by various selectors
+    var mainElement = document.querySelector('main');
+    if (!mainElement) {
+      // Fallback: look for common main content containers
+      mainElement = document.querySelector('[role="main"]');
+    }
+    if (!mainElement) {
+      // Fallback: look for common class or id patterns
+      mainElement = document.querySelector('.main-content') || 
+                    document.querySelector('#main') ||
+                    document.querySelector('.content');
+    }
+    return mainElement;
   }
 
   function fixLanguageAttribute() {
-    // ... (existing fixLanguageAttribute function here)
+    var html = document.documentElement;
+    if (html && !html.lang) {
+      html.lang = 'en';
+    }
   }
 
   function fixLandmarkIssues() {
-    // ... (existing fixLandmarkIssues function here)
+    // Ensure proper landmark elements exist
+    var main = getMainElement();
+    if (main && !main.id) {
+      main.id = 'main-content';
+    }
   }
 
   function fixSvgAccessibility() {
-    // ... (existing fixSvgAccessibility function here)
+    var svgs = document.querySelectorAll('svg');
+    svgs.forEach(function(svg) {
+      if (!svg.getAttribute('aria-hidden') && !svg.querySelector('title')) {
+        svg.setAttribute('aria-hidden', 'true');
+      }
+    });
   }
 
   function fixFakeLinkIssue() {
-    // ... (existing fixFakeLinkIssue function here)
+    var fakeLinks = document.querySelectorAll('[role="button"], [onclick]');
+    fakeLinks.forEach(function(link) {
+      if (link.tagName !== 'A' && link.tagName !== 'BUTTON') {
+        if (!link.getAttribute('tabindex')) {
+          link.setAttribute('tabindex', '0');
+        }
+      }
+    });
   }
 
   function init() {
-    // ... (existing init function here)
+    fixLanguageAttribute();
+    fixLandmarkIssues();
+    fixSvgAccessibility();
+    fixFakeLinkIssue();
   }
 
   // Export for module usage

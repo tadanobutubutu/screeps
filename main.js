@@ -10,7 +10,7 @@ export default function Main() {
 
   // Helper function to create accessible SVG icons
   const createAccessibleSVG = (iconName, viewBox = "0 0 24 24") => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox={viewBox} role="img" className="icon" aria-label={iconName}>
+    <svg ... viewBox={viewBox} role="img" className="icon" aria-label={iconName}>
       <title>{iconName}</title>
       <circle cx="12" cy="12" r="10" fill="currentColor" />
     </svg>
@@ -32,11 +32,11 @@ export default function Main() {
 
   // ... (Existing code) // Fix table structure issues (REACT_027)
   const table = (
-    <table aria-label="Code analysis results">
+    <table aria-label="Code analysis results" lang="en">
       <thead>
         <tr>
           {/* ... (Existing thead code) */}
-          <th role="presentation">{tableColumns[tableColumns.length - 1].Header}</th> {/* Set role for the last column */}
+          <th ... - 1].Header}</th> {/* Set role for the last column */}
         </tr>
       </thead>
       <tbody>
@@ -50,7 +50,7 @@ export default function Main() {
   );
 
   // Add accessible landmark for the table (REACT_025)
-  const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
+  const landmarkTable = ... analysis results', '0 0 1 1');
 
   // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
@@ -61,10 +61,12 @@ export default function Main() {
   );
 
   // Add lang attribute to HTML element (REACT_015)
-  const htmlLangAttribute = ' lang="en"';
+  // lang attribute is now added to the root element below
 
   return (
-    // ... (Existing return statement)  </div>
+    <div lang="en">
+      {/* ... (Existing return statement) */}
+    </div>
   );
 }
 

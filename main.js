@@ -68,7 +68,7 @@ const createAccessibleModal = (props) => {
 // Add lang attribute to HTML element
 const addLangAttribute = () => {
   const htmlElement = document.querySelector('html');
-  if (htmlElement && !htmlElement.getAttribute('lang')) {
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 };
@@ -93,9 +93,9 @@ const fixLandmarkIssues = () => {
   // Example: Add a navigation landmark
   const navs = document.querySelectorAll('nav');
   navs.forEach((nav, index) => {
-    if (!nav.getAttribute('role')) {
+    if (!nav.hasAttribute('aria-label') && !nav.hasAttribute('aria-labelledby')) {
       nav.setAttribute('role', 'navigation');
-      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : `Navigation ${index + 1}`);
+      nav.setAttribute('aria-label', index === 0 ? 'Main navigation' : 'Navigation ' + (index + 1));
     }
   });
   // ... additional landmarks
@@ -106,10 +106,10 @@ const addAccessibleNamesToSVGs = () => {
   const svgs = document.querySelectorAll('svg');
   let count = 0;
   svgs.forEach(svg => {
-    if (count < 2 && !svg.querySelector('title') && svg.getAttribute('role') === 'img') {
+    if (count < 2 && !svg.getAttribute('aria-label') && !svg.getAttribute('aria-labelledby') && svg.getAttribute('role') === 'img') {
       const title = document.createElement('title');
-      title.textContent = `SVG ${count + 1} description`;
-      title.id = `svg-title-${count + 1}`;
+      title.textContent = 'SVG ' + (count + 1) + ' description';
+      title.id = 'svg-title-' + (count + 1);
       svg.insertBefore(title, svg.firstChild);
       svg.setAttribute('aria-labelledby', title.id);
       count++;
@@ -125,7 +125,7 @@ const ensureUniqueLandmarks = () => {
     navs.forEach((nav, index) => {
       if (index > 0) {
         const existingLabel = nav.getAttribute('aria-label') || '';
-        nav.setAttribute('aria-label', `${existingLabel} ${index + 1}`.trim());
+        nav.setAttribute('aria-label', (existingLabel + ' ' + (index + 1)).trim());
       }
     });
   }
@@ -134,12 +134,12 @@ const ensureUniqueLandmarks = () => {
 
 // Fix 1 fake link issue
 const fixFakeLinkIssue = () => {
-  const links = document.querySelectorAll('a[onclick], span[onclick], div[onclick]');
+  const links = document.querySelectorAll('a');
   links.forEach(link => {
-    if (link.tagName === 'A' && link.getAttribute('href')) {
+    if (link.tagName === 'A') {
       // Check if it's a fake link (e.g., no href or javascript: href)
       const href = link.getAttribute('href');
-      if (!href || href === '#' || href.startsWith('javascript:')) {
+      if (!href || href === '#' || href.indexOf('javascript:') === 0) {
         link.setAttribute('role', 'button');
         link.setAttribute('tabindex', '0');
         link.addEventListener('click', (event) => {

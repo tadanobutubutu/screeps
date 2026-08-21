@@ -1,17 +1,4 @@
-const React = require('react');
-const ReactDOM = require('react-dom/client');
-
-// Dynamic import for Next.js App Router
-async function bootstrap() {
-  try {
-    // Import the app directory dynamically to support App Router
-    const { createServer } = require('http');
-    const next = require('next');
-    const dev = process.env.NODE_ENV !== 'production';
-    const hostname = 'localhost';
-    const port = parseInt(process.env.PORT || '3000', 10);
-
-    const app = next({ dev, hostname, port });
+const app = next({ dev, hostname, port });
     const handle = app.getRequestHandler();
 
     await app.prepare();

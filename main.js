@@ -45,8 +45,14 @@
 
   // Export for module usage
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { init, getMainElement }; // We are adding a new export for getMainElement function here
-    module.exports.init(); // We are also calling the init function within the module exports to auto-initialize when required
+    module.exports = { 
+      init, 
+      getMainElement,
+      fixLanguageAttribute,
+      fixLandmarkIssues,
+      fixSvgAccessibility,
+      fixFakeLinkIssue
+    };
   }
 
   // Auto-initialize when DOM is ready

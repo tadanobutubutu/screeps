@@ -46,11 +46,44 @@ export function AccessibleIcon({ children, label, className }) {
 }
 
 /**
- * Proper landmark wrapper
+ * Proper landmark wrapper - Single main element for the page
  * Fixes: REACT_017 (Landmarks), REACT_025 (Unique Landmarks)
+ * 
+ * NOTE: Only ONE <main> element should exist per page.
+ * Use MainContentWrapper for sub-sections instead of <main>
  */
-export function MainContent({ children }) {
-  return <main id="main-content">{children}</main>;
+export function MainContent({ children, id = 'main-content', role }) {
+  return (
+    <main id={id} role={role}>
+      {children}
+    </main>
+  );
+}
+
+/**
+ * Section wrapper for sub-regions - NOT a <main> landmark
+ * Use this for error states, success states, or other page sections
+ * Fixes: REACT_025 (Unique Landmarks) - replaces duplicate <main> usage
+ */
+export function MainContentWrapper({ children, ariaLabel, id }) {
+  return (
+    <section id={id} aria-label={ariaLabel} style={{ minHeight: '100vh' }}>
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Article wrapper for independent content sections
+ * Alternative to MainContentWrapper for self-contained content
+ * Fixes: REACT_025 (Unique Landmarks)
+ */
+export function ArticleContent({ children, ariaLabel, id }) {
+  return (
+    <article id={id} aria-label={ariaLabel}>
+      {children}
+    </article>
+  );
 }
 
 /**
@@ -70,7 +103,7 @@ export function Navigation({ children, ariaLabel }) {
  * Fixes: REACT_017
  */
 export function Header({ children }) {
-  return <header role="banner">{children}</header>;
+  return <header>{children}</header>;
 }
 
 /**
@@ -78,7 +111,7 @@ export function Header({ children }) {
  * Fixes: REACT_017
  */
 export function Footer({ children }) {
-  return <footer role="contentinfo">{children}</footer>;
+  return <footer>{children}</footer>;
 }
 
 /**
@@ -88,7 +121,7 @@ export function Footer({ children }) {
 export function AccessibleLink({ href, children, onClick }) {
   // If href exists and is a real destination, use <a>
   if (href && href !== '#' && href !== '') {
-    return <a href={href}>{children}</a>;
+    return <a href={href} onClick={onClick}>{children}</a>;
   }
   // If no href or fake href, use <button> instead
   return <button type="button" onClick={onClick}>{children}</button>;
@@ -167,6 +200,8 @@ export const accessibilityComponents = {
   AccessibleTable,
   AccessibleIcon,
   MainContent,
+  MainContentWrapper,
+  ArticleContent,
   Navigation,
   Header,
   Footer,
@@ -178,4 +213,4 @@ export const accessibilityComponents = {
 export default accessibilityComponents;
 
 // Re‑export named components for test imports
-export { AccessibleTable, AccessibleIcon, MainContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };
+export { AccessibleTable, AccessibleIcon, MainContent, MainContentWrapper, ArticleContent, Navigation, Header, Footer, AccessibleLink, SkipLink, AccessiblePageWrapper };

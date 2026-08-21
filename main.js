@@ -27,19 +27,35 @@
     
     // The actual fix for REACT_017 requires updating the JSX/HTML files
     // to include proper <main> landmark elements for accessibility
-  }
+    // Additionally, we need to address the REACT_041 issue by adding aria-label to SVGs
+    // without accessible names.
 
-  // Export for module usage
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { init, handleUnrotate };
-  }
+    // Example fix for REACT_041 in the layout files:
+    // Assuming that the SVGs are imported as React components, we would wrap them in a div
+    // and add an aria-label attribute to the wrapping div.
+    // <div aria-label="Description of the SVG content">
+    //   <MySVGComponent />
+    // </div>
 
-  // Auto-initialize when DOM is ready
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
+    // Since the issue mentions that the SVGs are used as favicons, we can add aria-hidden="true"
+    // to them to indicate that they are decorative and should not be announced by screen readers.
+    // Here's an example of how to modify the icons object to include aria-hidden="true":
+    const icons = {
+      icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 aria-hidden=%22true%22><text y=%22.9em%22 font-size=%2290%22>🐛</text></svg>',
+    };
+
+    // Export for module usage
+    if (typeof module !== 'undefined' && module.exports) {
+      module.exports = { init, handleUnrotate, icons };
+    }
+
+    // Auto-initialize when DOM is ready
+    if (typeof document !== 'undefined') {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
     }
   }
 })();

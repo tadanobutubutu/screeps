@@ -1,28 +1,17 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-
-// Fix: Added lang="en" to the root HTML element for accessibility
-const htmlTemplate = `
-<!DOCTYPE html>
+const createPage = (content) => {
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Main Application</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My App</title>
 </head>
 <body>
-  <div id="root"></div>
+  <main>
+    ${content}
+  </main>
 </body>
-</html>
-`;
-
-// Simple React component
-const App = () => {
-  return (
-    <div>
-      <h1>Hello, world!</h1>
-      <p>This is the main application.</p>
-    </div>
-  );
+</html>`;
 };
 
-export default App;
+module.exports = { createPage };

@@ -23,10 +23,32 @@ const Dashboard = () => {
         <pre tabIndex={0} aria-label="エラーメッセージ詳細" style={{ color: '#c53030', backgroundColor: '#fff5f5', padding: '1rem', borderRadius: '4px', overflow: 'auto', }} >  
           {error}  
         </pre>  
-        <button onClick={handleCopyError} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} aria-label={copied ? 'コピー済み' : 'エラーをコピー'} title={copied ? 'コピー済み' : 'エラーをコピー'} style={{ backgroundColor: copied ? '#155d27' : '#004b73', color: 'white', padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s ease-in-out', transform: copied ? 'scale(1.05)' : 'scale(1)', boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none', filter: copied ? 'brightness(1.1)' : 'none', }}>  
+        <button  
+          onMouseEnter={() => setCopied(true)}  
+          onMouseLeave={() => setCopied(false)}  
+          aria-label={copied ? 'コピー済み' : 'エラーをコピー'}  
+          title={copied ? 'コピー済み' : 'エラーをコピー'}  
+          style={{  
+            backgroundColor: copied ? '#155d27' : '#004b73',  
+            color: 'white',  
+            padding: '0.5rem 1rem',  
+            border: 'none',  
+            borderRadius: '4px',  
+            cursor: 'pointer',  
+            transition: 'all 0.2s ease-in-out',  
+            transform: copied ? 'scale(1.05)' : 'scale(1)',  
+            boxShadow: copied ? '0 4px 10px rgba(0, 75, 115, 0.3)' : 'none',  
+            filter: copied ? 'brightness(1.1)' : 'none',  
+          }}  
+        >  
           {copied ? '✅ コピー済み' : '📋 エラーをコピー'}  
         </button>  
-        <button onClick={() => fetchStats(true)} disabled={refreshing} onMouseEnter={() => setCopied(true)} onMouseLeave={() => setCopied(false)} >  
+        <button  
+          onClick={() => fetchStats(true)}  
+          disabled={refreshing}  
+          onMouseEnter={() => setCopied(true)}  
+          onMouseLeave={() => setCopied(false)}  
+        >  
           再試行  
         </button>  
       </section>  
@@ -66,15 +88,19 @@ const App = () => {
               <td><span>30</span></td>  
             </tr>  
             <tr>  
-              <td><span>Jane</span></td>  
+              <td><span>Alice</span></td>  
+              <td><span>30</span></td>  
+            </tr>  
+            <tr>  
+              <td><span>Bob</span></td>  
               <td><span>25</span></td>  
             </tr>  
           </tbody>  
         </table>  
         {/* Accessible SVG with title */}  
-        <svg width="20" height="20" viewBox="0 0 20 20" aria-labelledby="svg-title">  
+        <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-labelledby="svg-title">  
           <title id="svg-title">User avatar</title>  
-          <circle cx="10" cy="10" r="8" stroke="black" strokeWidth="2"/>  
+          <circle cx="10" cy="10" r="8" stroke="black" stroke-width="2" fill="none" />  
         </svg>  
         {/* Non‑link button replaces fake link */}  
         <button onClick={() => alert('Clicked!')}>Click me</button>  

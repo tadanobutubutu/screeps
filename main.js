@@ -74,16 +74,15 @@ function enhanceAccessibility() {
       th.setAttribute('scope', 'col');
     }
   });
-}
 
-// Accessibility utility functions
-export function addAriaLabel(element, label) {
-  if (element) element.setAttribute('aria-label', label);
-}
+  // Accessibility utility functions
+  export function addAriaLabel(element, label) {
+    if (element) element.setAttribute('aria-label', label);
+  }
 
-export function setMainLandmark(mainElement) {
-  if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
-}
+  export function setMainLandmark(mainElement) {
+    if (mainElement) mainElement.setAttribute('aria-label', 'Main content area');
+  }
 
-// Export the enhanced function
-export default enhanceAccessibility;
+  // Export the enhanced function
+  export default enhanceAccessibility;

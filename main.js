@@ -1,19 +1,47 @@
-// Assuming this is a module that imports the HTML files and returns updated versions
-const fs = require('fs');
-const path = require('path');
+tsx
+import React, { useState } from 'react';
 
-// Function to update the <th> elements with the scope attribute
-function updateTableHeaders(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const updatedContent = content.replace(/<th>/g, '<th scope="col">');
-  fs.writeFileSync(filePath, updatedContent, 'utf8');
+interface DashboardProps {
+  // Define any props that the Dashboard component might receive
 }
 
-// List of files that need to be updated
-const filesToUpdate = [
-  path.join(__dirname, 'docs/dependency-graph.html'),
-  // Add other file paths here if needed
-];
+const Dashboard: React.FC<DashboardProps> = (props) => {
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-// Update each file
-filesToUpdate.forEach(updateTableHeaders);
+  // ... other component logic ...
+
+  return (
+    <div>
+      <main style={{ padding: '2rem', fontFamily: 'monospace' }}>
+        {error ? (
+          <div>
+            <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <pre
+              tabIndex={0}
+              aria-label="エラーメッセージ詳細"
+              style={{
+                color: '#c53030',
+                backgroundColor: '#fff5f5',
+                padding: '1rem',
+                borderRadius: '4px',
+                overflow: 'auto',
+              }}
+            >
+              {error}
+            </pre>
+            {/* ... other error-related components ... */}
+          </div>
+        ) : (
+          <div>
+            {/* ... success state content ... */}
+          </div>
+        )}
+      </main>
+      {/* ... other components that are not related to the main content ... */}
+    </div>
+  );
+};
+
+export default Dashboard;

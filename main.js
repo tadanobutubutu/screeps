@@ -23,4 +23,3 @@ module.exports = {
   enhanceAccessibility: enhanceAccessibility,
   ensureElement: ensureElement,
   // Export any necessary functions or configurations
-};

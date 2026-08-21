@@ -179,9 +179,43 @@ const fixFakeLinks = () => {
   });
 };
 
+// Helper function to fix duplicate main landmark issue (REACT_025)
+// Replaces additional <main> elements with <section> elements with appropriate aria-labels
+const fixDuplicateMainLandmarks = () => {
+  // Find all main elements in the document
+  const mainElements = document.querySelectorAll('main');
+  
+  if (mainElements.length > 1) {
+    // Keep the first main element as is
+    // Convert subsequent main elements to section elements with aria-label
+    mainElements.forEach((main, index) => {
+      if (index > 0) {
+        const section = document.createElement('section');
+        section.setAttribute('aria-label', `Content section ${index + 1}`);
+        
+        // Copy all child nodes from main to section
+        while (main.firstChild) {
+          section.appendChild(main.firstChild);
+        }
+        
+        // Copy all attributes from main to section
+        Array.from(main.attributes).forEach(attr => {
+          if (attr.name !== 'role') {
+            section.setAttribute(attr.name, attr.value);
+          }
+        });
+        
+        // Replace main with section in the DOM
+        main.parentNode.replaceChild(section, main);
+      }
+    });
+  }
+};
+
 const initAccessibilityFixes = () => {
   addLangAttribute();
   ensureUniqueLandmarks();
+  fixDuplicateMainLandmarks();
   ...
   ...
   fixFakeLinks();

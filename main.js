@@ -21,7 +21,6 @@ export function addLangToHtml(html) {
     }
     const existingAttrs = attrs || '';
     return ... lang="en">`;
-  });
 }
 
 // Function to fix table structure issues by adding scope attributes to th tags
@@ -34,7 +33,7 @@ export function fixTableScope(html) {
       return match;
     }
     return `<th${existingAttrs} scope="col">`;
-  });
+  };
 }
 
 // Function to add/fix landmark issues
@@ -133,7 +132,7 @@ export function addLandmarks(html) {
 }
 
 // Function to add accessible names to SVGs
-export function ... {
+export function addAccessibleNamesToSvg(html) {
   let result = html;
 
   // Add role and aria-label to svg elements
@@ -156,11 +155,11 @@ export function ... {
     }
 
     if (!hasAriaLabel && !hasAriaLabelledby) {
-      newAttrs += ` ...
+      newAttrs += ` aria-label="Bug icon"`;
     }
 
     return ...
-  });
+  };
 
   return result;
 }
@@ -180,7 +179,7 @@ export function fixFakeLinks(html) {
       }
     }
     return `<a${attrs}>`;
-  });
+  };
 }
 
 // Function to fix table structure issues by adding scope attributes to th tags
@@ -193,5 +192,5 @@ export function fixTableScope(html) {
       return match;
     }
     return `<th${existingAttrs} scope="col">`;
-  });
+  };
 }

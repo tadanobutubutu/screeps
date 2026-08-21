@@ -9,7 +9,7 @@ const App = () => {
         <title>My App</title>
       </head>
       <body>
-        <div className="app-container">
+        <div>
           {/* App content */}
         </div>
       </body>
@@ -66,12 +66,12 @@ export function validateSVGAccessibility(svgProps) {
   const issues = [];
   
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
-  const hasAriaLabel = Boolean(svgProps['aria-label']);
+  const hasAriaLabel = !!svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
   const hasTitleChild = svgProps.children && 
     (Array.isArray(svgProps.children) 
       ? svgProps.children.some(c => c && c.type === 'title')
-      : svgProps.children.type === 'title');
+      : svgProps.children === 'title');
   
   const isCompliant = hasAriaHidden || hasAriaLabel || hasTitleChild || hasRole;
   

@@ -119,13 +119,11 @@ function rotateBack() {
 // Export the function so it remains accessible to other modules
 export { rotateBack };
 
-// ... [rest of the main.js content] ...
-
-// Add new function (resetAllRotations) to the exports
+// Add the new function (resetAllRotations) to the exports
 function resetAllRotations() {
   const rotateTargets = document.querySelectorAll('.rotate-target');
   rotateTargets.forEach(el => {
-    el.style.transform = ' none ';
+    el.style.transform = 'none';
   });
 }
 

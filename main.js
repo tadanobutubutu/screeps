@@ -46,3 +46,10 @@ export default function Main() {
     </table>
   );
 }
+
+// Replace the non-interactive link with a button
+export function RotateBackButton() {
+  return (
+    <button id="unrotate">rotate back</button>
+  );
+}

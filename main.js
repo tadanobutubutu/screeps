@@ -1,1 +1,2 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Unable to process: current main.js content not provided.
+// Please paste the contents of main.js, especially any conflict markers.

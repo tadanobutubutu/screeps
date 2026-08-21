@@ -24,20 +24,22 @@ const ensureUniqueLandmarks = () => {
   // Common landmark roles: banner, navigation, main, complementary, contentinfo, search
   // This function should be called during component mount to validate uniqueness
   // Example of ensuring unique landmarks for existing landmarks:
-  const landmarkSelectors = ['[role="main"]', '[role="complementary"]', '[role="contentinfo"]', '[role="search"]'];
-  const existingLandmarks = document.querySelectorAll(landmarkSelectors.join(','));
+  const landmarkSelectors = ['[role="main"]', '[role="contentinfo"]', '[role="search"]', '[role="banner"]', '[role="navigation"]', '[role="complementary"]'];
+  const existingLandmarks = document.querySelectorAll(landmarkSelectors.join(', '));
   
   const usedLabels = new Map();
   
   for (const landmark of existingLandmarks) {
     const ariaLabel = landmark.getAttribute('aria-label');
-    const landmarkId = landmark.id || `landmark-${Math.random().toString(36).substr(2, 9)}`;
+    const landmarkId = landmark.id || '';
+    const idBase = landmarkId.replace(/[^a-zA-Z0-9]/g, '');
     
     if (!ariaLabel) {
       // Generate a unique identifier if no aria-label is present
-      let uniqueIdentifier = `landmark-${landmarkId}`;
+      let uniqueIdentifier = `landmark-${idBase}`;
       if (usedLabels.has(uniqueIdentifier)) {
-        uniqueIdentifier = `${uniqueIdentifier}-${usedLabels.get(uniqueIdentifier) + 1}`;
+        const count = usedLabels.get(uniqueIdentifier) + 1;
+        uniqueIdentifier = `landmark-${idBase}-${count}`;
         usedLabels.set(uniqueIdentifier, 1);
       } else {
         usedLabels.set(uniqueIdentifier, 1);
@@ -47,7 +49,8 @@ const ensureUniqueLandmarks = () => {
       // Check if the aria-label is already used
       if (usedLabels.has(ariaLabel)) {
         usedLabels.set(ariaLabel, usedLabels.get(ariaLabel) + 1);
-        landmark.setAttribute('aria-label', `${ariaLabel} ${usedLabels.get(ariaLabel)}`);
+        const newLabel = `${ariaLabel}-${usedLabels.get(ariaLabel)}`;
+        landmark.setAttribute('aria-label', newLabel);
       } else {
         usedLabels.set(ariaLabel, 1);
       }
@@ -89,13 +92,16 @@ const fixTableStructureIssues = () => {
     }
     
     // 3. Ensure proper thead/tbody structure
-    if (!table.querySelector('thead')) {
+    if (!table.querySelector('thead') && table.querySelector('tr th')) {
       const firstRow = table.querySelector('tr');
       if (firstRow && firstRow.querySelector('th')) {
         const thead = document.createElement('thead');
         const clonedRow = firstRow.cloneNode(true);
         thead.appendChild(clonedRow);
         table.insertBefore(thead, table.firstChild);
+        if (firstRow.parentNode === table) {
+          table.removeChild(firstRow);
+        }
       }
     }
     
@@ -121,10 +127,11 @@ const addSvgAccessibleNames = () => {
   const svgs = document.querySelectorAll('svg');
   
   svgs.forEach((svg, index) => {
-    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    const hasAriaLabel = svg.getAttribute('aria-label') !== null;
+    const hasLabelledBy = svg.getAttribute('aria-labelledby') !== null;
     const hasTitle = svg.querySelector('title') !== null;
     
-    if (!hasAriaLabel && !hasTitle) {
+    if (!hasAriaLabel && !hasTitle && !hasLabelledBy) {
       const title = document.createElement('title');
       title.id = `svg-title-${index + 1}`;
       title.textContent = `SVG graphic ${index + 1}`;
@@ -136,11 +143,12 @@ const addSvgAccessibleNames = () => {
 
 const fixFakeLinks = () => {
   // Fix 1 fake link issue - replace href="#" with button elements
-  const fakeLinks = document.querySelectorAll('[role="link"], a[href="#"]');
+  const fakeLinks = document.querySelectorAll('a[href="#"]');
   
   fakeLinks.forEach(link => {
     if (link.tagName !== 'A') {
       // Handle elements with role="link" that aren't actual anchor tags
+      link.setAttribute('role', 'button');
       link.setAttribute('tabindex', '0');
       link.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -153,34 +161,4 @@ const fixFakeLinks = () => {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = link.textContent;
-      button.className = link.className;
-      button.id = link.id;
-      
-      // Copy relevant attributes
-      Array.from(link.attributes).forEach(attr => {
-        if (!['href', 'role'].includes(attr.name)) {
-          button.setAttribute(attr.name, attr.value);
-        }
-      });
-      
-      // Copy event listeners
-      const clickHandler = (e) => {
-        e.preventDefault();
-        // Add your click logic here
-      };
-      button.addEventListener('click', clickHandler);
-      
-      link.parentNode.replaceChild(button, link);
-    }
-  });
-};
-
-export { 
-  DependencyGraphComponent as default, 
-  addLangAttribute,
-  ensureUniqueLandmarks, 
-  fixTableStructureIssues, 
-  addSvgAccessibleNames,
-  fixFakeLinks, 
-  DependencyGraph 
-};
+      button.className = link.className

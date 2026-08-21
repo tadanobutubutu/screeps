@@ -169,7 +169,7 @@ async function ensureUniqueLandmarks() {
     let updatedContent = fileContent;
     
     landmarkRoles.forEach(role => {
-      const rolePattern = new RegExp(`<[^>]*role=["']${role}["']`, 'gi');
+      const rolePattern = new RegExp(`<[^>]*role=["']${role}["'][^>]*/`, 'gi');
       const landmarks = fileContent.match(rolePattern);
       if (landmarks && landmarks.length > 1) {
         // Add aria-label to make duplicate landmarks unique

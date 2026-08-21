@@ -5,7 +5,13 @@ function calculate(a, b) {
 function addAccessibleNameToSVG(svg) {
   const titleElement = document.createElement('title');
   titleElement.textContent = 'Accessible name for SVG';
-  svg.appendChild(titleElement);
+  svg.insertBefore(titleElement, svg.firstChild);
+  
+  // Add role="img" for proper accessibility
+  if (!svg.getAttribute('role')) {
+    svg.setAttribute('role', 'img');
+  }
+  
   return svg;
 }
 
@@ -15,15 +21,15 @@ function addAccessibleNameToSVG(svg) {
 export { calculate, addAccessibleNameToSVG };
 
 // Update to include the lang attribute in the HTML root element
-export function updateRootElementWithLangAttribute() {
-  const htmlElement = document.querySelector('html');
-  if (htmlElement) {
+export function addLangAttribute(element) {
+  const htmlElement = document.documentElement;
+  if (htmlElement && !htmlElement.hasAttribute('lang')) {
     htmlElement.setAttribute('lang', 'en');
   }
 }
 
 // Existing export preservation
-export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute };
+export { calculate, addAccessibleNameToSVG, addLangAttribute };
 
 // Add scope attribute to th elements as per the issue
 export function addScopeToTableHeaders() {
@@ -36,4 +42,4 @@ export function addScopeToTableHeaders() {
 }
 
 // Existing export preservation
-export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders };
+export { calculate, addAccessibleNameToSVG, addLangAttribute, addScopeToTableHeaders };

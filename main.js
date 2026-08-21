@@ -79,7 +79,7 @@ function getDetectedDependencies() {
     if (!acc[item.ecosystem]) {
       acc[item.ecosystem] = [];
     }
-    acc[item.ecosystem].push(...item.dependencies);
+    acc[item.ecosystem].push(item.dependencies);
     return acc;
   }, {});
 }
@@ -134,7 +134,7 @@ function fixTableStructure() {
     }
 
     if (!hasTbody) {
-      const rows = table.querySelectorAll('tr');
+      const rows = Array.from(table.querySelectorAll('tr'));
       const tbody = document.createElement('tbody');
       rows.forEach(row => {
         if (row.parentNode === table) {
@@ -147,12 +147,12 @@ function fixTableStructure() {
     // Fix th elements with scope attributes
     const ths = table.querySelectorAll('th');
     ths.forEach(th => {
-      if (!th.hasAttribute('scope')) {
+      if (!th.getAttribute('scope')) {
         const parentRow = th.closest('tr');
         const parentThead = th.closest('thead');
         if (parentThead) {
-          const parentThs = parentRow.querySelectorAll('th');
-          const thIndex = Array.from(parentThs).indexOf(th);
+          const parentThs = Array.from(parentRow.querySelectorAll('th'));
+          const thIndex = parentThs.indexOf(th);
           th.setAttribute('scope', thIndex === 0 ? 'col' : 'col');
         }
       }
@@ -249,7 +249,7 @@ function fixFakeLink() {
   if (typeof document === 'undefined') return;
 
   // Find elements with onclick that use location navigation
-  const fakeLinks = document.querySelectorAll('[onclick*="location"], [onclick*="href"], [role="button"]:not(a)');
+  const fakeLinks = document.querySelectorAll('[onclick*="location"], [onclick*="href"]');
 
   fakeLinks.forEach(element => {
     const onclick = element.getAttribute('onclick') || '';
@@ -266,7 +266,7 @@ function fixFakeLink() {
 
         // Add descriptive aria-label if missing
         const text = element.textContent.trim();
-        if (!element.hasAttribute('aria-label') && !element.hasAttribute('aria-labelledby')) {
+        if (!text && !element.getAttribute('aria-label')) {
           element.setAttribute('aria-label', text || 'Link');
         }
       }

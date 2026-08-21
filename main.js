@@ -1,13 +1,1 @@
-// Example existing `main.js` content with conflict markers
-
-// <<<<<<< HEAD
-import { sum } from './utils';
-test('adds 1 + 2 to equal 3', () => {
-  expect(sum(1, 2)).toBe(3);
-});
-// =======
-import { sum } from './utils';
-test('sums numbers', () => {
-  expect(sum(1, 2)).toBe(3);
-});
-// >>>>>>> branch-name
+import { sum } from './utils';test('sums numbers', () => { expect(sum(1, 2)).toBe(3); });function setFavicon(iconData) { const link = document.querySelector("link[rel*='icon']") || document.createElement('link'); link.type = 'image/x-icon'; link.rel = 'shortcut icon'; link.href = iconData; document.getElementsByTagName('head')[0].appendChild(link); }function addAccessibleName(svgString) { const isDecorative = /<svg.*>([\s\S]*?)<\/svg>/i.test(svgString) && !/<title.*?>|aria-label.*?>/i.test(svgString); if (isDecorative) { const modifiedSvgString = svgString.replace('<svg', '<svg aria-hidden="true"'); return modifiedSvgString; } return svgString; }const faviconSvgString = import('path/to/favicon/svg').then((module) => module.default);faviconSvgString.then((svgString) => { const updatedSvgString = addAccessibleName(svgString); setFavicon('data:image/svg+xml,' + encodeURIComponent(updatedSvgString)); });

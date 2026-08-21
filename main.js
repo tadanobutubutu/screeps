@@ -131,27 +131,27 @@ export { RotateBackButton, FakeLinkAsButton, DependencyGraphTable, AccessibleIco
 
 // Missing functions added as requested
 export function generateId(prefix = 'id') {
-  return ... 11;
+  return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 }
 
 export function formatDate(date, options = {}) {
+  const dateObj = date instanceof Date ? date : new Date(date);
   const defaultOptions = {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    ...options
+    ...options,
   };
-  return new ... ...;
+  return new Intl.DateTimeFormat('en-US', defaultOptions).format(dateObj);
 }
 
 export function debounce(func, wait) {
   let timeout;
   return function(...args) {
+    clearTimeout(timeout);
     const later = () => {
-      clearTimeout(timeout);
       func(...args);
     };
-    clearTimeout(timeout);
     timeout = setTimeout(later, wait);
   };
 }

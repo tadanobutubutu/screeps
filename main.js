@@ -35,6 +35,14 @@ const Dashboard = () => {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const updateRetryState = (hover) => {
+        if (hover) {
+            setErrRetryHover(true);
+        } else {
+            setErrRetryHover(false);
+        }
+    };
+
     if (error) {
         return (
             <div style={{ padding: '2rem', fontFamily: 'monospace' }}>
@@ -78,8 +86,8 @@ const Dashboard = () => {
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
-                    onMouseEnter={() => setErrRetryHover(true)}
-                    onMouseLeave={() => setErrRetryHover(false)}
+                    onMouseEnter={() => updateRetryState(true)}
+                    onMouseLeave={() => updateRetryState(false)}
                     aria-label="再試行"
                     title="再試行"
                     style={{
@@ -130,8 +138,8 @@ const Dashboard = () => {
                     marginTop: '1rem',
                     transition: 'all 0.2s ease-in-out',
                 }}
-                onMouseEnter={() => setErrRetryHover(true)}
-                onMouseLeave={() => setErrRetryHover(false)}
+                onMouseEnter={() => updateRetryState(true)}
+                onMouseLeave={() => updateRetryState(false)}
                 aria-label="更新"
                 title="更新"
             >

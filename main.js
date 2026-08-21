@@ -8,11 +8,45 @@ function updateTableHeaders(filePath) {
   fs.writeFileSync(filePath, updatedContent, 'utf8');
 }
 
+// Function to fix React Fake Link (REACT_036) - replace <a href="#"> with <button>
+function fixFakeLinks(filePath) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  let updatedContent = content;
+
+  // Match <a href="#">...</a> patterns and replace with <button>
+  // This handles: <a id="unrotate" href="#">rotate back</a>
+  updatedContent = updatedContent.replace(/<a([^>]*?)href="#"([^>]*?)>(.*?)<\/a>/gi, (match, beforeHref, afterHref, text) => {
+    // Remove href attribute and convert to button
+    const combinedAttrs = beforeHref + afterHref;
+    return `<button${combinedAttrs}>${text}</button>`;
+  });
+
+  if (content !== updatedContent) {
+    fs.writeFileSync(filePath, updatedContent, 'utf8');
+    console.log(`Fixed fake links in: ${filePath}`);
+  }
+}
+
 // List of files that need to be updated
 const filesToUpdate = [
-  path.join(__dirname, 'docs/dependency-graph.html'),
-  // Add other file paths here if needed
+  // Add file paths here for table header updates
 ];
 
-// Update each file
-filesToUpdate.forEach(updateTableHeaders);
+const filesWithFakeLinks = [
+  // Add file paths here if needed for fake link fixes
+];
+
+// Update each file for table headers
+filesToUpdate.forEach(file => {
+  updateTableHeaders(file);
+});
+
+// Fix fake links in affected files
+filesWithFakeLinks.forEach(file => {
+  fixFakeLinks(file);
+});
+
+module.exports = {
+  updateTableHeaders,
+  fixFakeLinks
+};

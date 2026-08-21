@@ -86,10 +86,10 @@ function addSvgAccessibleName(svgElement, title, description) {
     const descEl = document.createElementNS("http://www.w3.org/2000/svg", "desc");
     descEl.id = descId;
     descEl.textContent = description;
-    svgElement.insertBefore(descEl, svgElement.firstChild);
+    svgElement.appendChild(descEl);
     
     const currentAriaLabelledby = svgElement.getAttribute("aria-labelledby") || "";
-    svgElement.setAttribute("aria-labelledby", titleId + " " + descId);
+    svgElement.setAttribute("aria-labelledby", currentAriaLabelledby + " " + titleId + " " + descId);
   }
 }
 
@@ -111,7 +111,7 @@ function fixFakeLink(element, isActionLink) {
   }
   
   // Add tabindex to make keyboard accessible
-  if (!element.getAttribute("tabindex")) {
+  if (!element.hasAttribute("tabindex")) {
     element.setAttribute("tabindex", "0");
   }
 }

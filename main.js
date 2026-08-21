@@ -302,6 +302,17 @@ module.exports = {
   addressAccessibilityIssues
 };
 
+// Additional named exports for test compatibility
+exports.addLangAttribute = addLangAttribute;
+exports.addMainLandmark = addMainLandmark;
+exports.addLangToFiles = addLangToFiles;
+exports.replaceHashLinksWithButtons = replaceHashLinksWithButtons;
+exports.fixTableStructure = fixTableStructure;
+exports.ensureUniqueLandmarks = ensureUniqueLandmarks;
+exports.addSvgAccessibleNames = addSvgAccessibleNames;
+// Exported for completeness, though primarily internal
+exports.addressAccessibilityIssues = addressAccessibilityIssues;
+
 // Run accessibility fixes if this script is executed directly
 if (require.main === module) {
   addressAccessibilityIssues();

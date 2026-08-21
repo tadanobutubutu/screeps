@@ -37,3 +37,11 @@ export function addScopeToTableHeaders() {
 
 // Existing export preservation
 export { calculate, addAccessibleNameToSVG, updateRootElementWithLangAttribute, addScopeToTableHeaders };
+
+// Adding the new function to add accessible names to SVGs
+export function addAccessibleNamesToSVGs() {
+  const svgElements = document.querySelectorAll('svg');
+  svgElements.forEach(svg => {
+    addAccessibleNameToSVG(svg);
+  });
+}

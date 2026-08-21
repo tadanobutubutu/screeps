@@ -9,10 +9,23 @@ const MyTableComponent = () => {
   return (
     <table role="grid">
       <thead>
-        {/* Table header code */}
+        <tr>
+          <th scope="col">Header 1</th>
+          <th scope="col">Header 2</th>
+          <th scope="col">Header 3</th>
+        </tr>
       </thead>
       <tbody>
-        {/* Table body code */}
+        <tr>
+          <td>Data 1</td>
+          <td>Data 2</td>
+          <td>Data 3</td>
+        </tr>
+        <tr>
+          <td>Data 4</td>
+          <td>Data 5</td>
+          <td>Data 6</td>
+        </tr>
       </tbody>
     </table>
   );
@@ -43,7 +56,7 @@ const LinkComponent = (props) => {
 const SvgIcon = (props) => {
   // Adding a hidden 'aria-label' based on the icon's purpose or name
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" ... {...props}>
       {props.children}
     </svg>
   );

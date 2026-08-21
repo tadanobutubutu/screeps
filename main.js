@@ -71,6 +71,23 @@ function enhanceAccessibility() {
       link.setAttribute('tabindex', '0');
     }
   });
+
+  // Additional functionality to fix REACT_027 - Add scope attribute to th elements
+  const thElements = document.querySelectorAll('th');
+  thElements.forEach(th => {
+    if (th.hasAttribute('scope')) {
+      // If scope is already set, no need to do anything
+      return;
+    }
+    // Determine if the th is for a column or a row
+    if (th.nextElementSibling && th.nextElementSibling.tagName === 'th') {
+      // It's a row header
+      th.setAttribute('scope', 'row');
+    } else {
+      // It's a column header
+      th.setAttribute('scope', 'col');
+    }
+  });
 }
 
 // Accessibility utility functions

@@ -1,7 +1,8 @@
 import distMainModule from './dist/main.js';
+import React from 'react';
 
 // Main component
-export default function Main() {
+function Main() {
   // ... (Existing code)
 
   // New function to include the required export from the main.js dist file
@@ -19,7 +20,7 @@ export default function Main() {
       aria-label={iconName}
     >
       <title>{iconName}</title>
-      <circle cx="12" cy="12" r="10" fill="currentColor" />
+      <circle cx="12" cy="12" m="10" fill="currentColor" />
     </svg>
   );
 
@@ -65,7 +66,7 @@ export default function Main() {
   // Add accessible landmark for the table (REACT_025)
   const landmarkTable = createAccessibleSVG('Code analysis results', '0 0 1 1');
 
-  // Fix link issue (REACT_036) - use properanchor or button
+  // Fix link issue (REACT_036) - use proper anchor or button
   // Assuming the link content is the variable "linkContent"
   const link = (
     <a href="..." aria-label="Navigate to destination">
@@ -103,5 +104,7 @@ export default function Main() {
   );
 }
 
-// Import required module(s) and export the new necessary function(s) here
-export const distMain = () => distMainModule.default;
+// Export the new necessary function
+export const distMainExport = () => distMainModule.default;
+
+export default Main;

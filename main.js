@@ -7,16 +7,17 @@ const Dashboard = ({ stats, error, fetchStats }) => {
     const [copied, setCopied] = useState(false);
 
     const copyErr = () => {
-        navigator.clipboard.writeText(error);
+        ...
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
 
     if (error) {
         return (
-            <html lang="en">
-                <section style={{ padding: '2rem', fontFamily: 'monospace' }}>
-                    <h1 style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+            <main aria-labelledby="error-heading">
+                <section style={{ padding: '2rem', fontFamily: 'monospace' }} aria-labelledby="error-section-heading">
+                    <h1 id="error-heading" style={{ color: '#b71c1c' }}>⚠️ エラー</h1>
+                    <h2 id="error-section-heading" className="sr-only">エラーの詳細</h2>
                     <pre
                         tabIndex={0}
                         aria-label="エラーメッセージ詳細"
@@ -33,9 +34,9 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                     <button
                         onClick={copyErr}
                         onMouseEnter={() => setErrCopyHover(true)}
-                        onMouseLeave={() => setErrCopyHover(false)}
+                        onMouseLeave={() => ...
                         onFocus={() => setErrCopyHover(true)}
-                        onBlur={() => setErrCopyHover(false)}
+                        onBlur={() => ...
                         aria-label={copied ? 'コピー済み' : 'エラーをコピー'}
                         title={copied ? 'コピー済み' : 'エラーをコピー'}
                         style={{
@@ -51,13 +52,14 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                             filter: errCopyHover ? 'brightness(1.1)' : 'none',
                         }}
                     >
-                        {copied ? '✅ コピー済み' : '📋 エラーをコピー'}
+                        {copied ? '✅' : '📋'} <span>{copied ? 'コピー済み' : 'エラーをコピー'}</span>
                     </button>
                     <button
                         onClick={() => fetchStats(true)}
                         disabled={refreshing}
                         onMouseEnter={() => setErrRetryHover(true)}
                         onMouseLeave={() => setErrRetryHover(false)}
+                        aria-label="統計を再取得する"
                         style={{
                             backgroundColor: '#004b73',
                             color: 'white',
@@ -69,19 +71,20 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                             transition: 'all 0.2s ease-in-out',
                         }}
                     >
-                        {refreshing ? 'リフレッシュ中...' : '🔄 再試行'}
+                        🔄 <span>再試行</span>
                     </button>
                 </section>
-            </html>
+            </main>
         );
     }
 
     return (
-        <html lang="en">
-            <section style={{ padding: '2rem' }}>
-                <h1 style={{ color: '#2b6cb0' }}>📊 ダッシュボード</h1>
+        <main aria-labelledby="dashboard-heading">
+            <section style={{ padding: '2rem' }} aria-labelledby="stats-section-heading">
+                <h1 id="dashboard-heading" style={{ color: '#2b6cb0' }}>📊 ダッシュボード</h1>
+                <h2 id="stats-section-heading" className="sr-only">統計情報</h2>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                    {Object.entries(stats).map(([key, value]) => (
+                    ... value]) => (
                         <div
                             key={key}
                             style={{
@@ -91,6 +94,8 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                                 flex: '1 1 200px',
                                 boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                             }}
+                            role="region"
+                            aria-label={`${key}の統計`}
                         >
                             <h2 style={{ marginTop: 0, color: '#2c5282' }}>{key}</h2>
                             <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2b6cb0' }}>
@@ -102,6 +107,7 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                 <button
                     onClick={() => fetchStats(true)}
                     disabled={refreshing}
+                    aria-label="統計データをリフレッシュする"
                     style={{
                         backgroundColor: '#2b6cb0',
                         color: 'white',
@@ -115,10 +121,10 @@ const Dashboard = ({ stats, error, fetchStats }) => {
                     onMouseEnter={() => setErrRetryHover(true)}
                     onMouseLeave={() => setErrRetryHover(false)}
                 >
-                    {refreshing ? 'リフレッシュ中...' : '🔄 データをリフレッシュ'}
+                    🔄 <span>データをリフレッシュ</span>
                 </button>
             </section>
-        </html>
+        </main>
     );
 };
 

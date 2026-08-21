@@ -59,7 +59,7 @@ function ensureMainLandmark(container) {
   const targetDoc = container && container.querySelector ? container : document;
   
   // Check if main landmark already exists
-  let mainElement = targetDoc.querySelector("main");
+  let mainElement = targetDoc.querySelector("main, [role='main']");
   
   if (!mainElement) {
     // Create main landmark for accessibility
@@ -128,6 +128,10 @@ function fixFakeLink(element, isActionLink) {
   if (isActionLink) {
     // Mark as button if it's an action, not navigation
     element.setAttribute("role", "button");
+    // Also set aria-label if not already set for better screen reader experience
+    if (!element.getAttribute("aria-label") && element.textContent) {
+      element.setAttribute("aria-label", element.textContent.trim());
+    }
   } else {
     // Ensure it's a proper anchor if it's a link
     if (element.tagName && element.tagName.toLowerCase() === "a") {
@@ -144,10 +148,27 @@ function fixFakeLink(element, isActionLink) {
   }
 }
 
+// REACT_036: Fix the rotate back fake link
+function fixRotateBackLink(container) {
+  const targetDoc = container && container.querySelector ? container : document;
+  const rotateBackLink = targetDoc.getElementById("unrotate");
+  
+  if (rotateBackLink && rotateBackLink.tagName.toLowerCase() === "a") {
+    // Check if it's a hash-only href (fake link)
+    const href = rotateBackLink.getAttribute("href");
+    if (href === "#" || href === "") {
+      // This is an action link, not navigation - fix it
+      fixFakeLink(rotateBackLink, true);
+    }
+  }
+  
+  return rotateBackLink;
+}
+
 // Helper function to fix all landmark issues in a container
 function fixLandmarkIssues(container) {
   const targetDoc = container && container.querySelector ? container : document;
-  const landmarks = targetDoc.querySelectorAll("header, nav, main, footer, aside, section");
+  const landmarks = targetDoc.querySelectorAll("nav, main, footer, aside, section, header");
   const seenLandmarks = {};
 
   landmarks.forEach(function(landmark) {
@@ -157,7 +178,7 @@ function fixLandmarkIssues(container) {
 
     if (seenLandmarks[key]) {
       // Duplicate landmark found - make unique
-      ensureUniqueLandmark(landmark, role, label + " " + (seenLandmarks[key]++));
+      ensureUniqueLandmark(landmark, role, label + " " + seenLandmarks[key]++);
     } else {
       seenLandmarks[key] = 1;
     }
@@ -184,6 +205,7 @@ module.exports = {
   ensureUniqueLandmark: ensureUniqueLandmark,
   addSvgAccessibleName: addSvgAccessibleName,
   fixFakeLink: fixFakeLink,
+  fixRotateBackLink: fixRotateBackLink,
   fixLandmarkIssues: fixLandmarkIssues,
 
   // Added back missing exports

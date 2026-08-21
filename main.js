@@ -29,8 +29,8 @@ export function createIndexHTML() {
             reports below:
           </p>
           <div class="links">
-            <a href="plato-report/index.html">📊 Plato Code Complexity Report</a>
-            <a href="dependency-graph.html">🕸️ Dependency Graph (Dependency-Cruiser)</a>
+            <a ... Plato Code Complexity Report</a>
+            <a ... Dependency Graph ...
           </div>
       </div>
     `,
@@ -39,7 +39,7 @@ export function createIndexHTML() {
 }
 
 // Example of how to use the new function to create updated html for another specific page
-export function createDependencyGraphHTML() {
+export function ... {
   return createMainHTML({
     children: `
       <!-- existing content without the main tag -->
@@ -47,11 +47,11 @@ export function createDependencyGraphHTML() {
       <table>
         <thead>
           <tr>
-            <th scope="col"><div>src/constants.js</div></th>
-            <th scope="col"><div>src/managers/roomManager.js</div></th>
-            <th scope="col"><div>src/managers/spawnManager.js</div></th>
-            <th scope="col"><div>src/managers/towerManager.js</div></th>
-            <th scope="col"><div>src/roles/builder.js</div></th>
+            <th ...
+            <th ...
+            <th ...
+            <th ...
+            <th ...
             <!-- 21 further occurrences... -->
           </tr>
         </thead>

@@ -1,10 +1,3 @@
-// Current content of main.js
-// ... [Other code] ...
-
-// Assuming the code is using ReactDOM.render() to render the React component
-// to the DOM, you would add the lang attribute to the <html> tag by wrapping the
-// ReactDOM.render call with a <html> tag that includes the lang attribute.
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -13,7 +6,10 @@ function App() {
   return <div>Hello World!</div>;
 }
 
-// Wrap the ReactDOM.render call with a <html> tag
+// Assuming the code is using ReactDOM.render() to render the React component
+// to the DOM, you would add the lang attribute to the <html> tag by wrapping the
+// ReactDOM.render call with a <html> tag that includes the lang attribute.
+
 const htmlElement = (
   <html lang="en">
     <head>

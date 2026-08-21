@@ -1,14 +1,10 @@
 (function (exports, require, module, __filename, __dirname) {
     // Existing code and exports are preserved...
-
     function myFunction() {
         console.log("This is my new function!");
     }
-
     // Export the function
     module.exports.myFunction = myFunction;
-
-    // Additional code to add accessible names to SVGs
 
     // Function to add aria-label to SVGs for accessibility
     function addAccessibleNameToSVGs(svgString, label) {

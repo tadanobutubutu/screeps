@@ -24,4 +24,13 @@ module.exports.loop = function() {
             delete Memory.creeps[name];
         }
     }
+    
+    // New accessibility improvement: Add keyboard event listener for accessibility
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'h') {
+            // Example action: Toggle visibility of helpful elements
+            // This is a placeholder for the actual accessibility feature
+            console.log('Accessibility feature toggled by "h" key');
+        }
+    });
 };

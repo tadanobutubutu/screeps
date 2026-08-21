@@ -30,7 +30,7 @@ function addMainToHTML(content) {
 // Add language attribute to HTML documents
 function addLanguageAttribute(html) {
   // Check if lang attribute already exists
-  if (html.includes('lang="')) {
+  if (/<html[^>]*lang=/.test(html)) {
     return html;
   }
   // Add lang="en" to the html tag
@@ -159,7 +159,7 @@ function createSkipToContentLink() {
 function ensureSingleMainLandmark(content) {
   // Check if content already contains a main element
   if (typeof content === 'string') {
-    const hasMain = content.includes('<main') || content.includes('</main>');
+    const hasMain = /<main[\s>]/.test(content) || /<main\s+role="main"/.test(content);
     return hasMain ? content : addMainToHTML(content);
   } else if (React.isValidElement(content)) {
     // For React elements, we'll need to check if they contain a main element
@@ -167,6 +167,21 @@ function ensureSingleMainLandmark(content) {
     return React.createElement('main', { role: 'main', 'aria-label': 'Main content' }, content);
   }
   return content;
+}
+
+// Create accessible rotate back button (replaces <a id="unrotate" href="#">rotate back</a>)
+// Fixes REACT_036 - React Fake Link warning
+function createRotateBackButton(onClick, text = 'rotate back') {
+  return React.createElement(
+    'button',
+    {
+      type: 'button',
+      id: 'unrotate',
+      onClick: onClick,
+      'aria-label': text
+    },
+    text
+  );
 }
 
 // Export the new functions for use in other files
@@ -183,6 +198,7 @@ module.exports = {
   createAccessibleButton,
   createSkipToContentLink,
   ensureSingleMainLandmark, // New export for ensuring single main landmark
+  createRotateBackButton, // New export for rotate back button (fixes REACT_036)
   // Preserve all existing exports
   jest,
   React,

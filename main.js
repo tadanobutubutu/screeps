@@ -12,9 +12,9 @@ export function createMainHTML({ children, id }) {
 // Function to fix table structure issues by adding scope attributes to th tags
 // This improves accessibility by properly associating header cells with data cells
 export function fixTableStructure(html) {
-  return html.replace(/<th([^>]*)>/g, (match, attrs) => {
+  return html.replace(/<th([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasScope = existingAttrs.includes('scope');
+    const hasScope = existingAttrs.includes('scope=');
     const scopeAttr = hasScope ? '' : ' scope="col"';
     const attrString = existingAttrs;
     return `<th${attrString}${scopeAttr}>`;
@@ -23,8 +23,8 @@ export function fixTableStructure(html) {
 
 // Function to add lang attribute to HTML element
 export function addLangAttribute(html) {
-  return html.replace(/<html([^>]*)>/g, (match, attrs) => {
-    const hasLang = attrs && attrs.includes('lang=');
+  return html.replace(/<html([^>]*)>/gi, (match, attrs) => {
+    const hasLang = attrs && /lang\s*=/i.test(attrs);
     if (hasLang) {
       return match;
     }
@@ -37,10 +37,10 @@ export function addLandmarks(html) {
   let result = html;
   
   // Add main landmark with proper id and aria-label
-  result = result.replace(/<main([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<main([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasId = existingAttrs.includes('id=');
-    const hasAriaLabel = existingAttrs.includes('aria-label=');
+    const hasId = /id\s*=/i.test(existingAttrs);
+    const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs);
     let newAttrs = existingAttrs;
     if (!hasId) {
       newAttrs += ' id="main"';
@@ -52,9 +52,9 @@ export function addLandmarks(html) {
   });
   
   // Fix div landmarks
-  result = result.replace(/<div([^>]*)class="([^"]*)header([^"]*)"([^>]*)>/g, (match, attrs1, c1, c2, attrs2) => {
+  result = result.replace(/<div([^>]*)class="([^"]*)"([^>]*)>/gi, (match, attrs1, c1, c2, attrs2) => {
     const existingAttrs = (attrs1 || '') + (attrs2 || '');
-    const hasRole = existingAttrs.includes('role=');
+    const hasRole = /role\s*=/i.test(existingAttrs);
     if (!hasRole) {
       return `<div${attrs1 || ''} class="${c1}${c2}" role="banner"${attrs2 || ''}>`;
     }
@@ -62,11 +62,11 @@ export function addLandmarks(html) {
   });
   
   // Fix section landmarks
-  result = result.replace(/<section([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<section([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
-      const idMatch = existingAttrs.match(/id="([^"]*)"/);
+      const idMatch = existingAttrs.match(/id\s*=\s*["']([^"']*)["']/i);
       const sectionId = idMatch ? idMatch[1] : '';
       return `<section${existingAttrs} aria-label="${sectionId || 'Section'}">`;
     }
@@ -74,9 +74,9 @@ export function addLandmarks(html) {
   });
   
   // Fix article landmarks
-  result = result.replace(/<article([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<article([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
       return `<article${existingAttrs} role="article">`;
     }
@@ -84,9 +84,9 @@ export function addLandmarks(html) {
   });
   
   // Fix nav landmarks
-  result = result.replace(/<nav([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<nav([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasAriaLabel = existingAttrs.includes('aria-label=') || existingAttrs.includes('aria-labelledby=');
+    const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs) || /aria-labelledby\s*=/i.test(existingAttrs);
     if (!hasAriaLabel) {
       return `<nav${existingAttrs} aria-label="Navigation">`;
     }
@@ -97,14 +97,14 @@ export function addLandmarks(html) {
 }
 
 // Function to add accessible names to SVGs
-export function addSvgAccessibleNames(html) {
+export function addSvgAccessibility(html) {
   let result = html;
   
   // Add role and aria-label to svg elements
-  result = result.replace(/<svg([^>]*)>/g, (match, attrs) => {
+  result = result.replace(/<svg([^>]*)>/gi, (match, attrs) => {
     const existingAttrs = attrs || '';
-    const hasRole = existingAttrs.includes('role=');
-    const hasAriaLabel = existingAttrs.includes('aria-label=');
+    const hasRole = /role\s*=/i.test(existingAttrs);
+    const hasAriaLabel = /aria-label\s*=/i.test(existingAttrs);
     let newAttrs = existingAttrs;
     if (!hasRole) {
       newAttrs += ' role="img"';
@@ -116,7 +116,7 @@ export function addSvgAccessibleNames(html) {
   });
   
   // Add title element inside SVGs if not present
-  result = result.replace(/(<svg([^>]*)>)(?!.*<title))/gi, (match, openTag, attrs) => {
+  result = result.replace(/(<svg[^>]*>)(?!.*<title)/gi, (match, openTag) => {
     return `${openTag}<title>SVG Image</title>`;
   });
   
@@ -137,7 +137,7 @@ export function ensureUniqueLandmarks(html) {
   });
   
   htmlArray.forEach((tag, index) => {
-    if (tag.includes('<') && landmarks.some(lm => tag.includes(`<${lm}`))) {
+    if (tag.includes('<') && landmarks.some(lm => tag.toLowerCase().includes(`<${lm}`))) {
       isLandmarkTag = true;
       let tagToCheck = tag.toLowerCase();
       for (const lm of landmarks) {
@@ -146,10 +146,11 @@ export function ensureUniqueLandmarks(html) {
           if (counter[lm] > 1) {
             const uniqueId = `${lm}-${counter[lm]}`;
             // Add unique id to the opening tag
-            if (!tag.includes('id="')) {
-              newHtmlArray.push(tag.replace(new RegExp(`<${lm}`, 'i`), `<${lm} id="${uniqueId}"`));
+            if (!/id\s*=/i.test(tag)) {
+              tag = tag.replace(new RegExp(`<${lm}`, 'i'), `<${lm} id="${uniqueId}"`);
             } else {
-              newHtmlArray.push(tag);
+              // Id already exists, append to it
+              tag = tag.replace(/(id\s*=\s*["'])([^"']+)(["'])/i, (m, p1, p2, p3) => `${p1}${p2}-${counter[lm]}${p3}`);
             }
           } else {
             newHtmlArray.push(tag);
@@ -172,14 +173,14 @@ export function ensureUniqueLandmarks(html) {
 
 // Function to fix fake link issues
 export function fixFakeLinks(html) {
-  return html.replace(/<a([^>]*)>([^<]*)<\/a>/g, (match, attrs, content) => {
-    const hrefMatch = attrs.match(/href="([^"]*)"/);
+  return html.replace(/<a([^>]*)>([^<]*)<\/a>/gi, (match, attrs, content) => {
+    const hrefMatch = attrs.match(/href\s*=\s*["']([^"']*)["']/i);
     const href = hrefMatch ? hrefMatch[1] : '';
-    const isFakeLink = href && (href === '#' || href === '' || href.startsWith('javascript:'));
+    const isFakeLink = href && (href === '#' || href === '' || href === 'javascript:void(0)' || href === 'javascript:;');
     
     if (isFakeLink) {
       // If it's a fake link, replace it with a span
-      const newAttrs = attrs.replace(/href="[^"]*"/, '');
+      const newAttrs = attrs.replace(/href\s*=\s*["'][^"']*["']/gi, '');
       return `<span${newAttrs}>${content}</span>`;
     }
     return match;
@@ -187,13 +188,13 @@ export function fixFakeLinks(html) {
 }
 
 // Function to fix 1 fake link issue
-export function fixSpecificFakeLink(html) {
+export function fixOneFakeLink(html) {
   return fixFakeLinks(html);
 }
 
 // Example of how to use the new function to create updated html for a specific page
 export function createIndexHTML() {
-  return addLandmarks(addSvgAccessibleNames(ensureUniqueLandmarks(fixFakeLinks(addLangAttribute(createMainHTML({
+  return addSvgAccessibility(addLandmarks(addLangAttribute(fixTableStructure(createMainHTML({
     children: `
       <div class="container">
           <h2>Quality & Metrics Reports</h2>
@@ -213,10 +214,10 @@ export function createIndexHTML() {
 
 // Example of how to use the new function to create updated html for another specific page
 export function createDependencyGraphHTML(updatedTableContent) {
-  return addLandmarks(addSvgAccessibleNames(ensureUniqueLandmarks(fixFakeLinks(addLangAttribute(fixTableStructure(createMainHTML({
+  return addSvgAccessibility(addLandmarks(addLangAttribute(fixTableStructure(createMainHTML({
     children: updatedTableContent,
     id: 'dependency_graph',
-  }))))))));
+  }))))));
 }
 
 // ... Rest of your existing code ...

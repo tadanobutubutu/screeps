@@ -34,6 +34,21 @@ function renderDependencyDashboard() {
   const mainContent = document.createElement('main');
   mainContent.innerHTML = `
     <div id="dependency-dashboard">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col"><div>src/constants.js</div></th>
+            <th scope="col"><div>src/managers/roomManager.js</div></th>
+            <th scope="col"><div>src/managers/spawnManager.js</div></th>
+            <th scope="col"><div>src/managers/towerManager.js</div></th>
+            <th scope="col"><div>src/roles/builder.js</div></th>
+            <!-- Add the scope attribute to all other th elements -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows here -->
+        </tbody>
+      </table>
       <!-- Dependency dashboard content goes here -->
     </div>
   `;

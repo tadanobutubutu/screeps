@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add setLanguageAttribute function
     function setLanguageAttribute() {
-      document.documentElement.lang = 'en';
+      const htmlElement = document.documentElement;
+      htmlElement.setAttribute('lang', 'en');
     }
 
     // Call the function to set the language attribute

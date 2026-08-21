@@ -1,7 +1,7 @@
 import { render } from 'react';
 import { App } from './components/App';
 
-const rootElement = document.getElementById('root');
+const rootElement = ...
 if (rootElement) {
   render(<App />, rootElement);
 }

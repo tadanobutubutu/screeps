@@ -18,6 +18,8 @@ function init() {
     if (main) {
         main.setAttribute('role', 'main');
     }
+    // The issue requires adding lang="en" attribute to the <html> element to fix React Language Attribute accessibility warnings (REACT_015).
+    document.documentElement.setAttribute('lang', 'en');
     return main;
 }
 

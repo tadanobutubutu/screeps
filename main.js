@@ -8,7 +8,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         {/* Your existing head content */}
       </head>
       <body>
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
         {/* Your existing body content */}
       </body>
     </html>

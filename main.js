@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 // Example component (assuming this is where the <html> tag is being used)
 const App = () => {
   return (
-    <html>
+    <html lang="en">
       <head>
         <title>My App</title>
       </head>

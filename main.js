@@ -17,7 +17,7 @@ function addPendingUpdate(update) {
   if (update && update.name && update.version) {
     dependencyUpdates.pending.push({
       ...update,
-      status: 'awaiting_schedule',
+      status: update.status || 'pending',
       addedAt: new Date().toISOString()
     });
   }
@@ -105,7 +105,9 @@ function generateSummary() {
 }
 
 // Adding lang attribute to HTML element
-document.documentElement.setAttribute('lang', 'en');
+function setLangAttribute(element) {
+  element.setAttribute('lang', 'en');
+}
 
 // Fixing 26 table structure issues
 // This is a placeholder for the actual fix. The actual fix would depend on the table structure.
@@ -153,6 +155,7 @@ module.exports = {
   clearAllUpdates,
   generateSummary,
   dependencyUpdates,
+  setLangAttribute,
   fixTableStructure,
   addLandmarks,
   addAccessibleSVGs,

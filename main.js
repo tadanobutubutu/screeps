@@ -52,8 +52,6 @@ function addDetectedDependencies(ecosystem, dependencies) {
   }
 }
 
-//TODO: Import required module(s) and export the necessary function(s) here
-
 /**
  * Retrieves all pending updates
  * @returns {Array} List of pending updates
@@ -277,8 +275,6 @@ function fixFakeLink() {
   });
 }
 
-// TODO: Import required module(s) and export the new necessary function(s) here
-
 /**
  * The function that gets all required dependencies and exports them
  */
@@ -297,12 +293,19 @@ function getRequiredDependencies() {
 
 // Add the new function to the module.exports
 module.exports = {
-  ...module.exports,
-  getRequiredDependencies,
+  addPendingUpdate,
+  addBlockedUpdate,
+  addDetectedDependencies,
+  getPendingUpdates,
+  getBlockedUpdates,
+  getDetectedDependencies,
+  clearAllUpdates,
+  generateSummary,
   setLangAttribute,
   fixTableStructure,
   addLandmarks,
   addAccessibleSVGs,
   ensureUniqueLandmarks,
-  fixFakeLink
+  fixFakeLink,
+  getRequiredDependencies
 };

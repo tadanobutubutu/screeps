@@ -1,5 +1,16 @@
 // app/layout.tsx
 import React from 'react';
+import { Metadata, Viewport } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Screeps',
+  description: 'Screeps game',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export default function RootLayout({
   children,

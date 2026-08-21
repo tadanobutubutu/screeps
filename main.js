@@ -13,9 +13,51 @@ root.render(
 // Set lang attribute on document
 document.documentElement.lang = 'en';
 
-// Assuming `main.js` has a function that sets the favicon, it might look something like this:
+/**
+ * React Accessibility Rules
+ * Ensures accessibility best practices in React components
+ */
+const { astHasJSX } = require('../helpers/ast');
+const { getAttr, hasAttr, attrValue } = require('../helpers/attributes');
+const { isFromReactPackage } = require('../helpers/packages');
+const { isJSXElement } = require('../helpers/jsx');
+const { isTag } = require('../helpers/tags');
 
-// ... other code ...
+/**
+ * Rule: REACT_027 - React Table Structure
+ * Ensures all <th> elements have proper scope attributes for accessibility
+ */
+function REACT_027(node, config) {
+  // Check if this is a <th> element
+  if (!isJSXElement(node) || !isTag(node, 'th')) {
+    return [];
+  }
+
+  const errors = [];
+
+  // Check if scope attribute exists
+  if (!hasAttr(node, 'scope')) {
+    errors.push({
+      ruleId: 'REACT_027',
+      message: 'React Table Structure: <th> has no scope',
+      line: node.loc.start.line,
+      column: node.loc.start.column,
+      severity: getSeverity(config),
+    });
+  }
+
+  return errors;
+}
+
+/**
+ * Get severity from config or default to warning
+ */
+function getSeverity(config) {
+  if (config && config.severity) {
+    return config.severity;
+  }
+  return 2; // warning
+}
 
 function setFavicon(iconData) {
   // Set the favicon for the page
@@ -37,9 +79,6 @@ function addAccessibleName(svgString) {
   return svgString;
 }
 
-// Example of setting the favicon with an SVG that lacks an accessible name
-setFavicon('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>Screeps Dashboard</title><text y="0.9em" font-size="90">🐛</text></svg>');
-
 // Assuming 'main.js' imports the SVG strings for favicons from other parts of the code
 const faviconSvgString = import('path/to/favicon/svg').then((module) => module.default);
 
@@ -56,6 +95,8 @@ function changeDocumentLanguage(language) {
 }
 
 // ... other code ...
-```
 
-This example preserves the React-related code from the original repository, merges in the new `addAccessibleName` and `changeDocumentLanguage` functions, and adds a new method to dynamically switch the language of the document. The `setFavicon` function remains intact, and the example of using both functions is demonstrated with an updated favicon import and usage.
+module.exports = {
+  REACT_027,
+  getSeverity,
+};

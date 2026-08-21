@@ -9,8 +9,7 @@ function handleErrorMessage(error) {
 }
 
 // Replace the duplicate <main> elements in Dashboard.tsx with <section> or <article>
-// Assuming the original code structure, here's how you might refactor the component:
-
+// Ensuring proper landmark usage: <main> for primary content, <section> for subsections like errors
 import React from 'react';
 
 const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
@@ -38,7 +37,10 @@ const Dashboard = ({ error, copied, errCopyHover, refreshing, fetchStats }) => {
                     {/* ... rest of the error handling elements */}
                 </section>
             ) : (
-                // ... other content that might be in the main section
+                <main>
+                    {/* Main dashboard content - primary content landmark for accessibility */}
+                    {/* Table and other dashboard content */}
+                </main>
             )}
         </div>
     );

@@ -1,6 +1,12 @@
-// Assuming this is a module that imports the HTML files and returns updated versions
 const fs = require('fs');
 const path = require('path');
+
+// Function to update the <html> element with the lang attribute
+function addLangAttribute(filePath, language = 'en') {
+  const content = fs.readFileSync(filePath, 'utf8');
+  const updatedContent = content.replace(/<html>/g, `<html lang="${language}">`);
+  fs.writeFileSync(filePath, updatedContent, 'utf8');
+}
 
 // Function to update the <th> elements with the scope attribute
 function updateTableHeaders(filePath) {
@@ -15,5 +21,8 @@ const filesToUpdate = [
   // Add other file paths here if needed
 ];
 
-// Update each file
-filesToUpdate.forEach(updateTableHeaders);
+// Update each file with the lang attribute
+filesToUpdate.forEach(file => {
+  addLangAttribute(file);
+  updateTableHeaders(file);
+});

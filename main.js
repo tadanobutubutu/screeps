@@ -63,7 +63,101 @@ export function validateSVGAccessibility(svgProps) {
   return { compliant: isCompliant, issues };
 }
 
+/**
+ * Checks for multiple <main> landmark violations in React component structure
+ * @param {React.ReactNode} componentTree - The rendered component tree or JSX children
+ * @returns {{valid: boolean, issues: string[], mainCount: number}}
+ */
+export function validateLandmarks(componentTree) {
+  const issues = [];
+  let mainCount = 0;
+  
+  function countLandmarks(node) {
+    if (!node) return;
+    
+    // Handle React elements
+    if (node && typeof node === 'object') {
+      // Count main elements
+      if (node.type === 'main') {
+        mainCount++;
+      }
+      
+      // Check children recursively
+      if (node.props && node.props.children) {
+        const children = node.props.children;
+        if (Array.isArray(children)) {
+          children.forEach(countLandmarks);
+        } else {
+          countLandmarks(children);
+        }
+      }
+    }
+    
+    // Handle arrays of nodes
+    if (Array.isArray(node)) {
+      node.forEach(countLandmarks);
+    }
+  }
+  
+  countLandmarks(componentTree);
+  
+  if (mainCount > 1) {
+    issues.push(`Found ${mainCount} <main> landmarks. Only one <main> landmark should exist per page.`);
+    issues.push('Consider using <section> or <article> for additional regions.');
+  }
+  
+  return {
+    valid: mainCount <= 1,
+    issues,
+    mainCount
+  };
+}
+
+/**
+ * Helper to replace additional <main> elements with <section> for landmark compliance
+ * Use this when a component has conditional rendering paths with multiple mains
+ * @param {React.ReactNode} componentTree - The rendered component tree
+ * @returns {React.ReactNode} - Component tree with extra <main> replaced to <section>
+ */
+export function normalizeLandmarks(componentTree) {
+  let mainFound = false;
+  
+  function processNode(node) {
+    if (!node || typeof node !== 'object') return node;
+    
+    if (node.type === 'main') {
+      if (mainFound) {
+        // Replace second main with section
+        return { ...node, type: 'section' };
+      }
+      mainFound = true;
+    }
+    
+    if (node.props && node.props.children) {
+      const children = node.props.children;
+      if (Array.isArray(children)) {
+        const processed = children.map(processNode);
+        return { ...node, props: { ...node.props, children: processed } };
+      } else {
+        return { 
+          ...node, 
+          props: { 
+            ...node.props, 
+            children: processNode(children) 
+          } 
+        };
+      }
+    }
+    
+    return node;
+  }
+  
+  return processNode(componentTree);
+}
+
 export default {
   getSVGAriaProps,
-  validateSVGAccessibility
+  validateSVGAccessibility,
+  validateLandmarks,
+  normalizeLandmarks
 };

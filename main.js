@@ -11,4 +11,5 @@ const DependencyGraphComponent = () => {
   );
 };
 
-export default DependencyGraphComponent;
+// Re-adding the missing export for DependencyGraphComponent
+export { DependencyGraphComponent as default };

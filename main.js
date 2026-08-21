@@ -1,5 +1,3 @@
-// dashboard/app/layout.tsx
-
 import React from 'react';
 
 const Layout = ({ children }) => {
@@ -23,4 +21,5 @@ const Layout = ({ children }) => {
   );
 };
 
+// TODO: Add back any required exports that might have been? - Removed export statement
 export default Layout;

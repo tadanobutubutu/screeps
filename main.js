@@ -152,10 +152,8 @@ const fixFakeLinks = () => {
   });
 };
 
-// Helper function to fix duplicate main landmark issue (REACT_025)
-// Replaces additional <main> elements with <section> elements with appropriate aria-labels
 const fixDuplicateMainLandmarks = () => {
-  // Find all main elements in the document
+  // Replaces additional <main> elements with <section> elements with appropriate aria-labels
   const mainElements = document.querySelectorAll('main');
 
   if (mainElements.length > 1) {
@@ -207,5 +205,6 @@ export {
   fixTableStructureIssues,
   addSvgAccessibleNames,
   fixFakeLinks,
+  fixDuplicateMainLandmarks,
   initMain
 };

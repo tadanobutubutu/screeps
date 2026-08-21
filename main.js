@@ -1,3 +1,6 @@
+Here is the resolved version of the `main.js` file:
+
+```javascript
 // Address accessibility issues from insight report
 // Existing imports or code
 // ... [original main.js content] ...
@@ -9,10 +12,11 @@ primaryContent = `
   </main>
 `;
 
-// Replace the <a> element with a <button> element for the 'rotate back' action
-rotateBackButton = `
+// Replace the existing <a> element with a <button> element for the 'rotate back' action
+// Use the original 'rotate back' action text instead of "rotate back" for consistency
+const rotateBackButton = `
   <button id="unrotate" class="rotate-back-button" aria-label="Rotate back">
-    rotate back
+    Rotate back
   </button>
 `;
 
@@ -22,7 +26,7 @@ document.getElementById('unrotate').addEventListener('click', function () {
   rotateBack();
 });
 
-// Add lang attribute for HTML element
+// Keep the addition of the lang attribute for HTML element
 document.documentElement.lang = "en";
 
 // Add scope="col" to all <th> elements for accessibility
@@ -45,7 +49,7 @@ const footer = document.createElement('footer');
 footer.setAttribute('role', 'contentinfo');
 document.body.appendChild(footer);
 
-// Add landmark roles to primary navigation (if applicable)
+// Keep the landmark roles addition to primary navigation (if applicable)
 const navigation = document.querySelector('.navigation');
 if (navigation) {
   navigation.setAttribute('role', 'navigation');
@@ -107,7 +111,7 @@ fakeLinks.forEach(link => {
   link.style.textDecoration = 'none';
 });
 
-// Add the new function (resetAllRotations) to the exports
+// Keep the new function (resetAllRotations) to the exports
 function resetAllRotations() {
   const rotateTargets = document.querySelectorAll('.rotate-target');
   rotateTargets.forEach(el => {
@@ -118,7 +122,7 @@ function resetAllRotations() {
 // Export the new function for use by other modules
 export { resetAllRotations };
 
-// Add back the main function (rotateBack) to the exports
+// Keep the existing rotateBack function and export it
 function rotateBack() {
   // Example implementation: reset rotation of targeted elements
   const targets = document.querySelectorAll('.rotate-target');
@@ -129,3 +133,9 @@ function rotateBack() {
 
 // Export the function so it remains accessible to other modules
 export { rotateBack };
+
+// Add the rotateBackButton to the primaryContent
+primaryContent += rotateBackButton;
+```
+
+This file resolves the conflict by keeping all functional changes and integrating them logically. It wraps the primary content with a `<main>` tag, replaces the `<a>` element with a `<button>` element for the 'rotate back' action, and adds various accessibility features.

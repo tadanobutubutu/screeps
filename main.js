@@ -5,7 +5,7 @@
  * Note: This is a placeholder/main.js file. The actual React Landmarks issue
  * (REACT_017 - missing <main> landmarks) needs to be addressed in the
  * following files:
- * - app/layout.tsx
+ * - appLayout.tsx
  * - dashboard/app/layout.tsx
  * - docs/index.html
  *

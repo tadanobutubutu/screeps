@@ -1,3 +1,6 @@
+// TODO: Add back any required exports that might have been?
+// (This comment remains as-is)
+
 // dashboard/app/layout.tsx
 
 import React from 'react';

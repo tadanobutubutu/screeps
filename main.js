@@ -1,1 +1,9 @@
-Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// main.js - Screeps game logic
+
+// Module exports for the bot
+module.exports = {
+  loop: function() {
+    // Main game loop
+    // This is where the bot logic would be implemented
+  }
+};

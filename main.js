@@ -1,5 +1,3 @@
-// main.js - Fix React Landmarks (REACT_017) by adding <main> landmarks
-
 const fs = require('fs');
 const path = require('path');
 

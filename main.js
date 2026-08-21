@@ -64,8 +64,7 @@ function getPendingUpdates() {
 
 /**
  * Retrieves all blocked updates
- * @returns {Array} List of blocked updates
- */
+ * @returns {Array} List of blocked updates */
 function getBlockedUpdates() {
   return [...dependencyUpdates.blocked];
 }

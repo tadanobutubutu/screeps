@@ -1,8 +1,1 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import DependencyGraph from './docs/dependency-graph.html'; // Assuming this is how you're importing the HTML file
-
-ReactDOM.render(
-  <DependencyGraph />,
-  document.getElementById('root')
-);
+Could you please paste the contents of `main.js`, especially the sections with conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?

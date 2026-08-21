@@ -18,7 +18,7 @@ export { newFunction, existingFunction };
 
 // ... rest of the main.js content ...
 
-// Changes to fix the REACT_027 issue
+// Changes to fix the REACT_036 issue
 import React from 'react';
 
 // Example of a table component with corrected headers
@@ -44,6 +44,15 @@ const DependencyGraphTable = ({ data }) => {
         ))}
       </tbody>
     </table>
+  );
+};
+
+// Correcting the 'rotate back' link to use a button instead of an anchor
+const RotateBackButton = () => {
+  return (
+    <button id="unrotate" onClick={() => { /* Rotate back logic here */ }}>
+      rotate back
+    </button>
   );
 };
 

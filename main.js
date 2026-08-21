@@ -1,9 +1,11 @@
-var React = require('react');
-var _ = require('lodash');
-var myModule = require('./myModule');
+import React from 'react';
+import { TableComponent } from './TableComponent';
+import myModule from './myModule';
+import _ from 'lodash';
+import ReactDOM from 'react-dom';
 
 function initialize() {
-    var app = {
+    const app = {
         container: document.getElementById('app'),
         config: {
             apiUrl: 'https://api.example.com',
@@ -25,28 +27,27 @@ function initialize() {
 }
 
 function render() {
-    var app = initialize();
+    const app = initialize();
 
     if (!app.container) {
         console.warn('App container not found');
-        return;
+        return null;
     }
 
-    // Replace fake link with semantic button for accessibility
-    var unrotateButton = React.createElement('button', {
+    const unrotateButton = React.createElement('button', {
         id: 'unrotate',
-        onClick: function() {
+        onClick: () => {
             // Your rotate back logic here
             console.log('Rotate back clicked');
         }
     }, 'rotate back');
 
-    var header = React.createElement('h1', { className: 'title' }, 'My App');
-    var footer = React.createElement('footer', null,
+    const header = React.createElement('h1', { className: 'title' }, 'My App');
+    const footer = React.createElement('footer', null,
         React.createElement('p', null, 'Footer content')
     );
 
-    var root = React.createElement('div', { className: 'app' },
+    const root = React.createElement('div', { className: 'app' },
         header,
         unrotateButton,
         footer
@@ -55,9 +56,6 @@ function render() {
     ReactDOM.render(root, app.container);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        initialize: initialize,
-        render: render
-    };
+export default function App() {
+    return render();
 }

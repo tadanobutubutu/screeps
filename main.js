@@ -2,9 +2,10 @@
 // Updated to support Renovate dependency tracking and dashboard display.
 // Preserves compatibility with the project's existing structure.
 
-// Import required dependencies (if any)
-// For example:
-// const { something } = require('some-dep');
+// Ensure the <html> element has a language attribute for accessibility (REACT_015)
+if (document.documentElement) {
+  document.documentElement.setAttribute('lang', 'en');
+}
 
 /**
  * Exports the main function to render the Dependency Dashboard.

@@ -1,1 +1,6 @@
-Could you please provide the actual content of `main.js`, including the sections marked with the conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`), so I can help resolve them?
+// Main game loop module
+"use strict";
+module.exports = function() {
+    // Your screeps game code here
+    return;
+};

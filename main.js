@@ -2,7 +2,7 @@ import DependencyGraph from './DependencyGraph';
 
 const DependencyGraphComponent = () => {
   // Other components and content
-  <div role="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</div>
+  <button type="button" id="unrotate" aria-pressed="false" onClick={() => {/* Rotate back logic here */}}>rotate back</button>
   // Other components and content
   <DependencyGraph />
 };
@@ -12,13 +12,13 @@ const ensureUniqueLandmarks = () => {
   // Common landmark roles: banner, navigation, main, complementary, contentinfo, search
   // This function should be called during component mount to validate uniqueness
   // Example of ensuring unique landmarks for existing landmarks:
-  // const existingLandmarks = document.querySelectorAll('.landmark');
-  // for (const landmark of existingLandmarks) {
-  //   const ariaLabel = landmark.getAttribute('aria-label');
-  //   if (!ariaLabel) {
-  //     landmark.setAttribute('aria-label', 'Unique Identifier for ' + landmark.id);
-  //   }
-  // }
+  const existingLandmarks = document.querySelectorAll('[role="banner"], [role="navigation"], [role="main"], [role="complementary"], [role="contentinfo"], [role="search"]');
+  for (const landmark of existingLandmarks) {
+    const ariaLabel = landmark.getAttribute('aria-label');
+    if (!ariaLabel) {
+      landmark.setAttribute('aria-label', 'Unique Identifier for ' + landmark.id);
+    }
+  }
 };
 
 const fixTableStructureIssues = () => {
@@ -28,24 +28,78 @@ const fixTableStructureIssues = () => {
   // 3. Ensure proper thead/tbody/tfoot structure
   // 4. Add aria-describedby for complex tables
   // 5. Ensure proper column/row headers
-  // Example of fixing table structure issues:
-  // const tables = document.querySelectorAll('table');
-  // tables.forEach(table => {
-  //   // 1. Add scope attributes to <th> elements
-  //   [...table.querySelectorAll('th')].forEach(th => {
-  //     if (!th.hasAttribute('scope')) {
-  //       th.setAttribute('scope', 'rowgroup');
-  //     }
-  //   });
-  //   // 2. Add caption if not present
-  //   if (!table.querySelector('caption')) {
-  //     const caption = document.createElement('caption');
-  //     table.appendChild(caption);
-  //   }
-  //   // 4. Add aria-describedby for complex tables
-  //   // This will require additional logic to identify complex tables and the relevant content
-  // });
+  const tables = document.querySelectorAll('table');
+  tables.forEach(table => {
+    // 1. Add scope attributes to <th> elements
+    const thElements = table.querySelectorAll('th');
+    thElements.forEach(th => {
+      if (th.closest('thead')) {
+        th.setAttribute('scope', 'col');
+      } else if (th.closest('tbody') || th.closest('tr')) {
+        th.setAttribute('scope', 'row');
+      }
+      if (th.getAttribute('rowspan') && th.getAttribute('rowspan') > '1') {
+        th.setAttribute('scope', 'rowgroup');
+      }
+    });
+    // 2. Add caption if not present
+    if (!table.querySelector('caption')) {
+      const caption = document.createElement('caption');
+      caption.textContent = 'Data table';
+      table.insertBefore(caption, table.firstChild);
+    }
+    // 3. Ensure proper thead/tbody structure
+    if (!table.querySelector('thead')) {
+      const firstRow = table.querySelector('tr');
+      if (firstRow) {
+        const thead = document.createElement('thead');
+        thead.appendChild(firstRow);
+        table.insertBefore(thead, table.firstChild);
+      }
+    }
+    if (!table.querySelector('tbody')) {
+      const bodyRows = Array.from(table.querySelectorAll('tr')).filter(tr => !tr.closest('thead'));
+      if (bodyRows.length > 0) {
+        const tbody = document.createElement('tbody');
+        bodyRows.forEach(tr => tbody.appendChild(tr));
+        table.appendChild(tbody);
+      }
+    }
+  });
 };
 
-export { DependencyGraphComponent as default };
+const addSvgAccessibleNames = () => {
+  // Add accessible names to SVG elements
+  const svgs = document.querySelectorAll('svg');
+  svgs.forEach((svg, index) => {
+    const hasAriaLabel = svg.getAttribute('aria-label') || svg.getAttribute('aria-labelledby');
+    const hasTitle = svg.querySelector('title');
+    
+    if (!hasAriaLabel && !hasTitle) {
+      const title = document.createElement('title');
+      title.id = `svg-title-${index}`;
+      title.textContent = `SVG graphic ${index + 1}`;
+      svg.insertBefore(title, svg.firstChild);
+      svg.setAttribute('aria-labelledby', title.id);
+    }
+  });
+};
+
+const fixFakeLinks = () => {
+  // Fix elements with role="link" that aren't actual anchor tags
+  const fakeLinks = document.querySelectorAll('[role="link"]');
+  fakeLinks.forEach(link => {
+    if (link.tagName !== 'A') {
+      link.setAttribute('tabindex', '0');
+      link.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    }
+  });
+};
+
+export { DependencyGraphComponent as default, ensureUniqueLandmarks, fixTableStructureIssues, addSvgAccessibleNames, fixFakeLinks };
 // Re-export existing functions or add new export statements for additional functions if necessary

@@ -1,12 +1,17 @@
-/**
- * Main entry point for the Dependency Dashboard
- * Handles dependency update notifications and status tracking
- */
-
-const dependencyUpdates = {
-  pending: [],
-  blocked: [],
-  detected: []
+const createPage = (content) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My App</title>
+</head>
+<body>
+  <main>
+    ${content}
+  </main>
+</body>
+</html>`;
 };
 
 /**
@@ -212,6 +217,7 @@ function fixFakeLinkInDocs() {
 
 // Add the new function to the module.exports
 module.exports = {
+  createPage,
   addPendingUpdate,
   addBlockedUpdate,
   addDetectedDependencies,

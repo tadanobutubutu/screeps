@@ -1,24 +1,30 @@
-// main.js - Fixed with SVG accessibility compliance (REACT_041)
+import { isArray } from 'lodash';
 
 /**
  * Returns accessibility attributes for SVG elements
  * Use this for decorative SVGs that don't need to be announced
  * @param {boolean} isDecorative - Whether the SVG is purely decorative
  * @param {string} [ariaLabel] - Optional accessible name
+ * @param {Object} [svgProps] - Optional SVG element props for title child detection
  * @returns {Object} Accessibility props to spread onto <svg>
  */
-export function getSVGAriaProps(isDecorative = false, ariaLabel) {
+export function getSVGAriaProps(isDecorative = false, ariaLabel, svgProps) {
   if (isDecorative) {
     return { 'aria-hidden': 'true' };
   }
 
-  const hasTitleChild = argApproach && argApproach.children &&
-    (Array.isArray(argApproach.children)
-      ? argApproach.children.some(c => c && c.type === 'title')
-      : argApproach.children === 'title');
+  const hasTitleChild =
+    svgProps &&
+    svgProps.children &&
+    (isArray(svgProps.children)
+      ? svgProps.children.some(c => c && c.type === 'title')
+      : svgProps.children.type === 'title');
 
   if (hasTitleChild || ariaLabel) {
-    return { 'aria-label': ariaLabel || argApproach.props.children, role: 'img' };
+    return {
+      'aria-label': ariaLabel || svgProps?.props?.children,
+      role: 'img',
+    };
   }
 
   // Fallback: add role for better screen reader support
@@ -36,8 +42,9 @@ export function validateSVGAccessibility(svgProps) {
   const hasAriaHidden = svgProps['aria-hidden'] === 'true';
   const hasAriaLabel = svgProps['aria-label'];
   const hasRole = svgProps.role === 'img';
-  const hasTitleChild = svgProps.children &&
-    (Array.isArray(svgProps.children)
+  const hasTitleChild =
+    svgProps.children &&
+    (isArray(svgProps.children)
       ? svgProps.children.some(c => c && c.type === 'title')
       : svgProps.children.type === 'title');
 
